@@ -54,9 +54,7 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
               </IconAvatar>
               <div className="flex flex-1 flex-col">
                 <Text size="small" leading="compact" weight="plus">
-                  {[address?.first_name, address?.last_name]
-                    .filter(Boolean)
-                    .join(" ") || address?.company || formattedAddress}
+                  {address?.name || t("store.address.defaultName")}
                 </Text>
                 <Text
                   size="small"

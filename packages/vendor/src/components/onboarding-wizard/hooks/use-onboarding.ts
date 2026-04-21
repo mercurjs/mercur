@@ -2,18 +2,21 @@ import { useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "@medusajs/ui";
 
-import { useCreateSellerAccount } from "@hooks/api";
+import { useCreateSellerAccount, useLogout } from "@hooks/api";
+import { queryClient } from "@lib/query-client";
 import { TOTAL_STEPS } from "../constants";
 
 type StoreData = {
   name: string;
   email: string;
+  phone?: string;
   currency_code: string;
   description?: string;
   handle?: string;
 };
 
 type AddressData = {
+  name?: string;
   address_1?: string;
   address_2?: string;
   postal_code?: string;
@@ -56,6 +59,7 @@ export const useOnboarding = (memberEmail: string) => {
 
   const { mutateAsync: createSeller, isPending: isCreating } =
     useCreateSellerAccount();
+  const { mutateAsync: logout } = useLogout();
 
   const isPending = isCreating || isSubmitting;
 
@@ -119,11 +123,13 @@ export const useOnboarding = (memberEmail: string) => {
           name: storeData.name,
           handle: storeData.handle || undefined,
           email: storeData.email,
+          phone: storeData.phone || undefined,
           member_email: memberEmail,
           currency_code: storeData.currency_code.toLowerCase(),
           description: storeData.description || undefined,
           address: addressData
             ? {
+                name: addressData.name || undefined,
                 address_1: addressData.address_1 || undefined,
                 address_2: addressData.address_2 || undefined,
                 postal_code: addressData.postal_code || undefined,
@@ -149,9 +155,7 @@ export const useOnboarding = (memberEmail: string) => {
                 routing_number: isUS
                   ? paymentData.routing_number || null
                   : null,
-                account_number: isUS
-                  ? null
-                  : paymentData.account_number || null,
+                account_number: paymentData.account_number || null,
               }
             : undefined,
         });
@@ -159,14 +163,23 @@ export const useOnboarding = (memberEmail: string) => {
         const newSellerId = result.seller.id;
         setSellerId(newSellerId);
 
-        navigate("/store-select", { replace: true });
+        // Force a fresh login so the new member_id lands in the JWT.
+        try {
+          await logout();
+        } catch {
+          // If logout fails we still redirect to /login — user will re-auth there.
+        }
+        queryClient.clear();
+        sessionStorage.removeItem("mercur_onboarding_email");
+
+        navigate("/login", { replace: true });
       } catch (error: any) {
         toast.error(error.message);
       } finally {
         setIsSubmitting(false);
       }
     },
-    [createSeller, memberEmail, navigate],
+    [createSeller, logout, memberEmail, navigate],
   );
 
   // Step 4: Payment — create seller with everything and finish

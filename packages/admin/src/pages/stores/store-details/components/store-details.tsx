@@ -24,7 +24,7 @@ import {
   StoreDetailEditButton,
 } from "./store-detail-header";
 
-const TABS = ["orders", "users", "products", "timeOff"] as const;
+const TABS = ["orders", "products", "users", "timeOff"] as const;
 
 type Tab = (typeof TABS)[number];
 

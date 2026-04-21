@@ -1,6 +1,6 @@
 import { Children, ReactNode } from "react";
 import { PencilSquare } from "@medusajs/icons";
-import { Avatar, Heading, StatusBadge } from "@medusajs/ui";
+import { Avatar, Badge, Heading, StatusBadge } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "@components/common/action-menu";
@@ -42,6 +42,8 @@ const getStatusLabel = (status: string, t: TFunction) => {
 };
 
 export const StoreDetailTitle = ({ seller }: StoreProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-x-4">
       <Avatar
@@ -50,7 +52,14 @@ export const StoreDetailTitle = ({ seller }: StoreProps) => {
         src={seller.logo || undefined}
         fallback={seller.name.charAt(0).toUpperCase()}
       />
-      <Heading>{seller.name}</Heading>
+      <div className="flex items-center gap-x-2">
+        <Heading>{seller.name}</Heading>
+        {seller.is_premium && (
+          <Badge size="2xsmall" color="purple">
+            {t("fields.premium")}
+          </Badge>
+        )}
+      </div>
     </div>
   );
 };

@@ -1,34 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Button,
-  Container,
-  Heading,
-  Input,
-  Select,
-  StatusBadge,
-  Text,
-  toast,
-  Tooltip,
-} from "@medusajs/ui";
-import { createColumnHelper } from "@tanstack/react-table";
-import { format } from "date-fns";
-import { useMemo } from "react";
+import { Button, Input, Select, Text, clx, toast } from "@medusajs/ui";
+import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
-import { Trans, useTranslation } from "react-i18next";
+import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import * as zod from "zod";
 
 import { Form } from "../../../../components/common/form";
-import { RouteFocusModal } from "../../../../components/modals";
-import { _DataTable } from "../../../../components/table/data-table";
+import { RouteDrawer, useRouteModal } from "../../../../components/modals";
 import { KeyboundForm } from "../../../../components/utilities/keybound-form";
+import { useMembers } from "../../../../hooks/api/members";
 import {
+  useAddSellerMember,
   useInviteSellerMember,
-  useSellerInvites,
 } from "../../../../hooks/api/sellers";
-import { useUserInviteTableQuery } from "../../../../hooks/table/query";
-import { useDataTable } from "../../../../hooks/use-data-table";
-import { MemberInviteDTO, SellerRole } from "@mercurjs/types";
+import { SellerRole } from "@mercurjs/types";
 
 const ROLE_OPTIONS = [
   {
@@ -47,21 +33,19 @@ const ROLE_OPTIONS = [
   { value: SellerRole.SUPPORT, labelKey: "users.roles.support" },
 ];
 
-const ROLE_LABEL_MAP: Record<string, string> = Object.fromEntries(
-  ROLE_OPTIONS.map((r) => [r.value, r.labelKey]),
-);
-
 const InviteMemberSchema = zod.object({
   email: zod.string().email(),
   role_id: zod.string().min(1),
 });
 
-const PAGE_SIZE = 10;
-const PREFIX = "inv";
+type Member = { id: string; email: string };
 
 export const InviteMemberForm = () => {
   const { t } = useTranslation();
   const { id } = useParams();
+  const { handleSuccess } = useRouteModal();
+
+  const [suggestionsOpen, setSuggestionsOpen] = useState(false);
 
   const form = useForm<zod.infer<typeof InviteMemberSchema>>({
     defaultValues: {
@@ -71,251 +55,147 @@ export const InviteMemberForm = () => {
     resolver: zodResolver(InviteMemberSchema),
   });
 
-  const { raw, searchParams } = useUserInviteTableQuery({
-    prefix: PREFIX,
-    pageSize: PAGE_SIZE,
-  });
+  const emailValue = form.watch("email");
 
-  const {
-    member_invites,
-    count,
-    isPending: isLoading,
-    isError,
-    error,
-  } = useSellerInvites(id!, searchParams);
+  const { members } = useMembers(
+    { q: emailValue || undefined, limit: 10 },
+    { placeholderData: (prev: any) => prev },
+  );
 
-  const columns = useColumns();
+  const memberList = useMemo(
+    () => (members as Member[] | undefined) ?? [],
+    [members],
+  );
 
-  const { table } = useDataTable({
-    data: (member_invites as MemberInviteDTO[]) ?? [],
-    columns,
-    count,
-    enablePagination: true,
-    getRowId: (row: MemberInviteDTO) => row.id,
-    pageSize: PAGE_SIZE,
-    prefix: PREFIX,
-  });
+  const { mutateAsync: inviteMember, isPending: isInviting } =
+    useInviteSellerMember(id!);
+  const { mutateAsync: addMember, isPending: isAdding } = useAddSellerMember(
+    id!,
+  );
 
-  const { mutateAsync, isPending } = useInviteSellerMember(id!);
+  const isPending = isInviting || isAdding;
 
   const handleSubmit = form.handleSubmit(async (values) => {
     try {
-      await mutateAsync({
-        email: values.email,
-        role_id: values.role_id as SellerRole,
-      });
-      toast.success(t("users.inviteSuccess", "Invite sent successfully"));
-      form.reset();
+      const matched = memberList.find(
+        (m) => m.email.toLowerCase() === values.email.toLowerCase(),
+      );
+
+      if (matched) {
+        await addMember({
+          member_id: matched.id,
+          role_id: values.role_id as SellerRole,
+        });
+        toast.success(
+          t("stores.members.addUser.assignSuccess", { email: values.email }),
+        );
+      } else {
+        await inviteMember({
+          email: values.email,
+          role_id: values.role_id as SellerRole,
+        });
+        toast.success(t("users.inviteSuccess"));
+      }
+
+      handleSuccess();
     } catch (error) {
       toast.error((error as Error).message);
     }
   });
 
-  if (isError) {
-    throw error;
-  }
-
   return (
-    <RouteFocusModal.Form form={form}>
+    <RouteDrawer.Form form={form}>
       <KeyboundForm
         onSubmit={handleSubmit}
-        className="flex h-full flex-col overflow-hidden"
+        className="flex flex-1 flex-col overflow-hidden"
       >
-        <RouteFocusModal.Header />
-        <RouteFocusModal.Body className="flex flex-1 flex-col overflow-hidden">
-          <div className="flex flex-1 flex-col items-center overflow-y-auto">
-            <div className="flex w-full max-w-[720px] flex-col gap-y-8 px-2 py-16">
-              <div>
-                <Heading>{t("users.inviteUser", "Invite User")}</Heading>
-                <Text size="small" className="text-ui-fg-subtle">
-                  {t(
-                    "users.inviteUserHint",
-                    "Invite a new user to this store.",
-                  )}
-                </Text>
-              </div>
-
-              <div className="flex flex-col gap-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <Form.Field
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <Form.Item>
-                        <Form.Label>{t("fields.email")}</Form.Label>
-                        <Form.Control>
-                          <Input {...field} />
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
+        <RouteDrawer.Body className="flex flex-col gap-y-6 overflow-y-auto">
+          <Text size="small" className="text-ui-fg-subtle">
+            {t("stores.members.addUser.hint")}
+          </Text>
+          <Form.Field
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.email")}</Form.Label>
+                <Form.Control>
+                  <div className="relative">
+                    <Input
+                      {...field}
+                      autoComplete="off"
+                      onFocus={() => setSuggestionsOpen(true)}
+                      onBlur={() => {
+                        field.onBlur();
+                        setTimeout(() => setSuggestionsOpen(false), 150);
+                      }}
+                    />
+                    {suggestionsOpen && memberList.length > 0 && (
+                      <div
+                        className={clx(
+                          "bg-ui-bg-base shadow-elevation-flyout border-ui-border-base absolute z-50 mt-1 flex max-h-60 w-full flex-col overflow-y-auto rounded-md border p-1",
+                        )}
+                      >
+                        {memberList.map((member) => (
+                          <button
+                            key={member.id}
+                            type="button"
+                            onMouseDown={(e) => {
+                              e.preventDefault();
+                              field.onChange(member.email);
+                              setSuggestionsOpen(false);
+                            }}
+                            className="hover:bg-ui-bg-base-hover text-ui-fg-base flex w-full items-center rounded-sm px-2 py-1.5 text-left text-sm"
+                          >
+                            {member.email}
+                          </button>
+                        ))}
+                      </div>
                     )}
-                  />
-                  <Form.Field
-                    control={form.control}
-                    name="role_id"
-                    render={({ field: { onChange, ref, ...field } }) => (
-                      <Form.Item>
-                        <Form.Label>{t("fields.role")}</Form.Label>
-                        <Form.Control>
-                          <Select {...field} onValueChange={onChange}>
-                            <Select.Trigger ref={ref}>
-                              <Select.Value
-                                placeholder={t(
-                                  "users.selectRole",
-                                  "Select a role",
-                                )}
-                              />
-                            </Select.Trigger>
-                            <Select.Content>
-                              {ROLE_OPTIONS.map((role) => (
-                                <Select.Item
-                                  key={role.value}
-                                  value={role.value}
-                                >
-                                  {t(role.labelKey)}
-                                </Select.Item>
-                              ))}
-                            </Select.Content>
-                          </Select>
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    )}
-                  />
-                </div>
-                <div className="flex items-center justify-end">
-                  <Button
-                    size="small"
-                    variant="secondary"
-                    type="submit"
-                    isLoading={isPending}
-                  >
-                    {t("users.sendInvite", "Send invite")}
-                  </Button>
-                </div>
-              </div>
-
-              <div className="flex flex-col gap-y-4">
-                <Heading level="h2">
-                  {t("users.pendingInvites", "Pending Invites")}
-                </Heading>
-                <Container className="overflow-hidden p-0">
-                  <_DataTable
-                    table={table}
-                    columns={columns}
-                    count={count}
-                    pageSize={PAGE_SIZE}
-                    pagination
-                    isLoading={isLoading}
-                    queryObject={raw}
-                    prefix={PREFIX}
-                    orderBy={[
-                      { key: "email", label: t("fields.email") },
-                      {
-                        key: "created_at",
-                        label: t("fields.createdAt"),
-                      },
-                    ]}
-                  />
-                </Container>
-              </div>
-            </div>
+                  </div>
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="role_id"
+            render={({ field: { onChange, ref, ...field } }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.role")}</Form.Label>
+                <Form.Control>
+                  <Select {...field} onValueChange={onChange}>
+                    <Select.Trigger ref={ref}>
+                      <Select.Value placeholder={t("users.selectRole", "Select")} />
+                    </Select.Trigger>
+                    <Select.Content>
+                      {ROLE_OPTIONS.map((role) => (
+                        <Select.Item key={role.value} value={role.value}>
+                          {t(role.labelKey)}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+        </RouteDrawer.Body>
+        <RouteDrawer.Footer>
+          <div className="flex items-center justify-end gap-x-2">
+            <RouteDrawer.Close asChild>
+              <Button size="small" variant="secondary" type="button">
+                {t("actions.cancel")}
+              </Button>
+            </RouteDrawer.Close>
+            <Button size="small" type="submit" isLoading={isPending}>
+              {t("actions.save")}
+            </Button>
           </div>
-        </RouteFocusModal.Body>
+        </RouteDrawer.Footer>
       </KeyboundForm>
-    </RouteFocusModal.Form>
-  );
-};
-
-const columnHelper = createColumnHelper<MemberInviteDTO>();
-
-const useColumns = () => {
-  const { t } = useTranslation();
-
-  return useMemo(
-    () => [
-      columnHelper.accessor("email", {
-        header: t("fields.email"),
-        cell: ({ getValue }) => getValue(),
-      }),
-      columnHelper.accessor("role_id", {
-        header: t("fields.role"),
-        cell: ({ getValue }) => {
-          const roleId = getValue();
-          const labelKey = ROLE_LABEL_MAP[roleId];
-          return labelKey ? t(labelKey) : "-";
-        },
-      }),
-      columnHelper.accessor("accepted", {
-        header: t("fields.status"),
-        cell: ({ getValue, row }) => {
-          const accepted = getValue();
-          const expired = new Date(row.original.expires_at) < new Date();
-
-          if (accepted) {
-            return (
-              <Tooltip
-                content={t("users.acceptedOnDate", {
-                  date: format(
-                    new Date(row.original.updated_at),
-                    "dd MMM, yyyy",
-                  ),
-                })}
-              >
-                <StatusBadge color="green">
-                  {t("users.inviteStatus.accepted")}
-                </StatusBadge>
-              </Tooltip>
-            );
-          }
-
-          if (expired) {
-            return (
-              <Tooltip
-                content={t("users.expiredOnDate", {
-                  date: format(
-                    new Date(row.original.expires_at),
-                    "dd MMM, yyyy",
-                  ),
-                })}
-              >
-                <StatusBadge color="red">
-                  {t("users.inviteStatus.expired")}
-                </StatusBadge>
-              </Tooltip>
-            );
-          }
-
-          return (
-            <Tooltip
-              content={
-                <Trans
-                  i18nKey={"users.validFromUntil"}
-                  components={[
-                    <span key="from" className="font-medium" />,
-                    <span key="until" className="font-medium" />,
-                  ]}
-                  values={{
-                    from: format(
-                      new Date(row.original.created_at),
-                      "dd MMM, yyyy",
-                    ),
-                    until: format(
-                      new Date(row.original.expires_at),
-                      "dd MMM, yyyy",
-                    ),
-                  }}
-                />
-              }
-            >
-              <StatusBadge color="orange">
-                {t("users.inviteStatus.pending")}
-              </StatusBadge>
-            </Tooltip>
-          );
-        },
-      }),
-    ],
-    [t],
+    </RouteDrawer.Form>
   );
 };

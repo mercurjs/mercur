@@ -421,6 +421,33 @@ export const useInviteSellerMember = (
   });
 };
 
+export const useAddSellerMember = (
+  sellerId: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.sellers.$id.members.mutate>,
+    ClientError,
+    Omit<
+      InferClientInput<typeof sdk.admin.sellers.$id.members.mutate>,
+      "$id"
+    >
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.sellers.$id.members.mutate({
+        $id: sellerId,
+        ...payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: sellerMembersQueryKeys.lists(),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
 export const useRemoveSellerMember = (
   sellerId: string,
   memberId: string,
@@ -439,6 +466,58 @@ export const useRemoveSellerMember = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: sellerMembersQueryKeys.lists(),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useDeleteSellerInvite = (
+  sellerId: string,
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.sellers.$id.members.invites.$inviteId.delete
+    >,
+    ClientError,
+    { invite_id: string }
+  >,
+) => {
+  return useMutation({
+    mutationFn: ({ invite_id }) =>
+      sdk.admin.sellers.$id.members.invites.$inviteId.delete({
+        $id: sellerId,
+        $inviteId: invite_id,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: sellerInvitesQueryKeys.lists(),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useResendSellerInvite = (
+  sellerId: string,
+  options?: UseMutationOptions<
+    InferClientOutput<
+      typeof sdk.admin.sellers.$id.members.invites.$inviteId.resend.mutate
+    >,
+    ClientError,
+    { invite_id: string }
+  >,
+) => {
+  return useMutation({
+    mutationFn: ({ invite_id }) =>
+      sdk.admin.sellers.$id.members.invites.$inviteId.resend.mutate({
+        $id: sellerId,
+        $inviteId: invite_id,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: sellerInvitesQueryKeys.lists(),
       });
       options?.onSuccess?.(data, variables, context);
     },

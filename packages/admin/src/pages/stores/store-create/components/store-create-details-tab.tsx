@@ -1,7 +1,8 @@
-import { Heading, Input, Select, Text, Textarea } from "@medusajs/ui";
+import { Heading, Input, Select } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../components/common/form";
+import { HandleInput } from "../../../../components/inputs/handle-input";
 import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
 import { useStore } from "../../../../hooks/api";
@@ -16,13 +17,7 @@ const Root = () => {
     <div className="flex flex-1 flex-col items-center overflow-y-auto px-3">
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-y-8 px-px py-16">
         <div>
-          <Heading>{t("stores.create.header", "Create Store")}</Heading>
-          <Text size="small" className="text-ui-fg-subtle">
-            {t(
-              "stores.create.hint",
-              "Create a new store on the marketplace.",
-            )}
-          </Text>
+          <Heading>{t("stores.create.header")}</Heading>
         </div>
         <div className="flex flex-col gap-y-4">
           <Form.Field
@@ -43,9 +38,11 @@ const Root = () => {
             name="handle"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label optional>{t("fields.handle")}</Form.Label>
+                <Form.Label optional tooltip={t("stores.handleTooltip")}>
+                  {t("fields.handle")}
+                </Form.Label>
                 <Form.Control>
-                  <Input {...field} />
+                  <HandleInput {...field} />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -59,6 +56,19 @@ const Root = () => {
                 <Form.Label>{t("fields.email")}</Form.Label>
                 <Form.Control>
                   <Input type="email" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="phone"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("fields.phone")}</Form.Label>
+                <Form.Control>
+                  <Input type="tel" {...field} />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -91,19 +101,6 @@ const Root = () => {
               </Form.Item>
             )}
           />
-          <Form.Field
-            control={form.control}
-            name="description"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label optional>{t("fields.description")}</Form.Label>
-                <Form.Control>
-                  <Textarea {...field} />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
-          />
         </div>
       </div>
     </div>
@@ -113,7 +110,7 @@ const Root = () => {
 Root._tabMeta = defineTabMeta<CreateStoreSchemaType>({
   id: "details",
   labelKey: "stores.create.tabs.details",
-  validationFields: ["name", "email", "currency_code"],
+  validationFields: ["name", "email", "phone", "currency_code"],
 });
 
 export const StoreCreateDetailsTab = Root;

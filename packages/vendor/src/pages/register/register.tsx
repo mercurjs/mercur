@@ -12,6 +12,7 @@ import * as z from "zod"
 
 import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
+import { AuthLayout } from "@components/layout/auth-layout"
 import { useFeatureFlags, useSignUpWithEmailPass } from "@hooks/api"
 
 import { RegisterSchema } from "./register-schema"
@@ -24,10 +25,10 @@ const RegisterHeader = () => {
   const { t } = useTranslation()
 
   return (
-    <div className="mb-4 flex flex-col items-center">
-      <Heading>{t("register.title", { name: config.name ?? "Mercur" })}</Heading>
-      <Text size="small" className="text-ui-fg-subtle text-center">
-        {t("register.hint")}
+    <div className="mb-6 flex flex-col">
+      <Heading>{t("register.title")}</Heading>
+      <Text size="small" className="text-ui-fg-subtle">
+        {t("register.hint", { name: config.name ?? "Mercur" })}
       </Text>
     </div>
   )
@@ -47,8 +48,7 @@ const RegisterForm = () => {
     },
   })
 
-  const { mutateAsync: signUp, isPending } =
-    useSignUpWithEmailPass()
+  const { mutateAsync: signUp, isPending } = useSignUpWithEmailPass()
 
   const handleSubmit = form.handleSubmit(async ({ email, password }) => {
     setServerError(null)
@@ -56,9 +56,7 @@ const RegisterForm = () => {
       await signUp({ email, password })
       navigate("/onboarding", { state: { email } })
     } catch (error: any) {
-      setServerError(
-        error?.message || t("register.error")
-      )
+      setServerError(error?.message || t("register.error"))
     }
   })
 
@@ -70,85 +68,70 @@ const RegisterForm = () => {
   const displayError = validationError || serverError
 
   return (
-    <div className="flex w-full flex-col items-center">
-      <Form {...form}>
-        <form
-          onSubmit={handleSubmit}
-          className="flex w-full flex-col gap-y-6"
-        >
-          <div className="flex flex-col gap-y-2">
-            <Form.Field
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <Input
-                      autoComplete="email"
-                      {...field}
-                      className="bg-ui-bg-field-component"
-                      placeholder={t("fields.email")}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <Input
-                      type="password"
-                      autoComplete="new-password"
-                      {...field}
-                      className="bg-ui-bg-field-component"
-                      placeholder={t("fields.password")}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <Input
-                      type="password"
-                      autoComplete="new-password"
-                      {...field}
-                      className="bg-ui-bg-field-component"
-                      placeholder={t("register.confirmPassword")}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            {displayError && (
-              <div className="mt-6 text-center">
-                <Hint className="inline-flex" variant={"error"}>
-                  {displayError}
-                </Hint>
-              </div>
+    <Form {...form}>
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
+        <div className="flex flex-col gap-y-4">
+          <Form.Field
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.email")}</Form.Label>
+                <Form.Control>
+                  <Input autoComplete="email" {...field} />
+                </Form.Control>
+              </Form.Item>
             )}
-          </div>
-          <Button className="w-full" type="submit" isLoading={isPending}>
-            {t("actions.continue")}
-          </Button>
-        </form>
-      </Form>
-      <RegisterFooter />
-    </div>
+          />
+          <Form.Field
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.password")}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="password"
+                    autoComplete="new-password"
+                    {...field}
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("register.confirmPassword")}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="password"
+                    autoComplete="new-password"
+                    {...field}
+                  />
+                </Form.Control>
+              </Form.Item>
+            )}
+          />
+          {displayError && (
+            <Hint className="inline-flex" variant="error">
+              {displayError}
+            </Hint>
+          )}
+        </div>
+        <Button className="w-full" type="submit" isLoading={isPending}>
+          {t("actions.continue")}
+        </Button>
+      </form>
+    </Form>
   )
 }
 
 const RegisterFooter = () => {
   return (
-    <div className="flex w-full flex-col items-center">
-      <div className="my-6 h-px w-full border-b border-dotted" />
+    <div className="mt-auto">
       <span className="text-ui-fg-muted txt-small">
         <Trans
           i18nKey="register.alreadySeller"
@@ -156,7 +139,7 @@ const RegisterFooter = () => {
             <Link
               key="login-link"
               to="/login"
-              className="txt-small text-ui-fg-base transition-fg hover:text-ui-fg-base-hover focus-visible:text-ui-fg-base-hover font-medium outline-none"
+              className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
             />,
           ]}
         />
@@ -181,19 +164,20 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
-      <div className="m-4 flex w-full max-w-[280px] flex-col items-center">
-        {Children.count(children) > 0 ? (
-          children
-        ) : (
-          <>
-            <RegisterLogo />
+    <AuthLayout>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <RegisterLogo />
+          <div className="mt-8">
             <RegisterHeader />
             <RegisterForm />
-          </>
-        )}
-      </div>
-    </div>
+          </div>
+          <RegisterFooter />
+        </>
+      )}
+    </AuthLayout>
   )
 }
 

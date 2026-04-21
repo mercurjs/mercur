@@ -62,7 +62,16 @@ class SellerModuleService extends MedusaService({
       jwt_secret:
         opts.jwt_secret ??
         (configManager.config.projectConfig.http.jwtSecret as string),
+      vendor_url: opts.vendor_url ?? process.env.MERCUR_VENDOR_URL ?? "",
     }
+  }
+
+  buildInviteUrl(token: string): string {
+    const base = (this.options_.vendor_url ?? "").replace(/\/+$/, "")
+    if (!base || !token) {
+      return ""
+    }
+    return `${base}/invite?token=${token}`
   }
 
   @InjectTransactionManager()

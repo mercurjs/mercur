@@ -1,10 +1,20 @@
-import { RouteFocusModal } from "../../../components/modals";
+import { Heading } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+
+import { RouteDrawer } from "../../../components/modals";
 import { InviteMemberForm } from "./components/invite-member-form";
 
-export const Component = () => {
+const Root = () => {
+  const { t } = useTranslation();
+
   return (
-    <RouteFocusModal>
+    <RouteDrawer>
+      <RouteDrawer.Header>
+        <Heading>{t("stores.members.addUser.header")}</Heading>
+      </RouteDrawer.Header>
       <InviteMemberForm />
-    </RouteFocusModal>
+    </RouteDrawer>
   );
 };
+
+export const Component = Root;

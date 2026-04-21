@@ -14,6 +14,7 @@ import { onboardingLoader } from "../../../pages/onboarding/loader";
 const StoreStepSchema = z.object({
   name: z.string().min(1, i18n.t("onboarding.wizard.validation.nameRequired")),
   email: z.string().email(i18n.t("onboarding.wizard.validation.emailInvalid")),
+  phone: z.string().optional(),
   currency_code: z.string().min(1, i18n.t("onboarding.wizard.validation.currencyRequired")),
   description: z.string().optional(),
   handle: z.string().optional(),
@@ -38,6 +39,7 @@ export const StoreStep = ({ onSubmit, isPending }: StoreStepProps) => {
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
       currency_code: "",
       description: "",
       handle: "",
@@ -85,6 +87,19 @@ export const StoreStep = ({ onSubmit, isPending }: StoreStepProps) => {
             />
             <Form.Field
               control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label optional>{t("fields.phone")}</Form.Label>
+                  <Form.Control>
+                    <Input type="tel" autoComplete="tel" {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
               name="description"
               render={({ field }) => (
                 <Form.Item>
@@ -103,7 +118,10 @@ export const StoreStep = ({ onSubmit, isPending }: StoreStepProps) => {
               name="handle"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label optional>
+                  <Form.Label
+                    optional
+                    tooltip={t("onboarding.wizard.store.handleTooltip")}
+                  >
                     {t("onboarding.wizard.store.handle")}
                   </Form.Label>
                   <Form.Control>

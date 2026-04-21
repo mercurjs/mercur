@@ -2,21 +2,17 @@ import { Children, ReactNode } from "react";
 import {
   CheckCircleSolid,
   PencilSquare,
+  Trash,
   XCircleSolid,
-  XMarkMini,
-  ArrowUturnLeft,
 } from "@medusajs/icons";
-import { Avatar, Heading, StatusBadge, toast, usePrompt } from "@medusajs/ui";
+import { Avatar, Heading, StatusBadge, Tooltip, toast, usePrompt } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { TFunction } from "i18next";
 
 import { ActionMenu } from "../../../../components/common/action-menu";
 import {
   useApproveSeller,
-  useSuspendSeller,
-  useUnsuspendSeller,
   useTerminateSeller,
-  useUnterminateSeller,
 } from "@/hooks/api/sellers";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
@@ -58,6 +54,8 @@ const getStatusLabel = (status: string, t: TFunction) => {
 };
 
 export const StoreDetailTitle = ({ seller }: StoreProps) => {
+  const { t } = useTranslation();
+
   return (
     <div className="flex items-center gap-x-4">
       <Avatar
@@ -66,7 +64,14 @@ export const StoreDetailTitle = ({ seller }: StoreProps) => {
         src={seller.logo || undefined}
         fallback={seller.name.charAt(0).toUpperCase()}
       />
-      <Heading>{seller.name}</Heading>
+      <div className="flex items-center gap-x-2">
+        <Heading>{seller.name}</Heading>
+        {seller.is_premium && (
+          <Tooltip content={t("stores.fields.premium")}>
+            <CheckCircleSolid className="text-ui-tag-blue-icon" />
+          </Tooltip>
+        )}
+      </div>
     </div>
   );
 };
@@ -98,10 +103,7 @@ export const StoreDetailActions = ({
   const prompt = usePrompt();
 
   const { mutateAsync: approveSeller } = useApproveSeller(seller.id);
-  const { mutateAsync: suspendSeller } = useSuspendSeller(seller.id);
-  const { mutateAsync: unsuspendSeller } = useUnsuspendSeller(seller.id);
   const { mutateAsync: terminateSeller } = useTerminateSeller(seller.id);
-  const { mutateAsync: unterminateSeller } = useUnterminateSeller(seller.id);
 
   const handleAction = async (
     action: () => Promise<unknown>,
@@ -123,6 +125,17 @@ export const StoreDetailActions = ({
     );
   };
 
+  const deleteAction = {
+    label: t("stores.actions.delete.label"),
+    onClick: () =>
+      handleAction(() => terminateSeller(), {
+        title: t("stores.actions.delete.title"),
+        description: t("stores.actions.delete.description"),
+        success: t("stores.actions.delete.success"),
+      }),
+    icon: <Trash />,
+  };
+
   const statusActions = (() => {
     switch (seller.status) {
       case SellerStatus.PENDING_APPROVAL:
@@ -138,65 +151,19 @@ export const StoreDetailActions = ({
             icon: <CheckCircleSolid />,
           },
           {
-            label: t("stores.actions.terminate.label"),
+            label: t("stores.actions.reject.label"),
             onClick: () =>
               handleAction(() => terminateSeller(), {
-                title: t("stores.actions.terminate.title"),
-                description: t("stores.actions.terminate.description"),
-                success: t("stores.actions.terminate.success"),
+                title: t("stores.actions.reject.title"),
+                description: t("stores.actions.reject.description"),
+                success: t("stores.actions.reject.success"),
               }),
             icon: <XCircleSolid />,
           },
         ];
       case SellerStatus.OPEN:
-        return [
-          {
-            label: t("stores.actions.suspend.label"),
-            onClick: () =>
-              handleAction(() => suspendSeller(), {
-                title: t("stores.actions.suspend.title"),
-                description: t("stores.actions.suspend.description"),
-                success: t("stores.actions.suspend.success"),
-              }),
-            icon: <XMarkMini />,
-          },
-        ];
       case SellerStatus.SUSPENDED:
-        return [
-          {
-            label: t("stores.actions.unsuspend.label"),
-            onClick: () =>
-              handleAction(() => unsuspendSeller(), {
-                title: t("stores.actions.unsuspend.title"),
-                description: t("stores.actions.unsuspend.description"),
-                success: t("stores.actions.unsuspend.success"),
-              }),
-            icon: <ArrowUturnLeft />,
-          },
-          {
-            label: t("stores.actions.terminate.label"),
-            onClick: () =>
-              handleAction(() => terminateSeller(), {
-                title: t("stores.actions.terminate.title"),
-                description: t("stores.actions.terminate.description"),
-                success: t("stores.actions.terminate.success"),
-              }),
-            icon: <XCircleSolid />,
-          },
-        ];
-      case SellerStatus.TERMINATED:
-        return [
-          {
-            label: t("stores.actions.unterminate.label"),
-            onClick: () =>
-              handleAction(() => unterminateSeller(), {
-                title: t("stores.actions.unterminate.title"),
-                description: t("stores.actions.unterminate.description"),
-                success: t("stores.actions.unterminate.success"),
-              }),
-            icon: <ArrowUturnLeft />,
-          },
-        ];
+        return [deleteAction];
       default:
         return [];
     }

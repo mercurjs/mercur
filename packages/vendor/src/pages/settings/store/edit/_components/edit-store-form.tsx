@@ -7,6 +7,7 @@ import { useCallback } from "react";
 
 import { FileType, FileUpload } from "@components/common/file-upload";
 import { Form } from "@components/common/form";
+import { HandleInput } from "@components/inputs/handle-input";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { uploadFilesQuery } from "@lib/client";
@@ -18,10 +19,11 @@ type EditStoreFormProps = HttpTypes.StoreSellerResponse;
 
 const EditStoreSchema = zod.object({
   name: zod.string().min(1),
-  handle: zod.string().min(1),
+  handle: zod.string().optional().or(zod.literal("")),
   email: zod.string().email().optional().or(zod.literal("")),
+  phone: zod.string().optional().or(zod.literal("")),
   description: zod.string().optional().or(zod.literal("")),
-  website_url: zod.string().url().optional().or(zod.literal("")),
+  website_url: zod.string().optional().or(zod.literal("")),
   media: zod.array(MediaSchema).optional(),
   bannerMedia: zod.array(MediaSchema).optional(),
 });
@@ -53,6 +55,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
       name: seller.name ?? "",
       handle: seller.handle ?? "",
       email: seller.email ?? "",
+      phone: seller.phone ?? "",
       description: seller.description ?? "",
       website_url: seller.website_url ?? "",
       media: seller.logo
@@ -110,8 +113,9 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
     await mutateAsync(
       {
         name: values.name,
-        handle: values.handle,
+        handle: values.handle || undefined,
         email: values.email || undefined,
+        phone: values.phone || null,
         description: values.description || null,
         website_url: values.website_url || null,
         logo: logoUrl,
@@ -196,9 +200,11 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
               name="handle"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t("fields.handle")}</Form.Label>
+                  <Form.Label optional tooltip={t("store.handleTooltip")}>
+                    {t("fields.handle")}
+                  </Form.Label>
                   <Form.Control>
-                    <Input {...field} />
+                    <HandleInput {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -212,6 +218,19 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                   <Form.Label>{t("fields.email")}</Form.Label>
                   <Form.Control>
                     <Input type="email" {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="phone"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label optional>{t("fields.phone")}</Form.Label>
+                  <Form.Control>
+                    <Input type="tel" {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -237,7 +256,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 <Form.Item>
                   <Form.Label optional>{t("fields.website")}</Form.Label>
                   <Form.Control>
-                    <Input placeholder="https://example.com" {...field} />
+                    <HandleInput {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>

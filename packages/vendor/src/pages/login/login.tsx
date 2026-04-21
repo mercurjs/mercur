@@ -8,6 +8,7 @@ import * as z from "zod";
 
 import { Form } from "@components/common/form";
 import AvatarBox from "@components/common/logo-box/avatar-box";
+import { AuthLayout } from "@components/layout/auth-layout";
 import { useSignInWithEmailPass } from "@hooks/api";
 import { isFetchError } from "@lib/is-fetch-error";
 import config from "virtual:mercur/config";
@@ -25,9 +26,9 @@ const LoginHeader = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="mb-4 flex flex-col items-center">
-      <Heading>{t("login.title", { name: config.name ?? "Mercur" })}</Heading>
-      <Text size="small" className="text-ui-fg-subtle text-center">
+    <div className="mb-6 flex flex-col">
+      <Heading>{t("login.title")}</Heading>
+      <Text size="small" className="text-ui-fg-subtle">
         {t("login.hint")}
       </Text>
     </div>
@@ -99,77 +100,64 @@ const LoginForm = () => {
     form.formState.errors.password?.message;
 
   return (
-    <div className="flex w-full flex-col gap-y-3">
-      <Form {...form}>
-        <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
-          <div className="flex flex-col gap-y-2">
-            <Form.Field
-              control={form.control}
-              name="email"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        autoComplete="email"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.email")}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                );
-              }}
-            />
-            <Form.Field
-              control={form.control}
-              name="password"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        type="password"
-                        autoComplete="current-password"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.password")}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                );
-              }}
-            />
-            {validationError && (
-              <div className="mt-6 text-center">
-                <Hint className="inline-flex" variant={"error"}>
-                  {validationError}
-                </Hint>
-              </div>
+    <Form {...form}>
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
+        <div className="flex flex-col gap-y-4">
+          <Form.Field
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.email")}</Form.Label>
+                <Form.Control>
+                  <Input autoComplete="email" {...field} />
+                </Form.Control>
+              </Form.Item>
             )}
-            {serverError && (
-              <Alert
-                className="bg-ui-bg-base items-center p-2"
-                dismissible
-                variant="error"
-              >
-                {serverError}
-              </Alert>
+          />
+          <Form.Field
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.password")}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="password"
+                    autoComplete="current-password"
+                    {...field}
+                  />
+                </Form.Control>
+              </Form.Item>
             )}
-          </div>
-          <Button className="w-full" type="submit" isLoading={isPending}>
-            Sign In
-          </Button>
-        </form>
-      </Form>
-    </div>
+          />
+          {validationError && (
+            <Hint className="inline-flex" variant="error">
+              {validationError}
+            </Hint>
+          )}
+          {serverError && (
+            <Alert
+              className="bg-ui-bg-base items-center p-2"
+              dismissible
+              variant="error"
+            >
+              {serverError}
+            </Alert>
+          )}
+        </div>
+        <Button className="w-full" type="submit" isLoading={isPending}>
+          {t("login.submit")}
+        </Button>
+      </form>
+    </Form>
   );
 };
 
 const LoginFooter = () => {
   return (
-    <div className="flex flex-col items-center">
-      <span className="text-ui-fg-muted txt-small my-6">
+    <div className="mt-auto flex flex-col gap-y-2">
+      <span className="text-ui-fg-muted txt-small">
         <Trans
           i18nKey="login.forgotPassword"
           components={[
@@ -201,20 +189,20 @@ const LoginFooter = () => {
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
-    <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
-      <div className="m-4 flex w-full max-w-[280px] flex-col items-center">
-        {Children.count(children) > 0 ? (
-          children
-        ) : (
-          <>
-            <LoginLogo />
+    <AuthLayout>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <LoginLogo />
+          <div className="mt-8">
             <LoginHeader />
             <LoginForm />
-            <LoginFooter />
-          </>
-        )}
-      </div>
-    </div>
+          </div>
+          <LoginFooter />
+        </>
+      )}
+    </AuthLayout>
   );
 };
 

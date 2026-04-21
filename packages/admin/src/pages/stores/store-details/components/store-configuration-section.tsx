@@ -1,8 +1,6 @@
-import { PencilSquare } from "@medusajs/icons";
 import { Container, Heading, Table, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
-import { ActionMenu } from "../../../../components/common/action-menu";
 import { DateCell } from "../../../../components/table/table-cells/common/date-cell";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
@@ -23,19 +21,6 @@ export const StoreConfigurationSection = ({
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("store.timeOff.header")}</Heading>
-        <ActionMenu
-          groups={[
-            {
-              actions: [
-                {
-                  label: t("actions.edit"),
-                  icon: <PencilSquare />,
-                  to: `/stores/${seller.id}/store-closure`,
-                },
-              ],
-            },
-          ]}
-        />
       </div>
       {hasTimeOff ? (
         <Table>

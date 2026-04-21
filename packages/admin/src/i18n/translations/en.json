@@ -2453,6 +2453,10 @@
       "pending": "Pending",
       "expired": "Expired"
     },
+    "status": {
+      "active": "Active",
+      "pending": "Pending"
+    },
     "roles": {
       "admin": "Admin",
       "developer": "Developer",
@@ -2509,6 +2513,9 @@
     "banner": "Banner",
     "address": {
       "header": "Address",
+      "defaultName": "Headquarters",
+      "nameLabel": "Name",
+      "namePlaceholder": "Headquarters",
       "empty": {
         "title": "No address",
         "message": "There are no records to show"
@@ -2532,11 +2539,13 @@
       },
       "fields": {
         "countryCode": "Country",
-        "holderName": "Account holder",
+        "holderName": "Account name",
         "bankName": "Bank name",
         "iban": "IBAN",
-        "bic": "BIC / SWIFT",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
         "routingNumber": "Routing number",
+        "achRoutingNumber": "ACH routing number",
         "accountNumber": "Account number"
       }
     },
@@ -2547,12 +2556,12 @@
         "message": "There are no records to show"
       },
       "edit": {
-        "header": "Edit Professional Details",
-        "description": "Update the professional details for this store.",
-        "successToast": "Professional details updated"
+        "header": "Edit Company Details",
+        "description": "Update the company details for this store.",
+        "successToast": "Company details updated"
       },
       "fields": {
-        "corporateName": "Corporate name",
+        "corporateName": "Company",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"
       }
@@ -3398,6 +3407,7 @@
   },
   "stores": {
     "domain": "Stores",
+    "handleTooltip": "The handle is used as the URL slug for the store. Leave empty to auto-generate from the name.",
     "fields": {
       "name": "Name",
       "handle": "Handle",
@@ -3415,15 +3425,15 @@
       "premium": "Featured"
     },
     "status": {
-      "open": "Open",
-      "pending_approval": "Pending Approval",
-      "pendingApproval": "Pending Approval",
-      "suspended": "Suspended",
+      "open": "Active",
+      "pending_approval": "Pending",
+      "pendingApproval": "Pending",
+      "suspended": "Inactive",
       "terminated": "Terminated"
     },
     "premium": {
-      "yes": "Featured",
-      "no": "Standard",
+      "yes": "Yes",
+      "no": "No",
       "description": "If checked, the store will be highlighted with a special badge for internal use or promotional purposes."
     },
     "invite": {
@@ -3433,30 +3443,56 @@
       "successToast": "Invitation sent to {{email}}",
       "errorToast": "Failed to send invitation"
     },
+    "members": {
+      "addUser": {
+        "header": "Add User",
+        "hint": "Add new user to manage this store. You can select existing user or invite new ones.",
+        "assignSuccess": "User {{email}} assigned to the store"
+      },
+      "invite": {
+        "resendSuccess": "Invite resent to {{email}}",
+        "deleteSuccess": "Invite for {{email}} deleted",
+        "linkCopied": "Invite link copied to clipboard",
+        "copyFailed": "Failed to copy invite link",
+        "noVendorUrl": "Vendor URL is not configured on the backend (MERCUR_VENDOR_URL)"
+      }
+    },
     "edit": {
       "header": "Edit Store",
+      "mediaHeading": "Media",
+      "mediaTipLabel": "Tip:",
+      "mediaTipBody": "This media will be visible on the storefront.",
       "successToast": "Store {{name}} was successfully updated."
     },
     "create": {
       "tabs": {
         "details": "Details",
-        "users": "Users"
+        "users": "Admin"
       },
-      "header": "Create Store",
-      "hint": "Create a new store on the marketplace.",
-      "usersHeader": "Users",
-      "usersHint": "Invite the store owner by email. They will receive an invitation to set up their account.",
+      "header": "Details",
+      "usersHeader": "Admin",
+      "usersHint": "Assign an admin to manage this store. Select an existing user or invite a new one.",
+      "usersHintSecondary": "Once the store is created, the selected user will receive an invitation to join.",
       "ownerEmail": "Owner email",
       "ownerEmailHint": "The owner will be granted the Store Administration role.",
-      "successToast": "Store created successfully"
+      "successToast": "Store created successfully",
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "emailRequired": "Please enter an email",
+        "emailInvalid": "Please enter a valid email",
+        "currencyRequired": "Please select a currency"
+      }
     },
     "request": {
       "title": "Store request",
-      "description": "A new store request has been submitted. Review the details, make any necessary updates, and choose whether to confirm and publish the store or suspend the request.",
-      "reasonLabel": "Suspend reason",
-      "reasonPlaceholder": "Optional reason for suspending this store...",
+      "description": "{{requester}} has submitted a store request. Review the details, make any necessary updates, and choose whether to confirm and publish the store or reject the request.",
       "confirm": "Confirm",
-      "suspend": "Suspend"
+      "reject": "Reject",
+      "confirmNoteLabel": "Approval note",
+      "rejectNoteLabel": "Rejection reason",
+      "notePlaceholder": "Optional note for the vendor...",
+      "confirmSuccess": "Store approved",
+      "rejectSuccess": "Store rejected"
     },
     "actions": {
       "approve": {
@@ -3465,34 +3501,28 @@
         "description": "Are you sure you want to approve this store?",
         "success": "Store approved"
       },
-      "suspend": {
-        "label": "Suspend",
-        "title": "Suspend store",
-        "description": "Are you sure you want to suspend this store?",
-        "success": "Store suspended",
-        "successToast": "{{count}} store(s) suspended",
-        "errorToast": "Failed to suspend store(s)"
+      "reject": {
+        "label": "Reject",
+        "title": "Reject store",
+        "description": "Are you sure you want to reject this store?",
+        "success": "Store rejected"
       },
-      "unsuspend": {
-        "label": "Unsuspend",
-        "title": "Unsuspend store",
-        "description": "Are you sure you want to unsuspend this store?",
-        "success": "Store unsuspended",
-        "successToast": "{{count}} store(s) unsuspended",
-        "errorToast": "Failed to unsuspend store(s)"
+      "edit": {
+        "label": "Edit"
       },
-      "terminate": {
-        "label": "Terminate",
-        "title": "Terminate store",
-        "description": "Are you sure you want to terminate this store?",
-        "success": "Store terminated"
-      },
-      "unterminate": {
-        "label": "Unterminate",
-        "title": "Unterminate store",
-        "description": "Are you sure you want to unterminate this store?",
-        "success": "Store unterminated"
+      "delete": {
+        "label": "Delete",
+        "title": "Delete store",
+        "description": "Are you sure you want to delete this store? This action cannot be undone.",
+        "success": "Store deleted",
+        "successToast": "{{count}} store(s) deleted",
+        "errorToast": "Failed to delete store(s)"
       }
+    },
+    "bulkEdit": {
+      "successToast": "{{count}} store(s) updated",
+      "emptyHeading": "No stores selected",
+      "emptyDescription": "Select stores from the list to edit them here."
     }
   },
   "messages": {

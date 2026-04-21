@@ -3,6 +3,7 @@ import Seller from "./seller"
 
 const SellerAddress = model.define("SellerAddress", {
   id: model.id({ prefix: "seladdr" }).primaryKey(),
+  name: model.text().searchable().nullable(),
   company: model.text().searchable().nullable(),
   first_name: model.text().searchable().nullable(),
   last_name: model.text().searchable().nullable(),

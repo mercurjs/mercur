@@ -19,11 +19,13 @@ export const VendorCreateSellerAccount = z.object({
   name: z.string(),
   handle: z.string().optional(),
   email: z.string().email(),
+  phone: z.string().nullable().optional(),
   member_email: z.string().email(),
   description: z.string().nullable().optional(),
   currency_code: z.string(),
   address: z
     .object({
+      name: z.string().nullable().optional(),
       company: z.string().nullable().optional(),
       first_name: z.string().optional(),
       last_name: z.string().optional(),
@@ -62,6 +64,7 @@ export const VendorUpdateSeller = z.object({
   name: z.string().optional(),
   handle: z.string().optional(),
   email: z.string().email().optional(),
+  phone: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   logo: z.string().url().nullable().optional(),
   banner: z.string().url().nullable().optional(),
@@ -85,6 +88,7 @@ export const VendorUpdateMemberRole = z.object({
 
 export type VendorUpsertSellerAddressType = z.infer<typeof VendorUpsertSellerAddress>
 export const VendorUpsertSellerAddress = z.object({
+  name: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
   first_name: z.string().nullable().optional(),
   last_name: z.string().nullable().optional(),

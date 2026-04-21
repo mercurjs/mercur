@@ -14,12 +14,12 @@ const Root = () => {
     <div className="flex flex-1 flex-col items-center overflow-y-auto px-3">
       <div className="mx-auto flex w-full max-w-[720px] flex-col gap-y-8 px-px py-16">
         <div>
-          <Heading>{t("stores.create.usersHeader", "Users")}</Heading>
+          <Heading>{t("stores.create.usersHeader")}</Heading>
           <Text size="small" className="text-ui-fg-subtle">
-            {t(
-              "stores.create.usersHint",
-              "Invite the store owner by email. They will receive an invitation to set up their account.",
-            )}
+            {t("stores.create.usersHint")}
+          </Text>
+          <Text size="small" className="text-ui-fg-subtle mt-1">
+            {t("stores.create.usersHintSecondary")}
           </Text>
         </div>
         <div className="flex flex-col gap-y-4">
@@ -28,22 +28,14 @@ const Root = () => {
             name="member_email"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label optional>
-                  {t("stores.create.ownerEmail", "Owner email")}
-                </Form.Label>
+                <Form.Label>{t("fields.email")}</Form.Label>
                 <Form.Control>
                   <Input
                     type="email"
                     {...field}
-                    placeholder="owner@example.com"
+                    placeholder="admin@example.com"
                   />
                 </Form.Control>
-                <Form.Hint>
-                  {t(
-                    "stores.create.ownerEmailHint",
-                    "The owner will be granted the Store Administration role.",
-                  )}
-                </Form.Hint>
                 <Form.ErrorMessage />
               </Form.Item>
             )}

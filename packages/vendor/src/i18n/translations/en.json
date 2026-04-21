@@ -2686,6 +2686,7 @@
     "domain": "Seller",
     "manageYourStoresDetails": "Manage your seller's details",
     "editStore": "Edit seller",
+    "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
     "profileCompletion": {
       "title": "Complete store profile",
       "steps": {
@@ -2746,6 +2747,9 @@
     },
     "address": {
       "header": "Address",
+      "defaultName": "Headquarters",
+      "nameLabel": "Name",
+      "namePlaceholder": "Headquarters",
       "empty": {
         "title": "No address",
         "message": "There are no records to show"
@@ -2789,7 +2793,7 @@
         "successToast": "Professional details updated"
       },
       "fields": {
-        "corporateName": "Corporate name",
+        "corporateName": "Company",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"
       }
@@ -3160,26 +3164,27 @@
     }
   },
   "storeSelect": {
-    "title": "Choose a store",
-    "subtitle": "These are all your available stores",
-    "pendingApproval": "Pending approval",
+    "title": "Select a store",
+    "subtitle": "Choose a store to continue.",
+    "pendingApproval": "Pending",
     "addNewStore": "Add new store",
     "status": {
-      "open": "Open",
-      "pendingApproval": "Pending approval",
-      "suspended": "Suspended",
+      "open": "Active",
+      "pendingApproval": "Pending",
+      "suspended": "Inactive",
       "terminated": "Terminated"
     }
   },
   "login": {
-    "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to {{name}}",
-    "hint": "Sign in to access the vendor hub",
-    "notSellerYet": "Not a seller yet? - <0>Create an account</0>"
+    "forgotPassword": "Forgot password? <0>Reset</0>",
+    "title": "Welcome back!",
+    "hint": "Log in to your vendor account.",
+    "submit": "Log in",
+    "notSellerYet": "Not a seller yet? <0>Create an account</0>"
   },
   "register": {
-    "title": "Start selling on {{name}}",
-    "hint": "Create account to get started",
+    "title": "Create your vendor account",
+    "hint": "Start selling on {{name}}.",
     "companyName": "Company name",
     "confirmPassword": "Confirm password",
     "signUp": "Sign up",
@@ -3224,7 +3229,7 @@
       "professionalSubtitle": "Professional seller information",
       "isProfessional": "Professional seller",
       "isProfessionalDescription": "Register as a business entity",
-      "corporateName": "Corporate name",
+      "corporateName": "Company",
       "registrationNumber": "Registration number",
       "taxId": "Tax ID",
       "completeSetup": "Complete setup"
@@ -3248,6 +3253,7 @@
         "name": "Name",
         "email": "Email",
         "handle": "Handle",
+        "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
         "handlePlaceholder": "my-store",
         "currency": "Currency",
         "selectCurrency": "Select",
@@ -3256,6 +3262,8 @@
       "skip": "Skip",
       "address": {
         "title": "Enter your address",
+        "name": "Name",
+        "namePlaceholder": "Headquarters",
         "address": "Address",
         "address2": "Apartment, suite, etc.",
         "postalCode": "Postal Code",
@@ -3266,7 +3274,7 @@
       "company": {
         "title": "Enter your company details",
         "subtitle": "Professional seller information",
-        "corporateName": "Corporate name",
+        "corporateName": "Company",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"
       },
@@ -3569,7 +3577,7 @@
     "company": "Company",
     "phone": "Phone",
     "metadata": "Metadata",
-    "selectCountry": "Select country",
+    "selectCountry": "Select",
     "products": "Products",
     "variants": "Variants",
     "orders": "Orders",

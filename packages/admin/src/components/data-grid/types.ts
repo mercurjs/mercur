@@ -20,6 +20,7 @@ export type DataGridColumnType =
   | "number"
   | "boolean"
   | "togglable-number"
+  | "select"
 
 export type DataGridCoordinates = {
   row: number

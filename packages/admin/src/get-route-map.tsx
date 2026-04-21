@@ -813,6 +813,10 @@ export function getRouteMap({
                         path: "create",
                         lazy: () => import("./pages/stores/store-create"),
                       },
+                      {
+                        path: "bulk-edit",
+                        lazy: () => import("./pages/stores/store-bulk-edit"),
+                      },
                     ],
                   },
                   {

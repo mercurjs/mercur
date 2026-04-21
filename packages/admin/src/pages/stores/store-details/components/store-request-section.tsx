@@ -23,76 +23,107 @@ type StoreRequestSectionProps = {
   seller: Seller;
 };
 
+type PendingAction = "confirm" | "reject" | null;
+
 export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
   const { t } = useTranslation();
-  const [reason, setReason] = useState("");
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [note, setNote] = useState("");
+
   const { mutateAsync: approveSeller, isPending: isApproving } =
     useApproveSeller(seller.id);
-  const { mutateAsync: suspendSeller, isPending: isSuspending } =
+  const { mutateAsync: suspendSeller, isPending: isRejecting } =
     useSuspendSeller(seller.id);
 
-  const handleConfirm = async () => {
+  const requesterLabel = seller.email || seller.name;
+
+  const cancel = () => {
+    setPendingAction(null);
+    setNote("");
+  };
+
+  const submit = async () => {
     try {
-      await approveSeller();
-      toast.success(
-        t("stores.approve.successToast", "Store approved successfully"),
-      );
+      if (pendingAction === "confirm") {
+        await approveSeller();
+        toast.success(t("stores.request.confirmSuccess"));
+      } else if (pendingAction === "reject") {
+        await suspendSeller({ reason: note || undefined });
+        toast.success(t("stores.request.rejectSuccess"));
+      }
+      cancel();
     } catch (error) {
       toast.error((error as Error).message);
     }
   };
 
-  const handleReject = async () => {
-    try {
-      await suspendSeller({ reason: reason || undefined });
-      toast.success(
-        t("stores.suspend.successToast", "Store suspended successfully"),
-      );
-    } catch (error) {
-      toast.error((error as Error).message);
-    }
-  };
+  const isSubmitting = isApproving || isRejecting;
 
   return (
     <Container className="p-0">
       <div className="flex items-center gap-x-3 border-b border-ui-border-base px-6 py-4">
-        <ExclamationCircleSolid className="text-orange-500" />
-        <Heading level="h2">
-          {t("stores.request.title")}
-        </Heading>
+        <ExclamationCircleSolid className="text-ui-tag-blue-icon" />
+        <Heading level="h2">{t("stores.request.title")}</Heading>
       </div>
       <div className="px-6 py-4">
         <Text className="text-ui-fg-subtle">
-          {t("stores.request.description")}
+          {t("stores.request.description", { requester: requesterLabel })}
         </Text>
       </div>
-      <div className="flex flex-col gap-y-2 border-t border-ui-border-base px-6 py-4">
-        <Text size="small" weight="plus" className="text-ui-fg-subtle">
-          {t("stores.request.reasonLabel")}
-        </Text>
-        <Textarea
-          placeholder={t("stores.request.reasonPlaceholder")}
-          value={reason}
-          onChange={(e) => setReason(e.target.value)}
-        />
-      </div>
+      {pendingAction ? (
+        <div className="flex flex-col gap-y-2 border-t border-ui-border-base px-6 py-4">
+          <Text size="small" weight="plus" className="text-ui-fg-subtle">
+            {pendingAction === "confirm"
+              ? t("stores.request.confirmNoteLabel")
+              : t("stores.request.rejectNoteLabel")}
+          </Text>
+          <Textarea
+            placeholder={t("stores.request.notePlaceholder")}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
+        </div>
+      ) : null}
       <div className="flex items-center justify-end gap-x-2 rounded-b-lg border-t border-ui-border-base bg-ui-bg-subtle px-6 py-4">
-        <Button
-          size="small"
-          variant="secondary"
-          onClick={handleConfirm}
-          isLoading={isApproving}
-        >
-          {t("stores.request.confirm")}
-        </Button>
-        <Button
-          size="small"
-          variant="secondary"
-          onClick={handleReject}
-          isLoading={isSuspending}
-        >
-          {t("stores.request.suspend")}
-        </Button>
+        {pendingAction ? (
+          <>
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={cancel}
+              disabled={isSubmitting}
+            >
+              {t("actions.cancel")}
+            </Button>
+            <Button
+              size="small"
+              variant={pendingAction === "reject" ? "danger" : "primary"}
+              onClick={submit}
+              isLoading={isSubmitting}
+            >
+              {pendingAction === "confirm"
+                ? t("stores.request.confirm")
+                : t("stores.request.reject")}
+            </Button>
+          </>
+        ) : (
+          <>
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={() => setPendingAction("confirm")}
+            >
+              {t("stores.request.confirm")}
+            </Button>
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={() => setPendingAction("reject")}
+            >
+              {t("stores.request.reject")}
+            </Button>
+          </>
+        )}
       </div>
     </Container>
   );
