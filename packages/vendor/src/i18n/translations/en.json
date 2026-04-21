@@ -3166,12 +3166,12 @@
   "storeSelect": {
     "title": "Choose a store",
     "subtitle": "These are all your available stores",
-    "pendingApproval": "Pending approval",
+    "pendingApproval": "Pending",
     "addNewStore": "Add new store",
     "status": {
-      "open": "Open",
-      "pendingApproval": "Pending approval",
-      "suspended": "Suspended",
+      "open": "Active",
+      "pendingApproval": "Pending",
+      "suspended": "Inactive",
       "terminated": "Terminated"
     }
   },

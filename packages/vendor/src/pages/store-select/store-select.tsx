@@ -10,7 +10,7 @@ import { SellerMemberDTO, SellerStatus } from "@mercurjs/types";
 const getSellerStatusBadge = (
   status: string,
   t: (key: string) => string,
-): { color: "green" | "orange" | "red" | "grey"; label: string } => {
+): { color: "green" | "orange" | "red" | "grey"; label: string } | null => {
   switch (status) {
     case SellerStatus.OPEN:
       return { color: "green", label: t("storeSelect.status.open") };
@@ -22,7 +22,7 @@ const getSellerStatusBadge = (
     case SellerStatus.SUSPENDED:
       return { color: "red", label: t("storeSelect.status.suspended") };
     case SellerStatus.TERMINATED:
-      return { color: "grey", label: t("storeSelect.status.terminated") };
+      return null;
     default:
       return { color: "grey", label: status };
   }
@@ -63,38 +63,45 @@ const StoreSelectList = ({
 
   return (
     <div className="shadow-elevation-card-rest bg-ui-bg-base flex w-full flex-col divide-y rounded-lg">
-      {seller_members?.map((member) => {
-        const seller = member.seller;
-        const badge = getSellerStatusBadge(seller.status, t);
+      {seller_members
+        ?.filter((member) => member.seller.status !== SellerStatus.TERMINATED)
+        .map((member) => {
+          const seller = member.seller;
+          const badge = getSellerStatusBadge(seller.status, t);
 
-        return (
-          <button
-            key={seller.id}
-            onClick={() => handleSelect(seller.id)}
-            className="transition-fg flex items-center gap-x-3 px-4 py-3 first:rounded-t-lg enabled:hover:bg-ui-bg-base-hover disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <Avatar
-              variant="squared"
-              size="small"
-              fallback={seller.name.charAt(0).toUpperCase()}
-            />
-            <div className="flex flex-1 flex-col items-start">
-              <Text size="small" weight="plus" leading="compact">
-                {seller.name}
-              </Text>
-              <Text
-                size="xsmall"
-                className="text-ui-fg-subtle"
-                leading="compact"
-              >
-                {seller.handle}
-              </Text>
-            </div>
-            <StatusBadge color={badge.color}>{badge.label}</StatusBadge>
-            <ChevronRight className="text-ui-fg-muted" />
-          </button>
-        );
-      })}
+          return (
+            <button
+              key={seller.id}
+              onClick={() => handleSelect(seller.id)}
+              className="transition-fg flex items-center gap-x-3 px-4 py-3 first:rounded-t-lg enabled:hover:bg-ui-bg-base-hover disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              <Avatar
+                variant="squared"
+                size="small"
+                src={seller.logo || undefined}
+                fallback={seller.name.charAt(0).toUpperCase()}
+              />
+              <div className="flex flex-1 flex-col items-start">
+                <Text size="small" weight="plus" leading="compact">
+                  {seller.name}
+                </Text>
+                {seller.handle ? (
+                  <Text
+                    size="xsmall"
+                    className="text-ui-fg-subtle"
+                    leading="compact"
+                  >
+                    /{seller.handle}
+                  </Text>
+                ) : null}
+              </div>
+              {badge ? (
+                <StatusBadge color={badge.color}>{badge.label}</StatusBadge>
+              ) : null}
+              <ChevronRight className="text-ui-fg-muted" />
+            </button>
+          );
+        })}
       <button
         onClick={() => navigate("/onboarding", { state: { email } })}
         className="hover:bg-ui-bg-base-hover transition-fg flex items-center justify-center gap-x-2 rounded-b-lg px-4 py-3"
