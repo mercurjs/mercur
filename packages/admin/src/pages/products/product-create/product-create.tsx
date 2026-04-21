@@ -5,6 +5,7 @@ import { TabbedForm } from "../../../components/tabbed-form/tabbed-form";
 import { ProductCreateForm } from "./components/product-create-form/product-create-form";
 import { ProductCreateDetailsForm } from "./components/product-create-details-form";
 import { ProductCreateOrganizeForm } from "./components/product-create-organize-form";
+import { ProductCreateAttributesForm } from "./components/product-create-attributes-form";
 import { ProductCreateVariantsForm } from "./components/product-create-variants-form";
 import { ProductCreateInventoryKitForm } from "./components/product-create-inventory-kit-form";
 
@@ -30,6 +31,7 @@ export const ProductCreatePage = Object.assign(Root, {
   Form: ProductCreateForm,
   DetailsTab: ProductCreateDetailsForm,
   OrganizeTab: ProductCreateOrganizeForm,
+  AttributesTab: ProductCreateAttributesForm,
   VariantsTab: ProductCreateVariantsForm,
   InventoryTab: ProductCreateInventoryKitForm,
   Tab: TabbedForm.Tab,

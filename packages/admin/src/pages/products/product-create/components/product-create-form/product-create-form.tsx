@@ -18,6 +18,7 @@ import {
 } from "../../constants";
 import { ProductCreateSchemaType } from "../../types";
 import { normalizeProductFormValues } from "../../utils";
+import { ProductCreateAttributesForm } from "../product-create-attributes-form";
 import { ProductCreateDetailsForm } from "../product-create-details-form";
 import { ProductCreateInventoryKitForm } from "../product-create-inventory-kit-form";
 import { ProductCreateOrganizeForm } from "../product-create-organize-form";
@@ -179,6 +180,7 @@ export const ProductCreateForm = ({
     () => [
       <ProductCreateDetailsForm key="details" />,
       <ProductCreateOrganizeForm key="organize" />,
+      <ProductCreateAttributesForm key="attributes" />,
       <ProductCreateVariantsForm key="variants" />,
       <ProductCreateInventoryKitForm key="inventory" />,
     ],

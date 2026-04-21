@@ -10,7 +10,6 @@ const attributeListQuery = () => ({
     sdk.admin.productAttributes.query({
       limit: 20,
       offset: 0,
-      fields: "*possible_values,*product_categories",
     }),
 })
 

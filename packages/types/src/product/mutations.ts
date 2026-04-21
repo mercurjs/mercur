@@ -93,6 +93,11 @@ export interface UpdateProductAttributeValueDTO {
   metadata?: Record<string, unknown> | null;
 }
 
+export interface UpsertProductAttributeValueDTO
+  extends UpdateProductAttributeValueDTO {
+  id?: string;
+}
+
 // --- ProductAttribute ---
 
 export interface CreateProductAttributeDTO {

@@ -46,6 +46,14 @@ export const AdminGetProductAttributesParams = createFindParams({
 
 // --- Attribute create / update ---
 
+const CreateProductAttributeValueInline = z.object({
+  name: z.string(),
+  handle: z.string().optional(),
+  rank: z.number().nonnegative().optional(),
+  is_active: z.boolean().optional(),
+  metadata: z.record(z.unknown()).nullish(),
+})
+
 export type AdminCreateProductAttributeType = z.infer<
   typeof CreateProductAttribute
 > &
@@ -61,6 +69,7 @@ const CreateProductAttribute = z.object({
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
   category_ids: z.array(z.string()).optional(),
+  values: z.array(CreateProductAttributeValueInline).optional(),
   metadata: z.record(z.unknown()).nullish(),
 })
 export const AdminCreateProductAttribute =
@@ -139,3 +148,31 @@ const UpdateProductAttributeValue = z.object({
 export const AdminUpdateProductAttributeValue = WithAdditionalData(
   UpdateProductAttributeValue
 )
+
+// --- Attribute value upsert ---
+
+const UpsertProductAttributeValueItem = z.union([
+  z.object({
+    id: z.string(),
+    name: z.string().optional(),
+    handle: z.string().optional(),
+    rank: z.number().nonnegative().optional(),
+    is_active: z.boolean().optional(),
+    metadata: z.record(z.unknown()).nullish(),
+  }),
+  z.object({
+    name: z.string(),
+    handle: z.string().optional(),
+    rank: z.number().nonnegative().optional(),
+    is_active: z.boolean().optional(),
+    metadata: z.record(z.unknown()).nullish(),
+  }),
+])
+
+export type AdminUpsertProductAttributeValuesType = z.infer<
+  typeof AdminUpsertProductAttributeValues
+>
+export const AdminUpsertProductAttributeValues = z.object({
+  values: z.array(UpsertProductAttributeValueItem),
+})
+

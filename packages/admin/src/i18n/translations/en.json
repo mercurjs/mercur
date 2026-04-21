@@ -437,6 +437,21 @@
         "itemPlaceholder": "Select inventory item",
         "quantityPlaceholder": "How many of these are needed for the kit?"
       },
+      "attributes": {
+        "header": "Attributes",
+        "description": "Manage attributes and variations for your product, e.g. color, size, brand etc.\nSelect from attributes defined by the Marketplace or create your own.",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "title": "Title",
+        "titlePlaceholder": "e.g. Color",
+        "values": "Values",
+        "selectValues": "Select values",
+        "valuePlaceholder": "Enter values",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, we will create variants with this attribute. You can define them in the next step."
+      },
       "variants": {
         "header": "Variants",
         "subHeadingTitle": "Yes, this is a product with variants",
@@ -2879,6 +2894,7 @@
       "values": "Values",
       "possibleValues": "Possible Values",
       "value": "Value",
+      "variantAxis": "Use for Variants",
       "rank": "Rank",
       "metadata": "Metadata"
     },

@@ -79,6 +79,7 @@ export const ProductCreateSchema = z
       title: z.string().min(1),
       values: z.union([z.string(), z.array(z.string())]).optional(),
       is_custom: z.boolean(),
+      use_for_variants: z.boolean(),
     })).optional(),
     options: z.array(ProductCreateOptionSchema).min(1),
     enable_variants: z.boolean(),

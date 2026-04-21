@@ -50,14 +50,12 @@ export const POST = async (
     },
   })
 
-  const createdId = result[0].id
-
   const {
     data: [product_attribute],
   } = await query.graph({
     entity: "product_attribute",
     fields: req.queryConfig.fields,
-    filters: { id: createdId },
+    filters: { id: result[0].id },
   })
 
   res.status(200).json({ product_attribute })

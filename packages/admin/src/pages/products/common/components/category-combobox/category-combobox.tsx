@@ -3,11 +3,13 @@ import {
   EllipseMiniSolid,
   TriangleRightMini,
   TrianglesMini,
+  XMarkMini,
 } from "@medusajs/icons"
 import { AdminProductCategoryResponse } from "@medusajs/types"
 import { Divider, Text, clx } from "@medusajs/ui"
 import { Popover as RadixPopover } from "radix-ui"
 import {
+  CSSProperties,
   ComponentPropsWithoutRef,
   Fragment,
   MouseEvent,
@@ -15,6 +17,7 @@ import {
   useCallback,
   useEffect,
   useImperativeHandle,
+  useMemo,
   useRef,
   useState,
 } from "react"
@@ -28,8 +31,9 @@ interface CategoryComboboxProps
     ComponentPropsWithoutRef<"input">,
     "value" | "defaultValue" | "onChange"
   > {
-  value: string
-  onChange: (value: string) => void
+  value: string[]
+  onChange: (value: string[]) => void
+  isSingleSelect?: boolean
 }
 
 type Level = {
@@ -37,10 +41,13 @@ type Level = {
   label: string
 }
 
+const TABLUAR_NUM_WIDTH = 8
+const TAG_BASE_WIDTH = 28
+
 export const CategoryCombobox = forwardRef<
   HTMLInputElement,
   CategoryComboboxProps
->(({ value, onChange, className, ...props }, ref) => {
+>(({ value, onChange, className, isSingleSelect, ...props }, ref) => {
   const innerRef = useRef<HTMLInputElement>(null)
 
   useImperativeHandle<HTMLInputElement | null, HTMLInputElement | null>(
@@ -67,19 +74,6 @@ export const CategoryCombobox = forwardRef<
         enabled: open,
       }
     )
-
-  // Fetch the selected category name for display
-  const { product_categories: selectedCategories } = useProductCategories(
-    {
-      id: value,
-      fields: "id,name",
-    },
-    {
-      enabled: !!value && !open,
-    }
-  )
-
-  const selectedLabel = selectedCategories?.[0]?.name
 
   const [showLoading, setShowLoading] = useState(false)
 
@@ -131,17 +125,21 @@ export const CategoryCombobox = forwardRef<
         e.preventDefault()
         e.stopPropagation()
 
-        if (value === option.value) {
-          onChange("")
+        if (isSelected(value, option.value)) {
+          onChange(value.filter((v) => v !== option.value))
         } else {
-          onChange(option.value)
-          handleOpenChange(false)
+          if (isSingleSelect) {
+            onChange([option.value])
+            handleOpenChange(false)
+          } else {
+            onChange([...value, option.value])
+          }
         }
 
         innerRef.current?.focus()
       }
     },
-    [value, onChange]
+    [value, onChange, isSingleSelect]
   )
 
   function handleOpenChange(open: boolean) {
@@ -161,8 +159,15 @@ export const CategoryCombobox = forwardRef<
 
   const options = getOptions(product_categories || [])
 
-  const hasValue = !!value
-  const hideInput = hasValue && !open
+  const showTag = value.length > 0
+  const showSelected = !open && value.length > 0
+
+  const tagWidth = useMemo(() => {
+    const count = value.length
+    const digits = count.toString().length
+
+    return TAG_BASE_WIDTH + digits * TABLUAR_NUM_WIDTH
+  }, [value])
 
   const showLevelUp = !searchValue && level.length > 0
 
@@ -257,39 +262,56 @@ export const CategoryCombobox = forwardRef<
             },
             className
           )}
+          style={
+            {
+              "--tag-width": `${tagWidth}px`,
+            } as CSSProperties
+          }
         >
-          <div className="relative flex size-full items-center">
-            {hideInput && (
-              <div className="pointer-events-none absolute inset-y-0 start-2 flex size-full items-center overflow-hidden">
-                <Text size="small" leading="compact" className="truncate">
-                  {selectedLabel}
-                </Text>
-              </div>
-            )}
-            <input
-              ref={innerRef}
-              value={searchValue}
-              onChange={(e) => {
-                onSearchValueChange(e.target.value)
+          {showTag && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault()
+                onChange([])
               }}
-              className={clx(
-                "txt-compact-small text-ui-fg-base size-full cursor-pointer appearance-none bg-transparent ps-2 pe-8 outline-none",
-                "hover:bg-ui-bg-field-hover",
-                "focus:cursor-text",
-                "placeholder:text-ui-fg-muted",
-                {
-                  "opacity-0": hideInput,
-                }
-              )}
-              {...props}
-            />
-          </div>
+              className="bg-ui-bg-base hover:bg-ui-bg-base-hover txt-compact-small-plus text-ui-fg-subtle focus-within:border-ui-fg-interactive transition-fg absolute start-0.5 top-0.5 flex h-[28px] items-center rounded-[4px] border py-[3px] ps-1.5 pe-1 outline-none"
+            >
+              <span className="tabular-nums">{value.length}</span>
+              <XMarkMini className="text-ui-fg-muted" />
+            </button>
+          )}
+          {showSelected && (
+            <div className="pointer-events-none absolute inset-y-0 start-[calc(var(--tag-width)+8px)] flex size-full items-center">
+              <Text size="small" leading="compact">
+                {t("general.selected")}
+              </Text>
+            </div>
+          )}
+          <input
+            ref={innerRef}
+            value={searchValue}
+            onChange={(e) => {
+              onSearchValueChange(e.target.value)
+            }}
+            className={clx(
+              "txt-compact-small size-full cursor-pointer appearance-none bg-transparent pe-8 outline-none",
+              "hover:bg-ui-bg-field-hover",
+              "focus:cursor-text",
+              "placeholder:text-ui-fg-muted",
+              {
+                "ps-2": !showTag,
+                "ps-[calc(var(--tag-width)+8px)]": showTag,
+              }
+            )}
+            {...props}
+          />
           <button
             type="button"
             onClick={() => handleOpenChange(true)}
             className="text-ui-fg-muted transition-fg hover:bg-ui-bg-field-hover absolute end-0 flex size-8 items-center justify-center rounded-r outline-none"
           >
-            <TrianglesMini />
+            <TrianglesMini className="text-ui-fg-muted" />
           </button>
         </div>
       </RadixPopover.Anchor>
@@ -373,7 +395,7 @@ export const CategoryCombobox = forwardRef<
                   tabIndex={-1}
                 >
                   <div className="flex size-5 items-center justify-center">
-                    {value === option.value && <EllipseMiniSolid />}
+                    {isSelected(value, option.value) && <EllipseMiniSolid />}
                   </div>
                   <Text
                     as="span"
@@ -468,4 +490,8 @@ function getOptions(
       has_children: cat.category_children?.length > 0,
     }
   })
+}
+
+function isSelected(values: string[], value: string): boolean {
+  return values.includes(value)
 }

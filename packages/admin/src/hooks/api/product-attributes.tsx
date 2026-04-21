@@ -131,7 +131,7 @@ export const useDeleteProductAttribute = (
   })
 }
 
-export const useCreateProductAttributeValue = (
+export const useUpsertProductAttributeValues = (
   attributeId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductAttributeResponse,
@@ -178,6 +178,9 @@ export const useUpdateProductAttributeValue = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productAttributesQueryKeys.detail(attributeId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: productAttributesQueryKeys.lists(),
       })
 
       options?.onSuccess?.(data, variables, context)

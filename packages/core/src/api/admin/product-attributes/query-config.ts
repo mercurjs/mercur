@@ -8,7 +8,6 @@ export const adminProductAttributeFields = [
   "is_filterable",
   "is_variant_axis",
   "is_active",
-  "is_global",
   "created_by",
   "rank",
   "metadata",

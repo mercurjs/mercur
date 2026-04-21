@@ -1,9 +1,9 @@
-import { useQueryParams } from "../../use-query-params"
+import { useQueryParams } from "../../use-query-params";
 
 type UseAttributeTableQueryProps = {
-  prefix?: string
-  pageSize?: number
-}
+  prefix?: string;
+  pageSize?: number;
+};
 
 export const useAttributeTableQuery = ({
   prefix,
@@ -11,11 +11,11 @@ export const useAttributeTableQuery = ({
 }: UseAttributeTableQueryProps) => {
   const queryObject = useQueryParams(
     ["offset", "q", "order", "created_at", "updated_at", "is_filterable"],
-    prefix
-  )
+    prefix,
+  );
 
   const { offset, q, order, created_at, updated_at, is_filterable } =
-    queryObject
+    queryObject;
 
   const searchParams: Record<string, any> = {
     limit: pageSize,
@@ -26,11 +26,10 @@ export const useAttributeTableQuery = ({
     is_filterable:
       is_filterable !== undefined ? is_filterable === "true" : undefined,
     q,
-    fields: "*possible_values,*product_categories",
-  }
+  };
 
   return {
     searchParams,
     raw: queryObject,
-  }
-}
+  };
+};

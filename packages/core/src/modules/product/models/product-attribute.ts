@@ -7,7 +7,7 @@ import ProductCategory from "./product-category";
 const ProductAttribute = model
   .define("ProductAttribute", {
     id: model.id({ prefix: "pattr" }).primaryKey(),
-    handle: model.text(),
+    handle: model.text().nullable(),
     name: model.text().searchable(),
     description: model.text().nullable(),
     type: model.enum(AttributeType),

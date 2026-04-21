@@ -21,7 +21,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "name": {
@@ -231,7 +231,7 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "name": {
@@ -2539,16 +2539,6 @@
           "primary": false,
           "nullable": false,
           "default": "false",
-          "mappedType": "boolean"
-        },
-        "manage_inventory": {
-          "name": "manage_inventory",
-          "type": "boolean",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "true",
           "mappedType": "boolean"
         },
         "hs_code": {

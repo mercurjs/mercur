@@ -5,7 +5,7 @@ import ProductVariant from "./product-variant";
 const ProductAttributeValue = model
   .define("ProductAttributeValue", {
     id: model.id({ prefix: "pattrval" }).primaryKey(),
-    handle: model.text(),
+    handle: model.text().nullable(),
     name: model.text(),
     rank: model.number().default(0),
     is_active: model.boolean().default(true),

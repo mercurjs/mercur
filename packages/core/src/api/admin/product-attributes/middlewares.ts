@@ -7,11 +7,11 @@ import {
 import { adminProductAttributeQueryConfig } from "./query-config"
 import {
   AdminCreateProductAttribute,
-  AdminCreateProductAttributeValue,
   AdminGetProductAttributeParams,
   AdminGetProductAttributesParams,
   AdminUpdateProductAttribute,
   AdminUpdateProductAttributeValue,
+  AdminUpsertProductAttributeValues,
 } from "./validators"
 
 export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
@@ -69,7 +69,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-attributes/:id/values",
     middlewares: [
-      validateAndTransformBody(AdminCreateProductAttributeValue),
+      validateAndTransformBody(AdminUpsertProductAttributeValues),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve

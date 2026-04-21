@@ -16,6 +16,7 @@ import {
 import {
   AttributeType,
   CreateProductAttributeDTO,
+  CreateProductAttributeValueDTO,
   CreateProductBrandDTO,
   CreateProductDTO,
   CreateProductVariantDTO,
@@ -26,9 +27,11 @@ import {
   ProductDTO,
   ProductVariantDTO,
   UpdateProductAttributeDTO,
+  UpdateProductAttributeValueDTO,
   UpdateProductBrandDTO,
   UpdateProductDTO,
   UpdateProductVariantDTO,
+  UpsertProductAttributeValueDTO,
   UpsertProductVariantDTO,
 } from "@mercurjs/types";
 import {
@@ -571,6 +574,40 @@ class ProductModuleService extends MedusaService({
       sharedContext
     );
     return (Array.isArray(data) ? result : result[0]) as any;
+  }
+
+  @InjectTransactionManager()
+  async upsertProductAttributeValues(
+    data: (UpsertProductAttributeValueDTO & { attribute_id?: string })[],
+    sharedContext?: Context
+  ): Promise<any[]> {
+    const forCreate = data.filter(
+      (v): v is CreateProductAttributeValueDTO & { attribute_id: string } =>
+        !("id" in v) || !v.id
+    );
+    const forUpdate = data.filter(
+      (v): v is UpdateProductAttributeValueDTO & { id: string } =>
+        "id" in v && !!v.id
+    );
+
+    let created: any[] = [];
+    let updated: any[] = [];
+
+    if (forCreate.length) {
+      created = await this.createProductAttributeValues(
+        forCreate,
+        sharedContext
+      );
+    }
+
+    if (forUpdate.length) {
+      updated = await super.updateProductAttributeValues(
+        forUpdate,
+        sharedContext
+      );
+    }
+
+    return [...created, ...updated];
   }
 
   // @ts-expect-error
