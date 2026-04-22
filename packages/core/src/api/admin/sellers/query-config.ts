@@ -12,6 +12,7 @@ export const adminSellerFields = [
   "currency_code",
   "status",
   "status_reason",
+  "approved_at",
   "is_premium",
   "closed_from",
   "closed_to",

@@ -253,11 +253,9 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                         <Select.Item value={SellerStatus.OPEN}>
                           {t("stores.status.open")}
                         </Select.Item>
-                        {value === SellerStatus.PENDING_APPROVAL && (
-                          <Select.Item value={SellerStatus.PENDING_APPROVAL}>
-                            {t("stores.status.pendingApproval")}
-                          </Select.Item>
-                        )}
+                        <Select.Item value={SellerStatus.PENDING_APPROVAL}>
+                          {t("stores.status.pendingApproval")}
+                        </Select.Item>
                         <Select.Item value={SellerStatus.SUSPENDED}>
                           {t("stores.status.suspended")}
                         </Select.Item>
