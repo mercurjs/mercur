@@ -1,12 +1,13 @@
 import { useMemo } from "react";
 
 import { ArrowPath, Link as LinkIcon, Trash } from "@medusajs/icons";
-import { Badge, toast } from "@medusajs/ui";
+import { toast } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "../../../../../components/common/action-menu";
+import { DataTableStatusCell } from "../../../../../components/data-table/components/data-table-status-cell/data-table-status-cell";
 import { _DataTable } from "../../../../../components/table/data-table";
 import {
   useSellerMembers,
@@ -184,21 +185,12 @@ const useColumns = (sellerId: string) => {
         ),
         cell: ({ row }) => {
           const isPending = row.original.kind === "invite";
-          const isMainAdmin =
-            row.original.kind === "member" && row.original.is_owner;
           return (
-            <div className="flex size-full items-center gap-x-2">
-              <Badge size="2xsmall" color={isPending ? "orange" : "green"}>
-                {isPending
-                  ? t("users.status.pending")
-                  : t("users.status.active")}
-              </Badge>
-              {isMainAdmin && (
-                <Badge size="2xsmall" color="blue">
-                  {t("stores.members.mainAdmin", "Main Admin")}
-                </Badge>
-              )}
-            </div>
+            <DataTableStatusCell color={isPending ? "orange" : "green"}>
+              {isPending
+                ? t("users.status.pending")
+                : t("users.status.active")}
+            </DataTableStatusCell>
           );
         },
       }),

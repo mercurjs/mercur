@@ -14,6 +14,7 @@ import { useMembers } from "../../../../hooks/api/members";
 import {
   useAddSellerMember,
   useInviteSellerMember,
+  useSellerInvites,
   useSellerMembers,
 } from "../../../../hooks/api/sellers";
 import { SellerMemberDTO, SellerRole } from "@mercurjs/types";
@@ -71,11 +72,14 @@ export const InviteMemberForm = () => {
     { placeholderData: (prev: any) => prev },
   );
 
-  // Fetch current sellers members so we can filter suggestions.
+  // Fetch current sellers members and pending invites so we can filter
+  // suggestions to never show emails that are already added or invited.
   const { seller_members: currentMembers } = useSellerMembers(id!, {
     limit: 100,
     offset: 0,
   });
+
+  const { member_invites: pendingInvites } = useSellerInvites(id!);
 
   const existingEmails = useMemo(() => {
     const emails = new Set<string>();
@@ -87,8 +91,15 @@ export const InviteMemberForm = () => {
         emails.add(email.toLowerCase());
       }
     });
+    ((pendingInvites as { email?: string; accepted?: boolean }[] | undefined) ?? [])
+      .filter((invite) => !invite.accepted)
+      .forEach((invite) => {
+        if (invite.email) {
+          emails.add(invite.email.toLowerCase());
+        }
+      });
     return emails;
-  }, [currentMembers]);
+  }, [currentMembers, pendingInvites]);
 
   const memberList = useMemo(() => {
     const all = (members as Member[] | undefined) ?? [];
