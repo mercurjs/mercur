@@ -74,6 +74,18 @@ const SUPPORTED_FORMATS_FILE_EXTENSIONS = [
 const stripWebsiteProtocol = (url: string | null | undefined): string =>
   url ? url.replace(/^https?:\/\//i, "") : "";
 
+const getFileNameFromUrl = (url: string | null | undefined): string | undefined => {
+  if (!url || url.startsWith("blob:")) return undefined;
+  try {
+    const pathname = new URL(url).pathname;
+    const last = pathname.split("/").filter(Boolean).pop();
+    return last ? decodeURIComponent(last) : undefined;
+  } catch {
+    const last = url.split("?")[0].split("/").filter(Boolean).pop();
+    return last ? decodeURIComponent(last) : undefined;
+  }
+};
+
 const ensureWebsiteProtocol = (url: string): string | null => {
   const trimmed = url.trim();
   if (!trimmed) return null;
@@ -155,7 +167,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
         email: values.email || undefined,
         phone: values.phone || null,
         description: values.description || null,
-        website_url: ensureWebsiteProtocol(values.website_url),
+        website_url: ensureWebsiteProtocol(values.website_url ?? ""),
         is_premium: values.is_premium,
         logo: logoUrl,
         banner: bannerUrl,
@@ -370,7 +382,10 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                     <Form.Control>
                       <FileUpload
                         uploadedImage={previewUrl}
-                        fileName={logoFile?.file?.name}
+                        fileName={
+                          logoFile?.file?.name ??
+                          getFileNameFromUrl(logoFile?.url)
+                        }
                         fileSize={logoFile?.file?.size}
                         multiple={false}
                         label={t("products.media.uploadImagesLabel")}
@@ -399,7 +414,10 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                     <Form.Control>
                       <FileUpload
                         uploadedImage={previewUrl}
-                        fileName={bannerFile?.file?.name}
+                        fileName={
+                          bannerFile?.file?.name ??
+                          getFileNameFromUrl(bannerFile?.url)
+                        }
                         fileSize={bannerFile?.file?.size}
                         multiple={false}
                         label={t("products.media.uploadImagesLabel")}
