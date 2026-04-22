@@ -17,7 +17,7 @@ export const StoreMembersSection = ({ sellerId }: StoreMembersSectionProps) => {
         <Heading level="h2">{t("users.domain", "Users")}</Heading>
         <Link to="invite">
           <Button size="small" variant="secondary">
-            {t("users.invite", "Invite")}
+            {t("stores.members.addUser.action", "Add")}
           </Button>
         </Link>
       </div>

@@ -3454,10 +3454,16 @@
       "errorToast": "Failed to send invitation"
     },
     "members": {
+      "mainAdmin": "Main Admin",
       "addUser": {
         "header": "Add User",
-        "hint": "Add new user to manage this store. You can select existing user or invite new ones.",
-        "assignSuccess": "User {{email}} assigned to the store"
+        "action": "Add",
+        "hint": "Add new user to manage this store. You can select existing user or invite new one.",
+        "addedToast": "User was successfully added.",
+        "invitedToast": "User was successfully invited.",
+        "validation": {
+          "roleRequired": "Please select a role"
+        }
       },
       "invite": {
         "resendSuccess": "Invite resent to {{email}}",

@@ -1,14 +1,13 @@
 import { useMemo } from "react";
 
 import { ArrowPath, Link as LinkIcon, Trash } from "@medusajs/icons";
-import { StatusBadge, toast } from "@medusajs/ui";
+import { Badge, toast } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { _DataTable } from "../../../../../components/table/data-table";
-import { DateCell } from "../../../../../components/table/table-cells/common/date-cell";
 import {
   useSellerMembers,
   useSellerInvites,
@@ -35,7 +34,7 @@ type MemberRow = {
   id: string;
   email: string;
   role_id: string;
-  created_at: string | null;
+  is_owner: boolean;
   member: SellerMemberDTO;
 };
 
@@ -44,7 +43,6 @@ type InviteRow = {
   id: string;
   email: string;
   role_id: string;
-  created_at: string | null;
   invite_url?: string | null;
 };
 
@@ -76,13 +74,13 @@ export const StoreMembersDataTable = ({
 
   const rows: UserRow[] = useMemo(() => {
     const members: MemberRow[] = (
-      (seller_members as SellerMemberDTO[] | undefined) ?? []
+      (seller_members as (SellerMemberDTO & { is_owner?: boolean })[] | undefined) ?? []
     ).map((m) => ({
       kind: "member",
       id: m.id,
       email: m.member?.email ?? "-",
       role_id: m.role_id,
-      created_at: m.created_at ?? null,
+      is_owner: Boolean(m.is_owner),
       member: m,
     }));
 
@@ -95,7 +93,6 @@ export const StoreMembersDataTable = ({
         id: invite.id,
         email: invite.email,
         role_id: invite.role_id,
-        created_at: invite.created_at ?? null,
         invite_url: invite.invite_url ?? null,
       }));
 
@@ -187,36 +184,30 @@ const useColumns = (sellerId: string) => {
         ),
         cell: ({ row }) => {
           const isPending = row.original.kind === "invite";
+          const isMainAdmin =
+            row.original.kind === "member" && row.original.is_owner;
           return (
-            <div className="flex size-full items-center">
-              <StatusBadge color={isPending ? "orange" : "green"}>
+            <div className="flex size-full items-center gap-x-2">
+              <Badge size="2xsmall" color={isPending ? "orange" : "green"}>
                 {isPending
                   ? t("users.status.pending")
                   : t("users.status.active")}
-              </StatusBadge>
+              </Badge>
+              {isMainAdmin && (
+                <Badge size="2xsmall" color="blue">
+                  {t("stores.members.mainAdmin", "Main Admin")}
+                </Badge>
+              )}
             </div>
           );
-        },
-      }),
-      columnHelper.accessor("created_at", {
-        header: () => (
-          <div className="flex h-full w-full items-center">
-            <span>{t("fields.createdAt")}</span>
-          </div>
-        ),
-        cell: ({ getValue }) => {
-          const date = getValue();
-          return <DateCell date={date ? new Date(date) : null} />;
         },
       }),
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
-          const isAdminRole =
-            row.original.role_id === SellerRole.SELLER_ADMINISTRATION;
-
           if (row.original.kind === "member") {
-            if (isAdminRole) return null;
+            // Owner cannot be removed.
+            if (row.original.is_owner) return null;
             return (
               <MemberActions
                 member={row.original.member}
@@ -226,11 +217,7 @@ const useColumns = (sellerId: string) => {
           }
 
           return (
-            <InviteActions
-              invite={row.original}
-              sellerId={sellerId}
-              allowDelete={!isAdminRole}
-            />
+            <InviteActions invite={row.original} sellerId={sellerId} />
           );
         },
       }),
@@ -242,11 +229,9 @@ const useColumns = (sellerId: string) => {
 const InviteActions = ({
   invite,
   sellerId,
-  allowDelete = true,
 }: {
   invite: InviteRow;
   sellerId: string;
-  allowDelete?: boolean;
 }) => {
   const { t } = useTranslation();
   const { mutateAsync: resend } = useResendSellerInvite(sellerId);
@@ -311,10 +296,7 @@ const InviteActions = ({
         },
       ],
     },
-  ];
-
-  if (allowDelete) {
-    groups.push({
+    {
       actions: [
         {
           icon: <Trash />,
@@ -322,8 +304,8 @@ const InviteActions = ({
           onClick: handleDelete,
         },
       ],
-    });
-  }
+    },
+  ];
 
   return <ActionMenu groups={groups} />;
 };
