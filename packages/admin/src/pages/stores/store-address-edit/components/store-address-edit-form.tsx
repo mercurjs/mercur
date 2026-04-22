@@ -69,9 +69,7 @@ export const StoreAddressEditForm = ({
       },
       {
         onSuccess: () => {
-          toast.success(
-            t("store.address.edit.successToast"),
-          );
+          toast.success(t("store.address.edit.successToast"));
           handleSuccess();
         },
         onError: (error: Error) => {
@@ -103,19 +101,6 @@ export const StoreAddressEditForm = ({
           />
           <Form.Field
             control={form.control}
-            name="country_code"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t("fields.country")}</Form.Label>
-                <Form.Control>
-                  <CountrySelect {...field} />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={form.control}
             name="address_1"
             render={({ field }) => (
               <Form.Item>
@@ -132,7 +117,9 @@ export const StoreAddressEditForm = ({
             name="address_2"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label optional>{t("fields.address2")}</Form.Label>
+                <Form.Label optional>
+                  {t("store.address.apartmentLabel", "Apartment, suite, etc.")}
+                </Form.Label>
                 <Form.Control>
                   <Input size="small" {...field} />
                 </Form.Control>
@@ -140,34 +127,45 @@ export const StoreAddressEditForm = ({
               </Form.Item>
             )}
           />
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Field
-              control={form.control}
-              name="city"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.city")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="postal_code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.postalCode")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-          </div>
+          <Form.Field
+            control={form.control}
+            name="postal_code"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("fields.postalCode")}</Form.Label>
+                <Form.Control>
+                  <Input size="small" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("fields.city")}</Form.Label>
+                <Form.Control>
+                  <Input size="small" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="country_code"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.country")}</Form.Label>
+                <Form.Control>
+                  <CountrySelect {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
           <Form.Field
             control={form.control}
             name="province"
