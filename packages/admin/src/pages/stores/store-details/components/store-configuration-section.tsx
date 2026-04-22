@@ -1,7 +1,9 @@
-import { Container, Heading, Table, Text } from "@medusajs/ui";
+import { CalendarMini } from "@medusajs/icons";
+import { Container, Heading, Table } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { DateCell } from "../../../../components/table/table-cells/common/date-cell";
+import { NoRecords } from "../../../../components/common/empty-table-content/empty-table-content";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
 
@@ -48,14 +50,11 @@ export const StoreConfigurationSection = ({
           </Table.Body>
         </Table>
       ) : (
-        <div className="flex flex-col items-center gap-y-1 pb-6 pt-2">
-          <Text size="small" leading="compact" weight="plus">
-            {t("store.timeOff.empty.title")}
-          </Text>
-          <Text size="small" className="text-ui-fg-muted">
-            {t("store.timeOff.empty.message")}
-          </Text>
-        </div>
+        <NoRecords
+          icon={<CalendarMini className="text-ui-fg-subtle" />}
+          title={t("store.timeOff.empty.title")}
+          message={t("store.timeOff.empty.message")}
+        />
       )}
     </Container>
   );

@@ -131,7 +131,11 @@ export const StoreMembersDataTable = ({
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
       noRecords={{
-        message: t("users.list.empty.description"),
+        title: t("stores.emptyStates.users.title", "No users yet"),
+        message: t(
+          "stores.emptyStates.users.message",
+          "Invite the first user to manage this store.",
+        ),
       }}
     />
   );

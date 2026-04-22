@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, Input, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -19,8 +20,16 @@ type StorePaymentDetailsFormProps = {
 };
 
 const StorePaymentDetailsSchema = zod.object({
-  country_code: zod.string().min(1),
-  holder_name: zod.string().min(1),
+  country_code: zod
+    .string()
+    .min(1, {
+      message: i18n.t("store.paymentDetails.validation.countryRequired"),
+    }),
+  holder_name: zod
+    .string()
+    .min(1, {
+      message: i18n.t("store.paymentDetails.validation.accountNameRequired"),
+    }),
   bank_name: zod.string().optional().or(zod.literal("")),
   iban: zod.string().optional().or(zod.literal("")),
   bic: zod.string().optional().or(zod.literal("")),
@@ -137,7 +146,7 @@ export const StorePaymentDetailsForm = ({
                 name="account_number"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
+                    <Form.Label optional>
                       {t("store.paymentDetails.fields.accountNumber")}
                     </Form.Label>
                     <Form.Control>
@@ -152,7 +161,7 @@ export const StorePaymentDetailsForm = ({
                 name="routing_number"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
+                    <Form.Label optional>
                       {t("store.paymentDetails.fields.achRoutingNumber")}
                     </Form.Label>
                     <Form.Control>
@@ -170,7 +179,7 @@ export const StorePaymentDetailsForm = ({
                 name="iban"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
+                    <Form.Label optional>
                       {t("store.paymentDetails.fields.iban")}
                     </Form.Label>
                     <Form.Control>
@@ -185,7 +194,7 @@ export const StorePaymentDetailsForm = ({
                 name="account_number"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
+                    <Form.Label optional>
                       {t("store.paymentDetails.fields.accountNumber")}
                     </Form.Label>
                     <Form.Control>
@@ -200,7 +209,7 @@ export const StorePaymentDetailsForm = ({
                 name="bic"
                 render={({ field }) => (
                   <Form.Item>
-                    <Form.Label>
+                    <Form.Label optional>
                       {t("store.paymentDetails.fields.swiftBic")}
                     </Form.Label>
                     <Form.Control>

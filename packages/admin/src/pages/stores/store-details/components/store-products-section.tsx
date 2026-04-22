@@ -78,7 +78,11 @@ export const StoreProductsSection = ({
         pagination
         prefix={PREFIX}
         noRecords={{
-          message: t("products.list.noRecordsMessage"),
+          title: t("stores.emptyStates.products.title", "No products yet"),
+          message: t(
+            "stores.emptyStates.products.message",
+            "Products published by this store will appear here.",
+          ),
         }}
       />
     </Container>

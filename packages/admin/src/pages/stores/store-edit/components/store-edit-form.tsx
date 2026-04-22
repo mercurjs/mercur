@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { InformationCircleSolid } from "@medusajs/icons";
 import {
   Button,
@@ -36,10 +37,15 @@ type StoreEditFormProps = {
 
 const EditStoreSchema = zod.object({
   status: zod.nativeEnum(SellerStatus),
-  name: zod.string().min(1),
+  name: zod
+    .string()
+    .min(1, { message: i18n.t("stores.create.validation.nameRequired") }),
   description: zod.string().optional().or(zod.literal("")),
   handle: zod.string().optional().or(zod.literal("")),
-  email: zod.string().email().optional().or(zod.literal("")),
+  email: zod
+    .string()
+    .min(1, { message: i18n.t("stores.create.validation.emailRequired") })
+    .email({ message: i18n.t("stores.create.validation.emailInvalid") }),
   phone: zod.string().optional().or(zod.literal("")),
   website_url: zod.string().optional().or(zod.literal("")),
   is_premium: zod.boolean(),
@@ -338,6 +344,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
             label={t("fields.premium")}
             description={t("stores.premium.description")}
           />
+          <div className="border-ui-border-base border-t" />
           <div className="flex flex-col gap-y-4">
             <Heading level="h2">{t("stores.edit.mediaHeading")}</Heading>
             <Form.Field
@@ -398,14 +405,16 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                 );
               }}
             />
-            <div className="bg-ui-bg-subtle flex items-start gap-x-2 rounded-lg px-3 py-2">
-              <InformationCircleSolid className="text-ui-fg-muted mt-[2px]" />
-              <Text size="small" className="text-ui-fg-subtle">
-                <span className="text-ui-fg-base font-medium">
+            <div className="bg-ui-bg-component shadow-elevation-card-rest flex items-start gap-x-2 rounded-lg px-4 py-3">
+              <InformationCircleSolid className="text-ui-fg-interactive mt-[2px]" />
+              <div className="flex flex-col gap-y-0.5">
+                <Text size="small" weight="plus" className="text-ui-fg-base">
                   {t("stores.edit.mediaTipLabel")}
-                </span>{" "}
-                {t("stores.edit.mediaTipBody")}
-              </Text>
+                </Text>
+                <Text size="small" className="text-ui-fg-subtle">
+                  {t("stores.edit.mediaTipBody")}
+                </Text>
+              </div>
             </div>
           </div>
         </RouteDrawer.Body>
