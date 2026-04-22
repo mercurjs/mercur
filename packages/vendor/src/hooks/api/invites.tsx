@@ -38,13 +38,20 @@ export const useAcceptInvite = (
   options?: UseMutationOptions<
     any,
     ClientError,
-    { invite_token: string; auth_token: string }
+    {
+      invite_token: string;
+      auth_token: string;
+      first_name?: string;
+      last_name?: string;
+    }
   >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>
       sdk.vendor.members.invites.accept.mutate({
         invite_token: payload.invite_token,
+        first_name: payload.first_name,
+        last_name: payload.last_name,
         fetchOptions: {
           headers: {
             Authorization: `Bearer ${payload.auth_token}`,

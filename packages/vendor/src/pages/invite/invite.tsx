@@ -28,19 +28,39 @@ import { sdk } from "@lib/client";
 const CreateAccountSchema = z
   .object({
     email: z.string().email(),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
     password: z.string().min(1),
     repeat_password: z.string().optional(),
     existing_member: z.boolean(),
   })
-  .superRefine(({ password, repeat_password, existing_member }, ctx) => {
-    if (!existing_member && (!repeat_password || password !== repeat_password)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: i18n.t("invite.passwordMismatch"),
-        path: ["repeat_password"],
-      });
-    }
-  });
+  .superRefine(
+    ({ first_name, last_name, password, repeat_password, existing_member }, ctx) => {
+      if (!existing_member) {
+        if (!first_name || first_name.trim().length === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: i18n.t("register.validation.firstNameRequired"),
+            path: ["first_name"],
+          });
+        }
+        if (!last_name || last_name.trim().length === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: i18n.t("register.validation.lastNameRequired"),
+            path: ["last_name"],
+          });
+        }
+        if (!repeat_password || password !== repeat_password) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: i18n.t("invite.passwordMismatch"),
+            path: ["repeat_password"],
+          });
+        }
+      }
+    },
+  );
 
 type DecodedInvite = {
   id: string;
@@ -214,6 +234,8 @@ const CreateView = ({
     resolver: zodResolver(CreateAccountSchema),
     defaultValues: {
       email: invite.email || "",
+      first_name: "",
+      last_name: "",
       password: "",
       repeat_password: "",
       existing_member: isExistingMember,
@@ -244,6 +266,8 @@ const CreateView = ({
       await acceptInvite({
         invite_token: token,
         auth_token: authToken,
+        first_name: isExistingMember ? undefined : data.first_name,
+        last_name: isExistingMember ? undefined : data.last_name,
       });
 
       // Re-login to get a fresh token with updated actor_id
@@ -327,6 +351,36 @@ const CreateView = ({
                 </Form.Item>
               )}
             />
+            {!isExistingMember && (
+              <div className="grid grid-cols-2 gap-x-3">
+                <Form.Field
+                  control={form.control}
+                  name="first_name"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t("register.firstName")}</Form.Label>
+                      <Form.Control>
+                        <Input autoComplete="given-name" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  control={form.control}
+                  name="last_name"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t("register.lastName")}</Form.Label>
+                      <Form.Control>
+                        <Input autoComplete="family-name" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+              </div>
+            )}
             <Form.Field
               control={form.control}
               name="password"

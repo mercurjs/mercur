@@ -49,7 +49,15 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateSellerAccountType>,
   res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
-  const { address, professional_details, payment_details, member_email, ...sellerData } = req.validatedBody
+  const {
+    address,
+    professional_details,
+    payment_details,
+    member_email,
+    first_name,
+    last_name,
+    ...sellerData
+  } = req.validatedBody
 
   const { result: seller } = await createSellerAccountWorkflow(req.scope).run({
     input: {
@@ -57,6 +65,8 @@ export const POST = async (
       member_id: req.auth_context.actor_id || undefined,
       seller: sellerData,
       member_email,
+      first_name: first_name ?? undefined,
+      last_name: last_name ?? undefined,
       address,
       professional_details,
       payment_details,

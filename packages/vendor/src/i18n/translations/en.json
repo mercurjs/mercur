@@ -2587,6 +2587,8 @@
     "domain": "Profile",
     "manageYourProfileDetails": "Manage your profile details.",
     "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
       "languageLabel": "Language",
       "usageInsightsLabel": "Usage insights"
     },

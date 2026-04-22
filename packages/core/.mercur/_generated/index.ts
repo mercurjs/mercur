@@ -433,7 +433,11 @@ export type Routes = {
                 members: typeof import("../../src/api/admin/sellers/[id]/members/route") & {
                     $memberId: typeof import("../../src/api/admin/sellers/[id]/members/[member_id]/route");
                     invite: typeof import("../../src/api/admin/sellers/[id]/members/invite/route");
-                    invites: typeof import("../../src/api/admin/sellers/[id]/members/invites/route");
+                    invites: typeof import("../../src/api/admin/sellers/[id]/members/invites/route") & {
+                        $inviteId: typeof import("../../src/api/admin/sellers/[id]/members/invites/[invite_id]/route") & {
+                            resend: typeof import("../../src/api/admin/sellers/[id]/members/invites/[invite_id]/resend/route");
+                        };
+                    };
                 };
                 paymentDetails: typeof import("../../src/api/admin/sellers/[id]/payment-details/route");
                 products: typeof import("../../src/api/admin/sellers/[id]/products/route");
@@ -451,6 +455,7 @@ export type Routes = {
                 };
             };
         };
+        members: typeof import("../../src/api/admin/members/route");
         subscriptionPlans: typeof import("../../src/api/admin/subscription-plans/route") & {
             $id: typeof import("../../src/api/admin/subscription-plans/[id]/route") & {
                 overrides: typeof import("../../src/api/admin/subscription-plans/[id]/overrides/route") & {
