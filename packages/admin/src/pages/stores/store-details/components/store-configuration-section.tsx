@@ -28,6 +28,7 @@ export const StoreConfigurationSection = ({
             <Table.Row>
               <Table.HeaderCell>{t("fields.startDate")}</Table.HeaderCell>
               <Table.HeaderCell>{t("fields.endDate")}</Table.HeaderCell>
+              <Table.HeaderCell>{t("fields.note")}</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
@@ -37,6 +38,11 @@ export const StoreConfigurationSection = ({
               </Table.Cell>
               <Table.Cell>
                 <DateCell date={seller.closed_to ?? null} />
+              </Table.Cell>
+              <Table.Cell>
+                <span className="text-ui-fg-base">
+                  {seller.closure_note || "-"}
+                </span>
               </Table.Cell>
             </Table.Row>
           </Table.Body>

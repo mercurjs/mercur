@@ -48,6 +48,8 @@ const LoginForm = () => {
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     defaultValues: {
       email: "",
       password: "",
@@ -195,7 +197,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <>
           <LoginLogo />
-          <div className="mt-8">
+          <div className="mt-6">
             <LoginHeader />
             <LoginForm />
           </div>

@@ -5,7 +5,6 @@ import { useTranslation } from "react-i18next";
 import { SellerStatusCell } from "../../../components/table/table-cells/seller/seller-status-cell/seller-status-cell";
 import { DateCell } from "@/components/table/table-cells/common/date-cell";
 import { SellerDTO, SellerStatus } from "@mercurjs/types";
-import { StatusCell } from "@/components/table/table-cells/common/status-cell";
 
 const columnHelper = createColumnHelper<SellerDTO>();
 
@@ -38,16 +37,13 @@ export const useSellersTableColumns = () => {
       columnHelper.display({
         id: "is_premium",
         header: t("stores.fields.premium"),
-        cell: ({ row }) => {
-          const isPremium = row.original.is_premium;
-          return (
-            <StatusCell color={isPremium ? "purple" : "grey"}>
-              {isPremium
-                ? t("stores.premium.yes")
-                : t("stores.premium.no")}
-            </StatusCell>
-          );
-        },
+        cell: ({ row }) => (
+          <span className="text-ui-fg-base">
+            {row.original.is_premium
+              ? t("stores.premium.yes")
+              : t("stores.premium.no")}
+          </span>
+        ),
       }),
       columnHelper.display({
         id: "created_at",

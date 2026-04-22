@@ -3188,15 +3188,20 @@
     "companyName": "Company name",
     "confirmPassword": "Confirm password",
     "signUp": "Sign up",
-    "alreadySeller": "Already have an account? - <0>Sign In</0>",
+    "alreadySeller": "Already have an account? <0>Log in</0>",
     "passwordMismatch": "Passwords don't match",
     "emailTaken": "Provided email is already taken",
     "validation": {
       "nameRequired": "Name must be at least 2 characters",
+      "firstNameRequired": "Please enter your first name",
+      "lastNameRequired": "Please enter your last name",
       "emailInvalid": "Please enter a valid email address",
       "passwordMinLength": "Password must be at least 8 characters",
       "confirmPasswordRequired": "Please confirm your password"
     },
+    "firstName": "First name",
+    "lastName": "Last name",
+    "passwordHint": "Must be at least 8 characters.",
     "successTitle": "Thank you for registering!",
     "successHint": "You may need to wait for admin authorization before logging in. A confirmation email will be sent to you shortly.",
     "backToLogin": "Back to login"
@@ -3292,7 +3297,7 @@
         "emailInvalid": "Please enter an email",
         "currencyRequired": "Please select a currency",
         "countryRequired": "Please select a country",
-        "accountNameRequired": "Please enter account name"
+        "accountNameRequired": "Please enter an account name"
       },
       "preview": {
         "title": "Welcome to Mercur",

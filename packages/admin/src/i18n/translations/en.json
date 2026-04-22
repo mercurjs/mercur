@@ -3195,6 +3195,8 @@
     "reference_id": "Reference ID",
     "refundAmount": "Refund amount",
     "name": "Name",
+    "note": "Note",
+    "selectPlaceholder": "Select",
     "default": "Default",
     "lastName": "Last Name",
     "firstName": "First Name",

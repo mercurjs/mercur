@@ -17,6 +17,8 @@ import { useFeatureFlags, useSignUpWithEmailPass } from "@hooks/api"
 
 import { RegisterSchema } from "./register-schema"
 
+const REGISTER_DRAFT_KEY = "mercur_register_draft"
+
 const RegisterLogo = () => {
   return <AvatarBox />
 }
@@ -41,36 +43,67 @@ const RegisterForm = () => {
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     defaultValues: {
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
-      confirmPassword: "",
     },
   })
 
   const { mutateAsync: signUp, isPending } = useSignUpWithEmailPass()
 
-  const handleSubmit = form.handleSubmit(async ({ email, password }) => {
+  const handleSubmit = form.handleSubmit(async ({ first_name, last_name, email, password }) => {
     setServerError(null)
     try {
       await signUp({ email, password })
-      navigate("/onboarding", { state: { email } })
+      // Persist identity details for onboarding step that creates the seller member.
+      // Backend emailpass register does not accept these fields directly today,
+      // so they ride through sessionStorage and land on the member via onboarding.
+      sessionStorage.setItem(
+        REGISTER_DRAFT_KEY,
+        JSON.stringify({ first_name, last_name, email }),
+      )
+      navigate("/onboarding", { state: { email, first_name, last_name } })
     } catch (error: any) {
       setServerError(error?.message || t("register.error"))
     }
   })
 
-  const validationError =
-    form.formState.errors.email?.message ||
-    form.formState.errors.password?.message ||
-    form.formState.errors.confirmPassword?.message
-
-  const displayError = validationError || serverError
-
   return (
     <Form {...form}>
       <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
         <div className="flex flex-col gap-y-4">
+          <div className="grid grid-cols-2 gap-x-3">
+            <Form.Field
+              control={form.control}
+              name="first_name"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t("register.firstName")}</Form.Label>
+                  <Form.Control>
+                    <Input autoComplete="given-name" {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
+              name="last_name"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t("register.lastName")}</Form.Label>
+                  <Form.Control>
+                    <Input autoComplete="family-name" {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+          </div>
           <Form.Field
             control={form.control}
             name="email"
@@ -80,6 +113,7 @@ const RegisterForm = () => {
                 <Form.Control>
                   <Input autoComplete="email" {...field} />
                 </Form.Control>
+                <Form.ErrorMessage />
               </Form.Item>
             )}
           />
@@ -96,28 +130,14 @@ const RegisterForm = () => {
                     {...field}
                   />
                 </Form.Control>
+                <Form.Hint>{t("register.passwordHint")}</Form.Hint>
+                <Form.ErrorMessage />
               </Form.Item>
             )}
           />
-          <Form.Field
-            control={form.control}
-            name="confirmPassword"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t("register.confirmPassword")}</Form.Label>
-                <Form.Control>
-                  <Input
-                    type="password"
-                    autoComplete="new-password"
-                    {...field}
-                  />
-                </Form.Control>
-              </Form.Item>
-            )}
-          />
-          {displayError && (
+          {serverError && (
             <Hint className="inline-flex" variant="error">
-              {displayError}
+              {serverError}
             </Hint>
           )}
         </div>
@@ -170,7 +190,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <>
           <RegisterLogo />
-          <div className="mt-8">
+          <div className="mt-6">
             <RegisterHeader />
             <RegisterForm />
           </div>
