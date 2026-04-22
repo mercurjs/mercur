@@ -9,6 +9,7 @@ export const adminProductAttributeFields = [
   "is_variant_axis",
   "is_active",
   "created_by",
+  "product_id",
   "rank",
   "metadata",
   "created_at",

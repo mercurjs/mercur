@@ -1,4 +1,5 @@
 import { model } from "@medusajs/framework/utils";
+import Product from "./product";
 import ProductAttribute from "./product-attribute";
 import ProductVariant from "./product-variant";
 
@@ -16,7 +17,9 @@ const ProductAttributeValue = model
       mappedBy: "values",
     }),
     variants: model.manyToMany(() => ProductVariant, {
-      pivotTable: "product_variant_attribute_value",
+      mappedBy: "attribute_values",
+    }),
+    products: model.manyToMany(() => Product, {
       mappedBy: "attribute_values",
     }),
   })

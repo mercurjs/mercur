@@ -1,5 +1,4 @@
 import { HttpTypes } from "@medusajs/types"
-import { castNumber } from "../../../lib/cast-number"
 import { ProductCreateSchemaType } from "./types"
 
 export const normalizeProductFormValues = (
@@ -13,8 +12,11 @@ export const normalizeProductFormValues = (
     ?.filter((media) => !media.isThumbnail)
     .map((media) => ({ url: media.url }))
 
+  const { variantAttributes, attributeValues } = normalizeFormAttributes(
+    values.attributes ?? []
+  )
+
   return {
-    status: values.status,
     is_giftcard: false,
     tags: values?.tags?.length
       ? values.tags?.map((tag) => ({ id: tag }))
@@ -37,67 +39,79 @@ export const normalizeProductFormValues = (
     length: values.length ? parseFloat(values.length) : undefined,
     height: values.height ? parseFloat(values.height) : undefined,
     weight: values.weight ? parseFloat(values.weight) : undefined,
-    options: values.options.filter((o) => o.title), // clean temp. values
+    variant_attributes: variantAttributes.length
+      ? variantAttributes
+      : undefined,
+    attribute_values: Object.keys(attributeValues).length
+      ? attributeValues
+      : undefined,
     variants: normalizeVariants(
       values.variants.filter((variant) => variant.should_create),
       values.regionsCurrencyMap
     ),
-  }
+  } as any
 }
 
 export const normalizeVariants = (
   variants: ProductCreateSchemaType["variants"],
   regionsCurrencyMap: Record<string, string>
-): HttpTypes.AdminCreateProductVariant[] => {
-  return variants.map((variant) => ({
-    title: variant.title || Object.values(variant.options || {}).join(" / "),
-    options: variant.options,
-    sku: variant.sku || undefined,
-    manage_inventory: !!variant.manage_inventory,
-    allow_backorder: !!variant.allow_backorder,
-    variant_rank: variant.variant_rank,
-    inventory_items: variant
-      .inventory!.map((i) => {
-        const quantity = i.required_quantity
-          ? castNumber(i.required_quantity)
-          : null
+): any[] => {
+  return variants.map((variant) => {
+    const hasOptions = variant.attribute_values && Object.keys(variant.attribute_values).length > 0
 
-        if (!i.inventory_item_id || !quantity) {
-          return false
-        }
+    return {
+      title: variant.title || (hasOptions ? Object.values(variant.attribute_values).join(" / ") : "Default variant"),
+      attribute_values: hasOptions ? variant.attribute_values : undefined,
+      sku: variant.sku || undefined,
+      variant_rank: variant.variant_rank,
+    }
+  })
+}
 
-        return {
-          ...i,
-          required_quantity: quantity,
-        }
-      })
-      .filter(
-        (
-          item
-        ): item is { required_quantity: number; inventory_item_id: string } =>
-          item !== false
-      ),
-    prices: Object.entries(variant.prices || {})
-      .map(([key, value]: any) => {
-        if (value === "" || value === undefined) {
-          return undefined
-        }
+const normalizeFormAttributes = (
+  attributes: NonNullable<ProductCreateSchemaType["attributes"]>
+) => {
+  const variantAttributes: any[] = []
+  const attributeValues: Record<string, string | string[]> = {}
 
-        if (key.startsWith("reg_")) {
-          return {
-            currency_code: regionsCurrencyMap[key],
-            amount: castNumber(value),
-            rules: { region_id: key },
-          }
-        } else {
-          return {
-            currency_code: key,
-            amount: castNumber(value),
-          }
-        }
-      })
-      .filter((v) => !!v),
-  }))
+  for (const attr of attributes) {
+    if (attr.use_for_variants) {
+      // Variant axis attribute
+      if (attr.attribute_id) {
+        // Global attribute reference
+        variantAttributes.push({
+          attribute_id: attr.attribute_id,
+          value_ids: Array.isArray(attr.values)
+            ? attr.values
+            : attr.values
+              ? [attr.values]
+              : undefined,
+        })
+      } else if (attr.is_custom && attr.title) {
+        // Inline custom attribute
+        variantAttributes.push({
+          name: attr.title,
+          type: attr.type ?? "single_select",
+          values: Array.isArray(attr.values)
+            ? attr.values
+            : attr.values
+              ? [attr.values]
+              : [],
+          is_variant_axis: true,
+        })
+      }
+    } else {
+      // Non-variant descriptive attribute — product-level values
+      const key = attr.title
+      if (!key) continue
+
+      if (attr.values !== undefined && attr.values !== "") {
+        attributeValues[key] = attr.values
+      }
+    }
+  }
+
+  return { variantAttributes, attributeValues }
 }
 
 export const decorateVariantsWithDefaultValues = (

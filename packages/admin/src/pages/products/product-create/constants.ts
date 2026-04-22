@@ -29,7 +29,7 @@ const ProductCreateVariantSchema = z.object({
   manage_inventory: z.boolean().optional(),
   allow_backorder: z.boolean().optional(),
   inventory_kit: z.boolean().optional(),
-  options: z.record(z.string(), z.string()),
+  attribute_values: z.record(z.string(), z.string()).optional(),
   variant_rank: z.number(),
   prices: z.record(z.string(), optionalFloat).optional(),
   inventory: z
@@ -44,15 +44,6 @@ const ProductCreateVariantSchema = z.object({
 
 export type ProductCreateVariantSchema = z.infer<
   typeof ProductCreateVariantSchema
->
-
-const ProductCreateOptionSchema = z.object({
-  title: z.string(),
-  values: z.array(z.string()).min(1),
-})
-
-export type ProductCreateOptionSchema = z.infer<
-  typeof ProductCreateOptionSchema
 >
 
 export const ProductCreateSchema = z
@@ -79,9 +70,14 @@ export const ProductCreateSchema = z
       title: z.string().min(1),
       values: z.union([z.string(), z.array(z.string())]).optional(),
       is_custom: z.boolean(),
+      is_required: z.boolean().optional(),
       use_for_variants: z.boolean(),
+      type: z.string().optional(),
+      available_values: z.array(z.object({
+        id: z.string(),
+        name: z.string(),
+      })).optional(),
     })).optional(),
-    options: z.array(ProductCreateOptionSchema).min(1),
     enable_variants: z.boolean(),
     variants: z.array(ProductCreateVariantSchema).min(1),
     media: z.array(MediaSchema).optional(),
@@ -121,20 +117,12 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
 > = {
   discountable: true,
   tags: [],
-  options: [
-    {
-      title: "Default option",
-      values: ["Default option value"],
-    },
-  ],
   variants: decorateVariantsWithDefaultValues([
     {
       title: "Default variant",
       should_create: true,
       variant_rank: 0,
-      options: {
-        "Default option": "Default option value",
-      },
+      attribute_values: {},
       inventory: [{ inventory_item_id: "", required_quantity: "" }],
       is_default: true,
     },

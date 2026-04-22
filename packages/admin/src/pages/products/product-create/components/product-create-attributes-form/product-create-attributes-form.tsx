@@ -4,24 +4,44 @@ import {
   Heading,
   Hint,
   IconButton,
+  InlineTip,
   Input,
   Label,
+  Select,
   Switch,
   Text,
   Textarea,
 } from "@medusajs/ui"
-import { Controller, useFieldArray } from "react-hook-form"
+import { AttributeType, ProductAttributeDTO } from "@mercurjs/types"
+import { useEffect } from "react"
+import {
+  Controller,
+  FieldArrayWithId,
+  UseFieldArrayRemove,
+  useFieldArray,
+} from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "../../../../../components/common/form"
 import { ChipInput } from "../../../../../components/inputs/chip-input"
+import { Combobox } from "../../../../../components/inputs/combobox"
+import {
+  StackedFocusModal,
+  useStackedModal,
+} from "../../../../../components/modals"
 import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
 import { defineTabMeta } from "../../../../../components/tabbed-form/types"
+import { useProductAttributes } from "../../../../../hooks/api"
 import { ProductCreateSchemaType } from "../../types"
+import {
+  ADD_ATTRIBUTES_MODAL_ID,
+  ProductCreateAddAttributesModal,
+} from "./product-create-add-attributes-modal"
 
 const Root = () => {
   const { t } = useTranslation()
   const form = useTabbedForm<ProductCreateSchemaType>()
+  const { setIsOpen } = useStackedModal()
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
@@ -38,11 +58,19 @@ const Root = () => {
     })
   }
 
+  const handleAddExisting = () => {
+    setIsOpen(ADD_ATTRIBUTES_MODAL_ID, true)
+  }
+
   return (
     <div
       className="flex flex-col items-center p-16"
       data-testid="product-create-attributes-form"
     >
+      <StackedFocusModal id={ADD_ATTRIBUTES_MODAL_ID}>
+        <ProductCreateAddAttributesModal />
+      </StackedFocusModal>
+
       <div className="flex w-full max-w-[720px] flex-col gap-y-8">
         <div>
           <Heading level="h2">
@@ -61,6 +89,15 @@ const Root = () => {
             type="button"
             variant="secondary"
             size="small"
+            onClick={handleAddExisting}
+            data-testid="product-create-attributes-add-existing"
+          >
+            {t("products.create.attributes.addExisting")}
+          </Button>
+          <Button
+            type="button"
+            variant="secondary"
+            size="small"
             onClick={handleCreateNew}
             data-testid="product-create-attributes-create-new"
           >
@@ -68,12 +105,17 @@ const Root = () => {
           </Button>
         </div>
 
-        {fields.length > 0 && (
+        {fields.some((f) => !f.is_custom && !!f.attribute_id) && (
+          <SelectedAttributes fields={fields} remove={remove} />
+        )}
+
+        {fields.some((f) => f.is_custom) && (
           <ul
             className="flex flex-col gap-y-4"
             data-testid="product-create-attributes-list"
           >
             {fields.map((field, index) => {
+              if (!field.is_custom) return null
               const useForVariants = form.watch(
                 `attributes.${index}.use_for_variants`
               )
@@ -201,24 +243,404 @@ const Root = () => {
           </ul>
         )}
 
-        <RequiredAttributesHint />
+        <RequiredAttributes />
       </div>
     </div>
   )
 }
 
-const RequiredAttributesHint = () => {
+const SelectedAttributes = ({
+  fields,
+  remove,
+}: {
+  fields: FieldArrayWithId<ProductCreateSchemaType, "attributes", "id">[]
+  remove: UseFieldArrayRemove
+}) => {
+  const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
+
+  const entries = fields
+    .map((field, index) => ({ field, index }))
+    .filter(({ field }) => !field.is_custom && !field.is_required && !!field.attribute_id)
+
+  if (!entries.length) return null
+
+  return (
+    <ul
+      className="flex flex-col gap-y-4"
+      data-testid="product-create-selected-attributes-list"
+    >
+      {entries.map(({ field, index }) => {
+        const attrType = field.type as AttributeType | undefined
+        const availableValues = field.available_values ?? []
+
+        return (
+          <li
+            key={field.id}
+            className="bg-ui-bg-component shadow-elevation-card-rest grid grid-cols-[1fr_28px] items-start gap-1.5 rounded-xl p-1.5"
+            data-testid={`product-create-selected-attribute-row-${index}`}
+          >
+            <div className="grid grid-cols-[min-content,1fr] items-center gap-1.5">
+              <div className="flex items-center px-2 py-1.5">
+                <Label
+                  size="xsmall"
+                  weight="plus"
+                  className="text-ui-fg-subtle"
+                >
+                  {t("fields.title")}
+                </Label>
+              </div>
+              <Input
+                value={field.title}
+                disabled
+                className="bg-ui-bg-field-component"
+                data-testid={`product-create-selected-attribute-title-${index}`}
+              />
+              <div className="flex items-center px-2 py-1.5">
+                <Label
+                  size="xsmall"
+                  weight="plus"
+                  className="text-ui-fg-subtle"
+                >
+                  {t("fields.values")}
+                </Label>
+              </div>
+              {attrType === AttributeType.MULTI_SELECT ? (
+                <Controller
+                  control={form.control}
+                  name={`attributes.${index}.values`}
+                  render={({ field: { onChange, value, ref, ...rest } }) => (
+                    <Combobox
+                      {...rest}
+                      ref={ref}
+                      value={Array.isArray(value) ? value : []}
+                      onChange={(val) => onChange(val ?? [])}
+                      options={availableValues.map((v) => ({
+                        value: v.name,
+                        label: v.name,
+                      }))}
+                      placeholder={t(
+                        "products.create.attributes.selectValues"
+                      )}
+                    />
+                  )}
+                />
+              ) : attrType === AttributeType.SINGLE_SELECT ? (
+                <Controller
+                  control={form.control}
+                  name={`attributes.${index}.values`}
+                  render={({ field: { onChange, value, ref, ...rest } }) => (
+                    <Select
+                      {...rest}
+                      value={typeof value === "string" ? value : value?.[0] ?? ""}
+                      onValueChange={onChange}
+                    >
+                      <Select.Trigger ref={ref}>
+                        <Select.Value
+                          placeholder={t(
+                            "products.create.attributes.selectValues"
+                          )}
+                        />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {availableValues.map((v) => (
+                          <Select.Item key={v.id} value={v.name}>
+                            {v.name}
+                          </Select.Item>
+                        ))}
+                      </Select.Content>
+                    </Select>
+                  )}
+                />
+              ) : attrType === AttributeType.TEXT ? (
+                <Controller
+                  control={form.control}
+                  name={`attributes.${index}.values`}
+                  render={({ field: { onChange, value, ...rest } }) => (
+                    <Textarea
+                      {...rest}
+                      className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
+                      value={
+                        typeof value === "string"
+                          ? value
+                          : value?.[0] ?? ""
+                      }
+                      onChange={(e) => onChange(e.target.value)}
+                      placeholder={t(
+                        "products.create.attributes.valuePlaceholder"
+                      )}
+                    />
+                  )}
+                />
+              ) : attrType === AttributeType.TOGGLE ? (
+                <Controller
+                  control={form.control}
+                  name={`attributes.${index}.values`}
+                  render={({ field: { onChange, value, ...rest } }) => (
+                    <Select
+                      {...rest}
+                      value={typeof value === "string" ? value : value?.[0] ?? ""}
+                      onValueChange={onChange}
+                    >
+                      <Select.Trigger>
+                        <Select.Value
+                          placeholder={t(
+                            "products.create.attributes.selectValues"
+                          )}
+                        />
+                      </Select.Trigger>
+                      <Select.Content>
+                        <Select.Item value="true">
+                          {t("filters.radio.yes")}
+                        </Select.Item>
+                        <Select.Item value="false">
+                          {t("filters.radio.no")}
+                        </Select.Item>
+                      </Select.Content>
+                    </Select>
+                  )}
+                />
+              ) : (
+                <Controller
+                  control={form.control}
+                  name={`attributes.${index}.values`}
+                  render={({ field: { onChange, value, ...rest } }) => (
+                    <Input
+                      {...rest}
+                      value={
+                        typeof value === "string"
+                          ? value
+                          : value?.[0] ?? ""
+                      }
+                      onChange={(e) => onChange(e.target.value)}
+                      placeholder={t(
+                        "products.create.attributes.valuePlaceholder"
+                      )}
+                    />
+                  )}
+                />
+              )}
+              {field.use_for_variants && (
+                <>
+                  <div />
+                  <VariantAxisTip />
+                </>
+              )}
+            </div>
+            <IconButton
+              type="button"
+              size="small"
+              variant="transparent"
+              className="text-ui-fg-muted"
+              onClick={() => remove(index)}
+              data-testid={`product-create-selected-attribute-remove-${index}`}
+            >
+              <XMarkMini />
+            </IconButton>
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+const RequiredAttributes = () => {
+  const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
+  const categoryId = form.watch("category_id")
+
+  const { product_attributes } = useProductAttributes(
+    {
+      category_id: categoryId,
+      is_required: true,
+    },
+    { enabled: !!categoryId }
+  )
+
+  const attributes = form.watch("attributes") || []
+
+  useEffect(() => {
+    if (!product_attributes) return
+
+    const currentAttributes = form.getValues("attributes") || []
+    const customAttributes = currentAttributes.filter((a) => a.is_custom)
+    const existingRequired = currentAttributes.filter((a) => !a.is_custom)
+
+    const requiredAttributes = product_attributes.map((attr) => {
+      const existing = existingRequired.find(
+        (a) => a.attribute_id === attr.id
+      )
+      if (existing) return existing
+
+      return {
+        attribute_id: attr.id,
+        title: attr.name,
+        values:
+          attr.type === AttributeType.MULTI_SELECT ? ([] as string[]) : "",
+        is_custom: false,
+        is_required: true,
+        use_for_variants: attr.is_variant_axis,
+      }
+    })
+
+    form.setValue("attributes", [...requiredAttributes, ...customAttributes])
+  }, [product_attributes])
+
+  if (!categoryId || !product_attributes?.length) return null
+
+  const requiredEntries = attributes
+    .map((attr, index) => ({ attr, index }))
+    .filter(({ attr }) => !attr.is_custom)
+
+  return (
+    <>
+      <div className="border-ui-border-base border-t border-dashed" />
+
+      <div
+        className="flex flex-col gap-y-6"
+        data-testid="product-create-attributes-required"
+      >
+        <div>
+          <Text size="small" weight="plus" leading="compact">
+            {t("products.create.attributes.requiredAttributes")}
+          </Text>
+          <Text size="small" className="text-ui-fg-subtle">
+            {t("products.create.attributes.requiredAttributesHint")}
+          </Text>
+        </div>
+
+        {requiredEntries.map(({ attr, index }) => {
+          const apiAttr = product_attributes.find(
+            (a) => a.id === attr.attribute_id
+          )
+          if (!apiAttr) return null
+
+          return (
+            <RequiredAttributeField
+              key={apiAttr.id}
+              attribute={apiAttr}
+              index={index}
+            />
+          )
+        })}
+      </div>
+    </>
+  )
+}
+
+const RequiredAttributeField = ({
+  attribute,
+  index,
+}: {
+  attribute: ProductAttributeDTO
+  index: number
+}) => {
+  const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
+
+  return (
+    <div className="flex flex-col gap-y-2">
+      <Label size="xsmall" weight="plus">
+        {attribute.name}
+      </Label>
+
+      {attribute.type === AttributeType.SINGLE_SELECT && (
+        <Controller
+          control={form.control}
+          name={`attributes.${index}.values`}
+          render={({ field: { onChange, value, ref, ...field } }) => (
+            <Select
+              {...field}
+              value={typeof value === "string" ? value : value?.[0] ?? ""}
+              onValueChange={onChange}
+            >
+              <Select.Trigger ref={ref}>
+                <Select.Value
+                  placeholder={t(
+                    "products.create.attributes.valuePlaceholder"
+                  )}
+                />
+              </Select.Trigger>
+              <Select.Content>
+                {attribute.values?.map((v) => (
+                  <Select.Item key={v.id} value={v.name}>
+                    {v.name}
+                  </Select.Item>
+                ))}
+              </Select.Content>
+            </Select>
+          )}
+        />
+      )}
+
+      {attribute.type === AttributeType.MULTI_SELECT && (
+        <Controller
+          control={form.control}
+          name={`attributes.${index}.values`}
+          render={({ field: { onChange, value, ref, ...field } }) => (
+            <Combobox
+              {...field}
+              ref={ref}
+              value={Array.isArray(value) ? value : []}
+              onChange={(val) => onChange(val ?? [])}
+              options={
+                attribute.values?.map((v) => ({
+                  value: v.name,
+                  label: v.name,
+                })) ?? []
+              }
+              placeholder={t(
+                "products.create.attributes.selectValues"
+              )}
+            />
+          )}
+        />
+      )}
+
+      {attribute.type === AttributeType.TEXT && (
+        <Controller
+          control={form.control}
+          name={`attributes.${index}.values`}
+          render={({ field: { onChange, value, ...field } }) => (
+            <Input
+              {...field}
+              value={typeof value === "string" ? value : value?.[0] ?? ""}
+              onChange={(e) => onChange(e.target.value)}
+              placeholder={t(
+                "products.create.attributes.valuePlaceholder"
+              )}
+            />
+          )}
+        />
+      )}
+
+      {attribute.type === AttributeType.TOGGLE && (
+        <Controller
+          control={form.control}
+          name={`attributes.${index}.values`}
+          render={({ field: { onChange, value, ...field } }) => (
+            <Switch
+              {...field}
+              className="rtl:rotate-180"
+              checked={value === "true" || (value as unknown) === true}
+              onCheckedChange={(checked) => onChange(String(checked))}
+            />
+          )}
+        />
+      )}
+
+      {attribute.is_variant_axis && <VariantAxisTip />}
+    </div>
+  )
+}
+
+const VariantAxisTip = () => {
   const { t } = useTranslation()
 
   return (
-    <div data-testid="product-create-attributes-required-hint">
-      <Text size="small" weight="plus">
-        {t("products.create.attributes.requiredAttributes")}
-      </Text>
-      <Text size="small" className="text-ui-fg-subtle">
-        {t("products.create.attributes.requiredAttributesHint")}
-      </Text>
-    </div>
+    <InlineTip label={t("products.create.attributes.tip")}>
+      {t("products.create.attributes.variantAxisTip")}
+    </InlineTip>
   )
 }
 

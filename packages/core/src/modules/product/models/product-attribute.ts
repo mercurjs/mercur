@@ -16,7 +16,6 @@ const ProductAttribute = model
     is_variant_axis: model.boolean().default(false),
     rank: model.number().default(0),
     is_active: model.boolean().default(true),
-    is_global: model.boolean().default(true),
     created_by: model.text().nullable(),
     metadata: model.json().nullable(),
 
@@ -27,8 +26,12 @@ const ProductAttribute = model
     categories: model.manyToMany(() => ProductCategory, {
       mappedBy: "attributes",
     }),
+    product: model
+      .belongsTo(() => Product, {
+        mappedBy: "custom_attributes",
+      })
+      .nullable(),
     variant_products: model.manyToMany(() => Product, {
-      pivotTable: "product_variant_attribute",
       mappedBy: "variant_attributes",
     }),
   })
@@ -36,7 +39,7 @@ const ProductAttribute = model
   .indexes([
     {
       name: "IDX_product_attribute_handle_unique",
-      on: ["handle"],
+      on: ["product_id", "handle"],
       unique: true,
       where: "deleted_at IS NULL",
     },

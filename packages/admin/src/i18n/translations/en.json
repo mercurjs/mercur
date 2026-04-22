@@ -450,7 +450,9 @@
         "requiredAttributes": "Required attributes",
         "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
         "useForVariants": "Use for Variations",
-        "useForVariantsDescription": "If checked, we will create variants with this attribute. You can define them in the next step."
+        "useForVariantsDescription": "If checked, we will create variants with this attribute. You can define them in the next step.",
+        "tip": "Tip",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step."
       },
       "variants": {
         "header": "Variants",
@@ -465,8 +467,9 @@
         "productVariants": {
           "label": "Product variants",
           "hint": "This ranking will affect the variants' order in your storefront.",
-          "alert": "Add options to create variants.",
-          "tip": "Variants left unchecked won't be created. You can always create and edit variants afterwards but this list fits the variations in your product options."
+          "alert": "Add values to your variant attributes to generate variants.",
+          "noAxes": "Mark attributes as \"Use for Variations\" in the Attributes step to generate variants.",
+          "tip": "Variants left unchecked won't be created. You can always create and edit variants afterwards but this list fits the variations in your product attributes."
         },
         "productOptions": {
           "label": "Product options",

@@ -7,7 +7,7 @@ import { Combobox } from "../../../../../../../components/inputs/combobox"
 import { useTabbedForm } from "../../../../../../../components/tabbed-form/tabbed-form"
 import { useComboboxData } from "../../../../../../../hooks/use-combobox-data"
 import { sdk } from "../../../../../../../lib/client"
-import { CategoryCombobox } from "../../../../../common/components/category-combobox"
+import { SingleCategoryCombobox } from "../../../../../common/components/category-combobox"
 import { ProductCreateSchemaType } from "../../../../types"
 
 export const ProductCreateOrganizationSection = () => {
@@ -66,7 +66,7 @@ export const ProductCreateOrganizationSection = () => {
                   {t("fields.category")}
                 </Form.Label>
                 <Form.Control data-testid="product-create-organize-section-category-control">
-                  <CategoryCombobox
+                  <SingleCategoryCombobox
                     {...field}
                     data-testid="product-create-organize-section-category-input"
                   />

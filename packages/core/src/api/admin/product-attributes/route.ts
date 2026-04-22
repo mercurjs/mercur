@@ -18,10 +18,7 @@ export const GET = async (
   const { data: product_attributes, metadata } = await query.graph({
     entity: "product_attribute",
     fields: req.queryConfig.fields,
-    filters: {
-      ...req.filterableFields,
-      is_global: true
-    },
+    filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
 
@@ -43,10 +40,7 @@ export const POST = async (
 
   const { result } = await createProductAttributesWorkflow(req.scope).run({
     input: {
-      attributes: [{
-        ...payload,
-        is_global: true
-      }],
+      attributes: [payload],
     },
   })
 

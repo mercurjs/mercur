@@ -7,6 +7,7 @@ export const storeProductAttributeFields = [
   "is_required",
   "is_filterable",
   "is_variant_axis",
+  "product_id",
   "rank",
   "metadata",
   "created_at",

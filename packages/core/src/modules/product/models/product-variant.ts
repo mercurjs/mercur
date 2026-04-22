@@ -9,11 +9,9 @@ const ProductVariant = model
     // --- Medusa original fields ---
     id: model.id({ prefix: "variant" }).primaryKey(),
     title: model.text().searchable().translatable(),
-    sku: model.text().searchable().nullable(),
     barcode: model.text().searchable().nullable(),
     ean: model.text().searchable().nullable(),
     upc: model.text().searchable().nullable(),
-    allow_backorder: model.boolean().default(false),
     hs_code: model.text().nullable(),
     origin_country: model.text().nullable(),
     mid_code: model.text().nullable(),
@@ -43,6 +41,7 @@ const ProductVariant = model
       pivotEntity: () => ProductVariantProductImage,
     }),
     attribute_values: model.manyToMany(() => ProductAttributeValue, {
+      pivotTable: "product_variant_attribute_value",
       mappedBy: "variants",
     }),
   })
@@ -55,12 +54,6 @@ const ProductVariant = model
     {
       name: "IDX_product_variant_product_id",
       on: ["product_id"],
-      where: "deleted_at IS NULL",
-    },
-    {
-      name: "IDX_product_variant_sku_unique",
-      on: ["sku"],
-      unique: true,
       where: "deleted_at IS NULL",
     },
     {

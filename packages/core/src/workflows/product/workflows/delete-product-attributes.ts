@@ -7,6 +7,7 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 
 import { ProductAttributeWorkflowEvents } from "../events"
 import { deleteProductAttributesStep } from "../steps/delete-product-attributes"
+import { validateDeleteProductAttributesStep } from "../steps/validate-delete-product-attributes"
 
 export const deleteProductAttributesWorkflowId = "delete-product-attributes"
 
@@ -17,6 +18,8 @@ type DeleteProductAttributesWorkflowInput = {
 export const deleteProductAttributesWorkflow = createWorkflow(
   deleteProductAttributesWorkflowId,
   function (input: DeleteProductAttributesWorkflowInput) {
+    validateDeleteProductAttributesStep(input)
+
     deleteProductAttributesStep(input.ids)
 
     emitEventStep({
