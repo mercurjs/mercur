@@ -335,22 +335,6 @@ const CreateView = ({
       <Form {...form}>
         <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
           <div className="flex flex-col gap-y-4">
-            <Form.Field
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t("fields.email")}</Form.Label>
-                  <Form.Control>
-                    <Input
-                      autoComplete="off"
-                      {...field}
-                      disabled
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
             {!isExistingMember && (
               <>
                 <Form.Field

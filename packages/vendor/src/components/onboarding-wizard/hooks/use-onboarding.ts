@@ -116,6 +116,20 @@ export const useOnboarding = (memberEmail: string) => {
 
       const isUS = paymentData?.country_code === "us";
 
+      let registerDraft: { first_name?: string; last_name?: string } = {};
+      try {
+        const raw = sessionStorage.getItem("mercur_register_draft");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          registerDraft = {
+            first_name: parsed.first_name || undefined,
+            last_name: parsed.last_name || undefined,
+          };
+        }
+      } catch {
+        // Ignore malformed draft
+      }
+
       try {
         setIsSubmitting(true);
 
@@ -125,6 +139,8 @@ export const useOnboarding = (memberEmail: string) => {
           email: storeData.email,
           phone: storeData.phone || undefined,
           member_email: memberEmail,
+          first_name: registerDraft.first_name,
+          last_name: registerDraft.last_name,
           currency_code: storeData.currency_code.toLowerCase(),
           description: storeData.description || undefined,
           address: addressData
@@ -171,6 +187,7 @@ export const useOnboarding = (memberEmail: string) => {
         }
         queryClient.clear();
         sessionStorage.removeItem("mercur_onboarding_email");
+        sessionStorage.removeItem("mercur_register_draft");
 
         navigate("/login", { replace: true });
       } catch (error: any) {
