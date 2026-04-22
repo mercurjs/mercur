@@ -46,6 +46,16 @@ const SUPPORTED_FORMATS_FILE_EXTENSIONS = [
   ".svg",
 ];
 
+const stripWebsiteProtocol = (url: string | null | undefined): string =>
+  url ? url.replace(/^https?:\/\//i, "") : "";
+
+const ensureWebsiteProtocol = (url: string): string | null => {
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+
 export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
@@ -57,7 +67,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
       email: seller.email ?? "",
       phone: seller.phone ?? "",
       description: seller.description ?? "",
-      website_url: seller.website_url ?? "",
+      website_url: stripWebsiteProtocol(seller.website_url),
       media: seller.logo
         ? [{ id: "existing-logo", url: seller.logo, isThumbnail: false, file: null }]
         : [],
@@ -117,7 +127,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
         email: values.email || undefined,
         phone: values.phone || null,
         description: values.description || null,
-        website_url: values.website_url || null,
+        website_url: ensureWebsiteProtocol(values.website_url),
         logo: logoUrl,
         banner: bannerUrl,
       },
