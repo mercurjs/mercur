@@ -1,5 +1,6 @@
 import { Children, ReactNode } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
@@ -14,8 +15,13 @@ import { isFetchError } from "@lib/is-fetch-error";
 import config from "virtual:mercur/config";
 
 const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
+  email: z
+    .string()
+    .min(1, { message: i18n.t("login.validation.emailRequired") })
+    .email({ message: i18n.t("login.validation.emailInvalid") }),
+  password: z
+    .string()
+    .min(1, { message: i18n.t("login.validation.passwordRequired") }),
 });
 
 const LoginLogo = () => {

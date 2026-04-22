@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, Input, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -16,13 +17,18 @@ type StoreAddressFormProps = {
 };
 
 const StoreAddressSchema = zod.object({
-  name: zod.string().min(1),
+  name: zod
+    .string()
+    .min(1, { message: i18n.t("store.address.validation.nameRequired") }),
   address_1: zod.string().optional().or(zod.literal("")),
   address_2: zod.string().optional().or(zod.literal("")),
   city: zod.string().optional().or(zod.literal("")),
   province: zod.string().optional().or(zod.literal("")),
   postal_code: zod.string().optional().or(zod.literal("")),
-  country_code: zod.string().min(2).max(2),
+  country_code: zod
+    .string()
+    .min(2, { message: i18n.t("store.address.validation.countryRequired") })
+    .max(2),
 });
 
 export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {

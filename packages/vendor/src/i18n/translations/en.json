@@ -2641,7 +2641,13 @@
     },
     "deleteUserWarning": "You are about to delete the user {{name}}. This action cannot be undone.",
     "deleteUserSuccess": "User {{name}} deleted successfully",
-    "invite": "Invite"
+    "invite": "Invite",
+    "inviteForm": {
+      "validation": {
+        "emailInvalid": "Please enter a valid email",
+        "roleRequired": "Please select a role"
+      }
+    }
   },
   "translations": {
     "domain": "Translations",
@@ -2687,6 +2693,10 @@
     "manageYourStoresDetails": "Manage your seller's details",
     "editStore": "Edit seller",
     "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
+    "validation": {
+      "nameRequired": "Please enter a name",
+      "emailInvalid": "Please enter a valid email"
+    },
     "profileCompletion": {
       "title": "Complete store profile",
       "steps": {
@@ -2758,6 +2768,10 @@
         "header": "Edit Address",
         "description": "Update the address for your store.",
         "successToast": "Address updated"
+      },
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "countryRequired": "Please select a country"
       }
     },
     "paymentDetails": {
@@ -2779,6 +2793,10 @@
         "bic": "BIC / SWIFT",
         "routingNumber": "Routing number",
         "accountNumber": "Account number"
+      },
+      "validation": {
+        "countryRequired": "Please select a country",
+        "accountNameRequired": "Please enter an account name"
       }
     },
     "professionalDetails": {
@@ -3180,7 +3198,12 @@
     "title": "Welcome back!",
     "hint": "Log in to your vendor account.",
     "submit": "Log in",
-    "notSellerYet": "Not a seller yet? <0>Create an account</0>"
+    "notSellerYet": "Not a seller yet? <0>Create an account</0>",
+    "validation": {
+      "emailRequired": "Please enter an email",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Please enter your password"
+    }
   },
   "register": {
     "title": "Create your vendor account",

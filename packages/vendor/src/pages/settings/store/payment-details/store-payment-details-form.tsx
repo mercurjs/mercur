@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, Input, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -16,8 +17,16 @@ type StorePaymentDetailsFormProps = {
 };
 
 const StorePaymentDetailsSchema = zod.object({
-  country_code: zod.string().min(1),
-  holder_name: zod.string().min(1),
+  country_code: zod
+    .string()
+    .min(1, {
+      message: i18n.t("store.paymentDetails.validation.countryRequired"),
+    }),
+  holder_name: zod
+    .string()
+    .min(1, {
+      message: i18n.t("store.paymentDetails.validation.accountNameRequired"),
+    }),
   bank_name: zod.string().optional().or(zod.literal("")),
   iban: zod.string().optional().or(zod.literal("")),
   bic: zod.string().optional().or(zod.literal("")),

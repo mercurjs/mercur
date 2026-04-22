@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, Input, Textarea, toast } from "@medusajs/ui";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -18,9 +19,15 @@ import { useUpdateSeller } from "@hooks/api";
 type EditStoreFormProps = HttpTypes.StoreSellerResponse;
 
 const EditStoreSchema = zod.object({
-  name: zod.string().min(1),
+  name: zod
+    .string()
+    .min(1, { message: i18n.t("store.validation.nameRequired") }),
   handle: zod.string().optional().or(zod.literal("")),
-  email: zod.string().email().optional().or(zod.literal("")),
+  email: zod
+    .string()
+    .email({ message: i18n.t("store.validation.emailInvalid") })
+    .optional()
+    .or(zod.literal("")),
   phone: zod.string().optional().or(zod.literal("")),
   description: zod.string().optional().or(zod.literal("")),
   website_url: zod.string().optional().or(zod.literal("")),
