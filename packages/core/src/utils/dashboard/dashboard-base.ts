@@ -15,6 +15,11 @@ export abstract class DashboardBase {
 
     protected abstract readonly appName: string
     private static readonly REDETECT_THROTTLE_MS = 5000
+    private static readonly BUILD_SUBDIR = "dist"
+
+    private getBuildDir_(): string {
+        return path.join(this.options_.appDir, DashboardBase.BUILD_SUBDIR)
+    }
 
     constructor({ logger }: { logger: Logger }, options: DashboardModuleOptions) {
         this.options_ = options
@@ -99,10 +104,11 @@ export abstract class DashboardBase {
             pathRewrite: { [`^${route}`]: "" },
         })
 
+        const buildDir = this.getBuildDir_()
         const staticServer = express.Router()
-        staticServer.use(express.static(this.options_.appDir))
+        staticServer.use(express.static(buildDir))
         staticServer.use((_req, res) => {
-            const indexPath = path.join(this.options_.appDir, "index.html")
+            const indexPath = path.join(buildDir, "index.html")
             if (fs.existsSync(indexPath)) {
                 res.sendFile(path.resolve(indexPath))
             } else {
@@ -166,6 +172,6 @@ export abstract class DashboardBase {
     }
 
     private checkBuiltFiles_(): boolean {
-        return fs.existsSync(path.join(this.options_.appDir, "index.html"))
+        return fs.existsSync(path.join(this.getBuildDir_(), "index.html"))
     }
 }
