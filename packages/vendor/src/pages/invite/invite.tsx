@@ -352,7 +352,7 @@ const CreateView = ({
               )}
             />
             {!isExistingMember && (
-              <div className="grid grid-cols-2 gap-x-3">
+              <>
                 <Form.Field
                   control={form.control}
                   name="first_name"
@@ -379,7 +379,7 @@ const CreateView = ({
                     </Form.Item>
                   )}
                 />
-              </div>
+              </>
             )}
             <Form.Field
               control={form.control}

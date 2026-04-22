@@ -76,34 +76,32 @@ const RegisterForm = () => {
     <Form {...form}>
       <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
         <div className="flex flex-col gap-y-4">
-          <div className="grid grid-cols-2 gap-x-3">
-            <Form.Field
-              control={form.control}
-              name="first_name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t("register.firstName")}</Form.Label>
-                  <Form.Control>
-                    <Input autoComplete="given-name" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="last_name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t("register.lastName")}</Form.Label>
-                  <Form.Control>
-                    <Input autoComplete="family-name" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-          </div>
+          <Form.Field
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("register.firstName")}</Form.Label>
+                <Form.Control>
+                  <Input autoComplete="given-name" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("register.lastName")}</Form.Label>
+                <Form.Control>
+                  <Input autoComplete="family-name" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
           <Form.Field
             control={form.control}
             name="email"
