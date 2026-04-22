@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
-import { Button, Input, Textarea, toast } from "@medusajs/ui";
+import { Button, Heading, Input, Select, Textarea, toast } from "@medusajs/ui";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -12,6 +12,7 @@ import { HandleInput } from "@components/inputs/handle-input";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { uploadFilesQuery } from "@lib/client";
+import { currencies } from "@lib/data/currencies";
 import { MediaSchema } from "@pages/products/create/constants";
 import { HttpTypes } from "@mercurjs/types";
 import { useUpdateSeller } from "@hooks/api";
@@ -191,6 +192,9 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
     form.setValue("bannerMedia", [{ ...files[0], isThumbnail: false }]);
   };
 
+  const currencyCode = seller.currency_code?.toUpperCase() ?? "";
+  const currencyName = currencies[currencyCode]?.name ?? currencyCode;
+
   return (
     <RouteDrawer.Form form={form}>
       <KeyboundForm
@@ -279,8 +283,23 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 </Form.Item>
               )}
             />
+            <Form.Item>
+              <Form.Label>{t("fields.currency")}</Form.Label>
+              <Select value={currencyCode} disabled>
+                <Select.Trigger>
+                  <Select.Value placeholder={currencyName}>
+                    {currencyName}
+                  </Select.Value>
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value={currencyCode}>{currencyName}</Select.Item>
+                </Select.Content>
+              </Select>
+            </Form.Item>
           </div>
+          <div className="border-ui-border-base border-t" />
           <div className="flex flex-col gap-y-4">
+            <Heading level="h2">{t("store.mediaHeading", "Media")}</Heading>
             <Form.Field
               name="media"
               control={form.control}

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, DatePicker, Textarea, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -14,8 +15,14 @@ type StoreClosureFormProps = {
   seller: HttpTypes.StoreSellerResponse["seller"];
 };
 
+const firstDayRequiredMessage = () =>
+  i18n.t("store.timeOff.validation.firstDayRequired");
+
 const StoreClosureSchema = z.object({
-  closed_from: z.date({ required_error: "Please enter a first day" }),
+  closed_from: z.date({
+    required_error: firstDayRequiredMessage(),
+    invalid_type_error: firstDayRequiredMessage(),
+  }),
   closed_to: z.date().nullable(),
   closure_note: z.string().nullable(),
 });

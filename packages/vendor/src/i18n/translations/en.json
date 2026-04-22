@@ -2806,9 +2806,9 @@
         "message": "There are no records to show"
       },
       "edit": {
-        "header": "Edit Professional Details",
-        "description": "Update the professional details for your store.",
-        "successToast": "Professional details updated"
+        "header": "Edit Company Details",
+        "description": "Update the company details for your store.",
+        "successToast": "Company details updated"
       },
       "fields": {
         "corporateName": "Company",
@@ -2822,6 +2822,9 @@
         "firstDay": "First day",
         "lastDay": "Last day",
         "note": "Note"
+      },
+      "validation": {
+        "firstDayRequired": "Please enter a first day"
       },
       "empty": {
         "title": "No time off yet",
