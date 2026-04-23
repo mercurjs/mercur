@@ -6,7 +6,7 @@ import { IconButton, clx } from "@medusajs/ui";
 import { TriangleRightMini } from "@medusajs/icons";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
-import { useMemo } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -28,6 +28,12 @@ import {
 import { getStylizedAmount } from "@lib/money-amount-helpers";
 
 import { DEFAULT_FIELDS } from "../../const";
+import {
+  OrderListActions,
+  OrderListExpandCollapseActions,
+  OrderListHeader,
+  OrderListTitle,
+} from "./order-list-header";
 import { useOrderGroupTableFilters } from "./use-order-table-filters";
 
 const PAGE_SIZE = 20;
@@ -137,33 +143,91 @@ export const OrderListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
+  const hasGroupRows = rows.some((row) => row.children.length > 0);
+  const pageIndex = table.getState().pagination?.pageIndex ?? 0;
+
+  const tableContainerRef = useRef<HTMLDivElement>(null);
+  const tableRef = useRef(table);
+  tableRef.current = table;
+
+  useEffect(() => {
+    const el = tableContainerRef.current;
+    if (!el) return;
+
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target) return;
+
+      if (target.closest('[data-interactive="true"]')) return;
+      if (target.closest("[data-row-link]")) return;
+
+      const tr = target.closest("tr");
+      if (!tr || !el.contains(tr)) return;
+
+      const tbody = tr.parentElement;
+      if (!tbody || tbody.tagName !== "TBODY") return;
+
+      const rowIndex = Array.from(tbody.children).indexOf(tr);
+      const row = tableRef.current.getRowModel().rows[rowIndex];
+      if (!row || row.original._type !== "group") return;
+      if (!row.getCanExpand()) return;
+
+      row.toggleExpanded();
+    };
+
+    el.addEventListener("click", handleClick);
+    return () => el.removeEventListener("click", handleClick);
+  }, []);
+
+  useEffect(() => {
+    tableRef.current.resetExpanded();
+  }, [pageIndex]);
+
   if (isError) {
     throw error;
   }
 
   return (
-    <_DataTable
-      columns={columns}
-      table={table}
-      pagination
-      navigateTo={(row) =>
-        row.original._type === "order" ? `/orders/${row.original.id}` : ""
-      }
-      count={count}
-      search
-      filters={filters}
-      isLoading={isLoading}
-      pageSize={PAGE_SIZE}
-      orderBy={[
-        { key: "display_id", label: "Display ID" },
-        { key: "created_at", label: t("fields.createdAt") },
-        { key: "updated_at", label: t("fields.updatedAt") },
-      ]}
-      queryObject={raw}
-      noRecords={{
-        message: t("orders.list.noRecordsMessage"),
-      }}
-    />
+    <>
+      <OrderListHeader>
+        <OrderListTitle />
+        <OrderListActions>
+          <OrderListExpandCollapseActions
+            onExpandAll={() => table.toggleAllRowsExpanded(true)}
+            onCollapseAll={() => table.toggleAllRowsExpanded(false)}
+            disabled={isLoading || !hasGroupRows}
+          />
+        </OrderListActions>
+      </OrderListHeader>
+      <div
+        ref={tableContainerRef}
+        className="[&_tr:not(:has([data-row-link]))]:cursor-pointer"
+        data-testid="orders-list-table-container"
+      >
+        <_DataTable
+          columns={columns}
+          table={table}
+          pagination
+          navigateTo={(row) =>
+            row.original._type === "order" ? `/orders/${row.original.id}` : ""
+          }
+          count={count}
+          search
+          filters={filters}
+          isLoading={isLoading}
+          pageSize={PAGE_SIZE}
+          orderBy={[
+            { key: "display_id", label: "Display ID" },
+            { key: "created_at", label: t("fields.createdAt") },
+            { key: "updated_at", label: t("fields.updatedAt") },
+          ]}
+          queryObject={raw}
+          noRecords={{
+            message: t("orders.list.noRecordsMessage"),
+          }}
+        />
+      </div>
+    </>
   );
 };
 
@@ -185,7 +249,10 @@ const useColumns = () => {
 
           return (
             <div className="flex size-full items-center gap-x-2 overflow-hidden">
-              <div className="flex size-7 items-center justify-center">
+              <div
+                className="flex size-7 items-center justify-center"
+                data-interactive="true"
+              >
                 {row.getCanExpand() ? (
                   <IconButton
                     type="button"
@@ -197,6 +264,7 @@ const useColumns = () => {
                     size="small"
                     variant="transparent"
                     className="text-ui-fg-subtle"
+                    data-testid={`orders-group-expand-${row.original.id}`}
                   >
                     <TriangleRightMini
                       className={clx({

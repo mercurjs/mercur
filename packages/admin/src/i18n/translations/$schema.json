@@ -477,6 +477,12 @@
         "clearAll": {
           "type": "string"
         },
+        "expandAll": {
+          "type": "string"
+        },
+        "collapseAll": {
+          "type": "string"
+        },
         "apply": {
           "type": "string"
         },
@@ -539,6 +545,8 @@
         "download",
         "clear",
         "clearAll",
+        "expandAll",
+        "collapseAll",
         "apply",
         "add",
         "select",
