@@ -130,18 +130,20 @@ export interface UpdateProductAttributeDTO {
 }
 
 /**
- * Inline input for product's `variant_attributes` relation. Each entry is either:
+ * Inline input for product attributes. Each entry is either:
  *
- * 1. A global attribute reference: `{ attribute_id, value_ids: ["pattrval_..."] }`
- *    Links an existing global ProductAttribute and its values to the product.
+ * 1. A global attribute reference: `{ attribute_id, value_ids?: [...] }`
+ *    Links an existing ProductAttribute. Use `value_ids` for known IDs,
+ *    or `values` (names) to upsert values on the attribute.
  *
- * 2. An inline custom attribute: `{ name, type, values: ["Red", "Blue"], is_variant_axis: true }`
+ * 2. An inline custom attribute: `{ name, type, values: ["Red", "Blue"] }`
  *    Creates a new ProductAttribute with `product_id` set (scoped to product).
  */
 export type ProductAttributeInputDTO =
   | {
       attribute_id: string;
       value_ids?: string[];
+      values?: string[];
     }
   | {
       name: string;
@@ -287,10 +289,10 @@ export interface CreateProductDTO {
    */
   variant_attributes?: ProductAttributeInputDTO[];
   /**
-   * Product-level attribute values (for non-variant descriptive attributes).
-   * Map of attribute name/handle to value name(s).
+   * Non-variant product-level attributes. Same format as variant_attributes.
+   * Creates product-scoped attributes and links their values to the product.
    */
-  attribute_values?: Record<string, string | string[]>;
+  product_attributes?: ProductAttributeInputDTO[];
 }
 
 export interface UpdateProductDTO {
@@ -327,9 +329,9 @@ export interface UpdateProductDTO {
    */
   variant_attributes?: ProductAttributeInputDTO[];
   /**
-   * See {@link CreateProductDTO.attribute_values}.
+   * See {@link CreateProductDTO.product_attributes}.
    */
-  attribute_values?: Record<string, string | string[]>;
+  product_attributes?: ProductAttributeInputDTO[];
 }
 
 export interface UpsertProductDTO extends UpdateProductDTO {

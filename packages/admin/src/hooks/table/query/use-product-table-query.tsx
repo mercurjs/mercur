@@ -50,7 +50,7 @@ export const useProductTableQuery = ({
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     category_id: category_id?.split(","),
     collection_id: collection_id?.split(","),
-    order: order,
+    order: order ?? "-created_at",
     tag_id: tag_id ? tag_id.split(",") : undefined,
     type_id: type_id?.split(","),
     status: status?.split(",") as ProductStatus[],

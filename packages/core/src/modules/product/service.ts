@@ -219,7 +219,6 @@ class ProductModuleService extends MedusaService({
     > & { id?: string }
   ): void {
     const VARIANT_AXIS_ALLOWED = new Set<AttributeType>([
-      AttributeType.SINGLE_SELECT,
       AttributeType.MULTI_SELECT,
     ]);
     const FILTERABLE_ALLOWED = new Set<AttributeType>([
@@ -236,7 +235,7 @@ class ProductModuleService extends MedusaService({
     ) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
-        `Attribute '${attr.name ?? attr.id ?? "(unnamed)"}' (type=${attr.type}) cannot be a variant axis. Only single_select and multi_select attributes may drive variants.`
+        `Attribute '${attr.name ?? attr.id ?? "(unnamed)"}' (type=${attr.type}) cannot be a variant axis. Only multi_select attributes may drive variants.`
       );
     }
 
@@ -263,6 +262,20 @@ class ProductModuleService extends MedusaService({
         product.handle = toHandle(product.title);
       }
 
+      // Dimension fields: API accepts numbers, model stores as text
+      if ("weight" in product) {
+        product.weight = product.weight?.toString() as any;
+      }
+      if ("length" in product) {
+        product.length = product.length?.toString() as any;
+      }
+      if ("height" in product) {
+        product.height = product.height?.toString() as any;
+      }
+      if ("width" in product) {
+        product.width = product.width?.toString() as any;
+      }
+
       // M:M refs → plain IDs (Medusa pattern: MikroORM needs IDs, not { id } objects)
       if (product.categories?.length) {
         product.categories = product.categories.map(
@@ -280,7 +293,7 @@ class ProductModuleService extends MedusaService({
     const hasAttributeInput = products.some(
       (p) =>
         p.variant_attributes !== undefined ||
-        p.attribute_values !== undefined ||
+        p.product_attributes !== undefined ||
         (Array.isArray(p.variants) &&
           p.variants.some((v: any) => v?.attribute_values !== undefined))
     );
@@ -299,11 +312,11 @@ class ProductModuleService extends MedusaService({
    *   1. Global attribute ref: `{ attribute_id, value_ids }` → links via M2M
    *   2. Inline custom attr: `{ name, type, values }` → creates ProductAttribute + values
    *
-   * **`attribute_values`** (product-level) — `Record<string, string | string[]>`
-   *   keyed by attribute name/handle, resolved to ProductAttributeValue IDs.
-   *   Used for non-variant descriptive attributes.
+   * **`product_attributes`** — non-variant attributes, same format as variant_attributes.
+   *   Creates product-scoped attributes and links their values to the product.
    *
-   * **`variant.attribute_values`** — same format, resolved to IDs per variant.
+   * **`variant.attribute_values`** — `Record<string, string | string[]>`
+   *   keyed by attribute name/handle, resolved to ProductAttributeValue IDs per variant.
    */
   private async normalizeAttributes_(
     products: any[],
@@ -313,6 +326,9 @@ class ProductModuleService extends MedusaService({
     const attrIds = new Set<string>();
     for (const product of products) {
       for (const input of product.variant_attributes ?? []) {
+        if (input.attribute_id) attrIds.add(input.attribute_id);
+      }
+      for (const input of product.product_attributes ?? []) {
         if (input.attribute_id) attrIds.add(input.attribute_id);
       }
     }
@@ -404,20 +420,128 @@ class ProductModuleService extends MedusaService({
         product.variant_attributes = variantAttributeIds;
       }
 
-      // --- Resolve product-level attribute_values ---
-      if (product.attribute_values && !Array.isArray(product.attribute_values)) {
-        // May reference attributes not yet in the lookup — load them
-        await this.ensureAttrLookup_(
-          product.attribute_values as Record<string, unknown>,
-          valueLookup,
-          attrsById,
-          sharedContext
-        );
+      // --- Process product_attributes (non-variant) ---
+      const productAttrsInput = product.product_attributes as any[] | undefined;
+      const productAttrValueIds: string[] = [];
+      const customAttributeIds: string[] = [];
+      if (productAttrsInput?.length) {
+        for (const input of productAttrsInput) {
+          if (input.attribute_id) {
+            // Global attribute reference
+            const attr = attrsById.get(input.attribute_id);
+            if (!attr) {
+              throw new MedusaError(
+                MedusaError.Types.INVALID_DATA,
+                `Product attribute with id '${input.attribute_id}' was not found`
+              );
+            }
 
-        product.attribute_values = this.resolveValueMap_(
-          product.attribute_values as Record<string, string | string[]>,
-          valueLookup
-        );
+            this.addAttrToLookup_(attr, valueLookup);
+
+            // Collect specified value IDs
+            if (input.value_ids?.length) {
+              const attrValuesById = new Map<string, any>();
+              for (const v of attr.values ?? []) {
+                attrValuesById.set(v.id, v);
+              }
+              for (const vid of input.value_ids) {
+                if (!attrValuesById.has(vid)) {
+                  throw new MedusaError(
+                    MedusaError.Types.INVALID_DATA,
+                    `Attribute value with id '${vid}' was not found on attribute '${attr.name}'`
+                  );
+                }
+                productAttrValueIds.push(vid);
+              }
+            }
+
+            // Upsert values by name (for text/unit/toggle attributes)
+            if (input.values?.length) {
+              const existingByName = new Map<string, string>();
+              for (const v of attr.values ?? []) {
+                existingByName.set(v.name, v.id);
+              }
+
+              const toCreate: string[] = [];
+              for (const name of input.values) {
+                const existingId = existingByName.get(name);
+                if (existingId) {
+                  productAttrValueIds.push(existingId);
+                } else {
+                  toCreate.push(name);
+                }
+              }
+
+              if (toCreate.length) {
+                const created = await this.createProductAttributeValues(
+                  toCreate.map((name, i) => ({
+                    name,
+                    handle: toHandle(name),
+                    rank: (attr.values?.length ?? 0) + i,
+                    attribute_id: attr.id,
+                  })),
+                  sharedContext
+                );
+                const createdArr = Array.isArray(created)
+                  ? created
+                  : [created];
+                for (const v of createdArr) {
+                  productAttrValueIds.push(v.id);
+                }
+              }
+            }
+          } else {
+            // Inline custom attribute — create and collect value IDs
+            const customAttr = await this.createProductAttributes(
+              {
+                name: input.name,
+                type: input.type,
+                handle: input.name ? toHandle(input.name) : undefined,
+                is_variant_axis: false,
+                is_filterable: input.is_filterable ?? false,
+                is_required: input.is_required ?? false,
+                description: input.description ?? null,
+                metadata: input.metadata ?? null,
+                values: (input.values ?? []).map((v: string, i: number) => ({
+                  name: v,
+                  handle: toHandle(v),
+                  rank: i,
+                })),
+              },
+              sharedContext
+            );
+
+            customAttributeIds.push(customAttr.id);
+
+            // Retrieve with values relation — createProductAttributes may not return nested values
+            const customAttrWithValues = await this.retrieveProductAttribute(
+              customAttr.id,
+              { relations: ["values"] },
+              sharedContext
+            );
+
+            this.addAttrToLookup_(customAttrWithValues as any, valueLookup);
+
+            for (const v of (customAttrWithValues as any).values ?? []) {
+              productAttrValueIds.push(v.id);
+            }
+          }
+        }
+
+        delete product.product_attributes;
+      }
+
+      // Stash custom attribute IDs — product_id will be set after product creation
+      if (customAttributeIds.length) {
+        product.__pending_custom_attribute_ids = customAttributeIds;
+      }
+
+      // Merge product_attributes value IDs into attribute_values
+      if (productAttrValueIds.length) {
+        const existing = Array.isArray(product.attribute_values)
+          ? product.attribute_values
+          : [];
+        product.attribute_values = [...existing, ...productAttrValueIds];
       }
 
       // --- Resolve variant.attribute_values ---
@@ -450,41 +574,6 @@ class ProductModuleService extends MedusaService({
     if (attr.handle) lookup.set(attr.handle, valueMap);
     if (attr.name) lookup.set(attr.name, valueMap);
     lookup.set(attr.id, valueMap);
-  }
-
-  /**
-   * Ensures all attribute keys in a value map are present in the lookup.
-   * Loads missing attributes by name/handle if needed.
-   */
-  private async ensureAttrLookup_(
-    valueMap: Record<string, unknown>,
-    lookup: Map<string, Map<string, string>>,
-    attrsById: Map<string, any>,
-    sharedContext?: Context
-  ): Promise<void> {
-    const missingKeys: string[] = [];
-    for (const key of Object.keys(valueMap)) {
-      if (!lookup.has(key)) missingKeys.push(key);
-    }
-
-    if (!missingKeys.length) return;
-
-    // Try loading by handle or name
-    const attrs = await this.listProductAttributes(
-      {
-        $or: [
-          { handle: missingKeys },
-          { name: missingKeys },
-        ],
-      } as any,
-      { relations: ["values"] },
-      sharedContext
-    );
-
-    for (const a of attrs as any[]) {
-      if (!attrsById.has(a.id)) attrsById.set(a.id, a);
-      this.addAttrToLookup_(a, lookup);
-    }
   }
 
   /**
@@ -764,8 +853,28 @@ class ProductModuleService extends MedusaService({
 
     await this.normalizeProductInput_(input, sharedContext);
 
+    // Extract pending custom attribute IDs before passing to super
+    const pendingCustomAttrs = new Map<number, string[]>();
+    for (let i = 0; i < input.length; i++) {
+      if (input[i].__pending_custom_attribute_ids) {
+        pendingCustomAttrs.set(i, input[i].__pending_custom_attribute_ids);
+        delete input[i].__pending_custom_attribute_ids;
+      }
+    }
+
     const result = await super.createProducts(input, sharedContext);
-    return (Array.isArray(data) ? result : result[0]) as any;
+    const products = (Array.isArray(result) ? result : [result]) as any[];
+
+    // Assign product_id to custom attributes now that products have IDs
+    for (const [index, attrIds] of pendingCustomAttrs) {
+      const productId = products[index].id;
+      await this.updateProductAttributes(
+        attrIds.map((id) => ({ id, product_id: productId })),
+        sharedContext
+      );
+    }
+
+    return (Array.isArray(data) ? products : products[0]) as any;
   }
 
   // @ts-expect-error
@@ -808,7 +917,6 @@ class ProductModuleService extends MedusaService({
       // For selector/id form with attributes, expand to array form
       const hasAttributeInput =
         update.variant_attributes !== undefined ||
-        update.attribute_values !== undefined ||
         (Array.isArray(update.variants) &&
           update.variants.some((v: any) => v?.attribute_values !== undefined));
 

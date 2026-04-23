@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types";
 import { Button, toast } from "@medusajs/ui";
-import { ReactNode, useCallback, useMemo, Children } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, Children } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,7 +17,10 @@ import {
   ProductCreateSchema,
 } from "../../constants";
 import { ProductCreateSchemaType } from "../../types";
-import { normalizeProductFormValues } from "../../utils";
+import {
+  generateVariantsFromAttributes,
+  normalizeProductFormValues,
+} from "../../utils";
 import { ProductCreateAttributesForm } from "../product-create-attributes-form";
 import { ProductCreateDetailsForm } from "../product-create-details-form";
 import { ProductCreateInventoryKitForm } from "../product-create-inventory-kit-form";
@@ -86,6 +89,27 @@ export const ProductCreateForm = ({
     control: form.control,
     name: "variants",
   });
+
+  const watchedAttributes = useWatch({
+    control: form.control,
+    name: "attributes",
+  });
+
+  // Generate variants from variant-axis attributes
+  useEffect(() => {
+    const currentVariants = form.getValues("variants") ?? [];
+    const newVariants = generateVariantsFromAttributes(
+      watchedAttributes ?? [],
+      currentVariants,
+    );
+
+    if (
+      JSON.stringify(newVariants.map((v) => v.attribute_values)) !==
+      JSON.stringify(currentVariants.map((v) => v.attribute_values))
+    ) {
+      form.setValue("variants", newVariants);
+    }
+  }, [watchedAttributes]);
 
   const handleSubmit = form.handleSubmit(async (values, e) => {
     if (isRegionsPending) {

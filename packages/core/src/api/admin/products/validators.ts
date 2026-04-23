@@ -156,6 +156,7 @@ const ProductAttributeInput = z.union([
   z.object({
     attribute_id: z.string(),
     value_ids: z.array(z.string()).optional(),
+    values: z.array(z.string()).optional(),
   }),
   z.object({
     name: z.string(),
@@ -233,7 +234,7 @@ const CreateProduct = z
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),
-    attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
+    product_attributes: z.array(ProductAttributeInput).optional(),
     variants: z.array(CreateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -270,7 +271,7 @@ const UpdateProduct = z
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),
-    attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
+    product_attributes: z.array(ProductAttributeInput).optional(),
     variants: z.array(UpdateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),

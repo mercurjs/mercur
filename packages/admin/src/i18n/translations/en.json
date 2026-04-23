@@ -429,7 +429,8 @@
       "errors": {
         "variants": "Please select at least one variant.",
         "options": "Please create at least one option.",
-        "uniqueSku": "SKU must be unique."
+        "uniqueSku": "SKU must be unique.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Inventory kits",
@@ -466,7 +467,7 @@
         },
         "productVariants": {
           "label": "Product variants",
-          "hint": "This ranking will affect the variants' order in your storefront.",
+          "hint": "This ranking will affect the variants' display order.",
           "alert": "Add values to your variant attributes to generate variants.",
           "noAxes": "Mark attributes as \"Use for Variations\" in the Attributes step to generate variants.",
           "tip": "Variants left unchecked won't be created. You can always create and edit variants afterwards but this list fits the variations in your product attributes."
@@ -528,6 +529,9 @@
       }
     },
     "attributes": "Attributes",
+    "attributeVariantsDescription": "All attributes that are used for variants",
+    "attributeProductInformation": "Product Information",
+    "attributeProductInformationDescription": "Attributes used for informational purposes",
     "editAttributes": "Edit Attributes",
     "editOptions": "Edit Options",
     "editPrices": "Edit prices",

@@ -11,7 +11,7 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateProduct } from "../../../../../hooks/api/products";
 import { useComboboxData } from "../../../../../hooks/use-combobox-data";
 import { sdk } from "../../../../../lib/client";
-import { CategoryCombobox } from "../../../common/components/category-combobox";
+import { SingleCategoryCombobox } from "../../../common/components/category-combobox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -175,7 +175,7 @@ export const ProductOrganizationForm = ({
                       {t("fields.category")}
                     </Form.Label>
                     <Form.Control data-testid="product-organization-form-categories-control">
-                      <CategoryCombobox
+                      <SingleCategoryCombobox
                         {...field}
                         data-testid="product-organization-form-categories-combobox"
                       />

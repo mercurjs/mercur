@@ -56,8 +56,6 @@ const Root = () => {
       }));
   }, [watchedAttributes]);
 
-  console.log(variantAxes);
-
   /**
    * NOTE: anything that goes to the datagrid component needs to be memoised otherwise DataGrid will rerender and inputs will loose focus
    */
@@ -140,7 +138,7 @@ const useColumns = ({
           return (
             <DataGrid.ReadonlyCell context={context}>
               {variantAxes
-                .map((a) => context.row.original.attribute_values[a.title])
+                .map((a) => context.row.original.attribute_values?.[a.title])
                 .join(" / ")}
             </DataGrid.ReadonlyCell>
           );

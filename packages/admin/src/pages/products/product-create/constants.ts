@@ -78,11 +78,27 @@ export const ProductCreateSchema = z
         name: z.string(),
       })).optional(),
     })).optional(),
-    enable_variants: z.boolean(),
     variants: z.array(ProductCreateVariantSchema).min(1),
     media: z.array(MediaSchema).optional(),
   })
   .superRefine((data, ctx) => {
+    // Validate required attributes have values
+    data.attributes?.forEach((attr, index) => {
+      if (!attr.is_required) return
+
+      const isEmpty = attr.values === undefined ||
+        attr.values === "" ||
+        (Array.isArray(attr.values) && attr.values.length === 0)
+
+      if (isEmpty) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: [`attributes.${index}.values`],
+          message: i18n.t("products.create.errors.requiredAttribute"),
+        })
+      }
+    })
+
     if (data.variants.every((v) => !v.should_create)) {
       return ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -128,7 +144,6 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
     },
   ]),
   attributes: [],
-  enable_variants: false,
   media: [],
   category_id: "",
   collection_id: "",

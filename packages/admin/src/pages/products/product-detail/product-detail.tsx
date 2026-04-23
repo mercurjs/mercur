@@ -11,9 +11,6 @@ import { ProductGeneralSection } from "./components/product-general-section";
 import { ProductMediaSection } from "./components/product-media-section";
 import { ProductOptionSection } from "./components/product-option-section";
 import { ProductOrganizationSection } from "./components/product-organization-section";
-import { ProductSalesChannelSection } from "./components/product-sales-channel-section";
-import { ProductSellerSection } from "./components/product-seller-section/product-seller-section";
-import { ProductShippingProfileSection } from "./components/product-shipping-profile-section";
 import { ProductVariantSection } from "./components/product-variant-section";
 import { productLoader } from "./loader";
 import { PRODUCT_DETAIL_QUERY } from "../constants";
@@ -28,13 +25,14 @@ const Root = ({ children }: { children?: ReactNode }) => {
   >;
 
   const { id } = useParams();
-  const { product: rawProduct, isLoading, isError, error } = useProduct(
-    id!,
-    PRODUCT_DETAIL_QUERY,
-    {
-      initialData: initialData,
-    },
-  );
+  const {
+    product: rawProduct,
+    isLoading,
+    isError,
+    error,
+  } = useProduct(id!, PRODUCT_DETAIL_QUERY, {
+    initialData: initialData,
+  });
   const product = rawProduct as AdminProductWithSeller | undefined;
 
   if (isLoading || !product) {
@@ -75,9 +73,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <ProductVariantSection product={product} />
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
-        <ProductSellerSection seller={product.seller} />
-        <ProductSalesChannelSection product={product} />
-        <ProductShippingProfileSection product={product} />
         <ProductOrganizationSection product={product} />
         <ProductAttributeSection product={product} />
       </TwoColumnPage.Sidebar>
@@ -91,10 +86,7 @@ export const ProductDetailPage = Object.assign(Root, {
   MainGeneralSection: ProductGeneralSection,
   MainMediaSection: ProductMediaSection,
   MainOptionSection: ProductOptionSection,
+  MainAttributeSection: ProductAttributeSection,
   MainVariantSection: ProductVariantSection,
-  SidebarSellerSection: ProductSellerSection,
-  SidebarSalesChannelSection: ProductSalesChannelSection,
-  SidebarShippingProfileSection: ProductShippingProfileSection,
   SidebarOrganizationSection: ProductOrganizationSection,
-  SidebarAttributeSection: ProductAttributeSection,
 });

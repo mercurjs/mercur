@@ -463,11 +463,16 @@ const RequiredAttributes = () => {
     if (!product_attributes) return
 
     const currentAttributes = form.getValues("attributes") || []
-    const customAttributes = currentAttributes.filter((a) => a.is_custom)
-    const existingRequired = currentAttributes.filter((a) => !a.is_custom)
+    const requiredIds = new Set(product_attributes.map((a) => a.id))
 
+    // Keep all non-required attributes (custom + modal-added) untouched
+    const otherAttributes = currentAttributes.filter(
+      (a) => a.is_custom || !requiredIds.has(a.attribute_id ?? "")
+    )
+
+    // Merge required attributes — preserve existing values if already in form
     const requiredAttributes = product_attributes.map((attr) => {
-      const existing = existingRequired.find(
+      const existing = currentAttributes.find(
         (a) => a.attribute_id === attr.id
       )
       if (existing) return existing
@@ -483,7 +488,7 @@ const RequiredAttributes = () => {
       }
     })
 
-    form.setValue("attributes", [...requiredAttributes, ...customAttributes])
+    form.setValue("attributes", [...otherAttributes, ...requiredAttributes])
   }, [product_attributes])
 
   if (!categoryId || !product_attributes?.length) return null
@@ -539,98 +544,88 @@ const RequiredAttributeField = ({
   const form = useTabbedForm<ProductCreateSchemaType>()
 
   return (
-    <div className="flex flex-col gap-y-2">
-      <Label size="xsmall" weight="plus">
-        {attribute.name}
-      </Label>
+    <Form.Field
+      control={form.control}
+      name={`attributes.${index}.values`}
+      render={({ field: { onChange, value, ref, ...field } }) => (
+        <Form.Item>
+          <Form.Label>
+            {attribute.name}
+          </Form.Label>
 
-      {attribute.type === AttributeType.SINGLE_SELECT && (
-        <Controller
-          control={form.control}
-          name={`attributes.${index}.values`}
-          render={({ field: { onChange, value, ref, ...field } }) => (
-            <Select
-              {...field}
-              value={typeof value === "string" ? value : value?.[0] ?? ""}
-              onValueChange={onChange}
-            >
-              <Select.Trigger ref={ref}>
-                <Select.Value
-                  placeholder={t(
-                    "products.create.attributes.valuePlaceholder"
-                  )}
-                />
-              </Select.Trigger>
-              <Select.Content>
-                {attribute.values?.map((v) => (
-                  <Select.Item key={v.id} value={v.name}>
-                    {v.name}
-                  </Select.Item>
-                ))}
-              </Select.Content>
-            </Select>
-          )}
-        />
+          <Form.Control>
+            {attribute.type === AttributeType.SINGLE_SELECT ? (
+              <Select
+                {...field}
+                value={typeof value === "string" ? value : value?.[0] ?? ""}
+                onValueChange={onChange}
+              >
+                <Select.Trigger ref={ref}>
+                  <Select.Value
+                    placeholder={t(
+                      "products.create.attributes.valuePlaceholder"
+                    )}
+                  />
+                </Select.Trigger>
+                <Select.Content>
+                  {attribute.values?.map((v) => (
+                    <Select.Item key={v.id} value={v.name}>
+                      {v.name}
+                    </Select.Item>
+                  ))}
+                </Select.Content>
+              </Select>
+            ) : attribute.type === AttributeType.MULTI_SELECT ? (
+              <Combobox
+                {...field}
+                ref={ref}
+                value={Array.isArray(value) ? value : []}
+                onChange={(val) => onChange(val ?? [])}
+                options={
+                  attribute.values?.map((v) => ({
+                    value: v.name,
+                    label: v.name,
+                  })) ?? []
+                }
+                placeholder={t(
+                  "products.create.attributes.selectValues"
+                )}
+              />
+            ) : attribute.type === AttributeType.TEXT ? (
+              <Input
+                {...field}
+                ref={ref}
+                value={typeof value === "string" ? value : value?.[0] ?? ""}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={t(
+                  "products.create.attributes.valuePlaceholder"
+                )}
+              />
+            ) : attribute.type === AttributeType.TOGGLE ? (
+              <Switch
+                {...field}
+                className="rtl:rotate-180"
+                checked={value === "true" || (value as unknown) === true}
+                onCheckedChange={(checked) => onChange(String(checked))}
+              />
+            ) : (
+              <Input
+                {...field}
+                ref={ref}
+                value={typeof value === "string" ? value : value?.[0] ?? ""}
+                onChange={(e) => onChange(e.target.value)}
+                placeholder={t(
+                  "products.create.attributes.valuePlaceholder"
+                )}
+              />
+            )}
+          </Form.Control>
+          <Form.ErrorMessage />
+
+          {attribute.is_variant_axis && <VariantAxisTip />}
+        </Form.Item>
       )}
-
-      {attribute.type === AttributeType.MULTI_SELECT && (
-        <Controller
-          control={form.control}
-          name={`attributes.${index}.values`}
-          render={({ field: { onChange, value, ref, ...field } }) => (
-            <Combobox
-              {...field}
-              ref={ref}
-              value={Array.isArray(value) ? value : []}
-              onChange={(val) => onChange(val ?? [])}
-              options={
-                attribute.values?.map((v) => ({
-                  value: v.name,
-                  label: v.name,
-                })) ?? []
-              }
-              placeholder={t(
-                "products.create.attributes.selectValues"
-              )}
-            />
-          )}
-        />
-      )}
-
-      {attribute.type === AttributeType.TEXT && (
-        <Controller
-          control={form.control}
-          name={`attributes.${index}.values`}
-          render={({ field: { onChange, value, ...field } }) => (
-            <Input
-              {...field}
-              value={typeof value === "string" ? value : value?.[0] ?? ""}
-              onChange={(e) => onChange(e.target.value)}
-              placeholder={t(
-                "products.create.attributes.valuePlaceholder"
-              )}
-            />
-          )}
-        />
-      )}
-
-      {attribute.type === AttributeType.TOGGLE && (
-        <Controller
-          control={form.control}
-          name={`attributes.${index}.values`}
-          render={({ field: { onChange, value, ...field } }) => (
-            <Switch
-              {...field}
-              className="rtl:rotate-180"
-              checked={value === "true" || (value as unknown) === true}
-              onCheckedChange={(checked) => onChange(String(checked))}
-            />
-          )}
-        />
-      )}
-
-      {attribute.is_variant_axis && <VariantAxisTip />}
-    </div>
+    />
   )
 }
 
