@@ -18,14 +18,53 @@ export const adminHeaders = {
     headers: { "x-medusa-access-token": "test_token" },
 }
 
+export type CreateAdminUserOptions = {
+    email?: string
+    /**
+     * Provision a wildcard RBAC role and embed it in the JWT app_metadata.
+     * Default true — required for admin integration tests to clear the
+     * framework's checkPermissions middleware when `rbac` feature flag is on.
+     * Set to false to reproduce a pre-provisioning edge case.
+     */
+    withSuperAdminRole?: boolean
+}
+
+const provisionSuperAdminRole = async (
+    container: MedusaContainer,
+    label: string
+): Promise<string | null> => {
+    let rbacService: any
+    try {
+        rbacService = container.resolve(Modules.RBAC)
+    } catch {
+        // RBAC module not loaded (feature flag off in this deployment).
+        return null
+    }
+    if (!rbacService?.createRbacPolicies || !rbacService?.createRbacRoles) {
+        return null
+    }
+
+    const policies = await rbacService.createRbacPolicies([
+        { key: `test-superadmin-wildcard-${Date.now()}`, resource: "*", operation: "*" },
+    ])
+    const roles = await rbacService.createRbacRoles([
+        { name: `test-superadmin-${label}-${Date.now()}` },
+    ])
+    await rbacService.createRbacRolePolicies([
+        { role_id: roles[0].id, policy_id: policies[0].id },
+    ])
+    return roles[0].id
+}
+
 export const createAdminUser = async (
     dbConnection,
     adminHeaders,
     container?,
-    options?: { email?: string }
+    options?: CreateAdminUserOptions
 ) => {
-    const appContainer = container
+    const appContainer: MedusaContainer = container
     const email = options?.email ?? "admin@medusa.js"
+    const withSuperAdminRole = options?.withSuperAdminRole !== false
 
     const userModule: IUserModuleService = appContainer.resolve(Modules.USER)
     const authModule: IAuthModuleService = appContainer.resolve(Modules.AUTH)
@@ -53,25 +92,31 @@ export const createAdminUser = async (
         },
     })
 
-    const config = container.resolve(ContainerRegistrationKeys.CONFIG_MODULE)
-    const { projectConfig } = config
-    const { jwtSecret, jwtOptions } = projectConfig.http
-    const token = jwt.sign(
-        {
-            actor_id: user.id,
-            actor_type: "user",
-            auth_identity_id: authIdentity.id,
-        },
-        jwtSecret,
-        {
-            expiresIn: "1d",
-            ...jwtOptions,
-        }
+    const roleId = withSuperAdminRole
+        ? await provisionSuperAdminRole(appContainer, email)
+        : null
+
+    const config = appContainer.resolve(
+        ContainerRegistrationKeys.CONFIG_MODULE
     )
+    const { projectConfig } = config as any
+    const { jwtSecret, jwtOptions } = projectConfig.http
+    const tokenPayload: Record<string, unknown> = {
+        actor_id: user.id,
+        actor_type: "user",
+        auth_identity_id: authIdentity.id,
+    }
+    if (roleId) {
+        tokenPayload.app_metadata = { roles: [roleId] }
+    }
+    const token = jwt.sign(tokenPayload, jwtSecret, {
+        expiresIn: "1d",
+        ...jwtOptions,
+    })
 
     adminHeaders.headers["authorization"] = `Bearer ${token}`
 
-    return { user, authIdentity }
+    return { user, authIdentity, roleId }
 }
 
 export const generatePublishableKey = async (container: MedusaContainer) => {
