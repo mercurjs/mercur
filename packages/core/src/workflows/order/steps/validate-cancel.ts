@@ -5,6 +5,7 @@ import {
 } from "@medusajs/framework/utils"
 
 import { hasFulfilledItems } from "../helpers/has-fulfilled-items"
+import { isOrderCanceled } from "../helpers/is-order-canceled"
 
 export type ValidateCancelStepInput = {
   order_id: string
@@ -25,7 +26,7 @@ export const validateCancelStep = createStep(
       data: [order],
     } = await query.graph({
       entity: "order",
-      fields: ["id", "items.*", "items.detail.*"],
+      fields: ["id", "canceled_at", "items.*", "items.detail.*"],
       filters: { id: input.order_id },
     })
 
@@ -33,6 +34,14 @@ export const validateCancelStep = createStep(
       throw new MedusaError(
         MedusaError.Types.NOT_FOUND,
         `Order with id ${input.order_id} was not found`
+      )
+    }
+
+    if (isOrderCanceled(order as any)) {
+      throw new MedusaError(
+        MedusaError.Types.NOT_ALLOWED,
+        "Order is already canceled.",
+        "ORDER_ALREADY_CANCELED"
       )
     }
 

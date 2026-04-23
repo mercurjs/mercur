@@ -177,28 +177,7 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
 
   const payments = getPaymentsFromOrder(order);
 
-  const notes = [];
-  const isLoading = false;
-  // const { notes, isLoading, isError, error } = useNotes(
-  //   {
-  //     resource_id: order.id,
-  //     limit: NOTE_LIMIT,
-  //     offset: 0,
-  //   },
-  //   {
-  //     keepPreviousData: true,
-  //   }
-  // )
-  //
-  // if (isError) {
-  //   throw error
-  // }
-
   return useMemo(() => {
-    if (isLoading) {
-      return [];
-    }
-
     const items: Activity[] = [];
 
     for (const payment of payments) {
@@ -510,14 +489,6 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
       }
     }
 
-    // for (const note of notes || []) {
-    //   items.push({
-    //     title: t("orders.activity.events.note.comment"),
-    //     timestamp: note.created_at,
-    //     children: <NoteBody note={note} />,
-    //   })
-    // }
-
     if (order.canceled_at) {
       items.push({
         title: t("orders.activity.events.canceled.title"),
@@ -540,16 +511,7 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
     };
 
     return [...sortedActivities, createdAt];
-  }, [
-    order,
-    payments,
-    returns,
-    exchanges,
-    orderChanges,
-    notes,
-    isLoading,
-    itemsMap,
-  ]);
+  }, [order, payments, returns, exchanges, orderChanges, itemsMap]);
 };
 
 type OrderActivityItemProps = PropsWithChildren<{

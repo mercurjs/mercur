@@ -8,7 +8,10 @@ import {
 } from "@medusajs/framework/utils"
 import jwt from "jsonwebtoken"
 import Scrypt from "scrypt-kdf"
-import { createSellersWorkflow } from "@mercurjs/core/workflows"
+import {
+    acceptMemberInviteWorkflow,
+    createSellersWorkflow,
+} from "@mercurjs/core/workflows"
 
 export const vendorHeaders = {
     headers: { "x-medusa-access-token": "test_token" },
@@ -23,6 +26,8 @@ export const createSellerUser = async (
 
     const authModule: IAuthModuleService = container.resolve(Modules.AUTH)
 
+    // createSellersWorkflow creates the seller and a pending member_invite —
+    // the member is only materialized once the invite is accepted.
     const { result: sellers } = await createSellersWorkflow(container).run({
         input: {
             sellers: [
@@ -40,13 +45,13 @@ export const createSellerUser = async (
 
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
-    const { data: members } = await query.graph({
-        entity: "member",
-        fields: ["id"],
-        filters: { email },
+    const { data: invites } = await query.graph({
+        entity: "member_invite",
+        fields: ["id", "token", "email", "seller_id"],
+        filters: { seller_id: seller.id, email },
     })
 
-    const member = members[0]
+    const invite = invites[0]
 
     const hashConfig = { logN: 15, r: 8, p: 1 }
     const passwordHash = await Scrypt.kdf("somepassword", hashConfig)
@@ -61,8 +66,12 @@ export const createSellerUser = async (
                 },
             },
         ],
-        app_metadata: {
-            member_id: member.id,
+    })
+
+    const { result: member } = await acceptMemberInviteWorkflow(container).run({
+        input: {
+            invite_token: invite.token,
+            auth_identity_id: authIdentity.id,
         },
     })
 

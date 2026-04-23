@@ -9,6 +9,7 @@ import {
 } from "@medusajs/framework/utils"
 
 import { hasFulfilledItems } from "../../../workflows/order/helpers/has-fulfilled-items"
+import { isOrderCanceled } from "../../../workflows/order/helpers/is-order-canceled"
 
 /**
  * Admin middleware mirroring the Mercur cancel-order invariant before the
@@ -28,7 +29,7 @@ export const validateCancelOrderMiddleware = async (
       data: [order],
     } = await query.graph({
       entity: "order",
-      fields: ["id", "items.*", "items.detail.*"],
+      fields: ["id", "canceled_at", "items.*", "items.detail.*"],
       filters: { id: req.params.id },
     })
 
@@ -37,6 +38,16 @@ export const validateCancelOrderMiddleware = async (
         new MedusaError(
           MedusaError.Types.NOT_FOUND,
           `Order with id ${req.params.id} was not found`
+        )
+      )
+    }
+
+    if (isOrderCanceled(order as any)) {
+      return next(
+        new MedusaError(
+          MedusaError.Types.NOT_ALLOWED,
+          "Order is already canceled.",
+          "ORDER_ALREADY_CANCELED"
         )
       )
     }

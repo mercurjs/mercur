@@ -2,11 +2,11 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { cancelOrderWorkflow } from "@medusajs/medusa/core-flows"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { validateSellerOrder } from "../../helpers"
+import { mercurCancelOrderWorkflow } from "../../../../../workflows/order/cancel-order"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest,
@@ -17,7 +17,7 @@ export const POST = async (
 
   await validateSellerOrder(req.scope, sellerId, id)
 
-  await cancelOrderWorkflow(req.scope).run({
+  await mercurCancelOrderWorkflow(req.scope).run({
     input: {
       order_id: id,
       canceled_by: sellerId,
