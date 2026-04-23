@@ -133,6 +133,8 @@
     "download": "Download",
     "clear": "Clear",
     "clearAll": "Clear all",
+    "expandAll": "Expand all",
+    "collapseAll": "Collapse all",
     "apply": "Apply",
     "add": "Add",
     "select": "Select",

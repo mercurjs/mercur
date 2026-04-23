@@ -1,6 +1,6 @@
 import { ReactNode, Children } from "react";
 import { useTranslation } from "react-i18next";
-import { Heading } from "@medusajs/ui";
+import { Button, Heading } from "@medusajs/ui";
 
 export const OrderListTitle = () => {
   const { t } = useTranslation();
@@ -16,6 +16,45 @@ export const OrderListActions = ({
     <div className="flex items-center justify-center gap-x-2">
       {Children.count(children) > 0 ? children : null}
     </div>
+  );
+};
+
+type OrderListExpandCollapseActionsProps = {
+  onExpandAll: () => void;
+  onCollapseAll: () => void;
+  disabled?: boolean;
+};
+
+export const OrderListExpandCollapseActions = ({
+  onExpandAll,
+  onCollapseAll,
+  disabled = false,
+}: OrderListExpandCollapseActionsProps) => {
+  const { t } = useTranslation();
+
+  return (
+    <>
+      <Button
+        type="button"
+        variant="secondary"
+        size="small"
+        disabled={disabled}
+        onClick={onExpandAll}
+        data-testid="orders-expand-all-button"
+      >
+        {t("actions.expandAll")}
+      </Button>
+      <Button
+        type="button"
+        variant="secondary"
+        size="small"
+        disabled={disabled}
+        onClick={onCollapseAll}
+        data-testid="orders-collapse-all-button"
+      >
+        {t("actions.collapseAll")}
+      </Button>
+    </>
   );
 };
 
