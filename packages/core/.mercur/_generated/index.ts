@@ -104,7 +104,7 @@ export type Routes = {
                 request: typeof import("@medusajs/medusa/api/admin/exchanges/[id]/request/route");
             };
         };
-        featureFlags: typeof import("@medusajs/medusa/api/admin/feature-flags/route");
+        featureFlags: typeof import("../../src/api/admin/feature-flags/route");
         fulfillmentProviders: typeof import("@medusajs/medusa/api/admin/fulfillment-providers/route") & {
             $id: {
                 options: typeof import("@medusajs/medusa/api/admin/fulfillment-providers/[id]/options/route");

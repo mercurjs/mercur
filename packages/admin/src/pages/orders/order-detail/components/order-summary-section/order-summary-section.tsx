@@ -60,6 +60,7 @@ import {
 import { getTotalCaptured } from "../../../../../lib/payment.ts";
 import { getLoyaltyPlugin } from "../../../../../lib/plugins.ts";
 import { getReturnableQuantity } from "../../../../../lib/rma.ts";
+import { useWarehouseManagement } from "../../../../../hooks/api/feature-flags.tsx";
 import ReturnInfoPopover from "./return-info-popover.tsx";
 import ShippingInfoPopover from "./shipping-info-popover.tsx";
 import { formatPercentage } from "../../../../../lib/percentage-helpers.ts";
@@ -88,17 +89,24 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
     fields: "+received_at",
   });
 
+  const warehouseEnabled = useWarehouseManagement();
+
   const receivableReturns = useMemo(
     () => returns.filter((r) => !r.canceled_at),
     [returns],
   );
 
-  const showReturns = !!receivableReturns.length;
+  const showReturns = warehouseEnabled && !!receivableReturns.length;
 
   /**
-   * Show Allocation button only if there are unfulfilled items that don't have reservations
+   * Show Allocation button only if warehouse management is enabled AND
+   * there are unfulfilled items that don't have reservations.
    */
   const showAllocateButton = useMemo(() => {
+    if (!warehouseEnabled) {
+      return false;
+    }
+
     if (!reservations) {
       return false;
     }
@@ -121,7 +129,7 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
     }
 
     return false;
-  }, [order.items, reservations]);
+  }, [order.items, reservations, warehouseEnabled]);
 
   const unpaidPaymentCollection = order.payment_collections.find(
     (pc) => pc.status === "not_paid",

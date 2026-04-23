@@ -29,6 +29,7 @@ import {
   useMarkOrderFulfillmentAsDelivered,
 } from "../../../../../hooks/api/orders"
 import { useStockLocation } from "../../../../../hooks/api/stock-locations"
+import { useWarehouseManagement } from "../../../../../hooks/api/feature-flags"
 import { formatProvider } from "../../../../../lib/format-provider"
 import { getLocaleAmount } from "../../../../../lib/money-amount-helpers"
 import { FulfillmentSetType } from "../../../../locations/common/constants"
@@ -40,7 +41,13 @@ type OrderFulfillmentSectionProps = {
 export const OrderFulfillmentSection = ({
   order,
 }: OrderFulfillmentSectionProps) => {
+  const warehouseEnabled = useWarehouseManagement()
   const fulfillments = order.fulfillments || []
+
+  // Baseline Mercur hides warehouse UI from admin. See specs/005.
+  if (!warehouseEnabled) {
+    return null
+  }
 
   return (
     <div className="flex flex-col gap-y-3" data-testid="order-fulfillment-section">
