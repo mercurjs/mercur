@@ -12,6 +12,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { deleteProductsWorkflow } from "../../../../workflows/product/workflows/delete-products"
 import { updateProductsWorkflow } from "../../../../workflows/product/workflows/update-products"
+import { formatProductAttributes } from "../helpers"
 import { AdminUpdateProductType } from "../validators"
 
 export const GET = async (
@@ -34,6 +35,8 @@ export const GET = async (
       `Product with id ${req.params.id} was not found`
     )
   }
+
+  formatProductAttributes(product)
 
   res.json({ product })
 }
@@ -68,6 +71,8 @@ export const POST = async (
       `Product with id ${req.params.id} was not found`
     )
   }
+
+  formatProductAttributes(product)
 
   res.json({ product })
 }

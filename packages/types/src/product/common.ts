@@ -265,6 +265,7 @@ export interface ProductDTO {
   variant_attributes?: ProductAttributeDTO[];
   custom_attributes?: ProductAttributeDTO[];
   attribute_values?: ProductAttributeValueDTO[];
+  attributes?: ProductAttributeDTO[];
   changes?: ProductChangeDTO[];
   created_at: string | Date;
   updated_at: string | Date;

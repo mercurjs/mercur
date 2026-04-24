@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Hint, Input, Label, Switch, Textarea } from "@medusajs/ui";
+import { Button, Hint, Input, Label, Switch, Textarea, toast } from "@medusajs/ui";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -60,6 +60,9 @@ export const CreateAttributeForm = ({
       {
         onSuccess: () => {
           handleSuccess();
+        },
+        onError: (error) => {
+          toast.error(error.message);
         },
       }
     );

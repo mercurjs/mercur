@@ -152,7 +152,106 @@ class ProductModuleService extends MedusaService({
 
     (product as any).product_change = productChange;
 
+    this.formatProductAttributes_(product);
+
     return product;
+  }
+
+  // @ts-expect-error
+  async listProducts(
+    filters?: Record<string, any>,
+    config?: FindConfig<any>,
+    sharedContext?: Context
+  ): Promise<any[]> {
+    const products = await super.listProducts(
+      filters,
+      config,
+      sharedContext
+    );
+
+    for (const product of products as any[]) {
+      this.formatProductAttributes_(product);
+    }
+
+    return products;
+  }
+
+  // @ts-expect-error
+  async listAndCountProducts(
+    filters?: Record<string, any>,
+    config?: FindConfig<any>,
+    sharedContext?: Context
+  ): Promise<[any[], number]> {
+    const [products, count] = await super.listAndCountProducts(
+      filters,
+      config,
+      sharedContext
+    );
+
+    for (const product of products as any[]) {
+      this.formatProductAttributes_(product);
+    }
+
+    return [products, count];
+  }
+
+  /**
+   * Computes a unified `attributes` array on the product by merging
+   * variant_attributes, custom_attributes, and attribute_values into
+   * a single grouped structure with values nested under each attribute.
+   */
+  private formatProductAttributes_(product: any): void {
+    const hasAttrData =
+      product.variant_attributes ||
+      product.custom_attributes ||
+      product.attribute_values;
+
+    if (!hasAttrData) return;
+
+    const attrsById = new Map<string, any>();
+
+    // Add variant_attributes (global or product-scoped, used as variant axes)
+    for (const attr of product.variant_attributes ?? []) {
+      attrsById.set(attr.id, { ...attr, values: [...(attr.values ?? [])] });
+    }
+
+    // Add custom_attributes (product-scoped, non-variant)
+    for (const attr of product.custom_attributes ?? []) {
+      if (!attrsById.has(attr.id)) {
+        attrsById.set(attr.id, {
+          ...attr,
+          values: [...(attr.values ?? [])],
+        });
+      }
+    }
+
+    // Add attributes discovered only via attribute_values
+    // (global non-variant attributes linked through values)
+    for (const val of product.attribute_values ?? []) {
+      if (!val.attribute) continue;
+      const attrId = val.attribute.id ?? val.attribute_id;
+      if (!attrId || attrsById.has(attrId)) continue;
+      attrsById.set(attrId, { ...val.attribute, values: [] });
+    }
+
+    // Filter each attribute's values to only those linked to this product
+    const productValueIds = new Set(
+      (product.attribute_values ?? []).map((v: any) => v.id)
+    );
+
+    for (const attr of attrsById.values()) {
+      attr.values = (attr.values ?? []).filter((v: any) =>
+        productValueIds.has(v.id)
+      );
+      attr.values.sort(
+        (a: any, b: any) => (a.rank ?? 0) - (b.rank ?? 0)
+      );
+    }
+
+    // Sort attributes by rank
+    product.attributes = [...attrsById.values()].sort(
+      (a, b) => (a.rank ?? 0) - (b.rank ?? 0)
+    );
   }
 
   private async getActiveProductChange_(
