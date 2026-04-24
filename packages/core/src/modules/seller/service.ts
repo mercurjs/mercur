@@ -71,7 +71,7 @@ class SellerModuleService extends MedusaService({
     if (!base || !token) {
       return ""
     }
-    return `${base}/invite?token=${token}`
+    return `${base}/seller/invite?token=${token}`
   }
 
   @InjectTransactionManager()
