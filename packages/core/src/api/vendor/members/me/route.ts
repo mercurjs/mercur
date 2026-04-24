@@ -55,24 +55,8 @@ export const POST = async (
     )
   }
 
-  const update: {
-    first_name?: string | null
-    last_name?: string | null
-    locale?: string | null
-  } = {}
-
-  if (req.validatedBody.first_name !== undefined) {
-    update.first_name = req.validatedBody.first_name
-  }
-  if (req.validatedBody.last_name !== undefined) {
-    update.last_name = req.validatedBody.last_name
-  }
-  if (req.validatedBody.locale !== undefined) {
-    update.locale = req.validatedBody.locale
-  }
-
   await updateMemberWorkflow(req.scope).run({
-    input: { selector: { id: memberId }, update },
+    input: { selector: { id: memberId }, update: req.validatedBody },
   })
 
   const { data: sellerMembers } = await query.graph({
