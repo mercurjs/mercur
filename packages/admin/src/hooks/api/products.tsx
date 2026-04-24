@@ -7,7 +7,7 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { inventoryItemsQueryKeys } from "./inventory.tsx";
@@ -375,6 +375,116 @@ export const useDeleteVariantLazy = (
         queryKey: productsQueryKeys.detail(productId),
       });
 
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+// --- Product attribute sub-resource ---
+
+const PRODUCT_ATTRIBUTES_QUERY_KEY = "product_product_attributes" as const;
+export const productAttributesSubQueryKeys = queryKeysFactory(
+  PRODUCT_ATTRIBUTES_QUERY_KEY
+);
+
+export const useProductAttributesSub = (
+  productId: string,
+  query?: Record<string, any>,
+  options?: Omit<
+    UseQueryOptions<any, ClientError, any, QueryKey>,
+    "queryFn" | "queryKey"
+  >,
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      fetchQuery(`/admin/products/${productId}/attributes`, {
+        method: "GET",
+        query,
+      }),
+    queryKey: productAttributesSubQueryKeys.list({ productId, ...query }),
+    ...options,
+  });
+
+  return { ...data, ...rest };
+};
+
+export const useCreateProductAttributeSub = (
+  productId: string,
+  options?: UseMutationOptions<
+    HttpTypes.AdminProductAttributeResponse,
+    ClientError,
+    Record<string, any>
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      fetchQuery(`/admin/products/${productId}/attributes`, {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: productAttributesSubQueryKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useUpdateProductAttributeSub = (
+  productId: string,
+  attributeId: string,
+  options?: UseMutationOptions<
+    HttpTypes.AdminProductAttributeResponse,
+    ClientError,
+    Record<string, any>
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      fetchQuery(`/admin/products/${productId}/attributes/${attributeId}`, {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: productAttributesSubQueryKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useDeleteProductAttributeSub = (
+  productId: string,
+  attributeId: string,
+  options?: UseMutationOptions<
+    HttpTypes.AdminProductAttributeDeleteResponse,
+    ClientError,
+    void
+  >,
+) => {
+  return useMutation({
+    mutationFn: () =>
+      fetchQuery(`/admin/products/${productId}/attributes/${attributeId}`, {
+        method: "DELETE",
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: productAttributesSubQueryKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
       options?.onSuccess?.(data, variables, context);
     },
     ...options,

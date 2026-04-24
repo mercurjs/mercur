@@ -15,6 +15,15 @@ import {
   adminProductVariantQueryConfig,
 } from "./query-config"
 import {
+  adminProductAttributeQueryConfig,
+} from "../product-attributes/query-config"
+import {
+  AdminCreateProductAttribute,
+  AdminGetProductAttributeParams,
+  AdminGetProductAttributesParams,
+  AdminUpdateProductAttribute,
+} from "../product-attributes/validators"
+import {
   AdminCreateProduct,
   AdminCreateProductVariant,
   AdminGetProductParams,
@@ -203,5 +212,54 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.retrieve
       ),
     ],
+  },
+
+  // --- Attribute sub-resource ---
+  {
+    method: ["GET"],
+    matcher: "/admin/products/:id/attributes",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetProductAttributesParams,
+        adminProductAttributeQueryConfig.list
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/products/:id/attributes",
+    middlewares: [
+      validateAndTransformBody(AdminCreateProductAttribute),
+      validateAndTransformQuery(
+        AdminGetProductAttributeParams,
+        adminProductAttributeQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/admin/products/:id/attributes/:attribute_id",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetProductAttributeParams,
+        adminProductAttributeQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/products/:id/attributes/:attribute_id",
+    middlewares: [
+      validateAndTransformBody(AdminUpdateProductAttribute),
+      validateAndTransformQuery(
+        AdminGetProductAttributeParams,
+        adminProductAttributeQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["DELETE"],
+    matcher: "/admin/products/:id/attributes/:attribute_id",
+    middlewares: [],
   },
 ]

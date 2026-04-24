@@ -9,7 +9,6 @@ import { useProduct } from "../../../hooks/api/products";
 import { ProductAttributeSection } from "./components/product-attribute-section";
 import { ProductGeneralSection } from "./components/product-general-section";
 import { ProductMediaSection } from "./components/product-media-section";
-import { ProductOptionSection } from "./components/product-option-section";
 import { ProductOrganizationSection } from "./components/product-organization-section";
 import { ProductVariantSection } from "./components/product-variant-section";
 import { productLoader } from "./loader";
@@ -69,7 +68,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <TwoColumnPage.Main data-testid="product-detail-main">
         <ProductGeneralSection product={product} />
         <ProductMediaSection product={product} />
-        <ProductOptionSection product={product} />
         <ProductVariantSection product={product} />
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
@@ -85,7 +83,6 @@ export const ProductDetailPage = Object.assign(Root, {
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: ProductGeneralSection,
   MainMediaSection: ProductMediaSection,
-  MainOptionSection: ProductOptionSection,
   MainAttributeSection: ProductAttributeSection,
   MainVariantSection: ProductVariantSection,
   SidebarOrganizationSection: ProductOrganizationSection,

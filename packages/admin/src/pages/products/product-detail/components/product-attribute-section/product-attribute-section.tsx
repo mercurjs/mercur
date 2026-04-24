@@ -1,18 +1,73 @@
 import {
-  PencilSquare,
+  ListBullet,
+  Plus,
+  Trash,
   Swatch,
   DropCap,
   InformationCircleSolid,
 } from "@medusajs/icons";
-import { Badge, Container, Heading, Text, Tooltip } from "@medusajs/ui";
+import {
+  Badge,
+  Container,
+  Heading,
+  Text,
+  Tooltip,
+  usePrompt,
+} from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { ProductAttributeDTO, ProductDTO } from "@mercurjs/types";
+import { useDeleteProductAttributeSub } from "../../../../../hooks/api/products";
 
 type ProductWithAttributes = Pick<
   ProductDTO,
   "id" | "variant_attributes" | "custom_attributes" | "attribute_values"
 >;
+
+const AttributeActions = ({
+  productId,
+  attribute,
+}: {
+  productId: string;
+  attribute: ProductAttributeDTO;
+}) => {
+  const { t } = useTranslation();
+  const prompt = usePrompt();
+  const { mutateAsync } = useDeleteProductAttributeSub(productId, attribute.id);
+
+  const handleDelete = async () => {
+    const res = await prompt({
+      title: t("general.areYouSure"),
+      description: t("products.deleteAttributeWarning", {
+        title: attribute.name,
+      }),
+      confirmText: t("actions.delete"),
+      cancelText: t("actions.cancel"),
+    });
+
+    if (!res) {
+      return;
+    }
+
+    await mutateAsync();
+  };
+
+  return (
+    <ActionMenu
+      groups={[
+        {
+          actions: [
+            {
+              label: t("actions.delete"),
+              onClick: handleDelete,
+              icon: <Trash />,
+            },
+          ],
+        },
+      ]}
+    />
+  );
+};
 
 const AttributeGroup = ({
   icon,
@@ -20,12 +75,14 @@ const AttributeGroup = ({
   description,
   attributes,
   productAttributeValues,
+  productId,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
   attributes: ProductAttributeDTO[];
   productAttributeValues?: ProductDTO["attribute_values"];
+  productId: string;
 }) => {
   if (!attributes.length) {
     return null;
@@ -97,19 +154,7 @@ const AttributeGroup = ({
                     )}
                   </div>
 
-                  <ActionMenu
-                    groups={[
-                      {
-                        actions: [
-                          {
-                            label: "Edit",
-                            to: `attributes/${attr.id}/edit`,
-                            icon: <PencilSquare />,
-                          },
-                        ],
-                      },
-                    ]}
-                  />
+                  <AttributeActions productId={productId} attribute={attr} />
                 </div>
               </div>
             );
@@ -153,37 +198,38 @@ export const ProductAttributeSection = ({
     (product.custom_attributes ?? []).map((a) => a.id),
   );
 
-  // Derive informational attributes from custom_attributes + attribute_values
-  // (global non-variant attrs linked via attribute_values won't be in custom_attributes)
-  const infoAttributes = [...(product.custom_attributes ?? [])];
+  const infoAttributes = [...(product.custom_attributes ?? [])].filter(
+    (attr) => !attr.is_variant_axis,
+  );
   for (const av of product.attribute_values ?? []) {
     const attr = av.attribute;
-    if (
-      attr &&
-      !variantAttrIds.has(attr.id) &&
-      !customAttrIds.has(attr.id)
-    ) {
+    if (attr && !variantAttrIds.has(attr.id) && !customAttrIds.has(attr.id)) {
       infoAttributes.push(attr);
       customAttrIds.add(attr.id);
     }
   }
 
-  if (!variantAttributes.length && !infoAttributes.length) {
-    return null;
-  }
+  const isEmpty = !variantAttributes.length && !infoAttributes.length;
 
   return (
     <Container className="p-0">
-      <div className="flex items-center justify-between border-b border-ui-border-base px-6 py-4">
+      <div
+        className={`flex items-center justify-between px-6 py-4${isEmpty ? "" : " border-b border-ui-border-base"}`}
+      >
         <Heading level="h2">{t("products.attributes")}</Heading>
         <ActionMenu
           groups={[
             {
               actions: [
                 {
-                  label: t("products.editAttributes"),
-                  to: "attributes/edit",
-                  icon: <PencilSquare />,
+                  label: t("products.create.attributes.addExisting"),
+                  to: "attributes/add",
+                  icon: <ListBullet />,
+                },
+                {
+                  label: t("products.create.attributes.createNew"),
+                  to: "attributes/create",
+                  icon: <Plus />,
                 },
               ],
             },
@@ -198,6 +244,7 @@ export const ProductAttributeSection = ({
           description={t("products.attributeVariantsDescription")}
           attributes={variantAttributes}
           productAttributeValues={product.attribute_values}
+          productId={product.id}
         />
       )}
 
@@ -212,6 +259,7 @@ export const ProductAttributeSection = ({
           description={t("products.attributeProductInformationDescription")}
           attributes={infoAttributes}
           productAttributeValues={product.attribute_values}
+          productId={product.id}
         />
       )}
     </Container>

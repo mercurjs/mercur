@@ -451,7 +451,7 @@
         "requiredAttributes": "Required attributes",
         "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
         "useForVariants": "Use for Variations",
-        "useForVariantsDescription": "If checked, we will create variants with this attribute. You can define them in the next step.",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
         "tip": "Tip",
         "variantAxisTip": "This attribute will create variants. You can define them in the next step."
       },
@@ -532,6 +532,8 @@
     "attributeVariantsDescription": "All attributes that are used for variants",
     "attributeProductInformation": "Product Information",
     "attributeProductInformationDescription": "Attributes used for informational purposes",
+    "addAttribute": "Add Attribute",
+    "deleteAttributeWarning": "Are you sure you want to delete the attribute \"{{title}}\"? This action cannot be undone.",
     "editAttributes": "Edit Attributes",
     "editOptions": "Edit Options",
     "editPrices": "Edit prices",

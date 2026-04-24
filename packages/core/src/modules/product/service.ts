@@ -623,7 +623,137 @@ class ProductModuleService extends MedusaService({
       input as any,
       sharedContext
     );
+
+    // When product_id is set, link created attributes and their values to the product
+    const created = Array.isArray(result) ? result : [result];
+    for (const attr of created) {
+      const productId = (attr as any).product_id;
+      if (!productId) continue;
+
+      // Retrieve with values to get created value IDs
+      const attrWithValues = await this.retrieveProductAttribute(
+        attr.id,
+        { relations: ["values"] },
+        sharedContext
+      );
+
+      const valueIds = ((attrWithValues as any).values ?? []).map(
+        (v: any) => v.id
+      );
+
+      // Fetch the product to get existing M2M links
+      const product = await this.retrieveProduct(
+        productId,
+        {
+          select: ["id"],
+          relations: ["attribute_values", "variant_attributes"],
+        } as any,
+        sharedContext
+      );
+
+      const updatePayload: Record<string, any> = { id: productId };
+
+      // Link attribute values to the product's attribute_values M2M
+      if (valueIds.length) {
+        const existingValueIds = (
+          (product as any).attribute_values ?? []
+        ).map((v: any) => v.id);
+        updatePayload.attribute_values = [
+          ...new Set([...existingValueIds, ...valueIds]),
+        ];
+      }
+
+      // If variant axis, also link attribute to the product's variant_attributes M2M
+      if ((attr as any).is_variant_axis) {
+        const existingVariantAttrIds = (
+          (product as any).variant_attributes ?? []
+        ).map((a: any) => a.id);
+        updatePayload.variant_attributes = [
+          ...new Set([...existingVariantAttrIds, attr.id]),
+        ];
+      }
+
+      if (
+        updatePayload.attribute_values ||
+        updatePayload.variant_attributes
+      ) {
+        await super.updateProducts(updatePayload as any, sharedContext);
+      }
+    }
+
     return (Array.isArray(data) ? result : result[0]) as any;
+  }
+
+  /**
+   * Removes an attribute from a product: unlinks from variant_attributes M2M,
+   * removes its values from attribute_values M2M, and deletes the attribute
+   * if it is product-scoped (has product_id).
+   */
+  @InjectTransactionManager()
+  async removeAttributeFromProduct(
+    productId: string,
+    attributeId: string,
+    sharedContext?: Context
+  ): Promise<void> {
+    const product = await this.retrieveProduct(
+      productId,
+      {
+        select: ["id"],
+        relations: ["variant_attributes", "attribute_values"],
+      } as any,
+      sharedContext
+    );
+
+    // Retrieve the attribute with its values
+    const attribute = await this.retrieveProductAttribute(
+      attributeId,
+      { relations: ["values"] },
+      sharedContext
+    );
+
+    const attrValueIds = new Set(
+      ((attribute as any).values ?? []).map((v: any) => v.id)
+    );
+
+    // Remove attribute from variant_attributes M2M
+    const existingVariantAttrIds = (
+      (product as any).variant_attributes ?? []
+    ).map((a: any) => a.id);
+
+    if (existingVariantAttrIds.includes(attributeId)) {
+      await super.updateProducts(
+        {
+          id: productId,
+          variant_attributes: existingVariantAttrIds.filter(
+            (id: string) => id !== attributeId
+          ),
+        } as any,
+        sharedContext
+      );
+    }
+
+    // Remove attribute values from product's attribute_values M2M
+    if (attrValueIds.size) {
+      const existingValueIds = (
+        (product as any).attribute_values ?? []
+      ).map((v: any) => v.id);
+
+      const filteredValueIds = existingValueIds.filter(
+        (id: string) => !attrValueIds.has(id)
+      );
+
+      if (filteredValueIds.length !== existingValueIds.length) {
+        await super.updateProducts(
+          { id: productId, attribute_values: filteredValueIds } as any,
+          sharedContext
+        );
+      }
+    }
+
+    // If product-scoped attribute, delete it entirely
+    if ((attribute as any).product_id === productId) {
+      await this.deleteProductAttributes(attributeId, sharedContext);
+    }
   }
 
   // @ts-expect-error

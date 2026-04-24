@@ -195,7 +195,7 @@ const Root = () => {
                     control={form.control}
                     name={`attributes.${index}.use_for_variants`}
                     render={({
-                      field: { value, onChange, ...field },
+                      field: { value, onChange, ref },
                     }) => (
                       <Form.Item>
                         <div
@@ -204,10 +204,10 @@ const Root = () => {
                         >
                           <Form.Control>
                             <Switch
-                              className="rtl:rotate-180"
+                              ref={ref}
+                              className="shrink-0 rtl:rotate-180"
                               checked={value}
                               onCheckedChange={onChange}
-                              {...field}
                             />
                           </Form.Control>
                           <div className="flex flex-col">
