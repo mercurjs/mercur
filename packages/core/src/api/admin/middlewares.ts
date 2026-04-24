@@ -21,6 +21,10 @@ import {
   orderIdFromBody,
   requireSellerValidLocation,
 } from "./middlewares/require-seller-valid-location"
+import {
+  orderIdFromReturnParam,
+  requireSellerValidShippingOption,
+} from "./middlewares/require-seller-valid-shipping-option"
 
 const maybeApplySellerProductFilter = (
   req: AuthenticatedMedusaRequest,
@@ -97,11 +101,26 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     middlewares: [validateCancelOrderMiddleware],
   },
   // Seller-valid scoping — spec 006 D-02-006.
+  //
+  // IMPORTANT: method is intentionally omitted on these Mercur matchers.
+  // Medusa's framework registers matchers with explicit `method` using
+  // `app[method](...)` which makes them route handlers stacked AFTER
+  // core route handlers — they never fire because the core handler
+  // responds first. Omitting `method` routes them through `app.use()`
+  // which runs as pre-route middleware, reliably before the core
+  // handler responds. Each middleware filters by HTTP method internally.
+  //
   // Block cross-seller location_id on return creation.
   {
-    method: ["POST"],
     matcher: "/admin/returns",
     middlewares: [requireSellerValidLocation(orderIdFromBody)],
+  },
+  // Block cross-seller shipping_option_id on return shipping-method.
+  {
+    matcher: "/admin/returns/:id/shipping-method",
+    middlewares: [
+      requireSellerValidShippingOption(orderIdFromReturnParam),
+    ],
   },
   // Warehouse capability lock — gated by `admin_warehouse_management` feature flag.
   // Baseline Mercur keeps fulfillment vendor-owned; these matchers reject direct

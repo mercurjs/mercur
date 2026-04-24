@@ -35,6 +35,9 @@ export const requireSellerValidLocation = (
     next: MedusaNextFunction
   ) => {
     try {
+      if (req.method !== "POST") {
+        return next()
+      }
       const body = (req.body ?? {}) as { location_id?: string }
       const locationId = body.location_id
       if (!locationId) {

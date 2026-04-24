@@ -29,9 +29,11 @@ export type CreateAdminUserOptions = {
     withSuperAdminRole?: boolean
 }
 
+const SUPER_ADMIN_ROLE_ID = "role_super_admin"
+
 const provisionSuperAdminRole = async (
     container: MedusaContainer,
-    label: string
+    _label: string
 ): Promise<string | null> => {
     let rbacService: any
     try {
@@ -40,20 +42,21 @@ const provisionSuperAdminRole = async (
         // RBAC module not loaded (feature flag off in this deployment).
         return null
     }
-    if (!rbacService?.createRbacPolicies || !rbacService?.createRbacRoles) {
+    if (!rbacService?.listRbacRoles) {
         return null
     }
 
-    const policies = await rbacService.createRbacPolicies([
-        { key: `test-superadmin-wildcard-${Date.now()}`, resource: "*", operation: "*" },
-    ])
-    const roles = await rbacService.createRbacRoles([
-        { name: `test-superadmin-${label}-${Date.now()}` },
-    ])
-    await rbacService.createRbacRolePolicies([
-        { role_id: roles[0].id, policy_id: policies[0].id },
-    ])
-    return roles[0].id
+    // Medusa's RBAC module seeds a built-in `role_super_admin` with a
+    // wildcard `*:*` policy. Reuse it instead of creating a parallel
+    // custom role — that avoids link-table mismatches and matches how a
+    // real deployment provisions the first admin.
+    const existing = await rbacService.listRbacRoles({
+        id: SUPER_ADMIN_ROLE_ID,
+    })
+    if (Array.isArray(existing) && existing.length > 0) {
+        return SUPER_ADMIN_ROLE_ID
+    }
+    return null
 }
 
 export const createAdminUser = async (
