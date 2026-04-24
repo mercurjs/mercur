@@ -491,6 +491,38 @@ export const useDeleteProductAttributeSub = (
   });
 };
 
+// --- Attribute batch mutations ---
+
+export const useBatchProductAttributesSub = (
+  productId: string,
+  options?: UseMutationOptions<any, ClientError, {
+    create?: {
+      attribute_id: string;
+      attribute_value_ids?: string[];
+      values?: string[];
+    }[];
+    delete?: string[];
+  }>,
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      fetchQuery(`/admin/products/${productId}/attributes/batch`, {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: productAttributesSubQueryKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
 // --- Variant batch mutations ---
 
 export const useUpdateProductVariantsBatch = (

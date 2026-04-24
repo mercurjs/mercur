@@ -301,3 +301,26 @@ export const AdminRequestProductChanges = z.object({
   rejection_reason_ids: z.array(z.string()).min(1),
   message: z.string().optional(),
 })
+
+// --- Batch product attributes ---
+
+const BatchProductAttributeCreate = z.union([
+  // Select types — reference existing value IDs
+  z.object({
+    attribute_id: z.string(),
+    attribute_value_ids: z.array(z.string()).optional(),
+  }).strict(),
+  // Text/unit/toggle types — provide new value strings
+  z.object({
+    attribute_id: z.string(),
+    values: z.array(z.string()),
+  }).strict(),
+])
+
+export type AdminBatchProductAttributesType = z.infer<
+  typeof AdminBatchProductAttributes
+>
+export const AdminBatchProductAttributes = z.object({
+  create: z.array(BatchProductAttributeCreate).optional(),
+  delete: z.array(z.string()).optional(),
+})

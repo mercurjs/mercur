@@ -14,14 +14,30 @@ export const validateDeleteProductAttributesStep = createStep(
 
     const attributes = await service.listProductAttributes(
       { id: ids },
-      { relations: ["variant_products"] }
+      { relations: ["variant_products", "values", "values.products"] }
     )
 
     for (const attr of attributes as any[]) {
+      // Check variant axis M2M
       if (attr.variant_products?.length) {
         throw new MedusaError(
           MedusaError.Types.NOT_ALLOWED,
-          `Cannot delete attribute '${attr.name}' because it is used by ${attr.variant_products.length} product(s). Remove the attribute from all products first.`
+          `Cannot delete attribute '${attr.name}' because it is used as a variant axis by ${attr.variant_products.length} product(s). Remove the attribute from all products first.`
+        )
+      }
+
+      // Check product attribute_values M2M (via values)
+      const linkedProducts = new Set<string>()
+      for (const value of attr.values ?? []) {
+        for (const product of value.products ?? []) {
+          linkedProducts.add(product.id)
+        }
+      }
+
+      if (linkedProducts.size) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_ALLOWED,
+          `Cannot delete attribute '${attr.name}' because its values are linked to ${linkedProducts.size} product(s). Remove the attribute from all products first.`
         )
       }
     }

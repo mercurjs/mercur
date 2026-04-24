@@ -27,7 +27,7 @@ import { Form } from "../../../components/common/form";
 import { RouteFocusModal, useRouteModal } from "../../../components/modals";
 import { KeyboundForm } from "../../../components/utilities/keybound-form";
 import { useProductAttributes } from "../../../hooks/api";
-import { useUpdateProduct } from "../../../hooks/api/products";
+import { useBatchProductAttributesSub } from "../../../hooks/api/products";
 import { useAttributeTableQuery } from "../../../hooks/table/query/use-attribute-table-query";
 import { useAttributeTableFilters } from "../../../hooks/table/filters/use-attribute-table-filters";
 
@@ -100,7 +100,7 @@ const Content = ({ productId }: { productId: string }) => {
       placeholderData: keepPreviousData,
     });
 
-  const { mutateAsync, isPending } = useUpdateProduct(productId);
+  const { mutateAsync, isPending } = useBatchProductAttributesSub(productId);
 
   const form = useForm<AddExistingFormValues>({
     defaultValues: { attributes: [] },
@@ -159,8 +159,11 @@ const Content = ({ productId }: { productId: string }) => {
   };
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const variantAttrs: any[] = [];
-    const productAttrs: any[] = [];
+    const batchCreate: {
+      attribute_id: string;
+      attribute_value_ids?: string[];
+      values?: string[];
+    }[] = [];
 
     for (const attr of data.attributes) {
       const vals = Array.isArray(attr.values)
@@ -169,54 +172,39 @@ const Content = ({ productId }: { productId: string }) => {
           ? [attr.values]
           : [];
 
-      if (attr.is_variant_axis) {
+      const hasPresetValues =
+        attr.type === "single_select" || attr.type === "multi_select";
+
+      if (hasPresetValues) {
         const nameToId = new Map(
           attr.available_values.map((v) => [v.name, v.id])
         );
         const valueIds = vals
           .map((name) => nameToId.get(name))
           .filter(Boolean) as string[];
-        variantAttrs.push({
+        batchCreate.push({
           attribute_id: attr.attribute_id,
-          value_ids: valueIds.length ? valueIds : undefined,
+          attribute_value_ids: valueIds.length ? valueIds : undefined,
         });
       } else {
-        const hasPresetValues =
-          attr.type === "single_select" || attr.type === "multi_select";
-        if (hasPresetValues) {
-          const nameToId = new Map(
-            attr.available_values.map((v) => [v.name, v.id])
-          );
-          const valueIds = vals
-            .map((name) => nameToId.get(name))
-            .filter(Boolean) as string[];
-          if (valueIds.length) {
-            productAttrs.push({
-              attribute_id: attr.attribute_id,
-              value_ids: valueIds,
-            });
-          }
-        } else if (vals.length) {
-          productAttrs.push({
-            attribute_id: attr.attribute_id,
-            values: vals,
-          });
-        }
+        batchCreate.push({
+          attribute_id: attr.attribute_id,
+          values: vals.length ? vals : undefined,
+        });
       }
     }
 
-    const payload: Record<string, any> = {};
-    if (variantAttrs.length) payload.variant_attributes = variantAttrs;
-    if (productAttrs.length) payload.product_attributes = productAttrs;
-
-    await mutateAsync(payload, {
-      onSuccess: () => {
-        handleSuccess();
-      },
-      onError: (err) => {
-        toast.error(err.message);
-      },
-    });
+    await mutateAsync(
+      { create: batchCreate },
+      {
+        onSuccess: () => {
+          handleSuccess();
+        },
+        onError: (err) => {
+          toast.error(err.message);
+        },
+      }
+    );
   });
 
   return (

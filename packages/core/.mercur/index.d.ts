@@ -259,6 +259,7 @@ export type Routes = {
                 activate: typeof import("../../src/api/admin/products/[id]/activate/route");
                 attributes: typeof import("../../src/api/admin/products/[id]/attributes/route") & {
                     $attributeId: typeof import("../../src/api/admin/products/[id]/attributes/[attribute_id]/route");
+                    batch: typeof import("../../src/api/admin/products/[id]/attributes/batch/route");
                 };
                 deactivate: typeof import("../../src/api/admin/products/[id]/deactivate/route");
                 reject: typeof import("../../src/api/admin/products/[id]/reject/route");

@@ -352,6 +352,15 @@ class ProductModuleService extends MedusaService({
       // Shared across variant_attributes + product attribute_values + variant attribute_values
       const valueLookup = new Map<string, Map<string, string>>();
 
+      const variantAttrValueIds: string[] = [];
+      const variantCustomAttributeIds: string[] = [];
+      const productAttrValueIds: string[] = [];
+      const customAttributeIds: string[] = [];
+
+      // Collect IDs of all inline-created attributes so we can batch-fetch
+      // their values in a single query after both loops.
+      const createdInlineAttrIds: string[] = [];
+
       // --- Process variant_attributes ---
       const attrsInput = product.variant_attributes as any[] | undefined;
       if (attrsInput?.length) {
@@ -384,6 +393,7 @@ class ProductModuleService extends MedusaService({
                     `Attribute value with id '${vid}' was not found on attribute '${attr.name}'`
                   );
                 }
+                variantAttrValueIds.push(vid);
               }
             }
 
@@ -412,7 +422,8 @@ class ProductModuleService extends MedusaService({
             );
 
             variantAttributeIds.push(customAttr.id);
-            this.addAttrToLookup_(customAttr as any, valueLookup);
+            variantCustomAttributeIds.push(customAttr.id);
+            createdInlineAttrIds.push(customAttr.id);
           }
         }
 
@@ -422,8 +433,6 @@ class ProductModuleService extends MedusaService({
 
       // --- Process product_attributes (non-variant) ---
       const productAttrsInput = product.product_attributes as any[] | undefined;
-      const productAttrValueIds: string[] = [];
-      const customAttributeIds: string[] = [];
       if (productAttrsInput?.length) {
         for (const input of productAttrsInput) {
           if (input.attribute_id) {
@@ -512,36 +521,65 @@ class ProductModuleService extends MedusaService({
             );
 
             customAttributeIds.push(customAttr.id);
-
-            // Retrieve with values relation — createProductAttributes may not return nested values
-            const customAttrWithValues = await this.retrieveProductAttribute(
-              customAttr.id,
-              { relations: ["values"] },
-              sharedContext
-            );
-
-            this.addAttrToLookup_(customAttrWithValues as any, valueLookup);
-
-            for (const v of (customAttrWithValues as any).values ?? []) {
-              productAttrValueIds.push(v.id);
-            }
+            createdInlineAttrIds.push(customAttr.id);
           }
         }
 
         delete product.product_attributes;
       }
 
-      // Stash custom attribute IDs — product_id will be set after product creation
-      if (customAttributeIds.length) {
-        product.__pending_custom_attribute_ids = customAttributeIds;
+      // Batch-fetch all inline-created attributes with their values in a single query
+      // instead of calling retrieveProductAttribute inside each loop iteration.
+      if (createdInlineAttrIds.length) {
+        const createdAttrs = await this.listProductAttributes(
+          { id: createdInlineAttrIds } as any,
+          { relations: ["values"] },
+          sharedContext
+        );
+
+        const createdAttrsById = new Map<string, any>();
+        for (const a of createdAttrs as any[]) {
+          createdAttrsById.set(a.id, a);
+        }
+
+        // Collect value IDs and build lookups from inline-created attributes
+        for (const attrId of variantCustomAttributeIds) {
+          const attr = createdAttrsById.get(attrId);
+          if (!attr) continue;
+          this.addAttrToLookup_(attr, valueLookup);
+          for (const v of attr.values ?? []) {
+            variantAttrValueIds.push(v.id);
+          }
+        }
+        for (const attrId of customAttributeIds) {
+          const attr = createdAttrsById.get(attrId);
+          if (!attr) continue;
+          this.addAttrToLookup_(attr, valueLookup);
+          for (const v of attr.values ?? []) {
+            productAttrValueIds.push(v.id);
+          }
+        }
       }
 
-      // Merge product_attributes value IDs into attribute_values
-      if (productAttrValueIds.length) {
+      // Stash custom attribute IDs — product_id will be set after product creation
+      const allPendingCustomAttrIds = [
+        ...variantCustomAttributeIds,
+        ...customAttributeIds,
+      ];
+      if (allPendingCustomAttrIds.length) {
+        product.__pending_custom_attribute_ids = allPendingCustomAttrIds;
+      }
+
+      // Merge variant + product attribute value IDs into attribute_values
+      const allAttrValueIds = [
+        ...variantAttrValueIds,
+        ...productAttrValueIds,
+      ];
+      if (allAttrValueIds.length) {
         const existing = Array.isArray(product.attribute_values)
           ? product.attribute_values
           : [];
-        product.attribute_values = [...existing, ...productAttrValueIds];
+        product.attribute_values = [...existing, ...allAttrValueIds];
       }
 
       // --- Resolve variant.attribute_values ---
@@ -626,58 +664,92 @@ class ProductModuleService extends MedusaService({
 
     // When product_id is set, link created attributes and their values to the product
     const created = Array.isArray(result) ? result : [result];
-    for (const attr of created) {
-      const productId = (attr as any).product_id;
-      if (!productId) continue;
+    const attrsWithProductId = created.filter(
+      (attr) => !!(attr as any).product_id
+    );
 
-      // Retrieve with values to get created value IDs
-      const attrWithValues = await this.retrieveProductAttribute(
-        attr.id,
+    if (attrsWithProductId.length) {
+      // Batch-fetch all created attributes with values in a single query
+      const attrIdsToFetch = attrsWithProductId.map((a) => a.id);
+      const fetchedAttrs = await this.listProductAttributes(
+        { id: attrIdsToFetch } as any,
         { relations: ["values"] },
         sharedContext
       );
+      const fetchedAttrsById = new Map<string, any>();
+      for (const a of fetchedAttrs as any[]) {
+        fetchedAttrsById.set(a.id, a);
+      }
 
-      const valueIds = ((attrWithValues as any).values ?? []).map(
-        (v: any) => v.id
-      );
-
-      // Fetch the product to get existing M2M links
-      const product = await this.retrieveProduct(
-        productId,
+      // Batch-fetch all referenced products in a single query
+      const productIds = [
+        ...new Set(attrsWithProductId.map((a) => (a as any).product_id)),
+      ];
+      const products = await this.listProducts(
+        { id: productIds } as any,
         {
-          select: ["id"],
+          select: ["id"] as any,
           relations: ["attribute_values", "variant_attributes"],
-        } as any,
+        },
         sharedContext
       );
-
-      const updatePayload: Record<string, any> = { id: productId };
-
-      // Link attribute values to the product's attribute_values M2M
-      if (valueIds.length) {
-        const existingValueIds = (
-          (product as any).attribute_values ?? []
-        ).map((v: any) => v.id);
-        updatePayload.attribute_values = [
-          ...new Set([...existingValueIds, ...valueIds]),
-        ];
+      const productsById = new Map<string, any>();
+      for (const p of products as any[]) {
+        productsById.set(p.id, p);
       }
 
-      // If variant axis, also link attribute to the product's variant_attributes M2M
-      if ((attr as any).is_variant_axis) {
-        const existingVariantAttrIds = (
-          (product as any).variant_attributes ?? []
-        ).map((a: any) => a.id);
-        updatePayload.variant_attributes = [
-          ...new Set([...existingVariantAttrIds, attr.id]),
-        ];
+      // Build update payloads per product
+      const updatesByProductId = new Map<string, Record<string, any>>();
+
+      for (const attr of attrsWithProductId) {
+        const productId = (attr as any).product_id;
+        const fetchedAttr = fetchedAttrsById.get(attr.id);
+        const product = productsById.get(productId);
+        if (!product) continue;
+
+        if (!updatesByProductId.has(productId)) {
+          updatesByProductId.set(productId, {
+            id: productId,
+            attribute_values: [
+              ...new Set(
+                ((product as any).attribute_values ?? []).map(
+                  (v: any) => v.id
+                )
+              ),
+            ],
+            variant_attributes: [
+              ...new Set(
+                ((product as any).variant_attributes ?? []).map(
+                  (a: any) => a.id
+                )
+              ),
+            ],
+          });
+        }
+
+        const payload = updatesByProductId.get(productId)!;
+
+        // Merge attribute value IDs
+        const valueIds = ((fetchedAttr as any)?.values ?? []).map(
+          (v: any) => v.id
+        );
+        for (const vid of valueIds) {
+          if (!payload.attribute_values.includes(vid)) {
+            payload.attribute_values.push(vid);
+          }
+        }
+
+        // Merge variant attribute ID
+        if ((attr as any).is_variant_axis) {
+          if (!payload.variant_attributes.includes(attr.id)) {
+            payload.variant_attributes.push(attr.id);
+          }
+        }
       }
 
-      if (
-        updatePayload.attribute_values ||
-        updatePayload.variant_attributes
-      ) {
-        await super.updateProducts(updatePayload as any, sharedContext);
+      // Apply all product updates
+      for (const payload of updatesByProductId.values()) {
+        await super.updateProducts(payload as any, sharedContext);
       }
     }
 
@@ -685,16 +757,21 @@ class ProductModuleService extends MedusaService({
   }
 
   /**
-   * Removes an attribute from a product: unlinks from variant_attributes M2M,
-   * removes its values from attribute_values M2M, and deletes the attribute
-   * if it is product-scoped (has product_id).
+   * Adds existing global attributes to a product by linking them via the
+   * variant_attributes M2M and their values via the attribute_values M2M.
    */
   @InjectTransactionManager()
-  async removeAttributeFromProduct(
+  async addAttributesToProduct(
     productId: string,
-    attributeId: string,
+    items: {
+      attribute_id: string
+      attribute_value_ids?: string[]
+      values?: string[]
+    }[],
     sharedContext?: Context
   ): Promise<void> {
+    if (!items.length) return;
+
     const product = await this.retrieveProduct(
       productId,
       {
@@ -704,55 +781,247 @@ class ProductModuleService extends MedusaService({
       sharedContext
     );
 
-    // Retrieve the attribute with its values
-    const attribute = await this.retrieveProductAttribute(
-      attributeId,
+    const existingVariantAttrIds = new Set(
+      ((product as any).variant_attributes ?? []).map((a: any) => a.id)
+    );
+    const existingValueIds = new Set(
+      ((product as any).attribute_values ?? []).map((v: any) => v.id)
+    );
+
+    // Batch-fetch all referenced attributes with their values in a single query
+    const attrIdsToFetch = items.map((item) => item.attribute_id);
+    const fetchedAttrs = await this.listProductAttributes(
+      { id: attrIdsToFetch } as any,
+      { relations: ["values"] },
+      sharedContext
+    );
+    const fetchedAttrsById = new Map<string, any>();
+    for (const a of fetchedAttrs as any[]) {
+      fetchedAttrsById.set(a.id, a);
+    }
+
+    const newAttrIds = new Set<string>();
+    const newValueIds = new Set<string>();
+
+    for (const item of items) {
+      const attr = fetchedAttrsById.get(item.attribute_id);
+      if (!attr) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          `Product attribute with id '${item.attribute_id}' was not found`
+        );
+      }
+
+      if (attr.product_id) {
+        throw new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          `Attribute '${item.attribute_id}' is product-scoped and cannot be linked to another product`
+        );
+      }
+
+      newAttrIds.add(attr.id);
+
+      // Determine which value IDs to link
+      const attrValues = (attr.values ?? []) as {
+        id: string
+        name: string
+      }[];
+
+      if (item.attribute_value_ids?.length) {
+        // Select types — reference existing value IDs
+        const validIds = new Set(attrValues.map((v) => v.id));
+        for (const vid of item.attribute_value_ids) {
+          if (!validIds.has(vid)) {
+            throw new MedusaError(
+              MedusaError.Types.INVALID_DATA,
+              `Attribute value '${vid}' not found on attribute '${attr.name}'`
+            );
+          }
+          newValueIds.add(vid);
+        }
+      } else if (item.values?.length) {
+        // Text/unit/toggle types — find-or-create values by name
+        const existingByName = new Map<string, string>();
+        for (const v of attrValues) {
+          existingByName.set(v.name, v.id);
+        }
+
+        const toCreate: string[] = [];
+        for (const name of item.values) {
+          const existingId = existingByName.get(name);
+          if (existingId) {
+            newValueIds.add(existingId);
+          } else {
+            toCreate.push(name);
+          }
+        }
+
+        if (toCreate.length) {
+          const created = await this.createProductAttributeValues(
+            toCreate.map((name, i) => ({
+              name,
+              handle: toHandle(name),
+              rank: attrValues.length + i,
+              attribute_id: attr.id,
+            })),
+            sharedContext
+          );
+          const createdArr = Array.isArray(created) ? created : [created];
+          for (const v of createdArr) {
+            newValueIds.add(v.id);
+          }
+        }
+      } else {
+        // No specific values — link all existing values
+        for (const v of attrValues) {
+          newValueIds.add(v.id);
+        }
+      }
+    }
+
+    const mergedAttrIds = [
+      ...new Set([...existingVariantAttrIds, ...newAttrIds]),
+    ];
+    const mergedValueIds = [
+      ...new Set([...existingValueIds, ...newValueIds]),
+    ];
+
+    await super.updateProducts(
+      {
+        id: productId,
+        variant_attributes: mergedAttrIds,
+        attribute_values: mergedValueIds,
+      } as any,
+      sharedContext
+    );
+  }
+
+  /**
+   * Removes attributes from a product.
+   *
+   * - If an attribute is a variant axis and any product variant references its
+   *   values, the removal is rejected (variants must be deleted first).
+   * - If an attribute is global (no product_id), it is unlinked from the
+   *   product's M2M relations.
+   * - If an attribute is product-scoped (product_id matches), it is soft-deleted.
+   */
+  @InjectTransactionManager()
+  async removeAttributeFromProduct(
+    productId: string,
+    attributeIds: string | string[],
+    sharedContext?: Context
+  ): Promise<void> {
+    const ids = Array.isArray(attributeIds) ? attributeIds : [attributeIds];
+    if (!ids.length) return;
+
+    const product = await this.retrieveProduct(
+      productId,
+      {
+        select: ["id"],
+        relations: [
+          "variant_attributes",
+          "attribute_values",
+          "variants",
+          "variants.attribute_values",
+        ],
+      } as any,
+      sharedContext
+    );
+
+    // Batch-fetch all attributes with their values
+    const attributes = await this.listProductAttributes(
+      { id: ids } as any,
       { relations: ["values"] },
       sharedContext
     );
 
-    const attrValueIds = new Set(
-      ((attribute as any).values ?? []).map((v: any) => v.id)
-    );
+    const attributesById = new Map<string, any>();
+    for (const a of attributes as any[]) {
+      attributesById.set(a.id, a);
+    }
 
-    // Remove attribute from variant_attributes M2M
+    // Collect all value IDs to remove and validate variant axis constraints
+    const allAttrValueIds = new Set<string>();
+    const attrIdsToRemove = new Set<string>();
+    const productScopedToDelete: string[] = [];
+    const variants = ((product as any).variants ?? []) as any[];
+
+    for (const attrId of ids) {
+      const attribute = attributesById.get(attrId);
+      if (!attribute) continue;
+
+      const valueIds = (attribute.values ?? []).map((v: any) => v.id);
+
+      // If attribute is a variant axis, check for variants using its values
+      if (attribute.is_variant_axis) {
+        const valueIdSet = new Set(valueIds);
+        const hasVariantsWithAttr = variants.some((variant) =>
+          ((variant.attribute_values ?? []) as any[]).some((v: any) =>
+            valueIdSet.has(v.id)
+          )
+        );
+
+        if (hasVariantsWithAttr) {
+          throw new MedusaError(
+            MedusaError.Types.NOT_ALLOWED,
+            `Cannot remove variant axis attribute '${attribute.name}' because product variants are using it. Delete those variants first.`
+          );
+        }
+      }
+
+      attrIdsToRemove.add(attrId);
+      for (const vid of valueIds) {
+        allAttrValueIds.add(vid);
+      }
+
+      if (attribute.product_id === productId) {
+        productScopedToDelete.push(attrId);
+      }
+    }
+
+    // Build a single update payload to unlink everything at once
+    const updatePayload: Record<string, any> = { id: productId };
+    let needsUpdate = false;
+
+    // Remove attributes from variant_attributes M2M
     const existingVariantAttrIds = (
       (product as any).variant_attributes ?? []
     ).map((a: any) => a.id);
 
-    if (existingVariantAttrIds.includes(attributeId)) {
-      await super.updateProducts(
-        {
-          id: productId,
-          variant_attributes: existingVariantAttrIds.filter(
-            (id: string) => id !== attributeId
-          ),
-        } as any,
-        sharedContext
-      );
+    const filteredVariantAttrIds = existingVariantAttrIds.filter(
+      (id: string) => !attrIdsToRemove.has(id)
+    );
+    if (filteredVariantAttrIds.length !== existingVariantAttrIds.length) {
+      updatePayload.variant_attributes = filteredVariantAttrIds;
+      needsUpdate = true;
     }
 
     // Remove attribute values from product's attribute_values M2M
-    if (attrValueIds.size) {
+    if (allAttrValueIds.size) {
       const existingValueIds = (
         (product as any).attribute_values ?? []
       ).map((v: any) => v.id);
 
       const filteredValueIds = existingValueIds.filter(
-        (id: string) => !attrValueIds.has(id)
+        (id: string) => !allAttrValueIds.has(id)
       );
 
       if (filteredValueIds.length !== existingValueIds.length) {
-        await super.updateProducts(
-          { id: productId, attribute_values: filteredValueIds } as any,
-          sharedContext
-        );
+        updatePayload.attribute_values = filteredValueIds;
+        needsUpdate = true;
       }
     }
 
-    // If product-scoped attribute, delete it entirely
-    if ((attribute as any).product_id === productId) {
-      await this.deleteProductAttributes(attributeId, sharedContext);
+    if (needsUpdate) {
+      await super.updateProducts(updatePayload as any, sharedContext);
+    }
+
+    // Soft-delete product-scoped attributes
+    if (productScopedToDelete.length) {
+      await this.softDeleteProductAttributes(
+        productScopedToDelete, {},
+        sharedContext
+      );
     }
   }
 

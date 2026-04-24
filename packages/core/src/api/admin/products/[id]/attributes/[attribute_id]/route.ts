@@ -38,42 +38,6 @@ export const GET = async (
   res.json({ product_attribute })
 }
 
-export const POST = async (
-  req: AuthenticatedMedusaRequest<
-    AdminUpdateProductAttributeType & AdditionalData
-  >,
-  res: MedusaResponse<HttpTypes.AdminProductAttributeResponse>
-) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const attributeId = req.params.attribute_id
-
-  const { additional_data, ...update } = req.validatedBody
-
-  await updateProductAttributesWorkflow(req.scope).run({
-    input: {
-      selector: { id: attributeId, product_id: req.params.id },
-      update,
-    },
-  })
-
-  const {
-    data: [product_attribute],
-  } = await query.graph({
-    entity: "product_attribute",
-    fields: req.queryConfig.fields,
-    filters: { id: attributeId },
-  })
-
-  if (!product_attribute) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Product attribute with id ${attributeId} was not found`
-    )
-  }
-
-  res.json({ product_attribute })
-}
-
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminProductAttributeDeleteResponse>
