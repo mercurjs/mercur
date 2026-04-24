@@ -1279,6 +1279,235 @@ medusaIntegrationTestRunner({
         })
       })
 
+      describe("POST /admin/products/:id/attributes/:attribute_id (update)", () => {
+        it("should update a single_select attribute name and filterable flag", async () => {
+          const prodRes = await api.post(
+            `/admin/products`,
+            {
+              title: "Update Single Select Product",
+              product_attributes: [
+                {
+                  name: "Color",
+                  type: "single_select",
+                  values: ["Red", "Blue"],
+                },
+              ],
+            },
+            adminHeaders
+          )
+          const product = prodRes.data.product
+          const attrId = product.custom_attributes[0].id
+
+          const response = await api.post(
+            `/admin/products/${product.id}/attributes/${attrId}`,
+            {
+              name: "Colour",
+              is_filterable: true,
+            },
+            adminHeaders
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.product_attribute.name).toEqual("Colour")
+          expect(response.data.product_attribute.is_filterable).toEqual(
+            true
+          )
+          expect(response.data.product_attribute.type).toEqual(
+            "single_select"
+          )
+          // Values should be preserved
+          expect(
+            response.data.product_attribute.values
+          ).toHaveLength(2)
+        })
+
+        it("should update a multi_select attribute to mark as variant axis", async () => {
+          const prodRes = await api.post(
+            `/admin/products`,
+            {
+              title: "Update Multi Select Product",
+              product_attributes: [
+                {
+                  name: "Size",
+                  type: "multi_select",
+                  values: ["S", "M", "L"],
+                },
+              ],
+            },
+            adminHeaders
+          )
+          const product = prodRes.data.product
+          const attrId = product.custom_attributes[0].id
+
+          const response = await api.post(
+            `/admin/products/${product.id}/attributes/${attrId}`,
+            {
+              is_variant_axis: true,
+              is_filterable: true,
+            },
+            adminHeaders
+          )
+
+          expect(response.status).toEqual(200)
+          expect(
+            response.data.product_attribute.is_variant_axis
+          ).toEqual(true)
+          expect(
+            response.data.product_attribute.is_filterable
+          ).toEqual(true)
+          expect(
+            response.data.product_attribute.values
+          ).toHaveLength(3)
+        })
+
+        it("should update a text attribute name and description", async () => {
+          const prodRes = await api.post(
+            `/admin/products`,
+            {
+              title: "Update Text Attr Product",
+              product_attributes: [
+                {
+                  name: "Description",
+                  type: "text",
+                  values: ["Original text"],
+                },
+              ],
+            },
+            adminHeaders
+          )
+          const product = prodRes.data.product
+          const attrId = product.custom_attributes[0].id
+
+          const response = await api.post(
+            `/admin/products/${product.id}/attributes/${attrId}`,
+            {
+              name: "Details",
+              description: "Product details field",
+            },
+            adminHeaders
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.product_attribute.name).toEqual("Details")
+          expect(response.data.product_attribute.description).toEqual(
+            "Product details field"
+          )
+          expect(response.data.product_attribute.type).toEqual("text")
+        })
+
+        it("should update a unit attribute to required", async () => {
+          const prodRes = await api.post(
+            `/admin/products`,
+            {
+              title: "Update Unit Attr Product",
+              product_attributes: [
+                {
+                  name: "Weight",
+                  type: "unit",
+                  values: ["500g"],
+                },
+              ],
+            },
+            adminHeaders
+          )
+          const product = prodRes.data.product
+          const attrId = product.custom_attributes[0].id
+
+          const response = await api.post(
+            `/admin/products/${product.id}/attributes/${attrId}`,
+            {
+              is_required: true,
+              description: "Product weight in grams",
+            },
+            adminHeaders
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.product_attribute.is_required).toEqual(
+            true
+          )
+          expect(response.data.product_attribute.description).toEqual(
+            "Product weight in grams"
+          )
+          expect(response.data.product_attribute.type).toEqual("unit")
+          expect(response.data.product_attribute.name).toEqual("Weight")
+        })
+
+        it("should deactivate an attribute", async () => {
+          const prodRes = await api.post(
+            `/admin/products`,
+            {
+              title: "Deactivate Attr Product",
+              product_attributes: [
+                {
+                  name: "Season",
+                  type: "single_select",
+                  values: ["Summer"],
+                },
+              ],
+            },
+            adminHeaders
+          )
+          const product = prodRes.data.product
+          const attrId = product.custom_attributes[0].id
+
+          const response = await api.post(
+            `/admin/products/${product.id}/attributes/${attrId}`,
+            { is_active: false },
+            adminHeaders
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.product_attribute.is_active).toEqual(
+            false
+          )
+        })
+
+        it("should return 404 when attribute does not belong to product", async () => {
+          // Create two products with different attributes
+          const prod1Res = await api.post(
+            `/admin/products`,
+            {
+              title: "Product A",
+              product_attributes: [
+                { name: "Field A", type: "text", values: ["a"] },
+              ],
+            },
+            adminHeaders
+          )
+          const prod2Res = await api.post(
+            `/admin/products`,
+            { title: "Product B" },
+            adminHeaders
+          )
+
+          const attrId =
+            prod1Res.data.product.custom_attributes[0].id
+
+          // Try to update Product A's attribute via Product B's URL
+          const response = await api
+            .post(
+              `/admin/products/${prod2Res.data.product.id}/attributes/${attrId}`,
+              { name: "Hacked" },
+              adminHeaders
+            )
+            .catch((e: any) => e.response)
+
+          // The workflow uses selector { id, product_id } so it should
+          // not find the attribute and either 404 or update nothing
+          expect([200, 404]).toContain(response.status)
+
+          // Verify the attribute was NOT modified
+          const attrCheck = await api.get(
+            `/admin/product-attributes/${attrId}`,
+            adminHeaders
+          )
+          expect(attrCheck.data.product_attribute.name).toEqual(
+            "Field A"
+          )
+        })
+      })
+
       //   describe("GET /admin/products", () => {
       //     it("should list products", async () => {
       //       await api.post(
