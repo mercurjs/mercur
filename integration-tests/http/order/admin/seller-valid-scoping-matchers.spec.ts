@@ -30,7 +30,10 @@ medusaIntegrationTestRunner({
             let salesChannel: { id: string }
             let stockLocationA: { id: string }
             let stockLocationB: { id: string }
+            let sellerAReturnOptionId: string
+            let sellerBReturnOptionId: string
             let orderA: { id: string }
+            let returnForOrderA: { id: string }
 
             beforeAll(async () => {
                 appContainer = getContainer()
@@ -131,11 +134,13 @@ medusaIntegrationTestRunner({
                     shippingOptionBody(prereqA, "a-outbound", false),
                     sellerAHeaders
                 )
-                await api.post(
-                    `/vendor/shipping-options`,
-                    shippingOptionBody(prereqA, "a-return", true),
-                    sellerAHeaders
-                )
+                sellerAReturnOptionId = (
+                    await api.post(
+                        `/vendor/shipping-options`,
+                        shippingOptionBody(prereqA, "a-return", true),
+                        sellerAHeaders
+                    )
+                ).data.shipping_option.id
 
                 const prereqB = await setupStockLocation(
                     sellerBHeaders,
@@ -143,12 +148,32 @@ medusaIntegrationTestRunner({
                     salesChannel.id
                 )
                 stockLocationB = prereqB.stockLocation
+                sellerBReturnOptionId = (
+                    await api.post(
+                        `/vendor/shipping-options`,
+                        shippingOptionBody(prereqB, "b-return", true),
+                        sellerBHeaders
+                    )
+                ).data.shipping_option.id
 
                 orderA = await createFulfilledOrder(
                     productA.variants[0].id,
                     stockLocationA.id,
                     sellerAHeaders
                 )
+
+                // Create a pending return on order A so we can target
+                // its shipping-method endpoint.
+                returnForOrderA = (
+                    await api.post(
+                        `/vendor/returns`,
+                        {
+                            order_id: orderA.id,
+                            description: "setup return for shipping-method tests",
+                        },
+                        sellerAHeaders
+                    )
+                ).data.return
             })
 
             let prereqCounter = 0
@@ -388,6 +413,25 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(403)
                     expect(response.data.code).toEqual(
                         "LOCATION_NOT_SELLER_VALID"
+                    )
+                })
+            })
+
+            describe("POST /admin/returns/:id/shipping-method — shipping option seller scope", () => {
+                it("rejects a cross-seller shipping_option_id with 403 + SHIPPING_OPTION_NOT_SELLER_VALID", async () => {
+                    const response = await api
+                        .post(
+                            `/admin/returns/${returnForOrderA.id}/shipping-method`,
+                            {
+                                shipping_option_id: sellerBReturnOptionId,
+                            },
+                            adminHeaders
+                        )
+                        .catch((err) => err.response)
+
+                    expect(response.status).toEqual(403)
+                    expect(response.data.code).toEqual(
+                        "SHIPPING_OPTION_NOT_SELLER_VALID"
                     )
                 })
             })
