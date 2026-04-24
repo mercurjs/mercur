@@ -17,6 +17,10 @@ import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/middlewares"
 import { requireAdminWarehouseCapability } from "./middlewares/require-warehouse-capability"
 import { validateCancelOrderMiddleware } from "./middlewares/validate-cancel-order"
+import {
+  orderIdFromBody,
+  requireSellerValidLocation,
+} from "./middlewares/require-seller-valid-location"
 
 const maybeApplySellerProductFilter = (
   req: AuthenticatedMedusaRequest,
@@ -91,6 +95,13 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/orders/:id/cancel",
     middlewares: [validateCancelOrderMiddleware],
+  },
+  // Seller-valid scoping — spec 006 D-02-006.
+  // Block cross-seller location_id on return creation.
+  {
+    method: ["POST"],
+    matcher: "/admin/returns",
+    middlewares: [requireSellerValidLocation(orderIdFromBody)],
   },
   // Warehouse capability lock — gated by `admin_warehouse_management` feature flag.
   // Baseline Mercur keeps fulfillment vendor-owned; these matchers reject direct
