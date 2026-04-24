@@ -510,6 +510,7 @@ class ProductModuleService extends MedusaService({
                 is_filterable: input.is_filterable ?? false,
                 is_required: input.is_required ?? false,
                 description: input.description ?? null,
+                product_id: product.id ?? null,
                 metadata: input.metadata ?? null,
                 values: (input.values ?? []).map((v: string, i: number) => ({
                   name: v,
@@ -584,6 +585,31 @@ class ProductModuleService extends MedusaService({
 
       // --- Resolve variant.attribute_values ---
       if (Array.isArray(product.variants)) {
+        const hasMapValues = product.variants.some(
+          (v: any) =>
+            v?.attribute_values !== undefined &&
+            !Array.isArray(v.attribute_values)
+        );
+
+        // If variants use map-style attribute_values but no variant_attributes
+        // were provided in this call, load existing product variant attributes
+        // to build the lookup for resolution.
+        if (hasMapValues && valueLookup.size === 0 && product.id) {
+          const existingProduct = await this.retrieveProduct(
+            product.id,
+            {
+              select: ["id"],
+              relations: ["variant_attributes", "variant_attributes.values"],
+            } as any,
+            sharedContext
+          );
+
+          for (const attr of (existingProduct as any).variant_attributes ??
+            []) {
+            this.addAttrToLookup_(attr, valueLookup);
+          }
+        }
+
         for (const variant of product.variants) {
           if (variant?.attribute_values === undefined) continue;
           if (Array.isArray(variant.attribute_values)) continue;
@@ -1316,6 +1342,7 @@ class ProductModuleService extends MedusaService({
       // For selector/id form with attributes, expand to array form
       const hasAttributeInput =
         update.variant_attributes !== undefined ||
+        update.product_attributes !== undefined ||
         (Array.isArray(update.variants) &&
           update.variants.some((v: any) => v?.attribute_values !== undefined));
 
