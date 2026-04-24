@@ -4,9 +4,8 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { ReactNode, useMemo, Children } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, Outlet, useLoaderData, useLocation } from "react-router-dom";
+import { Link, Outlet, useLoaderData } from "react-router-dom";
 
-import { HttpTypes } from "@medusajs/types";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { _DataTable } from "../../../../../components/table/data-table";
 import {
@@ -18,6 +17,7 @@ import { useProductTableFilters } from "../../../../../hooks/table/filters/use-p
 import { useProductTableQuery } from "../../../../../hooks/table/query/use-product-table-query";
 import { useDataTable } from "../../../../../hooks/use-data-table";
 import { productsLoader } from "../../loader";
+import { ProductDTO } from "@mercurjs/types";
 
 const PAGE_SIZE = 20;
 
@@ -48,48 +48,6 @@ export const ProductListCreateButton = () => {
   );
 };
 
-export const ProductListExportButton = () => {
-  const { t } = useTranslation();
-  const location = useLocation();
-
-  return (
-    <Button
-      size="small"
-      variant="secondary"
-      asChild
-      data-testid="products-export-button"
-    >
-      <Link
-        to={`export${location.search}`}
-        data-testid="products-export-link"
-      >
-        {t("actions.export")}
-      </Link>
-    </Button>
-  );
-};
-
-export const ProductListImportButton = () => {
-  const { t } = useTranslation();
-  const location = useLocation();
-
-  return (
-    <Button
-      size="small"
-      variant="secondary"
-      asChild
-      data-testid="products-import-button"
-    >
-      <Link
-        to={`import${location.search}`}
-        data-testid="products-import-link"
-      >
-        {t("actions.import")}
-      </Link>
-    </Button>
-  );
-};
-
 export const ProductListActions = ({ children }: { children?: ReactNode }) => {
   return (
     <div
@@ -100,8 +58,6 @@ export const ProductListActions = ({ children }: { children?: ReactNode }) => {
         children
       ) : (
         <>
-          <ProductListExportButton />
-          <ProductListImportButton />
           <ProductListCreateButton />
         </>
       )}
@@ -138,7 +94,6 @@ export const ProductListDataTable = () => {
   const { products, count, isLoading, isError, error } = useProducts(
     {
       ...searchParams,
-      is_giftcard: false,
     },
     {
       initialData,
@@ -150,7 +105,7 @@ export const ProductListDataTable = () => {
   const columns = useColumns();
 
   const { table } = useDataTable({
-    data: (products ?? []) as HttpTypes.AdminProduct[],
+    data: products ?? [],
     columns,
     count,
     enablePagination: true,
@@ -204,7 +159,7 @@ export const ProductListTable = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-const ProductActions = ({ product }: { product: HttpTypes.AdminProduct }) => {
+const ProductActions = ({ product }: { product: ProductDTO }) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
   const { mutateAsync } = useDeleteProduct(product.id);
@@ -266,7 +221,7 @@ const ProductActions = ({ product }: { product: HttpTypes.AdminProduct }) => {
   );
 };
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProduct>();
+const columnHelper = createColumnHelper<ProductDTO>();
 
 const useColumns = () => {
   const base = useProductTableColumns();
@@ -274,14 +229,6 @@ const useColumns = () => {
   const columns = useMemo(
     () => [
       ...base,
-      columnHelper.display({
-        id: "seller",
-        header: "Seller",
-        cell: ({ row }) => {
-          const seller = (row.original as any).seller;
-          return seller?.name || "-";
-        },
-      }),
       columnHelper.display({
         id: "actions",
         header: () => (

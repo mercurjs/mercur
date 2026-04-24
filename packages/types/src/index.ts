@@ -66,6 +66,7 @@ export {
   type UpdateProductAttributeDTO,
   type CreateProductAttributeValueDTO,
   type UpdateProductAttributeValueDTO,
+  type UpsertProductAttributeValueDTO,
   type CreateProductRejectionReasonDTO,
   type UpdateProductRejectionReasonDTO,
   type CreateProductChangeDTO,

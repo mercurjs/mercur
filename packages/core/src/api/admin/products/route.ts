@@ -7,10 +7,11 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { CreateProductDTO, HttpTypes } from "@mercurjs/types"
 
 import { createProductsWorkflow } from "../../../workflows/product/workflows/create-products"
-import { AdminCreateProductType } from "./validators"
+import { formatProductAttributes } from "./helpers"
+import { AdminCreateProductType, AdminGetProductsParamsType } from "./validators"
 
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<AdminGetProductsParamsType>,
   res: MedusaResponse<HttpTypes.AdminProductListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -21,6 +22,10 @@ export const GET = async (
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
+
+  for (const product of products) {
+    formatProductAttributes(product)
+  }
 
   res.json({
     products,
@@ -58,6 +63,8 @@ export const POST = async (
     fields: req.queryConfig.fields,
     filters: { id: createdId },
   })
+
+  formatProductAttributes(product)
 
   res.status(200).json({ product })
 }

@@ -422,19 +422,38 @@
       "tabs": {
         "details": "Details",
         "organize": "Organize",
+        "attributes": "Attributes",
         "variants": "Variants",
         "inventory": "Inventory kits"
       },
       "errors": {
         "variants": "Please select at least one variant.",
         "options": "Please create at least one option.",
-        "uniqueSku": "SKU must be unique."
+        "uniqueSku": "SKU must be unique.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Inventory kits",
         "label": "Add inventory items to the variant's inventory kit.",
         "itemPlaceholder": "Select inventory item",
         "quantityPlaceholder": "How many of these are needed for the kit?"
+      },
+      "attributes": {
+        "header": "Attributes",
+        "description": "Manage attributes and variations for your product, e.g. color, size, brand etc.\nSelect from attributes defined by the Marketplace or create your own.",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "title": "Title",
+        "titlePlaceholder": "e.g. Color",
+        "values": "Values",
+        "selectValues": "Select values",
+        "valuePlaceholder": "Enter values",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "tip": "Tip",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step."
       },
       "variants": {
         "header": "Variants",
@@ -448,9 +467,10 @@
         },
         "productVariants": {
           "label": "Product variants",
-          "hint": "This ranking will affect the variants' order in your storefront.",
-          "alert": "Add options to create variants.",
-          "tip": "Variants left unchecked won't be created. You can always create and edit variants afterwards but this list fits the variations in your product options."
+          "hint": "This ranking will affect the variants' display order.",
+          "alert": "Add values to your variant attributes to generate variants.",
+          "noAxes": "Mark attributes as \"Use for Variations\" in the Attributes step to generate variants.",
+          "tip": "Variants left unchecked won't be created. You can always create and edit variants afterwards but this list fits the variations in your product attributes."
         },
         "productOptions": {
           "label": "Product options",
@@ -509,6 +529,11 @@
       }
     },
     "attributes": "Attributes",
+    "attributeVariantsDescription": "All attributes that are used for variants",
+    "attributeProductInformation": "Product Information",
+    "attributeProductInformationDescription": "Attributes used for informational purposes",
+    "addAttribute": "Add Attribute",
+    "deleteAttributeWarning": "Are you sure you want to delete the attribute \"{{title}}\"? This action cannot be undone.",
     "editAttributes": "Edit Attributes",
     "editOptions": "Edit Options",
     "editPrices": "Edit prices",
@@ -541,9 +566,9 @@
     "variantCount_other": "{{count}} variants",
     "deleteVariantWarning": "You are about to delete the variant {{title}}. This action cannot be undone.",
     "productStatus": {
-      "draft": "Draft",
-      "published": "Published",
-      "proposed": "Proposed",
+      "pending": "Pending",
+      "accepted": "Accepted",
+      "changes_required": "Changes Required",
       "rejected": "Rejected"
     },
     "columns": {
@@ -2878,6 +2903,7 @@
       "values": "Values",
       "possibleValues": "Possible Values",
       "value": "Value",
+      "variantAxis": "Use for Variants",
       "rank": "Rank",
       "metadata": "Metadata"
     },

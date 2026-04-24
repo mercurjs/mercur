@@ -1,32 +1,18 @@
-import { Button, Heading } from "@medusajs/ui"
-import { useFieldArray } from "react-hook-form"
-import { Trans, useTranslation } from "react-i18next"
+import { Heading } from "@medusajs/ui"
+import { useTranslation } from "react-i18next"
 
-import { ChipGroup } from "../../../../../../../components/common/chip-group"
 import { Form } from "../../../../../../../components/common/form"
 import { SwitchBox } from "../../../../../../../components/common/switch-box"
 import { Combobox } from "../../../../../../../components/inputs/combobox"
-import { StackedFocusModal } from "../../../../../../../components/modals"
 import { useTabbedForm } from "../../../../../../../components/tabbed-form/tabbed-form"
 import { useComboboxData } from "../../../../../../../hooks/use-combobox-data"
 import { sdk } from "../../../../../../../lib/client"
-import { CategoryCombobox } from "../../../../../common/components/category-combobox"
+import { SingleCategoryCombobox } from "../../../../../common/components/category-combobox"
 import { ProductCreateSchemaType } from "../../../../types"
-import { HttpTypes } from "@medusajs/types"
 
 export const ProductCreateOrganizationSection = () => {
   const form = useTabbedForm<ProductCreateSchemaType>()
   const { t } = useTranslation()
-
-  const sellers = useComboboxData({
-    queryKey: ["sellers"],
-    queryFn: (params) => sdk.admin.sellers.query({ fetchOptions: { method: "GET" }, ...params }),
-    getOptions: (data) =>
-      data.sellers.map((seller) => ({
-        label: seller.name,
-        value: seller.id,
-      })),
-  })
 
   const collections = useComboboxData({
     queryKey: ["product_collections"],
@@ -58,26 +44,6 @@ export const ProductCreateOrganizationSection = () => {
       })),
   })
 
-  const shippingProfiles = useComboboxData({
-    queryKey: ["shipping_profiles"],
-    queryFn: (params) => sdk.admin.shippingProfiles.query(params),
-    getOptions: (data) =>
-      data.shipping_profiles.map((shippingProfile: HttpTypes.AdminShippingProfile) => ({
-        label: shippingProfile.name,
-        value: shippingProfile.id,
-      })),
-  })
-
-  const { fields, remove, replace } = useFieldArray({
-    control: form.control,
-    name: "sales_channels",
-    keyName: "key",
-  })
-
-  const handleClearAllSalesChannels = () => {
-    replace([])
-  }
-
   return (
     <div id="organize" className="flex flex-col gap-y-8" data-testid="product-create-organize-section">
       <Heading data-testid="product-create-organize-section-heading">{t("products.organization.header")}</Heading>
@@ -89,47 +55,20 @@ export const ProductCreateOrganizationSection = () => {
         optional
         data-testid="product-create-organize-section-discountable-switch"
       />
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2" data-testid="product-create-organize-section-category-collection">
         <Form.Field
           control={form.control}
-          name="seller_id"
+          name="category_id"
           render={({ field }) => {
             return (
-              <Form.Item>
-                <Form.Label optional>Seller</Form.Label>
-                <Form.Control>
-                  <Combobox
-                    {...field}
-                    options={sellers.options}
-                    searchValue={sellers.searchValue}
-                    onSearchValueChange={sellers.onSearchValueChange}
-                    fetchNextPage={sellers.fetchNextPage}
-                  />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )
-          }}
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2" data-testid="product-create-organize-section-type-collection">
-        <Form.Field
-          control={form.control}
-          name="type_id"
-          render={({ field }) => {
-            return (
-              <Form.Item data-testid="product-create-organize-section-type-item">
-                <Form.Label optional data-testid="product-create-organize-section-type-label">
-                  {t("products.fields.type.label")}
+              <Form.Item data-testid="product-create-organize-section-category-item">
+                <Form.Label data-testid="product-create-organize-section-category-label">
+                  {t("fields.category")}
                 </Form.Label>
-                <Form.Control data-testid="product-create-organize-section-type-control">
-                  <Combobox
+                <Form.Control data-testid="product-create-organize-section-category-control">
+                  <SingleCategoryCombobox
                     {...field}
-                    options={types.options}
-                    searchValue={types.searchValue}
-                    onSearchValueChange={types.onSearchValueChange}
-                    fetchNextPage={types.fetchNextPage}
-                    data-testid="product-create-organize-section-type-input"
+                    data-testid="product-create-organize-section-category-input"
                   />
                 </Form.Control>
                 <Form.ErrorMessage />
@@ -162,18 +101,25 @@ export const ProductCreateOrganizationSection = () => {
           }}
         />
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2" data-testid="product-create-organize-section-categories-tags">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2" data-testid="product-create-organize-section-type-tags">
         <Form.Field
           control={form.control}
-          name="categories"
+          name="type_id"
           render={({ field }) => {
             return (
-              <Form.Item data-testid="product-create-organize-section-categories-item">
-                <Form.Label optional data-testid="product-create-organize-section-categories-label">
-                  {t("products.fields.categories.label")}
+              <Form.Item data-testid="product-create-organize-section-type-item">
+                <Form.Label optional data-testid="product-create-organize-section-type-label">
+                  {t("products.fields.type.label")}
                 </Form.Label>
-                <Form.Control data-testid="product-create-organize-section-categories-control">
-                  <CategoryCombobox {...field} data-testid="product-create-organize-section-categories-input" />
+                <Form.Control data-testid="product-create-organize-section-type-control">
+                  <Combobox
+                    {...field}
+                    options={types.options}
+                    searchValue={types.searchValue}
+                    onSearchValueChange={types.onSearchValueChange}
+                    fetchNextPage={types.fetchNextPage}
+                    data-testid="product-create-organize-section-type-input"
+                  />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -200,78 +146,6 @@ export const ProductCreateOrganizationSection = () => {
                   />
                 </Form.Control>
                 <Form.ErrorMessage />
-              </Form.Item>
-            )
-          }}
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <div>
-          <Form.Label optional>
-            {t("products.fields.shipping_profile.label")}
-          </Form.Label>
-          <Form.Hint>
-            <Trans i18nKey={"products.fields.shipping_profile.hint"} />
-          </Form.Hint>
-        </div>
-        <Form.Field
-          control={form.control}
-          name="shipping_profile_id"
-          render={({ field }) => {
-            return (
-              <Form.Item>
-                <Form.Control>
-                  <Combobox
-                    {...field}
-                    options={shippingProfiles.options}
-                    searchValue={shippingProfiles.searchValue}
-                    onSearchValueChange={shippingProfiles.onSearchValueChange}
-                    fetchNextPage={shippingProfiles.fetchNextPage}
-                  />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )
-          }}
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-y-4">
-        <Form.Field
-          control={form.control}
-          name="sales_channels"
-          render={() => {
-            return (
-              <Form.Item>
-                <div className="flex items-start justify-between gap-x-4">
-                  <div>
-                    <Form.Label optional>
-                      {t("products.fields.sales_channels.label")}
-                    </Form.Label>
-                    <Form.Hint>
-                      <Trans i18nKey={"products.fields.sales_channels.hint"} />
-                    </Form.Hint>
-                  </div>
-                  <StackedFocusModal.Trigger asChild>
-                    <Button size="small" variant="secondary" type="button" data-testid="product-create-organize-section-sales-channels-add-button">
-                      {t("actions.add")}
-                    </Button>
-                  </StackedFocusModal.Trigger>
-                </div>
-                <Form.Control className="mt-0">
-                  {fields.length > 0 && (
-                    <ChipGroup
-                      onClearAll={handleClearAllSalesChannels}
-                      onRemove={remove}
-                      className="py-4"
-                    >
-                      {fields.map((field, index) => (
-                        <ChipGroup.Chip key={field.key} index={index}>
-                          {field.name}
-                        </ChipGroup.Chip>
-                      ))}
-                    </ChipGroup>
-                  )}
-                </Form.Control>
               </Form.Item>
             )
           }}

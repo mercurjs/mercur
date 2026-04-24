@@ -10,7 +10,8 @@ import {
   applyAndAndOrOperators,
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
-import { AdditionalData } from "@medusajs/framework/types"
+import { AdditionalData, OperatorMap } from "@medusajs/framework/types"
+import { isPresent } from "@medusajs/framework/utils"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
@@ -48,6 +49,21 @@ export const AdminGetProductsParams = createFindParams({
 })
   .merge(AdminGetProductsParamsFields)
   .merge(applyAndAndOrOperators(AdminGetProductsParamsFields))
+  .transform((data) => {
+    const res = { ...data } as Record<string, unknown>
+
+    if (isPresent(data.tag_id)) {
+      res.tags = { id: data.tag_id as string[] }
+      delete res.tag_id
+    }
+
+    if (isPresent(data.category_id)) {
+      res.categories = { id: data.category_id as OperatorMap<string> }
+      delete res.category_id
+    }
+
+    return res
+  })
 
 export type AdminGetProductParamsType = z.infer<typeof AdminGetProductParams>
 export const AdminGetProductParams = createSelectParams()
@@ -68,7 +84,6 @@ const CreateProductVariant = z
     barcode: z.string().nullish(),
     hs_code: z.string().nullish(),
     mid_code: z.string().nullish(),
-    allow_backorder: booleanString().optional().default(false),
     variant_rank: z.number().optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -109,7 +124,6 @@ const UpdateProductVariant = z
     hs_code: z.string().nullish(),
     mid_code: z.string().nullish(),
     thumbnail: z.string().nullish(),
-    allow_backorder: booleanString().optional(),
     variant_rank: z.number().optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -135,6 +149,26 @@ const UpdateProductVariant = z
       .optional(),
   })
   .strict()
+
+// --- Attribute input validators ---
+
+const ProductAttributeInput = z.union([
+  z.object({
+    attribute_id: z.string(),
+    value_ids: z.array(z.string()).optional(),
+    values: z.array(z.string()).optional(),
+  }),
+  z.object({
+    name: z.string(),
+    type: z.enum(["single_select", "multi_select", "unit", "toggle", "text"]),
+    values: z.array(z.string()).optional(),
+    is_variant_axis: z.boolean().optional(),
+    is_filterable: z.boolean().optional(),
+    is_required: z.boolean().optional(),
+    description: z.string().nullish(),
+    metadata: z.record(z.unknown()).nullish(),
+  }),
+])
 
 // --- Variant query params ---
 
@@ -199,9 +233,8 @@ const CreateProduct = z
     is_restricted: z.boolean().optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    variant_attributes: z
-      .array(z.union([z.string(), z.record(z.unknown())]))
-      .optional(),
+    variant_attributes: z.array(ProductAttributeInput).optional(),
+    product_attributes: z.array(ProductAttributeInput).optional(),
     variants: z.array(CreateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -237,9 +270,8 @@ const UpdateProduct = z
     is_restricted: z.boolean().optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    variant_attributes: z
-      .array(z.union([z.string(), z.record(z.unknown())]))
-      .optional(),
+    variant_attributes: z.array(ProductAttributeInput).optional(),
+    product_attributes: z.array(ProductAttributeInput).optional(),
     variants: z.array(UpdateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -268,4 +300,27 @@ export type AdminRequestProductChangesType = z.infer<
 export const AdminRequestProductChanges = z.object({
   rejection_reason_ids: z.array(z.string()).min(1),
   message: z.string().optional(),
+})
+
+// --- Batch product attributes ---
+
+const BatchProductAttributeCreate = z.union([
+  // Select types — reference existing value IDs
+  z.object({
+    attribute_id: z.string(),
+    attribute_value_ids: z.array(z.string()).optional(),
+  }).strict(),
+  // Text/unit/toggle types — provide new value strings
+  z.object({
+    attribute_id: z.string(),
+    values: z.array(z.string()),
+  }).strict(),
+])
+
+export type AdminBatchProductAttributesType = z.infer<
+  typeof AdminBatchProductAttributes
+>
+export const AdminBatchProductAttributes = z.object({
+  create: z.array(BatchProductAttributeCreate).optional(),
+  delete: z.array(z.string()).optional(),
 })

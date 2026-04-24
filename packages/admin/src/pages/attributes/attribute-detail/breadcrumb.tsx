@@ -1,5 +1,5 @@
 import { UIMatch } from "react-router-dom"
-import { useAttribute } from "../../../hooks/api"
+import { useProductAttribute } from "../../../hooks/api"
 
 type AttributeDetailBreadcrumbProps = UIMatch<unknown>
 
@@ -8,7 +8,7 @@ export const AttributeDetailBreadcrumb = (
 ) => {
   const { id } = props.params || {}
 
-  const { attribute } = useAttribute(id!, undefined, {
+  const { product_attribute: attribute } = useProductAttribute(id!, undefined, {
     initialData: props.data as any,
     enabled: Boolean(id),
   })

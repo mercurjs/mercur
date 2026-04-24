@@ -3,24 +3,21 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { createProductAttributeValuesWorkflow } from "../../../../../workflows/product/workflows/create-product-attribute-values"
-import { AdminCreateProductAttributeValueType } from "../../validators"
+import { upsertProductAttributeValuesWorkflow } from "../../../../../workflows/product/workflows/upsert-product-attribute-values"
+import { AdminUpsertProductAttributeValuesType } from "../../validators"
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest<AdminCreateProductAttributeValueType & AdditionalData>,
+  req: AuthenticatedMedusaRequest<AdminUpsertProductAttributeValuesType>,
   res: MedusaResponse<HttpTypes.AdminProductAttributeResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { additional_data, ...payload } = req.validatedBody
-
-  await createProductAttributeValuesWorkflow(req.scope).run({
+  await upsertProductAttributeValuesWorkflow(req.scope).run({
     input: {
       attribute_id: req.params.id,
-      values: [payload],
+      values: req.validatedBody.values,
     },
   })
 

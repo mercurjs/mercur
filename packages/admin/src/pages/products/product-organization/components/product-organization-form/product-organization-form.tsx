@@ -11,7 +11,7 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateProduct } from "../../../../../hooks/api/products";
 import { useComboboxData } from "../../../../../hooks/use-combobox-data";
 import { sdk } from "../../../../../lib/client";
-import { CategoryCombobox } from "../../../common/components/category-combobox";
+import { SingleCategoryCombobox } from "../../../common/components/category-combobox";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
@@ -22,7 +22,7 @@ type ProductOrganizationFormProps = {
 const ProductOrganizationSchema = zod.object({
   type_id: zod.string().nullable(),
   collection_id: zod.string().nullable(),
-  category_ids: zod.array(zod.string()),
+  category_id: zod.string().optional(),
   tag_ids: zod.array(zod.string()),
 });
 
@@ -65,7 +65,7 @@ export const ProductOrganizationForm = ({
     defaultValues: {
       type_id: product.type_id ?? "",
       collection_id: product.collection_id ?? "",
-      category_ids: product.categories?.map((c) => c.id) || [],
+      category_id: product.categories?.[0]?.id ?? "",
       tag_ids: product.tags?.map((t) => t.id) || [],
     },
     resolver: zodResolver(ProductOrganizationSchema),
@@ -78,7 +78,7 @@ export const ProductOrganizationForm = ({
       {
         type_id: data.type_id || null,
         collection_id: data.collection_id || null,
-        categories: data.category_ids.map((c) => ({ id: c })),
+        categories: data.category_id ? [{ id: data.category_id }] : [],
         tags: data.tag_ids?.map((t) => ({ id: t })),
       },
       {
@@ -165,18 +165,17 @@ export const ProductOrganizationForm = ({
             />
             <Form.Field
               control={form.control}
-              name="category_ids"
+              name="category_id"
               render={({ field }) => {
                 return (
-                  <Form.Item data-testid="product-organization-form-categories-item">
+                  <Form.Item data-testid="product-organization-form-category-item">
                     <Form.Label
-                      optional
-                      data-testid="product-organization-form-categories-label"
+                      data-testid="product-organization-form-category-label"
                     >
-                      {t("products.fields.categories.label")}
+                      {t("fields.category")}
                     </Form.Label>
                     <Form.Control data-testid="product-organization-form-categories-control">
-                      <CategoryCombobox
+                      <SingleCategoryCombobox
                         {...field}
                         data-testid="product-organization-form-categories-combobox"
                       />

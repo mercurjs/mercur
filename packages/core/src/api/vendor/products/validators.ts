@@ -65,7 +65,6 @@ const CreateProductVariant = z
     barcode: z.string().optional(),
     hs_code: z.string().optional(),
     mid_code: z.string().optional(),
-    allow_backorder: booleanString().optional().default(false),
     variant_rank: z.number().optional(),
     weight: z.number().optional(),
     length: z.number().optional(),
@@ -94,7 +93,6 @@ const UpdateProductVariant = z
     hs_code: z.string().nullish(),
     mid_code: z.string().nullish(),
     thumbnail: z.string().nullish(),
-    allow_backorder: booleanString().optional(),
     variant_rank: z.number().optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -108,6 +106,23 @@ const UpdateProductVariant = z
       .optional(),
   })
   .strict()
+
+const ProductAttributeInput = z.union([
+  z.object({
+    attribute_id: z.string(),
+    value_ids: z.array(z.string()).optional(),
+  }),
+  z.object({
+    name: z.string(),
+    type: z.enum(["single_select", "multi_select", "unit", "toggle", "text"]),
+    values: z.array(z.string()).optional(),
+    is_variant_axis: z.boolean().optional(),
+    is_filterable: z.boolean().optional(),
+    is_required: z.boolean().optional(),
+    description: z.string().nullish(),
+    metadata: z.record(z.unknown()).nullish(),
+  }),
+])
 
 // --- Product create / update ---
 
@@ -129,9 +144,8 @@ const CreateProduct = z
     brand_id: z.string().optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    variant_attributes: z
-      .array(z.union([z.string(), z.record(z.unknown())]))
-      .optional(),
+    variant_attributes: z.array(ProductAttributeInput).optional(),
+    attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
     variants: z.array(CreateProductVariant).optional(),
     weight: z.number().optional(),
     length: z.number().optional(),
@@ -166,9 +180,8 @@ const UpdateProduct = z
     brand_id: z.string().nullish(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    variant_attributes: z
-      .array(z.union([z.string(), z.record(z.unknown())]))
-      .optional(),
+    variant_attributes: z.array(ProductAttributeInput).optional(),
+    attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
     variants: z.array(UpdateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),

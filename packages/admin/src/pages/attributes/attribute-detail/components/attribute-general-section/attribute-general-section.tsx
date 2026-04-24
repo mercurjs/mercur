@@ -3,15 +3,13 @@ import { Badge, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
-import { AttributeDTO } from "@mercurjs/types"
+import { ProductAttributeDTO } from "@mercurjs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section/section-row"
-import { useDeleteAttribute } from "../../../../../hooks/api"
+import { useDeleteProductAttribute } from "../../../../../hooks/api"
 
 type AttributeGeneralSectionProps = {
-  attribute: AttributeDTO & {
-    product_categories?: Array<{ id: string; name: string }>
-  }
+  attribute: ProductAttributeDTO
 }
 
 export const AttributeGeneralSection = ({
@@ -20,7 +18,7 @@ export const AttributeGeneralSection = ({
   const { t } = useTranslation()
   const navigate = useNavigate()
   const prompt = usePrompt()
-  const { mutateAsync } = useDeleteAttribute(attribute.id)
+  const { mutateAsync } = useDeleteProductAttribute(attribute.id)
 
   const handleDelete = async () => {
     const confirmed = await prompt({
@@ -49,9 +47,16 @@ export const AttributeGeneralSection = ({
     })
   }
 
-  const typeLabel =
-    t(`attributes.type.${attribute.ui_component}`, attribute.ui_component) ??
-    attribute.ui_component
+  const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
+    single_select: "attributes.type.select",
+    multi_select: "attributes.type.multivalue",
+    unit: "attributes.type.unit",
+    toggle: "attributes.type.toggle",
+    text: "attributes.type.text_area",
+  }
+
+  const typeLabelKey = ATTRIBUTE_TYPE_LABELS[attribute.type]
+  const typeLabel = typeLabelKey ? t(typeLabelKey) : attribute.type
 
   return (
     <Container
@@ -125,24 +130,14 @@ export const AttributeGeneralSection = ({
       />
 
       <SectionRow
-        title={t("attributes.fields.global")}
-        value={
-          attribute.product_categories && attribute.product_categories.length > 0
-            ? t("fields.false")
-            : t("fields.true")
-        }
-        data-testid="attribute-general-section-global"
-      />
-
-      <SectionRow
         title={t("attributes.fields.category")}
         value={
-          attribute.product_categories && attribute.product_categories.length > 0 ? (
+          attribute.categories && attribute.categories.length > 0 ? (
             <div
               className="flex flex-wrap gap-1"
               data-testid="attribute-general-section-categories"
             >
-              {attribute.product_categories.map((category: any) => (
+              {attribute.categories.map((category) => (
                 <Badge key={category.id} size="2xsmall">
                   {category.name}
                 </Badge>
