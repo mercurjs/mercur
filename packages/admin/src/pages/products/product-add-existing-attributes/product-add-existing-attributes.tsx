@@ -27,7 +27,7 @@ import { Form } from "../../../components/common/form";
 import { RouteFocusModal, useRouteModal } from "../../../components/modals";
 import { KeyboundForm } from "../../../components/utilities/keybound-form";
 import { useProductAttributes } from "../../../hooks/api";
-import { useBatchProductAttributesSub } from "../../../hooks/api/products";
+import { useBatchProductAttributes } from "../../../hooks/api/products";
 import { useAttributeTableQuery } from "../../../hooks/table/query/use-attribute-table-query";
 import { useAttributeTableFilters } from "../../../hooks/table/filters/use-attribute-table-filters";
 
@@ -100,7 +100,7 @@ const Content = ({ productId }: { productId: string }) => {
       placeholderData: keepPreviousData,
     });
 
-  const { mutateAsync, isPending } = useBatchProductAttributesSub(productId);
+  const { mutateAsync, isPending } = useBatchProductAttributes(productId);
 
   const form = useForm<AddExistingFormValues>({
     defaultValues: { attributes: [] },

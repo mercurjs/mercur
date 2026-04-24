@@ -139,6 +139,11 @@ export function getRouteMap({
                               import("./pages/products/product-add-existing-attributes"),
                           },
                           {
+                            path: "attributes/:attribute_id/edit",
+                            lazy: () =>
+                              import("./pages/products/product-edit-attribute"),
+                          },
+                          {
                             path: "organization",
                             lazy: () =>
                               import("./pages/products/product-organization"),

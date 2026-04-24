@@ -1,5 +1,6 @@
 import {
   ListBullet,
+  PencilSquare,
   Plus,
   Trash,
   Swatch,
@@ -11,18 +12,16 @@ import {
   Container,
   Heading,
   Text,
+  toast,
   Tooltip,
   usePrompt,
 } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { ProductAttributeDTO, ProductDTO } from "@mercurjs/types";
-import { useDeleteProductAttributeSub } from "../../../../../hooks/api/products";
+import { useRemoveAttributeFromProduct } from "../../../../../hooks/api/products";
 
-type ProductWithAttributes = Pick<
-  ProductDTO,
-  "id" | "variant_attributes" | "custom_attributes" | "attribute_values"
->;
+type ProductWithAttributes = Pick<ProductDTO, "id" | "attributes">;
 
 const AttributeActions = ({
   productId,
@@ -33,7 +32,7 @@ const AttributeActions = ({
 }) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
-  const { mutateAsync } = useDeleteProductAttributeSub(productId, attribute.id);
+  const { mutateAsync } = useRemoveAttributeFromProduct(productId, attribute.id);
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -49,12 +48,25 @@ const AttributeActions = ({
       return;
     }
 
-    await mutateAsync();
+    await mutateAsync(undefined, {
+      onError: (error) => {
+        toast.error(error.message);
+      },
+    });
   };
 
   return (
     <ActionMenu
       groups={[
+        {
+          actions: [
+            {
+              label: t("actions.edit"),
+              to: `attributes/${attribute.id}/edit`,
+              icon: <PencilSquare />,
+            },
+          ],
+        },
         {
           actions: [
             {
@@ -74,14 +86,12 @@ const AttributeGroup = ({
   title,
   description,
   attributes,
-  productAttributeValues,
   productId,
 }: {
   icon: React.ReactNode;
   title: string;
   description: string;
   attributes: ProductAttributeDTO[];
-  productAttributeValues?: ProductDTO["attribute_values"];
   productId: string;
 }) => {
   if (!attributes.length) {
@@ -107,7 +117,7 @@ const AttributeGroup = ({
       <div className="flex flex-col gap-y-0">
         <div className="overflow-hidden rounded-xl border border-ui-border-base">
           {attributes.map((attr, index) => {
-            const values = getAttributeValues(attr, productAttributeValues);
+            const values = attr.values?.map((v) => v.name) ?? [];
 
             return (
               <div
@@ -165,26 +175,6 @@ const AttributeGroup = ({
   );
 };
 
-function getAttributeValues(
-  attribute: ProductAttributeDTO,
-  productAttributeValues?: ProductDTO["attribute_values"],
-): string[] {
-  if (attribute.is_variant_axis) {
-    return attribute.values?.map((v) => v.name) ?? [];
-  }
-
-  if (!productAttributeValues) {
-    return [];
-  }
-
-  return productAttributeValues
-    .filter(
-      (av) =>
-        av.attribute_id === attribute.id || av.attribute?.id === attribute.id,
-    )
-    .map((av) => av.name);
-}
-
 export const ProductAttributeSection = ({
   product,
 }: {
@@ -192,22 +182,9 @@ export const ProductAttributeSection = ({
 }) => {
   const { t } = useTranslation();
 
-  const variantAttributes = product.variant_attributes ?? [];
-  const variantAttrIds = new Set(variantAttributes.map((a) => a.id));
-  const customAttrIds = new Set(
-    (product.custom_attributes ?? []).map((a) => a.id),
-  );
-
-  const infoAttributes = [...(product.custom_attributes ?? [])].filter(
-    (attr) => !attr.is_variant_axis,
-  );
-  for (const av of product.attribute_values ?? []) {
-    const attr = av.attribute;
-    if (attr && !variantAttrIds.has(attr.id) && !customAttrIds.has(attr.id)) {
-      infoAttributes.push(attr);
-      customAttrIds.add(attr.id);
-    }
-  }
+  const allAttributes = product.attributes ?? [];
+  const variantAttributes = allAttributes.filter((a) => a.is_variant_axis);
+  const infoAttributes = allAttributes.filter((a) => !a.is_variant_axis);
 
   const isEmpty = !variantAttributes.length && !infoAttributes.length;
 
@@ -243,7 +220,6 @@ export const ProductAttributeSection = ({
           title={t("products.create.tabs.variants")}
           description={t("products.attributeVariantsDescription")}
           attributes={variantAttributes}
-          productAttributeValues={product.attribute_values}
           productId={product.id}
         />
       )}
@@ -258,7 +234,6 @@ export const ProductAttributeSection = ({
           title={t("products.attributeProductInformation")}
           description={t("products.attributeProductInformationDescription")}
           attributes={infoAttributes}
-          productAttributeValues={product.attribute_values}
           productId={product.id}
         />
       )}

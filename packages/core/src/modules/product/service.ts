@@ -435,7 +435,7 @@ class ProductModuleService extends MedusaService({
     // Batch-load referenced global attributes with their values
     const attrsById = new Map<string, any>();
     if (attrIds.size) {
-      const attrs = await this.listProductAttributes(
+      const attrs = await super.listProductAttributes(
         { id: Array.from(attrIds) } as any,
         { relations: ["values"] },
         sharedContext
@@ -631,7 +631,7 @@ class ProductModuleService extends MedusaService({
       // Batch-fetch all inline-created attributes with their values in a single query
       // instead of calling retrieveProductAttribute inside each loop iteration.
       if (createdInlineAttrIds.length) {
-        const createdAttrs = await this.listProductAttributes(
+        const createdAttrs = await super.listProductAttributes(
           { id: createdInlineAttrIds } as any,
           { relations: ["values"] },
           sharedContext
@@ -760,6 +760,127 @@ class ProductModuleService extends MedusaService({
     return resolvedIds;
   }
 
+  // @ts-expect-error
+  async retrieveProductAttribute(
+    id: string,
+    config?: FindConfig<any>,
+    sharedContext?: Context
+  ): Promise<any> {
+    const attribute = await super.retrieveProductAttribute(
+      id,
+      config,
+      sharedContext
+    );
+
+    await this.resolveSelectAttributeValues_(
+      [attribute as any],
+      config,
+      sharedContext
+    );
+
+    return attribute;
+  }
+
+  // @ts-expect-error
+  async listProductAttributes(
+    filters?: Record<string, any>,
+    config?: FindConfig<any>,
+    sharedContext?: Context
+  ): Promise<any[]> {
+    const attributes = await super.listProductAttributes(
+      filters,
+      config,
+      sharedContext
+    );
+
+    await this.resolveSelectAttributeValues_(
+      attributes as any[],
+      config,
+      sharedContext
+    );
+
+    return attributes;
+  }
+
+  // @ts-expect-error
+  async listAndCountProductAttributes(
+    filters?: Record<string, any>,
+    config?: FindConfig<any>,
+    sharedContext?: Context
+  ): Promise<[any[], number]> {
+    const [attributes, count] = await super.listAndCountProductAttributes(
+      filters,
+      config,
+      sharedContext
+    );
+
+    await this.resolveSelectAttributeValues_(
+      attributes as any[],
+      config,
+      sharedContext
+    );
+
+    return [attributes, count];
+  }
+
+  /**
+   * For attributes with type single_select or multi_select, resolves their
+   * values via listProductAttributeValues. Non-select attributes keep values empty.
+   * Only runs when the caller requested the "values" relation.
+   */
+  private async resolveSelectAttributeValues_(
+    attributes: any[],
+    config?: FindConfig<any>,
+    sharedContext?: Context
+  ): Promise<void> {
+    const requestedRelations = (config?.relations ?? []) as string[];
+    if (!requestedRelations.includes("values")) return;
+    if (!attributes.length) return;
+
+    const SELECT_TYPES = new Set([
+      AttributeType.SINGLE_SELECT,
+      AttributeType.MULTI_SELECT,
+    ]);
+
+    const selectAttrIds: string[] = [];
+
+    for (const attr of attributes) {
+      if (SELECT_TYPES.has(attr.type)) {
+        selectAttrIds.push(attr.id);
+      } else {
+        // Non-select types: clear values
+        attr.values = [];
+      }
+    }
+
+    if (!selectAttrIds.length) return;
+
+    // Batch-fetch values for all select-type attributes
+    const values = await super.listProductAttributeValues(
+      { attribute_id: selectAttrIds } as any,
+      { order: { rank: "ASC" } as any },
+      sharedContext
+    );
+
+    // Group values by attribute_id
+    const valuesByAttrId = new Map<string, any[]>();
+    for (const val of values as any[]) {
+      const attrId = val.attribute_id ?? val.attribute?.id;
+      if (!attrId) continue;
+      if (!valuesByAttrId.has(attrId)) {
+        valuesByAttrId.set(attrId, []);
+      }
+      valuesByAttrId.get(attrId)!.push(val);
+    }
+
+    // Map values onto attributes
+    for (const attr of attributes) {
+      if (SELECT_TYPES.has(attr.type)) {
+        attr.values = valuesByAttrId.get(attr.id) ?? [];
+      }
+    }
+  }
+
   @InjectTransactionManager()
   // @ts-ignore
   async createProductAttributes<
@@ -796,7 +917,7 @@ class ProductModuleService extends MedusaService({
     if (attrsWithProductId.length) {
       // Batch-fetch all created attributes with values in a single query
       const attrIdsToFetch = attrsWithProductId.map((a) => a.id);
-      const fetchedAttrs = await this.listProductAttributes(
+      const fetchedAttrs = await super.listProductAttributes(
         { id: attrIdsToFetch } as any,
         { relations: ["values"] },
         sharedContext
@@ -915,7 +1036,7 @@ class ProductModuleService extends MedusaService({
 
     // Batch-fetch all referenced attributes with their values in a single query
     const attrIdsToFetch = items.map((item) => item.attribute_id);
-    const fetchedAttrs = await this.listProductAttributes(
+    const fetchedAttrs = await super.listProductAttributes(
       { id: attrIdsToFetch } as any,
       { relations: ["values"] },
       sharedContext
@@ -1054,7 +1175,7 @@ class ProductModuleService extends MedusaService({
     );
 
     // Batch-fetch all attributes with their values
-    const attributes = await this.listProductAttributes(
+    const attributes = await super.listProductAttributes(
       { id: ids } as any,
       { relations: ["values"] },
       sharedContext

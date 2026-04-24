@@ -7,7 +7,7 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { sdk, fetchQuery } from "../../lib/client";
+import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { inventoryItemsQueryKeys } from "./inventory.tsx";
@@ -384,11 +384,11 @@ export const useDeleteVariantLazy = (
 // --- Product attribute sub-resource ---
 
 const PRODUCT_ATTRIBUTES_QUERY_KEY = "product_product_attributes" as const;
-export const productAttributesSubQueryKeys = queryKeysFactory(
+export const scopedProductAttributesQueryKeys = queryKeysFactory(
   PRODUCT_ATTRIBUTES_QUERY_KEY
 );
 
-export const useProductAttributesSub = (
+export const useProductScopedAttributes = (
   productId: string,
   query?: Record<string, any>,
   options?: Omit<
@@ -398,18 +398,15 @@ export const useProductAttributesSub = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>
-      fetchQuery(`/admin/products/${productId}/attributes`, {
-        method: "GET",
-        query,
-      }),
-    queryKey: productAttributesSubQueryKeys.list({ productId, ...query }),
+      sdk.admin.products.$id.attributes.query({ $id: productId, ...query }),
+    queryKey: scopedProductAttributesQueryKeys.list({ productId, ...query }),
     ...options,
   });
 
   return { ...data, ...rest };
 };
 
-export const useCreateProductAttributeSub = (
+export const useAddAttributeToProduct = (
   productId: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductAttributeResponse,
@@ -419,13 +416,10 @@ export const useCreateProductAttributeSub = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      fetchQuery(`/admin/products/${productId}/attributes`, {
-        method: "POST",
-        body: payload,
-      }),
+      sdk.admin.products.$id.attributes.mutate({ $id: productId, ...payload }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: productAttributesSubQueryKeys.lists(),
+        queryKey: scopedProductAttributesQueryKeys.lists(),
       });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
@@ -436,7 +430,7 @@ export const useCreateProductAttributeSub = (
   });
 };
 
-export const useUpdateProductAttributeSub = (
+export const useUpdateProductScopedAttribute = (
   productId: string,
   attributeId: string,
   options?: UseMutationOptions<
@@ -447,13 +441,14 @@ export const useUpdateProductAttributeSub = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      fetchQuery(`/admin/products/${productId}/attributes/${attributeId}`, {
-        method: "POST",
-        body: payload,
+      sdk.admin.products.$id.attributes.$attributeId.mutate({
+        $id: productId,
+        $attributeId: attributeId,
+        ...payload,
       }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: productAttributesSubQueryKeys.lists(),
+        queryKey: scopedProductAttributesQueryKeys.lists(),
       });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
@@ -464,7 +459,7 @@ export const useUpdateProductAttributeSub = (
   });
 };
 
-export const useDeleteProductAttributeSub = (
+export const useRemoveAttributeFromProduct = (
   productId: string,
   attributeId: string,
   options?: UseMutationOptions<
@@ -475,12 +470,13 @@ export const useDeleteProductAttributeSub = (
 ) => {
   return useMutation({
     mutationFn: () =>
-      fetchQuery(`/admin/products/${productId}/attributes/${attributeId}`, {
-        method: "DELETE",
+      sdk.admin.products.$id.attributes.$attributeId.delete({
+        $id: productId,
+        $attributeId: attributeId,
       }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: productAttributesSubQueryKeys.lists(),
+        queryKey: scopedProductAttributesQueryKeys.lists(),
       });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
@@ -493,7 +489,7 @@ export const useDeleteProductAttributeSub = (
 
 // --- Attribute batch mutations ---
 
-export const useBatchProductAttributesSub = (
+export const useBatchProductAttributes = (
   productId: string,
   options?: UseMutationOptions<any, ClientError, {
     create?: {
@@ -506,13 +502,13 @@ export const useBatchProductAttributesSub = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      fetchQuery(`/admin/products/${productId}/attributes/batch`, {
-        method: "POST",
-        body: payload,
+      sdk.admin.products.$id.attributes.batch.mutate({
+        $id: productId,
+        ...payload,
       }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
-        queryKey: productAttributesSubQueryKeys.lists(),
+        queryKey: scopedProductAttributesQueryKeys.lists(),
       });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),

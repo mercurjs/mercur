@@ -8,7 +8,7 @@ import { ChipInput } from "../../../../../components/inputs/chip-input";
 import { Form } from "../../../../../components/common/form";
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals";
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
-import { useCreateProductAttributeSub } from "../../../../../hooks/api/products";
+import { useAddAttributeToProduct } from "../../../../../hooks/api/products";
 
 const CreateAttributeSchema = zod.object({
   title: zod.string().min(1),
@@ -40,7 +40,7 @@ export const CreateAttributeForm = ({
   const useForVariants = form.watch("use_for_variants");
 
   const { mutateAsync: createAttribute, isPending } =
-    useCreateProductAttributeSub(productId);
+    useAddAttributeToProduct(productId);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const values = Array.isArray(data.values)

@@ -1,12 +1,7 @@
-import { AttributeType } from "@mercurjs/types"
-
 /**
  * Computes a unified `attributes` array on the product by merging
  * variant_attributes, custom_attributes, and attribute_values into
  * a single grouped structure with values nested under each attribute.
- *
- * For non-select types (text, unit, toggle), values are cleared since
- * they don't have predefined option sets.
  *
  * Mutates the product object in place.
  */
@@ -45,14 +40,6 @@ export function formatProductAttributes(product: any): void {
   )
 
   for (const attr of attrsById.values()) {
-    if (
-      attr.type !== AttributeType.SINGLE_SELECT &&
-      attr.type !== AttributeType.MULTI_SELECT
-    ) {
-      attr.values = []
-      continue
-    }
-
     attr.values = (attr.values ?? []).filter((v: any) =>
       productValueIds.has(v.id)
     )
