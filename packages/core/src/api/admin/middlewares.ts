@@ -25,6 +25,10 @@ import {
   orderIdFromReturnParam,
   requireSellerValidShippingOption,
 } from "./middlewares/require-seller-valid-shipping-option"
+import {
+  orderIdFromOrderEditParam,
+  requireSellerValidAddItem,
+} from "./middlewares/require-seller-valid-add-item"
 
 const maybeApplySellerProductFilter = (
   req: AuthenticatedMedusaRequest,
@@ -120,6 +124,13 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/returns/:id/shipping-method",
     middlewares: [
       requireSellerValidShippingOption(orderIdFromReturnParam),
+    ],
+  },
+  // Block cross-seller variant_id on order-edit add-items.
+  {
+    matcher: "/admin/order-edits/:id/items",
+    middlewares: [
+      requireSellerValidAddItem(orderIdFromOrderEditParam),
     ],
   },
   // Warehouse capability lock — gated by `admin_warehouse_management` feature flag.

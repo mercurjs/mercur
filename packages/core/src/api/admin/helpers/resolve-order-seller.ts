@@ -18,19 +18,26 @@ export async function resolveOrderSeller(
 ): Promise<{ seller_id: string }> {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  // Query the order_seller link directly. Going through order with
+  // fields: ["seller.id"] fails for some middleware request contexts
+  // (remote-joiner cache or association hydration quirks observed
+  // when the order was just created via cart complete), whereas the
+  // link table is always consistent as soon as the link row commits.
   const { data } = await query.graph({
-    entity: "order",
-    fields: ["id", "seller.id"],
-    filters: { id: orderId },
+    entity: "order_seller",
+    fields: ["order_id", "seller_id"],
+    filters: { order_id: orderId },
   })
 
-  const order = data[0] as { seller?: { id?: string } } | undefined
-  if (!order?.seller?.id) {
+  const link = data[0] as
+    | { order_id?: string; seller_id?: string }
+    | undefined
+  if (!link?.seller_id) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
       `Order ${orderId} has no order_seller link`
     )
   }
 
-  return { seller_id: order.seller.id }
+  return { seller_id: link.seller_id }
 }

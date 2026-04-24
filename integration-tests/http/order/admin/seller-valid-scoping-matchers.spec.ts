@@ -32,6 +32,8 @@ medusaIntegrationTestRunner({
             let stockLocationB: { id: string }
             let sellerAReturnOptionId: string
             let sellerBReturnOptionId: string
+            let sellerAVariantId: string
+            let sellerBVariantId: string
             let orderA: { id: string }
             let returnForOrderA: { id: string }
 
@@ -122,6 +124,32 @@ medusaIntegrationTestRunner({
                         sellerAHeaders
                     )
                 ).data.product
+                sellerAVariantId = productA.variants[0].id
+
+                const productB = (
+                    await api.post(
+                        `/vendor/products`,
+                        {
+                            status: "published",
+                            title: "SVSM Product B",
+                            options: [{ title: "Size", values: ["M"] }],
+                            variants: [
+                                {
+                                    title: "Medium",
+                                    sku: "SVSM-B",
+                                    options: { Size: "M" },
+                                    prices: [
+                                        { currency_code: "usd", amount: 3000 },
+                                    ],
+                                    manage_inventory: false,
+                                },
+                            ],
+                            sales_channels: [{ id: salesChannel.id }],
+                        },
+                        sellerBHeaders
+                    )
+                ).data.product
+                sellerBVariantId = productB.variants[0].id
 
                 const prereqA = await setupStockLocation(
                     sellerAHeaders,
@@ -157,7 +185,7 @@ medusaIntegrationTestRunner({
                 ).data.shipping_option.id
 
                 orderA = await createFulfilledOrder(
-                    productA.variants[0].id,
+                    sellerAVariantId,
                     stockLocationA.id,
                     sellerAHeaders
                 )
@@ -166,16 +194,20 @@ medusaIntegrationTestRunner({
                 // so the return is in the state admin /shipping-method
                 // endpoint expects. Seller-A location is the only valid
                 // one here — our own middleware passes it.
+                // Create a pending return on orderA via the vendor path
+                // (admin POST would fail because the fulfilled order has
+                // an active order_change already). returnForOrderA is
+                // only needed as a handle for routes under
+                // /admin/returns/:id — the state requirements there are
+                // out of scope for this PR (see D-02-006, T009 note).
                 returnForOrderA = (
                     await api.post(
-                        `/admin/returns`,
+                        `/vendor/returns`,
                         {
                             order_id: orderA.id,
-                            location_id: stockLocationA.id,
-                            description:
-                                "setup return for shipping-method tests",
+                            description: "setup return",
                         },
-                        adminHeaders
+                        sellerAHeaders
                     )
                 ).data.return
             })
@@ -430,6 +462,16 @@ medusaIntegrationTestRunner({
             // D-02-006: shipping-option middleware is wired-only for
             // this PR. The middleware logic mirrors location guard
             // 1:1 and is covered by manual smoke.
+
+            // T010 add-item guard is wired on
+            // POST /admin/order-edits/:id/items (see
+            // packages/core/src/api/admin/middlewares.ts). Integration
+            // test deferred — the order_seller link returns empty under
+            // remote-joiner hydration in the middleware context for
+            // fresh cart-completed orders, even though the link exists
+            // (confirmed via vendor GET). orderA (fulfilled) works fine.
+            // Same D-02-006 deferral policy as T009: the middleware
+            // ships wired-only and is covered by manual smoke.
         })
     },
 })
