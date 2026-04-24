@@ -64,10 +64,7 @@ export const AddressStep = ({ onSubmit, onSkip, isPending }: AddressStepProps) =
                     {t("onboarding.wizard.address.name")}
                   </Form.Label>
                   <Form.Control>
-                    <Input
-                      placeholder={t("onboarding.wizard.address.namePlaceholder")}
-                      {...field}
-                    />
+                    <Input {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>

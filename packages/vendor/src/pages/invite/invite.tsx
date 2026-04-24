@@ -21,6 +21,7 @@ import { Form } from "@components/common/form";
 import AvatarBox from "@components/common/logo-box/avatar-box";
 import { useSignInForInvite, useSignUpForInvite } from "@hooks/api/auth";
 import { useAcceptInvite } from "@hooks/api/invites";
+import { assetUrl } from "@/utils/asset-url";
 import { useSelectSeller } from "@hooks/api";
 import { isFetchError } from "@lib/is-fetch-error";
 import { sdk } from "@lib/client";
@@ -28,19 +29,39 @@ import { sdk } from "@lib/client";
 const CreateAccountSchema = z
   .object({
     email: z.string().email(),
+    first_name: z.string().optional(),
+    last_name: z.string().optional(),
     password: z.string().min(1),
     repeat_password: z.string().optional(),
     existing_member: z.boolean(),
   })
-  .superRefine(({ password, repeat_password, existing_member }, ctx) => {
-    if (!existing_member && (!repeat_password || password !== repeat_password)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: i18n.t("invite.passwordMismatch"),
-        path: ["repeat_password"],
-      });
-    }
-  });
+  .superRefine(
+    ({ first_name, last_name, password, repeat_password, existing_member }, ctx) => {
+      if (!existing_member) {
+        if (!first_name || first_name.trim().length === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: i18n.t("register.validation.firstNameRequired"),
+            path: ["first_name"],
+          });
+        }
+        if (!last_name || last_name.trim().length === 0) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: i18n.t("register.validation.lastNameRequired"),
+            path: ["last_name"],
+          });
+        }
+        if (!repeat_password || password !== repeat_password) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: i18n.t("invite.passwordMismatch"),
+            path: ["repeat_password"],
+          });
+        }
+      }
+    },
+  );
 
 type DecodedInvite = {
   id: string;
@@ -100,13 +121,13 @@ export const Invite = () => {
       <div
         className="hidden lg:flex flex-1 relative overflow-hidden items-center justify-center"
         style={{
-          backgroundImage: "url(/onboarding/bg.svg)",
+          backgroundImage: `url(${assetUrl("/onboarding/bg.svg")})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
         <img
-          src="/onboarding/0.png"
+          src={assetUrl("/onboarding/0.png")}
           alt=""
           className="w-[75%] max-h-[75%] object-contain"
         />
@@ -214,6 +235,8 @@ const CreateView = ({
     resolver: zodResolver(CreateAccountSchema),
     defaultValues: {
       email: invite.email || "",
+      first_name: "",
+      last_name: "",
       password: "",
       repeat_password: "",
       existing_member: isExistingMember,
@@ -244,6 +267,8 @@ const CreateView = ({
       await acceptInvite({
         invite_token: token,
         auth_token: authToken,
+        first_name: isExistingMember ? undefined : data.first_name,
+        last_name: isExistingMember ? undefined : data.last_name,
       });
 
       // Re-login to get a fresh token with updated actor_id
@@ -311,22 +336,36 @@ const CreateView = ({
       <Form {...form}>
         <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
           <div className="flex flex-col gap-y-4">
-            <Form.Field
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t("fields.email")}</Form.Label>
-                  <Form.Control>
-                    <Input
-                      autoComplete="off"
-                      {...field}
-                      disabled
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
+            {!isExistingMember && (
+              <>
+                <Form.Field
+                  control={form.control}
+                  name="first_name"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t("register.firstName")}</Form.Label>
+                      <Form.Control>
+                        <Input autoComplete="given-name" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+                <Form.Field
+                  control={form.control}
+                  name="last_name"
+                  render={({ field }) => (
+                    <Form.Item>
+                      <Form.Label>{t("register.lastName")}</Form.Label>
+                      <Form.Control>
+                        <Input autoComplete="family-name" {...field} />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )}
+                />
+              </>
+            )}
             <Form.Field
               control={form.control}
               name="password"

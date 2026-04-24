@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, Input, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -16,13 +17,18 @@ type StoreAddressFormProps = {
 };
 
 const StoreAddressSchema = zod.object({
-  name: zod.string().min(1),
+  name: zod
+    .string()
+    .min(1, { message: i18n.t("store.address.validation.nameRequired") }),
   address_1: zod.string().optional().or(zod.literal("")),
   address_2: zod.string().optional().or(zod.literal("")),
   city: zod.string().optional().or(zod.literal("")),
   province: zod.string().optional().or(zod.literal("")),
   postal_code: zod.string().optional().or(zod.literal("")),
-  country_code: zod.string().min(2).max(2),
+  country_code: zod
+    .string()
+    .min(2, { message: i18n.t("store.address.validation.countryRequired") })
+    .max(2),
 });
 
 export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
@@ -84,24 +90,7 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
               <Form.Item>
                 <Form.Label>{t("store.address.nameLabel")}</Form.Label>
                 <Form.Control>
-                  <Input
-                    size="small"
-                    placeholder={t("store.address.namePlaceholder")}
-                    {...field}
-                  />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={form.control}
-            name="country_code"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t("fields.country")}</Form.Label>
-                <Form.Control>
-                  <CountrySelect {...field} />
+                  <Input size="small" {...field} />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -133,34 +122,45 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
               </Form.Item>
             )}
           />
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Field
-              control={form.control}
-              name="city"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.city")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="postal_code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.postalCode")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-          </div>
+          <Form.Field
+            control={form.control}
+            name="postal_code"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("fields.postalCode")}</Form.Label>
+                <Form.Control>
+                  <Input size="small" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("fields.city")}</Form.Label>
+                <Form.Control>
+                  <Input size="small" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="country_code"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.country")}</Form.Label>
+                <Form.Control>
+                  <CountrySelect {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
           <Form.Field
             control={form.control}
             name="province"

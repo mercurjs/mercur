@@ -1,5 +1,7 @@
 import { ReactNode } from "react";
 
+import { assetUrl } from "../../../utils/asset-url";
+
 type AuthLayoutProps = {
   children: ReactNode;
 };
@@ -15,13 +17,13 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
       <div
         className="relative hidden flex-1 items-center justify-center overflow-hidden lg:flex"
         style={{
-          backgroundImage: "url(/onboarding/bg.svg)",
+          backgroundImage: `url(${assetUrl("/onboarding/bg.svg")})`,
           backgroundSize: "cover",
           backgroundPosition: "center",
         }}
       >
         <img
-          src="/onboarding/0.png"
+          src={assetUrl("/onboarding/0.png")}
           alt=""
           className="max-h-[75%] w-[75%] object-contain"
         />

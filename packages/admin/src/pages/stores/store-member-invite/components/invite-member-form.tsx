@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, Input, Select, Text, clx, toast } from "@medusajs/ui";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -13,8 +14,10 @@ import { useMembers } from "../../../../hooks/api/members";
 import {
   useAddSellerMember,
   useInviteSellerMember,
+  useSellerInvites,
+  useSellerMembers,
 } from "../../../../hooks/api/sellers";
-import { SellerRole } from "@mercurjs/types";
+import { SellerMemberDTO, SellerRole } from "@mercurjs/types";
 
 const ROLE_OPTIONS = [
   {
@@ -34,8 +37,13 @@ const ROLE_OPTIONS = [
 ];
 
 const InviteMemberSchema = zod.object({
-  email: zod.string().email(),
-  role_id: zod.string().min(1),
+  email: zod
+    .string()
+    .min(1, { message: i18n.t("stores.create.validation.emailRequired") })
+    .email({ message: i18n.t("stores.create.validation.emailInvalid") }),
+  role_id: zod
+    .string()
+    .min(1, { message: i18n.t("stores.members.addUser.validation.roleRequired") }),
 });
 
 type Member = { id: string; email: string };
@@ -52,6 +60,8 @@ export const InviteMemberForm = () => {
       email: "",
       role_id: "",
     },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     resolver: zodResolver(InviteMemberSchema),
   });
 
@@ -62,10 +72,41 @@ export const InviteMemberForm = () => {
     { placeholderData: (prev: any) => prev },
   );
 
-  const memberList = useMemo(
-    () => (members as Member[] | undefined) ?? [],
-    [members],
-  );
+  // Fetch current sellers members and pending invites so we can filter
+  // suggestions to never show emails that are already added or invited.
+  const { seller_members: currentMembers } = useSellerMembers(id!, {
+    limit: 100,
+    offset: 0,
+  });
+
+  const { member_invites: pendingInvites } = useSellerInvites(id!);
+
+  const existingEmails = useMemo(() => {
+    const emails = new Set<string>();
+    (
+      (currentMembers as SellerMemberDTO[] | undefined) ?? []
+    ).forEach((sm) => {
+      const email = sm.member?.email;
+      if (email) {
+        emails.add(email.toLowerCase());
+      }
+    });
+    ((pendingInvites as { email?: string; accepted?: boolean }[] | undefined) ?? [])
+      .filter((invite) => !invite.accepted)
+      .forEach((invite) => {
+        if (invite.email) {
+          emails.add(invite.email.toLowerCase());
+        }
+      });
+    return emails;
+  }, [currentMembers, pendingInvites]);
+
+  const memberList = useMemo(() => {
+    const all = (members as Member[] | undefined) ?? [];
+    return all.filter(
+      (m) => !existingEmails.has(m.email.toLowerCase()),
+    );
+  }, [members, existingEmails]);
 
   const { mutateAsync: inviteMember, isPending: isInviting } =
     useInviteSellerMember(id!);
@@ -86,15 +127,13 @@ export const InviteMemberForm = () => {
           member_id: matched.id,
           role_id: values.role_id as SellerRole,
         });
-        toast.success(
-          t("stores.members.addUser.assignSuccess", { email: values.email }),
-        );
+        toast.success(t("stores.members.addUser.addedToast"));
       } else {
         await inviteMember({
           email: values.email,
           role_id: values.role_id as SellerRole,
         });
-        toast.success(t("users.inviteSuccess"));
+        toast.success(t("stores.members.addUser.invitedToast"));
       }
 
       handleSuccess();
@@ -167,7 +206,7 @@ export const InviteMemberForm = () => {
                 <Form.Control>
                   <Select {...field} onValueChange={onChange}>
                     <Select.Trigger ref={ref}>
-                      <Select.Value placeholder={t("users.selectRole", "Select")} />
+                      <Select.Value placeholder={t("fields.selectPlaceholder", "Select")} />
                     </Select.Trigger>
                     <Select.Content>
                       {ROLE_OPTIONS.map((role) => (

@@ -1,6 +1,6 @@
 import { Children, ReactNode } from "react";
-import { PencilSquare } from "@medusajs/icons";
-import { Avatar, Badge, Heading, StatusBadge } from "@medusajs/ui";
+import { CheckCircleSolid, PencilSquare } from "@medusajs/icons";
+import { Avatar, Heading, StatusBadge, Tooltip } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "@components/common/action-menu";
@@ -55,9 +55,9 @@ export const StoreDetailTitle = ({ seller }: StoreProps) => {
       <div className="flex items-center gap-x-2">
         <Heading>{seller.name}</Heading>
         {seller.is_premium && (
-          <Badge size="2xsmall" color="purple">
-            {t("fields.premium")}
-          </Badge>
+          <Tooltip content={t("fields.premium")}>
+            <CheckCircleSolid className="text-ui-tag-blue-icon" />
+          </Tooltip>
         )}
       </div>
     </div>

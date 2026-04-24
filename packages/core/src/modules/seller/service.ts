@@ -116,7 +116,7 @@ class SellerModuleService extends MedusaService({
 
   @InjectTransactionManager()
   async upsertMembers(
-    data: { email: string }[],
+    data: { email: string; first_name?: string | null; last_name?: string | null }[],
     sharedContext?: Context,
   ): Promise<MemberDTO[]> {
     const emails = data.map((d) => d.email)
@@ -137,6 +137,27 @@ class SellerModuleService extends MedusaService({
     const createdMap = new Map(
       (Array.isArray(created) ? created : [created]).map((m) => [m.email, m])
     )
+
+    const toUpdate = data
+      .filter((d) => existingMap.has(d.email))
+      .map((d) => {
+        const existingMember = existingMap.get(d.email)!
+        const update: { id: string; first_name?: string; last_name?: string } = {
+          id: existingMember.id,
+        }
+        if (d.first_name != null && !existingMember.first_name) {
+          update.first_name = d.first_name
+        }
+        if (d.last_name != null && !existingMember.last_name) {
+          update.last_name = d.last_name
+        }
+        return Object.keys(update).length > 1 ? update : null
+      })
+      .filter((u): u is { id: string; first_name?: string; last_name?: string } => !!u)
+
+    if (toUpdate.length) {
+      await this.updateMembers(toUpdate, sharedContext)
+    }
 
     return data.map(
       (d) => existingMap.get(d.email) ?? createdMap.get(d.email)!

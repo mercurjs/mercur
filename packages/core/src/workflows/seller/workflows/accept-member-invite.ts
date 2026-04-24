@@ -24,6 +24,8 @@ type AcceptMemberInviteWorkflowInput = {
   invite_token: string
   auth_identity_id: string
   member_id?: string
+  first_name?: string
+  last_name?: string
 }
 
 export const acceptMemberInviteWorkflow = createWorkflow(
@@ -34,7 +36,13 @@ export const acceptMemberInviteWorkflow = createWorkflow(
     const invite = validateMemberInviteTokenStep(input.invite_token)
 
     const members = upsertMembersStep(
-      transform({ invite }, ({ invite }) => [{ email: invite.email }])
+      transform({ invite, input }, ({ invite, input }) => [
+        {
+          email: invite.email,
+          first_name: input.first_name ?? null,
+          last_name: input.last_name ?? null,
+        },
+      ])
     )
 
     const member = transform({ members }, ({ members }) => members[0])

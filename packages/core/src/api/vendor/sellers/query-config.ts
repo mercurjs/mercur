@@ -27,6 +27,7 @@ export const retrieveVendorSellerQueryConfig = {
     "external_id",
     "currency_code",
     "status",
+    "approved_at",
     "is_premium",
     "closed_from",
     "closed_to",

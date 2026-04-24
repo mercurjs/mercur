@@ -21,6 +21,8 @@ export const VendorCreateSellerAccount = z.object({
   email: z.string().email(),
   phone: z.string().nullable().optional(),
   member_email: z.string().email(),
+  first_name: z.string().nullable().optional(),
+  last_name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   currency_code: z.string(),
   address: z

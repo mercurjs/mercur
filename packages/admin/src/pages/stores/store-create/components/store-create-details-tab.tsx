@@ -83,7 +83,7 @@ const Root = () => {
                 <Form.Control>
                   <Select {...field} onValueChange={onChange}>
                     <Select.Trigger ref={ref}>
-                      <Select.Value placeholder={t("fields.currency")} />
+                      <Select.Value placeholder={t("fields.selectPlaceholder", "Select")} />
                     </Select.Trigger>
                     <Select.Content>
                       {store?.supported_currencies?.map((sc) => (

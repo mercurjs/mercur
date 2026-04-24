@@ -88,6 +88,14 @@ export const StoreTimeOffSection = ({ seller }: StoreTimeOffSectionProps) => {
         id: "note",
         header: t("store.timeOff.columns.note"),
         accessorFn: (row: TimeOffEntry) => row.note || "-",
+        cell: ({ row }: { row: { original: TimeOffEntry } }) => (
+          <span
+            className="block max-w-[240px] truncate"
+            title={row.original.note ?? undefined}
+          >
+            {row.original.note || "-"}
+          </span>
+        ),
       },
       {
         id: "actions",

@@ -324,11 +324,6 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       ],
     },
     {
-      icon: <BuildingStorefront />,
-      label: t("stores.domain"),
-      to: "/stores",
-    },
-    {
       icon: <ReceiptPercent />,
       label: t("promotions.domain"),
       to: "/promotions",
@@ -343,6 +338,11 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <CurrencyDollar />,
       label: t("priceLists.domain"),
       to: "/price-lists",
+    },
+    {
+      icon: <BuildingStorefront />,
+      label: t("stores.domain"),
+      to: "/stores",
     },
     {
       icon: <CreditCardRefresh />,

@@ -2515,7 +2515,7 @@
       "header": "Address",
       "defaultName": "Headquarters",
       "nameLabel": "Name",
-      "namePlaceholder": "Headquarters",
+      "apartmentLabel": "Apartment, suite, etc.",
       "empty": {
         "title": "No address",
         "message": "There are no records to show"
@@ -2524,6 +2524,10 @@
         "header": "Edit Address",
         "description": "Update the address for this store.",
         "successToast": "Address updated"
+      },
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "countryRequired": "Please select a country"
       }
     },
     "paymentDetails": {
@@ -2547,6 +2551,10 @@
         "routingNumber": "Routing number",
         "achRoutingNumber": "ACH routing number",
         "accountNumber": "Account number"
+      },
+      "validation": {
+        "countryRequired": "Please select a country",
+        "accountNameRequired": "Please enter an account name"
       }
     },
     "professionalDetails": {
@@ -3195,6 +3203,9 @@
     "reference_id": "Reference ID",
     "refundAmount": "Refund amount",
     "name": "Name",
+    "note": "Note",
+    "optional": "Optional",
+    "selectPlaceholder": "Select",
     "default": "Default",
     "lastName": "Last Name",
     "firstName": "First Name",
@@ -3444,10 +3455,16 @@
       "errorToast": "Failed to send invitation"
     },
     "members": {
+      "mainAdmin": "Main Admin",
       "addUser": {
         "header": "Add User",
-        "hint": "Add new user to manage this store. You can select existing user or invite new ones.",
-        "assignSuccess": "User {{email}} assigned to the store"
+        "action": "Add",
+        "hint": "Add new user to manage this store. You can select existing user or invite new one.",
+        "addedToast": "User was successfully added.",
+        "invitedToast": "User was successfully invited.",
+        "validation": {
+          "roleRequired": "Please select a role"
+        }
       },
       "invite": {
         "resendSuccess": "Invite resent to {{email}}",
@@ -3488,9 +3505,12 @@
       "description": "{{requester}} has submitted a store request. Review the details, make any necessary updates, and choose whether to confirm and publish the store or reject the request.",
       "confirm": "Confirm",
       "reject": "Reject",
-      "confirmNoteLabel": "Approval note",
-      "rejectNoteLabel": "Rejection reason",
-      "notePlaceholder": "Optional note for the vendor...",
+      "confirmTitle": "Approve store request",
+      "confirmDescription": "Provide an optional note for the vendor. The store will be published after approval.",
+      "rejectTitle": "Reject store request",
+      "rejectDescription": "Provide an optional reason. The vendor will be notified.",
+      "noteLabel": "Note",
+      "notePlaceholder": "Add a note for the vendor...",
       "confirmSuccess": "Store approved",
       "rejectSuccess": "Store rejected"
     },

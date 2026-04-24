@@ -6,6 +6,8 @@ const Member = model
   .define("Member", {
     id: model.id({ prefix: "mem" }).primaryKey(),
     email: model.text().searchable(),
+    first_name: model.text().searchable().nullable(),
+    last_name: model.text().searchable().nullable(),
     locale: model.text().nullable(),
     is_active: model.boolean().default(true),
     sellers: model.manyToMany(() => Seller, {
