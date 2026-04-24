@@ -6,9 +6,9 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { HttpTypes, MercurModules } from "@mercurjs/types"
+import { HttpTypes } from "@mercurjs/types"
 
-import SellerModuleService from "../../../../modules/seller/service"
+import { updateMemberWorkflow } from "../../../../workflows/seller/workflows"
 import { VendorUpdateMemberType } from "../validators"
 
 export const GET = async (
@@ -55,14 +55,11 @@ export const POST = async (
     )
   }
 
-  const service = req.scope.resolve<SellerModuleService>(MercurModules.SELLER)
-
   const update: {
-    id: string
     first_name?: string | null
     last_name?: string | null
     locale?: string | null
-  } = { id: memberId }
+  } = {}
 
   if (req.validatedBody.first_name !== undefined) {
     update.first_name = req.validatedBody.first_name
@@ -74,7 +71,9 @@ export const POST = async (
     update.locale = req.validatedBody.locale
   }
 
-  await service.updateMembers([update])
+  await updateMemberWorkflow(req.scope).run({
+    input: { selector: { id: memberId }, update },
+  })
 
   const { data: sellerMembers } = await query.graph({
     entity: "seller_member",
