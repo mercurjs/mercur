@@ -92,17 +92,6 @@ const CreateProductVariant = z
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
-    prices: z
-      .array(
-        z.object({
-          currency_code: z.string(),
-          amount: z.number(),
-          min_quantity: z.number().nullish(),
-          max_quantity: z.number().nullish(),
-          rules: z.record(z.string(), z.string()).optional(),
-        })
-      )
-      .optional(),
     // See CreateProductVariantDTO.attribute_values — resolved by the service.
     attribute_values: z
       .record(z.union([z.string(), z.array(z.string())]))

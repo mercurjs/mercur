@@ -141,20 +141,20 @@ export interface UpdateProductAttributeDTO {
  */
 export type ProductAttributeInputDTO =
   | {
-      attribute_id: string;
-      value_ids?: string[];
-      values?: string[];
-    }
+    attribute_id: string;
+    value_ids?: string[];
+    values?: string[];
+  }
   | {
-      name: string;
-      type: AttributeType;
-      values?: string[];
-      is_variant_axis?: boolean;
-      is_filterable?: boolean;
-      is_required?: boolean;
-      description?: string | null;
-      metadata?: Record<string, unknown> | null;
-    };
+    name: string;
+    type: AttributeType;
+    values?: string[];
+    is_variant_axis?: boolean;
+    is_filterable?: boolean;
+    is_required?: boolean;
+    description?: string | null;
+    metadata?: Record<string, unknown> | null;
+  };
 
 // --- ProductCategory ---
 
@@ -208,11 +208,16 @@ export interface CreateProductVariantDTO {
   metadata?: Record<string, unknown> | null;
   product_id?: string;
   /**
-   * Map of attribute key (attribute `handle` or `name`) to value string
-   * (for single-select) or array of value strings (for multi-select).
-   * Resolved to ProductAttributeValue IDs when the product is created.
+   * Variant attribute values to associate with the variant. Either:
+   * - An array of `ProductAttributeValue` IDs (already resolved).
+   * - A map of attribute key (attribute `handle` or `name`) to value
+   *   name(s), resolved to IDs by the service against the parent
+   *   product's variant attributes.
+   *
+   * @example `["pattrval_red", "pattrval_small"]`
+   * @example `{ Color: "Red", Size: ["S", "M"] }`
    */
-  attribute_values?: Record<string, string | string[]>;
+  attribute_values?: string[] | Record<string, string | string[]>;
 }
 
 export interface UpdateProductVariantDTO {
@@ -242,7 +247,7 @@ export interface UpdateProductVariantDTO {
    * update replaces the variant's attribute-value links with the resolved
    * set; omitting it leaves existing links untouched.
    */
-  attribute_values?: Record<string, string | string[]>;
+  attribute_values?: string[] | Record<string, string | string[]>;
 }
 
 export interface UpsertProductVariantDTO extends UpdateProductVariantDTO {

@@ -3,6 +3,10 @@ import { useCallback, useMemo } from "react";
 import { Buildings, Component, PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import {
+  ProductAttributeDTO,
+  ProductAttributeValueDTO,
+} from "@mercurjs/types";
+import {
   Badge,
   Container,
   createDataTableColumnHelper,
@@ -53,7 +57,8 @@ export const ProductVariantSection = ({
       limit: PAGE_SIZE,
       created_at: created_at ? JSON.parse(created_at) : undefined,
       updated_at: updated_at ? JSON.parse(updated_at) : undefined,
-      fields: "title,created_at,updated_at,",
+      fields:
+        "title,created_at,updated_at,*attribute_values,*attribute_values.attribute",
     },
     {
       placeholderData: keepPreviousData,
@@ -200,6 +205,59 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
     });
   }, [product]);
 
+  const attributeColumns = useMemo(() => {
+    const variantAttributes = (
+      product as HttpTypes.AdminProduct & {
+        variant_attributes?: ProductAttributeDTO[];
+      }
+    )?.variant_attributes?.filter((attr) => attr.is_variant_axis);
+
+    if (!variantAttributes?.length) {
+      return [];
+    }
+
+    return variantAttributes.map((attribute) => {
+      return columnHelper.display({
+        id: `attribute-${attribute.id}`,
+        header: attribute.name,
+        cell: ({ row }) => {
+          const variant = row.original as HttpTypes.AdminProductVariant & {
+            attribute_values?: ProductAttributeValueDTO[];
+          };
+
+          const matches =
+            variant.attribute_values?.filter(
+              (v) => v.attribute?.id === attribute.id,
+            ) ?? [];
+
+          if (!matches.length) {
+            return <span className="text-ui-fg-muted">-</span>;
+          }
+
+          return (
+            <div
+              className="flex flex-wrap items-center gap-1"
+              data-testid={`product-variant-attribute-${attribute.id}-${row.original.id}`}
+            >
+              {matches.map((value) => (
+                <Tooltip key={value.id} content={value.name}>
+                  <Badge
+                    size="2xsmall"
+                    title={value.name}
+                    className="inline-flex min-w-[20px] max-w-[140px] items-center justify-center overflow-hidden truncate"
+                    data-testid={`product-variant-attribute-badge-${attribute.id}-${row.original.id}-${value.name}`}
+                  >
+                    {value.name}
+                  </Badge>
+                </Tooltip>
+              ))}
+            </div>
+          );
+        },
+      });
+    });
+  }, [product]);
+
   const getActions = useCallback(
     (ctx: CellContext<HttpTypes.AdminProductVariant, unknown>) => {
       const variant = ctx.row.original as HttpTypes.AdminProductVariant & {
@@ -284,12 +342,13 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
         sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
       }),
       ...optionColumns,
+      ...attributeColumns,
       ...dateColumns,
       columnHelper.action({
         actions: getActions,
       }),
     ];
-  }, [t, optionColumns, dateColumns, getActions]);
+  }, [t, optionColumns, attributeColumns, dateColumns, getActions]);
 };
 
 const useFilters = () => {

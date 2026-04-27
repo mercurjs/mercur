@@ -724,6 +724,92 @@ class ProductModuleService extends MedusaService({
   }
 
   /**
+   * Resolves map-style `attribute_values` on variants to arrays of
+   * `ProductAttributeValue` IDs. Variants with `attribute_values` already
+   * an array of IDs (or undefined) are left untouched.
+   *
+   * Looks up each variant's parent product's `variant_attributes` (and their
+   * values) to translate `{ attrKey: "valueName" }` to value IDs.
+   */
+  private async normalizeVariantAttributeValues_(
+    variants: Array<{
+      id?: string;
+      product_id?: string;
+      attribute_values?: string[] | Record<string, string | string[]>;
+    }>,
+    sharedContext?: Context
+  ): Promise<void> {
+    const mapVariants = variants.filter(
+      (v) =>
+        v.attribute_values !== undefined &&
+        !Array.isArray(v.attribute_values) &&
+        typeof v.attribute_values === "object"
+    );
+
+    if (!mapVariants.length) return;
+
+    // Resolve missing product_ids by looking up variants by id
+    const variantIdsNeedingProductId = mapVariants
+      .filter((v) => !v.product_id && v.id)
+      .map((v) => v.id) as string[];
+
+    if (variantIdsNeedingProductId.length) {
+      const existing = await super.listProductVariants(
+        { id: variantIdsNeedingProductId } as any,
+        { select: ["id", "product_id"] as any },
+        sharedContext
+      );
+
+      const variantToProductId = new Map<string, string>();
+      for (const v of existing as any[]) {
+        if (v.product_id) variantToProductId.set(v.id, v.product_id);
+      }
+
+      for (const v of mapVariants) {
+        if (!v.product_id && v.id) {
+          v.product_id = variantToProductId.get(v.id);
+        }
+      }
+    }
+
+    const productIds = Array.from(
+      new Set(mapVariants.map((v) => v.product_id).filter(Boolean))
+    ) as string[];
+
+    if (!productIds.length) return;
+
+    // Build per-product lookup from variant_attributes + values
+    const products = await this.listProducts(
+      { id: productIds } as any,
+      {
+        select: ["id"] as any,
+        relations: ["variant_attributes", "variant_attributes.values"],
+      },
+      sharedContext
+    );
+
+    const productLookups = new Map<string, Map<string, Map<string, string>>>();
+    for (const product of products as any[]) {
+      const lookup = new Map<string, Map<string, string>>();
+      for (const attr of product.variant_attributes ?? []) {
+        this.addAttrToLookup_(attr, lookup);
+      }
+      productLookups.set(product.id, lookup);
+    }
+
+    for (const variant of mapVariants) {
+      if (!variant.product_id) continue;
+      const lookup = productLookups.get(variant.product_id);
+      if (!lookup) continue;
+
+      variant.attribute_values = this.resolveValueMap_(
+        variant.attribute_values as Record<string, string | string[]>,
+        lookup
+      );
+    }
+  }
+
+  /**
    * Adds an attribute's values to the lookup map (name/handle/id → value name → value id).
    */
   private addAttrToLookup_(
@@ -1619,6 +1705,36 @@ class ProductModuleService extends MedusaService({
     return await super.updateProducts(input, dataOrContext as Context);
   }
 
+  // @ts-expect-error
+  createProductVariants(
+    data: CreateProductVariantDTO[],
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO[]>;
+  // @ts-expect-error
+  createProductVariants(
+    data: CreateProductVariantDTO,
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO>;
+
+  @InjectTransactionManager()
+  // @ts-expect-error
+  async createProductVariants(
+    data: CreateProductVariantDTO | CreateProductVariantDTO[],
+    sharedContext?: Context
+  ): Promise<ProductVariantDTO | ProductVariantDTO[]> {
+    const input = Array.isArray(data) ? data : [data];
+
+    await this.normalizeVariantAttributeValues_(input, sharedContext);
+
+    // @ts-ignore
+    const result = await super.createProductVariants(input, sharedContext);
+    const variants = (
+      Array.isArray(result) ? result : [result]
+    ) as ProductVariantDTO[];
+
+    return Array.isArray(data) ? variants : variants[0];
+  }
+
   upsertProductVariants(
     data: UpsertProductVariantDTO[],
     sharedContext?: Context
@@ -1645,13 +1761,12 @@ class ProductModuleService extends MedusaService({
     let updated: ProductVariantDTO[] = [];
 
     if (forCreate.length) {
-      const result = await super.createProductVariants(forCreate, sharedContext);
-      created = (Array.isArray(result) ? result : [result]) as unknown as ProductVariantDTO[];
+      const result = await this.createProductVariants(forCreate, sharedContext);
+      created = (Array.isArray(result) ? result : [result]) as ProductVariantDTO[];
     }
     if (forUpdate.length) {
-      // @ts-ignore
-      const result = await super.updateProductVariants(forUpdate, sharedContext);
-      updated = (Array.isArray(result) ? result : [result]) as unknown as ProductVariantDTO[];
+      const result = await this.updateProductVariants(forUpdate, sharedContext);
+      updated = (Array.isArray(result) ? result : [result]) as ProductVariantDTO[];
     }
 
     const all = [...created, ...updated];
@@ -1693,19 +1808,63 @@ class ProductModuleService extends MedusaService({
         typeof dataOrContext === "object");
 
     if (isSelectorForm) {
+      const update = dataOrContext as UpdateProductVariantDTO;
+
+      // Map-style attribute_values must resolve per variant (each may have a
+      // different parent product), so expand selector/id form to array form.
+      const hasMapAttrValues =
+        update?.attribute_values !== undefined &&
+        !Array.isArray(update.attribute_values) &&
+        typeof update.attribute_values === "object";
+
+      if (hasMapAttrValues) {
+        const wasIdForm = typeof idOrSelectorOrData === "string";
+        let variantIds: string[];
+
+        if (wasIdForm) {
+          variantIds = [idOrSelectorOrData as string];
+        } else {
+          const variants = await super.listProductVariants(
+            idOrSelectorOrData as any,
+            { select: ["id"] as any },
+            sharedContext
+          );
+          variantIds = (variants as any[]).map((v) => v.id);
+        }
+
+        if (!variantIds.length) {
+          return wasIdForm ? (undefined as any) : [];
+        }
+
+        const batch = variantIds.map((id) => ({
+          id,
+          ...update,
+        })) as (UpdateProductVariantDTO & { id: string })[];
+
+        await this.normalizeVariantAttributeValues_(batch, sharedContext);
+
+        // @ts-ignore
+        const results = await super.updateProductVariants(batch, sharedContext);
+        const arr = Array.isArray(results) ? results : [results];
+        return (wasIdForm ? arr[0] : arr) as any;
+      }
+
       // @ts-ignore
       return await super.updateProductVariants(
         idOrSelectorOrData as string | Record<string, unknown>,
-        dataOrContext as UpdateProductVariantDTO,
+        update,
         sharedContext
       );
     }
 
+    const data = idOrSelectorOrData as (UpdateProductVariantDTO & {
+      id: string;
+    })[];
+
+    await this.normalizeVariantAttributeValues_(data, sharedContext);
+
     // @ts-ignore
-    return await super.updateProductVariants(
-      idOrSelectorOrData,
-      dataOrContext as Context
-    );
+    return await super.updateProductVariants(data, dataOrContext as Context);
   }
 
   // @ts-expect-error
