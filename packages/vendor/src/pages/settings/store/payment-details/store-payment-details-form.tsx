@@ -141,7 +141,7 @@ export const StorePaymentDetailsForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label optional>
-                      {t("store.paymentDetails.fields.routingNumber")}
+                      {t("store.paymentDetails.fields.achRoutingNumber")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />
@@ -189,7 +189,7 @@ export const StorePaymentDetailsForm = ({
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label optional>
-                      {t("store.paymentDetails.fields.bic")}
+                      {t("store.paymentDetails.fields.swiftBic")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />

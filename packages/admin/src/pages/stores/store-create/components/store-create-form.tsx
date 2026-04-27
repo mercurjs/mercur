@@ -29,6 +29,8 @@ export const StoreCreateForm = ({ children }: StoreCreateFormProps) => {
       handle: "",
       member_email: "",
     },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     resolver: zodResolver(CreateStoreSchema),
   });
 

@@ -1,5 +1,7 @@
 import { Heading, Input, Text, clx } from "@medusajs/ui";
-import { useState } from "react";
+import { CSSProperties, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../components/common/form";
@@ -15,15 +17,48 @@ const Root = () => {
   const form = useTabbedForm<CreateStoreSchemaType>();
 
   const [suggestionsOpen, setSuggestionsOpen] = useState(false);
+  const [dropdownStyle, setDropdownStyle] = useState<CSSProperties>({});
+  const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const emailValue = form.watch("member_email");
+  const emailValue = useWatch({
+    control: form.control,
+    name: "member_email",
+  });
 
   const { members } = useMembers(
     { q: emailValue || undefined, limit: 10 },
     { placeholderData: (prev: any) => prev },
   );
 
-  const memberList = (members as Member[] | undefined) ?? [];
+  const memberList = useMemo(
+    () => (members as Member[] | undefined) ?? [],
+    [members],
+  );
+
+  useEffect(() => {
+    if (!suggestionsOpen) return;
+
+    const update = () => {
+      const rect = wrapperRef.current?.getBoundingClientRect();
+      if (!rect) return;
+      setDropdownStyle({
+        position: "fixed",
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width,
+        maxHeight: `calc(100vh - ${rect.bottom + 24}px)`,
+        overflowY: "auto",
+      });
+    };
+
+    update();
+    window.addEventListener("resize", update);
+    document.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      document.removeEventListener("scroll", update, true);
+    };
+  }, [suggestionsOpen]);
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto px-3">
@@ -45,9 +80,8 @@ const Root = () => {
               <Form.Item>
                 <Form.Label>{t("fields.email")}</Form.Label>
                 <Form.Control>
-                  <div className="relative">
+                  <div ref={wrapperRef} className="relative">
                     <Input
-                      type="email"
                       {...field}
                       autoComplete="off"
                       placeholder="admin@example.com"
@@ -57,28 +91,32 @@ const Root = () => {
                         setTimeout(() => setSuggestionsOpen(false), 150);
                       }}
                     />
-                    {suggestionsOpen && memberList.length > 0 && (
-                      <div
-                        className={clx(
-                          "bg-ui-bg-base shadow-elevation-flyout border-ui-border-base absolute z-50 mt-1 flex max-h-60 w-full flex-col overflow-y-auto rounded-md border p-1",
-                        )}
-                      >
-                        {memberList.map((member) => (
-                          <button
-                            key={member.id}
-                            type="button"
-                            onMouseDown={(e) => {
-                              e.preventDefault();
-                              field.onChange(member.email);
-                              setSuggestionsOpen(false);
-                            }}
-                            className="hover:bg-ui-bg-base-hover text-ui-fg-base flex w-full items-center rounded-sm px-2 py-1.5 text-left text-sm"
-                          >
-                            {member.email}
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                    {suggestionsOpen &&
+                      memberList.length > 0 &&
+                      createPortal(
+                        <div
+                          style={dropdownStyle}
+                          className={clx(
+                            "bg-ui-bg-base shadow-elevation-flyout border-ui-border-base z-50 flex flex-col rounded-md border p-1",
+                          )}
+                        >
+                          {memberList.map((member) => (
+                            <button
+                              key={member.id}
+                              type="button"
+                              onMouseDown={(e) => {
+                                e.preventDefault();
+                                field.onChange(member.email);
+                                setSuggestionsOpen(false);
+                              }}
+                              className="hover:bg-ui-bg-base-hover text-ui-fg-base flex w-full items-center rounded-sm px-2 py-1.5 text-left text-sm"
+                            >
+                              {member.email}
+                            </button>
+                          ))}
+                        </div>,
+                        document.body,
+                      )}
                   </div>
                 </Form.Control>
                 <Form.ErrorMessage />

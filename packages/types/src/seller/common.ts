@@ -124,6 +124,8 @@ export interface UpdateSellerAddressDTO {
 export interface MemberDTO {
   id: string
   email: string
+  first_name: string | null
+  last_name: string | null
   locale: string | null
   is_active: boolean
   metadata: Record<string, unknown> | null
@@ -194,6 +196,7 @@ export interface SellerDTO {
   status: string
   status_reason: string | null
   approved_at: Date | null
+  rejected_at: Date | null
   is_premium: boolean
   closed_from: Date | null
   closed_to: Date | null

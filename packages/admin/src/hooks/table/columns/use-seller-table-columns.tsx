@@ -38,7 +38,7 @@ export const useSellersTableColumns = () => {
         id: "is_premium",
         header: t("stores.fields.premium"),
         cell: ({ row }) => (
-          <span className="text-ui-fg-base">
+          <span className="text-ui-fg-subtle">
             {row.original.is_premium
               ? t("stores.premium.yes")
               : t("stores.premium.no")}

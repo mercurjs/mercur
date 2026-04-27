@@ -1,6 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
-import { Button, Heading, Input, Select, Textarea, toast } from "@medusajs/ui";
+import {
+  Button,
+  Heading,
+  Input,
+  Select,
+  Text,
+  Textarea,
+  toast,
+} from "@medusajs/ui";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -22,7 +30,9 @@ type EditStoreFormProps = HttpTypes.StoreSellerResponse;
 const EditStoreSchema = zod.object({
   name: zod
     .string()
-    .min(1, { message: i18n.t("store.validation.nameRequired") }),
+    .trim()
+    .min(1, { message: i18n.t("store.validation.nameRequired") })
+    .max(100, { message: i18n.t("store.validation.nameTooLong") }),
   handle: zod.string().optional().or(zod.literal("")),
   email: zod
     .string()
@@ -218,6 +228,19 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
             />
             <Form.Field
               control={form.control}
+              name="description"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label optional>{t("fields.description")}</Form.Label>
+                  <Form.Control>
+                    <Textarea {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
               name="handle"
               render={({ field }) => (
                 <Form.Item>
@@ -252,19 +275,6 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                   <Form.Label optional>{t("fields.phone")}</Form.Label>
                   <Form.Control>
                     <Input type="tel" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.description")}</Form.Label>
-                  <Form.Control>
-                    <Textarea {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -358,6 +368,17 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 );
               }}
             />
+            <div className="bg-ui-bg-subtle border-l-2 border-ui-border-strong rounded-md px-4 py-3">
+              <Text size="small" className="text-ui-fg-base">
+                <span className="font-medium">
+                  {t("store.mediaTip.label", "Tip:")}
+                </span>{" "}
+                {t(
+                  "store.mediaTip.message",
+                  "This media will be visible on the storefront.",
+                )}
+              </Text>
+            </div>
           </div>
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

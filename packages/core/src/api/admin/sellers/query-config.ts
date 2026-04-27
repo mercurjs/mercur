@@ -13,6 +13,7 @@ export const adminSellerFields = [
   "status",
   "status_reason",
   "approved_at",
+  "rejected_at",
   "is_premium",
   "closed_from",
   "closed_to",

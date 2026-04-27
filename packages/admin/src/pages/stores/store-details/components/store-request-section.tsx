@@ -13,6 +13,7 @@ import { useTranslation } from "react-i18next";
 
 import {
   useApproveSeller,
+  useSellerMembers,
   useSuspendSeller,
 } from "../../../../hooks/api/sellers";
 import { InferClientOutput } from "@mercurjs/client";
@@ -24,6 +25,15 @@ type StoreRequestSectionProps = {
   seller: Seller;
 };
 
+type OwnerMember = {
+  is_owner?: boolean;
+  member?: {
+    email?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+  } | null;
+};
+
 export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
   const { t } = useTranslation();
 
@@ -32,7 +42,16 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
   const { mutateAsync: suspendSeller, isPending: isRejecting } =
     useSuspendSeller(seller.id);
 
-  const requesterLabel = seller.email || seller.name;
+  const { seller_members } = useSellerMembers(seller.id, { limit: 100 });
+  const owner = (seller_members as OwnerMember[] | undefined)?.find(
+    (m) => m.is_owner,
+  );
+  const ownerFullName = [owner?.member?.first_name, owner?.member?.last_name]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const requesterLabel =
+    ownerFullName || owner?.member?.email || seller.email || seller.name;
 
   return (
     <Container className="p-0">
@@ -49,21 +68,24 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
         <RequestActionPrompt
           trigger={
             <Button size="small" variant="secondary">
-              {t("stores.request.reject")}
+              {t("stores.request.confirm")}
             </Button>
           }
-          title={t("stores.request.rejectTitle", "Reject store request")}
+          title={t("stores.request.confirmTitle", "Confirm request")}
           description={t(
-            "stores.request.rejectDescription",
-            "Provide an optional reason. The vendor will be notified.",
+            "stores.request.confirmDescription",
+            "You are about to confirm this store request.",
           )}
-          confirmLabel={t("stores.request.reject")}
-          confirmVariant="danger"
-          isLoading={isRejecting}
-          onConfirm={async (note) => {
+          confirmLabel={t("stores.request.confirm")}
+          notePlaceholder={t(
+            "stores.request.confirmNotePlaceholder",
+            "Specify changes you made or additional requests",
+          )}
+          isLoading={isApproving}
+          onConfirm={async (_note) => {
             try {
-              await suspendSeller({ reason: note || undefined });
-              toast.success(t("stores.request.rejectSuccess"));
+              await approveSeller();
+              toast.success(t("stores.request.confirmSuccess"));
             } catch (error) {
               toast.error((error as Error).message);
               throw error;
@@ -72,22 +94,25 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
         />
         <RequestActionPrompt
           trigger={
-            <Button size="small" variant="primary">
-              {t("stores.request.confirm")}
+            <Button size="small" variant="secondary">
+              {t("stores.request.reject")}
             </Button>
           }
-          title={t("stores.request.confirmTitle", "Approve store request")}
+          title={t("stores.request.rejectTitle", "Reject request")}
           description={t(
-            "stores.request.confirmDescription",
-            "Provide an optional note for the vendor.",
+            "stores.request.rejectDescription",
+            "You are about to reject this store request.",
           )}
-          confirmLabel={t("stores.request.confirm")}
-          confirmVariant="primary"
-          isLoading={isApproving}
-          onConfirm={async (_note) => {
+          confirmLabel={t("stores.request.reject")}
+          notePlaceholder={t(
+            "stores.request.rejectNotePlaceholder",
+            "Explain why you reject the request or suggest changes",
+          )}
+          isLoading={isRejecting}
+          onConfirm={async (note) => {
             try {
-              await approveSeller();
-              toast.success(t("stores.request.confirmSuccess"));
+              await suspendSeller({ reason: note || undefined });
+              toast.success(t("stores.request.rejectSuccess"));
             } catch (error) {
               toast.error((error as Error).message);
               throw error;
@@ -103,8 +128,8 @@ type RequestActionPromptProps = {
   trigger: ReactNode;
   title: string;
   description: string;
+  notePlaceholder: string;
   confirmLabel: string;
-  confirmVariant: "danger" | "primary";
   isLoading: boolean;
   onConfirm: (note: string) => Promise<void>;
 };
@@ -113,8 +138,8 @@ const RequestActionPrompt = ({
   trigger,
   title,
   description,
+  notePlaceholder,
   confirmLabel,
-  confirmVariant,
   isLoading,
   onConfirm,
 }: RequestActionPromptProps) => {
@@ -133,33 +158,35 @@ const RequestActionPrompt = ({
   };
 
   return (
-    <Prompt open={open} onOpenChange={setOpen} variant={confirmVariant}>
+    <Prompt open={open} onOpenChange={setOpen}>
       <Prompt.Trigger asChild>{trigger}</Prompt.Trigger>
       <Prompt.Content>
         <Prompt.Header>
           <Prompt.Title>{title}</Prompt.Title>
           <Prompt.Description>{description}</Prompt.Description>
         </Prompt.Header>
-        <div className="flex flex-col gap-y-2 px-6 pb-4">
-          <Text size="small" weight="plus" className="text-ui-fg-subtle">
-            {t("stores.request.noteLabel", "Note")}{" "}
+        <div className="border-ui-border-base border-t mt-3" />
+        <div className="flex flex-col gap-y-3 px-6 py-3">
+          <Text size="small" weight="plus" className="text-ui-fg-base">
+            {t("stores.request.noteLabel", "Notes for vendor")}{" "}
             <span className="text-ui-fg-muted font-normal">
               ({t("fields.optional", "Optional")})
             </span>
           </Text>
           <Textarea
-            placeholder={t("stores.request.notePlaceholder")}
+            placeholder={notePlaceholder}
             value={note}
             onChange={(e) => setNote(e.target.value)}
           />
         </div>
+        <div className="border-ui-border-base border-t mt-2" />
         <Prompt.Footer>
           <Prompt.Cancel disabled={isLoading}>
             {t("actions.cancel")}
           </Prompt.Cancel>
           <Button
             size="small"
-            variant={confirmVariant === "danger" ? "danger" : "primary"}
+            variant="primary"
             onClick={handleSubmit}
             isLoading={isLoading}
           >

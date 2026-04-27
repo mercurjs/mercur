@@ -3455,7 +3455,7 @@
       "errorToast": "Failed to send invitation"
     },
     "members": {
-      "mainAdmin": "Main Admin",
+      "mainAdmin": "Admin",
       "addUser": {
         "header": "Add User",
         "action": "Add",
@@ -3479,6 +3479,10 @@
       "mediaHeading": "Media",
       "mediaTipLabel": "Tip:",
       "mediaTipBody": "This media will be visible on the storefront.",
+      "uploadLogoLabel": "Upload logo",
+      "uploadLogoHint": "Drag and drop your logo here or click to upload.",
+      "uploadBannerLabel": "Upload banner",
+      "uploadBannerHint": "Drag and drop your banner here or click to upload.",
       "successToast": "Store {{name}} was successfully updated."
     },
     "create": {
@@ -3505,14 +3509,16 @@
       "description": "{{requester}} has submitted a store request. Review the details, make any necessary updates, and choose whether to confirm and publish the store or reject the request.",
       "confirm": "Confirm",
       "reject": "Reject",
-      "confirmTitle": "Approve store request",
-      "confirmDescription": "Provide an optional note for the vendor. The store will be published after approval.",
-      "rejectTitle": "Reject store request",
-      "rejectDescription": "Provide an optional reason. The vendor will be notified.",
-      "noteLabel": "Note",
-      "notePlaceholder": "Add a note for the vendor...",
-      "confirmSuccess": "Store approved",
-      "rejectSuccess": "Store rejected"
+      "confirmTitle": "Confirm request",
+      "confirmDescription": "You are about to confirm this store request.",
+      "rejectTitle": "Reject request",
+      "rejectDescription": "You are about to reject this store request.",
+      "noteLabel": "Notes for vendor",
+      "notePlaceholder": "Specify changes you made or additional requests",
+      "confirmNotePlaceholder": "Specify changes you made or additional requests",
+      "rejectNotePlaceholder": "Explain why you reject the request or suggest changes",
+      "confirmSuccess": "Store request was successfully confirmed.",
+      "rejectSuccess": "Store request was successfully rejected."
     },
     "actions": {
       "approve": {

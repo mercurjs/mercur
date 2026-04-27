@@ -15,6 +15,7 @@ import {
   createSellerMembersStep,
   deleteMemberInviteStep,
   createSellerDefaultRolesStep,
+  checkSellerHasOwnerStep,
 } from "../steps"
 import { MemberInviteWorkflowEvents } from "../../events"
 
@@ -47,13 +48,19 @@ export const acceptMemberInviteWorkflow = createWorkflow(
 
     const member = transform({ members }, ({ members }) => members[0])
 
+    const ownerCheck = checkSellerHasOwnerStep(
+      transform({ invite }, ({ invite }) => ({ seller_id: invite.seller_id }))
+    )
+
     createSellerMembersStep(
       transform(
-        { invite, member },
-        ({ invite, member }) => [{
+        { invite, member, ownerCheck },
+        ({ invite, member, ownerCheck }) => [{
           seller_id: invite.seller_id,
           member_id: member.id,
           role_id: invite.role_id,
+          // First accepted member on a seller without an owner becomes the owner.
+          is_owner: !ownerCheck.hasOwner,
         }]
       )
     )

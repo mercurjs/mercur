@@ -25,8 +25,9 @@ export const createSellersWorkflow: ReturnType<typeof createWorkflow> = createWo
       transform(input, ({ sellers }) =>
         sellers.map(({ member, ...seller }) => ({
           ...seller,
-          // Admin-created sellers are published immediately (no approval flow).
-          status: seller.status ?? SellerStatus.OPEN,
+          // Admin-created sellers start as pending approval, same as
+          // self-registered ones (MER-64 round 2 follow-up).
+          status: seller.status ?? SellerStatus.PENDING_APPROVAL,
         }))
       )
     )

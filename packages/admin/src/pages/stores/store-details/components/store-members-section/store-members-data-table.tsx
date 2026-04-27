@@ -1,7 +1,7 @@
 import { useMemo } from "react";
 
-import { ArrowPath, Link as LinkIcon, Trash } from "@medusajs/icons";
-import { toast } from "@medusajs/ui";
+import { ArrowPath, Link as LinkIcon, Trash, User } from "@medusajs/icons";
+import { Badge, toast } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
@@ -45,6 +45,7 @@ type InviteRow = {
   email: string;
   role_id: string;
   invite_url?: string | null;
+  is_owner: boolean;
 };
 
 type UserRow = MemberRow | InviteRow;
@@ -85,17 +86,26 @@ export const StoreMembersDataTable = ({
       member: m,
     }));
 
-    const invites: InviteRow[] = (
-      (member_invites as any[] | undefined) ?? []
-    )
-      .filter((invite) => !invite.accepted)
-      .map((invite) => ({
-        kind: "invite",
-        id: invite.id,
-        email: invite.email,
-        role_id: invite.role_id,
-        invite_url: invite.invite_url ?? null,
-      }));
+    const hasOwnerMember = members.some((m) => m.is_owner);
+
+    const pendingInvites = (
+      (member_invites as { id: string; email: string; role_id: string; invite_url?: string | null; accepted?: boolean; created_at?: string }[] | undefined) ?? []
+    ).filter((invite) => !invite.accepted);
+
+    // If no accepted owner member exists yet and there's only one pending
+    // invite, that invite is the future owner. With multiple pending invites
+    // ownership is ambiguous (whoever accepts first wins) — skip the badge.
+    const inviteIsFutureOwner =
+      !hasOwnerMember && pendingInvites.length === 1;
+
+    const invites: InviteRow[] = pendingInvites.map((invite) => ({
+      kind: "invite",
+      id: invite.id,
+      email: invite.email,
+      role_id: invite.role_id,
+      invite_url: invite.invite_url ?? null,
+      is_owner: inviteIsFutureOwner,
+    }));
 
     return [...invites, ...members];
   }, [seller_members, member_invites]);
@@ -134,6 +144,7 @@ export const StoreMembersDataTable = ({
           "stores.emptyStates.users.message",
           "Invite the first user to manage this store.",
         ),
+        icon: <User className="text-ui-fg-subtle" />,
       }}
     />
   );
@@ -153,8 +164,17 @@ const useColumns = (sellerId: string) => {
           </div>
         ),
         cell: ({ row }) => (
-          <div className="flex size-full items-center overflow-hidden">
+          <div className="flex size-full items-center gap-x-2 overflow-hidden">
             <span className="truncate">{row.original.email}</span>
+            {row.original.is_owner && (
+              <Badge
+                size="2xsmall"
+                color="grey"
+                className="flex-shrink-0"
+              >
+                {t("stores.members.mainAdmin", "Admin")}
+              </Badge>
+            )}
           </div>
         ),
       }),

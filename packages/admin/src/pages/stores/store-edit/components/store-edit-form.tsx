@@ -388,8 +388,8 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                         }
                         fileSize={logoFile?.file?.size}
                         multiple={false}
-                        label={t("products.media.uploadImagesLabel")}
-                        hint={t("products.media.uploadImagesHint")}
+                        label={t("stores.edit.uploadLogoLabel")}
+                        hint={t("stores.edit.uploadLogoHint")}
                         hasError={!!form.formState.errors.media}
                         formats={SUPPORTED_FORMATS}
                         onUploaded={onLogoUploaded}
@@ -420,8 +420,8 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                         }
                         fileSize={bannerFile?.file?.size}
                         multiple={false}
-                        label={t("products.media.uploadImagesLabel")}
-                        hint={t("products.media.uploadImagesHint")}
+                        label={t("stores.edit.uploadBannerLabel")}
+                        hint={t("stores.edit.uploadBannerHint")}
                         hasError={!!form.formState.errors.bannerMedia}
                         formats={SUPPORTED_FORMATS}
                         onUploaded={onBannerUploaded}
