@@ -34,7 +34,7 @@ const Product = model
     metadata: model.json().nullable(),
 
     // --- Marketplace additions ---
-    status: model.enum(ProductStatus).default(ProductStatus.PENDING),
+    status: model.enum(ProductStatus).default(ProductStatus.PROPOSED),
     is_active: model.boolean().default(false),
     is_restricted: model.boolean().default(false),
     created_by: model.text().nullable(),

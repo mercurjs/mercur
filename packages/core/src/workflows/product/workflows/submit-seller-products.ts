@@ -80,7 +80,7 @@ export const submitSellerProductsWorkflow = createWorkflow(
           product_change_id: (changes)[idx].id,
           product_id: product.id,
           action: ProductChangeActionType.STATUS_CHANGE,
-          details: { status: ProductStatus.PENDING },
+          details: { status: ProductStatus.PROPOSED },
         }))
     )
 

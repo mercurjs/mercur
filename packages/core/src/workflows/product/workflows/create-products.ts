@@ -28,7 +28,6 @@ export const createProductsWorkflow = createWorkflow(
     const normalizedProducts = transform({ input }, ({ input }) =>
       input.products.map((p) => ({
         ...p,
-        status: ProductStatus.ACCEPTED,
         is_active: true,
       }))
     )

@@ -5,8 +5,9 @@
  * with marketplace product acceptance workflow statuses.
  */
 export enum ProductStatus {
-  PENDING = "pending",
-  ACCEPTED = "accepted",
+  DRAFT = 'draft',
+  PROPOSED = "proposed",
+  PUBLISHED = "published",
   CHANGES_REQUIRED = "changes_required",
   REJECTED = "rejected",
 }

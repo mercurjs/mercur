@@ -952,10 +952,11 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "'pending'",
+          "default": "'proposed'",
           "enumItems": [
-            "pending",
-            "accepted",
+            "draft",
+            "proposed",
+            "published",
             "changes_required",
             "rejected"
           ],

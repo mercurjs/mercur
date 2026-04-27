@@ -37,34 +37,12 @@ import {
   AdminUpdateProductVariant,
 } from "./validators"
 
-// Filters products by seller_id via the product_seller link.
-// Runs before `validateAndTransformQuery` on the list endpoint so the
-// link-rewrite happens against the original `req.query.seller_id`.
-const maybeApplySellerProductFilter = (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  if (!req.query.seller_id) {
-    return next()
-  }
-
-  req.filterableFields.seller_id = req.query.seller_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: "product_seller",
-    resourceId: "product_id",
-    filterableField: "seller_id",
-  })(req, res, next)
-}
-
 export const adminProductsMiddlewares: MiddlewareRoute[] = [
   // --- CRUD ---
   {
     method: ["GET"],
     matcher: "/admin/products",
     middlewares: [
-      maybeApplySellerProductFilter,
       validateAndTransformQuery(
         AdminGetProductsParams,
         adminProductQueryConfig.list

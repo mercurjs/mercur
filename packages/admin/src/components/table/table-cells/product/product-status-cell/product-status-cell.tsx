@@ -11,11 +11,12 @@ export const ProductStatusCell = ({ status }: ProductStatusCellProps) => {
   const { t } = useTranslation()
 
   const [color, text] = {
-    [ProductStatus.PENDING]: ["orange", t("products.productStatus.pending")],
-    [ProductStatus.ACCEPTED]: ["green", t("products.productStatus.accepted")],
+    [ProductStatus.DRAFT]: ["grey", t("products.productStatus.draft")],
+    [ProductStatus.PROPOSED]: ["orange", t("products.productStatus.proposed")],
+    [ProductStatus.PUBLISHED]: ["green", t("products.productStatus.published")],
     [ProductStatus.CHANGES_REQUIRED]: ["blue", t("products.productStatus.changes_required")],
     [ProductStatus.REJECTED]: ["red", t("products.productStatus.rejected")],
-  }[status] as ["orange" | "green" | "blue" | "red", string]
+  }[status] as ["grey" | "orange" | "green" | "blue" | "red", string]
 
   return <StatusCell color={color}>{text}</StatusCell>
 }

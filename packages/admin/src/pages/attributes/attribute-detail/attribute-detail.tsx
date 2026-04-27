@@ -38,11 +38,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return Children.count(children) > 0 ? (
-    <SingleColumnPage hasOutlet data={attribute}>
+    <SingleColumnPage hasOutlet showJSON data={attribute}>
       {children}
     </SingleColumnPage>
   ) : (
-    <SingleColumnPage hasOutlet data={attribute}>
+    <SingleColumnPage hasOutlet showJSON data={attribute}>
       <AttributeGeneralSection attribute={attribute} />
       <AttributePossibleValuesSection attribute={attribute} />
     </SingleColumnPage>

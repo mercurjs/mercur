@@ -48,7 +48,7 @@ export const resubmitProductWorkflow = createWorkflow(
           product_change_id: changes[0].id,
           product_id: product.id,
           action: ProductChangeActionType.STATUS_CHANGE,
-          details: { status: ProductStatus.PENDING },
+          details: { status: ProductStatus.PROPOSED },
         },
       ]
     )
@@ -57,7 +57,7 @@ export const resubmitProductWorkflow = createWorkflow(
 
     const updateInput = transform({ input }, ({ input }) => ({
       selector: { id: input.product_id },
-      data: { status: ProductStatus.PENDING },
+      data: { status: ProductStatus.PROPOSED },
     }))
 
     updateProductsStep(updateInput)

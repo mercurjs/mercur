@@ -14,6 +14,12 @@ import {
   AdminUpsertProductAttributeValues,
 } from "./validators"
 
+const applyAttributeFilters = (req, _, next) => {
+  req.filterableFields = req.filterableFields ?? {}
+  req.filterableFields.product_id = null
+  next()
+}
+
 export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
   // --- /admin/product-attributes ---
   {
@@ -24,6 +30,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
         AdminGetProductAttributesParams,
         adminProductAttributeQueryConfig.list
       ),
+      applyAttributeFilters,
     ],
   },
   {

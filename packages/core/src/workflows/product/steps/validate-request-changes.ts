@@ -5,10 +5,10 @@ import { ProductStatus } from "@mercurjs/types"
 export const validateRequestChangesStep = createStep(
   "validate-request-changes",
   async ({ product, rejection_reason_ids }: { product: any; rejection_reason_ids: string[] }) => {
-    if (product.status !== ProductStatus.PENDING) {
+    if (product.status !== ProductStatus.PROPOSED) {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
-        `Cannot request changes for product with status '${product.status}'. Only pending products can have changes requested.`
+        `Cannot request changes for product with status '${product.status}'. Only proposed products can have changes requested.`
       )
     }
 

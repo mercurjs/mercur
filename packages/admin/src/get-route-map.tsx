@@ -1733,6 +1733,64 @@ export function getRouteMap({
                 ],
               },
               {
+                path: "product-brands",
+                errorElement: <ErrorBoundary />,
+                element: <Outlet />,
+                handle: {
+                  breadcrumb: () => t("productBrands.domain"),
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () =>
+                      import("./pages/product-brands/product-brand-list"),
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () =>
+                          import("./pages/product-brands/product-brand-create"),
+                      },
+                    ],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Breadcrumb, loader } =
+                        await import("./pages/product-brands/product-brand-detail");
+
+                      return {
+                        Component: Outlet,
+                        loader,
+                        handle: {
+                          breadcrumb: (match: UIMatch<any>) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () =>
+                          import("./pages/product-brands/product-brand-detail"),
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import("./pages/product-brands/product-brand-edit"),
+                          },
+                          {
+                            path: "metadata/edit",
+                            lazy: () =>
+                              import("./pages/product-brands/product-brand-metadata"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
                 path: "publishable-api-keys",
                 element: <Outlet />,
                 handle: {

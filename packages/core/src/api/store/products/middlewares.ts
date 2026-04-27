@@ -6,10 +6,11 @@ import {
   StoreGetProductParams,
   StoreGetProductsParams,
 } from "./validators"
+import { ProductStatus } from "@mercurjs/types"
 
 const applyProductFilters = (req, _, next) => {
   req.filterableFields = req.filterableFields ?? {}
-  req.filterableFields.status = "accepted"
+  req.filterableFields.status = ProductStatus.PUBLISHED
   req.filterableFields.is_active = true
   next()
 }

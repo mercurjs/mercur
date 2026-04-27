@@ -567,8 +567,9 @@
     "variantCount_other": "{{count}} variants",
     "deleteVariantWarning": "You are about to delete the variant {{title}}. This action cannot be undone.",
     "productStatus": {
-      "pending": "Pending",
-      "accepted": "Accepted",
+      "draft": "Draft",
+      "proposed": "Proposed",
+      "published": "Published",
       "changes_required": "Changes Required",
       "rejected": "Rejected"
     },
@@ -3130,6 +3131,27 @@
       "value": "Value"
     }
   },
+  "productBrands": {
+    "domain": "Brands",
+    "subtitle": "Organize your products into brands.",
+    "create": {
+      "header": "Create Brand",
+      "hint": "Create a new brand to associate with your products.",
+      "successToast": "Brand {{name}} was successfully created."
+    },
+    "edit": {
+      "header": "Edit Brand",
+      "successToast": "Brand {{name}} was successfully updated."
+    },
+    "delete": {
+      "confirmation": "You are about to delete the brand \"{{name}}\". This action cannot be undone.",
+      "successToast": "Brand \"{{name}}\" was successfully deleted."
+    },
+    "fields": {
+      "isRestricted": "Restricted",
+      "isRestrictedHint": "Limit which sellers can use this brand on their products."
+    }
+  },
   "productTags": {
     "domain": "Product Tags",
     "create": {
@@ -3216,6 +3238,7 @@
     "enabledInStore": "Enabled in store",
     "isReturn": "Is return",
     "conditions": "Conditions",
+    "brand": "Brand",
     "category": "Category",
     "collection": "Collection",
     "discountable": "Discountable",

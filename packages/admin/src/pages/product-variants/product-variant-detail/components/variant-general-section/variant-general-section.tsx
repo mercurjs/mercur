@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { HttpTypes } from "@medusajs/types"
+import { ProductAttributeValueDTO } from "@mercurjs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../components/common/section"
 import { useDeleteVariant } from "../../../../../hooks/api/products"
@@ -85,11 +86,39 @@ export function VariantGeneralSection({
       </div>
 
       <SectionRow title={t("fields.sku")} value={variant.sku} />
-      {variant.options?.map((o) => (
+      {(
+        (variant as HttpTypes.AdminProductVariant & {
+          attribute_values?: ProductAttributeValueDTO[]
+        }).attribute_values ?? []
+      ).reduce<{ id: string; title: string; values: string[] }[]>(
+        (acc, value) => {
+          const attribute = value.attribute
+          if (!attribute) return acc
+
+          const existing = acc.find((g) => g.id === attribute.id)
+          if (existing) {
+            existing.values.push(value.name)
+          } else {
+            acc.push({
+              id: attribute.id,
+              title: attribute.name,
+              values: [value.name],
+            })
+          }
+          return acc
+        },
+        []
+      ).map((group) => (
         <SectionRow
-          key={o.id}
-          title={o.option?.title!}
-          value={<Badge size="2xsmall">{o.value}</Badge>}
+          key={group.id}
+          title={group.title}
+          value={
+            <div className="flex flex-wrap items-center gap-1">
+              {group.values.map((v) => (
+                <Badge key={v} size="2xsmall">{v}</Badge>
+              ))}
+            </div>
+          }
         />
       ))}
     </Container>
