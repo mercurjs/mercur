@@ -22,6 +22,19 @@ export interface MercurConfig {
      * @default "http://localhost:9000"
      */
     backendUrl?: string
+    /**
+     * Absolute base URL for the vendor dashboard, including any path prefix
+     * (for example `https://vendors.example.com/seller`).
+     *
+     * The plugin does not read `.env` files on its own. Load env in your
+     * app's `vite.config.ts` and pass the value here when you need
+     * cross-origin links such as seller invite URLs.
+     *
+     * If omitted, the plugin falls back to vendor module dev server
+     * detection in development and to the configured vendor path in
+     * production.
+     */
+    vendorUrl?: string
     /** Dashboard display name. */
     name?: string
     /** Path to a logo asset for the dashboard. */

@@ -2,10 +2,8 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { MercurModules } from "@mercurjs/types"
 
 import { resendMemberInviteWorkflow } from "../../../../../../../../workflows/seller"
-import SellerModuleService from "../../../../../../../../modules/seller/service"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest,
@@ -19,16 +17,8 @@ export const POST = async (
   })
 
   const invite = (result as any[])[0]
-  const sellerService = req.scope.resolve<SellerModuleService>(
-    MercurModules.SELLER
-  )
 
   res.status(200).json({
-    member_invite: {
-      ...invite,
-      invite_url: invite?.token
-        ? sellerService.buildInviteUrl(invite.token)
-        : null,
-    },
+    member_invite: invite,
   })
 }

@@ -66,14 +66,6 @@ class SellerModuleService extends MedusaService({
     }
   }
 
-  buildInviteUrl(token: string): string {
-    const base = (this.options_.vendor_url ?? "").replace(/\/+$/, "")
-    if (!base || !token) {
-      return ""
-    }
-    return `${base}/seller/invite?token=${token}`
-  }
-
   @InjectTransactionManager()
   // @ts-ignore
   async createSellers<T extends any | any[]>(

@@ -18,7 +18,7 @@ import {
 } from "../../../../../hooks/api/sellers";
 import { useMemberTableQuery } from "../../../../../hooks/table/query";
 import { useDataTable } from "../../../../../hooks/use-data-table";
-import { SellerMemberDTO, SellerRole } from "@mercurjs/types";
+import { MemberInviteDTO, SellerMemberDTO, SellerRole } from "@mercurjs/types";
 
 const PAGE_SIZE = 20;
 
@@ -36,6 +36,8 @@ type MemberRow = {
   email: string;
   role_id: string;
   is_owner: boolean;
+  created_at: Date;
+  updated_at: Date;
   member: SellerMemberDTO;
 };
 
@@ -44,14 +46,28 @@ type InviteRow = {
   id: string;
   email: string;
   role_id: string;
-  invite_url?: string | null;
+  token: string;
   is_owner: boolean;
+  created_at: Date;
+  updated_at: Date;
 };
 
 type UserRow = MemberRow | InviteRow;
 
 type StoreMembersDataTableProps = {
   sellerId: string;
+};
+
+const buildVendorInviteUrl = (token: string) => {
+  const vendorBase = (__VENDOR_URL__ || "/seller").replace(/\/+$/, "");
+  const url = new URL(
+    `${vendorBase}/invite`,
+    typeof window === "undefined" ? "http://localhost" : window.location.origin,
+  );
+
+  url.searchParams.set("token", token);
+
+  return url.toString();
 };
 
 export const StoreMembersDataTable = ({
@@ -83,13 +99,15 @@ export const StoreMembersDataTable = ({
       email: m.member?.email ?? "-",
       role_id: m.role_id,
       is_owner: Boolean(m.is_owner),
+      created_at: m.created_at,
+      updated_at: m.updated_at,
       member: m,
     }));
 
     const hasOwnerMember = members.some((m) => m.is_owner);
 
     const pendingInvites = (
-      (member_invites as { id: string; email: string; role_id: string; invite_url?: string | null; accepted?: boolean; created_at?: string }[] | undefined) ?? []
+      (member_invites as MemberInviteDTO[] | undefined) ?? []
     ).filter((invite) => !invite.accepted);
 
     // If no accepted owner member exists yet and there's only one pending
@@ -103,8 +121,10 @@ export const StoreMembersDataTable = ({
       id: invite.id,
       email: invite.email,
       role_id: invite.role_id,
-      invite_url: invite.invite_url ?? null,
+      token: invite.token,
       is_owner: inviteIsFutureOwner,
+      created_at: invite.created_at,
+      updated_at: invite.updated_at,
     }));
 
     return [...invites, ...members];
@@ -262,20 +282,20 @@ const InviteActions = ({
 
   const handleCopyLink = async () => {
     try {
-      let url = invite.invite_url;
-      if (!url) {
+      let token: string | null = invite.token;
+      if (!token) {
         const response = (await resend({ invite_id: invite.id })) as {
-          member_invite?: { invite_url?: string | null };
+          member_invite?: { token?: string | null };
         };
-        url = response?.member_invite?.invite_url ?? null;
+        token = response?.member_invite?.token ?? null;
       }
 
-      if (!url) {
+      if (!token) {
         toast.error(t("stores.members.invite.noVendorUrl"));
         return;
       }
 
-      await navigator.clipboard.writeText(url);
+      await navigator.clipboard.writeText(buildVendorInviteUrl(token));
       toast.success(t("stores.members.invite.linkCopied"));
     } catch (e) {
       toast.error((e as Error).message);

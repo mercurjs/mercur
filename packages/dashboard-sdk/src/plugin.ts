@@ -86,7 +86,15 @@ function resolvePluginExtensions(plugins: any[], configDir: string, appType: "ad
 async function loadMedusaConfig(
     medusaConfigPath: string,
     root: string,
-): Promise<{ base?: string; pluginExtensions: string[] }> {
+    options: {
+        isDevelopment: boolean;
+        vendorUrl?: string;
+    },
+): Promise<{
+    base?: string;
+    pluginExtensions: string[];
+    vendorAppUrl?: string;
+}> {
     try {
         const mod = await getFileExports(medusaConfigPath);
         const medusaConfig = mod.default ?? mod;
@@ -96,6 +104,23 @@ async function loadMedusaConfig(
 
         let base: string | undefined;
         let appType: "admin" | "vendor" = "admin";
+        let vendorAppUrl: string | undefined;
+
+        const vendorModule = modules.vendor_ui;
+        const vendorPath = vendorModule?.options?.path ?? "/seller";
+
+        if (options.vendorUrl) {
+            vendorAppUrl = options.vendorUrl.replace(/\/+$/, "");
+        } else if (options.isDevelopment) {
+            const vendorHost =
+                vendorModule?.options?.viteDevServerHost ?? "localhost";
+            const vendorPort =
+                vendorModule?.options?.viteDevServerPort ?? 7001;
+
+            vendorAppUrl = `http://${vendorHost}:${vendorPort}${vendorPath}`;
+        } else {
+            vendorAppUrl = vendorPath;
+        }
 
         for (const key of UI_MODULE_KEYS) {
             const value = modules[key];
@@ -118,7 +143,7 @@ async function loadMedusaConfig(
             ) ?? [];
         const pluginExtensions = resolvePluginExtensions(plugins, configDir, appType);
 
-        return { base, pluginExtensions };
+        return { base, pluginExtensions, vendorAppUrl };
     } catch {
         return { pluginExtensions: [] };
     }
@@ -132,14 +157,21 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
         name: "@mercurjs/dashboard-sdk",
         async config(viteConfig) {
             root = viteConfig.root || process.cwd();
+            const isDevelopment =
+                (viteConfig.mode || process.env.NODE_ENV || "development") !==
+                "production";
 
             const medusaConfigPath = path.resolve(
                 root,
                 pluginConfig.medusaConfigPath,
             );
-            const { base, pluginExtensions } = await loadMedusaConfig(
+            const { base, pluginExtensions, vendorAppUrl } = await loadMedusaConfig(
                 medusaConfigPath,
                 root,
+                {
+                    isDevelopment,
+                    vendorUrl: pluginConfig.vendorUrl,
+                },
             );
 
             const srcDir = path.join(root, "src");
@@ -159,6 +191,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                 define: {
                     __BACKEND_URL__: JSON.stringify(config.backendUrl),
                     __BASE__: JSON.stringify(config.base || "/"),
+                    __VENDOR_URL__: JSON.stringify(vendorAppUrl || ""),
                 },
                 optimizeDeps: {
                     exclude: [
