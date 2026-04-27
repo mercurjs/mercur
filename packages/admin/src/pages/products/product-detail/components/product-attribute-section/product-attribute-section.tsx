@@ -1,6 +1,5 @@
 import {
   ListBullet,
-  PencilSquare,
   Plus,
   Trash,
   Swatch,
@@ -61,15 +60,6 @@ const AttributeActions = ({
         {
           actions: [
             {
-              label: t("actions.edit"),
-              to: `attributes/${attribute.id}/edit`,
-              icon: <PencilSquare />,
-            },
-          ],
-        },
-        {
-          actions: [
-            {
               label: t("actions.delete"),
               onClick: handleDelete,
               icon: <Trash />,
@@ -94,6 +84,8 @@ const AttributeGroup = ({
   attributes: ProductAttributeDTO[];
   productId: string;
 }) => {
+  const { t } = useTranslation();
+
   if (!attributes.length) {
     return null;
   }
@@ -135,6 +127,13 @@ const AttributeGroup = ({
                     </Text>
                     {attr.description && (
                       <Tooltip content={attr.description}>
+                        <span className="text-ui-fg-muted flex items-center">
+                          <InformationCircleSolid />
+                        </span>
+                      </Tooltip>
+                    )}
+                    {attr.is_required && (
+                      <Tooltip content={t("products.attributeRequiredByMarketplace")}>
                         <span className="text-ui-fg-muted flex items-center">
                           <InformationCircleSolid />
                         </span>

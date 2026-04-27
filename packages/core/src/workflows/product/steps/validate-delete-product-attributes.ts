@@ -18,6 +18,13 @@ export const validateDeleteProductAttributesStep = createStep(
     )
 
     for (const attr of attributes as any[]) {
+      if (attr.is_required) {
+        throw new MedusaError(
+          MedusaError.Types.NOT_ALLOWED,
+          `Cannot delete attribute '${attr.name}' because it is marked as required.`
+        )
+      }
+
       // Check variant axis M2M
       if (attr.variant_products?.length) {
         throw new MedusaError(

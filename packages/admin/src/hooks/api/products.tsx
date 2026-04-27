@@ -385,7 +385,7 @@ export const useDeleteVariantLazy = (
 
 const PRODUCT_ATTRIBUTES_QUERY_KEY = "product_product_attributes" as const;
 export const scopedProductAttributesQueryKeys = queryKeysFactory(
-  PRODUCT_ATTRIBUTES_QUERY_KEY
+  PRODUCT_ATTRIBUTES_QUERY_KEY,
 );
 
 export const useProductScopedAttributes = (
@@ -417,35 +417,6 @@ export const useAddAttributeToProduct = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.admin.products.$id.attributes.mutate({ $id: productId, ...payload }),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: scopedProductAttributesQueryKeys.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      });
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-export const useUpdateProductScopedAttribute = (
-  productId: string,
-  attributeId: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminProductAttributeResponse,
-    ClientError,
-    Record<string, any>
-  >,
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.products.$id.attributes.$attributeId.mutate({
-        $id: productId,
-        $attributeId: attributeId,
-        ...payload,
-      }),
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: scopedProductAttributesQueryKeys.lists(),
@@ -491,14 +462,18 @@ export const useRemoveAttributeFromProduct = (
 
 export const useBatchProductAttributes = (
   productId: string,
-  options?: UseMutationOptions<any, ClientError, {
-    create?: {
-      attribute_id: string;
-      attribute_value_ids?: string[];
-      values?: string[];
-    }[];
-    delete?: string[];
-  }>,
+  options?: UseMutationOptions<
+    any,
+    ClientError,
+    {
+      create?: {
+        attribute_id: string;
+        attribute_value_ids?: string[];
+        values?: string[];
+      }[];
+      delete?: string[];
+    }
+  >,
 ) => {
   return useMutation({
     mutationFn: (payload) =>

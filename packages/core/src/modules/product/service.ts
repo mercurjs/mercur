@@ -11,6 +11,7 @@ import {
   MedusaService,
   Modules,
   isValidHandle,
+  promiseAll,
   toHandle,
 } from "@medusajs/framework/utils";
 import {
@@ -994,9 +995,11 @@ class ProductModuleService extends MedusaService({
       }
 
       // Apply all product updates
-      for (const payload of updatesByProductId.values()) {
-        await super.updateProducts(payload as any, sharedContext);
-      }
+      await promiseAll(
+        Array.from(updatesByProductId.values()).map((payload) =>
+          super.updateProducts(payload as any, sharedContext)
+        )
+      );
     }
 
     return (Array.isArray(data) ? result : result[0]) as any;
