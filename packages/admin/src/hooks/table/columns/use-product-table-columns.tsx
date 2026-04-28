@@ -1,3 +1,4 @@
+import { Checkbox } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 
@@ -32,6 +33,30 @@ const columnHelper = createColumnHelper<ProductDTO>()
 export const useProductTableColumns = () => {
   return useMemo(
     () => [
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsSomePageRowsSelected()
+                ? "indeterminate"
+                : table.getIsAllPageRowsSelected()
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            data-testid="products-table-header-select-checkbox"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            onClick={(e) => e.stopPropagation()}
+            data-testid={`products-table-cell-${row.id}-select-checkbox`}
+          />
+        ),
+      }),
       columnHelper.display({
         id: "product",
         header: () => <ProductHeader />,

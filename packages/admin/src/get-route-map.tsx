@@ -85,6 +85,11 @@ export function getRouteMap({
                         path: "create",
                         lazy: () => import("./pages/products/product-create"),
                       },
+                      {
+                        path: "bulk-edit",
+                        lazy: () =>
+                          import("./pages/products/product-bulk-edit"),
+                      },
                     ],
                   },
                   {

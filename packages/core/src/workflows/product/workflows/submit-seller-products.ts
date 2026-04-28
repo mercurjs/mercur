@@ -11,7 +11,6 @@ import {
 import {
   CreateProductDTO,
   ProductChangeActionType,
-  ProductStatus,
 } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
@@ -80,7 +79,7 @@ export const submitSellerProductsWorkflow = createWorkflow(
           product_change_id: (changes)[idx].id,
           product_id: product.id,
           action: ProductChangeActionType.STATUS_CHANGE,
-          details: { status: ProductStatus.PROPOSED },
+          details: { status: product.status },
         }))
     )
 

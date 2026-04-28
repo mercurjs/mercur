@@ -1,10 +1,10 @@
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import { createColumnHelper } from "@tanstack/react-table";
-import { ReactNode, useMemo, Children } from "react";
+import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
+import { ReactNode, useMemo, useState, Children } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, Outlet, useLoaderData } from "react-router-dom";
+import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom";
 
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { _DataTable } from "../../../../../components/table/data-table";
@@ -16,6 +16,7 @@ import { useProductTableColumns } from "../../../../../hooks/table/columns/use-p
 import { useProductTableFilters } from "../../../../../hooks/table/filters/use-product-table-filters";
 import { useProductTableQuery } from "../../../../../hooks/table/query/use-product-table-query";
 import { useDataTable } from "../../../../../hooks/use-data-table";
+import { PRODUCT_IDS_KEY } from "../../../common/constants";
 import { productsLoader } from "../../loader";
 import { ProductDTO } from "@mercurjs/types";
 
@@ -85,6 +86,9 @@ export const ProductListHeader = ({ children }: { children?: ReactNode }) => {
 
 export const ProductListDataTable = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  const [selection, setSelection] = useState<RowSelectionState>({});
 
   const initialData = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof productsLoader>>
@@ -111,6 +115,11 @@ export const ProductListDataTable = () => {
     enablePagination: true,
     pageSize: PAGE_SIZE,
     getRowId: (row) => row.id,
+    enableRowSelection: true,
+    rowSelection: {
+      state: selection,
+      updater: setSelection,
+    },
   });
 
   if (isError) {
@@ -134,6 +143,19 @@ export const ProductListDataTable = () => {
           { key: "title", label: t("fields.title") },
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
+        ]}
+        commands={[
+          {
+            action: async (rowSelection) => {
+              navigate(
+                `bulk-edit?${PRODUCT_IDS_KEY}=${Object.keys(rowSelection).join(
+                  ",",
+                )}`,
+              );
+            },
+            label: t("products.bulkEdit.action"),
+            shortcut: "e",
+          },
         ]}
         noRecords={{
           message: t("products.list.noRecordsMessage"),

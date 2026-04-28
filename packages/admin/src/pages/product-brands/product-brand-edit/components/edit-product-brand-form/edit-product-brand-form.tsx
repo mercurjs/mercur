@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { ProductBrandDTO } from "@mercurjs/types"
-import { Button, Input, Switch, toast } from "@medusajs/ui"
+import { Button, Input, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -13,7 +13,6 @@ import { useUpdateProductBrand } from "../../../../../hooks/api/product-brands"
 const EditProductBrandSchema = z.object({
   name: z.string().min(1),
   handle: z.string().optional(),
-  is_restricted: z.boolean().optional(),
 })
 
 type EditProductBrandFormProps = {
@@ -30,7 +29,6 @@ export const EditProductBrandForm = ({
     defaultValues: {
       name: productBrand.name,
       handle: productBrand.handle,
-      is_restricted: productBrand.is_restricted,
     },
     resolver: zodResolver(EditProductBrandSchema),
   })
@@ -42,7 +40,6 @@ export const EditProductBrandForm = ({
       {
         name: data.name,
         handle: data.handle ? data.handle : undefined,
-        is_restricted: data.is_restricted,
       },
       {
         onSuccess: ({ product_brand }) => {
@@ -109,37 +106,6 @@ export const EditProductBrandForm = ({
                     />
                   </Form.Control>
                   <Form.ErrorMessage data-testid="product-brand-edit-form-handle-error" />
-                </Form.Item>
-              )
-            }}
-          />
-          <Form.Field
-            control={form.control}
-            name="is_restricted"
-            render={({ field: { value, onChange, ...field } }) => {
-              return (
-                <Form.Item data-testid="product-brand-edit-form-is-restricted-item">
-                  <div className="bg-ui-bg-component shadow-elevation-card-rest flex gap-x-3 rounded-lg p-4">
-                    <Form.Control data-testid="product-brand-edit-form-is-restricted-control">
-                      <Switch
-                        dir="ltr"
-                        className="mt-[2px] rtl:rotate-180"
-                        checked={value}
-                        onCheckedChange={(checked) => onChange(!!checked)}
-                        {...field}
-                        data-testid="product-brand-edit-form-is-restricted-switch"
-                      />
-                    </Form.Control>
-                    <div className="flex flex-col">
-                      <Form.Label data-testid="product-brand-edit-form-is-restricted-label">
-                        {t("productBrands.fields.isRestricted")}
-                      </Form.Label>
-                      <Form.Hint data-testid="product-brand-edit-form-is-restricted-hint">
-                        {t("productBrands.fields.isRestrictedHint")}
-                      </Form.Hint>
-                    </div>
-                  </div>
-                  <Form.ErrorMessage data-testid="product-brand-edit-form-is-restricted-error" />
                 </Form.Item>
               )
             }}

@@ -1,4 +1,4 @@
-import { ClientError } from "@mercurjs/client";
+import { ClientError, InferClientInput, InferClientOutput } from "@mercurjs/client";
 import { HttpTypes } from "@mercurjs/types";
 import {
   QueryKey,
@@ -124,6 +124,23 @@ export const useDeleteProduct = (
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
 
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useBatchUpdateProducts = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.products.batch.mutate>,
+    ClientError,
+    InferClientInput<typeof sdk.admin.products.batch.mutate>
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.admin.products.batch.mutate(payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.all });
       options?.onSuccess?.(data, variables, context);
     },
     ...options,

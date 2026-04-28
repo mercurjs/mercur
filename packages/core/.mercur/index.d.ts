@@ -265,7 +265,7 @@ export type Routes = {
                 reject: typeof import("../../src/api/admin/products/[id]/reject/route");
                 requestChanges: typeof import("../../src/api/admin/products/[id]/request-changes/route");
             };
-            batch: typeof import("@medusajs/medusa/api/admin/products/batch/route");
+            batch: typeof import("../../src/api/admin/products/batch/route");
             export: typeof import("@medusajs/medusa/api/admin/products/export/route");
             import: typeof import("@medusajs/medusa/api/admin/products/import/route") & {
                 $transactionId: {

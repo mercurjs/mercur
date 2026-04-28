@@ -410,6 +410,13 @@
     "list": {
       "noRecordsMessage": "Create your first product to start selling."
     },
+    "bulkEdit": {
+      "title": "Bulk edit products",
+      "description": "Update status and discountable settings for the selected products.",
+      "action": "Edit",
+      "successToast_one": "{{count}} product updated successfully.",
+      "successToast_other": "{{count}} products updated successfully."
+    },
     "edit": {
       "header": "Edit Product",
       "description": "Edit the product details.",
