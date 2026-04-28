@@ -58,8 +58,18 @@ type StoreMembersDataTableProps = {
   sellerId: string;
 };
 
+const trimTrailingSlashes = (value: string) => {
+  let end = value.length;
+
+  while (end > 0 && value.charCodeAt(end - 1) === 47) {
+    end -= 1;
+  }
+
+  return end === value.length ? value : value.slice(0, end);
+};
+
 const buildVendorInviteUrl = (token: string) => {
-  const vendorBase = (__VENDOR_URL__ || "/seller").replace(/\/+$/, "");
+  const vendorBase = trimTrailingSlashes(__VENDOR_URL__ || "/seller");
   const url = new URL(
     `${vendorBase}/invite`,
     typeof window === "undefined" ? "http://localhost" : window.location.origin,

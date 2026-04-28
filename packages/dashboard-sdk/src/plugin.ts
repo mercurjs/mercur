@@ -83,6 +83,16 @@ function resolvePluginExtensions(plugins: any[], configDir: string, appType: "ad
     return extensions;
 }
 
+function trimTrailingSlashes(value: string): string {
+    let end = value.length;
+
+    while (end > 0 && value.charCodeAt(end - 1) === 47) {
+        end -= 1;
+    }
+
+    return end === value.length ? value : value.slice(0, end);
+}
+
 async function loadMedusaConfig(
     medusaConfigPath: string,
     root: string,
@@ -110,7 +120,7 @@ async function loadMedusaConfig(
         const vendorPath = vendorModule?.options?.path ?? "/seller";
 
         if (options.vendorUrl) {
-            vendorAppUrl = options.vendorUrl.replace(/\/+$/, "");
+            vendorAppUrl = trimTrailingSlashes(options.vendorUrl);
         } else if (options.isDevelopment) {
             const vendorHost =
                 vendorModule?.options?.viteDevServerHost ?? "localhost";
