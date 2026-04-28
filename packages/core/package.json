@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/core",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -47,7 +47,7 @@
     "medusa-v2"
   ],
   "scripts": {
-    "build": "bunx @mercurjs/cli codegen && rm -rf .medusa && tsc --declaration --outDir .medusa/server",
+    "build": "bunx @mercurjs/cli@2.0.2 codegen && rm -rf .medusa && tsc --declaration --outDir .medusa/server",
     "dev": "medusa plugin:develop",
     "prepublishOnly": "tsc --declaration --outDir .medusa/server"
   },
