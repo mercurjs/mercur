@@ -126,27 +126,6 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
-  {
-    method: ["POST"],
-    matcher: "/admin/products/:id/activate",
-    middlewares: [
-      validateAndTransformQuery(
-        AdminGetProductParams,
-        adminProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/admin/products/:id/deactivate",
-    middlewares: [
-      validateAndTransformQuery(
-        AdminGetProductParams,
-        adminProductQueryConfig.retrieve
-      ),
-    ],
-  },
-
   // --- Variant sub-resource ---
   {
     method: ["GET"],

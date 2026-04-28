@@ -962,16 +962,6 @@
           ],
           "mappedType": "enum"
         },
-        "is_active": {
-          "name": "is_active",
-          "type": "boolean",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "false",
-          "mappedType": "boolean"
-        },
         "is_restricted": {
           "name": "is_restricted",
           "type": "boolean",
@@ -1116,15 +1106,6 @@
           "primary": false,
           "unique": false,
           "expression": "CREATE INDEX IF NOT EXISTS \"IDX_product_status\" ON \"product\" (\"status\") WHERE deleted_at IS NULL"
-        },
-        {
-          "keyName": "IDX_product_is_active",
-          "columnNames": [],
-          "composite": false,
-          "constraint": false,
-          "primary": false,
-          "unique": false,
-          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_product_is_active\" ON \"product\" (\"is_active\") WHERE deleted_at IS NULL"
         },
         {
           "keyName": "IDX_product_created_by",

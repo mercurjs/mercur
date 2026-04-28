@@ -6,7 +6,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { CreateProductDTO, ProductStatus } from "@mercurjs/types"
+import { CreateProductDTO } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { createProductsStep } from "../steps"
@@ -27,14 +27,7 @@ export const createProductsWorkflow = createWorkflow(
       products: input.products,
     })
 
-    const normalizedProducts = transform({ input }, ({ input }) =>
-      input.products.map((p) => ({
-        ...p,
-        is_active: true,
-      }))
-    )
-
-    const products = createProductsStep(normalizedProducts)
+    const products = createProductsStep(input.products)
 
     const productsCreated = createHook("productsCreated", {
       products,

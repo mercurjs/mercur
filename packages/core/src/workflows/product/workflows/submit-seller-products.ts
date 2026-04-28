@@ -46,7 +46,6 @@ export const submitSellerProductsWorkflow = createWorkflow(
     const productData = transform(input, ({ products, seller_id }) =>
       products.map((product) => ({
         ...product,
-        is_active: false,
         created_by: "seller",
         created_by_actor: seller_id,
       }))

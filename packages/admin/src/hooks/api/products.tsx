@@ -211,46 +211,6 @@ export const useRequestProductChanges = (
   });
 };
 
-export const useActivateProduct = (
-  id: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminProductResponse,
-    ClientError,
-    void
-  >,
-) => {
-  return useMutation({
-    mutationFn: () => sdk.admin.products.$id.activate.mutate({ $id: id }),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
-
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-export const useDeactivateProduct = (
-  id: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminProductResponse,
-    ClientError,
-    void
-  >,
-) => {
-  return useMutation({
-    mutationFn: () => sdk.admin.products.$id.deactivate.mutate({ $id: id }),
-    onSuccess: (data: any, variables: any, context: any) => {
-      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
-
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
 export const useProductVariant = (
   productId: string,
   variantId: string,

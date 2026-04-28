@@ -64,7 +64,6 @@ export const acceptProductsWorkflow = createWorkflow(
             selector: { id: input.product_ids },
             data: {
                 status: ProductStatus.PUBLISHED,
-                is_active: true,
             },
         }))
 

@@ -22,7 +22,6 @@ const VendorGetProductsParamsFields = z.object({
   title: z.string().optional(),
   handle: z.string().optional(),
   status: statusEnum.array().optional(),
-  is_active: booleanString().optional(),
   is_restricted: booleanString().optional(),
   brand_id: z.union([z.string(), z.array(z.string())]).optional(),
   collection_id: z.union([z.string(), z.array(z.string())]).optional(),

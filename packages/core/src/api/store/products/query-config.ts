@@ -3,7 +3,6 @@ export const storeProductFields = [
   "title",
   "subtitle",
   "status",
-  "is_active",
   "external_id",
   "description",
   "handle",

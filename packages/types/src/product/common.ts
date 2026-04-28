@@ -251,7 +251,6 @@ export interface ProductDTO {
   external_id: string | null;
   metadata: Record<string, unknown> | null;
   status: ProductStatus;
-  is_active: boolean;
   is_restricted: boolean;
   created_by: string | null;
   created_by_actor: string | null;

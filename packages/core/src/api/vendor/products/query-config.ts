@@ -3,7 +3,6 @@ export const vendorProductFields = [
   "title",
   "subtitle",
   "status",
-  "is_active",
   "is_restricted",
   "external_id",
   "description",

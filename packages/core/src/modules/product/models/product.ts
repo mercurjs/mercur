@@ -35,7 +35,6 @@ const Product = model
 
     // --- Marketplace additions ---
     status: model.enum(ProductStatus).default(ProductStatus.PROPOSED),
-    is_active: model.boolean().default(false),
     is_restricted: model.boolean().default(false),
     created_by: model.text().nullable(),
     created_by_actor: model.text().searchable().nullable(),
@@ -110,12 +109,6 @@ const Product = model
     {
       name: "IDX_product_status",
       on: ["status"],
-      unique: false,
-      where: "deleted_at IS NULL",
-    },
-    {
-      name: "IDX_product_is_active",
-      on: ["is_active"],
       unique: false,
       where: "deleted_at IS NULL",
     },
