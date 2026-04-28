@@ -103,9 +103,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <TwoColumnPage data={seller} hasOutlet data-testid="store-detail-page">
       <TwoColumnPage.Main>
-        {seller.status === SellerStatus.PENDING_APPROVAL && !seller.approved_at && (
-          <StoreRequestSection seller={seller} />
-        )}
+        {seller.status === SellerStatus.PENDING_APPROVAL &&
+          !seller.approved_at &&
+          !seller.rejected_at && (
+            <StoreRequestSection seller={seller} />
+          )}
         <StoreGeneralSection seller={seller} />
         <TabBar activeTab={activeTab} onTabChange={setActiveTab} />
         {activeTab === "orders" && (

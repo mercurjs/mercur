@@ -22,7 +22,7 @@ export const suspendSellerWorkflow = createWorkflow(
   function (input: SuspendSellerWorkflowInput) {
     const { data: seller } = useQueryGraphStep({
       entity: "seller",
-      fields: ["id", "status"],
+      fields: ["id", "status", "rejected_at"],
       filters: { id: input.seller_id },
       options: { throwIfKeyNotFound: true },
     }).config({ name: "get-seller" })
@@ -31,11 +31,12 @@ export const suspendSellerWorkflow = createWorkflow(
 
     validateSuspendSellerStep({ seller: sellerData })
 
-    const updateInput = transform({ input }, ({ input }) => ({
+    const updateInput = transform({ input, sellerData }, ({ input, sellerData }) => ({
       selector: { id: input.seller_id },
       update: {
         status: SellerStatus.SUSPENDED,
         status_reason: input.reason ?? null,
+        rejected_at: sellerData.rejected_at ?? new Date(),
       },
     }))
 

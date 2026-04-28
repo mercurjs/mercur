@@ -1,13 +1,10 @@
 import {
-  ArrowRightOnRectangle,
-  BuildingStorefront,
   Buildings,
   CogSixTooth,
   CurrencyDollar,
   CreditCardRefresh,
   EllipsisHorizontal,
   MagnifyingGlass,
-  OpenRectArrowOut,
   Plus,
   ReceiptPercent,
   ShoppingCart,
@@ -21,16 +18,10 @@ import { Skeleton } from "../../common/skeleton";
 import { INavItem, NavItem } from "../../layout/nav-item";
 import { Shell } from "../../layout/shell";
 
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import {
-  useLogout,
-  useMe,
-  useSelectSeller,
-  useSellers,
-} from "../../../hooks/api";
-import { queryClient } from "../../../lib/query-client";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useMe, useSelectSeller, useSellers } from "../../../hooks/api";
 import { useSearch } from "../../../providers/search-provider";
-import { LanguageToggle, ThemeToggle } from "../user-menu";
+import { UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
@@ -119,43 +110,12 @@ const MainSidebar = () => {
   );
 };
 
-const Logout = () => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-
-  const { mutateAsync: logoutMutation } = useLogout();
-
-  const handleLogout = async () => {
-    await logoutMutation(undefined, {
-      onSuccess: () => {
-        /**
-         * When the user logs out, we want to clear the query cache
-         */
-        queryClient.clear();
-        navigate("/login");
-      },
-    });
-  };
-
-  return (
-    <DropdownMenu.Item onClick={handleLogout}>
-      <div className="flex items-center gap-x-2">
-        <OpenRectArrowOut className="text-ui-fg-subtle" />
-        <span>{t("app.menus.actions.logout")}</span>
-      </div>
-    </DropdownMenu.Item>
-  );
-};
-
-const SwitchStore = ({ currentSellerId }: { currentSellerId: string }) => {
+const StoreList = ({ currentSellerId }: { currentSellerId: string }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { seller_member } = useMe();
   const { seller_members } = useSellers();
   const { mutateAsync: selectSeller } = useSelectSeller();
-  if (!seller_members?.length) {
-    return null;
-  }
 
   const handleSelect = async (sellerId: string) => {
     if (sellerId === currentSellerId) return;
@@ -164,14 +124,10 @@ const SwitchStore = ({ currentSellerId }: { currentSellerId: string }) => {
   };
 
   return (
-    <DropdownMenu.SubMenu>
-      <DropdownMenu.SubMenuTrigger className="rounded-md">
-        <ArrowRightOnRectangle className="text-ui-fg-subtle me-2" />
-        {t("app.menus.store.switchStore")}
-      </DropdownMenu.SubMenuTrigger>
-      <DropdownMenu.SubMenuContent>
+    <>
+      {!!seller_members?.length && (
         <DropdownMenu.RadioGroup value={currentSellerId}>
-          {seller_members?.map((member) => {
+          {seller_members.map((member) => {
             const seller = member.seller;
             return (
               <DropdownMenu.RadioItem
@@ -200,22 +156,22 @@ const SwitchStore = ({ currentSellerId }: { currentSellerId: string }) => {
             );
           })}
         </DropdownMenu.RadioGroup>
-        {!!seller_members?.length && <DropdownMenu.Separator />}
-        <DropdownMenu.Item
-          onClick={() =>
-            navigate("/onboarding", {
-              state: { email: seller_member?.member.email },
-            })
-          }
-          className="gap-x-2"
-        >
-          <Plus className="text-ui-fg-subtle" />
-          <Text size="small" weight="plus" leading="compact">
-            {t("storeSelect.addNewStore")}
-          </Text>
-        </DropdownMenu.Item>
-      </DropdownMenu.SubMenuContent>
-    </DropdownMenu.SubMenu>
+      )}
+      {!!seller_members?.length && <DropdownMenu.Separator />}
+      <DropdownMenu.Item
+        onClick={() =>
+          navigate("/onboarding", {
+            state: { email: seller_member?.member.email },
+          })
+        }
+        className="gap-x-2"
+      >
+        <Plus className="text-ui-fg-subtle" />
+        <Text size="small" weight="plus" leading="compact">
+          {t("storeSelect.addNewStore")}
+        </Text>
+      </DropdownMenu.Item>
+    </>
   );
 };
 
@@ -288,18 +244,7 @@ export const Header = () => {
               </div>
             </div>
             <DropdownMenu.Separator />
-            <DropdownMenu.Item className="gap-x-2" asChild>
-              <Link to="/settings/store">
-                <BuildingStorefront className="text-ui-fg-subtle" />
-                {t("app.menus.store.editStore")}
-              </Link>
-            </DropdownMenu.Item>
-            <SwitchStore currentSellerId={seller_member.seller.id} />
-            <DropdownMenu.Separator />
-            <ThemeToggle />
-            <LanguageToggle />
-            <DropdownMenu.Separator />
-            <Logout />
+            <StoreList currentSellerId={seller_member.seller.id} />
           </DropdownMenu.Content>
         )}
       </DropdownMenu>
@@ -412,13 +357,19 @@ const UtilitySection = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-y-0.5 py-3">
-      <NavItem
-        label={t("app.nav.settings.header")}
-        to="/settings"
-        from={location.pathname}
-        icon={<CogSixTooth />}
-      />
+    <div className="flex flex-col">
+      <div className="flex flex-col gap-y-0.5 py-3">
+        <NavItem
+          label={t("app.nav.settings.header")}
+          to="/settings"
+          from={location.pathname}
+          icon={<CogSixTooth />}
+        />
+      </div>
+      <div className="px-3">
+        <Divider variant="dashed" />
+      </div>
+      <UserMenu />
     </div>
   );
 };

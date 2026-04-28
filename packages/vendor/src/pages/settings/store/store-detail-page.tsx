@@ -42,13 +42,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const statusAlert = (() => {
     switch (seller.status) {
-      case SellerStatus.SUSPENDED:
-        return {
-          variant: "error" as const,
-          title: t("store.alert.suspended.title"),
-          description:
-            seller.status_reason || t("store.alert.suspended.description"),
-        };
       case SellerStatus.TERMINATED:
         return {
           variant: "error" as const,

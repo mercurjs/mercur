@@ -1,7 +1,7 @@
 import { Children, ReactNode } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
-import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui";
+import { Alert, Button, Heading, Input, Text } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
@@ -103,9 +103,6 @@ const LoginForm = () => {
 
   const serverError =
     form.formState.errors?.root?.serverError?.message || reasonMessage;
-  const validationError =
-    form.formState.errors.email?.message ||
-    form.formState.errors.password?.message;
 
   return (
     <Form {...form}>
@@ -120,6 +117,7 @@ const LoginForm = () => {
                 <Form.Control>
                   <Input autoComplete="email" {...field} />
                 </Form.Control>
+                <Form.ErrorMessage />
               </Form.Item>
             )}
           />
@@ -136,14 +134,10 @@ const LoginForm = () => {
                     {...field}
                   />
                 </Form.Control>
+                <Form.ErrorMessage />
               </Form.Item>
             )}
           />
-          {validationError && (
-            <Hint className="inline-flex" variant="error">
-              {validationError}
-            </Hint>
-          )}
           {serverError && (
             <Alert
               className="bg-ui-bg-base items-center p-2"

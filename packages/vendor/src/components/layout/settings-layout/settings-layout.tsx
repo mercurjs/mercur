@@ -7,7 +7,7 @@ import { Link, useLocation } from "react-router-dom";
 
 import { INavItem, NavItem } from "../nav-item";
 import { Shell } from "../shell";
-import { Header as SellerDropdown } from "../main-layout/main-layout";
+import { UserMenu } from "../user-menu";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
 import { getMenuItemsByType } from "../../../utils/routes";
@@ -185,7 +185,7 @@ const UserSection = () => {
       <div className="px-3">
         <Divider variant="dashed" />
       </div>
-      <SellerDropdown />
+      <UserMenu />
     </div>
   );
 };

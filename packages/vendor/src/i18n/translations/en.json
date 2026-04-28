@@ -2697,6 +2697,7 @@
     "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
     "validation": {
       "nameRequired": "Please enter a name",
+      "nameTooLong": "Name must be at most 100 characters",
       "emailInvalid": "Please enter a valid email"
     },
     "profileCompletion": {
@@ -2711,7 +2712,7 @@
     "status": {
       "active": "Active",
       "pendingApproval": "Pending",
-      "suspended": "Suspended",
+      "suspended": "Inactive",
       "terminated": "Terminated"
     },
     "alert": {
@@ -2789,11 +2790,13 @@
       },
       "fields": {
         "countryCode": "Country",
-        "holderName": "Account holder",
+        "holderName": "Account name",
         "bankName": "Bank name",
         "iban": "IBAN",
-        "bic": "BIC / SWIFT",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
         "routingNumber": "Routing number",
+        "achRoutingNumber": "ACH routing number",
         "accountNumber": "Account number"
       },
       "validation": {
@@ -3211,8 +3214,8 @@
     }
   },
   "register": {
-    "title": "Create your vendor account",
-    "hint": "Start selling on {{name}}.",
+    "title": "Join Mercur!",
+    "hint": "Enter your details and create a password to set up your admin account.",
     "companyName": "Company name",
     "confirmPassword": "Confirm password",
     "signUp": "Sign up",
@@ -3225,11 +3228,12 @@
       "lastNameRequired": "Please enter your last name",
       "emailInvalid": "Please enter a valid email address",
       "passwordMinLength": "Password must be at least 8 characters",
+      "passwordComplexity": "Password must include one lowercase letter, one uppercase letter, and one number or symbol",
       "confirmPasswordRequired": "Please confirm your password"
     },
     "firstName": "First name",
     "lastName": "Last name",
-    "passwordHint": "Must be at least 8 characters.",
+    "passwordHint": "Your password must include at least 8 characters, one lowercase letter, one uppercase letter, one number or symbol",
     "successTitle": "Thank you for registering!",
     "successHint": "You may need to wait for admin authorization before logging in. A confirmation email will be sent to you shortly.",
     "backToLogin": "Back to login"

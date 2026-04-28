@@ -10,5 +10,8 @@ export const RegisterSchema = z.object({
     .min(8, i18n.t("register.validation.passwordMinLength"))
     .refine((val) => val.trim().length >= 8, {
       message: i18n.t("register.validation.passwordMinLength"),
+    })
+    .refine((val) => /[a-z]/.test(val) && /[A-Z]/.test(val) && /[\d\W]/.test(val), {
+      message: i18n.t("register.validation.passwordComplexity"),
     }),
 })

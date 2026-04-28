@@ -28,6 +28,7 @@ export const retrieveVendorSellerQueryConfig = {
     "currency_code",
     "status",
     "approved_at",
+    "rejected_at",
     "is_premium",
     "closed_from",
     "closed_to",

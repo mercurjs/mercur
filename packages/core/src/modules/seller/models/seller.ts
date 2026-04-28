@@ -23,6 +23,7 @@ const Seller = model
     status: model.enum(SellerStatus).default(SellerStatus.PENDING_APPROVAL),
     status_reason: model.text().nullable(),
     approved_at: model.dateTime().nullable(),
+    rejected_at: model.dateTime().nullable(),
     is_premium: model.boolean().default(false),
     closed_from: model.dateTime().nullable(),
     closed_to: model.dateTime().nullable(),

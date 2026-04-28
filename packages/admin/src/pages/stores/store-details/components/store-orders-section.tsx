@@ -1,3 +1,4 @@
+import { ShoppingCart } from "@medusajs/icons";
 import { Container, Heading } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
@@ -89,6 +90,7 @@ export const StoreOrdersSection = ({ sellerId }: StoreOrdersSectionProps) => {
             "stores.emptyStates.orders.message",
             "Orders placed at this store will appear here.",
           ),
+          icon: <ShoppingCart className="text-ui-fg-subtle" />,
         }}
       />
     </Container>

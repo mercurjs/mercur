@@ -1,4 +1,5 @@
 declare const __BASE__: string
+declare const __VENDOR_URL__: string
 
 declare module "virtual:mercur/routes" {
     import { Route } from './utils/routes'
@@ -27,4 +28,3 @@ declare module "virtual:mercur/i18n" {
     const i18nResources: Record<string, { translation: Record<string, any> }>
     export default i18nResources
 }
-
