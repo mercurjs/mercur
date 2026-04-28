@@ -34,6 +34,7 @@ export const adminProductFields = [
   "*tags",
   "*images",
   "*categories",
+  "*sellers",
   "*variants",
   "*variants.attribute_values",
   "*variants.attribute_values.attribute",

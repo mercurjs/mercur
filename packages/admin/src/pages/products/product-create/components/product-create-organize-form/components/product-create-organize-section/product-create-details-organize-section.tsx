@@ -44,6 +44,16 @@ export const ProductCreateOrganizationSection = () => {
       })),
   })
 
+  const sellers = useComboboxData({
+    queryKey: ["sellers"],
+    queryFn: (params) => sdk.admin.sellers.query(params),
+    getOptions: (data) =>
+      data.sellers.map((seller: { id: string; name: string }) => ({
+        label: seller.name,
+        value: seller.id,
+      })),
+  })
+
   return (
     <div id="organize" className="flex flex-col gap-y-8" data-testid="product-create-organize-section">
       <Heading data-testid="product-create-organize-section-heading">{t("products.organization.header")}</Heading>
@@ -143,6 +153,32 @@ export const ProductCreateOrganizationSection = () => {
                     onSearchValueChange={tags.onSearchValueChange}
                     fetchNextPage={tags.fetchNextPage}
                     data-testid="product-create-organize-section-tags-input"
+                  />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )
+          }}
+        />
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2" data-testid="product-create-organize-section-stores">
+        <Form.Field
+          control={form.control}
+          name="seller_id"
+          render={({ field }) => {
+            return (
+              <Form.Item data-testid="product-create-organize-section-stores-item">
+                <Form.Label optional data-testid="product-create-organize-section-stores-label">
+                  {t("fields.store")}
+                </Form.Label>
+                <Form.Control data-testid="product-create-organize-section-stores-control">
+                  <Combobox
+                    {...field}
+                    options={sellers.options}
+                    searchValue={sellers.searchValue}
+                    onSearchValueChange={sellers.onSearchValueChange}
+                    fetchNextPage={sellers.fetchNextPage}
+                    data-testid="product-create-organize-section-stores-input"
                   />
                 </Form.Control>
                 <Form.ErrorMessage />

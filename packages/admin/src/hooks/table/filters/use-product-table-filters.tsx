@@ -1,4 +1,5 @@
 import { useTranslation } from "react-i18next";
+import { ProductStatus } from "@mercurjs/types";
 import { Filter } from "../../../components/table/data-table";
 import { useProductTags, useProductCategories, useCollections } from "../../api";
 import { useProductTypes } from "../../api/product-types";
@@ -113,20 +114,24 @@ export const useProductTableFilters = (
     multiple: true,
     options: [
       {
-        label: t("products.productStatus.pending"),
-        value: "pending",
+        label: t("products.productStatus.draft"),
+        value: ProductStatus.DRAFT,
       },
       {
-        label: t("products.productStatus.accepted"),
-        value: "accepted",
+        label: t("products.productStatus.proposed"),
+        value: ProductStatus.PROPOSED,
+      },
+      {
+        label: t("products.productStatus.published"),
+        value: ProductStatus.PUBLISHED,
       },
       {
         label: t("products.productStatus.changes_required"),
-        value: "changes_required",
+        value: ProductStatus.CHANGES_REQUIRED,
       },
       {
         label: t("products.productStatus.rejected"),
-        value: "rejected",
+        value: ProductStatus.REJECTED,
       },
     ],
   };

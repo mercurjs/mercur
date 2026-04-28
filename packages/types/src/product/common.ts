@@ -1,3 +1,5 @@
+import { SellerDTO } from "../seller/common"
+
 // --- Enums ---
 
 /**
@@ -267,6 +269,7 @@ export interface ProductDTO {
   custom_attributes?: ProductAttributeDTO[];
   attribute_values?: ProductAttributeValueDTO[];
   attributes?: ProductAttributeDTO[];
+  sellers?: SellerDTO[];
   changes?: ProductChangeDTO[];
   created_at: string | Date;
   updated_at: string | Date;

@@ -221,6 +221,7 @@ const CreateProduct = z
     collection_id: z.string().nullish(),
     brand_id: z.string().nullish(),
     is_restricted: z.boolean().optional(),
+    seller_ids: z.array(z.string()).optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),

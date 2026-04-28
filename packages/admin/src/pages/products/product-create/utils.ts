@@ -25,6 +25,7 @@ export const normalizeProductFormValues = (
     collection_id: values.collection_id || undefined,
     categories: values.category_id ? [{ id: values.category_id }] : undefined,
     type_id: values.type_id || undefined,
+    seller_ids: values.seller_id ? [values.seller_id] : undefined,
     handle: values.handle?.trim(),
     origin_country: values.origin_country || undefined,
     material: values.material || undefined,

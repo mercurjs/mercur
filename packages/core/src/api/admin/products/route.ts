@@ -41,7 +41,7 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { additional_data, ...productData } = req.validatedBody
+  const { additional_data, seller_ids, ...productData } = req.validatedBody
 
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
@@ -50,6 +50,7 @@ export const POST = async (
         created_by_actor: 'admin',
         created_by: req.auth_context.actor_id
       } as unknown as CreateProductDTO],
+      seller_ids,
       additional_data,
     },
   })
