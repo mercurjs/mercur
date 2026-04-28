@@ -2,6 +2,7 @@ import {
   createHook,
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { AdditionalData } from "@medusajs/framework/types"
@@ -10,11 +11,13 @@ import { ProductStatus, UpdateProductDTO } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { updateProductsStep } from "../steps"
+import { deleteProductsWorkflow } from "./delete-products"
 
-export const batchUpdateProductsWorkflowId = "batch-update-products"
+export const batchProductsWorkflowId = "batch-products"
 
-type BatchUpdateProductsWorkflowInput = {
-  products: (UpdateProductDTO & { id: string })[]
+type BatchProductsWorkflowInput = {
+  update?: (UpdateProductDTO & { id: string })[]
+  delete?: string[]
 } & AdditionalData
 
 const STATUS_EVENT_MAP: Record<ProductStatus, string | undefined> = {
@@ -25,20 +28,35 @@ const STATUS_EVENT_MAP: Record<ProductStatus, string | undefined> = {
   [ProductStatus.DRAFT]: undefined,
 }
 
-export const batchUpdateProductsWorkflow = createWorkflow(
-  batchUpdateProductsWorkflowId,
-  function (input: BatchUpdateProductsWorkflowInput) {
-    const ids = transform({ input }, ({ input }) =>
-      input.products.map((p) => p.id)
+export const batchProductsWorkflow = createWorkflow(
+  batchProductsWorkflowId,
+  function (input: BatchProductsWorkflowInput) {
+    const updateProducts = transform(
+      { input },
+      ({ input }) => input.update ?? []
+    )
+    const deleteIds = transform(
+      { input },
+      ({ input }) => input.delete ?? []
+    )
+
+    const updateIds = transform({ updateProducts }, ({ updateProducts }) =>
+      updateProducts.map((p) => p.id)
     )
 
     const { data: prevProducts } = useQueryGraphStep({
       entity: "product",
       fields: ["id", "status"],
-      filters: { id: ids },
+      filters: { id: updateIds },
     }).config({ name: "get-prev-products" })
 
-    const products = updateProductsStep({ products: input.products })
+    const products = updateProductsStep({ products: updateProducts })
+
+    when({ deleteIds }, ({ deleteIds }) => deleteIds.length > 0).then(() => {
+      deleteProductsWorkflow.runAsStep({
+        input: { ids: deleteIds },
+      })
+    })
 
     const productsUpdated = createHook("productsUpdated", {
       products,

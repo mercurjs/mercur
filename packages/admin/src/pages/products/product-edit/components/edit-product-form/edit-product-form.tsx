@@ -19,7 +19,13 @@ type EditProductFormProps = {
 };
 
 const EditProductSchema = zod.object({
-  status: zod.enum(["draft", "published", "proposed", "rejected"]),
+  status: zod.enum([
+    "draft",
+    "published",
+    "proposed",
+    "changes_required",
+    "rejected",
+  ]),
   title: zod.string().min(1),
   subtitle: zod.string().optional(),
   handle: zod.string().min(1),
@@ -123,6 +129,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                                   "draft",
                                   "published",
                                   "proposed",
+                                  "changes_required",
                                   "rejected",
                                 ] as const
                               ).map((status) => {

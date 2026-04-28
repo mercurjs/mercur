@@ -130,7 +130,7 @@ export const useDeleteProduct = (
   });
 };
 
-export const useBatchUpdateProducts = (
+export const useBatchProducts = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.products.batch.mutate>,
     ClientError,

@@ -9,6 +9,7 @@ import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { _DataTable } from "../../../../../components/table/data-table";
 import {
+  useBatchProducts,
   useDeleteProduct,
   useProducts,
 } from "../../../../../hooks/api/products";
@@ -87,8 +88,11 @@ export const ProductListHeader = ({ children }: { children?: ReactNode }) => {
 export const ProductListDataTable = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const prompt = usePrompt();
 
   const [selection, setSelection] = useState<RowSelectionState>({});
+
+  const { mutateAsync: batchProducts } = useBatchProducts();
 
   const initialData = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof productsLoader>>
@@ -155,6 +159,47 @@ export const ProductListDataTable = () => {
             },
             label: t("products.bulkEdit.action"),
             shortcut: "e",
+          },
+          {
+            action: async (rowSelection) => {
+              const ids = Object.keys(rowSelection);
+
+              if (!ids.length) {
+                return;
+              }
+
+              const confirmed = await prompt({
+                title: t("general.areYouSure"),
+                description: t("products.bulkDelete.warning", {
+                  count: ids.length,
+                }),
+                confirmText: t("actions.delete"),
+                cancelText: t("actions.cancel"),
+              });
+
+              if (!confirmed) {
+                return;
+              }
+
+              await batchProducts(
+                { delete: ids },
+                {
+                  onSuccess: () => {
+                    toast.success(
+                      t("products.bulkDelete.successToast", {
+                        count: ids.length,
+                      }),
+                    );
+                    setSelection({});
+                  },
+                  onError: (e) => {
+                    toast.error(e.message);
+                  },
+                },
+              );
+            },
+            label: t("actions.delete"),
+            shortcut: "d",
           },
         ]}
         noRecords={{

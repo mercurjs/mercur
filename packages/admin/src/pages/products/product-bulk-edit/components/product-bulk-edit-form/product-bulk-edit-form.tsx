@@ -11,7 +11,7 @@ import {
   useRouteModal,
 } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useBatchUpdateProducts } from "../../../../../hooks/api/products"
+import { useBatchProducts } from "../../../../../hooks/api/products"
 import { useProductBulkEditColumns } from "../../hooks/use-product-bulk-edit-columns"
 import { ProductBulkEditSchema } from "../../schema"
 
@@ -32,7 +32,7 @@ export const ProductBulkEditForm = ({ products }: ProductBulkEditFormProps) => {
 
   const columns = useProductBulkEditColumns()
 
-  const { mutateAsync, isPending } = useBatchUpdateProducts()
+  const { mutateAsync, isPending } = useBatchProducts()
 
   const onSubmit = form.handleSubmit(async (data) => {
     const initialById = new Map(
@@ -60,7 +60,7 @@ export const ProductBulkEditForm = ({ products }: ProductBulkEditFormProps) => {
     }
 
     await mutateAsync(
-      { products: changed },
+      { update: changed },
       {
         onSuccess: () => {
           toast.success(

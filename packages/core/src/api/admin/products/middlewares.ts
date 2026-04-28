@@ -21,7 +21,7 @@ import {
 } from "../product-attributes/validators"
 import {
   AdminBatchProductAttributes,
-  AdminBatchUpdateProducts,
+  AdminBatchProducts,
   AdminCreateProduct,
   AdminCreateProductVariant,
   AdminGetProductParams,
@@ -61,7 +61,7 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/products/batch",
     middlewares: [
-      validateAndTransformBody(AdminBatchUpdateProducts),
+      validateAndTransformBody(AdminBatchProducts),
       validateAndTransformQuery(
         AdminGetProductsParams,
         adminProductQueryConfig.list

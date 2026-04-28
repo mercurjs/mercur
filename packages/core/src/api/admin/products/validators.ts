@@ -293,19 +293,20 @@ export const AdminRequestProductChanges = z.object({
   message: z.string().optional(),
 })
 
-// --- Batch update products ---
+// --- Batch products ---
 
-const BatchUpdateProductsItem = UpdateProduct.extend({
+const BatchProductsUpdateItem = UpdateProduct.extend({
   id: z.string(),
 })
 
-const BatchUpdateProducts = z.object({
-  products: z.array(BatchUpdateProductsItem).min(1),
+const BatchProducts = z.object({
+  update: z.array(BatchProductsUpdateItem).optional(),
+  delete: z.array(z.string()).optional(),
 })
 
-export type AdminBatchUpdateProductsType = z.infer<typeof BatchUpdateProducts> &
+export type AdminBatchProductsType = z.infer<typeof BatchProducts> &
   AdditionalData
-export const AdminBatchUpdateProducts = WithAdditionalData(BatchUpdateProducts)
+export const AdminBatchProducts = WithAdditionalData(BatchProducts)
 
 // --- Batch product attributes ---
 

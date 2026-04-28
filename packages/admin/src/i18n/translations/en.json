@@ -417,6 +417,12 @@
       "successToast_one": "{{count}} product updated successfully.",
       "successToast_other": "{{count}} products updated successfully."
     },
+    "bulkDelete": {
+      "warning_one": "You are about to delete {{count}} product. This action cannot be undone.",
+      "warning_other": "You are about to delete {{count}} products. This action cannot be undone.",
+      "successToast_one": "{{count}} product deleted successfully.",
+      "successToast_other": "{{count}} products deleted successfully."
+    },
     "edit": {
       "header": "Edit Product",
       "description": "Edit the product details.",

@@ -5,32 +5,35 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes, UpdateProductDTO } from "@mercurjs/types"
 
-import { batchUpdateProductsWorkflow } from "../../../../workflows/product/workflows/batch-update-products"
+import { batchProductsWorkflow } from "../../../../workflows/product/workflows/batch-products"
 import { formatProductAttributes } from "../helpers"
-import { AdminBatchUpdateProductsType } from "../validators"
+import { AdminBatchProductsType } from "../validators"
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest<AdminBatchUpdateProductsType>,
+  req: AuthenticatedMedusaRequest<AdminBatchProductsType>,
   res: MedusaResponse<HttpTypes.AdminProductListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { additional_data, products } = req.validatedBody
+  const { additional_data, update, delete: deleteIds } = req.validatedBody
 
-  const { result } = await batchUpdateProductsWorkflow(req.scope).run({
+  const { result } = await batchProductsWorkflow(req.scope).run({
     input: {
-      products: products as (UpdateProductDTO & { id: string })[],
+      update: update as (UpdateProductDTO & { id: string })[] | undefined,
+      delete: deleteIds,
       additional_data,
     },
   })
 
   const ids = result.map((p) => p.id)
 
-  const { data: updated } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: { id: ids },
-  })
+  const { data: updated } = ids.length
+    ? await query.graph({
+        entity: "product",
+        fields: req.queryConfig.fields,
+        filters: { id: ids },
+      })
+    : { data: [] }
 
   for (const product of updated) {
     formatProductAttributes(product)
