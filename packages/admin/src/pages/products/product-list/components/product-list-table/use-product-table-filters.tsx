@@ -1,13 +1,12 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { createDataTableFilterHelper } from "@medusajs/ui"
-import { HttpTypes } from "@medusajs/types"
+import { ProductDTO, ProductStatus } from "@mercurjs/types"
 import { useDataTableDateFilters } from "../../../../../components/data-table/helpers/general/use-data-table-date-filters"
 import { useProductTypes } from "../../../../../hooks/api/product-types"
-import { useProductTags } from "../../../../../hooks/api"
-import { useSalesChannels } from "../../../../../hooks/api/sales-channels"
+import { useProductTags, useProductCategories, useCollections } from "../../../../../hooks/api"
 
-const filterHelper = createDataTableFilterHelper<HttpTypes.AdminProduct>()
+const filterHelper = createDataTableFilterHelper<ProductDTO>()
 
 /**
  * Hook to create filters in the format expected by @medusajs/ui DataTable
@@ -26,13 +25,45 @@ export const useProductTableFilters = () => {
     offset: 0,
   })
 
-  const { sales_channels } = useSalesChannels({
+  const { product_categories } = useProductCategories({
     limit: 1000,
+    offset: 0,
     fields: "id,name",
+  })
+
+  const { collections } = useCollections({
+    limit: 1000,
+    offset: 0,
   })
 
   return useMemo(() => {
     const filters = [...dateFilters]
+
+    if (product_categories?.length) {
+      filters.push(
+        filterHelper.accessor("category_id", {
+          label: t("fields.category"),
+          type: "multiselect",
+          options: product_categories.map((c) => ({
+            label: c.name,
+            value: c.id,
+          })),
+        })
+      )
+    }
+
+    if (collections?.length) {
+      filters.push(
+        filterHelper.accessor("collection_id", {
+          label: t("fields.collection"),
+          type: "multiselect",
+          options: collections.map((c) => ({
+            label: c.title,
+            value: c.id,
+          })),
+        })
+      )
+    }
 
     if (product_types?.length) {
       filters.push(
@@ -60,19 +91,6 @@ export const useProductTableFilters = () => {
       )
     }
 
-    if (sales_channels?.length) {
-      filters.push(
-        filterHelper.accessor("sales_channel_id", {
-          label: t("fields.salesChannel"),
-          type: "multiselect",
-          options: sales_channels.map((s) => ({
-            label: s.name,
-            value: s.id,
-          })),
-        })
-      )
-    }
-
     // Status filter
     filters.push(
       filterHelper.accessor("status", {
@@ -81,24 +99,28 @@ export const useProductTableFilters = () => {
         options: [
           {
             label: t("products.productStatus.draft"),
-            value: "draft",
+            value: ProductStatus.DRAFT,
           },
           {
             label: t("products.productStatus.proposed"),
-            value: "proposed",
+            value: ProductStatus.PROPOSED,
           },
           {
             label: t("products.productStatus.published"),
-            value: "published",
+            value: ProductStatus.PUBLISHED,
+          },
+          {
+            label: t("products.productStatus.changes_required"),
+            value: ProductStatus.CHANGES_REQUIRED,
           },
           {
             label: t("products.productStatus.rejected"),
-            value: "rejected",
+            value: ProductStatus.REJECTED,
           },
         ],
       })
     )
 
     return filters
-  }, [product_types, product_tags, sales_channels, dateFilters, t])
+  }, [product_types, product_tags, product_categories, collections, dateFilters, t])
 }

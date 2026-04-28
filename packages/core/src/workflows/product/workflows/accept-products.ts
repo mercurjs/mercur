@@ -43,7 +43,7 @@ export const acceptProductsWorkflow = createWorkflow(
                     product_change_id: product.product_change.id,
                     product_id: product.id,
                     action: ProductChangeActionType.STATUS_CHANGE,
-                    details: { status: ProductStatus.ACCEPTED },
+                    details: { status: ProductStatus.PUBLISHED },
                 }))
         )
 
@@ -63,15 +63,14 @@ export const acceptProductsWorkflow = createWorkflow(
         const updateInput = transform({ input }, ({ input }) => ({
             selector: { id: input.product_ids },
             data: {
-                status: ProductStatus.ACCEPTED,
-                is_active: true,
+                status: ProductStatus.PUBLISHED,
             },
         }))
 
         updateProductsStep(updateInput)
 
         emitEventStep({
-            eventName: ProductWorkflowEvents.ACCEPTED,
+            eventName: ProductWorkflowEvents.PUBLISHED,
             data: transform({ input }, ({ input }) =>
                 input.product_ids.map((id) => ({ id }))
             ),

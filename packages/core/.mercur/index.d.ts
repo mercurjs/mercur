@@ -256,12 +256,14 @@ export type Routes = {
                     };
                 };
                 accept: typeof import("../../src/api/admin/products/[id]/accept/route");
-                activate: typeof import("../../src/api/admin/products/[id]/activate/route");
-                deactivate: typeof import("../../src/api/admin/products/[id]/deactivate/route");
+                attributes: typeof import("../../src/api/admin/products/[id]/attributes/route") & {
+                    $attributeId: typeof import("../../src/api/admin/products/[id]/attributes/[attribute_id]/route");
+                    batch: typeof import("../../src/api/admin/products/[id]/attributes/batch/route");
+                };
                 reject: typeof import("../../src/api/admin/products/[id]/reject/route");
                 requestChanges: typeof import("../../src/api/admin/products/[id]/request-changes/route");
             };
-            batch: typeof import("@medusajs/medusa/api/admin/products/batch/route");
+            batch: typeof import("../../src/api/admin/products/batch/route");
             export: typeof import("@medusajs/medusa/api/admin/products/export/route");
             import: typeof import("@medusajs/medusa/api/admin/products/import/route") & {
                 $transactionId: {

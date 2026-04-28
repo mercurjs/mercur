@@ -1,3 +1,5 @@
+import { SellerDTO } from "../seller/common"
+
 // --- Enums ---
 
 /**
@@ -5,8 +7,9 @@
  * with marketplace product acceptance workflow statuses.
  */
 export enum ProductStatus {
-  PENDING = "pending",
-  ACCEPTED = "accepted",
+  DRAFT = 'draft',
+  PROPOSED = "proposed",
+  PUBLISHED = "published",
   CHANGES_REQUIRED = "changes_required",
   REJECTED = "rejected",
 }
@@ -131,7 +134,7 @@ export interface ProductBrandDTO {
 
 export interface ProductAttributeValueDTO {
   id: string;
-  handle: string;
+  handle: string | null;
   name: string;
   rank: number;
   is_active: boolean;
@@ -139,6 +142,7 @@ export interface ProductAttributeValueDTO {
   attribute?: ProductAttributeDTO;
   attribute_id?: string;
   variants?: ProductVariantDTO[];
+  products?: ProductDTO[];
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;
@@ -148,7 +152,7 @@ export interface ProductAttributeValueDTO {
 
 export interface ProductAttributeDTO {
   id: string;
-  handle: string;
+  handle: string | null;
   name: string;
   description: string | null;
   type: AttributeType;
@@ -157,11 +161,12 @@ export interface ProductAttributeDTO {
   is_variant_axis: boolean;
   rank: number;
   is_active: boolean;
-  is_global: boolean;
   created_by: string | null;
+  product_id: string | null;
   metadata: Record<string, unknown> | null;
   values?: ProductAttributeValueDTO[];
   categories?: ProductCategoryDTO[];
+  variant_products?: ProductDTO[];
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;
@@ -246,7 +251,6 @@ export interface ProductDTO {
   external_id: string | null;
   metadata: Record<string, unknown> | null;
   status: ProductStatus;
-  is_active: boolean;
   is_restricted: boolean;
   created_by: string | null;
   created_by_actor: string | null;
@@ -261,6 +265,10 @@ export interface ProductDTO {
   collection_id?: string | null;
   categories?: ProductCategoryDTO[];
   variant_attributes?: ProductAttributeDTO[];
+  custom_attributes?: ProductAttributeDTO[];
+  attribute_values?: ProductAttributeValueDTO[];
+  attributes?: ProductAttributeDTO[];
+  sellers?: SellerDTO[];
   changes?: ProductChangeDTO[];
   created_at: string | Date;
   updated_at: string | Date;

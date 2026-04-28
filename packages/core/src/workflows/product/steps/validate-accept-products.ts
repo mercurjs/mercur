@@ -6,10 +6,10 @@ export const validateAcceptProductsStep = createStep(
   "validate-accept-products",
   async ({ products }: { products: any[] }) => {
     for (const product of products) {
-      if (product.status !== ProductStatus.PENDING) {
+      if (product.status !== ProductStatus.PROPOSED) {
         throw new MedusaError(
           MedusaError.Types.NOT_ALLOWED,
-          `Cannot accept product '${product.id}' with status '${product.status}'. Only pending products can be accepted.`
+          `Cannot accept product '${product.id}' with status '${product.status}'. Only proposed products can be accepted.`
         )
       }
 

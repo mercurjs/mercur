@@ -2,7 +2,6 @@ import { useParams } from "react-router-dom";
 
 import { RouteFocusModal } from "../../../components/modals/index.ts";
 import { useProductVariant } from "../../../hooks/api/products.tsx";
-import { VARIANT_DETAIL_FIELDS } from "../product-variant-detail/constants.ts";
 import { ManageVariantInventoryItemsForm } from "./components/manage-variant-inventory-items-form/index.ts";
 
 export function ProductVariantManageInventoryItems() {
@@ -13,9 +12,7 @@ export function ProductVariantManageInventoryItems() {
     isPending: isLoading,
     isError,
     error,
-  } = useProductVariant(id!, variant_id!, {
-    fields: VARIANT_DETAIL_FIELDS,
-  });
+  } = useProductVariant(id!, variant_id!, {});
 
   if (isError) {
     throw error;

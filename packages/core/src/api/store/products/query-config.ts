@@ -3,7 +3,6 @@ export const storeProductFields = [
   "title",
   "subtitle",
   "status",
-  "is_active",
   "external_id",
   "description",
   "handle",
@@ -31,8 +30,14 @@ export const storeProductFields = [
   "*images",
   "*categories",
   "*variants",
+  "*variants.attribute_values",
+  "*variants.attribute_values.attribute",
   "*variant_attributes",
   "*variant_attributes.values",
+  "*custom_attributes",
+  "*custom_attributes.values",
+  "*attribute_values",
+  "*attribute_values.attribute",
 ]
 
 export const storeProductQueryConfig = {

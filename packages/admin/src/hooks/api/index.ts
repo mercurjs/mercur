@@ -1,5 +1,7 @@
 export * from "./api-keys";
-export * from "./attributes";
+export * from "./product-attributes";
+export * from "./product-brands";
+export * from "./product-rejection-reasons";
 export * from "./auth";
 export * from "./campaigns";
 export * from "./categories";
@@ -21,7 +23,6 @@ export * from "./payouts";
 export * from "./payments";
 export * from "./price-lists";
 export * from "./product-types";
-export * from "./product-variants";
 export * from "./products";
 export * from "./promotions";
 export * from "./refund-reasons";

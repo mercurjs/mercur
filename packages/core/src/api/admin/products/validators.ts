@@ -10,7 +10,8 @@ import {
   applyAndAndOrOperators,
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
-import { AdditionalData } from "@medusajs/framework/types"
+import { AdditionalData, OperatorMap } from "@medusajs/framework/types"
+import { isPresent } from "@medusajs/framework/utils"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
@@ -23,7 +24,6 @@ const AdminGetProductsParamsFields = z.object({
   handle: z.string().optional(),
   seller_id: z.union([z.string(), z.array(z.string())]).optional(),
   status: statusEnum.array().optional(),
-  is_active: booleanString().optional(),
   is_restricted: booleanString().optional(),
   brand_id: z.union([z.string(), z.array(z.string())]).optional(),
   collection_id: z.union([z.string(), z.array(z.string())]).optional(),
@@ -48,6 +48,21 @@ export const AdminGetProductsParams = createFindParams({
 })
   .merge(AdminGetProductsParamsFields)
   .merge(applyAndAndOrOperators(AdminGetProductsParamsFields))
+  .transform((data) => {
+    const res = { ...data } as Record<string, unknown>
+
+    if (isPresent(data.tag_id)) {
+      res.tags = { id: data.tag_id as string[] }
+      delete res.tag_id
+    }
+
+    if (isPresent(data.category_id)) {
+      res.categories = { id: data.category_id as OperatorMap<string> }
+      delete res.category_id
+    }
+
+    return res
+  })
 
 export type AdminGetProductParamsType = z.infer<typeof AdminGetProductParams>
 export const AdminGetProductParams = createSelectParams()
@@ -68,7 +83,6 @@ const CreateProductVariant = z
     barcode: z.string().nullish(),
     hs_code: z.string().nullish(),
     mid_code: z.string().nullish(),
-    allow_backorder: booleanString().optional().default(false),
     variant_rank: z.number().optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -77,17 +91,6 @@ const CreateProductVariant = z
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
-    prices: z
-      .array(
-        z.object({
-          currency_code: z.string(),
-          amount: z.number(),
-          min_quantity: z.number().nullish(),
-          max_quantity: z.number().nullish(),
-          rules: z.record(z.string(), z.string()).optional(),
-        })
-      )
-      .optional(),
     // See CreateProductVariantDTO.attribute_values — resolved by the service.
     attribute_values: z
       .record(z.union([z.string(), z.array(z.string())]))
@@ -109,7 +112,6 @@ const UpdateProductVariant = z
     hs_code: z.string().nullish(),
     mid_code: z.string().nullish(),
     thumbnail: z.string().nullish(),
-    allow_backorder: booleanString().optional(),
     variant_rank: z.number().optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -135,6 +137,26 @@ const UpdateProductVariant = z
       .optional(),
   })
   .strict()
+
+// --- Attribute input validators ---
+
+const ProductAttributeInput = z.union([
+  z.object({
+    attribute_id: z.string(),
+    value_ids: z.array(z.string()).optional(),
+    values: z.array(z.string()).optional(),
+  }),
+  z.object({
+    name: z.string(),
+    type: z.enum(["single_select", "multi_select", "unit", "toggle", "text"]),
+    values: z.array(z.string()).optional(),
+    is_variant_axis: z.boolean().optional(),
+    is_filterable: z.boolean().optional(),
+    is_required: z.boolean().optional(),
+    description: z.string().nullish(),
+    metadata: z.record(z.unknown()).nullish(),
+  }),
+])
 
 // --- Variant query params ---
 
@@ -192,16 +214,17 @@ const CreateProduct = z
     images: z.array(z.object({ url: z.string() })).optional(),
     thumbnail: z.string().nullish(),
     handle: z.string().optional(),
+    status: statusEnum.optional(),
     external_id: z.string().nullish(),
     type_id: z.string().nullish(),
     collection_id: z.string().nullish(),
     brand_id: z.string().nullish(),
     is_restricted: z.boolean().optional(),
+    seller_ids: z.array(z.string()).optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    variant_attributes: z
-      .array(z.union([z.string(), z.record(z.unknown())]))
-      .optional(),
+    variant_attributes: z.array(ProductAttributeInput).optional(),
+    product_attributes: z.array(ProductAttributeInput).optional(),
     variants: z.array(CreateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -218,7 +241,7 @@ export const AdminCreateProduct = WithAdditionalData(CreateProduct)
 
 export type AdminUpdateProductType = z.infer<typeof UpdateProduct> &
   AdditionalData
-const UpdateProduct = z
+export const UpdateProduct = z
   .object({
     title: z.string().optional(),
     subtitle: z.string().nullish(),
@@ -230,6 +253,7 @@ const UpdateProduct = z
       .optional(),
     thumbnail: z.string().nullish(),
     handle: z.string().nullish(),
+    status: statusEnum.optional(),
     external_id: z.string().nullish(),
     type_id: z.string().nullish(),
     collection_id: z.string().nullish(),
@@ -237,9 +261,8 @@ const UpdateProduct = z
     is_restricted: z.boolean().optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    variant_attributes: z
-      .array(z.union([z.string(), z.record(z.unknown())]))
-      .optional(),
+    variant_attributes: z.array(ProductAttributeInput).optional(),
+    product_attributes: z.array(ProductAttributeInput).optional(),
     variants: z.array(UpdateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -268,4 +291,42 @@ export type AdminRequestProductChangesType = z.infer<
 export const AdminRequestProductChanges = z.object({
   rejection_reason_ids: z.array(z.string()).min(1),
   message: z.string().optional(),
+})
+
+// --- Batch products ---
+
+const BatchProductsUpdateItem = UpdateProduct.extend({
+  id: z.string(),
+})
+
+const BatchProducts = z.object({
+  update: z.array(BatchProductsUpdateItem).optional(),
+  delete: z.array(z.string()).optional(),
+})
+
+export type AdminBatchProductsType = z.infer<typeof BatchProducts> &
+  AdditionalData
+export const AdminBatchProducts = WithAdditionalData(BatchProducts)
+
+// --- Batch product attributes ---
+
+const BatchProductAttributeCreate = z.union([
+  // Select types — reference existing value IDs
+  z.object({
+    attribute_id: z.string(),
+    attribute_value_ids: z.array(z.string()).optional(),
+  }).strict(),
+  // Text/unit/toggle types — provide new value strings
+  z.object({
+    attribute_id: z.string(),
+    values: z.array(z.string()),
+  }).strict(),
+])
+
+export type AdminBatchProductAttributesType = z.infer<
+  typeof AdminBatchProductAttributes
+>
+export const AdminBatchProductAttributes = z.object({
+  create: z.array(BatchProductAttributeCreate).optional(),
+  delete: z.array(z.string()).optional(),
 })

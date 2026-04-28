@@ -11,10 +11,9 @@ import { Form } from "../../../components/common/form"
 import { RouteDrawer, useRouteModal } from "../../../components/modals"
 import { KeyboundForm } from "../../../components/utilities/keybound-form"
 import {
-  useAttribute,
-  useUpdateAttributePossibleValue,
-} from "../../../hooks/api/attributes"
-import { ATTRIBUTE_DETAIL_FIELDS } from "../attribute-detail/constants"
+  useProductAttribute,
+  useUpdateProductAttributeValue,
+} from "../../../hooks/api/product-attributes"
 import { UpdatePossibleValueSchema } from "../attribute-edit/schema"
 import type { UpdatePossibleValueFormValues } from "../attribute-edit/types"
 
@@ -33,7 +32,7 @@ const EditPossibleValueForm = ({
   const originalMetadataRef = useRef<Record<string, unknown>>({})
 
   const { mutateAsync, isPending: isMutating } =
-    useUpdateAttributePossibleValue(attributeId, possibleValue.id)
+    useUpdateProductAttributeValue(attributeId, possibleValue.id)
 
   const form = useForm<UpdatePossibleValueFormValues>({
     resolver: zodResolver(UpdatePossibleValueSchema),
@@ -256,9 +255,7 @@ export const AttributeEditPossibleValue = () => {
   const { t } = useTranslation()
   const possibleValueId = searchParams.get("possible_value_id")
 
-  const { attribute, isPending, isError, error } = useAttribute(id!, {
-    fields: ATTRIBUTE_DETAIL_FIELDS,
-  })
+  const { product_attribute: attribute, isPending, isError, error } = useProductAttribute(id!)
 
   if (isError) {
     throw error
@@ -268,7 +265,7 @@ export const AttributeEditPossibleValue = () => {
     return null
   }
 
-  const possibleValue = attribute.possible_values?.find(
+  const possibleValue = attribute.values?.find(
     (pv: { id: string }) => pv.id === possibleValueId
   )
 

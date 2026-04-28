@@ -27,6 +27,7 @@ const VendorProductAttributesParamsFields = z.object({
   is_variant_axis: booleanString().optional(),
   is_filterable: booleanString().optional(),
   is_active: booleanString().optional(),
+  product_id: z.union([z.string(), z.array(z.string()), z.null()]).optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
 })

@@ -6,15 +6,17 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { CreateProductDTO, ProductStatus } from "@mercurjs/types"
+import { CreateProductDTO } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { createProductsStep } from "../steps"
+import { linkSellersToProductWorkflow } from "./link-sellers-to-product"
 
 export const createProductsWorkflowId = "create-products"
 
 type CreateProductsWorkflowInput = {
   products: CreateProductDTO[]
+  seller_ids?: string[]
 } & AdditionalData
 
 export const createProductsWorkflow = createWorkflow(
@@ -25,15 +27,7 @@ export const createProductsWorkflow = createWorkflow(
       products: input.products,
     })
 
-    const normalizedProducts = transform({ input }, ({ input }) =>
-      input.products.map((p) => ({
-        ...p,
-        status: ProductStatus.ACCEPTED,
-        is_active: true,
-      }))
-    )
-
-    const products = createProductsStep(normalizedProducts)
+    const products = createProductsStep(input.products)
 
     const productsCreated = createHook("productsCreated", {
       products,
@@ -48,6 +42,16 @@ export const createProductsWorkflow = createWorkflow(
       eventName: ProductWorkflowEvents.CREATED,
       data: eventData,
     })
+
+    const linkInput = transform(
+      { input, products },
+      ({ input, products }) => ({
+        id: (products as any[])[0]?.id,
+        add: input.seller_ids ?? [],
+      })
+    )
+
+    linkSellersToProductWorkflow.runAsStep({ input: linkInput })
 
     return new WorkflowResponse(products, {
       hooks: [validate, productsCreated] as const,

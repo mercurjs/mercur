@@ -8,10 +8,9 @@ const productsListQuery = () => ({
   queryKey: productsQueryKeys.list({
     limit: 20,
     offset: 0,
-    is_giftcard: false,
   }),
   queryFn: async () =>
-    sdk.admin.products.query({ limit: 20, offset: 0, is_giftcard: false }),
+    sdk.admin.products.query({ limit: 20, offset: 0, fields: "id,title,handle,status,*collection,*categories,variants.id,thumbnail,*sellers" }),
 })
 
 export const productsLoader = (client: QueryClient) => {

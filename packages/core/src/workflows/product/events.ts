@@ -2,11 +2,11 @@ export const ProductWorkflowEvents = {
   CREATED: "product.created",
   UPDATED: "product.updated",
   DELETED: "product.deleted",
-  ACCEPTED: "product.accepted",
+  DRAFT: "product.draft",
+  PUBLISHED: "product.published",
+  PROPOSED: "product.proposed",
   CHANGES_REQUESTED: "product.changes_requested",
   REJECTED: "product.rejected",
-  ACTIVATED: "product.activated",
-  DEACTIVATED: "product.deactivated",
   RESUBMITTED: "product.submission_resubmitted",
 } as const
 
