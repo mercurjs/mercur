@@ -28,14 +28,14 @@ module.exports = defineConfig({
       resolve: "@medusajs/medusa/rbac",
     },
     {
-      resolve: '@mercurjs/core-plugin/modules/admin-ui',
+      resolve: '@mercurjs/core/modules/admin-ui',
       options: {
         appDir: path.join(__dirname, '../../apps/admin'),
         path: '/dashboard',
       } as DashboardModuleOptions
     },
     {
-      resolve: '@mercurjs/core-plugin/modules/vendor-ui',
+      resolve: '@mercurjs/core/modules/vendor-ui',
       options: {
         appDir: path.join(__dirname, '../../apps/vendor'),
         path: '/seller',
@@ -43,7 +43,7 @@ module.exports = defineConfig({
     },
   ],
   plugins: [{
-    resolve: "@mercurjs/core-plugin",
+    resolve: "@mercurjs/core",
     options: {}
   }]
 })

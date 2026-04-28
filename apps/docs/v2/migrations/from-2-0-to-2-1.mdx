@@ -1,0 +1,105 @@
+---
+title: From 2.0 to 2.1
+description: What changed in Mercur 2.1.0 and how to upgrade an existing 2.0.x project.
+---
+
+# Migrating from 2.0 to 2.1
+
+Mercur `2.1.0` is the first stable release of the 2.x line after `2.0.2`. The only required change is a package rename. Everything else is handled by `bun run medusa db:migrate`.
+
+If you are starting fresh, follow [Installation](/v2/getting-started/installation) instead — new projects already use the 2.1 names.
+
+## Breaking change: `@mercurjs/core-plugin` → `@mercurjs/core`
+
+The Medusa plugin previously published as `@mercurjs/core-plugin` is now published as **`@mercurjs/core`**. The package contents are the same; only the name changed.
+
+This affects:
+
+- `package.json` — installed package name
+- `medusa-config.ts` — every `resolve: "@mercurjs/core-plugin/..."` value
+- Any source imports in `packages/api/src/**`
+
+### Step 1 — swap the dependency
+
+```bash
+bun remove @mercurjs/core-plugin
+bun add @mercurjs/core@2.1.0
+```
+
+If you use npm/yarn/pnpm, use the equivalent commands for your package manager.
+
+Or edit `packages/api/package.json` by hand — replace the `@mercurjs/core-plugin` entry under `dependencies` with `@mercurjs/core` at the matching version, then run your installer:
+
+```jsonc
+// before
+"dependencies": {
+  "@mercurjs/core-plugin": "2.0.2"
+}
+
+// after
+"dependencies": {
+  "@mercurjs/core": "2.1.0"
+}
+```
+
+```bash
+bun install
+```
+
+### Step 2 — replace strings in config and source
+
+In `packages/api/medusa-config.ts` and anywhere under `packages/api/src/**`, replace every occurrence of `@mercurjs/core-plugin` with `@mercurjs/core`. A repo-wide find-and-replace is safe — there are no other valid uses of the old name.
+
+```ts
+// before
+{
+  resolve: "@mercurjs/core-plugin/modules/seller",
+}
+
+// after
+{
+  resolve: "@mercurjs/core/modules/seller",
+}
+```
+
+```ts
+// before
+import { createSellerWorkflow } from "@mercurjs/core-plugin/workflows"
+
+// after
+import { createSellerWorkflow } from "@mercurjs/core/workflows"
+```
+
+The same applies to:
+
+- `@mercurjs/core-plugin/modules/<module>`
+- `@mercurjs/core-plugin/workflows`
+- `@mercurjs/core-plugin/links`
+- `@mercurjs/core-plugin/api`
+
+### Step 3 — reinstall and rebuild
+
+```bash
+bun install
+bun run build
+```
+
+If TypeScript still complains about `@mercurjs/core-plugin`, you missed an import. Re-run the find-and-replace.
+
+### Step 4 — refresh installed blocks
+
+If your project installed registry blocks (`mercurjs add reviews`, `mercurjs add requests`, etc.) on a 2.0.x version, the local copies still reference `@mercurjs/core-plugin`. Either:
+
+- Run the same find-and-replace inside `packages/api/src/` (registry blocks live there once installed)
+
+## Database migrations
+
+Mercur 2.1 ships several new migrations on the `seller` module. All are non-destructive. Run:
+
+```bash
+bun run medusa db:migrate
+```
+
+## Full changelog
+
+The complete 2.1.0 changelog is published with the [GitHub release](https://github.com/mercurjs/mercur/releases/tag/v2.1.0).

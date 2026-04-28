@@ -1,6 +1,6 @@
 import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
 import { createProductTypesWorkflow } from "@medusajs/medusa/core-flows"
-import { upsertCustomFieldsStep } from "@mercurjs/core-plugin/workflows"
+import { upsertCustomFieldsStep } from "@mercurjs/core/workflows"
 
 import { RequestStatus } from "../../../types"
 
