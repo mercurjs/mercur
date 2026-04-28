@@ -1,11 +1,11 @@
 ---
 title: From 2.0 to 2.1
-description: What changed in Mercur 2.1.0 and how to upgrade an existing 2.0.x project.
+description: What changed in Mercur 2.1 and how to upgrade an existing 2.0.x project.
 ---
 
 # Migrating from 2.0 to 2.1
 
-Mercur `2.1.0` is the first stable release of the 2.x line after `2.0.2`. The only required change is a package rename. Everything else is handled by `bun run medusa db:migrate`.
+Mercur `2.1.1` is the first stable release of the 2.x line after `2.0.2`. The only required change is a package rename. Everything else is handled by `bun run medusa db:migrate`.
 
 If you are starting fresh, follow [Installation](/v2/getting-started/installation) instead — new projects already use the 2.1 names.
 
@@ -23,7 +23,7 @@ This affects:
 
 ```bash
 bun remove @mercurjs/core-plugin
-bun add @mercurjs/core@2.1.0
+bun add @mercurjs/core@2.1.1
 ```
 
 If you use npm/yarn/pnpm, use the equivalent commands for your package manager.
@@ -38,7 +38,7 @@ Or edit `packages/api/package.json` by hand — replace the `@mercurjs/core-plug
 
 // after
 "dependencies": {
-  "@mercurjs/core": "2.1.0"
+  "@mercurjs/core": "2.1.1"
 }
 ```
 
@@ -102,4 +102,4 @@ bun run medusa db:migrate
 
 ## Full changelog
 
-The complete 2.1.0 changelog is published with the [GitHub release](https://github.com/mercurjs/mercur/releases/tag/v2.1.0).
+The complete 2.1 changelog is published with the [GitHub release](https://github.com/mercurjs/mercur/releases/tag/v2.1.1).
