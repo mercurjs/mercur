@@ -105,6 +105,23 @@
             ]
           },
           {
+            "tab": "User Guide",
+            "groups": [
+              {
+                "group": "Admin",
+                "pages": [
+                  "v2/user-guides/admin/stores"
+                ]
+              },
+              {
+                "group": "Vendor",
+                "pages": [
+                  "v2/user-guides/vendor/stores"
+                ]
+              }
+            ]
+          },
+          {
             "tab": "Changelog",
             "groups": [
               {
