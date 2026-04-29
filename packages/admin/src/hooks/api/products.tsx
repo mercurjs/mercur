@@ -149,7 +149,7 @@ export const useBatchProducts = (
 
 // --- Product action mutations ---
 
-export const useAcceptProduct = (
+export const usePublishProduct = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
@@ -158,7 +158,7 @@ export const useAcceptProduct = (
   >,
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.products.$id.accept.mutate({ $id: id }),
+    mutationFn: () => sdk.admin.products.$id.publish.mutate({ $id: id }),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });

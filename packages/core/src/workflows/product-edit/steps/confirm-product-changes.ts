@@ -5,6 +5,7 @@ import ProductModuleService from "../../../modules/product/service"
 type ConfirmProductChangesStepInput = {
   id: string
   confirmed_by?: string
+  internal_note?: string
 }
 
 export const confirmProductChangesStep = createStep(

@@ -24,6 +24,7 @@ import {
   ProductAttributeDTO,
   ProductBrandDTO,
   ProductChangeActionDTO,
+  ProductChangeActionType,
   ProductChangeStatus,
   ProductDTO,
   ProductVariantDTO,
@@ -74,6 +75,7 @@ type AddProductActionInput = {
   details?: Record<string, unknown>;
   internal_note?: string;
 };
+
 
 interface InjectedDependencies {
   productCategoryService: ProductCategoryService;
@@ -1982,37 +1984,237 @@ class ProductModuleService extends MedusaService({
 
   // --- ProductChange lifecycle methods ---
 
+  /**
+   * Confirms one or more pending product changes and applies their actions
+   * to the underlying products. Mirrors Medusa's `confirmOrderChange`:
+   * validation + status update + action application happen atomically.
+   *
+   * `internal_note` (when provided) is persisted to the `ProductChange`
+   * record alongside the confirmation — used by operators to leave a note
+   * about why the change was accepted.
+   */
   @InjectTransactionManager()
   async confirmProductChange(
     data:
-      | { id: string; confirmed_by?: string }
-      | { id: string; confirmed_by?: string }[],
+      | { id: string; confirmed_by?: string; internal_note?: string }
+      | { id: string; confirmed_by?: string; internal_note?: string }[],
     sharedContext?: Context
   ) {
     const items = Array.isArray(data) ? data : [data];
+    const ids = items.map((i) => i.id);
 
-    for (const item of items) {
-      const change = await this.retrieveProductChange(
-        item.id,
-        {},
-        sharedContext
+    const changes = await this.listProductChanges(
+      { id: ids },
+      {
+        select: ["id", "status", "actions"] as any,
+        relations: ["actions"],
+        order: { actions: { ordering: "ASC" } } as any,
+      },
+      sharedContext
+    );
+
+    if (changes.length !== ids.length) {
+      const found = new Set(changes.map((c: any) => c.id));
+      const missing = ids.filter((id) => !found.has(id));
+      throw new MedusaError(
+        MedusaError.Types.NOT_FOUND,
+        `Product change(s) not found: ${missing.join(", ")}`
       );
+    }
 
+    for (const change of changes as any[]) {
       if (change.status !== ProductChangeStatus.PENDING) {
         throw new MedusaError(
           MedusaError.Types.NOT_ALLOWED,
-          `Cannot confirm product change with status '${change.status}'. Only pending changes can be confirmed.`
+          `Cannot confirm product change '${change.id}' with status '${change.status}'. Only pending changes can be confirmed.`
         );
       }
     }
 
     await this.updateProductChanges(
-      items.map((item) => ({
-        id: item.id,
-        status: ProductChangeStatus.CONFIRMED,
-        confirmed_by: item.confirmed_by,
-        confirmed_at: new Date(),
-      })),
+      items.map((item) => {
+        const update: Record<string, unknown> = {
+          id: item.id,
+          status: ProductChangeStatus.CONFIRMED,
+          confirmed_by: item.confirmed_by,
+          confirmed_at: new Date(),
+        };
+        if (item.internal_note !== undefined) {
+          update.internal_note = item.internal_note;
+        }
+        return update;
+      }) as any,
+      sharedContext
+    );
+
+    const allActions = (changes as any[]).flatMap((c) => c.actions ?? []);
+    await this.applyProductChangeActions_(allActions, sharedContext);
+  }
+
+  /**
+   * Applies pending change actions to their products. Public entrypoint
+   * for callers that want to apply without confirming (e.g. previewing
+   * effects). Internally delegates to the same routine `confirmProductChange`
+   * uses.
+   */
+  @InjectTransactionManager()
+  async applyProductChangeActions(
+    actions: Array<{
+      id: string;
+      product_id: string;
+      action: string;
+      details?: Record<string, unknown> | null;
+      applied?: boolean;
+    }>,
+    sharedContext?: Context
+  ): Promise<void> {
+    await this.applyProductChangeActions_(actions, sharedContext);
+  }
+
+  protected async applyProductChangeActions_(
+    actions: Array<{
+      id: string;
+      product_id: string;
+      action: string;
+      details?: Record<string, unknown> | null;
+      applied?: boolean;
+    }>,
+    sharedContext?: Context
+  ): Promise<void> {
+    const pending = (actions ?? []).filter((a) => !a.applied);
+
+    if (!pending.length) return;
+
+    // Bucket actions per type so each kind dispatches in one DB round.
+    const productUpdatesByProductId = new Map<
+      string,
+      Record<string, unknown>
+    >();
+    const variantsToCreate: Array<
+      CreateProductVariantDTO & { product_id: string }
+    > = [];
+    const variantUpdates: Array<UpdateProductVariantDTO & { id: string }> = [];
+    const variantsToDelete: string[] = [];
+    const attributeAddsByProductId = new Map<
+      string,
+      Array<{
+        attribute_id: string;
+        attribute_value_ids?: string[];
+        values?: string[];
+      }>
+    >();
+    const attributeRemovesByProductId = new Map<string, string[]>();
+
+    for (const action of pending) {
+      const details = (action.details ?? {}) as Record<string, unknown>;
+
+      switch (action.action) {
+        case ProductChangeActionType.STATUS_CHANGE: {
+          const status = (details as { status?: string }).status;
+          if (status === undefined) break;
+          const update =
+            productUpdatesByProductId.get(action.product_id) ??
+            ({ id: action.product_id } as Record<string, unknown>);
+          update.status = status;
+          productUpdatesByProductId.set(action.product_id, update);
+          break;
+        }
+        case ProductChangeActionType.UPDATE: {
+          const { field, value } = details as {
+            field?: string;
+            value?: unknown;
+          };
+          if (!field) break;
+          const update =
+            productUpdatesByProductId.get(action.product_id) ??
+            ({ id: action.product_id } as Record<string, unknown>);
+          update[field] = value;
+          productUpdatesByProductId.set(action.product_id, update);
+          break;
+        }
+        case ProductChangeActionType.VARIANT_ADD: {
+          const variant = (details as { variant?: CreateProductVariantDTO })
+            .variant;
+          if (!variant) break;
+          variantsToCreate.push({
+            ...variant,
+            product_id: action.product_id,
+          });
+          break;
+        }
+        case ProductChangeActionType.VARIANT_UPDATE: {
+          const { variant_id, fields } = details as {
+            variant_id?: string;
+            fields?: UpdateProductVariantDTO;
+          };
+          if (!variant_id || !fields || !Object.keys(fields).length) break;
+          variantUpdates.push({
+            id: variant_id,
+            ...fields,
+          } as UpdateProductVariantDTO & { id: string });
+          break;
+        }
+        case ProductChangeActionType.VARIANT_REMOVE: {
+          const { variant_id } = details as { variant_id?: string };
+          if (variant_id) variantsToDelete.push(variant_id);
+          break;
+        }
+        case ProductChangeActionType.ATTRIBUTE_ADD: {
+          const { attribute_id, attribute_value_ids, values } = details as {
+            attribute_id?: string;
+            attribute_value_ids?: string[];
+            values?: string[];
+          };
+          if (!attribute_id) break;
+          const list =
+            attributeAddsByProductId.get(action.product_id) ?? [];
+          list.push({ attribute_id, attribute_value_ids, values });
+          attributeAddsByProductId.set(action.product_id, list);
+          break;
+        }
+        case ProductChangeActionType.ATTRIBUTE_REMOVE: {
+          const { attribute_id } = details as { attribute_id?: string };
+          if (!attribute_id) break;
+          const list =
+            attributeRemovesByProductId.get(action.product_id) ?? [];
+          list.push(attribute_id);
+          attributeRemovesByProductId.set(action.product_id, list);
+          break;
+        }
+      }
+    }
+
+    // Top-level Product field + status updates — one call per product.
+    const productUpdates = Array.from(
+      productUpdatesByProductId.values()
+    ).filter((u) => Object.keys(u).length > 1);
+    if (productUpdates.length) {
+      await this.updateProducts(productUpdates as any, sharedContext);
+    }
+
+    // Variant deletes first — frees up SKU/title uniqueness for adds in the
+    // same change. Updates last so they see a stable variant set.
+    if (variantsToDelete.length) {
+      await this.deleteProductVariants(variantsToDelete, sharedContext);
+    }
+    if (variantsToCreate.length) {
+      await this.createProductVariants(variantsToCreate, sharedContext);
+    }
+    if (variantUpdates.length) {
+      await this.updateProductVariants(variantUpdates, sharedContext);
+    }
+
+    // Attribute removes before adds so the same attribute can be re-linked
+    // with a different value set in a single change.
+    for (const [productId, attrIds] of attributeRemovesByProductId) {
+      await this.removeAttributeFromProduct(productId, attrIds, sharedContext);
+    }
+    for (const [productId, items] of attributeAddsByProductId) {
+      await this.addAttributesToProduct(productId, items, sharedContext);
+    }
+
+    await this.updateProductChangeActions(
+      pending.map((a) => ({ id: a.id, applied: true })),
       sharedContext
     );
   }
@@ -2052,7 +2254,7 @@ class ProductModuleService extends MedusaService({
   @InjectTransactionManager()
   async cancelProductChange(
     id: string,
-    data: { canceled_by?: string },
+    data: { canceled_by?: string; internal_note?: string },
     sharedContext?: Context
   ) {
     const change = await this.retrieveProductChange(id, {}, sharedContext);
@@ -2064,15 +2266,17 @@ class ProductModuleService extends MedusaService({
       );
     }
 
-    await this.updateProductChanges(
-      {
-        id,
-        status: ProductChangeStatus.CANCELED,
-        canceled_by: data.canceled_by,
-        canceled_at: new Date(),
-      },
-      sharedContext
-    );
+    const update: Record<string, unknown> = {
+      id,
+      status: ProductChangeStatus.CANCELED,
+      canceled_by: data.canceled_by,
+      canceled_at: new Date(),
+    };
+    if (data.internal_note !== undefined) {
+      update.internal_note = data.internal_note;
+    }
+
+    await this.updateProductChanges(update as any, sharedContext);
   }
 
   addProductAction(

@@ -8,13 +8,12 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { ProductStatus, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
+import { validateRequestChangesStep, updateProductsStep } from "../steps"
 import {
   retrieveProductWithChangeStep,
-  validateRequestChangesStep,
   createProductChangeActionsStep,
   declineProductChangeStep,
-  updateProductsStep,
-} from "../steps"
+} from "../../product-edit/steps"
 
 export const requestProductChangesWorkflowId = "request-product-changes"
 

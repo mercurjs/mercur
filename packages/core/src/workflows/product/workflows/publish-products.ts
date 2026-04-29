@@ -8,24 +8,23 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { ProductStatus, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
+import { validatePublishProductsStep, updateProductsStep } from "../steps"
 import {
     retrieveProductWithChangeStep,
-    validateAcceptProductsStep,
     createProductChangeActionsStep,
     confirmProductChangesStep,
-    updateProductsStep,
-} from "../steps"
+} from "../../product-edit/steps"
 
-export const acceptProductsWorkflowId = "accept-products"
+export const publishProductsWorkflowId = "publish-products"
 
-type AcceptProductsWorkflowInput = {
+type PublishProductsWorkflowInput = {
     product_ids: string[]
     actor_id?: string
 }
 
-export const acceptProductsWorkflow = createWorkflow(
-    acceptProductsWorkflowId,
-    function (input: AcceptProductsWorkflowInput) {
+export const publishProductsWorkflow = createWorkflow(
+    publishProductsWorkflowId,
+    function (input: PublishProductsWorkflowInput) {
         const productId = transform({ input }, ({ input }) => input.product_ids[0])
 
         const product = retrieveProductWithChangeStep({
@@ -34,7 +33,7 @@ export const acceptProductsWorkflow = createWorkflow(
 
         const products = transform({ product }, ({ product }) => [product])
 
-        validateAcceptProductsStep({ products })
+        validatePublishProductsStep({ products })
 
         const actionDataList = transform(
             { products },
@@ -76,10 +75,10 @@ export const acceptProductsWorkflow = createWorkflow(
             ),
         })
 
-        const productsAccepted = createHook("productsAccepted", {
+        const productsPublished = createHook("productsPublished", {
             product_ids: input.product_ids,
         })
 
-        return new WorkflowResponse(void 0, { hooks: [productsAccepted] })
+        return new WorkflowResponse(void 0, { hooks: [productsPublished] })
     }
 )

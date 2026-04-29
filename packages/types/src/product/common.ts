@@ -47,11 +47,29 @@ export enum ProductChangeStatus {
 }
 
 /**
- * Action types for ProductChangeAction.
- * Phase 1 only uses STATUS_CHANGE. Future phases add new types without migration.
+ * Action types for ProductChangeAction. Each action's `details` JSON carries
+ * the operation payload; `ProductModuleService.applyProductChangeActions_`
+ * dispatches based on `action`.
+ *
+ * - `STATUS_CHANGE` — `{ status: ProductStatus }`
+ * - `UPDATE` — top-level Product field. `{ field, value, previous_value? }`.
+ *   One action per changed field.
+ * - `VARIANT_ADD` — `{ variant: CreateProductVariantDTO }`.
+ * - `VARIANT_UPDATE` — `{ variant_id, fields: UpdateProductVariantDTO,
+ *   previous_fields? }`. One action per updated variant.
+ * - `VARIANT_REMOVE` — `{ variant_id }`.
+ * - `ATTRIBUTE_ADD` — `{ attribute_id, attribute_value_ids?, values? }`.
+ *   Mirrors `ProductModuleService.addAttributesToProduct` per-item shape.
+ * - `ATTRIBUTE_REMOVE` — `{ attribute_id }`.
  */
 export enum ProductChangeActionType {
   STATUS_CHANGE = "STATUS_CHANGE",
+  UPDATE = "UPDATE",
+  VARIANT_ADD = "VARIANT_ADD",
+  VARIANT_UPDATE = "VARIANT_UPDATE",
+  VARIANT_REMOVE = "VARIANT_REMOVE",
+  ATTRIBUTE_ADD = "ATTRIBUTE_ADD",
+  ATTRIBUTE_REMOVE = "ATTRIBUTE_REMOVE",
 }
 
 // --- DTOs ---

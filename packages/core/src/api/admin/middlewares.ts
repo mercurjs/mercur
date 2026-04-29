@@ -20,6 +20,7 @@ import { adminProductsMiddlewares } from "./products/middlewares"
 import { adminProductBrandsMiddlewares } from "./product-brands/middlewares"
 import { adminProductCategoriesMiddlewares } from "./product-categories/middlewares"
 import { adminProductAttributesMiddlewares } from "./product-attributes/middlewares"
+import { adminProductChangesMiddlewares } from "./product-changes/middlewares"
 import { adminProductRejectionReasonsMiddlewares } from "./product-rejection-reasons/middlewares"
 
 const maybeApplySellerOrderFilter = (
@@ -60,6 +61,7 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminProductBrandsMiddlewares,
   ...adminProductCategoriesMiddlewares,
   ...adminProductAttributesMiddlewares,
+  ...adminProductChangesMiddlewares,
   ...adminProductRejectionReasonsMiddlewares,
   {
     method: ["GET"],

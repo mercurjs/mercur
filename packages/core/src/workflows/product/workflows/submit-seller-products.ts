@@ -14,11 +14,11 @@ import {
 } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
+import { createProductsStep } from "../steps"
 import {
   createProductChangeActionsStep,
   createProductChangesStep,
-  createProductsStep,
-} from "../steps"
+} from "../../product-edit/steps"
 import { validateSellerProductPermissionsStep } from "../steps/validate-seller-product-permissions"
 
 export const submitSellerProductsWorkflowId = "submit-seller-products"

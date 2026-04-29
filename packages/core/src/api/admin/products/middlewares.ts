@@ -96,7 +96,7 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ["POST"],
-    matcher: "/admin/products/:id/accept",
+    matcher: "/admin/products/:id/publish",
     middlewares: [
       validateAndTransformQuery(
         AdminGetProductParams,

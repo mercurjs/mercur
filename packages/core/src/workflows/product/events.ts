@@ -8,6 +8,10 @@ export const ProductWorkflowEvents = {
   CHANGES_REQUESTED: "product.changes_requested",
   REJECTED: "product.rejected",
   RESUBMITTED: "product.submission_resubmitted",
+  EDIT_REQUESTED: "product.edit_requested",
+  EDIT_CANCELED: "product.edit_canceled",
+  EDIT_DECLINED: "product.edit_declined",
+  EDIT_CONFIRMED: "product.edit_confirmed",
 } as const
 
 export const ProductBrandWorkflowEvents = {
