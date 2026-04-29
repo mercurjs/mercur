@@ -545,6 +545,51 @@ medusaIntegrationTestRunner({
         })
       })
 
+      // --- PRODUCT_DELETE ---
+      describe("DELETE /vendor/products/:id (PRODUCT_DELETE action)", () => {
+        it("should stage a PRODUCT_DELETE action", async () => {
+          const response = await api.delete(
+            `/vendor/products/${productId}`,
+            sellerHeaders
+          )
+
+          expect(response.status).toEqual(202)
+          expect(response.data.product_change).toBeDefined()
+          expect(response.data.product_change.product_id).toEqual(
+            productId
+          )
+          expect(response.data.product_change.status).toEqual("pending")
+        })
+
+        it("should NOT delete the product before confirmation", async () => {
+          await api.delete(
+            `/vendor/products/${productId}`,
+            sellerHeaders
+          )
+
+          const productRes = await api.get(
+            `/admin/products/${productId}`,
+            adminHeaders
+          )
+          expect(productRes.status).toEqual(200)
+          expect(productRes.data.product.id).toEqual(productId)
+        })
+
+        it("should reject when a pending change already exists", async () => {
+          await api.post(
+            `/vendor/products/${productId}`,
+            { title: "First Edit" },
+            sellerHeaders
+          )
+
+          const response = await api
+            .delete(`/vendor/products/${productId}`, sellerHeaders)
+            .catch((e: any) => e.response)
+
+          expect(response.status).toBeGreaterThanOrEqual(400)
+        })
+      })
+
       // --- One pending change at a time (cross-action) ---
       describe("Sequential constraint", () => {
         it("should reject staging a different action while one is pending", async () => {
@@ -590,9 +635,11 @@ medusaIntegrationTestRunner({
             adminHeaders
           )
           expect(confirmRes.status).toEqual(200)
-          expect(confirmRes.data.product_change.status).toEqual(
-            "confirmed"
-          )
+          expect(confirmRes.data).toEqual({
+            id: changeId,
+            object: "product_change",
+            deleted: true,
+          })
 
           // Product is now mutated
           const productRes = await api.get(
@@ -720,6 +767,32 @@ medusaIntegrationTestRunner({
                 v.attribute_id === attributeId
             )
           ).toBe(true)
+        })
+
+        it("should soft-delete the product when a PRODUCT_DELETE action is confirmed", async () => {
+          const stageRes = await api.delete(
+            `/vendor/products/${productId}`,
+            sellerHeaders
+          )
+          const changeId = stageRes.data.product_change.id
+
+          const confirmRes = await api.post(
+            `/admin/product-changes/${changeId}/confirm`,
+            {},
+            adminHeaders
+          )
+          expect(confirmRes.status).toEqual(200)
+          expect(confirmRes.data).toEqual({
+            id: changeId,
+            object: "product_change",
+            deleted: true,
+          })
+
+          const response = await api
+            .get(`/admin/products/${productId}`, adminHeaders)
+            .catch((e: any) => e.response)
+
+          expect(response.status).toEqual(404)
         })
       })
 

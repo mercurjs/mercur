@@ -8,7 +8,7 @@ import {
 } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { deleteProductsWorkflow } from "../../../../workflows/product/workflows/delete-products"
+import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
 import { productEditUpdateFieldsWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-update-fields"
 import { VendorUpdateProductType } from "../validators"
 
@@ -61,17 +61,25 @@ export const POST = async (
   res.status(202).json({ product_change: change })
 }
 
+/**
+ * Stages a `PRODUCT_DELETE` action via `product-edit-delete-product`.
+ * Returns the created `ProductChange` — the product is soft-deleted only
+ * after an operator confirms the change.
+ */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
 ) => {
-  await deleteProductsWorkflow(req.scope).run({
-    input: { ids: [req.params.id] },
+  const sellerId = req.seller_context!.seller_id
+
+  const { result: change } = await productEditDeleteProductWorkflow(
+    req.scope
+  ).run({
+    input: {
+      product_id: req.params.id,
+      actor_id: sellerId,
+    },
   })
 
-  res.status(200).json({
-    id: req.params.id,
-    object: "product",
-    deleted: true,
-  })
+  res.status(202).json({ product_change: change })
 }

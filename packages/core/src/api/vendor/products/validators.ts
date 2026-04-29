@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ProductStatus } from "@mercurjs/types"
+import { MercurFeatureFlags, ProductStatus } from "@mercurjs/types"
 import {
   createFindParams,
   createOperatorMap,
@@ -11,6 +11,7 @@ import {
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
 import { AdditionalData } from "@medusajs/framework/types"
+import { FeatureFlag } from "@medusajs/framework/utils"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
@@ -132,6 +133,7 @@ const CreateProduct = z
     title: z.string(),
     subtitle: z.string().optional(),
     description: z.string().optional(),
+    status: statusEnum.optional(),
     is_giftcard: booleanString().optional().default(false),
     discountable: booleanString().optional().default(true),
     images: z.array(z.object({ url: z.string() })).optional(),
@@ -157,7 +159,22 @@ const CreateProduct = z
     metadata: z.record(z.unknown()).optional(),
   })
   .strict()
-export const VendorCreateProduct = WithAdditionalData(CreateProduct)
+export const VendorCreateProduct = WithAdditionalData(CreateProduct, (schema) =>
+  schema.superRefine((data, ctx) => {
+    if (
+      data.status !== undefined &&
+      FeatureFlag.isFeatureEnabled(MercurFeatureFlags.PRODUCT_REQUEST) &&
+      data.status !== ProductStatus.DRAFT &&
+      data.status !== ProductStatus.PROPOSED
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["status"],
+        message: `When the product request flow is enabled, status must be one of: ${ProductStatus.DRAFT}, ${ProductStatus.PROPOSED}.`,
+      })
+    }
+  })
+)
 
 export type VendorUpdateProductType = z.infer<typeof UpdateProduct> &
   AdditionalData

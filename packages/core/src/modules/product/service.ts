@@ -2104,6 +2104,7 @@ class ProductModuleService extends MedusaService({
       }>
     >();
     const attributeRemovesByProductId = new Map<string, string[]>();
+    const productsToDelete = new Set<string>();
 
     for (const action of pending) {
       const details = (action.details ?? {}) as Record<string, unknown>;
@@ -2181,6 +2182,10 @@ class ProductModuleService extends MedusaService({
           attributeRemovesByProductId.set(action.product_id, list);
           break;
         }
+        case ProductChangeActionType.PRODUCT_DELETE: {
+          productsToDelete.add(action.product_id);
+          break;
+        }
       }
     }
 
@@ -2211,6 +2216,18 @@ class ProductModuleService extends MedusaService({
     }
     for (const [productId, items] of attributeAddsByProductId) {
       await this.addAttributesToProduct(productId, items, sharedContext);
+    }
+
+    // Product deletes happen last — any audit-trail updates above still
+    // write through before the product is gone. Soft-delete preserves the
+    // ProductChange record (it stays linked to the now-deleted product so
+    // the change history remains queryable).
+    if (productsToDelete.size) {
+      await this.softDeleteProducts(
+        Array.from(productsToDelete),
+        {},
+        sharedContext
+      );
     }
 
     await this.updateProductChangeActions(

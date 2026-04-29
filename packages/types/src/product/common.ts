@@ -61,6 +61,9 @@ export enum ProductChangeStatus {
  * - `ATTRIBUTE_ADD` — `{ attribute_id, attribute_value_ids?, values? }`.
  *   Mirrors `ProductModuleService.addAttributesToProduct` per-item shape.
  * - `ATTRIBUTE_REMOVE` — `{ attribute_id }`.
+ * - `PRODUCT_DELETE` — `{}`. Soft-deletes the product on apply. Processed
+ *   after all other actions in the same change so any audit-trail updates
+ *   still write through before deletion.
  */
 export enum ProductChangeActionType {
   STATUS_CHANGE = "STATUS_CHANGE",
@@ -70,6 +73,7 @@ export enum ProductChangeActionType {
   VARIANT_REMOVE = "VARIANT_REMOVE",
   ATTRIBUTE_ADD = "ATTRIBUTE_ADD",
   ATTRIBUTE_REMOVE = "ATTRIBUTE_REMOVE",
+  PRODUCT_DELETE = "PRODUCT_DELETE",
 }
 
 // --- DTOs ---
