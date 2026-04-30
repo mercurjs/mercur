@@ -32,6 +32,7 @@ import { ItemPlaceholder } from "./item-placeholder"
 import { CreateClaimSchemaType } from "./schema"
 import { useSellerValidShippingOptions } from "../../../../../hooks/api/seller-scoped-orders"
 import { getFormattedShippingOptionLocationName } from "../../../../../lib/shipping-options"
+import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error"
 
 type ClaimOutboundSectionProps = {
   order: AdminOrder
@@ -172,7 +173,7 @@ export const ClaimOutboundSection = ({
         },
         {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         }
       ))
@@ -185,7 +186,7 @@ export const ClaimOutboundSection = ({
       if (action?.id) {
         await removeOutboundItem(action?.id, {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         })
       }
@@ -224,7 +225,7 @@ export const ClaimOutboundSection = ({
         { shipping_option_id: selectedOptionId },
         {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         }
       )
@@ -361,7 +362,7 @@ export const ClaimOutboundSection = ({
                 if (actionId) {
                   removeOutboundItem(actionId, {
                     onError: (error) => {
-                      toast.error(error.message)
+                      toast.error(resolveErrorToastMessage(error, t))
                     },
                   })
                 }
@@ -376,7 +377,7 @@ export const ClaimOutboundSection = ({
                     { ...payload, actionId },
                     {
                       onError: (error) => {
-                        toast.error(error.message)
+                        toast.error(resolveErrorToastMessage(error, t))
                       },
                     }
                   )

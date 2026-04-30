@@ -31,6 +31,7 @@ import {
 } from "../../../../../hooks/api/exchanges"
 import { useUpdateReturn } from "../../../../../hooks/api/returns"
 import { sdk } from "../../../../../lib/client"
+import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error"
 import { ReturnShippingPlaceholder } from "../../../common/placeholders"
 import { ItemPlaceholder } from "../../../order-create-claim/components/claim-create-form/item-placeholder"
 import { AddExchangeInboundItemsTable } from "../add-exchange-inbound-items-table"
@@ -222,7 +223,7 @@ export const ExchangeInboundSection = ({
         },
         {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         }
       ))
@@ -235,7 +236,7 @@ export const ExchangeInboundSection = ({
       if (actionId) {
         await removeInboundItem(actionId, {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         })
       }
@@ -274,7 +275,7 @@ export const ExchangeInboundSection = ({
         { shipping_option_id: selectedOptionId },
         {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         }
       )
@@ -413,7 +414,7 @@ export const ExchangeInboundSection = ({
                 if (actionId) {
                   removeInboundItem(actionId, {
                     onError: (error) => {
-                      toast.error(error.message)
+                      toast.error(resolveErrorToastMessage(error, t))
                     },
                   })
                 }
@@ -435,7 +436,7 @@ export const ExchangeInboundSection = ({
                           )
                         }
 
-                        toast.error(error.message)
+                        toast.error(resolveErrorToastMessage(error, t))
                       },
                     }
                   )

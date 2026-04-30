@@ -47,6 +47,7 @@ import { useShippingOptions } from "../../../../../hooks/api/shipping-options"
 import { sdk } from "../../../../../lib/client"
 import { currencies } from "../../../../../lib/data/currencies"
 import { getStylizedAmount } from "../../../../../lib/money-amount-helpers"
+import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error"
 import { ReturnShippingPlaceholder } from "../../../common/placeholders"
 import { AddReturnItemsTable } from "../add-return-items-table"
 import { ReturnItem } from "./return-item"
@@ -282,7 +283,7 @@ export const ReturnCreateForm = ({
       handleSuccess()
     } catch (e) {
       toast.error(t("general.error"), {
-        description: e.message,
+        description: resolveErrorToastMessage(e, t),
         dismissLabel: t("actions.close"),
       })
     }
@@ -511,7 +512,7 @@ export const ReturnCreateForm = ({
                               )
                             }
 
-                            toast.error(error.message)
+                            toast.error(resolveErrorToastMessage(error, t))
                           },
                         }
                       )

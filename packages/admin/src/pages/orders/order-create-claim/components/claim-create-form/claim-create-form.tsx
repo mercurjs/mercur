@@ -55,6 +55,7 @@ import {
 import { useUpdateReturn } from "../../../../../hooks/api/returns.tsx";
 import { sdk } from "../../../../../lib/client/index.ts";
 import { currencies } from "../../../../../lib/data/currencies.ts";
+import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error.ts";
 import { ReturnShippingPlaceholder } from "../../../common/placeholders.tsx";
 import { ClaimOutboundSection } from "./claim-outbound-section.tsx";
 import { ItemPlaceholder } from "./item-placeholder.tsx";
@@ -401,7 +402,7 @@ export const ClaimCreateForm = ({
           handleSuccess();
         },
         onError: (error) => {
-          toast.error(error.message);
+          toast.error(resolveErrorToastMessage(error, t));
         },
       },
     );
@@ -418,7 +419,7 @@ export const ClaimCreateForm = ({
         },
         {
           onError: (error) => {
-            toast.error(error.message);
+            toast.error(resolveErrorToastMessage(error, t));
           },
         },
       ));
@@ -431,7 +432,7 @@ export const ClaimCreateForm = ({
       if (actionId) {
         await removeInboundItem(actionId, {
           onError: (error) => {
-            toast.error(error.message);
+            toast.error(resolveErrorToastMessage(error, t));
           },
         });
       }
@@ -474,7 +475,7 @@ export const ClaimCreateForm = ({
         { shipping_option_id: selectedOptionId },
         {
           onError: (error) => {
-            toast.error(error.message);
+            toast.error(resolveErrorToastMessage(error, t));
           },
         },
       );
@@ -561,7 +562,7 @@ export const ClaimCreateForm = ({
             toast.success(t("orders.claims.actions.cancelClaim.successToast"));
           },
           onError: (error) => {
-            toast.error(error.message);
+            toast.error(resolveErrorToastMessage(error, t));
           },
         });
 
@@ -679,7 +680,7 @@ export const ClaimCreateForm = ({
                       if (actionId) {
                         removeInboundItem(actionId, {
                           onError: (error) => {
-                            toast.error(error.message);
+                            toast.error(resolveErrorToastMessage(error, t));
                           },
                         });
                       }
@@ -704,7 +705,7 @@ export const ClaimCreateForm = ({
                                 );
                               }
 
-                              toast.error(error.message);
+                              toast.error(resolveErrorToastMessage(error, t));
                             },
                           },
                         );
@@ -921,7 +922,7 @@ export const ClaimCreateForm = ({
                             },
                             {
                               onError: (error) => {
-                                toast.error(error.message);
+                                toast.error(resolveErrorToastMessage(error, t));
                               },
                             },
                           );
@@ -994,7 +995,7 @@ export const ClaimCreateForm = ({
                             },
                             {
                               onError: (error) => {
-                                toast.error(error.message);
+                                toast.error(resolveErrorToastMessage(error, t));
                               },
                             },
                           );
