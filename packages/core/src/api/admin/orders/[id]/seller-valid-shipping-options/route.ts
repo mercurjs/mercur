@@ -2,7 +2,10 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import {
+  ContainerRegistrationKeys,
+  QueryContext,
+} from "@medusajs/framework/utils"
 
 import { resolveOrderSeller } from "../../../helpers/resolve-order-seller"
 
@@ -14,6 +17,11 @@ type ShippingOptionRow = {
   name: string
   service_zone_id?: string
   rules?: Array<{ attribute: string; value: string; operator: string }>
+  prices?: Array<{ currency_code?: string; amount?: number }>
+  calculated_price?: {
+    calculated_amount?: number | null
+    is_calculated_price_tax_inclusive?: boolean
+  } | null
 }
 
 const isReturnOption = (option: ShippingOptionRow): boolean => {
@@ -38,6 +46,25 @@ export const GET = async (
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  // Pull order's currency + region so we can resolve calculated_price
+  // for each candidate shipping option below. If calculated_price is
+  // null for a given option (e.g. price config has rules that don't
+  // satisfy the order's pricing context), Medusa's downstream
+  // prepare-shipping-method workflow crashes with `Cannot read
+  // properties of null (reading 'calculated_amount')` when the admin
+  // selects it. We pre-resolve and drop those options here so the
+  // picker only ever offers actionable values.
+  const { data: orderRows } = await query.graph({
+    entity: "order",
+    fields: ["id", "currency_code", "region_id"],
+    filters: { id },
+  })
+  const orderRow = orderRows[0] as
+    | { currency_code?: string; region_id?: string | null }
+    | undefined
+  const orderCurrency = orderRow?.currency_code?.toLowerCase()
+  const orderRegionId = orderRow?.region_id ?? undefined
+
   // Resolve seller-owned shipping option ids via the link table.
   const { data: links } = await query.graph({
     entity: "shipping_option_seller",
@@ -58,6 +85,14 @@ export const GET = async (
     return
   }
 
+  const pricingContext: Record<string, unknown> = {}
+  if (orderCurrency) {
+    pricingContext.currency_code = orderCurrency
+  }
+  if (orderRegionId) {
+    pricingContext.region_id = orderRegionId
+  }
+
   const { data: options } = await query.graph({
     entity: "shipping_option",
     fields: [
@@ -66,11 +101,21 @@ export const GET = async (
       "price_type",
       "provider_id",
       "service_zone_id",
+      "service_zone.fulfillment_set.location.id",
+      "service_zone.fulfillment_set.location.name",
+      "service_zone.fulfillment_set.location.address.*",
       "rules.attribute",
       "rules.value",
       "rules.operator",
+      "prices.currency_code",
+      "prices.amount",
+      "calculated_price.calculated_amount",
+      "calculated_price.is_calculated_price_tax_inclusive",
     ],
     filters: { id: sellerOptionIds },
+    context: {
+      calculated_price: QueryContext(pricingContext),
+    },
   })
 
   // Resolve fulfillment_set ids bound to the requested location so we can
@@ -122,6 +167,15 @@ export const GET = async (
       ) {
         return false
       }
+    }
+    // Drop options where Medusa pricing module couldn't resolve a
+    // calculated_amount for the order's pricing context — selecting
+    // such an option would crash prepare-shipping-method downstream.
+    if (
+      opt.calculated_price?.calculated_amount === undefined ||
+      opt.calculated_price?.calculated_amount === null
+    ) {
+      return false
     }
     return true
   })

@@ -28,7 +28,7 @@ import { OutboundShippingPlaceholder } from "../../../common/placeholders"
 import { ItemPlaceholder } from "../../../order-create-claim/components/claim-create-form/item-placeholder"
 import { AddExchangeOutboundItemsTable } from "../add-exchange-outbound-items-table"
 import { ExchangeOutboundItem } from "./exchange-outbound-item"
-import { useOrderShippingOptions } from "../../../../../hooks/api/orders"
+import { useSellerValidShippingOptions } from "../../../../../hooks/api/seller-scoped-orders"
 import { CreateExchangeSchemaType } from "./schema"
 import { getFormattedShippingOptionLocationName } from "../../../../../lib/shipping-options"
 
@@ -58,13 +58,11 @@ export const ExchangeOutboundSection = ({
   /**
    * HOOKS
    */
-  const { shipping_options = [] } = useOrderShippingOptions(order.id)
-
-  // TODO: filter in the API when boolean filter is supported and fulfillment module support partial rule SO filtering
-  const outboundShippingOptions = shipping_options.filter(
-    (so) =>
-      !so.rules?.find((r) => r.attribute === "is_return" && r.value === "true")
-  )
+  // Spec 006 — outbound shipping picker scoped to the order's seller.
+  // Backend rejects cross-seller shipping_option_id on the corresponding
+  // /admin/exchanges/:id/outbound/shipping-method matcher.
+  const { shipping_options: outboundShippingOptions = [] } =
+    useSellerValidShippingOptions(order.id, { is_return: false })
 
   const { mutateAsync: addOutboundShipping } = useAddExchangeOutboundShipping(
     exchange.id,

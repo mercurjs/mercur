@@ -30,7 +30,7 @@ import { AddClaimOutboundItemsTable } from "../add-claim-outbound-items-table"
 import { ClaimOutboundItem } from "./claim-outbound-item"
 import { ItemPlaceholder } from "./item-placeholder"
 import { CreateClaimSchemaType } from "./schema"
-import { useOrderShippingOptions } from "../../../../../hooks/api/orders"
+import { useSellerValidShippingOptions } from "../../../../../hooks/api/seller-scoped-orders"
 import { getFormattedShippingOptionLocationName } from "../../../../../lib/shipping-options"
 
 type ClaimOutboundSectionProps = {
@@ -59,13 +59,13 @@ export const ClaimOutboundSection = ({
   /**
    * HOOKS
    */
-  const { shipping_options = [] } = useOrderShippingOptions(order.id)
-
-  // TODO: filter in the API when boolean filter is supported and fulfillment module support partial rule SO filtering
-  const outboundShippingOptions = shipping_options.filter(
-    (so) =>
-      !so.rules?.find((r) => r.attribute === "is_return" && r.value === "true")
-  )
+  // Spec 006 — outbound shipping picker scoped to the order's seller.
+  // Backend rejects cross-seller shipping_option_id on the corresponding
+  // /admin/claims/:id/outbound/shipping-method matcher (defense-in-depth).
+  // is_return=false → backend filters to outbound options only, no
+  // client-side rule filtering needed.
+  const { shipping_options: outboundShippingOptions = [] } =
+    useSellerValidShippingOptions(order.id, { is_return: false })
 
   const { mutateAsync: addOutboundShipping } = useAddClaimOutboundShipping(
     claim.id,

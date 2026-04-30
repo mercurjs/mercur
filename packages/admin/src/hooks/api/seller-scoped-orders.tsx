@@ -70,11 +70,24 @@ type SellerValidShippingOption = {
   price_type?: string;
   provider_id?: string;
   service_zone_id?: string;
+  service_zone?: {
+    fulfillment_set?: {
+      location?: {
+        id?: string;
+        name?: string | null;
+        address?: Record<string, unknown> | null;
+      } | null;
+    } | null;
+  };
   rules?: Array<{
     attribute: string;
     value: string;
     operator: string;
   }>;
+  calculated_price?: {
+    calculated_amount?: number | null;
+    is_calculated_price_tax_inclusive?: boolean;
+  } | null;
 };
 
 type SellerValidShippingOptionsQuery = {

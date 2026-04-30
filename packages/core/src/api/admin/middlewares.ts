@@ -167,6 +167,22 @@ export const adminMiddlewares: MiddlewareRoute[] = [
       requireSellerValidAddItem(orderIdFromExchangeParam),
     ],
   },
+  // Block cross-seller location + shipping option on claim outbound shipping-method.
+  {
+    matcher: "/admin/claims/:id/outbound/shipping-method",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromClaimParam),
+      requireSellerValidShippingOption(orderIdFromClaimParam),
+    ],
+  },
+  // Block cross-seller location + shipping option on exchange outbound shipping-method.
+  {
+    matcher: "/admin/exchanges/:id/outbound/shipping-method",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromExchangeParam),
+      requireSellerValidShippingOption(orderIdFromExchangeParam),
+    ],
+  },
   // Warehouse capability lock — gated by `admin_warehouse_management` feature flag.
   // Baseline Mercur keeps fulfillment vendor-owned; these matchers reject direct
   // admin calls unless the flag is explicitly enabled.
