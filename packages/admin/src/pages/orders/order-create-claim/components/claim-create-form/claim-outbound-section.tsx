@@ -303,6 +303,7 @@ export const ClaimOutboundSection = ({
             <StackedFocusModal.Header />
 
             <AddClaimOutboundItemsTable
+              orderId={order.id}
               selectedItems={outboundItems.map((i) => i.variant_id)}
               currencyCode={order.currency_code}
               onSelectionChange={(finalSelection) => {
