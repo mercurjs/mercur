@@ -144,6 +144,12 @@ type AddableVariant = {
   sku?: string | null;
   title?: string | null;
   manage_inventory?: boolean;
+  product?: {
+    id?: string;
+    title?: string;
+    thumbnail?: string | null;
+    handle?: string;
+  };
   prices?: Array<{ currency_code?: string; amount?: number }>;
   eligibility: AddableVariantEligibility;
 };
