@@ -2,22 +2,27 @@ import { useState } from "react"
 import { useTranslation } from "react-i18next"
 
 import { CurrencyDollar } from "@medusajs/icons"
+import { HttpTypes } from "@medusajs/types"
 import { Button, Container, Heading } from "@medusajs/ui"
 
 import { ActionMenu } from "@components/common/action-menu"
 import { NoRecords } from "@components/common/empty-table-content"
 import { getLocaleAmount } from "@lib/money-amount-helpers"
-import { ExtendedAdminProductVariant } from "@custom-types/products"
 
-type VariantPricesSectionProps = {
-  variant: ExtendedAdminProductVariant
-}
-
-export function VariantPricesSection({ variant }: VariantPricesSectionProps) {
+export function VariantPricesSection({
+  variant,
+}: {
+  variant: HttpTypes.AdminProductVariant
+}) {
   const { t } = useTranslation()
   const prices = variant.prices
-    ?.filter((p) => p.currency_code && p.currency_code.length <= 3 && !Object.keys(p.rules || {}).length)
-    .sort((p1, p2) => (p1.currency_code ?? "").localeCompare(p2.currency_code ?? ""))
+    ?.filter(
+      (p) =>
+        !Object.keys(
+          (p as unknown as { rules?: Record<string, unknown> }).rules || {}
+        ).length
+    )
+    .sort((p1, p2) => p1.currency_code?.localeCompare(p2.currency_code))
 
   const hasPrices = !!prices?.length
   const [pageSize, setPageSize] = useState(3)

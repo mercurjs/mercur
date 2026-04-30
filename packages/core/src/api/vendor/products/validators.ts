@@ -145,6 +145,7 @@ const CreateProduct = z
     brand_id: z.string().optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
+    product_attributes: z.array(ProductAttributeInput).optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),
     attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
     variants: z.array(CreateProductVariant).optional(),

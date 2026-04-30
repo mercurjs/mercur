@@ -6,7 +6,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes, UpdateProductDTO } from "@mercurjs/types"
 
 import { batchProductsWorkflow } from "../../../../workflows/product/workflows/batch-products"
-import { formatProductAttributes } from "../helpers"
+import { formatProductAttributes } from "../../../utils"
 import { AdminBatchProductsType } from "../validators"
 
 export const POST = async (

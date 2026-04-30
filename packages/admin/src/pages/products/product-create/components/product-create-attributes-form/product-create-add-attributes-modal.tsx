@@ -52,12 +52,18 @@ export const ProductCreateAddAttributesModal = () => {
     }[]
   >([])
 
+  const categoryId = form.watch("category_id")
+
   const { searchParams } = useAttributeTableQuery({
     pageSize: PAGE_SIZE,
     prefix: ADD_ATTRIBUTES_MODAL_ID,
   })
+  const attributesQuery = useMemo(
+    () => ({ ...searchParams, category_id: categoryId || undefined }),
+    [searchParams, categoryId]
+  )
   const { product_attributes, count, isLoading, isError, error } =
-    useProductAttributes(searchParams, {
+    useProductAttributes(attributesQuery, {
       placeholderData: keepPreviousData,
     })
 

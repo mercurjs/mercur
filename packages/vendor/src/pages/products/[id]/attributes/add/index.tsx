@@ -28,9 +28,10 @@ import { Form } from "@components/common/form"
 import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useProductAttributes } from "@hooks/api/product-attributes"
-import { useAddProductAttribute } from "@hooks/api/products"
+import { useAddProductAttribute, useProduct } from "@hooks/api/products"
 import { useAttributeTableQuery } from "@hooks/table/query/use-attribute-table-query"
 import { useAttributeTableFilters } from "@hooks/table/filters/use-attribute-table-filters"
+import { PRODUCT_DETAIL_QUERY } from "../../../common/constants"
 
 const PAGE_SIZE = 20
 const PREFIX = "add-existing-attrs"
@@ -88,12 +89,20 @@ const Content = ({ productId }: { productId: string }) => {
   const [rowSelection, setRowSelection] =
     useState<DataTableRowSelectionState>({})
 
+  // Parent route loader prefetches the product with PRODUCT_DETAIL_QUERY, so this hits the React Query cache.
+  const { product } = useProduct(productId, PRODUCT_DETAIL_QUERY)
+  const categoryId = (product as any)?.categories?.[0]?.id as string | undefined
+
   const { searchParams } = useAttributeTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
+  const attributesQuery = useMemo(
+    () => ({ ...searchParams, category_id: categoryId || undefined }),
+    [searchParams, categoryId]
+  )
   const { product_attributes, count, isLoading, isError, error } =
-    useProductAttributes(searchParams, {
+    useProductAttributes(attributesQuery, {
       placeholderData: keepPreviousData,
     })
 

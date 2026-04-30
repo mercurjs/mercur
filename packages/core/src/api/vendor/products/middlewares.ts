@@ -10,7 +10,10 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 
-import { vendorProductQueryConfig } from "./query-config"
+import {
+  vendorProductQueryConfig,
+  vendorProductVariantQueryConfig,
+} from "./query-config"
 import {
   VendorAddProductAttribute,
   VendorAddProductVariant,
@@ -93,7 +96,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformQuery(
         VendorGetProductVariantsParams,
-        vendorProductQueryConfig.list
+        vendorProductVariantQueryConfig.list
       ),
     ],
   },
@@ -110,7 +113,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformQuery(
         VendorGetProductVariantParams,
-        vendorProductQueryConfig.retrieve
+        vendorProductVariantQueryConfig.retrieve
       ),
     ],
   },

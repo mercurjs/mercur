@@ -124,6 +124,11 @@ export function getRouteMap({
                             lazy: () => import("./pages/products/[id]/edit"),
                           },
                           {
+                            path: "edit-variant",
+                            lazy: () =>
+                              import("./pages/product-variants/product-variant-edit"),
+                          },
+                          {
                             path: "sales-channels",
                             lazy: () =>
                               import("./pages/products/[id]/sales-channels"),
@@ -830,11 +835,8 @@ export function getRouteMap({
                     children: [
                       {
                         path: "edit",
-                        lazy: async () => {
-                          const { ProductVariantEdit } =
-                            await import("./pages/product-variants/product-variant-edit/product-variant-edit");
-                          return { Component: ProductVariantEdit };
-                        },
+                        lazy: () =>
+                          import("./pages/product-variants/product-variant-edit"),
                       },
                       {
                         path: "prices",

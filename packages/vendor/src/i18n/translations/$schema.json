@@ -2103,6 +2103,24 @@
         "attributes": {
           "type": "string"
         },
+        "attributeVariantsDescription": {
+          "type": "string"
+        },
+        "attributeProductInformation": {
+          "type": "string"
+        },
+        "attributeProductInformationDescription": {
+          "type": "string"
+        },
+        "attributeRequiredByMarketplace": {
+          "type": "string"
+        },
+        "addAttribute": {
+          "type": "string"
+        },
+        "deleteAttributeWarning": {
+          "type": "string"
+        },
         "editAttributes": {
           "type": "string"
         },
@@ -3143,6 +3161,12 @@
         "deleteWarning",
         "variants",
         "attributes",
+        "attributeVariantsDescription",
+        "attributeProductInformation",
+        "attributeProductInformationDescription",
+        "attributeRequiredByMarketplace",
+        "addAttribute",
+        "deleteAttributeWarning",
         "editAttributes",
         "editOptions",
         "editPrices",

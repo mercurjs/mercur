@@ -593,6 +593,12 @@
       }
     },
     "attributes": "Attributes",
+    "attributeVariantsDescription": "All attributes that are used for variants",
+    "attributeProductInformation": "Product Information",
+    "attributeProductInformationDescription": "Attributes used for informational purposes",
+    "attributeRequiredByMarketplace": "This attribute is required by marketplace",
+    "addAttribute": "Add Attribute",
+    "deleteAttributeWarning": "Are you sure you want to delete the attribute \"{{title}}\"? This action cannot be undone.",
     "editAttributes": "Edit Attributes",
     "editOptions": "Edit Options",
     "editPrices": "Edit prices",
