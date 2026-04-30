@@ -19,11 +19,18 @@ export type InferClientOutput<T> = T extends (...args: any[]) => Promise<infer O
 export class ClientError extends Error {
     status: number | undefined;
     statusText: string | undefined;
+    code: string | undefined;
 
-    constructor(message: string, statusText?: string, status?: number) {
+    constructor(
+        message: string,
+        statusText?: string,
+        status?: number,
+        code?: string
+    ) {
         super(message);
         this.statusText = statusText;
         this.status = status;
+        this.code = code;
     }
 }
 
@@ -94,11 +101,13 @@ export function createClient(options: ClientOptions) {
             if (response.status >= 300) {
                 const jsonError = (await response.json().catch(() => ({}))) as {
                     message?: string;
+                    code?: string;
                 };
                 throw new ClientError(
                     jsonError.message ?? response.statusText,
                     response.statusText,
-                    response.status
+                    response.status,
+                    jsonError.code
                 );
             }
 
