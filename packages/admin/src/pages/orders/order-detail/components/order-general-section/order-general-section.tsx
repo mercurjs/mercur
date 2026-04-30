@@ -9,6 +9,7 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useCancelOrder } from "../../../../../hooks/api/orders"
@@ -23,12 +24,35 @@ type OrderGeneralSectionProps = {
   order: HttpTypes.AdminOrder
 }
 
+/**
+ * Mercur marketplace invariant: cancel blocked when any item has
+ * fulfilled_quantity > 0. Shared with the backend workflow step
+ * `validateCancelStep` in packages/core. See spec 005.
+ */
+const hasFulfilledItems = (order: HttpTypes.AdminOrder): boolean => {
+  if (!order?.items?.length) {
+    return false
+  }
+  return order.items.some((item) => {
+    const fulfilled = (item as any)?.detail?.fulfilled_quantity
+    return typeof fulfilled === "number" && fulfilled > 0
+  })
+}
+
 export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
   const { getFullDate } = useDate()
 
   const { mutateAsync: cancelOrder } = useCancelOrder(order.id)
+
+  const fulfilledItemsPresent = useMemo(() => hasFulfilledItems(order), [order])
+  const cancelDisabled = !!order.canceled_at || fulfilledItemsPresent
+  const cancelDisabledTooltip = fulfilledItemsPresent
+    ? t("orders.cancel.blockedByFulfillment", {
+        defaultValue: "Cannot cancel — items have already been fulfilled.",
+      })
+    : undefined
 
   const handleCancel = async () => {
     const res = await prompt({
@@ -81,7 +105,8 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
                 {
                   label: t("actions.cancel"),
                   onClick: handleCancel,
-                  disabled: !!order.canceled_at,
+                  disabled: cancelDisabled,
+                  disabledTooltip: cancelDisabledTooltip,
                   icon: <XCircle />,
                 },
               ],

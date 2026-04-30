@@ -5,6 +5,7 @@ import { useEffect } from "react"
 
 import { useOrder, useOrderPreview } from "../../../hooks/api/orders"
 import { RouteDrawer } from "../../../components/modals"
+import { useWarehouseCapabilityGuard } from "../../../hooks/use-warehouse-capability-guard"
 import { OrderReceiveReturnForm } from "./components/order-receive-return-form"
 import {
   useAddReceiveItems,
@@ -18,16 +19,27 @@ export function OrderReceiveReturn() {
   const { id, return_id } = useParams()
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const warehouseAvailable = useWarehouseCapabilityGuard()
 
   /**
    * HOOKS
    */
 
-  const { order } = useOrder(id!, { fields: "+currency_code,*items" })
-  const { order: preview } = useOrderPreview(id!)
-  const { return: orderReturn } = useReturn(return_id, {
-    fields: "*items.item,*items.item.variant,*items.item.variant.product",
-  }) // TODO: fix API needs to return 404 if return not exists and not an empty object
+  const { order } = useOrder(
+    id!,
+    { fields: "+currency_code,*items" },
+    { enabled: warehouseAvailable }
+  )
+  const { order: preview } = useOrderPreview(id!, undefined, {
+    enabled: warehouseAvailable,
+  })
+  const { return: orderReturn } = useReturn(
+    return_id,
+    {
+      fields: "*items.item,*items.item.variant,*items.item.variant.product",
+    },
+    { enabled: warehouseAvailable }
+  ) // TODO: fix API needs to return 404 if return not exists and not an empty object
 
   /**
    * MUTATIONS
@@ -42,7 +54,7 @@ export function OrderReceiveReturn() {
 
   useEffect(() => {
     ;(async function () {
-      if (IS_REQUEST_RUNNING || !preview) {
+      if (!warehouseAvailable || IS_REQUEST_RUNNING || !preview) {
         return
       }
 
@@ -71,9 +83,9 @@ export function OrderReceiveReturn() {
         IS_REQUEST_RUNNING = false
       }
     })()
-  }, [preview])
+  }, [preview, warehouseAvailable])
 
-  const ready = order && orderReturn && preview
+  const ready = warehouseAvailable && order && orderReturn && preview
 
   return (
     <RouteDrawer prev="../../.." data-testid="order-receive-return-drawer">

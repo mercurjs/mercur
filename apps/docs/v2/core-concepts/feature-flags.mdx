@@ -1,0 +1,42 @@
+---
+title: "Feature Flags"
+description: "Optional capability toggles that Mercur exposes as environment variables, gating behaviors outside the baseline marketplace."
+---
+
+Mercur ships with a **baseline marketplace** that is intentionally conservative: seller-owned fulfillment, self-service seller registration disabled, etc. Capabilities that diverge from that baseline are exposed as **feature flags** — env-driven toggles your deployment can opt into without forking the plugin.
+
+Flags are registered on boot through the core's `register-feature-flags` loader. The admin dashboard reads the current values from `GET /admin/feature-flags`, so custom UI can hide or show controls that depend on optional capabilities.
+
+## Available Flags
+
+| Key | Env Variable | Default | Description |
+| --- | --- | --- | --- |
+| `seller_registration` | `MEDUSA_FF_SELLER_REGISTRATION` | `false` | Enables the public seller self-registration form and the associated onboarding wizard. |
+| `admin_warehouse_management` | `MEDUSA_FF_ADMIN_WAREHOUSE_MANAGEMENT` | `false` | Enables admin-managed fulfillment (FBA-style opt-in). Baseline Mercur is seller-owned fulfillment — this flag turns on admin-side fulfillment, allocation, shipment, return-receiving, and reservation actions. |
+
+## `admin_warehouse_management`
+
+When this flag is `false` (default):
+
+- The baseline admin UI hides warehouse actions (fulfill items, allocate items, create shipments, receive returns, reservations).
+- Direct HTTP calls to the corresponding admin endpoints are rejected by the `requireAdminWarehouseCapability` middleware with `NOT_ALLOWED` (HTTP 400).
+- The cancel-order invariant still applies: cancelling an order with any fulfilled quantity is rejected via `validateCancelOrderMiddleware` with code `CANCEL_BLOCKED_BY_FULFILLMENT`. This invariant is enforced regardless of the flag.
+
+When set to `true`:
+
+- Admin can perform warehouse actions directly, matching the generic Medusa admin surface.
+- Vendor-owned fulfillment remains available in parallel — the flag **adds** capability, it does not remove the seller-owned path.
+
+Enable by exporting the env variable before starting the backend:
+
+```bash
+export MEDUSA_FF_ADMIN_WAREHOUSE_MANAGEMENT=true
+```
+
+Or, in your `.env`:
+
+```
+MEDUSA_FF_ADMIN_WAREHOUSE_MANAGEMENT=true
+```
+
+See spec `005-admin-warehouse-capability-lock` for the full capability model and the backend invariants enforced at each layer.
