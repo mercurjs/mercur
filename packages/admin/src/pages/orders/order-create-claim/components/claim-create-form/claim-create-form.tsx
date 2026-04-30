@@ -30,8 +30,10 @@ import {
 
 import { Form } from "../../../../../components/common/form/index.ts";
 import { Combobox } from "../../../../../components/inputs/combobox/index.ts";
-import { useShippingOptions } from "../../../../../hooks/api/shipping-options.tsx";
-import { useStockLocations } from "../../../../../hooks/api/stock-locations.tsx";
+import {
+  useSellerValidShippingOptions,
+  useSellerValidStockLocations,
+} from "../../../../../hooks/api/seller-scoped-orders.tsx";
 import { getStylizedAmount } from "../../../../../lib/money-amount-helpers.ts";
 import { AddClaimItemsTable } from "../add-claim-items-table/index.ts";
 import { ClaimInboundItem } from "./claim-inbound-item.tsx";
@@ -238,24 +240,23 @@ export const ClaimCreateForm = ({
   /**
    * HOOKS
    */
-  const { stock_locations = [] } = useStockLocations({ limit: 999 });
-  const { shipping_options = [] } = useShippingOptions(
-    {
-      limit: 999,
-      fields: "*prices,+service_zone.fulfillment_set.location.id",
-      stock_location_id: locationId,
-    },
-    {
-      enabled: !!locationId,
-    },
-  );
-
-  const inboundShippingOptions = shipping_options.filter(
-    (shippingOption) =>
-      !!shippingOption.rules.find(
-        (r) => r.attribute === "is_return" && r.value === "true",
-      ),
-  );
+  // Spec 006 T016 — replace global pickers with seller-scoped versions.
+  // Backend (T011) also rejects cross-seller location_id and shipping_option_id
+  // server-side on /admin/claims/:id/inbound/shipping-method.
+  const { stock_locations = [] } = useSellerValidStockLocations(order.id, {
+    limit: 200,
+  });
+  const { shipping_options: inboundShippingOptions = [] } =
+    useSellerValidShippingOptions(
+      order.id,
+      {
+        location_id: locationId,
+        is_return: true,
+      },
+      {
+        enabled: !!locationId,
+      },
+    );
 
   const inboundShipping = preview.shipping_methods.find((s) => {
     return !!s.actions?.find(
