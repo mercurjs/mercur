@@ -18,7 +18,10 @@ import {
   StackedFocusModal,
   useStackedModal,
 } from "../../../../../components/modals"
-import { useShippingOptions, useStockLocations } from "../../../../../hooks/api"
+import {
+  useSellerValidShippingOptions,
+  useSellerValidStockLocations,
+} from "../../../../../hooks/api/seller-scoped-orders"
 import {
   useAddExchangeInboundItems,
   useAddExchangeInboundShipping,
@@ -118,24 +121,23 @@ export const ExchangeInboundSection = ({
   /**
    * HOOKS
    */
-  const { stock_locations = [] } = useStockLocations({ limit: 999 })
-  const { shipping_options = [] } = useShippingOptions(
-    {
-      limit: 999,
-      fields: "*prices,+service_zone.fulfillment_set.location.id",
-      stock_location_id: locationId,
-    },
-    {
-      enabled: !!locationId,
-    }
-  )
-
-  const inboundShippingOptions = shipping_options.filter(
-    (shippingOption) =>
-      !!shippingOption.rules.find(
-        (r) => r.attribute === "is_return" && r.value === "true"
-      )
-  )
+  // Spec 006 T017 — replace global pickers with seller-scoped versions.
+  // Backend (T011) also rejects cross-seller location_id and shipping_option_id
+  // server-side on /admin/exchanges/:id/inbound/shipping-method.
+  const { stock_locations = [] } = useSellerValidStockLocations(order.id, {
+    limit: 200,
+  })
+  const { shipping_options: inboundShippingOptions = [] } =
+    useSellerValidShippingOptions(
+      order.id,
+      {
+        location_id: locationId,
+        is_return: true,
+      },
+      {
+        enabled: !!locationId,
+      }
+    )
 
   const {
     fields: inboundItems,
