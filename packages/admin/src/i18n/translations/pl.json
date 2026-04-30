@@ -1049,6 +1049,11 @@
     }
   },
   "orders": {
+    "errors": {
+      "locationNotSellerValid": "Ta lokalizacja magazynowa nie należy do sprzedawcy z tego zamówienia.",
+      "shippingOptionNotSellerValid": "Ta opcja dostawy nie należy do sprzedawcy z tego zamówienia.",
+      "variantNotSellerValid": "Ten wariant produktu nie należy do sprzedawcy z tego zamówienia."
+    },
     "giftCardsStoreCreditLines": "Karty podarunkowe i linie kredytowe",
     "creditLines": {
       "title": "Linie kredytowe",
