@@ -14,6 +14,12 @@ type VariantRow = {
   sku?: string | null
   title?: string | null
   manage_inventory?: boolean
+  product?: {
+    id?: string
+    title?: string
+    thumbnail?: string | null
+    handle?: string
+  }
   prices?: Array<{ currency_code?: string; amount?: number }>
   inventory_items?: Array<{
     inventory?: {
@@ -85,7 +91,8 @@ const matchesSearch = (variant: VariantRow, term: string): boolean => {
   const needle = term.toLowerCase()
   return (
     (variant.sku?.toLowerCase().includes(needle) ?? false) ||
-    (variant.title?.toLowerCase().includes(needle) ?? false)
+    (variant.title?.toLowerCase().includes(needle) ?? false) ||
+    (variant.product?.title?.toLowerCase().includes(needle) ?? false)
   )
 }
 
