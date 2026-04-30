@@ -5,6 +5,8 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+
 import { sdk } from "../../lib/client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 
@@ -118,6 +120,83 @@ export const useSellerValidShippingOptions = (
     queryKey: sellerScopedOrdersQueryKeys.detail(orderId, {
       kind: "shipping-options",
       ...query,
+    }),
+    ...options,
+  });
+
+  return { ...data, ...rest };
+};
+
+type AddableVariantEligibility =
+  | { can_add: true; reason: "ok" }
+  | { can_add: false; reason: "no_price" | "no_inventory" };
+
+type AddableVariant = {
+  id: string;
+  sku?: string | null;
+  title?: string | null;
+  manage_inventory?: boolean;
+  prices?: Array<{ currency_code?: string; amount?: number }>;
+  eligibility: AddableVariantEligibility;
+};
+
+type AddableVariantsResponse = {
+  variants: AddableVariant[];
+  count: number;
+  limit: number;
+  offset: number;
+};
+
+const ADDABLE_VARIANTS_DEBOUNCE_MS = 300; // NFR-002
+
+/**
+ * Returns variants of products owned by the order's seller, with per-row
+ * eligibility for adding to an order edit / claim outbound / exchange
+ * outbound. Replaces the global variant catalog in those drawers per
+ * spec 006.
+ *
+ * Backend: GET /admin/orders/:id/addable-variants.
+ *
+ * Search input is debounced internally by 300ms (NFR-002) so callers
+ * can pass the live input value without throttling themselves — the
+ * hook only fires the request once the input settles.
+ */
+export const useAddableVariants = (
+  orderId: string,
+  query?: InferClientInput<
+    typeof sdk.admin.orders.$id.addableVariants.query
+  >,
+  options?: Omit<
+    UseQueryOptions<
+      AddableVariantsResponse,
+      ClientError,
+      AddableVariantsResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
+  >,
+) => {
+  const liveSearch = (query as { search?: string } | undefined)?.search ?? "";
+  const [debouncedSearch, setDebouncedSearch] = useState(liveSearch);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(liveSearch);
+    }, ADDABLE_VARIANTS_DEBOUNCE_MS);
+    return () => clearTimeout(timer);
+  }, [liveSearch]);
+
+  const effectiveQuery = { ...query, search: debouncedSearch };
+
+  const { data, ...rest } = useQuery({
+    queryFn: async () =>
+      sdk.admin.orders.$id.addableVariants.query({
+        $id: orderId,
+        ...effectiveQuery,
+      }) as Promise<AddableVariantsResponse>,
+    queryKey: sellerScopedOrdersQueryKeys.detail(orderId, {
+      kind: "addable-variants",
+      ...effectiveQuery,
     }),
     ...options,
   });
