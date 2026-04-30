@@ -15,7 +15,7 @@ This guide covers both — setting up Stripe, configuring both providers, wiring
 
 - A [Stripe account](https://dashboard.stripe.com) with Connect enabled
 - Stripe Secret API key and Publishable API key
-- A running Mercur project ([installation guide](/v2/quickstart))
+- A running Mercur project ([installation guide](/getting-started/installation))
 - Node.js 20+
 
 ## Architecture overview
@@ -269,7 +269,7 @@ PENDING → (Stripe onboarding) → ACTIVE
 
 4. **Ongoing monitoring** — Stripe may send additional `account.updated` events if requirements change. The provider re-evaluates and updates the status accordingly.
 
-For more details on payout accounts, balances, and transactions, see [Payout](/v2/core-concepts/payout).
+For more details on payout accounts, balances, and transactions, see [Payout](/core-concepts/payout).
 
 ## Transfers vs payouts
 

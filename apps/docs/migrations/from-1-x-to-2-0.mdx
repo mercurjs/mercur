@@ -5,7 +5,7 @@ description: What changed and how to port your existing Mercur 1.x code to 2.0.
 
 # Migrating from 1.x to 2.0
 
-Start with a working 2.0 project (see [Installation](/v2/getting-started/installation)). This guide covers what to change when porting your 1.x code.
+Start with a working 2.0 project (see [Installation](/getting-started/installation)). This guide covers what to change when porting your 1.x code.
 
 <Note>
 **Using version older than 1.4.0?** Your admin panel code is inside the backend repo (not a separate app). When scanning for custom admin code to port, look there instead of `apps/admin/`. Everything else in this guide applies identically.
@@ -98,7 +98,7 @@ Two fields are now **computed at query time** (not stored as columns):
 4. Update event listeners: `OrderSetWorkflowEvents` → `OrderGroupWorkflowEvents`
 5. If you used `payment_collection_id` or `sales_channel_id` from the order set, retrieve these from the individual orders instead (via the `order_group_order` link)
 
-See [Order Groups](/v2/core-concepts/order-groups) for the full 2.0 data model and API reference.
+See [Order Groups](/core-concepts/order-groups) for the full 2.0 data model and API reference.
 
 ## Porting Custom Backend Code
 

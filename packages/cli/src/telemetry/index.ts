@@ -23,7 +23,7 @@ export const toggleTelemetry = (enabled: boolean) => {
     configStore.set("telemetry_enabled", enabled)
 }
 
-export const TELEMETRY_DOCS_URL = 'https://docs.mercurjs.com/v2/telemetry'
+export const TELEMETRY_DOCS_URL = 'https://docs.mercurjs.com/telemetry'
 
 export const showTelemetryNoticeIfNeeded = () => {
     if (configStore.get("notice_shown")) {

@@ -61,7 +61,7 @@ export const UserMenu = () => {
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
           <DropdownMenu.Item asChild>
-            <Link to="https://docs.mercurjs.com/v2/welcome" target="_blank">
+            <Link to="https://docs.mercurjs.com/welcome" target="_blank">
               <BookOpen className="text-ui-fg-subtle me-2" />
               {t("app.menus.user.documentation")}
             </Link>
