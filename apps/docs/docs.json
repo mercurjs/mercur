@@ -1,7 +1,7 @@
 {
   "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "MercurJS documentation",
+  "theme": "aspen",
+  "name": "MercurJS Documentation",
   "description": "Mercur is an open-source AI-native marketplace framework built on MedusaJS v2. It provides block-based architecture for building multi-vendor marketplaces with seller management, commissions, order splitting, payouts, admin panel, and vendor portal. Code is copied directly into your project — full ownership, no black-box dependencies.",
   "logo": {
     "dark": "/logo.svg",
@@ -9,9 +9,9 @@
   },
   "favicon": "/favicon.png",
   "colors": {
-    "primary": "#000000",
+    "primary": "#090909",
     "light": "#ffffff",
-    "dark": "#000000"
+    "dark": "#090909"
   },
   "topbarLinks": [
     {
@@ -108,13 +108,13 @@
             "tab": "User Guide",
             "groups": [
               {
-                "group": "Admin",
+                "group": "Admin Panel",
                 "pages": [
                   "v2/user-guides/admin/stores"
                 ]
               },
               {
-                "group": "Vendor",
+                "group": "Vendor Panel",
                 "pages": [
                   "v2/user-guides/vendor/stores"
                 ]
@@ -459,5 +459,20 @@
         "href": "https://github.com/mercurjs/mercur/discussions/categories/ideas"
       }
     ]
+  },
+  "fonts": {
+    "heading": {
+      "family": "Sora",
+      "weight": 400
+    },
+    "body": {
+      "family": "Poppins",
+      "weight": 400
+    }
+  },
+  "background": {
+    "color": {
+      "dark": "#090909"
+    }
   }
 }
