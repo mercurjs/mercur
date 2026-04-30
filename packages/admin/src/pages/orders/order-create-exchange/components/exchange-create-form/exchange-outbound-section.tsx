@@ -311,6 +311,7 @@ export const ExchangeOutboundSection = ({
             <StackedFocusModal.Header />
 
             <AddExchangeOutboundItemsTable
+              orderId={order.id}
               selectedItems={outboundItems.map((i) => i.variant_id)}
               currencyCode={order.currency_code}
               onSelectionChange={(finalSelection) => {

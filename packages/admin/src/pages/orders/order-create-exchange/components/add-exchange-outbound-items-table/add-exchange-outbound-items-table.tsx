@@ -13,12 +13,14 @@ const PAGE_SIZE = 50
 const PREFIX = "rit"
 
 type AddExchangeOutboundItemsTableProps = {
+  orderId: string
   onSelectionChange: (ids: string[]) => void
   selectedItems: string[]
   currencyCode: string
 }
 
 export const AddExchangeOutboundItemsTable = ({
+  orderId,
   onSelectionChange,
   selectedItems,
   currencyCode,
@@ -45,9 +47,13 @@ export const AddExchangeOutboundItemsTable = ({
     prefix: PREFIX,
   })
 
-  const { variants = [], count } = useVariants({
-    ...searchParams,
-    fields: "*inventory_items.inventory.location_levels,+inventory_quantity",
+  // Spec 006 T020 — replace global useVariants with seller-scoped
+  // useAddableVariants. Backend (T011) also rejects cross-seller
+  // variant_id on POST /admin/exchanges/:id/outbound/items.
+  const { variants = [], count = 0 } = useAddableVariants(orderId, {
+    search: searchParams.q,
+    limit: searchParams.limit,
+    offset: searchParams.offset,
   })
 
   const columns = useExchangeOutboundItemTableColumns(currencyCode)
@@ -60,9 +66,10 @@ export const AddExchangeOutboundItemsTable = ({
     enablePagination: true,
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
-    enableRowSelection: (_row) => {
-      // TODO: Check inventory here. Check if other validations needs to be made
-      return true
+    enableRowSelection: (row) => {
+      // Disable selection for variants that fail seller-valid eligibility
+      // (no_price / no_inventory). Same pattern as T018/T019.
+      return row.original.eligibility?.can_add !== false
     },
     rowSelection: {
       state: rowSelection,
