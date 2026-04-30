@@ -31,6 +31,7 @@ export const _DataTable = <TData,>({
   search = false,
   orderBy,
   filters,
+  actions,
   prefix,
   queryObject = {},
   pageSize,
@@ -78,6 +79,7 @@ export const _DataTable = <TData,>({
         search={search}
         orderBy={orderBy}
         filters={filters}
+        actions={actions}
         prefix={prefix}
       />
       <DataTableRoot

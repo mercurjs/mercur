@@ -1,6 +1,10 @@
 import { ReactNode, Children } from "react";
 import { useTranslation } from "react-i18next";
-import { Button, Heading } from "@medusajs/ui";
+import {
+  ArrowsPointingOut,
+  ArrowsReduceDiagonal,
+} from "@medusajs/icons";
+import { Heading, IconButton, Tooltip } from "@medusajs/ui";
 
 export const OrderListTitle = () => {
   const { t } = useTranslation();
@@ -19,42 +23,35 @@ export const OrderListActions = ({
   );
 };
 
-type OrderListExpandCollapseActionsProps = {
-  onExpandAll: () => void;
-  onCollapseAll: () => void;
+type OrderListExpandCollapseActionProps = {
+  expanded: boolean;
+  onToggle: () => void;
   disabled?: boolean;
 };
 
-export const OrderListExpandCollapseActions = ({
-  onExpandAll,
-  onCollapseAll,
+export const OrderListExpandCollapseAction = ({
+  expanded,
+  onToggle,
   disabled = false,
-}: OrderListExpandCollapseActionsProps) => {
+}: OrderListExpandCollapseActionProps) => {
   const { t } = useTranslation();
+  const label = expanded ? t("actions.collapseAll") : t("actions.expandAll");
 
   return (
-    <>
-      <Button
+    <Tooltip content={label}>
+      <IconButton
         type="button"
-        variant="secondary"
         size="small"
         disabled={disabled}
-        onClick={onExpandAll}
-        data-testid="orders-expand-all-button"
+        onClick={onToggle}
+        aria-label={label}
+        data-testid={
+          expanded ? "orders-collapse-all-button" : "orders-expand-all-button"
+        }
       >
-        {t("actions.expandAll")}
-      </Button>
-      <Button
-        type="button"
-        variant="secondary"
-        size="small"
-        disabled={disabled}
-        onClick={onCollapseAll}
-        data-testid="orders-collapse-all-button"
-      >
-        {t("actions.collapseAll")}
-      </Button>
-    </>
+        {expanded ? <ArrowsReduceDiagonal /> : <ArrowsPointingOut />}
+      </IconButton>
+    </Tooltip>
   );
 };
 

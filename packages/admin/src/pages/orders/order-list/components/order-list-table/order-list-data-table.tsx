@@ -29,10 +29,8 @@ import { getStylizedAmount } from "@lib/money-amount-helpers";
 
 import { DEFAULT_FIELDS } from "../../const";
 import {
-  OrderListActions,
-  OrderListExpandCollapseActions,
+  OrderListExpandCollapseAction,
   OrderListHeader,
-  OrderListTitle,
 } from "./order-list-header";
 import { useOrderGroupTableFilters } from "./use-order-table-filters";
 
@@ -189,16 +187,7 @@ export const OrderListDataTable = () => {
 
   return (
     <>
-      <OrderListHeader>
-        <OrderListTitle />
-        <OrderListActions>
-          <OrderListExpandCollapseActions
-            onExpandAll={() => table.toggleAllRowsExpanded(true)}
-            onCollapseAll={() => table.toggleAllRowsExpanded(false)}
-            disabled={isLoading || !hasGroupRows}
-          />
-        </OrderListActions>
-      </OrderListHeader>
+      <OrderListHeader />
       <div
         ref={tableContainerRef}
         className="[&_tr:not(:has([data-row-link]))]:cursor-pointer"
@@ -221,6 +210,15 @@ export const OrderListDataTable = () => {
             { key: "created_at", label: t("fields.createdAt") },
             { key: "updated_at", label: t("fields.updatedAt") },
           ]}
+          actions={
+            <OrderListExpandCollapseAction
+              expanded={table.getIsAllRowsExpanded()}
+              onToggle={() =>
+                table.toggleAllRowsExpanded(!table.getIsAllRowsExpanded())
+              }
+              disabled={isLoading || !hasGroupRows}
+            />
+          }
           queryObject={raw}
           noRecords={{
             message: t("orders.list.noRecordsMessage"),

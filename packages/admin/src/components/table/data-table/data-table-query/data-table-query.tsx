@@ -1,4 +1,5 @@
 import { Filter } from ".."
+import { ReactNode } from "react"
 import { DataTableFilter } from "../data-table-filter"
 import { DataTableOrderBy, DataTableOrderByKey } from "../data-table-order-by"
 import { DataTableSearch } from "../data-table-search"
@@ -8,6 +9,7 @@ export interface DataTableQueryProps<TData> {
   orderBy?: DataTableOrderByKey<TData>[]
   filters?: Filter[]
   prefix?: string
+  actions?: ReactNode
 }
 
 export const DataTableQuery = <TData,>({
@@ -15,9 +17,10 @@ export const DataTableQuery = <TData,>({
   orderBy,
   filters,
   prefix,
+  actions,
 }: DataTableQueryProps<TData>) => {
   return (
-    (search || orderBy || filters || prefix) && (
+    (search || orderBy || filters || prefix || actions) && (
       <div className="flex items-start justify-between gap-x-4 px-6 py-4">
         <div className="w-full max-w-[60%]">
           {filters && filters.length > 0 && (
@@ -32,6 +35,7 @@ export const DataTableQuery = <TData,>({
             />
           )}
           {orderBy && <DataTableOrderBy keys={orderBy} prefix={prefix} />}
+          {actions}
         </div>
       </div>
     )
