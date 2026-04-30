@@ -101,6 +101,7 @@ export const OrderEditItemsSection = ({
               <StackedFocusModal.Header data-testid="order-edit-items-section-add-items-modal-header" />
 
               <AddOrderEditItemsTable
+                orderId={order.id}
                 currencyCode={order.currency_code}
                 onSelectionChange={(finalSelection) => {
                   addedVariants = finalSelection;
