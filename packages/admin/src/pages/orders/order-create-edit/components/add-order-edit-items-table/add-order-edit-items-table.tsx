@@ -40,10 +40,9 @@ export const AddOrderEditItemsTable = ({
     prefix: PREFIX,
   })
 
-  // Spec 006 T018 — replace global useVariants with seller-scoped
-  // useAddableVariants. Each row carries an `eligibility` discriminator
-  // ({ can_add, reason }) so we can disable ineligible rows below.
-  // Backend (T010) also rejects cross-seller variant_id on
+  // Seller-scoped variants. Each row carries an `eligibility`
+  // discriminator ({ can_add, reason }) so we can disable ineligible
+  // rows below. Backend also rejects cross-seller variant_id on
   // POST /admin/order-edits/:id/items as defense-in-depth.
   const { variants = [], count = 0 } = useAddableVariants(orderId, {
     search: searchParams.q,

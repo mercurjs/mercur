@@ -112,7 +112,6 @@ export const GET = async (
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Pull the order's currency for price eligibility.
   const { data: orderRows } = await query.graph({
     entity: "order",
     fields: ["id", "currency_code"],
@@ -123,7 +122,6 @@ export const GET = async (
     | undefined
   const currencyCode = order?.currency_code ?? ""
 
-  // Seller-owned product ids.
   const { data: productLinks } = await query.graph({
     entity: "product_seller",
     fields: ["product_id"],
@@ -143,7 +141,7 @@ export const GET = async (
     return
   }
 
-  // Seller-valid stock location ids — inventory must be reachable from one.
+  // Inventory must be reachable from a seller-owned location.
   const { data: locationLinks } = await query.graph({
     entity: "stock_location_seller",
     fields: ["stock_location_id"],

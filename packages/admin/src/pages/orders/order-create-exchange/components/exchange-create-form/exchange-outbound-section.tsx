@@ -59,9 +59,9 @@ export const ExchangeOutboundSection = ({
   /**
    * HOOKS
    */
-  // Spec 006 — outbound shipping picker scoped to the order's seller.
-  // Backend rejects cross-seller shipping_option_id on the corresponding
-  // /admin/exchanges/:id/outbound/shipping-method matcher.
+  // Outbound shipping picker scoped to the order's seller. Backend
+  // rejects cross-seller shipping_option_id on
+  // /admin/exchanges/:id/outbound/shipping-method (defense-in-depth).
   const { shipping_options: outboundShippingOptions = [] } =
     useSellerValidShippingOptions(order.id, { is_return: false })
 

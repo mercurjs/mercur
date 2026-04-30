@@ -46,14 +46,10 @@ export const GET = async (
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Pull order's currency + region so we can resolve calculated_price
-  // for each candidate shipping option below. If calculated_price is
-  // null for a given option (e.g. price config has rules that don't
-  // satisfy the order's pricing context), Medusa's downstream
-  // prepare-shipping-method workflow crashes with `Cannot read
-  // properties of null (reading 'calculated_amount')` when the admin
-  // selects it. We pre-resolve and drop those options here so the
-  // picker only ever offers actionable values.
+  // Resolve calculated_price in the order's pricing context so we can
+  // drop options that don't satisfy it. Selecting an option with
+  // calculated_price = null crashes prepare-shipping-method downstream
+  // with "Cannot read properties of null (reading 'calculated_amount')".
   const { data: orderRows } = await query.graph({
     entity: "order",
     fields: ["id", "currency_code", "region_id"],
@@ -65,7 +61,6 @@ export const GET = async (
   const orderCurrency = orderRow?.currency_code?.toLowerCase()
   const orderRegionId = orderRow?.region_id ?? undefined
 
-  // Resolve seller-owned shipping option ids via the link table.
   const { data: links } = await query.graph({
     entity: "shipping_option_seller",
     fields: ["shipping_option_id"],

@@ -109,9 +109,8 @@ export const ReturnCreateForm = ({
   /**
    * HOOKS
    */
-  // Spec 006 T015 — replace global stock-locations picker with the
-  // seller-scoped one. Backend (T008) also rejects cross-seller location_id
-  // server-side, so this is defense-in-depth + correct UX.
+  // Seller-scoped picker. Backend also rejects cross-seller location_id,
+  // so this is defense-in-depth + correct UX.
   const { stock_locations = [] } = useSellerValidStockLocations(order.id, {
     limit: 200,
   })

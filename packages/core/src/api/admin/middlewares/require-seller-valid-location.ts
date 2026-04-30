@@ -59,11 +59,10 @@ export const requireSellerValidLocation = (
       })
 
       if (links.length === 0) {
-        // FORBIDDEN → HTTP 403 (Medusa's error-handler maps NOT_ALLOWED to
-        // 400, FORBIDDEN to 403). Seller-scope violation is an authz
-        // failure, not a business-rule violation, so 403 is the right
-        // status semantically. Spec 006 D8 said NOT_ALLOWED+403, which
-        // is inconsistent with the framework's own mapping.
+        // FORBIDDEN → HTTP 403 (Medusa's error-handler maps NOT_ALLOWED
+        // to 400, FORBIDDEN to 403). Seller-scope violation is an
+        // authz failure, not a business-rule violation, so 403 is the
+        // right status semantically.
         return next(
           new MedusaError(
             MedusaError.Types.FORBIDDEN,

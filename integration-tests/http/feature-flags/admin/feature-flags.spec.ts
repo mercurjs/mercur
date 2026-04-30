@@ -22,7 +22,7 @@ medusaIntegrationTestRunner({
                 await createAdminUser(dbConnection, adminHeaders, appContainer)
             })
 
-            describe("FEATURE_FLAG_ROUTER registration (T003)", () => {
+            describe("FEATURE_FLAG_ROUTER registration", () => {
                 it("registers admin_warehouse_management with default value false", () => {
                     const router = appContainer.resolve(
                         ContainerRegistrationKeys.FEATURE_FLAG_ROUTER
@@ -49,7 +49,7 @@ medusaIntegrationTestRunner({
                 })
             })
 
-            describe("GET /admin/feature-flags (T005)", () => {
+            describe("GET /admin/feature-flags", () => {
                 it("returns 200 with admin_warehouse_management default false", async () => {
                     const response = await api.get(
                         "/admin/feature-flags",

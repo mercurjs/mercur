@@ -10,10 +10,11 @@ const CODE_TO_KEY: Record<string, string> = {
 }
 
 /**
- * Maps spec 006 backend error codes (LOCATION_NOT_SELLER_VALID,
- * SHIPPING_OPTION_NOT_SELLER_VALID, VARIANT_NOT_SELLER_VALID) to
- * translated copy. Returns null when the error is not one of these,
- * so callers can fall back to the raw `error.message`.
+ * Maps the seller-scoped backend error codes
+ * (LOCATION_NOT_SELLER_VALID, SHIPPING_OPTION_NOT_SELLER_VALID,
+ * VARIANT_NOT_SELLER_VALID) to translated copy. Returns null when the
+ * error is not one of these, so callers can fall back to the raw
+ * `error.message`.
  */
 export const getSellerScopedErrorMessage = (
   error: unknown,

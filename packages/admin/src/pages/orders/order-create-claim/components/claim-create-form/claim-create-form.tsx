@@ -241,9 +241,9 @@ export const ClaimCreateForm = ({
   /**
    * HOOKS
    */
-  // Spec 006 T016 — replace global pickers with seller-scoped versions.
-  // Backend (T011) also rejects cross-seller location_id and shipping_option_id
-  // server-side on /admin/claims/:id/inbound/shipping-method.
+  // Seller-scoped pickers. Backend also rejects cross-seller
+  // location_id and shipping_option_id on
+  // /admin/claims/:id/inbound/shipping-method.
   const { stock_locations = [] } = useSellerValidStockLocations(order.id, {
     limit: 200,
   });

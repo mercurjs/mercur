@@ -102,15 +102,14 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     ],
   },
   // Mercur cancel-order invariant — enforce marketplace rule regardless of flag.
-  // See specs/005-admin-warehouse-capability-lock.
   {
     method: ["POST"],
     matcher: "/admin/orders/:id/cancel",
     middlewares: [validateCancelOrderMiddleware],
   },
-  // Seller-valid scoping — spec 006 D-02-006.
+  // Seller-valid scoping for admin order mutations.
   //
-  // IMPORTANT: method is intentionally omitted on these Mercur matchers.
+  // IMPORTANT: method is intentionally omitted on these matchers.
   // Medusa's framework registers matchers with explicit `method` using
   // `app[method](...)` which makes them route handlers stacked AFTER
   // core route handlers — they never fire because the core handler

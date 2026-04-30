@@ -30,10 +30,8 @@ type SellerValidStockLocationsResponse = {
 
 /**
  * Returns stock locations linked to the order's seller (via the
- * stock_location_seller link). Replaces the global stock-locations
- * picker in admin Return / Claim / Exchange drawers per spec 006.
- *
- * Backend: GET /admin/orders/:id/seller-valid-stock-locations.
+ * stock_location_seller link). Used by the admin Return / Claim /
+ * Exchange drawers in place of the global stock-locations picker.
  */
 export const useSellerValidStockLocations = (
   orderId: string,
@@ -106,16 +104,13 @@ type SellerValidShippingOptionsResponse = {
 
 /**
  * Returns shipping options linked to the order's seller and filtered by
- * location + direction (return vs outbound). Replaces the global
- * shipping-option pickers in admin Return / Claim / Exchange drawers
- * per spec 006.
- *
- * Backend: GET /admin/orders/:id/seller-valid-shipping-options.
+ * location + direction (return vs outbound). Used by the admin Return /
+ * Claim / Exchange drawers in place of the global shipping-option picker.
  *
  * Query params:
  *   - location_id: filter to options bound to a fulfillment set reachable
- *     from this stock location. Required for the picker to refetch when
- *     the user picks a different location upstream (FR-006).
+ *     from this stock location. Pass it whenever the upstream location
+ *     picker can change so the result set refetches.
  *   - is_return: "true" → return shipping options; "false"/omitted →
  *     outbound shipping options.
  */
@@ -180,19 +175,16 @@ type AddableVariantsResponse = {
   offset: number;
 };
 
-const ADDABLE_VARIANTS_DEBOUNCE_MS = 300; // NFR-002
+const ADDABLE_VARIANTS_DEBOUNCE_MS = 300;
 
 /**
  * Returns variants of products owned by the order's seller, with per-row
  * eligibility for adding to an order edit / claim outbound / exchange
- * outbound. Replaces the global variant catalog in those drawers per
- * spec 006.
+ * outbound. Used in place of the global variant catalog in those drawers.
  *
- * Backend: GET /admin/orders/:id/addable-variants.
- *
- * Search input is debounced internally by 300ms (NFR-002) so callers
- * can pass the live input value without throttling themselves — the
- * hook only fires the request once the input settles.
+ * Search input is debounced internally so callers can pass the live
+ * input value without throttling themselves — the hook only fires the
+ * request once the input settles.
  */
 export const useAddableVariants = (
   orderId: string,

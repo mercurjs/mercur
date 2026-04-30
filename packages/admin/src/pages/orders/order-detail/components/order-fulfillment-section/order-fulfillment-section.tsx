@@ -44,7 +44,7 @@ export const OrderFulfillmentSection = ({
   const warehouseEnabled = useWarehouseManagement()
   const fulfillments = order.fulfillments || []
 
-  // Baseline Mercur hides warehouse UI from admin. See specs/005.
+  // Baseline Mercur hides warehouse UI from admin.
   if (!warehouseEnabled) {
     return null
   }

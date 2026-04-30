@@ -17,7 +17,7 @@ The error envelope follows Medusa's standard shape:
 
 ## Seller-Valid Scoping
 
-These codes are returned by the seller-valid middlewares introduced in spec 006. They protect every admin write that ties an order, return, claim, or exchange to a stock location, shipping option, or product variant. HTTP status: **403**.
+These codes are returned by the seller-valid middlewares. They protect every admin write that ties an order, return, claim, or exchange to a stock location, shipping option, or product variant. HTTP status: **403**.
 
 | Code | Description | Triggered by |
 | --- | --- | --- |
@@ -29,7 +29,7 @@ The admin dashboard avoids these errors at the picker level by hitting the match
 
 ## Warehouse Capability Lock
 
-These codes are returned by `requireAdminWarehouseCapability` (spec 005) when the `admin_warehouse_management` feature flag is `false`. HTTP status: **400**.
+These codes are returned by `requireAdminWarehouseCapability` when the `admin_warehouse_management` feature flag is `false`. HTTP status: **400**.
 
 | Code | Description |
 | --- | --- |

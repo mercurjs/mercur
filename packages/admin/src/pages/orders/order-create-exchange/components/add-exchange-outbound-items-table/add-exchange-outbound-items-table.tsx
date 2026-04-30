@@ -47,8 +47,7 @@ export const AddExchangeOutboundItemsTable = ({
     prefix: PREFIX,
   })
 
-  // Spec 006 T020 — replace global useVariants with seller-scoped
-  // useAddableVariants. Backend (T011) also rejects cross-seller
+  // Seller-scoped variants. Backend also rejects cross-seller
   // variant_id on POST /admin/exchanges/:id/outbound/items.
   const { variants = [], count = 0 } = useAddableVariants(orderId, {
     search: searchParams.q,
@@ -68,7 +67,7 @@ export const AddExchangeOutboundItemsTable = ({
     pageSize: PAGE_SIZE,
     enableRowSelection: (row) => {
       // Disable selection for variants that fail seller-valid eligibility
-      // (no_price / no_inventory). Same pattern as T018/T019.
+      // (no_price / no_inventory).
       return row.original.eligibility?.can_add !== false
     },
     rowSelection: {

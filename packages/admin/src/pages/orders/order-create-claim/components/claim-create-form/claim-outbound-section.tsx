@@ -60,11 +60,11 @@ export const ClaimOutboundSection = ({
   /**
    * HOOKS
    */
-  // Spec 006 — outbound shipping picker scoped to the order's seller.
-  // Backend rejects cross-seller shipping_option_id on the corresponding
-  // /admin/claims/:id/outbound/shipping-method matcher (defense-in-depth).
-  // is_return=false → backend filters to outbound options only, no
-  // client-side rule filtering needed.
+  // Outbound shipping picker scoped to the order's seller. Backend
+  // rejects cross-seller shipping_option_id on
+  // /admin/claims/:id/outbound/shipping-method (defense-in-depth) and
+  // filters to outbound options when is_return=false, so no
+  // client-side rule filtering is needed.
   const { shipping_options: outboundShippingOptions = [] } =
     useSellerValidShippingOptions(order.id, { is_return: false })
 
