@@ -5,7 +5,6 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { useEffect, useState } from "react";
 
 import { sdk } from "../../lib/client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
@@ -175,16 +174,13 @@ type AddableVariantsResponse = {
   offset: number;
 };
 
-const ADDABLE_VARIANTS_DEBOUNCE_MS = 300;
-
 /**
  * Returns variants of products owned by the order's seller, with per-row
  * eligibility for adding to an order edit / claim outbound / exchange
  * outbound. Used in place of the global variant catalog in those drawers.
  *
- * Search input is debounced internally so callers can pass the live
- * input value without throttling themselves — the hook only fires the
- * request once the input settles.
+ * Callers are expected to debounce search input upstream (the
+ * `_DataTable` component already does this for its built-in search).
  */
 export const useAddableVariants = (
   orderId: string,
@@ -199,27 +195,15 @@ export const useAddableVariants = (
     "queryFn" | "queryKey"
   >,
 ) => {
-  const liveSearch = query?.search ?? "";
-  const [debouncedSearch, setDebouncedSearch] = useState(liveSearch);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(liveSearch);
-    }, ADDABLE_VARIANTS_DEBOUNCE_MS);
-    return () => clearTimeout(timer);
-  }, [liveSearch]);
-
-  const effectiveQuery = { ...query, search: debouncedSearch };
-
   const { data, ...rest } = useQuery({
     queryFn: async () =>
       sdk.admin.orders.$id.addableVariants.query({
         $id: orderId,
-        ...effectiveQuery,
+        ...query,
       }) as Promise<AddableVariantsResponse>,
     queryKey: sellerScopedOrdersQueryKeys.detail(orderId, {
       kind: "addable-variants",
-      ...effectiveQuery,
+      ...query,
     }),
     ...options,
   });

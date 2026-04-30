@@ -42,8 +42,10 @@ import {
   useUpdateReturnItem,
   useUpdateReturnShipping,
 } from "../../../../../hooks/api/returns"
-import { useSellerValidStockLocations } from "../../../../../hooks/api/seller-scoped-orders"
-import { useShippingOptions } from "../../../../../hooks/api/shipping-options"
+import {
+  useSellerValidShippingOptions,
+  useSellerValidStockLocations,
+} from "../../../../../hooks/api/seller-scoped-orders"
 import { sdk } from "../../../../../lib/client"
 import { currencies } from "../../../../../lib/data/currencies"
 import { getStylizedAmount } from "../../../../../lib/money-amount-helpers"
@@ -113,13 +115,6 @@ export const ReturnCreateForm = ({
   // so this is defense-in-depth + correct UX.
   const { stock_locations = [] } = useSellerValidStockLocations(order.id, {
     limit: 200,
-  })
-  const { shipping_options = [] } = useShippingOptions({
-    limit: 999,
-    fields: "*prices,+service_zone.fulfillment_set.location.id",
-    /**
-     * TODO: this should accept filter for location_id
-     */
   })
 
   /**
@@ -263,6 +258,17 @@ export const ReturnCreateForm = ({
   const shippingOptionId = form.watch("option_id")
   const prompt = usePrompt()
 
+  // Seller-scoped return shipping options for the selected location.
+  // Backend rejects cross-seller shipping_option_id on
+  // /admin/returns/:id/shipping-method (defense-in-depth) and filters
+  // to return options when is_return=true, so no client-side rule
+  // filtering is needed.
+  const { shipping_options = [] } = useSellerValidShippingOptions(
+    order.id,
+    { location_id: locationId, is_return: true },
+    { enabled: !!locationId }
+  )
+
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
       const res = await prompt({
@@ -281,10 +287,7 @@ export const ReturnCreateForm = ({
 
       handleSuccess()
     } catch (e) {
-      toast.error(t("general.error"), {
-        description: resolveErrorToastMessage(e, t),
-        dismissLabel: t("actions.close"),
-      })
+      toast.error(resolveErrorToastMessage(e, t))
     }
   })
 
@@ -594,23 +597,12 @@ export const ReturnCreateForm = ({
                                 onShippingOptionChange(v)
                               }}
                               {...field}
-                              options={(shipping_options ?? [])
-                                .filter(
-                                  (so) =>
-                                    (locationId
-                                      ? so.service_zone.fulfillment_set!
-                                          .location.id === locationId
-                                      : true) &&
-                                    !!so.rules.find(
-                                      (r) =>
-                                        r.attribute === "is_return" &&
-                                        r.value === "true"
-                                    )
-                                )
-                                .map((so) => ({
+                              options={(shipping_options ?? []).map(
+                                (so) => ({
                                   label: so.name,
                                   value: so.id,
-                                }))}
+                                })
+                              )}
                               disabled={!locationId}
                               noResultsPlaceholder={
                                 <ReturnShippingPlaceholder />
