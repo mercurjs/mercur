@@ -29,6 +29,10 @@ import {
   orderIdFromOrderEditParam,
   requireSellerValidAddItem,
 } from "./middlewares/require-seller-valid-add-item"
+import {
+  orderIdFromClaimParam,
+  orderIdFromExchangeParam,
+} from "./middlewares/order-id-resolvers"
 
 const maybeApplySellerProductFilter = (
   req: AuthenticatedMedusaRequest,
@@ -131,6 +135,36 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/order-edits/:id/items",
     middlewares: [
       requireSellerValidAddItem(orderIdFromOrderEditParam),
+    ],
+  },
+  // Block cross-seller location + shipping option on claim inbound shipping-method.
+  {
+    matcher: "/admin/claims/:id/inbound/shipping-method",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromClaimParam),
+      requireSellerValidShippingOption(orderIdFromClaimParam),
+    ],
+  },
+  // Block cross-seller location + shipping option on exchange inbound shipping-method.
+  {
+    matcher: "/admin/exchanges/:id/inbound/shipping-method",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromExchangeParam),
+      requireSellerValidShippingOption(orderIdFromExchangeParam),
+    ],
+  },
+  // Block cross-seller variant_id on claim outbound items.
+  {
+    matcher: "/admin/claims/:id/outbound/items",
+    middlewares: [
+      requireSellerValidAddItem(orderIdFromClaimParam),
+    ],
+  },
+  // Block cross-seller variant_id on exchange outbound items.
+  {
+    matcher: "/admin/exchanges/:id/outbound/items",
+    middlewares: [
+      requireSellerValidAddItem(orderIdFromExchangeParam),
     ],
   },
   // Warehouse capability lock — gated by `admin_warehouse_management` feature flag.

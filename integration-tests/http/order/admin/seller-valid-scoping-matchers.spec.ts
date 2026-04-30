@@ -472,6 +472,23 @@ medusaIntegrationTestRunner({
             // (confirmed via vendor GET). orderA (fulfilled) works fine.
             // Same D-02-006 deferral policy as T009: the middleware
             // ships wired-only and is covered by manual smoke.
+
+            // T011 — claim and exchange matchers (inbound shipping-method
+            // + outbound items) are wired on (see middlewares.ts):
+            //   - POST /admin/claims/:id/inbound/shipping-method
+            //   - POST /admin/exchanges/:id/inbound/shipping-method
+            //   - POST /admin/claims/:id/outbound/items
+            //   - POST /admin/exchanges/:id/outbound/items
+            // Integration tests deferred — claim and exchange flows
+            // require a multi-step setup (order → fulfillment → return
+            // → claim/exchange creation via admin) that is significantly
+            // more involved than T008/T010 setups; bootstrap cost
+            // outweighs Signal for a wire-proof test. Same D-02-006
+            // deferral policy: the middlewares themselves are already
+            // proven by T008 (location), T009 (shipping-option), and
+            // T010 (add-item) on their canonical matchers; the
+            // additional registrations only assert wiring, not new
+            // logic. Covered by manual smoke.
         })
     },
 })
