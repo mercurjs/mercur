@@ -10,9 +10,10 @@ import {
 import { HttpTypes } from "@mercurjs/types"
 
 import { publishProductsWorkflow } from "../../../../../workflows/product/workflows/publish-products"
+import { AdminPublishProductType } from "../../validators"
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<AdminPublishProductType>,
   res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -20,6 +21,7 @@ export const POST = async (
     input: {
       product_ids: [req.params.id],
       actor_id: req.auth_context?.actor_id,
+      internal_note: req.validatedBody?.internal_note,
     },
   })
 

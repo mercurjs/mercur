@@ -17,6 +17,8 @@ const productStatusColor = (status: string) => {
       return "green";
     case "rejected":
       return "red";
+    case "requires_action":
+      return "blue";
     default:
       return "grey";
   }
@@ -87,8 +89,14 @@ export const ProductGeneralSection = ({
         </div>
       </div>
 
-      <SectionRow title={t("fields.description")} value={product.description || "-"} />
-      <SectionRow title={t("fields.subtitle")} value={product.subtitle || "-"} />
+      <SectionRow
+        title={t("fields.description")}
+        value={product.description || "-"}
+      />
+      <SectionRow
+        title={t("fields.subtitle")}
+        value={product.subtitle || "-"}
+      />
       <SectionRow title={t("fields.handle")} value={`/${product.handle}`} />
       <SectionRow
         title={t("fields.discountable")}

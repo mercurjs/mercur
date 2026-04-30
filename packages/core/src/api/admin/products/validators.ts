@@ -279,9 +279,16 @@ export const AdminUpdateProduct = WithAdditionalData(UpdateProduct)
 
 // --- Action endpoints ---
 
+export type AdminPublishProductType = z.infer<typeof AdminPublishProduct>
+export const AdminPublishProduct = z
+  .object({
+    internal_note: z.string().optional(),
+  })
+  .strict()
+
 export type AdminRejectProductType = z.infer<typeof AdminRejectProduct>
 export const AdminRejectProduct = z.object({
-  rejection_reason_ids: z.array(z.string()).min(1),
+  rejection_reason_ids: z.array(z.string()).optional(),
   message: z.string().optional(),
 })
 
@@ -289,7 +296,7 @@ export type AdminRequestProductChangesType = z.infer<
   typeof AdminRequestProductChanges
 >
 export const AdminRequestProductChanges = z.object({
-  rejection_reason_ids: z.array(z.string()).min(1),
+  rejection_reason_ids: z.array(z.string()).optional(),
   message: z.string().optional(),
 })
 

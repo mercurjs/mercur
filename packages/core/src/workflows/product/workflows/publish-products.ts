@@ -4,13 +4,13 @@ import {
     WorkflowResponse,
     transform,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
 import { ProductStatus, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { validatePublishProductsStep, updateProductsStep } from "../steps"
 import {
-    retrieveProductWithChangeStep,
+    createProductChangesStep,
     createProductChangeActionsStep,
     confirmProductChangesStep,
 } from "../../product-edit/steps"
@@ -20,26 +20,41 @@ export const publishProductsWorkflowId = "publish-products"
 type PublishProductsWorkflowInput = {
     product_ids: string[]
     actor_id?: string
+    /**
+     * Operator note persisted onto the underlying `ProductChange.internal_note`
+     * field for each published product. Optional.
+     */
+    internal_note?: string
 }
 
 export const publishProductsWorkflow = createWorkflow(
     publishProductsWorkflowId,
     function (input: PublishProductsWorkflowInput) {
-        const productId = transform({ input }, ({ input }) => input.product_ids[0])
-
-        const product = retrieveProductWithChangeStep({
-            product_id: productId,
-        })
-
-        const products = transform({ product }, ({ product }) => [product])
+        const { data: products } = useQueryGraphStep({
+            entity: "product",
+            fields: ["id", "status"],
+            filters: { id: input.product_ids },
+            options: { throwIfKeyNotFound: true },
+        }).config({ name: "get-products" })
 
         validatePublishProductsStep({ products })
 
-        const actionDataList = transform(
-            { products },
-            ({ products }) =>
+        const changeData = transform(
+            { products, input },
+            ({ products, input }) =>
                 products.map((product) => ({
-                    product_change_id: product.product_change.id,
+                    product_id: product.id,
+                    created_by: input.actor_id,
+                }))
+        )
+
+        const changes = createProductChangesStep(changeData)
+
+        const actionDataList = transform(
+            { products, changes },
+            ({ products, changes }) =>
+                products.map((product, index) => ({
+                    product_change_id: changes[index].id,
                     product_id: product.id,
                     action: ProductChangeActionType.STATUS_CHANGE,
                     details: { status: ProductStatus.PUBLISHED },
@@ -49,11 +64,12 @@ export const publishProductsWorkflow = createWorkflow(
         createProductChangeActionsStep(actionDataList)
 
         const changeDataList = transform(
-            { products, input },
-            ({ products, input }) =>
-                products.map((product) => ({
-                    id: product.product_change.id,
+            { changes, input },
+            ({ changes, input }) =>
+                changes.map((change) => ({
+                    id: change.id,
                     confirmed_by: input.actor_id,
+                    internal_note: input.internal_note,
                 }))
         )
 

@@ -12,13 +12,6 @@ export const validatePublishProductsStep = createStep(
           `Cannot publish product '${product.id}' with status '${product.status}'. Only proposed products can be published.`
         )
       }
-
-      if (!product.product_change) {
-        throw new MedusaError(
-          MedusaError.Types.NOT_ALLOWED,
-          `Product '${product.id}' has no active change to publish`
-        )
-      }
     }
   }
 )

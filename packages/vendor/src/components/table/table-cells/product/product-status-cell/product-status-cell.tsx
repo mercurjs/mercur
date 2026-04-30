@@ -1,14 +1,14 @@
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next";
 
-import { StatusCell } from "../../common/status-cell"
-import { ProductStatus } from "@mercurjs/types"
+import { StatusCell } from "../../common/status-cell";
+import { ProductStatus } from "@mercurjs/types";
 
 type ProductStatusCellProps = {
-  status: ProductStatus | `${ProductStatus}`
-}
+  status: ProductStatus | `${ProductStatus}`;
+};
 
 export const ProductStatusCell = ({ status }: ProductStatusCellProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const [color, text] = {
     [ProductStatus.DRAFT]: ["grey", t("products.productStatus.draft")],
@@ -19,17 +19,17 @@ export const ProductStatusCell = ({ status }: ProductStatusCellProps) => {
       t("products.productStatus.requires_action"),
     ],
     [ProductStatus.REJECTED]: ["red", t("products.productStatus.rejected")],
-  }[status] as ["grey" | "orange" | "green" | "red" | "blue", string]
+  }[status] as ["grey" | "orange" | "green" | "red" | "blue", string];
 
-  return <StatusCell color={color}>{text}</StatusCell>
-}
+  return <StatusCell color={color}>{text}</StatusCell>;
+};
 
 export const ProductStatusHeader = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="flex h-full w-full items-center">
       <span>{t("fields.status")}</span>
     </div>
-  )
-}
+  );
+};
