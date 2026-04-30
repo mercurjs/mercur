@@ -1,4 +1,4 @@
-import { ClientError, InferClientInput } from "@mercurjs/client";
+import { ClientError } from "@mercurjs/client";
 import { HttpTypes } from "@medusajs/types";
 import {
   QueryKey,
@@ -16,6 +16,11 @@ export const sellerScopedOrdersQueryKeys = queryKeysFactory(
   SELLER_SCOPED_ORDERS_QUERY_KEY,
 );
 
+type SellerValidStockLocationsQuery = {
+  limit?: number;
+  offset?: number;
+};
+
 type SellerValidStockLocationsResponse = {
   stock_locations: HttpTypes.AdminStockLocation[];
   count: number;
@@ -32,9 +37,7 @@ type SellerValidStockLocationsResponse = {
  */
 export const useSellerValidStockLocations = (
   orderId: string,
-  query?: InferClientInput<
-    typeof sdk.admin.orders.$id.sellerValidStockLocations.query
-  >,
+  query?: SellerValidStockLocationsQuery,
   options?: Omit<
     UseQueryOptions<
       SellerValidStockLocationsResponse,
@@ -74,6 +77,13 @@ type SellerValidShippingOption = {
   }>;
 };
 
+type SellerValidShippingOptionsQuery = {
+  location_id?: string;
+  is_return?: boolean | string;
+  limit?: number;
+  offset?: number;
+};
+
 type SellerValidShippingOptionsResponse = {
   shipping_options: SellerValidShippingOption[];
   count: number;
@@ -98,9 +108,7 @@ type SellerValidShippingOptionsResponse = {
  */
 export const useSellerValidShippingOptions = (
   orderId: string,
-  query?: InferClientInput<
-    typeof sdk.admin.orders.$id.sellerValidShippingOptions.query
-  >,
+  query?: SellerValidShippingOptionsQuery,
   options?: Omit<
     UseQueryOptions<
       SellerValidShippingOptionsResponse,
@@ -140,6 +148,12 @@ type AddableVariant = {
   eligibility: AddableVariantEligibility;
 };
 
+type AddableVariantsQuery = {
+  search?: string;
+  limit?: number;
+  offset?: number;
+};
+
 type AddableVariantsResponse = {
   variants: AddableVariant[];
   count: number;
@@ -163,9 +177,7 @@ const ADDABLE_VARIANTS_DEBOUNCE_MS = 300; // NFR-002
  */
 export const useAddableVariants = (
   orderId: string,
-  query?: InferClientInput<
-    typeof sdk.admin.orders.$id.addableVariants.query
-  >,
+  query?: AddableVariantsQuery,
   options?: Omit<
     UseQueryOptions<
       AddableVariantsResponse,
@@ -176,7 +188,7 @@ export const useAddableVariants = (
     "queryFn" | "queryKey"
   >,
 ) => {
-  const liveSearch = (query as { search?: string } | undefined)?.search ?? "";
+  const liveSearch = query?.search ?? "";
   const [debouncedSearch, setDebouncedSearch] = useState(liveSearch);
 
   useEffect(() => {
