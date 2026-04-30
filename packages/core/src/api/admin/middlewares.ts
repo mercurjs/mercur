@@ -122,6 +122,11 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/returns",
     middlewares: [requireSellerValidLocation(orderIdFromBody)],
   },
+  // Block cross-seller location_id on return update.
+  {
+    matcher: "/admin/returns/:id",
+    middlewares: [requireSellerValidLocation(orderIdFromReturnParam)],
+  },
   // Block cross-seller shipping_option_id on return shipping-method.
   {
     matcher: "/admin/returns/:id/shipping-method",
@@ -134,6 +139,18 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/order-edits/:id/items",
     middlewares: [
       requireSellerValidAddItem(orderIdFromOrderEditParam),
+    ],
+  },
+  // Block cross-seller location_id on claim inbound items.
+  {
+    matcher: "/admin/claims/:id/inbound/items",
+    middlewares: [requireSellerValidLocation(orderIdFromClaimParam)],
+  },
+  // Block cross-seller location_id on exchange inbound items.
+  {
+    matcher: "/admin/exchanges/:id/inbound/items",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromExchangeParam),
     ],
   },
   // Block cross-seller location + shipping option on claim inbound shipping-method.

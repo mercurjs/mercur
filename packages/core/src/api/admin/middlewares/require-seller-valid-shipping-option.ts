@@ -40,9 +40,9 @@ export const requireSellerValidShippingOption = (
       if (req.method !== "POST") {
         return next()
       }
-      const body = (req.body ?? {}) as { shipping_option_id?: string }
+      const body = (req.body ?? {}) as { shipping_option_id?: unknown }
       const shippingOptionId = body.shipping_option_id
-      if (!shippingOptionId) {
+      if (typeof shippingOptionId !== "string" || !shippingOptionId) {
         return next()
       }
 

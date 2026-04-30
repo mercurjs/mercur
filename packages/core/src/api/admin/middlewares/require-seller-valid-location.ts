@@ -38,9 +38,12 @@ export const requireSellerValidLocation = (
       if (req.method !== "POST") {
         return next()
       }
-      const body = (req.body ?? {}) as { location_id?: string }
+      // The framework's zod validator runs as a separate matcher, so
+      // the body here may be raw bytes. Narrow defensively — anything
+      // other than a non-empty string is not our concern.
+      const body = (req.body ?? {}) as { location_id?: unknown }
       const locationId = body.location_id
-      if (!locationId) {
+      if (typeof locationId !== "string" || !locationId) {
         return next()
       }
 

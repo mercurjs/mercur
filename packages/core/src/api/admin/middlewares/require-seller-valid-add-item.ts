@@ -42,12 +42,11 @@ export const requireSellerValidAddItem = (
       if (req.method !== "POST") {
         return next()
       }
-      const body = (req.body ?? {}) as {
-        items?: Array<{ variant_id?: string }>
-      }
-      const variantIds = (body.items ?? [])
-        .map((i) => i?.variant_id)
-        .filter((id): id is string => typeof id === "string")
+      const body = (req.body ?? {}) as { items?: unknown }
+      const items = Array.isArray(body.items) ? body.items : []
+      const variantIds = items
+        .map((i) => (i as { variant_id?: unknown } | null)?.variant_id)
+        .filter((id): id is string => typeof id === "string" && id.length > 0)
       if (variantIds.length === 0) {
         return next()
       }
