@@ -3,7 +3,7 @@ import { useState } from "react"
 
 import { useTranslation } from "react-i18next"
 import { _DataTable } from "../../../../../components/table/data-table"
-import { useVariants } from "../../../../../hooks/api"
+import { useAddableVariants } from "../../../../../hooks/api/seller-scoped-orders"
 import { useDataTable } from "../../../../../hooks/use-data-table"
 import { useExchangeOutboundItemTableColumns } from "./use-exchange-outbound-item-table-columns"
 import { useExchangeOutboundItemTableFilters } from "./use-exchange-outbound-item-table-filters"
