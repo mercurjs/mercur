@@ -1,23 +1,14 @@
-import { Checkbox, toast, usePrompt } from "@medusajs/ui";
+import { toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import {
-  createColumnHelper,
-  OnChangeFn,
-  RowSelectionState,
-} from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { PencilSquare, Trash } from "@medusajs/icons";
+import { Trash } from "@medusajs/icons";
 
 import { ExtendedAdminProduct } from "@custom-types/products";
 import { ActionMenu } from "@components/common/action-menu";
 import { _DataTable } from "@components/table/data-table";
-import {
-  useDeleteProduct,
-  useBulkDeleteProducts,
-  useProducts,
-} from "@hooks/api/products";
+import { useDeleteProduct, useProducts } from "@hooks/api/products";
 import { useProductTableColumns } from "@hooks/table/columns/use-product-table-columns";
 import { useProductTableFilters } from "@hooks/table/filters/use-product-table-filters";
 import { useProductTableQuery } from "@hooks/table/query/use-product-table-query";
@@ -27,17 +18,6 @@ export const PAGE_SIZE = 10;
 
 export const ProductListDataTable = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
-
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
-
-  const updater: OnChangeFn<RowSelectionState> = (newSelection) => {
-    const update =
-      typeof newSelection === "function"
-        ? newSelection(rowSelection)
-        : newSelection;
-    setRowSelection(update);
-  };
 
   const { searchParams, raw } = useProductTableQuery({
     pageSize: PAGE_SIZE,
@@ -58,54 +38,9 @@ export const ProductListDataTable = () => {
     columns,
     count,
     enablePagination: true,
-    enableRowSelection: true,
     pageSize: PAGE_SIZE,
     getRowId: (row) => row?.id || "",
-    rowSelection: {
-      state: rowSelection,
-      updater,
-    },
   });
-
-  const { mutateAsync } = useBulkDeleteProducts();
-  const prompt = usePrompt();
-
-  const handleDelete = async () => {
-    const keys = Object.keys(rowSelection);
-
-    if (keys.length === 0) {
-      return;
-    }
-
-    const res = await prompt({
-      title: t("products.bulkDelete.title"),
-      description: t("products.bulkDelete.description", {
-        count: keys.length,
-      }),
-      confirmText: t("actions.delete"),
-      cancelText: t("actions.cancel"),
-    });
-
-    if (!res) {
-      return;
-    }
-
-    await mutateAsync(keys, {
-      onSuccess: () => {
-        setRowSelection({});
-        toast.success(
-          t("products.bulkDelete.success", {
-            count: keys.length,
-          }),
-        );
-      },
-      onError: (error) => {
-        toast.error(t("products.bulkDelete.error"), {
-          description: error.message,
-        });
-      },
-    });
-  };
 
   if (isError) {
     throw error;
@@ -132,28 +67,6 @@ export const ProductListDataTable = () => {
         {
           key: "updated_at",
           label: t("fields.updatedAt"),
-        },
-      ]}
-      commands={[
-        {
-          action: () => {
-            const selectedIds = Object.keys(rowSelection)
-            const selectedProducts = (products ?? []).filter((p: any) =>
-              selectedIds.includes(p.id)
-            )
-            if (selectedProducts.length > 0) {
-              navigate("bulk-edit", {
-                state: { products: selectedProducts },
-              })
-            }
-          },
-          label: t("actions.edit"),
-          shortcut: "e",
-        },
-        {
-          action: handleDelete,
-          label: t("actions.delete"),
-          shortcut: "d",
         },
       ]}
     />
@@ -215,39 +128,10 @@ const ProductActions = ({ product }: { product: ExtendedAdminProduct }) => {
 const columnHelper = createColumnHelper<ExtendedAdminProduct>();
 
 const useColumns = () => {
-  const { t } = useTranslation();
   const base = useProductTableColumns();
 
   const columns = useMemo(
     () => [
-      columnHelper.display({
-        id: "select",
-        header: ({ table }) => {
-          return (
-            <Checkbox
-              checked={
-                table.getIsSomePageRowsSelected()
-                  ? "indeterminate"
-                  : table.getIsAllPageRowsSelected()
-              }
-              onCheckedChange={(value) =>
-                table.toggleAllPageRowsSelected(!!value)
-              }
-            />
-          );
-        },
-        cell: ({ row }) => {
-          return (
-            <Checkbox
-              checked={row.getIsSelected()}
-              onCheckedChange={(value) => row.toggleSelected(!!value)}
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            />
-          );
-        },
-      }),
       ...base,
       columnHelper.display({
         id: "actions",
@@ -256,7 +140,7 @@ const useColumns = () => {
         },
       }),
     ],
-    [base, t],
+    [base],
   );
 
   return columns;

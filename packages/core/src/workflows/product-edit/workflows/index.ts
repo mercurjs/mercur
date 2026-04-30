@@ -1,6 +1,7 @@
 export * from "./cancel-product-edit"
 export * from "./decline-product-edit"
 export * from "./confirm-product-edit"
+export * from "./auto-confirm-product-change"
 export * from "./product-edit-update-fields"
 export * from "./product-edit-add-variant"
 export * from "./product-edit-update-variant"

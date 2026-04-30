@@ -90,11 +90,6 @@ export function getRouteMap({
                           };
                         },
                       },
-                      {
-                        path: "bulk-edit",
-                        lazy: () =>
-                          import("./pages/products/bulk-edit"),
-                      },
                     ],
                   },
                   {
@@ -148,16 +143,6 @@ export function getRouteMap({
                               import("./pages/products/[id]/attributes"),
                           },
                           {
-                            path: "attributes/add",
-                            lazy: () =>
-                              import("./pages/products/[id]/attributes/add"),
-                          },
-                          {
-                            path: "informational-attributes/:attribute_id/edit",
-                            lazy: () =>
-                              import("./pages/products/[id]/informational-attributes/[attribute_id]/edit"),
-                          },
-                          {
                             path: "metadata",
                             lazy: () =>
                               import("./pages/products/[id]/metadata"),
@@ -170,18 +155,6 @@ export function getRouteMap({
                           {
                             path: "prices",
                             lazy: () => import("./pages/products/[id]/prices"),
-                          },
-                          {
-                            path: "options/create",
-                            lazy: () =>
-                              import("./pages/products/[id]/options/create"),
-                          },
-                          {
-                            path: "options/:option_id/edit",
-                            lazy: () =>
-                              import(
-                                "./pages/products/[id]/options/[optionId]/edit"
-                              ),
                           },
                           {
                             path: "variants/create",

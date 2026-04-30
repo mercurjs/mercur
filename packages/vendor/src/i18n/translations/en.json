@@ -480,7 +480,8 @@
         "primaryCategoryRequired": "Primary category is required",
         "titleRequired": "Title is required",
         "handleInvalidFormat": "Handle must contain only lowercase letters, numbers, and hyphens",
-        "handleMustContainLetter": "Handle must contain at least one letter"
+        "handleMustContainLetter": "Handle must contain at least one letter",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Inventory kits",
@@ -501,7 +502,10 @@
         "productVariants": {
           "searchPlaceholder": "Search variants...",
           "media": "Media",
-          "tip": "Only variants with prices and stock will be visible to customers."
+          "tip": "Only variants with prices and stock will be visible to customers.",
+          "label": "Product variants",
+          "hint": "This ranking will affect the variants display order.",
+          "alert": "Add values to your variant attributes to generate variants."
         },
         "productOptions": {
           "label": "Product options",
@@ -509,6 +513,7 @@
         }
       },
       "successToast": "Product {{title}} was successfully created.",
+      "requestSuccessToast": "Product was successfully requested. Once confirmed by the admin, they will appear on the storefront. Only products with stock levels and prices set will be visible.",
       "attributes": {
         "description": "Add attributes to your product. Select from admin-defined attributes or create your own.",
         "requiredHeading": "Required Attributes",
@@ -517,7 +522,19 @@
         "learnMore": {
           "label": "Learn more about attributes",
           "content": "Attributes help customers find and filter your products. Admin-defined attributes appear in search results."
-        }
+        },
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
       }
     },
     "export": {
@@ -634,6 +651,7 @@
       "draft": "Draft",
       "published": "Published",
       "proposed": "Proposed",
+      "changes_required": "Changes required",
       "rejected": "Rejected"
     },
     "columns": {
@@ -3558,7 +3576,8 @@
     "draft": "Draft",
     "values": "Values",
     "premium": "Premium",
-    "professional": "Professional"
+    "professional": "Professional",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Year",
@@ -3600,6 +3619,24 @@
     "login": {
       "authenticationFailed": "Authentication failed",
       "cloud": "Log in with Mercur"
+    }
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
     }
   }
 }

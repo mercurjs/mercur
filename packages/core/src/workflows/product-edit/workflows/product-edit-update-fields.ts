@@ -15,6 +15,7 @@ import {
   createProductChangesStep,
   createProductChangeActionsStep,
 } from "../steps"
+import { autoConfirmProductChangeWorkflow } from "./auto-confirm-product-change"
 
 export const productEditUpdateFieldsWorkflowId =
   "product-edit-update-fields"
@@ -98,6 +99,15 @@ export const productEditUpdateFieldsWorkflow = createWorkflow(
       data: transform({ input, change }, ({ input, change }) => ({
         id: input.product_id,
         change_id: (change as any).id,
+      })),
+    })
+
+    autoConfirmProductChangeWorkflow.runAsStep({
+      input: transform({ change, input }, ({ change, input }) => ({
+        product_id: input.product_id,
+        product_change_id: change.id,
+        actor_id: input.actor_id,
+        internal_note: input.internal_note,
       })),
     })
 

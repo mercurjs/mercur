@@ -219,6 +219,14 @@ export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
 // `ProductChange` and adds an action to it; the change has to be confirmed
 // by the operator before the mutation hits the product.
 
+const VendorGetProductVariantsParamsFields = z.object({
+  q: z.string().optional(),
+  manage_inventory: booleanString().optional(),
+  allow_backorder: booleanString().optional(),
+  created_at: createOperatorMap().optional(),
+  updated_at: createOperatorMap().optional(),
+})
+
 export type VendorGetProductVariantsParamsType = z.infer<
   typeof VendorGetProductVariantsParams
 >
@@ -226,6 +234,8 @@ export const VendorGetProductVariantsParams = createFindParams({
   offset: 0,
   limit: 50,
 })
+  .merge(VendorGetProductVariantsParamsFields)
+  .merge(applyAndAndOrOperators(VendorGetProductVariantsParamsFields))
 
 export type VendorGetProductVariantParamsType = z.infer<
   typeof VendorGetProductVariantParams

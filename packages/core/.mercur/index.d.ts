@@ -677,6 +677,7 @@ export type Routes = {
                 attributes: typeof import("../../src/api/vendor/products/[id]/attributes/route") & {
                     $attributeId: typeof import("../../src/api/vendor/products/[id]/attributes/[attribute_id]/route");
                 };
+                change: typeof import("../../src/api/vendor/products/[id]/change/route");
             };
         };
         promotions: typeof import("../../src/api/vendor/promotions/route") & {

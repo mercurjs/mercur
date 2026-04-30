@@ -418,7 +418,8 @@
       "errors": {
         "variants": "Επιλέξτε τουλάχιστον μία παραλλαγή.",
         "options": "Δημιουργήστε τουλάχιστον μία επιλογή.",
-        "uniqueSku": "Το SKU πρέπει να είναι μοναδικό."
+        "uniqueSku": "Το SKU πρέπει να είναι μοναδικό.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Κιτ αποθέματος",
@@ -447,7 +448,21 @@
           "hint": "Ορίστε τις επιλογές για το προϊόν, π.χ. χρώμα, μέγεθος κ.λπ."
         }
       },
-      "successToast": "Το προϊόν {{title}} δημιουργήθηκε με επιτυχία."
+      "successToast": "Το προϊόν {{title}} δημιουργήθηκε με επιτυχία.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Εξαγωγή λίστας προϊόντων",
@@ -534,6 +549,7 @@
       "draft": "Πρόχειρο",
       "published": "Δημοσιευμένο",
       "proposed": "Προτεινόμενο",
+      "changes_required": "Changes required",
       "rejected": "Απορριφθέν"
     },
     "fields": {
@@ -2940,7 +2956,8 @@
     "startDate": "Ημερομηνία έναρξης",
     "endDate": "Ημερομηνία λήξης",
     "draft": "Πρόχειρο",
-    "values": "Τιμές"
+    "values": "Τιμές",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Έτος",
@@ -2957,5 +2974,23 @@
     "minutes_other": "Λεπτά",
     "seconds_one": "Δευτερόλεπτο",
     "seconds_other": "Δευτερόλεπτα"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

@@ -43,7 +43,6 @@ export const vendorProductFields = [
 
 export const vendorProductRetrieveFields = [
   ...vendorProductFields,
-  "*changes",
 ]
 
 export const vendorProductQueryConfig = {

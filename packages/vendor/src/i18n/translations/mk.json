@@ -418,7 +418,8 @@
       "errors": {
         "variants": "Изберете барем една варијанта.",
         "options": "Ве молиме креирајте барем една опција.",
-        "uniqueSku": "SKU мора да биде единствен."
+        "uniqueSku": "SKU мора да биде единствен.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Инвентар комплети",
@@ -447,7 +448,21 @@
           "hint": "Дефинирајте ги опциите за производот, на пр. "
         }
       },
-      "successToast": "Производ {{title}} беше успешно создаден."
+      "successToast": "Производ {{title}} беше успешно создаден.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Листа на производи за експортирање",
@@ -534,6 +549,7 @@
       "draft": "Драфт",
       "published": "Објавено",
       "proposed": "Предложено",
+      "changes_required": "Changes required",
       "rejected": "Одбиено"
     },
     "fields": {
@@ -2906,7 +2922,8 @@
     "startDate": "Датум на почеток",
     "endDate": "Краен датум",
     "draft": "Драфт",
-    "values": "Вредности"
+    "values": "Вредности",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Година",
@@ -2923,5 +2940,23 @@
     "minutes_other": "Минути",
     "seconds_one": "Второ",
     "seconds_other": "Секунди"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

@@ -420,7 +420,8 @@
       "errors": {
         "variants": "Molimo odaberite barem jednu varijantu.",
         "options": "Molimo kreirajte barem jednu opciju.",
-        "uniqueSku": "SKU mora biti jedinstven."
+        "uniqueSku": "SKU mora biti jedinstven.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Kits inventara",
@@ -449,7 +450,21 @@
           "hint": "Definišite opcije za proizvod, npr. boja, veličina, itd."
         }
       },
-      "successToast": "Proizvod {{title}} je uspješno kreiran."
+      "successToast": "Proizvod {{title}} je uspješno kreiran.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Izvoz liste proizvoda",
@@ -536,6 +551,7 @@
       "draft": "Nacrt",
       "published": "Objavljeno",
       "proposed": "Predloženo",
+      "changes_required": "Changes required",
       "rejected": "Odbijeno"
     },
     "fields": {
@@ -2999,7 +3015,8 @@
     "startDate": "Datum početka",
     "endDate": "Datum završetka",
     "draft": "Skica",
-    "values": "Vrijednosti"
+    "values": "Vrijednosti",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Godina",
@@ -3016,5 +3033,23 @@
     "minutes_other": "Minute",
     "seconds_one": "Sekunda",
     "seconds_other": "Sekunde"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

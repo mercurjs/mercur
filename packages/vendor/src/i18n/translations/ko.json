@@ -420,7 +420,8 @@
       "errors": {
         "variants": "최소 하나의 변형을 선택해주세요.",
         "options": "최소 하나의 옵션을 생성해주세요.",
-        "uniqueSku": "SKU는 고유해야 합니다."
+        "uniqueSku": "SKU는 고유해야 합니다.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "구성 상품",
@@ -449,7 +450,21 @@
           "hint": "색상, 크기 등과 같은 제품 옵션을 정의합니다."
         }
       },
-      "successToast": "제품 {{title}}이(가) 성공적으로 생성되었습니다."
+      "successToast": "제품 {{title}}이(가) 성공적으로 생성되었습니다.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "제품 목록 내보내기",
@@ -536,6 +551,7 @@
       "draft": "초안",
       "published": "게시됨",
       "proposed": "제안됨",
+      "changes_required": "Changes required",
       "rejected": "거부됨"
     },
     "fields": {
@@ -3007,7 +3023,8 @@
     "startDate": "시작일",
     "endDate": "종료일",
     "draft": "임시 저장",
-    "values": "값"
+    "values": "값",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "년",
@@ -3024,5 +3041,23 @@
     "minutes_other": "분",
     "seconds_one": "초",
     "seconds_other": "초"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

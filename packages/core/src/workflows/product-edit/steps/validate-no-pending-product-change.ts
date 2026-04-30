@@ -25,7 +25,7 @@ export const validateNoPendingProductChangeStep = createStep(
     if (product.product_change) {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
-        `Product '${product.id}' already has a pending change '${product.product_change.id}'. Confirm, decline, or cancel it before staging another edit.`
+        `Product '${product.title}' already has a pending request.`
       )
     }
   }

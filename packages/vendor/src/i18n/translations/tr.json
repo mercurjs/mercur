@@ -418,7 +418,8 @@
       "errors": {
         "variants": "Lütfen en az bir varyant seçin.",
         "options": "Lütfen en az bir seçenek oluşturun.",
-        "uniqueSku": "SKU benzersiz olmalıdır."
+        "uniqueSku": "SKU benzersiz olmalıdır.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Envanter Kitleri",
@@ -447,7 +448,21 @@
           "hint": "Ürün için seçenekleri belirleyin, örneğin renk, boyut vb."
         }
       },
-      "successToast": "Ürün {{title}} başarıyla oluşturuldu."
+      "successToast": "Ürün {{title}} başarıyla oluşturuldu.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Ürün Listesini Dışa Aktar",
@@ -534,6 +549,7 @@
       "draft": "Taslak",
       "published": "Yayınlandı",
       "proposed": "Önerildi",
+      "changes_required": "Changes required",
       "rejected": "Reddedildi"
     },
     "fields": {
@@ -2942,7 +2958,8 @@
     "endDate": "Bitiş Tarihi",
     "draft": "Taslak",
     "values": "Değerler",
-    "by": "Tarafından"
+    "by": "Tarafından",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Yıl",
@@ -2959,5 +2976,23 @@
     "minutes_other": "Dakikalar",
     "seconds_one": "Saniye",
     "seconds_other": "Saniyeler"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

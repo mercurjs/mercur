@@ -418,7 +418,8 @@
       "errors": {
         "variants": "لطفاً حداقل یک متغیر را انتخاب کنید.",
         "options": "لطفاً حداقل یک گزینه ایجاد کنید.",
-        "uniqueSku": "SKU باید منحصر به فرد باشد."
+        "uniqueSku": "SKU باید منحصر به فرد باشد.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "کیت‌های موجودی",
@@ -447,7 +448,21 @@
           "hint": "گزینه‌های محصول مانند رنگ، اندازه و غیره را تعریف کنید."
         }
       },
-      "successToast": "محصول {{title}} با موفقیت ایجاد شد."
+      "successToast": "محصول {{title}} با موفقیت ایجاد شد.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "خروجی گرفتن لیست محصولات",
@@ -534,6 +549,7 @@
       "draft": "پیش‌نویس",
       "published": "منتشر شده",
       "proposed": "پیشنهادی",
+      "changes_required": "Changes required",
       "rejected": "رد شده"
     },
     "fields": {
@@ -2916,7 +2932,8 @@
     "startDate": "تاریخ شروع",
     "endDate": "تاریخ پایان",
     "draft": "پیش‌نویس",
-    "values": "مقادیر"
+    "values": "مقادیر",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "سال",
@@ -2933,5 +2950,23 @@
     "minutes_other": "دقیقه",
     "seconds_one": "ثانیه",
     "seconds_other": "ثانیه"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

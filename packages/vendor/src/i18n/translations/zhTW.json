@@ -423,7 +423,8 @@
       "errors": {
         "variants": "請至少選擇一個變體。",
         "options": "請至少建立一個選項。",
-        "uniqueSku": "SKU 必須是唯一的。"
+        "uniqueSku": "SKU 必須是唯一的。",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "庫存套件",
@@ -452,7 +453,21 @@
           "hint": "定義商品的選項，例如顏色、尺寸等。"
         }
       },
-      "successToast": "商品 {{title}} 已成功建立。"
+      "successToast": "商品 {{title}} 已成功建立。",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "匯出商品清單",
@@ -558,6 +573,7 @@
       "draft": "草稿",
       "published": "已發佈",
       "proposed": "待審核",
+      "changes_required": "Changes required",
       "rejected": "已拒絕"
     },
     "columns": {
@@ -3209,7 +3225,8 @@
     "startDate": "開始日期",
     "endDate": "結束日期",
     "draft": "草稿",
-    "values": "值"
+    "values": "值",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "年",
@@ -3245,6 +3262,24 @@
         "confirmText": "更新",
         "cancelText": "取消"
       }
+    }
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
     }
   }
 }

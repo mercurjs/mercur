@@ -406,7 +406,8 @@
       "errors": {
         "variants": "Bitte wählen Sie mindestens eine Variante aus.",
         "options": "Bitte erstellen Sie mindestens eine Option.",
-        "uniqueSku": "Die SKU muss eindeutig sein."
+        "uniqueSku": "Die SKU muss eindeutig sein.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Inventar-Kits",
@@ -435,7 +436,21 @@
           "hint": "Definieren Sie die Optionen für das Produkt, z.B. Farbe, Größe usw."
         }
       },
-      "successToast": "Produkt {{title}} wurde erfolgreich erstellt."
+      "successToast": "Produkt {{title}} wurde erfolgreich erstellt.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Produktliste exportieren",
@@ -522,6 +537,7 @@
       "draft": "Entwurf",
       "published": "Veröffentlicht",
       "proposed": "Vorgeschlagen",
+      "changes_required": "Changes required",
       "rejected": "Abgelehnt"
     },
     "fields": {
@@ -2773,7 +2789,8 @@
     "startDate": "Startdatum",
     "endDate": "Enddatum",
     "draft": "Entwurf",
-    "values": "Werte"
+    "values": "Werte",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Jahr",
@@ -2790,5 +2807,23 @@
     "minutes_other": "Minuten",
     "seconds_one": "Zweite",
     "seconds_other": "Sekunden"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

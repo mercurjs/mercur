@@ -1,4 +1,8 @@
 import {
+  AuthenticatedMedusaRequest,
+  maybeApplyLinkFilter,
+  MedusaNextFunction,
+  MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import {
@@ -21,6 +25,20 @@ import {
   VendorUpdateProductVariant,
 } from "./validators"
 
+const applySellerProductLinkFilter = (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  req.filterableFields.seller_id = req.seller_context?.seller_id
+
+  return maybeApplyLinkFilter({
+    entryPoint: "product_seller",
+    resourceId: "product_id",
+    filterableField: "seller_id",
+  })(req, res, next)
+}
+
 export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   // --- /vendor/products ---
   {
@@ -31,6 +49,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         VendorGetProductsParams,
         vendorProductQueryConfig.list
       ),
+      applySellerProductLinkFilter,
     ],
   },
   {
