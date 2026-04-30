@@ -1,0 +1,64 @@
+---
+title: "Admin Error Codes"
+description: "Mercur-specific error codes returned by admin write endpoints when an action would violate a marketplace invariant."
+---
+
+Mercur layers admin-side guardrails on top of the generic Medusa admin API. When an admin write would break a marketplace invariant (warehouse capability, seller-valid scoping, cancel rules), the request is rejected with a `MedusaError` whose `code` field identifies the violation. Frontends can map the code to a localized message; calls made directly to the API can branch on the same code.
+
+The error envelope follows Medusa's standard shape:
+
+```json
+{
+  "type": "not_allowed",
+  "message": "Stock location is not valid for the order's seller.",
+  "code": "LOCATION_NOT_SELLER_VALID"
+}
+```
+
+## Seller-Valid Scoping
+
+These codes are returned by the seller-valid middlewares introduced in spec 006. They protect every admin write that ties an order, return, claim, or exchange to a stock location, shipping option, or product variant. HTTP status: **403**.
+
+| Code | Description | Triggered by |
+| --- | --- | --- |
+| `LOCATION_NOT_SELLER_VALID` | The submitted `location_id` is not linked to the order's seller via the `stock_location_seller` link. | `POST /admin/returns`, `POST /admin/claims/:id/inbound\|outbound/shipping-method`, `POST /admin/exchanges/:id/inbound\|outbound/shipping-method` |
+| `SHIPPING_OPTION_NOT_SELLER_VALID` | The submitted `shipping_option_id` is not linked to the order's seller via the `shipping_option_seller` link. | `POST /admin/returns/:id/shipping-method`, `POST /admin/claims/:id/inbound\|outbound/shipping-method`, `POST /admin/exchanges/:id/inbound\|outbound/shipping-method` |
+| `VARIANT_NOT_SELLER_VALID` | At least one `items[].variant_id` references a product not owned by the order's seller. | `POST /admin/order-edits/:id/items`, `POST /admin/claims/:id/outbound/items`, `POST /admin/exchanges/:id/outbound/items` |
+
+The admin dashboard avoids these errors at the picker level by hitting the matching read endpoints (`/admin/orders/:id/seller-valid-stock-locations`, `/admin/orders/:id/seller-valid-shipping-options`, `/admin/orders/:id/addable-variants`), which only return seller-scoped, eligible candidates. The middlewares are the wire-level safety net for direct API calls and any UI bypass.
+
+## Warehouse Capability Lock
+
+These codes are returned by `requireAdminWarehouseCapability` (spec 005) when the `admin_warehouse_management` feature flag is `false`. HTTP status: **400**.
+
+| Code | Description |
+| --- | --- |
+| `NOT_ALLOWED` | The route requires the `admin_warehouse_management` flag, which is disabled. The vendor-owned fulfillment path remains available. |
+
+See [Feature Flags](/v2/core-concepts/feature-flags) for the flag and its scope.
+
+## Cancel-Order Invariant
+
+Returned by `validateCancelOrderMiddleware` regardless of feature flags. HTTP status: **400**.
+
+| Code | Description |
+| --- | --- |
+| `CANCEL_BLOCKED_BY_FULFILLMENT` | At least one item on the order has a fulfilled quantity greater than zero. Cancelling such an order would leave inventory in an inconsistent state and is forbidden by Mercur's cancel-order invariant. |
+
+## Mapping Codes To Translated Copy
+
+The Mercur admin maps the seller-valid codes to translation keys under `orders.errors.*`. When integrating Mercur into a custom admin, the equivalent strings live in every locale file under `packages/admin/src/i18n/translations/*.json`:
+
+```json
+{
+  "orders": {
+    "errors": {
+      "locationNotSellerValid": "This stock location is not valid for the order's seller.",
+      "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
+      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+    }
+  }
+}
+```
+
+The helper `lib/seller-scoped-error.resolveErrorToastMessage(error, t)` performs the lookup and falls back to the raw `error.message` when the code is not one of the seller-valid codes — wire it into any custom drawer or table that issues admin writes against orders.

@@ -3,7 +3,8 @@
 ## Implementation Status
 
 - **E1 (admin warehouse capability lock)** — **implemented** in spec `005-admin-warehouse-capability-lock` via the `admin_warehouse_management` feature flag (env key `MEDUSA_FF_ADMIN_WAREHOUSE_MANAGEMENT`, default `false`). Baseline admin cannot mutate fulfillment, allocation, shipment, or return-receiving state unless the flag is enabled. Cancel-order invariant (fulfilled-quantity > 0 → rejected) is enforced by the `mercurCancelOrderWorkflow` + `validateCancelOrderMiddleware` pair and applies to both admin and vendor cancel paths.
-- E2 onward remain open — see specs `006-admin-seller-valid-scoping`, `007-admin-hard-invariants`, `008-admin-refund-and-timeline-correctness`, `009-admin-order-list-ux-parity`.
+- **E2 (admin seller-valid stock locations) + E3 (admin seller-valid add-item)** — **implemented** in spec `006-admin-seller-valid-scoping`. Three Mercur read endpoints (`/admin/orders/:id/seller-valid-stock-locations`, `/admin/orders/:id/seller-valid-shipping-options`, `/admin/orders/:id/addable-variants`) replace the global pickers in Return / Claim / Exchange / Edit-Order drawers. Three middlewares (`requireSellerValidLocation`, `requireSellerValidShippingOption`, `requireSellerValidAddItem`) reject cross-seller `location_id` / `shipping_option_id` / `variant_id` on every admin write that mutates orders, returns, claims, or exchanges, returning `LOCATION_NOT_SELLER_VALID` / `SHIPPING_OPTION_NOT_SELLER_VALID` / `VARIANT_NOT_SELLER_VALID` (HTTP 403). Admin maps these codes to translated toasts via `lib/seller-scoped-error.resolveErrorToastMessage`.
+- E4 onward remain open — see specs `007-admin-hard-invariants`, `008-admin-refund-and-timeline-correctness`, `009-admin-order-list-ux-parity`.
 
 ## Goal
 
