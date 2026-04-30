@@ -549,7 +549,7 @@
       "draft": "Bozza",
       "published": "Pubblicato",
       "proposed": "Proposto",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Rifiutato"
     },
     "fields": {

@@ -538,7 +538,7 @@
       "draft": "Brouillon",
       "published": "Publié",
       "proposed": "Proposé",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Rejeté"
     },
     "fields": {

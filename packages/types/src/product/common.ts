@@ -10,7 +10,7 @@ export enum ProductStatus {
   DRAFT = 'draft',
   PROPOSED = "proposed",
   PUBLISHED = "published",
-  CHANGES_REQUIRED = "changes_required",
+  REQUIRES_ACTION = "requires_action",
   REJECTED = "rejected",
 }
 

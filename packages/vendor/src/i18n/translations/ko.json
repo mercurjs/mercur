@@ -551,7 +551,7 @@
       "draft": "초안",
       "published": "게시됨",
       "proposed": "제안됨",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "거부됨"
     },
     "fields": {

@@ -551,7 +551,7 @@
       "draft": "Juodraštis",
       "published": "Publikuojama",
       "proposed": "Pasiūlyta",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Atmesta"
     },
     "fields": {

@@ -551,7 +551,7 @@
       "draft": "Nacrt",
       "published": "Objavljeno",
       "proposed": "Predloženo",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Odbijeno"
     },
     "fields": {

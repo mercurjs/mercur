@@ -567,7 +567,7 @@
       "draft": "Szkic",
       "published": "Opublikowany",
       "proposed": "Proponowany",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Odrzucony"
     },
     "fields": {

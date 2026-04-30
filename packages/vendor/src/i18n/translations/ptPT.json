@@ -572,7 +572,7 @@
       "draft": "Rascunho",
       "published": "Publicado",
       "proposed": "Proposto",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Rejeitado"
     },
     "columns": {

@@ -583,7 +583,7 @@
       "draft": "Draft",
       "proposed": "Proposed",
       "published": "Published",
-      "changes_required": "Changes Required",
+      "requires_action": "Changes Required",
       "rejected": "Rejected"
     },
     "columns": {

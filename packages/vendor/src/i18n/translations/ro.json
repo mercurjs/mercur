@@ -547,7 +547,7 @@
       "draft": "Proiect",
       "published": "Publicat",
       "proposed": "Propus",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Respins"
     },
     "fields": {

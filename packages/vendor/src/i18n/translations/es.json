@@ -583,7 +583,7 @@
       "draft": "Borrador",
       "published": "Publicado",
       "proposed": "Propuesto",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Rechazado"
     },
     "fields": {

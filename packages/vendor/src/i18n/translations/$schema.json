@@ -2309,7 +2309,7 @@
             "proposed": {
               "type": "string"
             },
-            "changes_required": {
+            "requires_action": {
               "type": "string"
             },
             "rejected": {
@@ -2320,7 +2320,7 @@
             "draft",
             "published",
             "proposed",
-            "changes_required",
+            "requires_action",
             "rejected"
           ],
           "additionalProperties": false

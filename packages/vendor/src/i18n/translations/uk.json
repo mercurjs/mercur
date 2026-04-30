@@ -538,7 +538,7 @@
       "draft": "Чернетка",
       "published": "Опубліковано",
       "proposed": "Запропоновано",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Відхилено"
     },
     "fields": {

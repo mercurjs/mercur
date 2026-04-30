@@ -1719,7 +1719,7 @@ medusaIntegrationTestRunner({
 
           expect(response.status).toEqual(200)
           expect(response.data.product.status).toEqual(
-            "changes_required"
+            "requires_action"
           )
         })
 

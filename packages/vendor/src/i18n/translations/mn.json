@@ -549,7 +549,7 @@
       "draft": "Ноорог",
       "published": "Нийтлэгдсэн",
       "proposed": "Санал болгосон",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Татгалзсан"
     },
     "fields": {

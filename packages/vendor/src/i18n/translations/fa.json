@@ -549,7 +549,7 @@
       "draft": "پیش‌نویس",
       "published": "منتشر شده",
       "proposed": "پیشنهادی",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "رد شده"
     },
     "fields": {

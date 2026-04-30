@@ -549,7 +549,7 @@
       "draft": "Чернова",
       "published": "Публикуван",
       "proposed": "Предложен",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Отхвърлен"
     },
     "fields": {

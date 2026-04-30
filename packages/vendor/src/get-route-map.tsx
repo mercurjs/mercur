@@ -143,6 +143,16 @@ export function getRouteMap({
                               import("./pages/products/[id]/attributes"),
                           },
                           {
+                            path: "attributes/create",
+                            lazy: () =>
+                              import("./pages/products/[id]/attributes/create"),
+                          },
+                          {
+                            path: "attributes/add",
+                            lazy: () =>
+                              import("./pages/products/[id]/attributes/add"),
+                          },
+                          {
                             path: "metadata",
                             lazy: () =>
                               import("./pages/products/[id]/metadata"),

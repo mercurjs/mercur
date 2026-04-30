@@ -537,7 +537,7 @@
       "draft": "ฉบับร่าง",
       "published": "เผยแพร่",
       "proposed": "เสนอ",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "ถูกปฏิเสธ"
     },
     "fields": {

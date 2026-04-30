@@ -41,7 +41,7 @@ export const requestProductChangesWorkflow = createWorkflow(
         product_change_id: product.product_change.id,
         product_id: product.id,
         action: ProductChangeActionType.STATUS_CHANGE,
-        details: { status: ProductStatus.CHANGES_REQUIRED },
+        details: { status: ProductStatus.REQUIRES_ACTION },
       },
     ])
 
@@ -61,7 +61,7 @@ export const requestProductChangesWorkflow = createWorkflow(
 
     const updateInput = transform({ input }, ({ input }) => ({
       selector: { id: input.product_id },
-      data: { status: ProductStatus.CHANGES_REQUIRED },
+      data: { status: ProductStatus.REQUIRES_ACTION },
     }))
 
     updateProductsStep(updateInput)

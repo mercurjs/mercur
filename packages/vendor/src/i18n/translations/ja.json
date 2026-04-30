@@ -538,7 +538,7 @@
       "draft": "下書き",
       "published": "公開済み",
       "proposed": "提案済み",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "却下"
     },
     "fields": {

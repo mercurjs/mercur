@@ -573,7 +573,7 @@
       "draft": "草稿",
       "published": "已發佈",
       "proposed": "待審核",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "已拒絕"
     },
     "columns": {

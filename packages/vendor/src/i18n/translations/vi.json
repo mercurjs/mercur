@@ -551,7 +551,7 @@
       "draft": "Nháp",
       "published": "Đã xuất bản",
       "proposed": "Đã đề xuất",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Đã từ chối"
     },
     "fields": {

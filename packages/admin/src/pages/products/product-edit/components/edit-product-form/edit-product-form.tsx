@@ -23,7 +23,7 @@ const EditProductSchema = zod.object({
     "draft",
     "published",
     "proposed",
-    "changes_required",
+    "requires_action",
     "rejected",
   ]),
   title: zod.string().min(1),
@@ -129,7 +129,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
                                   "draft",
                                   "published",
                                   "proposed",
-                                  "changes_required",
+                                  "requires_action",
                                   "rejected",
                                 ] as const
                               ).map((status) => {

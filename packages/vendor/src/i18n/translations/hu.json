@@ -551,7 +551,7 @@
       "draft": "Piszkozat",
       "published": "Közzétéve",
       "proposed": "Javasolt",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Elutasítva"
     },
     "fields": {

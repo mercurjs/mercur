@@ -551,7 +551,7 @@
       "draft": "草稿",
       "published": "已发布",
       "proposed": "已提议",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "已拒绝"
     },
     "fields": {

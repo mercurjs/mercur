@@ -551,7 +551,7 @@
       "draft": "טיוטה",
       "published": "פורסם",
       "proposed": "מוצע",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "נדחה"
     },
     "fields": {

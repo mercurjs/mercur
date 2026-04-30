@@ -551,7 +551,7 @@
       "draft": "Concept",
       "published": "Gepubliceerd",
       "proposed": "Voorgesteld",
-      "changes_required": "Changes required",
+      "requires_action": "Changes required",
       "rejected": "Afgewezen"
     },
     "fields": {
