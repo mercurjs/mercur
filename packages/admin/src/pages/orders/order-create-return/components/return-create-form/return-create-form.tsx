@@ -42,8 +42,8 @@ import {
   useUpdateReturnItem,
   useUpdateReturnShipping,
 } from "../../../../../hooks/api/returns"
+import { useSellerValidStockLocations } from "../../../../../hooks/api/seller-scoped-orders"
 import { useShippingOptions } from "../../../../../hooks/api/shipping-options"
-import { useStockLocations } from "../../../../../hooks/api/stock-locations"
 import { sdk } from "../../../../../lib/client"
 import { currencies } from "../../../../../lib/data/currencies"
 import { getStylizedAmount } from "../../../../../lib/money-amount-helpers"
@@ -108,7 +108,12 @@ export const ReturnCreateForm = ({
   /**
    * HOOKS
    */
-  const { stock_locations = [] } = useStockLocations({ limit: 999 })
+  // Spec 006 T015 — replace global stock-locations picker with the
+  // seller-scoped one. Backend (T008) also rejects cross-seller location_id
+  // server-side, so this is defense-in-depth + correct UX.
+  const { stock_locations = [] } = useSellerValidStockLocations(order.id, {
+    limit: 200,
+  })
   const { shipping_options = [] } = useShippingOptions({
     limit: 999,
     fields: "*prices,+service_zone.fulfillment_set.location.id",
