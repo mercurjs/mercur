@@ -1196,6 +1196,14 @@
       },
       "validation": {
         "quantityLowerThanFulfillment": "Nie można ustawić ilości mniejszej lub równej ilości zrealizowanej"
+      },
+      "tooltip": {
+        "cannotRemoveFulfilled": "Nie można usunąć — produkt został zrealizowany.",
+        "cannotRemoveReturned": "Nie można usunąć — produkt ma zwrot.",
+        "cannotRemoveFulfilledAndReturned": "Nie można usunąć — produkt został zrealizowany i zwrócony.",
+        "cannotReduceBelowFulfilled": "Nie można zmniejszyć poniżej ilości zrealizowanej.",
+        "cannotReduceBelowReturned": "Nie można zmniejszyć poniżej ilości zwróconej.",
+        "cannotReduceBelowFulfilledReturned": "Nie można zmniejszyć poniżej ilości zrealizowanej + zwróconej."
       }
     },
     "edit": {

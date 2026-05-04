@@ -1,6 +1,6 @@
 import { ArrowUturnLeft, DocumentSeries, XCircle } from "@medusajs/icons"
 import { AdminOrderLineItem } from "@medusajs/types"
-import { Badge, Input, Text, toast } from "@medusajs/ui"
+import { Badge, Input, Text, Tooltip, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -32,6 +32,26 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
   const { mutateAsync: undoAction } = useRemoveOrderEditItem(orderId)
 
   const limits = useMemo(() => getOrderItemMutationLimits(item), [item])
+
+  // Per-reason tooltip copy (007 FR-003): a disabled qty input or
+  // disabled Remove menu item explains the specific reason
+  // (fulfilled / returned / both) instead of a generic "disabled".
+  const reduceTooltip =
+    limits.canRemove === false
+      ? limits.reason === "fulfilled"
+        ? t("orders.edits.tooltip.cannotReduceBelowFulfilled")
+        : limits.reason === "returned"
+          ? t("orders.edits.tooltip.cannotReduceBelowReturned")
+          : t("orders.edits.tooltip.cannotReduceBelowFulfilledReturned")
+      : undefined
+  const removeTooltip =
+    limits.canRemove === false
+      ? limits.reason === "fulfilled"
+        ? t("orders.edits.tooltip.cannotRemoveFulfilled")
+        : limits.reason === "returned"
+          ? t("orders.edits.tooltip.cannotRemoveReturned")
+          : t("orders.edits.tooltip.cannotRemoveFulfilledAndReturned")
+      : undefined
 
   const isAddedItem = useMemo(
     () => !!item.actions?.find((a) => a.action === "ITEM_ADD"),
@@ -192,22 +212,35 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
 
         <div className="flex flex-1 justify-between" data-testid={`order-edit-item-${item.id}-actions`}>
           <div className="flex flex-grow items-center gap-2" data-testid={`order-edit-item-${item.id}-quantity`}>
-            <Input
-              className="bg-ui-bg-base txt-small w-[67px] rounded-lg [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-              type="number"
-              disabled={limits.minQty === item.quantity}
-              min={limits.minQty}
-              defaultValue={item.quantity}
-              onBlur={(e) => {
-                const val = e.target.value
-                const payload = val === "" ? null : Number(val)
+            {reduceTooltip && limits.minQty === item.quantity ? (
+              <Tooltip content={reduceTooltip}>
+                <Input
+                  className="bg-ui-bg-base txt-small w-[67px] rounded-lg [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                  type="number"
+                  disabled
+                  min={limits.minQty}
+                  defaultValue={item.quantity}
+                  data-testid={`order-edit-item-${item.id}-quantity-input`}
+                />
+              </Tooltip>
+            ) : (
+              <Input
+                className="bg-ui-bg-base txt-small w-[67px] rounded-lg [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                type="number"
+                disabled={limits.minQty === item.quantity}
+                min={limits.minQty}
+                defaultValue={item.quantity}
+                onBlur={(e) => {
+                  const val = e.target.value
+                  const payload = val === "" ? null : Number(val)
 
-                if (payload) {
-                  onUpdate(payload)
-                }
-              }}
-              data-testid={`order-edit-item-${item.id}-quantity-input`}
-            />
+                  if (payload) {
+                    onUpdate(payload)
+                  }
+                }}
+                data-testid={`order-edit-item-${item.id}-quantity-input`}
+              />
+            )}
             <Text className="txt-small text-ui-fg-subtle" data-testid={`order-edit-item-${item.id}-quantity-label`}>
               {t("fields.qty")}
             </Text>
@@ -236,6 +269,7 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
                         onClick: onRemove,
                         icon: <XCircle />,
                         disabled: limits.minQty === item.quantity,
+                        disabledTooltip: removeTooltip,
                       }
                     : {
                         label: t("actions.undo"),

@@ -1032,6 +1032,14 @@
       },
       "validation": {
         "quantityLowerThanFulfillment": "ไม่สามารถตั้งค่าจำนวนให้น้อยกว่าหรือเท่ากับจำนวนที่จัดส่งแล้วได้"
+      },
+      "tooltip": {
+        "cannotRemoveFulfilled": "Cannot remove — item has fulfilled quantity.",
+        "cannotRemoveReturned": "Cannot remove — item has returned quantity.",
+        "cannotRemoveFulfilledAndReturned": "Cannot remove — item has fulfilled and returned quantity.",
+        "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
+        "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
+        "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
       }
     },
     "edit": {

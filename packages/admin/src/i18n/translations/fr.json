@@ -1033,6 +1033,14 @@
       },
       "validation": {
         "quantityLowerThanFulfillment": "Ne peut pas définir la quantité à être inférieure ou égale à la quantité livrée"
+      },
+      "tooltip": {
+        "cannotRemoveFulfilled": "Cannot remove — item has fulfilled quantity.",
+        "cannotRemoveReturned": "Cannot remove — item has returned quantity.",
+        "cannotRemoveFulfilledAndReturned": "Cannot remove — item has fulfilled and returned quantity.",
+        "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
+        "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
+        "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
       }
     },
     "edit": {
