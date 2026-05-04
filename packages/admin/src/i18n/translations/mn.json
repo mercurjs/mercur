@@ -972,7 +972,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Захиалгууд",
     "claim": "Нэхэмжлэл",
@@ -1010,11 +1012,14 @@
     },
     "transfer": {
       "title": "Өмчлөл шилжүүлэх",
-      "requestSuccess": "Захиалгын шилжүүлэх хүсэлт: {{email}}-д илгээгдсэн.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Одоогийн эзэмшигч",
       "newOwner": "Шинэ эзэмшигч",
       "currentOwnerDescription": "Энэ захиалга холбоотой одоогийн үйлчлүүлэгч.",
-      "newOwnerDescription": "Энэ захиалгыг шилжүүлэх үйлчлүүлэгч."
+      "newOwnerDescription": "Энэ захиалгыг шилжүүлэх үйлчлүүлэгч.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Төлбөрүүд",

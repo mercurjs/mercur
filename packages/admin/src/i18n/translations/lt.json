@@ -1013,7 +1013,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Užsakymai",
     "claim": "Pretenzijos",
@@ -1051,11 +1053,14 @@
     },
     "transfer": {
       "title": "Perleisti nuosavybę",
-      "requestSuccess": "Užsakymo nuosavybės perleidimo prašymas išsiųstas į {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Dabartinis savininkas",
       "newOwner": "Naujas savininkas",
       "currentOwnerDescription": "Pirkėjas jau susietas su šiuo užsakymu.",
-      "newOwnerDescription": "Pirkėjas kuriam perleidžiamos užsakymmo nuosavybė."
+      "newOwnerDescription": "Pirkėjas kuriam perleidžiamos užsakymmo nuosavybė.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Apmokėjimas",

@@ -932,7 +932,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Замовлення",
     "claim": "Претензія",
@@ -960,11 +962,14 @@
     },
     "transfer": {
       "title": "Передати право власності",
-      "requestSuccess": "Запит на передачу замовлення надіслано на: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Поточний власник",
       "newOwner": "Новий власник",
       "currentOwnerDescription": "Клієнт, який наразі пов'язаний з цим замовленням.",
-      "newOwnerDescription": "Клієнт, якому буде передано це замовлення."
+      "newOwnerDescription": "Клієнт, якому буде передано це замовлення.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Платежі",

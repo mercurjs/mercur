@@ -1011,7 +1011,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Bestellingen",
     "claim": "Claim",
@@ -1049,11 +1051,14 @@
     },
     "transfer": {
       "title": "Eigendom overdragen",
-      "requestSuccess": "Overdrachtsverzoek voor bestelling verzonden naar: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Huidige eigenaar",
       "newOwner": "Nieuwe eigenaar",
       "currentOwnerDescription": "De klant die momenteel aan deze bestelling is gekoppeld.",
-      "newOwnerDescription": "De klant waaraan deze bestelling moet worden overgedragen."
+      "newOwnerDescription": "De klant waaraan deze bestelling moet worden overgedragen.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Betalingen",

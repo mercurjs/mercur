@@ -972,7 +972,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Comenzi",
     "claim": "Revendicare",
@@ -1010,11 +1012,14 @@
     },
     "transfer": {
       "title": "Transferați proprietatea",
-      "requestSuccess": "Solicitare de transfer de comandă trimisă la: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Actual proprietar",
       "newOwner": "Noul proprietar",
       "currentOwnerDescription": "Clientul se referă în prezent la această comandă.",
-      "newOwnerDescription": "Clientului să transfere această comandă."
+      "newOwnerDescription": "Clientului să transfere această comandă.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Plăți",

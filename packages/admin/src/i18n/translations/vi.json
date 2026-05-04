@@ -1015,7 +1015,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "giftCardsStoreCreditLines": "Thẻ quà tặng & hạn mức tín dụng",
     "creditLines": {
@@ -1078,11 +1080,14 @@
     },
     "transfer": {
       "title": "Chuyển quyền sở hữu",
-      "requestSuccess": "Yêu cầu chuyển đơn hàng đã được gửi đến: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Chủ sở hữu hiện tại",
       "newOwner": "Chủ sở hữu mới",
       "currentOwnerDescription": "Khách hàng hiện đang liên quan đến đơn hàng này.",
-      "newOwnerDescription": "Khách hàng mà đơn hàng này sẽ được chuyển đến."
+      "newOwnerDescription": "Khách hàng mà đơn hàng này sẽ được chuyển đến.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Thanh toán",

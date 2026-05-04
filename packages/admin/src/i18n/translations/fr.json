@@ -927,7 +927,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Commandes",
     "claim": "Réclamation",
@@ -955,11 +957,14 @@
     },
     "transfer": {
       "title": "Transfert de propriété",
-      "requestSuccess": "La demande de transfert de la commande à été envoyé à: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Propriétaire actuel",
       "newOwner": "Nouveau propriétaire",
       "currentOwnerDescription": "Le client actuellement lié à cette commande.",
-      "newOwnerDescription": "Le client à qui transferer cette commande."
+      "newOwnerDescription": "Le client à qui transferer cette commande.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Paiements",

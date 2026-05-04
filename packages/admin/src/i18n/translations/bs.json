@@ -1015,7 +1015,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Narudžbe",
     "claim": "Reklamacija",
@@ -1053,11 +1055,14 @@
     },
     "transfer": {
       "title": "Prenos vlasništva",
-      "requestSuccess": "Zahtjev za prenos narudžbe poslan na: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Trenutni vlasnik",
       "newOwner": "Novi vlasnik",
       "currentOwnerDescription": "Kupac trenutno povezan s ovom narudžbom.",
-      "newOwnerDescription": "Kupac na kojeg se prenosi ova narudžba."
+      "newOwnerDescription": "Kupac na kojeg se prenosi ova narudžba.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Uplate",

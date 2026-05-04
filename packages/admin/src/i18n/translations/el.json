@@ -990,7 +990,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Παραγγελίες",
     "claim": "Απαίτηση",
@@ -1028,11 +1030,14 @@
     },
     "transfer": {
       "title": "Μεταφορά ιδιοκτησίας",
-      "requestSuccess": "Το αίτημα μεταφοράς παραγγελίας στάλθηκε στο: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Τρέχων κάτοχος",
       "newOwner": "Νέος κάτοχος",
       "currentOwnerDescription": "Ο πελάτης που σχετίζεται αυτήν τη στιγμή με αυτήν την παραγγελία.",
-      "newOwnerDescription": "Ο πελάτης στον οποίο θα μεταφερθεί αυτή η παραγγελία."
+      "newOwnerDescription": "Ο πελάτης στον οποίο θα μεταφερθεί αυτή η παραγγελία.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Πληρωμές",

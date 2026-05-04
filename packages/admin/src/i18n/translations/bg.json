@@ -990,7 +990,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Поръчки",
     "claim": "Рекламация",
@@ -1028,11 +1030,14 @@
     },
     "transfer": {
       "title": "Прехвърляне на собственост",
-      "requestSuccess": "Заявката за прехвърляне на поръчката беше изпратена до: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Текущ собственик",
       "newOwner": "Нов собственик",
       "currentOwnerDescription": "Клиентът, свързан с тази поръчка в момента.",
-      "newOwnerDescription": "Клиентът, на когото ще се прехвърли тази поръчка."
+      "newOwnerDescription": "Клиентът, на когото ще се прехвърли тази поръчка.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Плащания",

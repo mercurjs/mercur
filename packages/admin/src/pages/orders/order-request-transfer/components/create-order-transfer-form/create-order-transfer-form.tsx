@@ -12,22 +12,30 @@ import { useComboboxData } from "../../../../../hooks/use-combobox-data"
 import { Combobox } from "../../../../../components/inputs/combobox"
 import { useRequestTransferOrder } from "../../../../../hooks/api"
 import { sdk } from "../../../../../lib/client"
+import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error"
 import { TransferHeader } from "./transfer-header"
 
 type CreateOrderTransferFormProps = {
   order: HttpTypes.AdminOrder
 }
 
-const CreateOrderTransferSchema = zod.object({
-  customer_id: zod.string().min(1),
-  current_customer_details: zod.string().min(1),
-})
-
 export function CreateOrderTransferForm({
   order,
 }: CreateOrderTransferFormProps) {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
+
+  // Reject self-transfer at the schema layer (FR-BUG-5). The backend
+  // already rejects but pre-submit feedback is faster + matches Figma.
+  const CreateOrderTransferSchema = zod.object({
+    customer_id: zod
+      .string()
+      .min(1)
+      .refine((value) => value !== order.customer_id, {
+        message: t("orders.transfer.validation.cannotTransferToSelf"),
+      }),
+    current_customer_details: zod.string().min(1),
+  })
 
   const form = useForm<zod.infer<typeof CreateOrderTransferSchema>>({
     defaultValues: {
@@ -57,10 +65,20 @@ export function CreateOrderTransferForm({
       await mutateAsync({
         customer_id: data.customer_id,
       })
-      toast.success(t("orders.transfer.requestSuccess", { email: order.email }))
+      // Resolve the recipient from the loaded combobox options so the
+      // toast names the new owner (FR-BUG-2). Falls back to the raw
+      // selected id if the option is not in the current page (rare).
+      const recipient = customers.options.find(
+        (option) => option.value === data.customer_id
+      )
+      toast.success(
+        t("orders.transfer.requestSuccess", {
+          name: recipient?.label ?? data.customer_id,
+        })
+      )
       handleSuccess()
     } catch (error) {
-      toast.error((error as Error).message)
+      toast.error(resolveErrorToastMessage(error, t))
     }
   })
 

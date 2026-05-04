@@ -1015,7 +1015,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "订单",
     "claim": "索赔",
@@ -1053,11 +1055,14 @@
     },
     "transfer": {
       "title": "转移所有权",
-      "requestSuccess": "订单转移请求已发送至：{{email}}。",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "当前所有者",
       "newOwner": "新所有者",
       "currentOwnerDescription": "当前与此订单关联的客户。",
-      "newOwnerDescription": "要将此订单转移给的客户。"
+      "newOwnerDescription": "要将此订单转移给的客户。",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "支付",

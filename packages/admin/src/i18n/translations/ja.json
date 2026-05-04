@@ -932,7 +932,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "注文",
     "claim": "クレーム",
@@ -960,11 +962,14 @@
     },
     "transfer": {
       "title": "所有権の移転",
-      "requestSuccess": "注文移転リクエストが{{email}}に送信されました。",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "現在の所有者",
       "newOwner": "新しい所有者",
       "currentOwnerDescription": "この注文に現在関連付けられている顧客。",
-      "newOwnerDescription": "この注文を移転する顧客。"
+      "newOwnerDescription": "この注文を移転する顧客。",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "支払い",

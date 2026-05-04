@@ -926,7 +926,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "คำสั่งซื้อ",
     "claim": "เคลม",
@@ -954,11 +956,14 @@
     },
     "transfer": {
       "title": "โอนกรรมสิทธิ์",
-      "requestSuccess": "คำขอโอนคำสั่งซื้อถูกส่งไปที่: {{email}}",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "เจ้าของปัจจุบัน",
       "newOwner": "เจ้าของใหม่",
       "currentOwnerDescription": "ลูกค้าปัจจุบันที่เกี่ยวข้องกับคำสั่งซื้อนี้",
-      "newOwnerDescription": "ลูกค้าคนใหม่ที่จะโอนคำสั่งซื้อนี้ให้"
+      "newOwnerDescription": "ลูกค้าคนใหม่ที่จะโอนคำสั่งซื้อนี้ให้",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "การชำระเงิน",

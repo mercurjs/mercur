@@ -1015,7 +1015,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "giftCardsStoreCreditLines": "Dárkové karty a kredity",
     "creditLines": {
@@ -1078,11 +1080,14 @@
     },
     "transfer": {
       "title": "Převod vlastnictví",
-      "requestSuccess": "Žádost o převod objednávky byla odeslána na: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Současný vlastník",
       "newOwner": "Nový vlastník",
       "currentOwnerDescription": "Zákazník aktuálně spojený s touto objednávkou.",
-      "newOwnerDescription": "Zákazník, na kterého se objednávka převede."
+      "newOwnerDescription": "Zákazník, na kterého se objednávka převede.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Platby",

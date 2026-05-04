@@ -972,7 +972,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "سفارشات",
     "claim": "ادعا",
@@ -1010,11 +1012,14 @@
     },
     "transfer": {
       "title": "انتقال مالکیت",
-      "requestSuccess": "درخواست انتقال سفارش به {{email}} ارسال شد.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "مالک فعلی",
       "newOwner": "مالک جدید",
       "currentOwnerDescription": "مشتری که در حال حاضر به این سفارش مرتبط است.",
-      "newOwnerDescription": "مشتری که سفارش به او منتقل می‌شود."
+      "newOwnerDescription": "مشتری که سفارش به او منتقل می‌شود.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "پرداخت‌ها",

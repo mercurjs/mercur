@@ -1053,7 +1053,9 @@
       "locationNotSellerValid": "Ta lokalizacja magazynowa nie należy do sprzedawcy z tego zamówienia.",
       "shippingOptionNotSellerValid": "Ta opcja dostawy nie należy do sprzedawcy z tego zamówienia.",
       "variantNotSellerValid": "Ten wariant produktu nie należy do sprzedawcy z tego zamówienia.",
-      "itemCannotReduceBelowFulfilledReturned": "Nie można zmniejszyć ilości poniżej zrealizowanych + zwróconych."
+      "itemCannotReduceBelowFulfilledReturned": "Nie można zmniejszyć ilości poniżej zrealizowanych + zwróconych.",
+      "orderTransferRequestAlreadyActive": "Nie można przekazać zamówienia, ponieważ istnieje aktywny wniosek o przekazanie.",
+      "orderCanceledNoTransfer": "Nie można przekazać anulowanego zamówienia."
     },
     "giftCardsStoreCreditLines": "Karty podarunkowe i linie kredytowe",
     "creditLines": {
@@ -1117,11 +1119,14 @@
     },
     "transfer": {
       "title": "Przekaż własność",
-      "requestSuccess": "Wniosek o przekazanie zamówienia do: {{email}}.",
+      "requestSuccess": "Wniosek o przekazanie zamówienia do: {{name}}.",
       "currentOwner": "Obecny właściciel",
       "newOwner": "Nowy właściciel",
       "currentOwnerDescription": "Klient obecnie związany z tym zamówieniem.",
-      "newOwnerDescription": "Klient, do którego chcesz przekazać to zamówienie."
+      "newOwnerDescription": "Klient, do którego chcesz przekazać to zamówienie.",
+      "validation": {
+        "cannotTransferToSelf": "Nowy właściciel nie może być obecnym właścicielem."
+      }
     },
     "payment": {
       "title": "Płatności",

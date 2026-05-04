@@ -1011,7 +1011,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Rendelések",
     "claim": "Igénylés",
@@ -1049,11 +1051,14 @@
     },
     "transfer": {
       "title": "Rendelés átadása",
-      "requestSuccess": "Rendelésátadási kérelem elküldve: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Jelenlegi tulajdonos",
       "newOwner": "Új tulajdonos",
       "currentOwnerDescription": "A rendelés jelenlegi tulajdonosa.",
-      "newOwnerDescription": "A rendelés új tulajdonosa."
+      "newOwnerDescription": "A rendelés új tulajdonosa.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Fizetés",

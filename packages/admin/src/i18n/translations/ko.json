@@ -1015,7 +1015,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "주문",
     "claim": "클레임",
@@ -1053,11 +1055,14 @@
     },
     "transfer": {
       "title": "소유권 이전",
-      "requestSuccess": "주문 이전 요청이 {{email}}에게 전송되었습니다.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "현재 소유자",
       "newOwner": "새 소유자",
       "currentOwnerDescription": "이 주문과 현재 관련된 고객입니다.",
-      "newOwnerDescription": "이 주문을 이전할 고객입니다."
+      "newOwnerDescription": "이 주문을 이전할 고객입니다.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "결제",

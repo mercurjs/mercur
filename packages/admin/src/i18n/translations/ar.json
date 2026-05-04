@@ -990,7 +990,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "orderCanceled": "تم إلغاء الطلب",
     "status": {
@@ -1028,11 +1030,14 @@
     },
     "transfer": {
       "title": "نقل الملكية",
-      "requestSuccess": "تم إرسال طلب نقل الطلب إلى: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "المالك الحالي",
       "newOwner": "المالك الجديد",
       "currentOwnerDescription": "العميل المرتبط حاليًا بهذا الطلب.",
-      "newOwnerDescription": "العميل الذي سيتم نقل هذا الطلب إليه."
+      "newOwnerDescription": "العميل الذي سيتم نقل هذا الطلب إليه.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "المدفوعات",

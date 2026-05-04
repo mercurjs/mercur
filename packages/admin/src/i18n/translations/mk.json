@@ -972,7 +972,9 @@
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
-      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
+      "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
     },
     "domain": "Нарачки",
     "claim": "Побарување",
@@ -1010,11 +1012,14 @@
     },
     "transfer": {
       "title": "Пренесете ја сопственоста",
-      "requestSuccess": "Барањето за пренос на нарачка испратено до: {{email}}.",
+      "requestSuccess": "Order transfer request sent to: {{name}}.",
       "currentOwner": "Тековен сопственик",
       "newOwner": "Нов сопственик",
       "currentOwnerDescription": "Клиентот во моментов е поврзан со оваа нарачка.",
-      "newOwnerDescription": "Клиентот да ја пренесе оваа нарачка на."
+      "newOwnerDescription": "Клиентот да ја пренесе оваа нарачка на.",
+      "validation": {
+        "cannotTransferToSelf": "New owner cannot be the current owner."
+      }
     },
     "payment": {
       "title": "Плаќања",
