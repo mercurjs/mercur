@@ -1162,7 +1162,10 @@
     "edit": {
       "email": {
         "title": "Upravit e-mail",
-        "requestSuccess": "E-mail objednávky byl aktualizován."
+        "requestSuccess": "E-mail objednávky byl aktualizován.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Upravit doručovací adresu",

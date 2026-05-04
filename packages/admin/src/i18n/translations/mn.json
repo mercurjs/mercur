@@ -1093,7 +1093,10 @@
     "edit": {
       "email": {
         "title": "Имэйлийг засах",
-        "requestSuccess": "Имэйл амжилттай шинэчлэгдлээ."
+        "requestSuccess": "Имэйл амжилттай шинэчлэгдлээ.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Хүргэлтийн хаягийг засах",

@@ -1093,7 +1093,10 @@
     "edit": {
       "email": {
         "title": "Уреди е-пошта",
-        "requestSuccess": "Е-поштата беше успешно ажурирана."
+        "requestSuccess": "Е-поштата беше успешно ажурирана.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Уредете ја адресата за испорака",

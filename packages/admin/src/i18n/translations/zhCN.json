@@ -1136,7 +1136,10 @@
     "edit": {
       "email": {
         "title": "编辑邮箱",
-        "requestSuccess": "邮箱已成功更新。"
+        "requestSuccess": "邮箱已成功更新。",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "编辑配送地址",

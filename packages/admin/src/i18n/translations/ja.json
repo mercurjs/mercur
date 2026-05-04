@@ -1043,7 +1043,10 @@
     "edit": {
       "email": {
         "title": "Eメールを編集",
-        "requestSuccess": "メールアドレスが正常に更新されました。"
+        "requestSuccess": "メールアドレスが正常に更新されました。",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "配送先住所を編集",

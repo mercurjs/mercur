@@ -1093,7 +1093,10 @@
     "edit": {
       "email": {
         "title": "ویرایش ایمیل",
-        "requestSuccess": "ایمیل با موفقیت به‌روزرسانی شد."
+        "requestSuccess": "ایمیل با موفقیت به‌روزرسانی شد.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "ویرایش آدرس ارسال",

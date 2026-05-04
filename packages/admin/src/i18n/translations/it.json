@@ -1049,7 +1049,10 @@
     "edit": {
       "email": {
         "title": "Modifica email",
-        "requestSuccess": "Email ordine aggiornata a {{email}}."
+        "requestSuccess": "Email ordine aggiornata a {{email}}.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Modifica indirizzo di spedizione",

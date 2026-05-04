@@ -1132,7 +1132,10 @@
     "edit": {
       "email": {
         "title": "Email szerkesztése",
-        "requestSuccess": "Az e-mail sikeresen frissítve lett."
+        "requestSuccess": "Az e-mail sikeresen frissítve lett.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Szállítási cím szerkesztése",

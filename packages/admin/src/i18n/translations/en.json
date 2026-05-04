@@ -1187,7 +1187,10 @@
     "edit": {
       "email": {
         "title": "Edit email",
-        "requestSuccess": "Email was successfully updated."
+        "requestSuccess": "Email was successfully updated.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Edit shipping address",

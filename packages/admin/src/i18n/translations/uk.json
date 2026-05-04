@@ -1043,7 +1043,10 @@
     "edit": {
       "email": {
         "title": "Редагувати email",
-        "requestSuccess": "Email було успішно оновлено."
+        "requestSuccess": "Email було успішно оновлено.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Редагувати адресу доставки",

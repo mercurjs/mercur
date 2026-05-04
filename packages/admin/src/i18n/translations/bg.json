@@ -1111,7 +1111,10 @@
     "edit": {
       "email": {
         "title": "Редактиране на имейл",
-        "requestSuccess": "Имейлът беше успешно актуализиран."
+        "requestSuccess": "Имейлът беше успешно актуализиран.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Редактиране на адрес за доставка",

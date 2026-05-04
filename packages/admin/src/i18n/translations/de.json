@@ -1037,7 +1037,10 @@
     "edit": {
       "email": {
         "title": "E-Mail bearbeiten",
-        "requestSuccess": "Bestellungs-E-Mail aktualisiert auf {{email}}."
+        "requestSuccess": "Bestellungs-E-Mail aktualisiert auf {{email}}.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Lieferadresse bearbeiten",

@@ -1136,7 +1136,10 @@
     "edit": {
       "email": {
         "title": "Uredi e-mail",
-        "requestSuccess": "E-mail je uspješno ažuriran."
+        "requestSuccess": "E-mail je uspješno ažuriran.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Uredi adresu za dostavu",

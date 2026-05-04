@@ -1136,7 +1136,10 @@
     "edit": {
       "email": {
         "title": "ערוך אימייל",
-        "requestSuccess": "האימייל עודכן בהצלחה."
+        "requestSuccess": "האימייל עודכן בהצלחה.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "ערוך כתובת משלוח",

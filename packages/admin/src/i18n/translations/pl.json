@@ -1201,7 +1201,10 @@
     "edit": {
       "email": {
         "title": "Edytuj adres e-mail",
-        "requestSuccess": "Adres e-mail został pomyślnie zaktualizowany."
+        "requestSuccess": "Adres e-mail został pomyślnie zaktualizowany.",
+        "validation": {
+          "emailRequired": "Wprowadź adres e-mail"
+        }
       },
       "shippingAddress": {
         "title": "Edytuj adres dostawy",

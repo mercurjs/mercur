@@ -1132,7 +1132,10 @@
     "edit": {
       "email": {
         "title": "E-mail bewerken",
-        "requestSuccess": "E-mail is succesvol bijgewerkt."
+        "requestSuccess": "E-mail is succesvol bijgewerkt.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Verzendadres bewerken",

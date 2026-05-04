@@ -1134,7 +1134,10 @@
     "edit": {
       "email": {
         "title": "Keisti el. paštą",
-        "requestSuccess": "El. paštas sėkmingai atnaujintas."
+        "requestSuccess": "El. paštas sėkmingai atnaujintas.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Keisti pristatymo adresą",

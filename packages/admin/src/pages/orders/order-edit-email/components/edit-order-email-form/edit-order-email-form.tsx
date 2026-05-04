@@ -14,13 +14,19 @@ type EditOrderEmailFormProps = {
   order: HttpTypes.AdminOrder;
 };
 
-const EditOrderEmailSchema = zod.object({
-  email: zod.string().email()
-});
-
 export function EditOrderEmailForm({ order }: EditOrderEmailFormProps) {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
+
+  // Split required vs malformed validation (FR-BUG-12) so the empty
+  // case shows "Please enter an email" before zod's generic
+  // "Invalid email" fires for both empty and malformed input.
+  const EditOrderEmailSchema = zod.object({
+    email: zod
+      .string()
+      .min(1, { message: t('orders.edit.email.validation.emailRequired') })
+      .email()
+  });
 
   const form = useForm<zod.infer<typeof EditOrderEmailSchema>>({
     defaultValues: {

@@ -1137,7 +1137,10 @@
     "edit": {
       "email": {
         "title": "이메일 편집",
-        "requestSuccess": "이메일이 성공적으로 업데이트되었습니다."
+        "requestSuccess": "이메일이 성공적으로 업데이트되었습니다.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "배송 주소 편집",

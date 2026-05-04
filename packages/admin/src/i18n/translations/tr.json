@@ -1429,7 +1429,10 @@
     "edit": {
       "email": {
         "title": "E-postayı düzenle",
-        "requestSuccess": "E-posta başarıyla güncellendi."
+        "requestSuccess": "E-posta başarıyla güncellendi.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Teslimat adresini düzenle",

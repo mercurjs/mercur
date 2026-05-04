@@ -1087,7 +1087,10 @@
     "edit": {
       "email": {
         "title": "Editar correo electrónico",
-        "requestSuccess": "El correo electrónico se actualizó correctamente."
+        "requestSuccess": "El correo electrónico se actualizó correctamente.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Editar dirección de envío",

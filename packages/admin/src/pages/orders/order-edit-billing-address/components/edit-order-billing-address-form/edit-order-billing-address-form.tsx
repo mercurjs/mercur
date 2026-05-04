@@ -196,7 +196,6 @@ export function EditOrderBillingAddressForm({ order }: EditOrderBillingAddressFo
                     <Form.Control data-testid="order-edit-billing-address-country-control">
                       <CountrySelect
                         {...field}
-                        disabled
                         data-testid="order-edit-billing-address-country-select"
                       />
                     </Form.Control>
@@ -297,7 +296,6 @@ export function EditOrderBillingAddressForm({ order }: EditOrderBillingAddressFo
               type="submit"
               variant="primary"
               size="small"
-              disabled={!!Object.keys(form.formState.errors || {}).length}
               data-testid="order-edit-billing-address-save-button"
             >
               {t('actions.save')}

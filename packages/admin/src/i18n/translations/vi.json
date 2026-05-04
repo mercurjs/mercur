@@ -1162,7 +1162,10 @@
     "edit": {
       "email": {
         "title": "Chỉnh sửa email",
-        "requestSuccess": "Email đã được cập nhật thành công."
+        "requestSuccess": "Email đã được cập nhật thành công.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Chỉnh sửa địa chỉ giao hàng",

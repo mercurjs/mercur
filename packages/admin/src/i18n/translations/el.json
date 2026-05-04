@@ -1111,7 +1111,10 @@
     "edit": {
       "email": {
         "title": "Επεξεργασία email",
-        "requestSuccess": "Το email ενημερώθηκε επιτυχώς."
+        "requestSuccess": "Το email ενημερώθηκε επιτυχώς.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Επεξεργασία διεύθυνσης αποστολής",

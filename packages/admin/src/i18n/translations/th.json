@@ -1037,7 +1037,10 @@
     "edit": {
       "email": {
         "title": "แก้ไขอีเมล",
-        "requestSuccess": "อีเมลคำสั่งซื้ออัปเดตเป็น {{email}} แล้ว"
+        "requestSuccess": "อีเมลคำสั่งซื้ออัปเดตเป็น {{email}} แล้ว",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "แก้ไขที่อยู่จัดส่ง",

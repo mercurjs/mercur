@@ -1093,7 +1093,10 @@
     "edit": {
       "email": {
         "title": "Editați e-mailul",
-        "requestSuccess": "E-mailul a fost actualizat cu succes."
+        "requestSuccess": "E-mailul a fost actualizat cu succes.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Editați adresa de livrare",

@@ -1093,7 +1093,10 @@
     "edit": {
       "email": {
         "title": "Изменить email",
-        "requestSuccess": "Email был успешно обновлён."
+        "requestSuccess": "Email был успешно обновлён.",
+        "validation": {
+          "emailRequired": "Please enter an email"
+        }
       },
       "shippingAddress": {
         "title": "Изменить адрес доставки",
