@@ -157,7 +157,7 @@ export const OrderListDataTable = () => {
       isLoading={isLoading}
       pageSize={PAGE_SIZE}
       orderBy={[
-        { key: "display_id", label: "Display ID" },
+        { key: "display_id", label: t("orders.list.orderIdHeader") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
