@@ -47,6 +47,12 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
     // To be removed item needs to have updated quantity dropped to the
     // minimum allowed (fulfilled + returned). Items with no blocking
     // history can drop to 0; items with history floor at minQty.
+    //
+    // Note: this only fires for original-order items with an
+    // ITEM_UPDATE action. Added items (ITEM_ADD) are removed
+    // destructively — backend rejects POST quantity=0 on
+    // /admin/order-edits/:id/items/:action_id, so we cannot keep the
+    // row around for an Undo. See `onRemove` below.
     const updateAction = item.actions?.find((a) => a.action === "ITEM_UPDATE")
     return !!updateAction && item.quantity === limits.minQty
   }, [item, limits])
@@ -83,6 +89,10 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
 
     try {
       if (addItemAction) {
+        // Destructive: undo the ITEM_ADD action — the item disappears
+        // from the preview entirely. Backend rejects POST quantity=0
+        // on the action endpoint, so we cannot keep the row around
+        // for a soft-remove + Undo flow.
         await undoAction(addItemAction.id)
       } else {
         await updateOriginalItem({
