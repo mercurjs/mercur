@@ -928,7 +928,10 @@
       "variantNotSellerValid": "This product variant does not belong to the order's seller.",
       "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned.",
       "orderTransferRequestAlreadyActive": "Order can not be transferred because there is an active transfer request.",
-      "orderCanceledNoTransfer": "Canceled orders cannot be transferred."
+      "orderCanceledNoTransfer": "Canceled orders cannot be transferred.",
+      "claimRequiresInboundItems": "Please add at least one item from the order before confirming the claim.",
+      "claimRequiresLocation": "Please choose a return location before confirming the claim.",
+      "exchangeWindowExpired": "The exchange window for this order has expired."
     },
     "domain": "Bestellungen",
     "claim": "Beanspruchen",

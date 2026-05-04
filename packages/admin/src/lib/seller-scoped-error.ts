@@ -12,6 +12,9 @@ const CODE_TO_KEY: Record<string, string> = {
   ORDER_TRANSFER_REQUEST_ALREADY_ACTIVE:
     "orders.errors.orderTransferRequestAlreadyActive",
   ORDER_CANCELED_NO_TRANSFER: "orders.errors.orderCanceledNoTransfer",
+  CLAIM_REQUIRES_INBOUND_ITEMS: "orders.errors.claimRequiresInboundItems",
+  CLAIM_REQUIRES_LOCATION: "orders.errors.claimRequiresLocation",
+  EXCHANGE_WINDOW_EXPIRED: "orders.errors.exchangeWindowExpired",
 }
 
 /**

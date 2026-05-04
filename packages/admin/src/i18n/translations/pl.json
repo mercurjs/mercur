@@ -1055,7 +1055,10 @@
       "variantNotSellerValid": "Ten wariant produktu nie należy do sprzedawcy z tego zamówienia.",
       "itemCannotReduceBelowFulfilledReturned": "Nie można zmniejszyć ilości poniżej zrealizowanych + zwróconych.",
       "orderTransferRequestAlreadyActive": "Nie można przekazać zamówienia, ponieważ istnieje aktywny wniosek o przekazanie.",
-      "orderCanceledNoTransfer": "Nie można przekazać anulowanego zamówienia."
+      "orderCanceledNoTransfer": "Nie można przekazać anulowanego zamówienia.",
+      "claimRequiresInboundItems": "Aby potwierdzić reklamację, dodaj co najmniej jeden produkt z zamówienia.",
+      "claimRequiresLocation": "Aby potwierdzić reklamację, wybierz lokalizację zwrotu.",
+      "exchangeWindowExpired": "Termin wymiany dla tego zamówienia upłynął."
     },
     "giftCardsStoreCreditLines": "Karty podarunkowe i linie kredytowe",
     "creditLines": {
