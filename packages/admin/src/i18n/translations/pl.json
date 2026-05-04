@@ -1347,7 +1347,9 @@
         "title": "Inicjowana reklamacja",
         "description": "Istnieje otwarty wniosek o reklamację do realizacji"
       },
-      "confirmTitle": "Potwierdź reklamację"
+      "confirmTitle": "Potwierdź reklamację",
+      "sendNotification": "Wyślij powiadomienie",
+      "sendNotificationHint": "Powiadom klienta o reklamacji."
     },
     "exchanges": {
       "create": "Utwórz wymianę",

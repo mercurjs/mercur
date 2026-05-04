@@ -1174,7 +1174,9 @@
         "title": "Reclamação iniciada",
         "description": "Há uma solicitação de reclamação aberta a ser concluída"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Criar Troca",

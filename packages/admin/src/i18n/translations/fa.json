@@ -1234,7 +1234,9 @@
         "title": "ادعا آغاز شد",
         "description": "یک درخواست ادعای باز برای تکمیل وجود دارد"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "ایجاد تعویض",

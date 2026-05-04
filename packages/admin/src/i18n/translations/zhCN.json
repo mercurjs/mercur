@@ -1277,7 +1277,9 @@
         "title": "已发起索赔",
         "description": "有一个待完成的索赔请求"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "创建换货",

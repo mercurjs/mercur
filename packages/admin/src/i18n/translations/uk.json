@@ -1184,7 +1184,9 @@
         "title": "Заявка ініційована",
         "description": "Є відкрита заявка, яку потрібно завершити"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Створити обмін",

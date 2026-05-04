@@ -1252,7 +1252,9 @@
         "title": "Ξεκίνησε η απαίτηση",
         "description": "Υπάρχει ένα ανοιχτό αίτημα απαίτησης προς ολοκλήρωση"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Δημιουργία ανταλλαγής",

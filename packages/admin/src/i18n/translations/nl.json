@@ -1273,7 +1273,9 @@
         "title": "Claim geïnitieerd",
         "description": "Er is een open claimverzoek dat moet worden voltooid"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Omruiling aanmaken",

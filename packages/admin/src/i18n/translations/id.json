@@ -1273,7 +1273,9 @@
         "title": "Klaim dimulai",
         "description": "Ada permintaan klaim terbuka yang harus diselesaikan"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Buat Penukaran",

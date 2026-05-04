@@ -1175,7 +1175,9 @@
         "title": "Réclamation demandée",
         "description": "Il existe une demande de réclamation à compléter"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Créer un échange",

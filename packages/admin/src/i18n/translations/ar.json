@@ -1252,7 +1252,9 @@
         "title": "تم بدء المطالبة",
         "description": "هناك طلب مطالبة مفتوح ليتم إكماله"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "إنشاء تبادل",

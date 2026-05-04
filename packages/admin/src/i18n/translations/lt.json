@@ -1275,7 +1275,9 @@
         "title": "Pretenzija inicijuota",
         "description": "Jau yra nagrinėjama pretenzija, kuri turi būti užbaigta"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Sukurti keitimą",

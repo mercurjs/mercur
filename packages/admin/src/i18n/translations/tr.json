@@ -1217,7 +1217,9 @@
         "title": "Talep başlatıldı",
         "description": "Tamamlanması gereken açık bir talep talebi var"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Değişim Oluştur",

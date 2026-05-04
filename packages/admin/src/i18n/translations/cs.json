@@ -1299,7 +1299,9 @@
         "title": "Reklamace zahájena",
         "description": "Existuje otevřená žádost o reklamaci, která musí být dokončena"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Vytvořit výměnu",

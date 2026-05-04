@@ -1067,13 +1067,13 @@ export const ClaimCreateForm = ({
                         </Form.Control>
                         <div className="block">
                           <Form.Label data-testid="order-create-claim-notification-label">
-                            {t("orders.returns.sendNotification")}
+                            {t("orders.claims.sendNotification")}
                           </Form.Label>
                           <Form.Hint
                             className="!mt-1"
                             data-testid="order-create-claim-notification-hint"
                           >
-                            {t("orders.returns.sendNotificationHint")}
+                            {t("orders.claims.sendNotificationHint")}
                           </Form.Hint>
                         </div>
                       </div>

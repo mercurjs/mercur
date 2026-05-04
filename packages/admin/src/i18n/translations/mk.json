@@ -1234,7 +1234,9 @@
         "title": "Побарувањето е започнато",
         "description": "Постои отворено барање за побарување кое треба да се пополни"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Креирај замена",

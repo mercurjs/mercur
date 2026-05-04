@@ -1303,7 +1303,9 @@
         "title": "Đã khởi tạo khiếu nại",
         "description": "Có một yêu cầu khiếu nại đang mở cần được hoàn tất"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Tạo đổi hàng",

@@ -1273,7 +1273,9 @@
         "title": "Igénylés kezdeményezve",
         "description": "Van egy nyitott igénylési kérelem, amelyet be kell fejezni"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Csere létrehozása",

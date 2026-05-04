@@ -1234,7 +1234,9 @@
         "title": "Инициирована претензия",
         "description": "Существует открытый запрос на претензию для обработки"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Создать обмен",

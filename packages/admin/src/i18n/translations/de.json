@@ -1174,7 +1174,9 @@
         "title": "Klage eingeleitet",
         "description": "Es muss ein offener Anspruchsantrag ausgefüllt werden"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Exchange erstellen",

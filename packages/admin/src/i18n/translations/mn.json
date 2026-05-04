@@ -1234,7 +1234,9 @@
         "title": "Нэхэмжлэл эхлүүлсэн",
         "description": "Дуусгах хэрэгтэй нээлттэй нэхэмжлэлийн хүсэлт байна"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Солилцоо үүсгэх",

@@ -1277,7 +1277,9 @@
         "title": "Reklamacija pokrenuta",
         "description": "Postoji otvoreni zahtjev za reklamaciju koji treba biti dovršen"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Kreiraj zamjenu",

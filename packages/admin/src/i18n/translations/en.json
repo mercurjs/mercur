@@ -1331,7 +1331,9 @@
         "title": "Claim initiated",
         "description": "There is an open claim request to be completed"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Create Exchange",

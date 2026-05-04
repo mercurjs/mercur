@@ -1186,7 +1186,9 @@
         "title": "Richiesta avviata",
         "description": "C'è una richiesta di richiesta aperta da completare"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Crea Scambio",

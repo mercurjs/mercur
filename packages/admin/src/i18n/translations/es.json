@@ -1331,7 +1331,9 @@
         "title": "Reclamación iniciada",
         "description": "Hay una solicitud de reclamación pendiente de completar"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Crear Intercambio",

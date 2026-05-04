@@ -1234,7 +1234,9 @@
         "title": "Revendicare inițiată",
         "description": "Există o cerere de revendicare deschisă care trebuie completată"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "Creați Exchange",

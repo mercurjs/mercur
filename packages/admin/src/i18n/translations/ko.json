@@ -1278,7 +1278,9 @@
         "title": "클레임 시작됨",
         "description": "완료해야 할 미처리 클레임 요청이 있습니다"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "교환 생성",

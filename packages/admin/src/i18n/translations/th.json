@@ -1174,7 +1174,9 @@
         "title": "เริ่มต้นการเคลม",
         "description": "มีคำขอการเคลมที่เปิดอยู่เพื่อดำเนินการให้เสร็จสิ้น"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "สร้างการแลกเปลี่ยน",

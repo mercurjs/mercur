@@ -1277,7 +1277,9 @@
         "title": "תביעה התחילה",
         "description": "יש בקשת תביעה פתוחה להשלמה"
       },
-      "confirmTitle": "Confirm claim"
+      "confirmTitle": "Confirm claim",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about claim."
     },
     "exchanges": {
       "create": "צור החלפה",
