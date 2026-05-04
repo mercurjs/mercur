@@ -56,6 +56,10 @@ const DEFAULT_RELATIONS = [
   "*payment_collections.payments.refunds",
   "*payment_collections.payments.refunds.refund_reason",
   "region.automatic_taxes",
+  // Mercur grouped order link — drives the Store: <name> sub-header
+  // in OrderSummarySection (G-OD-3).
+  "seller.id",
+  "seller.name",
 ];
 
 export const DEFAULT_FIELDS = `${DEFAULT_PROPERTIES.join(
