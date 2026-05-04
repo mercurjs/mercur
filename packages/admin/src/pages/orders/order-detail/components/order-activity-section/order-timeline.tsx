@@ -752,7 +752,7 @@ const ClaimBody = ({
   const prompt = usePrompt();
   const { t } = useTranslation();
 
-  const isCanceled = !!claim.created_at;
+  const isCanceled = !!claim.canceled_at;
 
   const { mutateAsync: cancelClaim } = useCancelClaim(claim.id, claim.order_id);
 
@@ -787,7 +787,7 @@ const ClaimBody = ({
     <div>
       {outboundItems > 0 && (
         <Text size="small" className="text-ui-fg-subtle">
-          {t("orders.activity.events.claim.itemsInbound", {
+          {t("orders.activity.events.claim.itemsOutbound", {
             count: outboundItems,
           })}
         </Text>
@@ -795,7 +795,7 @@ const ClaimBody = ({
 
       {inboundItems > 0 && (
         <Text size="small" className="text-ui-fg-subtle">
-          {t("orders.activity.events.claim.itemsOutbound", {
+          {t("orders.activity.events.claim.itemsInbound", {
             count: inboundItems,
           })}
         </Text>
@@ -863,7 +863,7 @@ const ExchangeBody = ({
     <div>
       {outboundItems > 0 && (
         <Text size="small" className="text-ui-fg-subtle">
-          {t("orders.activity.events.exchange.itemsInbound", {
+          {t("orders.activity.events.exchange.itemsOutbound", {
             count: outboundItems,
           })}
         </Text>
@@ -871,7 +871,7 @@ const ExchangeBody = ({
 
       {inboundItems > 0 && (
         <Text size="small" className="text-ui-fg-subtle">
-          {t("orders.activity.events.exchange.itemsOutbound", {
+          {t("orders.activity.events.exchange.itemsInbound", {
             count: inboundItems,
           })}
         </Text>
