@@ -48,7 +48,10 @@ export type OrderGroupRow = {
   children: OrderGroupRow[];
 };
 
-function transformOrderGroups(orderGroups: any[]): OrderGroupRow[] {
+function transformOrderGroups(
+  orderGroups: any[],
+  t: (key: string, opts?: Record<string, unknown>) => string,
+): OrderGroupRow[] {
   return orderGroups.map((group) => {
     const orders = group.orders ?? [];
 
@@ -121,8 +124,8 @@ export const OrderListDataTable = () => {
   );
 
   const rows = useMemo(
-    () => transformOrderGroups(order_groups ?? []),
-    [order_groups],
+    () => transformOrderGroups(order_groups ?? [], t),
+    [order_groups, t],
   );
 
   const filters = useOrderGroupTableFilters();
