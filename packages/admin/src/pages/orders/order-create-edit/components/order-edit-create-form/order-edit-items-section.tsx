@@ -4,7 +4,7 @@ import { MagnifyingGlass } from "@medusajs/icons";
 import { AdminOrder, AdminOrderPreview } from "@medusajs/types";
 import { Button, Heading, Input, Text, toast } from "@medusajs/ui";
 
-import debounce from "lodash/debounce";
+import debounce from "lodash.debounce";
 import { useTranslation } from "react-i18next";
 
 import {
@@ -13,6 +13,7 @@ import {
   useStackedModal,
 } from "../../../../../components/modals";
 import { useAddOrderEditItems } from "../../../../../hooks/api/order-edits";
+import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error";
 import { AddOrderEditItemsTable } from "../add-order-edit-items-table";
 import { OrderEditItem } from "./order-edit-item";
 
@@ -44,7 +45,7 @@ export const OrderEditItemsSection = ({
       },
       {
         onError: (e) => {
-          toast.error(e.message);
+          toast.error(resolveErrorToastMessage(e, t));
         },
       },
     );
@@ -101,6 +102,7 @@ export const OrderEditItemsSection = ({
               <StackedFocusModal.Header data-testid="order-edit-items-section-add-items-modal-header" />
 
               <AddOrderEditItemsTable
+                orderId={order.id}
                 currencyCode={order.currency_code}
                 onSelectionChange={(finalSelection) => {
                   addedVariants = finalSelection;

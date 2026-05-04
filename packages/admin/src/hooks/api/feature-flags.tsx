@@ -32,8 +32,6 @@ export const useFeatureFlags = (
  * Returns whether admin warehouse management is enabled for this deployment.
  * Baseline Mercur is seller-owned fulfillment — this flag opts in to
  * admin-managed fulfillment (FBA-style).
- *
- * See `specs/005-admin-warehouse-capability-lock`.
  */
 export const useWarehouseManagement = (): boolean => {
   const { feature_flags } = useFeatureFlags()

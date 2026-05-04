@@ -60,7 +60,8 @@
                   "v2/core-concepts/payout",
                   "v2/core-concepts/commission",
                   "v2/core-concepts/order-groups",
-                  "v2/core-concepts/feature-flags"
+                  "v2/core-concepts/feature-flags",
+                  "v2/core-concepts/admin-error-codes"
                 ]
               },
               {

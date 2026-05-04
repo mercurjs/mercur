@@ -27,7 +27,7 @@ type OrderGeneralSectionProps = {
 /**
  * Mercur marketplace invariant: cancel blocked when any item has
  * fulfilled_quantity > 0. Shared with the backend workflow step
- * `validateCancelStep` in packages/core. See spec 005.
+ * `validateCancelStep` in packages/core.
  */
 const hasFulfilledItems = (order: HttpTypes.AdminOrder): boolean => {
   if (!order?.items?.length) {

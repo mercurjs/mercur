@@ -17,6 +17,22 @@ import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/middlewares"
 import { requireAdminWarehouseCapability } from "./middlewares/require-warehouse-capability"
 import { validateCancelOrderMiddleware } from "./middlewares/validate-cancel-order"
+import {
+  orderIdFromBody,
+  requireSellerValidLocation,
+} from "./middlewares/require-seller-valid-location"
+import {
+  orderIdFromReturnParam,
+  requireSellerValidShippingOption,
+} from "./middlewares/require-seller-valid-shipping-option"
+import {
+  orderIdFromOrderEditParam,
+  requireSellerValidAddItem,
+} from "./middlewares/require-seller-valid-add-item"
+import {
+  orderIdFromClaimParam,
+  orderIdFromExchangeParam,
+} from "./middlewares/order-id-resolvers"
 
 const maybeApplySellerProductFilter = (
   req: AuthenticatedMedusaRequest,
@@ -86,11 +102,102 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     ],
   },
   // Mercur cancel-order invariant — enforce marketplace rule regardless of flag.
-  // See specs/005-admin-warehouse-capability-lock.
   {
     method: ["POST"],
     matcher: "/admin/orders/:id/cancel",
     middlewares: [validateCancelOrderMiddleware],
+  },
+  // Seller-valid scoping for admin order mutations.
+  //
+  // IMPORTANT: method is intentionally omitted on these matchers.
+  // Medusa's framework registers matchers with explicit `method` using
+  // `app[method](...)` which makes them route handlers stacked AFTER
+  // core route handlers — they never fire because the core handler
+  // responds first. Omitting `method` routes them through `app.use()`
+  // which runs as pre-route middleware, reliably before the core
+  // handler responds. Each middleware filters by HTTP method internally.
+  //
+  // Block cross-seller location_id on return creation.
+  {
+    matcher: "/admin/returns",
+    middlewares: [requireSellerValidLocation(orderIdFromBody)],
+  },
+  // Block cross-seller location_id on return update.
+  {
+    matcher: "/admin/returns/:id",
+    middlewares: [requireSellerValidLocation(orderIdFromReturnParam)],
+  },
+  // Block cross-seller shipping_option_id on return shipping-method.
+  {
+    matcher: "/admin/returns/:id/shipping-method",
+    middlewares: [
+      requireSellerValidShippingOption(orderIdFromReturnParam),
+    ],
+  },
+  // Block cross-seller variant_id on order-edit add-items.
+  {
+    matcher: "/admin/order-edits/:id/items",
+    middlewares: [
+      requireSellerValidAddItem(orderIdFromOrderEditParam),
+    ],
+  },
+  // Block cross-seller location_id on claim inbound items.
+  {
+    matcher: "/admin/claims/:id/inbound/items",
+    middlewares: [requireSellerValidLocation(orderIdFromClaimParam)],
+  },
+  // Block cross-seller location_id on exchange inbound items.
+  {
+    matcher: "/admin/exchanges/:id/inbound/items",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromExchangeParam),
+    ],
+  },
+  // Block cross-seller location + shipping option on claim inbound shipping-method.
+  {
+    matcher: "/admin/claims/:id/inbound/shipping-method",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromClaimParam),
+      requireSellerValidShippingOption(orderIdFromClaimParam),
+    ],
+  },
+  // Block cross-seller location + shipping option on exchange inbound shipping-method.
+  {
+    matcher: "/admin/exchanges/:id/inbound/shipping-method",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromExchangeParam),
+      requireSellerValidShippingOption(orderIdFromExchangeParam),
+    ],
+  },
+  // Block cross-seller variant_id on claim outbound items.
+  {
+    matcher: "/admin/claims/:id/outbound/items",
+    middlewares: [
+      requireSellerValidAddItem(orderIdFromClaimParam),
+    ],
+  },
+  // Block cross-seller variant_id on exchange outbound items.
+  {
+    matcher: "/admin/exchanges/:id/outbound/items",
+    middlewares: [
+      requireSellerValidAddItem(orderIdFromExchangeParam),
+    ],
+  },
+  // Block cross-seller location + shipping option on claim outbound shipping-method.
+  {
+    matcher: "/admin/claims/:id/outbound/shipping-method",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromClaimParam),
+      requireSellerValidShippingOption(orderIdFromClaimParam),
+    ],
+  },
+  // Block cross-seller location + shipping option on exchange outbound shipping-method.
+  {
+    matcher: "/admin/exchanges/:id/outbound/shipping-method",
+    middlewares: [
+      requireSellerValidLocation(orderIdFromExchangeParam),
+      requireSellerValidShippingOption(orderIdFromExchangeParam),
+    ],
   },
   // Warehouse capability lock — gated by `admin_warehouse_management` feature flag.
   // Baseline Mercur keeps fulfillment vendor-owned; these matchers reject direct

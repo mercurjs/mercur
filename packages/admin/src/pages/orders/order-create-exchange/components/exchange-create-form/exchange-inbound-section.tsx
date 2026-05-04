@@ -18,7 +18,10 @@ import {
   StackedFocusModal,
   useStackedModal,
 } from "../../../../../components/modals"
-import { useShippingOptions, useStockLocations } from "../../../../../hooks/api"
+import {
+  useSellerValidShippingOptions,
+  useSellerValidStockLocations,
+} from "../../../../../hooks/api/seller-scoped-orders"
 import {
   useAddExchangeInboundItems,
   useAddExchangeInboundShipping,
@@ -28,6 +31,7 @@ import {
 } from "../../../../../hooks/api/exchanges"
 import { useUpdateReturn } from "../../../../../hooks/api/returns"
 import { sdk } from "../../../../../lib/client"
+import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error"
 import { ReturnShippingPlaceholder } from "../../../common/placeholders"
 import { ItemPlaceholder } from "../../../order-create-claim/components/claim-create-form/item-placeholder"
 import { AddExchangeInboundItemsTable } from "../add-exchange-inbound-items-table"
@@ -118,24 +122,23 @@ export const ExchangeInboundSection = ({
   /**
    * HOOKS
    */
-  const { stock_locations = [] } = useStockLocations({ limit: 999 })
-  const { shipping_options = [] } = useShippingOptions(
-    {
-      limit: 999,
-      fields: "*prices,+service_zone.fulfillment_set.location.id",
-      stock_location_id: locationId,
-    },
-    {
-      enabled: !!locationId,
-    }
-  )
-
-  const inboundShippingOptions = shipping_options.filter(
-    (shippingOption) =>
-      !!shippingOption.rules.find(
-        (r) => r.attribute === "is_return" && r.value === "true"
-      )
-  )
+  // Seller-scoped pickers. Backend also rejects cross-seller
+  // location_id and shipping_option_id on
+  // /admin/exchanges/:id/inbound/shipping-method.
+  const { stock_locations = [] } = useSellerValidStockLocations(order.id, {
+    limit: 200,
+  })
+  const { shipping_options: inboundShippingOptions = [] } =
+    useSellerValidShippingOptions(
+      order.id,
+      {
+        location_id: locationId,
+        is_return: true,
+      },
+      {
+        enabled: !!locationId,
+      }
+    )
 
   const {
     fields: inboundItems,
@@ -220,7 +223,7 @@ export const ExchangeInboundSection = ({
         },
         {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         }
       ))
@@ -233,7 +236,7 @@ export const ExchangeInboundSection = ({
       if (actionId) {
         await removeInboundItem(actionId, {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         })
       }
@@ -272,7 +275,7 @@ export const ExchangeInboundSection = ({
         { shipping_option_id: selectedOptionId },
         {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         }
       )
@@ -411,7 +414,7 @@ export const ExchangeInboundSection = ({
                 if (actionId) {
                   removeInboundItem(actionId, {
                     onError: (error) => {
-                      toast.error(error.message)
+                      toast.error(resolveErrorToastMessage(error, t))
                     },
                   })
                 }
@@ -433,7 +436,7 @@ export const ExchangeInboundSection = ({
                           )
                         }
 
-                        toast.error(error.message)
+                        toast.error(resolveErrorToastMessage(error, t))
                       },
                     }
                   )

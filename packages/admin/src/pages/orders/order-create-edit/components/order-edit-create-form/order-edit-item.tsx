@@ -13,6 +13,7 @@ import {
   useUpdateOrderEditAddedItem,
   useUpdateOrderEditOriginalItem,
 } from "../../../../../hooks/api/order-edits"
+import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error"
 
 type OrderEditItemProps = {
   item: AdminOrderLineItem
@@ -68,7 +69,7 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
         await updateOriginalItem({ quantity, itemId: item.id })
       }
     } catch (e) {
-      toast.error(e.message)
+      toast.error(resolveErrorToastMessage(e, t))
     }
   }
 
@@ -85,7 +86,7 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
         })
       }
     } catch (e) {
-      toast.error(e.message)
+      toast.error(resolveErrorToastMessage(e, t))
     }
   }
 
@@ -99,7 +100,7 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
         await undoAction(updateItemAction.id) // Remove action that updated items quantity to fulfilled quantity which makes it "removed"
       }
     } catch (e) {
-      toast.error(e.message)
+      toast.error(resolveErrorToastMessage(e, t))
     }
   }
 
@@ -120,7 +121,7 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
         ],
       })
     } catch (e) {
-      toast.error(e instanceof Error ? e.message : "An error occurred")
+      toast.error(resolveErrorToastMessage(e, t) ?? "An error occurred")
     }
   }
 

@@ -441,7 +441,7 @@ medusaIntegrationTestRunner({
             // on core Medusa admin routes short-circuit direct admin calls with
             // 403 Forbidden before validateCancelOrderMiddleware runs. All
             // behavior below runs through the vendor path, which exercises the
-            // same invariant via the shared workflow step. See spec 005 D-06.
+            // same invariant via the shared workflow step.
 
             describe("happy path", () => {
                 it("persists canceled_at and canceled_by when no items are fulfilled", async () => {

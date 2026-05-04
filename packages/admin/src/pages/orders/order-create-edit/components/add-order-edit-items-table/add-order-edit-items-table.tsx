@@ -3,7 +3,7 @@ import { useState } from "react"
 
 import { useTranslation } from "react-i18next"
 import { _DataTable } from "../../../../../components/table/data-table"
-import { useVariants } from "../../../../../hooks/api"
+import { useAddableVariants } from "../../../../../hooks/api/seller-scoped-orders"
 import { useDataTable } from "../../../../../hooks/use-data-table"
 import { useOrderEditItemsTableColumns } from "./use-order-edit-item-table-columns"
 import { useOrderEditItemTableFilters } from "./use-order-edit-item-table-filters"
@@ -13,11 +13,13 @@ const PAGE_SIZE = 50
 const PREFIX = "rit"
 
 type AddExchangeOutboundItemsTableProps = {
+  orderId: string
   onSelectionChange: (ids: string[]) => void
   currencyCode: string
 }
 
 export const AddOrderEditItemsTable = ({
+  orderId,
   onSelectionChange,
   currencyCode,
 }: AddExchangeOutboundItemsTableProps) => {
@@ -38,9 +40,14 @@ export const AddOrderEditItemsTable = ({
     prefix: PREFIX,
   })
 
-  const { variants = [], count } = useVariants({
-    ...searchParams,
-    fields: "*inventory_items.inventory.location_levels,+inventory_quantity",
+  // Seller-scoped variants. Each row carries an `eligibility`
+  // discriminator ({ can_add, reason }) so we can disable ineligible
+  // rows below. Backend also rejects cross-seller variant_id on
+  // POST /admin/order-edits/:id/items as defense-in-depth.
+  const { variants = [], count = 0 } = useAddableVariants(orderId, {
+    search: searchParams.q,
+    limit: searchParams.limit,
+    offset: searchParams.offset,
   })
 
   const columns = useOrderEditItemsTableColumns(currencyCode)
@@ -53,9 +60,11 @@ export const AddOrderEditItemsTable = ({
     enablePagination: true,
     getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
-    enableRowSelection: (_row) => {
-      // TODO: Check inventory here. Check if other validations needs to be made
-      return true
+    enableRowSelection: (row) => {
+      // Disable selection for variants that fail seller-valid eligibility
+      // (no_price / no_inventory). The reason is surfaced on the row via
+      // the typed eligibility field for column-level UI to act on.
+      return row.original.eligibility?.can_add !== false
     },
     rowSelection: {
       state: rowSelection,

@@ -9,6 +9,7 @@ import { RouteFocusModal, useRouteModal } from '../../../../../components/modals
 import { KeyboundForm } from '../../../../../components/utilities/keybound-form';
 import { useCancelOrderEdit, useRequestOrderEdit } from '../../../../../hooks/api/order-edits';
 import { getStylizedAmount } from '../../../../../lib/money-amount-helpers';
+import { resolveErrorToastMessage } from '../../../../../lib/seller-scoped-error';
 import { OrderEditItemsSection } from './order-edit-items-section';
 import { CreateOrderEditSchemaType, OrderEditCreateSchema } from './schema';
 
@@ -66,7 +67,7 @@ export const OrderEditCreateForm = ({ order, preview }: ReturnCreateFormProps) =
       handleSuccess();
     } catch (e) {
       toast.error(t('general.error'), {
-        description: e.message
+        description: resolveErrorToastMessage(e, t)
       });
     }
   });
@@ -81,7 +82,7 @@ export const OrderEditCreateForm = ({ order, preview }: ReturnCreateFormProps) =
               toast.success(t('orders.edits.cancelSuccessToast'));
             },
             onError: error => {
-              toast.error(error.message);
+              toast.error(resolveErrorToastMessage(error, t));
             }
           });
         }

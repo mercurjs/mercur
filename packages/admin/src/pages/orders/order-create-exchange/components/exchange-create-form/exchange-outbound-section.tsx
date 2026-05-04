@@ -28,9 +28,10 @@ import { OutboundShippingPlaceholder } from "../../../common/placeholders"
 import { ItemPlaceholder } from "../../../order-create-claim/components/claim-create-form/item-placeholder"
 import { AddExchangeOutboundItemsTable } from "../add-exchange-outbound-items-table"
 import { ExchangeOutboundItem } from "./exchange-outbound-item"
-import { useOrderShippingOptions } from "../../../../../hooks/api/orders"
+import { useSellerValidShippingOptions } from "../../../../../hooks/api/seller-scoped-orders"
 import { CreateExchangeSchemaType } from "./schema"
 import { getFormattedShippingOptionLocationName } from "../../../../../lib/shipping-options"
+import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error"
 
 type ExchangeOutboundSectionProps = {
   order: AdminOrder
@@ -58,13 +59,11 @@ export const ExchangeOutboundSection = ({
   /**
    * HOOKS
    */
-  const { shipping_options = [] } = useOrderShippingOptions(order.id)
-
-  // TODO: filter in the API when boolean filter is supported and fulfillment module support partial rule SO filtering
-  const outboundShippingOptions = shipping_options.filter(
-    (so) =>
-      !so.rules?.find((r) => r.attribute === "is_return" && r.value === "true")
-  )
+  // Outbound shipping picker scoped to the order's seller. Backend
+  // rejects cross-seller shipping_option_id on
+  // /admin/exchanges/:id/outbound/shipping-method (defense-in-depth).
+  const { shipping_options: outboundShippingOptions = [] } =
+    useSellerValidShippingOptions(order.id, { is_return: false })
 
   const { mutateAsync: addOutboundShipping } = useAddExchangeOutboundShipping(
     exchange.id,
@@ -171,7 +170,7 @@ export const ExchangeOutboundSection = ({
         },
         {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         }
       ))
@@ -184,7 +183,7 @@ export const ExchangeOutboundSection = ({
       if (action?.id) {
         await removeOutboundItem(action?.id, {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         })
       }
@@ -233,7 +232,7 @@ export const ExchangeOutboundSection = ({
         { shipping_option_id: selectedOptionId },
         {
           onError: (error) => {
-            toast.error(error.message)
+            toast.error(resolveErrorToastMessage(error, t))
           },
         }
       )
@@ -311,6 +310,7 @@ export const ExchangeOutboundSection = ({
             <StackedFocusModal.Header />
 
             <AddExchangeOutboundItemsTable
+              orderId={order.id}
               selectedItems={outboundItems.map((i) => i.variant_id)}
               currencyCode={order.currency_code}
               onSelectionChange={(finalSelection) => {
@@ -368,7 +368,7 @@ export const ExchangeOutboundSection = ({
                 if (actionId) {
                   removeOutboundItem(actionId, {
                     onError: (error) => {
-                      toast.error(error.message)
+                      toast.error(resolveErrorToastMessage(error, t))
                     },
                   })
                 }
@@ -383,7 +383,7 @@ export const ExchangeOutboundSection = ({
                     { ...payload, actionId },
                     {
                       onError: (error) => {
-                        toast.error(error.message)
+                        toast.error(resolveErrorToastMessage(error, t))
                       },
                     }
                   )
