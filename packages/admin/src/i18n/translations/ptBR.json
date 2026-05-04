@@ -940,7 +940,12 @@
     "cancelWarning": "Você está prestes a cancelar o pedido {{id}}. Esta ação não pode ser desfeita.",
     "onDateFromSalesChannel": "{{date}} de {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Seus pedidos aparecerão aqui."
+      "noRecordsMessage": "Seus pedidos aparecerão aqui.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "summary": {
       "requestReturn": "Solicitar devolução",

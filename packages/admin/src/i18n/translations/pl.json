@@ -1096,7 +1096,14 @@
     },
     "onDateFromSalesChannel": "{{date}} z {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Twoje zamówienia pojawią się tutaj."
+      "noRecordsMessage": "Twoje zamówienia pojawią się tutaj.",
+      "orderIdHeader": "Numer zamówienia",
+      "storeHeader": "Sklep",
+      "totalHeader": "Suma zamówienia",
+      "storeCount_one": "{{count}} sklep",
+      "storeCount_few": "{{count}} sklepy",
+      "storeCount_many": "{{count}} sklepów",
+      "storeCount_other": "{{count}} sklepów"
     },
     "status": {
       "not_paid": "Nieopłacone",

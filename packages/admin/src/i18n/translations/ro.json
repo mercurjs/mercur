@@ -987,7 +987,12 @@
     "orderCanceled": "Comanda a fost anulată cu succes",
     "onDateFromSalesChannel": "{{date}} din {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Comenzile tale vor apărea aici."
+      "noRecordsMessage": "Comenzile tale vor apărea aici.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Neplătit",

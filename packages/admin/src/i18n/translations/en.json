@@ -1081,7 +1081,12 @@
     },
     "onDateFromSalesChannel": "{{date}} from {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Your orders will show up here."
+      "noRecordsMessage": "Your orders will show up here.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Not paid",

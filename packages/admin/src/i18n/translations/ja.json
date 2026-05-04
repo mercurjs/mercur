@@ -946,7 +946,12 @@
     "cancelWarning": "注文{{id}}をキャンセルしようとしています。この操作は元に戻せません。",
     "onDateFromSalesChannel": "{{salesChannel}}から{{date}}",
     "list": {
-      "noRecordsMessage": "あなたの注文がここに表示されます。"
+      "noRecordsMessage": "あなたの注文がここに表示されます。",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "summary": {
       "requestReturn": "返品をリクエスト",

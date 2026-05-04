@@ -1004,7 +1004,12 @@
     "cancelWarning": "{{id}} numaralı siparişi iptal etmek üzeresiniz. Bu işlem geri alınamaz.",
     "onDateFromSalesChannel": "{{date}} tarihinde {{salesChannel}} üzerinden",
     "list": {
-      "noRecordsMessage": "Siparişleriniz burada görünecektir."
+      "noRecordsMessage": "Siparişleriniz burada görünecektir.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "summary": {
       "requestReturn": "İade talebi",

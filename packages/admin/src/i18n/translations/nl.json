@@ -1026,7 +1026,12 @@
     "orderCanceled": "Bestelling succesvol geannuleerd",
     "onDateFromSalesChannel": "{{date}} van {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Uw bestellingen verschijnen hier."
+      "noRecordsMessage": "Uw bestellingen verschijnen hier.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Niet betaald",

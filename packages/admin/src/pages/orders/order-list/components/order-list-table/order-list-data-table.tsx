@@ -88,7 +88,9 @@ function transformOrderGroups(orderGroups: any[]): OrderGroupRow[] {
       id: group.id,
       display_id: `#G${group.display_id}`,
       order_ids: orderIds,
-      vendor: `${group.seller_count} vendors`,
+      vendor: t("orders.list.storeCount", {
+        count: group.seller_count,
+      }),
       created_at: new Date(group.created_at),
       updated_at: new Date(group.updated_at),
       customer_name: customerName,
@@ -213,7 +215,7 @@ const useColumns = () => {
         },
       }),
       columnHelper.accessor("order_ids", {
-        header: () => <TextHeader text="Order IDs" />,
+        header: () => <TextHeader text={t("orders.list.orderIdHeader")} />,
         cell: ({ row, getValue }) => {
           if (row.original._type === "group") {
             return <TextCell text={getValue()} />;
@@ -222,7 +224,7 @@ const useColumns = () => {
         },
       }),
       columnHelper.accessor("vendor", {
-        header: () => <TextHeader text="Vendor" />,
+        header: () => <TextHeader text={t("orders.list.storeHeader")} />,
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
       columnHelper.accessor("created_at", {
@@ -256,7 +258,7 @@ const useColumns = () => {
         },
       }),
       columnHelper.accessor("total", {
-        header: () => <TextHeader text={t("fields.total")} />,
+        header: () => <TextHeader text={t("orders.list.totalHeader")} />,
         cell: ({ row, getValue }) => {
           const total = getValue();
           if (total == null) return "-";

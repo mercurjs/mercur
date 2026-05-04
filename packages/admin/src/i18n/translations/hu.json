@@ -1026,7 +1026,12 @@
     "orderCanceled": "A rendelés törölve",
     "onDateFromSalesChannel": "{{date}} {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Itt fognak megjelenni a rendelések"
+      "noRecordsMessage": "Itt fognak megjelenni a rendelések",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Nem fizetett",

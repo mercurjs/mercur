@@ -940,7 +940,12 @@
     "cancelWarning": "คุณกำลังจะยกเลิกคำสั่งซื้อ {{id}} การดำเนินการนี้ไม่สามารถยกเลิกได้",
     "onDateFromSalesChannel": "{{date}} จาก {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "คำสั่งซื้อของคุณจะแสดงที่นี่"
+      "noRecordsMessage": "คำสั่งซื้อของคุณจะแสดงที่นี่",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "summary": {
       "requestReturn": "ขอคืนสินค้า",

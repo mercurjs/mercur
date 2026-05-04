@@ -987,7 +987,12 @@
     "orderCanceled": "Заказ успешно отменен",
     "onDateFromSalesChannel": "{{date}} из {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Ваши заказы появятся здесь."
+      "noRecordsMessage": "Ваши заказы появятся здесь.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Не оплачен",

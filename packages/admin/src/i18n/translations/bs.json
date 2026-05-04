@@ -1030,7 +1030,12 @@
     "orderCanceled": "Narudžba je uspješno otkazana",
     "onDateFromSalesChannel": "{{date}} iz {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Vaše narudžbe će se prikazati ovdje."
+      "noRecordsMessage": "Vaše narudžbe će se prikazati ovdje.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Nije plaćeno",

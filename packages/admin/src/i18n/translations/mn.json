@@ -987,7 +987,12 @@
     "orderCanceled": "Захиалга амжилттай цуцлагдлаа",
     "onDateFromSalesChannel": "{{date}} нь {{salesChannel}}-ээс",
     "list": {
-      "noRecordsMessage": "Таны захиалгууд энд харагдана."
+      "noRecordsMessage": "Таны захиалгууд энд харагдана.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Төлөгдөөгүй",

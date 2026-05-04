@@ -1055,7 +1055,12 @@
     "orderCanceled": "Đơn hàng đã được hủy thành công",
     "onDateFromSalesChannel": "{{date}} từ {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Đơn hàng của bạn sẽ hiển thị ở đây."
+      "noRecordsMessage": "Đơn hàng của bạn sẽ hiển thị ở đây.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Chưa thanh toán",

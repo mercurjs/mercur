@@ -1014,7 +1014,12 @@
     "cancelWarning": "أنت على وشك إلغاء الطلب {{id}}. لا يمكن التراجع عن هذا الإجراء.",
     "onDateFromSalesChannel": "{{date}} من {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "ستظهر طلباتك هنا."
+      "noRecordsMessage": "ستظهر طلباتك هنا.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "summary": {
       "requestReturn": "طلب إرجاع",

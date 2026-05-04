@@ -1028,7 +1028,12 @@
     "orderCanceled": "Užsakymas sėkmingai atšauktas",
     "onDateFromSalesChannel": "{{date}} iš {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Jūsų užsakymai bus rodomi čia."
+      "noRecordsMessage": "Jūsų užsakymai bus rodomi čia.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Neapmokėtas",

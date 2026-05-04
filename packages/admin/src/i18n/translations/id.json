@@ -1030,7 +1030,12 @@
     "orderCanceled": "Pesanan berhasil dibatalkan",
     "onDateFromSalesChannel": "{{date}} dari {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Pesanan Anda akan muncul di sini."
+      "noRecordsMessage": "Pesanan Anda akan muncul di sini.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Belum dibayar",

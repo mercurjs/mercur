@@ -1055,7 +1055,12 @@
     "orderCanceled": "Objednávka byla úspěšně zrušena",
     "onDateFromSalesChannel": "{{date}} z {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Vaše objednávky se zde zobrazí."
+      "noRecordsMessage": "Vaše objednávky se zde zobrazí.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "status": {
       "not_paid": "Nezaplaceno",

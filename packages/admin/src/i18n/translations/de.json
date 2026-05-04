@@ -940,7 +940,12 @@
     "cancelWarning": "Sie sind dabei, die Bestellung {{id}} zu stornieren. Diese Aktion kann nicht rückgängig gemacht werden.",
     "onDateFromSalesChannel": "{{date}} von {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Ihre Bestellungen werden hier angezeigt."
+      "noRecordsMessage": "Ihre Bestellungen werden hier angezeigt.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "summary": {
       "requestReturn": "Rücksendung anfordern",

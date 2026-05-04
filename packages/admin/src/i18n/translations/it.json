@@ -952,7 +952,12 @@
     "cancelWarning": "Stai per annullare l'ordine {{id}}. Questa azione non può essere annullata.",
     "onDateFromSalesChannel": "{{date}} da {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "I tuoi ordini appariranno qui."
+      "noRecordsMessage": "I tuoi ordini appariranno qui.",
+      "orderIdHeader": "Order ID",
+      "storeHeader": "Store",
+      "totalHeader": "Order Total",
+      "storeCount_one": "{{count}} store",
+      "storeCount_other": "{{count}} stores"
     },
     "summary": {
       "requestReturn": "Richiedi reso",
