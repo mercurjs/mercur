@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { HttpTypes } from "@medusajs/types";
 import {
+  Alert,
   Button,
   CurrencyInput,
   Heading,
@@ -33,6 +34,7 @@ import { formatCurrency } from "../../../../../lib/format-currency.ts";
 import { formatProvider } from "../../../../../lib/format-provider.ts";
 import { getLocaleAmount } from "../../../../../lib/money-amount-helpers.ts";
 import { getPaymentsFromOrder } from "../../../../../lib/orders.ts";
+import { getRemainingRefundable } from "../../../../../lib/payment.ts";
 
 type CreateRefundFormProps = {
   order: HttpTypes.AdminOrder;
@@ -59,7 +61,11 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
   );
   const payments = getPaymentsFromOrder(order);
   const payment = payments.find((p) => p.id === paymentId);
-  const paymentAmount = payment?.amount || 0;
+  // Cap refunds at remaining refundable (captured − sum of recorded
+  // refunds), not the full captured amount. Avoids prefilling a value
+  // the backend will reject.
+  const remainingRefundable = getRemainingRefundable(payment);
+  const isFullyRefunded = !!payment && remainingRefundable === 0;
 
   const currency = useMemo(
     () => currencies[order.currency_code.toUpperCase()],
@@ -70,8 +76,8 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
   const form = useForm<zod.infer<typeof CreateRefundSchema>>({
     defaultValues: {
       amount: {
-        value: paymentAmount.toFixed(currency.decimal_digits),
-        float: paymentAmount,
+        value: remainingRefundable.toFixed(currency.decimal_digits),
+        float: remainingRefundable,
       },
     },
     resolver: zodResolver(CreateRefundSchema),
@@ -79,11 +85,10 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
 
   useEffect(() => {
     const pendingDifference = order.summary.pending_difference as number;
-    const paymentAmount = (payment?.amount || 0) as number;
     const pendingAmount =
       pendingDifference < 0
-        ? Math.min(Math.abs(pendingDifference), paymentAmount)
-        : paymentAmount;
+        ? Math.min(Math.abs(pendingDifference), remainingRefundable)
+        : remainingRefundable;
 
     const normalizedAmount =
       pendingAmount < 0 ? pendingAmount * -1 : pendingAmount;
@@ -92,7 +97,7 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
       value: normalizedAmount.toFixed(currency.decimal_digits),
       float: normalizedAmount,
     });
-  }, [payment?.id || ""]);
+  }, [payment?.id || "", remainingRefundable]);
 
   const { mutateAsync, isPending } = useRefundPayment(order.id, payment?.id!);
 
@@ -204,13 +209,30 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
               </Heading>
             )}
 
+            {isFullyRefunded && (
+              <Alert
+                variant="warning"
+                data-testid="order-create-refund-fully-refunded-alert"
+              >
+                {t("orders.payment.fullyRefunded")}
+              </Alert>
+            )}
+
             <Form.Field
               control={form.control}
               name="amount"
               rules={{
                 required: true,
                 min: 0,
-                max: paymentAmount,
+                max: {
+                  value: remainingRefundable,
+                  message: t("orders.payment.amountExceedsRefundable", {
+                    amount: getLocaleAmount(
+                      remainingRefundable,
+                      payment?.currency_code ?? order.currency_code,
+                    ),
+                  }),
+                },
               }}
               render={({ field: { onChange, ...field } }) => {
                 return (
@@ -223,6 +245,7 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
                       <CurrencyInput
                         {...field}
                         min={0}
+                        disabled={isFullyRefunded}
                         placeholder={formatValue({
                           value: "0",
                           decimalScale: currency.decimal_digits,
@@ -241,6 +264,17 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
                         data-testid="order-create-refund-amount-input"
                       />
                     </Form.Control>
+
+                    {!!payment && (
+                      <Form.Hint data-testid="order-create-refund-amount-hint">
+                        {t("orders.payment.remainingRefundable", {
+                          amount: getLocaleAmount(
+                            remainingRefundable,
+                            payment?.currency_code ?? order.currency_code,
+                          ),
+                        })}
+                      </Form.Hint>
+                    )}
 
                     <Form.ErrorMessage data-testid="order-create-refund-amount-error" />
                   </Form.Item>
@@ -339,7 +373,10 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
               type="submit"
               variant="primary"
               size="small"
-              disabled={!!Object.keys(form.formState.errors || {}).length}
+              disabled={
+                !!Object.keys(form.formState.errors || {}).length ||
+                isFullyRefunded
+              }
               data-testid="order-create-refund-save-button"
             >
               {t("actions.save")}
