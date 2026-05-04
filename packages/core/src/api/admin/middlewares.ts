@@ -20,6 +20,7 @@ import { validateCancelOrderMiddleware } from "./middlewares/validate-cancel-ord
 import { requireEditableOrderItem } from "./middlewares/require-editable-order-item"
 import { requireNoActiveTransfer } from "./middlewares/require-no-active-transfer"
 import { requireClaimConfirmationValid } from "./middlewares/require-claim-confirmation-valid"
+import { requireExchangeWindowOpen } from "./middlewares/require-exchange-window-open"
 import {
   orderIdFromBody,
   requireSellerValidLocation,
@@ -130,6 +131,14 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/claims/:id/request",
     middlewares: [requireClaimConfirmationValid],
+  },
+  // Mercur exchange-window invariant: reject POST /admin/exchanges
+  // when the target order is older than 30 days (designer Note K).
+  // Medusa baseline accepts exchanges regardless of order age — this
+  // is a Mercur-specific business rule.
+  {
+    matcher: "/admin/exchanges",
+    middlewares: [requireExchangeWindowOpen],
   },
   // Seller-valid scoping for admin order mutations.
   //
