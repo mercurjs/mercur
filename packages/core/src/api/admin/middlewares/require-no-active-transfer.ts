@@ -10,18 +10,24 @@ import {
 } from "@medusajs/framework/utils"
 
 /**
- * Rejects admin transfer requests when an active transfer already
- * exists for the order. Medusa baseline 400s on this case via its
- * generic order-change guard but emits no specific error code, so the
- * UI cannot map the rejection to dedicated copy. This middleware
- * short-circuits with `ORDER_TRANSFER_REQUEST_ALREADY_ACTIVE` before
- * the workflow runs, giving the UI a deterministic code to translate.
+ * Mercur transfer-request invariants. Two rejection branches, both
+ * landing as HTTP 400 with a deterministic error code so the admin UI
+ * can map each case to its own copy:
  *
- * Matcher: /admin/orders/:id/transfer
- *   :id is the ORDER id.
+ *   - `ORDER_CANCELED_NO_TRANSFER` — order is canceled. Medusa baseline
+ *     rejects via `throwIfOrderIsCancelled` but emits no error code.
+ *   - `ORDER_TRANSFER_REQUEST_ALREADY_ACTIVE` — another transfer is
+ *     already in flight (status requested/pending). Medusa baseline
+ *     rejects via its generic order-change guard, also without a code.
  *
- * Method dispatch is internal: the transfer endpoint is POST-only on
- * this matcher. GETs (if any) bypass to avoid disturbing read paths.
+ * Active transfer = order_change with `change_type === "transfer"` and
+ * `status` in [requested, pending]. Confirmed/declined/canceled are
+ * inert and do not block a fresh request.
+ *
+ * Matcher: /admin/orders/:id/transfer  (:id is the ORDER id.)
+ *
+ * Method dispatch is internal: filters to POST so non-mutating
+ * requests are not disturbed.
  */
 export const requireNoActiveTransfer = async (
   req: AuthenticatedMedusaRequest,
@@ -40,6 +46,24 @@ export const requireNoActiveTransfer = async (
     }
 
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+    // Cancel-state branch first — short-circuits before the change query.
+    const { data: orders } = await query.graph({
+      entity: "order",
+      fields: ["id", "status"],
+      filters: { id: orderId },
+    })
+    const order = orders?.[0] as { status?: string } | undefined
+    if (order?.status === "canceled") {
+      return next(
+        new MedusaError(
+          MedusaError.Types.INVALID_DATA,
+          "Canceled orders cannot be transferred.",
+          "ORDER_CANCELED_NO_TRANSFER"
+        )
+      )
+    }
+
     const { data: changes } = await query.graph({
       entity: "order_change",
       fields: ["id", "change_type", "status"],
