@@ -290,6 +290,15 @@ medusaIntegrationTestRunner({
                 return { order, claim }
             }
 
+            // FR-BUG-9 — POST /admin/claims/:id/request rejects when no
+            // return location.
+            //
+            // Backend path is implemented (`requireClaimConfirmationValid`
+            // location_id branch) but the integration coverage requires
+            // a fulfilled+delivered order so the inbound-items add call
+            // accepts the line. Deferred as a follow-up; UI smoke covers
+            // the surface manually for now.
+
             describe("FR-BUG-8 — POST /admin/claims/:id/request rejects empty inbound items", () => {
                 it("rejects with 400 + CLAIM_REQUIRES_INBOUND_ITEMS when no inbound items added", async () => {
                     const { claim } = await seedClaim()
