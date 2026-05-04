@@ -1654,7 +1654,6 @@ medusaIntegrationTestRunner({
 
       describe("Product Lifecycle (publish, reject, request-changes)", () => {
         let productId: string
-        let rejectionReasonId: string
 
         beforeEach(async () => {
           const { seller } = await createSellerUser(appContainer)
@@ -1668,23 +1667,11 @@ medusaIntegrationTestRunner({
             },
           })
           productId = result[0].id
-
-          const reasonRes = await api.post(
-            `/admin/product-rejection-reasons`,
-            {
-              code: `reason-${Date.now()}`,
-              label: "Incomplete info",
-              type: "temporary",
-            },
-            adminHeaders
-          )
-          rejectionReasonId =
-            reasonRes.data.product_rejection_reason.id
         })
 
         it("should publish a pending product", async () => {
           const response = await api.post(
-            `/admin/products/${productId}/publish`,
+            `/admin/products/${productId}/confirm`,
             {},
             adminHeaders
           )
@@ -1697,7 +1684,6 @@ medusaIntegrationTestRunner({
           const response = await api.post(
             `/admin/products/${productId}/reject`,
             {
-              rejection_reason_ids: [rejectionReasonId],
               message: "Not acceptable",
             },
             adminHeaders
@@ -1711,7 +1697,6 @@ medusaIntegrationTestRunner({
           const response = await api.post(
             `/admin/products/${productId}/request-changes`,
             {
-              rejection_reason_ids: [rejectionReasonId],
               message: "Please fix the images",
             },
             adminHeaders

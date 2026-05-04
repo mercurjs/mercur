@@ -47,7 +47,6 @@ import {
   ProductChangeAction,
   ProductCollection,
   ProductImage,
-  ProductRejectionReason,
   ProductTag,
   ProductType,
   ProductVariant,
@@ -74,6 +73,14 @@ type AddProductActionInput = {
   action: string;
   details?: Record<string, unknown>;
   internal_note?: string;
+  /**
+   * When true the action is recorded as already-applied — used by admin
+   * workflows that create the parent change in `CONFIRMED` state and
+   * apply product mutations directly (e.g. reject/request-changes).
+   * Skips the parent-change `PENDING` validation since the change is
+   * known to be closed at creation time.
+   */
+  applied?: boolean;
 };
 
 
@@ -91,7 +98,6 @@ class ProductModuleService extends MedusaService({
   ProductChangeAction,
   ProductCollection,
   ProductImage,
-  ProductRejectionReason,
   ProductTag,
   ProductType,
   ProductVariant,
@@ -116,7 +122,6 @@ class ProductModuleService extends MedusaService({
         ProductChangeAction,
         ProductCollection,
         ProductImage,
-        ProductRejectionReason,
         ProductTag,
         ProductType,
         ProductVariant,
@@ -268,6 +273,7 @@ class ProductModuleService extends MedusaService({
         "product_id",
         "status",
         "internal_note",
+        "external_note",
         "created_by",
         "confirmed_by",
         "confirmed_at",
@@ -1989,15 +1995,25 @@ class ProductModuleService extends MedusaService({
    * to the underlying products. Mirrors Medusa's `confirmOrderChange`:
    * validation + status update + action application happen atomically.
    *
-   * `internal_note` (when provided) is persisted to the `ProductChange`
-   * record alongside the confirmation — used by operators to leave a note
-   * about why the change was accepted.
+   * `internal_note` is operator-only context. `external_note` is the
+   * vendor-visible message (e.g. rejection / changes-required reason)
+   * that is also forwarded to notification subscribers.
    */
   @InjectTransactionManager()
   async confirmProductChange(
     data:
-      | { id: string; confirmed_by?: string; internal_note?: string }
-      | { id: string; confirmed_by?: string; internal_note?: string }[],
+      | {
+          id: string
+          confirmed_by?: string
+          internal_note?: string
+          external_note?: string
+        }
+      | {
+          id: string
+          confirmed_by?: string
+          internal_note?: string
+          external_note?: string
+        }[],
     sharedContext?: Context
   ) {
     const items = Array.isArray(data) ? data : [data];
@@ -2041,6 +2057,9 @@ class ProductModuleService extends MedusaService({
         };
         if (item.internal_note !== undefined) {
           update.internal_note = item.internal_note;
+        }
+        if (item.external_note !== undefined) {
+          update.external_note = item.external_note;
         }
         return update;
       }) as any,
@@ -2242,7 +2261,6 @@ class ProductModuleService extends MedusaService({
     data: {
       declined_by?: string;
       declined_reason?: string;
-      rejection_reasons?: { id: string }[];
     },
     sharedContext?: Context
   ) {
@@ -2262,7 +2280,6 @@ class ProductModuleService extends MedusaService({
         declined_by: data.declined_by,
         declined_at: new Date(),
         declined_reason: data.declined_reason,
-        rejection_reasons: data.rejection_reasons?.map((r) => r.id) as any,
       },
       sharedContext
     );
@@ -2313,6 +2330,8 @@ class ProductModuleService extends MedusaService({
     const items = Array.isArray(data) ? data : [data];
 
     for (const item of items) {
+      if (item.applied) continue;
+
       const change = await this.retrieveProductChange(
         item.product_change_id,
         {},
@@ -2334,6 +2353,7 @@ class ProductModuleService extends MedusaService({
         action: item.action,
         details: item.details ?? {},
         internal_note: item.internal_note,
+        applied: item.applied,
       })),
       sharedContext
     );

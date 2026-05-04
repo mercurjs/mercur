@@ -9,15 +9,15 @@ import {
 
 import { HttpTypes } from "@mercurjs/types"
 
-import { publishProductsWorkflow } from "../../../../../workflows/product/workflows/publish-products"
-import { AdminPublishProductType } from "../../validators"
+import { confirmProductsWorkflow } from "../../../../../workflows/product/workflows/confirm-products"
+import { AdminConfirmProductType } from "../../validators"
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest<AdminPublishProductType>,
+  req: AuthenticatedMedusaRequest<AdminConfirmProductType>,
   res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  await publishProductsWorkflow(req.scope).run({
+  await confirmProductsWorkflow(req.scope).run({
     input: {
       product_ids: [req.params.id],
       actor_id: req.auth_context?.actor_id,

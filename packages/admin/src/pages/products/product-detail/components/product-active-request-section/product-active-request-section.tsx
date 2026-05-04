@@ -7,7 +7,7 @@ import { HttpTypes } from "@medusajs/types";
 import { ProductStatus, SellerDTO } from "@mercurjs/types";
 import { ConfirmPrompt } from "../../../../../components/common/confirm-prompt";
 import {
-  usePublishProduct,
+  useConfirmProduct,
   useRejectProduct,
   useRequestProductChanges,
 } from "../../../../../hooks/api/products";
@@ -29,8 +29,8 @@ export const ProductActiveRequestSection = ({
   const [requestUpdateOpen, setRequestUpdateOpen] = useState(false);
   const [rejectOpen, setRejectOpen] = useState(false);
 
-  const { mutateAsync: publishProduct, isPending: isPublishing } =
-    usePublishProduct(product.id);
+  const { mutateAsync: confirmProduct, isPending: isConfirming } =
+    useConfirmProduct(product.id);
   const { mutateAsync: requestProductChanges, isPending: isRequestingUpdate } =
     useRequestProductChanges(product.id);
   const { mutateAsync: rejectProduct, isPending: isRejecting } =
@@ -42,7 +42,7 @@ export const ProductActiveRequestSection = ({
 
   const handleConfirm = async (note: string | undefined) => {
     try {
-      await publishProduct({ internal_note: note });
+      await confirmProduct({ internal_note: note });
       toast.success(t("products.request.toast.publishedSuccessfully"));
       setConfirmOpen(false);
     } catch (e) {
@@ -139,7 +139,7 @@ export const ProductActiveRequestSection = ({
         noteLabel={t("products.request.confirmPrompt.noteLabel")}
         noteOptional
         notePlaceholder={t("products.request.confirmPrompt.notePlaceholder")}
-        isLoading={isPublishing}
+        isLoading={isConfirming}
         onConfirm={handleConfirm}
       />
 

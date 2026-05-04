@@ -260,7 +260,7 @@ export type Routes = {
                     batch: typeof import("../../src/api/admin/products/[id]/attributes/batch/route");
                 };
                 change: typeof import("../../src/api/admin/products/[id]/change/route");
-                publish: typeof import("../../src/api/admin/products/[id]/publish/route");
+                confirm: typeof import("../../src/api/admin/products/[id]/confirm/route");
                 reject: typeof import("../../src/api/admin/products/[id]/reject/route");
                 requestChanges: typeof import("../../src/api/admin/products/[id]/request-changes/route");
             };
@@ -470,9 +470,6 @@ export type Routes = {
                 cancel: typeof import("../../src/api/admin/product-changes/[id]/cancel/route");
                 confirm: typeof import("../../src/api/admin/product-changes/[id]/confirm/route");
             };
-        };
-        productRejectionReasons: typeof import("../../src/api/admin/product-rejection-reasons/route") & {
-            $id: typeof import("../../src/api/admin/product-rejection-reasons/[id]/route");
         };
         subscriptionPlans: typeof import("../../src/api/admin/subscription-plans/route") & {
             $id: typeof import("../../src/api/admin/subscription-plans/[id]/route") & {

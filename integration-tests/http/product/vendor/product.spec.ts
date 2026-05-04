@@ -293,7 +293,7 @@ medusaIntegrationTestRunner({
         variantId = (result[0] as any).variants[0].id
 
         await api.post(
-          `/admin/products/${productId}/publish`,
+          `/admin/products/${productId}/confirm`,
           {},
           adminHeaders
         )

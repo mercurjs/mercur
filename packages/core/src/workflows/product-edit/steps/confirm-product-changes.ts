@@ -6,6 +6,7 @@ type ConfirmProductChangesStepInput = {
   id: string
   confirmed_by?: string
   internal_note?: string
+  external_note?: string
 }
 
 export const confirmProductChangesStep = createStep(

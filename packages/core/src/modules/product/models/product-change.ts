@@ -2,7 +2,6 @@ import { model } from "@medusajs/framework/utils";
 import { ProductChangeStatus } from "@mercurjs/types";
 import Product from "./product";
 import ProductChangeAction from "./product-change-action";
-import ProductRejectionReason from "./product-rejection-reason";
 
 const ProductChange = model
   .define("ProductChange", {
@@ -12,6 +11,7 @@ const ProductChange = model
       .enum(ProductChangeStatus)
       .default(ProductChangeStatus.PENDING),
     internal_note: model.text().nullable(),
+    external_note: model.text().nullable(),
     created_by: model.text().nullable(),
     confirmed_by: model.text().nullable(),
     confirmed_at: model.dateTime().nullable(),
@@ -23,9 +23,6 @@ const ProductChange = model
     metadata: model.json().nullable(),
     actions: model.hasMany(() => ProductChangeAction, {
       mappedBy: "product_change",
-    }),
-    rejection_reasons: model.manyToMany(() => ProductRejectionReason, {
-      pivotTable: "product_change_rejection_reason",
     }),
   })
   .cascades({

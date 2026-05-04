@@ -27,17 +27,7 @@ export enum AttributeType {
 }
 
 /**
- * Rejection reason types (business spec Section 5.4).
- * Determines which status transition the reason is valid for.
- */
-export enum RejectionReasonType {
-  TEMPORARY = "temporary",
-  PERMANENT = "permanent",
-}
-
-/**
  * Product change lifecycle statuses.
- * Matches OrderChange lifecycle pattern.
  */
 export enum ProductChangeStatus {
   PENDING = "pending",
@@ -297,21 +287,6 @@ export interface ProductDTO {
   deleted_at: string | Date | null;
 }
 
-// --- ProductRejectionReason ---
-
-export interface ProductRejectionReasonDTO {
-  id: string;
-  code: string;
-  label: string;
-  type: RejectionReasonType;
-  is_active: boolean;
-  metadata: Record<string, unknown> | null;
-  product_changes?: ProductChangeDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
-}
-
 // --- ProductChangeAction ---
 
 export interface ProductChangeActionDTO {
@@ -337,6 +312,7 @@ export interface ProductChangeDTO {
   product_id?: string;
   status: ProductChangeStatus;
   internal_note: string | null;
+  external_note: string | null;
   created_by: string | null;
   confirmed_by: string | null;
   confirmed_at: string | Date | null;
@@ -347,7 +323,6 @@ export interface ProductChangeDTO {
   canceled_at: string | Date | null;
   metadata: Record<string, unknown> | null;
   actions?: ProductChangeActionDTO[];
-  rejection_reasons?: ProductRejectionReasonDTO[];
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;

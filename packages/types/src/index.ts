@@ -24,7 +24,6 @@ export {
   // Enums
   ProductStatus,
   AttributeType,
-  RejectionReasonType,
   ProductChangeStatus,
   ProductChangeActionType,
   // common DTOs
@@ -39,7 +38,6 @@ export {
   type ProductBrandDTO,
   type ProductAttributeDTO,
   type ProductAttributeValueDTO,
-  type ProductRejectionReasonDTO,
   type ProductChangeDTO,
   type ProductChangeActionDTO,
   // mutations
@@ -67,8 +65,6 @@ export {
   type CreateProductAttributeValueDTO,
   type UpdateProductAttributeValueDTO,
   type UpsertProductAttributeValueDTO,
-  type CreateProductRejectionReasonDTO,
-  type UpdateProductRejectionReasonDTO,
   type CreateProductChangeDTO,
   type CreateProductChangeActionDTO,
 } from "./product"

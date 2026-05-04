@@ -8,6 +8,13 @@ type CreateProductChangeActionsStepInput = {
   action: string
   details?: Record<string, unknown>
   internal_note?: string
+  /**
+   * Records the action as already-applied. Used by admin workflows that
+   * apply product mutations directly (e.g. reject/request-changes) and
+   * create the audit-trail action in its final state without going
+   * through `applyProductChangeActions_`.
+   */
+  applied?: boolean
 }
 
 export const createProductChangeActionsStep = createStep(

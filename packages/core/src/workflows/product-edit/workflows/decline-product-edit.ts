@@ -20,15 +20,14 @@ export const declineProductEditWorkflowId = "decline-product-edit"
 type DeclineProductEditWorkflowInput = {
   product_change_id: string
   declined_reason?: string
-  rejection_reason_ids?: string[]
   actor_id?: string
 }
 
 /**
- * Admin-side rejection of a pending product change. Mirrors Medusa's
- * `declineOrderChange` flow — sets the change to `DECLINED` with optional
- * reason text and rejection-reason links. Distinct from `reject-product`
- * which rejects the product itself.
+ * Admin-side decline of a pending product change. Mirrors Medusa's
+ * `declineOrderChange` flow — sets the change to `DECLINED` with an optional
+ * `declined_reason` note. Distinct from `reject-product`, which rejects the
+ * product itself.
  */
 export const declineProductEditWorkflow = createWorkflow(
   declineProductEditWorkflowId,
@@ -50,7 +49,6 @@ export const declineProductEditWorkflow = createWorkflow(
         product_change,
         declined_by: input.actor_id,
         declined_reason: input.declined_reason,
-        rejection_reason_ids: input.rejection_reason_ids,
       })
     )
 

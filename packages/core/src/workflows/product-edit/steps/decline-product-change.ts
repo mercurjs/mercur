@@ -7,7 +7,6 @@ type DeclineProductChangeStepInput = {
   product_change: ProductChangeDTO
   declined_by?: string
   declined_reason?: string
-  rejection_reason_ids?: string[]
 }
 
 export const declineProductChangeStep = createStep(
@@ -18,7 +17,6 @@ export const declineProductChangeStep = createStep(
     await service.declineProductChange(data.product_change.id, {
       declined_by: data.declined_by,
       declined_reason: data.declined_reason,
-      rejection_reasons: data.rejection_reason_ids?.map((id) => ({ id })),
     })
 
     return new StepResponse(void 0)

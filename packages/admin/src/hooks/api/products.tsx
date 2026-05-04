@@ -149,7 +149,7 @@ export const useBatchProducts = (
 
 // --- Product action mutations ---
 
-export const usePublishProduct = (
+export const useConfirmProduct = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
@@ -159,7 +159,7 @@ export const usePublishProduct = (
 ) => {
   return useMutation({
     mutationFn: (payload) =>
-      sdk.admin.products.$id.publish.mutate({
+      sdk.admin.products.$id.confirm.mutate({
         $id: id,
         ...(payload ?? {}),
       }),
@@ -178,7 +178,7 @@ export const useRejectProduct = (
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
     ClientError,
-    { rejection_reason_ids?: string[]; message?: string }
+    { message?: string }
   >,
 ) => {
   return useMutation({
@@ -199,7 +199,7 @@ export const useRequestProductChanges = (
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
     ClientError,
-    { rejection_reason_ids?: string[]; message?: string }
+    { message?: string }
   >,
 ) => {
   return useMutation({
