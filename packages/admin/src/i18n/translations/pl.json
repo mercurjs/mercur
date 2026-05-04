@@ -1052,7 +1052,8 @@
     "errors": {
       "locationNotSellerValid": "Ta lokalizacja magazynowa nie należy do sprzedawcy z tego zamówienia.",
       "shippingOptionNotSellerValid": "Ta opcja dostawy nie należy do sprzedawcy z tego zamówienia.",
-      "variantNotSellerValid": "Ten wariant produktu nie należy do sprzedawcy z tego zamówienia."
+      "variantNotSellerValid": "Ten wariant produktu nie należy do sprzedawcy z tego zamówienia.",
+      "itemCannotReduceBelowFulfilledReturned": "Nie można zmniejszyć ilości poniżej zrealizowanych + zwróconych."
     },
     "giftCardsStoreCreditLines": "Karty podarunkowe i linie kredytowe",
     "creditLines": {
@@ -1514,7 +1515,9 @@
         },
         "edit": {
           "requested": "Edycja zamówienia #{{editId}} złożona",
-          "confirmed": "Edycja zamówienia #{{editId}} potwierdzona"
+          "confirmed": "Edycja zamówienia #{{editId}} potwierdzona",
+          "declined": "Edycja zamówienia #{{editId}} odrzucona",
+          "canceled": "Edycja zamówienia #{{editId}} anulowana"
         },
         "transfer": {
           "requested": "Przekazanie zamówienia #{{transferId}} zostało zgłoszone",

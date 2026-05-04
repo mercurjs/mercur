@@ -53,8 +53,13 @@ export const ClaimOutboundSection = ({
   const { t } = useTranslation()
 
   const { setIsOpen } = useStackedModal()
+  // Per-variant inventory snapshot: pulled for both order-original
+  // items AND newly-selected outbound variants. The original
+  // variantItemMap built from `order.items` only could not see
+  // newly-added variants and silently flagged the warning as "no
+  // levels needed", masking inventory issues until submit.
   const [inventoryMap, setInventoryMap] = useState<
-    Record<string, InventoryLevelDTO[]>
+    Record<string, { manage_inventory: boolean; levels: InventoryLevelDTO[] }>
   >({})
 
   /**
@@ -103,11 +108,6 @@ export const ClaimOutboundSection = ({
           )
       ),
     [preview.items]
-  )
-
-  const variantItemMap = useMemo(
-    () => new Map(order?.items?.map((i) => [i.variant_id, i])),
-    [order.items]
   )
 
   const {
@@ -239,18 +239,19 @@ export const ClaimOutboundSection = ({
 
     const allItemsHaveLocation = outboundItems
       .map((i) => {
-        const item = variantItemMap.get(i.variant_id)
-        if (!item?.variant_id || !item?.variant) {
+        if (!i.variant_id) {
           return true
         }
-
-        if (!item.variant?.manage_inventory) {
+        const entry = inventoryMap[i.variant_id]
+        if (!entry) {
+          // Inventory still loading for this variant — treat as
+          // no-warning until the snapshot lands.
           return true
         }
-
-        return inventoryMap[item.variant_id]?.find(
-          (l) => l.location_id === locationId
-        )
+        if (!entry.manage_inventory) {
+          return true
+        }
+        return entry.levels.find((l) => l.location_id === locationId)
       })
       .every(Boolean)
 
@@ -258,9 +259,11 @@ export const ClaimOutboundSection = ({
   }, [outboundItems, inventoryMap, locationId])
 
   useEffect(() => {
-    // TODO: Ensure inventory validation occurs correctly
     const getInventoryMap = async () => {
-      const ret: Record<string, InventoryLevelDTO[]> = {}
+      const ret: Record<
+        string,
+        { manage_inventory: boolean; levels: InventoryLevelDTO[] }
+      > = {}
 
       if (!outboundItems.length) {
         return ret
@@ -273,12 +276,15 @@ export const ClaimOutboundSection = ({
       const variants = (
         await sdk.admin.productVariants.query({
           id: variantIds,
-          fields: "*inventory.location_levels",
+          fields: "manage_inventory,*inventory.location_levels",
         })
       ).variants
 
       variants.forEach((variant) => {
-        ret[variant.id] = variant.inventory?.[0]?.location_levels || []
+        ret[variant.id] = {
+          manage_inventory: variant.manage_inventory ?? false,
+          levels: variant.inventory?.[0]?.location_levels || [],
+        }
       })
 
       return ret

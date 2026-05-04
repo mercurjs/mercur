@@ -925,7 +925,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "domain": "คำสั่งซื้อ",
     "claim": "เคลม",
@@ -1025,15 +1026,19 @@
     "edit": {
       "email": {
         "title": "แก้ไขอีเมล",
-        "requestSuccess": "อีเมลได้รับการอัปเดตสำเร็จแล้ว"
+        "requestSuccess": "อีเมลคำสั่งซื้ออัปเดตเป็น {{email}} แล้ว"
       },
       "shippingAddress": {
         "title": "แก้ไขที่อยู่จัดส่ง",
-        "requestSuccess": "ที่อยู่จัดส่งของคำสั่งซื้อได้รับการอัปเดตแล้ว"
+        "requestSuccess": "ที่อยู่จัดส่งคำสั่งซื้ออัปเดตแล้ว",
+        "validation": {
+          "addressRequired": "กรุณากรอกที่อยู่",
+          "countryRequired": "กรุณาเลือกประเทศ"
+        }
       },
       "billingAddress": {
         "title": "แก้ไขที่อยู่สำหรับเรียกเก็บเงิน",
-        "requestSuccess": "ที่อยู่สำหรับเรียกเก็บเงินของคำสั่งซื้อได้รับการอัปเดตแล้ว"
+        "requestSuccess": "ที่อยู่สำหรับเรียกเก็บเงินคำสั่งซื้ออัปเดตแล้ว"
       }
     },
     "returns": {
@@ -1329,7 +1334,9 @@
         },
         "edit": {
           "requested": "คำขอแก้ไขคำสั่งซื้อ #{{editId}}",
-          "confirmed": "คำขอแก้ไขคำสั่งซื้อ #{{editId}} ได้รับการยืนยัน"
+          "confirmed": "คำขอแก้ไขคำสั่งซื้อ #{{editId}} ได้รับการยืนยัน",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "คำขอโอนคำสั่งซื้อ #{{transferId}}",
@@ -1341,24 +1348,6 @@
       "displayId": "หมายเลขคำสั่งซื้อที่แสดง",
       "refundableAmount": "จำนวนเงินที่สามารถคืนได้",
       "returnableQuantity": "จำนวนสินค้าที่สามารถคืนได้"
-    },
-    "edit": {
-      "email": {
-        "title": "แก้ไขอีเมล",
-        "requestSuccess": "อีเมลคำสั่งซื้ออัปเดตเป็น {{email}} แล้ว"
-      },
-      "shippingAddress": {
-        "title": "แก้ไขที่อยู่จัดส่ง",
-        "requestSuccess": "ที่อยู่จัดส่งคำสั่งซื้ออัปเดตแล้ว",
-        "validation": {
-          "addressRequired": "กรุณากรอกที่อยู่",
-          "countryRequired": "กรุณาเลือกประเทศ"
-        }
-      },
-      "billingAddress": {
-        "title": "แก้ไขที่อยู่สำหรับเรียกเก็บเงิน",
-        "requestSuccess": "ที่อยู่สำหรับเรียกเก็บเงินคำสั่งซื้ออัปเดตแล้ว"
-      }
     }
   },
   "draftOrders": {

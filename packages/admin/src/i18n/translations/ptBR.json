@@ -925,7 +925,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "domain": "Pedidos",
     "claim": "Reclamação",
@@ -1024,16 +1025,20 @@
     },
     "edit": {
       "email": {
-        "title": "Editar e-mail",
-        "requestSuccess": "O e-mail foi atualizado com sucesso."
+        "title": "Editar email",
+        "requestSuccess": "Email do pedido atualizado para {{email}}."
       },
       "shippingAddress": {
         "title": "Editar endereço de entrega",
-        "requestSuccess": "O endereço de entrega do pedido foi atualizado."
+        "requestSuccess": "Endereço de entrega do pedido atualizado.",
+        "validation": {
+          "addressRequired": "Por favor, insira um endereço",
+          "countryRequired": "Por favor, selecione um país"
+        }
       },
       "billingAddress": {
         "title": "Editar endereço de cobrança",
-        "requestSuccess": "O endereço de cobrança do pedido foi atualizado."
+        "requestSuccess": "Endereço de cobrança do pedido atualizado."
       }
     },
     "returns": {
@@ -1329,7 +1334,9 @@
         },
         "edit": {
           "requested": "Edição de pedido #{{editId}} solicitada",
-          "confirmed": "Edição de pedido #{{editId}} confirmada"
+          "confirmed": "Edição de pedido #{{editId}} confirmada",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "Transferência do pedido #{{transferId}} solicitada",
@@ -1341,24 +1348,6 @@
       "displayId": "ID de exibição",
       "refundableAmount": "Valor reembolsável",
       "returnableQuantity": "Quantidade retornável"
-    },
-    "edit": {
-      "email": {
-        "title": "Editar email",
-        "requestSuccess": "Email do pedido atualizado para {{email}}."
-      },
-      "shippingAddress": {
-        "title": "Editar endereço de entrega",
-        "requestSuccess": "Endereço de entrega do pedido atualizado.",
-        "validation": {
-          "addressRequired": "Por favor, insira um endereço",
-          "countryRequired": "Por favor, selecione um país"
-        }
-      },
-      "billingAddress": {
-        "title": "Editar endereço de cobrança",
-        "requestSuccess": "Endereço de cobrança do pedido atualizado."
-      }
     }
   },
   "draftOrders": {

@@ -1014,7 +1014,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "domain": "订单",
     "claim": "索赔",
@@ -1442,7 +1443,9 @@
         },
         "edit": {
           "requested": "订单编辑 #{{editId}} 已请求",
-          "confirmed": "订单编辑 #{{editId}} 已确认"
+          "confirmed": "订单编辑 #{{editId}} 已确认",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "订单转移 #{{transferId}} 已请求",

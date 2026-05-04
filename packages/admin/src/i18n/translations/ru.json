@@ -971,7 +971,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "domain": "Заказы",
     "claim": "Претензия",
@@ -1393,7 +1394,9 @@
         },
         "edit": {
           "requested": "Редактирование заказа #{{editId}} запрошено",
-          "confirmed": "Редактирование заказа #{{editId}} подтверждено"
+          "confirmed": "Редактирование заказа #{{editId}} подтверждено",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "Передача заказа #{{transferId}} запрошена",

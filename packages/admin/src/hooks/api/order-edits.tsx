@@ -118,7 +118,11 @@ export const useCancelOrderEdit = (
   options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.orderEdits.$id.request.delete({ $id: orderId }),
+    // Cancel pending order edit. Medusa exposes this on
+    // DELETE /admin/order-edits/:id (not /request — that path has POST
+    // only, hits a 401 on the OPTIONS preflight, and surfaces as
+    // "Failed to fetch" in the browser).
+    mutationFn: () => sdk.admin.orderEdits.$id.delete({ $id: orderId }),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),

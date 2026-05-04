@@ -17,6 +17,7 @@ import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/middlewares"
 import { requireAdminWarehouseCapability } from "./middlewares/require-warehouse-capability"
 import { validateCancelOrderMiddleware } from "./middlewares/validate-cancel-order"
+import { requireEditableOrderItem } from "./middlewares/require-editable-order-item"
 import {
   orderIdFromBody,
   requireSellerValidLocation,
@@ -140,6 +141,14 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       requireSellerValidAddItem(orderIdFromOrderEditParam),
     ],
+  },
+  // Edit-order item update/remove invariant: cannot reduce below
+  // fulfilled+returned, cannot remove an item with returned quantity.
+  // Matches both POST (qty update) and DELETE (remove) — middleware
+  // dispatches by req.method internally.
+  {
+    matcher: "/admin/order-edits/:id/items/item/:item_id",
+    middlewares: [requireEditableOrderItem],
   },
   // Block cross-seller location_id on claim inbound items.
   {

@@ -971,7 +971,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "domain": "Захиалгууд",
     "claim": "Нэхэмжлэл",
@@ -1393,7 +1394,9 @@
         },
         "edit": {
           "requested": "Захиалгын засвар #{{editId}} хүсэлт",
-          "confirmed": "Захиалгын засвар #{{editId}} баталгаажсан"
+          "confirmed": "Захиалгын засвар #{{editId}} баталгаажсан",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "Захиалгын шилжүүлэг #{{transferId}} хүсэлт",
