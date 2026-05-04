@@ -997,7 +997,10 @@
       "createRefundWrongQuantity": "Кількість повинна бути числом від 1 до {{number}}",
       "refundAmount": "Відшкодування {{ amount }}",
       "paymentLink": "Скопіювати посилання для платежу на {{ amount }}",
-      "selectPaymentToRefund": "Виберіть платіж для відшкодування"
+      "selectPaymentToRefund": "Виберіть платіж для відшкодування",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Редагувати замовлення",

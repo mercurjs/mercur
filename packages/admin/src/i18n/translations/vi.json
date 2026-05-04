@@ -1116,7 +1116,10 @@
       "createRefundWrongQuantity": "Số lượng phải là một số từ 1 đến {{number}}",
       "refundAmount": "Hoàn tiền {{amount}}",
       "paymentLink": "Sao chép liên kết thanh toán cho {{amount}}",
-      "selectPaymentToRefund": "Chọn thanh toán để hoàn tiền"
+      "selectPaymentToRefund": "Chọn thanh toán để hoàn tiền",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Chỉnh sửa đơn hàng",

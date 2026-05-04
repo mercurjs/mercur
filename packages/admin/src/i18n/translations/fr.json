@@ -992,7 +992,10 @@
       "createRefundWrongQuantity": "La quantité doit être un nombre entre 1 et {{number}}",
       "refundAmount": "Remboursement de {{amount}}",
       "paymentLink": "Copier le lien de paiement pour {{amount}}",
-      "selectPaymentToRefund": "Sélectionner le paiement à rembourser"
+      "selectPaymentToRefund": "Sélectionner le paiement à rembourser",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Editer la commande",

@@ -1047,7 +1047,10 @@
       "createRefundWrongQuantity": "Cantitatea ar trebui să fie un număr între 1 și {{number}}",
       "refundAmount": "Restituire {{ amount }}",
       "paymentLink": "Copiați linkul de plată pentru {{ amount }}",
-      "selectPaymentToRefund": "Selectați plata pentru rambursare"
+      "selectPaymentToRefund": "Selectați plata pentru rambursare",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Editați comanda",

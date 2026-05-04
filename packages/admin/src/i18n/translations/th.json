@@ -991,7 +991,10 @@
       "createRefundWrongQuantity": "จำนวนควรอยู่ระหว่าง 1 ถึง {{number}}",
       "refundAmount": "คืนเงิน {{amount}}",
       "paymentLink": "คัดลอกลิงก์การชำระเงินสำหรับ {{amount}}",
-      "selectPaymentToRefund": "เลือกการชำระเงินที่จะคืน"
+      "selectPaymentToRefund": "เลือกการชำระเงินที่จะคืน",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "แก้ไขคำสั่งซื้อ",

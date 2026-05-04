@@ -1086,7 +1086,10 @@
       "createRefundWrongQuantity": "Hoeveelheid moet een getal zijn tussen 1 en {{number}}",
       "refundAmount": "Terugbetalen {{ amount }}",
       "paymentLink": "Betaallink kopiëren voor {{ amount }}",
-      "selectPaymentToRefund": "Selecteer betaling om terug te betalen"
+      "selectPaymentToRefund": "Selecteer betaling om terug te betalen",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Bestelling bewerken",

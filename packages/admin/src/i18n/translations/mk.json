@@ -1047,7 +1047,10 @@
       "createRefundWrongQuantity": "Количеството треба да биде број помеѓу 1 и {{number}}",
       "refundAmount": "Рефундирање {{ amount }}",
       "paymentLink": "Копирај го линкот за плаќање за {{ amount }}",
-      "selectPaymentToRefund": "Изберете плаќање за рефундирање"
+      "selectPaymentToRefund": "Изберете плаќање за рефундирање",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Уреди редослед",

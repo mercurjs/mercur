@@ -1047,7 +1047,10 @@
       "createRefundWrongQuantity": "Количество должно быть числом от 1 до {{number}}",
       "refundAmount": "Вернуть {{ amount }}",
       "paymentLink": "Копировать ссылку на оплату для {{ amount }}",
-      "selectPaymentToRefund": "Выберите платеж для возврата"
+      "selectPaymentToRefund": "Выберите платеж для возврата",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Редактировать заказ",

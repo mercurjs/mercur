@@ -1065,7 +1065,10 @@
       "createRefundWrongQuantity": "Количество трябва да бъде число между 1 и {{number}}",
       "refundAmount": "Възстанови {{ amount }}",
       "paymentLink": "Копирай линк за плащане за {{ amount }}",
-      "selectPaymentToRefund": "Изберете плащане за възстановяване"
+      "selectPaymentToRefund": "Изберете плащане за възстановяване",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Редактиране на поръчка",

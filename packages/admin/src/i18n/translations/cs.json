@@ -1116,7 +1116,10 @@
       "createRefundWrongQuantity": "Množství by mělo být číslo mezi 1 a {{number}}",
       "refundAmount": "Vrátit {{ amount }}",
       "paymentLink": "Zkopírovat odkaz na platbu pro {{ amount }}",
-      "selectPaymentToRefund": "Vyberte platbu k vrácení"
+      "selectPaymentToRefund": "Vyberte platbu k vrácení",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Upravit objednávku",

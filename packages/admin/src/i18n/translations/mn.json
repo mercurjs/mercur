@@ -1047,7 +1047,10 @@
       "createRefundWrongQuantity": "Хэмжээ нь 1 ба {{number}} хооронд байх ёстой",
       "refundAmount": "Буцаах {{ amount }}",
       "paymentLink": "{{ amount }}-д зориулсан төлбөрийн холбоосыг хуулбарлах",
-      "selectPaymentToRefund": "Буцаалт хийх төлбөрийг сонго"
+      "selectPaymentToRefund": "Буцаалт хийх төлбөрийг сонго",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Захиалгыг засах",

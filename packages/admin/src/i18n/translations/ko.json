@@ -1091,7 +1091,10 @@
       "createRefundWrongQuantity": "수량은 1에서 {{number}} 사이의 숫자여야 합니다",
       "refundAmount": "{{ amount }} 환불",
       "paymentLink": "{{ amount }}에 대한 결제 링크 복사",
-      "selectPaymentToRefund": "환불할 결제 선택"
+      "selectPaymentToRefund": "환불할 결제 선택",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "주문 편집",

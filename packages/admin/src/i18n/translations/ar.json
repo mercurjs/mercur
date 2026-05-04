@@ -1065,7 +1065,10 @@
       "createRefundWrongQuantity": "يجب أن تكون الكمية رقمًا بين 1 و {{number}}",
       "refundAmount": "استرداد {{ amount }}",
       "paymentLink": "نسخ رابط الدفع لـ {{ amount }}",
-      "selectPaymentToRefund": "اختر الدفع للاسترداد"
+      "selectPaymentToRefund": "اختر الدفع للاسترداد",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "تحرير الطلب",

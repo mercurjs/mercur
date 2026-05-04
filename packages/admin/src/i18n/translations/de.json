@@ -991,7 +991,10 @@
       "createRefundWrongQuantity": "Die Menge sollte eine Zahl zwischen 1 und {{number}} sein.",
       "refundAmount": "Rückerstattung von {{amount}}",
       "paymentLink": "Zahlungslink für {{amount}} kopieren",
-      "selectPaymentToRefund": "Wählen Sie die Zahlung zur Rückerstattung aus"
+      "selectPaymentToRefund": "Wählen Sie die Zahlung zur Rückerstattung aus",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Bestellung bearbeiten",

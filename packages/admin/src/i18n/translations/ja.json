@@ -997,7 +997,10 @@
       "createRefundWrongQuantity": "数量は1から{{number}}の間の数字である必要があります",
       "refundAmount": "{{ amount }}を返金",
       "paymentLink": "{{ amount }}の支払いリンクをコピー",
-      "selectPaymentToRefund": "返金する支払いを選択"
+      "selectPaymentToRefund": "返金する支払いを選択",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "注文を編集",

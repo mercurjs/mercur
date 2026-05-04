@@ -1088,7 +1088,10 @@
       "createRefundWrongQuantity": "Kiekis turi būti skaičius tarp 1 ir {{number}}",
       "refundAmount": "Grąžinti {{ amount }}",
       "paymentLink": "Kopijuoti mokėjimo, kurio suma {{ amount }}, nuorodą",
-      "selectPaymentToRefund": "Pasirinkite mokėjimą grąžinimui"
+      "selectPaymentToRefund": "Pasirinkite mokėjimą grąžinimui",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Keisti užsakymą",

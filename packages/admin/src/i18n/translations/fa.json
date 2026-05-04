@@ -1047,7 +1047,10 @@
       "createRefundWrongQuantity": "مقدار باید عددی بین 1 و {{number}} باشد",
       "refundAmount": "استرداد {{amount}}",
       "paymentLink": "لینک پرداخت برای {{amount}} را کپی کنید",
-      "selectPaymentToRefund": "پرداخت را برای استرداد انتخاب کنید"
+      "selectPaymentToRefund": "پرداخت را برای استرداد انتخاب کنید",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "ویرایش سفارش",

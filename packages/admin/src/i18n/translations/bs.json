@@ -1090,7 +1090,10 @@
       "createRefundWrongQuantity": "Količina treba biti broj između 1 i {{number}}",
       "refundAmount": "Povrat {{ amount }}",
       "paymentLink": "Kopiraj link za uplatu za {{ amount }}",
-      "selectPaymentToRefund": "Odaberite uplatu za povrat"
+      "selectPaymentToRefund": "Odaberite uplatu za povrat",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Uredi narudžbu",

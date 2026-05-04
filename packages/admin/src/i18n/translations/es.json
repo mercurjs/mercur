@@ -1166,7 +1166,10 @@
       "refundAmount": "Reembolso {{ amount }}",
       "paymentLink": "Copiar enlace de pago para {{ amount }}",
       "selectPaymentToRefund": "Selecciona el pago a reembolsar",
-      "totalStoreCreditRefunds": "Total de reembolsos de crédito de tienda"
+      "totalStoreCreditRefunds": "Total de reembolsos de crédito de tienda",
+      "remainingRefundable": "Remaining refundable: {{amount}}.",
+      "amountExceedsRefundable": "Amount cannot exceed remaining refundable of {{amount}}.",
+      "fullyRefunded": "This payment has been fully refunded. No further refund can be issued."
     },
     "edits": {
       "title": "Editar pedido",

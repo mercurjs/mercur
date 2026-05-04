@@ -1155,7 +1155,10 @@
       "createRefundWrongQuantity": "Ilość powinna być liczbą od 1 do {{number}}",
       "refundAmount": "Zwróć {{ amount }}",
       "paymentLink": "Kopiuj link do płatności dla {{ amount }}",
-      "selectPaymentToRefund": "Wybierz płatność do zwrotu"
+      "selectPaymentToRefund": "Wybierz płatność do zwrotu",
+      "remainingRefundable": "Pozostało do zwrotu: {{amount}}.",
+      "amountExceedsRefundable": "Kwota nie może przekraczać pozostałej do zwrotu wartości {{amount}}.",
+      "fullyRefunded": "Ta płatność została w pełni zwrócona. Nie można wystawić kolejnego zwrotu."
     },
     "edits": {
       "title": "Edytuj zamówienie",
