@@ -42,7 +42,11 @@ type ReturnCreateFormProps = {
   orderReturn?: AdminReturn;
 };
 
-let IS_CANCELING = false;
+// Default behaviour: cancel the exchange draft on any unmount path
+// (Cancel button, X, esc, navigation away) so a half-built exchange
+// does not block Edit / Return / Claim on the same order. The confirm
+// path flips this flag so the cleanup hook skips cancellation.
+let IS_CONFIRMED = false;
 
 export const ExchangeCreateForm = ({
   order,
@@ -213,6 +217,9 @@ export const ExchangeCreateForm = ({
         no_notification: !data.send_notification,
       });
 
+      // Mark the draft as confirmed BEFORE the unmount cleanup runs so
+      // it does not race-cancel the exchange we just confirmed.
+      IS_CONFIRMED = true;
       handleSuccess();
     } catch (e) {
       toast.error(t("general.error"), {
@@ -234,24 +241,29 @@ export const ExchangeCreateForm = ({
   }, [isOutboundShippingPriceEdit]);
 
   useEffect(() => {
-    /**
-     * Unmount hook
-     */
-    return () => {
-      if (IS_CANCELING) {
-        cancelExchangeRequest(undefined, {
-          onSuccess: () => {
-            toast.success(
-              t("orders.exchanges.actions.cancelExchange.successToast"),
-            );
-          },
-          onError: (error) => {
-            toast.error(error.message);
-          },
-        });
+    // Reset the flag on mount so a previously-confirmed exchange in
+    // the same SPA session does not skip cancellation here.
+    IS_CONFIRMED = false;
 
-        IS_CANCELING = false;
+    return () => {
+      if (IS_CONFIRMED) {
+        // Confirmation path — leave the exchange in place.
+        IS_CONFIRMED = false;
+        return;
       }
+
+      // Any other unmount path (Cancel button, X, esc, navigation)
+      // cancels the draft so it stops blocking other order changes.
+      cancelExchangeRequest(undefined, {
+        onSuccess: () => {
+          toast.success(
+            t("orders.exchanges.actions.cancelExchange.successToast"),
+          );
+        },
+        onError: (error) => {
+          toast.error(error.message);
+        },
+      });
     };
   }, []);
 
@@ -603,7 +615,6 @@ export const ExchangeCreateForm = ({
               <RouteFocusModal.Close asChild>
                 <Button
                   type="button"
-                  onClick={() => (IS_CANCELING = true)}
                   variant="secondary"
                   size="small"
                   data-testid="order-create-exchange-cancel-button"
