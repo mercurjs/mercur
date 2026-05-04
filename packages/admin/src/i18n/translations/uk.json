@@ -1046,7 +1046,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1141,7 +1142,8 @@
       "panel": {
         "title": "Повернення ініційоване",
         "description": "Є відкритий запит на повернення для цього товару."
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Створити заявку",
@@ -1174,7 +1176,8 @@
       "panel": {
         "title": "Заявка ініційована",
         "description": "Є відкрита заявка, яку потрібно завершити"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Створити обмін",
@@ -1207,7 +1210,8 @@
       "panel": {
         "title": "Обмін ініційований",
         "description": "Є відкритий запит на обмін, який потрібно завершити"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Виділено",

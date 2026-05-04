@@ -202,7 +202,7 @@ export const ExchangeCreateForm = ({
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
       const res = await prompt({
-        title: t("general.areYouSure"),
+        title: t("orders.exchanges.confirmTitle"),
         description: t("orders.exchanges.confirmText"),
         confirmText: t("actions.continue"),
         cancelText: t("actions.cancel"),

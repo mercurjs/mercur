@@ -1041,7 +1041,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1132,7 +1133,8 @@
       "panel": {
         "title": "Retour demandé",
         "description": "Il existe une demande de retour à compléter"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Créer une réclamation",
@@ -1165,7 +1167,8 @@
       "panel": {
         "title": "Réclamation demandée",
         "description": "Il existe une demande de réclamation à compléter"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Créer un échange",
@@ -1198,7 +1201,8 @@
       "panel": {
         "title": "Échange demandé",
         "description": "Il existe une demande d'échange à compléter"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Alloué",

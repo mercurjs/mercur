@@ -1218,7 +1218,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "returns": {
       "create": "Crear devolución",
@@ -1288,7 +1289,8 @@
       "panel": {
         "title": "Devolución iniciada",
         "description": "Hay una solicitud de devolución pendiente de completar"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Crear Reclamación",
@@ -1321,7 +1323,8 @@
       "panel": {
         "title": "Reclamación iniciada",
         "description": "Hay una solicitud de reclamación pendiente de completar"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Crear Intercambio",
@@ -1354,7 +1357,8 @@
       "panel": {
         "title": "Intercambio iniciado",
         "description": "Hay una solicitud de intercambio pendiente de completar"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Asignado",

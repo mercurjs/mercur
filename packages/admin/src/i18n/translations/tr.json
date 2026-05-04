@@ -1104,7 +1104,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "returns": {
       "create": "İade Oluştur",
@@ -1174,7 +1175,8 @@
       "panel": {
         "title": "İade başlatıldı",
         "description": "Tamamlanması gereken açık bir iade talebi var"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Talep Oluştur",
@@ -1207,7 +1209,8 @@
       "panel": {
         "title": "Talep başlatıldı",
         "description": "Tamamlanması gereken açık bir talep talebi var"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Değişim Oluştur",
@@ -1240,7 +1243,8 @@
       "panel": {
         "title": "Değişim başlatıldı",
         "description": "Tamamlanması gereken açık bir değişim talebi var"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Tahsis Edildi",

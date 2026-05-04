@@ -1139,7 +1139,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1234,7 +1235,8 @@
       "panel": {
         "title": "החזרה התחילה",
         "description": "יש בקשת החזרה פתוחה להשלמה"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "צור תביעה",
@@ -1267,7 +1269,8 @@
       "panel": {
         "title": "תביעה התחילה",
         "description": "יש בקשת תביעה פתוחה להשלמה"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "צור החלפה",
@@ -1300,7 +1303,8 @@
       "panel": {
         "title": "החלפה התחילה",
         "description": "יש בקשת החלפה פתוחה להשלמה"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "הוקצה",

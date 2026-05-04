@@ -382,7 +382,7 @@ export const ClaimCreateForm = ({
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const res = await prompt({
-      title: t("general.areYouSure"),
+      title: t("orders.claims.confirmTitle"),
       description: t("orders.claims.confirmText"),
       confirmText: t("actions.continue"),
       cancelText: t("actions.cancel"),

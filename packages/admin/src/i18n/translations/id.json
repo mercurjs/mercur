@@ -1139,7 +1139,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1230,7 +1231,8 @@
       "panel": {
         "title": "Pengembalian dimulai",
         "description": "Ada permintaan pengembalian terbuka yang harus diselesaikan"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Buat Klaim",
@@ -1263,7 +1265,8 @@
       "panel": {
         "title": "Klaim dimulai",
         "description": "Ada permintaan klaim terbuka yang harus diselesaikan"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Buat Penukaran",
@@ -1296,7 +1299,8 @@
       "panel": {
         "title": "Penukaran dimulai",
         "description": "Ada permintaan penukaran terbuka yang harus diselesaikan"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Dialokasikan",

@@ -1137,7 +1137,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1232,7 +1233,8 @@
       "panel": {
         "title": "return inicijuotas",
         "description": "Yra pradėtas grąžinimas, kuris neužbaigtas"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Sukurti pretenziją",
@@ -1265,7 +1267,8 @@
       "panel": {
         "title": "Pretenzija inicijuota",
         "description": "Jau yra nagrinėjama pretenzija, kuri turi būti užbaigta"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Sukurti keitimą",
@@ -1298,7 +1301,8 @@
       "panel": {
         "title": "Keitimas inicijuotas",
         "description": "Jau yra nagrinėjamas keitimas, kuris turi būti užbaigtas"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Atidėta",

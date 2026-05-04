@@ -1135,7 +1135,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1230,7 +1231,8 @@
       "panel": {
         "title": "Retour geïnitieerd",
         "description": "Er is een open retourverzoek dat moet worden voltooid"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Claim aanmaken",
@@ -1263,7 +1265,8 @@
       "panel": {
         "title": "Claim geïnitieerd",
         "description": "Er is een open claimverzoek dat moet worden voltooid"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Omruiling aanmaken",
@@ -1296,7 +1299,8 @@
       "panel": {
         "title": "Omruiling geïnitieerd",
         "description": "Er is een open omruilingsverzoek dat moet worden voltooid"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Toegewezen",

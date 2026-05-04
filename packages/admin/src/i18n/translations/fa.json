@@ -1096,7 +1096,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1191,7 +1192,8 @@
       "panel": {
         "title": "مرجوعی آغاز شد",
         "description": "یک درخواست مرجوعی باز برای تکمیل وجود دارد"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "ایجاد ادعا",
@@ -1224,7 +1226,8 @@
       "panel": {
         "title": "ادعا آغاز شد",
         "description": "یک درخواست ادعای باز برای تکمیل وجود دارد"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "ایجاد تعویض",
@@ -1257,7 +1260,8 @@
       "panel": {
         "title": "تعویض آغاز شد",
         "description": "یک درخواست تعویض باز برای تکمیل وجود دارد"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "تخصیص داده شده",

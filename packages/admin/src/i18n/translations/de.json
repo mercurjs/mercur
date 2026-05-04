@@ -1040,7 +1040,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1131,7 +1132,8 @@
       "panel": {
         "title": "Rückkehr eingeleitet",
         "description": "Es muss ein offener Rückgabeantrag ausgefüllt werden"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Anspruch erstellen",
@@ -1164,7 +1166,8 @@
       "panel": {
         "title": "Klage eingeleitet",
         "description": "Es muss ein offener Anspruchsantrag ausgefüllt werden"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Exchange erstellen",
@@ -1197,7 +1200,8 @@
       "panel": {
         "title": "Austausch eingeleitet",
         "description": "Es muss eine offene Austauschanfrage ausgefüllt werden"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Zugewiesen",

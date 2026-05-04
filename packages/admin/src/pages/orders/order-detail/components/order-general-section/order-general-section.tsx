@@ -56,12 +56,13 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
 
   const handleCancel = async () => {
     const res = await prompt({
-      title: t("general.areYouSure"),
+      title: t("orders.cancel.title"),
       description: t("orders.cancelWarning", {
         id: `#${order.display_id}`,
       }),
       confirmText: t("actions.continue"),
       cancelText: t("actions.cancel"),
+      variant: "danger",
     })
 
     if (!res) {

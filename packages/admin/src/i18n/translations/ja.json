@@ -1046,7 +1046,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1141,7 +1142,8 @@
       "panel": {
         "title": "返品が開始されました",
         "description": "完了する必要のある未処理の返品リクエストがあります"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "クレームを作成",
@@ -1174,7 +1176,8 @@
       "panel": {
         "title": "クレームが開始されました",
         "description": "完了する必要のある未処理のクレームリクエストがあります"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "交換を作成",
@@ -1207,7 +1210,8 @@
       "panel": {
         "title": "交換が開始されました",
         "description": "完了する必要のある未処理の交換リクエストがあります"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "割り当て済み",

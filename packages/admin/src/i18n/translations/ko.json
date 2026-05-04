@@ -1140,7 +1140,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1235,7 +1236,8 @@
       "panel": {
         "title": "반품 시작됨",
         "description": "완료해야 할 미처리 반품 요청이 있습니다"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "클레임 생성",
@@ -1268,7 +1270,8 @@
       "panel": {
         "title": "클레임 시작됨",
         "description": "완료해야 할 미처리 클레임 요청이 있습니다"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "교환 생성",
@@ -1301,7 +1304,8 @@
       "panel": {
         "title": "교환 시작됨",
         "description": "완료해야 할 미처리 교환 요청이 있습니다"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "할당됨",

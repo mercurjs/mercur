@@ -272,7 +272,7 @@ export const ReturnCreateForm = ({
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
       const res = await prompt({
-        title: t("general.areYouSure"),
+        title: t("orders.returns.confirmTitle"),
         description: t("orders.returns.confirmText"),
         confirmText: t("actions.continue"),
         cancelText: t("actions.cancel"),

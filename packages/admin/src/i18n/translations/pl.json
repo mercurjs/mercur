@@ -1091,6 +1091,9 @@
     "return": "Zwrot",
     "cancelWarning": "Masz zamiar anulować zamówienie {{id}}. Tej akcji nie można cofnąć.",
     "orderCanceled": "Zamówienie zostało pomyślnie anulowane",
+    "cancel": {
+      "title": "Anuluj zamówienie"
+    },
     "onDateFromSalesChannel": "{{date}} z {{salesChannel}}",
     "list": {
       "noRecordsMessage": "Twoje zamówienia pojawią się tutaj."
@@ -1204,7 +1207,8 @@
         "cannotReduceBelowFulfilled": "Nie można zmniejszyć poniżej ilości zrealizowanej.",
         "cannotReduceBelowReturned": "Nie można zmniejszyć poniżej ilości zwróconej.",
         "cannotReduceBelowFulfilledReturned": "Nie można zmniejszyć poniżej ilości zrealizowanej + zwróconej."
-      }
+      },
+      "confirmTitle": "Potwierdź edycję zamówienia"
     },
     "edit": {
       "email": {
@@ -1299,7 +1303,8 @@
       "panel": {
         "title": "Inicjowany zwrot",
         "description": "Istnieje otwarty wniosek o zwrot do realizacji"
-      }
+      },
+      "confirmTitle": "Potwierdź zwrot"
     },
     "claims": {
       "create": "Utwórz reklamację",
@@ -1332,7 +1337,8 @@
       "panel": {
         "title": "Inicjowana reklamacja",
         "description": "Istnieje otwarty wniosek o reklamację do realizacji"
-      }
+      },
+      "confirmTitle": "Potwierdź reklamację"
     },
     "exchanges": {
       "create": "Utwórz wymianę",
@@ -1365,7 +1371,8 @@
       "panel": {
         "title": "Inicjowana wymiana",
         "description": "Istnieje otwarty wniosek o wymianę do realizacji"
-      }
+      },
+      "confirmTitle": "Potwierdź wymianę"
     },
     "reservations": {
       "allocatedLabel": "Przydzielone",

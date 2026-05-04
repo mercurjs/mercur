@@ -1139,7 +1139,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1234,7 +1235,8 @@
       "panel": {
         "title": "Povrat pokrenut",
         "description": "Postoji otvoreni zahtjev za povrat koji treba biti dovršen"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Kreiraj reklamaciju",
@@ -1267,7 +1269,8 @@
       "panel": {
         "title": "Reklamacija pokrenuta",
         "description": "Postoji otvoreni zahtjev za reklamaciju koji treba biti dovršen"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Kreiraj zamjenu",
@@ -1300,7 +1303,8 @@
       "panel": {
         "title": "Zamjena pokrenuta",
         "description": "Postoji otvoreni zahtjev za zamjenu koji treba biti dovršen"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Dodijeljeno",

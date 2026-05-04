@@ -1,4 +1,4 @@
-import { Button, Container, Copy, Heading, toast } from "@medusajs/ui";
+import { Button, Container, Copy, Heading, toast, usePrompt } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { ExclamationCircleSolid } from "@medusajs/icons";
 
@@ -54,6 +54,7 @@ export const OrderActiveEditSection = ({
 }: OrderActiveEditSectionProps) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const prompt = usePrompt();
 
   const { order: orderPreview } = useOrderPreview(order.id);
 
@@ -95,6 +96,16 @@ export const OrderActiveEditSection = ({
   }, [orderPreview]);
 
   const onConfirmOrderEdit = async () => {
+    const ok = await prompt({
+      title: t("orders.edits.confirmTitle"),
+      description: t("orders.edits.confirmText"),
+      confirmText: t("actions.continue"),
+      cancelText: t("actions.cancel"),
+      variant: "confirmation",
+    });
+    if (!ok) {
+      return;
+    }
     try {
       await confirmOrderEdit();
 

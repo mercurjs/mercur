@@ -1165,7 +1165,8 @@
         "cannotReduceBelowFulfilled": "Cannot reduce below fulfilled quantity.",
         "cannotReduceBelowReturned": "Cannot reduce below returned quantity.",
         "cannotReduceBelowFulfilledReturned": "Cannot reduce below fulfilled + returned quantity."
-      }
+      },
+      "confirmTitle": "Confirm order edit"
     },
     "edit": {
       "email": {
@@ -1260,7 +1261,8 @@
       "panel": {
         "title": "Đã khởi tạo trả hàng",
         "description": "Có một yêu cầu trả hàng đang mở cần được hoàn tất"
-      }
+      },
+      "confirmTitle": "Confirm return"
     },
     "claims": {
       "create": "Tạo khiếu nại",
@@ -1293,7 +1295,8 @@
       "panel": {
         "title": "Đã khởi tạo khiếu nại",
         "description": "Có một yêu cầu khiếu nại đang mở cần được hoàn tất"
-      }
+      },
+      "confirmTitle": "Confirm claim"
     },
     "exchanges": {
       "create": "Tạo đổi hàng",
@@ -1326,7 +1329,8 @@
       "panel": {
         "title": "Đã khởi tạo đổi hàng",
         "description": "Có một yêu cầu đổi hàng đang mở cần được hoàn tất"
-      }
+      },
+      "confirmTitle": "Confirm exchange"
     },
     "reservations": {
       "allocatedLabel": "Đã phân bổ",
