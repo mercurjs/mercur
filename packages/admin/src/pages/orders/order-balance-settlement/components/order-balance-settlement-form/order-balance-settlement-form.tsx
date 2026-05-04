@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminOrder, AdminPayment } from '@medusajs/types';
 import {
+  Alert,
   Button,
   clx,
   CurrencyInput,
@@ -27,6 +28,7 @@ import { currencies } from '../../../../../lib/data/currencies';
 import { formatCurrency } from '../../../../../lib/format-currency';
 import { getLocaleAmount } from '../../../../../lib/money-amount-helpers';
 import { getPaymentsFromOrder } from '../../../../../lib/orders';
+import { getRemainingRefundable } from '../../../../../lib/payment';
 
 const OrderBalanceSettlementSchema = zod.object({
   settlement_type: zod.enum(['credit_line', 'refund']),
@@ -147,26 +149,45 @@ export const OrderBalanceSettlementForm = ({ order }: { order: AdminOrder }) => 
     [order.currency_code]
   );
 
+  // Cap refund settlement at remaining refundable on the active
+  // payment (captured − recorded refunds), not the raw captured
+  // amount. Credit-line path keeps the original cap (pending_difference)
+  // because it is not bound by the payment's refund history.
+  const remainingRefundable = getRemainingRefundable(activePayment);
+  const isFullyRefunded = !!activePayment && remainingRefundable === 0;
+
   useEffect(() => {
     form.clearErrors();
 
-    const _minimum = activePayment?.amount
-      ? Math.min(pendingDifference, activePayment.amount)
+    const refundCap = activePayment
+      ? Math.min(pendingDifference, remainingRefundable)
       : pendingDifference;
 
-    const minimum = {
-      value: _minimum.toFixed(currency.decimal_digits),
-      float: _minimum
+    const refundMinimum = {
+      value: refundCap.toFixed(currency.decimal_digits),
+      float: refundCap
+    };
+
+    const creditLineMinimum = {
+      value: pendingDifference.toFixed(currency.decimal_digits),
+      float: pendingDifference
     };
 
     if (settlementType === 'refund') {
-      form.setValue('refund.amount', minimum);
+      form.setValue('refund.amount', refundMinimum);
     }
 
     if (settlementType === 'credit_line') {
-      form.setValue('credit_line.amount', minimum);
+      form.setValue('credit_line.amount', creditLineMinimum);
     }
-  }, [settlementType, activePayment, pendingDifference, form, currency]);
+  }, [
+    settlementType,
+    activePayment,
+    pendingDifference,
+    remainingRefundable,
+    form,
+    currency
+  ]);
 
   return (
     <RouteDrawer.Form form={form}>
@@ -249,9 +270,28 @@ export const OrderBalanceSettlementForm = ({ order }: { order: AdminOrder }) => 
                   </Select>
                 </div>
 
+                {isFullyRefunded && (
+                  <Alert variant="warning">
+                    {t('orders.payment.fullyRefunded')}
+                  </Alert>
+                )}
+
                 <Form.Field
                   control={form.control}
                   name="refund.amount"
+                  rules={{
+                    required: true,
+                    min: 0,
+                    max: {
+                      value: remainingRefundable,
+                      message: t('orders.payment.amountExceedsRefundable', {
+                        amount: getLocaleAmount(
+                          remainingRefundable,
+                          activePayment?.currency_code ?? order.currency_code
+                        )
+                      })
+                    }
+                  }}
                   render={({ field: { onChange, ...field } }) => {
                     return (
                       <Form.Item>
@@ -261,6 +301,7 @@ export const OrderBalanceSettlementForm = ({ order }: { order: AdminOrder }) => 
                           <CurrencyInput
                             {...field}
                             min={0}
+                            disabled={isFullyRefunded}
                             placeholder={formatValue({
                               value: '0',
                               decimalScale: currency.decimal_digits
@@ -278,6 +319,18 @@ export const OrderBalanceSettlementForm = ({ order }: { order: AdminOrder }) => 
                             autoFocus
                           />
                         </Form.Control>
+
+                        {!!activePayment && (
+                          <Form.Hint>
+                            {t('orders.payment.remainingRefundable', {
+                              amount: getLocaleAmount(
+                                remainingRefundable,
+                                activePayment?.currency_code ??
+                                  order.currency_code
+                              )
+                            })}
+                          </Form.Hint>
+                        )}
 
                         <Form.ErrorMessage />
                       </Form.Item>
