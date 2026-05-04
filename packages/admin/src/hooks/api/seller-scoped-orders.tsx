@@ -20,13 +20,6 @@ type SellerValidStockLocationsQuery = {
   offset?: number;
 };
 
-type SellerValidStockLocationsResponse = {
-  stock_locations: HttpTypes.AdminStockLocation[];
-  count: number;
-  limit: number;
-  offset: number;
-};
-
 /**
  * Returns stock locations linked to the order's seller (via the
  * stock_location_seller link). Used by the admin Return / Claim /
@@ -37,9 +30,9 @@ export const useSellerValidStockLocations = (
   query?: SellerValidStockLocationsQuery,
   options?: Omit<
     UseQueryOptions<
-      SellerValidStockLocationsResponse,
+      HttpTypes.AdminStockLocationListResponse,
       ClientError,
-      SellerValidStockLocationsResponse,
+      HttpTypes.AdminStockLocationListResponse,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -50,7 +43,7 @@ export const useSellerValidStockLocations = (
       sdk.admin.orders.$id.sellerValidStockLocations.query({
         $id: orderId,
         ...query,
-      }) as Promise<SellerValidStockLocationsResponse>,
+      }) as Promise<HttpTypes.AdminStockLocationListResponse>,
     queryKey: sellerScopedOrdersQueryKeys.detail(orderId, {
       kind: "stock-locations",
       ...query,
@@ -61,44 +54,11 @@ export const useSellerValidStockLocations = (
   return { ...data, ...rest };
 };
 
-type SellerValidShippingOption = {
-  id: string;
-  name: string;
-  price_type?: string;
-  provider_id?: string;
-  service_zone_id?: string;
-  service_zone?: {
-    fulfillment_set?: {
-      location?: {
-        id?: string;
-        name?: string | null;
-        address?: Record<string, unknown> | null;
-      } | null;
-    } | null;
-  };
-  rules?: Array<{
-    attribute: string;
-    value: string;
-    operator: string;
-  }>;
-  calculated_price?: {
-    calculated_amount?: number | null;
-    is_calculated_price_tax_inclusive?: boolean;
-  } | null;
-};
-
 type SellerValidShippingOptionsQuery = {
   location_id?: string;
   is_return?: boolean | string;
   limit?: number;
   offset?: number;
-};
-
-type SellerValidShippingOptionsResponse = {
-  shipping_options: SellerValidShippingOption[];
-  count: number;
-  limit: number;
-  offset: number;
 };
 
 /**
@@ -118,9 +78,9 @@ export const useSellerValidShippingOptions = (
   query?: SellerValidShippingOptionsQuery,
   options?: Omit<
     UseQueryOptions<
-      SellerValidShippingOptionsResponse,
+      HttpTypes.AdminShippingOptionListResponse,
       ClientError,
-      SellerValidShippingOptionsResponse,
+      HttpTypes.AdminShippingOptionListResponse,
       QueryKey
     >,
     "queryFn" | "queryKey"
@@ -131,7 +91,7 @@ export const useSellerValidShippingOptions = (
       sdk.admin.orders.$id.sellerValidShippingOptions.query({
         $id: orderId,
         ...query,
-      }) as Promise<SellerValidShippingOptionsResponse>,
+      }) as Promise<HttpTypes.AdminShippingOptionListResponse>,
     queryKey: sellerScopedOrdersQueryKeys.detail(orderId, {
       kind: "shipping-options",
       ...query,
@@ -142,22 +102,11 @@ export const useSellerValidShippingOptions = (
   return { ...data, ...rest };
 };
 
-type AddableVariantEligibility =
+export type AddableVariantEligibility =
   | { can_add: true; reason: "ok" }
   | { can_add: false; reason: "no_price" | "no_inventory" };
 
-type AddableVariant = {
-  id: string;
-  sku?: string | null;
-  title?: string | null;
-  manage_inventory?: boolean;
-  product?: {
-    id?: string;
-    title?: string;
-    thumbnail?: string | null;
-    handle?: string;
-  };
-  prices?: Array<{ currency_code?: string; amount?: number }>;
+export type AddableVariant = HttpTypes.AdminProductVariant & {
   eligibility: AddableVariantEligibility;
 };
 
@@ -167,11 +116,11 @@ type AddableVariantsQuery = {
   offset?: number;
 };
 
-type AddableVariantsResponse = {
+type AddableVariantsResponse = Omit<
+  HttpTypes.AdminProductVariantListResponse,
+  "variants"
+> & {
   variants: AddableVariant[];
-  count: number;
-  limit: number;
-  offset: number;
 };
 
 /**
