@@ -14,6 +14,7 @@ import {
   useUpdateOrderEditOriginalItem,
 } from "../../../../../hooks/api/order-edits"
 import { resolveErrorToastMessage } from "../../../../../lib/seller-scoped-error"
+import { getOrderItemMutationLimits } from "../../../../../lib/order-item-mutation-limits"
 
 type OrderEditItemProps = {
   item: AdminOrderLineItem
@@ -30,6 +31,8 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
     useUpdateOrderEditOriginalItem(orderId)
   const { mutateAsync: undoAction } = useRemoveOrderEditItem(orderId)
 
+  const limits = useMemo(() => getOrderItemMutationLimits(item), [item])
+
   const isAddedItem = useMemo(
     () => !!item.actions?.find((a) => a.action === "ITEM_ADD"),
     [item]
@@ -41,17 +44,19 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
   )
 
   const isItemRemoved = useMemo(() => {
-    // To be removed item needs to have updated quantity
+    // To be removed item needs to have updated quantity dropped to the
+    // minimum allowed (fulfilled + returned). Items with no blocking
+    // history can drop to 0; items with history floor at minQty.
     const updateAction = item.actions?.find((a) => a.action === "ITEM_UPDATE")
-    return !!updateAction && item.quantity === item.detail.fulfilled_quantity
-  }, [item])
+    return !!updateAction && item.quantity === limits.minQty
+  }, [item, limits])
 
   /**
    * HANDLERS
    */
 
   const onUpdate = async (quantity: number) => {
-    if (quantity <= item.detail.fulfilled_quantity) {
+    if (limits.canRemove === false && quantity < limits.minQty) {
       toast.error(t("orders.edits.validation.quantityLowerThanFulfillment"))
       return
     }
@@ -81,7 +86,7 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
         await undoAction(addItemAction.id)
       } else {
         await updateOriginalItem({
-          quantity: item.detail.fulfilled_quantity, //
+          quantity: limits.minQty,
           itemId: item.id,
         })
       }
@@ -180,8 +185,8 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
             <Input
               className="bg-ui-bg-base txt-small w-[67px] rounded-lg [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               type="number"
-              disabled={item.detail.fulfilled_quantity === item.quantity}
-              min={item.detail.fulfilled_quantity}
+              disabled={limits.minQty === item.quantity}
+              min={limits.minQty}
               defaultValue={item.quantity}
               onBlur={(e) => {
                 const val = e.target.value
@@ -220,8 +225,7 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
                         label: t("actions.remove"),
                         onClick: onRemove,
                         icon: <XCircle />,
-                        disabled:
-                          item.detail.fulfilled_quantity === item.quantity,
+                        disabled: limits.minQty === item.quantity,
                       }
                     : {
                         label: t("actions.undo"),
