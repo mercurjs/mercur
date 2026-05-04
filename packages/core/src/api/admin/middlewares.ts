@@ -19,6 +19,7 @@ import { requireAdminWarehouseCapability } from "./middlewares/require-warehouse
 import { validateCancelOrderMiddleware } from "./middlewares/validate-cancel-order"
 import { requireEditableOrderItem } from "./middlewares/require-editable-order-item"
 import { requireNoActiveTransfer } from "./middlewares/require-no-active-transfer"
+import { requireClaimConfirmationValid } from "./middlewares/require-claim-confirmation-valid"
 import {
   orderIdFromBody,
   requireSellerValidLocation,
@@ -120,6 +121,15 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   {
     matcher: "/admin/orders/:id/transfer",
     middlewares: [requireNoActiveTransfer],
+  },
+  // Mercur claim-confirmation invariants: require inbound items + a
+  // return location before the claim request lands. Medusa rejects
+  // the same cases but with generic copy and no error code — this
+  // middleware short-circuits with CLAIM_REQUIRES_INBOUND_ITEMS or
+  // CLAIM_REQUIRES_LOCATION so the UI can map to dedicated copy.
+  {
+    matcher: "/admin/claims/:id/request",
+    middlewares: [requireClaimConfirmationValid],
   },
   // Seller-valid scoping for admin order mutations.
   //
