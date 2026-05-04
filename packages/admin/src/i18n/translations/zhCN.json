@@ -1035,7 +1035,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "未支付",
@@ -1059,7 +1060,8 @@
       "itemSubtotal": "商品小计",
       "shippingSubtotal": "运费小计",
       "discountSubtotal": "折扣小计",
-      "taxTotal": "税费总计"
+      "taxTotal": "税费总计",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "转移所有权",

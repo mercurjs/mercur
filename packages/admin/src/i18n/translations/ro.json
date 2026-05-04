@@ -992,7 +992,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Neplătit",
@@ -1016,7 +1017,8 @@
       "itemSubtotal": "Subtotal articol",
       "shippingSubtotal": "Subtotal de livrare",
       "discountSubtotal": "Subtotal reducere",
-      "taxTotal": "Total impozit"
+      "taxTotal": "Total impozit",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Transferați proprietatea",

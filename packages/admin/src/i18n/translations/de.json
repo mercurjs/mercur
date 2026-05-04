@@ -945,7 +945,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "summary": {
       "requestReturn": "Rücksendung anfordern",
@@ -960,7 +961,8 @@
       "itemSubtotal": "Zwischensumme des Artikels",
       "shippingSubtotal": "Versand-Zwischensumme",
       "discountSubtotal": "Rabatt-Zwischensumme",
-      "taxTotal": "Steuersumme"
+      "taxTotal": "Steuersumme",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Eigentumsübertragung",

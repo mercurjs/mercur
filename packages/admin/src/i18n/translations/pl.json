@@ -1103,7 +1103,8 @@
       "storeCount_one": "{{count}} sklep",
       "storeCount_few": "{{count}} sklepy",
       "storeCount_many": "{{count}} sklepów",
-      "storeCount_other": "{{count}} sklepów"
+      "storeCount_other": "{{count}} sklepów",
+      "otherOrdersInGroup": "Inne zamówienia z tej grupy {{id}}"
     },
     "status": {
       "not_paid": "Nieopłacone",
@@ -1128,7 +1129,8 @@
       "shippingSubtotal": "Koszt wysyłki",
       "discountSubtotal": "Wartość rabatów",
       "taxTotal": "Kwota podatku",
-      "totalAfterDiscount": "Razem po rabacie"
+      "totalAfterDiscount": "Razem po rabacie",
+      "storeLabel": "Sklep:"
     },
     "transfer": {
       "title": "Przekaż własność",

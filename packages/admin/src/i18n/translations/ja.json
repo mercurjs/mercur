@@ -951,7 +951,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "summary": {
       "requestReturn": "返品をリクエスト",
@@ -966,7 +967,8 @@
       "itemSubtotal": "アイテム小計",
       "shippingSubtotal": "配送小計",
       "discountSubtotal": "割引小計",
-      "taxTotal": "税金合計"
+      "taxTotal": "税金合計",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "所有権の移転",

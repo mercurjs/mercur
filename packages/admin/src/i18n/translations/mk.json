@@ -992,7 +992,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Не е платено",
@@ -1016,7 +1017,8 @@
       "itemSubtotal": "Ставка Подзбир",
       "shippingSubtotal": "Подзбир на испорака",
       "discountSubtotal": "Подзбир на попуст",
-      "taxTotal": "Вкупен данок"
+      "taxTotal": "Вкупен данок",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Пренесете ја сопственоста",

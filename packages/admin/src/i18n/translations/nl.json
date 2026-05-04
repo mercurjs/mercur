@@ -1031,7 +1031,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Niet betaald",
@@ -1055,7 +1056,8 @@
       "itemSubtotal": "Subtotaal items",
       "shippingSubtotal": "Subtotaal verzending",
       "discountSubtotal": "Subtotaal korting",
-      "taxTotal": "Totaal belasting"
+      "taxTotal": "Totaal belasting",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Eigendom overdragen",

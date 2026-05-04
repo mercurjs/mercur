@@ -1010,7 +1010,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Неплатена",
@@ -1034,7 +1035,8 @@
       "itemSubtotal": "Междинна сума за артикули",
       "shippingSubtotal": "Междинна сума за доставка",
       "discountSubtotal": "Междинна сума за отстъпки",
-      "taxTotal": "Обща стойност на данъци"
+      "taxTotal": "Обща стойност на данъци",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Прехвърляне на собственост",

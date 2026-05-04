@@ -945,7 +945,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "summary": {
       "requestReturn": "ขอคืนสินค้า",
@@ -960,7 +961,8 @@
       "itemSubtotal": "ยอดรวมสินค้า",
       "shippingSubtotal": "ยอดรวมค่าขนส่ง",
       "discountSubtotal": "ยอดรวมส่วนลด",
-      "taxTotal": "ยอดรวมภาษี"
+      "taxTotal": "ยอดรวมภาษี",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "โอนกรรมสิทธิ์",

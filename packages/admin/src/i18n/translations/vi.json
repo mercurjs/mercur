@@ -1060,7 +1060,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Chưa thanh toán",
@@ -1084,7 +1085,8 @@
       "itemSubtotal": "Tạm tính mục hàng",
       "shippingSubtotal": "Tạm tính phí vận chuyển",
       "discountSubtotal": "Tạm tính giảm giá",
-      "taxTotal": "Tổng thuế"
+      "taxTotal": "Tổng thuế",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Chuyển quyền sở hữu",

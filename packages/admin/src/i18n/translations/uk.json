@@ -951,7 +951,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "summary": {
       "requestReturn": "Запросити повернення",
@@ -966,7 +967,8 @@
       "itemSubtotal": "Проміжна сума товарів",
       "shippingSubtotal": "Проміжна сума доставки",
       "discountSubtotal": "Проміжна сума знижки",
-      "taxTotal": "Загальна сума податків"
+      "taxTotal": "Загальна сума податків",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Передати право власності",

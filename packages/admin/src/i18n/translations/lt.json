@@ -1033,7 +1033,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Neapmokėtas",
@@ -1057,7 +1058,8 @@
       "itemSubtotal": "Prekės viso",
       "shippingSubtotal": "Siuntimas viso",
       "discountSubtotal": "Nuolaida viso",
-      "taxTotal": "Mokesčiai viso"
+      "taxTotal": "Mokesčiai viso",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Perleisti nuosavybę",

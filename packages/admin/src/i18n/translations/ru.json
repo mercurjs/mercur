@@ -992,7 +992,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Не оплачен",
@@ -1016,7 +1017,8 @@
       "itemSubtotal": "Подытог товаров",
       "shippingSubtotal": "Подытог доставки",
       "discountSubtotal": "Подытог скидок",
-      "taxTotal": "Сумма налога"
+      "taxTotal": "Сумма налога",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Передать владение",

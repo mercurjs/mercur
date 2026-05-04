@@ -51,6 +51,8 @@ export const OrderRemainingOrdersGroupSection = () => {
     return group.orders.filter((o: any) => o.id !== id)
   }, [order_group, id])
 
+  const groupDisplayId = (order_group as { display_id?: number | string } | undefined)?.display_id
+
   const columns = useColumns()
 
   const { table } = useDataTable({
@@ -80,7 +82,9 @@ export const OrderRemainingOrdersGroupSection = () => {
         data-testid="order-remaining-orders-group-header"
       >
         <Heading level="h2" data-testid="order-remaining-orders-group-heading">
-          {t("orders.domain")} in group
+          {t("orders.list.otherOrdersInGroup", {
+            id: groupDisplayId !== undefined ? `#G${groupDisplayId}` : "",
+          })}
         </Heading>
       </div>
       <_DataTable

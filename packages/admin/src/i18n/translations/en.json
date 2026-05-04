@@ -1086,7 +1086,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Not paid",
@@ -1111,7 +1112,8 @@
       "shippingSubtotal": "Shipping Subtotal",
       "discountSubtotal": "Discount Subtotal",
       "taxTotal": "Tax Total",
-      "totalAfterDiscount": "Total After Discount"
+      "totalAfterDiscount": "Total After Discount",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Transfer ownership",

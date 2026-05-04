@@ -946,7 +946,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "summary": {
       "requestReturn": "Demander un retour",
@@ -961,7 +962,8 @@
       "itemSubtotal": "Sous-total des articles",
       "shippingSubtotal": "Sous-total des frais de livraison",
       "discountSubtotal": "Sous-total des remises",
-      "taxTotal": "Total des taxes"
+      "taxTotal": "Total des taxes",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Transfert de propriété",

@@ -1121,7 +1121,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "summary": {
       "requestReturn": "Solicitar devolución",
@@ -1137,7 +1138,8 @@
       "shippingSubtotal": "Subtotal del envío",
       "discountSubtotal": "Subtotal del descuento",
       "taxTotal": "Total de impuestos",
-      "totalAfterDiscount": "Total después del descuento"
+      "totalAfterDiscount": "Total después del descuento",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Transferir propiedad",

@@ -190,12 +190,40 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
     );
   };
 
+  // Mercur grouped orders attach the suborder seller via a module
+  // link. The admin UI doesn't pull `seller` into the order schema by
+  // default, so cast loosely — the field is either present (vendor
+  // suborder) or absent (legacy admin-only order).
+  const seller = (order as unknown as {
+    seller?: { id?: string; name?: string }
+  }).seller
+
   return (
     <Container
       className="divide-y divide-dashed p-0"
       data-testid="order-summary-section"
     >
       <Header order={order} orderPreview={orderPreview} />
+      {seller?.name && (
+        <div
+          className="px-6 py-3 text-ui-fg-subtle txt-small"
+          data-testid="order-summary-store-subheader"
+        >
+          <span className="text-ui-fg-muted">
+            {t("orders.summary.storeLabel")}
+          </span>{" "}
+          {seller.id ? (
+            <Link
+              to={`/stores/${seller.id}`}
+              className="font-medium text-ui-fg-base hover:text-ui-fg-interactive-hover"
+            >
+              {seller.name}
+            </Link>
+          ) : (
+            <span className="font-medium text-ui-fg-base">{seller.name}</span>
+          )}
+        </div>
+      )}
       <ItemBreakdown order={order} reservations={reservations!} />
       <CostBreakdown order={order} />
       <DiscountAndTotalBreakdown order={order} />

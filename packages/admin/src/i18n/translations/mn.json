@@ -992,7 +992,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Төлөгдөөгүй",
@@ -1016,7 +1017,8 @@
       "itemSubtotal": "Зүйлийн дэд нийт",
       "shippingSubtotal": "Хүргэлтийн дэд нийт",
       "discountSubtotal": "Хөнгөлөлтийн дэд нийт",
-      "taxTotal": "Татварын нийт"
+      "taxTotal": "Татварын нийт",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Өмчлөл шилжүүлэх",

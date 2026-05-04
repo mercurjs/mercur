@@ -1035,7 +1035,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Nije plaćeno",
@@ -1059,7 +1060,8 @@
       "itemSubtotal": "Međuzbroj artikala",
       "shippingSubtotal": "Međuzbroj dostave",
       "discountSubtotal": "Međuzbroj popusta",
-      "taxTotal": "Ukupno porez"
+      "taxTotal": "Ukupno porez",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Prenos vlasništva",

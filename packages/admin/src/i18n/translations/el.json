@@ -1010,7 +1010,8 @@
       "storeHeader": "Store",
       "totalHeader": "Order Total",
       "storeCount_one": "{{count}} store",
-      "storeCount_other": "{{count}} stores"
+      "storeCount_other": "{{count}} stores",
+      "otherOrdersInGroup": "Other orders from this group {{id}}"
     },
     "status": {
       "not_paid": "Μη πληρωμένο",
@@ -1034,7 +1035,8 @@
       "itemSubtotal": "Μερικό σύνολο αντικειμένων",
       "shippingSubtotal": "Μερικό σύνολο αποστολής",
       "discountSubtotal": "Μερικό σύνολο έκπτωσης",
-      "taxTotal": "Σύνολο ΦΠΑ"
+      "taxTotal": "Σύνολο ΦΠΑ",
+      "storeLabel": "Store:"
     },
     "transfer": {
       "title": "Μεταφορά ιδιοκτησίας",
