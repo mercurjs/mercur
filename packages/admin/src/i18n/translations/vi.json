@@ -1014,7 +1014,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "giftCardsStoreCreditLines": "Thẻ quà tặng & hạn mức tín dụng",
     "creditLines": {
@@ -1468,7 +1469,9 @@
         },
         "edit": {
           "requested": "Yêu cầu chỉnh sửa đơn hàng #{{editId}} đã tạo",
-          "confirmed": "Chỉnh sửa đơn hàng #{{editId}} đã xác nhận"
+          "confirmed": "Chỉnh sửa đơn hàng #{{editId}} đã xác nhận",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "Yêu cầu chuyển đơn hàng #{{transferId}} đã tạo",

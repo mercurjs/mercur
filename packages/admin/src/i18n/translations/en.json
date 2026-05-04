@@ -1037,7 +1037,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "giftCardsStoreCreditLines": "Gift cards & credit lines",
     "creditLines": {
@@ -1494,7 +1495,9 @@
         },
         "edit": {
           "requested": "Order edit #{{editId}} requested",
-          "confirmed": "Order edit #{{editId}} confirmed"
+          "confirmed": "Order edit #{{editId}} confirmed",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "Order transfer #{{transferId}} requested",

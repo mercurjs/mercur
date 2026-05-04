@@ -7,6 +7,8 @@ const CODE_TO_KEY: Record<string, string> = {
   SHIPPING_OPTION_NOT_SELLER_VALID:
     "orders.errors.shippingOptionNotSellerValid",
   VARIANT_NOT_SELLER_VALID: "orders.errors.variantNotSellerValid",
+  ITEM_CANNOT_REDUCE_BELOW_FULFILLED_RETURNED:
+    "orders.errors.itemCannotReduceBelowFulfilledReturned",
 }
 
 /**

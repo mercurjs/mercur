@@ -989,7 +989,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "orderCanceled": "تم إلغاء الطلب",
     "status": {
@@ -1415,7 +1416,9 @@
         },
         "edit": {
           "requested": "تم طلب تحرير الطلب #{{editId}}",
-          "confirmed": "تم تأكيد تحرير الطلب #{{editId}}"
+          "confirmed": "تم تأكيد تحرير الطلب #{{editId}}",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "تم طلب نقل الطلب #{{transferId}}",

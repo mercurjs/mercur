@@ -925,7 +925,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "domain": "Bestellungen",
     "claim": "Beanspruchen",
@@ -1025,15 +1026,19 @@
     "edit": {
       "email": {
         "title": "E-Mail bearbeiten",
-        "requestSuccess": "E-Mail wurde erfolgreich aktualisiert."
+        "requestSuccess": "Bestellungs-E-Mail aktualisiert auf {{email}}."
       },
       "shippingAddress": {
         "title": "Lieferadresse bearbeiten",
-        "requestSuccess": "Lieferadresse der Bestellung wurde aktualisiert."
+        "requestSuccess": "Lieferadresse der Bestellung aktualisiert.",
+        "validation": {
+          "addressRequired": "Bitte geben Sie eine Adresse ein",
+          "countryRequired": "Bitte wählen Sie ein Land aus"
+        }
       },
       "billingAddress": {
         "title": "Rechnungsadresse bearbeiten",
-        "requestSuccess": "Rechnungsadresse der Bestellung wurde aktualisiert."
+        "requestSuccess": "Rechnungsadresse der Bestellung aktualisiert."
       }
     },
     "returns": {
@@ -1329,7 +1334,9 @@
         },
         "edit": {
           "requested": "Bestellbearbeitung #{{editId}} angefordert",
-          "confirmed": "Bestellbearbeitung #{{editId}} bestätigt"
+          "confirmed": "Bestellbearbeitung #{{editId}} bestätigt",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "Bestellung #{{transferId}} übertragen",
@@ -1341,24 +1348,6 @@
       "displayId": "Anzeige-ID",
       "refundableAmount": "Rückerstattungsbetrag",
       "returnableQuantity": "Rückgabemenge"
-    },
-    "edit": {
-      "email": {
-        "title": "E-Mail bearbeiten",
-        "requestSuccess": "Bestellungs-E-Mail aktualisiert auf {{email}}."
-      },
-      "shippingAddress": {
-        "title": "Lieferadresse bearbeiten",
-        "requestSuccess": "Lieferadresse der Bestellung aktualisiert.",
-        "validation": {
-          "addressRequired": "Bitte geben Sie eine Adresse ein",
-          "countryRequired": "Bitte wählen Sie ein Land aus"
-        }
-      },
-      "billingAddress": {
-        "title": "Rechnungsadresse bearbeiten",
-        "requestSuccess": "Rechnungsadresse der Bestellung aktualisiert."
-      }
     }
   },
   "draftOrders": {

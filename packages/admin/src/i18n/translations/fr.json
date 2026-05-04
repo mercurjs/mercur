@@ -926,7 +926,8 @@
     "errors": {
       "locationNotSellerValid": "This stock location is not valid for the order's seller.",
       "shippingOptionNotSellerValid": "This shipping option is not valid for the order's seller.",
-      "variantNotSellerValid": "This product variant does not belong to the order's seller."
+      "variantNotSellerValid": "This product variant does not belong to the order's seller.",
+      "itemCannotReduceBelowFulfilledReturned": "Cannot reduce quantity below fulfilled + returned."
     },
     "domain": "Commandes",
     "claim": "Réclamation",
@@ -1025,16 +1026,20 @@
     },
     "edit": {
       "email": {
-        "title": "Modifier l'adresse e-mail",
-        "requestSuccess": "L'e-mail a été mis à jour avec succès."
+        "title": "Modifier l'email",
+        "requestSuccess": "Email de la commande mis à jour vers {{email}}."
       },
       "shippingAddress": {
         "title": "Modifier l'adresse de livraison",
-        "requestSuccess": "L'adresse de livraison de la commande a été mise à jour."
+        "requestSuccess": "Adresse de livraison de la commande mise à jour.",
+        "validation": {
+          "addressRequired": "Veuillez entrer une adresse",
+          "countryRequired": "Veuillez sélectionner un pays"
+        }
       },
       "billingAddress": {
         "title": "Modifier l'adresse de facturation",
-        "requestSuccess": "L'adresse de facturation de la commande a été mise à jour."
+        "requestSuccess": "Adresse de facturation de la commande mise à jour."
       }
     },
     "returns": {
@@ -1330,7 +1335,9 @@
         },
         "edit": {
           "requested": "Commande modifiée #{{editId}} demandée",
-          "confirmed": "Commande modifiée #{{editId}} confirmée"
+          "confirmed": "Commande modifiée #{{editId}} confirmée",
+          "declined": "Order edit #{{editId}} declined",
+          "canceled": "Order edit #{{editId}} canceled"
         },
         "transfer": {
           "requested": "Transfert de la commande #{{transferId}} demandé",
@@ -1343,24 +1350,6 @@
       "displayId": "Display ID",
       "refundableAmount": "Montant remboursable",
       "returnableQuantity": "Quantité retournable"
-    },
-    "edit": {
-      "email": {
-        "title": "Modifier l'email",
-        "requestSuccess": "Email de la commande mis à jour vers {{email}}."
-      },
-      "shippingAddress": {
-        "title": "Modifier l'adresse de livraison",
-        "requestSuccess": "Adresse de livraison de la commande mise à jour.",
-        "validation": {
-          "addressRequired": "Veuillez entrer une adresse",
-          "countryRequired": "Veuillez sélectionner un pays"
-        }
-      },
-      "billingAddress": {
-        "title": "Modifier l'adresse de facturation",
-        "requestSuccess": "Adresse de facturation de la commande mise à jour."
-      }
     }
   },
   "draftOrders": {
