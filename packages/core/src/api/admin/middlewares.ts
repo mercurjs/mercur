@@ -18,6 +18,7 @@ import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/mid
 import { requireAdminWarehouseCapability } from "./middlewares/require-warehouse-capability"
 import { validateCancelOrderMiddleware } from "./middlewares/validate-cancel-order"
 import { requireEditableOrderItem } from "./middlewares/require-editable-order-item"
+import { requireNoActiveTransfer } from "./middlewares/require-no-active-transfer"
 import {
   orderIdFromBody,
   requireSellerValidLocation,
@@ -107,6 +108,18 @@ export const adminMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/orders/:id/cancel",
     middlewares: [validateCancelOrderMiddleware],
+  },
+  // Mercur transfer invariant: reject second transfer when one is
+  // already active. Medusa baseline 400s here too but emits no error
+  // code, so the UI cannot translate. This middleware short-circuits
+  // with ORDER_TRANSFER_REQUEST_ALREADY_ACTIVE.
+  //
+  // Method intentionally omitted — see comment on seller-valid
+  // matchers below for the routing rationale. POST is filtered
+  // internally by the middleware.
+  {
+    matcher: "/admin/orders/:id/transfer",
+    middlewares: [requireNoActiveTransfer],
   },
   // Seller-valid scoping for admin order mutations.
   //
