@@ -446,6 +446,41 @@ medusaIntegrationTestRunner({
                     expect(itemAAfter.quantity).toEqual(quantityBefore)
                 })
             })
+
+            describe("POST /admin/order-edits/:id/items/item/:item_id — remove via qty=0", () => {
+                // Medusa 2.x exposes no DELETE handler on this path; a
+                // "remove" from an order edit is expressed as POST
+                // quantity=0. The same middleware gate blocks it via
+                // `requested < minQty`, so the REMOVE invariant from
+                // FR-004 is enforced through the REDUCE error code.
+                it("rejects POST quantity=0 on an item with fulfilled history", async () => {
+                    const { order, itemAId } = await seedOrderAndOpenEdit()
+
+                    const response = await api
+                        .post(
+                            `/admin/order-edits/${order.id}/items/item/${itemAId}`,
+                            { quantity: 0 },
+                            adminHeaders,
+                        )
+                        .catch((err) => err.response)
+
+                    expect(response.status).toEqual(400)
+                    expect(response.data.code).toEqual(
+                        "ITEM_CANNOT_REDUCE_BELOW_FULFILLED_RETURNED",
+                    )
+                })
+
+                it("allows POST quantity=0 on a plain item (no fulfilled, no returned)", async () => {
+                    const { order, itemBId } = await seedOrderAndOpenEdit()
+
+                    const response = await api.post(
+                        `/admin/order-edits/${order.id}/items/item/${itemBId}`,
+                        { quantity: 0 },
+                        adminHeaders,
+                    )
+                    expect(response.status).toEqual(200)
+                })
+            })
         })
     },
 })

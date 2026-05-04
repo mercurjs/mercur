@@ -12,9 +12,7 @@ import { getOrderItemMutationLimits } from "../helpers/can-mutate-order-item"
 
 /**
  * Rejects admin order-edit item mutations that would corrupt the order
- * ledger:
- *   - DELETE on an item with fulfilled or returned quantity
- *   - POST  with quantity below fulfilled + returned
+ * ledger: a POST with quantity below fulfilled + returned.
  *
  * Mirrors the UI gating in `order-edit-item.tsx` so the UI and the
  * server agree on the same invariant. The UI may short-circuit the
@@ -23,6 +21,12 @@ import { getOrderItemMutationLimits } from "../helpers/can-mutate-order-item"
  * Matcher: /admin/order-edits/:id/items/item/:item_id
  *   :id is the ORDER id (Medusa's naming — not the order_change id).
  *   :item_id is the order line-item id, queried directly here.
+ *
+ * Removal note: Medusa 2.x exposes no DELETE handler on this path —
+ * a "remove" from an order edit is expressed as POST quantity=0, which
+ * this middleware blocks via the same `requested < minQty` rule. The
+ * separate REMOVE error code from the spec is therefore unreachable
+ * on this matcher and is not emitted.
  */
 export const requireEditableOrderItem = async (
   req: AuthenticatedMedusaRequest,
@@ -30,7 +34,7 @@ export const requireEditableOrderItem = async (
   next: MedusaNextFunction
 ) => {
   try {
-    if (req.method !== "POST" && req.method !== "DELETE") {
+    if (req.method !== "POST") {
       return next()
     }
 
@@ -76,33 +80,21 @@ export const requireEditableOrderItem = async (
 
     const limits = getOrderItemMutationLimits(item)
 
-    if (req.method === "DELETE" && !limits.canRemove) {
+    const body = (req.body ?? {}) as { quantity?: unknown }
+    const requested =
+      typeof body.quantity === "number" ? body.quantity : undefined
+    if (
+      requested !== undefined &&
+      limits.canRemove === false &&
+      requested < limits.minQty
+    ) {
       return next(
         new MedusaError(
           MedusaError.Types.INVALID_DATA,
-          "Cannot remove an item that has fulfilled or returned quantity",
-          "ITEM_CANNOT_REMOVE_WITH_RETURNED_QUANTITY"
+          `Cannot reduce quantity below fulfilled + returned (${limits.minQty})`,
+          "ITEM_CANNOT_REDUCE_BELOW_FULFILLED_RETURNED"
         )
       )
-    }
-
-    if (req.method === "POST") {
-      const body = (req.body ?? {}) as { quantity?: unknown }
-      const requested =
-        typeof body.quantity === "number" ? body.quantity : undefined
-      if (
-        requested !== undefined &&
-        limits.canRemove === false &&
-        requested < limits.minQty
-      ) {
-        return next(
-          new MedusaError(
-            MedusaError.Types.INVALID_DATA,
-            `Cannot reduce quantity below fulfilled + returned (${limits.minQty})`,
-            "ITEM_CANNOT_REDUCE_BELOW_FULFILLED_RETURNED"
-          )
-        )
-      }
     }
 
     return next()
