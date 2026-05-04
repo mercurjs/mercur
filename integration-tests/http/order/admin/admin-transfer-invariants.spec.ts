@@ -304,6 +304,32 @@ medusaIntegrationTestRunner({
                 return order
             }
 
+            describe("FR-BUG-4 — POST /admin/orders/:id/transfer rejects on canceled order", () => {
+                it("rejects transfer on canceled order with 400 + ORDER_CANCELED_NO_TRANSFER", async () => {
+                    const order = await seedPaidOrder()
+
+                    // Cancel the order via admin endpoint.
+                    await api.post(
+                        `/admin/orders/${order.id}/cancel`,
+                        {},
+                        adminHeaders,
+                    )
+
+                    const response = await api
+                        .post(
+                            `/admin/orders/${order.id}/transfer`,
+                            { customer_id: recipientCustomerId },
+                            adminHeaders,
+                        )
+                        .catch((err) => err.response)
+
+                    expect(response.status).toEqual(400)
+                    expect(response.data.code).toEqual(
+                        "ORDER_CANCELED_NO_TRANSFER",
+                    )
+                })
+            })
+
             describe("FR-BUG-3 — POST /admin/orders/:id/transfer rejects when active transfer exists", () => {
                 it("happy path: first transfer request succeeds", async () => {
                     const order = await seedPaidOrder()
