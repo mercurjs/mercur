@@ -62,6 +62,11 @@ import { getLoyaltyPlugin } from "../../../../../lib/plugins.ts";
 import { getReturnableQuantity } from "../../../../../lib/rma.ts";
 import { useWarehouseManagement } from "../../../../../hooks/api/feature-flags.tsx";
 import ReturnInfoPopover from "./return-info-popover.tsx";
+import { InlineFlowRow } from "./inline-flow-row.tsx";
+import { useNavigate } from "react-router-dom";
+import { useCancelReturnRequest } from "../../../../../hooks/api/returns.tsx";
+import { useCancelClaimRequest } from "../../../../../hooks/api/claims.tsx";
+import { useCancelExchangeRequest } from "../../../../../hooks/api/exchanges.tsx";
 import ShippingInfoPopover from "./shipping-info-popover.tsx";
 import { formatPercentage } from "../../../../../lib/percentage-helpers.ts";
 
@@ -224,6 +229,7 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
           )}
         </div>
       )}
+      <ActiveFlowInlineRow order={order} orderPreview={orderPreview} />
       <ItemBreakdown order={order} reservations={reservations!} />
       <CostBreakdown order={order} />
       <DiscountAndTotalBreakdown order={order} />
@@ -1358,5 +1364,127 @@ const Total = ({ order }: { order: AdminOrder }) => {
         </Text>
       </div>
     </div>
+  );
+};
+
+/**
+ * Inline render of an active Return / Claim / Exchange order_change.
+ * Replaces the diagonal-striped ActiveOrder*Section banners (T5).
+ *
+ * Edit-order changes are out of scope here — they keep the dedicated
+ * `OrderActiveEditSection` because the banner shows the items
+ * breakdown, not just a status row.
+ */
+const ActiveFlowInlineRow = ({
+  order,
+  orderPreview,
+}: {
+  order: AdminOrder;
+  orderPreview?: AdminOrderPreview;
+}) => {
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const change = orderPreview?.order_change;
+
+  const returnId = change?.return_id;
+  const claimId = change?.claim_id;
+  const exchangeId = change?.exchange_id;
+
+  const isReturnRequest =
+    change?.change_type === "return_request" && !!returnId;
+  const isClaim = change?.change_type === "claim" && !!claimId;
+  const isExchange = change?.change_type === "exchange" && !!exchangeId;
+
+  const { mutateAsync: cancelReturn, isPending: isCancelingReturn } =
+    useCancelReturnRequest(returnId!, order.id);
+  const { mutateAsync: cancelClaim, isPending: isCancelingClaim } =
+    useCancelClaimRequest(claimId!, order.id);
+  const { mutateAsync: cancelExchange, isPending: isCancelingExchange } =
+    useCancelExchangeRequest(exchangeId!, order.id);
+
+  if (!isReturnRequest && !isClaim && !isExchange) {
+    return null;
+  }
+
+  if (isReturnRequest) {
+    return (
+      <InlineFlowRow
+        testId="active-flow-inline-return"
+        icon={<ArrowUturnLeft />}
+        label={t("orders.returns.panel.title")}
+        timestamp={change?.created_at}
+        primaryAction={{
+          label: t("actions.continue"),
+          onClick: () => navigate(`/orders/${order.id}/returns`),
+          testId: "active-flow-inline-return-continue",
+        }}
+        secondaryAction={{
+          label: t("orders.returns.cancel.title"),
+          onClick: () =>
+            cancelReturn(undefined, {
+              onSuccess: () =>
+                toast.success(t("orders.returns.toast.canceledSuccessfully")),
+              onError: (error) => toast.error(error.message),
+            }),
+          loading: isCancelingReturn,
+          testId: "active-flow-inline-return-cancel",
+        }}
+      />
+    );
+  }
+
+  if (isClaim) {
+    return (
+      <InlineFlowRow
+        testId="active-flow-inline-claim"
+        icon={<ExclamationCircle />}
+        label={t("orders.claims.panel.title")}
+        timestamp={change?.created_at}
+        primaryAction={{
+          label: t("actions.continue"),
+          onClick: () => navigate(`/orders/${order.id}/claims`),
+          testId: "active-flow-inline-claim-continue",
+        }}
+        secondaryAction={{
+          label: t("orders.claims.cancel.title"),
+          onClick: () =>
+            cancelClaim(undefined, {
+              onSuccess: () =>
+                toast.success(t("orders.claims.toast.canceledSuccessfully")),
+              onError: (error) => toast.error(error.message),
+            }),
+          loading: isCancelingClaim,
+          testId: "active-flow-inline-claim-cancel",
+        }}
+      />
+    );
+  }
+
+  // isExchange
+  return (
+    <InlineFlowRow
+      testId="active-flow-inline-exchange"
+      icon={<ArrowPath />}
+      label={t("orders.exchanges.panel.title")}
+      timestamp={change?.created_at}
+      primaryAction={{
+        label: t("actions.continue"),
+        onClick: () => navigate(`/orders/${order.id}/exchanges`),
+        testId: "active-flow-inline-exchange-continue",
+      }}
+      secondaryAction={{
+        label: t("orders.exchanges.cancel.title"),
+        onClick: () =>
+          cancelExchange(undefined, {
+            onSuccess: () =>
+              toast.success(
+                t("orders.exchanges.actions.cancelExchange.successToast"),
+              ),
+            onError: (error) => toast.error(error.message),
+          }),
+        loading: isCancelingExchange,
+        testId: "active-flow-inline-exchange-cancel",
+      }}
+    />
   );
 };

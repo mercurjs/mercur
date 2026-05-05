@@ -4,9 +4,6 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useOrder, useOrderPreview } from "../../../hooks/api/orders";
-import { ActiveOrderClaimSection } from "./components/active-order-claim-section";
-import { ActiveOrderExchangeSection } from "./components/active-order-exchange-section";
-import { ActiveOrderReturnSection } from "./components/active-order-return-section";
 import { OrderActiveEditSection } from "./components/order-active-edit-section";
 import { OrderActivitySection } from "./components/order-activity-section";
 import { OrderCustomerSection } from "./components/order-customer-section";
@@ -51,9 +48,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
       }
     : rawOrder;
 
-  const { order: orderPreview, isLoading: isPreviewLoading } = useOrderPreview(
-    id!,
-  );
+  // OrderSummarySection consumes its own useOrderPreview() — only the
+  // loading flag matters here so the page skeleton waits for the
+  // preview alongside the base order fetch.
+  const { isLoading: isPreviewLoading } = useOrderPreview(id!);
 
   if (isLoading || !order || isPreviewLoading) {
     return (
@@ -85,9 +83,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
     >
       <TwoColumnPage.Main data-testid="order-detail-main">
         <OrderActiveEditSection order={order} />
-        <ActiveOrderClaimSection orderPreview={orderPreview!} />
-        <ActiveOrderExchangeSection orderPreview={orderPreview!} />
-        <ActiveOrderReturnSection orderPreview={orderPreview!} />
         <OrderGeneralSection order={order} />
         <OrderSummarySection order={order} />
         <OrderPaymentSection order={order} />
@@ -106,9 +101,6 @@ export const OrderDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainActiveEditSection: OrderActiveEditSection,
-  MainActiveClaimSection: ActiveOrderClaimSection,
-  MainActiveExchangeSection: ActiveOrderExchangeSection,
-  MainActiveReturnSection: ActiveOrderReturnSection,
   MainGeneralSection: OrderGeneralSection,
   MainSummarySection: OrderSummarySection,
   MainPaymentSection: OrderPaymentSection,
