@@ -66,7 +66,7 @@ function loadComponentsModule(mercurConfig: BuiltMercurConfig, cwd: string): str
 
     Object.entries(components).forEach(([name, componentPath]) => {
         const resolvedPath = path.resolve(cwd, 'src', componentPath)
-        imports.push(`import _${name} from "${resolvedPath}"`)
+        imports.push(`import _${name} from ${JSON.stringify(resolvedPath)}`)
         exports.push(`${name}: _${name}`)
     })
 
