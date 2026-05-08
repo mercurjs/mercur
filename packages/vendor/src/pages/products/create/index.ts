@@ -1,2 +1,2 @@
-export * from "./product-create-page";
-export * from "./constants";
+export * from "./product-create"
+export * from "./constants"

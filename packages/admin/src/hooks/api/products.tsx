@@ -149,16 +149,20 @@ export const useBatchProducts = (
 
 // --- Product action mutations ---
 
-export const useAcceptProduct = (
+export const useConfirmProduct = (
   id: string,
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
     ClientError,
-    void
+    { internal_note?: string } | void
   >,
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.products.$id.accept.mutate({ $id: id }),
+    mutationFn: (payload) =>
+      sdk.admin.products.$id.confirm.mutate({
+        $id: id,
+        ...(payload ?? {}),
+      }),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
@@ -174,7 +178,7 @@ export const useRejectProduct = (
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
     ClientError,
-    { rejection_reason_ids: string[]; message?: string }
+    { message?: string }
   >,
 ) => {
   return useMutation({
@@ -195,7 +199,7 @@ export const useRequestProductChanges = (
   options?: UseMutationOptions<
     HttpTypes.AdminProductResponse,
     ClientError,
-    { rejection_reason_ids: string[]; message?: string }
+    { message?: string }
   >,
 ) => {
   return useMutation({

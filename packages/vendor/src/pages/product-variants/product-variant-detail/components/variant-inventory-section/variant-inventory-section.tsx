@@ -1,20 +1,46 @@
 import { useTranslation } from "react-i18next"
 
+import { Buildings, Component } from "@medusajs/icons"
+import { HttpTypes } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
 
-import { _DataTable } from "@components/table/data-table"
-
+import { ActionMenu } from "@components/common/action-menu"
 import { LinkButton } from "@components/common/link-button"
+import { _DataTable } from "@components/table/data-table"
 import { useDataTable } from "@hooks/use-data-table"
-import {
-  ExtendedInventoryItem,
-  useInventoryTableColumns,
-} from "./use-inventory-table-columns"
+
+import { useInventoryTableColumns } from "./use-inventory-table-columns"
 
 const PAGE_SIZE = 20
 
 type VariantInventorySectionProps = {
-  inventoryItems: ExtendedInventoryItem[]
+  inventoryItems: HttpTypes.AdminInventoryItem[]
+}
+
+/**
+ * Wrapper that handles manage_inventory gating and inventory_items mapping.
+ */
+export function VariantInventorySectionConnected({
+  variant,
+}: {
+  variant: HttpTypes.AdminProductVariant
+}) {
+  if (!variant.manage_inventory) {
+    return <InventorySectionPlaceholder />
+  }
+
+  const inventoryItems =
+    variant.inventory_items?.map((i) => ({
+      ...i.inventory,
+      required_quantity: i.required_quantity,
+      variant,
+    })) ?? []
+
+  return (
+    <VariantInventorySection
+      inventoryItems={inventoryItems as HttpTypes.AdminInventoryItem[]}
+    />
+  )
 }
 
 export function VariantInventorySection({
@@ -29,15 +55,36 @@ export function VariantInventorySection({
     columns,
     count: inventoryItems.length,
     enablePagination: true,
-    getRowId: (row) => row?.variant?.id,
+    getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
   })
+
+  const hasKit = inventoryItems.length > 1
 
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
           <Heading level="h2">{t("fields.inventoryItems")}</Heading>
+        </div>
+        <div className="flex items-center gap-x-4">
+          <ActionMenu
+            groups={[
+              {
+                actions: [
+                  {
+                    label: t(
+                      hasKit
+                        ? "products.variant.inventory.manageKit"
+                        : "products.variant.inventory.manageItems"
+                    ),
+                    to: "manage-items",
+                    icon: hasKit ? <Component /> : <Buildings />,
+                  },
+                ],
+              },
+            ]}
+          />
         </div>
       </div>
 
@@ -46,7 +93,7 @@ export function VariantInventorySection({
         columns={columns}
         pageSize={PAGE_SIZE}
         count={inventoryItems.length}
-        navigateTo={(row) => `/inventory/${row.original.id}`}
+        navigateTo={(row) => `/inventory/${row.id}`}
       />
     </Container>
   )

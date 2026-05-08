@@ -7,7 +7,7 @@ export class Migration20260427140959 extends Migration {
 
     this.addSql(`alter table if exists "product" alter column "status" drop default;`);
     this.addSql(`alter table if exists "product" alter column "status" type text using ("status"::text);`);
-    this.addSql(`alter table if exists "product" add constraint "product_status_check" check("status" in ('draft', 'proposed', 'published', 'changes_required', 'rejected'));`);
+    this.addSql(`alter table if exists "product" add constraint "product_status_check" check("status" in ('draft', 'proposed', 'published', 'requires_action', 'rejected'));`);
   }
 
   override async down(): Promise<void> {
@@ -15,7 +15,7 @@ export class Migration20260427140959 extends Migration {
 
     this.addSql(`alter table if exists "product" alter column "status" type text using ("status"::text);`);
     this.addSql(`alter table if exists "product" alter column "status" set default 'pending';`);
-    this.addSql(`alter table if exists "product" add constraint "product_status_check" check("status" in ('pending', 'accepted', 'changes_required', 'rejected'));`);
+    this.addSql(`alter table if exists "product" add constraint "product_status_check" check("status" in ('pending', 'accepted', 'requires_action', 'rejected'));`);
   }
 
 }

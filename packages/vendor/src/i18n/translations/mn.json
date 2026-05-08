@@ -418,7 +418,8 @@
       "errors": {
         "variants": "Дор хаяж нэг хувилбарыг сонгоно уу.",
         "options": "Дор хаяж нэг сонголт үүсгэ.",
-        "uniqueSku": "SKU нь давтагдашгүй байх ёстой."
+        "uniqueSku": "SKU нь давтагдашгүй байх ёстой.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Үлдэгдэл хэрэгсэл",
@@ -447,7 +448,21 @@
           "hint": "Бүтээгдэхүүний сонголтуудыг, жишээ нь өнгө, хэмжээ гэх мэтийг тодорхойл."
         }
       },
-      "successToast": "Бүтээгдэхүүн {{title}} амжилттай үүсгэгдлээ."
+      "successToast": "Бүтээгдэхүүн {{title}} амжилттай үүсгэгдлээ.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Бүтээгдэхүүний жагсаалтыг экспортлох",
@@ -534,6 +549,7 @@
       "draft": "Ноорог",
       "published": "Нийтлэгдсэн",
       "proposed": "Санал болгосон",
+      "requires_action": "Changes required",
       "rejected": "Татгалзсан"
     },
     "fields": {
@@ -2906,7 +2922,8 @@
     "startDate": "Эхлэх огноо",
     "endDate": "Дуусах огноо",
     "draft": "Ноорог",
-    "values": "Утгууд"
+    "values": "Утгууд",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Жил",
@@ -2923,5 +2940,23 @@
     "minutes_other": "Минут",
     "seconds_one": "Секунд",
     "seconds_other": "Секунд"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

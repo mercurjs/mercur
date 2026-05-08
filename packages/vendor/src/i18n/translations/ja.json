@@ -407,7 +407,8 @@
       "errors": {
         "variants": "少なくとも1つのバリエーションを選択してください。",
         "options": "少なくとも1つのオプションを作成してください。",
-        "uniqueSku": "SKUは一意である必要があります。"
+        "uniqueSku": "SKUは一意である必要があります。",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "在庫キット",
@@ -436,7 +437,21 @@
           "hint": "色、サイズなど、商品のオプションを定義します。"
         }
       },
-      "successToast": "商品「{{title}}」が正常に作成されました。"
+      "successToast": "商品「{{title}}」が正常に作成されました。",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "商品リストをエクスポート",
@@ -523,6 +538,7 @@
       "draft": "下書き",
       "published": "公開済み",
       "proposed": "提案済み",
+      "requires_action": "Changes required",
       "rejected": "却下"
     },
     "fields": {
@@ -2805,7 +2821,8 @@
     "startDate": "開始日",
     "endDate": "終了日",
     "draft": "下書き",
-    "values": "値"
+    "values": "値",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "年",
@@ -2822,5 +2839,23 @@
     "minutes_other": "分",
     "seconds_one": "秒",
     "seconds_other": "秒"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

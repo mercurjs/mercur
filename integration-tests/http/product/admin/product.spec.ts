@@ -39,8 +39,7 @@ medusaIntegrationTestRunner({
           expect(response.data.product.title).toEqual(
             "Admin Test Product"
           )
-          expect(response.data.product.status).toEqual("accepted")
-          expect(response.data.product.is_active).toEqual(true)
+          expect(response.data.product.status).toEqual("proposed")
           expect(response.data.product.created_by_actor).toEqual(
             "admin"
           )
@@ -1534,19 +1533,19 @@ medusaIntegrationTestRunner({
         it("should filter products by status", async () => {
           await api.post(
             `/admin/products`,
-            { title: "Pending Product" },
+            { title: "Proposed Product" },
             adminHeaders
           )
 
           const response = await api.get(
-            `/admin/products?status[]=pending`,
+            `/admin/products?status[]=proposed`,
             adminHeaders
           )
 
           expect(response.status).toEqual(200)
           expect(
             response.data.products.every(
-              (p: any) => p.status === "pending"
+              (p: any) => p.status === "proposed"
             )
           ).toBe(true)
         })
@@ -1653,9 +1652,8 @@ medusaIntegrationTestRunner({
         })
       })
 
-      describe("Product Lifecycle (accept, reject, request-changes, activate, deactivate)", () => {
+      describe("Product Lifecycle (publish, reject, request-changes)", () => {
         let productId: string
-        let rejectionReasonId: string
 
         beforeEach(async () => {
           const { seller } = await createSellerUser(appContainer)
@@ -1669,36 +1667,23 @@ medusaIntegrationTestRunner({
             },
           })
           productId = result[0].id
-
-          const reasonRes = await api.post(
-            `/admin/product-rejection-reasons`,
-            {
-              code: `reason-${Date.now()}`,
-              label: "Incomplete info",
-              type: "temporary",
-            },
-            adminHeaders
-          )
-          rejectionReasonId =
-            reasonRes.data.product_rejection_reason.id
         })
 
-        it("should accept a pending product", async () => {
+        it("should publish a pending product", async () => {
           const response = await api.post(
-            `/admin/products/${productId}/accept`,
+            `/admin/products/${productId}/confirm`,
             {},
             adminHeaders
           )
 
           expect(response.status).toEqual(200)
-          expect(response.data.product.status).toEqual("accepted")
+          expect(response.data.product.status).toEqual("published")
         })
 
         it("should reject a pending product", async () => {
           const response = await api.post(
             `/admin/products/${productId}/reject`,
             {
-              rejection_reason_ids: [rejectionReasonId],
               message: "Not acceptable",
             },
             adminHeaders
@@ -1712,7 +1697,6 @@ medusaIntegrationTestRunner({
           const response = await api.post(
             `/admin/products/${productId}/request-changes`,
             {
-              rejection_reason_ids: [rejectionReasonId],
               message: "Please fix the images",
             },
             adminHeaders
@@ -1720,48 +1704,10 @@ medusaIntegrationTestRunner({
 
           expect(response.status).toEqual(200)
           expect(response.data.product.status).toEqual(
-            "changes_required"
+            "requires_action"
           )
         })
 
-        it("should activate an accepted product", async () => {
-          await api.post(
-            `/admin/products/${productId}/accept`,
-            {},
-            adminHeaders
-          )
-
-          const response = await api.post(
-            `/admin/products/${productId}/activate`,
-            {},
-            adminHeaders
-          )
-
-          expect(response.status).toEqual(200)
-          expect(response.data.product.is_active).toEqual(true)
-        })
-
-        it("should deactivate an active product", async () => {
-          await api.post(
-            `/admin/products/${productId}/accept`,
-            {},
-            adminHeaders
-          )
-          await api.post(
-            `/admin/products/${productId}/activate`,
-            {},
-            adminHeaders
-          )
-
-          const response = await api.post(
-            `/admin/products/${productId}/deactivate`,
-            {},
-            adminHeaders
-          )
-
-          expect(response.status).toEqual(200)
-          expect(response.data.product.is_active).toEqual(false)
-        })
       })
 
       describe("Product Variants", () => {

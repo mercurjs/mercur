@@ -1,11 +1,10 @@
 import { useTranslation } from "react-i18next"
+import { ProductStatus } from "@mercurjs/types"
 import { Filter } from "../../../components/table/data-table"
 import { useProductTags } from "../../api"
 import { useProductTypes } from "../../api/product-types"
-import { useSalesChannels } from "../../api/sales-channels"
 
 const excludeableFields = [
-  "sales_channel_id",
   "collections",
   "categories",
   "product_types",
@@ -35,23 +34,6 @@ export const useProductTableFilters = (
     limit: 1000,
     offset: 0,
   })
-
-  // const { product_tags } = useAdminProductTags({
-  //   limit: 1000,
-  //   offset: 0,
-  // })
-
-  const isSalesChannelExcluded = exclude?.includes("sales_channel_id")
-
-  const { sales_channels } = useSalesChannels(
-    {
-      limit: 1000,
-      fields: "id,name",
-    },
-    {
-      enabled: !isSalesChannelExcluded,
-    }
-  )
 
   const isCategoryExcluded = exclude?.includes("categories")
 
@@ -110,22 +92,6 @@ export const useProductTableFilters = (
     filters = [...filters, tagFilter]
   }
 
-  if (sales_channels) {
-    const salesChannelFilter: Filter = {
-      key: "sales_channel_id",
-      label: t("fields.salesChannel"),
-      type: "select",
-      multiple: true,
-      searchable: true,
-      options: sales_channels.map((s) => ({
-        label: s.name,
-        value: s.id,
-      })),
-    }
-
-    filters = [...filters, salesChannelFilter]
-  }
-
   // if (product_categories) {
   //   const categoryFilter: Filter = {
   //     key: "category_id",
@@ -180,19 +146,23 @@ export const useProductTableFilters = (
     options: [
       {
         label: t("products.productStatus.draft"),
-        value: "draft",
+        value: ProductStatus.DRAFT,
       },
       {
         label: t("products.productStatus.proposed"),
-        value: "proposed",
+        value: ProductStatus.PROPOSED,
       },
       {
         label: t("products.productStatus.published"),
-        value: "published",
+        value: ProductStatus.PUBLISHED,
+      },
+      {
+        label: t("products.productStatus.requires_action"),
+        value: ProductStatus.REQUIRES_ACTION,
       },
       {
         label: t("products.productStatus.rejected"),
-        value: "rejected",
+        value: ProductStatus.REJECTED,
       },
     ],
   }

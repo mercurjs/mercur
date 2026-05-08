@@ -420,7 +420,8 @@
       "errors": {
         "variants": "אנא בחר לפחות וריאנט אחד.",
         "options": "אנא צור לפחות אפשרות אחת.",
-        "uniqueSku": "מק״ט חייב להיות ייחודי."
+        "uniqueSku": "מק״ט חייב להיות ייחודי.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "ערכות מלאי",
@@ -449,7 +450,21 @@
           "hint": "הגדר את האפשרויות למוצר, לדוגמה צבע, גודל וכו'"
         }
       },
-      "successToast": "המוצר {{title}} נוצר בהצלחה."
+      "successToast": "המוצר {{title}} נוצר בהצלחה.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "ייצא רשימת מוצרים",
@@ -536,6 +551,7 @@
       "draft": "טיוטה",
       "published": "פורסם",
       "proposed": "מוצע",
+      "requires_action": "Changes required",
       "rejected": "נדחה"
     },
     "fields": {
@@ -3001,7 +3017,8 @@
     "startDate": "תאריך התחלה",
     "endDate": "תאריך סיום",
     "draft": "טיוטה",
-    "values": "ערכים"
+    "values": "ערכים",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "שנה",
@@ -3018,5 +3035,23 @@
     "minutes_other": "דקות",
     "seconds_one": "שנייה",
     "seconds_other": "שניות"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

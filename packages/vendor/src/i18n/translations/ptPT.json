@@ -423,7 +423,8 @@
       "errors": {
         "variants": "Seleciona pelo menos uma variante.",
         "options": "Cria pelo menos uma opção.",
-        "uniqueSku": "O SKU deve ser único."
+        "uniqueSku": "O SKU deve ser único.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Kits de stock",
@@ -452,7 +453,21 @@
           "hint": "Define as opções do produto, por ex., cor, tamanho, etc."
         }
       },
-      "successToast": "O produto {{title}} foi criado com sucesso."
+      "successToast": "O produto {{title}} foi criado com sucesso.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Exportar lista de produtos",
@@ -557,6 +572,7 @@
       "draft": "Rascunho",
       "published": "Publicado",
       "proposed": "Proposto",
+      "requires_action": "Changes required",
       "rejected": "Rejeitado"
     },
     "columns": {
@@ -3180,7 +3196,8 @@
     "startDate": "Data de início",
     "endDate": "Data de fim",
     "draft": "Rascunho",
-    "values": "Valores"
+    "values": "Valores",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Ano",
@@ -3216,6 +3233,24 @@
         "confirmText": "Atualizar",
         "cancelText": "Cancelar"
       }
+    }
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
     }
   }
 }

@@ -583,8 +583,44 @@
       "draft": "Draft",
       "proposed": "Proposed",
       "published": "Published",
-      "changes_required": "Changes Required",
+      "requires_action": "Requires Action",
       "rejected": "Rejected"
+    },
+    "request": {
+      "panel": {
+        "title": "Product request",
+        "description": "{{store}} has submitted a product request. Review the details, make any necessary updates, and choose whether to confirm and publish the product, request the update or reject the request."
+      },
+      "fallbackStore": "The seller",
+      "actions": {
+        "requestUpdate": "Request update",
+        "reject": "Reject"
+      },
+      "confirmPrompt": {
+        "title": "Confirm request",
+        "description": "You are about to confirm this product request. Once confirmed, the product will appear on the storefront. Only products with stock levels and prices set will be visible.",
+        "noteLabel": "Notes for store",
+        "notePlaceholder": "Specify changes you made or additional requests"
+      },
+      "requestUpdatePrompt": {
+        "title": "Request update",
+        "description": "Request update to this product before publishing. Add notes to explain what needs to be updated.",
+        "noteLabel": "Notes for store",
+        "notePlaceholder": "Describe what needs to be updated (e.g., missing images, incorrect price, incomplete description)",
+        "send": "Send"
+      },
+      "rejectPrompt": {
+        "title": "Reject request",
+        "description": "You are about to reject this product request.",
+        "noteLabel": "Notes for store",
+        "notePlaceholder": "Explain why you reject the request",
+        "confirm": "Reject"
+      },
+      "toast": {
+        "publishedSuccessfully": "Product was confirmed and published",
+        "updateRequestedSuccessfully": "Update request sent to store",
+        "rejectedSuccessfully": "Product request was rejected"
+      }
     },
     "columns": {
       "product_display": "Product",

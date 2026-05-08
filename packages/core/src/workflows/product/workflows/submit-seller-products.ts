@@ -15,10 +15,14 @@ import {
 
 import { ProductWorkflowEvents } from "../events"
 import {
-  createProductChangeActionsStep,
-  createProductChangesStep,
+  associateSellersWithProductStep,
   createProductsStep,
 } from "../steps"
+import {
+  confirmProductChangesStep,
+  createProductChangeActionsStep,
+  createProductChangesStep,
+} from "../../product-edit/steps"
 import { validateSellerProductPermissionsStep } from "../steps/validate-seller-product-permissions"
 
 export const submitSellerProductsWorkflowId = "submit-seller-products"
@@ -62,6 +66,17 @@ export const submitSellerProductsWorkflow = createWorkflow(
 
     const createdProducts = createProductsStep(productData)
 
+    const sellerProductLinks = transform(
+      { createdProducts, input },
+      ({ createdProducts, input }) =>
+        createdProducts.map((p) => ({
+          product_id: p.id,
+          seller_id: input.seller_id,
+        }))
+    )
+
+    associateSellersWithProductStep({ links: sellerProductLinks })
+
     // One ProductChange + STATUS_CHANGE action per created product.
     const changeInputs = transform(
       { createdProducts },
@@ -83,6 +98,22 @@ export const submitSellerProductsWorkflow = createWorkflow(
     )
 
     createProductChangeActionsStep(actionInputs)
+
+    // Submission is the terminal event for this change — there is no admin
+    // review of the creation itself (admin review of `proposed` products
+    // happens through publish/reject/request-changes, which open their own
+    // changes). Confirm immediately so the change becomes audit history and
+    // the product isn't left blocked behind a pending change.
+    const confirmInputs = transform(
+      { changes, input },
+      ({ changes, input }) =>
+        changes.map((change) => ({
+          id: change.id,
+          confirmed_by: input.seller_id,
+        }))
+    )
+
+    confirmProductChangesStep(confirmInputs)
 
     emitEventStep({
       eventName: ProductWorkflowEvents.CREATED,

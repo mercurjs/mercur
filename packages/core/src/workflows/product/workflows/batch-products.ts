@@ -24,7 +24,7 @@ const STATUS_EVENT_MAP: Record<ProductStatus, string | undefined> = {
   [ProductStatus.PROPOSED]: ProductWorkflowEvents.PROPOSED,
   [ProductStatus.PUBLISHED]: ProductWorkflowEvents.PUBLISHED,
   [ProductStatus.REJECTED]: ProductWorkflowEvents.REJECTED,
-  [ProductStatus.CHANGES_REQUIRED]: ProductWorkflowEvents.CHANGES_REQUESTED,
+  [ProductStatus.REQUIRES_ACTION]: ProductWorkflowEvents.CHANGES_REQUESTED,
   [ProductStatus.DRAFT]: undefined,
 }
 

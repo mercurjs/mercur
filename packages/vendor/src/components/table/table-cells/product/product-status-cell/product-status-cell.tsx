@@ -1,31 +1,35 @@
-import { useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next";
 
-import { StatusCell } from "../../common/status-cell"
-import { HttpTypes } from "@medusajs/types"
+import { StatusCell } from "../../common/status-cell";
+import { ProductStatus } from "@mercurjs/types";
 
 type ProductStatusCellProps = {
-  status: HttpTypes.AdminProductStatus
-}
+  status: ProductStatus | `${ProductStatus}`;
+};
 
 export const ProductStatusCell = ({ status }: ProductStatusCellProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const [color, text] = {
-    draft: ["grey", t("products.productStatus.draft")],
-    proposed: ["orange", t("products.productStatus.proposed")],
-    published: ["green", t("products.productStatus.published")],
-    rejected: ["red", t("products.productStatus.rejected")],
-  }[status] as ["grey" | "orange" | "green" | "red", string]
+    [ProductStatus.DRAFT]: ["grey", t("products.productStatus.draft")],
+    [ProductStatus.PROPOSED]: ["orange", t("products.productStatus.proposed")],
+    [ProductStatus.PUBLISHED]: ["green", t("products.productStatus.published")],
+    [ProductStatus.REQUIRES_ACTION]: [
+      "blue",
+      t("products.productStatus.requires_action"),
+    ],
+    [ProductStatus.REJECTED]: ["red", t("products.productStatus.rejected")],
+  }[status] as ["grey" | "orange" | "green" | "red" | "blue", string];
 
-  return <StatusCell color={color}>{text}</StatusCell>
-}
+  return <StatusCell color={color}>{text}</StatusCell>;
+};
 
 export const ProductStatusHeader = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <div className="flex h-full w-full items-center">
       <span>{t("fields.status")}</span>
     </div>
-  )
-}
+  );
+};

@@ -420,7 +420,8 @@
       "errors": {
         "variants": "请至少选择一个变体。",
         "options": "请至少创建一个选项。",
-        "uniqueSku": "SKU 必须唯一。"
+        "uniqueSku": "SKU 必须唯一。",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "库存套件",
@@ -449,7 +450,21 @@
           "hint": "定义产品的选项,例如颜色、尺寸等。"
         }
       },
-      "successToast": "产品 {{title}} 创建成功。"
+      "successToast": "产品 {{title}} 创建成功。",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "导出产品列表",
@@ -536,6 +551,7 @@
       "draft": "草稿",
       "published": "已发布",
       "proposed": "已提议",
+      "requires_action": "Changes required",
       "rejected": "已拒绝"
     },
     "fields": {
@@ -3001,7 +3017,8 @@
     "startDate": "开始日期",
     "endDate": "结束日期",
     "draft": "草稿",
-    "values": "值"
+    "values": "值",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "年",
@@ -3018,5 +3035,23 @@
     "minutes_other": "分钟",
     "seconds_one": "秒",
     "seconds_other": "秒"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

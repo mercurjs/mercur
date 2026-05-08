@@ -406,7 +406,8 @@
       "errors": {
         "variants": "โปรดเลือกตัวเลือกอย่างน้อยหนึ่งตัวเลือก",
         "options": "โปรดสร้างตัวเลือกอย่างน้อยหนึ่งตัวเลือก",
-        "uniqueSku": "รหัส SKU ต้องไม่ซ้ำกัน"
+        "uniqueSku": "รหัส SKU ต้องไม่ซ้ำกัน",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "ชุดสินค้าคงคลัง",
@@ -435,7 +436,21 @@
           "hint": "กำหนดตัวเลือกสำหรับสินค้า เช่น สี ขนาด เป็นต้น"
         }
       },
-      "successToast": "สินค้า {{title}} ถูกสร้างเรียบร้อยแล้ว"
+      "successToast": "สินค้า {{title}} ถูกสร้างเรียบร้อยแล้ว",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "ส่งออกรายการสินค้า",
@@ -522,6 +537,7 @@
       "draft": "ฉบับร่าง",
       "published": "เผยแพร่",
       "proposed": "เสนอ",
+      "requires_action": "Changes required",
       "rejected": "ถูกปฏิเสธ"
     },
     "fields": {
@@ -2773,7 +2789,8 @@
     "startDate": "วันที่เริ่มต้น",
     "endDate": "วันที่สิ้นสุด",
     "draft": "ฉบับร่าง",
-    "values": "ค่า"
+    "values": "ค่า",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "ปี",
@@ -2790,5 +2807,23 @@
     "minutes_other": "นาที",
     "seconds_one": "วินาที",
     "seconds_other": "วินาที"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }
