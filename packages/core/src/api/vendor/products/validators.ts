@@ -328,3 +328,12 @@ export const VendorAddProductAttribute = z
     values: z.array(z.string()).optional(),
   })
   .strict()
+
+export type VendorCancelProductChangeType = z.infer<
+  typeof VendorCancelProductChange
+>
+export const VendorCancelProductChange = z
+  .object({
+    internal_note: z.string().optional(),
+  })
+  .strict()

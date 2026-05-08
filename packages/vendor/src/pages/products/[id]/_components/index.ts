@@ -1,3 +1,4 @@
+export * from "./product-active-edit-section"
 export * from "./product-attribute-section"
 export * from "./product-general-section"
 export * from "./product-media-section"

@@ -154,7 +154,7 @@ class ProductModuleService extends MedusaService({
 
     const productChange = await this.getActiveProductChange_(
       product.id,
-      false,
+      true,
       sharedContext
     );
 
@@ -2003,17 +2003,17 @@ class ProductModuleService extends MedusaService({
   async confirmProductChange(
     data:
       | {
-          id: string
-          confirmed_by?: string
-          internal_note?: string
-          external_note?: string
-        }
+        id: string
+        confirmed_by?: string
+        internal_note?: string
+        external_note?: string
+      }
       | {
-          id: string
-          confirmed_by?: string
-          internal_note?: string
-          external_note?: string
-        }[],
+        id: string
+        confirmed_by?: string
+        internal_note?: string
+        external_note?: string
+      }[],
     sharedContext?: Context
   ) {
     const items = Array.isArray(data) ? data : [data];

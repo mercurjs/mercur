@@ -445,6 +445,7 @@
       "header": "Edit Product",
       "description": "Edit the product details.",
       "successToast": "Product {{title}} was successfully updated.",
+      "requestSuccessToast": "Product update was successfully requested. Once confirmed by the Admin, changes will appear on the storefront.",
       "attributes": {
         "addAttribute": "Add Attribute",
         "editHeader": "Edit Attribute",
@@ -460,6 +461,18 @@
       "informationalAttributes": {
         "header": "Product Information",
         "description": "Attributes used for informational purposes"
+      }
+    },
+    "edits": {
+      "panel": {
+        "title": "Product update request",
+        "description": "Product update request has been submitted successfully. Once the Admin reviews it, you'll receive a notification in your panel. Confirmed updates will appear on the storefront.",
+        "deleteRequested": "Product deletion is pending approval.",
+        "cancelTitle": "Cancel update request",
+        "cancelDescription": "Are you sure you want to cancel this product update request? This action cannot be undone."
+      },
+      "toast": {
+        "canceledSuccessfully": "Product update request canceled"
       }
     },
     "create": {
@@ -3409,6 +3422,7 @@
     "inStock": "In stock",
     "added": "Added",
     "removed": "Removed",
+    "updated": "Updated",
     "from": "From",
     "to": "To",
     "beaware": "Be aware",
@@ -3425,6 +3439,7 @@
     "default": "Default",
     "lastName": "Last Name",
     "firstName": "First Name",
+    "images": "Media",
     "title": "Title",
     "customTitle": "Custom title",
     "manageInventory": "Manage inventory",
@@ -3440,6 +3455,9 @@
     "newPassword": "New Password",
     "repeatNewPassword": "Repeat New Password",
     "categories": "Categories",
+    "brand_id": "Brand",
+    "type_id": "Type",
+    "collection_id": "Collection",
     "shippingMethod": "Shipping method",
     "configurations": "Configurations",
     "enabledInStore": "Enabled in store",

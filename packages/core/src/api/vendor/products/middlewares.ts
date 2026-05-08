@@ -17,6 +17,7 @@ import {
 import {
   VendorAddProductAttribute,
   VendorAddProductVariant,
+  VendorCancelProductChange,
   VendorCreateProduct,
   VendorGetProductAttributeParams,
   VendorGetProductAttributesParams,
@@ -87,6 +88,13 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/products/:id",
     middlewares: [],
+  },
+
+  // --- /vendor/products/:id/cancel ---
+  {
+    method: ["POST"],
+    matcher: "/vendor/products/:id/cancel",
+    middlewares: [validateAndTransformBody(VendorCancelProductChange)],
   },
 
   // --- /vendor/products/:id/variants ---

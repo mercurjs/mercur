@@ -7,13 +7,6 @@ import { ProductChangeDTO } from "@mercurjs/types"
 
 import ProductModuleService from "../../../../../modules/product/service"
 
-/**
- * Returns the active pending `ProductChange` for the product, or 404 if
- * none exists. Mirrors `GET /admin/products/:id/change` so vendors can
- * inspect the staged-but-unconfirmed change they opened (typical use:
- * "what am I waiting on?" before staging another edit, since only one
- * pending change per product is allowed).
- */
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<{ product_change: ProductChangeDTO }>

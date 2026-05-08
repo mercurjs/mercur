@@ -259,8 +259,8 @@ export type Routes = {
                     $attributeId: typeof import("../../src/api/admin/products/[id]/attributes/[attribute_id]/route");
                     batch: typeof import("../../src/api/admin/products/[id]/attributes/batch/route");
                 };
-                change: typeof import("../../src/api/admin/products/[id]/change/route");
                 confirm: typeof import("../../src/api/admin/products/[id]/confirm/route");
+                preview: typeof import("../../src/api/admin/products/[id]/preview/route");
                 reject: typeof import("../../src/api/admin/products/[id]/reject/route");
                 requestChanges: typeof import("../../src/api/admin/products/[id]/request-changes/route");
             };
@@ -674,7 +674,8 @@ export type Routes = {
                 attributes: typeof import("../../src/api/vendor/products/[id]/attributes/route") & {
                     $attributeId: typeof import("../../src/api/vendor/products/[id]/attributes/[attribute_id]/route");
                 };
-                change: typeof import("../../src/api/vendor/products/[id]/change/route");
+                cancel: typeof import("../../src/api/vendor/products/[id]/cancel/route");
+                preview: typeof import("../../src/api/vendor/products/[id]/preview/route");
             };
         };
         promotions: typeof import("../../src/api/vendor/promotions/route") & {

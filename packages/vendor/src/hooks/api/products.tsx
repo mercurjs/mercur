@@ -105,9 +105,9 @@ export const useInfiniteProducts = (
 };
 
 /**
- * Reads the active pending `ProductChange` for a product. Returns 404 when
- * none exists — pair with `enabled` or `useQuery` retry config to control
- * polling.
+ * Reads the active pending `ProductChange` for a product via the `preview`
+ * endpoint. Returns 404 when none exists — pair with `enabled` or `useQuery`
+ * retry config to control polling.
  */
 export const useProductChange = (
   productId: string,
@@ -118,7 +118,7 @@ export const useProductChange = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () =>
-      sdk.vendor.products.$id.change.query({ $id: productId }) as Promise<
+      sdk.vendor.products.$id.preview.query({ $id: productId }) as Promise<
         ProductChangeResponse
       >,
     queryKey: productChangeQueryKeys.detail(productId),
@@ -204,6 +204,38 @@ export const useDeleteProduct = (
       });
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
 
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+/**
+ * Cancels the active pending `ProductChange` for a product via
+ * `cancelProductEditWorkflow`. Used by the seller to abandon a staged edit
+ * before the operator reviews it. Pass `internal_note` to record why.
+ */
+export const useCancelProductEdit = (
+  id: string,
+  options?: UseMutationOptions<
+    ProductChangeResponse,
+    ClientError,
+    { internal_note?: string } | void
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.vendor.products.$id.cancel.mutate({
+        $id: id,
+        ...(payload ?? {}),
+      }) as Promise<ProductChangeResponse>,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: productChangeQueryKeys.detail(id),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(id),
+      });
       options?.onSuccess?.(data, variables, context);
     },
     ...options,
