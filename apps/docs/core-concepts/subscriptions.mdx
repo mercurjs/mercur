@@ -30,7 +30,7 @@ When subscriptions are enabled, the operator defines a **default plan** for each
 
 ### How the Default Plan Works
 
-When a new [seller](/v2/core-concepts/seller) account is approved, the system automatically assigns the default plan matching the seller's currency. The seller begins their subscription immediately, starting with any configured free months.
+When a new [seller](/core-concepts/seller) account is approved, the system automatically assigns the default plan matching the seller's currency. The seller begins their subscription immediately, starting with any configured free months.
 
 The `requires_orders` flag is designed for marketplaces that want to avoid charging inactive sellers. When this flag is set, a billing cycle with zero orders produces no invoice — the seller is effectively not charged for that month.
 
@@ -66,7 +66,7 @@ If the start date falls on the 29th, 30th, or 31st, billing rolls to the last da
 
 ### Billing Across Statuses
 
-Subscription billing continues regardless of the seller's [account status](/v2/core-concepts/seller), with one exception:
+Subscription billing continues regardless of the seller's [account status](/core-concepts/seller), with one exception:
 
 
 | Status             | Billed? | Notes                                                   |
@@ -87,5 +87,5 @@ Persistent negative balances may be grounds for suspension or termination at the
 
 ## Relationship to Other Concepts
 
-- **Seller accounts** determine which default plan applies based on `currency_code` (see [Seller](/v2/core-concepts/seller))
-- Subscription status is independent of [member management](/v2/core-concepts/seller-members) — adding or removing members does not affect billing
+- **Seller accounts** determine which default plan applies based on `currency_code` (see [Seller](/core-concepts/seller))
+- Subscription status is independent of [member management](/core-concepts/seller-members) — adding or removing members does not affect billing

@@ -35,7 +35,7 @@
               {
                 "group": "Welcome",
                 "pages": [
-                  "v2/welcome"
+                  "welcome"
                 ]
               }
             ]
@@ -46,60 +46,60 @@
               {
                 "group": "Getting started",
                 "pages": [
-                  "v2/getting-started/introduction",
-                  "v2/getting-started/concepts",
-                  "v2/getting-started/installation"
+                  "getting-started/introduction",
+                  "getting-started/concepts",
+                  "getting-started/installation"
                 ]
               },
               {
                 "group": "Core Concepts",
                 "pages": [
-                  "v2/core-concepts/seller",
-                  "v2/core-concepts/seller-members",
-                  "v2/core-concepts/subscriptions",
-                  "v2/core-concepts/payout",
-                  "v2/core-concepts/commission",
-                  "v2/core-concepts/order-groups"
+                  "core-concepts/seller",
+                  "core-concepts/seller-members",
+                  "core-concepts/subscriptions",
+                  "core-concepts/payout",
+                  "core-concepts/commission",
+                  "core-concepts/order-groups"
                 ]
               },
               {
                 "group": "Developer Guide",
                 "pages": [
-                  "v2/developer-guide/overview",
-                  "v2/developer-guide/blocks",
-                  "v2/developer-guide/registry",
-                  "v2/developer-guide/api-client",
-                  "v2/developer-guide/cli",
-                  "v2/developer-guide/extending-panels",
-                  "v2/developer-guide/custom-fields"
+                  "developer-guide/overview",
+                  "developer-guide/blocks",
+                  "developer-guide/registry",
+                  "developer-guide/api-client",
+                  "developer-guide/cli",
+                  "developer-guide/extending-panels",
+                  "developer-guide/custom-fields"
                 ]
               },
               {
                 "group": "How-to Guides",
                 "pages": [
-                  "v2/how-to-guides/stripe-connect-integration"
+                  "how-to-guides/stripe-connect-integration"
                 ]
               },
               {
                 "group": "Migration",
                 "pages": [
-                  "v2/migrations/overview",
-                  "v2/migrations/from-2-0-to-2-1",
-                  "v2/migrations/from-1-x-to-2-0"
+                  "migrations/overview",
+                  "migrations/from-2-0-to-2-1",
+                  "migrations/from-1-x-to-2-0"
                 ]
               },
               {
                 "group": "AI Development",
                 "pages": [
-                  "v2/ai-development/llms",
-                  "v2/ai-development/mcp",
-                  "v2/ai-development/skills"
+                  "ai-development/llms",
+                  "ai-development/mcp",
+                  "ai-development/skills"
                 ]
               },
               {
                 "group": "Legal",
                 "pages": [
-                  "v2/telemetry"
+                  "telemetry"
                 ]
               }
             ]
@@ -110,13 +110,13 @@
               {
                 "group": "Admin Panel",
                 "pages": [
-                  "v2/user-guides/admin/stores"
+                  "user-guides/admin/stores"
                 ]
               },
               {
                 "group": "Vendor Panel",
                 "pages": [
-                  "v2/user-guides/vendor/stores"
+                  "user-guides/vendor/stores"
                 ]
               }
             ]
@@ -141,38 +141,38 @@
               {
                 "group": "Quick start",
                 "pages": [
-                  "introduction",
-                  "get-started"
+                  "v1/introduction",
+                  "v1/get-started"
                 ]
               },
               {
                 "group": "Components",
                 "pages": [
-                  "components/backend",
-                  "components/admin-panel",
-                  "components/vendor-panel",
-                  "components/storefront"
+                  "v1/components/backend",
+                  "v1/components/admin-panel",
+                  "v1/components/vendor-panel",
+                  "v1/components/storefront"
                 ]
               },
               {
                 "group": "Core Concepts",
                 "pages": [
-                  "core-concepts/seller",
-                  "core-concepts/order-splitting",
-                  "core-concepts/payouts",
-                  "core-concepts/commission",
-                  "core-concepts/marketplace-settings",
-                  "core-concepts/requests",
-                  "core-concepts/reviews",
-                  "core-concepts/notifications"
+                  "v1/core-concepts/seller",
+                  "v1/core-concepts/order-splitting",
+                  "v1/core-concepts/payouts",
+                  "v1/core-concepts/commission",
+                  "v1/core-concepts/marketplace-settings",
+                  "v1/core-concepts/requests",
+                  "v1/core-concepts/reviews",
+                  "v1/core-concepts/notifications"
                 ]
               },
               {
                 "group": "Product",
                 "pages": [
-                  "product/framework",
-                  "product/core-commerce-modules",
-                  "product/core-infrastructure-modules",
+                  "v1/product/framework",
+                  "v1/product/core-commerce-modules",
+                  "v1/product/core-infrastructure-modules",
                   {
                     "group": "Mercur marketplace modules",
                     "pages": [
@@ -182,82 +182,82 @@
                           {
                             "group": "Attribute module",
                             "pages": [
-                              "product/modules/b2c-core/attribute/attribute-concept",
-                              "product/modules/b2c-core/attribute/attribute-links",
-                              "product/modules/b2c-core/attribute/attributes-data-models-ref",
-                              "product/modules/b2c-core/attribute/attributes-services"
+                              "v1/product/modules/b2c-core/attribute/attribute-concept",
+                              "v1/product/modules/b2c-core/attribute/attribute-links",
+                              "v1/product/modules/b2c-core/attribute/attributes-data-models-ref",
+                              "v1/product/modules/b2c-core/attribute/attributes-services"
                             ]
                           },
                           {
                             "group": "Configuration module",
                             "pages": [
-                              "product/modules/b2c-core/configuration/configuration-concept",
-                              "product/modules/b2c-core/configuration/configuration-data-models-ref",
-                              "product/modules/b2c-core/configuration/configuration-services"
+                              "v1/product/modules/b2c-core/configuration/configuration-concept",
+                              "v1/product/modules/b2c-core/configuration/configuration-data-models-ref",
+                              "v1/product/modules/b2c-core/configuration/configuration-services"
                             ]
                           },
                           {
                             "group": "Marketplace module",
                             "pages": [
-                              "product/modules/b2c-core/marketplace/marketplace-concept",
-                              "product/modules/b2c-core/marketplace/marketplace-links",
-                              "product/modules/b2c-core/marketplace/marketplace-data-model-reference",
-                              "product/modules/b2c-core/marketplace/marketplace-service"
+                              "v1/product/modules/b2c-core/marketplace/marketplace-concept",
+                              "v1/product/modules/b2c-core/marketplace/marketplace-links",
+                              "v1/product/modules/b2c-core/marketplace/marketplace-data-model-reference",
+                              "v1/product/modules/b2c-core/marketplace/marketplace-service"
                             ]
                           },
                           {
                             "group": "Payout module",
                             "pages": [
-                              "product/modules/b2c-core/payout/payout-concept",
-                              "product/modules/b2c-core/payout/payout-links",
-                              "product/modules/b2c-core/payout/payout-data-model-reference",
-                              "product/modules/b2c-core/payout/payout-services"
+                              "v1/product/modules/b2c-core/payout/payout-concept",
+                              "v1/product/modules/b2c-core/payout/payout-links",
+                              "v1/product/modules/b2c-core/payout/payout-data-model-reference",
+                              "v1/product/modules/b2c-core/payout/payout-services"
                             ]
                           },
                           {
                             "group": "Secondary Category Module",
                             "pages": [
-                              "product/modules/b2c-core/secondary-categories/secondary-categories-concept",
-                              "product/modules/b2c-core/secondary-categories/secondary-category-links",
-                              "product/modules/b2c-core/secondary-categories/sec-cat-data-model-reference",
-                              "product/modules/b2c-core/secondary-categories/secondary-category-services"
+                              "v1/product/modules/b2c-core/secondary-categories/secondary-categories-concept",
+                              "v1/product/modules/b2c-core/secondary-categories/secondary-category-links",
+                              "v1/product/modules/b2c-core/secondary-categories/sec-cat-data-model-reference",
+                              "v1/product/modules/b2c-core/secondary-categories/secondary-category-services"
                             ]
                           },
                           {
                             "group": "Seller module",
                             "pages": [
-                              "product/modules/b2c-core/seller/seller-concept",
-                              "product/modules/b2c-core/seller/seller-module-options",
-                              "product/modules/b2c-core/seller/seller-links",
-                              "product/modules/b2c-core/seller/seller-data-model-reference",
-                              "product/modules/b2c-core/seller/seller-services"
+                              "v1/product/modules/b2c-core/seller/seller-concept",
+                              "v1/product/modules/b2c-core/seller/seller-module-options",
+                              "v1/product/modules/b2c-core/seller/seller-links",
+                              "v1/product/modules/b2c-core/seller/seller-data-model-reference",
+                              "v1/product/modules/b2c-core/seller/seller-services"
                             ]
                           },
                           {
                             "group": "Split Order Payment Module",
                             "pages": [
-                              "product/modules/b2c-core/split-order-payment/split-order-payment-concept",
-                              "product/modules/b2c-core/split-order-payment/split-order-links",
-                              "product/modules/b2c-core/split-order-payment/split-order-data-model-reference",
-                              "product/modules/b2c-core/split-order-payment/split-order-services"
+                              "v1/product/modules/b2c-core/split-order-payment/split-order-payment-concept",
+                              "v1/product/modules/b2c-core/split-order-payment/split-order-links",
+                              "v1/product/modules/b2c-core/split-order-payment/split-order-data-model-reference",
+                              "v1/product/modules/b2c-core/split-order-payment/split-order-services"
                             ]
                           },
                           {
                             "group": "Taxcode module",
                             "pages": [
-                              "product/modules/b2c-core/taxcode/taxcode-concept",
-                              "product/modules/b2c-core/taxcode/taxcode-links",
-                              "product/modules/b2c-core/taxcode/taxcode-data-model-reference",
-                              "product/modules/b2c-core/taxcode/taxcode-services"
+                              "v1/product/modules/b2c-core/taxcode/taxcode-concept",
+                              "v1/product/modules/b2c-core/taxcode/taxcode-links",
+                              "v1/product/modules/b2c-core/taxcode/taxcode-data-model-reference",
+                              "v1/product/modules/b2c-core/taxcode/taxcode-services"
                             ]
                           },
                           {
                             "group": "Wishlist module",
                             "pages": [
-                              "product/modules/b2c-core/wishlist/wishlist-concept",
-                              "product/modules/b2c-core/wishlist/wishlist-links",
-                              "product/modules/b2c-core/wishlist/wishlist-data-model-reference",
-                              "product/modules/b2c-core/wishlist/wishlist-services"
+                              "v1/product/modules/b2c-core/wishlist/wishlist-concept",
+                              "v1/product/modules/b2c-core/wishlist/wishlist-links",
+                              "v1/product/modules/b2c-core/wishlist/wishlist-data-model-reference",
+                              "v1/product/modules/b2c-core/wishlist/wishlist-services"
                             ]
                           }
                         ]
@@ -268,9 +268,9 @@
                           {
                             "group": "Commission module",
                             "pages": [
-                              "product/modules/commission/commission/commission-concept",
-                              "product/modules/commission/commission/commission-data-model-reference",
-                              "product/modules/commission/commission/commission-services"
+                              "v1/product/modules/commission/commission/commission-concept",
+                              "v1/product/modules/commission/commission/commission-data-model-reference",
+                              "v1/product/modules/commission/commission/commission-services"
                             ]
                           }
                         ]
@@ -281,19 +281,19 @@
                           {
                             "group": "Request module",
                             "pages": [
-                              "product/modules/requests/requests/requests-concept",
-                              "product/modules/requests/requests/requests-links",
-                              "product/modules/requests/requests/request-data-model-reference",
-                              "product/modules/requests/requests/requests-services"
+                              "v1/product/modules/requests/requests/requests-concept",
+                              "v1/product/modules/requests/requests/requests-links",
+                              "v1/product/modules/requests/requests/request-data-model-reference",
+                              "v1/product/modules/requests/requests/requests-services"
                             ]
                           },
                           {
                             "group": "Order Return Request module",
                             "pages": [
-                              "product/modules/requests/order-return-request/order-return-request",
-                              "product/modules/requests/order-return-request/order-return-request-links",
-                              "product/modules/requests/order-return-request/order-return-request-data-model-reference",
-                              "product/modules/requests/order-return-request/order-return-request-services"
+                              "v1/product/modules/requests/order-return-request/order-return-request",
+                              "v1/product/modules/requests/order-return-request/order-return-request-links",
+                              "v1/product/modules/requests/order-return-request/order-return-request-data-model-reference",
+                              "v1/product/modules/requests/order-return-request/order-return-request-services"
                             ]
                           }
                         ]
@@ -304,10 +304,10 @@
                           {
                             "group": "Reviews module",
                             "pages": [
-                              "product/modules/reviews/reviews/reviews-concept",
-                              "product/modules/reviews/reviews/review-links",
-                              "product/modules/reviews/reviews/review-data-model-reference",
-                              "product/modules/reviews/reviews/review-service"
+                              "v1/product/modules/reviews/reviews/reviews-concept",
+                              "v1/product/modules/reviews/reviews/review-links",
+                              "v1/product/modules/reviews/reviews/review-data-model-reference",
+                              "v1/product/modules/reviews/reviews/review-service"
                             ]
                           }
                         ]
@@ -320,69 +320,69 @@
                       {
                         "group": "Core",
                         "pages": [
-                          "docs/product/workflows/core/price-list-workflows",
-                          "docs/product/workflows/core/attribute",
-                          "docs/product/workflows/core/campaign-workflows",
-                          "docs/product/workflows/core/cart-workflows",
-                          "docs/product/workflows/core/configuration-workflows",
-                          "docs/product/workflows/core/customer-groups-workflows",
-                          "docs/product/workflows/core/fulfillment-set-workflows",
-                          "docs/product/workflows/core/order-workflows",
-                          "docs/product/workflows/core/order-set-workflows",
-                          "docs/product/workflows/core/payout-workflows",
-                          "docs/product/workflows/core/product-workflows",
-                          "docs/product/workflows/core/promotions-workflows",
-                          "docs/product/workflows/core/seller-workflows",
-                          "docs/product/workflows/core/split-order-payment",
-                          "docs/product/workflows/core/wishlist-workflows",
-                          "docs/product/workflows/core/common-workflows",
-                          "docs/product/workflows/core/hooks"
+                          "v1/docs/product/workflows/core/price-list-workflows",
+                          "v1/docs/product/workflows/core/attribute",
+                          "v1/docs/product/workflows/core/campaign-workflows",
+                          "v1/docs/product/workflows/core/cart-workflows",
+                          "v1/docs/product/workflows/core/configuration-workflows",
+                          "v1/docs/product/workflows/core/customer-groups-workflows",
+                          "v1/docs/product/workflows/core/fulfillment-set-workflows",
+                          "v1/docs/product/workflows/core/order-workflows",
+                          "v1/docs/product/workflows/core/order-set-workflows",
+                          "v1/docs/product/workflows/core/payout-workflows",
+                          "v1/docs/product/workflows/core/product-workflows",
+                          "v1/docs/product/workflows/core/promotions-workflows",
+                          "v1/docs/product/workflows/core/seller-workflows",
+                          "v1/docs/product/workflows/core/split-order-payment",
+                          "v1/docs/product/workflows/core/wishlist-workflows",
+                          "v1/docs/product/workflows/core/common-workflows",
+                          "v1/docs/product/workflows/core/hooks"
                         ]
                       },
                       {
                         "group": "Commission",
                         "pages": [
-                          "docs/product/workflows/commission/commission-workflows"
+                          "v1/docs/product/workflows/commission/commission-workflows"
                         ]
                       },
                       {
                         "group": "Requests",
                         "pages": [
-                          "docs/product/workflows/requests/requests",
-                          "docs/product/workflows/requests/order-return-request-workflows"
+                          "v1/docs/product/workflows/requests/requests",
+                          "v1/docs/product/workflows/requests/order-return-request-workflows"
                         ]
                       },
                       {
                         "group": "Reviews",
                         "pages": [
-                          "docs/product/workflows/reviews/review-workflows"
+                          "v1/docs/product/workflows/reviews/review-workflows"
                         ]
                       }
                     ]
                   },
-                  "docs/product/js-sdk",
-                  "docs/product/api",
+                  "v1/docs/product/js-sdk",
+                  "v1/docs/product/api",
                   {
                     "group": "Events",
                     "pages": [
-                      "docs/product/events/core-events",
-                      "docs/product/events/request-events",
-                      "docs/product/events/reviews-events"
+                      "v1/docs/product/events/core-events",
+                      "v1/docs/product/events/request-events",
+                      "v1/docs/product/events/reviews-events"
                     ]
                   },
                   {
                     "group": "Scheduled Jobs",
                     "pages": [
-                      "docs/product/scheduled-jobs/core-scheduled-jobs"
+                      "v1/docs/product/scheduled-jobs/core-scheduled-jobs"
                     ]
                   },
                   {
                     "group": "Subscribers",
                     "pages": [
-                      "docs/product/subscribers/core",
-                      "docs/product/subscribers/commission",
-                      "docs/product/subscribers/requests",
-                      "docs/product/subscribers/reviews"
+                      "v1/docs/product/subscribers/core",
+                      "v1/docs/product/subscribers/commission",
+                      "v1/docs/product/subscribers/requests",
+                      "v1/docs/product/subscribers/reviews"
                     ]
                   }
                 ]
@@ -390,29 +390,29 @@
               {
                 "group": "Integrations",
                 "pages": [
-                  "integrations/algolia",
-                  "integrations/resend",
-                  "integrations/stripe"
+                  "v1/integrations/algolia",
+                  "v1/integrations/resend",
+                  "v1/integrations/stripe"
                 ]
               },
               {
                 "group": "Deployment",
                 "pages": [
-                  "medusa-cloud"
+                  "v1/medusa-cloud"
                 ]
               },
               {
                 "group": "Development",
                 "pages": [
-                  "development/set-up"
+                  "v1/development/set-up"
                 ]
               },
               {
                 "group": "Help",
                 "pages": [
-                  "help/llm",
-                  "help/mcp",
-                  "help/support"
+                  "v1/help/llm",
+                  "v1/help/mcp",
+                  "v1/help/support"
                 ]
               }
             ]
@@ -422,7 +422,7 @@
             "groups": [
               {
                 "group": "API Documentation",
-                "openapi": "api-reference/combined.oas.json"
+                "openapi": "v1/api-reference/combined.oas.json"
               }
             ]
           },
@@ -439,6 +439,100 @@
       }
     ]
   },
+  "redirects": [
+    {
+      "source": "/v2/welcome",
+      "destination": "/welcome"
+    },
+    {
+      "source": "/v2/:slug*",
+      "destination": "/:slug*"
+    },
+    {
+      "source": "/introduction",
+      "destination": "/getting-started/introduction"
+    },
+    {
+      "source": "/get-started",
+      "destination": "/getting-started/installation"
+    },
+    {
+      "source": "/installation",
+      "destination": "/getting-started/installation"
+    },
+    {
+      "source": "/cli-installation",
+      "destination": "/getting-started/installation"
+    },
+    {
+      "source": "/core-concepts/order-splitting",
+      "destination": "/core-concepts/order-groups"
+    },
+    {
+      "source": "/core-concepts/payouts",
+      "destination": "/core-concepts/payout"
+    },
+    {
+      "source": "/core-concepts/marketplace-settings",
+      "destination": "/v1/core-concepts/marketplace-settings"
+    },
+    {
+      "source": "/core-concepts/requests",
+      "destination": "/v1/core-concepts/requests"
+    },
+    {
+      "source": "/core-concepts/reviews",
+      "destination": "/v1/core-concepts/reviews"
+    },
+    {
+      "source": "/core-concepts/notifications",
+      "destination": "/v1/core-concepts/notifications"
+    },
+    {
+      "source": "/components/:slug*",
+      "destination": "/v1/components/:slug*"
+    },
+    {
+      "source": "/product/:slug*",
+      "destination": "/v1/product/:slug*"
+    },
+    {
+      "source": "/docs/:slug*",
+      "destination": "/v1/docs/:slug*"
+    },
+    {
+      "source": "/development/:slug*",
+      "destination": "/v1/development/:slug*"
+    },
+    {
+      "source": "/integrations/:slug*",
+      "destination": "/v1/integrations/:slug*"
+    },
+    {
+      "source": "/essentials/:slug*",
+      "destination": "/v1/essentials/:slug*"
+    },
+    {
+      "source": "/help/:slug*",
+      "destination": "/v1/help/:slug*"
+    },
+    {
+      "source": "/api-reference/:slug*",
+      "destination": "/v1/api-reference/:slug*"
+    },
+    {
+      "source": "/snippets/:slug*",
+      "destination": "/v1/snippets/:slug*"
+    },
+    {
+      "source": "/try-the-api",
+      "destination": "/v1/try-the-api"
+    },
+    {
+      "source": "/medusa-cloud",
+      "destination": "/v1/medusa-cloud"
+    }
+  ],
   "footer": {
     "socials": {
       "github": "https://github.com/mercurjs/mercur",
