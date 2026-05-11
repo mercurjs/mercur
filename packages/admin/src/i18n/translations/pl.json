@@ -260,7 +260,9 @@
       },
       "main": {
         "store": "Sklep",
-        "storeSettings": "Ustawienia sklepu"
+        "marketplace": "Marketplace",
+        "storeSettings": "Ustawienia sklepu",
+        "marketplaceSettings": "Ustawienia marketplace"
       },
       "settings": {
         "header": "Ustawienia",
@@ -407,6 +409,7 @@
   },
   "products": {
     "domain": "Produkty",
+    "associatedStore": "Powiązany sklep",
     "additionalAttributes": "Dodatkowe atrybuty",
     "list": {
       "noRecordsMessage": "Utwórz swój pierwszy produkt, aby rozpocząć sprzedaż."
@@ -766,6 +769,57 @@
         "successToast_many": "Produktów zostało pomyślnie usuniętych z kolekcji.",
         "successToast_other": "Produktów zostało pomyślnie usuniętych z kolekcji."
       }
+    }
+  },
+  "commissionRates": {
+    "domain": "Stawki prowizji",
+    "description": "Zarządzaj stawkami prowizji i regułami dla swojego marketplace.",
+    "create": {
+      "header": "Utwórz stawkę prowizji",
+      "description": "Skonfiguruj nową stawkę prowizji dla swojego marketplace.",
+      "successToast": "Stawka prowizji utworzona pomyślnie"
+    },
+    "edit": {
+      "header": "Edytuj stawkę prowizji",
+      "successToast": "Stawka prowizji zaktualizowana pomyślnie"
+    },
+    "delete": {
+      "description": "Czy na pewno chcesz usunąć stawkę prowizji \"{{name}}\"?",
+      "successToast": "Stawka prowizji usunięta pomyślnie"
+    },
+    "rules": {
+      "empty": "Brak skonfigurowanych reguł"
+    },
+    "fields": {
+      "name": "Nazwa",
+      "code": "Kod",
+      "type": {
+        "label": "Typ",
+        "percentage": "Procentowy",
+        "fixed": "Stały"
+      },
+      "target": {
+        "label": "Cel",
+        "item": "Pozycja",
+        "shipping": "Wysyłka"
+      },
+      "currencyCode": "Kod waluty",
+      "currencyPlaceholder": "Wybierz walutę",
+      "rate": "Stawka",
+      "minAmount": "Kwota minimalna",
+      "priority": "Priorytet",
+      "enabled": "Włączone",
+      "enabledHint": "Włącz lub wyłącz tę stawkę prowizji.",
+      "includeTax": "Uwzględnij podatek",
+      "includeTaxHint": "Uwzględnij podatek w obliczeniach prowizji."
+    },
+    "status": {
+      "enabled": "Włączone",
+      "disabled": "Wyłączone"
+    },
+    "toggle": {
+      "enabledToast": "Stawka prowizji włączona pomyślnie",
+      "disabledToast": "Stawka prowizji wyłączona pomyślnie"
     }
   },
   "categories": {
@@ -1409,7 +1463,10 @@
         "partiallyReturned": "Częściowo zwrócone",
         "returned": "Zwrócone",
         "canceled": "Anulowane",
-        "requiresAction": "Wymaga działania"
+        "requiresAction": "Wymaga działania",
+        "awaitingPickup": "Oczekuje na odbiór",
+        "awaitingShipping": "Oczekuje na wysyłkę",
+        "awaitingDelivery": "Oczekuje na dostawę"
       },
       "toast": {
         "created": "Realizacja została pomyślnie utworzona",
@@ -1419,6 +1476,7 @@
         "fulfillmentPickedUp": "Realizacja została pomyślnie oznaczona jako odebrana"
       },
       "trackingLabel": "Śledzenie przesyłki",
+      "labelLink": "Etykieta",
       "shippingFromLabel": "Wysyłka z",
       "itemsLabel": "Produkty"
     },
@@ -1526,7 +1584,25 @@
     "fields": {
       "displayId": "Indeks zamówienia",
       "refundableAmount": "Kwota do zwrotu",
-      "returnableQuantity": "Ilość do zwrotu"
+      "returnableQuantity": "Ilość do zwrotu",
+      "groupId": "ID grupy",
+      "orderIds": "ID zamówień",
+      "vendor": "Sprzedawca",
+      "vendorsCount_one": "{{count}} sprzedawca",
+      "vendorsCount_other": "{{count}} sprzedawców"
+    }
+  },
+  "payouts": {
+    "domain": "Wypłaty",
+    "list": {
+      "empty": "Nie znaleziono wypłat"
+    },
+    "status": {
+      "paid": "Opłacone",
+      "processing": "Przetwarzane",
+      "pending": "Oczekujące",
+      "failed": "Nieudane",
+      "canceled": "Anulowane"
     }
   },
   "draftOrders": {
@@ -2479,7 +2555,12 @@
     "roles": {
       "admin": "Administrator",
       "developer": "Wywoływacz",
-      "member": "Członek"
+      "member": "Członek",
+      "administration": "Administracja sklepem",
+      "inventoryManagement": "Zarządzanie magazynem",
+      "orderManagement": "Zarządzanie zamówieniami",
+      "accounting": "Księgowość",
+      "support": "Wsparcie"
     },
     "list": {
       "empty": {
@@ -2493,7 +2574,11 @@
     },
     "deleteUserWarning": "Zamierzasz usunąć użytkownika {{name}}. Tej akcji nie można cofnąć.",
     "deleteUserSuccess": "Użytkownik {{name}} został pomyślnie usunięty",
-    "invite": "Zaproszenia"
+    "invite": "Zaproszenia",
+    "status": {
+      "active": "Aktywny",
+      "pending": "Oczekujący"
+    }
   },
   "store": {
     "domain": "Sklep",
@@ -2523,6 +2608,103 @@
       "currenciesUpdated": "Waluty zostały pomyślnie zaktualizowane",
       "currenciesRemoved": "Pomyślnie usunięto waluty ze sklepu",
       "updatedTaxInclusivitySuccessfully": "Ceny zawierające podatek zostały pomyślnie zaktualizowane"
+    },
+    "logo": "Logo",
+    "banner": "Baner",
+    "address": {
+      "header": "Adres",
+      "defaultName": "Siedziba główna",
+      "nameLabel": "Nazwa",
+      "apartmentLabel": "Mieszkanie, lokal itp.",
+      "empty": {
+        "title": "Brak adresu",
+        "message": "Brak rekordów do wyświetlenia"
+      },
+      "edit": {
+        "header": "Edytuj adres",
+        "description": "Zaktualizuj adres tego sklepu.",
+        "successToast": "Adres zaktualizowany"
+      },
+      "validation": {
+        "nameRequired": "Wprowadź nazwę",
+        "countryRequired": "Wybierz kraj"
+      }
+    },
+    "paymentDetails": {
+      "header": "Dane płatności",
+      "empty": {
+        "title": "Brak danych płatności",
+        "message": "Brak rekordów do wyświetlenia"
+      },
+      "edit": {
+        "header": "Edytuj dane płatności",
+        "description": "Zaktualizuj dane płatności tego sklepu.",
+        "successToast": "Dane płatności zaktualizowane"
+      },
+      "fields": {
+        "countryCode": "Kraj",
+        "holderName": "Nazwa konta",
+        "bankName": "Nazwa banku",
+        "iban": "IBAN",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
+        "routingNumber": "Numer rozliczeniowy",
+        "achRoutingNumber": "Numer rozliczeniowy ACH",
+        "accountNumber": "Numer konta"
+      },
+      "validation": {
+        "countryRequired": "Wybierz kraj",
+        "accountNameRequired": "Wprowadź nazwę konta"
+      }
+    },
+    "professionalDetails": {
+      "header": "Dane firmy",
+      "empty": {
+        "title": "Brak danych firmy",
+        "message": "Brak rekordów do wyświetlenia"
+      },
+      "edit": {
+        "header": "Edytuj dane firmy",
+        "description": "Zaktualizuj dane firmy tego sklepu.",
+        "successToast": "Dane firmy zaktualizowane"
+      },
+      "fields": {
+        "corporateName": "Firma",
+        "registrationNumber": "Numer rejestracyjny",
+        "taxId": "NIP"
+      }
+    },
+    "timeOff": {
+      "header": "Dni wolne",
+      "empty": {
+        "title": "Brak dni wolnych",
+        "message": "Ten sklep nie ma zaplanowanych dni wolnych",
+        "action": "Utwórz"
+      }
+    },
+    "scheduledClosure": {
+      "header": "Zaplanowane zamknięcie",
+      "edit": {
+        "header": "Zaplanuj zamknięcie sklepu",
+        "description": "Skonfiguruj daty zaplanowanego zamknięcia tego sklepu.",
+        "successToast": "Zaplanowane zamknięcie zaktualizowane"
+      },
+      "fields": {
+        "closedFrom": "Zamknięte od",
+        "closedTo": "Zamknięte do",
+        "closedToHint": "Jeśli puste, sklep pozostanie zamknięty bezterminowo."
+      }
+    },
+    "subscription": {
+      "header": "Plan subskrypcji",
+      "month": "miesiąc"
+    }
+  },
+  "marketplace": {
+    "domain": "Marketplace",
+    "manageMarketplaceDetails": "Zarządzaj szczegółami swojego marketplace",
+    "edit": {
+      "header": "Edytuj marketplace"
     }
   },
   "regions": {
@@ -3171,7 +3353,10 @@
     "startDate": "Data rozpoczęcia",
     "endDate": "Data końcowa",
     "draft": "Projekt",
-    "values": "Wartości"
+    "values": "Wartości",
+    "premium": "Wyróżniony sklep",
+    "selectPlaceholder": "Wybierz",
+    "website": "Strona internetowa"
   },
   "dateTime": {
     "years_one": "Rok",
@@ -3202,5 +3387,276 @@
     "seconds_few": "Sekundy",
     "seconds_many": "Sekund",
     "seconds_other": "Sekund"
+  },
+  "stores": {
+    "domain": "Sklepy",
+    "handleTooltip": "Uchwyt jest używany jako fragment URL sklepu. Pozostaw puste, aby wygenerować automatycznie z nazwy.",
+    "fields": {
+      "name": "Nazwa",
+      "handle": "Uchwyt",
+      "email": "E-mail",
+      "phone": "Telefon",
+      "logo": "Logo",
+      "cover_image": "Obraz tytułowy",
+      "address": "Adres",
+      "address_1": "Linia adresu 1",
+      "address_2": "Linia adresu 2",
+      "postal_code": "Kod pocztowy",
+      "city": "Miasto",
+      "province": "Województwo",
+      "country_code": "Kod kraju",
+      "seller": "Sprzedawca",
+      "premium": "Wyróżniony"
+    },
+    "status": {
+      "open": "Aktywny",
+      "pending_approval": "Oczekujący",
+      "pendingApproval": "Oczekujący",
+      "suspended": "Nieaktywny",
+      "terminated": "Zakończony"
+    },
+    "premium": {
+      "yes": "Tak",
+      "no": "Nie",
+      "description": "Jeśli zaznaczone, sklep zostanie wyróżniony specjalną odznaką do użytku wewnętrznego lub w celach promocyjnych."
+    },
+    "invite": {
+      "button": "Zaproś",
+      "header": "Zaproś sklep",
+      "hint": "Zaproś nowy sklep do swojego marketplace",
+      "successToast": "Zaproszenie wysłane do {{email}}",
+      "errorToast": "Nie udało się wysłać zaproszenia"
+    },
+    "members": {
+      "mainAdmin": "Administrator",
+      "addUser": {
+        "header": "Dodaj użytkownika",
+        "action": "Dodaj",
+        "hint": "Dodaj nowego użytkownika do zarządzania tym sklepem. Możesz wybrać istniejącego użytkownika lub zaprosić nowego.",
+        "addedToast": "Użytkownik został pomyślnie dodany.",
+        "invitedToast": "Użytkownik został pomyślnie zaproszony.",
+        "validation": {
+          "roleRequired": "Wybierz rolę"
+        }
+      },
+      "invite": {
+        "resendSuccess": "Zaproszenie wysłane ponownie do {{email}}",
+        "deleteSuccess": "Zaproszenie dla {{email}} usunięte",
+        "linkCopied": "Link zaproszenia skopiowany do schowka",
+        "copyFailed": "Nie udało się skopiować linku zaproszenia",
+        "noVendorUrl": "URL sprzedawcy nie jest skonfigurowany w backendzie (MERCUR_VENDOR_URL)"
+      }
+    },
+    "edit": {
+      "header": "Edytuj sklep",
+      "mediaHeading": "Multimedia",
+      "mediaTipLabel": "Wskazówka:",
+      "mediaTipBody": "Te multimedia będą widoczne w sklepie internetowym.",
+      "uploadLogoLabel": "Prześlij logo",
+      "uploadLogoHint": "Przeciągnij i upuść logo tutaj lub kliknij, aby przesłać.",
+      "uploadBannerLabel": "Prześlij baner",
+      "uploadBannerHint": "Przeciągnij i upuść baner tutaj lub kliknij, aby przesłać.",
+      "successToast": "Sklep {{name}} został pomyślnie zaktualizowany."
+    },
+    "create": {
+      "tabs": {
+        "details": "Szczegóły",
+        "users": "Administrator"
+      },
+      "header": "Szczegóły",
+      "usersHeader": "Administrator",
+      "usersHint": "Przypisz administratora do zarządzania tym sklepem. Wybierz istniejącego użytkownika lub zaproś nowego.",
+      "usersHintSecondary": "Po utworzeniu sklepu wybrany użytkownik otrzyma zaproszenie do dołączenia.",
+      "ownerEmail": "E-mail właściciela",
+      "ownerEmailHint": "Właścicielowi zostanie przyznana rola administracji sklepu.",
+      "successToast": "Sklep utworzony pomyślnie",
+      "validation": {
+        "nameRequired": "Wprowadź nazwę",
+        "emailRequired": "Wprowadź adres e-mail",
+        "emailInvalid": "Wprowadź prawidłowy adres e-mail",
+        "currencyRequired": "Wybierz walutę"
+      }
+    },
+    "request": {
+      "title": "Wniosek o sklep",
+      "description": "{{requester}} złożył wniosek o sklep. Sprawdź szczegóły, wprowadź niezbędne zmiany i zdecyduj, czy potwierdzić i opublikować sklep, czy odrzucić wniosek.",
+      "confirm": "Potwierdź",
+      "reject": "Odrzuć",
+      "confirmTitle": "Potwierdź wniosek",
+      "confirmDescription": "Zamierzasz potwierdzić ten wniosek o sklep.",
+      "rejectTitle": "Odrzuć wniosek",
+      "rejectDescription": "Zamierzasz odrzucić ten wniosek o sklep.",
+      "noteLabel": "Notatki dla sprzedawcy",
+      "notePlaceholder": "Określ wprowadzone zmiany lub dodatkowe wymagania",
+      "confirmNotePlaceholder": "Określ wprowadzone zmiany lub dodatkowe wymagania",
+      "rejectNotePlaceholder": "Wyjaśnij, dlaczego odrzucasz wniosek lub zaproponuj zmiany",
+      "confirmSuccess": "Wniosek o sklep został pomyślnie potwierdzony.",
+      "rejectSuccess": "Wniosek o sklep został pomyślnie odrzucony."
+    },
+    "actions": {
+      "approve": {
+        "label": "Zatwierdź",
+        "title": "Zatwierdź sklep",
+        "description": "Czy na pewno chcesz zatwierdzić ten sklep?",
+        "success": "Sklep zatwierdzony"
+      },
+      "reject": {
+        "label": "Odrzuć",
+        "title": "Odrzuć sklep",
+        "description": "Czy na pewno chcesz odrzucić ten sklep?",
+        "success": "Sklep odrzucony"
+      },
+      "edit": {
+        "label": "Edytuj"
+      },
+      "delete": {
+        "label": "Usuń",
+        "title": "Usuń sklep",
+        "description": "Czy na pewno chcesz usunąć ten sklep? Tej akcji nie można cofnąć.",
+        "success": "Sklep usunięty",
+        "successToast": "Usunięto {{count}} sklep(ów)",
+        "errorToast": "Nie udało się usunąć sklepu(-ów)"
+      }
+    },
+    "bulkEdit": {
+      "successToast": "Zaktualizowano {{count}} sklep(ów)",
+      "emptyHeading": "Nie wybrano sklepów",
+      "emptyDescription": "Wybierz sklepy z listy, aby je tutaj edytować."
+    },
+    "emptyStates": {
+      "products": {
+        "title": "Brak produktów",
+        "message": "Produkty opublikowane przez ten sklep pojawią się tutaj."
+      },
+      "users": {
+        "title": "Brak użytkowników",
+        "message": "Zaproś pierwszego użytkownika, aby zarządzał tym sklepem."
+      },
+      "orders": {
+        "title": "Brak zamówień",
+        "message": "Zamówienia złożone w tym sklepie pojawią się tutaj."
+      }
+    }
+  },
+  "attributes": {
+    "domain": "Atrybuty produktów",
+    "subtitle": "Zarządzaj atrybutami produktów i ich możliwymi wartościami.",
+    "list": {
+      "title": "Atrybuty produktów",
+      "noRecordsMessage": "Nie utworzono jeszcze żadnych atrybutów produktów."
+    },
+    "create": {
+      "header": "Utwórz atrybut",
+      "subtitle": "Zdefiniuj nowy atrybut produktu.",
+      "tabs": {
+        "details": "Szczegóły",
+        "type": "Typ"
+      },
+      "fillNameWarning": "Wypełnij przynajmniej pole nazwy przed przejściem do konfiguracji typu.",
+      "possibleValuesRequired": "Dla tego typu wymagana jest co najmniej jedna możliwa wartość",
+      "successToast": "Atrybut \"{{name}}\" został pomyślnie utworzony."
+    },
+    "edit": {
+      "header": "Edytuj atrybut",
+      "subtitle": "Zaktualizuj szczegóły atrybutu.",
+      "successToast": "Atrybut \"{{name}}\" został pomyślnie zaktualizowany."
+    },
+    "editPossibleValue": {
+      "header": "Edytuj możliwą wartość",
+      "subtitle": "Zaktualizuj szczegóły możliwej wartości.",
+      "successToast": "Możliwa wartość \"{{value}}\" została pomyślnie zaktualizowana."
+    },
+    "createPossibleValues": {
+      "header": "Utwórz wartości",
+      "subtitle": "Utwórz dodatkowe wartości dla atrybutu \"{{name}}\".",
+      "tabs": {
+        "values": "Wartości",
+        "organizeRanking": "Uporządkuj kolejność"
+      },
+      "addValue": "Dodaj wartość",
+      "enterValue": "Wprowadź wartość",
+      "successToast": "Wartości zostały pomyślnie utworzone."
+    },
+    "deletePossibleValue": {
+      "title": "Usuń wartość",
+      "confirmation": "Masz zamiar usunąć możliwą wartość \"{{value}}\". Tej akcji nie można cofnąć.",
+      "successToast": "Możliwa wartość \"{{value}}\" została pomyślnie usunięta.",
+      "inUseMessage": "Nie można usunąć wartości {{value}}, ponieważ jest obecnie używana przez jednego lub więcej sprzedawców w ich wariantach produktów. Aby ją edytować, poproś sprzedawców o zaktualizowanie ich produktów."
+    },
+    "delete": {
+      "title": "Usuń atrybut",
+      "confirmation": "Masz zamiar usunąć atrybut \"{{name}}\". Tej akcji nie można cofnąć.",
+      "successToast": "Atrybut \"{{name}}\" został pomyślnie usunięty.",
+      "inUseMessage": "Nie można usunąć atrybutu {{name}}, ponieważ jest obecnie używany przez jednego lub więcej sprzedawców w ich wariantach produktów. Aby go usunąć, poproś sprzedawców o zaktualizowanie ich produktów.",
+      "gotIt": "Rozumiem"
+    },
+    "fields": {
+      "name": "Nazwa",
+      "handle": "Identyfikator",
+      "description": "Opis",
+      "type": "Typ",
+      "filterable": "Filtrowalny",
+      "required": "Wymagany",
+      "global": "Globalny",
+      "category": "Kategoria",
+      "categories": "Kategorie produktów",
+      "productAttribute": "Atrybut produktu",
+      "values": "Wartości",
+      "possibleValues": "Możliwe wartości",
+      "value": "Wartość",
+      "rank": "Pozycja",
+      "metadata": "Metadane"
+    },
+    "type": {
+      "select": "Pojedynczy wybór",
+      "multivalue": "Wielokrotny wybór",
+      "unit": "Jednostka",
+      "toggle": "Przełącznik",
+      "text_area": "Pole tekstowe"
+    },
+    "selectCategory": {
+      "title": "Wybierz kategorię",
+      "description": "Wybierz kategorię, do której ma zastosowanie ten atrybut.",
+      "placeholder": "Wybierz kategorię"
+    },
+    "hints": {
+      "global": "Po włączeniu ten atrybut dotyczy wszystkich produktów, niezależnie od kategorii.",
+      "categoryInheritance": "Podkategorie odziedziczą ten atrybut."
+    }
+  },
+  "refundReasons": {
+    "domain": "Powody zwrotów",
+    "subtitle": "Zarządzaj powodami zwrotów.",
+    "calloutHint": "Zarządzaj powodami, aby kategoryzować zwroty.",
+    "editReason": "Edytuj powód zwrotu",
+    "create": {
+      "header": "Dodaj powód zwrotu",
+      "subtitle": "Określ najczęstsze powody zwrotów.",
+      "hint": "Utwórz nowy powód zwrotu, aby kategoryzować zwroty.",
+      "successToast": "Powód zwrotu {{label}} został pomyślnie utworzony."
+    },
+    "edit": {
+      "header": "Edytuj powód zwrotu",
+      "subtitle": "Edytuj wartość powodu zwrotu.",
+      "successToast": "Powód zwrotu {{label}} został pomyślnie zaktualizowany."
+    },
+    "delete": {
+      "confirmation": "Zamierzasz usunąć powód zwrotu \"{{label}}\". Tej akcji nie można cofnąć.",
+      "successToast": "Powód zwrotu został pomyślnie usunięty."
+    },
+    "fields": {
+      "label": {
+        "label": "Etykieta",
+        "placeholder": "Gest dobrej woli"
+      },
+      "code": {
+        "label": "Kod",
+        "placeholder": "gest_dobrej_woli"
+      },
+      "description": {
+        "label": "Opis",
+        "placeholder": "Klient miał złe doświadczenie zakupowe"
+      }
+    }
   }
 }

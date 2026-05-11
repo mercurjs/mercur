@@ -406,6 +406,7 @@
   },
   "products": {
     "domain": "Products",
+    "associatedStore": "Associated Store",
     "additionalAttributes": "Additional Attributes",
     "list": {
       "noRecordsMessage": "Create your first product to start selling."
@@ -1395,7 +1396,10 @@
         "partiallyReturned": "Partially returned",
         "returned": "Returned",
         "canceled": "Canceled",
-        "requiresAction": "Requires action"
+        "requiresAction": "Requires action",
+        "awaitingPickup": "Awaiting pickup",
+        "awaitingShipping": "Awaiting shipping",
+        "awaitingDelivery": "Awaiting delivery"
       },
       "toast": {
         "created": "Fulfillment created successfully",
@@ -1405,6 +1409,7 @@
         "fulfillmentPickedUp": "Fulfillment marked as picked up successfully"
       },
       "trackingLabel": "Tracking",
+      "labelLink": "Label",
       "shippingFromLabel": "Shipping from",
       "itemsLabel": "Items"
     },
@@ -1506,7 +1511,25 @@
     "fields": {
       "displayId": "Display ID",
       "refundableAmount": "Refundable amount",
-      "returnableQuantity": "Returnable quantity"
+      "returnableQuantity": "Returnable quantity",
+      "groupId": "Group ID",
+      "orderIds": "Order IDs",
+      "vendor": "Vendor",
+      "vendorsCount_one": "{{count}} vendor",
+      "vendorsCount_other": "{{count}} vendors"
+    }
+  },
+  "payouts": {
+    "domain": "Payouts",
+    "list": {
+      "empty": "No payouts found"
+    },
+    "status": {
+      "paid": "Paid",
+      "processing": "Processing",
+      "pending": "Pending",
+      "failed": "Failed",
+      "canceled": "Canceled"
     }
   },
   "draftOrders": {
@@ -3272,8 +3295,6 @@
     "providers": "Providers",
     "availability": "Availability",
     "inventory": "Inventory",
-    "optional": "Optional",
-    "note": "Note",
     "automaticTaxes": "Automatic Taxes",
     "taxInclusivePricing": "Tax inclusive pricing",
     "currency": "Currency",
@@ -3433,6 +3454,7 @@
       "city": "City",
       "province": "Province",
       "country_code": "Country Code",
+      "seller": "Seller",
       "premium": "Featured"
     },
     "status": {
@@ -3565,5 +3587,56 @@
   },
   "commissionLines": {
     "domain": "Commission Lines"
+  },
+  "commissionRates": {
+    "domain": "Commission Rates",
+    "description": "Manage commission rates and rules for your marketplace.",
+    "create": {
+      "header": "Create Commission Rate",
+      "description": "Configure a new commission rate for your marketplace.",
+      "successToast": "Commission rate created successfully"
+    },
+    "edit": {
+      "header": "Edit Commission Rate",
+      "successToast": "Commission rate updated successfully"
+    },
+    "delete": {
+      "description": "Are you sure you want to delete the commission rate \"{{name}}\"?",
+      "successToast": "Commission rate deleted successfully"
+    },
+    "rules": {
+      "empty": "No rules configured"
+    },
+    "fields": {
+      "name": "Name",
+      "code": "Code",
+      "type": {
+        "label": "Type",
+        "percentage": "Percentage",
+        "fixed": "Fixed"
+      },
+      "target": {
+        "label": "Target",
+        "item": "Item",
+        "shipping": "Shipping"
+      },
+      "currencyCode": "Currency Code",
+      "currencyPlaceholder": "Select currency",
+      "rate": "Rate",
+      "minAmount": "Minimum Amount",
+      "priority": "Priority",
+      "enabled": "Enabled",
+      "enabledHint": "Enable or disable this commission rate.",
+      "includeTax": "Include Tax",
+      "includeTaxHint": "Include tax in the commission calculation."
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "toggle": {
+      "enabledToast": "Commission rate enabled successfully",
+      "disabledToast": "Commission rate disabled successfully"
+    }
   }
 }

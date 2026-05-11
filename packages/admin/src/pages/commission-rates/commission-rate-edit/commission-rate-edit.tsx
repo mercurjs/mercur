@@ -1,4 +1,5 @@
 import { Heading } from "@medusajs/ui"
+import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
 import { RouteDrawer } from "../../../components/modals"
@@ -6,6 +7,7 @@ import { useCommissionRate } from "../../../hooks/api/commission-rates"
 import { EditCommissionRateForm } from "./components/edit-commission-rate-form"
 
 export const CommissionRateEdit = () => {
+  const { t } = useTranslation()
   const { id } = useParams()
 
   const {
@@ -22,7 +24,7 @@ export const CommissionRateEdit = () => {
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
-        <Heading>Edit Commission Rate</Heading>
+        <Heading>{t("commissionRates.edit.header")}</Heading>
       </RouteDrawer.Header>
       {!isLoading && commission_rate && (
         <EditCommissionRateForm commissionRate={commission_rate} />

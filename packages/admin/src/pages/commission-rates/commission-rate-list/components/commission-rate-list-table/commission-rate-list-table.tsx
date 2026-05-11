@@ -64,9 +64,9 @@ export const CommissionRateListTable = () => {
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading>Commission Rates</Heading>
+          <Heading>{t("commissionRates.domain")}</Heading>
           <Text className="text-ui-fg-subtle" size="small">
-            Manage commission rates and rules for your marketplace.
+            {t("commissionRates.description")}
           </Text>
         </div>
         <Link to="/settings/commission-rates/create">
@@ -85,7 +85,7 @@ export const CommissionRateListTable = () => {
         pagination
         search
         orderBy={[
-          { key: "name", label: "Name" },
+          { key: "name", label: t("commissionRates.fields.name") },
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
@@ -106,7 +106,9 @@ const CommissionRateActions = ({
   const handleDelete = async () => {
     const res = await prompt({
       title: t("general.areYouSure"),
-      description: `Are you sure you want to delete the commission rate "${commissionRate.name}"?`,
+      description: t("commissionRates.delete.description", {
+        name: commissionRate.name,
+      }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
     })
@@ -117,7 +119,7 @@ const CommissionRateActions = ({
 
     await mutateAsync(undefined, {
       onSuccess: () => {
-        toast.success("Commission rate deleted successfully")
+        toast.success(t("commissionRates.delete.successToast"))
       },
       onError: (e) => {
         toast.error(e.message)
@@ -154,10 +156,12 @@ const CommissionRateActions = ({
 const columnHelper = createColumnHelper<CommissionRateDTO>()
 
 const useColumns = () => {
+  const { t } = useTranslation()
+
   return useMemo(
     () => [
       columnHelper.accessor("code", {
-        header: "Code",
+        header: t("commissionRates.fields.code"),
         cell: ({ getValue }) => (
           <Badge size="2xsmall" className="uppercase">
             {getValue()}
@@ -165,19 +169,29 @@ const useColumns = () => {
         ),
       }),
       columnHelper.accessor("type", {
-        header: () => <TextHeader text="Type" />,
+        header: () => <TextHeader text={t("commissionRates.fields.type.label")} />,
         cell: ({ getValue }) => {
           const type = getValue()
-          return <TextCell text={type === "percentage" ? "Percentage" : "Fixed"} />
+          return (
+            <TextCell
+              text={
+                type === "percentage"
+                  ? t("commissionRates.fields.type.percentage")
+                  : t("commissionRates.fields.type.fixed")
+              }
+            />
+          )
         },
       }),
       columnHelper.accessor("is_enabled", {
-        header: "Status",
+        header: t("fields.status"),
         cell: ({ getValue }) => {
           const enabled = getValue()
           return (
             <StatusBadge color={enabled ? "green" : "grey"}>
-              {enabled ? "Enabled" : "Disabled"}
+              {enabled
+                ? t("commissionRates.status.enabled")
+                : t("commissionRates.status.disabled")}
             </StatusBadge>
           )
         },
@@ -189,6 +203,6 @@ const useColumns = () => {
         ),
       }),
     ],
-    []
+    [t]
   )
 }

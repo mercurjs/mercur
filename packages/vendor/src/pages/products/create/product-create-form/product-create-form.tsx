@@ -661,7 +661,11 @@ export const ProductCreateForm = ({
           options:
             Object.keys(mappedOptions).length > 0
               ? mappedOptions
-              : { "Default option": "Default option value" },
+              : {
+                  [t("products.create.defaults.optionTitle")]: t(
+                    "products.create.defaults.optionValue"
+                  ),
+                },
           ...(variantImageKey && {
             metadata: { variant_image_key: variantImageKey },
           }),
@@ -695,8 +699,8 @@ export const ProductCreateForm = ({
           ? allOptions
           : [
               {
-                title: "Default option",
-                values: ["Default option value"],
+                title: t("products.create.defaults.optionTitle"),
+                values: [t("products.create.defaults.optionValue")],
               },
             ],
       metadata: (() => {

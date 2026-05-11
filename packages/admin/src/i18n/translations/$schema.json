@@ -1524,6 +1524,9 @@
         "domain": {
           "type": "string"
         },
+        "associatedStore": {
+          "type": "string"
+        },
         "additionalAttributes": {
           "type": "string"
         },
@@ -2727,6 +2730,7 @@
       },
       "required": [
         "domain",
+        "associatedStore",
         "additionalAttributes",
         "list",
         "edit",
@@ -5199,6 +5203,15 @@
                 },
                 "requiresAction": {
                   "type": "string"
+                },
+                "awaitingPickup": {
+                  "type": "string"
+                },
+                "awaitingShipping": {
+                  "type": "string"
+                },
+                "awaitingDelivery": {
+                  "type": "string"
                 }
               },
               "required": [
@@ -5212,7 +5225,10 @@
                 "partiallyReturned",
                 "returned",
                 "canceled",
-                "requiresAction"
+                "requiresAction",
+                "awaitingPickup",
+                "awaitingShipping",
+                "awaitingDelivery"
               ],
               "additionalProperties": false
             },
@@ -5245,6 +5261,9 @@
               "additionalProperties": false
             },
             "trackingLabel": {
+              "type": "string"
+            },
+            "labelLink": {
               "type": "string"
             },
             "shippingFromLabel": {
@@ -5281,6 +5300,7 @@
             "status",
             "toast",
             "trackingLabel",
+            "labelLink",
             "shippingFromLabel",
             "itemsLabel"
           ],
@@ -5661,9 +5681,33 @@
             },
             "returnableQuantity": {
               "type": "string"
+            },
+            "groupId": {
+              "type": "string"
+            },
+            "orderIds": {
+              "type": "string"
+            },
+            "vendor": {
+              "type": "string"
+            },
+            "vendorsCount_one": {
+              "type": "string"
+            },
+            "vendorsCount_other": {
+              "type": "string"
             }
           },
-          "required": ["displayId", "refundableAmount", "returnableQuantity"],
+          "required": [
+            "displayId",
+            "refundableAmount",
+            "returnableQuantity",
+            "groupId",
+            "orderIds",
+            "vendor",
+            "vendorsCount_one",
+            "vendorsCount_other"
+          ],
           "additionalProperties": false
         }
       },
@@ -5697,6 +5741,48 @@
         "activity",
         "fields"
       ],
+      "additionalProperties": false
+    },
+    "payouts": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "empty": {
+              "type": "string"
+            }
+          },
+          "required": ["empty"],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "paid": {
+              "type": "string"
+            },
+            "processing": {
+              "type": "string"
+            },
+            "pending": {
+              "type": "string"
+            },
+            "failed": {
+              "type": "string"
+            },
+            "canceled": {
+              "type": "string"
+            }
+          },
+          "required": ["paid", "processing", "pending", "failed", "canceled"],
+          "additionalProperties": false
+        }
+      },
+      "required": ["domain", "list", "status"],
       "additionalProperties": false
     },
     "draftOrders": {
@@ -12265,6 +12351,131 @@
       },
       "required": ["domain"],
       "additionalProperties": false
+    },
+    "commissionRates": {
+      "type": "object",
+      "properties": {
+        "domain": { "type": "string" },
+        "description": { "type": "string" },
+        "create": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "description": { "type": "string" },
+            "successToast": { "type": "string" }
+          },
+          "required": ["header", "description", "successToast"],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "successToast": { "type": "string" }
+          },
+          "required": ["header", "successToast"],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "description": { "type": "string" },
+            "successToast": { "type": "string" }
+          },
+          "required": ["description", "successToast"],
+          "additionalProperties": false
+        },
+        "rules": {
+          "type": "object",
+          "properties": {
+            "empty": { "type": "string" }
+          },
+          "required": ["empty"],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "name": { "type": "string" },
+            "code": { "type": "string" },
+            "type": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "percentage": { "type": "string" },
+                "fixed": { "type": "string" }
+              },
+              "required": ["label", "percentage", "fixed"],
+              "additionalProperties": false
+            },
+            "target": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "item": { "type": "string" },
+                "shipping": { "type": "string" }
+              },
+              "required": ["label", "item", "shipping"],
+              "additionalProperties": false
+            },
+            "currencyCode": { "type": "string" },
+            "currencyPlaceholder": { "type": "string" },
+            "rate": { "type": "string" },
+            "minAmount": { "type": "string" },
+            "priority": { "type": "string" },
+            "enabled": { "type": "string" },
+            "enabledHint": { "type": "string" },
+            "includeTax": { "type": "string" },
+            "includeTaxHint": { "type": "string" }
+          },
+          "required": [
+            "name",
+            "code",
+            "type",
+            "target",
+            "currencyCode",
+            "currencyPlaceholder",
+            "rate",
+            "minAmount",
+            "priority",
+            "enabled",
+            "enabledHint",
+            "includeTax",
+            "includeTaxHint"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "string" },
+            "disabled": { "type": "string" }
+          },
+          "required": ["enabled", "disabled"],
+          "additionalProperties": false
+        },
+        "toggle": {
+          "type": "object",
+          "properties": {
+            "enabledToast": { "type": "string" },
+            "disabledToast": { "type": "string" }
+          },
+          "required": ["enabledToast", "disabledToast"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "description",
+        "create",
+        "edit",
+        "delete",
+        "rules",
+        "fields",
+        "status",
+        "toggle"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -12291,6 +12502,7 @@
     "customers",
     "customerGroups",
     "orders",
+    "payouts",
     "draftOrders",
     "stockLocations",
     "shippingProfile",
@@ -12330,7 +12542,8 @@
     "configuration",
     "algolia",
     "commission",
-    "commissionLines"
+    "commissionLines",
+    "commissionRates"
   ],
   "additionalProperties": false
 }

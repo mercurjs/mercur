@@ -473,6 +473,11 @@
         "inventory": "Inventory kits",
         "attributes": "Attributes"
       },
+      "defaults": {
+        "optionTitle": "Default option",
+        "optionValue": "Default option value",
+        "variantTitle": "Default variant"
+      },
       "errors": {
         "variants": "Please select at least one variant.",
         "options": "Please create at least one option.",
@@ -490,6 +495,7 @@
       },
       "variants": {
         "header": "Variants",
+        "optionsHeader": "Options",
         "subHeadingTitle": "Yes, this is a product with variants",
         "subHeadingDescription": "When unchecked, we will create a default variant for you",
         "optionTitle": {
@@ -576,6 +582,9 @@
       }
     },
     "attributes": "Attributes",
+    "attributesSection": {
+      "removeWarning": "You are about to remove this attribute from the product. This action cannot be undone."
+    },
     "editAttributes": "Edit Attributes",
     "editOptions": "Edit Options",
     "editPrices": "Edit prices",
@@ -1252,6 +1261,8 @@
       "title": "Payments",
       "isReadyToBeCaptured": "Payment <0/> is ready to be captured.",
       "totalPaidByCustomer": "Total paid by customer",
+      "totalPending": "Total pending",
+      "totalRefunded": "Refunded",
       "totalStoreCreditRefunds": "Total store credit refunds",
       "capture": "Capture payment",
       "capture_short": "Capture",
@@ -1492,6 +1503,8 @@
       "trackingUrl": "Tracking URL",
       "labelUrl": "Label URL",
       "addTracking": "Add tracking number",
+      "addTrackingUrl": "Add tracking URL",
+      "trackingUrlPlaceholder": "https://www.dhl.com/shipment/1234567890",
       "sendNotification": "Send notification",
       "sendNotificationHint": "Notify the customer about this shipment.",
       "toastCreated": "Shipment created successfully."
@@ -1537,7 +1550,10 @@
         "partiallyReturned": "Partially returned",
         "returned": "Returned",
         "canceled": "Canceled",
-        "requiresAction": "Requires action"
+        "requiresAction": "Requires action",
+        "awaitingPickup": "Awaiting pickup",
+        "awaitingShipping": "Awaiting shipping",
+        "awaitingDelivery": "Awaiting delivery"
       },
       "toast": {
         "created": "Fulfillment created successfully",
@@ -2581,6 +2597,18 @@
         "placeholder": "Search for customer groups",
         "attribute": "Customer groups"
       }
+    }
+  },
+  "payouts": {
+    "domain": "Payouts",
+    "payout": "Payout",
+    "noRecords": "No payouts found",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paid": "Paid",
+      "failed": "Failed",
+      "canceled": "Canceled"
     }
   },
   "profile": {

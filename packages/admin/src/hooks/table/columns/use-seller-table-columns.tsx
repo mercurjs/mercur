@@ -15,7 +15,7 @@ export const useSellersTableColumns = () => {
     () => [
       columnHelper.display({
         id: "name",
-        header: t("stores.fields.name"),
+        header: t("stores.fields.seller"),
         cell: ({ row }) => row.original.name,
       }),
       columnHelper.display({
