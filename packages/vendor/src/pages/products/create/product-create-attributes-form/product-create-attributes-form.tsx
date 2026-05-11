@@ -218,7 +218,7 @@ export const ProductCreateAttributesForm = forwardRef<
           {requiredFormFields.length === 0 ? (
             <div className="py-8 text-center text-gray-500">
               {allAttributesLoading
-                ? "Loading attributes..."
+                ? t("products.create.attributes.loading")
                 : null}
             </div>
           ) : (

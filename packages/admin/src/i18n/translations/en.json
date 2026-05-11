@@ -3032,7 +3032,8 @@
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
     "title": "Welcome to {{name}}",
-    "hint": "Sign in to access the admin hub"
+    "hint": "Sign in to access the admin hub",
+    "sessionExpired": "Session expired"
   },
   "invite": {
     "title": "Welcome to Mercur Admin Panel",

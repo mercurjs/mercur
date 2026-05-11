@@ -292,6 +292,10 @@
     }
   },
   "dataGrid": {
+    "toggle": {
+      "enabled": "Enabled",
+      "notEnabled": "Not enabled"
+    },
     "columns": {
       "view": "View",
       "resetToDefault": "Reset to default",
@@ -520,6 +524,7 @@
         "requiredHeading": "Required Attributes",
         "requiredDescription": "These attributes are required for products in this category.",
         "buttonLabel": "Attribute",
+        "loading": "Loading attributes...",
         "learnMore": {
           "label": "Learn more about attributes",
           "content": "Attributes help customers find and filter your products. Admin-defined attributes appear in search results."
@@ -3234,6 +3239,7 @@
     "title": "Welcome back!",
     "hint": "Log in to your vendor account.",
     "submit": "Log in",
+    "sessionExpired": "Session expired",
     "notSellerYet": "Not a seller yet? <0>Create an account</0>",
     "validation": {
       "emailRequired": "Please enter an email",
@@ -3242,7 +3248,7 @@
     }
   },
   "register": {
-    "title": "Join Mercur!",
+    "title": "Join {{name}}!",
     "hint": "Enter your details and create a password to set up your admin account.",
     "companyName": "Company name",
     "confirmPassword": "Confirm password",
