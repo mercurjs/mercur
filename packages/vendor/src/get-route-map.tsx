@@ -252,12 +252,13 @@ export function getRouteMap({
                             lazy: () =>
                               import("./pages/orders/[id]/allocate-items"),
                           },
+                          {
+                            path: ":f_id/create-shipment",
+                            lazy: () =>
+                              import("./pages/orders/[id]/shipment"),
+                          },
                         ],
                       },
-                      // {
-                      //   path: "fulfillments/:f_id/shipment",
-                      //   lazy: () => import("./pages/orders/[id]/shipment"),
-                      // },
                     ],
                   },
                 ],

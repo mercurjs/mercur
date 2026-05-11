@@ -29,7 +29,14 @@ type CompanyData = {
   corporate_name?: string;
   registration_number?: string;
   tax_id?: string;
+  [key: string]: unknown;
 };
+
+const KNOWN_COMPANY_KEYS = new Set([
+  "corporate_name",
+  "registration_number",
+  "tax_id",
+]);
 
 type PaymentData = {
   country_code: string;
@@ -114,6 +121,18 @@ export const useOnboarding = (memberEmail: string) => {
         companyData?.registration_number ||
         companyData?.tax_id;
 
+      const companyExtras = companyData
+        ? Object.fromEntries(
+            Object.entries(companyData).filter(
+              ([key, value]) =>
+                !KNOWN_COMPANY_KEYS.has(key) &&
+                value !== undefined &&
+                value !== "",
+            ),
+          )
+        : {};
+      const hasCompanyExtras = Object.keys(companyExtras).length > 0;
+
       const isUS = paymentData?.country_code === "us";
 
       let registerDraft: { first_name?: string; last_name?: string } = {};
@@ -174,6 +193,7 @@ export const useOnboarding = (memberEmail: string) => {
                 account_number: paymentData.account_number || null,
               }
             : undefined,
+          additional_data: hasCompanyExtras ? companyExtras : undefined,
         });
 
         const newSellerId = result.seller.id;

@@ -245,8 +245,8 @@
       "store": {
         "label": "Sklep",
         "storeSettings": "Ustawienia sklepu",
-        "editStore": "Edit Store",
-        "switchStore": "Switch store"
+        "editStore": "Edytuj sklep",
+        "switchStore": "Zmień sklep"
       },
       "actions": {
         "logout": "Wyloguj się"
@@ -425,12 +425,32 @@
         "details": "Szczegóły",
         "organize": "Organizacja",
         "variants": "Warianty",
-        "inventory": "Zestawy magazynowe"
+        "inventory": "Zestawy magazynowe",
+        "attributes": "Atrybuty"
+      },
+      "defaults": {
+        "optionTitle": "Domyślna opcja",
+        "optionValue": "Domyślna wartość opcji",
+        "variantTitle": "Domyślny wariant"
       },
       "errors": {
         "variants": "Wybierz co najmniej jeden wariant.",
         "options": "Utwórz co najmniej jedną opcję.",
-        "uniqueSku": "SKU musi być unikalny."
+        "uniqueSku": "SKU musi być unikalny.",
+        "primaryCategoryRequired": "Kategoria główna jest wymagana",
+        "titleRequired": "Tytuł jest wymagany",
+        "handleInvalidFormat": "Identyfikator może zawierać tylko małe litery, cyfry i myślniki",
+        "handleMustContainLetter": "Identyfikator musi zawierać co najmniej jedną literę"
+      },
+      "attributes": {
+        "description": "Dodaj atrybuty do swojego produktu. Wybierz spośród atrybutów zdefiniowanych przez administratora lub utwórz własne.",
+        "requiredHeading": "Wymagane atrybuty",
+        "requiredDescription": "Te atrybuty są wymagane dla produktów w tej kategorii.",
+        "buttonLabel": "Atrybut",
+        "learnMore": {
+          "label": "Dowiedz się więcej o atrybutach",
+          "content": "Atrybuty pomagają klientom znajdować i filtrować Twoje produkty. Atrybuty zdefiniowane przez administratora pojawiają się w wynikach wyszukiwania."
+        }
       },
       "inventory": {
         "heading": "Zestawy magazynowe",
@@ -440,6 +460,7 @@
       },
       "variants": {
         "header": "Warianty",
+        "optionsHeader": "Opcje",
         "subHeadingTitle": "Tak, to produkt z wariantami",
         "subHeadingDescription": "Jeśli odznaczone, stworzymy dla Ciebie domyślny wariant",
         "optionTitle": {
@@ -508,9 +529,18 @@
       "filtered": {
         "heading": "Brak wariantów",
         "description": "Nie ma wariantów, które pasują do aktualnych kryteriów filtrów."
+      },
+      "editStocksAndPrices": {
+        "header": "Edytuj stany i ceny",
+        "description": "Zarządzaj lokalizacjami zapasów oraz cenami dla wszystkich wariantów",
+        "action": "Edytuj stany i ceny",
+        "successToast": "Stany i ceny zostały pomyślnie zaktualizowane"
       }
     },
     "attributes": "Atrybuty",
+    "attributesSection": {
+      "removeWarning": "Zamierzasz usunąć ten atrybut z produktu. Tej akcji nie można cofnąć."
+    },
     "editAttributes": "Edytuj atrybuty",
     "editOptions": "Edytuj opcje",
     "editPrices": "Edytuj ceny",
@@ -590,6 +620,13 @@
       },
       "categories": {
         "label": "Kategorie"
+      },
+      "primaryCategory": {
+        "label": "Kategoria główna",
+        "tooltip": "Kategoria główna określa, które atrybuty są dostępne dla tego produktu. Atrybuty są tworzone przez administratora podczas konfiguracji platformy."
+      },
+      "secondaryCategories": {
+        "label": "Kategorie dodatkowe"
       },
       "tags": {
         "label": "Tagi"
@@ -691,7 +728,11 @@
         "header": "Utwórz opcję",
         "successToast": "Opcja {{title}} została pomyślnie utworzona."
       },
-      "deleteWarning": "Zamierzasz usunąć opcję produktu: {{title}}. Tej akcji nie można cofnąć."
+      "deleteWarning": "Zamierzasz usunąć opcję produktu: {{title}}. Tej akcji nie można cofnąć.",
+      "variations": {
+        "label": "Warianty",
+        "description": "Atrybuty używane do tworzenia wariantów produktu."
+      }
     },
     "organization": {
       "header": "Organizacja",
@@ -1157,6 +1198,8 @@
       "title": "Płatności",
       "isReadyToBeCaptured": "Płatność <0/> jest gotowa do realizacji.",
       "totalPaidByCustomer": "Łączna kwota zapłacona przez klienta",
+      "totalPending": "Łącznie oczekujące",
+      "totalRefunded": "Zwrócone",
       "totalStoreCreditRefunds": "Całkowite zwroty kredytów sklepowych",
       "capture": "Zrealizuj płatność",
       "capture_short": "Zrealizuj",
@@ -1391,7 +1434,11 @@
     "shipment": {
       "title": "Oznacz realizację jako wysłaną",
       "trackingNumber": "Numer do śledzenia przesyłki",
+      "trackingUrl": "Adres URL śledzenia",
+      "labelUrl": "Adres URL etykiety",
       "addTracking": "Dodaj numer do śledzenia przesyłki",
+      "addTrackingUrl": "Dodaj adres URL śledzenia",
+      "trackingUrlPlaceholder": "https://www.dhl.com/shipment/1234567890",
       "sendNotification": "Wyślij powiadomienie",
       "sendNotificationHint": "Powiadom klienta o tej wysyłce.",
       "toastCreated": "Wysyłka została pomyślnie utworzona."
@@ -1437,7 +1484,10 @@
         "partiallyReturned": "Częściowo zwrócone",
         "returned": "Zwrócone",
         "canceled": "Anulowane",
-        "requiresAction": "Wymaga działania"
+        "requiresAction": "Wymaga działania",
+        "awaitingPickup": "Oczekuje na odbiór",
+        "awaitingShipping": "Oczekuje na wysyłkę",
+        "awaitingDelivery": "Oczekuje na dostawę"
       },
       "toast": {
         "created": "Realizacja została pomyślnie utworzona",
@@ -2464,10 +2514,24 @@
       }
     }
   },
+  "payouts": {
+    "domain": "Wypłaty",
+    "payout": "Wypłata",
+    "noRecords": "Nie znaleziono wypłat",
+    "status": {
+      "pending": "Oczekuje",
+      "processing": "W trakcie przetwarzania",
+      "paid": "Wypłacono",
+      "failed": "Nieudana",
+      "canceled": "Anulowana"
+    }
+  },
   "profile": {
     "domain": "Profil",
     "manageYourProfileDetails": "Zarządzaj danymi swojego profilu.",
     "fields": {
+      "firstName": "Imię",
+      "lastName": "Nazwisko",
       "languageLabel": "Język",
       "usageInsightsLabel": "Informacje o użytkowaniu"
     },
@@ -2487,6 +2551,7 @@
     "inviteUser": "Zaproś użytkownika",
     "inviteUserHint": "Zaproś nowego użytkownika do swojego sklepu.",
     "sendInvite": "Wyślij zaproszenie",
+    "selectRole": "Wybierz rolę",
     "pendingInvites": "Oczekujące zaproszenia",
     "deleteInviteWarning": "Zamierzasz usunąć zaproszenie dla użytkownika {{email}}. Tej akcji nie można cofnąć.",
     "resendInvite": "Wyślij zaproszenie ponownie",
@@ -2495,14 +2560,25 @@
     "validFromUntil": "Obowiązuje od <0>{{from}}</0> - <1>{{until}}</1>",
     "acceptedOnDate": "Zaakceptowano w dniu {{date}}",
     "inviteStatus": {
-      "accepted": "Przyjęty",
-      "pending": "Aż do",
-      "expired": "Wygasły"
+      "accepted": "Zaakceptowane",
+      "pending": "Oczekuje",
+      "expired": "Wygasłe"
     },
     "roles": {
       "admin": "Administrator",
-      "developer": "Wywoływacz",
-      "member": "Członek"
+      "developer": "Programista",
+      "member": "Członek",
+      "administration": "Administracja",
+      "inventoryManagement": "Zarządzanie magazynem",
+      "orderManagement": "Zarządzanie zamówieniami",
+      "accounting": "Księgowość",
+      "support": "Wsparcie"
+    },
+    "inviteForm": {
+      "validation": {
+        "emailInvalid": "Wprowadź prawidłowy adres e-mail",
+        "roleRequired": "Wybierz rolę"
+      }
     },
     "list": {
       "empty": {
@@ -2522,6 +2598,39 @@
     "domain": "Sklep",
     "manageYourStoresDetails": "Zarządzaj szczegółami swojego sklepu",
     "editStore": "Edytuj sklep",
+    "handleTooltip": "Identyfikator staje się fragmentem URL Twojego sklepu. Pozostaw puste, aby wygenerować automatycznie z nazwy.",
+    "logo": "Logo",
+    "banner": "Baner",
+    "mediaHeading": "Media",
+    "mediaTip": {
+      "label": "Wskazówka:",
+      "message": "Te media będą widoczne w witrynie sklepu."
+    },
+    "validation": {
+      "nameRequired": "Wprowadź nazwę",
+      "nameTooLong": "Nazwa może mieć maksymalnie 100 znaków",
+      "emailInvalid": "Wprowadź prawidłowy adres e-mail"
+    },
+    "status": {
+      "active": "Aktywny",
+      "pendingApproval": "Oczekuje",
+      "suspended": "Nieaktywny",
+      "terminated": "Zakończony"
+    },
+    "alert": {
+      "pendingApproval": {
+        "title": "Wniosek o sklep",
+        "description": "Wniosek o sklep został pomyślnie wysłany. Po sprawdzeniu przez administratora otrzymasz powiadomienie w panelu."
+      },
+      "suspended": {
+        "title": "Twój sklep został zawieszony",
+        "description": "Twój sklep został zawieszony przez administratora platformy. Skontaktuj się z pomocą techniczną, aby uzyskać więcej informacji."
+      },
+      "terminated": {
+        "title": "Twój sklep został zamknięty",
+        "description": "Twój sklep został trwale zamknięty przez administratora platformy. Skontaktuj się z pomocą techniczną, aby uzyskać więcej informacji."
+      }
+    },
     "defaultCurrency": "Domyślna waluta",
     "defaultRegion": "Domyślny region",
     "defaultSalesChannel": "Domyślny kanał sprzedaży",
@@ -2539,7 +2648,110 @@
     "removeCurrencyWarning_other": "Zamierzasz usunąć {{count}} walut ze swojego sklepu. Upewnij się, że usunąłeś wszystkie ceny w wybranych walutach.",
     "currencyAlreadyAdded": "Waluta została już dodana do Twojego sklepu.",
     "edit": {
-      "header": "Edytuj sklep"
+      "header": "Edytuj sklep",
+      "websiteHint": "Musi zawierać protokół (np. https://)"
+    },
+    "address": {
+      "header": "Adres",
+      "defaultName": "Siedziba",
+      "nameLabel": "Nazwa",
+      "namePlaceholder": "Siedziba",
+      "empty": {
+        "title": "Brak adresu",
+        "message": "Brak rekordów do wyświetlenia"
+      },
+      "edit": {
+        "header": "Edytuj adres",
+        "description": "Zaktualizuj adres swojego sklepu.",
+        "successToast": "Adres został zaktualizowany"
+      },
+      "validation": {
+        "nameRequired": "Wprowadź nazwę",
+        "countryRequired": "Wybierz kraj"
+      }
+    },
+    "paymentDetails": {
+      "header": "Dane płatności",
+      "empty": {
+        "title": "Brak danych płatności",
+        "message": "Brak rekordów do wyświetlenia"
+      },
+      "edit": {
+        "header": "Edytuj dane płatności",
+        "description": "Zaktualizuj dane płatności swojego sklepu.",
+        "successToast": "Dane płatności zostały zaktualizowane"
+      },
+      "fields": {
+        "countryCode": "Kraj",
+        "holderName": "Nazwa właściciela konta",
+        "bankName": "Nazwa banku",
+        "iban": "IBAN",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
+        "routingNumber": "Numer routingu",
+        "achRoutingNumber": "Numer routingu ACH",
+        "accountNumber": "Numer konta"
+      },
+      "validation": {
+        "countryRequired": "Wybierz kraj",
+        "accountNameRequired": "Wprowadź nazwę właściciela konta"
+      }
+    },
+    "professionalDetails": {
+      "header": "Dane firmy",
+      "empty": {
+        "title": "Brak danych firmy",
+        "message": "Brak rekordów do wyświetlenia"
+      },
+      "edit": {
+        "header": "Edytuj dane firmy",
+        "description": "Zaktualizuj dane firmy swojego sklepu.",
+        "successToast": "Dane firmy zostały zaktualizowane"
+      },
+      "fields": {
+        "corporateName": "Pełna nazwa firmy",
+        "registrationNumber": "Numer rejestracyjny",
+        "taxId": "NIP"
+      }
+    },
+    "timeOff": {
+      "header": "Przerwa",
+      "columns": {
+        "firstDay": "Pierwszy dzień",
+        "lastDay": "Ostatni dzień",
+        "note": "Notatka"
+      },
+      "validation": {
+        "firstDayRequired": "Wybierz pierwszy dzień"
+      },
+      "empty": {
+        "title": "Brak zaplanowanej przerwy",
+        "message": "Ten sklep nie ma zaplanowanej przerwy",
+        "action": "Utwórz"
+      },
+      "create": {
+        "header": "Utwórz przerwę",
+        "description": "Zaplanuj okres przerwy dla swojego sklepu.",
+        "successToast": "Przerwa została zapisana"
+      },
+      "fields": {
+        "firstDay": "Pierwszy dzień",
+        "lastDay": "Ostatni dzień",
+        "lastDayHint": "Pozostaw puste, aby zamknąć sklep na czas nieokreślony",
+        "note": "Notatka"
+      },
+      "deleteConfirm": {
+        "title": "Usuń przerwę",
+        "description": "Czy na pewno chcesz usunąć ten okres przerwy?"
+      },
+      "deleteSuccess": "Przerwa została usunięta"
+    },
+    "subscription": {
+      "header": "Subskrypcja",
+      "month": "miesiąc"
+    },
+    "scheduledClosure": {
+      "header": "Zaplanowana przerwa"
     },
     "toast": {
       "update": "Sklep pomyślnie zaktualizowany",
@@ -2839,10 +3051,148 @@
       }
     }
   },
+  "storeSelect": {
+    "title": "Wybierz sklep",
+    "subtitle": "Wybierz sklep, aby kontynuować.",
+    "pendingApproval": "Oczekuje",
+    "addNewStore": "Dodaj nowy sklep",
+    "status": {
+      "open": "Aktywny",
+      "pendingApproval": "Oczekuje",
+      "suspended": "Nieaktywny",
+      "terminated": "Zakończony"
+    }
+  },
   "login": {
     "forgotPassword": "Zapomniałeś hasła? - <0>Resetuj</0>",
     "title": "Witamy w {{name}}",
     "hint": "Zaloguj się, aby uzyskać dostęp do obszaru konta"
+  },
+  "register": {
+    "title": "Dołącz do Mercur!",
+    "hint": "Wprowadź swoje dane i utwórz hasło, aby skonfigurować konto sprzedawcy w {{name}}.",
+    "companyName": "Nazwa firmy",
+    "confirmPassword": "Potwierdź hasło",
+    "signUp": "Zarejestruj się",
+    "alreadySeller": "Masz już konto? <0>Zaloguj się</0>",
+    "passwordMismatch": "Hasła nie są zgodne",
+    "emailTaken": "Podany adres e-mail jest już zajęty",
+    "error": "Coś poszło nie tak. Spróbuj ponownie.",
+    "validation": {
+      "nameRequired": "Nazwa musi mieć co najmniej 2 znaki",
+      "firstNameRequired": "Wprowadź swoje imię",
+      "lastNameRequired": "Wprowadź swoje nazwisko",
+      "emailInvalid": "Wprowadź prawidłowy adres e-mail",
+      "passwordMinLength": "Hasło musi mieć co najmniej 8 znaków",
+      "passwordComplexity": "Hasło musi zawierać jedną małą literę, jedną wielką literę oraz jedną cyfrę lub symbol",
+      "confirmPasswordRequired": "Potwierdź swoje hasło"
+    },
+    "firstName": "Imię",
+    "lastName": "Nazwisko",
+    "passwordHint": "Twoje hasło musi zawierać co najmniej 8 znaków, jedną małą literę, jedną wielką literę oraz jedną cyfrę lub symbol",
+    "successTitle": "Dziękujemy za rejestrację!",
+    "successHint": "Może być konieczne oczekiwanie na autoryzację administratora przed zalogowaniem. Wkrótce otrzymasz e-mail z potwierdzeniem.",
+    "backToLogin": "Powrót do logowania"
+  },
+  "onboarding": {
+    "step": "Krok {{current}} / {{total}}",
+    "organizationSetup": {
+      "title": "Skonfiguruj swoją organizację",
+      "subtitle": "Podaj nazwę swojej organizacji",
+      "organizationName": "Nazwa organizacji",
+      "organizationNamePlaceholder": "Moja organizacja"
+    },
+    "storeSetup": {
+      "title": "Skonfiguruj swój sklep",
+      "subtitle": "Podaj szczegóły swojego sklepu",
+      "storeName": "Nazwa sklepu",
+      "storeNamePlaceholder": "Mój sklep",
+      "storeEmail": "E-mail sklepu",
+      "storeEmailHint": "Publiczny adres kontaktowy Twojego sklepu",
+      "selectCurrency": "Wybierz walutę",
+      "currencyHint": "Nie można zmienić po utworzeniu sklepu",
+      "descriptionPlaceholder": "Opis Twojego sklepu"
+    },
+    "detailsSetup": {
+      "title": "Uzupełnij swój profil",
+      "subtitle": "Dodaj swój adres i dane firmy",
+      "addressTitle": "Adres",
+      "addressSubtitle": "Adres Twojej firmy",
+      "professionalTitle": "Dane firmy",
+      "professionalSubtitle": "Informacje o sprzedawcy biznesowym",
+      "isProfessional": "Sprzedawca biznesowy",
+      "isProfessionalDescription": "Zarejestruj się jako podmiot gospodarczy",
+      "corporateName": "Firma",
+      "registrationNumber": "Numer rejestracyjny",
+      "taxId": "NIP",
+      "completeSetup": "Zakończ konfigurację"
+    },
+    "submitted": {
+      "title": "Wniosek został wysłany!",
+      "description": "Twoje konto sprzedawcy zostało utworzone i oczekuje na zatwierdzenie. Powiadomimy Cię pod adresem {{email}}, gdy Twój sklep zostanie zweryfikowany.",
+      "hint": "W międzyczasie możesz wybrać swój sklep i dokończyć konfigurację.",
+      "action": "Przejdź do panelu"
+    },
+    "wizard": {
+      "stepOf": "Krok {{current}} z {{total}}",
+      "steps": {
+        "store": "Szczegóły sklepu",
+        "address": "Adres",
+        "company": "Dane firmy",
+        "payment": "Dane płatności"
+      },
+      "store": {
+        "title": "Wprowadź dane swojego sklepu",
+        "name": "Nazwa",
+        "email": "E-mail",
+        "handle": "Identyfikator",
+        "handleTooltip": "Identyfikator staje się fragmentem URL Twojego sklepu. Pozostaw puste, aby wygenerować automatycznie z nazwy.",
+        "handlePlaceholder": "moj-sklep",
+        "currency": "Waluta",
+        "selectCurrency": "Wybierz",
+        "currencyHint": "Nie można zmienić po utworzeniu sklepu"
+      },
+      "skip": "Pomiń",
+      "address": {
+        "title": "Wprowadź swój adres",
+        "name": "Nazwa",
+        "namePlaceholder": "Siedziba",
+        "address": "Adres",
+        "address2": "Mieszkanie, apartament itp.",
+        "postalCode": "Kod pocztowy",
+        "city": "Miasto",
+        "country": "Kraj",
+        "state": "Województwo"
+      },
+      "company": {
+        "title": "Wprowadź dane swojej firmy",
+        "subtitle": "Informacje o sprzedawcy biznesowym",
+        "corporateName": "Firma",
+        "registrationNumber": "Numer rejestracyjny",
+        "taxId": "NIP"
+      },
+      "payment": {
+        "title": "Wprowadź dane płatności",
+        "subtitle": "W jaki sposób chcesz otrzymywać wypłaty",
+        "accountName": "Nazwa właściciela konta",
+        "accountNumber": "Numer konta",
+        "achRoutingNumber": "Numer routingu ACH",
+        "iban": "IBAN",
+        "swiftBic": "SWIFT / BIC"
+      },
+      "validation": {
+        "nameRequired": "Wprowadź nazwę",
+        "emailInvalid": "Wprowadź adres e-mail",
+        "currencyRequired": "Wybierz walutę",
+        "countryRequired": "Wybierz kraj",
+        "accountNameRequired": "Wprowadź nazwę właściciela konta"
+      },
+      "preview": {
+        "title": "Witamy w Mercur",
+        "description": "Twój kompleksowy panel sprzedawcy do zarządzania sklepem, produktami, zamówieniami i wypłatami.",
+        "placeholder": "Podgląd aplikacji"
+      }
+    }
   },
   "invite": {
     "title": "Witamy w Mercur",

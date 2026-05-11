@@ -38,7 +38,7 @@ export const usePayoutTableColumns = () => {
       columnHelper.accessor("display_id", {
         header: () => (
           <div className="flex h-full w-full items-center">
-            <span className="truncate">Payout</span>
+            <span className="truncate">{t("payouts.payout")}</span>
           </div>
         ),
         cell: ({ getValue }) => {
@@ -63,7 +63,9 @@ export const usePayoutTableColumns = () => {
           const status = getValue()
           return (
             <StatusBadge color={payoutStatusColor(status)}>
-              {status.charAt(0).toUpperCase() + status.slice(1)}
+              {t(`payouts.status.${status}`, {
+                defaultValue: status.charAt(0).toUpperCase() + status.slice(1),
+              })}
             </StatusBadge>
           )
         },

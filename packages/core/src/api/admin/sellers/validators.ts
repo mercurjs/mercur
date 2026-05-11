@@ -3,8 +3,10 @@ import {
   createFindParams,
   createOperatorMap,
   createSelectParams,
+  WithAdditionalData,
 } from "@medusajs/medusa/api/utils/validators"
 import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
+import { AdditionalData } from "@medusajs/framework/types"
 import { SellerRole } from "@mercurjs/types"
 
 export type AdminGetSellerParamsType = z.infer<typeof AdminGetSellerParams>
@@ -48,8 +50,8 @@ export const AdminGetSellerProductsParams = createFindParams({
   })
 )
 
-export type AdminCreateSellerType = z.infer<typeof AdminCreateSeller>
-export const AdminCreateSeller = z.object({
+export type AdminCreateSellerType = z.infer<typeof CreateSeller> & AdditionalData
+export const CreateSeller = z.object({
   name: z.string(),
   handle: z.string().optional(),
   email: z.string().email(),
@@ -71,9 +73,10 @@ export const AdminCreateSeller = z.object({
     email: z.string().email(),
   }),
 })
+export const AdminCreateSeller = WithAdditionalData(CreateSeller)
 
-export type AdminUpdateSellerType = z.infer<typeof AdminUpdateSeller>
-export const AdminUpdateSeller = z.object({
+export type AdminUpdateSellerType = z.infer<typeof UpdateSeller> & AdditionalData
+export const UpdateSeller = z.object({
   name: z.string().optional(),
   handle: z.string().optional(),
   email: z.string().email().optional(),
@@ -91,6 +94,7 @@ export const AdminUpdateSeller = z.object({
   closure_note: z.string().nullable().optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
 })
+export const AdminUpdateSeller = WithAdditionalData(UpdateSeller)
 
 export type AdminSuspendSellerType = z.infer<typeof AdminSuspendSeller>
 export const AdminSuspendSeller = z.object({
@@ -116,10 +120,8 @@ export const AdminInviteSellerMember = z.object({
   role_id: z.nativeEnum(SellerRole),
 })
 
-export type AdminUpsertSellerAddressType = z.infer<
-  typeof AdminUpsertSellerAddress
->
-export const AdminUpsertSellerAddress = z.object({
+export type AdminUpsertSellerAddressType = z.infer<typeof UpsertSellerAddress> & AdditionalData
+export const UpsertSellerAddress = z.object({
   name: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
   first_name: z.string().nullable().optional(),
@@ -133,11 +135,10 @@ export const AdminUpsertSellerAddress = z.object({
   phone: z.string().nullable().optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
 })
+export const AdminUpsertSellerAddress = WithAdditionalData(UpsertSellerAddress)
 
-export type AdminUpsertSellerPaymentDetailsType = z.infer<
-  typeof AdminUpsertSellerPaymentDetails
->
-export const AdminUpsertSellerPaymentDetails = z.object({
+export type AdminUpsertSellerPaymentDetailsType = z.infer<typeof UpsertSellerPaymentDetails> & AdditionalData
+export const UpsertSellerPaymentDetails = z.object({
   country_code: z.string().optional(),
   holder_name: z.string().optional(),
   bank_name: z.string().nullable().optional(),
@@ -146,12 +147,12 @@ export const AdminUpsertSellerPaymentDetails = z.object({
   routing_number: z.string().nullable().optional(),
   account_number: z.string().nullable().optional(),
 })
+export const AdminUpsertSellerPaymentDetails = WithAdditionalData(UpsertSellerPaymentDetails)
 
-export type AdminUpsertSellerProfessionalDetailsType = z.infer<
-  typeof AdminUpsertSellerProfessionalDetails
->
-export const AdminUpsertSellerProfessionalDetails = z.object({
+export type AdminUpsertSellerProfessionalDetailsType = z.infer<typeof UpsertSellerProfessionalDetails> & AdditionalData
+export const UpsertSellerProfessionalDetails = z.object({
   corporate_name: z.string().nullable().optional(),
   registration_number: z.string().nullable().optional(),
   tax_id: z.string().nullable().optional(),
 })
+export const AdminUpsertSellerProfessionalDetails = WithAdditionalData(UpsertSellerProfessionalDetails)

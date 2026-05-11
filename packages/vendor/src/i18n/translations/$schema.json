@@ -4271,6 +4271,12 @@
             "totalPaidByCustomer": {
               "type": "string"
             },
+            "totalPending": {
+              "type": "string"
+            },
+            "totalRefunded": {
+              "type": "string"
+            },
             "totalStoreCreditRefunds": {
               "type": "string"
             },
@@ -4375,6 +4381,8 @@
             "title",
             "isReadyToBeCaptured",
             "totalPaidByCustomer",
+            "totalPending",
+            "totalRefunded",
             "totalStoreCreditRefunds",
             "capture",
             "capture_short",
@@ -5184,6 +5192,12 @@
             "addTracking": {
               "type": "string"
             },
+            "addTrackingUrl": {
+              "type": "string"
+            },
+            "trackingUrlPlaceholder": {
+              "type": "string"
+            },
             "sendNotification": {
               "type": "string"
             },
@@ -5200,6 +5214,8 @@
             "trackingUrl",
             "labelUrl",
             "addTracking",
+            "addTrackingUrl",
+            "trackingUrlPlaceholder",
             "sendNotification",
             "sendNotificationHint",
             "toastCreated"
@@ -5338,6 +5354,15 @@
                 },
                 "requiresAction": {
                   "type": "string"
+                },
+                "awaitingPickup": {
+                  "type": "string"
+                },
+                "awaitingShipping": {
+                  "type": "string"
+                },
+                "awaitingDelivery": {
+                  "type": "string"
                 }
               },
               "required": [
@@ -5351,7 +5376,10 @@
                 "partiallyReturned",
                 "returned",
                 "canceled",
-                "requiresAction"
+                "requiresAction",
+                "awaitingPickup",
+                "awaitingShipping",
+                "awaitingDelivery"
               ],
               "additionalProperties": false
             },

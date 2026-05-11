@@ -452,14 +452,14 @@ const useColumns = ({
               ? variantAttributes
                   .map((attr) => attr.name)
                   .join(" / ")
-              : "Options",
+              : t("products.create.variants.optionsHeader"),
           header: () => {
             const label =
               variantAttributes.length > 0
                 ? variantAttributes
                     .map((attr) => attr.name)
                     .join(" / ")
-                : "Options"
+                : t("products.create.variants.optionsHeader")
 
             return (
               <Tooltip content={label}>

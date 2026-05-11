@@ -346,7 +346,7 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
     },
     {
       icon: <CreditCardRefresh />,
-      label: "Payouts",
+      label: t("payouts.domain"),
       to: "/payouts",
     },
   ];

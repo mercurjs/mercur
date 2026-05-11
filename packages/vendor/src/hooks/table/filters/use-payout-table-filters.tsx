@@ -15,11 +15,11 @@ export const usePayoutTableFilters = (): Filter[] => {
       type: "select",
       multiple: true,
       options: [
-        { label: "Pending", value: "pending" },
-        { label: "Processing", value: "processing" },
-        { label: "Paid", value: "paid" },
-        { label: "Failed", value: "failed" },
-        { label: "Canceled", value: "canceled" },
+        { label: t("payouts.status.pending"), value: "pending" },
+        { label: t("payouts.status.processing"), value: "processing" },
+        { label: t("payouts.status.paid"), value: "paid" },
+        { label: t("payouts.status.failed"), value: "failed" },
+        { label: t("payouts.status.canceled"), value: "canceled" },
       ],
     }
 

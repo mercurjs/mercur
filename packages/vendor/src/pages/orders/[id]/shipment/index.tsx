@@ -1,4 +1,4 @@
-// Route: /orders/:id/fulfillments/:f_id/shipment
+// Route: /orders/:id/:f_id/create-shipment
 import { useParams } from "react-router-dom"
 
 import { RouteFocusModal } from "@components/modals"

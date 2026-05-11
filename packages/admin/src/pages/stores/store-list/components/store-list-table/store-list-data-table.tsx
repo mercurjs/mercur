@@ -68,7 +68,7 @@ export const StoreListDataTable = () => {
       pagination
       navigateTo={(row) => `/stores/${row.original.id}`}
       orderBy={[
-        { key: "name", label: t("stores.fields.name") },
+        { key: "name", label: t("stores.fields.seller") },
         { key: "email", label: t("stores.fields.email") },
         { key: "created_at", label: t("fields.createdAt") },
       ]}

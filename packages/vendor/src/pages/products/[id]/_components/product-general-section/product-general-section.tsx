@@ -90,7 +90,7 @@ export const ProductGeneralSection = () => {
       <SectionRow title={t("fields.handle")} value={`/${product.handle}`} />
       <SectionRow
         title={t("fields.discountable")}
-        value={product.discountable ? "True" : "False"}
+        value={product.discountable ? t("general.true") : t("general.false")}
       />
     </Container>
   );

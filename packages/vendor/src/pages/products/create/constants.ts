@@ -133,11 +133,13 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
   options: [],
   variants: decorateVariantsWithDefaultValues([
     {
-      title: "Default variant",
+      title: i18n.t("products.create.defaults.variantTitle"),
       should_create: true,
       variant_rank: 0,
       options: {
-        "Default option": "Default option value",
+        [i18n.t("products.create.defaults.optionTitle")]: i18n.t(
+          "products.create.defaults.optionValue"
+        ),
       },
       inventory: [{ inventory_item_id: "", required_quantity: "" }],
       is_default: true,

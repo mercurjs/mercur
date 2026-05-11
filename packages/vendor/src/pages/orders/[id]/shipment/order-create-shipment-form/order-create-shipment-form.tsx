@@ -107,12 +107,16 @@ export function OrderCreateShipmentForm({
                         return (
                           <Form.Item className="mb-4">
                             {index === 0 && (
-                              <Form.Label>Tracking URL</Form.Label>
+                              <Form.Label>
+                                {t("orders.shipment.trackingUrl")}
+                              </Form.Label>
                             )}
                             <Form.Control>
                               <Input
                                 {...field}
-                                placeholder="https://www.dhl.com/shipment/1234567890"
+                                placeholder={t(
+                                  "orders.shipment.trackingUrlPlaceholder"
+                                )}
                               />
                             </Form.Control>
                             <Form.ErrorMessage />
@@ -128,7 +132,7 @@ export function OrderCreateShipmentForm({
                     className="self-end"
                     variant="secondary"
                   >
-                    Add tracking URL
+                    {t("orders.shipment.addTrackingUrl")}
                   </Button>
                 </div>
               </div>

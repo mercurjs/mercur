@@ -1179,7 +1179,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
                 handle: {
-                  breadcrumb: () => "Commission Rates",
+                  breadcrumb: () => t("commissionRates.domain"),
                 },
                 children: [
                   {

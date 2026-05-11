@@ -1,16 +1,20 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input } from "@medusajs/ui";
+import { ComponentType } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import components from "virtual:mercur/components";
 import * as z from "zod";
 
 import { Form } from "@components/common/form";
 
-const CompanyStepSchema = z.object({
-  corporate_name: z.string().optional(),
-  registration_number: z.string().optional(),
-  tax_id: z.string().optional(),
-});
+const CompanyStepSchema = z
+  .object({
+    corporate_name: z.string().optional(),
+    registration_number: z.string().optional(),
+    tax_id: z.string().optional(),
+  })
+  .passthrough();
 
 type CompanyStepValues = z.infer<typeof CompanyStepSchema>;
 
@@ -19,6 +23,10 @@ type CompanyStepProps = {
   onSkip: () => void;
   isPending?: boolean;
 };
+
+const ExtraFields = components.OnboardingCompanyExtraFields as
+  | ComponentType
+  | undefined;
 
 export const CompanyStep = ({ onSubmit, onSkip, isPending }: CompanyStepProps) => {
   const { t } = useTranslation();
@@ -90,6 +98,7 @@ export const CompanyStep = ({ onSubmit, onSkip, isPending }: CompanyStepProps) =
                 </Form.Item>
               )}
             />
+            {ExtraFields && <ExtraFields />}
           </div>
           <div className="flex flex-col gap-y-2">
             <Button type="submit" className="w-full" isLoading={isPending}>

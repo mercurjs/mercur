@@ -54,7 +54,7 @@ const InformationalAttributeRowActions = ({ productId, attribute }: { productId:
   const handleDelete = async () => {
     const res = await prompt({
       title: t("general.areYouSure"),
-      description: "You are about to remove this attribute from the product. This action cannot be undone.",
+      description: t("products.attributesSection.removeWarning"),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
     })

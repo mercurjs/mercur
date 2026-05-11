@@ -60,7 +60,7 @@ export const PayoutListDataTable = () => {
       ]}
       queryObject={raw}
       noRecords={{
-        message: "No payouts found",
+        message: t("payouts.noRecords"),
       }}
     />
   );
