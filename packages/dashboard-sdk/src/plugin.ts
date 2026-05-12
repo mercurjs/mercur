@@ -203,6 +203,9 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                     __BASE__: JSON.stringify(config.base || "/"),
                     __VENDOR_URL__: JSON.stringify(vendorAppUrl || ""),
                 },
+                resolve: {
+                    dedupe: ["i18next", "react-i18next", "react", "react-dom"],
+                },
                 optimizeDeps: {
                     exclude: [
                         "virtual:mercur/config",
@@ -217,6 +220,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                         "react-dom/client",
                         "react-router-dom",
                         "react-i18next",
+                        "i18next",
                         "@medusajs/ui",
                         "@medusajs/dashboard",
                         "@mercurjs/client",
