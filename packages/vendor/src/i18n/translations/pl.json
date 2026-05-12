@@ -58,7 +58,9 @@
     "unsavedChangesDescription": "Masz niezapisane zmiany, które zostaną utracone po wyjściu.",
     "includesTaxTooltip": "Ceny w tej kolumnie zawierają podatek.",
     "excludesTaxTooltip": "Ceny w tej kolumnie są bez podatku.",
-    "noMoreData": "Brak dodatkowych danych"
+    "noMoreData": "Brak dodatkowych danych",
+    "true": "Prawda",
+    "false": "Fałsz"
   },
   "json": {
     "header": "JSON",
@@ -1244,9 +1246,9 @@
         "authorized": "Autoryzowane",
         "partiallyAuthorized": "Częściowo autoryzowane",
         "awaiting": "Oczekujące",
-        "captured": "Zrealizowane",
+        "captured": "Zapłacone",
         "partiallyRefunded": "Częściowo zwrócone",
-        "partiallyCaptured": "Częściowo zrealizowane",
+        "partiallyCaptured": "Częściowo zapłacone",
         "refunded": "Zwrócone",
         "canceled": "Anulowane",
         "requiresAction": "Wymaga działania"
@@ -3521,9 +3523,9 @@
     "customer": "Klient",
     "date": "Data",
     "order": "Zamówienie",
-    "fulfillment": "Spełnienie",
+    "fulfillment": "Dostawa",
     "provider": "Dostawca",
-    "payment": "Zapłata",
+    "payment": "Płatność",
     "items": "Rzeczy",
     "salesChannel": "Kanał sprzedaży",
     "region": "Region",
