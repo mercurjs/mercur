@@ -457,7 +457,7 @@ const CostBreakdown = ({
       </>
       {commissionTotal > 0 && (
         <Cost
-          label={"Commission"}
+          label={t("fields.commission")}
           value={getLocaleAmount(commissionTotal, order.currency_code)}
         />
       )}

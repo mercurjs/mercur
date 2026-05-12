@@ -3634,6 +3634,7 @@
     "availability": "Availability",
     "inventory": "Inventory",
     "optional": "Optional",
+    "commission": "Commission",
     "note": "Note",
     "automaticTaxes": "Automatic Taxes",
     "taxInclusivePricing": "Tax inclusive pricing",

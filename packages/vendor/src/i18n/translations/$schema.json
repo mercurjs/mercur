@@ -11969,6 +11969,9 @@
         "optional": {
           "type": "string"
         },
+        "commission": {
+          "type": "string"
+        },
         "note": {
           "type": "string"
         },
@@ -12316,6 +12319,7 @@
         "availability",
         "inventory",
         "optional",
+        "commission",
         "note",
         "automaticTaxes",
         "taxInclusivePricing",
