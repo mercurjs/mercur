@@ -160,7 +160,7 @@ const Item = ({
         className="text-ui-fg-subtle grid grid-cols-2 items-center gap-x-4 px-6 py-4"
       >
         <div className="flex items-start gap-x-4">
-          <Thumbnail src={item.thumbnail} size="large" />
+          <Thumbnail src={item.thumbnail} />
           <div>
             <Text
               size="small"
