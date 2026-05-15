@@ -520,6 +520,7 @@
       "uploadImagesLabel": "Upload images",
       "uploadImagesHint": "Drag and drop images here or click to upload.",
       "invalidFileType": "'{{name}}' is not a supported file type. Supported file types are: {{types}}.",
+      "fileTooLarge": "One or more files exceed the maximum file size of {{size}}: {{name}}",
       "failedToUpload": "Failed to upload the added media. Please try again.",
       "deleteWarning_one": "You are about to delete {{count}} image. This action cannot be undone.",
       "deleteWarning_other": "You are about to delete {{count}} images. This action cannot be undone.",

@@ -186,6 +186,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
 
             const srcDir = path.join(root, "src");
             const backendUrl = pluginConfig.backendUrl ?? "http://localhost:9000";
+            const imageLimit = pluginConfig.imageLimit ?? 2 * 1024 * 1024;
 
             config = {
                 ...pluginConfig,
@@ -194,6 +195,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                 root,
                 srcDir,
                 pluginExtensions,
+                imageLimit,
             };
 
             return {
