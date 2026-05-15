@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { useEffect, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
@@ -74,15 +74,37 @@ export function OrderCreateFulfillmentForm({
       fields: "+service_zone.fulfillment_set.location.id,*rules",
     })
 
-  const filteredShippingOptions = shipping_options.filter(
-    (o) =>
-      o !== null && !isReturnOption(o) && isSameLocation(o, selectedLocationId)
+  const filteredShippingOptions = useMemo(
+    () =>
+      shipping_options.filter(
+        (o) =>
+          o !== null &&
+          !isReturnOption(o) &&
+          isSameLocation(o, selectedLocationId)
+      ),
+    [shipping_options, selectedLocationId]
   )
 
   const shippingOptionId = useWatch({
     name: "shipping_option_id",
     control: form.control,
   })
+
+  // The shipping method the customer chose at checkout. We pre-select both
+  // the location and the method on mount so the vendor doesn't have to
+  // re-pick them.
+  const initialShippingOptionId =
+    order.shipping_methods?.[0]?.shipping_option_id ?? null
+
+  const initialShippingOption = useMemo(() => {
+    if (!initialShippingOptionId) return null
+    return (
+      shipping_options.find((o) => o?.id === initialShippingOptionId) ?? null
+    )
+  }, [initialShippingOptionId, shipping_options])
+
+  const initialLocationId =
+    initialShippingOption?.service_zone?.fulfillment_set?.location?.id ?? null
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const selectedShippingOption = shipping_options.find(
@@ -144,35 +166,51 @@ export function OrderCreateFulfillmentForm({
     }
   })
 
+  // Pre-select the customer's location once both the option-lookup and
+  // the location list have arrived. The customer's chosen shipping option
+  // lives on a specific fulfillment_set → service_zone → location, so we
+  // copy that location id into the form.
   useEffect(() => {
-    if (stock_locations?.length && shipping_options?.length) {
-      const initialShippingOptionId =
-        order.shipping_methods?.[0]?.shipping_option_id
+    if (!initialLocationId || !stock_locations?.length) return
+    if (selectedLocationId === initialLocationId) return
+    form.setValue("location_id", initialLocationId)
+  }, [initialLocationId, stock_locations?.length, selectedLocationId, form])
 
-      if (initialShippingOptionId) {
-        const shippingOption = shipping_options.find(
-          (o) => o?.id === initialShippingOptionId
-        )
-
-        if (shippingOption) {
-          const locationId =
-            shippingOption.service_zone.fulfillment_set.location.id
-
-          form.setValue("location_id", locationId)
-          form.setValue(
-            "shipping_option_id",
-            initialShippingOptionId || undefined
-          )
-        } // else -> TODO: what if original shipping option is deleted?
-      }
-    }
+  // Pre-select the customer's shipping option once:
+  //   (a) the location has propagated (so `filteredShippingOptions`
+  //       reflects the right service zone), and
+  //   (b) the option is present in the filtered list (so the matching
+  //       `<Select.Item>` has rendered).
+  //
+  // `shippingOptionId` is deliberately a dep on this effect. Radix Select
+  // maintains a hidden native `<select>` (`BubbleSelect`) for form /
+  // accessibility integration; its `<option>` children come from a
+  // `nativeOptionsSet` that each `<Select.Item>` registers into via
+  // `useLayoutEffect → setState`. Item registration therefore lands one
+  // render after the value assignment, and on the first render where
+  // `value` changes the browser silently rejects the not-yet-registered
+  // value and dispatches `change` with `""`, which propagates through the
+  // controlled `onValueChange` and clobbers the form field back to `""`.
+  // When that happens this effect's `shippingOptionId` dep changes from
+  // the target to `""`, so React re-runs the effect and it re-applies the
+  // value. Once Item registration catches up, the assignment sticks and
+  // the `shippingOptionId === initialShippingOptionId` early-return
+  // short-circuits.
+  useEffect(() => {
+    if (!initialShippingOptionId || !selectedLocationId) return
+    if (
+      !filteredShippingOptions.some((o) => o?.id === initialShippingOptionId)
+    )
+      return
+    if (shippingOptionId === initialShippingOptionId) return
+    form.setValue("shipping_option_id", initialShippingOptionId)
   }, [
-	stock_locations?.length,
-	shipping_options?.length,
-	order.shipping_methods,
-	form,
-	shipping_options
-])
+    initialShippingOptionId,
+    selectedLocationId,
+    filteredShippingOptions,
+    shippingOptionId,
+    form,
+  ])
 
   const fulfilledQuantityArray = (order.items || []).map(
     (item) =>
