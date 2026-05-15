@@ -248,7 +248,7 @@ export function ManageVariantInventoryItemsForm({
   const hasKit = inventory.fields.length > 1
 
   const { mutateAsync, isPending } = useProductVariantsInventoryItemsBatch(
-    variant?.product_id!
+    variant?.product_id
   )
 
   const handleSubmit = form.handleSubmit(async (values) => {

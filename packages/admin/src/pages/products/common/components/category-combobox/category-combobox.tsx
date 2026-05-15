@@ -67,7 +67,7 @@ export const CategoryCombobox = forwardRef<
       {
         q: query,
         parent_category_id: !searchValue ? getParentId(level) : undefined,
-        include_descendants_tree: !searchValue ? true : false,
+        include_descendants_tree: !searchValue,
       },
       {
         enabled: open,
@@ -319,6 +319,7 @@ export const CategoryCombobox = forwardRef<
       </RadixPopover.Anchor>
       <RadixPopover.Content
         sideOffset={4}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
         role="listbox"
         className={clx(
           "shadow-elevation-flyout bg-ui-bg-base -start-2 z-50 w-[var(--radix-popper-anchor-width)] rounded-[8px]",
@@ -344,7 +345,7 @@ export const CategoryCombobox = forwardRef<
             <div className="p-1">
               <button
                 data-active={focusedIndex === 0}
-                role="button"
+                
                 className={clx(
                   "transition-fg grid w-full appearance-none grid-cols-[20px_1fr] items-center justify-center gap-2 rounded-md px-2 py-1.5 text-start outline-none",
                   "data-[active=true]:bg-ui-bg-field-hover"
@@ -384,7 +385,9 @@ export const CategoryCombobox = forwardRef<
                       : focusedIndex === index
                   }
                   type="button"
+                  // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                   role="option"
+                  aria-selected={false}
                   className={clx(
                     "grid h-full w-full appearance-none grid-cols-[20px_1fr] items-center gap-2 overflow-hidden rounded-md px-2 py-1.5 text-start outline-none",
                     "data-[active=true]:bg-ui-bg-field-hover"

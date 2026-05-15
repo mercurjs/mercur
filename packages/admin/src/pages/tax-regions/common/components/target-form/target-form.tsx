@@ -970,5 +970,5 @@ const useCleanupSearchParams = (prefix?: string) => {
         return next
       })
     }
-  }, [prefix])
+  }, [prefix, setSearchParams])
 }

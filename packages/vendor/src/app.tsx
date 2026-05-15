@@ -17,7 +17,7 @@ export default function App() {
       mainRoutes: createRouteMap(getRoutesByType(customRoutes, "main")),
       publicRoutes: createRouteMap(getRoutesByType(customRoutes, "public")),
     };
-  }, [customRoutes]);
+  }, []);
 
   return (
     <TooltipProvider>

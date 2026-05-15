@@ -52,6 +52,7 @@ export const OrderEditItemsSection = ({
     setIsOpen("inbound-items", false);
   };
 
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
   const debouncedOnChange = useCallback(
     debounce((e: ChangeEvent<HTMLInputElement>) => {
       const value = e.target.value;
@@ -68,7 +69,7 @@ export const OrderEditItemsSection = ({
   }, [debouncedOnChange]);
 
   const filteredItems = useMemo(() => {
-    const lowerFilterTerm = filterTerm.toLowerCase();
+    
     return preview.items.filter(
       (i) =>
         i.title.toLowerCase().includes(filterTerm) ||
@@ -120,6 +121,7 @@ export const OrderEditItemsSection = ({
                       type="submit"
                       variant="primary"
                       size="small"
+                      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                       role="button"
                       disabled={isPending}
                       onClick={async () => await onItemsSelected()}

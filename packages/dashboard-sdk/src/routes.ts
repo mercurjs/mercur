@@ -36,7 +36,7 @@ function getRoute(file: string, routesDir: string): string {
         .replace(normalizedRoutesDir, "")
         .replace(/\[\[\*\]\]/g, "*?")           // optional splat [[*]]
         .replace(/\[\*\]/g, "*")                // splat [*]
-        .replace(/\(([^\[\]\)]+)\)/g, "$1?")    // optional static (foo)
+        .replace(/\(([^[\])]+)\)/g, "$1?")    // optional static (foo)
         .replace(/\[\[([^\]]+)\]\]/g, ":$1?")   // optional dynamic [[foo]]
         .replace(/\[([^\]]+)\]/g, ":$1")        // dynamic [foo]
         .replace(

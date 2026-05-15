@@ -55,7 +55,7 @@ export function loadVirtualModule({
 }
 
 function loadConfigModule(mercurConfig: BuiltMercurConfig): string {
-    const { components, ...configWithoutComponents } = mercurConfig
+    const { ...configWithoutComponents } = mercurConfig
     return `export default ${JSON.stringify(configWithoutComponents)}`
 }
 

@@ -139,7 +139,8 @@ export const ProductCreateVariantsForm = ({
     })
 
     return result
-  }, [allAttributes, formValues])
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [formValues, allAttributes])
 
   const hasProductMedia = productMedia.length > 0
 
@@ -334,7 +335,12 @@ export const ProductCreateVariantsForm = ({
         }
       }
     }
-  }, [variantStructureKey, form])
+  }, [
+	variantStructureKey,
+	form,
+	variantAttributes,
+	variantAttributes.length
+])
 
   return (
     <div className="border-ui-border flex h-full flex-col justify-between divide-y">
@@ -360,9 +366,9 @@ const columnHelper = createDataGridHelper<
 const useColumns = ({
   variantAttributes = [],
   store,
-  regions = [],
+  regions: _regions = [],
   pricePreferences = [],
-  stockLocations = [],
+  stockLocations: _stockLocations = [],
   onOpenMediaModal,
   form,
   productMedia = [],
@@ -584,9 +590,7 @@ const useColumns = ({
       variantAttributes,
       t,
       store,
-      regions,
       pricePreferences,
-      stockLocations,
       onOpenMediaModal,
       allSelected,
       someSelected,

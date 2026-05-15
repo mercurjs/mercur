@@ -3,7 +3,6 @@ import { Container, Heading, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { IconAvatar } from "@components/common/icon-avatar";
-import { NoRecords } from "@components/common/empty-table-content";
 import { getStylizedAmount } from "@/lib/money-amount-helpers";
 import { HttpTypes } from "@mercurjs/types";
 

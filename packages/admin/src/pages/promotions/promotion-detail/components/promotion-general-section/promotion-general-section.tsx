@@ -58,7 +58,7 @@ export const PromotionGeneralSection = ({
   })
   const promotion = promotionProp ?? fetched
 
-  const { mutateAsync } = useDeletePromotion(promotion?.id!)
+  const { mutateAsync } = useDeletePromotion(promotion?.id)
 
   if (!promotion) {
     return null
@@ -192,7 +192,7 @@ export const PromotionGeneralSection = ({
         </Text>
 
         <Text size="small" leading="compact" className="text-pretty capitalize" data-testid="promotion-general-section-allocation-value">
-          {promotion.application_method?.allocation!}
+          {promotion.application_method?.allocation}
         </Text>
       </div>
 

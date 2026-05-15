@@ -50,7 +50,7 @@ const ProductCreateFormWithModal = ({
       setProductMedia(currentProductMedia || [])
       setIsOpen("variant-media-modal", true)
     },
-    []
+    [setIsOpen]
   )
 
   const handleCloseModal = () => {
@@ -66,6 +66,7 @@ const ProductCreateFormWithModal = ({
       saveVariantMediaRef.current(variantIndex, media)
     }
     handleCloseModal()
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   return (

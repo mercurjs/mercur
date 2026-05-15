@@ -128,7 +128,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
   const prompt = usePrompt();
   const [searchParams] = useSearchParams();
 
-  const tableSearchParams = useMemo(() => {
+  const _tableSearchParams = useMemo(() => {
     const filtered = new URLSearchParams();
     for (const [key, value] of searchParams.entries()) {
       if (key.startsWith(`${PREFIX}_`)) {
@@ -231,7 +231,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
 
       return [mainActions, secondaryActions];
     },
-    [handleDelete, navigate, t, tableSearchParams],
+    [handleDelete, navigate, t],
   );
 
   const getInventory = useCallback(

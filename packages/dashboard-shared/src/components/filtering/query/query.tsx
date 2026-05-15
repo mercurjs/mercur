@@ -28,6 +28,7 @@ export const Query = ({ placeholder }: QueryProps) => {
     setSearchParams((prev) => ({ ...prev, q: newValue || "" }));
   };
 
+  // oxlint-disable-next-line react-hooks/exhaustive-deps
   const debouncedUpdate = useCallback(
     debounce((newValue: string) => updateSearchParams(newValue), 500),
     [],

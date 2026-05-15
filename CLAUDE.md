@@ -1,237 +1,134 @@
-# Mercur
+# CLAUDE.md -- Quick Reference for Claude Code
 
-Open source marketplace platform built on MedusaJS. Follows a shadcn-like CLI approach where code is copied directly into projects for full ownership.
+## Required Reading
+
+@docs/PRODUCT.md
+@docs/ARCHITECTURE.md
+
+## Project Overview
+
+Mercur.js is open source marketplace platform repository built using Medusa.js + Typescript + React. It adds a marketplace layer on top of Medusa.js. This repository is designed for long-running coding-agent work. The goal is not to maximize raw code output. The goal is to leave the repo in a state where the next session can continue without guessing.
+
+## Build & Run
+
+```bash
+bun install        # Install dependencies
+bun run lint      # Type-check without emitting
+bun run build      # Compile all packages
+bun run dev        # Build + launch api, admin + vendor panels
+bun run test:integration:tests       # Run integration tests
+```
 
 ## Project Structure
 
-```
-mercur/
-├── apps/
-│   └── docs/             # Documentation site (Mintlify)
-├── packages/
-│   ├── admin/            # Admin dashboard UI
-│   ├── cli/              # @mercurjs/cli - CLI tool
-│   ├── client/           # @mercurjs/client - API client
-│   ├── core/      # @mercurjs/core - Core Medusa plugin (modules, workflows, providers)
-│   ├── dashboard-sdk/    # @mercurjs/dashboard-sdk - Vite plugin for dashboards
-│   ├── dashboard-shared/ # Shared UI components for admin and vendor dashboards
-│   ├── registry/         # Official block registry
-│   ├── types/            # @mercurjs/types - Type definitions
-│   └── vendor/           # @mercurjs/vendor - Vendor portal UI components
-├── packages/providers/
-│   └── payout-stripe-connect/ # @mercurjs/payout-stripe-connect - Stripe Connect payout provider
-├── templates/
-│   ├── basic/            # Basic marketplace template
-│   └── registry/         # Template for custom registries
-```
+- `packages/core` - Medusa.js plugin with core marketplace logic
+- `packages/cli` - Mercur CLI
+- `packages/client` - Type-safe fetch wrapper for the Mercur API
+- `packages/types` - Shared TypeScript type definitions
+- `packages/dashboard-sdk` - Vite plugin and types for extending admin/vendor panels
+- `packages/dashboard-shared` - Shared dashboard primitives consumed by admin + vendor
+- `packages/admin` - Admin panel UI package
+- `packages/vendor` - Vendor panel UI package
+- `packages/registry` - Private workspace for the Mercur blocks registry
+- `packages/providers/payout-stripe-connect` - Stripe Connect payout provider
+- `apps/api` - Starter Medusa server wired to `@mercurjs/core`
+- `apps/admin-test` - Starter admin Vite app (port 7000)
+- `apps/vendor` - Starter vendor Vite app (port 7001)
+- `apps/docs` - Documentation site (Mintlify)
+- `integration-tests` - Cross-package Jest integration suites
+
+## Commands
+
+- ALWAYS use `bun` (never npm, yarn, or pnpm)
+- NEVER run `bun run test:integration:http` (runs all packages). Use `bun run test:integration:http -- <pattern>`
+
+## Testing
+
+- Tests use Jest;
+- Use `medusaIntegrationTestRunner` from `@medusajs/test-utils`.
+- Helpers for creating admin users, sellers, customers are in the `integration-tests/helpers`
+- Tests are splitted by different endpoint groups: `admin`, `vendor`, `store`. Example: `http/product/vendor/product.spec.ts`, `http/product/admin/product.spec.ts`.
+
+## Important Development Notes
+
+- Bug fixes and new features MUST include tests
+- For bug fixes: if the issue is reproducible in a test, write a failing test first, then implement the fix
+- Ensure `bun run build` passes before finishing
+- DO NOT COMMIT unless the user explicitly asks
+- Conventional Commits: `feat(scope):`, `fix(scope):`, `docs:`, `chore:`. Use `!` for breaking changes (e.g. `feat(auth)!:`)
+- PRs target `canary`
+
+## Startup Workflow
+
+Before writing code:
+
+1. Confirm the working directory with `pwd`.
+2. Read `claude-progress.md` for the latest verified state and next step.
+3. Read `feature_list.json` and choose the highest-priority unfinished feature.
+4. Review recent commits with `git log --oneline -5`.
+5. Run the end-to-end verification before starting new work.
+
+If baseline verification is already failing, fix that first. Do not stack new
+feature work on top of a broken starting state.
+
+## Working Rules
+
+- Work on one feature at a time.
+- Do not mark a feature complete just because code was added.
+- Keep changes within the selected feature scope unless a blocker forces a
+  narrow supporting fix.
+- Do not silently change verification rules during implementation.
+- Prefer durable repo artifacts over chat summaries.
+
+## Required Artifacts
+
+- `feature_list.json`: source of truth for feature state (see schema below)
+- `claude-progress.md`: session log and current verified status
+- `session-handoff.md`: optional compact handoff for larger sessions
+
+### `feature_list.json`
+
+The feature tracker. A machine-readable list of every feature the agent needs
+to implement, along with its status, verification steps, and evidence.
+
+**How to use it:**
+
+1. Lives at the project root.
+2. Each feature entry has the following fields:
+   - `id` — short unique identifier
+   - `priority` — integer, lower = higher priority
+   - `area` — which part of the app (e.g. `"chat"`, `"import"`, `"search"`)
+   - `title` — short description
+   - `user_visible_behavior` — what the user should see when it works
+   - `status` — one of `not_started`, `in_progress`, `blocked`, `passing`
+   - `verification` — step-by-step instructions to confirm it works
+   - `evidence` — recorded proof that verification passed (filled in by the agent)
+   - `notes` — any extra context
+
+**Status rules:**
+
+- `not_started` — hasn't been touched
+- `in_progress` — the one feature currently being worked on (only one at a time)
+- `blocked` — can't proceed due to a documented issue
+- `passing` — verification passed and evidence is recorded
+
+The agent must only have one feature `in_progress` at a time.
+
+## Definition Of Done
+
+A feature is done only when all of the following are true:
+
+- the target behavior is implemented
+- the required verification actually ran
+- evidence is recorded in `feature_list.json` or `claude-progress.md`
+- the repository remains restartable from the standard startup path
 
-## Key Concepts
+## End Of Session
 
-### Blocks
+Before ending a session:
 
-Reusable code pieces that can be installed via CLI:
-
-- **Modules** - Data models and business logic
-- **Links** - Relationships between modules
-- **Workflows** - Multi-step business processes
-- **API Routes** - HTTP endpoints
-- **Admin Extensions** - Admin dashboard customizations
-- **Vendor Extensions** - Vendor portal customizations
-
-## CLI Commands (`packages/cli`)
-
-### `mercurjs create [name]`
-
-Create a new Mercur project from template.
-
-**Options:**
-
-- `-t, --template <template>` - Template: `basic` or `registry`
-- `--no-deps` - Skip dependency installation
-- `--skip-db` - Skip database configuration
-- `--skip-email` - Skip email collection
-- `--db-connection-string <string>` - PostgreSQL connection string
-
-### `mercurjs init`
-
-Initialize project configuration (`blocks.json`).
-
-**Options:**
-
-- `-y, --yes` - Skip confirmation
-- `-d, --defaults` - Use default paths
-- `-s, --silent` - Mute output
-
-### `mercurjs add <blocks...>`
-
-Add blocks from registry to project.
-
-**Options:**
-
-- `-y, --yes` - Skip confirmation
-- `-o, --overwrite` - Overwrite existing files
-- `-s, --silent` - Mute output
-
-### `mercurjs search`
-
-Search available blocks in registries.
-
-**Options:**
-
-- `-q, --query <query>` - Search query
-- `-r, --registry <registry>` - Registry to search (default: `@mercurjs`)
-
-### `mercurjs view <blocks...>`
-
-Display detailed block information.
-
-### `mercurjs build [registry]`
-
-Build registry into JSON files for distribution.
-
-**Options:**
-
-- `-o, --output <path>` - Output directory (default: `./r`)
-- `-v, --verbose` - Show detailed output
-
-### `mercurjs diff <blocks...>`
-
-Compare local blocks against registry versions.
-
-### `mercurjs codegen`
-
-Generate TypeScript types from API routes.
-
-**Options:**
-
-- `-w, --watch` - Watch mode for auto-regeneration
-
-### `mercurjs info`
-
-Display project configuration and diagnostics.
-
-### `mercurjs telemetry`
-
-Control anonymous usage data collection.
-
-**Options:**
-
-- `--enable` - Enable telemetry
-- `--disable` - Disable telemetry
-
-## Dashboard SDK (`packages/dashboard-sdk`)
-
-Vite plugin providing build-time integration for dashboard applications.
-
-### Features
-
-- **Configuration Management** - Loads `mercur.config.ts`
-- **Route Generation** - Auto-generates routes from file-based structure
-- **Component Registration** - Lazy-loads custom components via virtual modules
-- **Hot Module Reloading** - Detects changes and restarts dev server
-
-### Virtual Modules
-
-```typescript
-import routes from "virtual:mercur/routes"; // Generated route array
-import config from "virtual:mercur/config"; // Configuration object
-import components from "virtual:mercur/components"; // Component registry
-```
-
-### File-Based Routing
-
-- `src/pages/page.tsx` → `/`
-- `src/pages/users/[id]/page.tsx` → `/users/:id`
-- `src/pages/users/[[id]]/page.tsx` → `/users/:id?` (optional)
-- `src/pages/search/[*].tsx` → `/search/*` (splat)
-- `src/pages/(group)/foo/page.tsx` → `/foo` (route grouping)
-- `src/pages/dashboard/@sidebar/page.tsx` → Parallel route
-
-### Usage
-
-```typescript
-// vite.config.ts
-import { dashboardPlugin } from "@mercurjs/dashboard-sdk";
-
-export default {
-  plugins: [react(), dashboardPlugin()],
-};
-```
-
-## Vendor Package (`packages/vendor`)
-
-React-based vendor portal UI framework.
-
-## Core Package (`packages/core`)
-
-MedusaJS v2 plugin providing marketplace functionality.
-
-## Documentation (`apps/docs`)
-
-Documentation site built with [Mintlify](https://mintlify.com). Configuration lives in `docs.json`.
-
-- **Content format**: MDX files
-- **API Reference**: Auto-generated from OpenAPI spec (`api-reference/combined.oas.json`)
-- **Sections**: Quick start, Core Concepts, Product (modules, workflows, events, subscribers), Integrations, Deployment, API Reference, Changelog
-- **Dev server**: `mintlify dev` from `apps/docs/`
-
-## Skills (`.claude/skills/`)
-
-Before writing ANY admin UI code, invoke the relevant skill. Skills contain hard rules and exact code patterns.
-
-| Skill | When to use |
-|-------|-------------|
-| `admin-page-ui` | List pages, detail pages, Container sections, ActionMenu, empty states |
-| `admin-form-ui` | Form fields, edit drawers (RouteDrawer), create modals (RouteFocusModal) |
-| `admin-tab-ui` | Tabbed wizard forms (ProgressTabs, TabbedForm) |
-| `medusa-ui-conformance` | Before adding any custom UI — check if @medusajs/ui or local wrapper exists |
-| `cc-alignment` | Renaming/restructuring compound component exports |
-| `compound-components-migration-review` | Migrating pages to compound component pattern |
-| `code-review` | After completing implementation, before merging |
-| `admin-ui-review` | Reviewing admin UI code for pattern consistency |
-
-## Reusable Components (`packages/admin/src/components/`)
-
-**ALWAYS search for existing components before writing custom UI.** Never hand-roll what already exists.
-
-| Component | Path | Use for |
-|-----------|------|---------|
-| `HandleInput` | `components/inputs/handle-input/` | Handle/slug fields with `/` prefix |
-| `ChipInput` | `components/inputs/chip-input/` | Tag-like multi-value inputs |
-| `SwitchBox` | `components/common/switch-box/` | Switch with label + description card |
-| `Form.*` | `components/common/form/` | All form fields (Field, Label, Control, ErrorMessage, Hint) |
-| `ActionMenu` | `components/common/action-menu/` | Dropdown action menus (edit, delete) |
-| `SectionRow` | `components/common/section/` | Key-value rows in detail sections |
-| `RouteDrawer` | `components/modals/` | Edit drawers with route-based open/close |
-| `RouteFocusModal` | `components/modals/` | Create modals with route-based open/close |
-| `useRouteModal` | `components/modals/` | Get `handleSuccess()` — must be INSIDE RouteDrawer/RouteFocusModal |
-| `KeyboundForm` | `components/utilities/keybound-form/` | Form with Ctrl+Enter submit |
-| `_DataTable` | `components/table/data-table/` | Table with filters, search, sort, pagination |
-| `SingleColumnPage` | `components/layout/pages/` | List page wrapper |
-| `TwoColumnPage` | `components/layout/pages/` | Detail page wrapper (Main + Sidebar) |
-| `useDataTable` | `hooks/use-data-table` | Table state (pagination, row selection) synced to URL |
-| `useQueryParams` | `hooks/use-query-params` | Extract typed query params from URL |
-
-## Architecture
-
-- **Foundation**: MedusaJS v2 (headless commerce)
-- **Language**: TypeScript
-- **Monorepo**: Turborepo
-- **Package Manager**: bun
-
-## Configuration Files
-
-- `blocks.json` - Project configuration with path aliases
-- `registry.json` - Registry definition with block metadata
-- `mercur.config.ts` - Dashboard/vendor app configuration
-- `medusa-config.ts` - MedusaJS configuration
-
-## Supported Deployment Vendors
-
-- Medusa Cloud
-- Railway
-- Render
-- Fly.io
-- Heroku
-- DigitalOcean
-- Koyeb
+1. Update `claude-progress.md`.
+2. Update `feature_list.json`.
+3. Record any unresolved risk or blocker.
+4. Commit with a descriptive message once the work is in a safe state.
+5. Leave the repo clean enough for the next session

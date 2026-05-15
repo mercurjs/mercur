@@ -136,7 +136,12 @@ export const ProductCreateAttributesForm = forwardRef<
       validateAttributes,
       requiredFormFields,
     }),
-    [validateAttributes, requiredFormFields, form, t]
+    /* oxlint-disable react-hooks/exhaustive-deps */
+    [
+	requiredFormFields,
+	validateAttributes
+]
+  /* oxlint-enable react-hooks/exhaustive-deps */
   )
 
   useEffect(() => {

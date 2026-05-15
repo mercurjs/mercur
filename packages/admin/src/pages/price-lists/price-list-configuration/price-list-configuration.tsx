@@ -36,9 +36,7 @@ export const PriceListConfiguration = () => {
 
   const isCustomerGroupsReady = isPending
     ? false
-    : !!customerGroupIds?.length && isCustomerGroupsPending
-      ? false
-      : true
+    : !(!!customerGroupIds?.length && isCustomerGroupsPending)
 
   const ready = !isPending && !!price_list && isCustomerGroupsReady
 

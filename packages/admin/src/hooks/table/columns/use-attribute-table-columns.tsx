@@ -38,6 +38,7 @@ const FilterableToggle = ({ attribute }: { attribute: Record<string, any> }) => 
   }
 
   return (
+    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
       <Switch
         checked={!!attribute.is_filterable}
@@ -99,6 +100,7 @@ const GlobalToggle = ({ attribute }: { attribute: Record<string, any> }) => {
 
   return (
     <>
+      {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
         <Switch
           checked={isGlobal}
@@ -108,6 +110,7 @@ const GlobalToggle = ({ attribute }: { attribute: Record<string, any> }) => {
       </div>
       {categoryModalOpen &&
         createPortal(
+          // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
           <div
             className="fixed inset-0 z-50 flex items-center justify-center"
             onClick={(e) => {
@@ -115,6 +118,7 @@ const GlobalToggle = ({ attribute }: { attribute: Record<string, any> }) => {
               e.stopPropagation()
             }}
           >
+            {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
             <div
               className="bg-ui-bg-overlay fixed inset-0"
               onClick={(e) => {

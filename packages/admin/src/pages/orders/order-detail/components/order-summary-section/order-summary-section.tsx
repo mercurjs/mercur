@@ -19,7 +19,6 @@ import {
   AdminOrderLineItem,
   AdminOrderPreview,
   AdminPaymentCollection,
-  AdminPlugin,
   AdminRegion,
   AdminReturn,
 } from "@medusajs/types";
@@ -58,7 +57,6 @@ import {
   isAmountLessThenRoundingError,
 } from "../../../../../lib/money-amount-helpers.ts";
 import { getTotalCaptured } from "../../../../../lib/payment.ts";
-import { getLoyaltyPlugin } from "../../../../../lib/plugins.ts";
 import { getReturnableQuantity } from "../../../../../lib/rma.ts";
 import ReturnInfoPopover from "./return-info-popover.tsx";
 import ShippingInfoPopover from "./shipping-info-popover.tsx";
@@ -129,7 +127,7 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
 
   const { mutateAsync: markAsPaid } = useMarkPaymentCollectionAsPaid(
     order.id,
-    unpaidPaymentCollection?.id!,
+    unpaidPaymentCollection?.id,
   );
 
   const pendingDifference = order.summary?.pending_difference || 0;
@@ -658,6 +656,7 @@ const CostBreakdown = ({
       />
       <Cost
         label={
+          // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
           <span
             onClick={() => setIsShippingOpen((o) => !o)}
             className="flex cursor-pointer items-center gap-1"
@@ -707,6 +706,7 @@ const CostBreakdown = ({
 
       <>
         <div className="flex justify-between">
+          {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <div
             onClick={() => hasTaxes && setIsTaxOpen((o) => !o)}
             className={clx("flex items-center gap-1", {
@@ -829,6 +829,7 @@ const DiscountAndTotalBreakdown = ({
     >
       <Cost
         label={
+          // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
           <span
             onClick={() => hasDiscount && setIsDiscountOpen((o) => !o)}
             className={clx("flex items-center gap-1", {
@@ -876,6 +877,7 @@ const DiscountAndTotalBreakdown = ({
         <>
           <Cost
             label={
+              // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
               <span
                 onClick={() => setIsCreditLinesOpen((o) => !o)}
                 className="flex cursor-pointer items-center gap-1"
@@ -989,6 +991,7 @@ const InventoryKitBreakdown = ({ item }: { item: AdminOrderLineItem }) => {
 
   return (
     <>
+      {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
         onClick={() => setIsOpen((o) => !o)}
         className="flex cursor-pointer items-center gap-2 border-t border-dashed px-6 py-4"

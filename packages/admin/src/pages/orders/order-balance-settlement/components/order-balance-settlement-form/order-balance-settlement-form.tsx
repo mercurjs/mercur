@@ -86,7 +86,7 @@ export const OrderBalanceSettlementForm = ({ order }: { order: AdminOrder }) => 
 
   const { mutateAsync: createRefund, isPending: isRefundPending } = useRefundPayment(
     order.id,
-    activePayment?.id!
+    activePayment?.id
   );
 
   const settlementType = form.watch('settlement_type');
@@ -275,7 +275,7 @@ export const OrderBalanceSettlementForm = ({ order }: { order: AdminOrder }) => 
                                 float: values?.float ?? null
                               })
                             }
-                            autoFocus
+                            
                           />
                         </Form.Control>
 
@@ -333,7 +333,7 @@ export const OrderBalanceSettlementForm = ({ order }: { order: AdminOrder }) => 
                                 float: values?.float ?? null
                               });
                             }}
-                            autoFocus
+                            
                           />
                         </Form.Control>
 

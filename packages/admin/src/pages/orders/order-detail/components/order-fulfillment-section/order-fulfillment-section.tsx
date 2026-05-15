@@ -18,7 +18,6 @@ import {
   usePrompt,
 } from "@medusajs/ui"
 import { format } from "date-fns"
-import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"

@@ -1,6 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { StatusBadge, Text } from "@medusajs/ui";
 import { DateCell, DateHeader } from "@mercurjs/dashboard-shared";
 import { ReviewDTO } from "../../api/reviews";
@@ -14,8 +13,6 @@ const ratingColor = (rating: number) => {
 };
 
 export const useReviewTableColumns = () => {
-  const { t } = useTranslation();
-
   return useMemo(
     () => [
       columnHelper.accessor("rating", {
@@ -75,6 +72,6 @@ export const useReviewTableColumns = () => {
         },
       }),
     ],
-    [t],
+    [],
   );
 };

@@ -146,7 +146,7 @@ function ExchangeInboundItem({
                 <Form.Field
                   control={form.control}
                   name={`inbound_items.${index}.reason_id`}
-                  render={({ field: { ref, value, onChange, ...field } }) => {
+                  render={({ field: { ref: _ref, value, onChange, ...field } }) => {
                     return (
                       <Form.Item>
                         <Form.Control>
@@ -201,7 +201,7 @@ function ExchangeInboundItem({
                 <Form.Field
                   control={form.control}
                   name={`inbound_items.${index}.note`}
-                  render={({ field: { ref, ...field } }) => {
+                  render={({ field: { ref: _ref, ...field } }) => {
                     return (
                       <Form.Item>
                         <Form.Control>

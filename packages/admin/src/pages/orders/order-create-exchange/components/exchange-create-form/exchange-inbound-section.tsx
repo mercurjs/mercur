@@ -66,7 +66,7 @@ export const ExchangeInboundSection = ({
    * MUTATIONS
    */
   const { mutateAsync: updateReturn } = useUpdateReturn(
-    preview?.order_change?.return_id!,
+    preview?.order_change?.return_id,
     order.id
   )
 
@@ -101,7 +101,7 @@ export const ExchangeInboundSection = ({
       preview?.items?.filter(
         (i) => !!i.actions?.find((a) => a.exchange_id === exchange.id)
       ),
-    [preview.items]
+    [preview.items, exchange.id]
   )
 
   const inboundPreviewItems = previewInboundItems.filter(
@@ -149,7 +149,7 @@ export const ExchangeInboundSection = ({
 
   const inboundItemsMap = useMemo(
     () => new Map(previewInboundItems.map((i) => [i.id, i])),
-    [previewInboundItems, inboundItems]
+    [previewInboundItems]
   )
 
   useEffect(() => {
@@ -186,7 +186,14 @@ export const ExchangeInboundSection = ({
         remove(ind)
       }
     })
-  }, [previewInboundItems])
+  }, [
+	previewInboundItems,
+	inboundPreviewItems,
+	append,
+	update,
+	inboundItems,
+	remove
+])
 
   useEffect(() => {
     const inboundShippingMethod = preview.shipping_methods.find((s) =>
@@ -201,17 +208,17 @@ export const ExchangeInboundSection = ({
     } else {
       form.setValue("inbound_option_id", "")
     }
-  }, [preview.shipping_methods])
+  }, [preview.shipping_methods, form])
 
   useEffect(() => {
     form.setValue("location_id", orderReturn?.location_id)
-  }, [orderReturn])
+  }, [orderReturn, form])
 
   const showInboundItemsPlaceholder = !inboundItems.length
 
   const onItemsSelected = async () => {
-    itemsToAdd.length &&
-      (await addInboundItem(
+    if (itemsToAdd.length) {
+      await addInboundItem(
         {
           items: itemsToAdd.map((id) => ({
             id,
@@ -223,7 +230,8 @@ export const ExchangeInboundSection = ({
             toast.error(error.message)
           },
         }
-      ))
+      )
+    }
 
     for (const itemToRemove of itemsToRemove) {
       const actionId = previewInboundItems
@@ -302,7 +310,12 @@ export const ExchangeInboundSection = ({
       .every(Boolean)
 
     return !allItemsHaveLocation
-  }, [inboundItems, inventoryMap, locationId])
+  }, [
+	inboundItems,
+	inventoryMap,
+	locationId,
+	itemsMap
+])
 
   useEffect(() => {
     const getInventoryMap = async () => {
@@ -342,9 +355,9 @@ export const ExchangeInboundSection = ({
 
         <StackedFocusModal id="inbound-items">
           <StackedFocusModal.Trigger asChild>
-            <a className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
+            <button type="button" className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
               {t("actions.addItems")}
-            </a>
+            </button>
           </StackedFocusModal.Trigger>
 
           <StackedFocusModal.Content>
@@ -374,11 +387,12 @@ export const ExchangeInboundSection = ({
                       {t("actions.cancel")}
                     </Button>
                   </RouteFocusModal.Close>
-                  <Button
+                  <Button tabIndex={0}
                     key="submit-button"
                     type="submit"
                     variant="primary"
                     size="small"
+                    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                     role="button"
                     onClick={async () => await onItemsSelected()}
                   >

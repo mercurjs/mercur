@@ -17,7 +17,6 @@ import { useStockLocations } from "@hooks/api/stock-locations"
 import { queryClient } from "@lib/query-client"
 import { AllocateItemsSchema } from "./constants"
 import { OrderAllocateItemsItem } from "./order-allocate-items-item"
-type FetchError = Error & { status?: number }
 import { ExtendedAdminOrder, ExtendedAdminOrderLineItemWithInventory, ExtendedAdminProductVariantInventory } from "@custom-types/order"
 
 type OrderAllocateItemsFormProps = {
@@ -106,7 +105,7 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
       })
     } catch (e) {
       toast.error(t("general.error"), {
-        description: e instanceof FetchError ? e.message : "An unknown error occurred",
+        description: e instanceof Error ? e.message : "An unknown error occurred",
       })
     }
   })
@@ -187,7 +186,11 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
     if (selectedLocationId) {
       form.setValue("quantity", defaultAllocations(itemsToAllocate))
     }
-  }, [selectedLocationId])
+  }, [
+	selectedLocationId,
+	form,
+	itemsToAllocate
+])
 
   const allocationError =
     form.formState.errors?.root?.quantityNotAllocated?.message

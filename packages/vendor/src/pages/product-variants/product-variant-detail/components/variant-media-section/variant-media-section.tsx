@@ -160,7 +160,7 @@ export const VariantMediaSection = ({
                 <Link to="media" state={{ curr: index }}>
                   <img
                     src={item.url}
-                    alt={`${variant.title ?? ""} image ${index + 1}`}
+                    alt={`${variant.title ?? ""} ${index + 1}`}
                     className="size-full object-cover"
                   />
                 </Link>

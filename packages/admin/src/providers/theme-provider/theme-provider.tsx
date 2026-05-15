@@ -71,7 +71,7 @@ export const ThemeProvider = ({ children }: PropsWithChildren) => {
        * Re-enable transitions after the theme has been set,
        * and force the browser to repaint.
        */
-      window.getComputedStyle(css).opacity
+      void window.getComputedStyle(css).opacity
       document.head.removeChild(css)
     }
   }, [value])

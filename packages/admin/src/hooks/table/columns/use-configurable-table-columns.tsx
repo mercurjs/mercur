@@ -91,7 +91,13 @@ export function useConfigurableTableColumns<TData = any>(
         headerAlign, // Pass the header alignment to the DataTable
       } as any)
     })
-  }, [entity, apiColumns, adapter, t])
+  }, [
+	entity,
+	apiColumns,
+	adapter,
+	t,
+	columnHelper
+])
 }
 
 function getDefaultColumnAlignment(column: HttpTypes.AdminColumn): "left" | "center" | "right" {

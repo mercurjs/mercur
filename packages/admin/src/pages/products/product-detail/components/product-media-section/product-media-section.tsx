@@ -136,7 +136,7 @@ export const ProductMediaSection = ({
                 <Link to={`media`} state={{ curr: index }} data-testid={`product-media-link-${i.id}`}>
                   <img
                     src={i.url}
-                    alt={`${product.title} image`}
+                    alt={product.title}
                     className="size-full object-cover"
                     data-testid={`product-media-image-${i.id}`}
                   />

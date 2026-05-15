@@ -99,7 +99,15 @@ const Root = ({ type }: PricingPricesFormProps) => {
         })
       }
     }
-  }, [isLoading, isPickup])
+  }, [
+	isLoading,
+	isPickup,
+	currencies.length,
+	regions.length,
+	currencies,
+	form,
+	regions
+])
 
   if (isStoreError) {
     throw storeError

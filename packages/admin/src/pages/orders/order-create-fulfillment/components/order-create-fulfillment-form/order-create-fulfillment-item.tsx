@@ -119,7 +119,12 @@ export function OrderCreateFulfillmentItem({
       ),
       inStockQuantity: Math.floor(maxStockedQuantity),
     }
-  }, [variant, locationId, reservations])
+  }, [
+	variant,
+	locationId,
+	reservations,
+	item.id
+])
 
   const minValue = 0
   const maxValue = Math.min(

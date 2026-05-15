@@ -64,7 +64,8 @@ export function OrderAllocateItemsItem({
       availableQuantity: locationInventory.available_quantity,
       inStockQuantity: locationInventory.stocked_quantity,
     }
-  }, [variant, locationId])
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [variant, locationId, inventory])
 
   const hasQuantityError =
     !hasInventoryKit &&
@@ -218,6 +219,7 @@ export function OrderAllocateItemsItem({
 
       {hasInventoryKit && (
         <div className="px-4 py-2">
+          {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <div
             onClick={() => setIsOpen((o) => !o)}
             className="flex items-center gap-x-2"

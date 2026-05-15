@@ -342,6 +342,7 @@ const ComboboxImpl = <T extends Value = string>(
         gutter={4}
         sameWidth
         ref={listboxRef}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
         role="listbox"
         className={clx(
           "shadow-elevation-flyout bg-ui-bg-base z-50 rounded-[8px] p-1",

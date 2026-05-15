@@ -121,7 +121,7 @@ const OuterComponent = ({
 const Inner = ({
   field,
   inputProps,
-  placeholder,
+  placeholder: _placeholder,
   hideInput,
   ...props
 }: {

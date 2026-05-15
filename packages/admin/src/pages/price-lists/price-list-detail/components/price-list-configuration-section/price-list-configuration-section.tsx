@@ -61,7 +61,7 @@ const CustomerGroupDisplay = ({
     | string[]
     | undefined
 
-  const { customer_groups, isPending, isError, error } = useCustomerGroups(
+  const { customer_groups, isPending, isError, } = useCustomerGroups(
     {
       id: customerGroupIds,
     },

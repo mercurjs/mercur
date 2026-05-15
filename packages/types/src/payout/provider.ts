@@ -1,4 +1,4 @@
-import { PayoutAccountDTO, PayoutAccountStatus, PayoutStatus, PayoutWebhookAction } from "./common"
+import { PayoutAccountStatus, PayoutStatus, PayoutWebhookAction } from "./common"
 import { BigNumberInput } from "@medusajs/types"
 
 export interface PayoutProviderContext {

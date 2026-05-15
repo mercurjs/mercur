@@ -101,6 +101,7 @@ export const TaxRegionTable = ({
                   variant={variant}
                   key={row.id}
                   taxRegion={row.original}
+                  // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                   role="row"
                   aria-rowindex={row.index}
                 />

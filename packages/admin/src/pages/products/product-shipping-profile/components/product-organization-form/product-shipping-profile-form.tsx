@@ -77,7 +77,7 @@ export const ProductShippingProfileForm = ({
     if (typeof selectedShippingProfile === "undefined") {
       form.setValue("shipping_profile_id", "")
     }
-  }, [selectedShippingProfile])
+  }, [selectedShippingProfile, form])
 
   return (
     <RouteDrawer.Form form={form} data-testid="product-shipping-profile-form">

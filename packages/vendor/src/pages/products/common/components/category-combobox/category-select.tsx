@@ -156,7 +156,17 @@ export const CategorySelect = forwardRef<
         handleSelect(options[index].value)
       }
     },
-    [open, focusedIndex, options, level, handleSelect, searchValue, showLevelUp]
+    /* oxlint-disable react-hooks/exhaustive-deps */
+    [
+	open,
+	focusedIndex,
+	options,
+	level,
+	searchValue,
+	showLevelUp,
+	handleSelect
+]
+    /* oxlint-enable react-hooks/exhaustive-deps */
   )
 
   useEffect(() => {
@@ -212,7 +222,9 @@ export const CategorySelect = forwardRef<
                         : focusedIndex === index
                     }
                     type="button"
+                    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                     role="option"
+                    aria-selected={false}
                     className={clx(
                       "flex h-full w-full appearance-none items-center gap-2 overflow-hidden rounded-md px-2 py-1.5 text-left outline-none"
                     )}
