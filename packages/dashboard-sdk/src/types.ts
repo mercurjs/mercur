@@ -48,25 +48,6 @@ export interface MercurConfig {
         SettingsSidebar?: string
         TopbarActions?: string
         StoreSetup?: string
-        /**
-         * Component that injects additional fields into the vendor
-         * onboarding wizard's company step.
-         *
-         * The default export should be a React component that calls
-         * `useFormContext()` from react-hook-form and renders extra
-         * `<Form.Field />` entries. Values are forwarded to the
-         * create-seller mutation under the standard Medusa
-         * `additional_data` key.
-         *
-         * @example
-         * ```ts
-         * components: {
-         *   OnboardingCompanyExtraFields:
-         *     'components/onboarding/company-extra-fields',
-         * }
-         * ```
-         */
-        OnboardingCompanyExtraFields?: string
     },
     /** Internationalization settings. */
     i18n?: {
