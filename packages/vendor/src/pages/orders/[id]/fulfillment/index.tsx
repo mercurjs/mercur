@@ -11,7 +11,7 @@ export const Component = () => {
   const requiresShipping = searchParams.get("requires_shipping") === "true"
 
   const { order, isLoading, isError, error } = useOrder(id!, {
-    fields: "*items.variant.product.shipping_profile",
+    fields: "*items.variant.product.shipping_profile,*shipping_methods",
   })
 
   if (isError) {
