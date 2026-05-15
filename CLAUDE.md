@@ -42,6 +42,10 @@ bun run test:integration:tests       # Run integration tests
 - ALWAYS use `bun` (never npm, yarn, or pnpm)
 - NEVER run `bun run test:integration:http` (runs all packages). Use `bun run test:integration:http -- <pattern>`
 
+## Writing Code
+
+- NEVER use `any`.
+
 ## Testing
 
 - Tests use Jest;
