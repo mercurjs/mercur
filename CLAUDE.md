@@ -124,6 +124,7 @@ A feature is done only when all of the following are true:
 
 - the target behavior is implemented
 - the required verification actually ran
+- all packages are built
 - evidence is recorded in `feature_list.json` or `claude-progress.md`
 - the repository remains restartable from the standard startup path
 

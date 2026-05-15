@@ -123,7 +123,7 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
                 case ComputedActions.ADD_SHIPPING_METHOD_ADJUSTMENT:
                     const shippingAction = action as AddShippingMethodAdjustment
                     const shippingMethod = shippingMethodsMap.get(shippingAction.shipping_method_id)
-                    const shippingOption = shippingOptionsMap.get(shippingMethod?.shipping_option_id)
+                    const shippingOption = shippingOptionsMap.get(shippingMethod?.shipping_option_id!)
                     const shippingPromotion = promotionsMap.get(action.code)
 
                     if (shippingMethod && shippingPromotion) {
