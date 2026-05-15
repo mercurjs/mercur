@@ -8,7 +8,7 @@ import {
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
-import { PencilSquare, Trash } from "@medusajs/icons";
+import { Trash } from "@medusajs/icons";
 
 import { ExtendedAdminProduct } from "@custom-types/products";
 import { ActionMenu } from "@components/common/action-menu";
@@ -215,7 +215,6 @@ const ProductActions = ({ product }: { product: ExtendedAdminProduct }) => {
 const columnHelper = createColumnHelper<ExtendedAdminProduct>();
 
 const useColumns = () => {
-  const { t } = useTranslation();
   const base = useProductTableColumns();
 
   const columns = useMemo(
@@ -256,7 +255,7 @@ const useColumns = () => {
         },
       }),
     ],
-    [base, t],
+    [base],
   );
 
   return columns;

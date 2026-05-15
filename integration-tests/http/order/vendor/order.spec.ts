@@ -15,9 +15,9 @@ medusaIntegrationTestRunner({
     testSuite: ({ getContainer, api }) => {
         describe("Vendor - Order Management", () => {
             let appContainer: MedusaContainer
-            let seller1: any
+            let _seller1: any
             let seller1Headers: any
-            let seller2: any
+            let _seller2: any
             let seller2Headers: any
             let storeHeaders: any
             let region: any
@@ -37,7 +37,7 @@ medusaIntegrationTestRunner({
                     email: "vendororder1@test.com",
                     name: "Vendor Order Seller 1",
                 })
-                seller1 = seller1Result.seller
+                _seller1 = seller1Result.seller
                 seller1Headers = seller1Result.headers
 
                 // Create second seller
@@ -45,7 +45,7 @@ medusaIntegrationTestRunner({
                     email: "vendororder2@test.com",
                     name: "Vendor Order Seller 2",
                 })
-                seller2 = seller2Result.seller
+                _seller2 = seller2Result.seller
                 seller2Headers = seller2Result.headers
 
                 // Create customer

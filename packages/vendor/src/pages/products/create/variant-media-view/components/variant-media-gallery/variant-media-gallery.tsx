@@ -106,7 +106,7 @@ export const VariantMediaGallery = ({
                     <TriangleLeftMini />
                   </IconButton>
                   <div className="flex items-center gap-x-2">
-                    {media.slice(0, 8).map((item, idx) => {
+                    {media.slice(0, 8).map((item, _idx) => {
                       const isCurrentImage = item.id === media[curr]?.id
                       const originalIndex = media.findIndex((i) => i.id === item.id)
                       return (

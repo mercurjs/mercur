@@ -45,7 +45,7 @@ import { templates } from './templates';
 const defaultValues = {
   campaign_id: undefined,
   template_id: templates[0].id!,
-  campaign_choice: 'none' as 'none',
+  campaign_choice: 'none' as const,
   is_automatic: 'false',
   code: '',
   type: 'standard' as PromotionTypeValues,
@@ -348,7 +348,12 @@ export const CreatePromotionForm = () => {
         });
       }
     }
-  }, [watchCampaignChoice, getValues, setValue]);
+  }, [
+	watchCampaignChoice,
+	getValues,
+	setValue,
+	form
+]);
 
   const watchRules = useWatch({
     control: form.control,

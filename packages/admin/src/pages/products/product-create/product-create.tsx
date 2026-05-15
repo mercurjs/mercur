@@ -1,17 +1,17 @@
-import { Children, ReactNode } from "react"
-import { useTranslation } from "react-i18next"
-import { RouteFocusModal } from "../../../components/modals"
-import { useSalesChannel } from "../../../hooks/api/sales-channels"
-import { useStore } from "../../../hooks/api/store"
-import { TabbedForm } from "../../../components/tabbed-form/tabbed-form"
-import { ProductCreateForm } from "./components/product-create-form/product-create-form"
-import { ProductCreateDetailsForm } from "./components/product-create-details-form"
-import { ProductCreateOrganizeForm } from "./components/product-create-organize-form"
-import { ProductCreateVariantsForm } from "./components/product-create-variants-form"
-import { ProductCreateInventoryKitForm } from "./components/product-create-inventory-kit-form"
+import { Children, ReactNode } from "react";
+import { useTranslation } from "react-i18next";
+import { RouteFocusModal } from "../../../components/modals";
+import { useSalesChannel } from "../../../hooks/api/sales-channels";
+import { useStore } from "../../../hooks/api/store";
+import { TabbedForm } from "../../../components/tabbed-form/tabbed-form";
+import { ProductCreateForm } from "./components/product-create-form/product-create-form";
+import { ProductCreateDetailsForm } from "./components/product-create-details-form";
+import { ProductCreateOrganizeForm } from "./components/product-create-organize-form";
+import { ProductCreateVariantsForm } from "./components/product-create-variants-form";
+import { ProductCreateInventoryKitForm } from "./components/product-create-inventory-kit-form";
 
 const Root = ({ children }: { children?: ReactNode }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const {
     store,
@@ -20,7 +20,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     error: storeError,
   } = useStore({
     fields: "+default_sales_channel",
-  })
+  });
 
   const {
     sales_channel,
@@ -29,20 +29,17 @@ const Root = ({ children }: { children?: ReactNode }) => {
     error: salesChannelError,
   } = useSalesChannel(store?.default_sales_channel_id!, {
     enabled: !!store?.default_sales_channel_id,
-  })
+  });
 
   const ready =
-    !!store &&
-    !isStorePending &&
-    !!sales_channel &&
-    !isSalesChannelPending
+    !!store && !isStorePending && !!sales_channel && !isSalesChannelPending;
 
   if (isStoreError) {
-    throw storeError
+    throw storeError;
   }
 
   if (isSalesChannelError) {
-    throw salesChannelError
+    throw salesChannelError;
   }
 
   return (
@@ -53,18 +50,17 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <RouteFocusModal.Description asChild>
         <span className="sr-only">{t("products.create.description")}</span>
       </RouteFocusModal.Description>
-      {ready && (
-        Children.count(children) > 0 ? (
+      {ready &&
+        (Children.count(children) > 0 ? (
           children
         ) : (
           <ProductCreateForm defaultChannel={sales_channel} />
-        )
-      )}
+        ))}
     </RouteFocusModal>
-  )
-}
+  );
+};
 
-export const ProductCreate = Root
+export const ProductCreate = Root;
 
 export const ProductCreatePage = Object.assign(Root, {
   Form: ProductCreateForm,
@@ -73,4 +69,4 @@ export const ProductCreatePage = Object.assign(Root, {
   VariantsTab: ProductCreateVariantsForm,
   InventoryTab: ProductCreateInventoryKitForm,
   Tab: TabbedForm.Tab,
-})
+});

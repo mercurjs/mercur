@@ -50,6 +50,6 @@ export const useTaxRateTableColumns = () => {
         cell: ({ row }) => <TextCell text={row.original.code || "-"} />,
       }),
     ],
-    []
+    [t]
   )
 }

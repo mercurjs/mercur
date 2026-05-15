@@ -18,7 +18,7 @@ export class SystemPayoutProvider implements IPayoutProvider {
   static identifier = "system"
 
   async createPayoutAccount(
-    input: CreatePayoutAccountInput
+    _input: CreatePayoutAccountInput
   ): Promise<CreatePayoutAccountResponse> {
     return {
       id: crypto.randomUUID(),
@@ -27,7 +27,7 @@ export class SystemPayoutProvider implements IPayoutProvider {
     }
   }
 
-  async createPayout(input: CreatePayoutInput): Promise<CreatePayoutResponse> {
+  async createPayout(_input: CreatePayoutInput): Promise<CreatePayoutResponse> {
     return {
       status: PayoutStatus.PAID,
       data: {},
@@ -35,13 +35,13 @@ export class SystemPayoutProvider implements IPayoutProvider {
   }
 
   async createOnboarding(
-    input: CreateOnboardingInput
+    _input: CreateOnboardingInput
   ): Promise<CreateOnboardingResponse> {
     return { data: {} }
   }
 
   async getWebhookActionAndData(
-    payload: PayoutWebhookActionInput
+    _payload: PayoutWebhookActionInput
   ): Promise<PayoutWebhookResult> {
     return { action: "not_supported" }
   }

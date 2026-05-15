@@ -49,7 +49,7 @@ const LoginForm = () => {
   const reason = searchParams.get("reason") || "";
   const reasonMessage =
     reason && reason.toLowerCase() === "unauthorized"
-      ? "Session expired"
+      ? t("login.sessionExpired")
       : reason;
 
   const form = useForm<z.infer<typeof LoginSchema>>({

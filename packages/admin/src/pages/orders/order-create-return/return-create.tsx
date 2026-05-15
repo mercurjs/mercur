@@ -64,7 +64,13 @@ export const ReturnCreate = () => {
     }
 
     run()
-  }, [preview])
+  }, [
+	preview,
+	navigate,
+	t,
+	initiateReturn,
+	order.id
+])
 
   return (
     <RouteFocusModal data-testid="order-create-return-modal">

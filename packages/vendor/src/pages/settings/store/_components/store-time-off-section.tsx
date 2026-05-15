@@ -4,7 +4,6 @@ import {
   DropdownMenu,
   Heading,
   IconButton,
-  Text,
   toast,
   usePrompt,
 } from "@medusajs/ui";
@@ -129,7 +128,13 @@ export const StoreTimeOffSection = ({ seller }: StoreTimeOffSectionProps) => {
         },
       },
     ],
-    [t, getFullDate, handleDelete]
+    /* oxlint-disable react-hooks/exhaustive-deps */
+    [
+	t,
+	getFullDate,
+	handleDelete
+]
+    /* oxlint-enable react-hooks/exhaustive-deps */
   );
 
   if (data.length === 0) {

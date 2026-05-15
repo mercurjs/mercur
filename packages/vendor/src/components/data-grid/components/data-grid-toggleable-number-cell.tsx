@@ -2,6 +2,7 @@ import { Switch } from "@medusajs/ui"
 import { useEffect, useRef, useState } from "react"
 import CurrencyInput, { CurrencyInputProps } from "react-currency-input-field"
 import { Controller, ControllerRenderProps } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { useCombinedRefs } from "../../../hooks/use-combined-refs"
 import { ConditionalTooltip } from "../../common/conditional-tooltip"
 import { useDataGridCell, useDataGridCellError } from "../hooks"
@@ -120,7 +121,7 @@ const OuterComponent = ({
 const Inner = ({
   field,
   inputProps,
-  placeholder,
+  placeholder: _placeholder,
   hideInput,
   ...props
 }: {
@@ -131,6 +132,7 @@ const Inner = ({
   placeholder?: string
   hideInput?: boolean
 }) => {
+  const { t } = useTranslation()
   const { ref, value, onChange: _, onBlur, ...fieldProps } = field
   const {
     ref: inputRef,
@@ -194,7 +196,7 @@ const Inner = ({
           readOnly
         />
         <span className="txt-compact-small text-ui-fg-subtle">
-          {localValue?.checked ? "Enabled" : "Not enabled"}
+          {localValue?.checked ? t("dataGrid.toggle.enabled") : t("dataGrid.toggle.notEnabled")}
         </span>
       </div>
     )
@@ -215,7 +217,7 @@ const Inner = ({
           readOnly
         />
         <span className="txt-compact-small text-ui-fg-subtle">
-          Not enabled
+          {t("dataGrid.toggle.notEnabled")}
         </span>
       </div>
     )

@@ -102,7 +102,15 @@ export const CreateShippingOptionsPricesForm = ({
         })
       }
     }
-  }, [isLoading, isPickup])
+  }, [
+	isLoading,
+	isPickup,
+	currencies.length,
+	currencies,
+	regions.length,
+	regions,
+	form
+])
 
   if (isStoreError) {
     throw storeError

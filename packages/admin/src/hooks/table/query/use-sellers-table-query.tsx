@@ -31,7 +31,7 @@ export const useSellersTableQuery = ({
     status: status?.split(",") ?? ACTIVE_STATUSES,
     is_premium: is_premium ? is_premium === "true" : undefined,
     q,
-    order: order ? order : undefined,
+    order: order ? order : "-created_at",
   };
 
   return {

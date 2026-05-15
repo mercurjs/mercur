@@ -83,7 +83,7 @@ export const sendTelemetryEvent = async (event: TelemetryEvent, options: { cwd: 
             },
             method: 'post',
         })
-    } catch (error) {
+    } catch  {
         // Eat any errors in sending telemetry event
     }
 }
@@ -100,13 +100,13 @@ const getGitID = () => {
         })
 
         return String(originBuffer).trim()
-    } catch (_) {
+    } catch  {
         return null
     }
 }
 
 const getProjectId = (
-    packageJson: PackageJson,
+    _packageJson: PackageJson,
 ): { projectId: string; } => {
     const gitID = getGitID()
     if (gitID) {

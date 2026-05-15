@@ -48,25 +48,6 @@ export interface MercurConfig {
         SettingsSidebar?: string
         TopbarActions?: string
         StoreSetup?: string
-        /**
-         * Component that injects additional fields into the vendor
-         * onboarding wizard's company step.
-         *
-         * The default export should be a React component that calls
-         * `useFormContext()` from react-hook-form and renders extra
-         * `<Form.Field />` entries. Values are forwarded to the
-         * create-seller mutation under the standard Medusa
-         * `additional_data` key.
-         *
-         * @example
-         * ```ts
-         * components: {
-         *   OnboardingCompanyExtraFields:
-         *     'components/onboarding/company-extra-fields',
-         * }
-         * ```
-         */
-        OnboardingCompanyExtraFields?: string
     },
     /** Internationalization settings. */
     i18n?: {
@@ -75,6 +56,13 @@ export interface MercurConfig {
     }
     /** Whether to allow new sellers to register from the login screen. */
     enableSellerRegistration?: boolean;
+    /**
+     * Maximum allowed size for image uploads, in bytes.
+     * Used by dashboard upload components to reject oversized files
+     * before they are sent to the backend.
+     * @default 2_097_152 // 2 MB
+     */
+    imageLimit?: number;
 }
 
 export interface BuiltMercurConfig extends MercurConfig {
@@ -83,6 +71,7 @@ export interface BuiltMercurConfig extends MercurConfig {
     root: string
     srcDir: string
     pluginExtensions: string[]
+    imageLimit: number
 }
 
 export type RouteConfig = {

@@ -106,7 +106,7 @@ export const ExchangeCreateForm = ({
       preview?.items?.filter(
         (i) => !!i.actions?.find((a) => a.exchange_id === exchange.id),
       ),
-    [preview.items],
+    [preview.items, exchange.id],
   );
 
   const inboundPreviewItems = previewItems.filter(
@@ -253,7 +253,7 @@ export const ExchangeCreateForm = ({
         IS_CANCELING = false;
       }
     };
-  }, []);
+  }, [t, cancelExchangeRequest]);
 
   const inboundShippingTotal = useMemo(() => {
     const method = preview.shipping_methods.find(

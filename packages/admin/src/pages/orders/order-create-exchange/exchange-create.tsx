@@ -29,7 +29,7 @@ export const ExchangeCreate = () => {
     enabled: !!activeExchangeId,
   })
 
-  const { return: orderReturn } = useReturn(exchange?.return_id!, undefined, {
+  const { return: orderReturn } = useReturn(exchange?.return_id, undefined, {
     enabled: !!exchange?.return_id,
   })
 
@@ -67,7 +67,12 @@ export const ExchangeCreate = () => {
     }
 
     run()
-  }, [preview])
+  }, [
+	preview,
+	createExchange,
+	navigate,
+	t
+])
 
   return (
     <RouteFocusModal data-testid="order-create-exchange-modal">

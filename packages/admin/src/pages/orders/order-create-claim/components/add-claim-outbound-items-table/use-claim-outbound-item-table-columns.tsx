@@ -10,7 +10,7 @@ import {
 
 const columnHelper = createColumnHelper<any>()
 
-export const useClaimOutboundItemTableColumns = (currencyCode: string) => {
+export const useClaimOutboundItemTableColumns = (_currencyCode: string) => {
   const { t } = useTranslation()
 
   return useMemo(
@@ -63,6 +63,6 @@ export const useClaimOutboundItemTableColumns = (currencyCode: string) => {
         header: t("fields.title"),
       }),
     ],
-    [t, currencyCode]
+    [t]
   )
 }

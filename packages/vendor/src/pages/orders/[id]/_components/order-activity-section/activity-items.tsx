@@ -65,7 +65,7 @@ function ActivityItems(props: ActivityItemsProps) {
 
               <div className="flex flex-col">
                 {itemsToSend?.map((item) => {
-                  const originalItem = itemsMap?.get(item.item_id)!
+                  const originalItem = itemsMap?.get(item.item_id)
 
                   return (
                     <div className="flex items-center gap-x-3" key={item.id}>
@@ -95,7 +95,7 @@ function ActivityItems(props: ActivityItemsProps) {
 
               <div className="flex flex-col">
                 {itemsToReturn?.map((item) => {
-                  const originalItem = itemsMap?.get(item.item_id)!
+                  const originalItem = itemsMap?.get(item.item_id)
 
                   return (
                     <div className="flex items-center gap-x-3" key={item.id}>

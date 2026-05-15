@@ -136,7 +136,7 @@ export const ProductCreateVariantsSection = () => {
       newVariants.push({
         title: getVariantName(permutation),
         options: permutation,
-        should_create: hasUserSelectedVariants ? false : true,
+        should_create: !hasUserSelectedVariants,
         variant_rank: newVariants.length,
         inventory: [{ inventory_item_id: "", required_quantity: "" }],
       })

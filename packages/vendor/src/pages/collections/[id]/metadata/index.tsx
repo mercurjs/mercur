@@ -6,7 +6,7 @@ import { useCollection, useUpdateCollection } from "@hooks/api"
 export const Component = () => {
   const { id } = useParams()
   const { product_collection, isPending, isError, error } = useCollection(id!)
-  const { mutateAsync, isPending: isMutating } = useUpdateCollection(product_collection?.id!)
+  const { mutateAsync, isPending: isMutating } = useUpdateCollection(product_collection?.id)
 
   if (isError) throw error
 

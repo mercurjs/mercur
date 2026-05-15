@@ -173,7 +173,7 @@ export const NumberFilter = ({
                 onValueChange={(val) => setOperator(val as Comparison)}
                 className="flex flex-col items-start"
                 orientation="vertical"
-                autoFocus
+                
               >
                 {operators.map((o) => (
                   <RadixRadioGroup.Item

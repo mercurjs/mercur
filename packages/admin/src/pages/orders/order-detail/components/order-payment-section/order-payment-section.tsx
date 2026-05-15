@@ -6,7 +6,6 @@ import { getLocaleAmount, getStylizedAmount } from "@lib/money-amount-helpers";
 import { getOrderPaymentStatus } from "@lib/order-helpers";
 import { getPaymentsFromOrder } from "@lib/orders";
 import { getTotalCaptured, getTotalPending } from "@lib/payment";
-import { getLoyaltyPlugin } from "@lib/plugins";
 import { ArrowDownRightMini, DocumentText, XCircle } from "@medusajs/icons";
 import type {
   AdminOrder,

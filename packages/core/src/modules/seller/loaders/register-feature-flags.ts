@@ -11,7 +11,7 @@ import { configManager } from "@medusajs/framework/config"
 import SellerRegistrationFeatureFlag from "../../../feature-flags/seller-registration"
 
 export default async function registerFeatureFlagsLoader({
-  container,
+  container: _container,
 }: LoaderOptions) {
   const { featureFlags: projectConfigFlags = {} } = configManager.config
 

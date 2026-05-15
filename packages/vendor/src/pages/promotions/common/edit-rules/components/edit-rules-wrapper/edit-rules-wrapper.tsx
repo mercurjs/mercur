@@ -78,8 +78,8 @@ export const EditRulesWrapper = ({
         } as any);
       }
 
-      rulesToCreate.length &&
-        (await addPromotionRules({
+      if (rulesToCreate.length) {
+        await addPromotionRules({
           create: rulesToCreate.map((rule) => {
             return {
               attribute: rule.attribute,
@@ -87,15 +87,17 @@ export const EditRulesWrapper = ({
               values: rule.values,
             } as any;
           }),
-        }));
+        });
+      }
 
-      rulesToRemove?.length &&
-        (await removePromotionRules({
+      if (rulesToRemove?.length) {
+        await removePromotionRules({
           delete: rulesToRemove.map((r) => r.id).filter(Boolean),
-        }));
+        });
+      }
 
-      rulesToUpdate.length &&
-        (await updatePromotionRules({
+      if (rulesToUpdate.length) {
+        await updatePromotionRules({
           update: rulesToUpdate.map((rule: PromotionRuleResponse) => {
             return {
               id: rule.id!,
@@ -104,7 +106,8 @@ export const EditRulesWrapper = ({
               values: rule.values as unknown as string | string[],
             };
           }),
-        }));
+        });
+      }
 
       handleSuccess();
     };

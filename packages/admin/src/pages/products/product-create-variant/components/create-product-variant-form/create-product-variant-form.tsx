@@ -90,7 +90,11 @@ export const CreateProductVariantForm = ({
         required_quantity: undefined,
       })
     }
-  }, [isInventoryKitEnabled])
+  }, [
+	isInventoryKitEnabled,
+	inventoryField,
+	inventoryField.fields.length
+])
 
   const inventoryTabEnabled = isManageInventoryEnabled && isInventoryKitEnabled
 

@@ -160,7 +160,7 @@ const Item = ({
         className="text-ui-fg-subtle grid grid-cols-2 items-center gap-x-4 px-6 py-4"
       >
         <div className="flex items-start gap-x-4">
-          <Thumbnail src={item.thumbnail} size="large" />
+          <Thumbnail src={item.thumbnail} />
           <div>
             <Text
               size="small"
@@ -327,6 +327,7 @@ const CostBreakdown = ({
       />
       <Cost
         label={
+          // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
           <span
             onClick={() => setIsShippingOpen((o) => !o)}
             className="flex cursor-pointer items-center gap-1"
@@ -402,6 +403,7 @@ const CostBreakdown = ({
 
       <>
         <div className="flex justify-between">
+          {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
           <div
             onClick={() => hasTaxLines && setIsTaxOpen((o) => !o)}
             className={clx("flex items-center gap-1", {
@@ -457,7 +459,7 @@ const CostBreakdown = ({
       </>
       {commissionTotal > 0 && (
         <Cost
-          label={"Commission"}
+          label={t("fields.commission")}
           value={getLocaleAmount(commissionTotal, order.currency_code)}
         />
       )}

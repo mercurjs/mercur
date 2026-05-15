@@ -147,7 +147,7 @@ function ReturnItem({
                 <Form.Field
                   control={form.control}
                   name={`items.${index}.reason_id`}
-                  render={({ field: { ref, value, onChange, ...field } }) => {
+                  render={({ field: { ref: _ref, value, onChange, ...field } }) => {
                     return (
                       <Form.Item>
                         <Form.Control>
@@ -201,7 +201,7 @@ function ReturnItem({
                 <Form.Field
                   control={form.control}
                   name={`items.${index}.note`}
-                  render={({ field: { ref, onChange, ...field } }) => {
+                  render={({ field: { ref: _ref, onChange, ...field } }) => {
                     return (
                       <Form.Item>
                         <Form.Control>

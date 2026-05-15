@@ -181,7 +181,11 @@ export function OrderCreateFulfillmentForm({
         } // else -> TODO: what if original shipping option is deleted?
       }
     }
-  }, [shipping_options])
+  }, [
+	shipping_options,
+	order.shipping_methods,
+	form
+])
 
   const fulfilledQuantityArray = (order.items || []).map(
     (item) =>
@@ -217,7 +221,15 @@ export function OrderCreateFulfillmentForm({
     )
 
     form.setValue("quantity", quantityMap)
-  }, [...fulfilledQuantityArray, requiresShipping])
+  /* oxlint-disable react-hooks/exhaustive-deps */
+  }, [
+	...fulfilledQuantityArray,
+	requiresShipping,
+	form,
+	t,
+	order.items
+])
+  /* oxlint-enable react-hooks/exhaustive-deps */
 
   const differentOptionSelected =
     shippingOptionId &&

@@ -1,4 +1,4 @@
-import { asFunction, asValue, Lifetime } from "@medusajs/framework/awilix"
+import { asFunction, Lifetime } from "@medusajs/framework/awilix"
 import { moduleProviderLoader } from "@medusajs/framework/modules-sdk"
 import {
   LoaderOptions,

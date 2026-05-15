@@ -16,13 +16,13 @@ medusaIntegrationTestRunner({
       let appContainer: MedusaContainer
       let sellerA: any
       let sellerB: any
-      let sellerC: any
+      let _sellerC: any
       let memberA: any
       let memberB: any
-      let memberC: any
+      let _memberC: any
       let headersA: any
       let headersB: any
-      let headersC: any
+      let _headersC: any
 
       beforeAll(async () => {
         appContainer = getContainer()
@@ -52,9 +52,9 @@ medusaIntegrationTestRunner({
           email: "gamma@test.com",
           name: "Gamma Shop",
         })
-        sellerC = resultC.seller
-        memberC = resultC.member
-        headersC = resultC.headers
+        _sellerC = resultC.seller
+        _memberC = resultC.member
+        _headersC = resultC.headers
 
         // Approve sellerA so tests have both pending and open sellers
         await api.post(
@@ -1167,7 +1167,7 @@ medusaIntegrationTestRunner({
           )
 
           // Add memberB to sellerA
-          const addResponse = await api.post(
+          await api.post(
             `/admin/sellers/${sellerA.id}/members`,
             {
               member_id: memberB.id,

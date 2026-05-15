@@ -35,7 +35,7 @@ export const GET = async (
       (o: any) => o.reference === "seller" && o.reference_id === sellerId
     ) ?? null
 
-  const { overrides, ...planWithoutOverrides } = plan as any
+  const { ...planWithoutOverrides } = plan as any
 
   res.json({
     subscription_plan: planWithoutOverrides,

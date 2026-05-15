@@ -92,6 +92,7 @@ export const MultiSelectCategory = ({
       className="relative"
       data-testid="attribute-form-category-multiselect"
     >
+      {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
       <div
         ref={triggerRef}
         className="focus-within:ring-ui-ring-interactive relative flex h-10 w-full cursor-pointer items-center justify-between overflow-hidden rounded-md border border-ui-border-base bg-ui-bg-field text-ui-fg-base shadow-sm transition-colors duration-150 ease-in-out focus-within:border-ui-border-interactive focus-within:ring-1 hover:bg-ui-bg-field-hover"
@@ -144,6 +145,7 @@ export const MultiSelectCategory = ({
           data-testid="attribute-form-category-multiselect-dropdown"
         >
           {currentParentId !== null && (
+            // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
             <div
               className="flex cursor-pointer items-center gap-3 border-b border-ui-border-base px-3 py-2 text-ui-fg-subtle hover:bg-ui-bg-base-hover"
               onClick={handleGoBack}
@@ -167,6 +169,7 @@ export const MultiSelectCategory = ({
               const isSelected = value.includes(category.id)
               const hasChildrenNode = hasChildren(category.id)
               return (
+                // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
                 <div
                   key={category.id}
                   className="flex cursor-pointer items-center justify-between px-1 py-1"
@@ -191,6 +194,7 @@ export const MultiSelectCategory = ({
                     </Text>
                   </div>
                   {hasChildrenNode && (
+                    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
                     <div
                       onClick={(e) => handleDrillDown(category, e)}
                       className="rounded-md p-2 hover:bg-ui-bg-base-hover"

@@ -76,7 +76,6 @@ const columnHelper = createColumnHelper<HttpTypes.AdminUser>()
 
 const useColumns = () => {
   const { t } = useTranslation()
-  const navigate = useNavigate()
 
   return useMemo(
     () => [
@@ -151,7 +150,7 @@ const useColumns = () => {
         },
       }),
     ],
-    [t, navigate]
+    [t]
   )
 }
 

@@ -2,12 +2,11 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys, FeatureFlag, MedusaError } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { HttpTypes, SellerStatus } from "@mercurjs/types"
 
 import { VendorCreateSellerAccountType } from "./validators"
 import { createSellerAccountWorkflow } from "../../../workflows/seller"
-import SellerRegistrationFeatureFlag from "../../../feature-flags/seller-registration"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,

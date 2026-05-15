@@ -100,6 +100,7 @@ export const TaxOverrideTable = ({
                 <TaxOverrideCard
                   key={row.id}
                   taxRate={row.original}
+                  // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                   role="row"
                   aria-rowindex={row.index}
                 />

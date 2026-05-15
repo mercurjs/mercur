@@ -71,7 +71,14 @@ export function OrderReceiveReturn() {
         IS_REQUEST_RUNNING = false
       }
     })()
-  }, [preview])
+  }, [
+	preview,
+	t,
+	id,
+	initiateReceiveReturn,
+	navigate,
+	addReceiveItems
+])
 
   const ready = order && orderReturn && preview
 

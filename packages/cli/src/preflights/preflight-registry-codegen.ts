@@ -45,7 +45,7 @@ export async function preFlightRegistryCodegen(
       config: config!,
       resolvePaths,
     };
-  } catch (error) {
+  } catch  {
     logger.break();
     logger.error(
       `An invalid ${highlighter.info(

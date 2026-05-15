@@ -128,7 +128,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
   const prompt = usePrompt();
   const [searchParams] = useSearchParams();
 
-  const tableSearchParams = useMemo(() => {
+  const _tableSearchParams = useMemo(() => {
     const filtered = new URLSearchParams();
     for (const [key, value] of searchParams.entries()) {
       if (key.startsWith(`${PREFIX}_`)) {
@@ -210,14 +210,38 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
         },
       ];
 
-      if (variant.manage_inventory && variant.inventory_items?.length) {
-        mainActions.push({
-          label: t("products.variant.inventory.actions.inventoryItems"),
-          onClick: () => {
-            navigate(`variants/${variant.id}`);
-          },
-          icon: <Buildings />,
-        });
+      if (variant.manage_inventory) {
+        const inventoryItemsCount = variant.inventory_items?.length || 0;
+
+        if (inventoryItemsCount === 1) {
+          const inventoryItemLink = `/inventory/${variant.inventory_items![0].inventory.id}`;
+
+          mainActions.push({
+            label: t("products.variant.inventory.actions.inventoryItems"),
+            onClick: () => {
+              navigate(inventoryItemLink);
+            },
+            icon: <Buildings />,
+          });
+        } else if (inventoryItemsCount > 1) {
+          const ids = variant.inventory_items
+            ?.map((i) => i.inventory?.id)
+            .filter(Boolean);
+
+          if (ids && ids.length > 0) {
+            const inventoryKitLink = `/inventory?${new URLSearchParams({
+              id: ids.join(","),
+            }).toString()}`;
+
+            mainActions.push({
+              label: t("products.variant.inventory.actions.inventoryKit"),
+              onClick: () => {
+                navigate(inventoryKitLink);
+              },
+              icon: <Component />,
+            });
+          }
+        }
       }
 
       const secondaryActions: DataTableAction<HttpTypes.AdminProductVariant>[] =
@@ -231,7 +255,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
 
       return [mainActions, secondaryActions];
     },
-    [handleDelete, navigate, t, tableSearchParams],
+    [handleDelete, navigate, t],
   );
 
   const getInventory = useCallback(

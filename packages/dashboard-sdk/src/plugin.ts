@@ -186,6 +186,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
 
             const srcDir = path.join(root, "src");
             const backendUrl = pluginConfig.backendUrl ?? "http://localhost:9000";
+            const imageLimit = pluginConfig.imageLimit ?? 2 * 1024 * 1024;
 
             config = {
                 ...pluginConfig,
@@ -194,6 +195,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                 root,
                 srcDir,
                 pluginExtensions,
+                imageLimit,
             };
 
             return {
@@ -202,6 +204,9 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                     __BACKEND_URL__: JSON.stringify(config.backendUrl),
                     __BASE__: JSON.stringify(config.base || "/"),
                     __VENDOR_URL__: JSON.stringify(vendorAppUrl || ""),
+                },
+                resolve: {
+                    dedupe: ["i18next", "react-i18next", "react", "react-dom"],
                 },
                 optimizeDeps: {
                     exclude: [
@@ -217,6 +222,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                         "react-dom/client",
                         "react-router-dom",
                         "react-i18next",
+                        "i18next",
                         "@medusajs/ui",
                         "@medusajs/dashboard",
                         "@mercurjs/client",

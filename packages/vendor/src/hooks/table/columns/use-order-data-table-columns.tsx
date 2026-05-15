@@ -1,7 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
 
 import {
   DateCell,
@@ -43,8 +42,6 @@ export const useOrderDataTableColumns = (
   apiColumns: HttpTypes.AdminOrderColumn[] | undefined,
   visibleColumns: string[]
 ) => {
-  const { t } = useTranslation()
-
   return useMemo(() => {
     if (!apiColumns || apiColumns.length === 0) {
       // Return default columns if no API columns
@@ -230,5 +227,5 @@ export const useOrderDataTableColumns = (
             })
         }
       })
-  }, [apiColumns, visibleColumns, t])
+  }, [apiColumns, visibleColumns])
 }

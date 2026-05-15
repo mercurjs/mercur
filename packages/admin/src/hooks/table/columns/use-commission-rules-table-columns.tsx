@@ -60,6 +60,6 @@ export const useCommissionRulesTableColumns = ({
         },
       }),
     ],
-    [],
+    [onSuccess],
   );
 };

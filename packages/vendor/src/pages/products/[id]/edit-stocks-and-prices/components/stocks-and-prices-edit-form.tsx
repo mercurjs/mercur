@@ -82,7 +82,7 @@ const columnHelper = createDataGridHelper<
 const useStocksAndPricesGridColumns = ({
   stockLocations = [],
   currencies = [],
-  regions = [],
+  regions: _regions = [],
   pricePreferences = [],
 }: {
   stockLocations?: HttpTypes.AdminStockLocation[]
@@ -148,5 +148,5 @@ const useStocksAndPricesGridColumns = ({
         t,
       }),
     ]
-  }, [t, currencies, regions, pricePreferences, stockLocations])
+  }, [t, currencies, pricePreferences, stockLocations])
 }

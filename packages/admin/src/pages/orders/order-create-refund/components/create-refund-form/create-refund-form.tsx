@@ -92,9 +92,17 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
       value: normalizedAmount.toFixed(currency.decimal_digits),
       float: normalizedAmount,
     });
-  }, [payment?.id || ""]);
+  /* oxlint-disable react-hooks/exhaustive-deps */
+  }, [
+	payment?.id || '',
+	form,
+	order.summary.pending_difference,
+	payment.amount,
+	currency.decimal_digits
+]);
+  /* oxlint-enable react-hooks/exhaustive-deps */
 
-  const { mutateAsync, isPending } = useRefundPayment(order.id, payment?.id!);
+  const { mutateAsync, isPending } = useRefundPayment(order.id, payment?.id);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await mutateAsync(
@@ -109,7 +117,7 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
             t("orders.payment.refundPaymentSuccess", {
               amount: formatCurrency(
                 data.amount.float!,
-                payment?.currency_code!,
+                payment?.currency_code,
               ),
             }),
           );
@@ -237,7 +245,7 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
                             float: values?.float ?? null,
                           })
                         }
-                        autoFocus
+                        
                         data-testid="order-create-refund-amount-input"
                       />
                     </Form.Control>

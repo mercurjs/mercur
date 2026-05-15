@@ -77,8 +77,8 @@ export const ProductEditVariantForm = ({
   })
 
   const { mutateAsync, isPending } = useUpdateProductVariant(
-    variant?.product_id!,
-    variant?.id!
+    variant?.product_id,
+    variant?.id
   )
 
   const handleSubmit = form.handleSubmit(async (data) => {

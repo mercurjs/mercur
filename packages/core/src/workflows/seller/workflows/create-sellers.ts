@@ -23,7 +23,7 @@ export const createSellersWorkflow: ReturnType<typeof createWorkflow> = createWo
   function (input: CreateSellersWorkflowInput) {
     const sellers = createSellersStep(
       transform(input, ({ sellers }) =>
-        sellers.map(({ member, ...seller }) => ({
+        sellers.map(({ member: _member, ...seller }) => ({
           ...seller,
           // Admin-created sellers start as pending approval, same as
           status: seller.status ?? SellerStatus.PENDING_APPROVAL,

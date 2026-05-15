@@ -58,7 +58,9 @@
     "unsavedChangesDescription": "Masz niezapisane zmiany, które zostaną utracone po wyjściu.",
     "includesTaxTooltip": "Ceny w tej kolumnie zawierają podatek.",
     "excludesTaxTooltip": "Ceny w tej kolumnie są bez podatku.",
-    "noMoreData": "Brak dodatkowych danych"
+    "noMoreData": "Brak dodatkowych danych",
+    "true": "Prawda",
+    "false": "Fałsz"
   },
   "json": {
     "header": "JSON",
@@ -273,6 +275,10 @@
     }
   },
   "dataGrid": {
+    "toggle": {
+      "enabled": "Włączone",
+      "notEnabled": "Nieaktywne"
+    },
     "columns": {
       "view": "Widok",
       "resetToDefault": "Przywróć domyślne",
@@ -447,6 +453,7 @@
         "requiredHeading": "Wymagane atrybuty",
         "requiredDescription": "Te atrybuty są wymagane dla produktów w tej kategorii.",
         "buttonLabel": "Atrybut",
+        "loading": "Ładowanie atrybutów...",
         "learnMore": {
           "label": "Dowiedz się więcej o atrybutach",
           "content": "Atrybuty pomagają klientom znajdować i filtrować Twoje produkty. Atrybuty zdefiniowane przez administratora pojawiają się w wynikach wyszukiwania."
@@ -671,6 +678,33 @@
       },
       "hs_code": {
         "label": "Kod HS"
+      },
+      "attributes": {
+        "add": {
+          "title": {
+            "label": "Tytuł",
+            "placeholder": "Wyszukaj lub wpisz nazwę atrybutu...",
+            "required": "Tytuł atrybutu jest wymagany"
+          },
+          "values": {
+            "label": "Wartości",
+            "placeholder": "Wpisz wartości oddzielone przecinkami",
+            "required": "Wymagana jest co najmniej jedna wartość"
+          }
+        },
+        "useForVariants": {
+          "label": "Użyj dla wariantów",
+          "description": "Włącz, aby tworzyć warianty produktu na podstawie tego atrybutu.",
+          "editDescription": "Zmiana tego ustawienia wpłynie na istniejące warianty produktu."
+        },
+        "validation": {
+          "required": "{{name}} jest wymagane",
+          "requiredSelect": "Wybierz wartość",
+          "requiredEnter": "Wprowadź wartość",
+          "requiredSelectMultiple": "Wybierz co najmniej jedną wartość"
+        },
+        "enterValuePlaceholder": "Wprowadź wartość",
+        "selectValuePlaceholder": "Wybierz wartość"
       }
     },
     "variant": {
@@ -1212,9 +1246,9 @@
         "authorized": "Autoryzowane",
         "partiallyAuthorized": "Częściowo autoryzowane",
         "awaiting": "Oczekujące",
-        "captured": "Zrealizowane",
+        "captured": "Zapłacone",
         "partiallyRefunded": "Częściowo zwrócone",
-        "partiallyCaptured": "Częściowo zrealizowane",
+        "partiallyCaptured": "Częściowo zapłacone",
         "refunded": "Zwrócone",
         "canceled": "Anulowane",
         "requiresAction": "Wymaga działania"
@@ -3066,10 +3100,12 @@
   "login": {
     "forgotPassword": "Zapomniałeś hasła? - <0>Resetuj</0>",
     "title": "Witamy w {{name}}",
-    "hint": "Zaloguj się, aby uzyskać dostęp do obszaru konta"
+    "hint": "Zaloguj się, aby uzyskać dostęp do obszaru konta",
+    "submit": "Zaloguj się",
+    "sessionExpired": "Sesja wygasła"
   },
   "register": {
-    "title": "Dołącz do Mercur!",
+    "title": "Dołącz do {{name}}!",
     "hint": "Wprowadź swoje dane i utwórz hasło, aby skonfigurować konto sprzedawcy w {{name}}.",
     "companyName": "Nazwa firmy",
     "confirmPassword": "Potwierdź hasło",
@@ -3454,6 +3490,7 @@
     "availability": "Dostępność",
     "inventory": "Spis",
     "optional": "Opcjonalny",
+    "commission": "Prowizja",
     "note": "Notatka",
     "automaticTaxes": "Automatyczne podatki",
     "taxInclusivePricing": "Ceny zawierają podatek",
@@ -3487,9 +3524,9 @@
     "customer": "Klient",
     "date": "Data",
     "order": "Zamówienie",
-    "fulfillment": "Spełnienie",
+    "fulfillment": "Dostawa",
     "provider": "Dostawca",
-    "payment": "Zapłata",
+    "payment": "Płatność",
     "items": "Rzeczy",
     "salesChannel": "Kanał sprzedaży",
     "region": "Region",

@@ -17,14 +17,14 @@ export const ReservationEdit = () => {
 
   const { reservation, isPending, isError, error } = useReservationItem(id!)
   const { inventory_item: inventoryItem } = useInventoryItem(
-    reservation?.inventory_item_id!,
+    reservation?.inventory_item_id,
     undefined,
     {
       enabled: !!reservation?.inventory_item_id,
     }
   )
 
-  const { inventory_levels } = useInventoryItemLevels(inventoryItem?.id!, undefined, {
+  const { inventory_levels } = useInventoryItemLevels(inventoryItem?.id, undefined, {
     enabled: !!inventoryItem?.id,
   }) as any
 

@@ -100,7 +100,7 @@ export const ExchangeOutboundSection = ({
             (a) => a.exchange_id === exchange.id && a.action === "ITEM_ADD"
           )
       ),
-    [preview.items]
+    [preview.items, exchange.id]
   )
 
   const variantItemMap = useMemo(
@@ -120,7 +120,7 @@ export const ExchangeOutboundSection = ({
 
   const variantOutboundMap = useMemo(
     () => new Map(previewOutboundItems.map((i) => [i.variant_id, i])),
-    [previewOutboundItems, outboundItems]
+    [previewOutboundItems]
   )
 
   useEffect(() => {
@@ -155,14 +155,20 @@ export const ExchangeOutboundSection = ({
         remove(ind)
       }
     })
-  }, [previewOutboundItems])
+  }, [
+	previewOutboundItems,
+	remove,
+	outboundItems,
+	update,
+	append
+])
 
   const locationId = form.watch("location_id")
   const showOutboundItemsPlaceholder = !outboundItems.length
 
   const onItemsSelected = async () => {
-    itemsToAdd.length &&
-      (await addOutboundItem(
+    if (itemsToAdd.length) {
+      await addOutboundItem(
         {
           items: itemsToAdd.map((variantId) => ({
             variant_id: variantId,
@@ -174,7 +180,8 @@ export const ExchangeOutboundSection = ({
             toast.error(error.message)
           },
         }
-      ))
+      )
+    }
 
     for (const itemToRemove of itemsToRemove) {
       const action = previewOutboundItems
@@ -204,7 +211,7 @@ export const ExchangeOutboundSection = ({
     } else {
       form.setValue("outbound_option_id", "")
     }
-  }, [preview.shipping_methods])
+  }, [preview.shipping_methods, form])
 
   const onShippingOptionChange = async (
     selectedOptionId: string | undefined
@@ -263,7 +270,12 @@ export const ExchangeOutboundSection = ({
       .every(Boolean)
 
     return !allItemsHaveLocation
-  }, [outboundItems, inventoryMap, locationId])
+  }, [
+	outboundItems,
+	inventoryMap,
+	locationId,
+	variantItemMap
+])
 
   useEffect(() => {
     const getInventoryMap = async () => {
@@ -303,9 +315,9 @@ export const ExchangeOutboundSection = ({
 
         <StackedFocusModal id="outbound-items">
           <StackedFocusModal.Trigger asChild>
-            <a className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
+            <button type="button" className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
               {t("actions.addItems")}
-            </a>
+            </button>
           </StackedFocusModal.Trigger>
           <StackedFocusModal.Content>
             <StackedFocusModal.Header />
@@ -333,11 +345,12 @@ export const ExchangeOutboundSection = ({
                       {t("actions.cancel")}
                     </Button>
                   </RouteFocusModal.Close>
-                  <Button
+                  <Button tabIndex={0}
                     key="submit-button"
                     type="submit"
                     variant="primary"
                     size="small"
+                    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                     role="button"
                     onClick={async () => await onItemsSelected()}
                   >

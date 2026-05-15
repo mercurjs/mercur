@@ -14,7 +14,6 @@ import { useRegions } from "@hooks/api"
 import { useAttributes } from "../../../../hooks/api/attributes"
 import { usePricePreferences } from "@hooks/api/price-preferences"
 import { useCreateProduct } from "@hooks/api/products"
-import { useStockLocations } from "@hooks/api/stock-locations"
 import { uploadFilesQuery } from "@lib/client"
 import {
   PRODUCT_CREATE_FORM_DEFAULTS,
@@ -111,10 +110,7 @@ export const ProductCreateForm = ({
       "id,name,handle,description,ui_component,is_required,product_categories.*,possible_values.*",
   })
 
-  const { stock_locations = [] } = useStockLocations({
-    limit: 9999,
-    fields: "id,name",
-  })
+  
 
   const dynamicAttributeSchema = useMemo(() => {
     const attributeFields: Record<string, z.ZodTypeAny> = {}
@@ -275,7 +271,7 @@ export const ProductCreateForm = ({
         )
       }
     }
-  }, [tab])
+  }, [tab, form])
 
   useEffect(() => {
     if (onSaveVariantMediaRef) {

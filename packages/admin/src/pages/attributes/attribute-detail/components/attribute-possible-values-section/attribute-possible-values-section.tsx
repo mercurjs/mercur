@@ -5,7 +5,6 @@ import {
   Heading,
   Input,
   Prompt,
-  Text,
   toast,
   usePrompt,
 } from "@medusajs/ui"
@@ -134,7 +133,8 @@ export const AttributePossibleValuesSection = ({
     if (!search) return allValues
     const q = search.toLowerCase()
     return allValues.filter((v: any) => v.value?.toLowerCase().includes(q))
-  }, [allValues, search])
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+  }, [search, allValues])
 
   const columns = useMemo(
     () => [

@@ -161,7 +161,15 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
           | "completed",
         typeStatus: typeStatus as "not-started" | "in-progress" | "completed",
       })
-    }, [formStateKey, onFormStateChange])
+    }, [
+	formStateKey,
+	onFormStateChange,
+	uiComponent,
+	handle,
+	description,
+	name,
+	possibleValues.length
+])
 
     const renderDetailsTab = () => (
       <div className="grid gap-6" data-testid="attribute-form-details-tab">
