@@ -34,10 +34,10 @@
     "@medusajs/admin-shared": "2.13.4",
     "@medusajs/medusa": "2.13.4",
     "@medusajs/draft-order": "2.13.4",
-    "@mercurjs/core": "2.1.1",
-    "@mercurjs/types": "2.1.1",
+    "@mercurjs/core": "2.1.2",
+    "@mercurjs/types": "2.1.2",
     "http-proxy-middleware": "^3.0.3",
-    "@mercurjs/cli": "2.1.1"
+    "@mercurjs/cli": "2.1.2"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.4",
