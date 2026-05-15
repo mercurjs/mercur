@@ -101,7 +101,6 @@ export abstract class DashboardBase {
 
         const proxyMiddleware = createProxyMiddleware({
             target: this.getViteDevServerUrl(),
-            pathRewrite: { [`^${route}`]: "" },
         })
 
         const buildDir = this.getBuildDir_()
