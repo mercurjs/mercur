@@ -4,14 +4,15 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
-import { CreateProductDTO } from "@mercurjs/types"
+import { CreateProductDTO, HttpTypes } from "@mercurjs/types"
 
 import { createProductsWorkflow } from "../../../workflows/product/workflows/create-products"
-import { AdminCreateProductType } from "./validators"
+import { formatProductAttributes } from "../../utils"
+import { AdminCreateProductType, AdminGetProductsParamsType } from "./validators"
 
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  req: AuthenticatedMedusaRequest<AdminGetProductsParamsType>,
+  res: MedusaResponse<HttpTypes.AdminProductListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -21,6 +22,10 @@ export const GET = async (
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
+
+  for (const product of products) {
+    formatProductAttributes(product)
+  }
 
   res.json({
     products,
@@ -32,15 +37,20 @@ export const GET = async (
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminCreateProductType & AdditionalData>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { additional_data, ...productData } = req.validatedBody
+  const { additional_data, seller_ids, ...productData } = req.validatedBody
 
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
-      products: [productData as unknown as CreateProductDTO],
+      products: [{
+        ...productData,
+        created_by_actor: 'admin',
+        created_by: req.auth_context.actor_id
+      } as unknown as CreateProductDTO],
+      seller_ids,
       additional_data,
     },
   })
@@ -54,6 +64,8 @@ export const POST = async (
     fields: req.queryConfig.fields,
     filters: { id: createdId },
   })
+
+  formatProductAttributes(product)
 
   res.status(200).json({ product })
 }

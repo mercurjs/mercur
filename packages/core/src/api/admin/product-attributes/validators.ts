@@ -10,7 +10,8 @@ import {
   applyAndAndOrOperators,
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
-import { AdditionalData } from "@medusajs/framework/types"
+import { AdditionalData, OperatorMap } from "@medusajs/framework/types"
+import { isPresent } from "@medusajs/framework/utils"
 
 const typeEnum = z.nativeEnum(AttributeType)
 
@@ -26,9 +27,11 @@ const AdminProductAttributesParamsFields = z.object({
   id: z.union([z.string(), z.array(z.string())]).optional(),
   handle: z.union([z.string(), z.array(z.string())]).optional(),
   type: z.union([typeEnum, z.array(typeEnum)]).optional(),
+  is_required: booleanString().optional(),
   is_variant_axis: booleanString().optional(),
   is_filterable: booleanString().optional(),
   is_active: booleanString().optional(),
+  product_id: z.union([z.string(), z.array(z.string()), z.null()]).optional(),
   category_id: z.union([z.string(), z.array(z.string())]).optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
@@ -43,8 +46,30 @@ export const AdminGetProductAttributesParams = createFindParams({
 })
   .merge(AdminProductAttributesParamsFields)
   .merge(applyAndAndOrOperators(AdminProductAttributesParamsFields))
+  .transform((data) => {
+    const res = { ...data } as Record<string, unknown>
+
+    if (isPresent(data.category_id)) {
+      // Return attributes that belong to the given category OR have no category (global)
+      res.$or = [
+        { categories: { id: data.category_id as OperatorMap<string> } },
+        { categories: { id: null } },
+      ]
+      delete res.category_id
+    }
+
+    return res
+  })
 
 // --- Attribute create / update ---
+
+const CreateProductAttributeValueInline = z.object({
+  name: z.string(),
+  handle: z.string().optional(),
+  rank: z.number().nonnegative().optional(),
+  is_active: z.boolean().optional(),
+  metadata: z.record(z.unknown()).nullish(),
+})
 
 export type AdminCreateProductAttributeType = z.infer<
   typeof CreateProductAttribute
@@ -61,6 +86,7 @@ const CreateProductAttribute = z.object({
   rank: z.number().nonnegative().optional(),
   is_active: z.boolean().optional(),
   category_ids: z.array(z.string()).optional(),
+  values: z.array(CreateProductAttributeValueInline).optional(),
   metadata: z.record(z.unknown()).nullish(),
 })
 export const AdminCreateProductAttribute =
@@ -139,3 +165,31 @@ const UpdateProductAttributeValue = z.object({
 export const AdminUpdateProductAttributeValue = WithAdditionalData(
   UpdateProductAttributeValue
 )
+
+// --- Attribute value upsert ---
+
+const UpsertProductAttributeValueItem = z.union([
+  z.object({
+    id: z.string(),
+    name: z.string().optional(),
+    handle: z.string().optional(),
+    rank: z.number().nonnegative().optional(),
+    is_active: z.boolean().optional(),
+    metadata: z.record(z.unknown()).nullish(),
+  }),
+  z.object({
+    name: z.string(),
+    handle: z.string().optional(),
+    rank: z.number().nonnegative().optional(),
+    is_active: z.boolean().optional(),
+    metadata: z.record(z.unknown()).nullish(),
+  }),
+])
+
+export type AdminUpsertProductAttributeValuesType = z.infer<
+  typeof AdminUpsertProductAttributeValues
+>
+export const AdminUpsertProductAttributeValues = z.object({
+  values: z.array(UpsertProductAttributeValueItem),
+})
+

@@ -8,14 +8,16 @@ import {
 } from "@medusajs/framework/utils"
 
 import { AdditionalData } from "@medusajs/framework/types"
+import { HttpTypes } from "@mercurjs/types"
 
 import { deleteProductsWorkflow } from "../../../../workflows/product/workflows/delete-products"
 import { updateProductsWorkflow } from "../../../../workflows/product/workflows/update-products"
+import { formatProductAttributes } from "../../../utils"
 import { AdminUpdateProductType } from "../validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -34,12 +36,14 @@ export const GET = async (
     )
   }
 
+  formatProductAttributes(product)
+
   res.json({ product })
 }
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminUpdateProductType & AdditionalData>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -68,12 +72,14 @@ export const POST = async (
     )
   }
 
+  formatProductAttributes(product)
+
   res.json({ product })
 }
 
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductDeleteResponse>
 ) => {
   await deleteProductsWorkflow(req.scope).run({
     input: { ids: [req.params.id] },

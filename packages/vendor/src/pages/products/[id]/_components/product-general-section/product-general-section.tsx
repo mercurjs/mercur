@@ -6,7 +6,6 @@ import { useNavigate } from "react-router-dom";
 import { ActionMenu } from "@components/common/action-menu";
 import { SectionRow } from "@components/common/section";
 import { useDeleteProduct } from "@hooks/api/products";
-import { useProductDetailContext } from "../../context";
 
 const productStatusColor = (status: string) => {
   switch (status) {
@@ -18,13 +17,18 @@ const productStatusColor = (status: string) => {
       return "green";
     case "rejected":
       return "red";
+    case "requires_action":
+      return "blue";
     default:
       return "grey";
   }
 };
 
-export const ProductGeneralSection = () => {
-  const { product } = useProductDetailContext();
+export const ProductGeneralSection = ({
+  product,
+}: {
+  product: Record<string, any>;
+}) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
   const navigate = useNavigate();
@@ -85,8 +89,14 @@ export const ProductGeneralSection = () => {
         </div>
       </div>
 
-      <SectionRow title={t("fields.description")} value={product.description || "-"} />
-      <SectionRow title={t("fields.subtitle")} value={product.subtitle || "-"} />
+      <SectionRow
+        title={t("fields.description")}
+        value={product.description || "-"}
+      />
+      <SectionRow
+        title={t("fields.subtitle")}
+        value={product.subtitle || "-"}
+      />
       <SectionRow title={t("fields.handle")} value={`/${product.handle}`} />
       <SectionRow
         title={t("fields.discountable")}

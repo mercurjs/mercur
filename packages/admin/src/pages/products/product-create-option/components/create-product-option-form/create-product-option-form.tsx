@@ -1,30 +1,30 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Input, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, Input, toast } from "@medusajs/ui";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import { z } from "zod";
 
-import { HttpTypes } from "@medusajs/types"
-import { Form } from "../../../../../components/common/form"
-import { ChipInput } from "../../../../../components/inputs/chip-input"
-import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateProductOption } from "../../../../../hooks/api/products"
+import { HttpTypes } from "@medusajs/types";
+import { Form } from "../../../../../components/common/form";
+import { ChipInput } from "../../../../../components/inputs/chip-input";
+import { RouteDrawer, useRouteModal } from "../../../../../components/modals";
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
+// import { useCreateProductOption } from "../../../../../hooks/api/products"
 
 type EditProductOptionsFormProps = {
-  product: HttpTypes.AdminProduct
-}
+  product: HttpTypes.AdminProduct;
+};
 
 const CreateProductOptionSchema = z.object({
   title: z.string().min(1),
   values: z.array(z.string()).optional(),
-})
+});
 
 export const CreateProductOptionForm = ({
   product,
 }: EditProductOptionsFormProps) => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
 
   const form = useForm<z.infer<typeof CreateProductOptionSchema>>({
     defaultValues: {
@@ -32,25 +32,25 @@ export const CreateProductOptionForm = ({
       values: [],
     },
     resolver: zodResolver(CreateProductOptionSchema),
-  })
+  });
 
-  const { mutateAsync, isPending } = useCreateProductOption(product.id)
+  // const { mutateAsync, isPending } = useCreateProductOption(product.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    mutateAsync(values, {
-      onSuccess: () => {
-        toast.success(
-          t("products.options.create.successToast", {
-            title: values.title,
-          })
-        )
-        handleSuccess()
-      },
-      onError: async (err) => {
-        toast.error(err.message)
-      },
-    })
-  })
+    // mutateAsync(values, {
+    //   onSuccess: () => {
+    //     toast.success(
+    //       t("products.options.create.successToast", {
+    //         title: values.title,
+    //       })
+    //     )
+    //     handleSuccess()
+    //   },
+    //   onError: async (err) => {
+    //     toast.error(err.message)
+    //   },
+    // })
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -72,13 +72,13 @@ export const CreateProductOptionForm = ({
                     <Input
                       {...field}
                       placeholder={t(
-                        "products.fields.options.optionTitlePlaceholder"
+                        "products.fields.options.optionTitlePlaceholder",
                       )}
                     />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
           <Form.Field
@@ -94,13 +94,13 @@ export const CreateProductOptionForm = ({
                     <ChipInput
                       {...field}
                       placeholder={t(
-                        "products.fields.options.variantionsPlaceholder"
+                        "products.fields.options.variantionsPlaceholder",
                       )}
                     />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
-              )
+              );
             }}
           />
         </RouteDrawer.Body>
@@ -111,12 +111,12 @@ export const CreateProductOptionForm = ({
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button type="submit" size="small" isLoading={isPending}>
+            {/* <Button type="submit" size="small" isLoading={isPending}>
               {t("actions.save")}
-            </Button>
+            </Button> */}
           </div>
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  )
-}
+  );
+};

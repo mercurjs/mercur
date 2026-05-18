@@ -14,34 +14,35 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
+import { AttributeType, ProductAttributeDTO, ProductAttributeValueDTO } from "@mercurjs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { _DataTable } from "../../../../../components/table/data-table"
 import { TextCell } from "../../../../../components/table/table-cells/common/text-cell"
 import { useDataTable } from "../../../../../hooks/use-data-table"
-import { useUpdateAttribute } from "../../../../../hooks/api/attributes"
+import { useUpdateProductAttribute } from "../../../../../hooks/api/product-attributes"
 
 type AttributePossibleValuesSectionProps = {
-  attribute: Record<string, any>
+  attribute: ProductAttributeDTO
 }
 
 const PossibleValueActions = ({
   value,
   attribute,
 }: {
-  value: Record<string, any>
-  attribute: Record<string, any>
+  value: ProductAttributeValueDTO
+  attribute: ProductAttributeDTO
 }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
-  const { mutateAsync } = useUpdateAttribute(attribute.id)
+  const { mutateAsync } = useUpdateProductAttribute(attribute.id)
   const [inUseOpen, setInUseOpen] = useState(false)
 
   const handleDelete = async () => {
     const res = await prompt({
       title: t("general.areYouSure"),
       description: t("attributes.deletePossibleValue.confirmation", {
-        value: value.value,
+        value: value.name,
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
@@ -49,15 +50,15 @@ const PossibleValueActions = ({
 
     if (!res) return
 
-    const remainingValues = (attribute.possible_values ?? [])
-      .filter((pv: any) => pv.id !== value.id)
-      .map((pv: any) => ({ id: pv.id, value: pv.value, rank: pv.rank }))
+    const remainingValues = (attribute.values ?? [])
+      .filter((pv) => pv.id !== value.id)
+      .map((pv) => ({ id: pv.id, name: pv.name, rank: pv.rank }))
 
     try {
       await mutateAsync({ possible_values: remainingValues })
       toast.success(
         t("attributes.deletePossibleValue.successToast", {
-          value: value.value,
+          value: value.name,
         })
       )
     } catch (err: any) {
@@ -103,7 +104,7 @@ const PossibleValueActions = ({
             </Prompt.Title>
             <Prompt.Description>
               {t("attributes.deletePossibleValue.inUseMessage", {
-                value: value.value,
+                value: value.name,
               })}
             </Prompt.Description>
           </Prompt.Header>
@@ -118,7 +119,7 @@ const PossibleValueActions = ({
   )
 }
 
-const columnHelper = createColumnHelper<any>()
+const columnHelper = createColumnHelper<ProductAttributeValueDTO>()
 
 const PAGE_SIZE = 10
 
@@ -128,17 +129,21 @@ export const AttributePossibleValuesSection = ({
   const { t } = useTranslation()
   const [search, setSearch] = useState("")
 
-  const allValues = attribute.possible_values ?? []
+  if (attribute.type !== AttributeType.SINGLE_SELECT && attribute.type !== AttributeType.MULTI_SELECT) {
+    return null
+  }
+
+  const allValues = attribute.values ?? []
 
   const filtered = useMemo(() => {
     if (!search) return allValues
     const q = search.toLowerCase()
-    return allValues.filter((v: any) => v.value?.toLowerCase().includes(q))
+    return allValues.filter((v) => v.name?.toLowerCase().includes(q))
   }, [allValues, search])
 
   const columns = useMemo(
     () => [
-      columnHelper.accessor("value", {
+      columnHelper.accessor("name", {
         header: () => t("fields.name"),
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
@@ -160,7 +165,7 @@ export const AttributePossibleValuesSection = ({
     data: filtered,
     count: filtered.length,
     columns,
-    getRowId: (row: any) => row.id,
+    getRowId: (row) => row.id,
     pageSize: PAGE_SIZE,
   })
 

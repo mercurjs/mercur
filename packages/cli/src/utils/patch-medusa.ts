@@ -15,6 +15,9 @@ const MIDDLEWARES_TO_DISABLE: Record<string, string> = {
   "dist/api/admin/products/middlewares.js": "adminProductRoutesMiddlewares",
   "dist/api/admin/product-variants/middlewares.js": "adminProductVariantRoutesMiddlewares",
   "dist/api/admin/product-categories/middlewares.js": "adminProductCategoryRoutesMiddlewares",
+  "dist/api/store/products/middlewares.js": "storeProductRoutesMiddlewares",
+  "dist/api/store/product-categories/middlewares.js": "storeProductCategoryRoutesMiddlewares",
+  "dist/api/store/product-variants/middlewares.js": "storeProductVariantRoutesMiddlewares",
 };
 
 /**
@@ -26,14 +29,13 @@ const ROUTE_GLOBS_TO_DISABLE = [
   "dist/api/admin/products/**/route.js",
   "dist/api/admin/product-variants/**/route.js",
   "dist/api/admin/product-categories/**/route.js",
+  "dist/api/store/products/**/route.js",
+  "dist/api/store/product-categories/**/route.js",
+  "dist/api/store/product-variants/**/route.js",
 ];
 
 const DISABLED_ROUTE_CONTENT = `"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("@medusajs/framework/utils");
-(0, utils_1.defineFileConfig)({
-  isDisabled: () => true,
-});
 `;
 
 function buildDisabledMiddlewareContent(exportName: string) {

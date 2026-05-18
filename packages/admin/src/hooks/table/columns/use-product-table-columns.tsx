@@ -1,6 +1,11 @@
+import { Checkbox } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 
+import {
+  CategoryCell,
+  CategoryHeader,
+} from "../../../components/table/table-cells/product/category-cell/category-cell"
 import {
   CollectionCell,
   CollectionHeader,
@@ -14,20 +19,44 @@ import {
   ProductStatusHeader,
 } from "../../../components/table/table-cells/product/product-status-cell"
 import {
-  SalesChannelHeader,
-  SalesChannelsCell,
-} from "../../../components/table/table-cells/product/sales-channels-cell"
+  SellerCell,
+  SellerHeader,
+} from "../../../components/table/table-cells/product/seller-cell"
 import {
   VariantCell,
   VariantHeader,
 } from "../../../components/table/table-cells/product/variant-cell"
-import { HttpTypes } from "@medusajs/types"
+import { ProductDTO } from "@mercurjs/types"
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProduct>()
+const columnHelper = createColumnHelper<ProductDTO>()
 
 export const useProductTableColumns = () => {
   return useMemo(
     () => [
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsSomePageRowsSelected()
+                ? "indeterminate"
+                : table.getIsAllPageRowsSelected()
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            data-testid="products-table-header-select-checkbox"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            onClick={(e) => e.stopPropagation()}
+            data-testid={`products-table-cell-${row.id}-select-checkbox`}
+          />
+        ),
+      }),
       columnHelper.display({
         id: "product",
         header: () => <ProductHeader />,
@@ -38,21 +67,30 @@ export const useProductTableColumns = () => {
           />
         ),
       }),
+      columnHelper.accessor("sellers", {
+        header: () => <SellerHeader />,
+        cell: ({ row }) => (
+          <SellerCell
+            sellers={row.original.sellers}
+            data-testid={`products-table-cell-${row.id}-store-value`}
+          />
+        ),
+      }),
+      columnHelper.accessor("categories", {
+        header: () => <CategoryHeader />,
+        cell: ({ row }) => (
+          <CategoryCell
+            categories={row.original.categories}
+            data-testid={`products-table-cell-${row.id}-categories-value`}
+          />
+        ),
+      }),
       columnHelper.accessor("collection", {
         header: () => <CollectionHeader />,
         cell: ({ row }) => (
           <CollectionCell
             collection={row.original.collection}
             data-testid={`products-table-cell-${row.id}-collection-value`}
-          />
-        ),
-      }),
-      columnHelper.accessor("sales_channels", {
-        header: () => <SalesChannelHeader />,
-        cell: ({ row }) => (
-          <SalesChannelsCell
-            salesChannels={row.original.sales_channels}
-            data-testid={`products-table-cell-${row.id}-sales_channels-value`}
           />
         ),
       }),

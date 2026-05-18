@@ -15,6 +15,8 @@ export * from "./price-list"
 export * from "./price-preference"
 export * from "./product"
 export * from "./promotion"
+export * from "./product-attribute"
+export * from "./product-brand"
 export * from "./product-category"
 export * from "./product-tag"
 export * from "./product-type"
@@ -29,5 +31,19 @@ export * from "./stock-location"
 export * from "./payout"
 export * from "./commission"
 export * from "./subscription"
+
+// Explicit re-exports to resolve ambiguity with @medusajs/types (Mercur overrides)
+export {
+  AdminProductResponse,
+  AdminProductListResponse,
+  AdminProductDeleteResponse,
+  AdminProductVariantResponse,
+  AdminProductVariantListResponse,
+} from "./product"
+export {
+  AdminProductCategoryResponse,
+  AdminProductCategoryListResponse,
+  AdminProductCategoryDeleteResponse,
+} from "./product-category"
 
 export { StoreCompleteCartResponse } from "./order-group"

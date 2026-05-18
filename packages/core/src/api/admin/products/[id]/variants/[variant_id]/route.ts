@@ -7,6 +7,7 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
+import { HttpTypes } from "@mercurjs/types"
 
 import { updateProductVariantsWorkflow } from "../../../../../../workflows/product/workflows/update-product-variants"
 import { deleteProductVariantsWorkflow } from "../../../../../../workflows/product/workflows/delete-product-variants"
@@ -14,7 +15,7 @@ import { AdminUpdateProductVariantType } from "../../../validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductVariantResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -40,7 +41,7 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<
     AdminUpdateProductVariantType & AdditionalData
   >,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id

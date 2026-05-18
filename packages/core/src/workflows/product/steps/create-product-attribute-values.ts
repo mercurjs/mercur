@@ -18,7 +18,7 @@ export const createProductAttributeValuesStep = createStep(
       values.map((v) => v.id)
     )
   },
-  async (ids: string[] | undefined, { container }) => {
+  async (ids, { container }) => {
     if (!ids?.length) {
       return
     }

@@ -57,3 +57,11 @@ const UpdateProductBrand = z.object({
   metadata: z.record(z.unknown()).nullish(),
 })
 export const AdminUpdateProductBrand = WithAdditionalData(UpdateProductBrand)
+
+export type AdminBatchLinkSellersToBrandType = z.infer<
+  typeof AdminBatchLinkSellersToBrand
+>
+export const AdminBatchLinkSellersToBrand = z.object({
+  add: z.array(z.string()).optional(),
+  remove: z.array(z.string()).optional(),
+})

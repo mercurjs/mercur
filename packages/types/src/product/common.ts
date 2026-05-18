@@ -1,3 +1,5 @@
+import { SellerDTO } from "../seller/common"
+
 // --- Enums ---
 
 /**
@@ -5,9 +7,10 @@
  * with marketplace product acceptance workflow statuses.
  */
 export enum ProductStatus {
-  PENDING = "pending",
-  ACCEPTED = "accepted",
-  CHANGES_REQUIRED = "changes_required",
+  DRAFT = 'draft',
+  PROPOSED = "proposed",
+  PUBLISHED = "published",
+  REQUIRES_ACTION = "requires_action",
   REJECTED = "rejected",
 }
 
@@ -24,17 +27,7 @@ export enum AttributeType {
 }
 
 /**
- * Rejection reason types (business spec Section 5.4).
- * Determines which status transition the reason is valid for.
- */
-export enum RejectionReasonType {
-  TEMPORARY = "temporary",
-  PERMANENT = "permanent",
-}
-
-/**
  * Product change lifecycle statuses.
- * Matches OrderChange lifecycle pattern.
  */
 export enum ProductChangeStatus {
   PENDING = "pending",
@@ -44,11 +37,33 @@ export enum ProductChangeStatus {
 }
 
 /**
- * Action types for ProductChangeAction.
- * Phase 1 only uses STATUS_CHANGE. Future phases add new types without migration.
+ * Action types for ProductChangeAction. Each action's `details` JSON carries
+ * the operation payload; `ProductModuleService.applyProductChangeActions_`
+ * dispatches based on `action`.
+ *
+ * - `STATUS_CHANGE` — `{ status: ProductStatus }`
+ * - `UPDATE` — top-level Product field. `{ field, value, previous_value? }`.
+ *   One action per changed field.
+ * - `VARIANT_ADD` — `{ variant: CreateProductVariantDTO }`.
+ * - `VARIANT_UPDATE` — `{ variant_id, fields: UpdateProductVariantDTO,
+ *   previous_fields? }`. One action per updated variant.
+ * - `VARIANT_REMOVE` — `{ variant_id }`.
+ * - `ATTRIBUTE_ADD` — `{ attribute_id, attribute_value_ids?, values? }`.
+ *   Mirrors `ProductModuleService.addAttributesToProduct` per-item shape.
+ * - `ATTRIBUTE_REMOVE` — `{ attribute_id }`.
+ * - `PRODUCT_DELETE` — `{}`. Soft-deletes the product on apply. Processed
+ *   after all other actions in the same change so any audit-trail updates
+ *   still write through before deletion.
  */
 export enum ProductChangeActionType {
   STATUS_CHANGE = "STATUS_CHANGE",
+  UPDATE = "UPDATE",
+  VARIANT_ADD = "VARIANT_ADD",
+  VARIANT_UPDATE = "VARIANT_UPDATE",
+  VARIANT_REMOVE = "VARIANT_REMOVE",
+  ATTRIBUTE_ADD = "ATTRIBUTE_ADD",
+  ATTRIBUTE_REMOVE = "ATTRIBUTE_REMOVE",
+  PRODUCT_DELETE = "PRODUCT_DELETE",
 }
 
 // --- DTOs ---
@@ -131,7 +146,7 @@ export interface ProductBrandDTO {
 
 export interface ProductAttributeValueDTO {
   id: string;
-  handle: string;
+  handle: string | null;
   name: string;
   rank: number;
   is_active: boolean;
@@ -139,6 +154,7 @@ export interface ProductAttributeValueDTO {
   attribute?: ProductAttributeDTO;
   attribute_id?: string;
   variants?: ProductVariantDTO[];
+  products?: ProductDTO[];
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;
@@ -148,7 +164,7 @@ export interface ProductAttributeValueDTO {
 
 export interface ProductAttributeDTO {
   id: string;
-  handle: string;
+  handle: string | null;
   name: string;
   description: string | null;
   type: AttributeType;
@@ -157,11 +173,12 @@ export interface ProductAttributeDTO {
   is_variant_axis: boolean;
   rank: number;
   is_active: boolean;
-  is_global: boolean;
   created_by: string | null;
+  product_id: string | null;
   metadata: Record<string, unknown> | null;
   values?: ProductAttributeValueDTO[];
   categories?: ProductCategoryDTO[];
+  variant_products?: ProductDTO[];
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;
@@ -246,7 +263,6 @@ export interface ProductDTO {
   external_id: string | null;
   metadata: Record<string, unknown> | null;
   status: ProductStatus;
-  is_active: boolean;
   is_restricted: boolean;
   created_by: string | null;
   created_by_actor: string | null;
@@ -261,22 +277,11 @@ export interface ProductDTO {
   collection_id?: string | null;
   categories?: ProductCategoryDTO[];
   variant_attributes?: ProductAttributeDTO[];
+  custom_attributes?: ProductAttributeDTO[];
+  attribute_values?: ProductAttributeValueDTO[];
+  attributes?: ProductAttributeDTO[];
+  sellers?: SellerDTO[];
   changes?: ProductChangeDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
-}
-
-// --- ProductRejectionReason ---
-
-export interface ProductRejectionReasonDTO {
-  id: string;
-  code: string;
-  label: string;
-  type: RejectionReasonType;
-  is_active: boolean;
-  metadata: Record<string, unknown> | null;
-  product_changes?: ProductChangeDTO[];
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;
@@ -307,6 +312,7 @@ export interface ProductChangeDTO {
   product_id?: string;
   status: ProductChangeStatus;
   internal_note: string | null;
+  external_note: string | null;
   created_by: string | null;
   confirmed_by: string | null;
   confirmed_at: string | Date | null;
@@ -317,7 +323,6 @@ export interface ProductChangeDTO {
   canceled_at: string | Date | null;
   metadata: Record<string, unknown> | null;
   actions?: ProductChangeActionDTO[];
-  rejection_reasons?: ProductRejectionReasonDTO[];
   created_at: string | Date;
   updated_at: string | Date;
   deleted_at: string | Date | null;
