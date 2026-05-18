@@ -4,6 +4,7 @@
 
 @docs/PRODUCT.md
 @docs/ARCHITECTURE.md
+@docs/UI-ARCHITECTURE.md
 
 ## Project Overview
 
