@@ -70,6 +70,19 @@ export const ProductOrganizationSection = ({
       />
 
       <SectionRow
+        title={t("fields.brand")}
+        value={
+          product.brand ? (
+            <OrganizationTag
+              label={product.brand.name}
+              to={`/settings/product-brands/${product.brand.id}`}
+            />
+          ) : undefined
+        }
+        data-testid="product-brand-row"
+      />
+
+      <SectionRow
         title={t("fields.collection")}
         value={
           product.collection ? (

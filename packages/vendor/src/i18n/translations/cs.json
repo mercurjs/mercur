@@ -420,7 +420,8 @@
       "errors": {
         "variants": "Prosím vyberte alespoň jednu variantu.",
         "options": "Prosím vytvořte alespoň jednu možnost.",
-        "uniqueSku": "SKU musí být jedinečné."
+        "uniqueSku": "SKU musí být jedinečné.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Sady inventáře",
@@ -449,7 +450,21 @@
           "hint": "Definujte možnosti pro produkt, např. barvu, velikost atd."
         }
       },
-      "successToast": "Produkt {{title}} byl úspěšně vytvořen."
+      "successToast": "Produkt {{title}} byl úspěšně vytvořen.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Exportovat seznam produktů",
@@ -536,6 +551,7 @@
       "draft": "Koncept",
       "published": "Publikováno",
       "proposed": "Navrženo",
+      "requires_action": "Changes required",
       "rejected": "Odmítnuto"
     },
     "fields": {
@@ -3035,7 +3051,8 @@
     "startDate": "Datum začátku",
     "endDate": "Datum konce",
     "draft": "Koncept",
-    "values": "Hodnoty"
+    "values": "Hodnoty",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Rok",
@@ -3052,5 +3069,23 @@
     "minutes_other": "Minuty",
     "seconds_one": "Sekunda",
     "seconds_other": "Sekundy"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

@@ -15,6 +15,9 @@ const MIDDLEWARES_TO_DISABLE: Record<string, string> = {
   "dist/api/admin/products/middlewares.js": "adminProductRoutesMiddlewares",
   "dist/api/admin/product-variants/middlewares.js": "adminProductVariantRoutesMiddlewares",
   "dist/api/admin/product-categories/middlewares.js": "adminProductCategoryRoutesMiddlewares",
+  "dist/api/store/products/middlewares.js": "storeProductRoutesMiddlewares",
+  "dist/api/store/product-categories/middlewares.js": "storeProductCategoryRoutesMiddlewares",
+  "dist/api/store/product-variants/middlewares.js": "storeProductVariantRoutesMiddlewares",
 };
 
 /**
@@ -26,14 +29,13 @@ const ROUTE_GLOBS_TO_DISABLE = [
   "dist/api/admin/products/**/route.js",
   "dist/api/admin/product-variants/**/route.js",
   "dist/api/admin/product-categories/**/route.js",
+  "dist/api/store/products/**/route.js",
+  "dist/api/store/product-categories/**/route.js",
+  "dist/api/store/product-variants/**/route.js",
 ];
 
 const DISABLED_ROUTE_CONTENT = `"use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const utils_1 = require("@medusajs/framework/utils");
-(0, utils_1.defineFileConfig)({
-  isDisabled: () => true,
-});
 `;
 
 function buildDisabledMiddlewareContent(exportName: string) {
@@ -51,6 +53,20 @@ exports.${exportName} = [];
 const PRODUCT_LINK_PATTERNS = [
   /.*require\("\.\/product-.*"\).*\n?/g,
 ];
+
+/**
+ * Glob pattern for product files within @medusajs/core-flows.
+ * Mercur replaces the entire product module, so all of Medusa's
+ * built-in product workflows, steps, and helpers must be disabled.
+ */
+const CORE_FLOW_PRODUCT_GLOBS = [
+  "dist/product/**/*.js",
+  "dist/product-category/**/*.js",
+];
+
+const STUBBED_MODULE_CONTENT = `"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+`;
 
 export async function patchMedusa() {
   try {
@@ -78,8 +94,68 @@ export async function patchMedusa() {
 
     // Strip product link definitions from @medusajs/link-modules
     await patchLinkModules();
+
+    // Remove product from SERVICES_INTERFACES so the generated
+    // modules-bindings.d.ts uses the actual module service type
+    await patchContainerTypes();
+
+    // Stub out Medusa's built-in product workflows from @medusajs/core-flows
+    await patchCoreFlows();
   } catch (err) {
     logger.error(`Failed to patch Medusa: ${err}`);
+  }
+}
+
+/**
+ * Remove product from SERVICES_INTERFACES in @medusajs/utils so the
+ * generated modules-bindings.d.ts derives the type from Mercur's
+ * custom product module service instead of IProductModuleService.
+ */
+async function patchContainerTypes() {
+  try {
+    const medusaUtils = resolveCwd("@medusajs/medusa/utils");
+    const require_ = createRequire(medusaUtils);
+    const utilsEntry = require_.resolve("@medusajs/utils");
+    const utilsDir = await packageDirectory({ cwd: dirname(utilsEntry) });
+
+    if (!utilsDir) {
+      return;
+    }
+
+    const filePath = join(utilsDir, "dist/modules-sdk/modules-to-container-types.js");
+    let content = readFileSync(filePath, "utf-8");
+
+    content = content.replace(
+      /\s*\[definition_1\.Modules\.PRODUCT\]:\s*"IProductModuleService",?\n?/g,
+      "\n"
+    );
+
+    writeFileSync(filePath, content);
+  } catch (err) {
+    logger.error(`Failed to patch container types: ${err}`);
+  }
+}
+
+async function patchCoreFlows() {
+  try {
+    // Follow the same resolution chain the runtime uses, via @medusajs/medusa
+    const medusaCoreFlows = resolveCwd("@medusajs/medusa/core-flows");
+    const require_ = createRequire(medusaCoreFlows);
+    const coreFlowsEntry = require_.resolve("@medusajs/core-flows");
+    const coreFlowsDir = await packageDirectory({ cwd: dirname(coreFlowsEntry) });
+
+    if (!coreFlowsDir) {
+      return;
+    }
+
+    for (const glob of CORE_FLOW_PRODUCT_GLOBS) {
+      const files = await fg(glob, { cwd: coreFlowsDir, absolute: true });
+      for (const file of files) {
+        writeFileSync(file, STUBBED_MODULE_CONTENT);
+      }
+    }
+  } catch (err) {
+    logger.error(`Failed to patch core-flows: ${err}`);
   }
 }
 

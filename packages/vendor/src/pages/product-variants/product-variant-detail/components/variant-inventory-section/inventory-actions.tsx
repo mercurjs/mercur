@@ -1,10 +1,15 @@
 import { useTranslation } from "react-i18next"
 
 import { Buildings } from "@medusajs/icons"
+import { HttpTypes } from "@medusajs/types"
 
 import { ActionMenu } from "@components/common/action-menu"
 
-export const InventoryActions = ({ item }: { item: string }) => {
+export const InventoryActions = ({
+  item,
+}: {
+  item: HttpTypes.AdminInventoryItem
+}) => {
   const { t } = useTranslation()
 
   return (
@@ -15,7 +20,7 @@ export const InventoryActions = ({ item }: { item: string }) => {
             {
               icon: <Buildings />,
               label: t("products.variant.inventory.navigateToItem"),
-              to: `/inventory/${item}`,
+              to: `/inventory/${item.id}`,
             },
           ],
         },

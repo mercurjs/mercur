@@ -1,10 +1,9 @@
 import { useMemo } from "react"
-import { UseFormReturn, useWatch } from "react-hook-form"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { HttpTypes } from "@medusajs/types"
 import { z } from "zod"
 
-import { CreateProductVariantSchema } from "./constants"
 import { useRegions, useStore } from "@hooks/api"
 import { usePricePreferences } from "@hooks/api/price-preferences"
 import { useRouteModal } from "@components/modals"
@@ -13,12 +12,12 @@ import {
   createDataGridPriceColumns,
   DataGrid,
 } from "@components/data-grid"
+import { useTabbedForm } from "@components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "@components/tabbed-form/types"
+import { CreateProductVariantSchema } from "./constants"
 
-type PricingTabProps = {
-  form: UseFormReturn<z.infer<typeof CreateProductVariantSchema>>
-}
-
-function PricingTab({ form }: PricingTabProps) {
+function PricingTab() {
+  const form = useTabbedForm<z.infer<typeof CreateProductVariantSchema>>()
   const { store } = useStore()
   const { regions } = useRegions({ limit: 9999 })
   const { price_preferences: pricePreferences } = usePricePreferences({})
@@ -83,6 +82,7 @@ const useVariantPriceGridColumns = ({
         z.infer<typeof CreateProductVariantSchema>
       >({
         currencies: currencies.map((c) => c.currency_code),
+        regions,
         pricePreferences,
         getFieldName: (context, value) => {
           if (context.column.id?.startsWith("currency_prices")) {
@@ -95,5 +95,11 @@ const useVariantPriceGridColumns = ({
     ]
   }, [t, currencies, regions, pricePreferences])
 }
+
+PricingTab._tabMeta = defineTabMeta<z.infer<typeof CreateProductVariantSchema>>({
+  id: "price",
+  labelKey: "priceLists.create.tabs.prices",
+  validationFields: ["prices"],
+})
 
 export default PricingTab
