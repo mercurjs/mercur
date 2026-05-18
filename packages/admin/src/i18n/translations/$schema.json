@@ -2176,6 +2176,110 @@
           ],
           "additionalProperties": false
         },
+        "edits": {
+          "type": "object",
+          "properties": {
+            "panel": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "deleteRequested": {
+                  "type": "string"
+                }
+              },
+              "required": ["title", "description", "deleteRequested"],
+              "additionalProperties": false
+            },
+            "actions": {
+              "type": "object",
+              "properties": {
+                "reject": {
+                  "type": "string"
+                }
+              },
+              "required": ["reject"],
+              "additionalProperties": false
+            },
+            "confirmPrompt": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "noteLabel": {
+                  "type": "string"
+                },
+                "notePlaceholder": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description",
+                "noteLabel",
+                "notePlaceholder"
+              ],
+              "additionalProperties": false
+            },
+            "rejectPrompt": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "noteLabel": {
+                  "type": "string"
+                },
+                "notePlaceholder": {
+                  "type": "string"
+                },
+                "confirm": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description",
+                "noteLabel",
+                "notePlaceholder",
+                "confirm"
+              ],
+              "additionalProperties": false
+            },
+            "toast": {
+              "type": "object",
+              "properties": {
+                "confirmedSuccessfully": {
+                  "type": "string"
+                },
+                "rejectedSuccessfully": {
+                  "type": "string"
+                }
+              },
+              "required": ["confirmedSuccessfully", "rejectedSuccessfully"],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "panel",
+            "actions",
+            "confirmPrompt",
+            "rejectPrompt",
+            "toast"
+          ],
+          "additionalProperties": false
+        },
         "columns": {
           "type": "object",
           "properties": {
@@ -2895,6 +2999,7 @@
         "deleteVariantWarning",
         "productStatus",
         "request",
+        "edits",
         "columns",
         "fields",
         "variant",
@@ -11460,6 +11565,9 @@
         "removed": {
           "type": "string"
         },
+        "updated": {
+          "type": "string"
+        },
         "from": {
           "type": "string"
         },
@@ -11486,6 +11594,7 @@
         "inStock",
         "added",
         "removed",
+        "updated",
         "from",
         "to",
         "beaware",
@@ -11985,6 +12094,72 @@
           "type": "string"
         },
         "values": {
+          "type": "string"
+        },
+        "is_giftcard": {
+          "type": "string"
+        },
+        "origin_country": {
+          "type": "string"
+        },
+        "hs_code": {
+          "type": "string"
+        },
+        "mid_code": {
+          "type": "string"
+        },
+        "external_id": {
+          "type": "string"
+        },
+        "is_restricted": {
+          "type": "string"
+        },
+        "tag_ids": {
+          "type": "string"
+        },
+        "category_ids": {
+          "type": "string"
+        },
+        "allow_backorder": {
+          "type": "string"
+        },
+        "manage_inventory": {
+          "type": "string"
+        },
+        "variant_rank": {
+          "type": "string"
+        },
+        "attribute_values": {
+          "type": "string"
+        },
+        "isbn": {
+          "type": "string"
+        },
+        "asin": {
+          "type": "string"
+        },
+        "gtin": {
+          "type": "string"
+        },
+        "inventory_quantity": {
+          "type": "string"
+        },
+        "requires_shipping": {
+          "type": "string"
+        },
+        "variant_attributes": {
+          "type": "string"
+        },
+        "product_attributes": {
+          "type": "string"
+        },
+        "brand_id": {
+          "type": "string"
+        },
+        "type_id": {
+          "type": "string"
+        },
+        "collection_id": {
           "type": "string"
         }
       },

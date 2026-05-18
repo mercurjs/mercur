@@ -229,9 +229,6 @@ export interface ProductVariantDTO {
   metadata: Record<string, unknown> | null;
   variant_rank: number | null;
   thumbnail: string | null;
-  isbn: string | null;
-  asin: string | null;
-  gtin: string | null;
   product?: ProductDTO;
   product_id?: string;
   images?: ProductImageDTO[];

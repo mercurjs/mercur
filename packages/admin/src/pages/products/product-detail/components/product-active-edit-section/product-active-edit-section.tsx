@@ -1,8 +1,10 @@
+import { Fragment, useMemo, useState } from "react";
 import { ExclamationCircleSolid } from "@medusajs/icons";
-import { Button, Container, Heading, Text, toast, usePrompt } from "@medusajs/ui";
+import { Button, Container, Heading, Text, toast } from "@medusajs/ui";
 import {
   ProductChangeActionDTO,
   ProductChangeStatus,
+  SellerDTO,
 } from "@mercurjs/types";
 import {
   type FieldDiff,
@@ -15,20 +17,29 @@ import {
   isReferenceField,
   partitionProductChangeActions,
 } from "@mercurjs/dashboard-shared";
+import { HttpTypes } from "@medusajs/types";
 import { useQuery } from "@tanstack/react-query";
-import { Fragment, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
-import { Thumbnail } from "@components/common/thumbnail";
-import { useCollection } from "@hooks/api/collections";
-import { useProductCategory } from "@hooks/api/categories";
-import { useCancelProductEdit, useProductChange } from "@hooks/api/products";
-import { useProductTag } from "@hooks/api/tags";
-import { useProductType } from "@hooks/api/product-types";
-import { sdk } from "@lib/client";
+import { ConfirmPrompt } from "../../../../../components/common/confirm-prompt";
+import { Thumbnail } from "../../../../../components/common/thumbnail";
+import { useProductCategory } from "../../../../../hooks/api/categories";
+import { useCollection } from "../../../../../hooks/api/collections";
+import { useProductTag } from "../../../../../hooks/api/tags";
+import { useProductType } from "../../../../../hooks/api/product-types";
+import {
+  useCancelProductChange,
+  useConfirmProductChange,
+  useProductChange,
+} from "../../../../../hooks/api/products";
+import { sdk } from "../../../../../lib/client";
+
+type ProductWithSellers = HttpTypes.AdminProduct & {
+  sellers?: SellerDTO[];
+};
 
 type ProductActiveEditSectionProps = {
-  productId: string;
+  product: ProductWithSellers;
 };
 
 const ImageStrip = ({
@@ -38,7 +49,13 @@ const ImageStrip = ({
   images: { url: string }[];
   faded?: boolean;
 }) => (
-  <div className={faded ? "flex items-center gap-1.5 opacity-50" : "flex items-center gap-1.5"}>
+  <div
+    className={
+      faded
+        ? "flex items-center gap-1.5 opacity-50"
+        : "flex items-center gap-1.5"
+    }
+  >
     {images.map((image, idx) => (
       <Thumbnail key={`${image.url}-${idx}`} src={image.url} size="base" />
     ))}
@@ -49,7 +66,7 @@ const BrandName = ({ id }: { id: string }) => {
   const { data } = useQuery({
     queryKey: ["product_brand", id],
     queryFn: () =>
-      sdk.vendor.productBrands.$id.query({ $id: id }) as Promise<{
+      sdk.admin.productBrands.$id.query({ $id: id }) as Promise<{
         product_brand: { name: string };
       }>,
     enabled: !!id,
@@ -225,40 +242,26 @@ const ActionLine = ({ action }: { action: ProductChangeActionDTO }) => {
 };
 
 export const ProductActiveEditSection = ({
-  productId,
+  product,
 }: ProductActiveEditSectionProps) => {
   const { t } = useTranslation();
-  const prompt = usePrompt();
 
-  const { product_change, isError } = useProductChange(productId, {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [rejectOpen, setRejectOpen] = useState(false);
+
+  const { product_change, isError } = useProductChange(product.id, {
     retry: false,
   });
 
-  const { mutateAsync: cancelEdit, isPending: isCanceling } =
-    useCancelProductEdit(productId);
+  const { mutateAsync: confirmChange, isPending: isConfirming } =
+    useConfirmProductChange(product_change?.id ?? "", product.id);
+  const { mutateAsync: cancelChange, isPending: isRejecting } =
+    useCancelProductChange(product_change?.id ?? "", product.id);
 
   const { updated, added, removed, deleteRequested } = useMemo(
     () => partitionProductChangeActions(product_change?.actions ?? []),
     [product_change],
   );
-
-  const onCancel = async () => {
-    const confirmed = await prompt({
-      title: t("products.edits.panel.cancelTitle"),
-      description: t("products.edits.panel.cancelDescription"),
-      confirmText: t("actions.confirm"),
-      cancelText: t("actions.cancel"),
-    });
-
-    if (!confirmed) return;
-
-    try {
-      await cancelEdit();
-      toast.success(t("products.edits.toast.canceledSuccessfully"));
-    } catch (e) {
-      toast.error((e as Error).message);
-    }
-  };
 
   if (isError || !product_change) {
     return null;
@@ -274,6 +277,26 @@ export const ProductActiveEditSection = ({
     removed.length > 0 ||
     deleteRequested;
 
+  const handleConfirm = async (note: string | undefined) => {
+    try {
+      await confirmChange({ internal_note: note });
+      toast.success(t("products.edits.toast.confirmedSuccessfully"));
+      setConfirmOpen(false);
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
+  const handleReject = async (note: string | undefined) => {
+    try {
+      await cancelChange({ internal_note: note });
+      toast.success(t("products.edits.toast.rejectedSuccessfully"));
+      setRejectOpen(false);
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  };
+
   return (
     <Container
       className="divide-y p-0"
@@ -288,7 +311,10 @@ export const ProductActiveEditSection = ({
 
       <div className="px-6 py-4">
         <Text size="small" leading="compact" className="text-ui-fg-subtle">
-          {t("products.edits.panel.description")}
+          {t("products.edits.panel.description", {
+            store:
+              product.sellers?.[0]?.name ?? t("products.request.fallbackStore"),
+          })}
         </Text>
       </div>
 
@@ -377,14 +403,45 @@ export const ProductActiveEditSection = ({
         <Button
           size="small"
           variant="secondary"
-          onClick={onCancel}
-          disabled={isCanceling}
-          isLoading={isCanceling}
-          data-testid="product-active-edit-cancel-button"
+          onClick={() => setConfirmOpen(true)}
+          data-testid="product-active-edit-confirm-button"
         >
-          {t("actions.cancel")}
+          {t("actions.confirm")}
+        </Button>
+        <Button
+          size="small"
+          variant="secondary"
+          onClick={() => setRejectOpen(true)}
+          data-testid="product-active-edit-reject-button"
+        >
+          {t("products.edits.actions.reject")}
         </Button>
       </div>
+
+      <ConfirmPrompt
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        title={t("products.edits.confirmPrompt.title")}
+        description={t("products.edits.confirmPrompt.description")}
+        noteLabel={t("products.edits.confirmPrompt.noteLabel")}
+        noteOptional
+        notePlaceholder={t("products.edits.confirmPrompt.notePlaceholder")}
+        isLoading={isConfirming}
+        onConfirm={handleConfirm}
+      />
+
+      <ConfirmPrompt
+        open={rejectOpen}
+        onOpenChange={setRejectOpen}
+        title={t("products.edits.rejectPrompt.title")}
+        description={t("products.edits.rejectPrompt.description")}
+        noteLabel={t("products.edits.rejectPrompt.noteLabel")}
+        noteOptional
+        notePlaceholder={t("products.edits.rejectPrompt.notePlaceholder")}
+        confirmLabel={t("products.edits.rejectPrompt.confirm")}
+        isLoading={isRejecting}
+        onConfirm={handleReject}
+      />
     </Container>
   );
 };

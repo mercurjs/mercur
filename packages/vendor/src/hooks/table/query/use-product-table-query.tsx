@@ -57,7 +57,7 @@ export const useProductTableQuery = ({
     category_id: category_id?.split(","),
     collection_id: collection_id?.split(","),
     is_giftcard: is_giftcard ? is_giftcard === "true" : undefined,
-    order: order,
+    order: order || "-created_at",
     tag_id: tag_id ? tag_id.split(",") : undefined,
     type_id: type_id?.split(","),
     status: status?.split(",") as HttpTypes.AdminProductStatus[],

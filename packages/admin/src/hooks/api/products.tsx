@@ -1,5 +1,5 @@
 import { ClientError, InferClientInput, InferClientOutput } from "@mercurjs/client";
-import { HttpTypes } from "@mercurjs/types";
+import { HttpTypes, ProductChangeDTO } from "@mercurjs/types";
 import {
   QueryKey,
   useMutation,
@@ -17,6 +17,13 @@ export const productsQueryKeys = queryKeysFactory(PRODUCTS_QUERY_KEY);
 
 const VARIANTS_QUERY_KEY = "product_variants" as const;
 export const variantsQueryKeys = queryKeysFactory(VARIANTS_QUERY_KEY);
+
+const PRODUCT_CHANGE_QUERY_KEY = "product_change" as const;
+export const productChangeQueryKeys = queryKeysFactory(
+  PRODUCT_CHANGE_QUERY_KEY,
+);
+
+type ProductChangeResponse = { product_change: ProductChangeDTO };
 
 // --- Product queries ---
 
@@ -208,6 +215,85 @@ export const useRequestProductChanges = (
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useProductChange = (
+  productId: string,
+  options?: Omit<
+    UseQueryOptions<ProductChangeResponse, ClientError, ProductChangeResponse>,
+    "queryFn" | "queryKey"
+  >,
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      sdk.admin.products.$id.preview.query({ $id: productId }) as Promise<
+        ProductChangeResponse
+      >,
+    queryKey: productChangeQueryKeys.detail(productId),
+    ...options,
+  });
+
+  return { ...data, ...rest };
+};
+
+export const useConfirmProductChange = (
+  productChangeId: string,
+  productId: string,
+  options?: UseMutationOptions<
+    unknown,
+    ClientError,
+    { internal_note?: string } | void
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.productChanges.$id.confirm.mutate({
+        $id: productChangeId,
+        ...(payload ?? {}),
+      }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: productChangeQueryKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useCancelProductChange = (
+  productChangeId: string,
+  productId: string,
+  options?: UseMutationOptions<
+    ProductChangeResponse,
+    ClientError,
+    { internal_note?: string } | void
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.productChanges.$id.cancel.mutate({
+        $id: productChangeId,
+        ...(payload ?? {}),
+      }) as Promise<ProductChangeResponse>,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: productChangeQueryKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
 
       options?.onSuccess?.(data, variables, context);
     },

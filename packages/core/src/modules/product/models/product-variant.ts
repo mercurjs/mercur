@@ -24,11 +24,6 @@ const ProductVariant = model
     variant_rank: model.number().default(0).nullable(),
     thumbnail: model.text().nullable(),
 
-    // --- Marketplace additions ---
-    isbn: model.text().searchable().nullable(),
-    asin: model.text().searchable().nullable(),
-    gtin: model.text().searchable().nullable(),
-
     // --- Medusa original relations ---
     product: model
       .belongsTo(() => Product, {
@@ -71,24 +66,6 @@ const ProductVariant = model
     {
       name: "IDX_product_variant_upc_unique",
       on: ["upc"],
-      unique: true,
-      where: "deleted_at IS NULL",
-    },
-    {
-      name: "IDX_product_variant_isbn_unique",
-      on: ["isbn"],
-      unique: true,
-      where: "deleted_at IS NULL",
-    },
-    {
-      name: "IDX_product_variant_asin_unique",
-      on: ["asin"],
-      unique: true,
-      where: "deleted_at IS NULL",
-    },
-    {
-      name: "IDX_product_variant_gtin_unique",
-      on: ["gtin"],
       unique: true,
       where: "deleted_at IS NULL",
     },

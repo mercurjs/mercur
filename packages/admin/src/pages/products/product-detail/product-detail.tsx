@@ -6,6 +6,7 @@ import { HttpTypes as MercurHttpTypes, SellerDTO } from "@mercurjs/types";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useProduct } from "../../../hooks/api/products";
+import { ProductActiveEditSection } from "./components/product-active-edit-section";
 import { ProductActiveRequestSection } from "./components/product-active-request-section";
 import { ProductAttributeSection } from "./components/product-attribute-section";
 import { ProductGeneralSection } from "./components/product-general-section";
@@ -68,6 +69,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     >
       <TwoColumnPage.Main data-testid="product-detail-main">
         <ProductActiveRequestSection product={product} />
+        <ProductActiveEditSection product={product} />
         <ProductGeneralSection product={product} />
         <ProductMediaSection product={product} />
         <ProductVariantSection product={product} />
@@ -84,6 +86,7 @@ export const ProductDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainActiveRequestSection: ProductActiveRequestSection,
+  MainActiveEditSection: ProductActiveEditSection,
   MainGeneralSection: ProductGeneralSection,
   MainMediaSection: ProductMediaSection,
   MainAttributeSection: ProductAttributeSection,

@@ -7,8 +7,8 @@ import { z } from "zod";
 import { HttpTypes } from "@medusajs/types";
 import {
   AttributeType,
-  ProductAttributeDTO,
   ProductAttributeValueDTO,
+  ProductDTO,
 } from "@mercurjs/types";
 import { Form } from "../../../../../components/common/form";
 import { AttributeValueInput } from "../../../../../components/inputs/attribute-value-input";
@@ -56,11 +56,8 @@ export const ProductEditVariantForm = ({
   const { handleSuccess } = useRouteModal();
 
   const variantAttributes =
-    (
-      product as HttpTypes.AdminProduct & {
-        variant_attributes?: ProductAttributeDTO[];
-      }
-    ).variant_attributes?.filter((a) => a.is_variant_axis) ?? [];
+    (product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">)
+      .attributes?.filter((a) => a.is_variant_axis) ?? [];
 
   const variantAttrValues =
     (

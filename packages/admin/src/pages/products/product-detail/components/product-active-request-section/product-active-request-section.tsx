@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Container, Heading, toast } from "@medusajs/ui";
+import { Button, Container, Heading, Text, toast } from "@medusajs/ui";
 import { ExclamationCircleSolid } from "@medusajs/icons";
 import { useTranslation } from "react-i18next";
 
@@ -71,65 +71,58 @@ export const ProductActiveRequestSection = ({
   };
 
   return (
-    <div
-      style={{
-        background:
-          "repeating-linear-gradient(-45deg, rgb(212, 212, 216, 0.15), rgb(212, 212, 216,.15) 10px, transparent 10px, transparent 20px)",
-      }}
-      className="-m-4 mb-1 border-b border-l p-4"
+    <Container
+      className="divide-y p-0"
       data-testid="product-active-request-section"
     >
-      <Container className="flex items-center justify-between p-0">
-        <div className="flex w-full flex-col divide-y divide-dashed">
-          <div
-            className="flex items-center gap-2 px-6 py-4"
-            data-testid="product-active-request-header"
-          >
-            <ExclamationCircleSolid className="text-blue-500" />
-            <Heading level="h2" data-testid="product-active-request-heading">
-              {t("products.request.panel.title")}
-            </Heading>
-          </div>
+      <div
+        className="flex items-center gap-2 px-6 py-4"
+        data-testid="product-active-request-header"
+      >
+        <ExclamationCircleSolid className="text-ui-fg-interactive" />
+        <Heading level="h2" data-testid="product-active-request-heading">
+          {t("products.request.panel.title")}
+        </Heading>
+      </div>
 
-          <div className="txt-small text-ui-fg-subtle px-6 py-4">
-            {t("products.request.panel.description", {
-              store:
-                product.sellers?.[0]?.name ??
-                t("products.request.fallbackStore"),
-            })}
-          </div>
+      <div className="px-6 py-4">
+        <Text size="small" leading="compact" className="text-ui-fg-subtle">
+          {t("products.request.panel.description", {
+            store:
+              product.sellers?.[0]?.name ?? t("products.request.fallbackStore"),
+          })}
+        </Text>
+      </div>
 
-          <div
-            className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4"
-            data-testid="product-active-request-actions"
-          >
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={() => setConfirmOpen(true)}
-              data-testid="product-active-request-confirm-button"
-            >
-              {t("actions.confirm")}
-            </Button>
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={() => setRequestUpdateOpen(true)}
-              data-testid="product-active-request-request-update-button"
-            >
-              {t("products.request.actions.requestUpdate")}
-            </Button>
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={() => setRejectOpen(true)}
-              data-testid="product-active-request-reject-button"
-            >
-              {t("products.request.actions.reject")}
-            </Button>
-          </div>
-        </div>
-      </Container>
+      <div
+        className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-6 py-4"
+        data-testid="product-active-request-actions"
+      >
+        <Button
+          size="small"
+          variant="secondary"
+          onClick={() => setConfirmOpen(true)}
+          data-testid="product-active-request-confirm-button"
+        >
+          {t("actions.confirm")}
+        </Button>
+        <Button
+          size="small"
+          variant="secondary"
+          onClick={() => setRequestUpdateOpen(true)}
+          data-testid="product-active-request-request-update-button"
+        >
+          {t("products.request.actions.requestUpdate")}
+        </Button>
+        <Button
+          size="small"
+          variant="secondary"
+          onClick={() => setRejectOpen(true)}
+          data-testid="product-active-request-reject-button"
+        >
+          {t("products.request.actions.reject")}
+        </Button>
+      </div>
 
       <ConfirmPrompt
         open={confirmOpen}
@@ -170,6 +163,6 @@ export const ProductActiveRequestSection = ({
         isLoading={isRejecting}
         onConfirm={handleReject}
       />
-    </div>
+    </Container>
   );
 };

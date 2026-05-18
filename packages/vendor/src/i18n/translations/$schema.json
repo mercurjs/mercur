@@ -13851,6 +13851,63 @@
         },
         "values": {
           "type": "string"
+        },
+        "is_giftcard": {
+          "type": "string"
+        },
+        "origin_country": {
+          "type": "string"
+        },
+        "hs_code": {
+          "type": "string"
+        },
+        "mid_code": {
+          "type": "string"
+        },
+        "external_id": {
+          "type": "string"
+        },
+        "is_restricted": {
+          "type": "string"
+        },
+        "tag_ids": {
+          "type": "string"
+        },
+        "category_ids": {
+          "type": "string"
+        },
+        "allow_backorder": {
+          "type": "string"
+        },
+        "manage_inventory": {
+          "type": "string"
+        },
+        "variant_rank": {
+          "type": "string"
+        },
+        "attribute_values": {
+          "type": "string"
+        },
+        "isbn": {
+          "type": "string"
+        },
+        "asin": {
+          "type": "string"
+        },
+        "gtin": {
+          "type": "string"
+        },
+        "inventory_quantity": {
+          "type": "string"
+        },
+        "requires_shipping": {
+          "type": "string"
+        },
+        "variant_attributes": {
+          "type": "string"
+        },
+        "product_attributes": {
+          "type": "string"
         }
       },
       "required": [

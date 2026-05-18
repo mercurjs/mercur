@@ -76,12 +76,4 @@ export const UpdateAttributeSchema = z.object({
 export const UpdatePossibleValueSchema = z.object({
   name: z.string().min(1),
   rank: z.number().min(0).optional(),
-  metadata: z
-    .array(
-      z.object({
-        key: z.string(),
-        value: z.string(),
-      })
-    )
-    .default([]),
 })

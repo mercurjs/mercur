@@ -135,7 +135,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
   const prompt = usePrompt();
   const [searchParams] = useSearchParams();
 
-  const _tableSearchParams = useMemo(() => {
+  const tableSearchParams = useMemo(() => {
     const filtered = new URLSearchParams();
     for (const [key, value] of searchParams.entries()) {
       if (key.startsWith(`${PREFIX}_`)) {
@@ -339,7 +339,7 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
 
       return [mainActions, secondaryActions];
     },
-    [handleDelete, navigate, t],
+    [handleDelete, navigate, t, tableSearchParams],
   );
 
   return useMemo(() => {
