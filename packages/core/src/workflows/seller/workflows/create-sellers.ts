@@ -21,6 +21,10 @@ type CreateSellersWorkflowInput = {
 export const createSellersWorkflow: ReturnType<typeof createWorkflow> = createWorkflow(
   createSellersWorkflowId,
   function (input: CreateSellersWorkflowInput) {
+    const validate = createHook("validate", {
+      input,
+    })
+
     const sellers = createSellersStep(
       transform(input, ({ sellers }) =>
         sellers.map(({ member, ...seller }) => seller)
@@ -53,6 +57,6 @@ export const createSellersWorkflow: ReturnType<typeof createWorkflow> = createWo
       data: eventData,
     })
 
-    return new WorkflowResponse(sellers, { hooks: [sellersCreated] })
+    return new WorkflowResponse(sellers, { hooks: [validate, sellersCreated] })
   }
 )

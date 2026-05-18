@@ -3,7 +3,6 @@ export const adminProductFields = [
   "title",
   "subtitle",
   "status",
-  "is_active",
   "is_restricted",
   "external_id",
   "description",
@@ -34,17 +33,20 @@ export const adminProductFields = [
   "*tags",
   "*images",
   "*categories",
+  "*sellers",
   "*variants",
-  "*variants.prices",
-  "variants.prices.price_rules.value",
-  "variants.prices.price_rules.attribute",
+  "*variants.attribute_values",
+  "*variants.attribute_values.attribute",
   "*variant_attributes",
   "*variant_attributes.values",
+  "*custom_attributes",
+  "*custom_attributes.values",
+  "*attribute_values",
+  "*attribute_values.attribute",
 ]
 
 export const adminProductRetrieveFields = [
   ...adminProductFields,
-  "*changes",
 ]
 
 export const adminProductQueryConfig = {
@@ -71,8 +73,6 @@ export const adminProductVariantFields = [
   "barcode",
   "hs_code",
   "mid_code",
-  "allow_backorder",
-  "manage_inventory",
   "variant_rank",
   "weight",
   "length",
@@ -83,10 +83,9 @@ export const adminProductVariantFields = [
   "metadata",
   "created_at",
   "updated_at",
-  "*prices",
-  "prices.price_rules.value",
-  "prices.price_rules.attribute",
+  "product_id",
   "*attribute_values",
+  "*attribute_values.attribute",
 ]
 
 export const adminProductVariantQueryConfig = {

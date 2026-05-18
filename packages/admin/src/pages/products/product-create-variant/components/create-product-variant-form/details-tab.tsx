@@ -4,9 +4,10 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
+import { AttributeType, ProductAttributeDTO } from "@mercurjs/types"
 
 import { Form } from "../../../../../components/common/form"
-import { Combobox } from "../../../../../components/inputs/combobox"
+import { AttributeValueInput } from "../../../../../components/inputs/attribute-value-input"
 import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
 import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { CreateProductVariantSchema } from "./constants"
@@ -23,6 +24,13 @@ function DetailsTab({ product }: DetailsTabProps) {
     control: form.control,
     name: "manage_inventory",
   })
+
+  const variantAttributes =
+    (
+      product as HttpTypes.AdminProduct & {
+        variant_attributes?: ProductAttributeDTO[]
+      }
+    ).variant_attributes?.filter((a) => a.is_variant_axis) ?? []
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto" data-testid="product-variant-create-form-details-tab">
@@ -62,35 +70,35 @@ function DetailsTab({ product }: DetailsTabProps) {
             }}
           />
 
-          {product.options?.map((option: any) => (
-            <Form.Field
-              key={option.id}
-              control={form.control}
-              name={`options.${option.title}`}
-              render={({ field: { value, onChange, ...field } }) => {
-                return (
-                  <Form.Item data-testid={`product-variant-create-form-option-${option.title}-item`}>
-                    <Form.Label data-testid={`product-variant-create-form-option-${option.title}-label`}>{option.title}</Form.Label>
-                    <Form.Control data-testid={`product-variant-create-form-option-${option.title}-control`}>
-                      <Combobox
-                        value={value}
-                        onChange={(v) => {
-                          onChange(v)
-                        }}
-                        {...field}
-                        options={option.values.map((v: any) => ({
-                          label: v.value,
-                          value: v.value,
-                        }))}
-                        data-testid={`product-variant-create-form-option-${option.title}-combobox`}
-                      />
-                    </Form.Control>
-                    <Form.ErrorMessage data-testid={`product-variant-create-form-option-${option.title}-error`} />
-                  </Form.Item>
-                )
-              }}
-            />
-          ))}
+          {variantAttributes.map((attribute) => {
+            const fieldKey = attribute.handle ?? attribute.id
+            return (
+              <Form.Field
+                key={attribute.id}
+                control={form.control}
+                name={`attribute_values.${fieldKey}`}
+                render={({ field: { value, onChange } }) => {
+                  return (
+                    <Form.Item data-testid={`product-variant-create-form-attribute-${attribute.id}-item`}>
+                      <Form.Label data-testid={`product-variant-create-form-attribute-${attribute.id}-label`}>{attribute.name}</Form.Label>
+                      <Form.Control data-testid={`product-variant-create-form-attribute-${attribute.id}-control`}>
+                        <AttributeValueInput
+                          type={AttributeType.SINGLE_SELECT}
+                          value={typeof value === "string" ? value : ""}
+                          onChange={onChange}
+                          availableValues={(attribute.values ?? []).map((v) => ({
+                            id: v.id,
+                            name: v.name,
+                          }))}
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage data-testid={`product-variant-create-form-attribute-${attribute.id}-error`} />
+                    </Form.Item>
+                  )
+                }}
+              />
+            )
+          })}
         </div>
         <div className="flex flex-col gap-y-4">
           <Form.Field
@@ -199,7 +207,7 @@ function DetailsTab({ product }: DetailsTabProps) {
 DetailsTab._tabMeta = defineTabMeta<z.infer<typeof CreateProductVariantSchema>>({
   id: "detail",
   labelKey: "priceLists.create.tabs.details",
-  validationFields: ["title", "sku", "manage_inventory", "allow_backorder", "inventory_kit", "options"],
+  validationFields: ["title", "sku", "manage_inventory", "allow_backorder", "inventory_kit", "attribute_values"],
 })
 
 export default DetailsTab

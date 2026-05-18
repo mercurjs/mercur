@@ -96,8 +96,8 @@ const StatusRenderer: CellRenderer = (value, row, column, t) => {
     switch (lowerStatus) {
       case "active":
         return t("general.active", "Active") as string
-      case "published":
-        return t("products.productStatus.published", "Published") as string
+      case "accepted":
+        return t("products.productStatus.accepted", "Accepted") as string
       case "draft":
         return t("orders.status.draft", "Draft") as string
       case "pending":

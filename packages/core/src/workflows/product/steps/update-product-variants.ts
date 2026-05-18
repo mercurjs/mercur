@@ -36,9 +36,11 @@ export const updateProductVariantsStep = createStep(
     }
 
     const prevData = await service.listProductVariants(input.selector)
-    const variants = await service.updateProductVariants(
-      input.selector, input.update
-    )
+    const variantsToUpdate = prevData.map((v) => ({
+      id: v.id,
+      ...input.update,
+    })) as (UpdateProductVariantDTO & { id: string })[]
+    const variants = await service.updateProductVariants(variantsToUpdate)
 
     return new StepResponse(
       variants,

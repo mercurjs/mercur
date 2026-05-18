@@ -1,49 +1,31 @@
-import { useMemo } from "react";
 import { PencilSquare } from "@medusajs/icons";
+import { HttpTypes } from "@medusajs/types";
 import { Badge, Container, Heading, Tooltip } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+
 import { ActionMenu } from "@components/common/action-menu";
 import { SectionRow } from "@components/common/section";
-import { useProductCategories } from "@hooks/api/categories";
-import { useProductDetailContext } from "../../context";
 
-export const ProductOrganizationSection = () => {
-  const { product } = useProductDetailContext();
+export const ProductOrganizationSection = ({
+  product,
+}: {
+  product: HttpTypes.AdminProduct;
+}) => {
   const { t } = useTranslation();
 
-  const additionalSecondaryCategoryIds = useMemo(() => {
-    const additional = (product as any).additional_data?.secondary_categories
-    if (!additional || !Array.isArray(additional)) return []
-    return additional.flatMap((entry: any) =>
-      Array.isArray(entry.category_ids) ? entry.category_ids : []
-    )
-  }, [product])
-
-  const hasSecondaryFromAdditional = additionalSecondaryCategoryIds.length > 0
-
-  const { product_categories: allCategories } = useProductCategories(
-    {
-      id: additionalSecondaryCategoryIds,
-      limit: 100,
-    },
-    { enabled: hasSecondaryFromAdditional }
-  )
-
-  const secondaryCategories = useMemo(() => {
-    if ((product as any).secondary_categories?.length) {
-      return (product as any).secondary_categories
-    }
-    if (hasSecondaryFromAdditional && allCategories) {
-      return allCategories
-    }
-    return []
-  }, [product, hasSecondaryFromAdditional, allCategories])
-
   return (
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">{t("products.organization.header")}</Heading>
+    <Container
+      className="divide-y p-0"
+      data-testid="product-organization-section"
+    >
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="product-organization-header"
+      >
+        <Heading level="h2" data-testid="product-organization-title">
+          {t("products.organization.header")}
+        </Heading>
         <ActionMenu
           groups={[
             {
@@ -56,6 +38,7 @@ export const ProductOrganizationSection = () => {
               ],
             },
           ]}
+          data-testid="product-organization-action-menu"
         />
       </div>
 
@@ -72,6 +55,7 @@ export const ProductOrganizationSection = () => {
               ))
             : undefined
         }
+        data-testid="product-tags-row"
       />
       <SectionRow
         title={t("fields.type")}
@@ -83,6 +67,20 @@ export const ProductOrganizationSection = () => {
             />
           ) : undefined
         }
+        data-testid="product-type-row"
+      />
+
+      <SectionRow
+        title={t("fields.brand")}
+        value={
+          (product as any).brand ? (
+            <OrganizationTag
+              label={(product as any).brand.name}
+              to={`/settings/product-brands/${(product as any).brand.id}`}
+            />
+          ) : undefined
+        }
+        data-testid="product-brand-row"
       />
 
       <SectionRow
@@ -95,10 +93,11 @@ export const ProductOrganizationSection = () => {
             />
           ) : undefined
         }
+        data-testid="product-collection-row"
       />
 
       <SectionRow
-        title={t("products.fields.primaryCategory.label")}
+        title={t("fields.categories")}
         value={
           product.categories?.length
             ? product.categories.map((pcat) => (
@@ -110,21 +109,7 @@ export const ProductOrganizationSection = () => {
               ))
             : undefined
         }
-      />
-
-      <SectionRow
-        title={t("products.fields.secondaryCategories.label", "Secondary Categories")}
-        value={
-          secondaryCategories?.length
-            ? secondaryCategories.map((cat: any) => (
-                <OrganizationTag
-                  key={cat.id}
-                  label={cat.name}
-                  to={`/categories/${cat.id}`}
-                />
-              ))
-            : undefined
-        }
+        data-testid="product-categories-row"
       />
     </Container>
   );
@@ -134,7 +119,12 @@ const OrganizationTag = ({ label, to }: { label: string; to: string }) => {
   return (
     <Tooltip content={label}>
       <Badge size="2xsmall" className="block w-fit truncate" asChild>
-        <Link to={to}>{label}</Link>
+        <Link
+          to={to}
+          data-testid={`organization-tag-${label.toLowerCase().replace(/\s+/g, "-")}`}
+        >
+          {label}
+        </Link>
       </Badge>
     </Tooltip>
   );

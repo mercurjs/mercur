@@ -7,12 +7,18 @@ import {
 import { adminProductAttributeQueryConfig } from "./query-config"
 import {
   AdminCreateProductAttribute,
-  AdminCreateProductAttributeValue,
   AdminGetProductAttributeParams,
   AdminGetProductAttributesParams,
   AdminUpdateProductAttribute,
   AdminUpdateProductAttributeValue,
+  AdminUpsertProductAttributeValues,
 } from "./validators"
+
+const applyAttributeFilters = (req, _, next) => {
+  req.filterableFields = req.filterableFields ?? {}
+  req.filterableFields.product_id = null
+  next()
+}
 
 export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
   // --- /admin/product-attributes ---
@@ -24,6 +30,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
         AdminGetProductAttributesParams,
         adminProductAttributeQueryConfig.list
       ),
+      applyAttributeFilters,
     ],
   },
   {
@@ -69,7 +76,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/product-attributes/:id/values",
     middlewares: [
-      validateAndTransformBody(AdminCreateProductAttributeValue),
+      validateAndTransformBody(AdminUpsertProductAttributeValues),
       validateAndTransformQuery(
         AdminGetProductAttributeParams,
         adminProductAttributeQueryConfig.retrieve
@@ -90,6 +97,11 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
   {
     method: ["DELETE"],
     matcher: "/admin/product-attributes/:id/values/:value_id",
-    middlewares: [],
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetProductAttributeParams,
+        adminProductAttributeQueryConfig.retrieve
+      ),
+    ],
   },
 ]

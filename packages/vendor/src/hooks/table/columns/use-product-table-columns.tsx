@@ -2,6 +2,10 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
 
 import {
+  CategoryCell,
+  CategoryHeader,
+} from "../../../components/table/table-cells/product/category-cell";
+import {
   CollectionCell,
   CollectionHeader,
 } from "../../../components/table/table-cells/product/collection-cell/collection-cell";
@@ -13,10 +17,6 @@ import {
   ProductStatusCell,
   ProductStatusHeader,
 } from "../../../components/table/table-cells/product/product-status-cell";
-import {
-  SalesChannelHeader,
-  SalesChannelsCell,
-} from "../../../components/table/table-cells/product/sales-channels-cell";
 import {
   VariantCell,
   VariantHeader,
@@ -33,16 +33,16 @@ export const useProductTableColumns = () => {
         header: () => <ProductHeader />,
         cell: ({ row }) => <ProductCell product={row.original} />,
       }),
+      columnHelper.accessor("categories", {
+        header: () => <CategoryHeader />,
+        cell: ({ row }) => (
+          <CategoryCell categories={row.original.categories} />
+        ),
+      }),
       columnHelper.accessor("collection", {
         header: () => <CollectionHeader />,
         cell: ({ row }) => (
           <CollectionCell collection={row.original.collection} />
-        ),
-      }),
-      columnHelper.accessor("sales_channels", {
-        header: () => <SalesChannelHeader />,
-        cell: ({ row }) => (
-          <SalesChannelsCell salesChannels={row.original.sales_channels} />
         ),
       }),
       columnHelper.accessor("variants", {
