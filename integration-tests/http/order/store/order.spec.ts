@@ -19,14 +19,14 @@ medusaIntegrationTestRunner({
             let seller1Headers: any
             let seller2: any
             let seller2Headers: any
-            let customer: any
+            let _customer: any
             let storeHeaders: any
             let region: any
             let salesChannel: any
             let product1: any
             let product2: any
-            let shippingOption1: any
-            let shippingOption2: any
+            let _shippingOption1: any
+            let _shippingOption2: any
 
             beforeAll(async () => {
                 appContainer = getContainer()
@@ -55,7 +55,7 @@ medusaIntegrationTestRunner({
                     first_name: "Order",
                     last_name: "Customer",
                 })
-                customer = customerResult.customer
+                _customer = customerResult.customer
 
                 const apiKey = await generatePublishableKey(appContainer)
                 storeHeaders = generateStoreHeaders({ publishableKey: apiKey })
@@ -156,7 +156,7 @@ medusaIntegrationTestRunner({
                     },
                     seller1Headers
                 )
-                shippingOption1 = shippingOption1Response.data.shipping_option
+                _shippingOption1 = shippingOption1Response.data.shipping_option
 
                 // Create shipping prerequisites for seller 2
                 const shippingPrerequisites2 = await createShippingPrerequisites(seller2Headers, "seller2")
@@ -186,7 +186,7 @@ medusaIntegrationTestRunner({
                     },
                     seller2Headers
                 )
-                shippingOption2 = shippingOption2Response.data.shipping_option
+                _shippingOption2 = shippingOption2Response.data.shipping_option
             })
 
             let prerequisiteCounter = 0

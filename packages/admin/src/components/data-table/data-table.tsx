@@ -112,7 +112,7 @@ export const DataTable = <TData,>({
   rowCount = 0,
   enablePagination = true,
   enableSearch = true,
-  autoFocusSearch = false,
+  autoFocusSearch: _autoFocusSearch = false,
   enableFilterMenu,
   rowHref,
   heading,
@@ -129,9 +129,9 @@ export const DataTable = <TData,>({
   onColumnVisibilityChange,
   columnOrder,
   onColumnOrderChange,
-  enableViewSelector = false,
-  entity,
-  currentColumns,
+  enableViewSelector: _enableViewSelector = false,
+  entity: _entity,
+  currentColumns: _currentColumns,
   filterBarContent,
 }: DataTableProps<TData>) => {
   const { t } = useTranslation()
@@ -161,7 +161,7 @@ export const DataTable = <TData,>({
     if (hasChanged) {
       setColumnVisibility(initialColumnVisibility)
     }
-  }, [initialColumnVisibility])
+  }, [initialColumnVisibility, columnVisibility])
 
   // Wrapper function to handle column visibility changes
   const handleColumnVisibilityChange = React.useCallback(
@@ -260,14 +260,7 @@ export const DataTable = <TData,>({
   }, [order])
 
   // Memoize current configuration to prevent infinite loops
-  const currentConfiguration = useMemo(
-    () => ({
-      filters: filtering,
-      sorting: sorting,
-      search: search,
-    }),
-    [filtering, sorting, search]
-  )
+  
 
   const handleSortingChange = (value: DataTableSortingState) => {
     setSearchParams((prev) => {
@@ -397,7 +390,7 @@ export const DataTable = <TData,>({
               <div className="w-full md:w-auto">
                 <UiDataTable.Search
                   placeholder={t("filters.searchLabel")}
-                  autoFocus={autoFocusSearch}
+                  
                 />
               </div>
             )}

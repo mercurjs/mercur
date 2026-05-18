@@ -1,6 +1,5 @@
 import fs from "fs-extra";
 import path from "path";
-import ts, { type CompilerOptions } from "typescript";
 import { loadConfig } from "tsconfig-paths";
 import fg from "fast-glob"
 

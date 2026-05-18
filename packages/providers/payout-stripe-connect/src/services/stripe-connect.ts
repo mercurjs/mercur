@@ -56,7 +56,7 @@ class StripeConnectProviderService implements IPayoutProvider {
     private getWebhookResultFromAccount_(
         account: Stripe.Account
     ): PayoutWebhookResult {
-        const accountId = account.metadata?.account_id!
+        const accountId = account.metadata?.account_id
         const validation = {
             ...DEFAULT_ACCOUNT_VALIDATION,
             ...this.config_.accountValidation,

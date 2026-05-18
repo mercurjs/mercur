@@ -51,7 +51,7 @@ const columnHelper = createDataGridHelper<
 
 const useVariantPriceGridColumns = ({
   currencies = [],
-  regions = [],
+  regions: _regions = [],
   pricePreferences = [],
 }: {
   currencies?: HttpTypes.AdminStore["supported_currencies"]
@@ -93,7 +93,7 @@ const useVariantPriceGridColumns = ({
         t,
       }),
     ]
-  }, [t, currencies, regions, pricePreferences])
+  }, [t, currencies, pricePreferences])
 }
 
 PricingTab._tabMeta = defineTabMeta<z.infer<typeof CreateProductVariantSchema>>({

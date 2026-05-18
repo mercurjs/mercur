@@ -1,6 +1,6 @@
 import { clx } from "@medusajs/ui"
 import { memo } from "react"
-import { NoRecords, NoResultsProps } from "../../common/empty-table-content"
+import { NoRecords, NoRecordsProps } from "../../common/empty-table-content"
 import { TableSkeleton } from "../../common/skeleton"
 import { DataTableQuery, DataTableQueryProps } from "./data-table-query"
 import { DataTableRoot, DataTableRootProps } from "./data-table-root"
@@ -11,7 +11,7 @@ interface DataTableProps<TData>
   isLoading?: boolean
   pageSize: number
   queryObject?: Record<string, any>
-  noRecords?: Pick<NoResultsProps, "title" | "message">
+  noRecords?: Pick<NoRecordsProps, "title" | "message" | "icon">
 }
 
 // Maybe we should use the memoized version of DataTableRoot

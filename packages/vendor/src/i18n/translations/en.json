@@ -292,6 +292,10 @@
     }
   },
   "dataGrid": {
+    "toggle": {
+      "enabled": "Enabled",
+      "notEnabled": "Not enabled"
+    },
     "columns": {
       "view": "View",
       "resetToDefault": "Reset to default",
@@ -486,6 +490,11 @@
         "inventory": "Inventory kits",
         "attributes": "Attributes"
       },
+      "defaults": {
+        "optionTitle": "Default option",
+        "optionValue": "Default option value",
+        "variantTitle": "Default variant"
+      },
       "errors": {
         "variants": "Please select at least one variant.",
         "options": "Please create at least one option.",
@@ -504,6 +513,7 @@
       },
       "variants": {
         "header": "Variants",
+        "optionsHeader": "Options",
         "subHeadingTitle": "Yes, this is a product with variants",
         "subHeadingDescription": "When unchecked, we will create a default variant for you",
         "optionTitle": {
@@ -532,6 +542,7 @@
         "requiredHeading": "Required Attributes",
         "requiredDescription": "These attributes are required for products in this category.",
         "buttonLabel": "Attribute",
+        "loading": "Loading attributes...",
         "learnMore": {
           "label": "Learn more about attributes",
           "content": "Attributes help customers find and filter your products. Admin-defined attributes appear in search results."
@@ -612,6 +623,9 @@
     "attributeRequiredByMarketplace": "This attribute is required by marketplace",
     "addAttribute": "Add Attribute",
     "deleteAttributeWarning": "Are you sure you want to delete the attribute \"{{title}}\"? This action cannot be undone.",
+    "attributesSection": {
+      "removeWarning": "You are about to remove this attribute from the product. This action cannot be undone."
+    },
     "editAttributes": "Edit Attributes",
     "editOptions": "Edit Options",
     "editPrices": "Edit prices",
@@ -1289,6 +1303,8 @@
       "title": "Payments",
       "isReadyToBeCaptured": "Payment <0/> is ready to be captured.",
       "totalPaidByCustomer": "Total paid by customer",
+      "totalPending": "Total pending",
+      "totalRefunded": "Refunded",
       "totalStoreCreditRefunds": "Total store credit refunds",
       "capture": "Capture payment",
       "capture_short": "Capture",
@@ -1529,6 +1545,8 @@
       "trackingUrl": "Tracking URL",
       "labelUrl": "Label URL",
       "addTracking": "Add tracking number",
+      "addTrackingUrl": "Add tracking URL",
+      "trackingUrlPlaceholder": "https://www.dhl.com/shipment/1234567890",
       "sendNotification": "Send notification",
       "sendNotificationHint": "Notify the customer about this shipment.",
       "toastCreated": "Shipment created successfully."
@@ -1574,7 +1592,10 @@
         "partiallyReturned": "Partially returned",
         "returned": "Returned",
         "canceled": "Canceled",
-        "requiresAction": "Requires action"
+        "requiresAction": "Requires action",
+        "awaitingPickup": "Awaiting pickup",
+        "awaitingShipping": "Awaiting shipping",
+        "awaitingDelivery": "Awaiting delivery"
       },
       "toast": {
         "created": "Fulfillment created successfully",
@@ -2620,10 +2641,24 @@
       }
     }
   },
+  "payouts": {
+    "domain": "Payouts",
+    "payout": "Payout",
+    "noRecords": "No payouts found",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paid": "Paid",
+      "failed": "Failed",
+      "canceled": "Canceled"
+    }
+  },
   "profile": {
     "domain": "Profile",
     "manageYourProfileDetails": "Manage your profile details.",
     "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
       "languageLabel": "Language",
       "usageInsightsLabel": "Usage insights"
     },
@@ -2678,7 +2713,13 @@
     },
     "deleteUserWarning": "You are about to delete the user {{name}}. This action cannot be undone.",
     "deleteUserSuccess": "User {{name}} deleted successfully",
-    "invite": "Invite"
+    "invite": "Invite",
+    "inviteForm": {
+      "validation": {
+        "emailInvalid": "Please enter a valid email",
+        "roleRequired": "Please select a role"
+      }
+    }
   },
   "translations": {
     "domain": "Translations",
@@ -2723,6 +2764,12 @@
     "domain": "Seller",
     "manageYourStoresDetails": "Manage your seller's details",
     "editStore": "Edit seller",
+    "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
+    "validation": {
+      "nameRequired": "Please enter a name",
+      "nameTooLong": "Name must be at most 100 characters",
+      "emailInvalid": "Please enter a valid email"
+    },
     "profileCompletion": {
       "title": "Complete store profile",
       "steps": {
@@ -2734,14 +2781,14 @@
     },
     "status": {
       "active": "Active",
-      "pendingApproval": "Pending approval",
-      "suspended": "Suspended",
+      "pendingApproval": "Pending",
+      "suspended": "Inactive",
       "terminated": "Terminated"
     },
     "alert": {
       "pendingApproval": {
-        "title": "Your store is under review",
-        "description": "Your application is being reviewed by our team. You will be notified once your store is approved."
+        "title": "Store request",
+        "description": "Store request has been submitted successfully. Once the Admin reviews it, you'll receive a notification in your panel."
       },
       "suspended": {
         "title": "Your store has been suspended",
@@ -2783,14 +2830,29 @@
     },
     "address": {
       "header": "Address",
+      "defaultName": "Headquarters",
+      "nameLabel": "Name",
+      "namePlaceholder": "Headquarters",
+      "empty": {
+        "title": "No address",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Address",
         "description": "Update the address for your store.",
         "successToast": "Address updated"
+      },
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "countryRequired": "Please select a country"
       }
     },
     "paymentDetails": {
       "header": "Payment Details",
+      "empty": {
+        "title": "No payment details",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Payment Details",
         "description": "Update the payment details for your store.",
@@ -2798,39 +2860,68 @@
       },
       "fields": {
         "countryCode": "Country",
-        "holderName": "Account holder",
+        "holderName": "Account name",
         "bankName": "Bank name",
         "iban": "IBAN",
-        "bic": "BIC / SWIFT",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
         "routingNumber": "Routing number",
+        "achRoutingNumber": "ACH routing number",
         "accountNumber": "Account number"
+      },
+      "validation": {
+        "countryRequired": "Please select a country",
+        "accountNameRequired": "Please enter an account name"
       }
     },
     "professionalDetails": {
       "header": "Company Details",
+      "empty": {
+        "title": "No company details",
+        "message": "There are no records to show"
+      },
       "edit": {
-        "header": "Edit Professional Details",
-        "description": "Update the professional details for your store.",
-        "successToast": "Professional details updated"
+        "header": "Edit Company Details",
+        "description": "Update the company details for your store.",
+        "successToast": "Company details updated"
       },
       "fields": {
-        "corporateName": "Corporate name",
+        "corporateName": "Company",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"
       }
     },
-    "scheduledClosure": {
-      "header": "Scheduled Closure",
-      "edit": {
-        "header": "Schedule Store Closure",
-        "description": "Configure the scheduled closure dates for your store.",
-        "successToast": "Scheduled closure updated"
+    "timeOff": {
+      "header": "Time off",
+      "columns": {
+        "firstDay": "First day",
+        "lastDay": "Last day",
+        "note": "Note"
+      },
+      "validation": {
+        "firstDayRequired": "Please enter a first day"
+      },
+      "empty": {
+        "title": "No time off yet",
+        "message": "This store doesn't have scheduled time off",
+        "action": "Create"
+      },
+      "create": {
+        "header": "Create Time Off",
+        "description": "Schedule a time off period for your store.",
+        "successToast": "Time off saved"
       },
       "fields": {
-        "closedFrom": "Close from",
-        "closedTo": "Close until",
-        "closedToHint": "If empty, the store will remain closed indefinitely."
-      }
+        "firstDay": "First day",
+        "lastDay": "Last day",
+        "lastDayHint": "Leave empty to keep the store closed indefinitely",
+        "note": "Note"
+      },
+      "deleteConfirm": {
+        "title": "Delete time off",
+        "description": "Are you sure you want to remove this time off period?"
+      },
+      "deleteSuccess": "Time off removed"
     },
     "subscription": {
       "header": "Subscription",
@@ -2841,6 +2932,9 @@
       "freePeriod": "Free period",
       "requiresOrders": "Requires orders",
       "month": "month"
+    },
+    "edit": {
+      "websiteHint": "Must include protocol (e.g. https://)"
     },
     "toast": {
       "update": "Store successfully updated",
@@ -3166,38 +3260,51 @@
     }
   },
   "storeSelect": {
-    "title": "Choose a store",
-    "subtitle": "These are all your available stores",
-    "pendingApproval": "Pending approval",
+    "title": "Select a store",
+    "subtitle": "Choose a store to continue.",
+    "pendingApproval": "Pending",
     "addNewStore": "Add new store",
     "status": {
-      "open": "Open",
-      "pendingApproval": "Pending approval",
-      "suspended": "Suspended",
+      "open": "Active",
+      "pendingApproval": "Pending",
+      "suspended": "Inactive",
       "terminated": "Terminated"
     }
   },
   "login": {
-    "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to {{name}}",
-    "hint": "Sign in to access the vendor hub",
-    "notSellerYet": "Not a seller yet? - <0>Create an account</0>"
+    "forgotPassword": "Forgot password? <0>Reset</0>",
+    "title": "Welcome back!",
+    "hint": "Log in to your vendor account.",
+    "submit": "Log in",
+    "sessionExpired": "Session expired",
+    "notSellerYet": "Not a seller yet? <0>Create an account</0>",
+    "validation": {
+      "emailRequired": "Please enter an email",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Please enter your password"
+    }
   },
   "register": {
-    "title": "Start selling on {{name}}",
-    "hint": "Create account to get started",
+    "title": "Join {{name}}!",
+    "hint": "Enter your details and create a password to set up your admin account.",
     "companyName": "Company name",
     "confirmPassword": "Confirm password",
     "signUp": "Sign up",
-    "alreadySeller": "Already have an account? - <0>Sign In</0>",
+    "alreadySeller": "Already have an account? <0>Log in</0>",
     "passwordMismatch": "Passwords don't match",
     "emailTaken": "Provided email is already taken",
     "validation": {
       "nameRequired": "Name must be at least 2 characters",
+      "firstNameRequired": "Please enter your first name",
+      "lastNameRequired": "Please enter your last name",
       "emailInvalid": "Please enter a valid email address",
       "passwordMinLength": "Password must be at least 8 characters",
+      "passwordComplexity": "Password must include one lowercase letter, one uppercase letter, and one number or symbol",
       "confirmPasswordRequired": "Please confirm your password"
     },
+    "firstName": "First name",
+    "lastName": "Last name",
+    "passwordHint": "Your password must include at least 8 characters, one lowercase letter, one uppercase letter, one number or symbol",
     "successTitle": "Thank you for registering!",
     "successHint": "You may need to wait for admin authorization before logging in. A confirmation email will be sent to you shortly.",
     "backToLogin": "Back to login"
@@ -3230,7 +3337,7 @@
       "professionalSubtitle": "Professional seller information",
       "isProfessional": "Professional seller",
       "isProfessionalDescription": "Register as a business entity",
-      "corporateName": "Corporate name",
+      "corporateName": "Company",
       "registrationNumber": "Registration number",
       "taxId": "Tax ID",
       "completeSetup": "Complete setup"
@@ -3240,20 +3347,81 @@
       "description": "Your seller account has been created and is pending approval. We'll notify you at {{email}} once your store is reviewed.",
       "hint": "In the meantime, you can select your store and complete your setup.",
       "action": "Continue to dashboard"
+    },
+    "wizard": {
+      "stepOf": "Step {{current}} of {{total}}",
+      "steps": {
+        "store": "Store Details",
+        "address": "Address",
+        "company": "Company Details",
+        "payment": "Payment Details"
+      },
+      "store": {
+        "title": "Enter your store details",
+        "name": "Name",
+        "email": "Email",
+        "handle": "Handle",
+        "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
+        "handlePlaceholder": "my-store",
+        "currency": "Currency",
+        "selectCurrency": "Select",
+        "currencyHint": "Cannot be changed after store is created"
+      },
+      "skip": "Skip",
+      "address": {
+        "title": "Enter your address",
+        "name": "Name",
+        "namePlaceholder": "Headquarters",
+        "address": "Address",
+        "address2": "Apartment, suite, etc.",
+        "postalCode": "Postal Code",
+        "city": "City",
+        "country": "Country",
+        "state": "State"
+      },
+      "company": {
+        "title": "Enter your company details",
+        "subtitle": "Professional seller information",
+        "corporateName": "Company",
+        "registrationNumber": "Registration number",
+        "taxId": "Tax ID"
+      },
+      "payment": {
+        "title": "Enter your payment details",
+        "subtitle": "How you'd like to receive payouts",
+        "accountName": "Account name",
+        "accountNumber": "Account number",
+        "achRoutingNumber": "ACH routing number",
+        "iban": "IBAN",
+        "swiftBic": "SWIFT / BIC"
+      },
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "emailInvalid": "Please enter an email",
+        "currencyRequired": "Please select a currency",
+        "countryRequired": "Please select a country",
+        "accountNameRequired": "Please enter an account name"
+      },
+      "preview": {
+        "title": "Welcome to Mercur",
+        "description": "Your all-in-one vendor portal for managing your store, products, orders, and payouts.",
+        "placeholder": "App preview"
+      }
     }
   },
   "invite": {
-    "title": "You've been invited to {{name}}",
-    "hint": "Create your account below",
+    "title": "You're invited to join {{name}}!",
+    "hint": "Enter your details and create a password to set up your account.",
     "existingMemberHint": "Sign in with your existing account",
     "backToLogin": "Back to login",
     "createAccount": "Create account",
     "signIn": "Sign in",
-    "alreadyHaveAccount": "Already have an account? - <0>Log in</0>",
+    "alreadyHaveAccount": "Already have an account?",
+    "logIn": "Log in",
     "emailTooltip": "Your email cannot be changed. If you would like to use another email, a new invite must be sent.",
     "invalidInvite": "The invite is invalid or has expired.",
-    "successTitle": "You joined {{name}}",
-    "successHint": "You can now access the vendor portal. Log in to get started.",
+    "successTitle": "Welcome to {{name}}!",
+    "successHint": "Setting up your account...",
     "invalidTokenTitle": "Your invite token is invalid",
     "invalidTokenHint": "Try requesting a new invite link.",
     "passwordMismatch": "Passwords do not match",
@@ -3508,6 +3676,7 @@
     "availability": "Availability",
     "inventory": "Inventory",
     "optional": "Optional",
+    "commission": "Commission",
     "note": "Note",
     "automaticTaxes": "Automatic Taxes",
     "taxInclusivePricing": "Tax inclusive pricing",
@@ -3522,7 +3691,7 @@
     "company": "Company",
     "phone": "Phone",
     "metadata": "Metadata",
-    "selectCountry": "Select country",
+    "selectCountry": "Select",
     "products": "Products",
     "variants": "Variants",
     "orders": "Orders",

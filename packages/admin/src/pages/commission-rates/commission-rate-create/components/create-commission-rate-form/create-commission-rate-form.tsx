@@ -150,7 +150,7 @@ export const CreateCommissionRateForm = ({
       },
       {
         onSuccess: ({ commission_rate }) => {
-          toast.success("Commission rate created successfully");
+          toast.success(t("commissionRates.create.successToast"));
           handleSuccess(`../${commission_rate.id}`);
         },
         onError: (e) => {
@@ -309,9 +309,9 @@ export const CreateCommissionRateForm = ({
           >
             <div className="flex w-full max-w-[720px] flex-col gap-y-8">
               <div>
-                <Heading>Create Commission Rate</Heading>
+                <Heading>{t("commissionRates.create.header")}</Heading>
                 <Text size="small" className="text-ui-fg-subtle">
-                  Configure a new commission rate for your marketplace.
+                  {t("commissionRates.create.description")}
                 </Text>
               </div>
               <div className="flex flex-col gap-y-4">
@@ -321,7 +321,7 @@ export const CreateCommissionRateForm = ({
                     name="name"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Name</Form.Label>
+                        <Form.Label>{t("commissionRates.fields.name")}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
@@ -334,7 +334,7 @@ export const CreateCommissionRateForm = ({
                     name="code"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Code</Form.Label>
+                        <Form.Label>{t("commissionRates.fields.code")}</Form.Label>
                         <Form.Control>
                           <Input {...field} />
                         </Form.Control>
@@ -349,7 +349,7 @@ export const CreateCommissionRateForm = ({
                     name="type"
                     render={({ field: { onChange, ref, ...field } }) => (
                       <Form.Item>
-                        <Form.Label>Type</Form.Label>
+                        <Form.Label>{t("commissionRates.fields.type.label")}</Form.Label>
                         <Form.Control>
                           <Select {...field} onValueChange={onChange}>
                             <Select.Trigger ref={ref}>
@@ -357,9 +357,11 @@ export const CreateCommissionRateForm = ({
                             </Select.Trigger>
                             <Select.Content>
                               <Select.Item value="percentage">
-                                Percentage
+                                {t("commissionRates.fields.type.percentage")}
                               </Select.Item>
-                              <Select.Item value="fixed">Fixed</Select.Item>
+                              <Select.Item value="fixed">
+                                {t("commissionRates.fields.type.fixed")}
+                              </Select.Item>
                             </Select.Content>
                           </Select>
                         </Form.Control>
@@ -372,16 +374,18 @@ export const CreateCommissionRateForm = ({
                     name="target"
                     render={({ field: { onChange, ref, ...field } }) => (
                       <Form.Item>
-                        <Form.Label>Target</Form.Label>
+                        <Form.Label>{t("commissionRates.fields.target.label")}</Form.Label>
                         <Form.Control>
                           <Select {...field} onValueChange={onChange}>
                             <Select.Trigger ref={ref}>
                               <Select.Value />
                             </Select.Trigger>
                             <Select.Content>
-                              <Select.Item value="item">Item</Select.Item>
+                              <Select.Item value="item">
+                                {t("commissionRates.fields.target.item")}
+                              </Select.Item>
                               <Select.Item value="shipping">
-                                Shipping
+                                {t("commissionRates.fields.target.shipping")}
                               </Select.Item>
                             </Select.Content>
                           </Select>
@@ -397,11 +401,11 @@ export const CreateCommissionRateForm = ({
                     name="currency_code"
                     render={({ field: { onChange, ref, ...field } }) => (
                       <Form.Item>
-                        <Form.Label>Currency Code</Form.Label>
+                        <Form.Label>{t("commissionRates.fields.currencyCode")}</Form.Label>
                         <Form.Control>
                           <Select {...field} onValueChange={onChange}>
                             <Select.Trigger ref={ref}>
-                              <Select.Value placeholder="Select currency" />
+                              <Select.Value placeholder={t("commissionRates.fields.currencyPlaceholder")} />
                             </Select.Trigger>
                             <Select.Content>
                               {storeCurrencies.map((currency) => (
@@ -424,7 +428,7 @@ export const CreateCommissionRateForm = ({
                     name="value"
                     render={({ field: { value, onChange, ...field } }) => (
                       <Form.Item>
-                        <Form.Label>Rate</Form.Label>
+                        <Form.Label>{t("commissionRates.fields.rate")}</Form.Label>
                         <Form.Control>
                           {watchType === "percentage" ? (
                             <PercentageInput
@@ -463,7 +467,7 @@ export const CreateCommissionRateForm = ({
                     name="min_amount"
                     render={({ field: { value, onChange, ...field } }) => (
                       <Form.Item>
-                        <Form.Label>Minimum Amount</Form.Label>
+                        <Form.Label>{t("commissionRates.fields.minAmount")}</Form.Label>
                         <Form.Control>
                           <CurrencyInput
                             min={0}
@@ -489,7 +493,7 @@ export const CreateCommissionRateForm = ({
                     name="priority"
                     render={({ field }) => (
                       <Form.Item>
-                        <Form.Label>Priority</Form.Label>
+                        <Form.Label>{t("commissionRates.fields.priority")}</Form.Label>
                         <Form.Control>
                           <Input type="number" {...field} />
                         </Form.Control>
@@ -505,7 +509,7 @@ export const CreateCommissionRateForm = ({
                 render={({ field: { value, onChange, ...field } }) => (
                   <Form.Item>
                     <div className="flex items-start justify-between">
-                      <Form.Label>Enabled</Form.Label>
+                      <Form.Label>{t("commissionRates.fields.enabled")}</Form.Label>
                       <Form.Control>
                         <Switch
                           {...field}
@@ -515,7 +519,7 @@ export const CreateCommissionRateForm = ({
                       </Form.Control>
                     </div>
                     <Form.Hint>
-                      Enable or disable this commission rate.
+                      {t("commissionRates.fields.enabledHint")}
                     </Form.Hint>
                     <Form.ErrorMessage />
                   </Form.Item>
@@ -527,7 +531,7 @@ export const CreateCommissionRateForm = ({
                 render={({ field: { value, onChange, ...field } }) => (
                   <Form.Item>
                     <div className="flex items-start justify-between">
-                      <Form.Label>Include Tax</Form.Label>
+                      <Form.Label>{t("commissionRates.fields.includeTax")}</Form.Label>
                       <Form.Control>
                         <Switch
                           {...field}
@@ -537,7 +541,7 @@ export const CreateCommissionRateForm = ({
                       </Form.Control>
                     </div>
                     <Form.Hint>
-                      Include tax in the commission calculation.
+                      {t("commissionRates.fields.includeTaxHint")}
                     </Form.Hint>
                     <Form.ErrorMessage />
                   </Form.Item>

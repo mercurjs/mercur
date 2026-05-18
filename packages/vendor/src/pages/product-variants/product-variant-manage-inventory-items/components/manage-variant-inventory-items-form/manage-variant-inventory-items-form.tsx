@@ -104,7 +104,7 @@ export function ManageVariantInventoryItemsForm({
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.lists() })
       queryClient.invalidateQueries({ queryKey: variantsQueryKeys.details() })
       queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(variant?.product_id!),
+        queryKey: productsQueryKeys.detail(variant?.product_id),
       })
     },
   })

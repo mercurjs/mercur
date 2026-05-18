@@ -21,7 +21,7 @@ export const approveSellerWorkflow = createWorkflow(
   function (input: ApproveSellerWorkflowInput) {
     const { data: seller } = useQueryGraphStep({
       entity: "seller",
-      fields: ["id", "status"],
+      fields: ["id", "status", "approved_at"],
       filters: { id: input.seller_id },
       options: { throwIfKeyNotFound: true },
     }).config({ name: "get-seller" })
@@ -30,11 +30,12 @@ export const approveSellerWorkflow = createWorkflow(
 
     validateApproveSellerStep({ seller: sellerData })
 
-    const updateInput = transform({ input }, ({ input }) => ({
+    const updateInput = transform({ input, sellerData }, ({ input, sellerData }) => ({
       selector: { id: input.seller_id },
       update: {
         status: SellerStatus.OPEN,
         status_reason: null,
+        approved_at: sellerData.approved_at ?? new Date(),
       },
     }))
 

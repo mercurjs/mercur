@@ -3,7 +3,6 @@ import {
   InferClientInput,
   InferClientOutput,
 } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
 import {
   QueryKey,
   UseMutationOptions,

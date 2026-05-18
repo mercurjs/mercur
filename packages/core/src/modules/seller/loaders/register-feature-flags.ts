@@ -12,7 +12,7 @@ import SellerRegistrationFeatureFlag from "../../../feature-flags/seller-registr
 import ProductRequestFeatureFlag from "../../../feature-flags/product-request"
 
 export default async function registerFeatureFlagsLoader({
-  container,
+  container: _container,
 }: LoaderOptions) {
   const { featureFlags: projectConfigFlags = {} } = configManager.config
 

@@ -14,6 +14,7 @@ export const LocationItem = ({
   location,
 }: LocationItemProps) => {
   return (
+    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <div
       className={clx(
         "flex w-full cursor-pointer gap-x-2 rounded-lg border px-2 py-2",

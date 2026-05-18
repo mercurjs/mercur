@@ -22,8 +22,10 @@ const payoutStatusColor = (status: string) => {
 export const PayoutGeneralSection = ({ payout }: { payout: PayoutDTO }) => {
   const { t } = useTranslation();
 
-  const statusText =
-    payout.status.charAt(0).toUpperCase() + payout.status.slice(1);
+  const statusText = t(`payouts.status.${payout.status}`, {
+    defaultValue:
+      payout.status.charAt(0).toUpperCase() + payout.status.slice(1),
+  });
 
   return (
     <Container className="divide-y p-0">

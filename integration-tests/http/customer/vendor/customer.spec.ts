@@ -15,9 +15,9 @@ medusaIntegrationTestRunner({
     testSuite: ({ getContainer, api }) => {
         describe("Vendor - Customers", () => {
             let appContainer: MedusaContainer
-            let seller1: any
+            let _seller1: any
             let seller1Headers: any
-            let seller2: any
+            let _seller2: any
             let seller2Headers: any
             let customer1: any
             let customer1StoreHeaders: any
@@ -27,8 +27,8 @@ medusaIntegrationTestRunner({
             let salesChannel: any
             let product1: any
             let product2: any
-            let shippingOption1: any
-            let shippingOption2: any
+            let _shippingOption1: any
+            let _shippingOption2: any
 
             beforeAll(async () => {
                 appContainer = getContainer()
@@ -40,7 +40,7 @@ medusaIntegrationTestRunner({
                     email: "seller1@test.com",
                     name: "Test Seller 1",
                 })
-                seller1 = seller1Result.seller
+                _seller1 = seller1Result.seller
                 seller1Headers = seller1Result.headers
 
                 // Create second seller
@@ -48,7 +48,7 @@ medusaIntegrationTestRunner({
                     email: "seller2@test.com",
                     name: "Test Seller 2",
                 })
-                seller2 = seller2Result.seller
+                _seller2 = seller2Result.seller
                 seller2Headers = seller2Result.headers
 
                 // Create first customer
@@ -172,7 +172,7 @@ medusaIntegrationTestRunner({
                     },
                     seller1Headers
                 )
-                shippingOption1 = shippingOption1Response.data.shipping_option
+                _shippingOption1 = shippingOption1Response.data.shipping_option
 
                 // Create shipping prerequisites for seller 2
                 const shippingPrerequisites2 = await createShippingPrerequisites(seller2Headers, "seller2")
@@ -202,7 +202,7 @@ medusaIntegrationTestRunner({
                     },
                     seller2Headers
                 )
-                shippingOption2 = shippingOption2Response.data.shipping_option
+                _shippingOption2 = shippingOption2Response.data.shipping_option
             })
 
             let prerequisiteCounter = 0

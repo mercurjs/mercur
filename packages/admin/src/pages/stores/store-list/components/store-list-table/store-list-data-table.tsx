@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Checkbox, toast } from "@medusajs/ui"
+import { useNavigate } from "react-router-dom"
+import { Checkbox } from "@medusajs/ui"
 
 import { PencilSquare } from "@medusajs/icons"
 
@@ -16,14 +17,12 @@ import { useSellerTableFilters } from "../../../../../hooks/table/filters"
 import { useSellersTableQuery } from "../../../../../hooks/table/query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
 import { SellerDTO } from "@mercurjs/types"
-import { sdk } from "../../../../../lib/client"
-import { queryClient } from "../../../../../lib/query-client"
-import { sellersQueryKeys } from "../../../../../hooks/api/sellers"
 
 const PAGE_SIZE = 10
 
 export const StoreListDataTable = () => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
   const [selection, setSelection] = useState<RowSelectionState>({})
 
   const { searchParams, raw } = useSellersTableQuery({
@@ -69,7 +68,7 @@ export const StoreListDataTable = () => {
       pagination
       navigateTo={(row) => `/stores/${row.original.id}`}
       orderBy={[
-        { key: "name", label: t("stores.fields.name") },
+        { key: "name", label: t("stores.fields.seller") },
         { key: "email", label: t("stores.fields.email") },
         { key: "created_at", label: t("fields.createdAt") },
       ]}
@@ -77,42 +76,11 @@ export const StoreListDataTable = () => {
         {
           action: async (selection) => {
             const ids = Object.keys(selection)
-            try {
-              await Promise.all(
-                ids.map((id) =>
-                  sdk.admin.sellers.$id.suspend.mutate({ $id: id })
-                )
-              )
-              toast.success(t("stores.actions.suspend.successToast", { count: ids.length }))
-            } catch {
-              toast.error(t("stores.actions.suspend.errorToast"))
-            }
-            await queryClient.invalidateQueries({
-              queryKey: sellersQueryKeys.lists(),
-            })
+            if (!ids.length) return
+            navigate(`bulk-edit?ids=${ids.join(",")}`)
           },
-          label: t("stores.actions.suspend.label"),
-          shortcut: "s",
-        },
-        {
-          action: async (selection) => {
-            const ids = Object.keys(selection)
-            try {
-              await Promise.all(
-                ids.map((id) =>
-                  sdk.admin.sellers.$id.unsuspend.mutate({ $id: id })
-                )
-              )
-              toast.success(t("stores.actions.unsuspend.successToast", { count: ids.length }))
-            } catch {
-              toast.error(t("stores.actions.unsuspend.errorToast"))
-            }
-            await queryClient.invalidateQueries({
-              queryKey: sellersQueryKeys.lists(),
-            })
-          },
-          label: t("stores.actions.unsuspend.label"),
-          shortcut: "u",
+          label: t("stores.actions.edit.label"),
+          shortcut: "e",
         },
       ]}
     />
@@ -122,6 +90,8 @@ export const StoreListDataTable = () => {
 const columnHelper = createColumnHelper<SellerDTO>()
 
 const StoreActions = ({ seller }: { seller: SellerDTO }) => {
+  const { t } = useTranslation()
+
   return (
     <ActionMenu
       groups={[
@@ -129,7 +99,7 @@ const StoreActions = ({ seller }: { seller: SellerDTO }) => {
           actions: [
             {
               icon: <PencilSquare />,
-              label: "Edit",
+              label: t("actions.edit"),
               to: `/stores/${seller.id}/edit`,
             },
           ],

@@ -121,6 +121,7 @@ export const ChipInput = forwardRef<HTMLInputElement, ChipInputProps>(
     }
 
     return (
+      // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
       <div
         className={clx(
           "shadow-borders-base flex min-h-8 flex-wrap items-center gap-1 rounded-md px-2 py-1.5",

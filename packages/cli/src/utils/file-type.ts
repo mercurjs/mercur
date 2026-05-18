@@ -16,7 +16,7 @@ export function getTargetDir(file: {
 }
 
 
-export function resolveFilePath(file: z.infer<typeof registryItemFileSchema>, config: Config, options: {
+export function resolveFilePath(file: z.infer<typeof registryItemFileSchema>, config: Config, _options: {
   isSrcDir: boolean;
   path: string
 }) {

@@ -1,7 +1,9 @@
 import {
   createFindParams,
   createSelectParams,
+  WithAdditionalData,
 } from "@medusajs/medusa/api/utils/validators"
+import { AdditionalData } from "@medusajs/framework/types"
 import { SellerRole } from "@mercurjs/types"
 import { z } from "zod"
 
@@ -14,15 +16,20 @@ export const VendorGetSellersParams = createFindParams({
 export type VendorGetSellerParamsType = z.infer<typeof VendorGetSellerParams>
 export const VendorGetSellerParams = createSelectParams()
 
-export type VendorCreateSellerAccountType = z.infer<typeof VendorCreateSellerAccount>
-export const VendorCreateSellerAccount = z.object({
+export type VendorCreateSellerAccountType = z.infer<typeof CreateSellerAccount> & AdditionalData
+export const CreateSellerAccount = z.object({
   name: z.string(),
+  handle: z.string().optional(),
   email: z.string().email(),
+  phone: z.string().nullable().optional(),
   member_email: z.string().email(),
+  first_name: z.string().nullable().optional(),
+  last_name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   currency_code: z.string(),
   address: z
     .object({
+      name: z.string().nullable().optional(),
       company: z.string().nullable().optional(),
       first_name: z.string().optional(),
       last_name: z.string().optional(),
@@ -42,22 +49,37 @@ export const VendorCreateSellerAccount = z.object({
       tax_id: z.string().nullable().optional(),
     })
     .optional(),
+  payment_details: z
+    .object({
+      country_code: z.string().optional(),
+      holder_name: z.string().optional(),
+      bank_name: z.string().nullable().optional(),
+      iban: z.string().nullable().optional(),
+      bic: z.string().nullable().optional(),
+      routing_number: z.string().nullable().optional(),
+      account_number: z.string().nullable().optional(),
+    })
+    .optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
 })
+export const VendorCreateSellerAccount = WithAdditionalData(CreateSellerAccount)
 
-export type VendorUpdateSellerType = z.infer<typeof VendorUpdateSeller>
-export const VendorUpdateSeller = z.object({
+export type VendorUpdateSellerType = z.infer<typeof UpdateSeller> & AdditionalData
+export const UpdateSeller = z.object({
   name: z.string().optional(),
   handle: z.string().optional(),
   email: z.string().email().optional(),
+  phone: z.string().nullable().optional(),
   description: z.string().nullable().optional(),
   logo: z.string().url().nullable().optional(),
   banner: z.string().url().nullable().optional(),
   website_url: z.string().nullable().optional(),
   closed_from: z.coerce.date().nullable().optional(),
   closed_to: z.coerce.date().nullable().optional(),
+  closure_note: z.string().nullable().optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
 })
+export const VendorUpdateSeller = WithAdditionalData(UpdateSeller)
 
 export type VendorInviteMemberType = z.infer<typeof VendorInviteMember>
 export const VendorInviteMember = z.object({
@@ -70,8 +92,9 @@ export const VendorUpdateMemberRole = z.object({
   role_id: z.nativeEnum(SellerRole),
 })
 
-export type VendorUpsertSellerAddressType = z.infer<typeof VendorUpsertSellerAddress>
-export const VendorUpsertSellerAddress = z.object({
+export type VendorUpsertSellerAddressType = z.infer<typeof UpsertSellerAddress> & AdditionalData
+export const UpsertSellerAddress = z.object({
+  name: z.string().nullable().optional(),
   company: z.string().nullable().optional(),
   first_name: z.string().nullable().optional(),
   last_name: z.string().nullable().optional(),
@@ -84,9 +107,10 @@ export const VendorUpsertSellerAddress = z.object({
   phone: z.string().nullable().optional(),
   metadata: z.record(z.unknown()).nullable().optional(),
 })
+export const VendorUpsertSellerAddress = WithAdditionalData(UpsertSellerAddress)
 
-export type VendorUpsertSellerPaymentDetailsType = z.infer<typeof VendorUpsertSellerPaymentDetails>
-export const VendorUpsertSellerPaymentDetails = z.object({
+export type VendorUpsertSellerPaymentDetailsType = z.infer<typeof UpsertSellerPaymentDetails> & AdditionalData
+export const UpsertSellerPaymentDetails = z.object({
   country_code: z.string().optional(),
   holder_name: z.string().optional(),
   bank_name: z.string().nullable().optional(),
@@ -95,13 +119,15 @@ export const VendorUpsertSellerPaymentDetails = z.object({
   routing_number: z.string().nullable().optional(),
   account_number: z.string().nullable().optional(),
 })
+export const VendorUpsertSellerPaymentDetails = WithAdditionalData(UpsertSellerPaymentDetails)
 
-export type VendorUpsertSellerProfessionalDetailsType = z.infer<typeof VendorUpsertSellerProfessionalDetails>
-export const VendorUpsertSellerProfessionalDetails = z.object({
+export type VendorUpsertSellerProfessionalDetailsType = z.infer<typeof UpsertSellerProfessionalDetails> & AdditionalData
+export const UpsertSellerProfessionalDetails = z.object({
   corporate_name: z.string().nullable().optional(),
   registration_number: z.string().nullable().optional(),
   tax_id: z.string().nullable().optional(),
 })
+export const VendorUpsertSellerProfessionalDetails = WithAdditionalData(UpsertSellerProfessionalDetails)
 
 export type VendorSelectSellerType = z.infer<typeof VendorSelectSeller>
 export const VendorSelectSeller = z.object({

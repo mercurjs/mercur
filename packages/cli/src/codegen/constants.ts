@@ -303,7 +303,6 @@ export const defaultMercurRoutes = {
     "/admin/payouts/:id": "typeof import(\"@mercurjs/core/api/admin/payouts/[id]/route\")",
     "/admin/orders": "typeof import(\"@mercurjs/core/api/admin/orders/route\")",
     "/admin/products": "typeof import(\"@mercurjs/core/api/admin/products/route\")",
-    "/admin/invites/accept": "typeof import(\"@mercurjs/core/api/admin/invites/accept/route\")",
     "/admin/sellers": "typeof import(\"@mercurjs/core/api/admin/sellers/route\")",
     "/admin/sellers/invite": "typeof import(\"@mercurjs/core/api/admin/sellers/invite/route\")",
     "/admin/sellers/:id": "typeof import(\"@mercurjs/core/api/admin/sellers/[id]/route\")",

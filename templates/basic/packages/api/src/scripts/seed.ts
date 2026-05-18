@@ -1013,7 +1013,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   }
   logger.info("Finished seeding product data.");
 
-  const { data: seededProducts } = await query.graph({
+  const { data: _seededProducts } = await query.graph({
     entity: "product",
     fields: ["id"],
     filters: {

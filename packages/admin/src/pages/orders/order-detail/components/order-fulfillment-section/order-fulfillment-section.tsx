@@ -18,7 +18,6 @@ import {
   usePrompt,
 } from "@medusajs/ui"
 import { format } from "date-fns"
-import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -229,22 +228,22 @@ const Fulfillment = ({
 
   let statusText = fulfillment.requires_shipping
     ? isPickUpFulfillment
-      ? "Awaiting pickup"
-      : "Awaiting shipping"
-    : "Awaiting delivery"
+      ? t("orders.fulfillment.status.awaitingPickup")
+      : t("orders.fulfillment.status.awaitingShipping")
+    : t("orders.fulfillment.status.awaitingDelivery")
   let statusColor: "blue" | "green" | "red" = "blue"
   let statusTimestamp = fulfillment.created_at
 
   if (fulfillment.canceled_at) {
-    statusText = "Canceled"
+    statusText = t("orders.fulfillment.status.canceled")
     statusColor = "red"
     statusTimestamp = fulfillment.canceled_at
   } else if (fulfillment.delivered_at) {
-    statusText = "Delivered"
+    statusText = t("orders.fulfillment.status.delivered")
     statusColor = "green"
     statusTimestamp = fulfillment.delivered_at
   } else if (fulfillment.shipped_at) {
-    statusText = "Shipped"
+    statusText = t("orders.fulfillment.status.shipped")
     statusColor = "green"
     statusTimestamp = fulfillment.shipped_at
   }
@@ -439,7 +438,7 @@ const Fulfillment = ({
                           className="text-ui-fg-interactive hover:text-ui-fg-interactive-hover transition-fg"
                         >
                           <Text size="small" leading="compact" as="span">
-                            Label
+                            {t("orders.fulfillment.labelLink")}
                           </Text>
                         </a>
                       )}

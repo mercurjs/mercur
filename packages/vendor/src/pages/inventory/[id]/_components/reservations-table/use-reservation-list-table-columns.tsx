@@ -71,6 +71,6 @@ export const useReservationTableColumn = ({ sku }: { sku: string }) => {
         cell: ({ row }) => <ReservationActions reservation={row.original} />,
       }),
     ],
-    [t]
+    [t, sku]
   )
 }

@@ -3,9 +3,11 @@ import { useCallback } from 'react';
 import { UseFormReturn } from 'react-hook-form';
 import { useTranslation } from 'react-i18next';
 import { z } from 'zod';
+import config from 'virtual:mercur/config';
 
 import { FileType, FileUpload } from "@components/common/file-upload"
 import { Form } from "@components/common/form"
+import { formatFileSize } from '../../../../../lib/format-file-size';
 import { EditStoreSchema } from '../../../../store/store-edit/components/edit-store-form/edit-store-form';
 import { MediaSchema } from '../../../create/constants'
 import { EditProductMediaSchemaType, ProductCreateSchemaType } from '../../../create/types'
@@ -15,8 +17,6 @@ type Media = z.infer<typeof MediaSchema>;
 const SUPPORTED_FORMATS = ['image/jpeg', 'image/png', 'image/webp', 'image/heic', 'image/svg+xml'];
 
 const SUPPORTED_FORMATS_FILE_EXTENSIONS = ['.jpeg', '.png', '.webp', '.heic', '.svg'];
-
-const MAX_FILE_SIZE = 2 * 1024 * 1024;
 
 export const UploadMediaFormItem = ({
   form,
@@ -48,14 +48,14 @@ export const UploadMediaFormItem = ({
         return true;
       }
 
-      const oversizedFile = fileList.find(f => f.file.size > MAX_FILE_SIZE);
+      const oversizedFile = fileList.find(f => f.file.size > config.imageLimit);
 
       if (oversizedFile) {
         form.setError('media', {
           type: 'invalid_file',
           message: t('products.media.fileTooLarge', {
             name: oversizedFile.file.name,
-            maxSize: '2MB'
+            size: formatFileSize(config.imageLimit)
           })
         });
 

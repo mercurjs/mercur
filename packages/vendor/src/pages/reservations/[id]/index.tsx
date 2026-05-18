@@ -39,7 +39,7 @@ export const Component = () => {
 
   // TEMP: fetch directly since the fields are not populated with reservation call
   const { inventory_item } = useInventoryItem(
-    reservation?.inventory_item?.id!,
+    reservation?.inventory_item?.id,
     { fields: "*location_levels" }
   )
 

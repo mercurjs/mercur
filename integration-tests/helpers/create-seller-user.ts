@@ -40,12 +40,12 @@ export const createSellerUser = async (
     const { result: seller } = await createSellerAccountWorkflow(container).run({
         input: {
             auth_identity_id: authIdentity.id,
+            member_email: email,
             seller: {
                 name,
                 email,
                 currency_code: "usd",
             },
-            member_email: email
         },
     })
 
@@ -76,12 +76,12 @@ export const createSellerUser = async (
     )
 
     vendorHeaders.headers["authorization"] = `Bearer ${token}`
-    vendorHeaders.headers["x-seller-id"] = seller.id
+    vendorHeaders.headers["x-seller-id"] = (seller as any).id
 
     const headers = {
         headers: {
             authorization: `Bearer ${token}`,
-            "x-seller-id": seller.id,
+            "x-seller-id": (seller as any).id,
         },
     }
 

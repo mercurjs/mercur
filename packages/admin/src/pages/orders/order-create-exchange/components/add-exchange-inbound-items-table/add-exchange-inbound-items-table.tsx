@@ -79,7 +79,7 @@ export const AddExchangeInboundItemsTable = ({
     }
 
     return results.slice(offset, offset + limit)
-  }, [items, currencyCode, searchParams])
+  }, [items, searchParams])
 
   const columns = useExchangeItemTableColumns(currencyCode)
   const filters = useExchangeItemTableFilters()

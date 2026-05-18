@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-const safeStringPattern = /^[a-zA-Z0-9_\-]+$/
+const safeStringPattern = /^[a-zA-Z0-9_-]+$/
 
 export const StoreMeilisearchFiltersSchema = z.object({
   categories: z

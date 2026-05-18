@@ -212,7 +212,7 @@ export const DataGridKeyboardShortcutModal = ({
               <Input
                 type="search"
                 value={searchValue}
-                autoFocus
+                
                 onChange={(e) => onSearchValueChange(e.target.value)}
               />
             </div>

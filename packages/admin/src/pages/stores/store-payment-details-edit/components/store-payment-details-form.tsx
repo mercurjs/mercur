@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, Input, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -19,9 +20,16 @@ type StorePaymentDetailsFormProps = {
 };
 
 const StorePaymentDetailsSchema = zod.object({
-  country_code: zod.string().min(1),
-  holder_name: zod.string().min(1),
-  bank_name: zod.string().optional().or(zod.literal("")),
+  country_code: zod
+    .string()
+    .min(1, {
+      message: i18n.t("store.paymentDetails.validation.countryRequired"),
+    }),
+  holder_name: zod
+    .string()
+    .min(1, {
+      message: i18n.t("store.paymentDetails.validation.accountNameRequired"),
+    }),
   iban: zod.string().optional().or(zod.literal("")),
   bic: zod.string().optional().or(zod.literal("")),
   routing_number: zod.string().optional().or(zod.literal("")),
@@ -39,7 +47,6 @@ export const StorePaymentDetailsForm = ({
     defaultValues: {
       country_code: details?.country_code ?? "",
       holder_name: details?.holder_name ?? "",
-      bank_name: details?.bank_name ?? "",
       iban: details?.iban ?? "",
       bic: details?.bic ?? "",
       routing_number: details?.routing_number ?? "",
@@ -58,17 +65,14 @@ export const StorePaymentDetailsForm = ({
       {
         country_code: values.country_code,
         holder_name: values.holder_name,
-        bank_name: values.bank_name || null,
         iban: isABA ? null : values.iban || null,
         bic: isABA ? null : values.bic || null,
         routing_number: isABA ? values.routing_number || null : null,
-        account_number: isABA ? values.account_number || null : null,
+        account_number: values.account_number || null,
       },
       {
         onSuccess: () => {
-          toast.success(
-            t("store.paymentDetails.edit.successToast"),
-          );
+          toast.success(t("store.paymentDetails.edit.successToast"));
           handleSuccess();
         },
         onError: (error: Error) => {
@@ -115,49 +119,15 @@ export const StorePaymentDetailsForm = ({
               </Form.Item>
             )}
           />
-          <Form.Field
-            control={form.control}
-            name="bank_name"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label optional>
-                  {t("store.paymentDetails.fields.bankName")}
-                </Form.Label>
-                <Form.Control>
-                  <Input size="small" {...field} />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
-          />
           {selectedCountry === "us" ? (
-            <div className="grid grid-cols-2 gap-4">
-              <Form.Field
-                control={form.control}
-                name="routing_number"
-                render={({ field }) => (
-                  <Form.Item>
-                    <Form.Label optional>
-                      {t(
-                        "store.paymentDetails.fields.routingNumber",
-                      )}
-                    </Form.Label>
-                    <Form.Control>
-                      <Input size="small" {...field} />
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                )}
-              />
+            <>
               <Form.Field
                 control={form.control}
                 name="account_number"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label optional>
-                      {t(
-                        "store.paymentDetails.fields.accountNumber",
-                      )}
+                      {t("store.paymentDetails.fields.accountNumber")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />
@@ -166,9 +136,24 @@ export const StorePaymentDetailsForm = ({
                   </Form.Item>
                 )}
               />
-            </div>
+              <Form.Field
+                control={form.control}
+                name="routing_number"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label optional>
+                      {t("store.paymentDetails.fields.achRoutingNumber")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input size="small" {...field} />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+            </>
           ) : (
-            <div className="grid grid-cols-2 gap-4">
+            <>
               <Form.Field
                 control={form.control}
                 name="iban"
@@ -186,11 +171,11 @@ export const StorePaymentDetailsForm = ({
               />
               <Form.Field
                 control={form.control}
-                name="bic"
+                name="account_number"
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label optional>
-                      {t("store.paymentDetails.fields.bic")}
+                      {t("store.paymentDetails.fields.accountNumber")}
                     </Form.Label>
                     <Form.Control>
                       <Input size="small" {...field} />
@@ -199,7 +184,22 @@ export const StorePaymentDetailsForm = ({
                   </Form.Item>
                 )}
               />
-            </div>
+              <Form.Field
+                control={form.control}
+                name="bic"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label optional>
+                      {t("store.paymentDetails.fields.swiftBic")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input size="small" {...field} />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+            </>
           )}
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

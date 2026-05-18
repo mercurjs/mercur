@@ -116,7 +116,7 @@ export function useColumnState(
         setColumnOrder(getInitialColumnOrder(apiColumns))
       }
     },
-    []
+    [visibleColumns, columnOrder.length]
   )
 
   // Track previous active view to detect changes

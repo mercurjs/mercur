@@ -8,9 +8,9 @@ medusaIntegrationTestRunner({
     testSuite: ({ getContainer, api }) => {
         describe("Vendor - Campaigns", () => {
             let appContainer: MedusaContainer
-            let seller1: any
+            let _seller1: any
             let seller1Headers: any
-            let seller2: any
+            let _seller2: any
             let seller2Headers: any
 
             beforeAll(async () => {
@@ -22,14 +22,14 @@ medusaIntegrationTestRunner({
                     email: "seller1@test.com",
                     name: "Seller One",
                 })
-                seller1 = result1.seller
+                _seller1 = result1.seller
                 seller1Headers = result1.headers
 
                 const result2 = await createSellerUser(appContainer, {
                     email: "seller2@test.com",
                     name: "Seller Two",
                 })
-                seller2 = result2.seller
+                _seller2 = result2.seller
                 seller2Headers = result2.headers
             })
 

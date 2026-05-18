@@ -406,6 +406,7 @@
   },
   "products": {
     "domain": "Products",
+    "associatedStore": "Associated Store",
     "additionalAttributes": "Additional Attributes",
     "list": {
       "noRecordsMessage": "Create your first product to start selling."
@@ -558,6 +559,7 @@
       "uploadImagesLabel": "Upload images",
       "uploadImagesHint": "Drag and drop images here or click to upload.",
       "invalidFileType": "'{{name}}' is not a supported file type. Supported file types are: {{types}}.",
+      "fileTooLarge": "One or more files exceed the maximum file size of {{size}}: {{name}}",
       "failedToUpload": "Failed to upload the added media. Please try again.",
       "deleteWarning_one": "You are about to delete {{count}} image. This action cannot be undone.",
       "deleteWarning_other": "You are about to delete {{count}} images. This action cannot be undone.",
@@ -1471,7 +1473,10 @@
         "partiallyReturned": "Partially returned",
         "returned": "Returned",
         "canceled": "Canceled",
-        "requiresAction": "Requires action"
+        "requiresAction": "Requires action",
+        "awaitingPickup": "Awaiting pickup",
+        "awaitingShipping": "Awaiting shipping",
+        "awaitingDelivery": "Awaiting delivery"
       },
       "toast": {
         "created": "Fulfillment created successfully",
@@ -1481,6 +1486,7 @@
         "fulfillmentPickedUp": "Fulfillment marked as picked up successfully"
       },
       "trackingLabel": "Tracking",
+      "labelLink": "Label",
       "shippingFromLabel": "Shipping from",
       "itemsLabel": "Items"
     },
@@ -1582,7 +1588,25 @@
     "fields": {
       "displayId": "Display ID",
       "refundableAmount": "Refundable amount",
-      "returnableQuantity": "Returnable quantity"
+      "returnableQuantity": "Returnable quantity",
+      "groupId": "Group ID",
+      "orderIds": "Order IDs",
+      "vendor": "Vendor",
+      "vendorsCount_one": "{{count}} vendor",
+      "vendorsCount_other": "{{count}} vendors"
+    }
+  },
+  "payouts": {
+    "domain": "Payouts",
+    "list": {
+      "empty": "No payouts found"
+    },
+    "status": {
+      "paid": "Paid",
+      "processing": "Processing",
+      "pending": "Pending",
+      "failed": "Failed",
+      "canceled": "Canceled"
     }
   },
   "draftOrders": {
@@ -2529,6 +2553,10 @@
       "pending": "Pending",
       "expired": "Expired"
     },
+    "status": {
+      "active": "Active",
+      "pending": "Pending"
+    },
     "roles": {
       "admin": "Admin",
       "developer": "Developer",
@@ -2585,14 +2613,29 @@
     "banner": "Banner",
     "address": {
       "header": "Address",
+      "defaultName": "Headquarters",
+      "nameLabel": "Name",
+      "apartmentLabel": "Apartment, suite, etc.",
+      "empty": {
+        "title": "No address",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Address",
         "description": "Update the address for this store.",
         "successToast": "Address updated"
+      },
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "countryRequired": "Please select a country"
       }
     },
     "paymentDetails": {
       "header": "Payment Details",
+      "empty": {
+        "title": "No payment details",
+        "message": "There are no records to show"
+      },
       "edit": {
         "header": "Edit Payment Details",
         "description": "Update the payment details for this store.",
@@ -2600,25 +2643,43 @@
       },
       "fields": {
         "countryCode": "Country",
-        "holderName": "Account holder",
+        "holderName": "Account name",
         "bankName": "Bank name",
         "iban": "IBAN",
-        "bic": "BIC / SWIFT",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
         "routingNumber": "Routing number",
+        "achRoutingNumber": "ACH routing number",
         "accountNumber": "Account number"
+      },
+      "validation": {
+        "countryRequired": "Please select a country",
+        "accountNameRequired": "Please enter an account name"
       }
     },
     "professionalDetails": {
       "header": "Company Details",
+      "empty": {
+        "title": "No company details",
+        "message": "There are no records to show"
+      },
       "edit": {
-        "header": "Edit Professional Details",
-        "description": "Update the professional details for this store.",
-        "successToast": "Professional details updated"
+        "header": "Edit Company Details",
+        "description": "Update the company details for this store.",
+        "successToast": "Company details updated"
       },
       "fields": {
-        "corporateName": "Corporate name",
+        "corporateName": "Company",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"
+      }
+    },
+    "timeOff": {
+      "header": "Time off",
+      "empty": {
+        "title": "No time off yet",
+        "message": "This store doesn't have scheduled time off",
+        "action": "Create"
       }
     },
     "scheduledClosure": {
@@ -3049,7 +3110,8 @@
   "login": {
     "forgotPassword": "Forgot password? - <0>Reset</0>",
     "title": "Welcome to {{name}}",
-    "hint": "Sign in to access the admin hub"
+    "hint": "Sign in to access the admin hub",
+    "sessionExpired": "Session expired"
   },
   "invite": {
     "title": "Welcome to Mercur Admin Panel",
@@ -3264,6 +3326,9 @@
     "reference_id": "Reference ID",
     "refundAmount": "Refund amount",
     "name": "Name",
+    "note": "Note",
+    "optional": "Optional",
+    "selectPlaceholder": "Select",
     "default": "Default",
     "lastName": "Last Name",
     "firstName": "First Name",
@@ -3332,13 +3397,11 @@
     "providers": "Providers",
     "availability": "Availability",
     "inventory": "Inventory",
-    "optional": "Optional",
-    "note": "Note",
     "automaticTaxes": "Automatic Taxes",
     "taxInclusivePricing": "Tax inclusive pricing",
     "currency": "Currency",
     "website": "Website",
-    "premium": "Premium",
+    "premium": "Featured Store",
     "professional": "Professional",
     "address": "Address",
     "address2": "Apartment, suite, etc.",
@@ -3478,6 +3541,7 @@
   },
   "stores": {
     "domain": "Stores",
+    "handleTooltip": "The handle is used as the URL slug for the store. Leave empty to auto-generate from the name.",
     "fields": {
       "name": "Name",
       "handle": "Handle",
@@ -3492,19 +3556,20 @@
       "city": "City",
       "province": "Province",
       "country_code": "Country Code",
-      "premium": "Premium"
+      "seller": "Seller",
+      "premium": "Featured"
     },
     "status": {
-      "open": "Open",
-      "pending_approval": "Pending Approval",
-      "pendingApproval": "Pending Approval",
-      "suspended": "Suspended",
+      "open": "Active",
+      "pending_approval": "Pending",
+      "pendingApproval": "Pending",
+      "suspended": "Inactive",
       "terminated": "Terminated"
     },
     "premium": {
-      "yes": "Premium",
-      "no": "Standard",
-      "description": "Mark this store as a premium seller"
+      "yes": "Yes",
+      "no": "No",
+      "description": "If checked, the store will be highlighted with a special badge for internal use or promotional purposes."
     },
     "invite": {
       "button": "Invite",
@@ -3513,22 +3578,71 @@
       "successToast": "Invitation sent to {{email}}",
       "errorToast": "Failed to send invitation"
     },
+    "members": {
+      "mainAdmin": "Admin",
+      "addUser": {
+        "header": "Add User",
+        "action": "Add",
+        "hint": "Add new user to manage this store. You can select existing user or invite new one.",
+        "addedToast": "User was successfully added.",
+        "invitedToast": "User was successfully invited.",
+        "validation": {
+          "roleRequired": "Please select a role"
+        }
+      },
+      "invite": {
+        "resendSuccess": "Invite resent to {{email}}",
+        "deleteSuccess": "Invite for {{email}} deleted",
+        "linkCopied": "Invite link copied to clipboard",
+        "copyFailed": "Failed to copy invite link",
+        "noVendorUrl": "Vendor URL is not configured on the backend (MERCUR_VENDOR_URL)"
+      }
+    },
     "edit": {
       "header": "Edit Store",
+      "mediaHeading": "Media",
+      "mediaTipLabel": "Tip:",
+      "mediaTipBody": "This media will be visible on the storefront.",
+      "uploadLogoLabel": "Upload logo",
+      "uploadLogoHint": "Drag and drop your logo here or click to upload.",
+      "uploadBannerLabel": "Upload banner",
+      "uploadBannerHint": "Drag and drop your banner here or click to upload.",
       "successToast": "Store {{name}} was successfully updated."
     },
     "create": {
       "tabs": {
         "details": "Details",
-        "users": "Users"
+        "users": "Admin"
       },
-      "header": "Create Store",
-      "hint": "Create a new store on the marketplace.",
-      "usersHeader": "Users",
-      "usersHint": "Invite the store owner by email. They will receive an invitation to set up their account.",
+      "header": "Details",
+      "usersHeader": "Admin",
+      "usersHint": "Assign an admin to manage this store. Select an existing user or invite a new one.",
+      "usersHintSecondary": "Once the store is created, the selected user will receive an invitation to join.",
       "ownerEmail": "Owner email",
       "ownerEmailHint": "The owner will be granted the Store Administration role.",
-      "successToast": "Store created successfully"
+      "successToast": "Store created successfully",
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "emailRequired": "Please enter an email",
+        "emailInvalid": "Please enter a valid email",
+        "currencyRequired": "Please select a currency"
+      }
+    },
+    "request": {
+      "title": "Store request",
+      "description": "{{requester}} has submitted a store request. Review the details, make any necessary updates, and choose whether to confirm and publish the store or reject the request.",
+      "confirm": "Confirm",
+      "reject": "Reject",
+      "confirmTitle": "Confirm request",
+      "confirmDescription": "You are about to confirm this store request.",
+      "rejectTitle": "Reject request",
+      "rejectDescription": "You are about to reject this store request.",
+      "noteLabel": "Notes for vendor",
+      "notePlaceholder": "Specify changes you made or additional requests",
+      "confirmNotePlaceholder": "Specify changes you made or additional requests",
+      "rejectNotePlaceholder": "Explain why you reject the request or suggest changes",
+      "confirmSuccess": "Store request was successfully confirmed.",
+      "rejectSuccess": "Store request was successfully rejected."
     },
     "actions": {
       "approve": {
@@ -3537,34 +3651,28 @@
         "description": "Are you sure you want to approve this store?",
         "success": "Store approved"
       },
-      "suspend": {
-        "label": "Suspend",
-        "title": "Suspend store",
-        "description": "Are you sure you want to suspend this store?",
-        "success": "Store suspended",
-        "successToast": "{{count}} store(s) suspended",
-        "errorToast": "Failed to suspend store(s)"
+      "reject": {
+        "label": "Reject",
+        "title": "Reject store",
+        "description": "Are you sure you want to reject this store?",
+        "success": "Store rejected"
       },
-      "unsuspend": {
-        "label": "Unsuspend",
-        "title": "Unsuspend store",
-        "description": "Are you sure you want to unsuspend this store?",
-        "success": "Store unsuspended",
-        "successToast": "{{count}} store(s) unsuspended",
-        "errorToast": "Failed to unsuspend store(s)"
+      "edit": {
+        "label": "Edit"
       },
-      "terminate": {
-        "label": "Terminate",
-        "title": "Terminate store",
-        "description": "Are you sure you want to terminate this store?",
-        "success": "Store terminated"
-      },
-      "unterminate": {
-        "label": "Unterminate",
-        "title": "Unterminate store",
-        "description": "Are you sure you want to unterminate this store?",
-        "success": "Store unterminated"
+      "delete": {
+        "label": "Delete",
+        "title": "Delete store",
+        "description": "Are you sure you want to delete this store? This action cannot be undone.",
+        "success": "Store deleted",
+        "successToast": "{{count}} store(s) deleted",
+        "errorToast": "Failed to delete store(s)"
       }
+    },
+    "bulkEdit": {
+      "successToast": "{{count}} store(s) updated",
+      "emptyHeading": "No stores selected",
+      "emptyDescription": "Select stores from the list to edit them here."
     }
   },
   "messages": {
@@ -3581,5 +3689,56 @@
   },
   "commissionLines": {
     "domain": "Commission Lines"
+  },
+  "commissionRates": {
+    "domain": "Commission Rates",
+    "description": "Manage commission rates and rules for your marketplace.",
+    "create": {
+      "header": "Create Commission Rate",
+      "description": "Configure a new commission rate for your marketplace.",
+      "successToast": "Commission rate created successfully"
+    },
+    "edit": {
+      "header": "Edit Commission Rate",
+      "successToast": "Commission rate updated successfully"
+    },
+    "delete": {
+      "description": "Are you sure you want to delete the commission rate \"{{name}}\"?",
+      "successToast": "Commission rate deleted successfully"
+    },
+    "rules": {
+      "empty": "No rules configured"
+    },
+    "fields": {
+      "name": "Name",
+      "code": "Code",
+      "type": {
+        "label": "Type",
+        "percentage": "Percentage",
+        "fixed": "Fixed"
+      },
+      "target": {
+        "label": "Target",
+        "item": "Item",
+        "shipping": "Shipping"
+      },
+      "currencyCode": "Currency Code",
+      "currencyPlaceholder": "Select currency",
+      "rate": "Rate",
+      "minAmount": "Minimum Amount",
+      "priority": "Priority",
+      "enabled": "Enabled",
+      "enabledHint": "Enable or disable this commission rate.",
+      "includeTax": "Include Tax",
+      "includeTaxHint": "Include tax in the commission calculation."
+    },
+    "status": {
+      "enabled": "Enabled",
+      "disabled": "Disabled"
+    },
+    "toggle": {
+      "enabledToast": "Commission rate enabled successfully",
+      "disabledToast": "Commission rate disabled successfully"
+    }
   }
 }

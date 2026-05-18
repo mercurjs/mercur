@@ -1,7 +1,6 @@
 import {
   CreateInventoryLevelInput,
   ExecArgs,
-  IAuthModuleService,
 } from "@medusajs/framework/types";
 import {
   ContainerRegistrationKeys,
@@ -30,7 +29,6 @@ import {
   updateStoresWorkflow,
 } from "@medusajs/medusa/core-flows";
 import { ApiKey } from "../../.medusa/types/query-entry-points";
-import { MercurModules } from "@mercurjs/types";
 import { createSellerDefaultsWorkflow } from '@mercurjs/core/workflows'
 
 const updateStoreCurrencies = createWorkflow(
@@ -1017,7 +1015,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   }
   logger.info("Finished seeding product data.");
 
-  const { data: seededProducts } = await query.graph({
+  const { data: _seededProducts } = await query.graph({
     entity: "product",
     fields: ["id"],
     filters: {

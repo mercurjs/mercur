@@ -5,7 +5,6 @@ import {
   Heading,
   Input,
   Prompt,
-  Text,
   toast,
   usePrompt,
 } from "@medusajs/ui"

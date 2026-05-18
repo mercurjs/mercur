@@ -15,6 +15,8 @@ type CommissionRateGeneralSectionProps = {
 export const CommissionRateGeneralSection = ({
   commissionRate,
 }: CommissionRateGeneralSectionProps) => {
+  const { t } = useTranslation()
+
   const formatValue = () => {
     if (commissionRate.type === "percentage") {
       return `${commissionRate.value}%`
@@ -30,13 +32,15 @@ export const CommissionRateGeneralSection = ({
         <Heading>{commissionRate.name}</Heading>
         <div className="flex items-center gap-4">
           <StatusBadge color={commissionRate.is_enabled ? "green" : "grey"}>
-            {commissionRate.is_enabled ? "Enabled" : "Disabled"}
+            {commissionRate.is_enabled
+              ? t("commissionRates.status.enabled")
+              : t("commissionRates.status.disabled")}
           </StatusBadge>
           <CommissionRateActions commissionRate={commissionRate} />
         </div>
       </div>
       <SectionRow
-        title="Code"
+        title={t("commissionRates.fields.code")}
         value={
           <Badge size="2xsmall" className="uppercase">
             {commissionRate.code}
@@ -44,29 +48,38 @@ export const CommissionRateGeneralSection = ({
         }
       />
       <SectionRow
-        title="Type"
+        title={t("commissionRates.fields.type.label")}
         value={
           <Badge
             size="2xsmall"
             color={commissionRate.type === "percentage" ? "blue" : "grey"}
           >
-            {commissionRate.type === "percentage" ? "Percentage" : "Fixed"}
+            {commissionRate.type === "percentage"
+              ? t("commissionRates.fields.type.percentage")
+              : t("commissionRates.fields.type.fixed")}
           </Badge>
         }
       />
-      <SectionRow title="Value" value={formatValue()} />
+      <SectionRow title={t("fields.value")} value={formatValue()} />
       <SectionRow
-        title="Target"
-        value={commissionRate.target === "item" ? "Item" : "Shipping"}
+        title={t("commissionRates.fields.target.label")}
+        value={
+          commissionRate.target === "item"
+            ? t("commissionRates.fields.target.item")
+            : t("commissionRates.fields.target.shipping")
+        }
       />
       <SectionRow
-        title="Include Tax"
-        value={commissionRate.include_tax ? "Yes" : "No"}
+        title={t("commissionRates.fields.includeTax")}
+        value={commissionRate.include_tax ? t("general.yes") : t("general.no")}
       />
-      <SectionRow title="Priority" value={String(commissionRate.priority)} />
+      <SectionRow
+        title={t("commissionRates.fields.priority")}
+        value={String(commissionRate.priority)}
+      />
       {commissionRate.min_amount != null && (
         <SectionRow
-          title="Minimum Amount"
+          title={t("commissionRates.fields.minAmount")}
           value={
             commissionRate.currency_code
               ? `${commissionRate.min_amount} ${commissionRate.currency_code.toUpperCase()}`
@@ -97,8 +110,8 @@ const CommissionRateActions = ({
         onSuccess: () => {
           toast.success(
             newEnabled
-              ? "Commission rate enabled successfully"
-              : "Commission rate disabled successfully"
+              ? t("commissionRates.toggle.enabledToast")
+              : t("commissionRates.toggle.disabledToast")
           )
         },
         onError: (e) => {
@@ -111,7 +124,9 @@ const CommissionRateActions = ({
   const handleDelete = async () => {
     const res = await prompt({
       title: t("general.areYouSure"),
-      description: `Are you sure you want to delete the commission rate "${commissionRate.name}"?`,
+      description: t("commissionRates.delete.description", {
+        name: commissionRate.name,
+      }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
     })
@@ -122,7 +137,7 @@ const CommissionRateActions = ({
 
     await mutateAsync(undefined, {
       onSuccess: () => {
-        toast.success("Commission rate deleted successfully")
+        toast.success(t("commissionRates.delete.successToast"))
         navigate("/settings/commission-rates", { replace: true })
       },
       onError: (e) => {

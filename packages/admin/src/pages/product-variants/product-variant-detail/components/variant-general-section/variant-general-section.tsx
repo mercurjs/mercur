@@ -1,7 +1,7 @@
-import { Component, PencilSquare, Trash } from "@medusajs/icons"
-import { Badge, Container, Heading, usePrompt } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
-import { useNavigate } from "react-router-dom"
+import { Component, PencilSquare, Trash } from "@medusajs/icons";
+import { Badge, Container, Heading, usePrompt } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 
 import { HttpTypes } from "@medusajs/types"
 import { ProductAttributeValueDTO } from "@mercurjs/types"
@@ -14,13 +14,13 @@ export function VariantGeneralSection({
 }: {
   variant: HttpTypes.AdminProductVariant;
 }) {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
-  const navigate = useNavigate()
+  const { t } = useTranslation();
+  const prompt = usePrompt();
+  const navigate = useNavigate();
 
-  const hasInventoryKit = (variant.inventory_items?.length ?? 0) > 1
+  const hasInventoryKit = (variant.inventory_items?.length ?? 0) > 1;
 
-  const { mutateAsync } = useDeleteVariant(variant.product_id!, variant.id)
+  const { mutateAsync } = useDeleteVariant(variant.product_id!, variant.id);
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -30,18 +30,18 @@ export function VariantGeneralSection({
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await mutateAsync(undefined, {
       onSuccess: () => {
-        navigate("..", { replace: true })
+        navigate("..", { replace: true });
       },
-    })
-  }
+    });
+  };
 
   return (
     <Container className="divide-y p-0">
@@ -122,5 +122,5 @@ export function VariantGeneralSection({
         />
       ))}
     </Container>
-  )
+  );
 }

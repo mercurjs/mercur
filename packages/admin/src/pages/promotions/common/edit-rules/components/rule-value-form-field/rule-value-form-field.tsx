@@ -73,7 +73,7 @@ export const RuleValueFormField = ({
     queryFn: async (params) => {
       return await sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
         $ruleType: ruleType,
-        $ruleAttributeId: attribute?.id!,
+        $ruleAttributeId: attribute?.id,
         ...params,
         ...buildFilters(attribute?.id, store!),
         application_method_target_type: applicationMethodTargetType,
@@ -109,7 +109,12 @@ export const RuleValueFormField = ({
     } else {
       form.setValue(name, []);
     }
-  }, [watchOperator]);
+  }, [
+	watchOperator,
+	form.formState.dirtyFields,
+	name,
+	form
+]);
 
   const fieldIndex = name.split(".").slice(-2, -1)[0];
   const testIdBase = `rule-value-form-field-${ruleType}-${fieldIndex}`;

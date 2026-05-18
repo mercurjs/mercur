@@ -24,11 +24,13 @@ export const StoreCreateForm = ({ children }: StoreCreateFormProps) => {
     defaultValues: {
       name: "",
       email: "",
+      phone: "",
       currency_code: "",
-      description: "",
       handle: "",
       member_email: "",
     },
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     resolver: zodResolver(CreateStoreSchema),
   });
 
@@ -39,8 +41,8 @@ export const StoreCreateForm = ({ children }: StoreCreateFormProps) => {
       await createSeller({
         name: values.name,
         email: values.email,
+        phone: values.phone || undefined,
         currency_code: values.currency_code,
-        description: values.description || undefined,
         handle: values.handle || undefined,
         member: {
           email: values.member_email,

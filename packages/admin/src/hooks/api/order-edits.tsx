@@ -1,7 +1,5 @@
 import {
   ClientError,
-  InferClientInput,
-  InferClientOutput,
 } from "@mercurjs/client"
 import { HttpTypes } from "@medusajs/types"
 import { useMutation, UseMutationOptions } from "@tanstack/react-query"

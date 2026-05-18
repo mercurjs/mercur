@@ -5,7 +5,7 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { CreateSellerDTO, SellerRole } from "@mercurjs/types"
+import { CreateSellerDTO, SellerRole, SellerStatus } from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
 import { createSellersStep } from "../steps"
@@ -27,7 +27,11 @@ export const createSellersWorkflow: ReturnType<typeof createWorkflow> = createWo
 
     const sellers = createSellersStep(
       transform(input, ({ sellers }) =>
-        sellers.map(({ member, ...seller }) => seller)
+        sellers.map(({ member: _member, ...seller }) => ({
+          ...seller,
+          // Admin-created sellers start as pending approval, same as
+          status: seller.status ?? SellerStatus.PENDING_APPROVAL,
+        }))
       )
     )
 

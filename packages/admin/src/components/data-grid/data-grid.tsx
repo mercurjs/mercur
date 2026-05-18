@@ -7,6 +7,7 @@ import {
   DataGridNumberCell,
   DataGridReadOnlyCell,
   DataGridRoot,
+  DataGridSelectCell,
   DataGridSkeleton,
   DataGridTextCell,
   DataGridExpandableTextCell,
@@ -53,4 +54,5 @@ export const DataGrid = Object.assign(_DataGrid, {
   NumberCell: DataGridNumberCell,
   CurrencyCell: DataGridCurrencyCell,
   ReadonlyCell: DataGridReadOnlyCell,
+  SelectCell: DataGridSelectCell,
 })

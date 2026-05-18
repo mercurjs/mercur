@@ -31,7 +31,7 @@ export const ProductVariantEdit = () => {
     isError: isProductError,
     error: productError,
   } = useProduct(
-    variant?.product_id!,
+    variant?.product_id,
     {
       fields: "-variants",
     },

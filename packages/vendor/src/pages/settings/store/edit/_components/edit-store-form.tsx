@@ -1,5 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Input, Textarea, toast } from "@medusajs/ui";
+import i18n from "i18next";
+import {
+  Button,
+  Heading,
+  Input,
+  Select,
+  Text,
+  Textarea,
+  toast,
+} from "@medusajs/ui";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -7,9 +16,11 @@ import { useCallback } from "react";
 
 import { FileType, FileUpload } from "@components/common/file-upload";
 import { Form } from "@components/common/form";
+import { HandleInput } from "@components/inputs/handle-input";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { uploadFilesQuery } from "@lib/client";
+import { currencies } from "@lib/data/currencies";
 import { MediaSchema } from "@pages/products/create/constants";
 import { HttpTypes } from "@mercurjs/types";
 import { useUpdateSeller } from "@hooks/api";
@@ -17,11 +28,20 @@ import { useUpdateSeller } from "@hooks/api";
 type EditStoreFormProps = HttpTypes.StoreSellerResponse;
 
 const EditStoreSchema = zod.object({
-  name: zod.string().min(1),
-  handle: zod.string().min(1),
-  email: zod.string().email().optional().or(zod.literal("")),
+  name: zod
+    .string()
+    .trim()
+    .min(1, { message: i18n.t("store.validation.nameRequired") })
+    .max(100, { message: i18n.t("store.validation.nameTooLong") }),
+  handle: zod.string().optional().or(zod.literal("")),
+  email: zod
+    .string()
+    .email({ message: i18n.t("store.validation.emailInvalid") })
+    .optional()
+    .or(zod.literal("")),
+  phone: zod.string().optional().or(zod.literal("")),
   description: zod.string().optional().or(zod.literal("")),
-  website_url: zod.string().url().optional().or(zod.literal("")),
+  website_url: zod.string().optional().or(zod.literal("")),
   media: zod.array(MediaSchema).optional(),
   bannerMedia: zod.array(MediaSchema).optional(),
 });
@@ -44,6 +64,16 @@ const SUPPORTED_FORMATS_FILE_EXTENSIONS = [
   ".svg",
 ];
 
+const stripWebsiteProtocol = (url: string | null | undefined): string =>
+  url ? url.replace(/^https?:\/\//i, "") : "";
+
+const ensureWebsiteProtocol = (url: string): string | null => {
+  const trimmed = url.trim();
+  if (!trimmed) return null;
+  if (/^https?:\/\//i.test(trimmed)) return trimmed;
+  return `https://${trimmed}`;
+};
+
 export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
@@ -53,8 +83,9 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
       name: seller.name ?? "",
       handle: seller.handle ?? "",
       email: seller.email ?? "",
+      phone: seller.phone ?? "",
       description: seller.description ?? "",
-      website_url: seller.website_url ?? "",
+      website_url: stripWebsiteProtocol(seller.website_url),
       media: seller.logo
         ? [{ id: "existing-logo", url: seller.logo, isThumbnail: false, file: null }]
         : [],
@@ -110,10 +141,11 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
     await mutateAsync(
       {
         name: values.name,
-        handle: values.handle,
+        handle: values.handle || undefined,
         email: values.email || undefined,
+        phone: values.phone || null,
         description: values.description || null,
-        website_url: values.website_url || null,
+        website_url: ensureWebsiteProtocol(values.website_url),
         logo: logoUrl,
         banner: bannerUrl,
       },
@@ -170,6 +202,9 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
     form.setValue("bannerMedia", [{ ...files[0], isThumbnail: false }]);
   };
 
+  const currencyCode = seller.currency_code?.toUpperCase() ?? "";
+  const currencyName = currencies[currencyCode]?.name ?? currencyCode;
+
   return (
     <RouteDrawer.Form form={form}>
       <KeyboundForm
@@ -193,12 +228,27 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
             />
             <Form.Field
               control={form.control}
+              name="description"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label optional>{t("fields.description")}</Form.Label>
+                  <Form.Control>
+                    <Textarea {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
               name="handle"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t("fields.handle")}</Form.Label>
+                  <Form.Label optional tooltip={t("store.handleTooltip")}>
+                    {t("fields.handle")}
+                  </Form.Label>
                   <Form.Control>
-                    <Input {...field} />
+                    <HandleInput {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -219,12 +269,12 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
             />
             <Form.Field
               control={form.control}
-              name="description"
+              name="phone"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label optional>{t("fields.description")}</Form.Label>
+                  <Form.Label optional>{t("fields.phone")}</Form.Label>
                   <Form.Control>
-                    <Textarea {...field} />
+                    <Input type="tel" {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -237,14 +287,29 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 <Form.Item>
                   <Form.Label optional>{t("fields.website")}</Form.Label>
                   <Form.Control>
-                    <Input {...field} />
+                    <HandleInput prefix="https://" {...field} />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
               )}
             />
+            <Form.Item>
+              <Form.Label>{t("fields.currency")}</Form.Label>
+              <Select value={currencyCode} disabled>
+                <Select.Trigger>
+                  <Select.Value placeholder={currencyName}>
+                    {currencyName}
+                  </Select.Value>
+                </Select.Trigger>
+                <Select.Content>
+                  <Select.Item value={currencyCode}>{currencyName}</Select.Item>
+                </Select.Content>
+              </Select>
+            </Form.Item>
           </div>
+          <div className="border-ui-border-base border-t" />
           <div className="flex flex-col gap-y-4">
+            <Heading level="h2">{t("store.mediaHeading", "Media")}</Heading>
             <Form.Field
               name="media"
               control={form.control}
@@ -303,6 +368,17 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 );
               }}
             />
+            <div className="bg-ui-bg-subtle border-l-2 border-ui-border-strong rounded-md px-4 py-3">
+              <Text size="small" className="text-ui-fg-base">
+                <span className="font-medium">
+                  {t("store.mediaTip.label", "Tip:")}
+                </span>{" "}
+                {t(
+                  "store.mediaTip.message",
+                  "This media will be visible on the storefront.",
+                )}
+              </Text>
+            </div>
           </div>
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

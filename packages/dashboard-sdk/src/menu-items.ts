@@ -73,7 +73,7 @@ function getRoute(file: string, routesDir: string): string {
         .replace(normalizedRoutesDir, "")
         .replace(/\[\[\*\]\]/g, "*?")
         .replace(/\[\*\]/g, "*")
-        .replace(/\(([^\[\]\)]+)\)/g, "$1?")
+        .replace(/\(([^[\])]+)\)/g, "$1?")
         .replace(/\[\[([^\]]+)\]\]/g, ":$1?")
         .replace(/\[([^\]]+)\]/g, ":$1")
         .replace(

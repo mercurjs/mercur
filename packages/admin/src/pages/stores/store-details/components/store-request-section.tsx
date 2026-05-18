@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { ExclamationCircleSolid } from "@medusajs/icons";
 import {
   Button,
   Container,
   Heading,
+  Prompt,
   Text,
   Textarea,
   toast,
@@ -12,6 +13,7 @@ import { useTranslation } from "react-i18next";
 
 import {
   useApproveSeller,
+  useSellerMembers,
   useSuspendSeller,
 } from "../../../../hooks/api/sellers";
 import { InferClientOutput } from "@mercurjs/client";
@@ -23,93 +25,175 @@ type StoreRequestSectionProps = {
   seller: Seller;
 };
 
+type OwnerMember = {
+  is_owner?: boolean;
+  member?: {
+    email?: string | null;
+    first_name?: string | null;
+    last_name?: string | null;
+  } | null;
+};
+
 export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
   const { t } = useTranslation();
-  const [reason, setReason] = useState("");
+
   const { mutateAsync: approveSeller, isPending: isApproving } =
     useApproveSeller(seller.id);
-  const { mutateAsync: suspendSeller, isPending: isSuspending } =
+  const { mutateAsync: suspendSeller, isPending: isRejecting } =
     useSuspendSeller(seller.id);
 
-  const handleConfirm = async () => {
-    try {
-      await approveSeller();
-      toast.success(
-        t("stores.approve.successToast", "Store approved successfully"),
-      );
-    } catch (error) {
-      toast.error((error as Error).message);
-    }
-  };
+  const { seller_members } = useSellerMembers(seller.id, { limit: 100 });
+  const owner = (seller_members as OwnerMember[] | undefined)?.find(
+    (m) => m.is_owner,
+  );
+  const ownerFullName = [owner?.member?.first_name, owner?.member?.last_name]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const requesterLabel =
+    ownerFullName || owner?.member?.email || seller.email || seller.name;
 
-  const handleReject = async () => {
+  return (
+    <Container className="p-0">
+      <div className="flex items-center gap-x-3 border-b border-ui-border-base px-6 py-4">
+        <ExclamationCircleSolid className="text-ui-tag-blue-icon" />
+        <Heading level="h2">{t("stores.request.title")}</Heading>
+      </div>
+      <div className="px-6 py-4">
+        <Text className="text-ui-fg-subtle">
+          {t("stores.request.description", { requester: requesterLabel })}
+        </Text>
+      </div>
+      <div className="flex items-center justify-end gap-x-2 rounded-b-lg border-t border-ui-border-base bg-ui-bg-subtle px-6 py-4">
+        <RequestActionPrompt
+          trigger={
+            <Button size="small" variant="secondary">
+              {t("stores.request.confirm")}
+            </Button>
+          }
+          title={t("stores.request.confirmTitle", "Confirm request")}
+          description={t(
+            "stores.request.confirmDescription",
+            "You are about to confirm this store request.",
+          )}
+          confirmLabel={t("stores.request.confirm")}
+          notePlaceholder={t(
+            "stores.request.confirmNotePlaceholder",
+            "Specify changes you made or additional requests",
+          )}
+          isLoading={isApproving}
+          onConfirm={async (_note) => {
+            try {
+              await approveSeller();
+              toast.success(t("stores.request.confirmSuccess"));
+            } catch (error) {
+              toast.error((error as Error).message);
+              throw error;
+            }
+          }}
+        />
+        <RequestActionPrompt
+          trigger={
+            <Button size="small" variant="secondary">
+              {t("stores.request.reject")}
+            </Button>
+          }
+          title={t("stores.request.rejectTitle", "Reject request")}
+          description={t(
+            "stores.request.rejectDescription",
+            "You are about to reject this store request.",
+          )}
+          confirmLabel={t("stores.request.reject")}
+          notePlaceholder={t(
+            "stores.request.rejectNotePlaceholder",
+            "Explain why you reject the request or suggest changes",
+          )}
+          isLoading={isRejecting}
+          onConfirm={async (note) => {
+            try {
+              await suspendSeller({ reason: note || undefined });
+              toast.success(t("stores.request.rejectSuccess"));
+            } catch (error) {
+              toast.error((error as Error).message);
+              throw error;
+            }
+          }}
+        />
+      </div>
+    </Container>
+  );
+};
+
+type RequestActionPromptProps = {
+  trigger: ReactNode;
+  title: string;
+  description: string;
+  notePlaceholder: string;
+  confirmLabel: string;
+  isLoading: boolean;
+  onConfirm: (note: string) => Promise<void>;
+};
+
+const RequestActionPrompt = ({
+  trigger,
+  title,
+  description,
+  notePlaceholder,
+  confirmLabel,
+  isLoading,
+  onConfirm,
+}: RequestActionPromptProps) => {
+  const { t } = useTranslation();
+  const [open, setOpen] = useState(false);
+  const [note, setNote] = useState("");
+
+  const handleSubmit = async () => {
     try {
-      await suspendSeller({ reason: reason || undefined });
-      toast.success(
-        t("stores.suspend.successToast", "Store suspended successfully"),
-      );
-    } catch (error) {
-      toast.error((error as Error).message);
+      await onConfirm(note);
+      setOpen(false);
+      setNote("");
+    } catch {
+      /* toast handled by caller */
     }
   };
 
   return (
-    <div
-      style={{
-        background:
-          "repeating-linear-gradient(-45deg, rgb(212, 212, 216, 0.15), rgb(212, 212, 216,.15) 10px, transparent 10px, transparent 20px)",
-      }}
-      className="-m-4 mb-1 border-b border-l p-4"
-    >
-      <Container className="flex items-center justify-between p-0">
-        <div className="flex w-full flex-col divide-y divide-dashed">
-          <div className="flex items-center gap-2 px-6 py-4">
-            <ExclamationCircleSolid className="text-orange-500" />
-            <Heading level="h2">
-              {t("stores.request.title", "Store request")}
-            </Heading>
-          </div>
-          <div className="px-6 py-4">
-            <Text className="text-ui-fg-subtle">
-              {t(
-                "stores.request.description",
-                "A new store request has been submitted. Review the details, make any necessary updates, and choose whether to confirm and publish the store or suspend the request.",
-              )}
-            </Text>
-          </div>
-          <div className="flex flex-col gap-y-2 px-6 py-4">
-            <Text size="small" weight="plus" className="text-ui-fg-subtle">
-              {t("stores.request.reasonLabel", "Suspend reason")}
-            </Text>
-            <Textarea
-              placeholder={t(
-                "stores.request.reasonPlaceholder",
-                "Optional reason for suspending this store...",
-              )}
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-            />
-          </div>
-          <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={handleConfirm}
-              isLoading={isApproving}
-            >
-              {t("stores.request.confirm", "Confirm")}
-            </Button>
-            <Button
-              size="small"
-              variant="secondary"
-              onClick={handleReject}
-              isLoading={isSuspending}
-            >
-              {t("stores.request.suspend", "Suspend")}
-            </Button>
-          </div>
+    <Prompt open={open} onOpenChange={setOpen}>
+      <Prompt.Trigger asChild>{trigger}</Prompt.Trigger>
+      <Prompt.Content>
+        <Prompt.Header>
+          <Prompt.Title>{title}</Prompt.Title>
+          <Prompt.Description>{description}</Prompt.Description>
+        </Prompt.Header>
+        <div className="border-ui-border-base border-t mt-3" />
+        <div className="flex flex-col gap-y-3 px-6 py-3">
+          <Text size="small" weight="plus" className="text-ui-fg-base">
+            {t("stores.request.noteLabel", "Notes for vendor")}{" "}
+            <span className="text-ui-fg-muted font-normal">
+              ({t("fields.optional", "Optional")})
+            </span>
+          </Text>
+          <Textarea
+            placeholder={notePlaceholder}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+          />
         </div>
-      </Container>
-    </div>
+        <div className="border-ui-border-base border-t mt-2" />
+        <Prompt.Footer>
+          <Prompt.Cancel disabled={isLoading}>
+            {t("actions.cancel")}
+          </Prompt.Cancel>
+          <Button
+            size="small"
+            variant="primary"
+            onClick={handleSubmit}
+            isLoading={isLoading}
+          >
+            {confirmLabel}
+          </Button>
+        </Prompt.Footer>
+      </Prompt.Content>
+    </Prompt>
   );
 };

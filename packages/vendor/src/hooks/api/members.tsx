@@ -38,6 +38,23 @@ export const useMe = (
   };
 };
 
+export const useUpdateMe = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.vendor.members.me.mutate>,
+    ClientError,
+    InferClientInput<typeof sdk.vendor.members.me.mutate>
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.vendor.members.me.mutate(payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: membersQueryKeys.me() });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
 export const useSellerMembers = (
   sellerId: string,
   query?: Record<string, any>,

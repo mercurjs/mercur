@@ -28,7 +28,7 @@ medusaIntegrationTestRunner({
       let sellerActive: any
       let sellerSuspended: any
       let productActiveId: string
-      let productSuspendedId: string
+      let _productSuspendedId: string
 
       beforeAll(async () => {
         appContainer = getContainer()
@@ -88,7 +88,7 @@ medusaIntegrationTestRunner({
           },
           resultSuspended.headers
         )
-        productSuspendedId = productSuspendedRes.data.product.id
+        _productSuspendedId = productSuspendedRes.data.product.id
 
         await api.post(`/admin/sellers/${sellerSuspended.id}/suspend`, {}, adminHeaders)
 

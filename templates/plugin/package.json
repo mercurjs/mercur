@@ -1,6 +1,6 @@
 {
   "name": "@acme/plugin",
-  "version": "0.0.1",
+  "version": "2.1.2",
   "description": "A starter for Mercur plugins.",
   "author": "Mercur (https://mercurjs.com)",
   "license": "MIT",

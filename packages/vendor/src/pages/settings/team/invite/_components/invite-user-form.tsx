@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import {
   Alert,
   Button,
@@ -49,8 +50,12 @@ const ROLE_LABEL_MAP: Record<string, string> = Object.fromEntries(
 );
 
 const InviteUserSchema = zod.object({
-  email: zod.string().email(),
-  role_id: zod.string().min(1),
+  email: zod
+    .string()
+    .email({ message: i18n.t("users.inviteForm.validation.emailInvalid") }),
+  role_id: zod
+    .string()
+    .min(1, { message: i18n.t("users.inviteForm.validation.roleRequired") }),
 });
 
 const PAGE_SIZE = 10;

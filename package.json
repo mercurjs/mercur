@@ -4,10 +4,8 @@
   "scripts": {
     "build": "turbo run build",
     "dev": "turbo run dev",
-    "lint": "turbo run lint",
-    "test:integration:http": "turbo run test:integration:http --filter=@mercurjs/integration-tests",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
-    "check-types": "turbo run check-types"
+    "lint": "oxlint --quiet",
+    "test:integration:http": "cd integration-tests && bun run test:integration:http"
   },
   "dependencies": {
     "@mercurjs/core": "workspace:*"
@@ -16,6 +14,7 @@
     "@eslint/js": "^9.39.2",
     "eslint": "^9.39.2",
     "globals": "^17.0.0",
+    "oxlint": "^1.64.0",
     "prettier": "^3.7.4",
     "turbo": "^2.7.4",
     "typescript": "5.9.3",

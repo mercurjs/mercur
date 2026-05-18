@@ -135,7 +135,7 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
   tags: [],
   variants: decorateVariantsWithDefaultValues([
     {
-      title: "Default variant",
+      title: i18n.t("products.create.defaults.variantTitle"),
       should_create: true,
       variant_rank: 0,
       attribute_values: {},

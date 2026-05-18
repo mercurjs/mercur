@@ -81,7 +81,7 @@ export const ReturnCreateForm = ({
       preview.items.filter(
         (i) => !!i.actions?.find((a) => a.return_id === activeReturn.id)
       ),
-    [preview.items]
+    [preview.items, activeReturn.id]
   )
 
   const previewItemsMap = useMemo(
@@ -239,7 +239,13 @@ export const ReturnCreateForm = ({
         remove(ind)
       }
     })
-  }, [previewItems])
+  }, [
+	previewItems,
+	append,
+	update,
+	items,
+	remove
+])
 
   useEffect(() => {
     const method = preview.shipping_methods?.find(
@@ -251,7 +257,7 @@ export const ReturnCreateForm = ({
     } else {
       form.setValue("option_id", "")
     }
-  }, [preview.shipping_methods])
+  }, [preview.shipping_methods, form])
 
   const showPlaceholder = !items.length
   const locationId = form.watch("location_id")
@@ -321,7 +327,7 @@ export const ReturnCreateForm = ({
 
   useEffect(() => {
     form.setValue("location_id", activeReturn?.location_id || "")
-  }, [activeReturn])
+  }, [activeReturn, form])
 
   const showLevelsWarning = useMemo(() => {
     if (!locationId) {
@@ -346,7 +352,12 @@ export const ReturnCreateForm = ({
       .every(Boolean)
 
     return !allItemsHaveLocation
-  }, [items, inventoryMap, locationId])
+  }, [
+	items,
+	inventoryMap,
+	locationId,
+	itemsMap
+])
 
   useEffect(() => {
     const getInventoryMap = async () => {
@@ -390,7 +401,7 @@ export const ReturnCreateForm = ({
     getInventoryMap().then((map) => {
       setInventoryMap(map)
     })
-  }, [items])
+  }, [items, itemsMap])
 
   const returnTotal = preview.return_requested_total
 
@@ -421,9 +432,9 @@ export const ReturnCreateForm = ({
               <Heading level="h2" data-testid="order-create-return-inbound-heading">{t("orders.returns.inbound")}</Heading>
               <StackedFocusModal id="items" data-testid="order-create-return-add-items-modal">
                 <StackedFocusModal.Trigger asChild>
-                  <a className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400" data-testid="order-create-return-add-items-button">
+                  <button type="button" className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400" data-testid="order-create-return-add-items-button">
                     {t("actions.addItems")}
-                  </a>
+                  </button>
                 </StackedFocusModal.Trigger>
                 <StackedFocusModal.Content>
                   <StackedFocusModal.Header />
@@ -446,11 +457,12 @@ export const ReturnCreateForm = ({
                             {t("actions.cancel")}
                           </Button>
                         </RouteFocusModal.Close>
-                        <Button
+                        <Button tabIndex={0}
                           key="submit-button"
                           type="submit"
                           variant="primary"
                           size="small"
+                          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                           role="button"
                           onClick={() => onItemsSelected()}
                         >

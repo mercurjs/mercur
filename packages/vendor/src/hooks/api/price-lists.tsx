@@ -10,7 +10,7 @@ import {
   useMutation,
   useQuery,
 } from "@tanstack/react-query";
-import { sdk, fetchQuery } from "../../lib/client";
+import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { customerGroupsQueryKeys } from "./customer-groups";

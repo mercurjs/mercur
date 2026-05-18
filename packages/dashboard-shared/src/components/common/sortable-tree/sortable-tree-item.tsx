@@ -14,7 +14,7 @@ const animateLayoutChanges: AnimateLayoutChanges = ({
   isSorting,
   wasDragging,
 }) => {
-  return isSorting || wasDragging ? false : true
+  return !(isSorting || wasDragging)
 }
 
 export function SortableTreeItem({

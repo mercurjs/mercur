@@ -6,6 +6,7 @@ import { VendorExtendedAdminServiceZone } from "@custom-types/stock-location"
 
 import { Form } from "@components/common/form"
 import { Combobox } from "@components/inputs/combobox"
+import { shippingProfileQueryKeys } from "@hooks/api/shipping-profiles"
 import { useComboboxData } from "@hooks/use-combobox-data"
 import { fetchQuery } from "@lib/client"
 import {
@@ -36,7 +37,7 @@ export const CreateShippingOptionDetailsForm = ({
       fetchQuery(`/vendor/shipping-profiles`, {
         method: "GET",
       }),
-    queryKey: ["shipping_profiles_create_shipping_option"],
+    queryKey: shippingProfileQueryKeys.lists(),
     getOptions: (data) =>
       (data.shipping_profiles || []).map((profile: any) => {
         const name = profile.shipping_profile?.name ?? profile.name ?? ""

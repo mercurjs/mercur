@@ -57,7 +57,8 @@ export const OrderRemainingOrdersGroupSection = () => {
     data: orders as HttpTypes.AdminOrder[],
     columns,
     count: orders.length,
-    enablePagination: false,
+    enablePagination: true,
+    pageSize: Math.max(orders.length, 1),
     getRowId: (row) => row.id,
   })
 

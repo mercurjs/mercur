@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, Input, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -19,14 +20,18 @@ type StoreAddressEditFormProps = {
 };
 
 const StoreAddressSchema = zod.object({
-  first_name: zod.string().min(1),
-  last_name: zod.string().min(1),
+  name: zod
+    .string()
+    .min(1, { message: i18n.t("store.address.validation.nameRequired") }),
   address_1: zod.string().optional().or(zod.literal("")),
+  address_2: zod.string().optional().or(zod.literal("")),
   city: zod.string().optional().or(zod.literal("")),
   province: zod.string().optional().or(zod.literal("")),
-  postal_code: zod.string().min(1),
-  country_code: zod.string().min(2).max(2),
-  phone: zod.string().min(1),
+  postal_code: zod.string().optional().or(zod.literal("")),
+  country_code: zod
+    .string()
+    .min(2, { message: i18n.t("store.address.validation.countryRequired") })
+    .max(2),
 });
 
 export const StoreAddressEditForm = ({
@@ -38,14 +43,13 @@ export const StoreAddressEditForm = ({
 
   const form = useForm<zod.infer<typeof StoreAddressSchema>>({
     defaultValues: {
-      first_name: address?.first_name ?? "",
-      last_name: address?.last_name ?? "",
+      name: address?.name ?? "",
       address_1: address?.address_1 ?? "",
+      address_2: address?.address_2 ?? "",
       city: address?.city ?? "",
       province: address?.province ?? "",
       postal_code: address?.postal_code ?? "",
       country_code: address?.country_code ?? "",
-      phone: address?.phone ?? "",
     },
     resolver: zodResolver(StoreAddressSchema),
   });
@@ -55,20 +59,17 @@ export const StoreAddressEditForm = ({
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(
       {
-        first_name: values.first_name,
-        last_name: values.last_name,
+        name: values.name,
         address_1: values.address_1 || null,
+        address_2: values.address_2 || null,
         city: values.city || null,
         province: values.province || null,
-        postal_code: values.postal_code,
+        postal_code: values.postal_code || null,
         country_code: values.country_code,
-        phone: values.phone,
       },
       {
         onSuccess: () => {
-          toast.success(
-            t("store.address.edit.successToast"),
-          );
+          toast.success(t("store.address.edit.successToast"));
           handleSuccess();
         },
         onError: (error: Error) => {
@@ -85,34 +86,19 @@ export const StoreAddressEditForm = ({
         className="flex flex-1 flex-col overflow-hidden"
       >
         <RouteDrawer.Body className="flex flex-col gap-y-4 overflow-y-auto">
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Field
-              control={form.control}
-              name="first_name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t("fields.firstName")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="last_name"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t("fields.lastName")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-          </div>
+          <Form.Field
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("store.address.nameLabel")}</Form.Label>
+                <Form.Control>
+                  <Input size="small" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
           <Form.Field
             control={form.control}
             name="address_1"
@@ -126,68 +112,66 @@ export const StoreAddressEditForm = ({
               </Form.Item>
             )}
           />
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Field
-              control={form.control}
-              name="city"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.city")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="province"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label optional>{t("fields.state")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Form.Field
-              control={form.control}
-              name="postal_code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t("fields.postalCode")}</Form.Label>
-                  <Form.Control>
-                    <Input size="small" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="country_code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t("fields.country")}</Form.Label>
-                  <Form.Control>
-                    <CountrySelect {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-          </div>
           <Form.Field
             control={form.control}
-            name="phone"
+            name="address_2"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t("fields.phone")}</Form.Label>
+                <Form.Label optional>
+                  {t("store.address.apartmentLabel", "Apartment, suite, etc.")}
+                </Form.Label>
+                <Form.Control>
+                  <Input size="small" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="postal_code"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("fields.postalCode")}</Form.Label>
+                <Form.Control>
+                  <Input size="small" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="city"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("fields.city")}</Form.Label>
+                <Form.Control>
+                  <Input size="small" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="country_code"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.country")}</Form.Label>
+                <Form.Control>
+                  <CountrySelect {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="province"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label optional>{t("fields.state")}</Form.Label>
                 <Form.Control>
                   <Input size="small" {...field} />
                 </Form.Control>

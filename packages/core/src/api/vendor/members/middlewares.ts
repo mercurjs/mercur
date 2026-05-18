@@ -6,7 +6,7 @@ import {
 import { MiddlewareRoute } from "@medusajs/medusa"
 
 import { VendorGetSellerParams } from "../sellers/validators"
-import { VendorAcceptMemberInvite } from "./validators"
+import { VendorAcceptMemberInvite, VendorUpdateMember } from "./validators"
 
 const retrieveVendorMemberMeQueryConfig = {
   defaults: [
@@ -36,6 +36,17 @@ export const vendorMembersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/members/me",
     middlewares: [
+      validateAndTransformQuery(
+        VendorGetSellerParams,
+        retrieveVendorMemberMeQueryConfig
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/members/me",
+    middlewares: [
+      validateAndTransformBody(VendorUpdateMember),
       validateAndTransformQuery(
         VendorGetSellerParams,
         retrieveVendorMemberMeQueryConfig

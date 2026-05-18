@@ -49,7 +49,7 @@ export const PriceListConfigurationSection = ({
   )
 }
 
-const CustomerGroupDisplay = ({
+const _CustomerGroupDisplay = ({
   priceList,
 }: {
   priceList: HttpTypes.AdminPriceList & { price_list_rules: any[] }

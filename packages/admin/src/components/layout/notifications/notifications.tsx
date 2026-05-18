@@ -204,6 +204,7 @@ const Notification = ({
                 {unread && (
                   <div
                     className="bg-ui-bg-interactive h-2 w-2 rounded"
+                    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                     role="status"
                     data-testid={`notification-${notification.id}-unread-indicator`}
                   />

@@ -115,7 +115,7 @@ export const ClaimCreateForm = ({
   // TODO: implement update claim request
 
   const { mutateAsync: updateReturn, isPending: isUpdating } = useUpdateReturn(
-    preview?.order_change?.return_id!,
+    preview?.order_change?.return_id,
     order.id,
   );
 
@@ -168,7 +168,7 @@ export const ClaimCreateForm = ({
       preview?.items?.filter(
         (i) => !!i.actions?.find((a) => a.claim_id === claim.id),
       ),
-    [preview.items],
+    [preview.items, claim.id],
   );
 
   const inboundPreviewItems = previewItems.filter(
@@ -278,7 +278,7 @@ export const ClaimCreateForm = ({
         float: inboundShipping.total,
       });
     }
-  }, [inboundShipping]);
+  }, [inboundShipping, order.currency_code]);
 
   useEffect(() => {
     if (outboundShipping) {
@@ -289,7 +289,7 @@ export const ClaimCreateForm = ({
         float: outboundShipping.total,
       });
     }
-  }, [outboundShipping]);
+  }, [outboundShipping, order.currency_code]);
 
   const {
     fields: inboundItems,
@@ -303,7 +303,7 @@ export const ClaimCreateForm = ({
 
   const previewItemsMap = useMemo(
     () => new Map(previewItems.map((i) => [i.id, i])),
-    [previewItems, inboundItems],
+    [previewItems],
   );
 
   useEffect(() => {
@@ -340,7 +340,14 @@ export const ClaimCreateForm = ({
         remove(ind);
       }
     });
-  }, [previewItems]);
+  }, [
+	previewItems,
+	inboundItems,
+	remove,
+	inboundPreviewItems,
+	append,
+	update
+]);
 
   useEffect(() => {
     const inboundShipping = preview.shipping_methods.find(
@@ -364,11 +371,11 @@ export const ClaimCreateForm = ({
     } else {
       form.setValue("outbound_option_id", null);
     }
-  }, [preview.shipping_methods]);
+  }, [preview.shipping_methods, form]);
 
   useEffect(() => {
     form.setValue("location_id", orderReturn?.location_id);
-  }, [orderReturn]);
+  }, [orderReturn, form]);
 
   const showInboundItemsPlaceholder = !inboundPreviewItems.length;
   const showOutboundItemsPlaceholder = !outboundPreviewItems.length;
@@ -407,8 +414,8 @@ export const ClaimCreateForm = ({
   });
 
   const onItemsSelected = async () => {
-    itemsToAdd.length &&
-      (await addInboundItem(
+    if (itemsToAdd.length) {
+      await addInboundItem(
         {
           items: itemsToAdd.map((id) => ({
             id,
@@ -420,7 +427,8 @@ export const ClaimCreateForm = ({
             toast.error(error.message);
           },
         },
-      ));
+      );
+    }
 
     for (const itemToRemove of itemsToRemove) {
       const actionId = previewItems
@@ -515,7 +523,12 @@ export const ClaimCreateForm = ({
       .every(Boolean);
 
     return !allItemsHaveLocation;
-  }, [inboundItems, inventoryMap, locationId]);
+  }, [
+	inboundItems,
+	inventoryMap,
+	locationId,
+	itemsMap
+]);
 
   useEffect(() => {
     const getInventoryMap = async () => {
@@ -568,7 +581,7 @@ export const ClaimCreateForm = ({
         IS_CANCELING = false;
       }
     };
-  }, []);
+  }, [t, cancelClaimRequest]);
 
   const inboundShippingTotal = useMemo(() => {
     const method = preview.shipping_methods.find(
@@ -605,9 +618,9 @@ export const ClaimCreateForm = ({
 
               <StackedFocusModal id="inbound-items">
                 <StackedFocusModal.Trigger asChild>
-                  <a className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
+                  <button type="button" className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
                     {t("actions.addItems")}
-                  </a>
+                  </button>
                 </StackedFocusModal.Trigger>
                 <StackedFocusModal.Content>
                   <StackedFocusModal.Header />
@@ -643,11 +656,12 @@ export const ClaimCreateForm = ({
                           </Button>
                         </RouteFocusModal.Close>
 
-                        <Button
+                        <Button tabIndex={0}
                           key="submit-button"
                           type="submit"
                           variant="primary"
                           size="small"
+                          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                           role="button"
                           onClick={async () => await onItemsSelected()}
                         >

@@ -414,7 +414,7 @@ ${header("Create your first seller:")}
 
 ${header("Documentation:")}
 
-  - ${createTerminalLink("Getting Started", "https://docs.mercurjs.com/v2/welcome")}
+  - ${createTerminalLink("Getting Started", "https://docs.mercurjs.com/welcome")}
 `;
 }
 
@@ -477,4 +477,3 @@ function validateNodeVersion(): void {
     );
   }
 }
-

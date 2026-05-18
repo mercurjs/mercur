@@ -53,7 +53,7 @@ Mercur is built to be AI-agent friendly. Your AI coding assistant can use these 
 - **llms.txt**: `https://docs.mercurjs.com/llms.txt` — machine-readable project summary
 - **AGENTS.md**: included in every project created with `mercurjs create` — gives agents instant project context
 - **Skills**: `.claude/skills/` shipped with templates — domain-specific patterns for Claude Code
-- **AI Development Guide**: [docs.mercurjs.com/v2/ai-development/mcp](https://docs.mercurjs.com/v2/ai-development/mcp)
+- **AI Development Guide**: [docs.mercurjs.com/v2/ai-development/mcp](https://docs.mercurjs.com/ai-development/mcp)
 
 ## Why Choose Mercur?
 

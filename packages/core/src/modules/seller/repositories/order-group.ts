@@ -19,11 +19,7 @@ const OPERATOR_MAP = {
 export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory(
   OrderGroup
 ) {
-  constructor() {
-    // @ts-ignore
-    // eslint-disable-next-line prefer-rest-params
-    super(...arguments)
-  }
+  
 
   private parseFilterValue(
     column: string,

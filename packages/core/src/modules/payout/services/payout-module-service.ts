@@ -22,7 +22,7 @@ import {
 } from "@mercurjs/types"
 import PayoutProviderService from "./provider-service"
 import { Onboarding, Payout, PayoutAccount } from "../models"
-import { Context, DAL, InferEntityType, ModulesSdkTypes } from "@medusajs/framework/types"
+import { Context, DAL, InferEntityType } from "@medusajs/framework/types"
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex"
 
 type InjectedDependencies = {

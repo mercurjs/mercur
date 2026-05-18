@@ -8,7 +8,6 @@ import {
   MagnifyingGlass,
   OpenRectArrowOut,
   ReceiptPercent,
-  Shopping,
   ShoppingCart,
   Tag,
   Users,
@@ -325,11 +324,6 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       ],
     },
     {
-      icon: <Shopping />,
-      label: t("stores.domain"),
-      to: "/stores",
-    },
-    {
       icon: <ReceiptPercent />,
       label: t("promotions.domain"),
       to: "/promotions",
@@ -346,8 +340,13 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       to: "/price-lists",
     },
     {
+      icon: <BuildingStorefront />,
+      label: t("stores.domain"),
+      to: "/stores",
+    },
+    {
       icon: <CreditCardRefresh />,
-      label: "Payouts",
+      label: t("payouts.domain"),
       to: "/payouts",
     },
   ];

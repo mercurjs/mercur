@@ -1,27 +1,19 @@
-import { MagnifyingGlass, XMarkMini } from "@medusajs/icons"
 import {
-  Button,
   DatePicker,
   Divider,
   Heading,
-  IconButton,
   Input,
   RadioGroup,
   Select,
   Text,
   Textarea,
-  clx,
 } from "@medusajs/ui"
 import { useFieldArray, type UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "@components/common/form"
-import { StackedFocusModal } from "@components/modals/stacked-focus-modal"
-import { useStackedModal } from "@components/modals/stacked-modal-provider"
-import { PriceListCustomerGroupRuleForm } from "@pages/price-lists/common/components/price-list-customer-group-rule-form"
 import type {
   PricingCreateSchemaType,
-  PricingCustomerGroupsArrayType,
 } from "./schema"
 
 type PriceListDetailsFormProps = {
@@ -31,30 +23,15 @@ type PriceListDetailsFormProps = {
 export const PriceListDetailsForm = ({ form }: PriceListDetailsFormProps) => {
   const { t } = useTranslation()
 
-  const { fields, remove, append } = useFieldArray({
+  const { remove: _remove } = useFieldArray({
     control: form.control,
     name: "rules.customer_group_id",
     keyName: "cg_id",
   })
 
-  const { setIsOpen } = useStackedModal()
+  
 
-  const handleAddCustomerGroup = (groups: PricingCustomerGroupsArrayType) => {
-    const newIds = groups.map((group) => group.id)
-
-    const fieldsToAdd = groups.filter(
-      (group) => !fields.some((field) => field.id === group.id)
-    )
-
-    for (const field of fields) {
-      if (!newIds.includes(field.id)) {
-        remove(fields.indexOf(field))
-      }
-    }
-
-    append(fieldsToAdd)
-    setIsOpen("cg", false)
-  }
+  
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto">

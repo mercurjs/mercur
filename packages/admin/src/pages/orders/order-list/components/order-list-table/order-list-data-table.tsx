@@ -48,7 +48,10 @@ export type OrderGroupRow = {
   children: OrderGroupRow[];
 };
 
-function transformOrderGroups(orderGroups: any[]): OrderGroupRow[] {
+function transformOrderGroups(
+  orderGroups: any[],
+  t: (key: string, options?: Record<string, unknown>) => string,
+): OrderGroupRow[] {
   return orderGroups.map((group) => {
     const orders = group.orders ?? [];
 
@@ -88,7 +91,7 @@ function transformOrderGroups(orderGroups: any[]): OrderGroupRow[] {
       id: group.id,
       display_id: `#G${group.display_id}`,
       order_ids: orderIds,
-      vendor: `${group.seller_count} vendors`,
+      vendor: t("orders.fields.vendorsCount", { count: group.seller_count }),
       created_at: new Date(group.created_at),
       updated_at: new Date(group.updated_at),
       customer_name: customerName,
@@ -119,8 +122,8 @@ export const OrderListDataTable = () => {
   );
 
   const rows = useMemo(
-    () => transformOrderGroups(order_groups ?? []),
-    [order_groups],
+    () => transformOrderGroups(order_groups ?? [], t),
+    [order_groups, t],
   );
 
   const filters = useOrderGroupTableFilters();
@@ -155,7 +158,7 @@ export const OrderListDataTable = () => {
       isLoading={isLoading}
       pageSize={PAGE_SIZE}
       orderBy={[
-        { key: "display_id", label: "Display ID" },
+        { key: "display_id", label: t("orders.fields.displayId") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
@@ -175,7 +178,7 @@ const useColumns = () => {
   return useMemo(
     () => [
       columnHelper.accessor("display_id", {
-        header: () => <TextHeader text="Group ID" />,
+        header: () => <TextHeader text={t("orders.fields.groupId")} />,
         cell: ({ row, getValue }) => {
           if (row.original._type === "order") {
             return null;
@@ -213,7 +216,7 @@ const useColumns = () => {
         },
       }),
       columnHelper.accessor("order_ids", {
-        header: () => <TextHeader text="Order IDs" />,
+        header: () => <TextHeader text={t("orders.fields.orderIds")} />,
         cell: ({ row, getValue }) => {
           if (row.original._type === "group") {
             return <TextCell text={getValue()} />;
@@ -222,7 +225,7 @@ const useColumns = () => {
         },
       }),
       columnHelper.accessor("vendor", {
-        header: () => <TextHeader text="Vendor" />,
+        header: () => <TextHeader text={t("orders.fields.vendor")} />,
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
       columnHelper.accessor("created_at", {

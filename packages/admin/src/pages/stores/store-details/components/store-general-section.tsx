@@ -1,5 +1,4 @@
 import { Children, ReactNode } from "react";
-import { Photo } from "@medusajs/icons";
 import { Badge, Container, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
@@ -37,7 +36,18 @@ export const StoreGeneralSection = ({
               />
             ) : (
               <div className="flex h-full w-full items-center justify-center">
-                <Photo className="text-ui-fg-muted" />
+                <div
+                  className="h-full w-full"
+                  style={{
+                    background: `repeating-linear-gradient(
+                      -45deg,
+                      transparent,
+                      transparent 10px,
+                      rgba(255,255,255,0.5) 10px,
+                      rgba(255,255,255,0.5) 20px
+                    )`,
+                  }}
+                />
               </div>
             )}
           </div>
@@ -68,6 +78,14 @@ export const StoreGeneralSection = ({
           </div>
           <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
             <Text size="small" leading="compact" weight="plus">
+              {t("fields.phone")}
+            </Text>
+            <Text size="small" leading="compact">
+              {seller.phone || "-"}
+            </Text>
+          </div>
+          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+            <Text size="small" leading="compact" weight="plus">
               {t("fields.website")}
             </Text>
             <Text size="small" leading="compact">
@@ -83,29 +101,9 @@ export const StoreGeneralSection = ({
                 {seller.currency_code?.toUpperCase()}
               </Badge>
               <Text size="small" leading="compact">
-                {currencies[seller.currency_code.toUpperCase()].name}
+                {currencies[seller.currency_code?.toUpperCase()]?.name || "-"}
               </Text>
             </div>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.premium")}
-            </Text>
-            <Text size="small" leading="compact">
-              {seller.is_premium ? t("general.yes") : t("general.no")}
-            </Text>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.createdAt")}
-            </Text>
-            <Text size="small" leading="compact">
-              {new Date(seller.created_at).toLocaleDateString(undefined, {
-                year: "numeric",
-                month: "long",
-                day: "numeric",
-              })}
-            </Text>
           </div>
         </>
       )}

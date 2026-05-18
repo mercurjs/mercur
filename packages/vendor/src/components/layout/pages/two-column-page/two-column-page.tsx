@@ -28,7 +28,7 @@ const Root = <TData,>({
    */
   hasOutlet = true,
 }: TwoColumnPageProps<TData>) => {
-  const widgetProps = { data }
+  
   if (showJSON && !data) {
     if (process.env.NODE_ENV === "development") {
       console.warn(

@@ -46,7 +46,7 @@ export const useProductTableFilters = (
   //  enabled: !isCategoryExcluded,
   // })
 
-  const isCollectionExcluded = exclude?.includes("collections")
+  
 
   // const { collections } = useAdminCollections(
   //   {

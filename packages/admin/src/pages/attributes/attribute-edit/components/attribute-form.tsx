@@ -140,7 +140,15 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
           | "completed",
         typeStatus: typeStatus as "not-started" | "in-progress" | "completed",
       })
-    }, [formStateKey, onFormStateChange])
+    }, [
+	formStateKey,
+	onFormStateChange,
+	uiComponent,
+	handle,
+	description,
+	name,
+	possibleValues.length
+])
 
     const showValues =
       type === AttributeType.SINGLE_SELECT ||

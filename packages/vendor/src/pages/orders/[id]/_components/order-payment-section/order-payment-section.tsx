@@ -76,7 +76,7 @@ const Total = ({ order }: { order: HttpTypes.AdminOrder }) => {
       {totalRefunded > 0 && (
         <div className="flex items-center justify-between px-6 py-4">
           <Text size="small" weight="plus" leading="compact">
-            Refunded
+            {t("orders.payment.totalRefunded")}
           </Text>
 
           <Text size="small" weight="plus" leading="compact">
@@ -88,7 +88,7 @@ const Total = ({ order }: { order: HttpTypes.AdminOrder }) => {
       {order.status !== "canceled" && totalPending > 0 && (
         <div className="flex items-center justify-between px-6 py-4">
           <Text size="small" weight="plus" leading="compact">
-            Total pending
+            {t("orders.payment.totalPending")}
           </Text>
 
           <Text size="small" weight="plus" leading="compact">

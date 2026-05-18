@@ -677,10 +677,6 @@
           "type": "registry:api"
         },
         {
-          "path": "requests/workflows/hooks/seller-created.ts",
-          "type": "registry:api"
-        },
-        {
           "path": "requests/admin/hooks/api/requests.tsx",
           "type": "registry:admin"
         },

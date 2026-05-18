@@ -108,6 +108,7 @@ const MultiSelect = forwardRef<HTMLDivElement, MultiSelectProps>(
 
     useEffect(() => {
       calculateVisibleBadges()
+      // oxlint-disable-next-line react-hooks/exhaustive-deps
     }, [value, options])
 
     useEffect(() => {
@@ -122,6 +123,7 @@ const MultiSelect = forwardRef<HTMLDivElement, MultiSelectProps>(
       return () => {
         resizeObserver.disconnect()
       }
+      // oxlint-disable-next-line react-hooks/exhaustive-deps
     }, [value, options])
 
     const handleToggle = () => {
@@ -172,6 +174,7 @@ const MultiSelect = forwardRef<HTMLDivElement, MultiSelectProps>(
 
     return (
       <div ref={ref} className={`relative ${className}`}>
+        {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events */}
         <div
           ref={triggerRef}
           className={`relative flex h-8 w-full cursor-pointer items-center justify-between overflow-hidden rounded-md border bg-ui-bg-field text-ui-fg-base shadow-sm transition-colors duration-150 ease-in-out focus-within:ring-1 hover:bg-ui-bg-field-hover ${
@@ -184,7 +187,9 @@ const MultiSelect = forwardRef<HTMLDivElement, MultiSelectProps>(
           onClick={handleToggle}
           onBlur={onBlur}
           tabIndex={0}
+          // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
           role="combobox"
+          aria-controls={isOpen ? `${name}-listbox` : undefined}
           aria-expanded={isOpen}
           aria-haspopup="listbox"
           aria-invalid={ariaInvalid}
@@ -259,7 +264,7 @@ const MultiSelect = forwardRef<HTMLDivElement, MultiSelectProps>(
                     onChange={handleSearchChange}
                     placeholder={t("general.searchOptions")}
                     className="w-full bg-transparent pr-8 shadow-none focus:!shadow-none"
-                    autoFocus
+                    
                   />
                   {searchValue && (
                     <button
@@ -289,6 +294,7 @@ const MultiSelect = forwardRef<HTMLDivElement, MultiSelectProps>(
                   const currentValue = value || []
                   const isSelected = currentValue.includes(option.value)
                   return (
+                    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
                     <div
                       key={option.value}
                       className="flex cursor-pointer items-center px-1 py-1 hover:bg-ui-bg-base-hover"

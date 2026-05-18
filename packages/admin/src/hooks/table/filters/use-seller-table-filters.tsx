@@ -22,10 +22,6 @@ export const useSellerTableFilters = (): Filter[] => {
         label: t("stores.status.suspended"),
         value: "suspended",
       },
-      {
-        label: t("stores.status.terminated"),
-        value: "terminated",
-      },
     ],
   }
 

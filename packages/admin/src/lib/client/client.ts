@@ -82,18 +82,10 @@ export const uploadFilesQuery = async (files: any[]) => {
   const formData = new FormData()
 
   for (const { file } of files) {
-    formData.append('files', file)
+    formData.append("files", file)
   }
 
-  const response = await fetch(`${backendUrl}/vendor/uploads`, {
-    method: 'POST',
-    credentials: 'include',
-    body: formData,
+  return sdk.admin.uploads.mutate({
+    fetchOptions: { body: formData },
   })
-
-  if (!response.ok) {
-    return null
-  }
-
-  return response.json()
 }

@@ -2,12 +2,11 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys, FeatureFlag, MedusaError } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, MedusaError } from "@medusajs/framework/utils"
 import { HttpTypes, SellerStatus } from "@mercurjs/types"
 
 import { VendorCreateSellerAccountType } from "./validators"
 import { createSellerAccountWorkflow } from "../../../workflows/seller"
-import SellerRegistrationFeatureFlag from "../../../feature-flags/seller-registration"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -49,15 +48,27 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateSellerAccountType>,
   res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
-  const { address, professional_details, member_email, ...sellerData } = req.validatedBody
+  const {
+    address,
+    professional_details,
+    payment_details,
+    member_email,
+    first_name,
+    last_name,
+    ...sellerData
+  } = req.validatedBody
 
   const { result: seller } = await createSellerAccountWorkflow(req.scope).run({
     input: {
       auth_identity_id: req.auth_context.auth_identity_id,
+      member_id: req.auth_context.actor_id || undefined,
       seller: sellerData,
       member_email,
+      first_name: first_name ?? undefined,
+      last_name: last_name ?? undefined,
       address,
       professional_details,
+      payment_details,
     },
   })
 

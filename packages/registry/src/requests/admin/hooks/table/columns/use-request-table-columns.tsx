@@ -1,6 +1,5 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
 import { StatusBadge, Text } from "@medusajs/ui";
 import { DateCell, DateHeader } from "@mercurjs/dashboard-shared";
 import { RequestDTO } from "../../api/requests";
@@ -21,8 +20,6 @@ const statusColor = (status: string) => {
 };
 
 export const useRequestTableColumns = (nameKey: string = "name") => {
-  const { t } = useTranslation();
-
   return useMemo(
     () => [
       columnHelper.display({
@@ -62,6 +59,6 @@ export const useRequestTableColumns = (nameKey: string = "name") => {
         },
       }),
     ],
-    [t, nameKey],
+    [nameKey],
   );
 };

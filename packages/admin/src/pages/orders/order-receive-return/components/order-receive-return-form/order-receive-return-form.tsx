@@ -119,7 +119,7 @@ export function OrderReceiveReturnForm({
           { shouldTouch: true, shouldDirty: true }
         )
       })
-  }, [previewItems])
+  }, [previewItems, form])
 
   /**
    * HANDLERS

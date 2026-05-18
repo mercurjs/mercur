@@ -4,11 +4,12 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 export const CommissionRateListTitle = () => {
+  const { t } = useTranslation()
   return (
     <div>
-      <Heading>Commission Rates</Heading>
+      <Heading>{t("commissionRates.domain")}</Heading>
       <Text className="text-ui-fg-subtle" size="small">
-        Manage commission rates and rules for your marketplace.
+        {t("commissionRates.description")}
       </Text>
     </div>
   )
