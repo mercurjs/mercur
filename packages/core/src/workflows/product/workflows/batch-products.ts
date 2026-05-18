@@ -1,6 +1,5 @@
 import {
   createHook,
-  createWorkflow,
   transform,
   when,
   WorkflowResponse,
@@ -12,6 +11,7 @@ import { ProductStatus, UpdateProductDTO } from "@mercurjs/types"
 import { ProductWorkflowEvents } from "../events"
 import { updateProductsStep } from "../steps"
 import { deleteProductsWorkflow } from "./delete-products"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const batchProductsWorkflowId = "batch-products"
 
@@ -28,7 +28,7 @@ const STATUS_EVENT_MAP: Record<ProductStatus, string | undefined> = {
   [ProductStatus.DRAFT]: undefined,
 }
 
-export const batchProductsWorkflow = createWorkflow(
+export const batchProductsWorkflow: ReturnType<typeof createIdempotentWorkflow> = createIdempotentWorkflow(
   batchProductsWorkflowId,
   function (input: BatchProductsWorkflowInput) {
     const updateProducts = transform(

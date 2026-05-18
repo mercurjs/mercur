@@ -1,11 +1,11 @@
 import {
-  createWorkflow,
   transform,
   WorkflowData,
 } from "@medusajs/framework/workflows-sdk"
 
 import { associateSellersWithProductBrandStep } from "../steps/associate-sellers-with-product-brand"
 import { detachSellersFromProductBrandStep } from "../steps/detach-sellers-from-product-brand"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 /**
  * Manages which sellers are authorized to use a restricted product brand
@@ -23,7 +23,7 @@ export type LinkSellersToProductBrandWorkflowInput = {
 export const linkSellersToProductBrandWorkflowId =
   "link-sellers-to-product-brand"
 
-export const linkSellersToProductBrandWorkflow = createWorkflow(
+export const linkSellersToProductBrandWorkflow = createIdempotentWorkflow(
   linkSellersToProductBrandWorkflowId,
   (
     input: WorkflowData<LinkSellersToProductBrandWorkflowInput>

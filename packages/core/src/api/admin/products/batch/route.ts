@@ -25,7 +25,7 @@ export const POST = async (
     },
   })
 
-  const ids = result.map((p) => p.id)
+  const ids = (result as { id: string }[]).map((p) => p.id)
 
   const { data: updated } = ids.length
     ? await query.graph({

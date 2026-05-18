@@ -10,6 +10,7 @@ import {
 import {
   QueryKey,
   UseMutationOptions,
+  UseMutationResult,
   UseQueryOptions,
   useMutation,
   useQuery,
@@ -71,7 +72,11 @@ export const useCreateApiKey = (
     ClientError,
     InferClientInput<typeof sdk.admin.apiKeys.mutate>
   >,
-) => {
+): UseMutationResult<
+  InferClientOutput<typeof sdk.admin.apiKeys.mutate>,
+  ClientError,
+  InferClientInput<typeof sdk.admin.apiKeys.mutate>
+> => {
   return useMutation({
     mutationFn: (payload) => sdk.admin.apiKeys.mutate(payload),
     onSuccess: (data, variables, context) => {

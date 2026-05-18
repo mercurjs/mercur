@@ -2,7 +2,7 @@ import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { HttpTypes } from "@medusajs/types";
-import { SellerDTO } from "@mercurjs/types";
+import { HttpTypes as MercurHttpTypes, SellerDTO } from "@mercurjs/types";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useProduct } from "../../../hooks/api/products";
@@ -31,7 +31,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     isError,
     error,
   } = useProduct(id!, PRODUCT_DETAIL_QUERY, {
-    initialData: initialData,
+    initialData: initialData as unknown as MercurHttpTypes.AdminProductResponse,
   });
   const product = rawProduct as AdminProductWithSeller | undefined;
 

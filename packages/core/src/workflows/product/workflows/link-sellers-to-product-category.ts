@@ -1,11 +1,11 @@
 import {
-  createWorkflow,
   transform,
   WorkflowData,
 } from "@medusajs/framework/workflows-sdk"
 
 import { associateSellersWithProductCategoryStep } from "../steps/associate-sellers-with-product-category"
 import { detachSellersFromProductCategoryStep } from "../steps/detach-sellers-from-product-category"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 /**
  * Manages which sellers are restricted from a product category
@@ -23,7 +23,7 @@ export type LinkSellersToProductCategoryWorkflowInput = {
 export const linkSellersToProductCategoryWorkflowId =
   "link-sellers-to-product-category"
 
-export const linkSellersToProductCategoryWorkflow = createWorkflow(
+export const linkSellersToProductCategoryWorkflow = createIdempotentWorkflow(
   linkSellersToProductCategoryWorkflowId,
   (
     input: WorkflowData<LinkSellersToProductCategoryWorkflowInput>

@@ -1,5 +1,4 @@
 import {
-  createWorkflow,
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
@@ -7,6 +6,7 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 
 import { ProductAttributeWorkflowEvents } from "../events"
 import { batchProductAttributesStep } from "../steps/batch-product-attributes"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const batchProductAttributesWorkflowId = "batch-product-attributes"
 
@@ -20,7 +20,7 @@ type BatchProductAttributesWorkflowInput = {
   delete?: string[]
 }
 
-export const batchProductAttributesWorkflow = createWorkflow(
+export const batchProductAttributesWorkflow = createIdempotentWorkflow(
   batchProductAttributesWorkflowId,
   function (input: BatchProductAttributesWorkflowInput) {
     batchProductAttributesStep(input)

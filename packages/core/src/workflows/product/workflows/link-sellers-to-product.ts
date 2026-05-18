@@ -1,11 +1,11 @@
 import {
-  createWorkflow,
   transform,
   WorkflowData,
 } from "@medusajs/framework/workflows-sdk"
 
 import { associateSellersWithProductStep } from "../steps/associate-sellers-with-product"
 import { detachSellersFromProductStep } from "../steps/detach-sellers-from-product"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 /**
  * Manages which sellers are authorized to sell a product
@@ -22,7 +22,7 @@ export type LinkSellersToProductWorkflowInput = {
 
 export const linkSellersToProductWorkflowId = "link-sellers-to-product"
 
-export const linkSellersToProductWorkflow = createWorkflow(
+export const linkSellersToProductWorkflow = createIdempotentWorkflow(
   linkSellersToProductWorkflowId,
   (
     input: WorkflowData<LinkSellersToProductWorkflowInput>

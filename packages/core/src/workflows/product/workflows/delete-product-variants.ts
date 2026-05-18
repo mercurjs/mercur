@@ -1,5 +1,4 @@
 import {
-  createWorkflow,
   createHook,
   WorkflowResponse,
   transform,
@@ -8,6 +7,7 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 
 import { ProductVariantWorkflowEvents } from "../events"
 import { deleteProductVariantsStep } from "../steps/delete-product-variants"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const deleteProductVariantsWorkflowId = "delete-product-variants"
 
@@ -15,7 +15,7 @@ type DeleteProductVariantsWorkflowInput = {
   ids: string[]
 }
 
-export const deleteProductVariantsWorkflow = createWorkflow(
+export const deleteProductVariantsWorkflow = createIdempotentWorkflow(
   deleteProductVariantsWorkflowId,
   function (input: DeleteProductVariantsWorkflowInput) {
     const deleted = deleteProductVariantsStep(input.ids)

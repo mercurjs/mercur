@@ -1,9 +1,9 @@
 import {
-  createWorkflow,
   WorkflowData,
 } from "@medusajs/framework/workflows-sdk"
 
 import { batchLinkProductsToCategoryStep } from "../steps/batch-link-products-in-category"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const batchLinkProductsToCategoryWorkflowId =
   "batch-link-products-to-category"
@@ -14,7 +14,7 @@ type BatchLinkProductsToCategoryWorkflowInput = {
   remove?: string[]
 }
 
-export const batchLinkProductsToCategoryWorkflow = createWorkflow(
+export const batchLinkProductsToCategoryWorkflow = createIdempotentWorkflow(
   batchLinkProductsToCategoryWorkflowId,
   (
     input: WorkflowData<BatchLinkProductsToCategoryWorkflowInput>

@@ -1,7 +1,7 @@
-import { AdditionalData } from "@medusajs/framework/types"
+import {
+  AdditionalData } from "@medusajs/framework/types"
 import {
   createHook,
-  createWorkflow,
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
@@ -24,6 +24,7 @@ import {
   createProductChangesStep,
 } from "../../product-edit/steps"
 import { validateSellerProductPermissionsStep } from "../steps/validate-seller-product-permissions"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const submitSellerProductsWorkflowId = "submit-seller-products"
 
@@ -32,7 +33,7 @@ type SubmitSellerProductsWorkflowInput = {
   seller_id: string
 } & AdditionalData
 
-export const submitSellerProductsWorkflow = createWorkflow(
+export const submitSellerProductsWorkflow: ReturnType<typeof createIdempotentWorkflow> = createIdempotentWorkflow(
   submitSellerProductsWorkflowId,
   function (input: SubmitSellerProductsWorkflowInput) {
     const permissionData = transform(input, ({ products, seller_id }) => {

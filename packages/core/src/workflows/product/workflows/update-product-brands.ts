@@ -1,5 +1,4 @@
 import {
-  createWorkflow,
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
@@ -8,6 +7,7 @@ import { UpdateProductBrandDTO } from "@mercurjs/types"
 
 import { ProductBrandWorkflowEvents } from "../events"
 import { updateProductBrandsStep } from "../steps/update-product-brands"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const updateProductBrandsWorkflowId = "update-product-brands"
 
@@ -16,7 +16,7 @@ type UpdateProductBrandsWorkflowInput = {
   update: UpdateProductBrandDTO
 }
 
-export const updateProductBrandsWorkflow = createWorkflow(
+export const updateProductBrandsWorkflow = createIdempotentWorkflow(
   updateProductBrandsWorkflowId,
   function (input: UpdateProductBrandsWorkflowInput) {
     const brands = updateProductBrandsStep(input)

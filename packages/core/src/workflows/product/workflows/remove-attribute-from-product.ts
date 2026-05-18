@@ -1,5 +1,4 @@
 import {
-  createWorkflow,
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
@@ -7,6 +6,7 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 
 import { ProductAttributeWorkflowEvents } from "../events"
 import { removeAttributeFromProductStep } from "../steps/remove-attribute-from-product"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const removeAttributeFromProductWorkflowId =
   "remove-attribute-from-product"
@@ -16,7 +16,7 @@ type RemoveAttributeFromProductWorkflowInput = {
   attribute_id: string
 }
 
-export const removeAttributeFromProductWorkflow = createWorkflow(
+export const removeAttributeFromProductWorkflow = createIdempotentWorkflow(
   removeAttributeFromProductWorkflowId,
   function (input: RemoveAttributeFromProductWorkflowInput) {
     removeAttributeFromProductStep(input)

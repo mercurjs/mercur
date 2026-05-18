@@ -1,8 +1,7 @@
 import {
-    createWorkflow,
-    createHook,
-    WorkflowResponse,
-    transform,
+  createHook,
+  WorkflowResponse,
+  transform,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
 import {
@@ -17,6 +16,7 @@ import {
     createProductChangesStep,
     createProductChangeActionsStep,
 } from "../../product-edit/steps"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const confirmProductsWorkflowId = "confirm-products"
 
@@ -30,7 +30,7 @@ type ConfirmProductsWorkflowInput = {
     internal_note?: string
 }
 
-export const confirmProductsWorkflow = createWorkflow(
+export const confirmProductsWorkflow = createIdempotentWorkflow(
     confirmProductsWorkflowId,
     function (input: ConfirmProductsWorkflowInput) {
         const { data: products } = useQueryGraphStep({

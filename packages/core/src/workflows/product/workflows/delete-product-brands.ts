@@ -1,5 +1,4 @@
 import {
-  createWorkflow,
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
@@ -7,6 +6,7 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 
 import { ProductBrandWorkflowEvents } from "../events"
 import { deleteProductBrandsStep } from "../steps/delete-product-brands"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const deleteProductBrandsWorkflowId = "delete-product-brands"
 
@@ -14,7 +14,7 @@ type DeleteProductBrandsWorkflowInput = {
   ids: string[]
 }
 
-export const deleteProductBrandsWorkflow = createWorkflow(
+export const deleteProductBrandsWorkflow = createIdempotentWorkflow(
   deleteProductBrandsWorkflowId,
   function (input: DeleteProductBrandsWorkflowInput) {
     deleteProductBrandsStep(input.ids)

@@ -55,7 +55,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
         (Children.count(children) > 0 ? (
           children
         ) : (
-          <ProductCreateForm defaultChannel={sales_channel} />
+          <ProductCreateForm />
         ))}
     </RouteFocusModal>
   );

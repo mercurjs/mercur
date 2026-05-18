@@ -1,5 +1,4 @@
 import {
-  createWorkflow,
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
@@ -8,6 +7,7 @@ import { CreateProductAttributeDTO } from "@mercurjs/types"
 
 import { ProductAttributeWorkflowEvents } from "../events"
 import { createProductAttributesStep } from "../steps/create-product-attributes"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const createProductAttributesWorkflowId = "create-product-attributes"
 
@@ -15,7 +15,7 @@ type CreateProductAttributesWorkflowInput = {
   attributes: CreateProductAttributeDTO[]
 }
 
-export const createProductAttributesWorkflow = createWorkflow(
+export const createProductAttributesWorkflow = createIdempotentWorkflow(
   createProductAttributesWorkflowId,
   function (input: CreateProductAttributesWorkflowInput) {
     const attributes = createProductAttributesStep(input.attributes)

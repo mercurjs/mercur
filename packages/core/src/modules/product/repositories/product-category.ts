@@ -35,7 +35,7 @@ export class ProductCategoryRepository extends DALUtils.MikroOrmBaseTreeReposito
   buildFindOptions(
     findOptions: DAL.FindOptions<typeof ProductCategory> = { where: {} },
     familyOptions: ProductCategoryTransformOptions = {}
-  ) {
+  ): DAL.FindOptions<typeof ProductCategory> {
     const findOptions_ = { ...findOptions }
     findOptions_.options ??= {}
     findOptions_.options.orderBy ??= {

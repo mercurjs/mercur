@@ -88,7 +88,7 @@ interface InjectedDependencies {
   productCategoryService: ProductCategoryService;
 }
 
-class ProductModuleService extends MedusaService({
+const ProductModuleServiceBase = MedusaService({
   Product,
   ProductAttribute,
   ProductAttributeValue,
@@ -102,7 +102,9 @@ class ProductModuleService extends MedusaService({
   ProductType,
   ProductVariant,
   ProductVariantProductImage,
-}) {
+}) as unknown as new (...args: any[]) => any;
+
+class ProductModuleService extends ProductModuleServiceBase {
   protected readonly productCategoryService_: ProductCategoryService;
 
   constructor(container: InjectedDependencies) {
@@ -144,7 +146,6 @@ class ProductModuleService extends MedusaService({
     });
   }
 
-  // @ts-expect-error
   async retrieveProduct(
     id: string,
     config?: FindConfig<any> | undefined,
@@ -165,7 +166,6 @@ class ProductModuleService extends MedusaService({
     return product;
   }
 
-  // @ts-expect-error
   async listProducts(
     filters?: Record<string, any>,
     config?: FindConfig<any>,
@@ -184,7 +184,6 @@ class ProductModuleService extends MedusaService({
     return products;
   }
 
-  // @ts-expect-error
   async listAndCountProducts(
     filters?: Record<string, any>,
     config?: FindConfig<any>,
@@ -855,7 +854,6 @@ class ProductModuleService extends MedusaService({
     return resolvedIds;
   }
 
-  // @ts-expect-error
   async retrieveProductAttribute(
     id: string,
     config?: FindConfig<any>,
@@ -876,7 +874,6 @@ class ProductModuleService extends MedusaService({
     return attribute;
   }
 
-  // @ts-expect-error
   async listProductAttributes(
     filters?: Record<string, any>,
     config?: FindConfig<any>,
@@ -897,7 +894,6 @@ class ProductModuleService extends MedusaService({
     return attributes;
   }
 
-  // @ts-expect-error
   async listAndCountProductAttributes(
     filters?: Record<string, any>,
     config?: FindConfig<any>,
@@ -1368,26 +1364,22 @@ class ProductModuleService extends MedusaService({
     }
   }
 
-  // @ts-expect-error
   updateProductAttributes(
     id: string,
     data: UpdateProductAttributeDTO,
     sharedContext?: Context
   ): Promise<ProductAttributeDTO>;
-  // @ts-expect-error
   updateProductAttributes(
     selector: Record<string, unknown>,
     data: UpdateProductAttributeDTO,
     sharedContext?: Context
   ): Promise<ProductAttributeDTO[]>;
-  // @ts-expect-error
   updateProductAttributes(
     data: (UpdateProductAttributeDTO & { id: string })[],
     sharedContext?: Context
   ): Promise<ProductAttributeDTO[]>;
 
   @InjectTransactionManager()
-  // @ts-expect-error
   async updateProductAttributes(
     idOrSelectorOrData:
       | string
@@ -1480,19 +1472,16 @@ class ProductModuleService extends MedusaService({
     return [...created, ...updated];
   }
 
-  // @ts-expect-error
   createProductBrands(
     data: CreateProductBrandDTO[],
     sharedContext?: Context
   ): Promise<ProductBrandDTO[]>;
-  // @ts-expect-error
   createProductBrands(
     data: CreateProductBrandDTO,
     sharedContext?: Context
   ): Promise<ProductBrandDTO>;
 
   @InjectTransactionManager()
-  // @ts-expect-error
   async createProductBrands(
     data: any,
     sharedContext?: Context
@@ -1509,26 +1498,22 @@ class ProductModuleService extends MedusaService({
     return (Array.isArray(data) ? result : result[0]) as any;
   }
 
-  // @ts-expect-error
   updateProductBrands(
     id: string,
     data: UpdateProductBrandDTO,
     sharedContext?: Context
   ): Promise<ProductBrandDTO>;
-  // @ts-expect-error
   updateProductBrands(
     selector: Record<string, unknown>,
     data: UpdateProductBrandDTO,
     sharedContext?: Context
   ): Promise<ProductBrandDTO[]>;
-  // @ts-expect-error
   updateProductBrands(
     data: (UpdateProductBrandDTO & { id: string })[],
     sharedContext?: Context
   ): Promise<ProductBrandDTO[]>;
 
   @InjectTransactionManager()
-  // @ts-expect-error
   async updateProductBrands(
     idOrSelectorOrData:
       | string
@@ -1574,19 +1559,16 @@ class ProductModuleService extends MedusaService({
     return await super.updateProductBrands(input, dataOrContext as Context);
   }
 
-  // @ts-expect-error
   createProducts(
     data: CreateProductDTO[],
     sharedContext?: Context
   ): Promise<ProductDTO[]>;
-  // @ts-expect-error
   createProducts(
     data: CreateProductDTO,
     sharedContext?: Context
   ): Promise<ProductDTO>;
 
   @InjectTransactionManager()
-  // @ts-expect-error
   async createProducts(
     data: any,
     sharedContext?: Context
@@ -1619,26 +1601,22 @@ class ProductModuleService extends MedusaService({
     return (Array.isArray(data) ? products : products[0]) as any;
   }
 
-  // @ts-expect-error
   updateProducts(
     id: string,
     data: UpdateProductDTO,
     sharedContext?: Context
   ): Promise<ProductDTO>;
-  // @ts-expect-error
   updateProducts(
     selector: Record<string, unknown>,
     data: UpdateProductDTO,
     sharedContext?: Context
   ): Promise<ProductDTO[]>;
-  // @ts-expect-error
   updateProducts(
     data: (UpdateProductDTO & { id: string })[],
     sharedContext?: Context
   ): Promise<ProductDTO[]>;
 
   @InjectTransactionManager()
-  // @ts-expect-error
   async updateProducts(
     idOrSelectorOrData:
       | string
@@ -1713,19 +1691,16 @@ class ProductModuleService extends MedusaService({
     return await super.updateProducts(input, dataOrContext as Context);
   }
 
-  // @ts-expect-error
   createProductVariants(
     data: CreateProductVariantDTO[],
     sharedContext?: Context
   ): Promise<ProductVariantDTO[]>;
-  // @ts-expect-error
   createProductVariants(
     data: CreateProductVariantDTO,
     sharedContext?: Context
   ): Promise<ProductVariantDTO>;
 
   @InjectTransactionManager()
-  // @ts-expect-error
   async createProductVariants(
     data: CreateProductVariantDTO | CreateProductVariantDTO[],
     sharedContext?: Context
@@ -1781,26 +1756,22 @@ class ProductModuleService extends MedusaService({
     return Array.isArray(data) ? all : all[0];
   }
 
-  // @ts-expect-error
   updateProductVariants(
     id: string,
     data: UpdateProductVariantDTO,
     sharedContext?: Context
   ): Promise<ProductVariantDTO>;
-  // @ts-expect-error
   updateProductVariants(
     selector: Record<string, unknown>,
     data: UpdateProductVariantDTO,
     sharedContext?: Context
   ): Promise<ProductVariantDTO[]>;
-  // @ts-expect-error
   updateProductVariants(
     data: (UpdateProductVariantDTO & { id: string })[],
     sharedContext?: Context
   ): Promise<ProductVariantDTO[]>;
 
   @InjectTransactionManager()
-  // @ts-expect-error
   async updateProductVariants(
     idOrSelectorOrData:
       | string
@@ -1875,7 +1846,6 @@ class ProductModuleService extends MedusaService({
     return await super.updateProductVariants(data, dataOrContext as Context);
   }
 
-  // @ts-expect-error
   async createProductCategories(
     data: any | any[],
     sharedContext?: Context
@@ -1893,7 +1863,6 @@ class ProductModuleService extends MedusaService({
     return Array.isArray(data) ? categories : categories[0];
   }
 
-  // @ts-expect-error
   async updateProductCategories(
     data: any,
     sharedContext?: Context
@@ -1916,7 +1885,6 @@ class ProductModuleService extends MedusaService({
     return Array.isArray(data) ? categories : categories[0];
   }
 
-  // @ts-expect-error
   async retrieveProductCategory(
     id: string,
     config?: FindConfig<any>,
@@ -1929,7 +1897,6 @@ class ProductModuleService extends MedusaService({
     );
   }
 
-  // @ts-expect-error
   async listProductCategories(
     filters?: Record<string, any>,
     config?: FindConfig<any>,
@@ -1942,7 +1909,6 @@ class ProductModuleService extends MedusaService({
     );
   }
 
-  // @ts-expect-error
   async listAndCountProductCategories(
     filters?: Record<string, any>,
     config?: FindConfig<any>,
@@ -1955,7 +1921,6 @@ class ProductModuleService extends MedusaService({
     );
   }
 
-  // @ts-expect-error
   async deleteProductCategories(
     ids: string | string[],
     sharedContext?: Context
@@ -1964,7 +1929,6 @@ class ProductModuleService extends MedusaService({
     return await this.productCategoryService_.delete(idsArray, sharedContext);
   }
 
-  // @ts-expect-error
   async softDeleteProductCategories(
     ids: string | string[],
     sharedContext?: Context
@@ -1976,7 +1940,6 @@ class ProductModuleService extends MedusaService({
     );
   }
 
-  // @ts-expect-error
   async restoreProductCategories(
     ids: string | string[],
     sharedContext?: Context

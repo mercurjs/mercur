@@ -1,5 +1,4 @@
 import {
-  createWorkflow,
   createHook,
   WorkflowResponse,
   transform,
@@ -17,6 +16,7 @@ import {
   createProductChangesStep,
   createProductChangeActionsStep,
 } from "../../product-edit/steps"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const rejectProductWorkflowId = "reject-product"
 
@@ -26,7 +26,7 @@ type RejectProductWorkflowInput = {
   actor_id?: string
 }
 
-export const rejectProductWorkflow = createWorkflow(
+export const rejectProductWorkflow = createIdempotentWorkflow(
   rejectProductWorkflowId,
   function (input: RejectProductWorkflowInput) {
     const { data: products } = useQueryGraphStep({

@@ -55,7 +55,7 @@ export const POST = async (
     },
   })
 
-  const createdId = result[0].id
+  const createdId = (result as { id: string }[])[0].id
 
   const {
     data: [product],

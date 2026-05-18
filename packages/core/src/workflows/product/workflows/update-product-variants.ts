@@ -1,5 +1,4 @@
 import {
-  createWorkflow,
   createHook,
   WorkflowResponse,
   transform,
@@ -13,6 +12,7 @@ import {
   updateProductVariantsStep,
   UpdateProductVariantsStepInput,
 } from "../steps/update-product-variants"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const updateProductVariantsWorkflowId = "update-product-variants"
 
@@ -27,7 +27,7 @@ type UpdateProductVariantsWorkflowInput = (
 ) &
   AdditionalData
 
-export const updateProductVariantsWorkflow = createWorkflow(
+export const updateProductVariantsWorkflow: ReturnType<typeof createIdempotentWorkflow> = createIdempotentWorkflow(
   updateProductVariantsWorkflowId,
   function (input: UpdateProductVariantsWorkflowInput) {
     const stepInput = transform({ input }, (data) => {

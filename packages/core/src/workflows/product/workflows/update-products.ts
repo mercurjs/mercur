@@ -1,5 +1,4 @@
 import {
-  createWorkflow,
   createHook,
   WorkflowResponse,
   transform,
@@ -9,6 +8,7 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 
 import { ProductWorkflowEvents } from "../events"
 import { updateProductsStep } from "../steps"
+import { createIdempotentWorkflow } from "../../utils/create-idempotent-workflow"
 
 export const updateProductsWorkflowId = "update-products"
 
@@ -17,7 +17,7 @@ type UpdateProductsWorkflowInput = {
   data: Record<string, unknown>
 } & AdditionalData
 
-export const updateProductsWorkflow = createWorkflow(
+export const updateProductsWorkflow: ReturnType<typeof createIdempotentWorkflow> = createIdempotentWorkflow(
   updateProductsWorkflowId,
   function (input: UpdateProductsWorkflowInput) {
     const products = updateProductsStep(input)
