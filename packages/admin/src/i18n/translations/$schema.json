@@ -2029,6 +2029,150 @@
           "required": ["draft", "published", "proposed", "rejected"],
           "additionalProperties": false
         },
+        "request": {
+          "type": "object",
+          "properties": {
+            "panel": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": ["title", "description"],
+              "additionalProperties": false
+            },
+            "fallbackStore": {
+              "type": "string"
+            },
+            "actions": {
+              "type": "object",
+              "properties": {
+                "requestUpdate": {
+                  "type": "string"
+                },
+                "reject": {
+                  "type": "string"
+                }
+              },
+              "required": ["requestUpdate", "reject"],
+              "additionalProperties": false
+            },
+            "confirmPrompt": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "noteLabel": {
+                  "type": "string"
+                },
+                "notePlaceholder": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description",
+                "noteLabel",
+                "notePlaceholder"
+              ],
+              "additionalProperties": false
+            },
+            "requestUpdatePrompt": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "noteLabel": {
+                  "type": "string"
+                },
+                "notePlaceholder": {
+                  "type": "string"
+                },
+                "send": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description",
+                "noteLabel",
+                "notePlaceholder",
+                "send"
+              ],
+              "additionalProperties": false
+            },
+            "rejectPrompt": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "noteLabel": {
+                  "type": "string"
+                },
+                "notePlaceholder": {
+                  "type": "string"
+                },
+                "confirm": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description",
+                "noteLabel",
+                "notePlaceholder",
+                "confirm"
+              ],
+              "additionalProperties": false
+            },
+            "toast": {
+              "type": "object",
+              "properties": {
+                "publishedSuccessfully": {
+                  "type": "string"
+                },
+                "updateRequestedSuccessfully": {
+                  "type": "string"
+                },
+                "rejectedSuccessfully": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "publishedSuccessfully",
+                "updateRequestedSuccessfully",
+                "rejectedSuccessfully"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "panel",
+            "fallbackStore",
+            "actions",
+            "confirmPrompt",
+            "requestUpdatePrompt",
+            "rejectPrompt",
+            "toast"
+          ],
+          "additionalProperties": false
+        },
         "columns": {
           "type": "object",
           "properties": {
@@ -2746,6 +2890,7 @@
         "variantCount_other",
         "deleteVariantWarning",
         "productStatus",
+        "request",
         "columns",
         "fields",
         "variant",

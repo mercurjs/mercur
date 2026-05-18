@@ -14,7 +14,7 @@ export const updateProductsWorkflowId = "update-products"
 
 type UpdateProductsWorkflowInput = {
   selector: Record<string, unknown>
-  update: Record<string, unknown>
+  data: Record<string, unknown>
 } & AdditionalData
 
 export const updateProductsWorkflow = createWorkflow(
@@ -28,7 +28,7 @@ export const updateProductsWorkflow = createWorkflow(
     })
 
     const eventData = transform({ products }, ({ products }) =>
-      (products as any[]).map((p) => ({ id: p.id }))
+      (products).map((p) => ({ id: p.id }))
     )
 
     emitEventStep({

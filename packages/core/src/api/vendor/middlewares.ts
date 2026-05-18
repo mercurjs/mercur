@@ -19,7 +19,6 @@ import { vendorPriceListsMiddlewares } from "./price-lists/middlewares"
 import { vendorPricePreferencesMiddlewares } from "./price-preferences/middlewares"
 import { vendorProductCategoriesMiddlewares } from "./product-categories/middlewares"
 import { vendorProductsMiddlewares } from "./products/middlewares"
-import { vendorProductVariantsMiddlewares } from "./product-variants/middlewares"
 import { vendorProductTypesMiddlewares } from "./product-types/middlewares"
 import { vendorPromotionsMiddlewares } from "./promotions/middlewares"
 import { vendorRegionsMiddlewares } from "./regions/middlewares"
@@ -36,6 +35,8 @@ import { vendorStoresMiddlewares } from "./stores/middlewares"
 import { vendorSubscriptionMiddlewares } from "./subscription/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
 import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
+import { vendorProductAttributesMiddlewares } from "./product-attributes/middlewares"
+import { vendorProductBrandsMiddlewares } from "./product-brands/middlewares"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
 const unauthenticatedRoutes = [
@@ -97,8 +98,9 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorPriceListsMiddlewares,
   ...vendorPricePreferencesMiddlewares,
   ...vendorProductCategoriesMiddlewares,
+  ...vendorProductAttributesMiddlewares,
+  ...vendorProductBrandsMiddlewares,
   ...vendorProductsMiddlewares,
-  ...vendorProductVariantsMiddlewares,
   ...vendorProductTypesMiddlewares,
   ...vendorPromotionsMiddlewares,
   ...vendorRegionsMiddlewares,

@@ -8,12 +8,11 @@ import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
 import { ProductStatus, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
+import { validateResubmitProductStep, updateProductsStep } from "../steps"
 import {
-  validateResubmitProductStep,
-  createProductChangeStep,
-  createProductChangeActionStep,
-  updateProductsStep,
-} from "../steps"
+  createProductChangesStep,
+  createProductChangeActionsStep,
+} from "../../product-edit/steps"
 
 export const resubmitProductWorkflowId = "resubmit-product"
 
@@ -35,27 +34,29 @@ export const resubmitProductWorkflow = createWorkflow(
 
     validateResubmitProductStep({ product })
 
-    const changeData = transform({ product }, ({ product }) => ({
-      product_id: product.id,
-    }))
+    const changeData = transform({ product }, ({ product }) => [
+      { product_id: product.id },
+    ])
 
-    const change = createProductChangeStep(changeData)
+    const changes = createProductChangesStep(changeData)
 
     const actionData = transform(
-      { change, product },
-      ({ change, product }) => ({
-        product_change_id: change.id,
-        product_id: product.id,
-        action: ProductChangeActionType.STATUS_CHANGE,
-        details: { status: ProductStatus.PENDING },
-      })
+      { changes, product },
+      ({ changes, product }) => [
+        {
+          product_change_id: changes[0].id,
+          product_id: product.id,
+          action: ProductChangeActionType.STATUS_CHANGE,
+          details: { status: ProductStatus.PROPOSED },
+        },
+      ]
     )
 
-    createProductChangeActionStep(actionData)
+    createProductChangeActionsStep(actionData)
 
     const updateInput = transform({ input }, ({ input }) => ({
       selector: { id: input.product_id },
-      update: { status: ProductStatus.PENDING },
+      data: { status: ProductStatus.PROPOSED },
     }))
 
     updateProductsStep(updateInput)

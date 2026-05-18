@@ -1,13 +1,31 @@
+/**
+ * Product lifecycle events emitted by product workflows.
+ *
+ * Payload shapes:
+ * - `PUBLISHED`: `Array<{ id: string; internal_note?: string }>` — emitted by
+ *   `confirmProductsWorkflow`. One entry per confirmed product. `internal_note`
+ *   is the operator-only note recorded on the corresponding `ProductChange`.
+ * - `CHANGES_REQUESTED`: `{ id: string; message?: string }` — emitted by
+ *   `requestProductChangesWorkflow`. `message` is the external note shown to
+ *   the vendor explaining what needs to change.
+ * - `REJECTED`: `{ id: string; message?: string }` — emitted by
+ *   `rejectProductWorkflow`. `message` is the external note shown to the
+ *   vendor explaining the rejection.
+ */
 export const ProductWorkflowEvents = {
   CREATED: "product.created",
   UPDATED: "product.updated",
   DELETED: "product.deleted",
-  ACCEPTED: "product.accepted",
+  DRAFT: "product.draft",
+  PUBLISHED: "product.published",
+  PROPOSED: "product.proposed",
   CHANGES_REQUESTED: "product.changes_requested",
   REJECTED: "product.rejected",
-  ACTIVATED: "product.activated",
-  DEACTIVATED: "product.deactivated",
   RESUBMITTED: "product.submission_resubmitted",
+  EDIT_REQUESTED: "product.edit_requested",
+  EDIT_CANCELED: "product.edit_canceled",
+  EDIT_DECLINED: "product.edit_declined",
+  EDIT_CONFIRMED: "product.edit_confirmed",
 } as const
 
 export const ProductBrandWorkflowEvents = {
@@ -28,8 +46,15 @@ export const ProductAttributeValueWorkflowEvents = {
   DELETED: "product_attribute_value.deleted",
 } as const
 
-export const ProductRejectionReasonWorkflowEvents = {
-  CREATED: "product_rejection_reason.created",
-  UPDATED: "product_rejection_reason.updated",
-  DELETED: "product_rejection_reason.deleted",
+export const ProductCategoryWorkflowEvents = {
+  CREATED: "product_category.created",
+  UPDATED: "product_category.updated",
+  DELETED: "product_category.deleted",
 } as const
+
+export const ProductVariantWorkflowEvents = {
+  CREATED: "product_variant.created",
+  UPDATED: "product_variant.updated",
+  DELETED: "product_variant.deleted",
+} as const
+

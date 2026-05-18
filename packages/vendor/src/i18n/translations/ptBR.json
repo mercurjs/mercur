@@ -406,7 +406,8 @@
       "errors": {
         "variants": "Por favor, selecione pelo menos uma variante.",
         "options": "Por favor, crie pelo menos uma opção.",
-        "uniqueSku": "SKU deve ser único."
+        "uniqueSku": "SKU deve ser único.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Kits de inventário",
@@ -435,7 +436,21 @@
           "hint": "Defina as opções para o produto, por exemplo, cor, tamanho, etc."
         }
       },
-      "successToast": "Produto {{title}} foi criado com sucesso."
+      "successToast": "Produto {{title}} foi criado com sucesso.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Exportar lista de produtos",
@@ -522,6 +537,7 @@
       "draft": "Rascunho",
       "published": "Publicado",
       "proposed": "Proposto",
+      "requires_action": "Changes required",
       "rejected": "Rejeitado"
     },
     "fields": {
@@ -2773,7 +2789,8 @@
     "startDate": "Data de início",
     "endDate": "Data de término",
     "draft": "Rascunho",
-    "values": "Valores"
+    "values": "Valores",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Ano",
@@ -2790,5 +2807,23 @@
     "minutes_other": "Minutos",
     "seconds_one": "Segundo",
     "seconds_other": "Segundos"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

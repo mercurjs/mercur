@@ -1,30 +1,24 @@
-import { createProductVariantsWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
+import { CreateProductVariantDTO, HttpTypes } from "@mercurjs/types"
 
-import { validateSellerProduct } from "../../helpers"
-import { VendorCreateProductVariantType } from "../../validators"
+import { productEditAddVariantWorkflow } from "../../../../../workflows/product-edit/workflows/product-edit-add-variant"
+import { VendorAddProductVariantType } from "../../validators"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorProductVariantListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
-
-  await validateSellerProduct(req.scope, sellerId, req.params.id)
+  const productId = req.params.id
 
   const { data: variants, metadata } = await query.graph({
-    entity: "product_variant",
+    entity: "variant",
     fields: req.queryConfig.fields,
-    filters: {
-      product_id: req.params.id,
-      ...req.filterableFields,
-    },
+    filters: { ...req.filterableFields, product_id: productId },
     pagination: req.queryConfig.pagination,
   })
 
@@ -36,38 +30,26 @@ export const GET = async (
   })
 }
 
+/**
+ * Stages a `VARIANT_ADD` action via `product-edit-add-variant`. Returns
+ * the created `ProductChange` — the variant is created on the product
+ * only after an operator confirms the change.
+ */
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorCreateProductVariantType>,
-  res: MedusaResponse<HttpTypes.VendorProductResponse>
+  req: AuthenticatedMedusaRequest<VendorAddProductVariantType>,
+  res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
-  const { additional_data, ...variantData } = req.validatedBody
+  const sellerId = req.seller_context!.seller_id
 
-  await validateSellerProduct(req.scope, sellerId, req.params.id)
-
-  await createProductVariantsWorkflow(req.scope).run({
+  const { result: change } = await productEditAddVariantWorkflow(
+    req.scope
+  ).run({
     input: {
-      product_variants: [
-        {
-          ...variantData,
-          product_id: req.params.id,
-        },
-      ],
-      additional_data: {
-        ...additional_data,
-        seller_id: sellerId,
-      },
+      product_id: req.params.id,
+      variant: req.validatedBody as unknown as CreateProductVariantDTO,
+      actor_id: sellerId,
     },
   })
 
-  const {
-    data: [product],
-  } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: { id: req.params.id },
-  })
-
-  res.status(201).json({ product })
+  res.status(202).json({ product_change: change })
 }

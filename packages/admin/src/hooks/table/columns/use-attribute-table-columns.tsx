@@ -4,30 +4,40 @@ import { createPortal } from "react-dom"
 import { useTranslation } from "react-i18next"
 import {
   Badge,
-  Button,
-  Heading,
   Prompt,
   Switch,
-  Text,
   toast,
   usePrompt,
 } from "@medusajs/ui"
 import { PencilSquare, Trash } from "@medusajs/icons"
+import { ProductAttributeDTO } from "@mercurjs/types"
 import { TextCell } from "../../../components/table/table-cells/common/text-cell"
 import { ActionMenu } from "../../../components/common/action-menu"
-import { Combobox } from "../../../components/inputs/combobox"
 import {
-  useDeleteAttribute,
-  useUpdateAttribute,
-} from "../../../hooks/api/attributes"
-import { useProductCategories } from "../../../hooks/api"
+  useDeleteProductAttribute,
+  useUpdateProductAttribute,
+} from "../../../hooks/api/product-attributes"
 
 const MAX_VISIBLE_VALUES = 2
 
+// --- Type label helper ---
+
+const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
+  single_select: "attributes.type.select",
+  multi_select: "attributes.type.multivalue",
+  unit: "attributes.type.unit",
+  toggle: "attributes.type.toggle",
+  text: "attributes.type.text_area",
+}
+
 // --- Filterable Toggle ---
 
-const FilterableToggle = ({ attribute }: { attribute: Record<string, any> }) => {
-  const { mutateAsync } = useUpdateAttribute(attribute.id)
+const FilterableToggle = ({
+  attribute,
+}: {
+  attribute: ProductAttributeDTO
+}) => {
+  const { mutateAsync } = useUpdateProductAttribute(attribute.id)
 
   const handleToggle = async (checked: boolean) => {
     try {
@@ -38,7 +48,12 @@ const FilterableToggle = ({ attribute }: { attribute: Record<string, any> }) => 
   }
 
   return (
-    <div onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
+    <div
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+      }}
+    >
       <Switch
         checked={!!attribute.is_filterable}
         onCheckedChange={handleToggle}
@@ -48,120 +63,36 @@ const FilterableToggle = ({ attribute }: { attribute: Record<string, any> }) => 
   )
 }
 
-// --- Global Toggle with Category Modal ---
+// --- Required Toggle ---
 
-const GlobalToggle = ({ attribute }: { attribute: Record<string, any> }) => {
-  const { t } = useTranslation()
-  const { mutateAsync } = useUpdateAttribute(attribute.id)
-  const [categoryModalOpen, setCategoryModalOpen] = useState(false)
-  const [selectedCategoryIds, setSelectedCategoryIds] = useState<string[]>([])
-
-  const categories = attribute.product_categories ?? []
-  const isGlobal = !categories.length
-
-  const { product_categories: allCategories } = useProductCategories({
-    limit: 999,
-  })
-
-  const categoryOptions = (allCategories ?? []).map((cat: any) => ({
-    label: cat.name,
-    value: cat.id,
-  }))
+const RequiredToggle = ({
+  attribute,
+}: {
+  attribute: ProductAttributeDTO
+}) => {
+  const { mutateAsync } = useUpdateProductAttribute(attribute.id)
 
   const handleToggle = async (checked: boolean) => {
-    if (checked) {
-      // Turning ON global — remove category assignments
-      try {
-        await mutateAsync({ product_category_ids: [] })
-      } catch (err: any) {
-        toast.error(err.message)
-      }
-    } else {
-      // Turning OFF global — need to pick categories
-      setSelectedCategoryIds(categories.map((c: any) => c.id))
-      setCategoryModalOpen(true)
-    }
-  }
-
-  const handleSaveCategory = async () => {
-    if (!selectedCategoryIds.length) return
-
     try {
-      await mutateAsync({
-        product_category_ids: selectedCategoryIds,
-      })
-      setCategoryModalOpen(false)
-      setSelectedCategoryIds([])
+      await mutateAsync({ is_required: checked })
     } catch (err: any) {
       toast.error(err.message)
     }
   }
 
   return (
-    <>
-      <div onClick={(e) => { e.preventDefault(); e.stopPropagation() }}>
-        <Switch
-          checked={isGlobal}
-          onCheckedChange={handleToggle}
-          size="small"
-        />
-      </div>
-      {categoryModalOpen &&
-        createPortal(
-          <div
-            className="fixed inset-0 z-50 flex items-center justify-center"
-            onClick={(e) => {
-              e.preventDefault()
-              e.stopPropagation()
-            }}
-          >
-            <div
-              className="bg-ui-bg-overlay fixed inset-0"
-              onClick={(e) => {
-                e.preventDefault()
-                e.stopPropagation()
-              }}
-            />
-            <div className="bg-ui-bg-base shadow-elevation-flyout relative flex w-full max-w-[400px] flex-col rounded-lg border">
-              <div className="flex flex-col gap-y-1 px-6 pt-6">
-                <Heading level="h2">
-                  {t("attributes.selectCategory.title")}
-                </Heading>
-                <Text size="small" className="text-ui-fg-subtle">
-                  {t("attributes.selectCategory.description")}
-                </Text>
-              </div>
-              <div className="px-6 py-4">
-                <Combobox
-                  options={categoryOptions}
-                  value={selectedCategoryIds}
-                  onChange={(val) => setSelectedCategoryIds(val as string[])}
-                />
-              </div>
-              <div className="flex items-center justify-end gap-x-2 p-6">
-                <Button
-                  variant="secondary"
-                  size="small"
-                  onClick={() => {
-                    setCategoryModalOpen(false)
-                    setSelectedCategoryIds([])
-                  }}
-                >
-                  {t("actions.cancel")}
-                </Button>
-                <Button
-                  size="small"
-                  disabled={!selectedCategoryIds.length}
-                  onClick={() => handleSaveCategory()}
-                >
-                  {t("actions.save")}
-                </Button>
-              </div>
-            </div>
-          </div>,
-          document.body
-        )}
-    </>
+    <div
+      onClick={(e) => {
+        e.preventDefault()
+        e.stopPropagation()
+      }}
+    >
+      <Switch
+        checked={!!attribute.is_required}
+        onCheckedChange={handleToggle}
+        size="small"
+      />
+    </div>
   )
 }
 
@@ -170,11 +101,11 @@ const GlobalToggle = ({ attribute }: { attribute: Record<string, any> }) => {
 const AttributeActions = ({
   attribute,
 }: {
-  attribute: Record<string, any>
+  attribute: ProductAttributeDTO
 }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
-  const { mutateAsync } = useDeleteAttribute(attribute.id)
+  const { mutateAsync } = useDeleteProductAttribute(attribute.id)
   const [inUseOpen, setInUseOpen] = useState(false)
 
   const handleDelete = async () => {
@@ -255,7 +186,7 @@ const AttributeActions = ({
 
 // --- Columns ---
 
-const columnHelper = createColumnHelper<any>()
+const columnHelper = createColumnHelper<ProductAttributeDTO>()
 
 export const useAttributeTableColumns = () => {
   const { t } = useTranslation()
@@ -263,27 +194,45 @@ export const useAttributeTableColumns = () => {
   return useMemo(
     () => [
       columnHelper.accessor("name", {
-        header: () => t("attributes.fields.productAttribute"),
+        header: () => t("attributes.fields.name"),
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
       columnHelper.accessor("handle", {
         header: () => t("attributes.fields.handle"),
-        cell: ({ getValue }) => <TextCell text={getValue() || "-"} />,
+        cell: ({ getValue }) => {
+          const handle = getValue()
+          return <TextCell text={handle ? `/${handle}` : "-"} />
+        },
+      }),
+      columnHelper.accessor("is_required", {
+        header: () => t("attributes.fields.required"),
+        cell: ({ row }) => <RequiredToggle attribute={row.original} />,
       }),
       columnHelper.accessor("is_filterable", {
         header: () => t("attributes.fields.filterable"),
-        cell: ({ row }) => <FilterableToggle attribute={row.original} />,
+        cell: ({ row }) => (
+          <FilterableToggle attribute={row.original} />
+        ),
       }),
-      columnHelper.display({
-        id: "is_global",
-        header: () => t("attributes.fields.global"),
-        cell: ({ row }) => <GlobalToggle attribute={row.original} />,
+      columnHelper.accessor("type", {
+        header: () => t("attributes.fields.type"),
+        cell: ({ getValue }) => {
+          const type = getValue()
+          const labelKey = ATTRIBUTE_TYPE_LABELS[type]
+          return <TextCell text={labelKey ? t(labelKey) : type} />
+        },
+      }),
+      columnHelper.accessor("is_variant_axis", {
+        header: () => t("attributes.fields.variantAxis"),
+        cell: ({ getValue }) => (
+          <TextCell text={getValue() ? t("filters.radio.yes") : t("filters.radio.no")} />
+        ),
       }),
       columnHelper.display({
         id: "values",
         header: () => t("attributes.fields.values"),
         cell: ({ row }) => {
-          const values = row.original.possible_values ?? []
+          const values = row.original.values ?? []
           if (!values.length) {
             return <span className="text-ui-fg-muted">-</span>
           }
@@ -291,9 +240,9 @@ export const useAttributeTableColumns = () => {
           const remaining = values.length - MAX_VISIBLE_VALUES
           return (
             <div className="flex items-center gap-x-1">
-              {visible.map((v: any) => (
+              {visible.map((v) => (
                 <Badge key={v.id} size="2xsmall" color="grey">
-                  {v.value}
+                  {v.name}
                 </Badge>
               ))}
               {remaining > 0 && (
@@ -307,7 +256,9 @@ export const useAttributeTableColumns = () => {
       }),
       columnHelper.display({
         id: "actions",
-        cell: ({ row }) => <AttributeActions attribute={row.original} />,
+        cell: ({ row }) => (
+          <AttributeActions attribute={row.original} />
+        ),
       }),
     ],
     [t]

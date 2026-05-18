@@ -1,12 +1,13 @@
-import { createProductsWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
+import { CreateProductDTO, HttpTypes } from "@mercurjs/types"
 
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
+import { submitSellerProductsWorkflow } from "../../../workflows"
+import { formatProductAttributes } from "../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<VendorGetProductsParamsType>,
@@ -21,6 +22,10 @@ export const GET = async (
     pagination: req.queryConfig.pagination,
   })
 
+  for (const product of products) {
+    formatProductAttributes(product)
+  }
+
   res.json({
     products,
     count: metadata?.count ?? 0,
@@ -34,18 +39,15 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
+  const sellerId = req.seller_context!.seller_id
   const { additional_data, ...productData } = req.validatedBody
 
   const {
     result: [createdProduct],
-  } = await createProductsWorkflow(req.scope).run({
+  } = await submitSellerProductsWorkflow(req.scope).run({
     input: {
-      products: [productData],
-      additional_data: {
-        ...additional_data,
-        seller_id: sellerId,
-      },
+      products: [productData as unknown as CreateProductDTO],
+      seller_id: sellerId
     },
   })
 
@@ -56,6 +58,8 @@ export const POST = async (
     fields: req.queryConfig.fields,
     filters: { id: createdProduct.id },
   })
+
+  formatProductAttributes(product)
 
   res.status(201).json({ product })
 }
