@@ -13,7 +13,7 @@ export default defineLink(
   },
   {
     database: {
-      table: "product_seller_authorization",
+      table: "product_seller",
     },
   }
 )

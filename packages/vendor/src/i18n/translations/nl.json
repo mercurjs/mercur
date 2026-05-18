@@ -420,7 +420,8 @@
       "errors": {
         "variants": "Selecteer minimaal één variant.",
         "options": "Maak minimaal één optie aan.",
-        "uniqueSku": "SKU moet uniek zijn."
+        "uniqueSku": "SKU moet uniek zijn.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Voorraadsets",
@@ -449,7 +450,21 @@
           "hint": "Definieer de opties voor het product, zoals kleur, maat, etc."
         }
       },
-      "successToast": "Product {{title}} is succesvol aangemaakt."
+      "successToast": "Product {{title}} is succesvol aangemaakt.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Productlijst exporteren",
@@ -536,6 +551,7 @@
       "draft": "Concept",
       "published": "Gepubliceerd",
       "proposed": "Voorgesteld",
+      "requires_action": "Changes required",
       "rejected": "Afgewezen"
     },
     "fields": {
@@ -2989,7 +3005,8 @@
     "startDate": "Startdatum",
     "endDate": "Einddatum",
     "draft": "Concept",
-    "values": "Waarden"
+    "values": "Waarden",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Jaar",
@@ -3006,5 +3023,23 @@
     "minutes_other": "Minuten",
     "seconds_one": "Seconde",
     "seconds_other": "Seconden"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

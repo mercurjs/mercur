@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types";
 import { Button, toast } from "@medusajs/ui";
-import { ReactNode, useCallback, useMemo, Children } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, Children } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
@@ -17,7 +17,11 @@ import {
   ProductCreateSchema,
 } from "../../constants";
 import { ProductCreateSchemaType } from "../../types";
-import { normalizeProductFormValues } from "../../utils";
+import {
+  generateVariantsFromAttributes,
+  normalizeProductFormValues,
+} from "../../utils";
+import { ProductCreateAttributesForm } from "../product-create-attributes-form";
 import { ProductCreateDetailsForm } from "../product-create-details-form";
 import { ProductCreateInventoryKitForm } from "../product-create-inventory-kit-form";
 import { ProductCreateOrganizeForm } from "../product-create-organize-form";
@@ -29,14 +33,12 @@ import { DeepPartial } from "react-hook-form";
 const SAVE_DRAFT_BUTTON = "save-draft-button";
 
 type ProductCreateFormProps = {
-  defaultChannel?: HttpTypes.AdminSalesChannel;
   children?: ReactNode;
   schema?: z.ZodType<ProductCreateSchemaType>;
   defaultValues?: DeepPartial<ProductCreateSchemaType>;
 };
 
 export const ProductCreateForm = ({
-  defaultChannel,
   children,
   schema,
   defaultValues: extraDefaults,
@@ -47,9 +49,6 @@ export const ProductCreateForm = ({
     defaultValues: {
       ...PRODUCT_CREATE_FORM_DEFAULTS,
       ...extraDefaults,
-      sales_channels: defaultChannel
-        ? [{ id: defaultChannel.id, name: defaultChannel.name }]
-        : [],
     } as ProductCreateSchemaType,
     resolver: zodResolver(schema ?? ProductCreateSchema),
   });
@@ -90,6 +89,27 @@ export const ProductCreateForm = ({
     control: form.control,
     name: "variants",
   });
+
+  const watchedAttributes = useWatch({
+    control: form.control,
+    name: "attributes",
+  });
+
+  // Generate variants from variant-axis attributes
+  useEffect(() => {
+    const currentVariants = form.getValues("variants") ?? [];
+    const newVariants = generateVariantsFromAttributes(
+      watchedAttributes ?? [],
+      currentVariants,
+    );
+
+    if (
+      JSON.stringify(newVariants.map((v) => v.attribute_values)) !==
+      JSON.stringify(currentVariants.map((v) => v.attribute_values))
+    ) {
+      form.setValue("variants", newVariants);
+    }
+  }, [watchedAttributes]);
 
   const handleSubmit = form.handleSubmit(async (values, e) => {
     if (isRegionsPending) {
@@ -163,9 +183,9 @@ export const ProductCreateForm = ({
 
   const transformTabs = useCallback(
     (tabs: TabDefinition<ProductCreateSchemaType>[]) => {
-      const showInventoryTab = watchedVariants?.some(
-        (v) => v.manage_inventory && v.inventory_kit
-      ) ?? false;
+      const showInventoryTab =
+        watchedVariants?.some((v) => v.manage_inventory && v.inventory_kit) ??
+        false;
 
       return tabs.map((tab) => {
         if (tab.id === "inventory") {
@@ -184,6 +204,7 @@ export const ProductCreateForm = ({
     () => [
       <ProductCreateDetailsForm key="details" />,
       <ProductCreateOrganizeForm key="organize" />,
+      <ProductCreateAttributesForm key="attributes" />,
       <ProductCreateVariantsForm key="variants" />,
       <ProductCreateInventoryKitForm key="inventory" />,
     ],

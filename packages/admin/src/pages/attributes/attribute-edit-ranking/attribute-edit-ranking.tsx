@@ -16,8 +16,8 @@ import {
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable"
 import { CSS } from "@dnd-kit/utilities"
-import { DotsSix, Tag } from "@medusajs/icons"
-import { Button, Text, toast } from "@medusajs/ui"
+import { DotsSix, TagIllustration } from "@medusajs/icons"
+import { Button, clx, IconButton, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
@@ -25,10 +25,10 @@ import {
   RouteFocusModal,
   useRouteModal,
 } from "../../../components/modals"
-import { useAttribute, attributesQueryKeys } from "../../../hooks/api/attributes"
-import { sdk } from "../../../lib/client"
-import { queryClient } from "../../../lib/query-client"
-import { ATTRIBUTE_DETAIL_FIELDS } from "../attribute-detail/constants"
+import {
+  useProductAttribute,
+  useUpsertProductAttributeValues,
+} from "../../../hooks/api/product-attributes"
 
 type RankingItem = {
   id: string
@@ -36,7 +36,12 @@ type RankingItem = {
   rank: number
 }
 
-const SortableRankingItem = ({ item }: { item: RankingItem }) => {
+interface SortableRankingItemProps {
+  item: RankingItem
+  isGhost?: boolean
+}
+
+const SortableRankingItem = ({ item, isGhost }: SortableRankingItemProps) => {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: item.id })
 
@@ -46,22 +51,39 @@ const SortableRankingItem = ({ item }: { item: RankingItem }) => {
   }
 
   return (
-    <div
+    <li
       ref={setNodeRef}
       style={style}
-      className="flex items-center gap-x-3 border-b px-6 py-3 last:border-b-0"
+      className={clx("-mb-px list-none", {
+        "[&:first-of-type>div]:border-t-0": true,
+      })}
     >
-      <button
-        type="button"
-        className="cursor-grab text-ui-fg-muted"
-        {...attributes}
-        {...listeners}
+      <div
+        className={clx(
+          "bg-ui-bg-base transition-fg relative flex items-center gap-x-3 border-y px-6 py-2.5",
+          {
+            "bg-ui-bg-base-hover z-[1] opacity-50": isGhost,
+          }
+        )}
       >
-        <DotsSix />
-      </button>
-      <Tag className="text-ui-fg-interactive" />
-      <Text size="small">{item.value}</Text>
-    </div>
+        <IconButton
+          size="small"
+          variant="transparent"
+          type="button"
+          className="cursor-grab active:cursor-grabbing"
+          {...attributes}
+          {...listeners}
+        >
+          <DotsSix />
+        </IconButton>
+        <div className="flex size-7 items-center justify-center">
+          <TagIllustration />
+        </div>
+        <div className="txt-compact-small text-ui-fg-subtle flex-grow truncate">
+          {item.value}
+        </div>
+      </div>
+    </li>
   )
 }
 
@@ -70,20 +92,19 @@ const EditRankingInner = () => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const { attribute, isPending: isLoading } = useAttribute(id!, {
-    fields: ATTRIBUTE_DETAIL_FIELDS,
-  })
+  const { product_attribute: attribute, isPending: isLoading } = useProductAttribute(id!)
 
-  const existingValues: RankingItem[] = (attribute?.possible_values ?? [])
-    .sort((a: any, b: any) => (a.rank ?? 0) - (b.rank ?? 0))
-    .map((v: any) => ({
+  const existingValues: RankingItem[] = (attribute?.values ?? [])
+    .sort((a, b) => (a.rank ?? 0) - (b.rank ?? 0))
+    .map((v) => ({
       id: v.id,
-      value: v.value,
+      value: v.name,
       rank: v.rank,
     }))
 
   const [items, setItems] = useState<RankingItem[]>([])
   const [initialized, setInitialized] = useState(false)
+  const [activeId, setActiveId] = useState<string | null>(null)
 
   if (!initialized && existingValues.length > 0) {
     setItems(existingValues)
@@ -98,6 +119,7 @@ const EditRankingInner = () => {
   )
 
   const handleDragEnd = (event: DragEndEvent) => {
+    setActiveId(null)
     const { active, over } = event
     if (!over || active.id === over.id) return
 
@@ -108,38 +130,24 @@ const EditRankingInner = () => {
     })
   }
 
-  const [isSaving, setIsSaving] = useState(false)
+  const { mutateAsync: upsertValues, isPending: isSaving } =
+    useUpsertProductAttributeValues(id!, {
+      onSuccess: () => {
+        toast.success(t("attributes.editRanking.successToast", "Ranking updated successfully."))
+        handleSuccess()
+      },
+      onError: (err) => {
+        toast.error(err.message)
+      },
+    })
 
   const handleSave = async () => {
-    setIsSaving(true)
-    try {
-      const updates = items
-        .map((item, index) => ({
-          id: item.id,
-          newRank: index + 1,
-          oldRank: existingValues.find((v) => v.id === item.id)?.rank,
-        }))
-        .filter((u) => u.newRank !== u.oldRank)
+    const values = items.map((item, index) => ({
+      id: item.id,
+      rank: index + 1,
+    }))
 
-      for (const update of updates) {
-        await sdk.admin.attributes.$id.values.$valueId.mutate({
-          $id: id!,
-          $valueId: update.id,
-          rank: update.newRank,
-        })
-      }
-
-      queryClient.invalidateQueries({
-        queryKey: attributesQueryKeys.detail(id!),
-      })
-
-      toast.success(t("attributes.editRanking.successToast", "Ranking updated successfully."))
-      handleSuccess()
-    } catch (err: any) {
-      toast.error(err.message)
-    } finally {
-      setIsSaving(false)
-    }
+    await upsertValues({ values })
   }
 
   if (isLoading || !attribute) {
@@ -149,19 +157,26 @@ const EditRankingInner = () => {
   return (
     <>
       <RouteFocusModal.Header />
-      <RouteFocusModal.Body className="flex flex-1 flex-col overflow-auto">
+      <RouteFocusModal.Body className="flex flex-1 flex-col overflow-y-auto">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
+          onDragStart={({ active }) => setActiveId(active.id as string)}
           onDragEnd={handleDragEnd}
         >
           <SortableContext
             items={items.map((i) => i.id)}
             strategy={verticalListSortingStrategy}
           >
-            {items.map((item) => (
-              <SortableRankingItem key={item.id} item={item} />
-            ))}
+            <ul className="list-none p-0 m-0">
+              {items.map((item) => (
+                <SortableRankingItem
+                  key={item.id}
+                  item={item}
+                  isGhost={activeId === item.id}
+                />
+              ))}
+            </ul>
           </SortableContext>
         </DndContext>
       </RouteFocusModal.Body>

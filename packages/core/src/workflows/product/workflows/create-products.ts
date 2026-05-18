@@ -10,16 +10,23 @@ import { CreateProductDTO } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { createProductsStep } from "../steps"
+import { linkSellersToProductWorkflow } from "./link-sellers-to-product"
 
 export const createProductsWorkflowId = "create-products"
 
 type CreateProductsWorkflowInput = {
   products: CreateProductDTO[]
+  seller_ids?: string[]
 } & AdditionalData
 
 export const createProductsWorkflow = createWorkflow(
   createProductsWorkflowId,
   function (input: CreateProductsWorkflowInput) {
+    const validate = createHook("validate", {
+      input,
+      products: input.products,
+    })
+
     const products = createProductsStep(input.products)
 
     const productsCreated = createHook("productsCreated", {
@@ -36,6 +43,18 @@ export const createProductsWorkflow = createWorkflow(
       data: eventData,
     })
 
-    return new WorkflowResponse(products, { hooks: [productsCreated] })
+    const linkInput = transform(
+      { input, products },
+      ({ input, products }) => ({
+        id: (products as any[])[0]?.id,
+        add: input.seller_ids ?? [],
+      })
+    )
+
+    linkSellersToProductWorkflow.runAsStep({ input: linkInput })
+
+    return new WorkflowResponse(products, {
+      hooks: [validate, productsCreated] as const,
+    })
   }
 )

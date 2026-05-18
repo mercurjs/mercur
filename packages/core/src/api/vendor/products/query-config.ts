@@ -1,10 +1,9 @@
-import { defaultAdminProductVariantFields } from "@medusajs/medusa/api/admin/product-variants/query-config"
-
 export const vendorProductFields = [
   "id",
   "title",
   "subtitle",
   "status",
+  "is_restricted",
   "external_id",
   "description",
   "handle",
@@ -13,6 +12,7 @@ export const vendorProductFields = [
   "thumbnail",
   "collection_id",
   "type_id",
+  "brand_id",
   "weight",
   "length",
   "height",
@@ -25,39 +25,73 @@ export const vendorProductFields = [
   "updated_at",
   "metadata",
   "*type",
+  "*brand",
   "*collection",
-  "*options",
-  "*options.values",
   "*tags",
   "*images",
-  "*variants",
-  "*variants.prices",
-  "*variants.options",
-  "*variants.inventory_items",
   "*categories",
+  "*variants",
+  "*variants.attribute_values",
+  "*variants.attribute_values.attribute",
+  "*variant_attributes",
+  "*variant_attributes.values",
+  "*custom_attributes",
+  "*custom_attributes.values",
   "*attribute_values",
   "*attribute_values.attribute",
+]
+
+export const vendorProductRetrieveFields = [
+  ...vendorProductFields,
 ]
 
 export const vendorProductQueryConfig = {
   list: {
     defaults: vendorProductFields,
+    defaultLimit: 50,
     isList: true,
   },
   retrieve: {
-    defaults: vendorProductFields,
+    defaults: vendorProductRetrieveFields,
     isList: false,
   },
 }
 
+export const vendorProductVariantFields = [
+  "id",
+  "title",
+  "sku",
+  "ean",
+  "upc",
+  "isbn",
+  "asin",
+  "gtin",
+  "barcode",
+  "hs_code",
+  "mid_code",
+  "variant_rank",
+  "weight",
+  "length",
+  "height",
+  "width",
+  "origin_country",
+  "material",
+  "metadata",
+  "created_at",
+  "updated_at",
+  "product_id",
+  "*attribute_values",
+  "*attribute_values.attribute",
+]
+
 export const vendorProductVariantQueryConfig = {
   list: {
-    defaults: defaultAdminProductVariantFields,
-    isList: true,
+    defaults: vendorProductVariantFields,
     defaultLimit: 50,
+    isList: true,
   },
   retrieve: {
-    defaults: defaultAdminProductVariantFields,
+    defaults: vendorProductVariantFields,
     isList: false,
   },
 }

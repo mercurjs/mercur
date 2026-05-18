@@ -1,11 +1,12 @@
 import { model } from "@medusajs/framework/utils";
+import Product from "./product";
 import ProductAttribute from "./product-attribute";
 import ProductVariant from "./product-variant";
 
 const ProductAttributeValue = model
   .define("ProductAttributeValue", {
     id: model.id({ prefix: "pattrval" }).primaryKey(),
-    handle: model.text(),
+    handle: model.text().nullable(),
     name: model.text(),
     rank: model.number().default(0),
     is_active: model.boolean().default(true),
@@ -16,7 +17,9 @@ const ProductAttributeValue = model
       mappedBy: "values",
     }),
     variants: model.manyToMany(() => ProductVariant, {
-      pivotTable: "product_variant_attribute_value",
+      mappedBy: "attribute_values",
+    }),
+    products: model.manyToMany(() => Product, {
       mappedBy: "attribute_values",
     }),
   })

@@ -17,6 +17,8 @@ const productStatusColor = (status: string) => {
       return "orange";
     case "published":
       return "green";
+    case "requires_action":
+      return "blue";
     case "rejected":
       return "red";
     default:

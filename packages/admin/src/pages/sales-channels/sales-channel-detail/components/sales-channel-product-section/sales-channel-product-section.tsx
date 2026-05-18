@@ -52,7 +52,7 @@ export const SalesChannelProductSection = ({
   )
 
   const columns = useColumns()
-  const filters = useProductTableFilters(["sales_channel_id"])
+  const filters = useProductTableFilters()
 
   const { table } = useDataTable({
     data: products ?? [],
