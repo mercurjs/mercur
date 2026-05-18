@@ -420,7 +420,8 @@
       "errors": {
         "variants": "Pilih setidaknya satu varian.",
         "options": "Buat setidaknya satu opsi.",
-        "uniqueSku": "SKU harus unik."
+        "uniqueSku": "SKU harus unik.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Kit inventaris",
@@ -449,7 +450,21 @@
           "hint": "Definisikan opsi untuk produk, misal: warna, ukuran, dll."
         }
       },
-      "successToast": "Produk {{title}} berhasil dibuat."
+      "successToast": "Produk {{title}} berhasil dibuat.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Ekspor Daftar Produk",
@@ -536,6 +551,7 @@
       "draft": "Draf",
       "published": "Dipublikasikan",
       "proposed": "Diusulkan",
+      "requires_action": "Changes required",
       "rejected": "Ditolak"
     },
     "fields": {
@@ -3001,7 +3017,8 @@
     "startDate": "Tanggal mulai",
     "endDate": "Tanggal akhir",
     "draft": "Draf",
-    "values": "Nilai"
+    "values": "Nilai",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Tahun",
@@ -3018,5 +3035,23 @@
     "minutes_other": "Menit",
     "seconds_one": "Detik",
     "seconds_other": "Detik"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

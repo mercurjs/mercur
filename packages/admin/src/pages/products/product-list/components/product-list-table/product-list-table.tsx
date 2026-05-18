@@ -1,15 +1,15 @@
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import { createColumnHelper } from "@tanstack/react-table";
-import { ReactNode, useMemo, Children } from "react";
+import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
+import { ReactNode, useMemo, useState, Children } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, Outlet, useLoaderData, useLocation } from "react-router-dom";
+import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom";
 
-import { HttpTypes } from "@medusajs/types";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { _DataTable } from "../../../../../components/table/data-table";
 import {
+  useBatchProducts,
   useDeleteProduct,
   useProducts,
 } from "../../../../../hooks/api/products";
@@ -17,7 +17,9 @@ import { useProductTableColumns } from "../../../../../hooks/table/columns/use-p
 import { useProductTableFilters } from "../../../../../hooks/table/filters/use-product-table-filters";
 import { useProductTableQuery } from "../../../../../hooks/table/query/use-product-table-query";
 import { useDataTable } from "../../../../../hooks/use-data-table";
+import { PRODUCT_IDS_KEY } from "../../../common/constants";
 import { productsLoader } from "../../loader";
+import { ProductDTO } from "@mercurjs/types";
 
 const PAGE_SIZE = 20;
 
@@ -48,48 +50,6 @@ export const ProductListCreateButton = () => {
   );
 };
 
-export const ProductListExportButton = () => {
-  const { t } = useTranslation();
-  const location = useLocation();
-
-  return (
-    <Button
-      size="small"
-      variant="secondary"
-      asChild
-      data-testid="products-export-button"
-    >
-      <Link
-        to={`export${location.search}`}
-        data-testid="products-export-link"
-      >
-        {t("actions.export")}
-      </Link>
-    </Button>
-  );
-};
-
-export const ProductListImportButton = () => {
-  const { t } = useTranslation();
-  const location = useLocation();
-
-  return (
-    <Button
-      size="small"
-      variant="secondary"
-      asChild
-      data-testid="products-import-button"
-    >
-      <Link
-        to={`import${location.search}`}
-        data-testid="products-import-link"
-      >
-        {t("actions.import")}
-      </Link>
-    </Button>
-  );
-};
-
 export const ProductListActions = ({ children }: { children?: ReactNode }) => {
   return (
     <div
@@ -100,8 +60,6 @@ export const ProductListActions = ({ children }: { children?: ReactNode }) => {
         children
       ) : (
         <>
-          <ProductListExportButton />
-          <ProductListImportButton />
           <ProductListCreateButton />
         </>
       )}
@@ -129,6 +87,12 @@ export const ProductListHeader = ({ children }: { children?: ReactNode }) => {
 
 export const ProductListDataTable = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const prompt = usePrompt();
+
+  const [selection, setSelection] = useState<RowSelectionState>({});
+
+  const { mutateAsync: batchProducts } = useBatchProducts();
 
   const initialData = useLoaderData() as Awaited<
     ReturnType<ReturnType<typeof productsLoader>>
@@ -138,7 +102,6 @@ export const ProductListDataTable = () => {
   const { products, count, isLoading, isError, error } = useProducts(
     {
       ...searchParams,
-      is_giftcard: false,
     },
     {
       initialData,
@@ -150,12 +113,17 @@ export const ProductListDataTable = () => {
   const columns = useColumns();
 
   const { table } = useDataTable({
-    data: (products ?? []) as HttpTypes.AdminProduct[],
+    data: products ?? [],
     columns,
     count,
     enablePagination: true,
     pageSize: PAGE_SIZE,
     getRowId: (row) => row.id,
+    enableRowSelection: true,
+    rowSelection: {
+      state: selection,
+      updater: setSelection,
+    },
   });
 
   if (isError) {
@@ -179,6 +147,60 @@ export const ProductListDataTable = () => {
           { key: "title", label: t("fields.title") },
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
+        ]}
+        commands={[
+          {
+            action: async (rowSelection) => {
+              navigate(
+                `bulk-edit?${PRODUCT_IDS_KEY}=${Object.keys(rowSelection).join(
+                  ",",
+                )}`,
+              );
+            },
+            label: t("products.bulkEdit.action"),
+            shortcut: "e",
+          },
+          {
+            action: async (rowSelection) => {
+              const ids = Object.keys(rowSelection);
+
+              if (!ids.length) {
+                return;
+              }
+
+              const confirmed = await prompt({
+                title: t("general.areYouSure"),
+                description: t("products.bulkDelete.warning", {
+                  count: ids.length,
+                }),
+                confirmText: t("actions.delete"),
+                cancelText: t("actions.cancel"),
+              });
+
+              if (!confirmed) {
+                return;
+              }
+
+              await batchProducts(
+                { delete: ids },
+                {
+                  onSuccess: () => {
+                    toast.success(
+                      t("products.bulkDelete.successToast", {
+                        count: ids.length,
+                      }),
+                    );
+                    setSelection({});
+                  },
+                  onError: (e) => {
+                    toast.error(e.message);
+                  },
+                },
+              );
+            },
+            label: t("actions.delete"),
+            shortcut: "d",
+          },
         ]}
         noRecords={{
           message: t("products.list.noRecordsMessage"),
@@ -204,7 +226,7 @@ export const ProductListTable = ({ children }: { children?: ReactNode }) => {
   );
 };
 
-const ProductActions = ({ product }: { product: HttpTypes.AdminProduct }) => {
+const ProductActions = ({ product }: { product: ProductDTO }) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
   const { mutateAsync } = useDeleteProduct(product.id);
@@ -266,7 +288,7 @@ const ProductActions = ({ product }: { product: HttpTypes.AdminProduct }) => {
   );
 };
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProduct>();
+const columnHelper = createColumnHelper<ProductDTO>();
 
 const useColumns = () => {
   const base = useProductTableColumns();
@@ -274,14 +296,6 @@ const useColumns = () => {
   const columns = useMemo(
     () => [
       ...base,
-      columnHelper.display({
-        id: "seller",
-        header: "Seller",
-        cell: ({ row }) => {
-          const seller = (row.original as any).seller;
-          return seller?.name || "-";
-        },
-      }),
       columnHelper.display({
         id: "actions",
         header: () => (

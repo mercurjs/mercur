@@ -1,6 +1,7 @@
 import { model } from "@medusajs/framework/utils";
 import { ProductStatus } from "@mercurjs/types";
 import ProductAttribute from "./product-attribute";
+import ProductAttributeValue from "./product-attribute-value";
 import ProductBrand from "./product-brand";
 import ProductCategory from "./product-category";
 import ProductChange from "./product-change";
@@ -33,8 +34,7 @@ const Product = model
     metadata: model.json().nullable(),
 
     // --- Marketplace additions ---
-    status: model.enum(ProductStatus).default(ProductStatus.PENDING),
-    is_active: model.boolean().default(false),
+    status: model.enum(ProductStatus).default(ProductStatus.PROPOSED),
     is_restricted: model.boolean().default(false),
     created_by: model.text().nullable(),
     created_by_actor: model.text().searchable().nullable(),
@@ -70,14 +70,22 @@ const Product = model
       mappedBy: "products",
     }),
     variant_attributes: model.manyToMany(() => ProductAttribute, {
+      pivotTable: "product_variant_attribute",
       mappedBy: "variant_products",
+    }),
+    custom_attributes: model.hasMany(() => ProductAttribute, {
+      mappedBy: "product",
+    }),
+    attribute_values: model.manyToMany(() => ProductAttributeValue, {
+      pivotTable: "product_attribute_value_link",
+      mappedBy: "products",
     }),
     changes: model.hasMany(() => ProductChange, {
       mappedBy: "product",
     }),
   })
   .cascades({
-    delete: ["variants", "images"],
+    delete: ["variants", "images", "custom_attributes"],
   })
   .indexes([
     {
@@ -101,12 +109,6 @@ const Product = model
     {
       name: "IDX_product_status",
       on: ["status"],
-      unique: false,
-      where: "deleted_at IS NULL",
-    },
-    {
-      name: "IDX_product_is_active",
-      on: ["is_active"],
       unique: false,
       where: "deleted_at IS NULL",
     },

@@ -17,10 +17,12 @@ import { Link } from 'react-router-dom';
 
 import { ActionMenu } from "@components/common/action-menu"
 import { useUpdateProduct } from "@hooks/api/products"
-import { useProductDetailContext } from "../../context"
 
-export const ProductMediaSection = () => {
-  const { product } = useProductDetailContext()
+export const ProductMediaSection = ({
+  product,
+}: {
+  product: Record<string, any>;
+}) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
   const [selection, setSelection] = useState<Record<string, boolean>>({});

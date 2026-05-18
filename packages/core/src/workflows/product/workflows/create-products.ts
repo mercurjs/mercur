@@ -10,19 +10,18 @@ import { CreateProductDTO } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { createProductsStep } from "../steps"
+import { linkSellersToProductWorkflow } from "./link-sellers-to-product"
 
 export const createProductsWorkflowId = "create-products"
 
 type CreateProductsWorkflowInput = {
   products: CreateProductDTO[]
+  seller_ids?: string[]
 } & AdditionalData
 
 export const createProductsWorkflow = createWorkflow(
   createProductsWorkflowId,
   function (input: CreateProductsWorkflowInput) {
-    // Extension point for developer-supplied validation. Fires before any
-    // mutation — throwing from a handler aborts the workflow without side
-    // effects.
     const validate = createHook("validate", {
       input,
       products: input.products,
@@ -43,6 +42,16 @@ export const createProductsWorkflow = createWorkflow(
       eventName: ProductWorkflowEvents.CREATED,
       data: eventData,
     })
+
+    const linkInput = transform(
+      { input, products },
+      ({ input, products }) => ({
+        id: (products as any[])[0]?.id,
+        add: input.seller_ids ?? [],
+      })
+    )
+
+    linkSellersToProductWorkflow.runAsStep({ input: linkInput })
 
     return new WorkflowResponse(products, {
       hooks: [validate, productsCreated] as const,
