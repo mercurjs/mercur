@@ -7,7 +7,7 @@ import ProductCategory from "./product-category";
 const ProductAttribute = model
   .define("ProductAttribute", {
     id: model.id({ prefix: "pattr" }).primaryKey(),
-    handle: model.text(),
+    handle: model.text().nullable(),
     name: model.text().searchable(),
     description: model.text().nullable(),
     type: model.enum(AttributeType),
@@ -24,11 +24,14 @@ const ProductAttribute = model
       mappedBy: "attribute",
     }),
     categories: model.manyToMany(() => ProductCategory, {
-      pivotTable: "product_category_attribute",
       mappedBy: "attributes",
     }),
+    product: model
+      .belongsTo(() => Product, {
+        mappedBy: "custom_attributes",
+      })
+      .nullable(),
     variant_products: model.manyToMany(() => Product, {
-      pivotTable: "product_variant_attribute",
       mappedBy: "variant_attributes",
     }),
   })
@@ -36,7 +39,7 @@ const ProductAttribute = model
   .indexes([
     {
       name: "IDX_product_attribute_handle_unique",
-      on: ["handle"],
+      on: ["product_id", "handle"],
       unique: true,
       where: "deleted_at IS NULL",
     },

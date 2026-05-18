@@ -13,6 +13,7 @@ import { search } from "./commands/search";
 import { telemetry } from "./commands/telemetry";
 import { view } from "./commands/view";
 import { build } from "./commands/build";
+import { dbMigrate } from "./commands/db-migrate";
 import { develop } from "./commands/develop";
 import { start } from "./commands/start";
 import { pluginBuild } from "./commands/plugin-build";
@@ -44,6 +45,7 @@ async function main() {
     .addCommand(view)
     .addCommand(pluginBuild)
     .addCommand(build)
+    .addCommand(dbMigrate)
     .addCommand(develop)
     .addCommand(start);
 

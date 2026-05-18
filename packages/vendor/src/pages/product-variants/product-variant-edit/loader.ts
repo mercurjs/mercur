@@ -1,32 +1,26 @@
 import { LoaderFunctionArgs } from "react-router-dom"
 
-import { productVariantQueryKeys } from "@hooks/api"
-import { fetchQuery } from "@lib/client"
+import { variantsQueryKeys } from "@hooks/api/products"
+import { sdk } from "@lib/client"
 import { queryClient } from "@lib/query-client"
 
 const queryFn = async (id: string, variantId: string) => {
-  const { product } = await fetchQuery(`/vendor/products/${id}`, {
-    method: "GET",
-    query: { fields: "*variants" },
+  return await sdk.vendor.products.$id.variants.$variantId.query({
+    $id: id,
+    $variantId: variantId,
   })
-
-  const variant = product.variants.find(
-    ({ id }: { id: string }) => id === variantId
-  )
-
-  return { variant }
 }
 
 const editProductVariantQuery = (id: string, variantId: string) => ({
-  queryKey: productVariantQueryKeys.detail(variantId),
+  queryKey: variantsQueryKeys.detail(variantId),
   queryFn: async () => queryFn(id, variantId),
 })
 
 export const editProductVariantLoader = async ({
   params,
   request,
-}: LoaderFunctionArgs) => {
-  const id = params.product_id
+}: LoaderFunctionArgs): Promise<any> => {
+  const id = params.product_id || params.id
 
   const searchParams = new URL(request.url).searchParams
   const searchVariantId = searchParams.get("variant_id")

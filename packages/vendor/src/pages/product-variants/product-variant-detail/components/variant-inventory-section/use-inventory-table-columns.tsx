@@ -1,13 +1,14 @@
+import { HttpTypes } from "@medusajs/types"
+
 import { PlaceholderCell } from "@components/table/table-cells/common/placeholder-cell"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { ExtendedAdminProductVariant } from "@custom-types/products"
 
-export interface ExtendedInventoryItem {
-  id: string
-  required_quantity: number
-  variant: ExtendedAdminProductVariant
+import { InventoryActions } from "./inventory-actions"
+
+interface ExtendedInventoryItem extends HttpTypes.AdminInventoryItem {
+  required_quantity?: number
 }
 
 const columnHelper = createColumnHelper<ExtendedInventoryItem>()
@@ -17,10 +18,10 @@ export const useInventoryTableColumns = () => {
 
   return useMemo(
     () => [
-      columnHelper.accessor("variant.title", {
+      columnHelper.accessor("title", {
         header: t("fields.title"),
         cell: ({ getValue }) => {
-          const title = getValue() as string
+          const title = getValue()
 
           if (!title) {
             return <PlaceholderCell />
@@ -33,7 +34,7 @@ export const useInventoryTableColumns = () => {
           )
         },
       }),
-      columnHelper.accessor("variant.sku", {
+      columnHelper.accessor("sku", {
         header: t("fields.sku"),
         cell: ({ getValue }) => {
           const sku = getValue() as string
@@ -48,6 +49,55 @@ export const useInventoryTableColumns = () => {
             </div>
           )
         },
+      }),
+      columnHelper.accessor("required_quantity", {
+        header: t("fields.requiredQuantity"),
+        cell: ({ getValue }) => {
+          const quantity = getValue()
+
+          if (Number.isNaN(quantity)) {
+            return <PlaceholderCell />
+          }
+
+          return (
+            <div className="flex size-full items-center overflow-hidden">
+              <span className="truncate">{quantity}</span>
+            </div>
+          )
+        },
+      }),
+      columnHelper.display({
+        id: "inventory_quantity",
+        header: t("fields.inventory"),
+        cell: ({ row: { original: inventory } }) => {
+          if (!inventory.location_levels?.length) {
+            return <PlaceholderCell />
+          }
+
+          let quantity = 0
+          let locations = 0
+
+          inventory.location_levels.forEach((level) => {
+            quantity += level.available_quantity ?? 0
+            locations += 1
+          })
+
+          return (
+            <div className="flex size-full items-center overflow-hidden">
+              <span className="truncate">
+                {t("products.variant.tableItem", {
+                  availableCount: quantity,
+                  locationCount: locations,
+                  count: locations,
+                })}
+              </span>
+            </div>
+          )
+        },
+      }),
+      columnHelper.display({
+        id: "actions",
+        cell: ({ row }) => <InventoryActions item={row.original} />,
       }),
     ],
     [t]

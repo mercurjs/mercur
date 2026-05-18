@@ -1,4 +1,5 @@
 import { Button, Input, Text, Textarea, toast } from "@medusajs/ui";
+import { MercurFeatureFlags } from "@mercurjs/types";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 
@@ -6,7 +7,7 @@ import { ExtendedAdminProduct } from "@custom-types/products";
 import { Form } from "@components/common/form";
 import { SwitchBox } from "@components/common/switch-box";
 import { RouteDrawer, useRouteModal } from "@components/modals";
-import { useUpdateProduct } from "@hooks/api/products";
+import { useFeatureFlags, useUpdateProduct } from "@hooks/api";
 
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { useForm } from "react-hook-form";
@@ -26,6 +27,10 @@ const EditProductSchema = zod.object({
 export const EditProductForm = ({ product }: EditProductFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
+
+  const { feature_flags } = useFeatureFlags();
+  const isProductRequestEnabled =
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST];
 
   const form = useForm({
     defaultValues: {
@@ -50,11 +55,11 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
         title,
       },
       {
-        onSuccess: ({ product }) => {
+        onSuccess: () => {
           toast.success(
-            t("products.edit.successToast", {
-              title: product.title,
-            }),
+            isProductRequestEnabled
+              ? t("products.edit.requestSuccessToast")
+              : t("products.edit.successToast", { title }),
           );
           handleSuccess(`/products/${product.id}`);
         },

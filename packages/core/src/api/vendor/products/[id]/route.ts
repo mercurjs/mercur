@@ -1,4 +1,3 @@
-import { deleteProductsWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -9,19 +8,16 @@ import {
 } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { validateSellerProduct } from "../helpers"
+import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
+import { productEditUpdateFieldsWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-update-fields"
+import { formatProductAttributes } from "../../../utils"
 import { VendorUpdateProductType } from "../validators"
-import { transformProductWithInformationalAttributes } from "../utils/transform-product-attributes"
-import { updateProductWithVariantImagesWorkflow } from "../../../../workflows/product-attribute/workflows/update-product-with-variant-images"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
-
-  await validateSellerProduct(req.scope, sellerId, req.params.id)
 
   const {
     data: [product],
@@ -38,66 +34,55 @@ export const GET = async (
     )
   }
 
-  const transformedProduct = transformProductWithInformationalAttributes(
-    product as any
-  )
+  formatProductAttributes(product)
 
-  res.json({ product: transformedProduct })
+  res.json({ product })
 }
 
+/**
+ * Stages top-level Product field changes through `product-edit-update-fields`.
+ * Returns the created `ProductChange` — the product itself is NOT mutated
+ * until an operator confirms the change.
+ */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateProductType>,
-  res: MedusaResponse<HttpTypes.VendorProductResponse>
+  res: MedusaResponse
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
-  const { additional_data, ...update } = req.validatedBody
+  const sellerId = req.seller_context!.seller_id
+  const { additional_data: _additional_data, ...updates } = req.validatedBody
 
-  await validateSellerProduct(req.scope, sellerId, req.params.id)
-
-  const { result } = await updateProductWithVariantImagesWorkflow(
+  const { result: change } = await productEditUpdateFieldsWorkflow(
     req.scope
   ).run({
     input: {
-      selector: { id: req.params.id },
-      update,
-      additional_data: {
-        ...additional_data,
-        seller_id: sellerId,
-      },
+      product_id: req.params.id,
+      updates: updates as Record<string, unknown>,
+      actor_id: sellerId,
     },
   })
 
-  const {
-    data: [product],
-  } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: { id: result[0].id },
-  })
-
-  const transformedProduct = transformProductWithInformationalAttributes(
-    product as any
-  )
-
-  res.json({ product: transformedProduct })
+  res.status(202).json({ product_change: change })
 }
 
+/**
+ * Stages a `PRODUCT_DELETE` action via `product-edit-delete-product`.
+ * Returns the created `ProductChange` — the product is soft-deleted only
+ * after an operator confirms the change.
+ */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse<HttpTypes.VendorDeleteResponse>
+  res: MedusaResponse
 ) => {
-  const sellerId =  req.seller_context!.seller_id
+  const sellerId = req.seller_context!.seller_id
 
-  await validateSellerProduct(req.scope, sellerId, req.params.id)
-
-  await deleteProductsWorkflow(req.scope).run({
-    input: { ids: [req.params.id] },
+  const { result: change } = await productEditDeleteProductWorkflow(
+    req.scope
+  ).run({
+    input: {
+      product_id: req.params.id,
+      actor_id: sellerId,
+    },
   })
 
-  res.json({
-    id: req.params.id,
-    object: "product",
-    deleted: true,
-  })
+  res.status(202).json({ product_change: change })
 }

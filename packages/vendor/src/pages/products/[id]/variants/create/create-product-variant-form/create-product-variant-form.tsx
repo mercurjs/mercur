@@ -1,91 +1,56 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, ProgressStatus, ProgressTabs, toast } from "@medusajs/ui"
-import { useEffect, useMemo, useState } from "react"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import { toast } from "@medusajs/ui"
+import { Children, ReactNode, useCallback, useEffect, useMemo } from "react"
+import { DeepPartial, useFieldArray, useForm, useWatch } from "react-hook-form"
 import { z } from "zod"
 
-import { AdminCreateProductVariantPrice } from "@medusajs/types"
-import { ExtendedAdminProduct } from "@custom-types/products"
-import {
-  RouteDrawer,
-  RouteFocusModal,
-  useRouteModal,
-} from "@components/modals"
-import { KeyboundForm } from "@components/utilities/keybound-form"
-import { useRegions } from "@hooks/api"
+import { HttpTypes } from "@medusajs/types"
+import { useRouteModal } from "@components/modals"
+import { TabbedForm } from "@components/tabbed-form/tabbed-form"
+import { TabDefinition } from "@components/tabbed-form/types"
 import { useCreateProductVariant } from "@hooks/api/products"
-import { castNumber } from "@lib/cast-number"
-import { partialFormValidation } from "@lib/validation"
-import {
-  CreateProductVariantSchema,
-  CreateVariantDetailsFields,
-  CreateVariantDetailsSchema,
-  CreateVariantPriceFields,
-  CreateVariantPriceSchema,
-} from "./constants"
+import { CreateProductVariantSchema } from "./constants"
 import DetailsTab from "./details-tab"
 import InventoryKitTab from "./inventory-kit-tab"
 import PricingTab from "./pricing-tab"
 
-enum Tab {
-  DETAIL = "detail",
-  PRICE = "price",
-  INVENTORY = "inventory",
-}
-
-type TabState = Record<Tab, ProgressStatus>
-
-const initialTabState: TabState = {
-  [Tab.DETAIL]: "in-progress",
-  [Tab.PRICE]: "not-started",
-  [Tab.INVENTORY]: "not-started",
-}
+export type CreateProductVariantSchemaType = z.infer<
+  typeof CreateProductVariantSchema
+>
 
 type CreateProductVariantFormProps = {
-  product: ExtendedAdminProduct
+  product: HttpTypes.AdminProduct
+  children?: ReactNode
+  schema?: z.ZodType<CreateProductVariantSchemaType>
+  defaultValues?: DeepPartial<CreateProductVariantSchemaType>
+}
+
+const CREATE_VARIANT_DEFAULTS: DeepPartial<CreateProductVariantSchemaType> = {
+  sku: "",
+  title: "",
+  manage_inventory: false,
+  allow_backorder: false,
+  inventory_kit: false,
+  attribute_values: {},
 }
 
 export const CreateProductVariantForm = ({
   product,
+  children,
+  schema,
+  defaultValues: extraDefaults,
 }: CreateProductVariantFormProps) => {
-  const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const [tab, setTab] = useState<Tab.DETAIL | Tab.PRICE | Tab.INVENTORY>(
-    Tab.DETAIL
-  )
-  const [tabState, setTabState] = useState<TabState>(initialTabState)
-
-  const form = useForm<z.infer<typeof CreateProductVariantSchema>>({
+  const form = useForm<CreateProductVariantSchemaType>({
     defaultValues: {
-      sku: "",
-      title: "",
-      manage_inventory: false,
-      allow_backorder: false,
-      inventory_kit: false,
-      options: {},
-    },
-    resolver: zodResolver(CreateProductVariantSchema),
+      ...CREATE_VARIANT_DEFAULTS,
+      ...extraDefaults,
+    } as CreateProductVariantSchemaType,
+    resolver: zodResolver(schema ?? CreateProductVariantSchema),
   })
 
   const { mutateAsync, isPending } = useCreateProductVariant(product.id)
-
-  const { regions } = useRegions({ limit: 9999 })
-
-  const regionsCurrencyMap = useMemo(() => {
-    if (!regions?.length) {
-      return {}
-    }
-
-    return regions.reduce(
-      (acc, reg) => {
-        acc[reg.id] = reg.currency_code
-        return acc
-      },
-      {} as Record<string, string>
-    )
-  }, [regions])
 
   const isManageInventoryEnabled = useWatch({
     control: form.control,
@@ -102,16 +67,6 @@ export const CreateProductVariantForm = ({
     name: `inventory`,
   })
 
-  const inventoryTabEnabled = isManageInventoryEnabled && isInventoryKitEnabled
-
-  const tabOrder = useMemo(() => {
-    if (inventoryTabEnabled) {
-      return [Tab.DETAIL, Tab.PRICE, Tab.INVENTORY] as const
-    }
-
-    return [Tab.DETAIL, Tab.PRICE, Tab.INVENTORY] as const
-  }, [inventoryTabEnabled])
-
   useEffect(() => {
     if (isInventoryKitEnabled && inventoryField.fields.length === 0) {
       inventoryField.append({
@@ -121,124 +76,35 @@ export const CreateProductVariantForm = ({
     }
   }, [isInventoryKitEnabled])
 
-  const handleChangeTab = (update: Tab.DETAIL | Tab.PRICE | Tab.INVENTORY) => {
-    if (tab === update) {
-      return
-    }
+  const inventoryTabEnabled = isManageInventoryEnabled && isInventoryKitEnabled
 
-    if (tabOrder.indexOf(update) < tabOrder.indexOf(tab)) {
-      const isCurrentTabDirty = false // isTabDirty(tab) TODO
-
-      setTabState((prev) => ({
-        ...prev,
-        [tab]: isCurrentTabDirty ? prev[tab] : "not-started",
-        [update]: "in-progress",
-      }))
-
-      setTab(update)
-      return
-    }
-
-    // get the tabs from the current tab to the update tab including the current tab
-    const tabs = tabOrder.slice(0, tabOrder.indexOf(update))
-
-    // validate all the tabs from the current tab to the update tab if it fails on any of tabs then set that tab as current tab
-    for (const tab of tabs) {
-      if (tab === Tab.DETAIL) {
-        if (
-          !partialFormValidation<z.infer<typeof CreateProductVariantSchema>>(
-            form,
-            CreateVariantDetailsFields,
-            CreateVariantDetailsSchema
-          )
-        ) {
-          setTabState((prev) => ({
-            ...prev,
-            [tab]: "in-progress",
-          }))
-          setTab(tab)
-          return
+  const transformTabs = useCallback(
+    (tabs: TabDefinition<z.infer<typeof CreateProductVariantSchema>>[]) => {
+      return tabs.map((tab) => {
+        if (tab.id === "inventory") {
+          return { ...tab, isVisible: () => !!inventoryTabEnabled }
         }
-
-        setTabState((prev) => ({
-          ...prev,
-          [tab]: "completed",
-        }))
-      } else if (tab === Tab.PRICE) {
-        if (
-          !partialFormValidation<z.infer<typeof CreateProductVariantSchema>>(
-            form,
-            CreateVariantPriceFields,
-            CreateVariantPriceSchema
-          )
-        ) {
-          setTabState((prev) => ({
-            ...prev,
-            [tab]: "in-progress",
-          }))
-          setTab(tab)
-
-          return
-        }
-
-        setTabState((prev) => ({
-          ...prev,
-          [tab]: "completed",
-        }))
-      }
-    }
-
-    setTabState((prev) => ({
-      ...prev,
-      [tab]: "completed",
-      [update]: "in-progress",
-    }))
-    setTab(update)
-  }
-
-  const handleNextTab = (tab: Tab.DETAIL | Tab.PRICE | Tab.INVENTORY) => {
-    if (tabOrder.indexOf(tab) + 1 >= tabOrder.length) {
-      return
-    }
-
-    const nextTab = tabOrder[tabOrder.indexOf(tab) + 1]
-    handleChangeTab(nextTab)
-  }
+        return tab
+      })
+    },
+    [inventoryTabEnabled]
+  )
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const { sku, title } = data
+    const { title, attribute_values } = data
+
+    const cleanedAttributeValues = Object.fromEntries(
+      Object.entries(attribute_values ?? {}).filter(([, v]) =>
+        Array.isArray(v) ? v.length > 0 : !!v
+      )
+    ) as Record<string, string | string[]>
 
     await mutateAsync(
       {
         title,
-        sku: sku || undefined,
-        allow_backorder: false,
-        manage_inventory: true,
-        options: data.options,
-        prices: Object.entries(data.prices ?? {})
-          .map(([currencyOrRegion, value]) => {
-            if (value === "" || value === undefined) {
-              return undefined
-            }
-
-            const amount = castNumber(value)
-
-            if (currencyOrRegion.startsWith("reg_")) {
-              return {
-                rules: { region_id: currencyOrRegion },
-                currency_code: regionsCurrencyMap[currencyOrRegion],
-                amount,
-              } as AdminCreateProductVariantPrice
-            } else {
-              return {
-                currency_code: currencyOrRegion,
-                amount,
-              } as AdminCreateProductVariantPrice
-            }
-          })
-          .filter(
-            (price) => !!price
-          ),
+        attribute_values: Object.keys(cleanedAttributeValues).length
+          ? cleanedAttributeValues
+          : undefined,
       },
       {
         onSuccess: () => {
@@ -251,129 +117,25 @@ export const CreateProductVariantForm = ({
     )
   })
 
-  return (
-    <RouteFocusModal.Form form={form}>
-      <ProgressTabs
-        value={tab}
-        onValueChange={(tab) => handleChangeTab(tab as Tab)}
-        className="flex h-full flex-col overflow-hidden"
-      >
-        <KeyboundForm
-          onSubmit={handleSubmit}
-          className="flex h-full flex-col overflow-hidden"
-        >
-          <RouteFocusModal.Header>
-            <div className="flex w-full items-center justify-between gap-x-4">
-              <div className="-my-2 w-full max-w-[600px] border-l">
-                <ProgressTabs.List className="grid w-full grid-cols-3">
-                  <ProgressTabs.Trigger
-                    status={tabState.detail}
-                    value={Tab.DETAIL}
-                  >
-                    {t("priceLists.create.tabs.details")}
-                  </ProgressTabs.Trigger>
-                  <ProgressTabs.Trigger
-                    status={tabState.price}
-                    value={Tab.PRICE}
-                  >
-                    {t("priceLists.create.tabs.prices")}
-                  </ProgressTabs.Trigger>
-                  {!!inventoryTabEnabled && (
-                    <ProgressTabs.Trigger
-                      status={tabState.inventory}
-                      value={Tab.INVENTORY}
-                    >
-                      {t("products.create.tabs.inventory")}
-                    </ProgressTabs.Trigger>
-                  )}
-                </ProgressTabs.List>
-              </div>
-            </div>
-          </RouteFocusModal.Header>
-          <RouteFocusModal.Body className="size-full overflow-hidden">
-            <ProgressTabs.Content
-              className="size-full overflow-y-auto"
-              value={Tab.DETAIL}
-            >
-              <DetailsTab form={form} product={product} />
-            </ProgressTabs.Content>
-            <ProgressTabs.Content
-              className="size-full overflow-y-auto"
-              value={Tab.PRICE}
-            >
-              <PricingTab form={form} />
-            </ProgressTabs.Content>
-            {!!inventoryTabEnabled && (
-              <ProgressTabs.Content
-                className="size-full overflow-hidden"
-                value={Tab.INVENTORY}
-              >
-                <InventoryKitTab form={form} />
-              </ProgressTabs.Content>
-            )}
-          </RouteFocusModal.Body>
-          <RouteFocusModal.Footer>
-            <div className="flex items-center justify-end gap-x-2">
-              <RouteDrawer.Close asChild>
-                <Button variant="secondary" size="small">
-                  {t("actions.cancel")}
-                </Button>
-              </RouteDrawer.Close>
-              <PrimaryButton
-                tab={tab}
-                next={handleNextTab}
-                isLoading={isPending}
-                inventoryTabEnabled={!!inventoryTabEnabled}
-              />
-            </div>
-          </RouteFocusModal.Footer>
-        </KeyboundForm>
-      </ProgressTabs>
-    </RouteFocusModal.Form>
+  const defaultTabs = useMemo(
+    () => [
+      <DetailsTab key="details" product={product} />,
+      <PricingTab key="pricing" />,
+      <InventoryKitTab key="inventory" />,
+    ],
+    [product]
   )
-}
 
-type PrimaryButtonProps = {
-  tab: Tab
-  next: (tab: Tab) => void
-  isLoading?: boolean
-  inventoryTabEnabled: boolean
-}
-
-const PrimaryButton = ({
-  tab,
-  next,
-  isLoading,
-  inventoryTabEnabled,
-}: PrimaryButtonProps) => {
-  const { t } = useTranslation()
-
-  if (
-    (inventoryTabEnabled && tab === Tab.INVENTORY) ||
-    (!inventoryTabEnabled && tab === Tab.PRICE)
-  ) {
-    return (
-      <Button
-        key="submit-button"
-        type="submit"
-        variant="primary"
-        size="small"
-        isLoading={isLoading}
-      >
-        {t("actions.save")}
-      </Button>
-    )
-  }
+  const hasCustomChildren = Children.count(children) > 0
 
   return (
-    <Button
-      key="next-button"
-      type="button"
-      variant="primary"
-      size="small"
-      onClick={() => next(tab)}
+    <TabbedForm
+      form={form}
+      onSubmit={handleSubmit}
+      isLoading={isPending}
+      transformTabs={transformTabs}
     >
-      {t("actions.continue")}
-    </Button>
+      {hasCustomChildren ? children : defaultTabs}
+    </TabbedForm>
   )
 }

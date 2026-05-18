@@ -16,27 +16,25 @@ import {
 } from "./query-config"
 import {
   VendorAddProductAttribute,
-  VendorBatchVariantImages,
+  VendorAddProductVariant,
+  VendorCancelProductChange,
   VendorCreateProduct,
-  VendorCreateProductOption,
-  VendorCreateProductVariant,
+  VendorGetProductAttributeParams,
+  VendorGetProductAttributesParams,
   VendorGetProductParams,
   VendorGetProductsParams,
   VendorGetProductVariantParams,
   VendorGetProductVariantsParams,
   VendorUpdateProduct,
-  VendorUpdateProductAttribute,
-  VendorUpdateProductOption,
   VendorUpdateProductVariant,
 } from "./validators"
-import { maybeApplyPriceListsFilter } from "@medusajs/medusa/api/admin/products/utils/maybe-apply-price-lists-filter"
 
 const applySellerProductLinkFilter = (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  req.filterableFields.seller_id =  req.seller_context!.seller_id
+  req.filterableFields.seller_id = req.seller_context?.seller_id
 
   return maybeApplyLinkFilter({
     entryPoint: "product_seller",
@@ -46,6 +44,7 @@ const applySellerProductLinkFilter = (
 }
 
 export const vendorProductsMiddlewares: MiddlewareRoute[] = [
+  // --- /vendor/products ---
   {
     method: ["GET"],
     matcher: "/vendor/products",
@@ -55,7 +54,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.list
       ),
       applySellerProductLinkFilter,
-      maybeApplyPriceListsFilter()
     ],
   },
   {
@@ -69,6 +67,8 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
+
+  // --- /vendor/products/:id ---
   {
     method: ["GET"],
     matcher: "/vendor/products/:id",
@@ -82,19 +82,22 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/vendor/products/:id",
-    middlewares: [
-      validateAndTransformBody(VendorUpdateProduct),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
+    middlewares: [validateAndTransformBody(VendorUpdateProduct)],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/products/:id",
     middlewares: [],
   },
+
+  // --- /vendor/products/:id/cancel ---
+  {
+    method: ["POST"],
+    matcher: "/vendor/products/:id/cancel",
+    middlewares: [validateAndTransformBody(VendorCancelProductChange)],
+  },
+
+  // --- /vendor/products/:id/variants ---
   {
     method: ["GET"],
     matcher: "/vendor/products/:id/variants",
@@ -108,14 +111,10 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/variants",
-    middlewares: [
-      validateAndTransformBody(VendorCreateProductVariant),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
+    middlewares: [validateAndTransformBody(VendorAddProductVariant)],
   },
+
+  // --- /vendor/products/:id/variants/:variant_id ---
   {
     method: ["GET"],
     matcher: "/vendor/products/:id/variants/:variant_id",
@@ -129,65 +128,38 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/variants/:variant_id",
-    middlewares: [
-      validateAndTransformBody(VendorUpdateProductVariant),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
+    middlewares: [validateAndTransformBody(VendorUpdateProductVariant)],
   },
   {
     method: ["DELETE"],
     matcher: "/vendor/products/:id/variants/:variant_id",
     middlewares: [],
   },
+
+  // --- /vendor/products/:id/attributes ---
   {
-    method: ["POST"],
-    matcher: "/vendor/products/:id/options",
+    method: ["GET"],
+    matcher: "/vendor/products/:id/attributes",
     middlewares: [
-      validateAndTransformBody(VendorCreateProductOption),
       validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
+        VendorGetProductAttributesParams,
+        vendorProductQueryConfig.list
       ),
     ],
   },
-  {
-    method: ["POST"],
-    matcher: "/vendor/products/:id/options/:option_id",
-    middlewares: [
-      validateAndTransformBody(VendorUpdateProductOption),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["DELETE"],
-    matcher: "/vendor/products/:id/options/:option_id",
-    middlewares: [],
-  },
-  // Attribute management routes
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/attributes",
-    middlewares: [
-      validateAndTransformBody(VendorAddProductAttribute),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
+    middlewares: [validateAndTransformBody(VendorAddProductAttribute)],
   },
+
+  // --- /vendor/products/:id/attributes/:attribute_id ---
   {
-    method: ["POST"],
+    method: ["GET"],
     matcher: "/vendor/products/:id/attributes/:attribute_id",
     middlewares: [
-      validateAndTransformBody(VendorUpdateProductAttribute),
       validateAndTransformQuery(
-        VendorGetProductParams,
+        VendorGetProductAttributeParams,
         vendorProductQueryConfig.retrieve
       ),
     ],
@@ -196,13 +168,5 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/products/:id/attributes/:attribute_id",
     middlewares: [],
-  },
-  // Variant media route
-  {
-    method: ["POST"],
-    matcher: "/vendor/products/:id/variants/:variant_id/media",
-    middlewares: [
-      validateAndTransformBody(VendorBatchVariantImages),
-    ],
   },
 ]

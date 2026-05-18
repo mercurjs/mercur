@@ -1,4 +1,4 @@
-import { AttributeType, ProductStatus, RejectionReasonType } from "./common";
+import { AttributeType, ProductStatus } from "./common";
 
 // --- ProductImage ---
 
@@ -93,6 +93,11 @@ export interface UpdateProductAttributeValueDTO {
   metadata?: Record<string, unknown> | null;
 }
 
+export interface UpsertProductAttributeValueDTO
+  extends UpdateProductAttributeValueDTO {
+  id?: string;
+}
+
 // --- ProductAttribute ---
 
 export interface CreateProductAttributeDTO {
@@ -106,6 +111,7 @@ export interface CreateProductAttributeDTO {
   rank?: number;
   is_active?: boolean;
   created_by?: string | null;
+  product_id?: string | null;
   metadata?: Record<string, unknown> | null;
   values?: CreateProductAttributeValueDTO[];
 }
@@ -122,6 +128,33 @@ export interface UpdateProductAttributeDTO {
   is_active?: boolean;
   metadata?: Record<string, unknown> | null;
 }
+
+/**
+ * Inline input for product attributes. Each entry is either:
+ *
+ * 1. A global attribute reference: `{ attribute_id, value_ids?: [...] }`
+ *    Links an existing ProductAttribute. Use `value_ids` for known IDs,
+ *    or `values` (names) to upsert values on the attribute.
+ *
+ * 2. An inline custom attribute: `{ name, type, values: ["Red", "Blue"] }`
+ *    Creates a new ProductAttribute with `product_id` set (scoped to product).
+ */
+export type ProductAttributeInputDTO =
+  | {
+    attribute_id: string;
+    value_ids?: string[];
+    values?: string[];
+  }
+  | {
+    name: string;
+    type: AttributeType;
+    values?: string[];
+    is_variant_axis?: boolean;
+    is_filterable?: boolean;
+    is_required?: boolean;
+    description?: string | null;
+    metadata?: Record<string, unknown> | null;
+  };
 
 // --- ProductCategory ---
 
@@ -174,6 +207,17 @@ export interface CreateProductVariantDTO {
   gtin?: string | null;
   metadata?: Record<string, unknown> | null;
   product_id?: string;
+  /**
+   * Variant attribute values to associate with the variant. Either:
+   * - An array of `ProductAttributeValue` IDs (already resolved).
+   * - A map of attribute key (attribute `handle` or `name`) to value
+   *   name(s), resolved to IDs by the service against the parent
+   *   product's variant attributes.
+   *
+   * @example `["pattrval_red", "pattrval_small"]`
+   * @example `{ Color: "Red", Size: ["S", "M"] }`
+   */
+  attribute_values?: string[] | Record<string, string | string[]>;
 }
 
 export interface UpdateProductVariantDTO {
@@ -198,6 +242,12 @@ export interface UpdateProductVariantDTO {
   asin?: string | null;
   gtin?: string | null;
   metadata?: Record<string, unknown> | null;
+  /**
+   * See {@link CreateProductVariantDTO.attribute_values}. Passing this on
+   * update replaces the variant's attribute-value links with the resolved
+   * set; omitting it leaves existing links untouched.
+   */
+  attribute_values?: string[] | Record<string, string | string[]>;
 }
 
 export interface UpsertProductVariantDTO extends UpdateProductVariantDTO {
@@ -214,10 +264,10 @@ export interface CreateProductDTO {
   description?: string | null;
   is_giftcard?: boolean;
   thumbnail?: string | null;
-  weight?: string | null;
-  length?: string | null;
-  height?: string | null;
-  width?: string | null;
+  weight?: number | null;
+  length?: number | null;
+  height?: number | null;
+  width?: number | null;
   origin_country?: string | null;
   hs_code?: string | null;
   mid_code?: string | null;
@@ -225,7 +275,6 @@ export interface CreateProductDTO {
   discountable?: boolean;
   external_id?: string | null;
   status?: ProductStatus;
-  is_active?: boolean;
   is_restricted?: boolean;
   created_by?: string | null;
   created_by_actor?: string | null;
@@ -237,6 +286,17 @@ export interface CreateProductDTO {
   category_ids?: string[];
   images?: UpsertProductImageDTO[];
   variants?: CreateProductVariantDTO[];
+  /**
+   * Product variant attributes. Each entry is either:
+   * - A global attribute reference: `{ attribute_id, value_ids: ["pattrval_..."] }`
+   * - An inline custom attribute: `{ name, type, values: ["Red", "Blue"] }`
+   */
+  variant_attributes?: ProductAttributeInputDTO[];
+  /**
+   * Non-variant product-level attributes. Same format as variant_attributes.
+   * Creates product-scoped attributes and links their values to the product.
+   */
+  product_attributes?: ProductAttributeInputDTO[];
 }
 
 export interface UpdateProductDTO {
@@ -246,10 +306,10 @@ export interface UpdateProductDTO {
   description?: string | null;
   is_giftcard?: boolean;
   thumbnail?: string | null;
-  weight?: string | null;
-  length?: string | null;
-  height?: string | null;
-  width?: string | null;
+  weight?: number | null;
+  length?: number | null;
+  height?: number | null;
+  width?: number | null;
   origin_country?: string | null;
   hs_code?: string | null;
   mid_code?: string | null;
@@ -257,7 +317,6 @@ export interface UpdateProductDTO {
   discountable?: boolean;
   external_id?: string | null;
   status?: ProductStatus;
-  is_active?: boolean;
   is_restricted?: boolean;
   metadata?: Record<string, unknown> | null;
   type_id?: string | null;
@@ -267,6 +326,15 @@ export interface UpdateProductDTO {
   category_ids?: string[];
   images?: UpsertProductImageDTO[];
   variants?: UpsertProductVariantDTO[];
+  /**
+   * See {@link CreateProductDTO.variant_attributes}. Omitting this field
+   * leaves existing variant attributes untouched.
+   */
+  variant_attributes?: ProductAttributeInputDTO[];
+  /**
+   * See {@link CreateProductDTO.product_attributes}.
+   */
+  product_attributes?: ProductAttributeInputDTO[];
 }
 
 export interface UpsertProductDTO extends UpdateProductDTO {
@@ -274,30 +342,16 @@ export interface UpsertProductDTO extends UpdateProductDTO {
   title: string;
 }
 
-// --- ProductRejectionReason ---
-
-export interface CreateProductRejectionReasonDTO {
-  code: string;
-  label: string;
-  type: RejectionReasonType;
-  is_active?: boolean;
-  metadata?: Record<string, unknown> | null;
-}
-
-export interface UpdateProductRejectionReasonDTO {
-  code?: string;
-  label?: string;
-  type?: RejectionReasonType;
-  is_active?: boolean;
-  metadata?: Record<string, unknown> | null;
-}
-
 // --- ProductChange ---
 
 export interface CreateProductChangeDTO {
   product_id: string;
   internal_note?: string;
+  external_note?: string;
   created_by?: string;
+  status?: string;
+  confirmed_by?: string;
+  confirmed_at?: Date;
   metadata?: Record<string, unknown>;
 }
 
@@ -309,4 +363,5 @@ export interface CreateProductChangeActionDTO {
   action: string;
   details?: Record<string, unknown>;
   internal_note?: string;
+  applied?: boolean;
 }

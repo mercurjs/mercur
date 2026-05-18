@@ -418,7 +418,8 @@
       "errors": {
         "variants": "Seleziona almeno una variante.",
         "options": "Crea almeno un'opzione.",
-        "uniqueSku": "SKU deve essere unico."
+        "uniqueSku": "SKU deve essere unico.",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Kit di inventario",
@@ -447,7 +448,21 @@
           "hint": "Definisci le opzioni per il prodotto, ad esempio colore, dimensione, ecc."
         }
       },
-      "successToast": "Il prodotto {{title}} è stato creato con successo."
+      "successToast": "Il prodotto {{title}} è stato creato con successo.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Esporta Elenco Prodotti",
@@ -534,6 +549,7 @@
       "draft": "Bozza",
       "published": "Pubblicato",
       "proposed": "Proposto",
+      "requires_action": "Changes required",
       "rejected": "Rifiutato"
     },
     "fields": {
@@ -2786,7 +2802,8 @@
     "startDate": "Data di inizio",
     "endDate": "Data di fine",
     "draft": "Bozza",
-    "values": "Valori"
+    "values": "Valori",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Anno",
@@ -2803,5 +2820,23 @@
     "minutes_other": "Minuti",
     "seconds_one": "Secondo",
     "seconds_other": "Secondi"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

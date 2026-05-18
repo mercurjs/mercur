@@ -18,7 +18,7 @@
       "default": "./.medusa/server/src/with-mercur.js"
     },
     "./_generated": {
-      "types": "./.mercur/_generated/index.ts"
+      "types": "./.mercur/index.d.ts"
     },
     "./package.json": "./package.json",
     "./workflows": "./.medusa/server/src/workflows/index.js",
