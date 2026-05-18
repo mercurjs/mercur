@@ -957,7 +957,7 @@
             "draft",
             "proposed",
             "published",
-            "changes_required",
+            "requires_action",
             "rejected"
           ],
           "mappedType": "enum"

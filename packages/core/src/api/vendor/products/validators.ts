@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ProductStatus } from "@mercurjs/types"
+import { MercurFeatureFlags, ProductStatus } from "@mercurjs/types"
 import {
   createFindParams,
   createOperatorMap,
@@ -11,6 +11,7 @@ import {
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
 import { AdditionalData } from "@medusajs/framework/types"
+import { FeatureFlag } from "@medusajs/framework/utils"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
@@ -132,6 +133,7 @@ const CreateProduct = z
     title: z.string(),
     subtitle: z.string().optional(),
     description: z.string().optional(),
+    status: statusEnum.optional(),
     is_giftcard: booleanString().optional().default(false),
     discountable: booleanString().optional().default(true),
     images: z.array(z.object({ url: z.string() })).optional(),
@@ -143,6 +145,7 @@ const CreateProduct = z
     brand_id: z.string().optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
+    product_attributes: z.array(ProductAttributeInput).optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),
     attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
     variants: z.array(CreateProductVariant).optional(),
@@ -157,7 +160,22 @@ const CreateProduct = z
     metadata: z.record(z.unknown()).optional(),
   })
   .strict()
-export const VendorCreateProduct = WithAdditionalData(CreateProduct)
+export const VendorCreateProduct = WithAdditionalData(CreateProduct, (schema) =>
+  schema.superRefine((data, ctx) => {
+    if (
+      data.status !== undefined &&
+      FeatureFlag.isFeatureEnabled(MercurFeatureFlags.PRODUCT_REQUEST) &&
+      data.status !== ProductStatus.DRAFT &&
+      data.status !== ProductStatus.PROPOSED
+    ) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["status"],
+        message: `When the product request flow is enabled, status must be one of: ${ProductStatus.DRAFT}, ${ProductStatus.PROPOSED}.`,
+      })
+    }
+  })
+)
 
 export type VendorUpdateProductType = z.infer<typeof UpdateProduct> &
   AdditionalData
@@ -194,3 +212,128 @@ const UpdateProduct = z
   })
   .strict()
 export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
+
+// --- Product change request payloads ---
+//
+// All of the following endpoints route through `product-edit-*` workflows
+// rather than mutating the product directly. Each one opens a pending
+// `ProductChange` and adds an action to it; the change has to be confirmed
+// by the operator before the mutation hits the product.
+
+const VendorGetProductVariantsParamsFields = z.object({
+  q: z.string().optional(),
+  manage_inventory: booleanString().optional(),
+  allow_backorder: booleanString().optional(),
+  created_at: createOperatorMap().optional(),
+  updated_at: createOperatorMap().optional(),
+})
+
+export type VendorGetProductVariantsParamsType = z.infer<
+  typeof VendorGetProductVariantsParams
+>
+export const VendorGetProductVariantsParams = createFindParams({
+  offset: 0,
+  limit: 50,
+})
+  .merge(VendorGetProductVariantsParamsFields)
+  .merge(applyAndAndOrOperators(VendorGetProductVariantsParamsFields))
+
+export type VendorGetProductVariantParamsType = z.infer<
+  typeof VendorGetProductVariantParams
+>
+export const VendorGetProductVariantParams = createSelectParams()
+
+export type VendorAddProductVariantType = z.infer<typeof VendorAddProductVariant>
+export const VendorAddProductVariant = z
+  .object({
+    title: z.string(),
+    sku: z.string().optional(),
+    ean: z.string().optional(),
+    upc: z.string().optional(),
+    isbn: z.string().optional(),
+    asin: z.string().optional(),
+    gtin: z.string().optional(),
+    barcode: z.string().optional(),
+    hs_code: z.string().optional(),
+    mid_code: z.string().optional(),
+    variant_rank: z.number().optional(),
+    weight: z.number().optional(),
+    length: z.number().optional(),
+    height: z.number().optional(),
+    width: z.number().optional(),
+    origin_country: z.string().optional(),
+    material: z.string().optional(),
+    allow_backorder: z.boolean().optional(),
+    manage_inventory: z.boolean().optional(),
+    thumbnail: z.string().optional(),
+    metadata: z.record(z.unknown()).optional(),
+    attribute_values: z
+      .union([z.array(z.string()), z.record(z.union([z.string(), z.array(z.string())]))])
+      .optional(),
+  })
+  .strict()
+
+export type VendorUpdateProductVariantType = z.infer<
+  typeof VendorUpdateProductVariant
+>
+export const VendorUpdateProductVariant = z
+  .object({
+    title: z.string().optional(),
+    sku: z.string().nullish(),
+    ean: z.string().nullish(),
+    upc: z.string().nullish(),
+    isbn: z.string().nullish(),
+    asin: z.string().nullish(),
+    gtin: z.string().nullish(),
+    barcode: z.string().nullish(),
+    hs_code: z.string().nullish(),
+    mid_code: z.string().nullish(),
+    thumbnail: z.string().nullish(),
+    variant_rank: z.number().optional(),
+    weight: z.number().nullish(),
+    length: z.number().nullish(),
+    height: z.number().nullish(),
+    width: z.number().nullish(),
+    origin_country: z.string().nullish(),
+    material: z.string().nullish(),
+    allow_backorder: z.boolean().optional(),
+    manage_inventory: z.boolean().optional(),
+    metadata: z.record(z.unknown()).nullish(),
+    attribute_values: z
+      .union([z.array(z.string()), z.record(z.union([z.string(), z.array(z.string())]))])
+      .optional(),
+  })
+  .strict()
+
+export type VendorGetProductAttributesParamsType = z.infer<
+  typeof VendorGetProductAttributesParams
+>
+export const VendorGetProductAttributesParams = createFindParams({
+  offset: 0,
+  limit: 50,
+})
+
+export type VendorGetProductAttributeParamsType = z.infer<
+  typeof VendorGetProductAttributeParams
+>
+export const VendorGetProductAttributeParams = createSelectParams()
+
+export type VendorAddProductAttributeType = z.infer<
+  typeof VendorAddProductAttribute
+>
+export const VendorAddProductAttribute = z
+  .object({
+    attribute_id: z.string(),
+    attribute_value_ids: z.array(z.string()).optional(),
+    values: z.array(z.string()).optional(),
+  })
+  .strict()
+
+export type VendorCancelProductChangeType = z.infer<
+  typeof VendorCancelProductChange
+>
+export const VendorCancelProductChange = z
+  .object({
+    internal_note: z.string().optional(),
+  })
+  .strict()

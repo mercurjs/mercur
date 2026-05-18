@@ -1,4 +1,4 @@
-import { AttributeType, ProductStatus, RejectionReasonType } from "./common";
+import { AttributeType, ProductStatus } from "./common";
 
 // --- ProductImage ---
 
@@ -342,30 +342,16 @@ export interface UpsertProductDTO extends UpdateProductDTO {
   title: string;
 }
 
-// --- ProductRejectionReason ---
-
-export interface CreateProductRejectionReasonDTO {
-  code: string;
-  label: string;
-  type: RejectionReasonType;
-  is_active?: boolean;
-  metadata?: Record<string, unknown> | null;
-}
-
-export interface UpdateProductRejectionReasonDTO {
-  code?: string;
-  label?: string;
-  type?: RejectionReasonType;
-  is_active?: boolean;
-  metadata?: Record<string, unknown> | null;
-}
-
 // --- ProductChange ---
 
 export interface CreateProductChangeDTO {
   product_id: string;
   internal_note?: string;
+  external_note?: string;
   created_by?: string;
+  status?: string;
+  confirmed_by?: string;
+  confirmed_at?: Date;
   metadata?: Record<string, unknown>;
 }
 
@@ -377,4 +363,5 @@ export interface CreateProductChangeActionDTO {
   action: string;
   details?: Record<string, unknown>;
   internal_note?: string;
+  applied?: boolean;
 }

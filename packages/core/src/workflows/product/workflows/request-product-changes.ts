@@ -4,23 +4,24 @@ import {
   WorkflowResponse,
   transform,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { ProductStatus, ProductChangeActionType } from "@mercurjs/types"
+import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
+import {
+  ProductStatus,
+  ProductChangeActionType,
+  ProductChangeStatus,
+} from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
+import { validateRequestChangesStep, updateProductsStep } from "../steps"
 import {
-  retrieveProductWithChangeStep,
-  validateRequestChangesStep,
+  createProductChangesStep,
   createProductChangeActionsStep,
-  declineProductChangeStep,
-  updateProductsStep,
-} from "../steps"
+} from "../../product-edit/steps"
 
 export const requestProductChangesWorkflowId = "request-product-changes"
 
 type RequestProductChangesWorkflowInput = {
   product_id: string
-  rejection_reason_ids: string[]
   message?: string
   actor_id?: string
 }
@@ -28,52 +29,68 @@ type RequestProductChangesWorkflowInput = {
 export const requestProductChangesWorkflow = createWorkflow(
   requestProductChangesWorkflowId,
   function (input: RequestProductChangesWorkflowInput) {
-    const product = retrieveProductWithChangeStep({
-      product_id: input.product_id,
-    })
+    const { data: products } = useQueryGraphStep({
+      entity: "product",
+      fields: ["id", "status"],
+      filters: { id: input.product_id },
+      options: { throwIfKeyNotFound: true },
+    }).config({ name: "get-product" })
 
-    validateRequestChangesStep({
-      product,
-      rejection_reason_ids: input.rejection_reason_ids,
-    })
+    const product = transform({ products }, ({ products }) => products[0])
 
-    const actionData = transform({ product }, ({ product }) => [
-      {
-        product_change_id: product.product_change.id,
-        product_id: product.id,
-        action: ProductChangeActionType.STATUS_CHANGE,
-        details: { status: ProductStatus.CHANGES_REQUIRED },
-      },
-    ])
+    validateRequestChangesStep({ product })
+
+    const changeData = transform(
+      { product, input },
+      ({ product, input }) => [
+        {
+          product_id: product.id,
+          created_by: input.actor_id,
+          status: ProductChangeStatus.CONFIRMED,
+          confirmed_by: input.actor_id,
+          confirmed_at: new Date(),
+          external_note: input.message,
+        },
+      ]
+    )
+
+    const changes = createProductChangesStep(changeData)
+
+    const actionData = transform(
+      { changes, product },
+      ({ changes, product }) => [
+        {
+          product_change_id: changes[0].id,
+          product_id: product.id,
+          action: ProductChangeActionType.STATUS_CHANGE,
+          details: { status: ProductStatus.REQUIRES_ACTION },
+          applied: true,
+        },
+      ]
+    )
 
     createProductChangeActionsStep(actionData)
 
-    const declineData = transform(
-      { product, input },
-      ({ product, input }) => ({
-        product_change: product.product_change,
-        declined_by: input.actor_id,
-        declined_reason: input.message,
-        rejection_reason_ids: input.rejection_reason_ids,
-      }),
-    )
-
-    declineProductChangeStep(declineData)
-
     const updateInput = transform({ input }, ({ input }) => ({
       selector: { id: input.product_id },
-      data: { status: ProductStatus.CHANGES_REQUIRED },
+      data: { status: ProductStatus.REQUIRES_ACTION },
     }))
 
     updateProductsStep(updateInput)
 
+    const eventData = transform({ input }, ({ input }) => ({
+      id: input.product_id,
+      message: input.message,
+    }))
+
     emitEventStep({
       eventName: ProductWorkflowEvents.CHANGES_REQUESTED,
-      data: { id: input.product_id },
+      data: eventData,
     })
 
     const productChangesRequested = createHook("productChangesRequested", {
       product_id: input.product_id,
+      message: input.message,
     })
 
     return new WorkflowResponse(void 0, { hooks: [productChangesRequested] })

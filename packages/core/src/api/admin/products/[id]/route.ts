@@ -12,7 +12,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { deleteProductsWorkflow } from "../../../../workflows/product/workflows/delete-products"
 import { updateProductsWorkflow } from "../../../../workflows/product/workflows/update-products"
-import { formatProductAttributes } from "../helpers"
+import { formatProductAttributes } from "../../../utils"
 import { AdminUpdateProductType } from "../validators"
 
 export const GET = async (

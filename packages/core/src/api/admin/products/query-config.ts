@@ -47,7 +47,6 @@ export const adminProductFields = [
 
 export const adminProductRetrieveFields = [
   ...adminProductFields,
-  "*changes",
 ]
 
 export const adminProductQueryConfig = {

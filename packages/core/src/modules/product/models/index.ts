@@ -7,7 +7,6 @@ export { default as ProductChange } from "./product-change";
 export { default as ProductChangeAction } from "./product-change-action";
 export { default as ProductCollection } from "./product-collection";
 export { default as ProductImage } from "./product-image";
-export { default as ProductRejectionReason } from "./product-rejection-reason";
 export { default as ProductTag } from "./product-tag";
 export { default as ProductType } from "./product-type";
 export { default as ProductVariant } from "./product-variant";

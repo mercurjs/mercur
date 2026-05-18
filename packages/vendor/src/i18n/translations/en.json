@@ -445,6 +445,7 @@
       "header": "Edit Product",
       "description": "Edit the product details.",
       "successToast": "Product {{title}} was successfully updated.",
+      "requestSuccessToast": "Product update was successfully requested. Once confirmed by the Admin, changes will appear on the storefront.",
       "attributes": {
         "addAttribute": "Add Attribute",
         "editHeader": "Edit Attribute",
@@ -460,6 +461,18 @@
       "informationalAttributes": {
         "header": "Product Information",
         "description": "Attributes used for informational purposes"
+      }
+    },
+    "edits": {
+      "panel": {
+        "title": "Product update request",
+        "description": "Product update request has been submitted successfully. Once the Admin reviews it, you'll receive a notification in your panel. Confirmed updates will appear on the storefront.",
+        "deleteRequested": "Product deletion is pending approval.",
+        "cancelTitle": "Cancel update request",
+        "cancelDescription": "Are you sure you want to cancel this product update request? This action cannot be undone."
+      },
+      "toast": {
+        "canceledSuccessfully": "Product update request canceled"
       }
     },
     "create": {
@@ -480,7 +493,8 @@
         "primaryCategoryRequired": "Primary category is required",
         "titleRequired": "Title is required",
         "handleInvalidFormat": "Handle must contain only lowercase letters, numbers, and hyphens",
-        "handleMustContainLetter": "Handle must contain at least one letter"
+        "handleMustContainLetter": "Handle must contain at least one letter",
+        "requiredAttribute": "This attribute is required."
       },
       "inventory": {
         "heading": "Inventory kits",
@@ -501,7 +515,10 @@
         "productVariants": {
           "searchPlaceholder": "Search variants...",
           "media": "Media",
-          "tip": "Only variants with prices and stock will be visible to customers."
+          "tip": "Only variants with prices and stock will be visible to customers.",
+          "label": "Product variants",
+          "hint": "This ranking will affect the variants display order.",
+          "alert": "Add values to your variant attributes to generate variants."
         },
         "productOptions": {
           "label": "Product options",
@@ -509,6 +526,7 @@
         }
       },
       "successToast": "Product {{title}} was successfully created.",
+      "requestSuccessToast": "Product was successfully requested. Once confirmed by the admin, they will appear on the storefront. Only products with stock levels and prices set will be visible.",
       "attributes": {
         "description": "Add attributes to your product. Select from admin-defined attributes or create your own.",
         "requiredHeading": "Required Attributes",
@@ -517,7 +535,19 @@
         "learnMore": {
           "label": "Learn more about attributes",
           "content": "Attributes help customers find and filter your products. Admin-defined attributes appear in search results."
-        }
+        },
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
       }
     },
     "export": {
@@ -576,6 +606,12 @@
       }
     },
     "attributes": "Attributes",
+    "attributeVariantsDescription": "All attributes that are used for variants",
+    "attributeProductInformation": "Product Information",
+    "attributeProductInformationDescription": "Attributes used for informational purposes",
+    "attributeRequiredByMarketplace": "This attribute is required by marketplace",
+    "addAttribute": "Add Attribute",
+    "deleteAttributeWarning": "Are you sure you want to delete the attribute \"{{title}}\"? This action cannot be undone.",
     "editAttributes": "Edit Attributes",
     "editOptions": "Edit Options",
     "editPrices": "Edit prices",
@@ -634,6 +670,7 @@
       "draft": "Draft",
       "published": "Published",
       "proposed": "Proposed",
+      "requires_action": "Requires Action",
       "rejected": "Rejected"
     },
     "columns": {
@@ -3385,6 +3422,7 @@
     "inStock": "In stock",
     "added": "Added",
     "removed": "Removed",
+    "updated": "Updated",
     "from": "From",
     "to": "To",
     "beaware": "Be aware",
@@ -3401,6 +3439,7 @@
     "default": "Default",
     "lastName": "Last Name",
     "firstName": "First Name",
+    "images": "Media",
     "title": "Title",
     "customTitle": "Custom title",
     "manageInventory": "Manage inventory",
@@ -3416,6 +3455,9 @@
     "newPassword": "New Password",
     "repeatNewPassword": "Repeat New Password",
     "categories": "Categories",
+    "brand_id": "Brand",
+    "type_id": "Type",
+    "collection_id": "Collection",
     "shippingMethod": "Shipping method",
     "configurations": "Configurations",
     "enabledInStore": "Enabled in store",
@@ -3558,7 +3600,8 @@
     "draft": "Draft",
     "values": "Values",
     "premium": "Premium",
-    "professional": "Professional"
+    "professional": "Professional",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Year",
@@ -3600,6 +3643,24 @@
     "login": {
       "authenticationFailed": "Authentication failed",
       "cloud": "Log in with Mercur"
+    }
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
     }
   }
 }

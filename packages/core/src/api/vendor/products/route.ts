@@ -7,6 +7,7 @@ import { CreateProductDTO, HttpTypes } from "@mercurjs/types"
 
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 import { submitSellerProductsWorkflow } from "../../../workflows"
+import { formatProductAttributes } from "../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest<VendorGetProductsParamsType>,
@@ -20,6 +21,10 @@ export const GET = async (
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
+
+  for (const product of products) {
+    formatProductAttributes(product)
+  }
 
   res.json({
     products,
@@ -53,6 +58,8 @@ export const POST = async (
     fields: req.queryConfig.fields,
     filters: { id: createdProduct.id },
   })
+
+  formatProductAttributes(product)
 
   res.status(201).json({ product })
 }

@@ -28,6 +28,7 @@ import {
   AdminGetProductsParams,
   AdminGetProductVariantParams,
   AdminGetProductVariantsParams,
+  AdminConfirmProduct,
   AdminRejectProduct,
   AdminRequestProductChanges,
   AdminUpdateProduct,
@@ -96,8 +97,9 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ["POST"],
-    matcher: "/admin/products/:id/accept",
+    matcher: "/admin/products/:id/confirm",
     middlewares: [
+      validateAndTransformBody(AdminConfirmProduct),
       validateAndTransformQuery(
         AdminGetProductParams,
         adminProductQueryConfig.retrieve

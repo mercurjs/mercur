@@ -24,10 +24,12 @@ const VendorProductCategoriesParamsFields = z.object({
   parent_category_id: z.union([z.string(), z.array(z.string())]).optional(),
   is_active: booleanString().optional(),
   is_internal: booleanString().optional(),
+  is_restricted: booleanString().optional(),
   include_ancestors_tree: booleanString().optional(),
   include_descendants_tree: booleanString().optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
+  deleted_at: createOperatorMap().optional(),
 })
 
 export type VendorGetProductCategoriesParamsType = z.infer<typeof VendorGetProductCategoriesParams>
