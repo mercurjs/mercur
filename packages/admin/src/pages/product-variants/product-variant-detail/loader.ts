@@ -3,17 +3,13 @@ import { LoaderFunctionArgs } from "react-router-dom"
 import { variantsQueryKeys } from "../../../hooks/api/products"
 import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
-import { VARIANT_DETAIL_FIELDS } from "./constants"
 
 const variantDetailQuery = (productId: string, variantId: string) => ({
-  queryKey: variantsQueryKeys.detail(variantId, {
-    fields: VARIANT_DETAIL_FIELDS,
-  }),
+  queryKey: variantsQueryKeys.detail(variantId),
   queryFn: async () =>
     sdk.admin.products.$id.variants.$variantId.query({
       $id: productId,
       $variantId: variantId,
-      fields: VARIANT_DETAIL_FIELDS,
     }),
 })
 

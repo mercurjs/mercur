@@ -3,10 +3,12 @@ import { Container, Heading, Text, Tooltip } from "@medusajs/ui"
 import { Trans, useTranslation } from "react-i18next"
 import { ActionMenu } from "@components/common/action-menu"
 import { useSalesChannels } from "@hooks/api/sales-channels"
-import { useProductDetailContext } from "../../context"
 
-export const ProductSalesChannelSection = () => {
-  const { product } = useProductDetailContext()
+export const ProductSalesChannelSection = ({
+  product,
+}: {
+  product: Record<string, any>
+}) => {
   const { count } = useSalesChannels()
   const { t } = useTranslation()
 

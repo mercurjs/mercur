@@ -1,15 +1,13 @@
-import { ReactNode, Children } from "react"
-import { SingleColumnPage } from "../../../components/layout/pages"
+import { ReactNode, Children } from "react";
+import { SingleColumnPage } from "../../../components/layout/pages";
 import {
   ProductListTable,
   ProductListHeader,
   ProductListTitle,
   ProductListActions,
   ProductListCreateButton,
-  ProductListExportButton,
-  ProductListImportButton,
   ProductListDataTable,
-} from "./components/product-list-table"
+} from "./components/product-list-table";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
@@ -18,8 +16,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
         {Children.count(children) > 0 ? children : <ProductListTable />}
       </SingleColumnPage>
     </div>
-  )
-}
+  );
+};
 
 export const ProductListPage = Object.assign(Root, {
   Table: ProductListTable,
@@ -27,7 +25,5 @@ export const ProductListPage = Object.assign(Root, {
   HeaderTitle: ProductListTitle,
   HeaderActions: ProductListActions,
   HeaderCreateButton: ProductListCreateButton,
-  HeaderExportButton: ProductListExportButton,
-  HeaderImportButton: ProductListImportButton,
   DataTable: ProductListDataTable,
-})
+});

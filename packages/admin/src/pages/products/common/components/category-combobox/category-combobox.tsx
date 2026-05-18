@@ -33,6 +33,7 @@ interface CategoryComboboxProps
   > {
   value: string[]
   onChange: (value: string[]) => void
+  isSingleSelect?: boolean
 }
 
 type Level = {
@@ -46,7 +47,7 @@ const TAG_BASE_WIDTH = 28
 export const CategoryCombobox = forwardRef<
   HTMLInputElement,
   CategoryComboboxProps
->(({ value, onChange, className, ...props }, ref) => {
+>(({ value, onChange, className, isSingleSelect, ...props }, ref) => {
   const innerRef = useRef<HTMLInputElement>(null)
 
   useImperativeHandle<HTMLInputElement | null, HTMLInputElement | null>(
@@ -76,11 +77,6 @@ export const CategoryCombobox = forwardRef<
 
   const [showLoading, setShowLoading] = useState(false)
 
-  /**
-   * We add a small artificial delay to the end of the loading state,
-   * this is done to prevent the popover from flickering too much when
-   * navigating between levels or searching.
-   */
   useEffect(() => {
     let timeoutId: ReturnType<typeof setTimeout> | undefined
 
@@ -132,13 +128,18 @@ export const CategoryCombobox = forwardRef<
         if (isSelected(value, option.value)) {
           onChange(value.filter((v) => v !== option.value))
         } else {
-          onChange([...value, option.value])
+          if (isSingleSelect) {
+            onChange([option.value])
+            handleOpenChange(false)
+          } else {
+            onChange([...value, option.value])
+          }
         }
 
         innerRef.current?.focus()
       }
     },
-    [value, onChange]
+    [value, onChange, isSingleSelect]
   )
 
   function handleOpenChange(open: boolean) {
@@ -257,9 +258,6 @@ export const CategoryCombobox = forwardRef<
             "has-[:invalid]:shadow-borders-error has-[[aria-invalid=true]]:shadow-borders-error",
             "has-[:disabled]:bg-ui-bg-disabled has-[:disabled]:text-ui-fg-disabled has-[:disabled]:cursor-not-allowed",
             {
-              // Fake the focus state as long as the popover is open,
-              // this prevents the styling from flickering when navigating
-              // between levels.
               "shadow-borders-interactive-with-active": open,
             },
             className

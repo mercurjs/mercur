@@ -17,12 +17,11 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { rejection_reason_ids, message } = req.validatedBody
+  const { message } = req.validatedBody
 
   await rejectProductWorkflow(req.scope).run({
     input: {
       product_id: req.params.id,
-      rejection_reason_ids,
       message,
       actor_id: req.auth_context?.actor_id,
     },

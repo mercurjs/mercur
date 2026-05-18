@@ -1,8 +1,4 @@
 import {
-  AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
-  MedusaNextFunction,
-  MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import {
@@ -15,38 +11,29 @@ import {
   adminProductVariantQueryConfig,
 } from "./query-config"
 import {
+  adminProductAttributeQueryConfig,
+} from "../product-attributes/query-config"
+import {
+  AdminCreateProductAttribute,
+  AdminGetProductAttributeParams,
+  AdminGetProductAttributesParams,
+  AdminUpdateProductAttribute,
+} from "../product-attributes/validators"
+import {
+  AdminBatchProductAttributes,
+  AdminBatchProducts,
   AdminCreateProduct,
   AdminCreateProductVariant,
   AdminGetProductParams,
   AdminGetProductsParams,
   AdminGetProductVariantParams,
   AdminGetProductVariantsParams,
+  AdminConfirmProduct,
   AdminRejectProduct,
   AdminRequestProductChanges,
   AdminUpdateProduct,
   AdminUpdateProductVariant,
 } from "./validators"
-
-// Filters products by seller_id via the product_seller link.
-// Runs before `validateAndTransformQuery` on the list endpoint so the
-// link-rewrite happens against the original `req.query.seller_id`.
-const maybeApplySellerProductFilter = (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  if (!req.query.seller_id) {
-    return next()
-  }
-
-  req.filterableFields.seller_id = req.query.seller_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: "product_seller",
-    resourceId: "product_id",
-    filterableField: "seller_id",
-  })(req, res, next)
-}
 
 export const adminProductsMiddlewares: MiddlewareRoute[] = [
   // --- CRUD ---
@@ -54,7 +41,6 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/admin/products",
     middlewares: [
-      maybeApplySellerProductFilter,
       validateAndTransformQuery(
         AdminGetProductsParams,
         adminProductQueryConfig.list
@@ -69,6 +55,17 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         AdminGetProductParams,
         adminProductQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/products/batch",
+    middlewares: [
+      validateAndTransformBody(AdminBatchProducts),
+      validateAndTransformQuery(
+        AdminGetProductsParams,
+        adminProductQueryConfig.list
       ),
     ],
   },
@@ -100,8 +97,9 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
   },
   {
     method: ["POST"],
-    matcher: "/admin/products/:id/accept",
+    matcher: "/admin/products/:id/confirm",
     middlewares: [
+      validateAndTransformBody(AdminConfirmProduct),
       validateAndTransformQuery(
         AdminGetProductParams,
         adminProductQueryConfig.retrieve
@@ -130,27 +128,6 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
-  {
-    method: ["POST"],
-    matcher: "/admin/products/:id/activate",
-    middlewares: [
-      validateAndTransformQuery(
-        AdminGetProductParams,
-        adminProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/admin/products/:id/deactivate",
-    middlewares: [
-      validateAndTransformQuery(
-        AdminGetProductParams,
-        adminProductQueryConfig.retrieve
-      ),
-    ],
-  },
-
   // --- Variant sub-resource ---
   {
     method: ["GET"],
@@ -203,5 +180,65 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.retrieve
       ),
     ],
+  },
+
+  // --- Attribute sub-resource ---
+  {
+    method: ["POST"],
+    matcher: "/admin/products/:id/attributes/batch",
+    middlewares: [
+      validateAndTransformBody(AdminBatchProductAttributes),
+      validateAndTransformQuery(
+        AdminGetProductAttributesParams,
+        adminProductAttributeQueryConfig.list
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/admin/products/:id/attributes",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetProductAttributesParams,
+        adminProductAttributeQueryConfig.list
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/products/:id/attributes",
+    middlewares: [
+      validateAndTransformBody(AdminCreateProductAttribute),
+      validateAndTransformQuery(
+        AdminGetProductAttributeParams,
+        adminProductAttributeQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["GET"],
+    matcher: "/admin/products/:id/attributes/:attribute_id",
+    middlewares: [
+      validateAndTransformQuery(
+        AdminGetProductAttributeParams,
+        adminProductAttributeQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/admin/products/:id/attributes/:attribute_id",
+    middlewares: [
+      validateAndTransformBody(AdminUpdateProductAttribute),
+      validateAndTransformQuery(
+        AdminGetProductAttributeParams,
+        adminProductAttributeQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["DELETE"],
+    matcher: "/admin/products/:id/attributes/:attribute_id",
+    middlewares: [],
   },
 ]

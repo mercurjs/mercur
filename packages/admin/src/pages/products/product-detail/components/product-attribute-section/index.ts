@@ -1,1 +1,1 @@
-export * from "./product-attribute-section";
+export { ProductAttributeSection } from "./product-attribute-section";

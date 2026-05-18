@@ -9,6 +9,7 @@ import { FeatureFlag, registerFeatureFlag } from "@medusajs/framework/utils"
 import { configManager } from "@medusajs/framework/config"
 
 import SellerRegistrationFeatureFlag from "../../../feature-flags/seller-registration"
+import ProductRequestFeatureFlag from "../../../feature-flags/product-request"
 
 export default async function registerFeatureFlagsLoader({
   container,
@@ -17,6 +18,12 @@ export default async function registerFeatureFlagsLoader({
 
   registerFeatureFlag({
     flag: SellerRegistrationFeatureFlag,
+    projectConfigFlags,
+    router: FeatureFlag,
+  })
+
+  registerFeatureFlag({
+    flag: ProductRequestFeatureFlag,
     projectConfigFlags,
     router: FeatureFlag,
   })

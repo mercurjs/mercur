@@ -3,7 +3,6 @@ export const vendorProductFields = [
   "title",
   "subtitle",
   "status",
-  "is_active",
   "is_restricted",
   "external_id",
   "description",
@@ -32,13 +31,18 @@ export const vendorProductFields = [
   "*images",
   "*categories",
   "*variants",
+  "*variants.attribute_values",
+  "*variants.attribute_values.attribute",
   "*variant_attributes",
   "*variant_attributes.values",
+  "*custom_attributes",
+  "*custom_attributes.values",
+  "*attribute_values",
+  "*attribute_values.attribute",
 ]
 
 export const vendorProductRetrieveFields = [
   ...vendorProductFields,
-  "*changes",
 ]
 
 export const vendorProductQueryConfig = {
@@ -49,6 +53,45 @@ export const vendorProductQueryConfig = {
   },
   retrieve: {
     defaults: vendorProductRetrieveFields,
+    isList: false,
+  },
+}
+
+export const vendorProductVariantFields = [
+  "id",
+  "title",
+  "sku",
+  "ean",
+  "upc",
+  "isbn",
+  "asin",
+  "gtin",
+  "barcode",
+  "hs_code",
+  "mid_code",
+  "variant_rank",
+  "weight",
+  "length",
+  "height",
+  "width",
+  "origin_country",
+  "material",
+  "metadata",
+  "created_at",
+  "updated_at",
+  "product_id",
+  "*attribute_values",
+  "*attribute_values.attribute",
+]
+
+export const vendorProductVariantQueryConfig = {
+  list: {
+    defaults: vendorProductVariantFields,
+    defaultLimit: 50,
+    isList: true,
+  },
+  retrieve: {
+    defaults: vendorProductVariantFields,
     isList: false,
   },
 }
