@@ -12,23 +12,39 @@ medusaIntegrationTestRunner({
             let seller2Headers: any
 
             const seedSellerOfferDeps = async (headers: any) => {
-                const product = await api.post(
-                    `/vendor/products`,
-                    {
-                        title: "Test Product",
-                        options: [{ title: "Default", values: ["Default"] }],
-                        variants: [
-                            {
-                                title: "Default",
-                                options: { Default: "Default" },
-                                ean: "1234567890123",
-                                upc: "012345678905",
-                                prices: [{ currency_code: "usd", amount: 1000 }],
-                            },
-                        ],
-                    },
-                    headers
-                )
+                const product = await api
+                    .post(
+                        `/vendor/products`,
+                        {
+                            title: "Test Product",
+                            variant_attributes: [
+                                {
+                                    name: "Default",
+                                    type: "multi_select",
+                                    values: ["Default"],
+                                    is_variant_axis: true,
+                                },
+                            ],
+                            variants: [
+                                {
+                                    title: "Default",
+                                    attribute_values: { Default: "Default" },
+                                    ean: "1234567890123",
+                                    upc: "012345678905",
+                                },
+                            ],
+                        },
+                        headers
+                    )
+                    .catch((e) => {
+                        // eslint-disable-next-line no-console
+                        console.error(
+                            "[seed] POST /vendor/products",
+                            e.response?.status,
+                            JSON.stringify(e.response?.data)
+                        )
+                        throw e
+                    })
 
                 const variant = product.data.product.variants[0]
 
@@ -362,6 +378,377 @@ medusaIntegrationTestRunner({
 
                     const response = await api
                         .get(`/vendor/offers/${offerId}`, seller2Headers)
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+            })
+
+            describe("POST /vendor/offers/:id (update)", () => {
+                it("should update offer-row fields without touching prices", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "UPD-SKU-1",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [
+                                {
+                                    inventory_item_id:
+                                        deps.inventory_item_id,
+                                },
+                            ],
+                            prices: [
+                                { amount: 1000, currency_code: "usd" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    const offerId = created.data.offer.id
+
+                    const response = await api.post(
+                        `/vendor/offers/${offerId}`,
+                        { sku: "UPD-SKU-1-RENAMED" },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.offer.sku).toEqual(
+                        "UPD-SKU-1-RENAMED"
+                    )
+                    expect(response.data.offer.price_set.prices).toHaveLength(
+                        1
+                    )
+                    expect(response.data.offer.price_set.prices[0]).toEqual(
+                        expect.objectContaining({
+                            amount: 1000,
+                            currency_code: "usd",
+                        })
+                    )
+                })
+
+                it("should add, update, and delete prices in one call (replace semantics)", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "PRICE-LADDER",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [
+                                {
+                                    inventory_item_id:
+                                        deps.inventory_item_id,
+                                },
+                            ],
+                            prices: [
+                                { amount: 1000, currency_code: "usd" },
+                                { amount: 900, currency_code: "eur" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    const offerId = created.data.offer.id
+                    const prices = created.data.offer.price_set.prices as Array<{
+                        id: string
+                        currency_code: string
+                        amount: number
+                    }>
+                    const usdPrice = prices.find(
+                        (p) => p.currency_code === "usd"
+                    )!
+
+                    const response = await api.post(
+                        `/vendor/offers/${offerId}`,
+                        {
+                            prices: [
+                                {
+                                    id: usdPrice.id,
+                                    amount: 1500,
+                                    currency_code: "usd",
+                                },
+                                { amount: 1200, currency_code: "gbp" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const updated = response.data.offer.price_set
+                        .prices as Array<{
+                        currency_code: string
+                        amount: number
+                    }>
+                    expect(updated).toHaveLength(2)
+                    expect(
+                        updated.find((p) => p.currency_code === "usd")
+                    ).toEqual(
+                        expect.objectContaining({ amount: 1500 })
+                    )
+                    expect(
+                        updated.find((p) => p.currency_code === "gbp")
+                    ).toEqual(
+                        expect.objectContaining({ amount: 1200 })
+                    )
+                    expect(
+                        updated.find((p) => p.currency_code === "eur")
+                    ).toBeUndefined()
+                })
+
+                it("should not allow seller to update another seller's offer", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "CROSS-UPDATE",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [
+                                {
+                                    inventory_item_id:
+                                        deps.inventory_item_id,
+                                },
+                            ],
+                            prices: [
+                                { amount: 1000, currency_code: "usd" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers/${created.data.offer.id}`,
+                            { sku: "HIJACK" },
+                            seller2Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+            })
+
+            describe("POST /vendor/offers/:id/inventory-items/batch", () => {
+                const seedExtraInventoryItem = async (
+                    headers: any,
+                    title: string
+                ) => {
+                    const r = await api.post(
+                        `/vendor/inventory-items`,
+                        { title },
+                        headers
+                    )
+                    return r.data.inventory_item.id as string
+                }
+
+                it("should create, update, and delete links in one call", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    const extraId = await seedExtraInventoryItem(
+                        seller1Headers,
+                        "Extra Inventory Item"
+                    )
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "BATCH-OFFER",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [
+                                {
+                                    inventory_item_id:
+                                        deps.inventory_item_id,
+                                    required_quantity: 2,
+                                },
+                            ],
+                            prices: [
+                                { amount: 1000, currency_code: "usd" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    const offerId = created.data.offer.id
+
+                    // Add the extra link, then in a second call delete the
+                    // original and update the extra so the offer keeps a
+                    // single inventory item linked at required_quantity=7.
+                    const addResp = await api.post(
+                        `/vendor/offers/${offerId}/inventory-items/batch`,
+                        {
+                            create: [
+                                {
+                                    inventory_item_id: extraId,
+                                    required_quantity: 3,
+                                },
+                            ],
+                        },
+                        seller1Headers
+                    )
+                    expect(addResp.status).toEqual(200)
+                    expect(addResp.data.created).toHaveLength(1)
+                    expect(addResp.data.offer.inventory_items).toHaveLength(
+                        2
+                    )
+
+                    const mutateResp = await api.post(
+                        `/vendor/offers/${offerId}/inventory-items/batch`,
+                        {
+                            update: [
+                                {
+                                    inventory_item_id: extraId,
+                                    required_quantity: 7,
+                                },
+                            ],
+                            delete: [deps.inventory_item_id],
+                        },
+                        seller1Headers
+                    )
+
+                    expect(mutateResp.status).toEqual(200)
+                    expect(mutateResp.data.updated).toHaveLength(1)
+                    expect(mutateResp.data.deleted).toEqual([
+                        deps.inventory_item_id,
+                    ])
+                    const links = mutateResp.data.offer
+                        .inventory_items as Array<{
+                        inventory_item_id: string
+                        required_quantity: number
+                    }>
+                    expect(links).toHaveLength(1)
+                    expect(links[0]).toEqual(
+                        expect.objectContaining({
+                            inventory_item_id: extraId,
+                            required_quantity: 7,
+                        })
+                    )
+                })
+
+                it("should reject duplicate inventory_item_id within create", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    const extraId = await seedExtraInventoryItem(
+                        seller1Headers,
+                        "Dup Inventory Item"
+                    )
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "BATCH-DUP",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [
+                                {
+                                    inventory_item_id:
+                                        deps.inventory_item_id,
+                                },
+                            ],
+                            prices: [
+                                { amount: 1000, currency_code: "usd" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers/${created.data.offer.id}/inventory-items/batch`,
+                            {
+                                create: [
+                                    { inventory_item_id: extraId },
+                                    { inventory_item_id: extraId },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+
+                it("should reject delete of an inventory item not linked to the offer", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    const otherId = await seedExtraInventoryItem(
+                        seller1Headers,
+                        "Unlinked Inventory Item"
+                    )
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "BATCH-MISSING",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [
+                                {
+                                    inventory_item_id:
+                                        deps.inventory_item_id,
+                                },
+                            ],
+                            prices: [
+                                { amount: 1000, currency_code: "usd" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers/${created.data.offer.id}/inventory-items/batch`,
+                            { delete: [otherId] },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(404)
+                })
+
+                it("should not allow seller to batch another seller's offer", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    const otherSellerInventoryId =
+                        await seedExtraInventoryItem(
+                            seller2Headers,
+                            "Seller2 Inventory"
+                        )
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "BATCH-CROSS",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [
+                                {
+                                    inventory_item_id:
+                                        deps.inventory_item_id,
+                                },
+                            ],
+                            prices: [
+                                { amount: 1000, currency_code: "usd" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers/${created.data.offer.id}/inventory-items/batch`,
+                            {
+                                create: [
+                                    {
+                                        inventory_item_id:
+                                            otherSellerInventoryId,
+                                    },
+                                ],
+                            },
+                            seller2Headers
+                        )
                         .catch((e) => e.response)
 
                     expect(response.status).toEqual(404)

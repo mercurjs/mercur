@@ -29,6 +29,7 @@ export * from "./shipping-option-type"
 export * from "./shipping-profile"
 export * from "./stock-location"
 export * from "./payout"
+export * from "./offer"
 export * from "./commission"
 export * from "./subscription"
 

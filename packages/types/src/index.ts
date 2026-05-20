@@ -18,6 +18,9 @@ export * from "./subscription"
 // Payout types
 export * from "./payout"
 
+// Offer types
+export * from "./offer"
+
 // Product types — explicit re-export to override Medusa's product types
 // (this module replaces Medusa's built-in product module)
 export {

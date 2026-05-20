@@ -507,7 +507,7 @@ export type Routes = {
             $id: typeof import("@medusajs/medusa/api/store/carts/[id]/route") & {
                 complete: typeof import("../../src/api/store/carts/[id]/complete/route");
                 customer: typeof import("@medusajs/medusa/api/store/carts/[id]/customer/route");
-                lineItems: typeof import("@medusajs/medusa/api/store/carts/[id]/line-items/route") & {
+                lineItems: typeof import("../../src/api/store/carts/[id]/line-items/route") & {
                     $lineId: typeof import("@medusajs/medusa/api/store/carts/[id]/line-items/[line_id]/route");
                 };
                 promotions: typeof import("../../src/api/store/carts/[id]/promotions/route");
@@ -788,7 +788,11 @@ export type Routes = {
             me: typeof import("../../src/api/vendor/members/me/route");
         };
         offers: typeof import("../../src/api/vendor/offers/route") & {
-            $id: typeof import("../../src/api/vendor/offers/[id]/route");
+            $id: typeof import("../../src/api/vendor/offers/[id]/route") & {
+                inventoryItems: {
+                    batch: typeof import("../../src/api/vendor/offers/[id]/inventory-items/batch/route");
+                };
+            };
         };
         productAttributes: typeof import("../../src/api/vendor/product-attributes/route") & {
             $id: typeof import("../../src/api/vendor/product-attributes/[id]/route");

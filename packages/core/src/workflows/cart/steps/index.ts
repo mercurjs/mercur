@@ -1,2 +1,7 @@
+export * from "./calculate-offer-prices"
+export * from "./decorate-line-item-with-offer"
+export * from "./get-line-item-actions"
+export * from "./link-line-item-to-offer"
+export * from "./mirror-line-item-offer-links-to-order"
 export * from "./validate-seller-cart-items"
 export * from "./validate-seller-cart-shipping"

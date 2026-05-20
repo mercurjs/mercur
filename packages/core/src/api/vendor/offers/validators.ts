@@ -47,6 +47,17 @@ const VendorOfferPrice = z
   })
   .strict()
 
+const VendorOfferUpsertPrice = z
+  .object({
+    id: z.string().optional(),
+    amount: z.number(),
+    currency_code: z.string(),
+    min_quantity: z.number().int().positive().nullish(),
+    max_quantity: z.number().int().positive().nullish(),
+    rules: z.record(z.string(), z.string()).optional(),
+  })
+  .strict()
+
 export type VendorCreateOfferType = z.infer<typeof VendorCreateOffer>
 export const VendorCreateOffer = z
   .object({
@@ -65,5 +76,35 @@ export const VendorUpdateOffer = z
     sku: z.string().min(1).optional(),
     shipping_profile_id: z.string().optional(),
     metadata: z.record(z.string(), z.unknown()).nullish(),
+    /**
+     * Optional full price ladder. When set, the offer's PriceSet is rewritten
+     * with this exact list (mirrors Medusa's `updateProductVariantsWorkflow`).
+     */
+    prices: z.array(VendorOfferUpsertPrice).optional(),
+  })
+  .strict()
+
+const VendorBatchInventoryItemCreate = z
+  .object({
+    inventory_item_id: z.string(),
+    required_quantity: z.number().int().positive().default(1),
+  })
+  .strict()
+
+const VendorBatchInventoryItemUpdate = z
+  .object({
+    inventory_item_id: z.string(),
+    required_quantity: z.number().int().positive(),
+  })
+  .strict()
+
+export type VendorBatchOfferInventoryItemsType = z.infer<
+  typeof VendorBatchOfferInventoryItems
+>
+export const VendorBatchOfferInventoryItems = z
+  .object({
+    create: z.array(VendorBatchInventoryItemCreate).optional(),
+    update: z.array(VendorBatchInventoryItemUpdate).optional(),
+    delete: z.array(z.string()).optional(),
   })
   .strict()

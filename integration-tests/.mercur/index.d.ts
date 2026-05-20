@@ -142,7 +142,7 @@ export type Routes = {
             $id: typeof import("@medusajs/medusa/api/admin/invites/[id]/route") & {
                 resend: typeof import("@medusajs/medusa/api/admin/invites/[id]/resend/route");
             };
-            accept: typeof import("@mercurjs/core/api/admin/invites/accept/route");
+            accept: typeof import("@medusajs/medusa/api/admin/invites/accept/route");
         };
         locales: typeof import("@medusajs/medusa/api/admin/locales/route") & {
             $code: typeof import("@medusajs/medusa/api/admin/locales/[code]/route");
@@ -429,7 +429,6 @@ export type Routes = {
             invite: typeof import("@mercurjs/core/api/admin/sellers/invite/route");
             $id: typeof import("@mercurjs/core/api/admin/sellers/[id]/route");
         };
-        meilisearch: typeof import("../../src/api/admin/meilisearch/route");
     };
     auth: {
         $actorType: {
@@ -520,11 +519,6 @@ export type Routes = {
         };
         sellers: typeof import("@mercurjs/core/api/store/sellers/route") & {
             $id: typeof import("@mercurjs/core/api/store/sellers/[id]/route");
-        };
-        meilisearch: {
-            products: {
-                search: typeof import("../../src/api/store/meilisearch/products/search/route");
-            };
         };
     };
     vendor: {

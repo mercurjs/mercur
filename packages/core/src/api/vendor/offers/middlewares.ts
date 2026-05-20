@@ -11,6 +11,7 @@ import {
 
 import { vendorOfferQueryConfig } from "./query-config"
 import {
+  VendorBatchOfferInventoryItems,
   VendorCreateOffer,
   VendorGetOfferParams,
   VendorGetOffersParams,
@@ -74,5 +75,16 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
     method: ["DELETE"],
     matcher: "/vendor/offers/:id",
     middlewares: [],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/offers/:id/inventory-items/batch",
+    middlewares: [
+      validateAndTransformBody(VendorBatchOfferInventoryItems),
+      validateAndTransformQuery(
+        VendorGetOfferParams,
+        vendorOfferQueryConfig.retrieve
+      ),
+    ],
   },
 ]

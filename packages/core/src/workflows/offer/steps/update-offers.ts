@@ -3,6 +3,11 @@ import { MercurModules } from "@mercurjs/types"
 
 import OfferModuleService from "../../../modules/offer/service"
 
+/**
+ * Offer-row update fields only. The `prices` ladder is handled separately by
+ * the workflow via Medusa's `updatePriceSetsStep`; this step never touches
+ * the `PriceSet`.
+ */
 export type UpdateOffersStepInput = Array<{
   id: string
   sku?: string

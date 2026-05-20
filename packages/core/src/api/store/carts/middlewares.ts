@@ -1,8 +1,12 @@
-import { validateAndTransformQuery } from "@medusajs/framework/http"
+import {
+    validateAndTransformBody,
+    validateAndTransformQuery,
+} from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
 
 import { storeCompleteCartQueryConfig } from "./[id]/complete/query-config"
 import { StoreCompleteCartParams } from "./[id]/complete/validators"
+import { StoreAddCartLineItem } from "./[id]/line-items/validators"
 
 export const storeCartsMiddlewares: MiddlewareRoute[] = [
     {
@@ -14,5 +18,10 @@ export const storeCartsMiddlewares: MiddlewareRoute[] = [
                 storeCompleteCartQueryConfig
             ),
         ],
+    },
+    {
+        method: ["POST"],
+        matcher: "/store/carts/:id/line-items",
+        middlewares: [validateAndTransformBody(StoreAddCartLineItem)],
     },
 ]

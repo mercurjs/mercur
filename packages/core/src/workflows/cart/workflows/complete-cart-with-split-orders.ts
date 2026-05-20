@@ -40,6 +40,7 @@ import { CreateOrderGroupDTO, MercurModules, SellerDTO } from "@mercurjs/types"
 import { createOrderGroupStep } from "../../order-group"
 import { OrderGroupWorkflowEvents } from "../../events"
 import {
+    mirrorLineItemOfferLinksToOrderStep,
     validateSellerCartItemsStep,
     validateSellerCartShippingStep,
 } from "../steps"
@@ -49,10 +50,10 @@ import {
     PrepareLineItemDataInput,
     prepareLineItemData,
     prepareTaxLinesData,
-    prepareConfirmInventoryInput,
 } from "../utils"
 import { registerUsageStep } from "../../promotion"
 import { refreshOrderCommissionLinesWorkflow } from "../../commission/workflows/refresh-order-commission-lines"
+import { prepareOfferInventoryInput } from "../../offer/utils"
 
 type CompleteCartWithSplitOrdersWorkflowInput = {
     cart_id: string
@@ -138,22 +139,10 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 cart: cartData.data,
                 shippingOptions: shippingOptionsData.data,
             })
-            const { variants, sales_channel_id } = transform(
+            const { sales_channel_id } = transform(
                 { cart: cartData.data },
                 (data) => {
-                    const variantsMap: Record<string, any> = {}
-                    const allItems = data.cart?.items?.map((item) => {
-                        variantsMap[item.variant_id] = item.variant
-                        return {
-                            id: item.id,
-                            variant_id: item.variant_id,
-                            quantity: item.quantity,
-                        }
-                    })
-
                     return {
-                        variants: Object.values(variantsMap),
-                        items: allItems,
                         sales_channel_id: data.cart.sales_channel_id,
                     }
                 }
@@ -309,25 +298,99 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 createOrdersStep(ordersToCreate)
             )
 
-            const reservationItemsData = transform(
+            const orderLineItemIdsForMirror = transform(
                 { createdOrders },
                 ({ createdOrders }) =>
-                    createdOrders.flatMap((order) => order.items!).map((i) => ({
-                        variant_id: i.variant_id,
-                        quantity: i.quantity,
-                        id: i.id,
-                    }))
+                    createdOrders
+                        .flatMap((order) => order.items ?? [])
+                        .map((item) => item.id)
             )
+
+            mirrorLineItemOfferLinksToOrderStep({
+                cart_id: cartData.data.id,
+                order_line_item_ids: orderLineItemIdsForMirror,
+            })
+
+            const offerReservationItems = transform(
+                { cart: cartData.data, createdOrders },
+                ({ cart, createdOrders }) => {
+                    // Pair each created order line back to its origin cart line via
+                    // metadata.cart_line_item_id (stamped by Mercur's prepareLineItemData)
+                    // so the reservation rows key off the new order_line_item.id while
+                    // still resolving the offer through the cart-side data.
+                    const cartItemById = new Map(
+                        (cart.items ?? []).map((i) => [i.id, i])
+                    )
+
+                    const offerItems: Array<{
+                        id: string
+                        quantity: number
+                        offer?: { id: string } | null
+                    }> = []
+                    for (const order of createdOrders) {
+                        for (const ordItem of order.items ?? []) {
+                            const cartLineId = (ordItem.metadata as
+                                | Record<string, unknown>
+                                | null)?.cart_line_item_id as string | undefined
+                            const cartLine = cartLineId
+                                ? cartItemById.get(cartLineId)
+                                : undefined
+                            const offerId = (cartLine as
+                                | { offer?: { id: string } }
+                                | undefined)?.offer?.id
+                            offerItems.push({
+                                id: ordItem.id,
+                                quantity: Number(ordItem.quantity),
+                                offer: offerId ? { id: offerId } : null,
+                            })
+                        }
+                    }
+                    return offerItems
+                }
+            )
+
+            const uniqueOffers = transform(
+                { cart: cartData.data },
+                ({ cart }) => {
+                    const byId = new Map<string, unknown>()
+                    for (const item of cart.items ?? []) {
+                        const offer = (item as { offer?: unknown }).offer as
+                            | { id: string }
+                            | undefined
+                        if (offer?.id && !byId.has(offer.id)) {
+                            byId.set(offer.id, item)
+                        }
+                    }
+                    return Array.from(byId.keys())
+                }
+            )
+
+            const { data: offersWithInventory } = useQueryGraphStep({
+                entity: "offer",
+                fields: [
+                    "id",
+                    "inventory_items.inventory_item_id",
+                    "inventory_items.required_quantity",
+                    "inventory_items.inventory.location_levels.location_id",
+                    "inventory_items.inventory.location_levels.stocked_quantity",
+                    "inventory_items.inventory.location_levels.reserved_quantity",
+                    "inventory_items.inventory.location_levels.raw_stocked_quantity",
+                    "inventory_items.inventory.location_levels.raw_reserved_quantity",
+                    "inventory_items.inventory.location_levels.stock_locations.id",
+                    "inventory_items.inventory.location_levels.stock_locations.sales_channels.id",
+                ],
+                filters: { id: uniqueOffers },
+            }).config({ name: "fetch-offers-for-reservation" })
 
             const formatedInventoryItems = transform(
                 {
                     input: {
                         sales_channel_id,
-                        variants,
-                        items: reservationItemsData,
+                        items: offerReservationItems,
+                        offers: offersWithInventory,
                     },
                 },
-                prepareConfirmInventoryInput
+                prepareOfferInventoryInput
             )
 
             const updateCompletedAt = transform(

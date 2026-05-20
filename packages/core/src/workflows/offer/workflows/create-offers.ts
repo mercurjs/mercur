@@ -12,31 +12,13 @@ import {
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import { MedusaError, Modules } from "@medusajs/framework/utils"
-import { MercurModules } from "@mercurjs/types"
+import { CreateOfferDTO, MercurModules } from "@mercurjs/types"
 
 import { createOffersStep } from "../steps"
 import { OfferWorkflowEvents } from "../../events"
 
 export type CreateOffersWorkflowInput = {
-  offers: Array<{
-    seller_id: string
-    created_by: string
-    sku: string
-    variant_id: string
-    shipping_profile_id: string
-    inventory_items: Array<{
-      inventory_item_id: string
-      required_quantity?: number
-    }>
-    prices: Array<{
-      amount: number
-      currency_code: string
-      min_quantity?: number | null
-      max_quantity?: number | null
-      rules?: Record<string, string>
-    }>
-    metadata?: Record<string, unknown> | null
-  }>
+  offers: CreateOfferDTO[]
 } & AdditionalData
 
 export const createOffersWorkflowId = "create-offers"

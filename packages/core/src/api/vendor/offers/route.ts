@@ -4,7 +4,6 @@ import {
 } from "@medusajs/framework/http"
 import {
   ContainerRegistrationKeys,
-  MedusaError,
 } from "@medusajs/framework/utils"
 
 import { createOffersWorkflow } from "../../../workflows/offer"
@@ -38,20 +37,6 @@ export const POST = async (
 ) => {
   const sellerId = req.seller_context!.seller_id
   const memberId = req.auth_context.actor_id
-
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { data: existing } = await query.graph({
-    entity: "offer",
-    fields: ["id"],
-    filters: { seller_id: sellerId, sku: req.validatedBody.sku },
-  })
-
-  if (existing.length) {
-    throw new MedusaError(
-      MedusaError.Types.DUPLICATE_ERROR,
-      `Offer with sku '${req.validatedBody.sku}' already exists for this seller`
-    )
-  }
 
   const { result } = await createOffersWorkflow(req.scope).run({
     input: {
