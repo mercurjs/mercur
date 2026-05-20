@@ -459,6 +459,9 @@ export type Routes = {
             };
         };
         members: typeof import("../../src/api/admin/members/route");
+        offers: typeof import("../../src/api/admin/offers/route") & {
+            $id: typeof import("../../src/api/admin/offers/[id]/route");
+        };
         productAttributes: typeof import("../../src/api/admin/product-attributes/route") & {
             $id: typeof import("../../src/api/admin/product-attributes/[id]/route") & {
                 values: typeof import("../../src/api/admin/product-attributes/[id]/values/route") & {
@@ -783,6 +786,9 @@ export type Routes = {
                 accept: typeof import("../../src/api/vendor/members/invites/accept/route");
             };
             me: typeof import("../../src/api/vendor/members/me/route");
+        };
+        offers: typeof import("../../src/api/vendor/offers/route") & {
+            $id: typeof import("../../src/api/vendor/offers/[id]/route");
         };
         productAttributes: typeof import("../../src/api/vendor/product-attributes/route") & {
             $id: typeof import("../../src/api/vendor/product-attributes/[id]/route");

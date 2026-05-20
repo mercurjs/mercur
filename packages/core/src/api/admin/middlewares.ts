@@ -10,6 +10,7 @@ import { validateAndTransformQuery } from "@medusajs/framework"
 import { adminOrderGroupsMiddlewares } from "./order-groups/middlewares"
 import { adminOrderGroupQueryConfig } from "./order-groups/query-config"
 import { AdminGetOrderGroupParams } from "./order-groups/validators"
+import { adminOffersMiddlewares } from "./offers/middlewares"
 import { adminPayoutsMiddlewares } from "./payouts/middlewares"
 import { adminSellersMiddlewares } from "./sellers/middlewares"
 import { adminMembersMiddlewares } from "./members/middlewares"
@@ -52,6 +53,7 @@ export const adminMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
+  ...adminOffersMiddlewares,
   ...adminPayoutsMiddlewares,
   ...adminSellersMiddlewares,
   ...adminMembersMiddlewares,

@@ -7,8 +7,8 @@
 - **Current version**: `2.1.2-canary.5`
 - **Standard startup path**: `bun install && bun run dev`
 - **Standard verification path**: `bun run build`, `bun run lint` (oxlint), `bun run test:integration:http -- <pattern>`
-- **Highest priority unfinished work**: finalize the lint/tooling refactor (oxlint migration, template-sync removal, meilisearch test removal) currently staged in the working tree, then verify and commit.
-- **Current blocker**: none -- working tree has uncommitted refactor (see Session 2 below) that has not yet been verified end-to-end.
+- **Current blocker**: none
+- **Active spec**: SPEC-002 (offer management) -- foundation landed 2026-05-20 (Session 5). Session 6 (2026-05-20) added the F2 create workflow, soft-delete + offer-row update workflows, the vendor + admin offer API routes, and the first vendor integration test. Cart override and inventory-lifecycle slices still pending.
 
 ## Session Log
 
@@ -122,6 +122,180 @@
 #### Evidence
 
 - See `feature_list.json` → `drop-medusa-global-unique-constraints.evidence`.
+
+### Session 5: 2026-05-20 -- SPEC-002 offer module foundation
+
+**Goal**: Land the offer module skeleton + cross-module links so future
+sessions can build workflows, API routes, cart overrides, and
+integration tests on top.
+
+#### Completed (uncommitted)
+
+- `packages/types/src/modules.ts`: added `MercurModules.OFFER = "offer"`.
+- New module `packages/core/src/modules/offer/`:
+  - `index.ts` — registers `Module(MercurModules.OFFER, { service: OfferModuleService })`.
+  - `service.ts` — `MedusaService({ Offer })` with no business methods yet.
+  - `models/offer.ts` — `Offer` entity with `seller_id`, `variant_id`,
+    `shipping_profile_id`, `price_set_id` text FKs; `sku`, `ean`, `upc`,
+    `created_by`, `metadata`; the `(seller_id, sku)` partial unique index
+    and all lookup indexes from SPEC-002 §Uniqueness.
+  - `migrations/Migration20260520104835.ts` — `offer` table + indexes.
+- New links in `packages/core/src/links/`:
+  - `offer-variant-link.ts`, `offer-seller-link.ts`,
+    `offer-shipping-profile-link.ts`, `offer-price-set-link.ts` —
+    all read-only on the corresponding FK column.
+  - `offer-inventory-item-link.ts` — writable many-to-many to
+    `InventoryModule.linkable.inventoryItem` with
+    `database.table = "offer_inventory_item"` and
+    `extraColumns.required_quantity` (integer, default `"1"`).
+- Spec status moved from `not_started` → `in_progress` and Evidence
+  section populated with the file list and the pending-work checklist.
+
+#### Verification
+
+- `packages/types` `bun run build` (tsc) passes.
+- `packages/core` `bun run build` (mercur codegen + tsc --declaration)
+  passes.
+- `bun run lint` reports the same baseline numbers as Session 3
+  (55 errors / 1347 warnings) -- zero new lint hits against the new
+  offer module or links.
+- Full repo `bun run build` still fails at `@mercurjs/admin#build` on
+  `product-variant-detail.tsx`. Last touched by commit `90248d55`,
+  unrelated to this change. Tracked as a separate canary fix.
+
+#### Known risks
+
+- Integration tests not yet runnable: no Postgres + Redis driver
+  fired in this session. The new migration must be exercised before
+  the spec advances.
+- Type-coverage for the offer's relations (`offer.variant`,
+  `offer.price_set`, `offer.inventory_items[]`) flows through
+  Medusa's Query joiner at runtime; static types for those traversals
+  are not yet asserted by any test.
+
+#### Next best action
+
+1. Implement the F2 create workflow (the most common path): a
+   `createOfferWorkflow` step group that calls
+   `pricingModule.createPriceSets`, inserts the offer row with the
+   resulting `price_set_id`, links `offer ↔ inventory_item` rows via
+   `createLinksWorkflow`, and snapshots `variant.ean` / `variant.upc`
+   onto the offer.
+2. Wire vendor + admin offer API routes for create/list/retrieve.
+3. Start the same-id `addToCartWorkflow` override that resolves
+   `offer.price_set_id` and writes `unit_price` + `is_custom_price`.
+4. Add the first integration test under
+   `integration-tests/http/offer/vendor/offer.spec.ts` covering
+   create + sibling-variant collision behaviour.
+
+### Session 6: 2026-05-20 -- SPEC-002 F2 create workflow + offer API routes
+
+**Goal**: Land the F2 create workflow + offer-row CRUD workflows, the
+vendor + admin offer API routes, and the first vendor integration test
+on top of the Session 5 module/link foundation.
+
+#### Completed (uncommitted)
+
+- `packages/core/src/workflows/offer/`:
+  - `steps/create-offers.ts`, `steps/update-offers.ts`,
+    `steps/delete-offers.ts` — each with a compensator.
+  - `workflows/create-offers.ts` — F2 workflow:
+    `useQueryGraphStep` for variant + inventory-item existence (raises
+    `MedusaError.Types.NOT_FOUND` on any missing id, raises
+    `MedusaError.Types.INVALID_DATA` on empty / duplicate
+    `inventory_items`), Medusa's `createPriceSetsStep` for one fresh
+    `PriceSet` per offer (seeded with the offer's `Price` rows),
+    `createOffersStep` (offer row stamped with `price_set_id`,
+    `ean`, `upc`), then `createRemoteLinkStep` writing one
+    `OFFER ↔ INVENTORY` link row per attached inventory item carrying
+    `required_quantity`. Emits `offer.created`. Exposes `validate` and
+    `offersCreated` hooks.
+  - `workflows/update-offers.ts` — `updateOffersWorkflow`: offer-row
+    fields only (`sku`, `shipping_profile_id`, `metadata`).
+    Emits `offer.updated`.
+  - `workflows/delete-offers.ts` — `deleteOffersWorkflow`:
+    soft-delete via `softDeleteOffers`; restores on compensation;
+    leaves `PriceSet` + inventory links intact (per **Mutation
+    contract**). Emits `offer.deleted`.
+  - `index.ts` re-export.
+- `packages/core/src/workflows/events.ts` — `OfferWorkflowEvents` with
+  `CREATED` / `UPDATED` / `DELETED`.
+- `packages/core/src/workflows/index.ts` — re-exports `./offer`.
+- `packages/core/src/api/vendor/offers/`:
+  - `route.ts` — `GET` (seller-scoped via
+    `applySellerOfferFilter`) + `POST` (pre-checks
+    `(seller_id, sku)` duplicate → `DUPLICATE_ERROR` / 409, then
+    dispatches `createOffersWorkflow`; returns 201).
+  - `[id]/route.ts` — `GET` / `POST` / `DELETE`, each guarded by
+    `validateSellerOffer`.
+  - `validators.ts`, `query-config.ts`, `middlewares.ts`,
+    `helpers.ts`.
+- `packages/core/src/api/admin/offers/`:
+  - `GET /admin/offers` (filterable by `seller_id`, `variant_id`,
+    `sku`, `ean`, `upc`) and `GET /admin/offers/:id`.
+  - `validators.ts`, `query-config.ts`, `middlewares.ts`.
+- Middleware wiring: `vendorOffersMiddlewares` appended to
+  `packages/core/src/api/vendor/middlewares.ts`;
+  `adminOffersMiddlewares` appended to the admin counterpart.
+- Integration test: `integration-tests/http/offer/vendor/offer.spec.ts`
+  — happy-path create, 404 on missing variant, 409 on duplicate
+  `(seller_id, sku)`, two sellers share an sku independently, one
+  seller creates two offers on the same variant with distinct skus
+  + different `required_quantity`, 400 on duplicate
+  `inventory_item_id` in the same payload, list returns only the
+  caller's seller's offers, 404 cross-seller detail read, soft-delete
+  hides the offer from subsequent reads.
+
+#### Verification
+
+- `bunx tsc --noEmit` on `packages/core`: clean.
+- `bun run build` on `packages/core` (mercur codegen +
+  `tsc --declaration --outDir .medusa/server`): clean.
+- `bunx oxlint packages/core/src/{api,workflows}/...offers ...offer`:
+  `0 errors / 16 warnings` (`no-shadow` on the standard Medusa
+  `transform(input, ({ input }) => …)` idiom — the existing
+  `terminate-seller.ts` workflow exhibits the same warning; it is the
+  established convention, not new noise from this drop).
+- Repo-wide `bun run lint` baseline: `55 errors / 1363 warnings`
+  (was `55 errors / 1347 warnings` after Session 5; the +16 are
+  entirely the `no-shadow` warnings on the new offer workflows
+  described above — zero new errors).
+
+#### Known risks
+
+- Integration test not yet runnable in this session — needs
+  Postgres + Redis. The workflow's runtime correctness (PriceSet seed
+  + offer row + link rows in one transactional batch with
+  compensators) has been type-checked but not exercised against a
+  real DB.
+- `req.filterableFields.seller_id` on `GET /vendor/offers` filters by
+  the `offer.seller_id` column directly (no link join). Confirmed
+  semantically correct because `seller_id` is a real column on the
+  offer table; this matches the campaign/promotion vendor-list
+  filters that go through `maybeApplyLinkFilter` only because their
+  seller relation lives on a separate join table.
+
+#### Next best action
+
+1. Run `bun run test:integration:http -- offer/vendor/offer` against
+   a real PG + Redis and address any DB-only failures (likely
+   suspects: the `OFFER` linkable key on `createRemoteLinkStep`'s
+   input must match Medusa's resolved link-table key; the
+   `inventory_items[].inventory.location_levels.*` query path the
+   spec requires for stock filter must traverse cleanly through the
+   writable link).
+2. Land the batch endpoints
+   (`POST /vendor/offers/:id/inventory-items/batch`,
+   `POST /vendor/offers/:id/prices/batch`,
+   `POST /admin/offers/:id/prices/batch`) so vendors can manage their
+   `Price` ladder + inventory-item links without re-creating the
+   offer.
+3. Start the same-id `addToCartWorkflow` override that resolves
+   `offer.price_set_id` and stamps `unit_price` +
+   `is_custom_price=true` on every cart line.
+4. Add the `cart.LineItem ↔ Offer` link + `linkLineItemToOfferStep` +
+   `mirrorLineItemOfferLinksToOrderStep` so cart→order line offer
+   identity is preserved through `createOrdersStep`.
 
 ## Required Artifacts (status)
 

@@ -1,10 +1,10 @@
 ---
-status: not_started
+status: in_progress
 canonical: true
 priority: 2
 area: core/offers
 created: 2026-05-19
-last_updated: 2026-05-20  # migrate pricing from shared-variant-PriceSet + offer_id PriceRule to per-offer PriceSet via offer.price_set_id (single bulk calculatePrices for cart refresh and Store product reads; no offer_id pricing rule, no marketplace-PriceSet constraint trigger)
+last_updated: 2026-05-20  # foundation landed: offer module (model, service, migration), MercurModules.OFFER, the five cross-module links, the create/update/delete offer workflows, the vendor + admin offer API routes, and the first vendor offer integration test. Cart-integration overrides and inventory-lifecycle additions still pending.
 ---
 
 # SPEC-002 Offer Management
@@ -2529,7 +2529,126 @@ spec moves to `passing` only when all of the following are true:
 
 ## Evidence
 
-_Recorded when the implementation lands. Pending._
+### 2026-05-20 — Foundation landed (module skeleton + links)
+
+Scope of this drop: the data layer and cross-module wiring only. No
+workflows, API routes, cart override, or inventory-lifecycle code has
+shipped yet — those are tracked as the next slices of this in-progress
+spec.
+
+- **Module:** `packages/core/src/modules/offer/`
+  - `index.ts` — registers `Module(MercurModules.OFFER, { service: OfferModuleService })`.
+  - `service.ts` — `OfferModuleService extends MedusaService({ Offer })`.
+  - `models/offer.ts` — `Offer` entity with the columns and partial
+    unique index `(seller_id, sku) WHERE deleted_at IS NULL` plus the
+    lookup indexes called out in **Uniqueness and indexes**.
+  - `migrations/Migration20260520104835.ts` — creates the `offer`
+    table and all indexes.
+- **Types:** `MercurModules.OFFER = "offer"` added in
+  `packages/types/src/modules.ts`.
+- **Cross-module links** (`packages/core/src/links/`):
+  - `offer-variant-link.ts` — read-only on `offer.variant_id` →
+    `ProductModule.linkable.productVariant`.
+  - `offer-seller-link.ts` — read-only on `offer.seller_id` →
+    `SellerModule.linkable.seller`.
+  - `offer-shipping-profile-link.ts` — read-only on
+    `offer.shipping_profile_id` →
+    `FulfillmentModule.linkable.shippingProfile`.
+  - `offer-price-set-link.ts` — read-only on `offer.price_set_id` →
+    `PricingModule.linkable.priceSet`.
+  - `offer-inventory-item-link.ts` — writable many-to-many to
+    `InventoryModule.linkable.inventoryItem` with
+    `database.table = "offer_inventory_item"` and
+    `database.extraColumns.required_quantity` (`integer`, default
+    `"1"`), mirroring Medusa's `product_variant_inventory_item` join.
+- **Verification:** `packages/core` `bun run build` (tsc) passes
+  cleanly. `bun run lint` reports zero new warnings/errors against
+  the new files (the repo-wide 55 errors / 1347 warnings are the
+  pre-existing oxlint baseline noted in `claude-progress.md` Session 3
+  and the canary `packages/admin` `product-variant-detail.tsx` build
+  failure originates from commit `90248d55` — both unrelated to this
+  drop).
+
+### 2026-05-20 — F2 create workflow + CRUD API routes + first integration test
+
+- **Workflows** (`packages/core/src/workflows/offer/`):
+  - `createOffersWorkflow` (F2): validates referenced variants /
+    inventory items via `useQueryGraphStep`, calls Medusa's
+    `createPriceSetsStep` (one fresh `PriceSet` per offer, seeded
+    with the offer's `Price` rows), inserts offer rows with
+    `price_set_id` + `ean` / `upc` snapshotted from the chosen
+    variant, then calls `createRemoteLinkStep` to write one
+    `OFFER ↔ INVENTORY` link row per attached inventory item carrying
+    `required_quantity`. Emits `offer.created`.
+  - `updateOffersWorkflow`: offer-row-only updates (`sku`,
+    `shipping_profile_id`, `metadata`); compensator restores prior
+    values. Emits `offer.updated`.
+  - `deleteOffersWorkflow`: soft-delete via `softDeleteOffers`;
+    compensator restores. Emits `offer.deleted`. `PriceSet` and
+    inventory links are left intact per **Mutation contract**.
+  - Steps: `createOffersStep`, `updateOffersStep`, `deleteOffersStep`
+    (each with a compensator).
+  - Events declared on `OfferWorkflowEvents` in
+    `packages/core/src/workflows/events.ts`.
+- **Vendor API routes** (`packages/core/src/api/vendor/offers/`):
+  - `route.ts` — `GET /vendor/offers` (filtered to the request's
+    seller via `applySellerOfferFilter`) and
+    `POST /vendor/offers` (pre-check rejects duplicate
+    `(seller_id, sku)` with `DUPLICATE_ERROR` → HTTP 409, then
+    dispatches `createOffersWorkflow`).
+  - `[id]/route.ts` — `GET` / `POST` / `DELETE /vendor/offers/:id`
+    with `validateSellerOffer` enforcing the seller scope on every
+    read/write.
+  - `validators.ts`, `query-config.ts`, `middlewares.ts`, `helpers.ts`
+    follow the campaigns / inventory-items conventions.
+- **Admin API routes** (`packages/core/src/api/admin/offers/`):
+  - `GET /admin/offers` (filterable by `seller_id`, `variant_id`,
+    `sku`, `ean`, `upc`) and `GET /admin/offers/:id`. Write paths are
+    deferred until the batch endpoints land.
+- **Middleware wiring**: `vendorOffersMiddlewares` registered on
+  `packages/core/src/api/vendor/middlewares.ts`,
+  `adminOffersMiddlewares` on the admin counterpart.
+- **First integration test**
+  (`integration-tests/http/offer/vendor/offer.spec.ts`): bootstraps
+  two seller users, creates per-seller product variants, inventory
+  items, and shipping profiles. Covers happy-path create, 404 on
+  unknown `variant_id`, 409 on duplicate `(seller_id, sku)`, two
+  sellers sharing the same `sku`, one seller creating two offers on
+  the same variant with distinct `sku`s (different
+  `required_quantity` per offer), 400 on duplicate
+  `inventory_item_id` within a single create payload, seller-
+  scoped list, 404 cross-seller detail read, and soft-delete.
+- **Verification**: `bunx tsc --noEmit` on `packages/core` is clean.
+  `bun run build` (mercur codegen + `tsc --declaration`) on the same
+  package is clean. `bunx oxlint packages/core/src/{api,workflows}/...
+  offers ...offer` reports `0 errors / 16 warnings` — all
+  `no-shadow` warnings on the standard Medusa
+  `transform(input, ({ input }) => …)` idiom that the existing
+  `terminate-seller` / similar workflows also use. The repo-wide
+  oxlint baseline therefore moves from 55 errors / 1347 warnings →
+  55 errors / 1363 warnings (no new errors).
+
+### Pending work to move this spec to `passing`
+
+- Wire `bun run test:integration:http -- offer/vendor/offer` against
+  a real Postgres + Redis. (Type-check is clean; runtime verification
+  is the next slice.)
+- Cart override: same-id `addToCartWorkflow` that resolves
+  `offer.price_set_id` and writes `unit_price` + `is_custom_price`
+  on input items.
+- `completeCartWithSplitOrdersWorkflow` inline additions: validate
+  stock, offer-aware reservation, `mirrorLineItemOfferLinksToOrderStep`.
+- Same-id overrides for `updateLineItemInCartWorkflow`,
+  `createFulfillmentWorkflow`, `cancelOrderWorkflow`,
+  `cancelOrderFulfillmentWorkflow`,
+  `confirmReceiveReturnRequestWorkflow`.
+- Mercur-owned cart util rewrites in
+  `packages/core/src/workflows/cart/utils/` to read
+  `items.offer.price_set.*` / `items.offer.inventory_items.*`
+  instead of the now-absent `items.variant.manage_inventory` /
+  `items.variant.inventory_items.*` paths.
+- Integration tests under `integration-tests/http/offer/{vendor,admin,store}/`
+  and the cart/order extensions enumerated under **Testing**.
 
 ## Notes
 
