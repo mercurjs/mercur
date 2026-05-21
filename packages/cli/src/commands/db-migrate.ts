@@ -3,7 +3,6 @@ import { Command } from "commander";
 import { z } from "zod";
 import spawn from "cross-spawn";
 import { getCommandBin } from "@/src/utils/get-command-bin";
-import { patchMedusa } from "@/src/utils/patch-medusa";
 import { handleError } from "@/src/utils/handle-error";
 import { logger } from "@/src/utils/logger";
 
@@ -29,8 +28,6 @@ export const dbMigrate = new Command()
 async function runDbMigrate(opts: z.infer<typeof dbMigrateOptionsSchema>) {
   try {
     const options = dbMigrateOptionsSchema.parse(opts);
-
-    await patchMedusa();
 
     const medusaBin = await getCommandBin("@medusajs/cli", "medusa", options.cwd);
 

@@ -4318,71 +4318,75 @@
             "successToast": {
               "type": "string"
             },
-            "tabs": {
-              "type": "object",
-              "properties": {
-                "variant": {
-                  "type": "string"
-                },
-                "details": {
-                  "type": "string"
-                },
-                "pricingAndStock": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "variant",
-                "details",
-                "pricingAndStock"
-              ],
-              "additionalProperties": false
-            },
-            "variantHint": {
+            "publish": {
               "type": "string"
             },
-            "variantPlaceholder": {
-              "type": "string"
-            },
-            "selectedVariant": {
-              "type": "string"
-            },
-            "prices": {
-              "type": "string"
-            },
-            "pricesDescription": {
+            "tip": {
               "type": "string"
             },
             "addPrice": {
               "type": "string"
             },
-            "inventoryItems": {
-              "type": "string"
-            },
-            "inventoryItemsDescription": {
-              "type": "string"
-            },
             "addInventoryItem": {
               "type": "string"
             },
-            "createNewInventoryItem": {
-              "type": "string"
+            "tabs": {
+              "type": "object",
+              "properties": {
+                "catalogue": {
+                  "type": "string"
+                },
+                "stockLevelsAndPrices": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "catalogue",
+                "stockLevelsAndPrices"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
             "header",
             "successToast",
-            "tabs",
-            "variantHint",
-            "variantPlaceholder",
-            "selectedVariant",
-            "prices",
-            "pricesDescription",
+            "publish",
+            "tip",
             "addPrice",
-            "inventoryItems",
-            "inventoryItemsDescription",
             "addInventoryItem",
-            "createNewInventoryItem"
+            "tabs"
+          ],
+          "additionalProperties": false
+        },
+        "detail": {
+          "type": "object",
+          "properties": {
+            "offerLabel": {
+              "type": "string"
+            },
+            "masterVariant": {
+              "type": "string"
+            },
+            "inventoryItems": {
+              "type": "string"
+            },
+            "manageKit": {
+              "type": "string"
+            },
+            "noInventoryItems": {
+              "type": "string"
+            },
+            "goToInventoryItem": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "offerLabel",
+            "masterVariant",
+            "inventoryItems",
+            "manageKit",
+            "noInventoryItems",
+            "goToInventoryItem"
           ],
           "additionalProperties": false
         },
@@ -4546,10 +4550,19 @@
             "stockStatus": {
               "type": "string"
             },
-            "region": {
+            "category": {
               "type": "string"
             },
-            "customerGroup": {
+            "collection": {
+              "type": "string"
+            },
+            "variants": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "offer": {
               "type": "string"
             },
             "minQuantity": {
@@ -4558,10 +4571,22 @@
             "maxQuantity": {
               "type": "string"
             },
-            "priceList": {
+            "stockLocation": {
               "type": "string"
             },
-            "base": {
+            "priceCurrency": {
+              "type": "string"
+            },
+            "notEnabled": {
+              "type": "string"
+            },
+            "enabled": {
+              "type": "string"
+            },
+            "variantsCount_one": {
+              "type": "string"
+            },
+            "variantsCount_other": {
               "type": "string"
             }
           },
@@ -4573,12 +4598,43 @@
             "upc",
             "requiredQuantity",
             "stockStatus",
-            "region",
-            "customerGroup",
+            "category",
+            "collection",
+            "variants",
+            "status",
+            "offer",
             "minQuantity",
             "maxQuantity",
-            "priceList",
-            "base"
+            "stockLocation",
+            "priceCurrency",
+            "notEnabled",
+            "enabled",
+            "variantsCount_one",
+            "variantsCount_other"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "published": {
+              "type": "string"
+            },
+            "draft": {
+              "type": "string"
+            },
+            "proposed": {
+              "type": "string"
+            },
+            "rejected": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "published",
+            "draft",
+            "proposed",
+            "rejected"
           ],
           "additionalProperties": false
         },
@@ -4637,10 +4693,22 @@
         "validation": {
           "type": "object",
           "properties": {
+            "skuRequired": {
+              "type": "string"
+            },
+            "duplicateSku": {
+              "type": "string"
+            },
             "duplicatePriceRule": {
               "type": "string"
             },
             "duplicateInventoryItem": {
+              "type": "string"
+            },
+            "selectAtLeastOneVariant": {
+              "type": "string"
+            },
+            "noPublishableRows": {
               "type": "string"
             },
             "duplicateBatchEntry": {
@@ -4648,8 +4716,12 @@
             }
           },
           "required": [
+            "skuRequired",
+            "duplicateSku",
             "duplicatePriceRule",
             "duplicateInventoryItem",
+            "selectAtLeastOneVariant",
+            "noPublishableRows",
             "duplicateBatchEntry"
           ],
           "additionalProperties": false
@@ -4659,6 +4731,7 @@
         "domain",
         "subtitle",
         "create",
+        "detail",
         "edit",
         "pricing",
         "inventory",
@@ -4666,6 +4739,7 @@
         "bulkDelete",
         "actions",
         "fields",
+        "status",
         "stockStatus",
         "empty",
         "filtered",

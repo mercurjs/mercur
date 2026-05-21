@@ -4,7 +4,6 @@ import { z } from "zod";
 import spawn from "cross-spawn";
 import { writeRouteTypes } from "@/src/codegen";
 import { getCommandBin } from "@/src/utils/get-command-bin";
-import { patchMedusa } from "@/src/utils/patch-medusa";
 import { handleError } from "@/src/utils/handle-error";
 import { logger } from "@/src/utils/logger";
 
@@ -32,7 +31,6 @@ async function runStart(opts: z.infer<typeof startOptionsSchema>) {
     const options = startOptionsSchema.parse(opts);
 
     await writeRouteTypes(options.cwd);
-    await patchMedusa();
 
     const medusaBin = await getCommandBin("@medusajs/cli", "medusa", options.cwd);
 

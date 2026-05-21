@@ -800,6 +800,7 @@ export type Routes = {
         productBrands: typeof import("../../src/api/vendor/product-brands/route") & {
             $id: typeof import("../../src/api/vendor/product-brands/[id]/route");
         };
+        productVariants: typeof import("../../src/api/vendor/product-variants/route");
         stores: typeof import("../../src/api/vendor/stores/route");
         subscription: typeof import("../../src/api/vendor/subscription/route");
     };

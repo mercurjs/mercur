@@ -5,58 +5,37 @@ import { useTranslation } from "react-i18next"
 
 import { Thumbnail } from "../../../components/common/thumbnail"
 import { PlaceholderCell } from "../../../components/table/table-cells/common/placeholder-cell"
-import { getLocaleAmount } from "../../../lib/money-amount-helpers"
-import {
-  computeEffectiveStock,
-  getStockStatus,
-  getStockStatusColor,
-  OfferStockShape,
-} from "../common/utils"
 import { OfferActions } from "./offer-actions"
 
-export type OfferTableRow = OfferStockShape & {
+export type OfferTableRow = {
   id: string
   sku?: string | null
   updated_at?: string | null
+  deleted_at?: string | null
   product_variant?: {
     id?: string | null
     title?: string | null
     sku?: string | null
+    product_id?: string | null
     product?: {
+      id?: string | null
       title?: string | null
       thumbnail?: string | null
+      status?: string | null
+      categories?: { id?: string | null; name?: string | null }[] | null
+      collection?: { id?: string | null; title?: string | null } | null
     } | null
-  } | null
-  shipping_profile?: {
-    name?: string | null
-    type?: string | null
-  } | null
-  price_set?: {
-    prices?: {
-      amount: number
-      currency_code: string
-      min_quantity?: number | null
-      max_quantity?: number | null
-      rules_count?: number | null
-    }[] | null
   } | null
 }
 
 const columnHelper = createColumnHelper<OfferTableRow>()
 
-const formatRelative = (iso?: string | null) => {
-  if (!iso) return null
-  try {
-    const date = new Date(iso)
-    return new Intl.DateTimeFormat(undefined, {
-      dateStyle: "medium",
-    }).format(date)
-  } catch {
-    return null
-  }
-}
+const isPublished = (row: OfferTableRow) =>
+  row.product_variant?.product?.status === "published" && !row.deleted_at
 
-export const useOfferTableColumns = () => {
+export const useOfferTableColumns = (
+  variantsCountByProduct?: Record<string, number>,
+) => {
   const { t } = useTranslation()
 
   return useMemo(
@@ -82,122 +61,91 @@ export const useOfferTableColumns = () => {
         ),
       }),
       columnHelper.display({
-        id: "variant",
-        header: t("offers.fields.variant"),
+        id: "offer",
+        header: t("offers.fields.offer"),
         cell: ({ row }) => {
           const variant = row.original.product_variant
           const productTitle = variant?.product?.title
           const variantTitle = variant?.title
+          const title = productTitle ?? variantTitle
 
-          if (!productTitle && !variantTitle) {
+          if (!title) {
             return <PlaceholderCell />
           }
 
           return (
             <div className="flex items-center gap-x-3 overflow-hidden">
               <Thumbnail src={variant?.product?.thumbnail ?? null} />
-              <div className="flex flex-col overflow-hidden">
-                <Text
-                  size="small"
-                  weight="plus"
-                  leading="compact"
-                  className="truncate"
-                >
-                  {productTitle ?? variantTitle}
-                </Text>
-                {productTitle && variantTitle && (
-                  <Text
-                    size="xsmall"
-                    leading="compact"
-                    className="text-ui-fg-subtle truncate"
-                  >
-                    {variantTitle}
-                  </Text>
-                )}
-              </div>
-            </div>
-          )
-        },
-      }),
-      columnHelper.accessor("sku", {
-        header: t("offers.fields.sku"),
-        cell: ({ getValue }) => {
-          const sku = getValue()
-          if (!sku) return <PlaceholderCell />
-          return (
-            <div className="flex items-center overflow-hidden">
-              <span className="font-mono truncate text-xs">{sku}</span>
-            </div>
-          )
-        },
-      }),
-      columnHelper.display({
-        id: "price",
-        header: t("fields.price"),
-        cell: ({ row }) => {
-          const prices = row.original.price_set?.prices ?? []
-          if (prices.length === 0) return <PlaceholderCell />
-
-          const cheapest = [...prices].sort((a, b) => a.amount - b.amount)[0]
-
-          return (
-            <span className="truncate">
-              {getLocaleAmount(cheapest.amount, cheapest.currency_code)}
-            </span>
-          )
-        },
-      }),
-      columnHelper.display({
-        id: "stock",
-        header: t("offers.fields.stockStatus"),
-        cell: ({ row }) => {
-          const status = getStockStatus(row.original)
-          const available = computeEffectiveStock(row.original)
-          return (
-            <div className="flex items-center gap-x-2 overflow-hidden">
-              <StatusBadge color={getStockStatusColor(status)}>
-                {t(`offers.stockStatus.${status}`)}
-              </StatusBadge>
-              <Text size="small" className="text-ui-fg-subtle">
-                {available}
+              <Text
+                size="small"
+                weight="plus"
+                leading="compact"
+                className="truncate"
+              >
+                {title}
               </Text>
             </div>
           )
         },
       }),
       columnHelper.display({
-        id: "shipping_profile",
-        header: t("offers.fields.shippingProfile"),
+        id: "category",
+        header: t("offers.fields.category"),
         cell: ({ row }) => {
-          const profile = row.original.shipping_profile
-          if (!profile?.name) return <PlaceholderCell />
+          const name = row.original.product_variant?.product?.categories?.[0]?.name
+          if (!name) return <PlaceholderCell />
           return (
-            <div className="flex flex-col overflow-hidden">
-              <Text size="small" leading="compact" className="truncate">
-                {profile.name}
-              </Text>
-              {profile.type && (
-                <Text
-                  size="xsmall"
-                  leading="compact"
-                  className="text-ui-fg-subtle truncate"
-                >
-                  {profile.type}
-                </Text>
-              )}
-            </div>
-          )
-        },
-      }),
-      columnHelper.accessor("updated_at", {
-        header: t("fields.updatedAt"),
-        cell: ({ getValue }) => {
-          const formatted = formatRelative(getValue())
-          if (!formatted) return <PlaceholderCell />
-          return (
-            <Text size="small" className="text-ui-fg-subtle">
-              {formatted}
+            <Text size="small" leading="compact" className="truncate">
+              {name}
             </Text>
+          )
+        },
+      }),
+      columnHelper.display({
+        id: "collection",
+        header: t("offers.fields.collection"),
+        cell: ({ row }) => {
+          const title = row.original.product_variant?.product?.collection?.title
+          if (!title) return <PlaceholderCell />
+          return (
+            <Text size="small" leading="compact" className="truncate">
+              {title}
+            </Text>
+          )
+        },
+      }),
+      columnHelper.display({
+        id: "variants",
+        header: t("offers.fields.variants"),
+        cell: ({ row }) => {
+          const productId = row.original.product_variant?.product_id
+          const count = productId ? variantsCountByProduct?.[productId] ?? 1 : 1
+          return (
+            <Text size="small" leading="compact" className="truncate">
+              {t("offers.fields.variantsCount", { count })}
+            </Text>
+          )
+        },
+      }),
+      columnHelper.display({
+        id: "status",
+        header: t("offers.fields.status"),
+        cell: ({ row }) => {
+          const status = row.original.product_variant?.product?.status
+          const published = isPublished(row.original)
+
+          if (published) {
+            return (
+              <StatusBadge color="green">{t("offers.status.published")}</StatusBadge>
+            )
+          }
+
+          if (!status) return <PlaceholderCell />
+
+          return (
+            <StatusBadge color="grey">
+              {t(`offers.status.${status}`, { defaultValue: status })}
+            </StatusBadge>
           )
         },
       }),
@@ -213,6 +161,6 @@ export const useOfferTableColumns = () => {
         ),
       }),
     ],
-    [t],
+    [t, variantsCountByProduct],
   )
 }

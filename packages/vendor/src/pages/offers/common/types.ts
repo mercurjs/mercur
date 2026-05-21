@@ -33,6 +33,11 @@ export type OfferInventoryItemLink = {
   } | null
 }
 
+export type OfferVariantOption = {
+  id?: string | null
+  value?: string | null
+}
+
 export type OfferDetail = OfferStockShape & {
   id: string
   sku?: string | null
@@ -51,10 +56,14 @@ export type OfferDetail = OfferStockShape & {
     title?: string | null
     sku?: string | null
     product_id?: string | null
+    options?: OfferVariantOption[] | null
     product?: {
       id?: string | null
       title?: string | null
       thumbnail?: string | null
+      status?: string | null
+      categories?: { id?: string | null; name?: string | null }[] | null
+      collection?: { id?: string | null; title?: string | null } | null
     } | null
   } | null
   shipping_profile?: {

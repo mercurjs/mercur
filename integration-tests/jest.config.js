@@ -17,7 +17,6 @@ module.exports = {
   moduleFileExtensions: ["js", "ts", "json"],
   modulePathIgnorePatterns: ["dist/"],
   setupFiles: ["./setup.js"],
-  globalSetup: "./global-setup.js",
 }
 
 if (process.env.TEST_TYPE === "integration:http") {

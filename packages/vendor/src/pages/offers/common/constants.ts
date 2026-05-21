@@ -1,4 +1,4 @@
-export const OFFERS_PAGE_SIZE = 20
+export const OFFERS_PAGE_SIZE = 10
 export const OFFER_IDS_KEY = "offer_ids"
 
 export const OFFER_DETAIL_FIELDS = [
@@ -18,6 +18,8 @@ export const OFFER_DETAIL_FIELDS = [
   "product_variant.title",
   "product_variant.sku",
   "product_variant.product_id",
+  "product_variant.options.id",
+  "product_variant.options.value",
   "product_variant.product.id",
   "product_variant.product.title",
   "product_variant.product.thumbnail",
@@ -44,6 +46,27 @@ export const OFFER_DETAIL_FIELDS = [
   "inventory_item_link.inventory_item.location_levels.stocked_quantity",
   "inventory_item_link.inventory_item.location_levels.reserved_quantity",
   "inventory_item_link.inventory_item.location_levels.incoming_quantity",
+  "inventory_item_link.inventory_item.location_levels.available_quantity",
 ].join(",")
 
-export const OFFER_LIST_FIELDS = OFFER_DETAIL_FIELDS
+export const OFFER_LIST_FIELDS = [
+  "id",
+  "sku",
+  "variant_id",
+  "seller_id",
+  "created_at",
+  "updated_at",
+  "deleted_at",
+  "product_variant.id",
+  "product_variant.title",
+  "product_variant.sku",
+  "product_variant.product_id",
+  "product_variant.product.id",
+  "product_variant.product.title",
+  "product_variant.product.status",
+  "product_variant.product.thumbnail",
+  "product_variant.product.categories.id",
+  "product_variant.product.categories.name",
+  "product_variant.product.collection.id",
+  "product_variant.product.collection.title",
+].join(",")

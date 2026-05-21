@@ -17,9 +17,36 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useCurrencies } from "../../../../../hooks/api/currencies"
 import { useUpdateOffer } from "../../../../../hooks/api/offers"
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
-import { findDuplicatePriceIndexes } from "../../../create/create-offer-form/schema"
 import { OfferDetail } from "../../../common/types"
 import { PricingFormSchema, PricingFormValues } from "./schema"
+
+type PriceRowForDedupe = {
+  currency_code: string
+  region_id?: string | null
+  customer_group_id?: string | null
+  min_quantity?: number | null
+  max_quantity?: number | null
+}
+
+const findDuplicatePriceIndexes = (rows: PriceRowForDedupe[]): number[] => {
+  const seen = new Map<string, number>()
+  const duplicates: number[] = []
+  rows.forEach((row, idx) => {
+    const key = [
+      row.currency_code,
+      row.region_id ?? "",
+      row.customer_group_id ?? "",
+      row.min_quantity ?? "",
+      row.max_quantity ?? "",
+    ].join("|")
+    if (seen.has(key)) {
+      duplicates.push(idx)
+    } else {
+      seen.set(key, idx)
+    }
+  })
+  return duplicates
+}
 
 type Props = { offer: OfferDetail }
 
@@ -76,9 +103,7 @@ export const PricingForm = ({ offer }: Props) => {
   const { mutateAsync, isPending } = useUpdateOffer(offer.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const duplicates = findDuplicatePriceIndexes(
-      values.prices as Parameters<typeof findDuplicatePriceIndexes>[0],
-    )
+    const duplicates = findDuplicatePriceIndexes(values.prices)
     if (duplicates.length > 0) {
       duplicates.forEach((idx) => {
         form.setError(`prices.${idx}.currency_code` as const, {

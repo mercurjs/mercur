@@ -1,7 +1,14 @@
-import { readdirSync } from "fs"
-import { dirname, join, resolve } from "path"
+import { dirname, join } from "path"
 import { defineFileConfig } from "@medusajs/framework/utils"
 
+// Disable Medusa's middleware files for paths Mercur overrides. The router's
+// matcher-based `isRouteFileDisabled` check (router.ts:123) walks ALL source
+// dirs and treats a matcher as disabled if ANY of them has a disabled
+// `route.{ts,js}` at that path. That would suppress Mercur's OWN middlewares
+// for the same matcher, so we never disable Medusa's `route.js` here. Plugin
+// route handlers naturally take precedence: plugins are scanned after Medusa
+// in `loaders/api.ts`, and `routes-loader.ts` keys routes by matcher+method,
+// so the plugin's handler overwrites the core one.
 const MIDDLEWARE_FILES_TO_DISABLE = [
   "dist/api/admin/products/middlewares.js",
   "dist/api/admin/product-variants/middlewares.js",
@@ -9,20 +16,11 @@ const MIDDLEWARE_FILES_TO_DISABLE = [
   "dist/api/store/products/middlewares.js",
   "dist/api/store/product-categories/middlewares.js",
   "dist/api/store/product-variants/middlewares.js",
-]
-
-const ROUTE_DIRS_TO_DISABLE = [
-  "dist/api/admin/products",
-  "dist/api/admin/product-variants",
-  "dist/api/admin/product-categories",
-  "dist/api/store/products",
-  "dist/api/store/product-categories",
-  "dist/api/store/product-variants",
+  "dist/api/store/carts/middlewares.js",
 ]
 
 function resolveMedusaDir(): string | null {
   try {
-    // require.resolve returns the entry file; walk to the package root.
     const entry = require.resolve("@medusajs/medusa")
     let dir = dirname(entry)
     while (dir !== dirname(dir)) {
@@ -39,23 +37,6 @@ function resolveMedusaDir(): string | null {
   }
 }
 
-function walkRouteFiles(dir: string): string[] {
-  let entries: { name: string; isDirectory: () => boolean }[]
-  try {
-    entries = readdirSync(dir, { recursive: true, withFileTypes: true }) as any
-  } catch {
-    return []
-  }
-  const out: string[] = []
-  for (const entry of entries) {
-    if (entry.isDirectory()) continue
-    if (entry.name !== "route.js") continue
-    const parent = (entry as any).parentPath ?? (entry as any).path ?? dir
-    out.push(resolve(parent, entry.name))
-  }
-  return out
-}
-
 export function disableMedusaRoutes(): void {
   const medusaDir = resolveMedusaDir()
   if (!medusaDir) return
@@ -65,11 +46,5 @@ export function disableMedusaRoutes(): void {
       path: join(medusaDir, file),
       isDisabled: () => true,
     })
-  }
-
-  for (const rel of ROUTE_DIRS_TO_DISABLE) {
-    for (const file of walkRouteFiles(join(medusaDir, rel))) {
-      defineFileConfig({ path: file, isDisabled: () => true })
-    }
   }
 }

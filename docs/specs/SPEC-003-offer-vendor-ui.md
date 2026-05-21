@@ -280,78 +280,156 @@ i18n key changes:
 
 ### Detail page — redesign
 
-Layout: `TwoColumnPage<OfferDetail>` with `showJSON: false` and
-`showMetadata: false` (the redesigned sidebar replaces both).
+Structural reference: the admin variant detail page
+`packages/admin/src/pages/product-variants/product-variant-detail/product-variant-detail.tsx`.
+The offer detail page adopts its three-section spine (General +
+Inventory in the main column, Prices in the sidebar) and adds a
+fourth **Master Variant** section to the sidebar using the
+inventory-item → variants card pattern from
+`packages/admin/src/pages/inventory/inventory-detail/components/inventory-item-variants/variants-section.tsx`.
 
-Page header (above the two columns): breadcrumb
-`Offers › <product title>`; page title is the product title (e.g.
-**"Swiftly Tech Cropped Short Sleeve 2.0 - Sports T-shirt"**) plus
-the top-right action menu (`Edit` / `Delete`).
+Layout: `TwoColumnPage<OfferDetail>` with `showJSON: false`,
+`showMetadata: false`, `hasOutlet` (the edit / pricing / inventory
+drawers mount through `<Outlet />`).
 
-Main column (top to bottom):
+Page header (above the two columns): breadcrumb `Offers › <sku>`;
+page title is the offer **SKU** plus the top-right action menu
+(**Edit** / **Delete**). Subtitle is the master variant's product
+title in `text-ui-fg-subtle`.
 
-1. **General** (`Container divide-y p-0`):
-   - Header row: `<Heading>` "General" + action menu (Edit,
-     Delete).
-   - Body `SectionRow`s, matching Figma:
-     - **Description** — product description (multi-line).
-     - **Subtitle** — product subtitle.
-     - **Handle** — product handle (e.g. `/tech-tshirt`).
-     - **Discountable** — boolean, rendered as text (`True` /
-       `False`).
-2. **Media** (`Container divide-y p-0`):
-   - Header row: `<Heading>` "Media" + ellipsis menu.
-   - Body: horizontal scroller of variant / product thumbnails
-     (same component the product detail page already uses).
-3. **Variants** (`Container divide-y p-0`):
-   - Header row: `<Heading>` "Variants" + ellipsis menu.
-   - Toolbar row: **Add filter** + **Search** input + sort icon
-     (same shape as the list page).
-   - Table columns: **Title** (thumbnail + label), **SKU**,
-     attribute-axis columns (one per axis — Figma shows **Size**
-     and **Color**), **Inventory** (e.g. `50 available at 1
-     location`, red text when the value is `0`). Inventory cell
-     hosts a row action menu with **Go to inventory item**
-     (navigates to `/inventory/${inventory_item_id}`).
-   - Pagination footer: `1 — 6 results`, `1 of 1 pages`, Prev /
-     Next.
+**Main column** (top to bottom):
 
-Sidebar column (top to bottom):
+1. **General** (`<Container className="divide-y p-0">`) — mirrors
+   `VariantGeneralSection`'s header layout:
+   - Header row: `<Heading>{offer.sku}</Heading>` with the master
+     variant's `kit` icon when the offer is linked to more than one
+     inventory item (same `Component` glyph the variant page uses
+     when `inventory_items.length > 1`). Sub-label
+     `<span className="text-ui-fg-subtle txt-small mt-2">` reading
+     `t("offers.detail.offerLabel")` ("Offer").
+   - Action menu: **Edit** (→ `edit` drawer) and **Delete** (uses
+     the existing `useDeleteOfferAction`).
+   - Body `SectionRow`s (one per identity field, in this order):
+     - **SKU** — `offer.sku`.
+     - **EAN** — `offer.ean ?? "-"`.
+     - **UPC** — `offer.upc ?? "-"`.
+     - **Shipping profile** — `offer.shipping_profile.name` (was a
+       sidebar section in the previous spec — collapsed into a
+       single identity row since it's a one-field concern).
+     - **Created at** / **Updated at**.
+   - The Figma's product-level fields (Description, Subtitle,
+     Handle, Discountable) live on the linked product, not on the
+     offer, so they no longer render here. The Master Variant card
+     in the sidebar links to the product page for callers who need
+     them.
 
-1. **Organize** (`Container divide-y p-0`):
-   - Header row: `<Heading level="h2">` "Organize" + ellipsis menu.
-   - `SectionRow`s: **Tags**, **Type**, **Primary categories**
-     (chip), **Secondary categories** (chips: `Sport T-Shirts`,
-     `T-Shirts` in Figma), **Collection** (e.g. `Streetwear`).
-2. **Attributes** (`Container divide-y p-0`):
-   - Header row: `<Heading level="h2">` "Attributes" + tooltip /
-     info icon.
-   - Sub-block **Variations** ("Attributes used for variations") —
-     one row per attribute axis with chips for each value (e.g.
-     `Size`: `XS`, `S`, `M`, `L`; `Color`: `Green`, `Blue`).
-   - Sub-block **Product Information** ("Attributes used for
-     informational purposes") — one `SectionRow` per
-     non-variant-axis attribute (e.g. `Brand: Adidas`,
-     `Number: LLS41D03E-Q11`, `Sleeve length (cm): 20`,
-     `Multipack: False`).
+2. **Inventory items** (`<Container className="divide-y p-0">`) —
+   mirrors `VariantInventorySection`:
+   - Header row: `<Heading level="h2">{t("offers.detail.inventoryItems")}</Heading>`
+     + `ActionMenu` with a single action **Manage inventory** →
+     `inventory` (opens the existing batch drawer). When the offer
+     is linked to more than one inventory item, the action icon
+     switches to `Component` and the label reads
+     `t("offers.detail.manageKit")` — matches the variant page's
+     `hasKit` branching.
+   - Body: `_DataTable` over `offer.inventory_item_link[].inventory_item`.
+     Columns lift `useInventoryTableColumns` from
+     `packages/admin/src/pages/product-variants/product-variant-detail/components/variant-inventory-section/use-inventory-table-columns.tsx`
+     verbatim:
+     - **Title** — `inventory_item.title` (or `PlaceholderCell`).
+     - **SKU** — `inventory_item.sku`.
+     - **Required quantity** — pulled from the writable
+       `inventory_item_link.required_quantity` pivot column
+       (SPEC-002 §Pivot extra-column exposure).
+     - **Inventory** — derived `X available at N locations`
+       (`t("products.variant.tableItem", { availableCount, locationCount, count })`,
+       summing `location_levels[].available_quantity`).
+     - **(actions)** — row `ActionMenu` with **Go to inventory item**
+       → `/inventory/${inventory_item.id}` (lifted from the admin
+       `inventory-actions.tsx`).
+   - Row navigation: `navigateTo={(row) => `/inventory/${row.id}`}`,
+     same as the admin variant page.
+   - Empty state: render the `InventorySectionPlaceholder` shape
+     from the variant page, copy adjusted to
+     `t("offers.detail.noInventoryItems")` with an inline link to
+     the `inventory` drawer.
 
-The previous **Pricing**, **Inventory items**, **Shipping profile**,
-and **Status** sidebar sections are **dropped** from the default
-detail view. Pricing and inventory remain reachable via the row
-action menu (`Manage prices` → `pricing` drawer, `Manage inventory`
-→ `inventory` drawer). The shipping profile is editable from the
-edit drawer.
+**Sidebar column** (top to bottom):
 
-The `useOffer` loader field list grows to cover the new sections:
-`product.thumbnail`, `product.subtitle`, `product.handle`,
-`product.discountable`, `product.media`, `product.type.id`,
-`product.type.value`, `product.tags`, `product.categories`,
-`product.collection`, `product.variants`,
-`product.variants.attribute_values`,
-`product.variants.attribute_values.attribute`,
-`product.variants.inventory_items` (variant-level "available at N
-locations" string is derived client-side from existing
-`inventory_item.location_levels`).
+1. **Master variant** (`<Container className="p-0">`) — single
+   card lifted from `InventoryItemVariantsSection` (pattern A in
+   the admin survey). Master variant is 1:1 with the offer, so the
+   container body holds exactly one card:
+   - Section header: `<Heading level="h2">{t("offers.detail.masterVariant")}</Heading>`,
+     no action menu (the master variant is immutable on an existing
+     offer per SPEC-002 §F2).
+   - Card body uses the exact class string from the inventory-item
+     pattern: `shadow-elevation-card-rest bg-ui-bg-component
+     rounded-md px-4 py-2 transition-colors`, with the outer
+     `<Link>` carrying `outline-none focus-within:shadow-borders-interactive-with-focus
+     rounded-md [&:hover>div]:bg-ui-bg-component-hover`.
+   - Card contents (left → right):
+     - `<Thumbnail src={variant.product?.thumbnail} />`
+     - Two-line label stack:
+       - **Title row** (`text-ui-fg-base font-medium`):
+         `variant.product?.title ?? variant.title`.
+       - **Subtitle row** (`text-ui-fg-subtle`): variant title +
+         option values joined with `⋅`
+         (`variant.options?.map((o) => o.value).join(" ⋅ ")`,
+         falling back to `variant.title` if options aren't
+         expanded).
+     - `<TriangleRightMini className="text-ui-fg-muted rtl:rotate-180" />`
+       trailing icon.
+   - `<Link to={`/products/${variant.product_id}/variants/${variant.id}`}>`
+     wraps the whole card so the row is fully clickable.
+   - Empty state: return `null` (defensive — an offer cannot exist
+     without a master variant per SPEC-002).
+   - `data-testid` set: `offer-detail-master-variant-section`,
+     `offer-detail-master-variant-link`,
+     `offer-detail-master-variant-thumbnail`,
+     `offer-detail-master-variant-title`,
+     `offer-detail-master-variant-options`.
+
+2. **Prices** (`<Container className="flex flex-col divide-y p-0">`) —
+   lifted from `VariantPricesSection`:
+   - Header: `<Heading level="h2">{t("labels.prices")}</Heading>` +
+     `ActionMenu` with **Edit** → `pricing` drawer (icon
+     `CurrencyDollar`).
+   - Body: collapsible list of currency / amount rows. Each row is
+     `<div className="txt-small text-ui-fg-subtle flex justify-between px-6 py-4">`
+     with `currency_code.toUpperCase()` on the left and
+     `getLocaleAmount(amount, currency_code)` on the right (helper
+     in `packages/vendor/src/lib/money-amount-helpers.ts`). Show 3
+     rows initially; **Show more** at the footer reveals the next 3
+     up to `prices.length`, mirroring the admin page state
+     (`useState(pageSize, 3)` + `setPageSize(p + 3)`).
+   - Empty state: `<NoRecords className="h-60" />`.
+   - Filters out price ladders whose `rules` map is non-empty
+     (region- / customer-group-scoped prices), same as the admin
+     page does — those surface in the dedicated Pricing drawer
+     instead.
+
+The previous **Status** sidebar section, the **JSON viewer**, and
+the **Metadata** sub-section are dropped. Stock status surfaces
+inside the Inventory table's `Inventory` cell (red when the
+available number is `0`, matching the admin variant page). Shipping
+profile collapses into a `SectionRow` inside General.
+
+The `useOffer` loader field list narrows to:
+
+```
+*price_set,*price_set.prices,*price_set.prices.price_rules,
+*shipping_profile,*product_variant,*product_variant.product,
+*product_variant.options,*product_variant.product.thumbnail,
+*inventory_item_link,*inventory_item_link.required_quantity,
+*inventory_item_link.inventory_item,
+*inventory_item_link.inventory_item.location_levels
+```
+
+(Product-level `media`, `tags`, `categories`, `collection`, and
+`variants` listed in the earlier draft are no longer fetched on the
+offer detail page — those concerns belong to the product detail
+page the Master Variant card links to.)
 
 ### Folder-layout adjustments (delta vs the older spec)
 
@@ -371,22 +449,40 @@ locations" string is derived client-side from existing
     profile fields it owned migrate into the Stock Levels & Prices
     grid (SKU is per-row; shipping profile becomes a single
     wizard-level `Select` rendered above the grid).
-- `[id]/_components/` is restructured:
-  - `offer-general-section.tsx` is repurposed to render the four
-    product-level rows (Description / Subtitle / Handle /
-    Discountable).
-  - `offer-media-section.tsx` (new) hosts the media scroller.
-  - `offer-variants-section.tsx` (new) hosts the variants table
-    with the per-row "Go to inventory item" action.
-  - `offer-organize-section.tsx` (new) hosts the Organize sidebar
-    block.
-  - `offer-attributes-section.tsx` (new) hosts the Variations +
-    Product Information sub-blocks.
-  - `offer-pricing-section.tsx`, `offer-inventory-section.tsx`,
-    `offer-shipping-section.tsx`, and `offer-status-sidebar.tsx`
-    are dropped from the default detail render. The first two are
-    still mounted by the `/offers/:id/pricing` and
-    `/offers/:id/inventory` drawer routes.
+- `[id]/_components/` adopts the admin variant-detail spine plus
+  one Master Variant card in the sidebar:
+  - `offer-general-section.tsx` is rewritten against
+    `VariantGeneralSection`'s shape — SKU/EAN/UPC/shipping
+    profile/created at/updated at `SectionRow`s, header carries
+    Edit + Delete `ActionMenu`, kit icon when
+    `inventory_item_link.length > 1`.
+  - `offer-inventory-section.tsx` is rewritten against
+    `VariantInventorySection`'s shape — `_DataTable` over the
+    offer's `inventory_item_link[].inventory_item`,
+    `useInventoryTableColumns` lifted from
+    `packages/admin/src/pages/product-variants/product-variant-detail/components/variant-inventory-section/use-inventory-table-columns.tsx`,
+    `Go to inventory item` row action.
+  - `offer-master-variant-section.tsx` (**new**) renders the
+    sidebar card following the Pattern A layout from
+    `packages/admin/src/pages/inventory/inventory-detail/components/inventory-item-variants/variants-section.tsx`
+    (Thumbnail + title + option-values subtitle + chevron,
+    wrapped in `<Link to="/products/${product_id}/variants/${variant_id}">`).
+  - `offer-pricing-section.tsx` is rewritten against
+    `VariantPricesSection`'s shape — collapsible currency rows with
+    `Show more`, header `ActionMenu` opens the `pricing` drawer.
+  - `offer-shipping-section.tsx` is **dropped**. Shipping profile
+    collapses into a `SectionRow` inside General.
+  - `offer-status-sidebar.tsx` is **dropped**. Stock status surfaces
+    inside the Inventory table's Inventory cell (red text when
+    `available === 0`).
+  - The Figma-driven `offer-media-section.tsx`,
+    `offer-variants-section.tsx`, `offer-organize-section.tsx`,
+    and `offer-attributes-section.tsx` proposed earlier in this
+    document are **not built** — those concerns belong on the
+    linked product page (reachable via the Master Variant card),
+    not on the offer detail page itself. The earlier Figma
+    detail-page draft is documented in the change history below
+    but does not ship.
 
 ## User-Visible Behavior
 
@@ -1226,6 +1322,14 @@ SKU / per-location switch / per-currency price field templates.
       "stockLevelsAndPrices": "Stock Levels & Prices"
     }
   },
+  "detail": {
+    "offerLabel": "Offer",
+    "masterVariant": "Master variant",
+    "inventoryItems": "Inventory items",
+    "manageKit": "Manage inventory kit",
+    "noInventoryItems": "No inventory items attached. Open the inventory drawer to attach one.",
+    "goToInventoryItem": "Go to inventory item"
+  },
   "edit": {
     "header": "Edit offer",
     "description": "Update the offer's identity, shipping profile, or metadata.",
@@ -1347,21 +1451,30 @@ text; `offers.actions.create` shortens from `"Create offer"` to
    3. **Add filter** opens the filter popover (matches Figma).
    4. Pagination footer reads `1 — 10 of N results` /
       `1 of K pages` with `Prev` / `Next`.
-5. Open one of the published offers; the detail page renders per
-   Figma `40009131:257674`:
-   1. Page header is the product title (e.g. **Swiftly Tech Cropped
-      Short Sleeve 2.0 - Sports T-shirt**) plus a top-right action
-      menu (Edit / Delete).
-   2. Main column shows **General** (Description / Subtitle / Handle
-      / Discountable), **Media** (variant + product thumbnails),
-      **Variants** (table with Title / SKU / attribute axes /
-      Inventory cell and a `Go to inventory item` action per row).
-   3. Sidebar shows **Organize** (Tags / Type / Primary categories /
-      Secondary categories / Collection) and **Attributes**
-      (`Variations` chips per axis + `Product Information`
-      key/value rows).
-   4. Variants whose effective inventory across all locations is `0`
-      render the inventory cell text in `text-ui-fg-error`.
+5. Open one of the published offers; the detail page renders the
+   variant-detail-spine layout (General + Inventory main, Master
+   variant + Prices sidebar):
+   1. Page header shows the offer **SKU** as the title with the
+      product title in `text-ui-fg-subtle` underneath, plus a
+      top-right action menu (Edit / Delete).
+   2. Main column shows **General** (SKU / EAN / UPC / Shipping
+      profile / Created at / Updated at as `SectionRow`s; kit icon
+      next to the heading if the offer links more than one
+      inventory item) and **Inventory items** (`_DataTable` with
+      Title / SKU / Required quantity / Inventory cell and a
+      per-row `Go to inventory item` action).
+   3. Sidebar shows **Master variant** as a single clickable card
+      (Thumbnail + product/variant title + option-values subtitle
+      + chevron). Clicking the card navigates to
+      `/products/${product_id}/variants/${variant_id}`. The card
+      has no action menu.
+   4. Sidebar shows **Prices** as a collapsible list of currency
+      rows (3 visible by default; **Show more** reveals the next
+      3). Header action menu's **Edit** opens the `pricing`
+      drawer.
+   5. Inventory rows whose effective `available_quantity` summed
+      across locations is `0` render the Inventory cell text in
+      `text-ui-fg-error`.
 6. Edit flows still reachable via the row / detail action menu:
    1. Click **Edit** → identity drawer opens, fields prefilled,
       change `sku`, save. Toast and detail rerender; price table
@@ -1438,25 +1551,101 @@ text; `offers.actions.create` shortens from `"Create offer"` to
       `offer-create-stock-row-${variantId}-location-${locationId}-toggle`,
       `offer-create-stock-row-${variantId}-price-${currencyCode}-input`,
       `offer-create-publish`.
-    - `offer-detail-{general,media,variants,organize,attributes}-section`,
-      `offer-detail-variants-row-${variantId}-go-to-inventory`.
+    - `offer-detail-general-section`,
+      `offer-detail-inventory-section`,
+      `offer-detail-master-variant-section`,
+      `offer-detail-master-variant-link`,
+      `offer-detail-master-variant-thumbnail`,
+      `offer-detail-master-variant-title`,
+      `offer-detail-master-variant-options`,
+      `offer-detail-prices-section`,
+      `offer-detail-inventory-row-${inventoryItemId}-go-to-inventory`.
     - `offer-edit-form`, `offer-pricing-edit-form`,
       `offer-inventory-batch-form`.
 
 ## Evidence
 
-### 2026-05-21 — Figma redesign accepted (no code change)
+### 2026-05-21 — Figma redesign implemented
 
-- The list, create wizard, and detail page sections were rewritten in
-  this file to match the Figma designs cited in
-  **Redesign — 2026-05-21 (Figma) → Source designs**.
-- The Session-15 implementation captured below (3-tab Variant /
-  Details / Pricing & stock wizard, Status sidebar on the detail
-  page, etc.) **no longer matches** the contract above and must be
-  reworked. See the next-actions list in `claude-progress.md` Session
-  16 for the implementation plan.
-- No production code was modified in this revision; only this spec
-  file changed.
+- **Implemented at:** 2026-05-21
+- **List page** (`packages/vendor/src/pages/offers/_components/`):
+  header simplified to single `Heading` + primary `Create` button (no
+  subtitle, no icon); column set rewritten to Offer / Category /
+  Collection / Variants / Status / actions; page size dropped from 20
+  to 10; sort menu shows Title / Created / Updated; empty-state copy
+  changed to **"No offers yet"** / **"Create offers to start selling
+  on the marketplace"** with **"Create"** CTA wired through
+  `_DataTable`'s `noRecords.action` (typing in
+  `components/table/data-table/data-table.tsx` widened to accept
+  `action` via `NoRecordsProps`).
+- **Create wizard** (`packages/vendor/src/pages/offers/create/`):
+  reduced from 3 tabs to 2: **Catalogue**
+  (`create-offer-catalogue.tsx`) lists variants from
+  `sdk.vendor.productVariants.query` with multi-select checkboxes
+  persisting through pagination, **Stock Levels & Prices**
+  (`create-offer-stock-levels-and-prices.tsx`) renders a grouped-by-product
+  grid with per-row SKU input, one `Switch` per stock location, and
+  one numeric input per active store currency. Tip block + shipping
+  profile `Select` above the grid. Schema rewritten in `schema.ts`
+  (`selected_variant_ids`, `selected_variants`, `rows`,
+  `shipping_profile_id`). On Publish (`create-offer-form.tsx`) the
+  wizard fans out per-row: create inventory item with row SKU →
+  create offer with `inventory_items` + `prices` array spanning all
+  store currencies. Successful rows are removed from the form;
+  failures keep the row with per-row inline errors.
+- **Detail page** (`packages/vendor/src/pages/offers/[id]/`):
+  Status / Shipping / JSON / Metadata sections dropped. Main column
+  shows **General** (SKU heading + kit icon when
+  `inventory_item_link.length > 1`; SKU/EAN/UPC/Shipping
+  profile/Created/Updated `SectionRow`s; Edit + Delete action menu)
+  and **Inventory items** (`_DataTable` with Title / SKU / Required
+  quantity / Inventory cell and per-row `Go to inventory item`
+  action; `Inventory` cell renders red when available quantity is 0).
+  Sidebar shows **Master variant** (`offer-master-variant-section.tsx`,
+  lifted from `InventoryItemVariantsSection`'s Pattern A: Thumbnail +
+  title + option-values subtitle + chevron, wrapped in
+  `/products/<product_id>/variants/<variant_id>` link) and **Prices**
+  (collapsible list with `Show more` revealing 3 rows at a time).
+  `OFFER_DETAIL_FIELDS` extended to include
+  `product_variant.options.id`, `product_variant.options.value`, and
+  `inventory_item_link.inventory_item.location_levels.available_quantity`.
+  `OFFER_LIST_FIELDS` narrowed to product/variant identity +
+  categories + collection + status.
+- **i18n** (`packages/vendor/src/i18n/translations/en.json` +
+  `$schema.json`): added `offers.create.publish`, `offers.create.tip`,
+  `offers.create.tabs.catalogue`,
+  `offers.create.tabs.stockLevelsAndPrices`, `offers.detail.*`,
+  `offers.status.*`, `offers.fields.category|collection|variants|status|offer|stockLocation|priceCurrency|notEnabled|enabled|variantsCount_one|variantsCount_other`,
+  `offers.validation.skuRequired|duplicateSku|selectAtLeastOneVariant|noPublishableRows`;
+  rewrote `offers.empty.heading|description`; shortened
+  `offers.actions.create` to **"Create"**; dropped the old wizard's
+  `offers.create.tabs.variant|details|pricingAndStock`,
+  `offers.create.variantHint|variantPlaceholder|selectedVariant|pricesDescription|inventoryItemsDescription|createNewInventoryItem`,
+  `offers.fields.region|customerGroup|priceList|base`,
+  `offers.validation.duplicatePriceRule` (re-added later for the
+  pricing drawer's still-active duplicate-detection helper, since the
+  drawer survives the redesign).
+- **Build / lint:**
+  - `bun run build` (packages/vendor) → ESM + DTS Build success.
+  - `bunx vitest run src/i18n/translations/__tests__/validate-translations.spec.ts`
+    → 1/1 pass.
+  - `bunx oxlint --quiet packages/vendor/src/pages/offers packages/vendor/src/hooks/api/offers.tsx`
+    → 0 errors, 4 warnings (baseline `_tabMeta` underscore-dangle and
+    `no-await-in-loop` in the publish fan-out, matching the rest of
+    the package).
+- **Outstanding:**
+  - Runtime smoke (Verification §2–§7) not performed in this revision;
+    Vite dev server walkthrough still pending before status flips to
+    `passing`.
+  - Per-location stock seeding on Publish is left for a follow-up:
+    the wizard creates one inventory item per row but does **not** yet
+    create matching `location_levels` for the enabled location
+    toggles. The vendor configures stock on the existing
+    `/inventory/<id>` page.
+  - Sort by "Title" routes through the same `order=title` param that
+    the offers list backend doesn't currently honour (offers have no
+    title column). Wiring the column to a backend-supported field is a
+    follow-up under SPEC-002 query params.
 
 ### 2026-05-21 — Initial implementation (vendor UI + variant-scoped deletions)
 

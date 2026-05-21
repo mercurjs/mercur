@@ -9,9 +9,8 @@ import { OfferDetail } from "../common/types"
 import {
   OfferGeneralSection,
   OfferInventorySection,
+  OfferMasterVariantSection,
   OfferPricingSection,
-  OfferShippingSection,
-  OfferStatusSidebar,
 } from "./_components"
 import { loader } from "./loader"
 
@@ -36,10 +35,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
   if (isLoading || !offer) {
     return (
       <TwoColumnPageSkeleton
-        showJSON
-        mainSections={3}
+        mainSections={2}
         sidebarSections={2}
-        showMetadata
       />
     )
   }
@@ -51,15 +48,14 @@ const Root = ({ children }: { children?: ReactNode }) => {
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <TwoColumnPage data={typedOffer} showJSON showMetadata hasOutlet>
+        <TwoColumnPage data={typedOffer} hasOutlet>
           <TwoColumnPage.Main>
             <OfferGeneralSection offer={typedOffer} />
-            <OfferPricingSection offer={typedOffer} />
             <OfferInventorySection offer={typedOffer} />
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <OfferStatusSidebar offer={typedOffer} />
-            <OfferShippingSection offer={typedOffer} />
+            <OfferMasterVariantSection offer={typedOffer} />
+            <OfferPricingSection offer={typedOffer} />
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}
@@ -71,8 +67,9 @@ export const OfferDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   General: OfferGeneralSection,
-  Pricing: OfferPricingSection,
   Inventory: OfferInventorySection,
-  Shipping: OfferShippingSection,
-  StatusSidebar: OfferStatusSidebar,
+  MasterVariant: OfferMasterVariantSection,
+  Pricing: OfferPricingSection,
 })
+
+export const Component = Root

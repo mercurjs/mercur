@@ -1042,21 +1042,22 @@
     "create": {
       "header": "Create offer",
       "successToast": "Offer created",
-      "tabs": {
-        "variant": "Variant",
-        "details": "Details",
-        "pricingAndStock": "Pricing & stock"
-      },
-      "variantHint": "You can only create an offer on an existing variant. Use Products to add a new variant first.",
-      "variantPlaceholder": "Select a variant",
-      "selectedVariant": "Selected variant",
-      "prices": "Prices",
-      "pricesDescription": "Add at least one price. Each row is a separate price rule.",
+      "publish": "Publish",
+      "tip": "Select all relevant products that match your inventory, then easily create offers for them by simply adding your stock levels and prices.",
       "addPrice": "Add price",
-      "inventoryItems": "Inventory items",
-      "inventoryItemsDescription": "Attach at least one inventory item that this offer will pull stock from.",
       "addInventoryItem": "Add inventory item",
-      "createNewInventoryItem": "Create new inventory item"
+      "tabs": {
+        "catalogue": "Catalogue",
+        "stockLevelsAndPrices": "Stock Levels & Prices"
+      }
+    },
+    "detail": {
+      "offerLabel": "Offer",
+      "masterVariant": "Master variant",
+      "inventoryItems": "Inventory items",
+      "manageKit": "Manage inventory kit",
+      "noInventoryItems": "No inventory items attached. Open the inventory drawer to attach one.",
+      "goToInventoryItem": "Go to inventory item"
     },
     "edit": {
       "header": "Edit offer",
@@ -1087,7 +1088,7 @@
       "partialToast": "Deleted {{succeeded}} of {{total}} offers; {{failed}} failed"
     },
     "actions": {
-      "create": "Create offer",
+      "create": "Create",
       "manage_prices": "Manage prices",
       "manage_inventory": "Manage inventory",
       "bulkDelete": "Delete selected"
@@ -1100,12 +1101,25 @@
       "upc": "UPC",
       "requiredQuantity": "Required quantity",
       "stockStatus": "Stock status",
-      "region": "Region",
-      "customerGroup": "Customer group",
+      "category": "Category",
+      "collection": "Collection",
+      "variants": "Variants",
+      "status": "Status",
+      "offer": "Offer",
       "minQuantity": "Min qty",
       "maxQuantity": "Max qty",
-      "priceList": "Price list",
-      "base": "Base"
+      "stockLocation": "Stock Location {{name}}",
+      "priceCurrency": "Price {{code}}",
+      "notEnabled": "Not enabled",
+      "enabled": "Enabled",
+      "variantsCount_one": "{{count}} variant",
+      "variantsCount_other": "{{count}} variants"
+    },
+    "status": {
+      "published": "Published",
+      "draft": "Draft",
+      "proposed": "Proposed",
+      "rejected": "Rejected"
     },
     "stockStatus": {
       "in_stock": "In stock",
@@ -1113,16 +1127,20 @@
       "out_of_stock": "Out of stock"
     },
     "empty": {
-      "heading": "Create your first offer",
-      "description": "Bind your seller catalog to a master variant to make it purchasable."
+      "heading": "No offers yet",
+      "description": "Create offers to start selling on the marketplace"
     },
     "filtered": {
       "heading": "No matching offers",
       "description": "Adjust filters or search terms."
     },
     "validation": {
+      "skuRequired": "SKU is required for rows with a stock location enabled or a non-zero price.",
+      "duplicateSku": "Another row in this submission already uses this SKU.",
       "duplicatePriceRule": "Another price row already has this combination of currency, region, customer group, and quantity bounds.",
       "duplicateInventoryItem": "This inventory item is already attached.",
+      "selectAtLeastOneVariant": "Select at least one variant to continue.",
+      "noPublishableRows": "Add a SKU, enable a stock location, or set a price to publish.",
       "duplicateBatchEntry": "An inventory item can only appear in one bucket (create, update, or delete)."
     }
   },

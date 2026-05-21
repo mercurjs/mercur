@@ -7,7 +7,9 @@ export const OfferCreatePage = () => (
       <span className="sr-only">Create offer</span>
     </RouteFocusModal.Title>
     <RouteFocusModal.Description asChild>
-      <span className="sr-only">Bind a master variant to a new offer.</span>
+      <span className="sr-only">
+        Select variants and configure stock levels and prices to create offers.
+      </span>
     </RouteFocusModal.Description>
     <CreateOfferForm />
   </RouteFocusModal>

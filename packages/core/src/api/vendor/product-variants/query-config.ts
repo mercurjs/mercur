@@ -24,7 +24,6 @@ export const vendorProductVariantFields = [
   "updated_at",
   "product_id",
   "*product",
-  "*options",
   "*attribute_values",
   "*attribute_values.attribute",
 ]

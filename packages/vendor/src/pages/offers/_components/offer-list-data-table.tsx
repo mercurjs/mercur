@@ -36,12 +36,29 @@ export const OfferListDataTable = () => {
     { placeholderData: keepPreviousData },
   )
 
+  const rows = (offers ?? []) as OfferTableRow[]
+
+  const variantSetByProduct: Record<string, Set<string>> = {}
+  for (const row of rows) {
+    const productId = row.product_variant?.product_id
+    const variantId = row.product_variant?.id
+    if (!productId || !variantId) continue
+    if (!variantSetByProduct[productId]) {
+      variantSetByProduct[productId] = new Set()
+    }
+    variantSetByProduct[productId].add(variantId)
+  }
+  const variantsCountByProduct: Record<string, number> = {}
+  for (const key of Object.keys(variantSetByProduct)) {
+    variantsCountByProduct[key] = variantSetByProduct[key].size
+  }
+
   const filters = useOfferTableFilters()
-  const columns = useOfferTableColumns()
+  const columns = useOfferTableColumns(variantsCountByProduct)
   const { mutateAsync: bulkDelete } = useBulkDeleteOffers()
 
   const { table } = useDataTable({
-    data: (offers ?? []) as OfferTableRow[],
+    data: rows,
     columns,
     count,
     enablePagination: true,
@@ -70,7 +87,7 @@ export const OfferListDataTable = () => {
       filters={filters}
       queryObject={raw}
       orderBy={[
-        { key: "sku", label: t("offers.fields.sku") },
+        { key: "title", label: t("fields.title") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
@@ -78,6 +95,10 @@ export const OfferListDataTable = () => {
       noRecords={{
         title: t("offers.empty.heading"),
         message: t("offers.empty.description"),
+        action: {
+          to: "create",
+          label: t("offers.actions.create"),
+        },
       }}
       commands={[
         {
