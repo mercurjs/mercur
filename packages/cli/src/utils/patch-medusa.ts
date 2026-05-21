@@ -1,50 +1,9 @@
 import { createRequire } from "module";
 import { readFileSync, writeFileSync } from "fs";
 import { dirname, join } from "path";
-import fg from "fast-glob";
 import resolveCwd from "resolve-cwd";
 import { packageDirectory } from "pkg-dir";
 import { logger } from "@/src/utils/logger";
-
-/**
- * Middleware files within @medusajs/medusa that Mercur overrides.
- * Each entry maps a file path to the named export that must remain
- * as an empty array so the parent aggregator can still spread it.
- */
-const MIDDLEWARES_TO_DISABLE: Record<string, string> = {
-  "dist/api/admin/products/middlewares.js": "adminProductRoutesMiddlewares",
-  "dist/api/admin/product-variants/middlewares.js": "adminProductVariantRoutesMiddlewares",
-  "dist/api/admin/product-categories/middlewares.js": "adminProductCategoryRoutesMiddlewares",
-  "dist/api/store/products/middlewares.js": "storeProductRoutesMiddlewares",
-  "dist/api/store/product-categories/middlewares.js": "storeProductCategoryRoutesMiddlewares",
-  "dist/api/store/product-variants/middlewares.js": "storeProductVariantRoutesMiddlewares",
-};
-
-/**
- * Route directories within @medusajs/medusa to disable.
- * All route.js files under these globs get patched with
- * defineFileConfig({ isDisabled: () => true }).
- */
-const ROUTE_GLOBS_TO_DISABLE = [
-  "dist/api/admin/products/**/route.js",
-  "dist/api/admin/product-variants/**/route.js",
-  "dist/api/admin/product-categories/**/route.js",
-  "dist/api/store/products/**/route.js",
-  "dist/api/store/product-categories/**/route.js",
-  "dist/api/store/product-variants/**/route.js",
-];
-
-const DISABLED_ROUTE_CONTENT = `"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-`;
-
-function buildDisabledMiddlewareContent(exportName: string) {
-  return `"use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.${exportName} = void 0;
-exports.${exportName} = [];
-`;
-}
 
 export async function patchMedusa() {
   try {
@@ -56,25 +15,41 @@ export async function patchMedusa() {
       return;
     }
 
-    // Patch middleware files (export empty arrays)
-    for (const [file, exportName] of Object.entries(MIDDLEWARES_TO_DISABLE)) {
-      const filePath = join(medusaDir, file);
-      writeFileSync(filePath, buildDisabledMiddlewareContent(exportName));
-    }
-
-    // Patch route files (defineFileConfig isDisabled)
-    for (const glob of ROUTE_GLOBS_TO_DISABLE) {
-      const routeFiles = await fg(glob, { cwd: medusaDir, absolute: true });
-      for (const routeFile of routeFiles) {
-        writeFileSync(routeFile, DISABLED_ROUTE_CONTENT);
-      }
-    }
+    // Surgically strip Medusa's POST /store/carts/:id/line-items middleware
+    // entry so Mercur's offer_id-based validator (registered in
+    // packages/core/src/api/store/carts/middlewares.ts) is the only one
+    // that runs. Medusa's StoreAddCartLineItem validator is .strict() and
+    // requires variant_id, which rejects Mercur's offer_id payload.
+    patchStoreCartLineItemsMiddleware(medusaDir);
 
     // Remove product from SERVICES_INTERFACES so the generated
     // modules-bindings.d.ts uses the actual module service type
     await patchContainerTypes();
   } catch (err) {
     logger.error(`Failed to patch Medusa: ${err}`);
+  }
+}
+
+function patchStoreCartLineItemsMiddleware(medusaDir: string) {
+  const filePath = join(medusaDir, "dist/api/store/carts/middlewares.js");
+  let content: string;
+  try {
+    content = readFileSync(filePath, "utf-8");
+  } catch {
+    return;
+  }
+
+  const before = content;
+  // Match the literal POST /store/carts/:id/line-items entry (NOT the
+  // sibling /store/carts/:id/line-items/:line_id entry). The Medusa
+  // build output is stable around the matcher string and the trailing
+  // comma after the closing brace.
+  const pattern =
+    /\s*\{\s*method:\s*\["POST"\],\s*matcher:\s*"\/store\/carts\/:id\/line-items",\s*middlewares:\s*\[[^\]]*\],?\s*\},?/;
+  content = content.replace(pattern, "");
+
+  if (content !== before) {
+    writeFileSync(filePath, content);
   }
 }
 
@@ -107,4 +82,3 @@ async function patchContainerTypes() {
     logger.error(`Failed to patch container types: ${err}`);
   }
 }
-

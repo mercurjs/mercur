@@ -33,18 +33,21 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
                 ...cartFieldsForPricingContext,
                 "items.*",
                 "items.variant.id",
-                "items.variant.product.id",
-                "items.variant.product.seller.id",
-                "items.variant.manage_inventory",
-                "items.variant.inventory_items.inventory_item_id",
-                "items.variant.inventory_items.inventory.requires_shipping",
-                "items.variant.inventory_items.inventory.location_levels.*",
+                "items.offer.id",
+                "items.offer.seller_id",
+                "items.offer.inventory_items.id",
+                "items.offer.inventory_items.requires_shipping",
+                "items.offer.inventory_items.location_levels.*",
             ],
             options: { throwIfKeyNotFound: true },
         }).config({ name: "get-cart" })
 
         const cart = transform({ cartQuery }, ({ cartQuery }) => cartQuery.data[0])
-        const cartSellers = transform({ cart }, ({ cart }) => cart.items.map((item) => item.variant.product.seller.id))
+        const cartSellers = transform({ cart }, ({ cart }) =>
+            cart.items
+                .map((item: any) => item.offer?.seller_id)
+                .filter((id: unknown): id is string => typeof id === "string")
+        )
 
         validatePresenceOfStep({
             entity: cart,
@@ -245,23 +248,26 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
                         shippingOption.service_zone.fulfillment_set.location.id
 
                     const itemsAtLocationWithoutAvailableQuantity = cart.items.filter(
-                        (item) => {
-                            if (!item.variant?.manage_inventory) {
+                        (item: any) => {
+                            const links = item.offer?.inventory_items ?? []
+                            if (!links.length) {
                                 return false
                             }
 
-                            return item.variant.inventory_items.some((inventoryItem) => {
-                                if (!inventoryItem.inventory.requires_shipping) {
+                            return links.some((inventoryItem: any) => {
+                                if (!inventoryItem.requires_shipping) {
                                     return false
                                 }
 
-                                const level = inventoryItem.inventory.location_levels.find(
-                                    (locationLevel) => {
-                                        return locationLevel.location_id === locationId
-                                    }
+                                const level = (inventoryItem.location_levels ?? []).find(
+                                    (locationLevel: any) =>
+                                        locationLevel.location_id === locationId
                                 )
 
-                                return !level ? true : level.available_quantity < item.quantity
+                                return !level
+                                    ? true
+                                    : Number(level.available_quantity ?? 0) <
+                                          Number(item.quantity)
                             })
                         }
                     )

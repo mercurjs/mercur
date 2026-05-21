@@ -8,9 +8,7 @@ medusaIntegrationTestRunner({
     testSuite: ({ getContainer, api }) => {
         describe("Vendor - Products", () => {
             let appContainer: MedusaContainer
-            let _seller1: any
             let seller1Headers: any
-            let _seller2: any
             let seller2Headers: any
 
             beforeAll(async () => {
@@ -22,40 +20,34 @@ medusaIntegrationTestRunner({
                     email: "seller1@test.com",
                     name: "Seller One",
                 })
-                _seller1 = result1.seller
                 seller1Headers = result1.headers
 
                 const result2 = await createSellerUser(appContainer, {
                     email: "seller2@test.com",
                     name: "Seller Two",
                 })
-                _seller2 = result2.seller
                 seller2Headers = result2.headers
             })
 
             describe("POST /vendor/products", () => {
-                it("should create a product with options and variants", async () => {
+                it("should create a product with variant_attributes and variants", async () => {
                     const response = await api.post(
                         `/vendor/products`,
                         {
                             title: "Test Product",
                             description: "A test product",
-                            options: [
+                            variant_attributes: [
                                 {
-                                    title: "Size",
+                                    name: "Size",
+                                    type: "multi_select",
+                                    is_variant_axis: true,
                                     values: ["S", "M", "L"],
                                 },
                             ],
                             variants: [
                                 {
                                     title: "Small",
-                                    options: { Size: "S" },
-                                    prices: [
-                                        {
-                                            currency_code: "usd",
-                                            amount: 1000,
-                                        },
-                                    ],
+                                    attribute_values: { Size: "S" },
                                 },
                             ],
                         },
@@ -74,10 +66,7 @@ medusaIntegrationTestRunner({
                 it("should create a simple product without variants", async () => {
                     const response = await api.post(
                         `/vendor/products`,
-                        {
-                            title: "Simple Product",
-                            options: [{ title: "Default", values: ["Default"] }],
-                        },
+                        { title: "Simple Product" },
                         seller1Headers
                     )
 
@@ -90,19 +79,13 @@ medusaIntegrationTestRunner({
                 it("should list only seller's own products", async () => {
                     await api.post(
                         `/vendor/products`,
-                        {
-                            title: "Seller 1 Product",
-                            options: [{ title: "Default", values: ["Default"] }],
-                        },
+                        { title: "Seller 1 Product" },
                         seller1Headers
                     )
 
                     await api.post(
                         `/vendor/products`,
-                        {
-                            title: "Seller 2 Product",
-                            options: [{ title: "Default", values: ["Default"] }],
-                        },
+                        { title: "Seller 2 Product" },
                         seller2Headers
                     )
 
@@ -122,10 +105,7 @@ medusaIntegrationTestRunner({
                 it("should get seller's own product", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        {
-                            title: "My Product",
-                            options: [{ title: "Default", values: ["Default"] }],
-                        },
+                        { title: "My Product" },
                         seller1Headers
                     )
 
@@ -140,34 +120,30 @@ medusaIntegrationTestRunner({
                     expect(response.data.product.id).toEqual(productId)
                 })
 
-                it("should not allow seller to get another seller's product", async () => {
+                it("should allow any vendor to read the master catalog by product id", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        {
-                            title: "Seller 1 Product",
-                            options: [{ title: "Default", values: ["Default"] }],
-                        },
+                        { title: "Shared Master Product" },
                         seller1Headers
                     )
 
                     const productId = createResponse.data.product.id
 
-                    const response = await api
-                        .get(`/vendor/products/${productId}`, seller2Headers)
-                        .catch((e) => e.response)
+                    const response = await api.get(
+                        `/vendor/products/${productId}`,
+                        seller2Headers
+                    )
 
-                    expect(response.status).toEqual(404)
+                    expect(response.status).toEqual(200)
+                    expect(response.data.product.id).toEqual(productId)
                 })
             })
 
             describe("POST /vendor/products/:id", () => {
-                it("should update seller's own product", async () => {
+                it("should stage a product update via product-edit (202)", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        {
-                            title: "Original Title",
-                            options: [{ title: "Default", values: ["Default"] }],
-                        },
+                        { title: "Original Title" },
                         seller1Headers
                     )
 
@@ -182,47 +158,20 @@ medusaIntegrationTestRunner({
                         seller1Headers
                     )
 
-                    expect(response.status).toEqual(200)
-                    expect(response.data.product).toEqual(
+                    expect(response.status).toEqual(202)
+                    expect(response.data.product_change).toEqual(
                         expect.objectContaining({
-                            title: "Updated Title",
-                            description: "Updated description",
+                            product_id: productId,
                         })
                     )
-                })
-
-                it("should not allow seller to update another seller's product", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/products`,
-                        {
-                            title: "Seller 1 Product",
-                            options: [{ title: "Default", values: ["Default"] }],
-                        },
-                        seller1Headers
-                    )
-
-                    const productId = createResponse.data.product.id
-
-                    const response = await api
-                        .post(
-                            `/vendor/products/${productId}`,
-                            { title: "Hacked Title" },
-                            seller2Headers
-                        )
-                        .catch((e) => e.response)
-
-                    expect(response.status).toEqual(404)
                 })
             })
 
             describe("DELETE /vendor/products/:id", () => {
-                it("should delete seller's own product", async () => {
+                it("should stage a product delete via product-edit (202)", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
-                        {
-                            title: "Product to Delete",
-                            options: [{ title: "Default", values: ["Default"] }],
-                        },
+                        { title: "Product to Delete" },
                         seller1Headers
                     )
 
@@ -233,46 +182,33 @@ medusaIntegrationTestRunner({
                         seller1Headers
                     )
 
-                    expect(response.status).toEqual(200)
-                    expect(response.data).toEqual({
-                        id: productId,
-                        object: "product",
-                        deleted: true,
-                    })
-                })
-
-                it("should not allow seller to delete another seller's product", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/products`,
-                        {
-                            title: "Seller 1 Product",
-                            options: [{ title: "Default", values: ["Default"] }],
-                        },
-                        seller1Headers
+                    expect(response.status).toEqual(202)
+                    expect(response.data.product_change).toEqual(
+                        expect.objectContaining({
+                            product_id: productId,
+                        })
                     )
-
-                    const productId = createResponse.data.product.id
-
-                    const response = await api
-                        .delete(`/vendor/products/${productId}`, seller2Headers)
-                        .catch((e) => e.response)
-
-                    expect(response.status).toEqual(404)
                 })
             })
 
             describe("POST /vendor/products/:id/variants", () => {
-                it("should create a variant for seller's own product", async () => {
+                it("should stage a variant add via product-edit (202)", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
                         {
-                            title: "Product with Options",
-                            options: [{ title: "Color", values: ["Red", "Blue"] }],
+                            title: "Product with Color Axis",
+                            variant_attributes: [
+                                {
+                                    name: "Color",
+                                    type: "multi_select",
+                                    is_variant_axis: true,
+                                    values: ["Red", "Blue"],
+                                },
+                            ],
                             variants: [
                                 {
                                     title: "Red Variant",
-                                    options: { Color: "Red" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
+                                    attribute_values: { Color: "Red" },
                                 },
                             ],
                         },
@@ -285,64 +221,39 @@ medusaIntegrationTestRunner({
                         `/vendor/products/${productId}/variants`,
                         {
                             title: "Blue Variant",
-                            options: { Color: "Blue" },
-                            prices: [{ currency_code: "usd", amount: 1200 }],
+                            attribute_values: { Color: "Blue" },
                         },
                         seller1Headers
                     )
 
-                    expect(response.status).toEqual(201)
-                    expect(response.data.product.variants).toHaveLength(2)
-                })
-
-                it("should not allow seller to create variant for another seller's product", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/products`,
-                        {
-                            title: "Seller 1 Product",
-                            options: [{ title: "Size", values: ["S", "M"] }],
-                            variants: [
-                                {
-                                    title: "Small",
-                                    options: { Size: "S" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
-                                },
-                            ],
-                        },
-                        seller1Headers
+                    expect(response.status).toEqual(202)
+                    expect(response.data.product_change).toEqual(
+                        expect.objectContaining({
+                            product_id: productId,
+                        })
                     )
-
-                    const productId = createResponse.data.product.id
-
-                    const response = await api
-                        .post(
-                            `/vendor/products/${productId}/variants`,
-                            {
-                                title: "Medium",
-                                options: { Size: "M" },
-                                prices: [{ currency_code: "usd", amount: 1100 }],
-                            },
-                            seller2Headers
-                        )
-                        .catch((e) => e.response)
-
-                    expect(response.status).toEqual(404)
                 })
             })
 
             describe("POST /vendor/products/:id/variants/:variant_id", () => {
-                it("should update a variant for seller's own product", async () => {
+                it("should stage a variant update via product-edit (202)", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
                         {
                             title: "Product",
-                            options: [{ title: "Size", values: ["S"] }],
+                            variant_attributes: [
+                                {
+                                    name: "Size",
+                                    type: "multi_select",
+                                    is_variant_axis: true,
+                                    values: ["S"],
+                                },
+                            ],
                             variants: [
                                 {
                                     title: "Original Variant",
                                     sku: "SKU-001",
-                                    options: { Size: "S" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
+                                    attribute_values: { Size: "S" },
                                 },
                             ],
                         },
@@ -361,63 +272,37 @@ medusaIntegrationTestRunner({
                         seller1Headers
                     )
 
-                    expect(response.status).toEqual(200)
-                    const updatedVariant = response.data.product.variants.find(
-                        (v: any) => v.id === variantId
+                    expect(response.status).toEqual(202)
+                    expect(response.data.product_change).toEqual(
+                        expect.objectContaining({
+                            product_id: productId,
+                        })
                     )
-                    expect(updatedVariant.title).toEqual("Updated Variant")
-                    expect(updatedVariant.sku).toEqual("SKU-002")
-                })
-
-                it("should not allow seller to update variant of another seller's product", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/products`,
-                        {
-                            title: "Seller 1 Product",
-                            options: [{ title: "Size", values: ["S"] }],
-                            variants: [
-                                {
-                                    title: "Variant",
-                                    options: { Size: "S" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
-                                },
-                            ],
-                        },
-                        seller1Headers
-                    )
-
-                    const productId = createResponse.data.product.id
-                    const variantId = createResponse.data.product.variants[0].id
-
-                    const response = await api
-                        .post(
-                            `/vendor/products/${productId}/variants/${variantId}`,
-                            { title: "Hacked Variant" },
-                            seller2Headers
-                        )
-                        .catch((e) => e.response)
-
-                    expect(response.status).toEqual(404)
                 })
             })
 
             describe("DELETE /vendor/products/:id/variants/:variant_id", () => {
-                it("should delete a variant from seller's own product", async () => {
+                it("should stage a variant delete via product-edit (202)", async () => {
                     const createResponse = await api.post(
                         `/vendor/products`,
                         {
                             title: "Product",
-                            options: [{ title: "Size", values: ["S", "M"] }],
+                            variant_attributes: [
+                                {
+                                    name: "Size",
+                                    type: "multi_select",
+                                    is_variant_axis: true,
+                                    values: ["S", "M"],
+                                },
+                            ],
                             variants: [
                                 {
                                     title: "Small",
-                                    options: { Size: "S" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
+                                    attribute_values: { Size: "S" },
                                 },
                                 {
                                     title: "Medium",
-                                    options: { Size: "M" },
-                                    prices: [{ currency_code: "usd", amount: 1100 }],
+                                    attribute_values: { Size: "M" },
                                 },
                             ],
                         },
@@ -432,47 +317,12 @@ medusaIntegrationTestRunner({
                         seller1Headers
                     )
 
-                    expect(response.status).toEqual(200)
-                    expect(response.data).toEqual({
-                        id: variantId,
-                        object: "product_variant",
-                        deleted: true,
-                    })
-                })
-
-                it("should not allow seller to delete variant of another seller's product", async () => {
-                    const createResponse = await api.post(
-                        `/vendor/products`,
-                        {
-                            title: "Seller 1 Product",
-                            options: [{ title: "Size", values: ["S", "M"] }],
-                            variants: [
-                                {
-                                    title: "Small",
-                                    options: { Size: "S" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
-                                },
-                                {
-                                    title: "Medium",
-                                    options: { Size: "M" },
-                                    prices: [{ currency_code: "usd", amount: 1100 }],
-                                },
-                            ],
-                        },
-                        seller1Headers
+                    expect(response.status).toEqual(202)
+                    expect(response.data.product_change).toEqual(
+                        expect.objectContaining({
+                            product_id: productId,
+                        })
                     )
-
-                    const productId = createResponse.data.product.id
-                    const variantId = createResponse.data.product.variants[0].id
-
-                    const response = await api
-                        .delete(
-                            `/vendor/products/${productId}/variants/${variantId}`,
-                            seller2Headers
-                        )
-                        .catch((e) => e.response)
-
-                    expect(response.status).toEqual(404)
                 })
             })
         })

@@ -113,25 +113,16 @@ export const completeCartFields = [
     "payment_collection.payment_sessions.*",
     "promotions.id",
     'promotions.seller.id',
-    "items.variant.id",
-    "items.variant.product.id",
-    "items.variant.product.seller.id",
-    "items.variant.product.is_giftcard",
-    "items.variant.product.shipping_profile.id",
     "items.offer.id",
+    "items.offer.seller_id",
+    "items.offer.shipping_profile_id",
     "items.offer.price_set_id",
-    "items.offer.inventory_items.inventory_item_id",
-    "items.offer.inventory_items.required_quantity",
-    "items.offer.inventory_items.inventory.requires_shipping",
-    "items.offer.inventory_items.inventory.location_levels.stocked_quantity",
-    "items.offer.inventory_items.inventory.location_levels.reserved_quantity",
-    "items.offer.inventory_items.inventory.location_levels.raw_stocked_quantity",
-    "items.offer.inventory_items.inventory.location_levels.raw_reserved_quantity",
-    "items.offer.inventory_items.inventory.location_levels.location_id",
-    "items.offer.inventory_items.inventory.location_levels.stock_locations.id",
-    "items.offer.inventory_items.inventory.location_levels.stock_locations.name",
-    "items.offer.inventory_items.inventory.location_levels.stock_locations.sales_channels.id",
-    "items.offer.inventory_items.inventory.location_levels.stock_locations.sales_channels.name",
+    // NOTE: per-offer inventory data (linked InventoryItem +
+    // location_levels) is intentionally NOT pulled in via
+    // completeCartFields. It is fetched in a dedicated
+    // `fetch-offers-for-reservation` step from the same workflow,
+    // which keeps the cart-query populate tree shallow and avoids
+    // the writable offer ↔ inventory_item link's pivot edge cases.
 ]
 
 export const cartFieldsForPricingContext = [

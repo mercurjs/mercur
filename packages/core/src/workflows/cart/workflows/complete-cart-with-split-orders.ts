@@ -149,7 +149,11 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             )
 
             const { ordersToCreate, sellerOrdersMap } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data }, ({ cart, shippingOptionsData }) => {
-                const cartSellerIds = new Set<string>(cart.items?.map((item) => item.variant.product.seller.id))
+                const cartSellerIds = new Set<string>(
+                    (cart.items ?? [])
+                        .map((item: any) => item.offer?.seller_id)
+                        .filter((id: unknown): id is string => typeof id === "string")
+                )
                 const sellerShippingOptionsMap = new Map()
                 shippingOptionsData.forEach((so) => {
                     const sellerId = so.seller.id
@@ -161,7 +165,9 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 const ordersToCreate: (CreateOrderDTO & { id: string })[] = []
 
                 Array.from(cartSellerIds).map((sellerId) => {
-                    const sellerCartItems = (cart.items ?? []).filter((item) => item.variant.product.seller.id === sellerId)
+                    const sellerCartItems = (cart.items ?? []).filter(
+                        (item: any) => item.offer?.seller_id === sellerId
+                    )
                     const sellerShippingOptions = sellerShippingOptionsMap.get(sellerId) ?? []
                     const sellerCartShippingMethods = (cart.shipping_methods ?? []).filter((sm) => sellerShippingOptions.some((so) => so.id === sm.shipping_option_id))
 
@@ -369,15 +375,19 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 entity: "offer",
                 fields: [
                     "id",
-                    "inventory_items.inventory_item_id",
-                    "inventory_items.required_quantity",
-                    "inventory_items.inventory.location_levels.location_id",
-                    "inventory_items.inventory.location_levels.stocked_quantity",
-                    "inventory_items.inventory.location_levels.reserved_quantity",
-                    "inventory_items.inventory.location_levels.raw_stocked_quantity",
-                    "inventory_items.inventory.location_levels.raw_reserved_quantity",
-                    "inventory_items.inventory.location_levels.stock_locations.id",
-                    "inventory_items.inventory.location_levels.stock_locations.sales_channels.id",
+                    // Same shape as `requiredOfferFieldsForInventoryConfirmation`
+                    // — the writable M:N link surfaces the linked
+                    // InventoryItem directly. `required_quantity` lives on
+                    // the pivot and is not currently queryable; the helper
+                    // treats it as 1 (see SPEC-002 > Architectural gap).
+                    "inventory_items.id",
+                    "inventory_items.location_levels.location_id",
+                    "inventory_items.location_levels.stocked_quantity",
+                    "inventory_items.location_levels.reserved_quantity",
+                    "inventory_items.location_levels.raw_stocked_quantity",
+                    "inventory_items.location_levels.raw_reserved_quantity",
+                    "inventory_items.location_levels.stock_locations.id",
+                    "inventory_items.location_levels.stock_locations.sales_channels.id",
                 ],
                 filters: { id: uniqueOffers },
             }).config({ name: "fetch-offers-for-reservation" })

@@ -42,6 +42,15 @@ addToCartWorkflow.hooks.validate(async ({ input, cart }, { container }) => {
     filters: { id: offerIds },
   })
 
+  const foundIds = new Set(offers.map((o: any) => o.id))
+  const missing = offerIds.find((id) => !foundIds.has(id))
+  if (missing) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `Offer ${missing} not found`,
+    )
+  }
+
   const { items: confirmInputs } = prepareOfferInventoryInput({
     input: {
       sales_channel_id: cart.sales_channel_id ?? undefined,

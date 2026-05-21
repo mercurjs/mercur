@@ -1,35 +1,38 @@
 import { BigNumberInput } from "@medusajs/framework/types"
 import { BigNumber, MathBN, MedusaError } from "@medusajs/framework/utils"
 
+// The writable offer ↔ inventory_item M:N link surfaces the linked
+// InventoryItem entity from the offer side, so `inventory_items.*`
+// resolves to fields on InventoryItem (not the pivot row). The pivot's
+// `required_quantity` extra column is not currently exposed through Query
+// — see SPEC-002 > Architectural gap. Until that's wired, the multiplier
+// is treated as 1 below.
 export const requiredOfferFieldsForInventoryConfirmation = [
   "id",
-  "inventory_items.inventory_item_id",
-  "inventory_items.required_quantity",
-  "inventory_items.inventory.location_levels.location_id",
-  "inventory_items.inventory.location_levels.stocked_quantity",
-  "inventory_items.inventory.location_levels.reserved_quantity",
-  "inventory_items.inventory.location_levels.raw_stocked_quantity",
-  "inventory_items.inventory.location_levels.raw_reserved_quantity",
-  "inventory_items.inventory.location_levels.stock_locations.id",
-  "inventory_items.inventory.location_levels.stock_locations.sales_channels.id",
+  "inventory_items.id",
+  "inventory_items.location_levels.location_id",
+  "inventory_items.location_levels.stocked_quantity",
+  "inventory_items.location_levels.reserved_quantity",
+  "inventory_items.location_levels.raw_stocked_quantity",
+  "inventory_items.location_levels.raw_reserved_quantity",
+  "inventory_items.location_levels.stock_locations.id",
+  "inventory_items.location_levels.stock_locations.sales_channels.id",
 ]
 
 export type OfferInventoryLink = {
-  inventory_item_id: string
-  required_quantity: number
-  inventory?: {
-    location_levels?: Array<{
-      location_id: string
-      stocked_quantity?: BigNumberInput
-      reserved_quantity?: BigNumberInput
-      raw_stocked_quantity?: BigNumberInput
-      raw_reserved_quantity?: BigNumberInput
-      stock_locations?: Array<{
-        id: string
-        sales_channels?: Array<{ id: string }>
-      }>
+  // `id` is the linked InventoryItem.id (== pivot's `inventory_item_id`).
+  id: string
+  location_levels?: Array<{
+    location_id: string
+    stocked_quantity?: BigNumberInput
+    reserved_quantity?: BigNumberInput
+    raw_stocked_quantity?: BigNumberInput
+    raw_reserved_quantity?: BigNumberInput
+    stock_locations?: Array<{
+      id: string
+      sales_channels?: Array<{ id: string }>
     }>
-  }
+  }>
 }
 
 export type OfferInventoryShape = {
@@ -94,18 +97,21 @@ export const prepareOfferInventoryInput = (
     availability.set(offer.id, offerAvail)
 
     for (const link of offer.inventory_items ?? []) {
-      const itemAvail = offerAvail.get(link.inventory_item_id) ?? new Map()
-      offerAvail.set(link.inventory_item_id, itemAvail)
+      const itemAvail = offerAvail.get(link.id) ?? new Map()
+      offerAvail.set(link.id, itemAvail)
 
       const itemAny =
-        anyLocations.get(`${offer.id}:${link.inventory_item_id}`) ??
-        new Set<string>()
-      anyLocations.set(`${offer.id}:${link.inventory_item_id}`, itemAny)
+        anyLocations.get(`${offer.id}:${link.id}`) ?? new Set<string>()
+      anyLocations.set(`${offer.id}:${link.id}`, itemAny)
 
-      for (const lvl of link.inventory?.location_levels ?? []) {
+      for (const lvl of link.location_levels ?? []) {
         const stocked = MathBN.sub(
-          lvl.raw_stocked_quantity ?? lvl.stocked_quantity ?? 0,
-          lvl.raw_reserved_quantity ?? lvl.reserved_quantity ?? 0,
+          (lvl.raw_stocked_quantity as any)?.value ??
+            lvl.stocked_quantity ??
+            0,
+          (lvl.raw_reserved_quantity as any)?.value ??
+            lvl.reserved_quantity ??
+            0,
         )
         itemAvail.set(lvl.location_id, new BigNumber(stocked))
         itemAny.add(lvl.location_id)
@@ -152,13 +158,15 @@ export const prepareOfferInventoryInput = (
     for (const link of inventoryItems) {
       const offerAvail = availability.get(offer.id) ?? new Map()
       const itemAvail =
-        (offerAvail.get(link.inventory_item_id) as
-          | Map<string, BigNumber>
-          | undefined) ?? new Map<string, BigNumber>()
+        (offerAvail.get(link.id) as Map<string, BigNumber> | undefined) ??
+        new Map<string, BigNumber>()
       const itemAny =
-        anyLocations.get(`${offer.id}:${link.inventory_item_id}`) ?? new Set()
+        anyLocations.get(`${offer.id}:${link.id}`) ?? new Set()
 
-      const required = MathBN.mult(link.required_quantity, item.quantity)
+      // `required_quantity` is a pivot extra column not currently surfaced
+      // through Query — see SPEC-002 > Architectural gap. Treat as 1.
+      const requiredQuantity = 1
+      const required = MathBN.mult(requiredQuantity, item.quantity)
 
       // 1. Full availability locations
       const fullLocations: string[] = []
@@ -182,8 +190,8 @@ export const prepareOfferInventoryInput = (
 
       result.push({
         id: item.id,
-        inventory_item_id: link.inventory_item_id,
-        required_quantity: link.required_quantity,
+        inventory_item_id: link.id,
+        required_quantity: requiredQuantity,
         allow_backorder: false,
         quantity: item.quantity,
         location_ids: Array.from(dedup),

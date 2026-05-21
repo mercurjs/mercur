@@ -1666,7 +1666,7 @@ medusaIntegrationTestRunner({
               seller_id: seller.id,
             },
           })
-          productId = result[0].id
+          productId = (result as Array<{ id: string }>)[0].id
         })
 
         it("should publish a pending product", async () => {

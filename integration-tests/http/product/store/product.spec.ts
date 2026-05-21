@@ -90,17 +90,20 @@ medusaIntegrationTestRunner({
                     {
                         title: "Test Product",
                         status: "published",
-                        options: [{ title: "Size", values: ["M"] }],
+                        variant_attributes: [
+                            {
+                                name: "Size",
+                                type: "multi_select",
+                                is_variant_axis: true,
+                                values: ["M"],
+                            },
+                        ],
                         variants: [
                             {
                                 title: "M",
-                                options: { Size: "M" },
-                                prices: [
-                                    { currency_code: "usd", amount: 1000 },
-                                ],
+                                attribute_values: { Size: "M" },
                             },
                         ],
-                        sales_channels: [{ id: salesChannel.id }],
                         ...overrides,
                     },
                     headers

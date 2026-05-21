@@ -27,9 +27,15 @@ export const batchOfferInventoryItemsWorkflow = createWorkflow(
 
     const { data: offerRows } = useQueryGraphStep({
       entity: "offer",
-      fields: ["id", "inventory_items.inventory_item_id"],
+      fields: ["id"],
       filters: { id: input.offer_id },
     }).config({ name: "get-offer" })
+
+    const { data: offerLinks } = useQueryGraphStep({
+      entity: "offer",
+      fields: ["inventory_items.id"],
+      filters: { id: input.offer_id },
+    }).config({ name: "get-offer-links" })
 
     const createInventoryItemIds = transform({ input }, ({ input }) =>
       (input.create ?? []).map((c) => c.inventory_item_id)
@@ -42,8 +48,8 @@ export const batchOfferInventoryItemsWorkflow = createWorkflow(
     }).config({ name: "get-inventory-items" })
 
     const linkInput = transform(
-      { input, offerRows, inventoryItems },
-      ({ input, offerRows, inventoryItems }) => {
+      { input, offerRows, offerLinks, inventoryItems },
+      ({ input, offerRows, offerLinks, inventoryItems }) => {
         const offer = offerRows[0]
         if (!offer) {
           throw new MedusaError(
@@ -51,6 +57,8 @@ export const batchOfferInventoryItemsWorkflow = createWorkflow(
             `Offer with id: ${input.offer_id} was not found`
           )
         }
+        const linkedItems =
+          (offerLinks[0]?.inventory_items as Array<{ id: string }> | undefined) ?? []
 
         const creates = input.create ?? []
         const updates = input.update ?? []
@@ -116,11 +124,7 @@ export const batchOfferInventoryItemsWorkflow = createWorkflow(
         // Medusa's dismissRemoteLinkStep silently no-ops on unknown links;
         // surface a 404 instead so the seller learns the link did not exist.
         if (deletes.length) {
-          const linked = new Set(
-            ((offer.inventory_items ?? []) as Array<{
-              inventory_item_id: string
-            }>).map((i) => i.inventory_item_id)
-          )
+          const linked = new Set(linkedItems.map((i) => i.id))
           for (const id of deletes) {
             if (!linked.has(id)) {
               throw new MedusaError(

@@ -6,6 +6,7 @@ import { writeRouteTypes } from "@/src/codegen";
 import { getCommandBin } from "@/src/utils/get-command-bin";
 import { handleError } from "@/src/utils/handle-error";
 import { logger } from "@/src/utils/logger";
+import { patchMedusa } from "@/src/utils/patch-medusa";
 
 export const buildOptionsSchema = z.object({
   cwd: z.string(),
@@ -31,6 +32,7 @@ async function runBuild(opts: z.infer<typeof buildOptionsSchema>) {
     const options = buildOptionsSchema.parse(opts);
 
     await writeRouteTypes(options.cwd);
+    await patchMedusa();
     const medusaBin = await getCommandBin("@medusajs/cli", "medusa", options.cwd);
 
     const spawnCommand = process.argv

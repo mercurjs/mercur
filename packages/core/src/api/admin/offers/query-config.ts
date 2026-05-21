@@ -15,9 +15,9 @@ export const defaultAdminOfferFields = [
   "seller.id",
   "seller.name",
   "seller.handle",
-  "variant.id",
-  "variant.title",
-  "variant.sku",
+  "product_variant.id",
+  "product_variant.title",
+  "product_variant.sku",
   "shipping_profile.id",
   "shipping_profile.name",
   "price_set.id",
@@ -28,8 +28,8 @@ export const defaultAdminOfferFields = [
   "price_set.prices.max_quantity",
   "inventory_items.inventory_item_id",
   "inventory_items.required_quantity",
-  "inventory_items.inventory.id",
-  "inventory_items.inventory.sku",
+  "inventory_items.id",
+  "inventory_items.sku",
 ]
 
 export const adminOfferQueryConfig = {

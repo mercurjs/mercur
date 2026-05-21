@@ -4,8 +4,32 @@ canonical: false
 priority: 3
 area: vendor/offers
 created: 2026-05-20
-last_updated: 2026-05-20
+last_updated: 2026-05-21
 ---
+
+> **2026-05-20 product/variant scope removal.** SPEC-002 moves the
+> per-vendor commercial surface (prices + inventory linkage) off the
+> master `ProductVariant` and onto the `Offer`. The variant model
+> in `packages/core/src/modules/product/models/product-variant.ts`
+> no longer declares `manage_inventory`, `allow_backorder`, or a
+> `prices` field — the `Migration20260421093258`
+> and `Migration20260422105949` migrations drop those columns. The
+> `product_variant_inventory_item` link is left registered by Medusa
+> but Mercur's `createProductVariantsWorkflow` override no longer
+> writes rows to it. Marketplace-shared variants therefore have
+> **no per-variant prices, no per-variant stock, no per-variant
+> inventory items, and no per-variant inventory toggles.**
+>
+> The current vendor panel still surfaces all four of those concerns
+> through variant-scoped UI inherited from Medusa's admin. This spec
+> ships the **Offer** UI as the canonical replacement and
+> **removes** the variant-scoped UI in the same change so the
+> vendor panel reflects the new domain model.
+>
+> See the **Variant-scoped UI to remove** section below for the
+> exhaustive deletion list. The companion SPEC-002 §Inventory
+> Lifecycle / §Pricing Architecture are canonical; this spec only
+> describes the UI consequences.
 
 # SPEC-003 Offer Management — Vendor Panel UI
 
@@ -517,6 +541,237 @@ packages/vendor/src/pages/offers/
       schema.ts                            Zod, mirrors VendorCreateOffer
 ```
 
+## Variant-scoped UI to remove
+
+This section is the deletion contract that pairs with the additions
+above. Every entry is a current vendor-panel concern that SPEC-002
+moves onto the offer and that this spec therefore deletes from the
+variant-scoped surface. Each deletion has a one-line **Replaced by:**
+pointer to the offer surface that owns the same concern.
+
+The new domain shape is:
+
+```
+product → variant → offers → prices & inventory_items
+                              ↑
+                              owned by this spec / SPEC-002
+```
+
+The old shape (variant → prices + inventory_items + manage_inventory)
+is structurally absent in the schema after SPEC-002's migrations.
+Any UI that reads or writes those fields is dead code at best and
+misleading the vendor at worst (form fields that submit values the
+backend silently drops).
+
+### Routes to delete from `packages/vendor/src/get-route-map.tsx`
+
+| Path | Module under `packages/vendor/src/pages/` | Replaced by |
+| --- | --- | --- |
+| `/products/:id/prices` | `products/[id]/prices/` | `/offers/:id/pricing` (this spec) |
+| `/products/:id/stock` | `products/[id]/stock/` | `/offers/:id/inventory` (this spec) |
+| `/products/:id/edit-stocks-and-prices` | `products/[id]/edit-stocks-and-prices/` | `/offers/:id/pricing` + `/offers/:id/inventory` (this spec). The combined "edit stocks and prices across all variants" wizard has no offer-side equivalent because per-offer pricing / inventory is owned per row in `/offers/:id/pricing` / `/offers/:id/inventory`. |
+| `/products/:product_id/variants/:variant_id/prices` | reuses `products/[id]/prices/` | `/offers/:id/pricing` (this spec). Per-variant prices no longer exist; per-offer prices replace them. |
+
+Removing the modules above implies removing the matching `lazy` imports
+in `packages/vendor/src/get-route-map.tsx` at the lines flagged in the
+companion grep (`products/[id]/prices`, `products/[id]/stock`,
+`products/[id]/edit-stocks-and-prices`, and the second
+`products/[id]/prices` import nested under the standalone
+`/products/:product_id/variants/:variant_id` route subtree). Leave the
+`/products/:product_id/variants/:variant_id` parent and its
+`edit-variant` child in place — the variant detail / edit drawers
+themselves survive, only their prices / inventory subcomponents go
+(see **Detail and edit-form fields** below).
+
+### Pages and components to delete
+
+The following directories under `packages/vendor/src/pages/` are
+removed in their entirety:
+
+- `products/[id]/prices/` (`index.tsx`, `pricing-edit.tsx`).
+- `products/[id]/stock/` (`index.tsx`, `product-stock-form/`,
+  `schema.ts`, `use-product-stock-columns.tsx`, `utils.ts`).
+- `products/[id]/edit-stocks-and-prices/` (the route module +
+  `components/stocks-and-prices-edit.tsx` +
+  `components/stocks-and-prices-edit-form.tsx` + `schema.ts`).
+- `products/common/variant-pricing-form.tsx` (variant-scoped
+  pricing repeater used only by the two edit modals above).
+- `products/create/components/product-create-inventory-kit-form/`
+  (the entire **Inventory** tab in the product create wizard — see
+  the per-tab list below for the exact knobs it carried).
+- `product-variants/product-variant-detail/components/variant-prices-section/`
+  (the right-sidebar "Prices" section on variant detail).
+- `product-variants/product-variant-detail/components/variant-inventory-section/`
+  (the main-column "Inventory items" section on variant detail, plus
+  its `inventory-actions.tsx` row menu and
+  `use-inventory-table-columns.tsx`).
+- `product-variants/product-variant-manage-inventory-items/` (the
+  full-screen modal that edits the
+  `product_variant_inventory_item` link — the link table is empty
+  for marketplace variants under SPEC-002 and the surface has no
+  replacement on the variant; per-offer attach/detach lives in the
+  `/offers/:id/inventory` drawer instead).
+
+### Row actions and bulk commands to delete
+
+On `pages/products/[id]/_components/product-variant-section/product-variant-section.tsx`:
+
+- Drop the row **"Edit prices"** action (`to: "prices"`,
+  `icon: <PencilSquare />`). Replacement: navigate to the offer's
+  pricing drawer from `/offers/<id>/pricing`. The variant row
+  ActionMenu no longer carries any pricing action.
+- Drop the row **"Manage stock"** action (`to: "stock"`,
+  `icon: <Buildings />`). Replacement: same as above, via
+  `/offers/<id>/inventory`.
+- Drop the bulk command **`useCommands` → `inventory.stock.action`**
+  (`shortcut: "i"`, navigates to `stock?${PRODUCT_VARIANT_IDS_KEY}=...`).
+  There is no per-variant bulk-stock concept any more; if a vendor
+  wants to bulk-edit stock across a set of offers, that is a
+  candidate follow-up spec, not a variant-scoped command.
+
+After the deletions the variants table row ActionMenu keeps only
+**Edit variant** (drawer) and **Delete variant** (prompt). The
+inventory-related secondary actions that the section currently
+threads through `mainActions.push(...)` for the `inventoryItemsCount ===
+1` and `inventoryItemsCount > 1` (`"Inventory items"` /
+`"Inventory kit"`) cases are also removed — `variant.inventory_items`
+is `[]` on every marketplace variant under SPEC-002, so the branches
+are dead code.
+
+### Detail and edit-form fields to delete
+
+`pages/product-variants/product-variant-detail/product-variant-detail.tsx`:
+
+- Drop the `VariantPricesSection` import and the sidebar slot that
+  renders it.
+- Drop the `VariantInventorySectionConnected` import and the
+  main-column slot that renders it.
+- The variant detail page becomes a single-section page hosting the
+  general section only (title, options, attribute axes, EAN/UPC,
+  timestamps). Until SPEC-005 / a follow-up adds an "Offers on this
+  variant" panel for the vendor, the `TwoColumnPage.Sidebar` slot is
+  empty (acceptable — the layout already renders the metadata + JSON
+  viewer there).
+
+`pages/product-variants/product-variant-edit/components/product-edit-variant-form/product-edit-variant-form.tsx`:
+
+- Drop the `manage_inventory` and `allow_backorder` fields from the
+  zod schema, the form defaults, and the `useForm` payload.
+- Drop the two `Form.Field` blocks that render them (lines around
+  the `name="manage_inventory"` and `name="allow_backorder"`
+  controls).
+- The edit drawer keeps the remaining identity fields (title, SKU,
+  options, attribute axes, EAN / UPC, weight / dimensions, custom
+  metadata).
+
+`pages/products/[id]/variants/create/create-product-variant-form/`:
+
+- Delete `inventory-kit-tab.tsx` and `pricing-tab.tsx` outright.
+- In `create-product-variant-form.tsx`:
+  - Drop the `manage_inventory`, `allow_backorder`, `inventory_kit`
+    defaults from `CREATE_VARIANT_DEFAULTS`.
+  - Drop the `useFieldArray({ name: "inventory" })` block and the
+    `useEffect` that seeds the first row.
+  - Drop the `isManageInventoryEnabled` / `isInventoryKitEnabled`
+    `useWatch`es and the `transformTabs` `isVisible` override.
+  - Reduce `defaultTabs` to just `<DetailsTab />`.
+- In `constants.ts`, drop the `manage_inventory`, `allow_backorder`,
+  `inventory_kit`, `prices`, and `inventory` keys from
+  `CreateProductVariantSchema`.
+
+### Product-create wizard knobs to delete
+
+`pages/products/create/components/product-create-variants-form/product-create-variants-form.tsx`:
+
+- Drop the `manage_inventory`, `allow_backorder`, and `inventory_kit`
+  columns from the variants DataGrid (`columnHelper.column({ id:
+  "manage_inventory", ... })`, `{ id: "allow_backorder", ... }`,
+  `{ id: "inventory_kit", ... }`).
+- Drop the `createDataGridPriceColumns(...)` spread that adds the
+  per-currency / per-region price columns at the end of the column
+  set. The variants tab keeps only Attributes, Title, and SKU.
+
+`pages/products/create/components/product-create-form/product-create-form.tsx`:
+
+- Drop the `ProductCreateInventoryKitForm` import and its entry in
+  `defaultTabs`.
+- Drop the `transformTabs` branch that toggles the `inventory` tab
+  on/off based on `watchedVariants.some(v => v.manage_inventory && v.inventory_kit)`.
+- The product-create wizard's tab set reduces to: Details →
+  Organize → Attributes → Variants.
+
+`pages/products/create/constants.ts` / `pages/products/create/types.ts`:
+
+- Drop the `inventory_kit`, `manage_inventory`, `allow_backorder`,
+  and per-variant `prices` keys from the wizard schema and the
+  type alias. The shape narrows to the variant-identity fields the
+  product / variant routes still consume.
+- Drop `generateVariantsFromAttributes`'s handling of those keys if
+  the helper seeds them.
+
+`pages/products/create/utils.ts`:
+
+- Drop the `normalizeProductFormValues` branches that compute price
+  payloads for each variant and that flip `manage_inventory: true`
+  when the inventory kit is seeded. The vendor `POST /vendor/products`
+  payload no longer carries those fields.
+
+### i18n keys to remove from `packages/vendor/src/i18n/translations/en.json`
+
+These keys (and their sister-locale equivalents) are dropped as part
+of the per-locale sweep. List is exhaustive for the deletions above
+but may grow if a sibling page references an unlisted key:
+
+- `products.editPrices`
+- `inventory.stock.action` (vendor-side only; SPEC-002's offer
+  surface re-introduces the concept under `offers.actions.manage_inventory`)
+- `products.stock.*` (heading, description, columns)
+- `products.variant.pricesPagination`
+- `products.variant.inventory.*` (`manageItems`, `manageKit`,
+  `notManagedDesc`, `actions.inventoryItems`, `actions.inventoryKit`)
+- `products.create.tabs.inventory` (the product-create inventory
+  kit tab label)
+- `priceLists.create.tabs.prices` is **not** dropped because the
+  Price Lists wizard at `pages/price-lists` still consumes it; the
+  variant-create wizard's `PricingTab` previously aliased the same
+  key but that surface is what's being deleted.
+
+### What stays
+
+These variant-scoped surfaces survive because their concern is
+identity / catalog, not commerce:
+
+- The standalone variant create flow at
+  `/products/:product_id/variants/create` keeps the **Details**
+  tab so a vendor can still create a master variant (F1 in
+  SPEC-002). Master variant creation is the *only* way to seed a
+  new SKU into the catalog that an offer can then bind to.
+- The variant edit drawer at
+  `/products/:product_id/variants/:variant_id/edit` keeps title,
+  options, attribute axes, SKU (master-catalog identifier per
+  SPEC-002), EAN/UPC, weight / dimensions, and custom metadata.
+- The product variant section on product detail keeps its variant
+  list with **Edit variant** + **Delete variant** row actions and
+  the standard date / option / attribute columns.
+- The `/inventory` page tree stays in full. Per SPEC-002 inventory
+  items are seller-owned, first-class entities; the offer surface
+  *binds* offers to existing inventory items via the
+  `offer ↔ inventory_item` link but does not replace inventory-item
+  CRUD. The "Create new inventory item" inline action from the
+  offer create wizard's Inventory items sub-section opens that same
+  inventory-create flow as a `StackedDrawer`.
+
+### Why the deletions land in this spec rather than SPEC-002
+
+SPEC-002 owns the schema migration, the cart-pricing rewrite, and
+the workflows. It does not own the vendor panel. Splitting the UI
+deletions into SPEC-003 keeps SPEC-002's diff scoped to backend
+code and keeps the UI churn (route map, page deletions, i18n keys)
+inside one reviewable spec. Both halves ship together: shipping
+SPEC-002 without SPEC-003 leaves the vendor panel showing
+prices / inventory fields that the backend silently drops, which
+is worse than either half alone.
+
 ## Route map registration
 
 `packages/vendor/src/get-route-map.tsx` adds the page tree under the
@@ -712,6 +967,36 @@ Sister files updated as part of the per-locale sweep.
    only shows seller B's offers; loading `/offers/<seller-A-offer-id>`
    surfaces the `ErrorBoundary` because the route returns
    `MedusaError.Types.NOT_ALLOWED` (403).
+7. **Deletion checks (paired with Variant-scoped UI to remove):**
+   1. The vendor product detail page no longer renders an "Edit
+      prices" or "Manage stock" row action in the variants table
+      ActionMenu, and the bulk command bar no longer surfaces a
+      stock shortcut.
+   2. Navigating directly to `/products/<id>/prices`,
+      `/products/<id>/stock`,
+      `/products/<id>/edit-stocks-and-prices`, or
+      `/products/<product_id>/variants/<variant_id>/prices`
+      surfaces the route-level 404 (`<NoMatch />`) — the modules and
+      their `lazy(...)` registrations are gone.
+   3. The product create wizard's tabs are Details → Organize →
+      Attributes → Variants (no Inventory tab is reachable, even
+      after toggling fields that previously surfaced it; the
+      `transformTabs` branch is removed and the
+      `ProductCreateInventoryKitForm` import is gone).
+   4. The variants DataGrid inside the product create wizard renders
+      only Attributes / Title / SKU columns. Per-currency price
+      columns and `manage_inventory` / `allow_backorder` /
+      `inventory_kit` toggles are gone.
+   5. The standalone variant create wizard
+      (`/products/<id>/variants/create`) renders only the Details
+      tab. Pricing and Inventory kit tabs are gone.
+   6. The variant detail page renders only the General section in
+      the main column. No Prices sidebar section, no Inventory items
+      main-column section, no "Manage items" / "Manage kit" action
+      menu.
+   7. The variant edit drawer no longer shows `manage_inventory` or
+      `allow_backorder` switches.
+   8. `grep -R "products.editPrices\|products.stock\|products.variant.pricesPagination\|products.variant.inventory\|products.create.tabs.inventory" packages/vendor/src` returns no matches.
 7. Integration test (Jest + Playwright if available, or a route-level
    harness): the test
    `integration-tests/http/offer/vendor/offer.spec.ts` already covers
@@ -836,6 +1121,29 @@ expands a multi-location row).
 The sidebar uses `t("offers.domain")`. The translation key lives in
 the default vendor namespace alongside other `*.domain` keys. No new
 i18n namespace is introduced.
+
+### Paired backend deletions (not owned by this spec)
+
+The Variant-scoped UI deletions above pair with backend deletions
+owned by SPEC-002:
+
+- `manage_inventory` and `allow_backorder` columns dropped from
+  `ProductVariant` (`Migration20260421093258`,
+  `Migration20260422105949`).
+- `createProductVariantsWorkflow` override no longer wires
+  `inventory_items` to the variant; the
+  `product_variant_inventory_item` link table is empty for every
+  Mercur-managed variant.
+- Master variants no longer carry a `prices` field; each offer owns
+  its own `PriceSet`.
+
+Shipping the UI deletions ahead of the backend deletions would
+leave the dashboards reading `undefined` / `[]` for fields the
+forms used to write, producing silent payload drops on submit.
+Shipping the backend deletions ahead of the UI deletions would
+leave the variant detail / edit / create surfaces submitting
+`manage_inventory: true` / `prices: [...]` payloads that the
+backend silently filters out. Both halves land together.
 
 ### Out of scope
 
