@@ -414,20 +414,13 @@
       "tabs": {
         "details": "פרטים",
         "organize": "ארגון",
-        "variants": "וריאנטים",
-        "inventory": "ערכות מלאי"
+        "variants": "וריאנטים"
       },
       "errors": {
         "variants": "אנא בחר לפחות וריאנט אחד.",
         "options": "אנא צור לפחות אפשרות אחת.",
         "uniqueSku": "מק״ט חייב להיות ייחודי.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "ערכות מלאי",
-        "label": "הוסף פריטי מלאי לערכת המלאי של הוריאנט.",
-        "itemPlaceholder": "בחר פריט מלאי",
-        "quantityPlaceholder": "כמה מאלה נדרשים לערכה?"
       },
       "variants": {
         "header": "וריאנטים",
@@ -518,7 +511,6 @@
     "attributes": "מאפיינים",
     "editAttributes": "ערוך מאפיינים",
     "editOptions": "ערוך אפשרויות",
-    "editPrices": "ערוך מחירים",
     "media": {
       "label": "מדיה",
       "editHint": "הוסף מדיה למוצר כדי להציג אותו בחנות שלך.",
@@ -645,27 +637,18 @@
         "header": "פרטי וריאנט"
       },
       "deleteWarning": "האם אתה בטוח שברצונך למחוק וריאנט זה?",
-      "pricesPagination": "1 - {{current}} מתוך {{total}} מחירים",
       "tableItemAvailable": "{{availableCount}} זמינים",
       "tableItem_one": "{{availableCount}} זמינים ב-{{locationCount}} מיקום",
       "tableItem_other": "{{availableCount}} זמינים ב-{{locationCount}} מיקומים",
       "inventory": {
         "notManaged": "לא מנוהל",
-        "manageItems": "נהל פריטי מלאי",
-        "notManagedDesc": "המלאי אינו מנוהל עבור וריאנט זה. הפעל 'נהל מלאי' כדי לעקוב אחר מלאי הוריאנט.",
-        "manageKit": "נהל ערכת מלאי",
         "navigateToItem": "עבור לפריט מלאי",
-        "actions": {
-          "inventoryItems": "עבור לפריט מלאי",
-          "inventoryKit": "הצג פריטי מלאי"
-        },
         "inventoryKit": "ערכת מלאי",
         "inventoryKitHint": "האם וריאנט זה מורכב ממספר פריטי מלאי?",
         "validation": {
           "itemId": "אנא בחר פריט מלאי.",
           "quantity": "נדרשת כמות. אנא הזן מספר חיובי."
         },
-        "header": "מלאי ומלאי",
         "editItemDetails": "ערוך פרטי פריט",
         "manageInventoryLabel": "נהל מלאי",
         "manageInventoryHint": "כאשר מופעל, נשנה את כמות המלאי עבורך כאשר הזמנות והחזרות נוצרות.",
@@ -698,15 +681,6 @@
         "toasts": {
           "success": "עודכן בהצלחה הארגון של {{title}}."
         }
-      }
-    },
-    "stock": {
-      "heading": "נהל רמות מלאי ומיקומים של מוצר",
-      "description": "עדכן את רמות המלאי במלאי עבור כל הוריאנטים של המוצר.",
-      "loading": "המתן, זה עשוי לקחת רגע...",
-      "tooltips": {
-        "alreadyManaged": "פריט מלאי זה כבר ניתן לעריכה תחת {{title}}.",
-        "alreadyManagedWithSku": "פריט מלאי זה כבר ניתן לעריכה תחת {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {

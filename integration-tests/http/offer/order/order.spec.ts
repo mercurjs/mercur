@@ -555,6 +555,229 @@ medusaIntegrationTestRunner({
                 expect(orderForA.items[0].offer.id).toEqual(sellerA.offer.id)
                 expect(orderForB.items[0].offer.id).toEqual(sellerB.offer.id)
             })
+
+            const readLevel = async (
+                inventoryItemId: string,
+                locationId: string
+            ) => {
+                const query = appContainer.resolve(
+                    ContainerRegistrationKeys.QUERY
+                )
+                const { data: levels } = await query.graph({
+                    entity: "inventory_level",
+                    filters: {
+                        inventory_item_id: inventoryItemId,
+                        location_id: locationId,
+                    },
+                    fields: [
+                        "id",
+                        "stocked_quantity",
+                        "reserved_quantity",
+                    ],
+                })
+                expect(levels).toHaveLength(1)
+                return {
+                    stocked: Number(levels[0].stocked_quantity),
+                    reserved: Number(levels[0].reserved_quantity),
+                }
+            }
+
+            const fetchOrderId = async (orderGroupId: string) => {
+                const query = appContainer.resolve(
+                    ContainerRegistrationKeys.QUERY
+                )
+                const { data } = await query.graph({
+                    entity: "order_group",
+                    filters: { id: orderGroupId },
+                    fields: ["orders.id", "orders.items.id"],
+                })
+                const orders = (data[0] as any).orders
+                return {
+                    orderId: orders[0].id as string,
+                    itemId: orders[0].items[0].id as string,
+                }
+            }
+
+            describe("Session 10: createOrderFulfillment override", () => {
+                it("decrements stocked by qty × required_quantity and clears the reservation", async () => {
+                    const seed = await seedSellerOfferWithShipping({
+                        email: "ful-create@test.com",
+                        name: "FulCreate",
+                        stocked: 50,
+                        offerPrice: 3000,
+                        required_quantity: 3,
+                    })
+
+                    const { completeResp } = await completeCartCheckout(
+                        seed.offer.id,
+                        2
+                    )
+                    expect(completeResp.status).toEqual(200)
+
+                    const before = await readLevel(
+                        seed.inventoryItem.id,
+                        seed.stockLocation.id
+                    )
+                    expect(before.stocked).toEqual(50)
+                    expect(before.reserved).toEqual(6)
+
+                    const { orderId, itemId } = await fetchOrderId(
+                        completeResp.data.order_group.id
+                    )
+
+                    const fulResp = await api.post(
+                        `/vendor/orders/${orderId}/fulfillments`,
+                        {
+                            items: [{ id: itemId, quantity: 2 }],
+                            requires_shipping: true,
+                            location_id: seed.stockLocation.id,
+                        },
+                        seed.headers
+                    )
+                    expect(fulResp.status).toEqual(200)
+
+                    const after = await readLevel(
+                        seed.inventoryItem.id,
+                        seed.stockLocation.id
+                    )
+                    // qty (2) × required_quantity (3) = 6 stock units removed,
+                    // and the reservation row is deleted because remaining = 0.
+                    expect(after.stocked).toEqual(44)
+                    expect(after.reserved).toEqual(0)
+                })
+            })
+
+            describe("Session 10: cancelOrderFulfillment override", () => {
+                it("restocks qty × required_quantity and recreates the reservation", async () => {
+                    const seed = await seedSellerOfferWithShipping({
+                        email: "ful-cancel@test.com",
+                        name: "FulCancel",
+                        stocked: 50,
+                        offerPrice: 3000,
+                        required_quantity: 3,
+                    })
+
+                    const { completeResp } = await completeCartCheckout(
+                        seed.offer.id,
+                        2
+                    )
+                    const { orderId, itemId } = await fetchOrderId(
+                        completeResp.data.order_group.id
+                    )
+
+                    const fulResp = await api.post(
+                        `/vendor/orders/${orderId}/fulfillments`,
+                        {
+                            items: [{ id: itemId, quantity: 2 }],
+                            requires_shipping: true,
+                            location_id: seed.stockLocation.id,
+                        },
+                        seed.headers
+                    )
+                    const fulfillmentId = fulResp.data.fulfillment.id
+
+                    const cancelResp = await api.post(
+                        `/vendor/orders/${orderId}/fulfillments/${fulfillmentId}/cancel`,
+                        {},
+                        seed.headers
+                    )
+                    expect(cancelResp.status).toEqual(200)
+
+                    const after = await readLevel(
+                        seed.inventoryItem.id,
+                        seed.stockLocation.id
+                    )
+                    // Cancel re-adds the 6 stock units removed at fulfilment and
+                    // recreates the reservation Medusa deleted when it dropped
+                    // to zero remaining.
+                    expect(after.stocked).toEqual(50)
+                    expect(after.reserved).toEqual(6)
+                })
+            })
+
+            describe("Session 10: confirmReturnReceive override", () => {
+                it("restocks received_quantity × required_quantity per inventory item", async () => {
+                    const seed = await seedSellerOfferWithShipping({
+                        email: "return-receive@test.com",
+                        name: "ReturnReceive",
+                        stocked: 50,
+                        offerPrice: 3000,
+                        required_quantity: 3,
+                    })
+
+                    const { completeResp } = await completeCartCheckout(
+                        seed.offer.id,
+                        2
+                    )
+                    const { orderId, itemId } = await fetchOrderId(
+                        completeResp.data.order_group.id
+                    )
+
+                    await api.post(
+                        `/vendor/orders/${orderId}/fulfillments`,
+                        {
+                            items: [{ id: itemId, quantity: 2 }],
+                            requires_shipping: true,
+                            location_id: seed.stockLocation.id,
+                        },
+                        seed.headers
+                    )
+
+                    const afterFulfilment = await readLevel(
+                        seed.inventoryItem.id,
+                        seed.stockLocation.id
+                    )
+                    expect(afterFulfilment.stocked).toEqual(44)
+                    expect(afterFulfilment.reserved).toEqual(0)
+
+                    const createReturn = await api.post(
+                        `/vendor/returns`,
+                        {
+                            order_id: orderId,
+                            location_id: seed.stockLocation.id,
+                        },
+                        seed.headers
+                    )
+                    const returnId = createReturn.data.return.id
+
+                    await api.post(
+                        `/vendor/returns/${returnId}/request-items`,
+                        { items: [{ id: itemId, quantity: 1 }] },
+                        seed.headers
+                    )
+                    await api.post(
+                        `/vendor/returns/${returnId}/request`,
+                        {},
+                        seed.headers
+                    )
+
+                    await api.post(
+                        `/vendor/returns/${returnId}/receive`,
+                        {},
+                        seed.headers
+                    )
+                    await api.post(
+                        `/vendor/returns/${returnId}/receive-items`,
+                        { items: [{ id: itemId, quantity: 1 }] },
+                        seed.headers
+                    )
+                    const confirmResp = await api.post(
+                        `/vendor/returns/${returnId}/receive/confirm`,
+                        {},
+                        seed.headers
+                    )
+                    expect(confirmResp.status).toEqual(200)
+
+                    const after = await readLevel(
+                        seed.inventoryItem.id,
+                        seed.stockLocation.id
+                    )
+                    // received_quantity (1) × required_quantity (3) = 3 stock
+                    // units restocked.
+                    expect(after.stocked).toEqual(47)
+                    expect(after.reserved).toEqual(0)
+                })
+            })
         })
     },
 })

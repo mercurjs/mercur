@@ -446,20 +446,13 @@
       "tabs": {
         "details": "Detalles",
         "organize": "Organizar",
-        "variants": "Variantes",
-        "inventory": "Kits de inventario"
+        "variants": "Variantes"
       },
       "errors": {
         "variants": "Por favor, selecciona al menos una variante.",
         "options": "Por favor, crea al menos una opción.",
         "uniqueSku": "El SKU debe ser único.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "Kits de inventario",
-        "label": "Agrega ítems de inventario al kit de inventario de la variante.",
-        "itemPlaceholder": "Selecciona ítem de inventario",
-        "quantityPlaceholder": "¿Cuántos de estos se necesitan para el kit?"
       },
       "variants": {
         "header": "Variantes",
@@ -550,7 +543,6 @@
     "attributes": "Atributos",
     "editAttributes": "Editar Atributos",
     "editOptions": "Editar Opciones",
-    "editPrices": "Editar precios",
     "media": {
       "label": "Medios",
       "editHint": "Agrega medios al producto para mostrarlo en tu tienda.",
@@ -677,27 +669,18 @@
         "header": "Detalles de la Variante"
       },
       "deleteWarning": "¿Estás seguro de que quieres eliminar esta variante?",
-      "pricesPagination": "1 - {{current}} de {{total}} precios",
       "tableItemAvailable": "{{availableCount}} disponible",
       "tableItem_one": "{{availableCount}} disponible en {{locationCount}} ubicación",
       "tableItem_other": "{{availableCount}} disponible en {{locationCount}} ubicaciones",
       "inventory": {
         "notManaged": "No gestionado",
-        "manageItems": "Gestionar ítems de inventario",
-        "notManagedDesc": "El inventario no está gestionado para esta variante. Activa 'Gestionar Inventario' para hacer un seguimiento del inventario de la variante.",
-        "manageKit": "Gestionar kit de inventario",
         "navigateToItem": "Ir al ítem de inventario",
-        "actions": {
-          "inventoryItems": "Ir al ítem de inventario",
-          "inventoryKit": "Mostrar ítems de inventario"
-        },
         "inventoryKit": "Kit de Inventario",
         "inventoryKitHint": "¿Esta variante consiste en varios ítems de inventario?",
         "validation": {
           "itemId": "Por favor, selecciona un ítem de inventario.",
           "quantity": "Se requiere la cantidad. Por favor, ingresa un número positivo."
         },
-        "header": "Stock & Inventario",
         "editItemDetails": "Editar detalles del ítem",
         "manageInventoryLabel": "Gestionar inventario",
         "manageInventoryHint": "Cuando se habilite, cambiaremos la cantidad de inventario por ti cuando se creen pedidos y devoluciones.",
@@ -730,15 +713,6 @@
         "toasts": {
           "success": "Organización de {{title}} actualizada correctamente."
         }
-      }
-    },
-    "stock": {
-      "heading": "Gestionar niveles de stock y ubicaciones de productos",
-      "description": "Actualiza los niveles de inventario en stock para todas las variantes del producto.",
-      "loading": "Espera un momento, esto puede tardar...",
-      "tooltips": {
-        "alreadyManaged": "Este artículo de inventario ya es editable bajo {{title}}.",
-        "alreadyManagedWithSku": "Este artículo de inventario ya es editable bajo {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {

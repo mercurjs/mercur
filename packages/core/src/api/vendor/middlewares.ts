@@ -21,6 +21,7 @@ import { vendorPricePreferencesMiddlewares } from "./price-preferences/middlewar
 import { vendorProductCategoriesMiddlewares } from "./product-categories/middlewares"
 import { vendorProductsMiddlewares } from "./products/middlewares"
 import { vendorProductTypesMiddlewares } from "./product-types/middlewares"
+import { vendorProductVariantsMiddlewares } from "./product-variants/middlewares"
 import { vendorPromotionsMiddlewares } from "./promotions/middlewares"
 import { vendorRegionsMiddlewares } from "./regions/middlewares"
 import { vendorRefundReasonsMiddlewares } from "./refund-reasons/middlewares"
@@ -104,6 +105,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorProductBrandsMiddlewares,
   ...vendorProductsMiddlewares,
   ...vendorProductTypesMiddlewares,
+  ...vendorProductVariantsMiddlewares,
   ...vendorPromotionsMiddlewares,
   ...vendorRegionsMiddlewares,
   ...vendorRefundReasonsMiddlewares,

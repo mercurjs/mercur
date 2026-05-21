@@ -7,7 +7,6 @@ import { ProductCreateDetailsForm } from "./components/product-create-details-fo
 import { ProductCreateOrganizeForm } from "./components/product-create-organize-form"
 import { ProductCreateAttributesForm } from "./components/product-create-attributes-form"
 import { ProductCreateVariantsForm } from "./components/product-create-variants-form"
-import { ProductCreateInventoryKitForm } from "./components/product-create-inventory-kit-form"
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { t } = useTranslation()
@@ -33,6 +32,5 @@ export const ProductCreatePage = Object.assign(Root, {
   OrganizeTab: ProductCreateOrganizeForm,
   AttributesTab: ProductCreateAttributesForm,
   VariantsTab: ProductCreateVariantsForm,
-  InventoryTab: ProductCreateInventoryKitForm,
   Tab: TabbedForm.Tab,
 })

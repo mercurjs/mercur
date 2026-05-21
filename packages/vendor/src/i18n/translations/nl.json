@@ -414,20 +414,13 @@
       "tabs": {
         "details": "Details",
         "organize": "Organiseren",
-        "variants": "Varianten",
-        "inventory": "Voorraadsets"
+        "variants": "Varianten"
       },
       "errors": {
         "variants": "Selecteer minimaal één variant.",
         "options": "Maak minimaal één optie aan.",
         "uniqueSku": "SKU moet uniek zijn.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "Voorraadsets",
-        "label": "Voeg voorraaditems toe aan de voorraadset van de variant.",
-        "itemPlaceholder": "Selecteer voorraaditem",
-        "quantityPlaceholder": "Hoeveel zijn er nodig voor deze set?"
       },
       "variants": {
         "header": "Varianten",
@@ -518,7 +511,6 @@
     "attributes": "Kenmerken",
     "editAttributes": "Kenmerken bewerken",
     "editOptions": "Opties bewerken",
-    "editPrices": "Prijzen bewerken",
     "media": {
       "label": "Media",
       "editHint": "Voeg media toe aan het product om het in uw winkel te tonen.",
@@ -641,27 +633,18 @@
         "header": "Variantdetails"
       },
       "deleteWarning": "Weet u zeker dat u deze variant wilt verwijderen?",
-      "pricesPagination": "1 - {{current}} van {{total}} prijzen",
       "tableItemAvailable": "{{availableCount}} beschikbaar",
       "tableItem_one": "{{availableCount}} beschikbaar op {{locationCount}} locatie",
       "tableItem_other": "{{availableCount}} beschikbaar op {{locationCount}} locaties",
       "inventory": {
         "notManaged": "Niet beheerd",
-        "manageItems": "Voorraaditems beheren",
-        "notManagedDesc": "Voorraad wordt niet beheerd voor deze variant. Schakel 'Voorraad beheren' in om de voorraad van de variant bij te houden.",
-        "manageKit": "Voorraadset beheren",
         "navigateToItem": "Ga naar voorraaditem",
-        "actions": {
-          "inventoryItems": "Ga naar voorraaditem",
-          "inventoryKit": "Toon voorraaditems"
-        },
         "inventoryKit": "Voorraadset",
         "inventoryKitHint": "Bestaat deze variant uit meerdere voorraaditems?",
         "validation": {
           "itemId": "Selecteer een voorraaditem.",
           "quantity": "Hoeveelheid is vereist. Voer een positief getal in."
         },
-        "header": "Voorraad & Inventaris",
         "editItemDetails": "Itemdetails bewerken",
         "manageInventoryLabel": "Voorraad beheren",
         "manageInventoryHint": "Wanneer ingeschakeld, passen we de voorraadhoeveelheid automatisch aan wanneer bestellingen en retouren worden aangemaakt.",
@@ -694,15 +677,6 @@
         "toasts": {
           "success": "De organisatie van {{title}} is succesvol bijgewerkt."
         }
-      }
-    },
-    "stock": {
-      "heading": "Beheer voorraadniveaus en locaties van het product",
-      "description": "Werk de voorraadniveaus bij voor alle varianten van het product.",
-      "loading": "Een moment geduld, dit kan even duren...",
-      "tooltips": {
-        "alreadyManaged": "Dit voorraaditem is al bewerkbaar onder {{title}}.",
-        "alreadyManagedWithSku": "Dit voorraaditem is al bewerkbaar onder {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {

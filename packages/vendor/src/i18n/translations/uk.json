@@ -401,20 +401,13 @@
       "tabs": {
         "details": "Деталі",
         "organize": "Організувати",
-        "variants": "Варіанти",
-        "inventory": "Комплекти на складі"
+        "variants": "Варіанти"
       },
       "errors": {
         "variants": "Будь ласка, виберіть хоча б один варіант.",
         "options": "Будь ласка, створіть хоча б одну опцію.",
         "uniqueSku": "SKU має бути унікальним.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "Комплекти на складі",
-        "label": "Додайте елементи складу до комплекту інвентарю варіанту.",
-        "itemPlaceholder": "Виберіть елемент складу",
-        "quantityPlaceholder": "Скільки з цих елементів потрібно для комплекту?"
       },
       "variants": {
         "header": "Варіанти",
@@ -505,7 +498,6 @@
     "attributes": "Атрибути",
     "editAttributes": "Редагувати атрибути",
     "editOptions": "Редагувати опції",
-    "editPrices": "Редагувати ціни",
     "media": {
       "label": "Медіа",
       "editHint": "Додайте медіа до продукту, щоб продемонструвати його у вашому магазині.",
@@ -628,27 +620,18 @@
         "header": "Деталі варіанту"
       },
       "deleteWarning": "Ви впевнені, що хочете видалити цей варіант?",
-      "pricesPagination": "1 - {{current}} із {{total}} цін",
       "tableItemAvailable": "{{availableCount}} доступно",
       "tableItem_one": "{{availableCount}} доступно на {{locationCount}} локації",
       "tableItem_other": "{{availableCount}} доступно на {{locationCount}} локаціях",
       "inventory": {
         "notManaged": "Не керується",
-        "manageItems": "Керувати товарами на складі",
-        "notManagedDesc": "Запаси для цього варіанту не керуються. Увімкніть 'Керування запасами', щоб відслідковувати запаси варіанту.",
-        "manageKit": "Керувати комплектом запасів",
         "navigateToItem": "Перейти до товару на складі",
-        "actions": {
-          "inventoryItems": "Перейти до товару на складі",
-          "inventoryKit": "Показати товари на складі"
-        },
         "inventoryKit": "Комплект запасів",
         "inventoryKitHint": "Цей варіант складається з кількох товарів на складі?",
         "validation": {
           "itemId": "Будь ласка, виберіть товар на складі.",
           "quantity": "Кількість обов'язкова. Введіть позитивне число."
         },
-        "header": "Запаси та інвентар",
         "editItemDetails": "Редагувати деталі товару",
         "manageInventoryLabel": "Керувати запасами",
         "manageInventoryHint": "Коли увімкнено, ми будемо змінювати кількість товару при створенні замовлень та повернень.",

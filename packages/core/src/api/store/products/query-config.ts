@@ -51,3 +51,7 @@ export const storeProductQueryConfig = {
     isList: false,
   },
 }
+
+export const OFFER_CALCULATED_PRICE_FIELD = "variants.offers.calculated_price"
+export const OFFER_INVENTORY_QUANTITY_FIELD =
+  "variants.offers.inventory_quantity"

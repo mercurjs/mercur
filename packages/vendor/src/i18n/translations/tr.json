@@ -412,20 +412,13 @@
       "tabs": {
         "details": "Detaylar",
         "organize": "Organize Et",
-        "variants": "Varyantlar",
-        "inventory": "Envanter Kitleri"
+        "variants": "Varyantlar"
       },
       "errors": {
         "variants": "Lütfen en az bir varyant seçin.",
         "options": "Lütfen en az bir seçenek oluşturun.",
         "uniqueSku": "SKU benzersiz olmalıdır.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "Envanter Kitleri",
-        "label": "Varyantın envanter kitine envanter öğeleri ekleyin.",
-        "itemPlaceholder": "Envanter öğesi seçin",
-        "quantityPlaceholder": "Kit için kaç tane gerektiğini belirtin."
       },
       "variants": {
         "header": "Varyantlar",
@@ -516,7 +509,6 @@
     "attributes": "Öznitelikler",
     "editAttributes": "Öznitelikleri Düzenle",
     "editOptions": "Seçenekleri Düzenle",
-    "editPrices": "Fiyatları düzenle",
     "media": {
       "label": "Medya",
       "editHint": "Ürünü mağazanızda sergilemek için medya ekleyin.",
@@ -643,27 +635,18 @@
         "header": "Varyant detayları"
       },
       "deleteWarning": "Bu varyantı silmek istediğinizden emin misiniz?",
-      "pricesPagination": "1 - {{current}} / {{total}} fiyatlar",
       "tableItemAvailable": "{{availableCount}} mevcut",
       "tableItem_one": "{{availableCount}} öğesi {{locationCount}} konumda mevcut",
       "tableItem_other": "{{availableCount}} öğesi {{locationCount}} konumda mevcut",
       "inventory": {
         "notManaged": "Yönetilmiyor",
-        "manageItems": "Envanter öğelerini yönet",
-        "notManagedDesc": "Bu varyant için envanter yönetilmiyor. Envanteri izlemek için 'Envanteri Yönet' özelliğini açın.",
-        "manageKit": "Envanter kitini yönet",
         "navigateToItem": "Envanter öğesine git",
-        "actions": {
-          "inventoryItems": "Envanter öğesine git",
-          "inventoryKit": "Envanter öğelerini göster"
-        },
         "inventoryKit": "Envanter Kiti",
         "inventoryKitHint": "Bu varyant birkaç envanter öğesinden mi oluşuyor?",
         "validation": {
           "itemId": "Lütfen envanter öğesini seçin.",
           "quantity": "Miktar zorunludur. Lütfen pozitif bir sayı girin."
         },
-        "header": "Stok & Envanter",
         "editItemDetails": "Öğe detaylarını düzenle",
         "manageInventoryLabel": "Envanteri yönet",
         "manageInventoryHint": "Etkinleştirildiğinde, siparişler ve iadeler oluşturulduğunda envanter miktarını sizin için değiştireceğiz.",
@@ -707,15 +690,6 @@
         "error": {
           "header": "Ürün silinemedi"
         }
-      }
-    },
-    "stock": {
-      "heading": "Ürün stok seviyelerini ve konumlarını yönetin",
-      "description": "Tüm ürün varyantlarının stok seviyelerini güncelleyin.",
-      "loading": "Bu biraz zaman alabilir...",
-      "tooltips": {
-        "alreadyManaged": "Bu envanter öğesi zaten {{title}} altında düzenlenebilir.",
-        "alreadyManagedWithSku": "Bu envanter öğesi zaten {{title}} altında düzenlenebilir ({{sku}})."
       }
     },
     "shippingProfile": {

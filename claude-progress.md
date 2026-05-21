@@ -1271,12 +1271,107 @@ longer one of them:
 3. Commit Sessions 12–14 together: suggested message
    `feat(core): resolve offer pivot extra-column exposure + reservation arithmetic`.
 
+### Session 15: 2026-05-21 -- SPEC-003 vendor offer UI shipped + variant-scoped UI deleted
+
+**Goal**: Implement SPEC-003 (vendor panel offer UI) and the paired
+variant-scoped UI deletions that align the dashboard with SPEC-002's
+backend migrations.
+
+#### Completed (uncommitted)
+
+- New `offers` namespace in `i18n/translations/en.json` + per-locale
+  cleanup in 31 sister files; `$schema.json` regenerated.
+- `packages/vendor/src/hooks/api/offers.tsx` — typed hooks against
+  `sdk.vendor.offers.*` (list/detail/create/update/batch/delete +
+  `Promise.allSettled` bulk delete).
+- `packages/vendor/src/pages/offers/` tree:
+  - List page (SingleColumnPage + `_DataTable` with row selection,
+    bulk-delete command, search, filters, ordering, navigation).
+  - Detail page (TwoColumnPage with General / Pricing / Inventory /
+    Status sidebar / Shipping sections + loader + breadcrumb).
+  - Three-tab create wizard (Variant → Details → Pricing & stock)
+    behind `RouteFocusModal` + `TabbedForm`, with reusable prices
+    and inventory-items repeaters.
+  - Three `RouteDrawer`-based edit forms: identity, prices ladder
+    (replace semantics), inventory-items batch (`{create,update,delete}`
+    bucketed by row state).
+  - Common types/constants/utils (stock status computation, detail
+    field list) and a delete-action hook with `usePrompt`.
+- Route map: `/offers` route tree registered in
+  `packages/vendor/src/get-route-map.tsx` (list + create + detail
+  with breadcrumb-from-loader + edit/pricing/inventory drawers).
+- Sidebar: `Offers` inserted as the first nested item under
+  **Products** in `useCoreRoutes`.
+- Variant-scoped UI deletions (paired with SPEC-002 backend migrations):
+  - Removed directories: `products/[id]/prices`, `products/[id]/stock`,
+    `products/[id]/edit-stocks-and-prices`,
+    `products/create/components/product-create-inventory-kit-form`,
+    `product-variants/product-variant-detail/components/variant-prices-section`,
+    `product-variants/product-variant-detail/components/variant-inventory-section`,
+    `product-variants/product-variant-manage-inventory-items`.
+  - Removed files: `products/common/variant-pricing-form.tsx`,
+    variant-create `inventory-kit-tab.tsx` + `pricing-tab.tsx`.
+  - Modified: `product-variant-section.tsx` (row actions + bulk
+    command for prices/stock stripped), `product-variant-detail.tsx`
+    (sections removed), variant edit form (`manage_inventory`,
+    `allow_backorder` fields removed), variant create form
+    (reduced to `DetailsTab`), product create wizard schema/utils/
+    DataGrid (price + inventory-toggle columns removed; inventory
+    tab dropped; `regionsCurrencyMap` thread removed).
+  - Route map entries for `prices`/`stock`/`edit-stocks-and-prices`/
+    `variants/:variant_id/prices` removed.
+- i18n: dropped `products.editPrices`, `products.stock`,
+  `products.variant.pricesPagination`, `products.variant.inventory.*`
+  (manageItems, manageKit, notManagedDesc, header,
+  actions.inventoryItems, actions.inventoryKit),
+  `products.create.tabs.inventory`, `products.create.inventory`.
+
+#### Verification
+
+- `cd packages/vendor && bun run build`: ESM + DTS build success.
+- `bunx vitest run packages/vendor/src/i18n/translations/__tests__/validate-translations.spec.ts`:
+  **1/1 pass** (en.json ↔ schema parity).
+- `bunx oxlint --quiet packages/vendor/src/pages/offers
+  packages/vendor/src/hooks/api/offers.tsx`:
+  **0 errors / 3 warnings** (baseline `_tabMeta` underscore-dangle,
+  same as other tabbed forms in the package).
+- `grep -R "products\.editPrices\|products\.stock\|
+  products\.variant\.pricesPagination\|products\.variant\.inventory\|
+  products\.create\.tabs\.inventory" packages/vendor/src`:
+  **no matches** (spec's grep-based deletion check).
+
+#### Why this spec stays `in_progress` (not yet `passing`)
+
+1. Vendor dev-server walkthrough (Verification §2–§7) not yet
+   performed in this session — the SPA build is green but the
+   golden-path UI smoke (sidebar entry → list → create wizard →
+   detail → three edit drawers → bulk delete) still needs to run
+   against `bun run dev` before status flips.
+2. `@mercurjs/admin` `bun run build` fails on
+   `product-variant-detail.tsx`. Confirmed pre-existing (stashing
+   SPEC-003 changes and re-running the admin build reproduces the
+   same `Type 'ProductVariantDTO' is missing prices, options` error)
+   — owned by SPEC-004 admin UI scope and out of this spec's surface.
+3. Playwright suite mirroring the SPEC-003 `data-testid` contract
+   not authored.
+
+#### Next best action
+
+1. Run `bun run dev`, exercise the seven verification steps end to
+   end, capture evidence, and flip SPEC-003 to `passing`.
+2. Fix admin's pre-existing `product-variant-detail.tsx` regression
+   under SPEC-004 (same kind of deletion sweep, scoped to admin).
+3. Commit Session 15 with message
+   `feat(vendor): offer management UI + variant-scoped surface
+   removal (SPEC-003)`.
+
 ## Required Artifacts (status)
 
-- `claude-progress.md` -- this file (updated 2026-05-21, Session 14).
-- `docs/specs/SPEC-002-offer-management.md` -- updated this session;
-  Architectural-gap section rewritten as resolved, new Evidence block,
-  `last_updated` bumped.
+- `claude-progress.md` -- this file (updated 2026-05-21, Session 15).
+- `docs/specs/SPEC-002-offer-management.md` -- updated Session 14;
+  Architectural-gap section rewritten as resolved.
+- `docs/specs/SPEC-003-offer-vendor-ui.md` -- updated Session 15;
+  status flipped to `in_progress`, evidence block populated.
 - `session-handoff.md` -- not present; not yet needed.
 
 ## Definition Of Done (reminder)

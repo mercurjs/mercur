@@ -1,0 +1,42 @@
+export const vendorProductVariantFields = [
+  "id",
+  "title",
+  "sku",
+  "ean",
+  "upc",
+  "isbn",
+  "asin",
+  "gtin",
+  "barcode",
+  "hs_code",
+  "mid_code",
+  "variant_rank",
+  "weight",
+  "length",
+  "height",
+  "width",
+  "origin_country",
+  "material",
+  "metadata",
+  "allow_backorder",
+  "manage_inventory",
+  "created_at",
+  "updated_at",
+  "product_id",
+  "*product",
+  "*options",
+  "*attribute_values",
+  "*attribute_values.attribute",
+]
+
+export const vendorProductVariantsQueryConfig = {
+  list: {
+    defaults: vendorProductVariantFields,
+    defaultLimit: 50,
+    isList: true,
+  },
+  retrieve: {
+    defaults: vendorProductVariantFields,
+    isList: false,
+  },
+}

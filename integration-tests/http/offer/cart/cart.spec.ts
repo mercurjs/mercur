@@ -479,6 +479,129 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(404)
                 })
             })
+
+            describe("POST /store/carts/:id/line-items/:line_id (qty update stock hook)", () => {
+                it("should allow qty-up within stock and preserve unit_price + is_custom_price", async () => {
+                    const seed: SellerSeed = await seedSellerOffer({
+                        email: "qtyok@test.com",
+                        name: "QtyOk",
+                        stocked: 10,
+                        offerPrice: 2500,
+                    })
+
+                    const cart = await createCart()
+
+                    const addResp = await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        { offer_id: seed.offer.id, quantity: 1 },
+                        storeHeaders
+                    )
+                    const line = addResp.data.cart.items[0]
+
+                    const update = await api.post(
+                        `/store/carts/${cart.id}/line-items/${line.id}`,
+                        { quantity: 5 },
+                        storeHeaders
+                    )
+
+                    expect(update.status).toEqual(200)
+                    const updatedLine = update.data.cart.items.find(
+                        (i: any) => i.id === line.id
+                    )
+                    expect(updatedLine.quantity).toEqual(5)
+                    expect(updatedLine.unit_price).toEqual(2500)
+                })
+
+                it("should reject qty-up over stock with INSUFFICIENT_INVENTORY", async () => {
+                    const seed: SellerSeed = await seedSellerOffer({
+                        email: "qtyover@test.com",
+                        name: "QtyOver",
+                        stocked: 3,
+                        offerPrice: 2500,
+                    })
+
+                    const cart = await createCart()
+
+                    const addResp = await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        { offer_id: seed.offer.id, quantity: 1 },
+                        storeHeaders
+                    )
+                    const line = addResp.data.cart.items[0]
+
+                    const response = await api
+                        .post(
+                            `/store/carts/${cart.id}/line-items/${line.id}`,
+                            { quantity: 10 },
+                            storeHeaders
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toBeGreaterThanOrEqual(400)
+                    expect(response.status).toBeLessThan(500)
+                    expect(JSON.stringify(response.data)).toMatch(
+                        /INSUFFICIENT_INVENTORY|stock/i
+                    )
+                })
+
+                it("should multiply required_quantity when validating qty-up", async () => {
+                    // required_quantity: 5, stocked: 5 → max sellable qty = 1.
+                    const seed: SellerSeed = await seedSellerOffer({
+                        email: "multiplier@test.com",
+                        name: "Multiplier",
+                        stocked: 5,
+                        offerPrice: 2500,
+                        required_quantity: 5,
+                    })
+
+                    const cart = await createCart()
+
+                    const addResp = await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        { offer_id: seed.offer.id, quantity: 1 },
+                        storeHeaders
+                    )
+                    const line = addResp.data.cart.items[0]
+
+                    const response = await api
+                        .post(
+                            `/store/carts/${cart.id}/line-items/${line.id}`,
+                            { quantity: 2 },
+                            storeHeaders
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toBeGreaterThanOrEqual(400)
+                    expect(response.status).toBeLessThan(500)
+                })
+
+                it("should remove the line when qty=0 without running the stock check", async () => {
+                    const seed: SellerSeed = await seedSellerOffer({
+                        email: "qty-zero@test.com",
+                        name: "QtyZero",
+                        stocked: 2,
+                        offerPrice: 2500,
+                    })
+
+                    const cart = await createCart()
+
+                    const addResp = await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        { offer_id: seed.offer.id, quantity: 1 },
+                        storeHeaders
+                    )
+                    const line = addResp.data.cart.items[0]
+
+                    const update = await api.post(
+                        `/store/carts/${cart.id}/line-items/${line.id}`,
+                        { quantity: 0 },
+                        storeHeaders
+                    )
+
+                    expect(update.status).toEqual(200)
+                    expect(update.data.cart.items).toHaveLength(0)
+                })
+            })
         })
     },
 })

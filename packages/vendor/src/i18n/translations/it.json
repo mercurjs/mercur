@@ -412,20 +412,13 @@
       "tabs": {
         "details": "Dettagli",
         "organize": "Organizza",
-        "variants": "Varianti",
-        "inventory": "Kit di inventario"
+        "variants": "Varianti"
       },
       "errors": {
         "variants": "Seleziona almeno una variante.",
         "options": "Crea almeno un'opzione.",
         "uniqueSku": "SKU deve essere unico.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "Kit di inventario",
-        "label": "Aggiungi articoli di inventario al kit della variante.",
-        "itemPlaceholder": "Seleziona articolo di inventario",
-        "quantityPlaceholder": "Quanti di questi sono necessari per il kit?"
       },
       "variants": {
         "header": "Varianti",
@@ -516,7 +509,6 @@
     "attributes": "Attributi",
     "editAttributes": "Modifica Attributi",
     "editOptions": "Modifica Opzioni",
-    "editPrices": "Modifica prezzi",
     "media": {
       "label": "Media",
       "editHint": "Aggiungi media al prodotto per mostrarlo nel tuo negozio.",
@@ -639,27 +631,18 @@
         "header": "Dettagli Variante"
       },
       "deleteWarning": "Sei sicuro di voler eliminare questa variante?",
-      "pricesPagination": "1 - {{current}} di {{total}} prezzi",
       "tableItemAvailable": "{{availableCount}} disponibile",
       "tableItem_one": "{{availableCount}} disponibile in {{locationCount}} posizione",
       "tableItem_other": "{{availableCount}} disponibile in {{locationCount}} posizioni",
       "inventory": {
         "notManaged": "Non gestito",
-        "manageItems": "Gestisci articoli di inventario",
-        "notManagedDesc": "L'inventario non è gestito per questa variante. Attiva 'Gestisci Inventario' per tenere traccia dell'inventario della variante .",
-        "manageKit": "Gestisci kit di inventario",
         "navigateToItem": "Vai all'articolo di inventario",
-        "actions": {
-          "inventoryItems": "Vai all'articolo di inventario",
-          "inventoryKit": "Mostra articoli di inventario"
-        },
         "inventoryKit": "Kit di Inventario",
         "inventoryKitHint": "Questa variante consiste in diversi articoli di inventario?",
         "validation": {
           "itemId": "Seleziona articolo di inventario.",
           "quantity": "La quantità è obbligatoria. Si prega di inserire un numero positivo."
         },
-        "header": "Stock & Inventario",
         "editItemDetails": "Modifica dettagli articolo",
         "manageInventoryLabel": "Gestisci inventario",
         "manageInventoryHint": "Quando abilitato, cambieremo la quantità di inventario per te quando vengono creati ordini e resi.",

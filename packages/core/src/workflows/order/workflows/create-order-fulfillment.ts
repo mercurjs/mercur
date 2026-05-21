@@ -78,18 +78,22 @@ function buildReservationsMap(reservations: ReservationItemDTO[]) {
   return map
 }
 
+// Returns a plain-object map keyed by line_item_id → inventory_item_id →
+// link. Returning Map objects from a workflow `transform()` does not
+// survive the workflow runtime's JSON serialization between steps —
+// downstream resolvers would receive `{}` and crash on `.get(...)`.
 function buildOfferInventoryByLineItem(
   lineItemOffers: LineItemOfferRow[],
-): Map<string, Map<string, OfferInventoryLink>> {
-  const byLine = new Map<string, Map<string, OfferInventoryLink>>()
+): Record<string, Record<string, OfferInventoryLink>> {
+  const byLine: Record<string, Record<string, OfferInventoryLink>> = {}
   for (const row of lineItemOffers) {
     const links = row.offer?.inventory_item_link ?? []
-    const byInventoryItem = new Map<string, OfferInventoryLink>()
+    const byInventoryItem: Record<string, OfferInventoryLink> = {}
     for (const link of links) {
       const inventoryItemId =
         link.inventory_item?.id ?? link.inventory_item_id
       if (!inventoryItemId) continue
-      byInventoryItem.set(inventoryItemId, {
+      byInventoryItem[inventoryItemId] = {
         inventory_item_id: inventoryItemId,
         required_quantity: link.required_quantity ?? 1,
         inventory: link.inventory_item
@@ -99,9 +103,9 @@ function buildOfferInventoryByLineItem(
               sku: link.inventory_item.sku ?? null,
             }
           : null,
-      })
+      }
     }
-    byLine.set(row.id, byInventoryItem)
+    byLine[row.id] = byInventoryItem
   }
   return byLine
 }
@@ -220,7 +224,7 @@ function prepareFulfillmentData({
   shippingMethod: { data?: Record<string, unknown> | null }
   reservations: ReservationItemDTO[]
   itemsList?: OrderLineItemDTO[]
-  offerInventoryByLineItem: Map<string, Map<string, OfferInventoryLink>>
+  offerInventoryByLineItem: Record<string, Record<string, OfferInventoryLink>>
 }) {
   const fulfillableItems = input.items
   const orderItemsMap = new Map<string, Required<OrderDTO>["items"][0]>(
@@ -240,7 +244,7 @@ function prepareFulfillmentData({
     .map((i) => {
       const orderItem = orderItemsMap.get(i.id)!
       const reservations = reservationItemMap.get(i.id)
-      const offerByInventoryItem = offerInventoryByLineItem.get(i.id)
+      const offerByInventoryItem = offerInventoryByLineItem[i.id]
 
       if (!reservations?.length) {
         return [
@@ -256,7 +260,7 @@ function prepareFulfillmentData({
       }
 
       return reservations.map((r) => {
-        const link = offerByInventoryItem?.get(r.inventory_item_id as string)
+        const link = offerByInventoryItem?.[r.inventory_item_id as string]
         const requiredQuantity = link?.required_quantity ?? 1
         return {
           line_item_id: i.id,
@@ -324,7 +328,7 @@ function prepareInventoryUpdate({
     OrderWorkflow.CreateOrderFulfillmentWorkflowInput["items"][number]
   >
   itemsList?: OrderLineItemDTO[]
-  offerInventoryByLineItem: Map<string, Map<string, OfferInventoryLink>>
+  offerInventoryByLineItem: Record<string, Record<string, OfferInventoryLink>>
 }) {
   const toDelete: string[] = []
   const toUpdate: {
@@ -344,7 +348,7 @@ function prepareInventoryUpdate({
 
   for (const item of itemsToFulfill) {
     const reservations = reservationMap.get(item.id)
-    const offerByInventoryItem = offerInventoryByLineItem.get(item.id)
+    const offerByInventoryItem = offerInventoryByLineItem[item.id]
 
     if (!reservations?.length) {
       continue
@@ -353,9 +357,8 @@ function prepareInventoryUpdate({
     const inputQuantity = inputItemsMap[item.id]?.quantity ?? item.quantity
 
     reservations.forEach((reservation) => {
-      const link = offerByInventoryItem?.get(
-        reservation.inventory_item_id as string,
-      )
+      const link =
+        offerByInventoryItem?.[reservation.inventory_item_id as string]
       const requiredQuantity = link?.required_quantity ?? 1
 
       const adjustmentQuantity = MathBN.mult(inputQuantity, requiredQuantity)

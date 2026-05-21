@@ -487,7 +487,6 @@
         "details": "Details",
         "organize": "Organize",
         "variants": "Variants",
-        "inventory": "Inventory kits",
         "attributes": "Attributes"
       },
       "defaults": {
@@ -504,12 +503,6 @@
         "handleInvalidFormat": "Handle must contain only lowercase letters, numbers, and hyphens",
         "handleMustContainLetter": "Handle must contain at least one letter",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "Inventory kits",
-        "label": "Add inventory items to the variant's inventory kit.",
-        "itemPlaceholder": "Select inventory item",
-        "quantityPlaceholder": "How many of these are needed for the kit?"
       },
       "variants": {
         "header": "Variants",
@@ -628,7 +621,6 @@
     },
     "editAttributes": "Edit Attributes",
     "editOptions": "Edit Options",
-    "editPrices": "Edit prices",
     "media": {
       "label": "Media",
       "editHint": "Add media to the product to showcase it in your storefront.",
@@ -825,39 +817,10 @@
         "header": "Variant details"
       },
       "deleteWarning": "Are you sure you want to delete this variant?",
-      "pricesPagination": "1 - {{current}} of {{total}} prices",
       "tableItemAvailable": "{{availableCount}} available",
       "tableItem_one": "{{availableCount}} available at {{locationCount}} location",
       "tableItem_other": "{{availableCount}} available at {{locationCount}} locations",
-      "inventory": {
-        "notManaged": "Not managed",
-        "manageItems": "Manage inventory items",
-        "notManagedDesc": "Inventory is not managed for this variant. Turn on ‘Manage Inventory’ to track the variant's inventory.",
-        "manageKit": "Manage inventory kit",
-        "navigateToItem": "Go to inventory item",
-        "actions": {
-          "inventoryItems": "Go to inventory item",
-          "inventoryKit": "Show inventory items"
-        },
-        "inventoryKit": "Inventory Kit",
-        "inventoryKitHint": "Does this variant consist of several inventory items?",
-        "validation": {
-          "itemId": "Please select inventory item.",
-          "quantity": "Quantity is required. Please input a positive number."
-        },
-        "header": "Stock & Inventory",
-        "editItemDetails": "Edit item details",
-        "manageInventoryLabel": "Manage inventory",
-        "manageInventoryHint": "When enabled, we'll change the inventory quantity for you when orders and returns are created.",
-        "allowBackordersLabel": "Allow backorders",
-        "allowBackordersHint": "When enabled, customers can purchase the variant even if there's no available quantity.",
-        "toast": {
-          "levelsBatch": "Inventory levels updated.",
-          "update": "Inventory item updated successfully.",
-          "updateLevel": "Inventory level updated successfully.",
-          "itemsManageSuccess": "Inventory items successfully updated."
-        }
-      }
+      "inventory": {}
     },
     "options": {
       "header": "Options",
@@ -882,15 +845,6 @@
         "toasts": {
           "success": "Successfully updated the organization of {{title}}."
         }
-      }
-    },
-    "stock": {
-      "heading": "Manage product stock levels and locations",
-      "description": "Update the stocked inventory levels for all of the product's variants.",
-      "loading": "Hang on this may take a moment...",
-      "tooltips": {
-        "alreadyManaged": "This inventory item is already editable under {{title}}.",
-        "alreadyManagedWithSku": "This inventory item is already editable under {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {
@@ -1080,6 +1034,96 @@
       "disablePrompt_other": "You are about to disable {{count}} location levels. This action cannot be undone.",
       "disabledToggleTooltip": "Cannot disable: clear incoming and/or reserved quantity before disabling.",
       "successToast": "Inventory levels updated successfully."
+    }
+  },
+  "offers": {
+    "domain": "Offers",
+    "subtitle": "Manage your catalog listings",
+    "create": {
+      "header": "Create offer",
+      "successToast": "Offer created",
+      "tabs": {
+        "variant": "Variant",
+        "details": "Details",
+        "pricingAndStock": "Pricing & stock"
+      },
+      "variantHint": "You can only create an offer on an existing variant. Use Products to add a new variant first.",
+      "variantPlaceholder": "Select a variant",
+      "selectedVariant": "Selected variant",
+      "prices": "Prices",
+      "pricesDescription": "Add at least one price. Each row is a separate price rule.",
+      "addPrice": "Add price",
+      "inventoryItems": "Inventory items",
+      "inventoryItemsDescription": "Attach at least one inventory item that this offer will pull stock from.",
+      "addInventoryItem": "Add inventory item",
+      "createNewInventoryItem": "Create new inventory item"
+    },
+    "edit": {
+      "header": "Edit offer",
+      "description": "Update the offer's identity, shipping profile, or metadata.",
+      "successToast": "Offer updated"
+    },
+    "pricing": {
+      "header": "Manage prices",
+      "description": "Add, change, or remove prices on this offer's ladder.",
+      "successToast": "Prices updated",
+      "empty": "No prices configured"
+    },
+    "inventory": {
+      "header": "Manage inventory items",
+      "description": "Attach, detach, or change the required quantity per item.",
+      "successToast": "Inventory items updated",
+      "empty": "No inventory items attached"
+    },
+    "delete": {
+      "description": "You are about to delete offer {{sku}}. This cannot be undone.",
+      "successToast": "Offer deleted"
+    },
+    "bulkDelete": {
+      "description_one": "You are about to delete {{count}} offer. This cannot be undone.",
+      "description_other": "You are about to delete {{count}} offers. This cannot be undone.",
+      "successToast_one": "Deleted {{count}} offer",
+      "successToast_other": "Deleted {{count}} offers",
+      "partialToast": "Deleted {{succeeded}} of {{total}} offers; {{failed}} failed"
+    },
+    "actions": {
+      "create": "Create offer",
+      "manage_prices": "Manage prices",
+      "manage_inventory": "Manage inventory",
+      "bulkDelete": "Delete selected"
+    },
+    "fields": {
+      "sku": "SKU",
+      "variant": "Master variant",
+      "shippingProfile": "Shipping profile",
+      "ean": "EAN",
+      "upc": "UPC",
+      "requiredQuantity": "Required quantity",
+      "stockStatus": "Stock status",
+      "region": "Region",
+      "customerGroup": "Customer group",
+      "minQuantity": "Min qty",
+      "maxQuantity": "Max qty",
+      "priceList": "Price list",
+      "base": "Base"
+    },
+    "stockStatus": {
+      "in_stock": "In stock",
+      "low_stock": "Low stock",
+      "out_of_stock": "Out of stock"
+    },
+    "empty": {
+      "heading": "Create your first offer",
+      "description": "Bind your seller catalog to a master variant to make it purchasable."
+    },
+    "filtered": {
+      "heading": "No matching offers",
+      "description": "Adjust filters or search terms."
+    },
+    "validation": {
+      "duplicatePriceRule": "Another price row already has this combination of currency, region, customer group, and quantity bounds.",
+      "duplicateInventoryItem": "This inventory item is already attached.",
+      "duplicateBatchEntry": "An inventory item can only appear in one bucket (create, update, or delete)."
     }
   },
   "giftCards": {
@@ -2823,7 +2867,7 @@
     "logo": "Logo",
     "banner": "Banner",
     "edit": {
-      "header": "Edit Store"
+      "websiteHint": "Must include protocol (e.g. https://)"
     },
     "editCompany": {
       "header": "Edit Company"
@@ -2932,9 +2976,6 @@
       "freePeriod": "Free period",
       "requiresOrders": "Requires orders",
       "month": "month"
-    },
-    "edit": {
-      "websiteHint": "Must include protocol (e.g. https://)"
     },
     "toast": {
       "update": "Store successfully updated",

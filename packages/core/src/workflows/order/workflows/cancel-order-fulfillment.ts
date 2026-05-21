@@ -54,25 +54,28 @@ type LineItemOfferRow = {
   } | null
 }
 
+// Plain-object map keyed by line_item_id → inventory_item_id → link.
+// Map values do not survive the workflow runtime's JSON serialization
+// between transform steps.
 function buildOfferInventoryByLineItem(
   rows: LineItemOfferRow[],
-): Map<string, Map<string, OfferInventoryLink>> {
-  const byLine = new Map<string, Map<string, OfferInventoryLink>>()
+): Record<string, Record<string, OfferInventoryLink>> {
+  const byLine: Record<string, Record<string, OfferInventoryLink>> = {}
   for (const row of rows) {
-    const inner = new Map<string, OfferInventoryLink>()
+    const inner: Record<string, OfferInventoryLink> = {}
     for (const link of row.offer?.inventory_item_link ?? []) {
       const inventoryItemId =
         link.inventory_item?.id ?? link.inventory_item_id
       if (!inventoryItemId) continue
-      inner.set(inventoryItemId, {
+      inner[inventoryItemId] = {
         inventory_item_id: inventoryItemId,
         required_quantity: link.required_quantity ?? 1,
         inventory: link.inventory_item
           ? { id: link.inventory_item.id }
           : null,
-      })
+      }
     }
-    byLine.set(row.id, inner)
+    byLine[row.id] = inner
   }
   return byLine
 }
@@ -139,7 +142,7 @@ function prepareCancelOrderFulfillmentData({
 }: {
   order: OrderDTO
   fulfillment: FulfillmentDTO
-  offerInventoryByLineItem: Map<string, Map<string, OfferInventoryLink>>
+  offerInventoryByLineItem: Record<string, Record<string, OfferInventoryLink>>
 }) {
   const lineItemIds = Array.from(
     new Set(fulfillment.items.map((i) => i.line_item_id as string)),
@@ -153,10 +156,8 @@ function prepareCancelOrderFulfillmentData({
       const fitem = fulfillment.items.find(
         (i) => i.line_item_id === lineItemId,
       )!
-      const offerByInventoryItem = offerInventoryByLineItem.get(lineItemId)
-      const link = offerByInventoryItem?.get(
-        fitem.inventory_item_id as string,
-      )
+      const offerByInventoryItem = offerInventoryByLineItem[lineItemId]
+      const link = offerByInventoryItem?.[fitem.inventory_item_id as string]
 
       let quantity: BigNumberInput = fitem.quantity
       if (link?.required_quantity && link.required_quantity > 1) {
@@ -178,7 +179,7 @@ function prepareInventoryUpdate({
 }: {
   fulfillment: FulfillmentDTO
   reservations: ReservationItemDTO[]
-  offerInventoryByLineItem: Map<string, Map<string, OfferInventoryLink>>
+  offerInventoryByLineItem: Record<string, Record<string, OfferInventoryLink>>
 }) {
   const inventoryAdjustment: {
     inventory_item_id: string
@@ -202,10 +203,9 @@ function prepareInventoryUpdate({
       continue
     }
 
-    const offerByInventoryItem = offerInventoryByLineItem.get(
-      fitem.line_item_id as string,
-    )
-    const link = offerByInventoryItem?.get(fitem.inventory_item_id as string)
+    const offerByInventoryItem =
+      offerInventoryByLineItem[fitem.line_item_id as string]
+    const link = offerByInventoryItem?.[fitem.inventory_item_id as string]
     if (!link) {
       continue
     }

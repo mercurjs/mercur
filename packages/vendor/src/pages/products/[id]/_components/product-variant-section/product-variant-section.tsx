@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 
-import { Buildings, Component, PencilSquare, Trash } from "@medusajs/icons";
+import { PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import {
   ProductAttributeDTO,
@@ -10,7 +10,6 @@ import {
   Badge,
   Container,
   createDataTableColumnHelper,
-  createDataTableCommandHelper,
   DataTableAction,
   toast,
   Tooltip,
@@ -29,7 +28,6 @@ import {
   useProductVariants,
 } from "../../../../../hooks/api/products";
 import { useQueryParams } from "../../../../../hooks/use-query-params";
-import { PRODUCT_VARIANT_IDS_KEY } from "../../../common/constants";
 
 const PAGE_SIZE = 10;
 const PREFIX = "pv";
@@ -48,7 +46,6 @@ export const ProductVariantSection = ({
 
   const columns = useColumns(product);
   const filters = useFilters();
-  const commands = useCommands();
 
   const { variants, count, isPending, isError, error } = useProductVariants(
     product.id,
@@ -98,26 +95,6 @@ export const ProductVariantSection = ({
             label: t("actions.create"),
             to: `variants/create`,
           }}
-          actionMenu={{
-            groups: [
-              {
-                actions: [
-                  {
-                    label: t("products.editPrices"),
-                    to: `prices`,
-                    icon: <PencilSquare />,
-                  },
-                  {
-                    label: t("inventory.stock.action"),
-                    to: `stock`,
-                    icon: <Buildings />,
-                  },
-                ],
-              },
-            ],
-            "data-testid": "product-variant-section-action-menu",
-          }}
-          commands={commands}
           prefix={PREFIX}
         />
       </div>
@@ -268,10 +245,8 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
   }, [product]);
 
   const getActions = useCallback(
-    (ctx: CellContext<HttpTypes.AdminProductVariant, unknown>) => {
-      const variant = ctx.row.original as HttpTypes.AdminProductVariant & {
-        inventory_items: { inventory: HttpTypes.AdminInventoryItem }[];
-      };
+    (_ctx: CellContext<HttpTypes.AdminProductVariant, unknown>) => {
+      const variant = _ctx.row.original as HttpTypes.AdminProductVariant;
 
       const mainActions: DataTableAction<HttpTypes.AdminProductVariant>[] = [
         {
@@ -298,44 +273,6 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
             onClick: () => handleDelete(variant.id, variant.title!),
           },
         ];
-
-      const inventoryItemsCount = variant.inventory_items?.length || 0;
-
-      switch (inventoryItemsCount) {
-        case 0:
-          break;
-        case 1: {
-          const inventoryItemLink = `/inventory/${variant.inventory_items![0].inventory.id}`;
-
-          mainActions.push({
-            label: t("products.variant.inventory.actions.inventoryItems"),
-            onClick: () => {
-              navigate(inventoryItemLink);
-            },
-            icon: <Buildings />,
-          });
-          break;
-        }
-        default: {
-          const ids = variant.inventory_items?.map((i) => i.inventory?.id);
-
-          if (!ids || ids.length === 0) {
-            break;
-          }
-
-          const inventoryKitLink = `/inventory?${new URLSearchParams({
-            id: ids.join(","),
-          }).toString()}`;
-
-          mainActions.push({
-            label: t("products.variant.inventory.actions.inventoryKit"),
-            onClick: () => {
-              navigate(inventoryKitLink);
-            },
-            icon: <Component />,
-          });
-        }
-      }
 
       return [mainActions, secondaryActions];
     },
@@ -368,21 +305,3 @@ const useFilters = () => {
   }, [dateFilters]);
 };
 
-const commandHelper = createDataTableCommandHelper();
-
-const useCommands = () => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-
-  return [
-    commandHelper.command({
-      label: t("inventory.stock.action"),
-      shortcut: "i",
-      action: async (selection) => {
-        navigate(
-          `stock?${PRODUCT_VARIANT_IDS_KEY}=${Object.keys(selection).join(",")}`,
-        );
-      },
-    }),
-  ];
-};

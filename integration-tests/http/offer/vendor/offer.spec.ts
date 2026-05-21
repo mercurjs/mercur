@@ -1,5 +1,6 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 
 jest.setTimeout(50000)
@@ -791,6 +792,126 @@ medusaIntegrationTestRunner({
                         .get(`/vendor/offers/${offerId}`, seller1Headers)
                         .catch((e) => e.response)
                     expect(after.status).toEqual(404)
+                })
+            })
+
+            describe("PriceSet invariants", () => {
+                it("assigns distinct price_set_ids to sibling offers on the same variant", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+                    const otherInventory = await api.post(
+                        `/vendor/inventory-items`,
+                        { title: "Sibling Inv" },
+                        seller1Headers
+                    )
+
+                    const offerA = (
+                        await api.post(
+                            `/vendor/offers`,
+                            {
+                                sku: "SIBLING-A",
+                                variant_id: deps.variant_id,
+                                shipping_profile_id:
+                                    deps.shipping_profile_id,
+                                inventory_items: [
+                                    {
+                                        inventory_item_id:
+                                            deps.inventory_item_id,
+                                    },
+                                ],
+                                prices: [
+                                    { amount: 1000, currency_code: "usd" },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                    ).data.offer
+                    const offerB = (
+                        await api.post(
+                            `/vendor/offers`,
+                            {
+                                sku: "SIBLING-B",
+                                variant_id: deps.variant_id,
+                                shipping_profile_id:
+                                    deps.shipping_profile_id,
+                                inventory_items: [
+                                    {
+                                        inventory_item_id:
+                                            otherInventory.data.inventory_item
+                                                .id,
+                                    },
+                                ],
+                                prices: [
+                                    { amount: 2000, currency_code: "usd" },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                    ).data.offer
+
+                    expect(offerA.price_set_id).toBeDefined()
+                    expect(offerB.price_set_id).toBeDefined()
+                    expect(offerA.price_set_id).not.toEqual(
+                        offerB.price_set_id
+                    )
+                })
+
+                it("keeps offer.price_set resolvable via Query after soft-delete", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "HISTORIC",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id:
+                                deps.shipping_profile_id,
+                            inventory_items: [
+                                {
+                                    inventory_item_id:
+                                        deps.inventory_item_id,
+                                },
+                            ],
+                            prices: [
+                                { amount: 4321, currency_code: "usd" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+                    const offerId = created.data.offer.id
+
+                    await api.delete(
+                        `/vendor/offers/${offerId}`,
+                        seller1Headers
+                    )
+
+                    const query = appContainer.resolve(
+                        ContainerRegistrationKeys.QUERY
+                    )
+                    const { data: rows } = await query.graph({
+                        entity: "offer",
+                        fields: [
+                            "id",
+                            "deleted_at",
+                            "price_set.id",
+                            "price_set.prices.amount",
+                            "price_set.prices.currency_code",
+                        ],
+                        filters: { id: offerId },
+                        withDeleted: true,
+                    })
+
+                    expect(rows).toHaveLength(1)
+                    const row = rows[0] as any
+                    expect(row.deleted_at).not.toBeNull()
+                    expect(row.price_set?.id).toBeDefined()
+                    expect(row.price_set.prices).toEqual(
+                        expect.arrayContaining([
+                            expect.objectContaining({
+                                amount: 4321,
+                                currency_code: "usd",
+                            }),
+                        ])
+                    )
                 })
             })
         })

@@ -396,15 +396,6 @@
     "availableIn": "متاح في <0>{{x}}</0> من <1>{{y}}</1> قنوات البيع"
   },
   "products": {
-    "stock": {
-      "description": "إضافة عناصر المخزون إلى مجموعة المخزون الخاصة بالبديل.",
-      "heading": "مجموعات المخزون",
-      "loading": "جاري التحميل...",
-      "tooltips": {
-        "alreadyManaged": "هذا العنصر مدار بالفعل.",
-        "alreadyManagedWithSku": "هذا العنصر مدار بالفعل بالمعرف {{sku}}."
-      }
-    },
     "shippingProfile": {
       "create": {
         "errors": {
@@ -435,20 +426,13 @@
       "tabs": {
         "details": "التفاصيل",
         "organize": "تنظيم",
-        "variants": "البدائل",
-        "inventory": "مجموعات المخزون"
+        "variants": "البدائل"
       },
       "errors": {
         "variants": "يرجى تحديد بديل واحد على الأقل.",
         "options": "يرجى إنشاء خيار واحد على الأقل.",
         "uniqueSku": "يجب أن يكون SKU فريدًا.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "مجموعات المخزون",
-        "label": "أضف عناصر المخزون إلى مجموعة المخزون الخاصة بالبديل.",
-        "itemPlaceholder": "اختر عنصر المخزون",
-        "quantityPlaceholder": "كم عدد هذه العناصر المطلوبة للمجموعة؟"
       },
       "variants": {
         "header": "البدائل",
@@ -539,7 +523,6 @@
     "attributes": "السمات",
     "editAttributes": "تحرير السمات",
     "editOptions": "تحرير الخيارات",
-    "editPrices": "تحرير الأسعار",
     "media": {
       "label": "الوسائط",
       "editHint": "أضف وسائط إلى المنتج لعرضها في واجهة متجرك.",
@@ -666,27 +649,18 @@
         "header": "تفاصيل البديل"
       },
       "deleteWarning": "هل أنت متأكد أنك تريد حذف هذا البديل؟",
-      "pricesPagination": "1 - {{current}} من {{total}} أسعار",
       "tableItemAvailable": "{{availableCount}} متاح",
       "tableItem_one": "{{availableCount}} متاح في {{locationCount}} موقع",
       "tableItem_other": "{{availableCount}} متاح في {{locationCount}} مواقع",
       "inventory": {
         "notManaged": "غير مُدار",
-        "manageItems": "إدارة عناصر المخزون",
-        "notManagedDesc": "لا يتم إدارة المخزون لهذا البديل. قم بتشغيل 'إدارة المخزون' لتتبع مخزون البديل.",
-        "manageKit": "إدارة مجموعة المخزون",
         "navigateToItem": "الانتقال إلى عنصر المخزون",
-        "actions": {
-          "inventoryItems": "الانتقال إلى عنصر المخزون",
-          "inventoryKit": "عرض عناصر المخزون"
-        },
         "inventoryKit": "مجموعة المخزون",
         "inventoryKitHint": "هل يتكون هذا البديل من عدة عناصر مخزون؟",
         "validation": {
           "itemId": "يرجى اختيار عنصر المخزون.",
           "quantity": "الكمية مطلوبة. يرجى إدخال رقم موجب."
         },
-        "header": "المخزون والمخزون",
         "editItemDetails": "تحرير تفاصيل العنصر",
         "manageInventoryLabel": "إدارة المخزون",
         "manageInventoryHint": "عند التمكين، سنقوم بتغيير كمية المخزون لك عند إنشاء الطلبات والإرجاعات.",

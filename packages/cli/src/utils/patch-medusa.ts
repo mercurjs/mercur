@@ -22,12 +22,44 @@ export async function patchMedusa() {
     // requires variant_id, which rejects Mercur's offer_id payload.
     patchStoreCartLineItemsMiddleware(medusaDir);
 
+    // Belt-and-braces: blank Medusa's compiled handler at the same path.
+    // Mercur owns POST /store/carts/:id/line-items at the loader layer,
+    // so Medusa's handler should never fire — but if the loader order ever
+    // drifts, the upstream handler would dispatch addToCartWorkflow without
+    // the offer_id payload validator and we'd snapshot pre-offer prices.
+    patchStoreCartLineItemsRoute(medusaDir);
+
     // Remove product from SERVICES_INTERFACES so the generated
     // modules-bindings.d.ts uses the actual module service type
     await patchContainerTypes();
   } catch (err) {
     logger.error(`Failed to patch Medusa: ${err}`);
   }
+}
+
+function patchStoreCartLineItemsRoute(medusaDir: string) {
+  const filePath = join(medusaDir, "dist/api/store/carts/[id]/line-items/route.js");
+  let content: string;
+  try {
+    content = readFileSync(filePath, "utf-8");
+  } catch {
+    return;
+  }
+
+  // Idempotency marker. Skip if already blanked.
+  if (content.includes("// mercur: blanked")) {
+    return;
+  }
+
+  const blanked = [
+    `"use strict";`,
+    `// mercur: blanked — POST /store/carts/:id/line-items is owned by`,
+    `// packages/core/src/api/store/carts/[id]/line-items/route.ts.`,
+    `Object.defineProperty(exports, "__esModule", { value: true });`,
+    ``,
+  ].join("\n");
+
+  writeFileSync(filePath, blanked);
 }
 
 function patchStoreCartLineItemsMiddleware(medusaDir: string) {

@@ -476,7 +476,6 @@
         "details": "Szczegóły",
         "organize": "Organizacja",
         "variants": "Warianty",
-        "inventory": "Zestawy magazynowe",
         "attributes": "Atrybuty"
       },
       "defaults": {
@@ -516,12 +515,6 @@
           "label": "Dowiedz się więcej o atrybutach",
           "content": "Atrybuty pomagają klientom znajdować i filtrować Twoje produkty. Atrybuty zdefiniowane przez administratora pojawiają się w wynikach wyszukiwania."
         }
-      },
-      "inventory": {
-        "heading": "Zestawy magazynowe",
-        "label": "Dodaj pozycje magazynowe do zestawu wariantu.",
-        "itemPlaceholder": "Wybierz pozycję magazynową",
-        "quantityPlaceholder": "Ile z tych elementów jest potrzebnych do zestawu?"
       },
       "variants": {
         "header": "Warianty",
@@ -611,7 +604,6 @@
     },
     "editAttributes": "Edytuj atrybuty",
     "editOptions": "Edytuj opcje",
-    "editPrices": "Edytuj ceny",
     "media": {
       "label": "Media",
       "editHint": "Dodaj media do produktu, aby zaprezentować go w swoim sklepie.",
@@ -790,7 +782,6 @@
         "header": "Szczegóły wariantu"
       },
       "deleteWarning": "Czy na pewno chcesz usunąć ten wariant?",
-      "pricesPagination": "1 - {{current}} z {{total}} cen",
       "tableItemAvailable": "{{availableCount}} dostępnych",
       "tableItem_one": "{{availableCount}} dostępny w {{locationCount}} lokalizacji",
       "tableItem_few": "{{availableCount}} dostępne w {{locationCount}} lokalizacji",
@@ -798,21 +789,13 @@
       "tableItem_other": "{{availableCount}} dostępnych w {{locationCount}} lokalizacji",
       "inventory": {
         "notManaged": "Nie zarządzane",
-        "manageItems": "Zarządzaj elementami magazynowymi",
-        "notManagedDesc": "Zapasy nie są zarządzane dla tego wariantu. Włącz 'Zarządzaj zapasami', aby śledzić stan magazynowy wariantu.",
-        "manageKit": "Zarządzaj zestawem magazynowym",
         "navigateToItem": "Przejdź do elementu magazynowego",
-        "actions": {
-          "inventoryItems": "Przejdź do elementu magazynowego",
-          "inventoryKit": "Pokaż elementy magazynowe"
-        },
         "inventoryKit": "Zestaw magazynowy",
         "inventoryKitHint": "Czy ten wariant składa się z kilku elementów magazynowych?",
         "validation": {
           "itemId": "Proszę wybrać element magazynowy.",
           "quantity": "Ilość jest wymagana. Proszę wprowadzić liczbę dodatnią."
         },
-        "header": "Stan magazynowy i zapasy",
         "editItemDetails": "Edytuj szczegóły elementu",
         "manageInventoryLabel": "Zarządzaj zapasami",
         "manageInventoryHint": "Po włączeniu będziemy zmieniać ilość w magazynie przy tworzeniu zamówień i zwrotów.",
@@ -849,15 +832,6 @@
         "toasts": {
           "success": "Pomyślnie zaktualizowano organizację {{title}}."
         }
-      }
-    },
-    "stock": {
-      "heading": "Zarządzaj stanem magazynowym produktów i ich lokalizacjami",
-      "description": "Aktualizuj poziomy zapasów dla wszystkich wariantów produktu.",
-      "loading": "Proszę czekać, może to chwilę potrwać...",
-      "tooltips": {
-        "alreadyManaged": "Ten element magazynowy jest już edytowalny w ramach {{title}}.",
-        "alreadyManagedWithSku": "Ten element magazynowy jest już edytowalny w ramach {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Divider, Heading, Input, Switch, toast } from "@medusajs/ui"
+import { Button, Divider, Heading, Input, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -35,8 +35,6 @@ const ProductEditVariantSchema = z.object({
   ean: z.string().optional(),
   upc: z.string().optional(),
   barcode: z.string().optional(),
-  manage_inventory: z.boolean(),
-  allow_backorder: z.boolean(),
   weight: optionalInt,
   height: optionalInt,
   width: optionalInt,
@@ -86,8 +84,6 @@ export const ProductEditVariantForm = ({
       ean: variant.ean || "",
       upc: variant.upc || "",
       barcode: variant.barcode || "",
-      manage_inventory: variant.manage_inventory || false,
-      allow_backorder: variant.allow_backorder || false,
       weight: variant.weight || "",
       height: variant.height || "",
       width: variant.width || "",
@@ -112,8 +108,6 @@ export const ProductEditVariantForm = ({
       height,
       width,
       length,
-      allow_backorder,
-      manage_inventory,
       attribute_values,
       ...optional
     } = data
@@ -133,8 +127,6 @@ export const ProductEditVariantForm = ({
         width: transformNullableFormNumber(width),
         length: transformNullableFormNumber(length),
         title,
-        allow_backorder,
-        manage_inventory,
         attribute_values: Object.keys(cleanedAttributeValues).length
           ? cleanedAttributeValues
           : undefined,
@@ -225,9 +217,6 @@ export const ProductEditVariantForm = ({
           <Divider />
           <div className="flex flex-col gap-y-8">
             <div className="flex flex-col gap-y-4">
-              <Heading level="h2">
-                {t("products.variant.inventory.header")}
-              </Heading>
               <Form.Field
                 control={form.control}
                 name="sku"
@@ -289,66 +278,6 @@ export const ProductEditVariantForm = ({
                 }}
               />
             </div>
-            <Form.Field
-              control={form.control}
-              name="manage_inventory"
-              render={({ field: { value, onChange, ...field } }) => {
-                return (
-                  <Form.Item>
-                    <div className="flex flex-col gap-y-1">
-                      <div className="flex items-center justify-between">
-                        <Form.Label>
-                          {t("products.variant.inventory.manageInventoryLabel")}
-                        </Form.Label>
-                        <Form.Control>
-                          <Switch
-                            dir="ltr"
-                            checked={value}
-                            className="rtl:rotate-180"
-                            onCheckedChange={(checked) => onChange(!!checked)}
-                            {...field}
-                          />
-                        </Form.Control>
-                      </div>
-                      <Form.Hint>
-                        {t("products.variant.inventory.manageInventoryHint")}
-                      </Form.Hint>
-                    </div>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                )
-              }}
-            />
-            <Form.Field
-              control={form.control}
-              name="allow_backorder"
-              render={({ field: { value, onChange, ...field } }) => {
-                return (
-                  <Form.Item>
-                    <div className="flex flex-col gap-y-1">
-                      <div className="flex items-center justify-between">
-                        <Form.Label>
-                          {t("products.variant.inventory.allowBackordersLabel")}
-                        </Form.Label>
-                        <Form.Control>
-                          <Switch
-                            dir="ltr"
-                            className="rtl:rotate-180"
-                            checked={value}
-                            onCheckedChange={(checked) => onChange(!!checked)}
-                            {...field}
-                          />
-                        </Form.Control>
-                      </div>
-                      <Form.Hint>
-                        {t("products.variant.inventory.allowBackordersHint")}
-                      </Form.Hint>
-                    </div>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                )
-              }}
-            />
           </div>
           <Divider />
           <div className="flex flex-col gap-y-4">

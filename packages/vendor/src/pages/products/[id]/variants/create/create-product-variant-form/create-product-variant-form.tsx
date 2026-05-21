@@ -1,18 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { toast } from "@medusajs/ui"
-import { Children, ReactNode, useCallback, useEffect, useMemo } from "react"
-import { DeepPartial, useFieldArray, useForm, useWatch } from "react-hook-form"
+import { Children, ReactNode, useMemo } from "react"
+import { DeepPartial, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
 import { useRouteModal } from "@components/modals"
 import { TabbedForm } from "@components/tabbed-form/tabbed-form"
-import { TabDefinition } from "@components/tabbed-form/types"
 import { useCreateProductVariant } from "@hooks/api/products"
 import { CreateProductVariantSchema } from "./constants"
 import DetailsTab from "./details-tab"
-import InventoryKitTab from "./inventory-kit-tab"
-import PricingTab from "./pricing-tab"
 
 export type CreateProductVariantSchemaType = z.infer<
   typeof CreateProductVariantSchema
@@ -28,9 +25,6 @@ type CreateProductVariantFormProps = {
 const CREATE_VARIANT_DEFAULTS: DeepPartial<CreateProductVariantSchemaType> = {
   sku: "",
   title: "",
-  manage_inventory: false,
-  allow_backorder: false,
-  inventory_kit: false,
   attribute_values: {},
 }
 
@@ -51,48 +45,6 @@ export const CreateProductVariantForm = ({
   })
 
   const { mutateAsync, isPending } = useCreateProductVariant(product.id)
-
-  const isManageInventoryEnabled = useWatch({
-    control: form.control,
-    name: "manage_inventory",
-  })
-
-  const isInventoryKitEnabled = useWatch({
-    control: form.control,
-    name: "inventory_kit",
-  })
-
-  const inventoryField = useFieldArray({
-    control: form.control,
-    name: `inventory`,
-  })
-
-  useEffect(() => {
-    if (isInventoryKitEnabled && inventoryField.fields.length === 0) {
-      inventoryField.append({
-        inventory_item_id: "",
-        required_quantity: undefined,
-      })
-    }
-  }, [
-	isInventoryKitEnabled,
-	inventoryField.fields.length,
-	inventoryField
-])
-
-  const inventoryTabEnabled = isManageInventoryEnabled && isInventoryKitEnabled
-
-  const transformTabs = useCallback(
-    (tabs: TabDefinition<z.infer<typeof CreateProductVariantSchema>>[]) => {
-      return tabs.map((tab) => {
-        if (tab.id === "inventory") {
-          return { ...tab, isVisible: () => !!inventoryTabEnabled }
-        }
-        return tab
-      })
-    },
-    [inventoryTabEnabled]
-  )
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const { title, attribute_values } = data
@@ -122,23 +74,14 @@ export const CreateProductVariantForm = ({
   })
 
   const defaultTabs = useMemo(
-    () => [
-      <DetailsTab key="details" product={product} />,
-      <PricingTab key="pricing" />,
-      <InventoryKitTab key="inventory" />,
-    ],
+    () => [<DetailsTab key="details" product={product} />],
     [product]
   )
 
   const hasCustomChildren = Children.count(children) > 0
 
   return (
-    <TabbedForm
-      form={form}
-      onSubmit={handleSubmit}
-      isLoading={isPending}
-      transformTabs={transformTabs}
-    >
+    <TabbedForm form={form} onSubmit={handleSubmit} isLoading={isPending}>
       {hasCustomChildren ? children : defaultTabs}
     </TabbedForm>
   )

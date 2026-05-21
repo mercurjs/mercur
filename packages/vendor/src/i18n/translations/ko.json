@@ -414,20 +414,13 @@
       "tabs": {
         "details": "상세 정보",
         "organize": "분류",
-        "variants": "변형",
-        "inventory": "재고 키트"
+        "variants": "변형"
       },
       "errors": {
         "variants": "최소 하나의 변형을 선택해주세요.",
         "options": "최소 하나의 옵션을 생성해주세요.",
         "uniqueSku": "SKU는 고유해야 합니다.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "구성 상품",
-        "label": "상품 구성에 필요한 개별 상품들을 추가합니다.",
-        "itemPlaceholder": "재고 상품 선택",
-        "quantityPlaceholder": "구성에 필요한 수량을 입력하세요"
       },
       "variants": {
         "header": "변형",
@@ -518,7 +511,6 @@
     "attributes": "속성",
     "editAttributes": "속성 편집",
     "editOptions": "옵션 편집",
-    "editPrices": "가격 편집",
     "media": {
       "label": "미디어",
       "editHint": "스토어프론트에서 제품을 선보이기 위해 미디어를 추가하세요.",
@@ -645,27 +637,18 @@
         "header": "변형 상세 정보"
       },
       "deleteWarning": "이 변형을 삭제하시겠습니까?",
-      "pricesPagination": "{{total}}개 중 1 - {{current}}개 가격",
       "tableItemAvailable": "{{availableCount}}개 사용 가능",
       "tableItem_one": "{{locationCount}}개 위치에서 {{availableCount}}개 사용 가능",
       "tableItem_other": "{{locationCount}}개 위치에서 {{availableCount}}개 사용 가능",
       "inventory": {
         "notManaged": "재고 관리 안 함",
-        "manageItems": "재고 관리",
-        "notManagedDesc": "이 상품은 재고 관리를 하지 않습니다. 재고를 추적하려면 '재고 관리'를 활성화하세요.",
-        "manageKit": "구성 상품 관리",
         "navigateToItem": "재고 상품으로 이동",
-        "actions": {
-          "inventoryItems": "재고 상품으로 이동",
-          "inventoryKit": "구성 상품 보기"
-        },
         "inventoryKit": "구성 상품",
         "inventoryKitHint": "이 상품은 여러 개의 개별 상품으로 구성된 세트 상품입니까?",
         "validation": {
           "itemId": "재고 상품을 선택하세요.",
           "quantity": "수량은 필수입니다. 양수를 입력하세요."
         },
-        "header": "재고 및 인벤토리",
         "editItemDetails": "상품 상세 정보 편집",
         "manageInventoryLabel": "재고 관리",
         "manageInventoryHint": "활성화하면 주문 및 반품이 생성될 때 재고 수량을 자동으로 변경합니다.",
@@ -698,15 +681,6 @@
         "toasts": {
           "success": "{{title}}의 분류가 성공적으로 업데이트되었습니다."
         }
-      }
-    },
-    "stock": {
-      "heading": "제품 재고 수준 및 위치 관리",
-      "description": "제품의 모든 변형에 대한 재고 수준을 업데이트합니다.",
-      "loading": "잠시만 기다려주세요, 이 작업은 시간이 걸릴 수 있습니다...",
-      "tooltips": {
-        "alreadyManaged": "이 재고 상품은 이미 {{title}} 아래에서 편집할 수 있습니다.",
-        "alreadyManagedWithSku": "이 재고 상품은 이미 {{title}} ({{sku}}) 아래에서 편집할 수 있습니다."
       }
     },
     "shippingProfile": {

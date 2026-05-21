@@ -4,7 +4,6 @@ import { ProductCreateSchemaType } from "./types"
 export const normalizeProductFormValues = (
   values: ProductCreateSchemaType & {
     status: HttpTypes.AdminProductStatus
-    regionsCurrencyMap: Record<string, string>
   }
 ): HttpTypes.AdminCreateProduct => {
   const thumbnail = values.media?.find((media) => media.isThumbnail)?.url
@@ -50,14 +49,12 @@ export const normalizeProductFormValues = (
       : undefined,
     variants: normalizeVariants(
       values.variants.filter((variant) => variant.should_create),
-      values.regionsCurrencyMap
     ),
   } as any
 }
 
 export const normalizeVariants = (
   variants: ProductCreateSchemaType["variants"],
-  _regionsCurrencyMap: Record<string, string>
 ): any[] => {
   return variants.map((variant) => {
     const attrVals = variant.attribute_values
@@ -182,9 +179,6 @@ export const decorateVariantsWithDefaultValues = (
     ...variant,
     title: variant.title || "",
     sku: variant.sku || "",
-    manage_inventory: variant.manage_inventory || false,
-    allow_backorder: variant.allow_backorder || false,
-    inventory_kit: variant.inventory_kit || false,
   }))
 }
 
@@ -232,7 +226,6 @@ export const generateVariantsFromAttributes = (
         should_create: true,
         variant_rank: 0,
         attribute_values: {},
-        inventory: [{ inventory_item_id: "", required_quantity: "" }],
         is_default: true,
       },
     ])
@@ -270,7 +263,6 @@ export const generateVariantsFromAttributes = (
         attribute_values: perm,
         should_create: true,
         variant_rank: newVariants.length,
-        inventory: [{ inventory_item_id: "", required_quantity: "" }],
       })
     }
   }

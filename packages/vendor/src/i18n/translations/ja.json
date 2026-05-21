@@ -401,20 +401,13 @@
       "tabs": {
         "details": "詳細",
         "organize": "整理",
-        "variants": "バリエーション",
-        "inventory": "在庫キット"
+        "variants": "バリエーション"
       },
       "errors": {
         "variants": "少なくとも1つのバリエーションを選択してください。",
         "options": "少なくとも1つのオプションを作成してください。",
         "uniqueSku": "SKUは一意である必要があります。",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "在庫キット",
-        "label": "バリエーションの在庫キットに在庫アイテムを追加します。",
-        "itemPlaceholder": "在庫アイテムを選択",
-        "quantityPlaceholder": "このキットに必要な数量は？"
       },
       "variants": {
         "header": "バリエーション",
@@ -505,7 +498,6 @@
     "attributes": "属性",
     "editAttributes": "属性を編集",
     "editOptions": "オプションを編集",
-    "editPrices": "価格を編集",
     "media": {
       "label": "メディア",
       "editHint": "ストアフロントで商品を展示するためにメディアを追加します。",
@@ -628,27 +620,18 @@
         "header": "バリエーション詳細"
       },
       "deleteWarning": "このバリエーションを削除してもよろしいですか？",
-      "pricesPagination": "1 - {{total}}件中{{current}}件の価格",
       "tableItemAvailable": "{{availableCount}}個利用可能",
       "tableItem_one": "{{locationCount}}の拠点で{{availableCount}}個利用可能",
       "tableItem_other": "{{locationCount}}の拠点で{{availableCount}}個利用可能",
       "inventory": {
         "notManaged": "管理されていません",
-        "manageItems": "在庫アイテムを管理",
-        "notManagedDesc": "このバリエーションの在庫は管理されていません。「在庫を管理」をオンにしてバリエーションの在庫を追跡します。",
-        "manageKit": "在庫キットを管理",
         "navigateToItem": "在庫アイテムに移動",
-        "actions": {
-          "inventoryItems": "在庫アイテムに移動",
-          "inventoryKit": "在庫アイテムを表示"
-        },
         "inventoryKit": "在庫キット",
         "inventoryKitHint": "このバリエーションは複数の在庫アイテムで構成されていますか？",
         "validation": {
           "itemId": "在庫アイテムを選択してください。",
           "quantity": "数量は必須です。正の数値を入力してください。"
         },
-        "header": "在庫と在庫管理",
         "editItemDetails": "アイテム詳細を編集",
         "manageInventoryLabel": "在庫を管理",
         "manageInventoryHint": "有効にすると、注文や返品が作成されたときに在庫数量を変更します。",

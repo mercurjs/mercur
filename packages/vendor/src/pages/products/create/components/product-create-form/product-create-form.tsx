@@ -1,7 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { MercurFeatureFlags } from "@mercurjs/types"
 import { Button, toast } from "@medusajs/ui"
-import { ReactNode, useCallback, useEffect, useMemo, Children } from "react"
+import { ReactNode, useEffect, useMemo, Children } from "react"
 import { useForm, useWatch, DeepPartial } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -9,8 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 
 import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { TabbedForm } from "@components/tabbed-form/tabbed-form"
-import { TabDefinition } from "@components/tabbed-form/types"
-import { useCreateProduct, useFeatureFlags, useRegions } from "@hooks/api"
+import { useCreateProduct, useFeatureFlags } from "@hooks/api"
 import { uploadFilesQuery } from "@lib/client"
 
 import { PRODUCT_CREATE_FORM_DEFAULTS, ProductCreateSchema } from "../../constants"
@@ -21,7 +20,6 @@ import {
 } from "../../utils"
 import { ProductCreateAttributesForm } from "../product-create-attributes-form"
 import { ProductCreateDetailsForm } from "../product-create-details-form"
-import { ProductCreateInventoryKitForm } from "../product-create-inventory-kit-form"
 import { ProductCreateOrganizeForm } from "../product-create-organize-form"
 import { ProductCreateVariantsForm } from "../product-create-variants-form"
 
@@ -56,36 +54,6 @@ export const ProductCreateForm = ({
   const productRequestEnabled =
     !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
 
-  const {
-    regions,
-    isPending: isRegionsPending,
-    isError: isRegionsError,
-    error: regionsError,
-  } = useRegions({ limit: 9999 })
-
-  if (isRegionsError) {
-    throw regionsError
-  }
-
-  const regionsCurrencyMap = useMemo(() => {
-    if (!regions?.length) {
-      return {}
-    }
-
-    return regions.reduce(
-      (acc: Record<string, string>, reg: any) => {
-        acc[reg.id] = reg.currency_code
-        return acc
-      },
-      {} as Record<string, string>
-    )
-  }, [regions])
-
-  const watchedVariants = useWatch({
-    control: form.control,
-    name: "variants",
-  })
-
   const watchedAttributes = useWatch({
     control: form.control,
     name: "attributes",
@@ -108,10 +76,6 @@ export const ProductCreateForm = ({
   }, [watchedAttributes])
 
   const handleSubmit = form.handleSubmit(async (values, e) => {
-    if (isRegionsPending) {
-      return
-    }
-
     let isDraftSubmission = false
     if (e?.nativeEvent instanceof SubmitEvent) {
       const submitter = e?.nativeEvent?.submitter as HTMLButtonElement
@@ -154,7 +118,6 @@ export const ProductCreateForm = ({
         ...payload,
         media: uploadedMedia,
         status: submittedStatus as any,
-        regionsCurrencyMap,
       }) as any,
       {
         onSuccess: (data: any) => {
@@ -177,32 +140,12 @@ export const ProductCreateForm = ({
     )
   })
 
-  const transformTabs = useCallback(
-    (tabs: TabDefinition<ProductCreateSchemaType>[]) => {
-      const showInventoryTab =
-        watchedVariants?.some((v) => v.manage_inventory && v.inventory_kit) ??
-        false
-
-      return tabs.map((tab) => {
-        if (tab.id === "inventory") {
-          return {
-            ...tab,
-            isVisible: () => showInventoryTab,
-          }
-        }
-        return tab
-      })
-    },
-    [watchedVariants]
-  )
-
   const defaultTabs = useMemo(
     () => [
       <ProductCreateDetailsForm key="details" />,
       <ProductCreateOrganizeForm key="organize" />,
       <ProductCreateAttributesForm key="attributes" />,
       <ProductCreateVariantsForm key="variants" />,
-      <ProductCreateInventoryKitForm key="inventory" />,
     ],
     []
   )
@@ -213,8 +156,7 @@ export const ProductCreateForm = ({
     <TabbedForm
       form={form}
       onSubmit={handleSubmit}
-      isLoading={isPending || isRegionsPending}
-      transformTabs={transformTabs}
+      isLoading={isPending}
       footer={({ isLastTab, onNext, isLoading }) => (
         <div
           className="flex items-center justify-end gap-x-2"

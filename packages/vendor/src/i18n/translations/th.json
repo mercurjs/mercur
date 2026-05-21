@@ -400,20 +400,13 @@
       "tabs": {
         "details": "รายละเอียด",
         "organize": "จัดการ",
-        "variants": "ตัวเลือก",
-        "inventory": "ชุดสินค้าคงคลัง"
+        "variants": "ตัวเลือก"
       },
       "errors": {
         "variants": "โปรดเลือกตัวเลือกอย่างน้อยหนึ่งตัวเลือก",
         "options": "โปรดสร้างตัวเลือกอย่างน้อยหนึ่งตัวเลือก",
         "uniqueSku": "รหัส SKU ต้องไม่ซ้ำกัน",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "ชุดสินค้าคงคลัง",
-        "label": "เพิ่มรายการสินค้าคงคลังในชุดคงคลังของตัวเลือก",
-        "itemPlaceholder": "เลือกสินค้าคงคลัง",
-        "quantityPlaceholder": "จำนวนที่ต้องการสำหรับชุดนี้"
       },
       "variants": {
         "header": "ตัวเลือก",
@@ -504,7 +497,6 @@
     "attributes": "แอตทริบิวต์",
     "editAttributes": "แก้ไขแอตทริบิวต์",
     "editOptions": "แก้ไขตัวเลือก",
-    "editPrices": "แก้ไขราคา",
     "media": {
       "label": "สื่อ",
       "editHint": "เพิ่มสื่อไปยังสินค้าเพื่อแสดงในหน้าร้านของคุณ",
@@ -627,27 +619,18 @@
         "header": "รายละเอียดตัวเลือก"
       },
       "deleteWarning": "คุณแน่ใจหรือไม่ว่าต้องการลบตัวเลือกนี้?",
-      "pricesPagination": "1 - {{current}} จาก {{total}} ราคา",
       "tableItemAvailable": "{{availableCount}} พร้อมใช้งาน",
       "tableItem_one": "{{availableCount}} พร้อมใช้งานที่ {{locationCount}} สถานที่",
       "tableItem_other": "{{availableCount}} พร้อมใช้งานที่ {{locationCount}} สถานที่",
       "inventory": {
         "notManaged": "ไม่ได้จัดการ",
-        "manageItems": "จัดการสินค้าคงคลัง",
-        "notManagedDesc": "สินค้าคงคลังไม่ได้จัดการสำหรับตัวเลือกนี้ เปิด 'จัดการสินค้าคงคลัง' เพื่อติดตามสินค้าคงคลัง",
-        "manageKit": "จัดการชุดสินค้าคงคลัง",
         "navigateToItem": "ไปยังสินค้าคงคลัง",
-        "actions": {
-          "inventoryItems": "ไปยังสินค้าคงคลัง",
-          "inventoryKit": "แสดงสินค้าคงคลัง"
-        },
         "inventoryKit": "ชุดสินค้าคงคลัง",
         "inventoryKitHint": "ตัวเลือกนี้มีหลายสินค้าคงคลังหรือไม่?",
         "validation": {
           "itemId": "กรุณาเลือกสินค้าคงคลัง",
           "quantity": "ต้องใส่จำนวน กรุณาใส่ตัวเลขบวก"
         },
-        "header": "สต็อกและสินค้าคงคลัง",
         "editItemDetails": "แก้ไขรายละเอียดสินค้า",
         "manageInventoryLabel": "จัดการสินค้าคงคลัง",
         "manageInventoryHint": "เมื่อเปิดใช้งาน เราจะเปลี่ยนจำนวนสินค้าคงคลังเมื่อมีคำสั่งซื้อและการคืนสินค้า",

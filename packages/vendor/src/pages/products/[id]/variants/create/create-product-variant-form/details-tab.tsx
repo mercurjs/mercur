@@ -1,5 +1,4 @@
-import { Heading, Input, Switch } from "@medusajs/ui"
-import { useWatch } from "react-hook-form"
+import { Heading, Input } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -19,11 +18,6 @@ type DetailsTabProps = {
 function DetailsTab({ product }: DetailsTabProps) {
   const { t } = useTranslation()
   const form = useTabbedForm<z.infer<typeof CreateProductVariantSchema>>()
-
-  const manageInventoryEnabled = useWatch({
-    control: form.control,
-    name: "manage_inventory",
-  })
 
   const variantAttributes =
     (
@@ -100,102 +94,6 @@ function DetailsTab({ product }: DetailsTabProps) {
             )
           })}
         </div>
-        <div className="flex flex-col gap-y-4">
-          <Form.Field
-            control={form.control}
-            name="manage_inventory"
-            render={({ field: { value, onChange, ...field } }) => {
-              return (
-                <Form.Item>
-                  <div className="bg-ui-bg-component shadow-elevation-card-rest flex gap-x-3 rounded-lg p-4">
-                    <Form.Control>
-                      <Switch
-                        dir="ltr"
-                        className="mt-[2px] rtl:rotate-180"
-                        checked={value}
-                        onCheckedChange={(checked) => onChange(!!checked)}
-                        {...field}
-                      />
-                    </Form.Control>
-
-                    <div className="flex flex-col">
-                      <Form.Label>
-                        {t("products.variant.inventory.manageInventoryLabel")}
-                      </Form.Label>
-                      <Form.Hint>
-                        {t("products.variant.inventory.manageInventoryHint")}
-                      </Form.Hint>
-                    </div>
-                  </div>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )
-            }}
-          />
-          <Form.Field
-            control={form.control}
-            name="allow_backorder"
-            disabled={!manageInventoryEnabled}
-            render={({ field: { value, onChange, ...field } }) => {
-              return (
-                <Form.Item>
-                  <div className="bg-ui-bg-component shadow-elevation-card-rest flex gap-x-3 rounded-lg p-4">
-                    <Form.Control>
-                      <Switch
-                        dir="ltr"
-                        className="rtl:rotate-180"
-                        checked={value}
-                        onCheckedChange={(checked) => onChange(!!checked)}
-                        {...field}
-                        disabled={!manageInventoryEnabled}
-                      />
-                    </Form.Control>
-                    <div className="flex flex-col">
-                      <Form.Label>
-                        {t("products.variant.inventory.allowBackordersLabel")}
-                      </Form.Label>
-                      <Form.Hint>
-                        {t("products.variant.inventory.allowBackordersHint")}
-                      </Form.Hint>
-                    </div>
-                  </div>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )
-            }}
-          />
-          <Form.Field
-            control={form.control}
-            name="inventory_kit"
-            render={({ field: { value, onChange, ...field } }) => {
-              return (
-                <Form.Item>
-                  <div className="bg-ui-bg-component shadow-elevation-card-rest flex gap-x-3 rounded-lg p-4">
-                    <Form.Control>
-                      <Switch
-                        dir="ltr"
-                        className="rtl:rotate-180"
-                        checked={value}
-                        onCheckedChange={(checked) => onChange(!!checked)}
-                        {...field}
-                        disabled={!manageInventoryEnabled}
-                      />
-                    </Form.Control>
-                    <div className="flex flex-col">
-                      <Form.Label>
-                        {t("products.variant.inventory.inventoryKit")}
-                      </Form.Label>
-                      <Form.Hint>
-                        {t("products.variant.inventory.inventoryKitHint")}
-                      </Form.Hint>
-                    </div>
-                  </div>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )
-            }}
-          />
-        </div>
       </div>
     </div>
   )
@@ -204,14 +102,7 @@ function DetailsTab({ product }: DetailsTabProps) {
 DetailsTab._tabMeta = defineTabMeta<z.infer<typeof CreateProductVariantSchema>>({
   id: "detail",
   labelKey: "priceLists.create.tabs.details",
-  validationFields: [
-    "title",
-    "sku",
-    "manage_inventory",
-    "allow_backorder",
-    "inventory_kit",
-    "attribute_values",
-  ],
+  validationFields: ["title", "sku", "attribute_values"],
 })
 
 export default DetailsTab

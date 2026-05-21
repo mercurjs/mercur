@@ -417,20 +417,13 @@
       "tabs": {
         "details": "Detalhes",
         "organize": "Organizar",
-        "variants": "Variantes",
-        "inventory": "Kits de stock"
+        "variants": "Variantes"
       },
       "errors": {
         "variants": "Seleciona pelo menos uma variante.",
         "options": "Cria pelo menos uma opção.",
         "uniqueSku": "O SKU deve ser único.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "Kits de stock",
-        "label": "Adiciona itens de stock ao kit de stock da variante.",
-        "itemPlaceholder": "Selecionar item de stock",
-        "quantityPlaceholder": "Quantos destes são necessários para o kit?"
       },
       "variants": {
         "header": "Variantes",
@@ -521,7 +514,6 @@
     "attributes": "Atributos",
     "editAttributes": "Editar atributos",
     "editOptions": "Editar opções",
-    "editPrices": "Editar preços",
     "media": {
       "label": "Multimédia",
       "editHint": "Adiciona multimédia ao produto para o destacar na loja.",
@@ -678,27 +670,18 @@
         "header": "Detalhes da variante"
       },
       "deleteWarning": "Tens a certeza que queres eliminar esta variante?",
-      "pricesPagination": "1 - {{current}} de {{total}} preços",
       "tableItemAvailable": "{{availableCount}} disponível(is)",
       "tableItem_one": "{{availableCount}} disponível em {{locationCount}} localização",
       "tableItem_other": "{{availableCount}} disponível em {{locationCount}} localizações",
       "inventory": {
         "notManaged": "Não gerido",
-        "manageItems": "Gerir itens de stock",
-        "notManagedDesc": "O stock não é gerido para esta variante. Ativa 'Gerir stock' para acompanhar o stock da variante.",
-        "manageKit": "Gerir kit de stock",
         "navigateToItem": "Ir para item de stock",
-        "actions": {
-          "inventoryItems": "Ir para item de stock",
-          "inventoryKit": "Mostrar itens de stock"
-        },
         "inventoryKit": "Kit de stock",
         "inventoryKitHint": "Esta variante é composta por vários itens de stock?",
         "validation": {
           "itemId": "Seleciona um item de stock.",
           "quantity": "A quantidade é obrigatória. Introduz um número positivo."
         },
-        "header": "Stock e Inventário",
         "editItemDetails": "Editar detalhes do item",
         "manageInventoryLabel": "Gerir stock",
         "manageInventoryHint": "Quando ativo, alteramos a quantidade de stock quando encomendas e devoluções são criadas.",
@@ -731,15 +714,6 @@
         "toasts": {
           "success": "Organização de {{title}} atualizada com sucesso."
         }
-      }
-    },
-    "stock": {
-      "heading": "Gerir níveis de stock e localizações do produto",
-      "description": "Atualiza os níveis de stock para todas as variantes do produto.",
-      "loading": "Aguarda, isto pode demorar um momento...",
-      "tooltips": {
-        "alreadyManaged": "Este item de stock já é editável em {{title}}.",
-        "alreadyManagedWithSku": "Este item de stock já é editável em {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {

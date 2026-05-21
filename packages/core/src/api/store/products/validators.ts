@@ -10,7 +10,12 @@ import {
 } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type StoreGetProductParamsType = z.infer<typeof StoreGetProductParams>
-export const StoreGetProductParams = createSelectParams()
+export const StoreGetProductParams = createSelectParams().merge(
+  z.object({
+    region_id: z.string().optional(),
+    currency_code: z.string().optional(),
+  }),
+)
 
 const StoreGetProductsParamsFields = z.object({
   q: z.string().optional(),
@@ -23,6 +28,8 @@ const StoreGetProductsParamsFields = z.object({
   category_id: z.union([z.string(), z.array(z.string())]).optional(),
   tag_id: z.union([z.string(), z.array(z.string())]).optional(),
   is_giftcard: booleanString().optional(),
+  region_id: z.string().optional(),
+  currency_code: z.string().optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
 })

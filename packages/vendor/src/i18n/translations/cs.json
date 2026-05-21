@@ -414,20 +414,13 @@
       "tabs": {
         "details": "Detaily",
         "organize": "Organizovat",
-        "variants": "Varianty",
-        "inventory": "Sady inventáře"
+        "variants": "Varianty"
       },
       "errors": {
         "variants": "Prosím vyberte alespoň jednu variantu.",
         "options": "Prosím vytvořte alespoň jednu možnost.",
         "uniqueSku": "SKU musí být jedinečné.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "Sady inventáře",
-        "label": "Přidat inventární položky do sady inventáře varianty.",
-        "itemPlaceholder": "Vybrat inventární položku",
-        "quantityPlaceholder": "Kolik z těchto položek je potřeba pro sadu?"
       },
       "variants": {
         "header": "Varianty",
@@ -518,7 +511,6 @@
     "attributes": "Atributy",
     "editAttributes": "Upravit atributy",
     "editOptions": "Upravit možnosti",
-    "editPrices": "Upravit ceny",
     "media": {
       "label": "Média",
       "editHint": "Přidejte média k produktu, aby se zobrazila ve vašem obchodě.",
@@ -645,27 +637,18 @@
         "header": "Detaily varianty"
       },
       "deleteWarning": "Jste si jisti, že chcete smazat tuto variantu?",
-      "pricesPagination": "1 - {{current}} z {{total}} cen",
       "tableItemAvailable": "{{availableCount}} dostupné",
       "tableItem_one": "{{availableCount}} dostupné na {{locationCount}} lokaci",
       "tableItem_other": "{{availableCount}} dostupné na {{locationCount}} lokacích",
       "inventory": {
         "notManaged": "Nespravováno",
-        "manageItems": "Spravovat inventární položky",
-        "notManagedDesc": "Inventář není spravován pro tuto variantu. Zapněte 'Spravovat inventář' pro sledování inventáře varianty.",
-        "manageKit": "Spravovat sadu inventáře",
         "navigateToItem": "Přejít na inventární položku",
-        "actions": {
-          "inventoryItems": "Přejít na inventární položku",
-          "inventoryKit": "Zobrazit inventární položky"
-        },
         "inventoryKit": "Sada inventáře",
         "inventoryKitHint": "Skládá se tato varianta z několika inventárních položek?",
         "validation": {
           "itemId": "Prosím vyberte inventární položku.",
           "quantity": "Množství je povinné. Prosím zadejte kladné číslo."
         },
-        "header": "Sklad & Inventář",
         "editItemDetails": "Upravit detaily položky",
         "manageInventoryLabel": "Spravovat inventář",
         "manageInventoryHint": "Když je povoleno, změníme množství inventáře za vás, když jsou vytvořeny objednávky a vrácení.",
@@ -698,15 +681,6 @@
         "toasts": {
           "success": "Organizace {{title}} byla úspěšně aktualizována."
         }
-      }
-    },
-    "stock": {
-      "heading": "Spravovat úrovně zásob produktů a lokace",
-      "description": "Aktualizujte úrovně zásob pro všechny varianty produktu.",
-      "loading": "Počkejte, může to chvíli trvat...",
-      "tooltips": {
-        "alreadyManaged": "Tato inventární položka je již upravitelná pod {{title}}.",
-        "alreadyManagedWithSku": "Tato inventární položka je již upravitelná pod {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {

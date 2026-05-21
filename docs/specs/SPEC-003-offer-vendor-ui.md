@@ -1,10 +1,11 @@
 ---
-status: not_started
+status: in_progress
 canonical: false
 priority: 3
 area: vendor/offers
 created: 2026-05-20
 last_updated: 2026-05-21
+revision: "2026-05-21 Figma redesign — see top of file"
 ---
 
 > **2026-05-20 product/variant scope removal.** SPEC-002 moves the
@@ -47,20 +48,361 @@ The companion specs are:
 - **SPEC-004** — admin panel UI (`@mercurjs/admin`). Read-only list +
   detail surface backed by `/admin/offers` + `/admin/sellers/:id/offers/bulk-delete`.
 
+## Redesign — 2026-05-21 (Figma)
+
+This block is the **current contract** for the list, create wizard, and
+detail page. Anywhere below this section conflicts with what's in this
+block, this block wins; the older paragraphs are kept for change
+history but must be brought in line on the next pass.
+
+### Source designs
+
+| Surface | Figma node |
+| --- | --- |
+| List page — empty state | `40009201:285783` ("Offers - Empty State") |
+| List page — populated + sort menu | `40009202:309403` ("Offers - Sorting") |
+| Create flow — Catalogue tab | `40008331:90298` ("Create Offer") |
+| Create flow — Stock Levels & Prices tab | `40009131:208213` ("Create Offer - Stock Levels & Prices") |
+| Offer detail | `40009131:257674` ("Offer Details") |
+
+All five live in the **Mercur 2.0 - B2B Extention** file
+(`fileKey wA3p6jDQ9dE7PPnaNMIJKD`).
+
+### Copy: "seller" → "Store" everywhere user-facing
+
+The empty-state copy used to read **"Bind your seller catalog to a
+master variant to make it purchasable."** That string — and any other
+user-facing copy in this spec that referred to "seller" — is replaced
+by language that uses **"Store"** (or omits the word entirely when the
+Figma copy is shorter). Internal architectural prose ("seller-scoped
+route", "active seller's locations", etc.) is unaffected.
+
+Canonical empty-state copy (matches Figma `40009201:285783`):
+
+- Heading: **"No offers yet"**
+- Description: **"Create offers to start selling on the marketplace"**
+- Primary CTA: **"Create"** (single word, not "Create offer")
+
+i18n keys to change:
+
+- `offers.empty.heading`: `"Create your first offer"` →
+  `"No offers yet"`.
+- `offers.empty.description`: `"Bind your seller catalog to a master
+  variant to make it purchasable."` →
+  `"Create offers to start selling on the marketplace"`.
+- `offers.actions.create`: `"Create offer"` → `"Create"` for the
+  list page header and empty-state CTA. Detail/drawer action labels
+  that need the noun (`offers.actions.manage_prices`, etc.) stay as
+  they are.
+
+### Domain-model implication (must be ratified by SPEC-002)
+
+The redesigned create wizard lets the vendor pick **multiple
+variants** and configure stock + price for each one in a single pass.
+The cleanest mapping onto SPEC-002's existing 1-offer-per-variant
+shape is **fan-out on submit**: one `POST /vendor/offers` per selected
+variant, with the wizard's per-row values bound to that variant's
+payload. The list, detail, and edit surfaces continue to treat an
+offer as a single (seller, variant) pair — the wizard is the only
+place where the multi-select lives.
+
+This must be confirmed against SPEC-002 §Endpoint Contracts before
+implementation. If SPEC-002 instead chooses to widen the `Offer`
+entity to span N variants, this spec follows.
+
+### List page — redesign
+
+Layout overall: `SingleColumnPage` + a single
+`<Container className="divide-y p-0">` shell that hosts header,
+filter / search / sort row, table, and pagination footer.
+
+Header row (mirrors Figma):
+
+- Left: `<Heading>` **"Offers"** (no subtitle text; spacing same as
+  category list).
+- Right: primary `Button size="small"` labelled **"Create"** that
+  navigates to `create` (no icon).
+
+Filter / search / sort row (below header, separated by `divide-y`):
+
+- Left: `Add filter` button (Medusa UI filter popover, same component
+  the inventory list already uses).
+- Right cluster (gap-x-2):
+  - **Search table** input (`<Input>` with magnifier prefix).
+  - **Sort** trigger (icon button with three-horizontal-lines glyph,
+    opens a popover with two sections):
+    - Section A — field: **Title**, **Created**, **Updated**.
+    - Section B — direction: **Ascending (1 → 30)**,
+      **Descending (30 → 1)**.
+
+Empty state (Figma `40009201:285783`): a centered card with the tag
+icon, **"No offers yet"** heading, **"Create offers to start selling
+on the marketplace"** description, and a **"Create"** button. The
+card replaces the table when `count === 0 && no active query`.
+
+Filtered-empty state: keep the existing heading **"No matching
+offers"** and description **"Adjust filters or search terms."** —
+unchanged from the previous version.
+
+Pagination footer: `1 — 10 of 100 results` on the left,
+`1 of 10 pages` + `Prev` / `Next` on the right. Page size **10**
+(was 20 in the previous spec; Figma shows 10).
+
+### Columns — redesign
+
+The previous column set (Variant / SKU / Price / Stock / Shipping
+profile / Updated / actions) is replaced by the Figma column set:
+
+| Header | Source | Cell |
+| --- | --- | --- |
+| (selection) | `display: "select"` | Checkbox header + row; stops propagation on click. |
+| Offer | `variant.product.thumbnail` + `variant.product.title` (or `variant.title` fallback) | 24×24 `Thumbnail` + truncated `<Text size="small" weight="plus" leading="compact">` |
+| Category | First `product.categories[0]?.name` | Plain text; `PlaceholderCell` if none. |
+| Collection | `product.collection?.title` | Plain text; `PlaceholderCell` if none. |
+| Variants | Count of variants the active seller offers from the parent product | `<Text>{count} variants</Text>` (Figma renders `8 variants`). Until SPEC-002 exposes a count aggregate, derive client-side from a bounded fetch of the product's sibling offers. |
+| Status | Derived from `product.status` and offer `deleted_at` | `StatusBadge color="green"` **"Published"** when product is `published` and offer is not soft-deleted; otherwise `color="grey"` with the literal status label. |
+| (actions) | `display: "actions"` | Row `ActionMenu` (Edit, Manage prices, Manage inventory, Delete) — same actions as the previous version. |
+
+The `Price`, `Stock`, and `Shipping profile` columns from the previous
+spec are dropped from the list view. They still render on the detail
+page.
+
+`Offer` column drives row navigation (`navigateTo={(row) => row.id}`);
+checkbox cell calls `e.stopPropagation()` so selection doesn't open
+the detail page.
+
+### Create flow — redesign (two tabs)
+
+Host: `RouteFocusModal` (closes back to `/offers`). Inside:
+`TabbedForm` with **two** tabs instead of three. The previous Variant
++ Details + Pricing & stock split is replaced by:
+
+1. **Catalogue** (Figma `40008331:90298`) — multi-select listing of
+   the **variants** the active seller is allowed to bind offers
+   against. Backed by
+   `sdk.vendor.productVariants.query({ q, limit, offset, fields })`
+   (one row per variant, **not** per product) per the user's explicit
+   instruction. Columns (mirroring the Figma layout, adapted from
+   product rows to variant rows): **Product** (product title +
+   thumbnail), **Category**, **Collection**, **Variants** (variant
+   title), **Status** (product status badge). Header carries
+   `Catalogue` title + **Add filter** + **Search table** input
+   + sort menu (same shape as the list page sort menu). Footer of
+   the tab body shows the Figma "Tip" block: **"Select all relevant
+   products that match your inventory, then easily create offers for
+   them by simply adding your stock levels and prices."**
+   Pagination: `1 — 10 of 100 results`, page size 10.
+
+   - Validation: at least one variant must be selected before
+     **Continue** activates. **Continue** is disabled until then.
+   - Selection state lives in form state under
+     `selected_variant_ids: string[]` and persists across pagination
+     (a `Map<variantId, VariantSnapshot>` keeps the row metadata that
+     tab 2 renders so it doesn't need to refetch).
+
+2. **Stock Levels & Prices** (Figma `40009131:208213`) — a sticky
+   data grid with one row per selected variant. Rows are grouped by
+   product (the product title renders as a non-editable separator
+   row, matching the Figma `Swiftly Tech Cropped Sh...` / `SET -
+   Sports dress` group headers).
+
+   Columns per row (left-to-right, matching Figma):
+
+   1. **Title** — read-only thumbnail/icon + variant title (e.g.
+      `XS / Green`). Width auto.
+   2. **SKU** — text input, free-form, max 64 chars. Per-row
+      validation: required for any row whose Stock Location toggles
+      include at least one enabled location **or** any Price column
+      has a non-zero amount. Empty SKU is allowed when the entire
+      row is left at defaults (lets the user skip rows they don't
+      want to publish). The `(seller_id, sku)` uniqueness collision
+      surfaces as a 409 toast on the failing row (the row stays in
+      the grid so the user can fix it).
+   3. **Stock Location N** — one column per stock location the active
+      seller has. Renders a `Switch` with a `Not enabled` / `Enabled`
+      label. The switch state maps onto an `inventory_items` entry
+      for that variant (toggled on → include the location's
+      inventory_item in the offer payload; off → omit). Until a
+      location is enabled there is no stocked quantity input — the
+      stocked quantity is set via the existing `/inventory` page,
+      not in this wizard.
+   4. **Price <currency>** — one column per active store currency.
+      Numeric input with the currency's symbol prefix; defaults to
+      `0.00`. Submitting a row with all-zero prices is allowed; the
+      backend treats it as "publish without a price ladder until I
+      come back to it" and the offer's detail page surfaces the
+      empty-pricing state.
+
+   Toolbar (Figma top-bar):
+
+   - **View** button (Medusa UI table view menu) for toggling column
+     visibility (already part of `DataGrid`).
+   - **Shortcuts** button (right side) opens the keyboard shortcuts
+     popover (`DataGrid`'s default).
+
+   Footer: **Cancel** (left of the bottom-right cluster, behind
+   `RouteFocusModal.Close`) + **Publish** (primary, right). On
+   `Publish`, the wizard fans out one
+   `POST /vendor/offers` request per row that has any non-default
+   field (SKU, an enabled location toggle, or a non-zero price);
+   rows left fully at defaults are skipped. Failures are surfaced
+   per-row inline; the wizard does **not** close until every row
+   either succeeds or is explicitly skipped. Successful rows are
+   removed from the grid so retries focus only on the failures.
+
+Tab metadata:
+
+- Tab 1: `{ id: "catalogue", labelKey: "offers.create.tabs.catalogue", validationFields: ["selected_variant_ids"] }`.
+- Tab 2: `{ id: "stockLevelsAndPrices", labelKey: "offers.create.tabs.stockLevelsAndPrices", validationFields: ["rows"] }`.
+
+The Figma renders the first tab's progress dot in blue (in-progress)
+and the second tab's in dashed-grey (not-started). That matches the
+`ProgressTabs` semantics the `TabbedForm` primitive already uses; no
+new variant is needed.
+
+i18n key changes:
+
+- Add `offers.create.tabs.catalogue` = **"Catalogue"**.
+- Add `offers.create.tabs.stockLevelsAndPrices` =
+  **"Stock Levels & Prices"**.
+- Add `offers.create.tip` =
+  **"Select all relevant products that match your inventory, then
+  easily create offers for them by simply adding your stock levels
+  and prices."**
+- Add `offers.create.publish` = **"Publish"**.
+- Add `offers.fields.stockLocation` = **"Stock Location {{name}}"**
+  (column header template).
+- Add `offers.fields.priceCurrency` = **"Price {{code}}"** (column
+  header template).
+- Drop the older tab keys (`offers.create.tabs.variant`,
+  `offers.create.tabs.details`,
+  `offers.create.tabs.pricingAndStock`) once tab 2 lands.
+
+### Detail page — redesign
+
+Layout: `TwoColumnPage<OfferDetail>` with `showJSON: false` and
+`showMetadata: false` (the redesigned sidebar replaces both).
+
+Page header (above the two columns): breadcrumb
+`Offers › <product title>`; page title is the product title (e.g.
+**"Swiftly Tech Cropped Short Sleeve 2.0 - Sports T-shirt"**) plus
+the top-right action menu (`Edit` / `Delete`).
+
+Main column (top to bottom):
+
+1. **General** (`Container divide-y p-0`):
+   - Header row: `<Heading>` "General" + action menu (Edit,
+     Delete).
+   - Body `SectionRow`s, matching Figma:
+     - **Description** — product description (multi-line).
+     - **Subtitle** — product subtitle.
+     - **Handle** — product handle (e.g. `/tech-tshirt`).
+     - **Discountable** — boolean, rendered as text (`True` /
+       `False`).
+2. **Media** (`Container divide-y p-0`):
+   - Header row: `<Heading>` "Media" + ellipsis menu.
+   - Body: horizontal scroller of variant / product thumbnails
+     (same component the product detail page already uses).
+3. **Variants** (`Container divide-y p-0`):
+   - Header row: `<Heading>` "Variants" + ellipsis menu.
+   - Toolbar row: **Add filter** + **Search** input + sort icon
+     (same shape as the list page).
+   - Table columns: **Title** (thumbnail + label), **SKU**,
+     attribute-axis columns (one per axis — Figma shows **Size**
+     and **Color**), **Inventory** (e.g. `50 available at 1
+     location`, red text when the value is `0`). Inventory cell
+     hosts a row action menu with **Go to inventory item**
+     (navigates to `/inventory/${inventory_item_id}`).
+   - Pagination footer: `1 — 6 results`, `1 of 1 pages`, Prev /
+     Next.
+
+Sidebar column (top to bottom):
+
+1. **Organize** (`Container divide-y p-0`):
+   - Header row: `<Heading level="h2">` "Organize" + ellipsis menu.
+   - `SectionRow`s: **Tags**, **Type**, **Primary categories**
+     (chip), **Secondary categories** (chips: `Sport T-Shirts`,
+     `T-Shirts` in Figma), **Collection** (e.g. `Streetwear`).
+2. **Attributes** (`Container divide-y p-0`):
+   - Header row: `<Heading level="h2">` "Attributes" + tooltip /
+     info icon.
+   - Sub-block **Variations** ("Attributes used for variations") —
+     one row per attribute axis with chips for each value (e.g.
+     `Size`: `XS`, `S`, `M`, `L`; `Color`: `Green`, `Blue`).
+   - Sub-block **Product Information** ("Attributes used for
+     informational purposes") — one `SectionRow` per
+     non-variant-axis attribute (e.g. `Brand: Adidas`,
+     `Number: LLS41D03E-Q11`, `Sleeve length (cm): 20`,
+     `Multipack: False`).
+
+The previous **Pricing**, **Inventory items**, **Shipping profile**,
+and **Status** sidebar sections are **dropped** from the default
+detail view. Pricing and inventory remain reachable via the row
+action menu (`Manage prices` → `pricing` drawer, `Manage inventory`
+→ `inventory` drawer). The shipping profile is editable from the
+edit drawer.
+
+The `useOffer` loader field list grows to cover the new sections:
+`product.thumbnail`, `product.subtitle`, `product.handle`,
+`product.discountable`, `product.media`, `product.type.id`,
+`product.type.value`, `product.tags`, `product.categories`,
+`product.collection`, `product.variants`,
+`product.variants.attribute_values`,
+`product.variants.attribute_values.attribute`,
+`product.variants.inventory_items` (variant-level "available at N
+locations" string is derived client-side from existing
+`inventory_item.location_levels`).
+
+### Folder-layout adjustments (delta vs the older spec)
+
+- `_components/use-offer-table-columns.tsx` replaces its column set
+  per the redesign above (Offer / Category / Collection / Variants /
+  Status / actions).
+- `_components/offer-list-toolbar.tsx` (new) hosts the Add filter +
+  Search + Sort cluster outside of `_DataTable`'s defaults so the
+  layout matches the Figma.
+- `create/create-offer-form/` adopts a two-tab shape:
+  - `create-offer-catalogue.tsx` (was `create-offer-variant.tsx`).
+  - `create-offer-stock-levels-and-prices.tsx` (was
+    `create-offer-pricing-and-stock.tsx`). Hosts the
+    grouped-by-product data grid (`DataGrid` primitive) with the
+    SKU column, per-location switches, and per-currency prices.
+  - `create-offer-details.tsx` is deleted; the SKU + shipping
+    profile fields it owned migrate into the Stock Levels & Prices
+    grid (SKU is per-row; shipping profile becomes a single
+    wizard-level `Select` rendered above the grid).
+- `[id]/_components/` is restructured:
+  - `offer-general-section.tsx` is repurposed to render the four
+    product-level rows (Description / Subtitle / Handle /
+    Discountable).
+  - `offer-media-section.tsx` (new) hosts the media scroller.
+  - `offer-variants-section.tsx` (new) hosts the variants table
+    with the per-row "Go to inventory item" action.
+  - `offer-organize-section.tsx` (new) hosts the Organize sidebar
+    block.
+  - `offer-attributes-section.tsx` (new) hosts the Variations +
+    Product Information sub-blocks.
+  - `offer-pricing-section.tsx`, `offer-inventory-section.tsx`,
+    `offer-shipping-section.tsx`, and `offer-status-sidebar.tsx`
+    are dropped from the default detail render. The first two are
+    still mounted by the `/offers/:id/pricing` and
+    `/offers/:id/inventory` drawer routes.
+
 ## User-Visible Behavior
 
 A logged-in vendor opens the vendor panel and sees a new sidebar entry
 **Offers** nested under **Products**. Clicking it lands on
-`/offers`, a list page with one row per offer the active seller owns.
+`/offers`, a list page with one row per offer the active store owns.
 From there the vendor can search, filter, sort, paginate, bulk-select
 rows, open a single offer's detail page, edit its identity / pricing /
 inventory across three drawers, delete a single offer, or bulk-delete
-a selection. Creating a new offer opens a four-tab full-screen wizard
-that submits to `POST /vendor/offers`.
+a selection. Creating a new offer opens a **two-tab** full-screen
+wizard (**Catalogue** → **Stock Levels & Prices**); on **Publish** the
+wizard fans out one `POST /vendor/offers` per selected variant row.
 
 The screen vocabulary mirrors the existing vendor pages
-(`pages/inventory`, `pages/products`) so a seller already familiar
-with the dashboard recognizes every interaction.
+(`pages/inventory`, `pages/products`) so a store operator already
+familiar with the dashboard recognizes every interaction.
 
 ### Sidebar entry
 
@@ -84,10 +426,15 @@ Categories):
 ```
 
 No new top-level icon is introduced. Rationale: an offer is the
-seller's listing on a master variant — conceptually a child of
+store's listing on a master variant — conceptually a child of
 Products, not a peer of Orders/Inventory/Customers.
 
 ### List page (`/offers`)
+
+> **Superseded** by **Redesign — 2026-05-21 (Figma) → List page —
+> redesign**. The bullets below describe the now-obsolete first cut
+> and are kept only for change history. Where the two conflict, the
+> redesign block at the top of this file wins.
 
 - Layout: `SingleColumnPage` + a single `Container className="divide-y p-0"`.
 - Header row: `<Heading>` "Offers" left, subtitle "Manage your
@@ -115,13 +462,20 @@ Products, not a peer of Orders/Inventory/Customers.
     Selection is cleared on success.
 - Empty states (via `_DataTable`'s built-in empty rendering, mirroring
   `NoRecords` / `NoResults`):
-  - No offers yet: heading "Create your first offer", description
-    "Bind your seller catalog to a master variant to make it
-    purchasable.", primary CTA "Create offer".
+  - No offers yet: heading **"No offers yet"**, description
+    **"Create offers to start selling on the marketplace"**, primary
+    CTA **"Create"** (was "Create your first offer" / "Bind your
+    seller catalog to a master variant to make it purchasable." /
+    "Create offer" in the first cut — replaced 2026-05-21 to use
+    "Store"-aware language and match Figma `40009201:285783`).
   - Filtered to empty: heading "No matching offers", description
     "Adjust filters or search terms.".
 
 ### Columns
+
+> **Superseded** by the redesign block's **Columns — redesign**
+> table. The columns table below describes the now-obsolete first
+> cut.
 
 | Header           | Accessor / Source                                                                        | Cell                                                                                                                                                   |
 | ---------------- | ---------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -162,6 +516,12 @@ Ordering supports `sku`, `created_at`, `updated_at`. Default sort is
 `updated_at DESC`.
 
 ### Detail page (`/offers/:id`)
+
+> **Superseded** by the redesign block's **Detail page — redesign**.
+> The text below documents the now-obsolete first cut (sidebar
+> status/shipping sections, JSON viewer + Metadata wired through
+> `TwoColumnPage`'s defaults). Use the redesign block for the
+> implementation contract.
 
 Layout: `TwoColumnPage<HttpTypes.VendorOfferResponse["offer"]>` with
 `showJSON`, `showMetadata`, and an `<Outlet />` for stacked
@@ -223,6 +583,12 @@ with the field list:
 Errors `throw` so the route-level `ErrorBoundary` renders the fallback.
 
 ### Create flow (`/offers/create`)
+
+> **Superseded** by the redesign block's **Create flow — redesign
+> (two tabs)**. The text below documents the now-obsolete first cut
+> (three tabs: Variant → Details → Pricing & stock). The redesign
+> collapses this into **Catalogue** (multi-select variants) +
+> **Stock Levels & Prices** (one row per selected variant).
 
 Host: `RouteFocusModal` (closes back to `/offers`). Inside:
 `TabbedForm` with **three** tabs, each carrying `_tabMeta` via
@@ -840,7 +1206,11 @@ export const OfferDetailPage = Object.assign(Root, {
 ## i18n keys
 
 Added to `packages/vendor/src/i18n/translations/en.json` first.
-Sister files updated as part of the per-locale sweep.
+Sister files updated as part of the per-locale sweep. The shape below
+reflects the **2026-05-21 Figma redesign**: empty-state copy reworded
+to drop "seller" in favour of marketplace-neutral language, the
+two-tab Catalogue + Stock Levels & Prices wizard, and the per-row
+SKU / per-location switch / per-currency price field templates.
 
 ```
 "offers": {
@@ -849,10 +1219,11 @@ Sister files updated as part of the per-locale sweep.
   "create": {
     "header": "Create offer",
     "successToast": "Offer created",
+    "publish": "Publish",
+    "tip": "Select all relevant products that match your inventory, then easily create offers for them by simply adding your stock levels and prices.",
     "tabs": {
-      "variant": "Variant",
-      "details": "Details",
-      "pricingAndStock": "Pricing & stock"
+      "catalogue": "Catalogue",
+      "stockLevelsAndPrices": "Stock Levels & Prices"
     }
   },
   "edit": {
@@ -882,7 +1253,7 @@ Sister files updated as part of the per-locale sweep.
     "partialToast": "Deleted {{succeeded}} of {{total}} offer(s); {{failed}} failed"
   },
   "actions": {
-    "create": "Create offer",
+    "create": "Create",
     "manage_prices": "Manage prices",
     "manage_inventory": "Manage inventory",
     "bulkDelete": "Delete selected"
@@ -894,7 +1265,11 @@ Sister files updated as part of the per-locale sweep.
     "ean": "EAN",
     "upc": "UPC",
     "requiredQuantity": "Required quantity",
-    "stockStatus": "Stock status"
+    "stockStatus": "Stock status",
+    "stockLocation": "Stock Location {{name}}",
+    "priceCurrency": "Price {{code}}",
+    "notEnabled": "Not enabled",
+    "enabled": "Enabled"
   },
   "stockStatus": {
     "in_stock": "In stock",
@@ -902,8 +1277,8 @@ Sister files updated as part of the per-locale sweep.
     "out_of_stock": "Out of stock"
   },
   "empty": {
-    "heading": "Create your first offer",
-    "description": "Bind your seller catalog to a master variant to make it purchasable."
+    "heading": "No offers yet",
+    "description": "Create offers to start selling on the marketplace"
   },
   "filtered": {
     "heading": "No matching offers",
@@ -912,6 +1287,16 @@ Sister files updated as part of the per-locale sweep.
 }
 ```
 
+Removed keys (compared with the previous version of this spec):
+
+- `offers.create.tabs.variant`
+- `offers.create.tabs.details`
+- `offers.create.tabs.pricingAndStock`
+
+Both `offers.empty.heading` and `offers.empty.description` change
+text; `offers.actions.create` shortens from `"Create offer"` to
+`"Create"`.
+
 ## Verification
 
 1. `bun install && bun run build` succeeds with the new pages and
@@ -919,55 +1304,88 @@ Sister files updated as part of the per-locale sweep.
 2. With a seeded marketplace (at least two sellers, each with one
    product variant), log into the vendor panel as seller A.
    1. Sidebar shows **Offers** nested under Products.
-   2. `/offers` renders an empty state with a primary **Create
-      offer** CTA.
-3. Click **Create offer**. The three-tab wizard opens:
-   1. Tab 1 (**Variant**): pick a variant that belongs to a product
-      accessible to seller A. **Continue** is disabled until a
-      variant is selected.
-   2. Tab 2 (**Details**): fill `sku`, pick a shipping profile.
-      Validate that submitting with an empty `sku` re-focuses tab 2
-      and shows the `Form.ErrorMessage`.
-   3. Tab 3 (**Pricing & stock**):
-      - In the Prices sub-section, add at least one price row. Add
-        a second row with the same `(currency_code, region_id,
-        customer_group_id, min_quantity, max_quantity)` tuple — the
-        client-side validator blocks **Save** and surfaces an error
-        on the duplicate row.
-      - In the Inventory items sub-section, add one item. Add a
-        duplicate `inventory_item_id` — the client-side validator
-        blocks **Save** and surfaces an error on the duplicate row.
-      - Remove the duplicates, click **Save**.
-   4. Toast `offers.create.successToast`, modal closes, the new
-      offer's detail page renders.
-4. On the detail page:
-   1. General, Pricing, Inventory, Shipping sections render with the
-      submitted values. JSON viewer and metadata sections render at
-      the bottom of the sidebar.
-   2. Stock status badge reflects the seeded inventory level.
-   3. Click **Edit** → identity drawer opens, fields prefilled,
+   2. `/offers` renders an empty state with heading **"No offers
+      yet"**, description **"Create offers to start selling on the
+      marketplace"**, and a primary **Create** CTA (no "offer" suffix
+      on the button). The previous "Bind your seller catalog…" copy
+      is gone.
+3. Click **Create**. The **two-tab** wizard opens (Catalogue → Stock
+   Levels & Prices, per Figma `40008331:90298` and
+   `40009131:208213`):
+   1. Tab 1 (**Catalogue**): the table renders one row per variant
+      from `sdk.vendor.productVariants.query`, with **Add filter** /
+      **Search table** / sort menu on top and the
+      **"Tip: Select all relevant products…"** footer above the
+      wizard footer. Selecting variant rows enables **Continue**;
+      with zero rows selected **Continue** stays disabled.
+   2. Tab 2 (**Stock Levels & Prices**): the grid lists every
+      selected variant grouped by product. Each row exposes a SKU
+      input, one toggle per stock location (`Not enabled` /
+      `Enabled`), and one numeric input per active store currency
+      (`Price USD`, `Price PLN`, `Price EUR`, …).
+      - Enable one stock location toggle on a row that has no SKU →
+        the wizard's `Publish` button surfaces a per-row SKU-required
+        error.
+      - Type a duplicate SKU into two rows belonging to the same
+        store → the client-side validator highlights both rows; on
+        `Publish` the server-side `(seller_id, sku)` uniqueness
+        check surfaces a 409 toast and the duplicate row keeps the
+        inline error.
+      - Click **Publish**. The wizard fans out one
+        `POST /vendor/offers` per row that has any non-default
+        field, removes successful rows from the grid, and surfaces
+        per-row failures for the rest.
+   3. After every row succeeds, the toast
+      `offers.create.successToast` fires and the wizard closes back
+      to `/offers`.
+4. On the list page:
+   1. The list shows one row per published variant with columns
+      **Offer** (thumbnail + title), **Category**, **Collection**,
+      **Variants** (count), **Status** (`Published` badge).
+   2. The sort menu reorders the table (Title / Created / Updated +
+      Ascending / Descending).
+   3. **Add filter** opens the filter popover (matches Figma).
+   4. Pagination footer reads `1 — 10 of N results` /
+      `1 of K pages` with `Prev` / `Next`.
+5. Open one of the published offers; the detail page renders per
+   Figma `40009131:257674`:
+   1. Page header is the product title (e.g. **Swiftly Tech Cropped
+      Short Sleeve 2.0 - Sports T-shirt**) plus a top-right action
+      menu (Edit / Delete).
+   2. Main column shows **General** (Description / Subtitle / Handle
+      / Discountable), **Media** (variant + product thumbnails),
+      **Variants** (table with Title / SKU / attribute axes /
+      Inventory cell and a `Go to inventory item` action per row).
+   3. Sidebar shows **Organize** (Tags / Type / Primary categories /
+      Secondary categories / Collection) and **Attributes**
+      (`Variations` chips per axis + `Product Information`
+      key/value rows).
+   4. Variants whose effective inventory across all locations is `0`
+      render the inventory cell text in `text-ui-fg-error`.
+6. Edit flows still reachable via the row / detail action menu:
+   1. Click **Edit** → identity drawer opens, fields prefilled,
       change `sku`, save. Toast and detail rerender; price table
       untouched.
-   4. Click **Manage prices** → drawer opens, prices prefilled. Add a
+   2. Click **Manage prices** → drawer opens, prices prefilled. Add a
       new currency row, remove the original. Save. Detail re-renders
       with one row (replace semantics).
-   5. Click **Manage inventory** → drawer opens. Change a
+   3. Click **Manage inventory** → drawer opens. Change a
       `required_quantity`, attach a new item, remove an existing
       one. Save. Detail re-renders.
-5. Return to `/offers`:
-   1. The list shows the new offer. Sort by `updated_at DESC` puts it
-      first.
-   2. Select the row's checkbox, then a second offer's checkbox.
-      Click **Delete selected**. Confirm in the prompt. Toast shows
-      `offers.bulkDelete.successToast` with `count = 2`. Both rows
-      vanish from the list and selection clears.
-   3. Filter by Shipping profile → the list filters correctly.
-   4. Search by partial `sku` → the list filters correctly.
-6. Cross-seller isolation: log out, log in as seller B. `/offers`
-   only shows seller B's offers; loading `/offers/<seller-A-offer-id>`
-   surfaces the `ErrorBoundary` because the route returns
+7. Return to `/offers`:
+   1. Sort by `updated_at DESC` puts the most recently created
+      offer first.
+   2. Select two row checkboxes, click **Delete selected**, confirm
+      in the prompt. Toast shows `offers.bulkDelete.successToast`
+      with `count = 2`. Both rows vanish from the list and
+      selection clears.
+   3. Filter and search both narrow the list.
+8. Cross-store isolation: log out, log in as a second store's
+   account. `/offers` only shows the active store's offers;
+   loading `/offers/<other-store-offer-id>` surfaces the
+   `ErrorBoundary` because the route returns
    `MedusaError.Types.NOT_ALLOWED` (403).
-7. **Deletion checks (paired with Variant-scoped UI to remove):**
+9. **Deletion checks (paired with Variant-scoped UI to remove):**
    1. The vendor product detail page no longer renders an "Edit
       prices" or "Manage stock" row action in the variants table
       ActionMenu, and the bulk command bar no longer surfaces a
@@ -997,39 +1415,124 @@ Sister files updated as part of the per-locale sweep.
    7. The variant edit drawer no longer shows `manage_inventory` or
       `allow_backorder` switches.
    8. `grep -R "products.editPrices\|products.stock\|products.variant.pricesPagination\|products.variant.inventory\|products.create.tabs.inventory" packages/vendor/src` returns no matches.
-7. Integration test (Jest + Playwright if available, or a route-level
-   harness): the test
-   `integration-tests/http/offer/vendor/offer.spec.ts` already covers
-   the API contracts referenced by every interaction in this spec.
-   This spec's UI verification rides on top of that and does not need
-   a parallel API test; if a Playwright suite is introduced for the
-   vendor panel, add a smoke test that walks step 2 → step 4 above
-   and asserts the rendered DOM via `data-testid` attributes named
-   per the page-authoring checklist:
-   - `offer-list-table`, `offer-list-create-button`,
-     `offer-list-row-${id}`, `offer-list-action-menu-${id}`,
-     `offer-list-bulk-delete`
-   - `offer-create-form`, `offer-create-tab-{variant,details,pricingAndStock}`,
-     `offer-create-prices-repeater`, `offer-create-inventory-items-repeater`
-   - `offer-detail-{general,pricing,inventory,shipping,status}-section`
-   - `offer-edit-form`, `offer-pricing-edit-form`,
-     `offer-inventory-batch-form`
+10. Integration test (Jest + Playwright if available, or a
+    route-level harness): the test
+    `integration-tests/http/offer/vendor/offer.spec.ts` already
+    covers the API contracts referenced by every interaction in
+    this spec. This spec's UI verification rides on top of that
+    and does not need a parallel API test; if a Playwright suite
+    is introduced for the vendor panel, add a smoke test that
+    walks step 2 → step 5 above and asserts the rendered DOM via
+    `data-testid` attributes named per the page-authoring
+    checklist:
+    - `offer-list-table`, `offer-list-create-button`,
+      `offer-list-row-${id}`, `offer-list-action-menu-${id}`,
+      `offer-list-bulk-delete`, `offer-list-sort-trigger`,
+      `offer-list-add-filter`.
+    - `offer-create-form`,
+      `offer-create-tab-{catalogue,stockLevelsAndPrices}`,
+      `offer-create-catalogue-search`,
+      `offer-create-catalogue-row-${variantId}`,
+      `offer-create-stock-row-${variantId}`,
+      `offer-create-stock-row-${variantId}-sku-input`,
+      `offer-create-stock-row-${variantId}-location-${locationId}-toggle`,
+      `offer-create-stock-row-${variantId}-price-${currencyCode}-input`,
+      `offer-create-publish`.
+    - `offer-detail-{general,media,variants,organize,attributes}-section`,
+      `offer-detail-variants-row-${variantId}-go-to-inventory`.
+    - `offer-edit-form`, `offer-pricing-edit-form`,
+      `offer-inventory-batch-form`.
 
 ## Evidence
 
-To be filled in once the spec is implemented:
+### 2026-05-21 — Figma redesign accepted (no code change)
 
-- **Implemented at:** _TBD_
-- **Source:** `packages/vendor/src/pages/offers/...`, hooks in
-  `packages/vendor/src/hooks/api/offers.tsx`, route registration in
-  `packages/vendor/src/get-route-map.tsx`, sidebar update in
-  `packages/vendor/src/components/layout/main-layout/main-layout.tsx`.
-- **Translations:** `packages/vendor/src/i18n/translations/en.json`
-  - sister locale files.
-- **Build artifact:** vendor Vite dev server (`bun run dev`) renders
-  every step in **Verification** without console errors.
-- **Test run pending:** record the Playwright run id + the existing
-  `integration-tests/http/offer/vendor/offer.spec.ts` run id.
+- The list, create wizard, and detail page sections were rewritten in
+  this file to match the Figma designs cited in
+  **Redesign — 2026-05-21 (Figma) → Source designs**.
+- The Session-15 implementation captured below (3-tab Variant /
+  Details / Pricing & stock wizard, Status sidebar on the detail
+  page, etc.) **no longer matches** the contract above and must be
+  reworked. See the next-actions list in `claude-progress.md` Session
+  16 for the implementation plan.
+- No production code was modified in this revision; only this spec
+  file changed.
+
+### 2026-05-21 — Initial implementation (vendor UI + variant-scoped deletions)
+
+- **Implemented at:** 2026-05-21
+- **Source (additions):**
+  - `packages/vendor/src/pages/offers/` — list, detail, create wizard,
+    three edit drawers (identity, pricing, batch inventory), common
+    constants/types/utils/delete-action hook.
+  - `packages/vendor/src/hooks/api/offers.tsx` — `useOffers`,
+    `useOffer`, `useCreateOffer`, `useUpdateOffer`,
+    `useBatchOfferInventoryItems`, `useDeleteOffer`,
+    `useBulkDeleteOffers`.
+  - `packages/vendor/src/get-route-map.tsx` — `/offers` route tree
+    (`create`, `:id`, `:id/{edit,pricing,inventory}`) + breadcrumb
+    + loader wiring.
+  - `packages/vendor/src/components/layout/main-layout/main-layout.tsx`
+    — **Offers** nested under **Products** as the first child item.
+  - `packages/vendor/src/pages/index.ts` + `hooks/api/index.ts` —
+    barrel exports.
+- **Source (deletions, paired with SPEC-002 backend migrations):**
+  - Whole directories: `pages/products/[id]/prices/`,
+    `pages/products/[id]/stock/`,
+    `pages/products/[id]/edit-stocks-and-prices/`,
+    `pages/products/create/components/product-create-inventory-kit-form/`,
+    `pages/product-variants/product-variant-detail/components/variant-prices-section/`,
+    `pages/product-variants/product-variant-detail/components/variant-inventory-section/`,
+    `pages/product-variants/product-variant-manage-inventory-items/`.
+  - Single files: `pages/products/common/variant-pricing-form.tsx`,
+    `pages/products/[id]/variants/create/create-product-variant-form/inventory-kit-tab.tsx`,
+    `.../pricing-tab.tsx`.
+  - Modifications: `product-variant-section.tsx` (row actions and
+    bulk command stripped), `product-variant-detail.tsx` (sections
+    removed), variant edit/create forms (manage_inventory /
+    allow_backorder / inventory_kit / prices / inventory removed),
+    `product-create-variants-form.tsx` (price + inventory columns
+    dropped), `product-create-form.tsx` (inventory tab removed,
+    `regionsCurrencyMap` no longer threaded), `product-create.tsx`
+    (`InventoryTab` export dropped), `products/create/constants.ts`
+    + `utils.ts` (schema and helper branches dropped), and the
+    route-map entries for `prices`/`stock`/`edit-stocks-and-prices`/
+    `variants/:variant_id/prices` removed.
+- **Translations:**
+  - `packages/vendor/src/i18n/translations/en.json` — new `offers.*`
+    namespace; removed `products.editPrices`, `products.stock`,
+    `products.variant.pricesPagination`, `products.variant.inventory.*`
+    (manageItems, manageKit, notManagedDesc, actions.inventoryItems,
+    actions.inventoryKit, header), `products.create.tabs.inventory`,
+    `products.create.inventory`. 32 sister locale files have the
+    legacy keys removed via a JSON sweep.
+  - `packages/vendor/src/i18n/translations/$schema.json` regenerated
+    from `en.json` so the validate-translations vitest stays green.
+- **Build artifacts:**
+  - `cd packages/vendor && bun run build` → ESM and DTS Build success.
+  - `bunx vitest run packages/vendor/src/i18n/translations/__tests__/validate-translations.spec.ts`
+    → 1/1 pass.
+  - `bunx oxlint --quiet packages/vendor/src/pages/offers
+    packages/vendor/src/hooks/api/offers.tsx` → 0 errors / 3 warnings
+    (baseline `_tabMeta` underscore-dangle, same as other tabbed
+    forms in the package).
+  - `grep -R "products\.editPrices\|products\.stock\|
+    products\.variant\.pricesPagination\|products\.variant\.inventory\|
+    products\.create\.tabs\.inventory" packages/vendor/src` →
+    no matches.
+- **Outstanding:**
+  - The vendor Vite dev server walkthrough (Verification §2–§7)
+    has not been performed in this session; the SPA build is green
+    but the UI flows still need a runtime smoke before status flips
+    to `passing`.
+  - `@mercurjs/admin` `bun run build` fails on a pre-existing
+    `product-variant-detail.tsx` DTS error rooted in SPEC-002's
+    backend removal of `prices`/`options` from `ProductVariant`.
+    That regression is **not introduced by this session** (confirmed
+    by stashing the SPEC-003 changes and re-running the admin build
+    — same failure) and belongs to SPEC-004's admin UI scope.
+  - A vendor-side Playwright suite mirroring the spec's
+    `data-testid` contract is not yet authored.
 
 ## Notes
 

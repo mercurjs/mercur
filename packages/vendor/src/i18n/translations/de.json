@@ -400,20 +400,13 @@
       "tabs": {
         "details": "Details",
         "organize": "Organisieren",
-        "variants": "Varianten",
-        "inventory": "Inventar-Kits"
+        "variants": "Varianten"
       },
       "errors": {
         "variants": "Bitte wählen Sie mindestens eine Variante aus.",
         "options": "Bitte erstellen Sie mindestens eine Option.",
         "uniqueSku": "Die SKU muss eindeutig sein.",
         "requiredAttribute": "This attribute is required."
-      },
-      "inventory": {
-        "heading": "Inventar-Kits",
-        "label": "Fügen Sie Inventargegenstände zum Inventarkit der Variante hinzu.",
-        "itemPlaceholder": "Wählen Sie den Inventargegenstand aus",
-        "quantityPlaceholder": "Wie viele davon werden für den Bausatz benötigt?"
       },
       "variants": {
         "header": "Varianten",
@@ -504,7 +497,6 @@
     "attributes": "Attribute",
     "editAttributes": "Attribute bearbeiten",
     "editOptions": "Optionen bearbeiten",
-    "editPrices": "Preise bearbeiten",
     "media": {
       "label": "Medien",
       "editHint": "Fügen Sie dem Produkt Medien hinzu, um es in Ihrem Schaufenster zu präsentieren.",
@@ -627,27 +619,18 @@
         "header": "Variantendetails"
       },
       "deleteWarning": "Möchten Sie diese Variante wirklich löschen?",
-      "pricesPagination": "1 – {{current}} von {{total}} Preisen",
       "tableItemAvailable": "{{availableCount}} verfügbar",
       "tableItem_one": "{{availableCount}} verfügbar am Standort {{locationCount}}",
       "tableItem_other": "{{availableCount}} an {{locationCount}} Standorten verfügbar",
       "inventory": {
         "notManaged": "Nicht verwaltet",
-        "manageItems": "Verwalten Sie Inventargegenstände",
-        "notManagedDesc": "Für diese Variante wird kein Lagerbestand verwaltet. Aktivieren Sie „Inventar verwalten“, um den Bestand der Variante zu verfolgen.",
-        "manageKit": "Inventar-Kit verwalten",
         "navigateToItem": "Gehen Sie zum Inventargegenstand",
-        "actions": {
-          "inventoryItems": "Gehen Sie zum Inventargegenstand",
-          "inventoryKit": "Inventargegenstände anzeigen"
-        },
         "inventoryKit": "Inventar-Kit",
         "inventoryKitHint": "Besteht diese Variante aus mehreren Inventargegenständen?",
         "validation": {
           "itemId": "Bitte wählen Sie den Inventarartikel aus.",
           "quantity": "Menge ist erforderlich. Bitte geben Sie eine positive Zahl ein."
         },
-        "header": "Lager und Inventar",
         "editItemDetails": "Artikeldetails bearbeiten",
         "manageInventoryLabel": "Inventar verwalten",
         "manageInventoryHint": "Wenn diese Option aktiviert ist, ändern wir die Lagerbestandsmenge für Sie, wenn Bestellungen und Retouren erstellt werden.",
