@@ -1,43 +1,48 @@
 import { BigNumberInput } from "@medusajs/framework/types"
 import { BigNumber, MathBN, MedusaError } from "@medusajs/framework/utils"
 
-// The writable offer ↔ inventory_item M:N link surfaces the linked
-// InventoryItem entity from the offer side, so `inventory_items.*`
-// resolves to fields on InventoryItem (not the pivot row). The pivot's
-// `required_quantity` extra column is not currently exposed through Query
-// — see SPEC-002 > Architectural gap. Until that's wired, the multiplier
-// is treated as 1 below.
+// `defineLink(...isList: true, isList: true, { extraColumns })` exposes
+// the pivot row on the writable side under the `<entity>_link` alias
+// (here: `offer.inventory_item_link[]`). Each row carries the pivot's
+// `id`, `required_quantity` (extra column), the foreign keys, and a
+// nested `inventory_item` relationship to the linked `InventoryItem`.
+// We must request fields off the pivot to get `required_quantity`; the
+// `offer.inventory_items[]` shortcut flattens to the `InventoryItem`
+// rows directly and does not expose pivot columns.
 export const requiredOfferFieldsForInventoryConfirmation = [
   "id",
-  "inventory_items.id",
-  "inventory_items.location_levels.location_id",
-  "inventory_items.location_levels.stocked_quantity",
-  "inventory_items.location_levels.reserved_quantity",
-  "inventory_items.location_levels.raw_stocked_quantity",
-  "inventory_items.location_levels.raw_reserved_quantity",
-  "inventory_items.location_levels.stock_locations.id",
-  "inventory_items.location_levels.stock_locations.sales_channels.id",
+  "inventory_item_link.required_quantity",
+  "inventory_item_link.inventory_item.id",
+  "inventory_item_link.inventory_item.location_levels.location_id",
+  "inventory_item_link.inventory_item.location_levels.stocked_quantity",
+  "inventory_item_link.inventory_item.location_levels.reserved_quantity",
+  "inventory_item_link.inventory_item.location_levels.raw_stocked_quantity",
+  "inventory_item_link.inventory_item.location_levels.raw_reserved_quantity",
+  "inventory_item_link.inventory_item.location_levels.stock_locations.id",
+  "inventory_item_link.inventory_item.location_levels.stock_locations.sales_channels.id",
 ]
 
-export type OfferInventoryLink = {
-  // `id` is the linked InventoryItem.id (== pivot's `inventory_item_id`).
-  id: string
-  location_levels?: Array<{
-    location_id: string
-    stocked_quantity?: BigNumberInput
-    reserved_quantity?: BigNumberInput
-    raw_stocked_quantity?: BigNumberInput
-    raw_reserved_quantity?: BigNumberInput
-    stock_locations?: Array<{
-      id: string
-      sales_channels?: Array<{ id: string }>
+export type OfferInventoryItemLinkRow = {
+  required_quantity?: number
+  inventory_item: {
+    id: string
+    location_levels?: Array<{
+      location_id: string
+      stocked_quantity?: BigNumberInput
+      reserved_quantity?: BigNumberInput
+      raw_stocked_quantity?: BigNumberInput
+      raw_reserved_quantity?: BigNumberInput
+      stock_locations?: Array<{
+        id: string
+        sales_channels?: Array<{ id: string }>
+      }>
     }>
-  }>
+  }
 }
 
 export type OfferInventoryShape = {
   id: string
-  inventory_items?: OfferInventoryLink[]
+  inventory_item_link?: OfferInventoryItemLinkRow[]
 }
 
 export type PrepareOfferInventoryInputData = {
@@ -87,24 +92,33 @@ export const prepareOfferInventoryInput = (
 
   // (offer_id, inventory_item_id, location_id) → availability
   const availability = new Map<string, Map<string, Map<string, BigNumber>>>()
-  // channel-allowed locations for each (offer_id, inventory_item_id)
+  // channel-allowed locations across all offers in the batch
   const channelLocations = new Set<string>()
   // every (offer_id, inventory_item_id) → set of location_ids with any level
   const anyLocations = new Map<string, Set<string>>()
+  // (offer_id, inventory_item_id) → required_quantity from the pivot row
+  const requiredByPivot = new Map<string, number>()
 
   for (const offer of offers) {
     const offerAvail = availability.get(offer.id) ?? new Map()
     availability.set(offer.id, offerAvail)
 
-    for (const link of offer.inventory_items ?? []) {
-      const itemAvail = offerAvail.get(link.id) ?? new Map()
-      offerAvail.set(link.id, itemAvail)
+    for (const link of offer.inventory_item_link ?? []) {
+      const inventoryItemId = link.inventory_item.id
+      const itemAvail = offerAvail.get(inventoryItemId) ?? new Map()
+      offerAvail.set(inventoryItemId, itemAvail)
 
       const itemAny =
-        anyLocations.get(`${offer.id}:${link.id}`) ?? new Set<string>()
-      anyLocations.set(`${offer.id}:${link.id}`, itemAny)
+        anyLocations.get(`${offer.id}:${inventoryItemId}`) ??
+        new Set<string>()
+      anyLocations.set(`${offer.id}:${inventoryItemId}`, itemAny)
 
-      for (const lvl of link.location_levels ?? []) {
+      requiredByPivot.set(
+        `${offer.id}:${inventoryItemId}`,
+        link.required_quantity ?? 1,
+      )
+
+      for (const lvl of link.inventory_item.location_levels ?? []) {
         const stocked = MathBN.sub(
           (lvl.raw_stocked_quantity as any)?.value ??
             lvl.stocked_quantity ??
@@ -147,25 +161,26 @@ export const prepareOfferInventoryInput = (
       )
     }
 
-    const inventoryItems = offer.inventory_items ?? []
-    if (!inventoryItems.length) {
+    const inventoryLinks = offer.inventory_item_link ?? []
+    if (!inventoryLinks.length) {
       throw new MedusaError(
         MedusaError.Types.INVALID_DATA,
         `Offer ${offerId} has no inventory items linked`,
       )
     }
 
-    for (const link of inventoryItems) {
+    for (const link of inventoryLinks) {
+      const inventoryItemId = link.inventory_item.id
       const offerAvail = availability.get(offer.id) ?? new Map()
       const itemAvail =
-        (offerAvail.get(link.id) as Map<string, BigNumber> | undefined) ??
-        new Map<string, BigNumber>()
+        (offerAvail.get(inventoryItemId) as
+          | Map<string, BigNumber>
+          | undefined) ?? new Map<string, BigNumber>()
       const itemAny =
-        anyLocations.get(`${offer.id}:${link.id}`) ?? new Set()
+        anyLocations.get(`${offer.id}:${inventoryItemId}`) ?? new Set()
 
-      // `required_quantity` is a pivot extra column not currently surfaced
-      // through Query — see SPEC-002 > Architectural gap. Treat as 1.
-      const requiredQuantity = 1
+      const requiredQuantity =
+        requiredByPivot.get(`${offer.id}:${inventoryItemId}`) ?? 1
       const required = MathBN.mult(requiredQuantity, item.quantity)
 
       // 1. Full availability locations
@@ -190,7 +205,7 @@ export const prepareOfferInventoryInput = (
 
       result.push({
         id: item.id,
-        inventory_item_id: link.id,
+        inventory_item_id: inventoryItemId,
         required_quantity: requiredQuantity,
         allow_backorder: false,
         quantity: item.quantity,

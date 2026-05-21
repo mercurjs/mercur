@@ -4,7 +4,7 @@ canonical: true
 priority: 2
 area: core/offers
 created: 2026-05-19
-last_updated: 2026-05-21  # foundation landed: offer module (model, service, migration), MercurModules.OFFER, the five cross-module links, the create/update/delete offer workflows, the vendor + admin offer API routes, and the first vendor offer integration test. Session 7 (2026-05-20): inventory-items batch endpoint landed; offer price updates folded into updateOffersWorkflow (replace semantics, mirrors Medusa's updateProductVariantsWorkflow). Session 8 (2026-05-20): extended integration tests covering the new prices-ladder update path, the inventory-items batch endpoint (create/update/delete/duplicate/cross-seller), and cross-seller update rejection. Session 8b (2026-05-20): offer DTOs centralized in @mercurjs/types (packages/types/src/offer + packages/types/src/http/offer.ts); workflows + steps refactored to import the shared DTOs instead of declaring inline types. Session 9 (2026-05-20): cart-line/order-line ↔ offer writable links + TypeScript augmentation of CreateCartCreateLineItemDTO with offer_id + linkLineItemToOfferStep / decorateLineItemWithOfferStep / mirrorLineItemOfferLinksToOrderStep / calculateOfferPricesStep / same-id getLineItemActionsStep step + same-id addToCartWorkflow override + inline mirror step + cart_line_item_id metadata stamp into completeCartWithSplitOrdersWorkflow. Session 10 (2026-05-20): same-id overrides of create-order-fulfillment, cancel-order-fulfillment, and confirm-return-receive — each rewires inventory math from variant.inventory_items to order_line_item.offer.inventory_items.required_quantity. Cancel-order before fulfilment still uses Medusa's deleteReservationsByLineItemsStep unchanged. Session 11 (2026-05-20): integration tests landed under integration-tests/http/offer/{store,cart,order} covering the Store offers list, addToCart override (offer_id guard, price snapshot, sibling-offer non-merge, link materialisation, sku decoration), and cart→order link mirror + reservation arithmetic (qty × required_quantity). Runtime PG/Redis verification still pending; the three Session 10 fulfilment / cancel-fulfilment / return overrides are still without tests. Session 12 (2026-05-21): cart.spec.ts seed unblocked (variant_attributes/attribute_values + separate sales-channel attach, with per-seed unique tags); patch-medusa.ts extended with patchStoreCartLineItemsMiddleware to surgically strip Medusa's POST /store/carts/:id/line-items entry so Mercur's offer_id validator is the only one on that matcher. After the patch, the offer_id-missing case passes; the remaining cart cases fail in the validate-add-to-cart-stock hook on the offer.inventory_items.inventory.location_levels.* dotted populate path — same shape that the store-products route and three F8/F9/F10 order overrides rely on, so the join shape needs an end-to-end audit before the cart spec can go green.
+last_updated: 2026-05-21  # Session 14 (2026-05-21): pivot extra-column gap resolved. `defineLink(...extraColumns)` exposes the pivot under the `<entity>_link` alias; consumers were using the `inventory_items` fieldAlias shortcut which flattens to InventoryItem (no extra columns). Switched prepare-offer-inventory-input, completeCartWithSplitOrdersWorkflow, and the three Session 10 order overrides to traverse `offer.inventory_item_link.required_quantity` / `inventory_item_link.inventory_item.*`. Skipped reservation test re-enabled and passes: 2 × required_quantity(3) = 6 reservation against 50 stock. Suites: vendor 16/16, cart 6/6, order 3/3 (no more skip). Session 13 (2026-05-21): runtime verification ran against PG (via medusaIntegrationTestRunner) + fake Redis. Earlier session sweep: foundation landed (offer module, MercurModules.OFFER, five cross-module links, create/update/delete offer workflows, vendor + admin offer API routes, first vendor offer integration test). Session 7 (2026-05-20): inventory-items batch endpoint landed; offer price updates folded into updateOffersWorkflow (replace semantics, mirrors Medusa's updateProductVariantsWorkflow). Session 8 (2026-05-20): extended integration tests covering the new prices-ladder update path, the inventory-items batch endpoint (create/update/delete/duplicate/cross-seller), and cross-seller update rejection. Session 8b (2026-05-20): offer DTOs centralized in @mercurjs/types (packages/types/src/offer + packages/types/src/http/offer.ts); workflows + steps refactored to import the shared DTOs instead of declaring inline types. Session 9 (2026-05-20): cart-line/order-line ↔ offer writable links + TypeScript augmentation of CreateCartCreateLineItemDTO with offer_id + linkLineItemToOfferStep / decorateLineItemWithOfferStep / mirrorLineItemOfferLinksToOrderStep / calculateOfferPricesStep / same-id getLineItemActionsStep step + same-id addToCartWorkflow override + inline mirror step + cart_line_item_id metadata stamp into completeCartWithSplitOrdersWorkflow. Session 10 (2026-05-20): same-id overrides of create-order-fulfillment, cancel-order-fulfillment, and confirm-return-receive — each rewires inventory math from variant.inventory_items to order_line_item.offer.inventory_items.required_quantity. Cancel-order before fulfilment still uses Medusa's deleteReservationsByLineItemsStep unchanged. Session 11 (2026-05-20): integration tests landed under integration-tests/http/offer/{store,cart,order}. Session 12 (2026-05-21): cart.spec.ts seed unblocked + patchStoreCartLineItemsMiddleware in patch-medusa.ts; the Session 12 expandDotPaths failure on offer.inventory_items.inventory.location_levels.* no longer reproduces under Session 13's run. Remaining work to move spec to passing: re-land an offer/store/* spec once the GET /store/products list-page skim is finalised, add coverage for the three Session 10 fulfilment/cancel-fulfilment/return overrides, and resolve the Architectural gap so the skipped reservation test can be enabled.
 ---
 
 # SPEC-002 Offer Management
@@ -766,8 +766,9 @@ is needed for the Mercur-owned copies; they are edited in place.
   `Migration20260421093258.ts` and `Migration20260422105949.ts`).
   Replace with offer-aware fields:
   `items.offer.id`, `items.offer.price_set.id`,
-  `items.offer.inventory_items.required_quantity`,
-  `items.offer.inventory_items.inventory.location_levels.*`.
+  `items.offer.inventory_item_link.required_quantity`,
+  `items.offer.inventory_item_link.inventory_item.location_levels.*`
+  (the pivot path — see **Pivot extra-column exposure** below).
 - `packages/core/src/workflows/cart/utils/prepare-line-item-data.ts`
   — must stamp the cart line-item id onto the order line via
   `metadata.cart_line_item_id` so
@@ -1534,57 +1535,75 @@ Suspension, expiry, and SLA-driven moderation flows are intentionally
 out of scope for this revision. They can be layered on in a follow-up
 spec without changing the offer record shape.
 
-### Architectural gap — pivot extra-column exposure
+### Pivot extra-column exposure (resolved 2026-05-21)
 
 The writable offer ↔ inventory_item M:N link (`offer-inventory-item-link.ts`,
 table `offer_inventory_item`) declares one extra column on the pivot:
-`required_quantity` (`integer`, default `"1"`). Medusa's Query joiner
-exposes the linked `InventoryItem` entity from the offer side
-(`offer.inventory_items` resolves to `InventoryItem[]` rows, traversable
-to `inventory_items.id`, `inventory_items.sku`, `inventory_items.location_levels`
-etc.), but does **not** surface the pivot row's extra columns on the
-same traversal path. There is no `offer.inventory_items.required_quantity`
-field reachable through `query.graph` today — every Mercur read that
-needs the per-link multiplier currently falls back to `1`.
+`required_quantity` (`integer`, default `"1"`). Medusa's `defineLink`
+exposes the pivot from the offer side under the auto-generated
+`<entity>_link` alias — **`offer.inventory_item_link[]`** — with each
+row carrying the pivot's `id`, `offer_id`, `inventory_item_id`, the
+extra column `required_quantity`, and a nested `inventory_item`
+relationship to the linked `InventoryItem`. The `offer.inventory_items[]`
+shortcut (a `fieldAlias` Medusa generates) flattens *through* the pivot
+and resolves to `InventoryItem` rows directly, so it does **not**
+expose `required_quantity` — that's the false-bottom that made every
+prior consumer fall back to `1`.
 
-This blocks every downstream surface that needs the offer-aware
-stock denominator on the same fetch as the level data:
+The fix is purely a Query-path change: read the multiplier via the
+pivot alias instead of the shortcut. Concretely:
 
-- **`GET /store/products/:id` per-variant `offers` array** — effective
-  stock is `MIN(floor((stocked − reserved) / required_quantity))`. Without
-  the denominator on the join, the value can't be computed in a single
-  read. Deferred (see callout above).
-- **Cart inventory validation (`addToCartWorkflow` /
-  `updateLineItemInCartWorkflow` validate-stock hooks)** — confirms
-  `requested_qty × required_quantity` against `inventory_items.location_levels`
-  before reserving. Currently inherits the gap and falls back to `1`.
-- **Reservation arithmetic in
-  `completeCartWithSplitOrdersWorkflow`** — the `reserveInventoryStep`
-  call uses `prepareOfferInventoryInput` which multiplies by
-  `required_quantity`. Same gap.
-- **Fulfilment / cancel-fulfilment / receive-return overrides
-  (F8/F9/F10)** — each rewrites Medusa's variant-shaped inventory math
-  to `qty × offer.inventory_items.required_quantity`. Each picks up the
-  same gap.
+| Need                                            | Correct path                                                                 |
+| ----------------------------------------------- | ---------------------------------------------------------------------------- |
+| `required_quantity` (pivot extra column)        | `offer.inventory_item_link[].required_quantity`                              |
+| Linked `InventoryItem.id`                       | `offer.inventory_item_link[].inventory_item.id`                              |
+| Linked `InventoryItem.sku` / `title`            | `offer.inventory_item_link[].inventory_item.sku` (etc.)                      |
+| Linked `InventoryItem.location_levels.*`        | `offer.inventory_item_link[].inventory_item.location_levels.*`               |
+| Pivot row id (rarely needed; only for auditing) | `offer.inventory_item_link[].id`                                             |
+| Flat list of linked `InventoryItem`s, no qty    | `offer.inventory_items[]` (the shortcut, kept for display-only consumers)    |
 
-Two paths to unblock (out of scope for this drop):
+All four downstream surfaces have been updated to use the pivot
+alias and now multiply by the real `required_quantity` instead of
+falling back to `1`:
 
-1. Replace the writable M:N link with a dedicated Mercur pivot entity
-   (`OfferInventoryItem`) registered as a first-class linkable, so
-   `required_quantity` is a normal model field on the join row and the
-   traversal works through Query directly.
-2. Keep the link and surface `required_quantity` via a separate
-   `RemoteLink.list({ from: "offer", to: "inventory_item" })` read in
-   the routes/hooks that need it, joined back to the offer rows
-   in-process.
+- `packages/core/src/workflows/offer/utils/prepare-offer-inventory-input.ts`
+  — `requiredOfferFieldsForInventoryConfirmation` now requests the
+  `inventory_item_link.required_quantity` /
+  `inventory_item_link.inventory_item.location_levels.*` chain, and the
+  helper reads `required_quantity` from the pivot row instead of
+  hardcoding `1`.
+- `packages/core/src/workflows/cart/hooks/validate-add-to-cart-stock.ts`
+  and `validate-update-line-item-stock.ts` — inherit the new field
+  list and `prepareOfferInventoryInput`'s real multiplier, so the
+  cart's `confirmInventory` call now demands the bundle-correct
+  quantity.
+- `packages/core/src/workflows/cart/workflows/complete-cart-with-split-orders.ts`
+  — `fetch-offers-for-reservation` step now uses
+  `requiredOfferFieldsForInventoryConfirmation`; `reserveInventoryStep`
+  receives `qty × required_quantity` per inventory item.
+- `packages/core/src/workflows/order/workflows/{create-order-fulfillment,cancel-order-fulfillment,confirm-return-receive}.ts`
+  — all three Session 10 overrides now Query
+  `offer.inventory_item_link.required_quantity` /
+  `offer.inventory_item_link.inventory_item.*`, so the
+  decrement-on-fulfilment, restock-on-cancel-fulfilment, and
+  restock-on-return arithmetic multiplies by the offer's real
+  `required_quantity`.
 
-Either way is a non-trivial refactor that touches the store surface,
-the cart hooks, the reservation step, and the three order overrides
-in one swing. Until then, all four surfaces above treat
-`required_quantity` as `1`. The vendor-facing CRUD endpoints
-(`/vendor/offers/...`) are unaffected because they only read the
-column when the offer is mutated via `link.create` / `link.dismiss`
-— not via a Query traversal off the offer entity.
+Verification: the previously-skipped integration test
+`integration-tests/http/offer/order/order.spec.ts → "should reserve qty
+× required_quantity per inventory_item on placement"` now runs and
+asserts a reservation of `2 × 3 = 6` against an inventory level of
+`50` — proving end-to-end that the reservation step is reading the
+pivot's extra column through the new traversal. Vendor 16/16, cart
+6/6, order 3/3 all pass on 2026-05-21.
+
+The shortcut alias is **not** removed — `offer.inventory_items[]`
+remains useful for display-only consumers (vendor CRUD endpoints that
+just need to render the linked InventoryItem rows) and is the path
+the vendor `inventory-items/batch` response continues to use. The
+contract this section documents is that **any consumer that needs
+the multiplier must traverse through `inventory_item_link`** — the
+shortcut is intentionally lossy.
 
 ## Offer Flows
 
@@ -2676,6 +2695,93 @@ spec moves to `passing` only when all of the following are true:
      path that hard-deletes the `PriceSet`.
 
 ## Evidence
+
+### 2026-05-21 — Session 14: pivot extra-column gap resolved + reservation test enabled
+
+The "Architectural gap — pivot extra-column exposure" documented under
+the Storefront section is **resolved** without a model refactor. A
+probe against `query.graph({ entity: "offer", fields: ["inventory_item_link.*"] })`
+showed that `defineLink(...isList: true, isList: true, { extraColumns })`
+already exposes the pivot row from the offer side under the
+auto-generated alias `inventory_item_link[]`, carrying
+`required_quantity`, both FKs, the pivot row's own `id`, and a nested
+`inventory_item` relationship to the linked `InventoryItem`. Every
+prior consumer was using the `inventory_items[]` shortcut (which is a
+`fieldAlias` that flattens directly to `InventoryItem` rows and
+therefore does not expose pivot columns) and silently falling back to
+`required_quantity = 1`.
+
+Changes:
+
+- `packages/core/src/workflows/offer/utils/prepare-offer-inventory-input.ts`
+  rewritten — `requiredOfferFieldsForInventoryConfirmation` now lists
+  the `inventory_item_link.*` chain; the helper reads
+  `required_quantity` from the pivot row instead of hardcoding `1`.
+- `packages/core/src/workflows/cart/workflows/complete-cart-with-split-orders.ts`
+  — `fetch-offers-for-reservation` now reuses
+  `requiredOfferFieldsForInventoryConfirmation`, so the reservation
+  path reads the multiplier on the same fetch.
+- `packages/core/src/workflows/order/workflows/{create-order-fulfillment,cancel-order-fulfillment,confirm-return-receive}.ts`
+  — all three Session 10 overrides now Query the pivot path
+  (`offer.inventory_item_link.required_quantity` /
+  `inventory_item_link.inventory_item.*`) and normalise the rows
+  into the shape `prepareInventoryUpdate` already expects.
+- `integration-tests/http/offer/order/order.spec.ts` — the previously
+  `it.skip`'d test `should reserve qty × required_quantity per
+  inventory_item on placement` is now `it(...)`. It seeds an offer
+  with `required_quantity: 3`, checks out with `quantity: 2`, and
+  asserts `reserved_quantity === 6` (against a stock level of 50).
+- `docs/specs/SPEC-002-offer-management.md` — the Architectural-gap
+  section rewritten in place under the heading **Pivot extra-column
+  exposure (resolved 2026-05-21)**, documenting the correct field
+  paths and the contract that any consumer needing the multiplier
+  must traverse through `inventory_item_link`.
+
+Verification:
+
+- `cd packages/core && bun run build` clean.
+- `bun run test:integration:http -- offer/order/order` →
+  **3 / 3 pass** (was 2 pass + 1 skip).
+- `bun run test:integration:http -- offer/cart/cart` →
+  **6 / 6 pass** (no regression).
+- `bun run test:integration:http -- offer/vendor/offer` →
+  **16 / 16 pass** (no regression).
+- `bunx oxlint --quiet packages/core/src/workflows/{offer,cart,order}`
+  → `0 errors / 120 warnings` (unchanged `no-shadow` baseline).
+
+### 2026-05-21 — Session 13: runtime verification green on vendor / cart / order suites
+
+Ran the offer integration suites against the in-process test runner (PG via
+`medusaIntegrationTestRunner`, fake Redis):
+
+- `bun run test:integration:http -- offer/vendor/offer` → **16 / 16 passed**.
+  Covers CRUD, `(seller_id, sku)` uniqueness, cross-seller scope, sibling
+  offers on one variant, soft-delete, the inventory-items batch endpoint
+  (create / update `required_quantity` / delete / duplicate / cross-seller),
+  and the `updateOffersWorkflow` price-ladder replace shape.
+- `bun run test:integration:http -- offer/cart/cart` → **6 / 6 passed**.
+  Covers `offer_id`-missing → 400, price snapshot
+  (`unit_price` + `is_custom_price=true`), sibling-offer non-merge, writable
+  `cart-line-item-offer-link` materialised, offer-sku decoration, non-existent
+  `offer_id` → 404. The `validate-add-to-cart-stock` hook traverses
+  `offer.inventory_items.location_levels.*` cleanly — the Session 12
+  `expandDotPaths` failure no longer reproduces.
+- `bun run test:integration:http -- offer/order/order` → **2 passed, 1 skipped**
+  (`should reserve qty × required_quantity per inventory_item on placement`).
+  The skipped case requires `offer.inventory_items.required_quantity` to
+  surface on the writable M:N pivot through Query — see **Architectural
+  gap — pivot extra-column exposure**. The two passing cases prove the
+  cart→order `order_line_item ↔ offer` link mirror and that multi-seller
+  carts split into per-seller orders preserving the offer link.
+
+Static checks: `cd packages/core && bun run build` clean;
+`bunx oxlint --quiet` on the offer/cart/order workflow trees and the offer
+route handlers reports **0 errors** (warnings unchanged from the Session
+6–11 baseline). The store offer spec
+(`integration-tests/http/offer/store/offers.spec.ts`) was deleted in
+commit `bda84357` while the store-products offers shape is iterated;
+the deletion is intentional and tracked under
+**Pending work to move this spec to `passing`** below.
 
 ### 2026-05-21 — Session 12: cart.spec.ts seed unblocked + cart line-items middleware patch
 

@@ -392,14 +392,7 @@ medusaIntegrationTestRunner({
                 )
             })
 
-            // SKIPPED: assertion depends on `offer.inventory_items.required_quantity`
-            // surfacing through Query so the reservation step multiplies by it.
-            // The writable offer ↔ inventory_item M:N link does not currently
-            // expose the pivot's `required_quantity` extra column on the same
-            // traversal as `location_levels` — see SPEC-002 > Architectural
-            // gap. Until that's wired the multiplier is treated as 1, so the
-            // reservation lands at qty (2) × 1 = 2 instead of qty × 3 = 6.
-            it.skip("should reserve qty × required_quantity per inventory_item on placement", async () => {
+            it("should reserve qty × required_quantity per inventory_item on placement", async () => {
                 const seed = await seedSellerOfferWithShipping({
                     email: "reserve@test.com",
                     name: "Reserve",

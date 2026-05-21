@@ -53,7 +53,10 @@ import {
 } from "../utils"
 import { registerUsageStep } from "../../promotion"
 import { refreshOrderCommissionLinesWorkflow } from "../../commission/workflows/refresh-order-commission-lines"
-import { prepareOfferInventoryInput } from "../../offer/utils"
+import {
+    prepareOfferInventoryInput,
+    requiredOfferFieldsForInventoryConfirmation,
+} from "../../offer/utils"
 
 type CompleteCartWithSplitOrdersWorkflowInput = {
     cart_id: string
@@ -373,22 +376,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
             const { data: offersWithInventory } = useQueryGraphStep({
                 entity: "offer",
-                fields: [
-                    "id",
-                    // Same shape as `requiredOfferFieldsForInventoryConfirmation`
-                    // — the writable M:N link surfaces the linked
-                    // InventoryItem directly. `required_quantity` lives on
-                    // the pivot and is not currently queryable; the helper
-                    // treats it as 1 (see SPEC-002 > Architectural gap).
-                    "inventory_items.id",
-                    "inventory_items.location_levels.location_id",
-                    "inventory_items.location_levels.stocked_quantity",
-                    "inventory_items.location_levels.reserved_quantity",
-                    "inventory_items.location_levels.raw_stocked_quantity",
-                    "inventory_items.location_levels.raw_reserved_quantity",
-                    "inventory_items.location_levels.stock_locations.id",
-                    "inventory_items.location_levels.stock_locations.sales_channels.id",
-                ],
+                fields: requiredOfferFieldsForInventoryConfirmation,
                 filters: { id: uniqueOffers },
             }).config({ name: "fetch-offers-for-reservation" })
 

@@ -40,11 +40,17 @@ type OfferInventoryLink = {
   inventory?: { id: string } | null
 }
 
+type OfferInventoryItemLinkRow = {
+  required_quantity?: number | null
+  inventory_item_id?: string | null
+  inventory_item?: { id: string } | null
+}
+
 type LineItemOfferRow = {
   id: string
   offer?: {
     id: string
-    inventory_items?: OfferInventoryLink[] | null
+    inventory_item_link?: OfferInventoryItemLinkRow[] | null
   } | null
 }
 
@@ -54,8 +60,17 @@ function buildOfferInventoryByLineItem(
   const byLine = new Map<string, Map<string, OfferInventoryLink>>()
   for (const row of rows) {
     const inner = new Map<string, OfferInventoryLink>()
-    for (const link of row.offer?.inventory_items ?? []) {
-      inner.set(link.inventory_item_id, link)
+    for (const link of row.offer?.inventory_item_link ?? []) {
+      const inventoryItemId =
+        link.inventory_item?.id ?? link.inventory_item_id
+      if (!inventoryItemId) continue
+      inner.set(inventoryItemId, {
+        inventory_item_id: inventoryItemId,
+        required_quantity: link.required_quantity ?? 1,
+        inventory: link.inventory_item
+          ? { id: link.inventory_item.id }
+          : null,
+      })
     }
     byLine.set(row.id, inner)
   }
@@ -286,9 +301,8 @@ export const cancelOrderFulfillmentWorkflow = overrideWorkflow(
       fields: [
         "id",
         "offer.id",
-        "offer.inventory_items.inventory_item_id",
-        "offer.inventory_items.required_quantity",
-        "offer.inventory_items.inventory.id",
+        "offer.inventory_item_link.required_quantity",
+        "offer.inventory_item_link.inventory_item.id",
       ],
       filters: { id: lineItemIds },
     }).config({ name: "get-line-item-offers" })

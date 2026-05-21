@@ -1084,10 +1084,199 @@ endpoints + workflow overrides shipped in Sessions 5–10.
    workflow overrides` (Sessions 9–10) and `test(integration):
    offer store / cart / order specs` (Session 11).
 
+### Session 13: 2026-05-21 -- SPEC-002 runtime verification across vendor / cart / order suites
+
+**Goal**: Pick up the Session 12 thread: re-run the offer
+integration suites against the in-process test runner, confirm the
+`expandDotPaths` failure on
+`offer.inventory_items.inventory.location_levels.*` no longer
+reproduces, and record evidence.
+
+#### Completed (uncommitted)
+
+- Ran the three offer integration suites end-to-end (PG via
+  `medusaIntegrationTestRunner`, fake Redis):
+  - `bun run test:integration:http -- offer/vendor/offer` →
+    **16 / 16 pass** (CRUD, `(seller_id, sku)` uniqueness,
+    cross-seller scope, sibling offers on one variant, soft-delete,
+    inventory-items batch + price-ladder shape).
+  - `bun run test:integration:http -- offer/cart/cart` →
+    **6 / 6 pass** (`offer_id`-missing → 400, price snapshot
+    `unit_price` + `is_custom_price=true`, sibling-offer non-merge,
+    `cart-line-item-offer-link` materialised, offer-sku decoration,
+    non-existent `offer_id` → 404).
+  - `bun run test:integration:http -- offer/order/order` →
+    **2 pass, 1 skipped**. The skipped case
+    (`should reserve qty × required_quantity per inventory_item on
+    placement`) depends on the writable M:N pivot's
+    `required_quantity` extra column being surfaced through Query —
+    see SPEC-002 §Architectural gap. The two passing cases prove the
+    cart→order `order_line_item ↔ offer` link mirror and the
+    multi-seller cart split preserving the offer link.
+- `cd packages/core && bun run build`: clean.
+- `bunx oxlint --quiet` across the offer / cart / order workflow
+  trees and the offer route handlers:
+  **0 errors / 120 warnings** (same `no-shadow` baseline carried
+  through Sessions 6–11).
+- Spec updates (`docs/specs/SPEC-002-offer-management.md`):
+  - New evidence block `2026-05-21 — Session 13: runtime
+    verification green on vendor / cart / order suites`.
+  - `last_updated` frontmatter bumped with the Session 13 summary
+    (vendor 16/16, cart 6/6, order 2/2 + 1 skip on the pivot
+    gap).
+
+#### Why this spec stays `in_progress` (not yet `passing`)
+
+Three remaining blockers prevent `status: passing`:
+
+1. **Architectural gap — pivot extra-column exposure**
+   (`docs/specs/SPEC-002-offer-management.md:1537`). The writable
+   `offer ↔ inventory_item` link does not surface
+   `required_quantity` through Medusa's Query joiner, so every
+   reservation, fulfilment-decrement, and restock multiplier
+   currently falls back to `1`. The skipped order test is the
+   visible canary for this gap. Unblocking it requires a
+   non-trivial refactor (either a first-class `OfferInventoryItem`
+   pivot entity, or an in-process `RemoteLink.list` join).
+2. **Store offers list page** — `GET /store/products` skim
+   (starting-from price + bulk `calculatePrices`) and a re-landed
+   `integration-tests/http/offer/store/offers.spec.ts` (the old one
+   was removed in commit `bda84357` while the shape is iterated).
+3. **Order-side fulfilment overrides without tests** — Session 10
+   shipped same-id overrides of `create-order-fulfillment`,
+   `cancel-order-fulfillment`, and `confirm-return-receive`, but
+   their integration coverage is still outstanding. They share the
+   `order_line_item.offer.inventory_items.*` traversal with the
+   passing reservation test, so the structural shape is exercised;
+   the explicit specs are still owed before this spec passes.
+
+#### Next best action
+
+1. Land the pivot-exposure refactor (path 1 from the spec's
+   Architectural gap section is preferred — a first-class
+   `OfferInventoryItem` pivot entity registered as a linkable so
+   `required_quantity` becomes a normal Query-traversable field).
+   Re-enable the order reservation test once the multiplier is
+   live.
+2. Finalize the `GET /store/products` offers skim (one bulk
+   `calculatePrices` across visible offers, starting-from price per
+   variant) and re-land `integration-tests/http/offer/store/`.
+3. Add integration tests for the three Session 10 order overrides
+   under `integration-tests/http/offer/order/` (createFulfillment,
+   cancelOrderFulfillment, confirmReceiveReturn). They reuse the
+   `seedSellerOfferWithShipping` + `completeCartCheckout` helpers
+   already in `order.spec.ts`.
+4. Commit Sessions 12–13 together: suggested message
+   `test(offer): runtime verification of vendor/cart/order suites + spec evidence`.
+
+### Session 14: 2026-05-21 -- SPEC-002 pivot extra-column gap resolved
+
+**Goal**: Unblock the reservation test that was skipped in Session 13.
+The skipped test depended on `offer.inventory_items.required_quantity`
+surfacing through Query — a path documented under SPEC-002's
+"Architectural gap" as requiring a non-trivial model refactor.
+
+#### Diagnostic
+
+Wrote a temporary `it()` probe in
+`integration-tests/http/offer/order/order.spec.ts` that ran
+`query.graph` against both `offer.inventory_items.*` (the shortcut)
+and `offer.inventory_item_link.*` (the pivot alias `defineLink`
+auto-generates). Result:
+
+- `offer.inventory_items[]` → `[{id: "iitem_..."}]` (only the linked
+  `InventoryItem.id`; pivot extras absent — the shortcut flattens
+  through the pivot).
+- `offer.inventory_item_link[]` →
+  `[{id: "link_...", required_quantity: 3, inventory_item_id: "iitem_...",
+  offer_id: "offer_...", inventory_item: {id: "iitem_...", sku: null}}]`
+  — pivot row, complete with the `required_quantity` extra column **and**
+  a nested `inventory_item` to the linked entity.
+
+The "architectural gap" was a false bottom: `defineLink(...isList: true,
+isList: true, { extraColumns })` already exposes the pivot from the
+writable side — every consumer was simply using the lossy shortcut.
+
+#### Completed (uncommitted)
+
+- `packages/core/src/workflows/offer/utils/prepare-offer-inventory-input.ts`
+  rewritten: `requiredOfferFieldsForInventoryConfirmation` now lists
+  the `inventory_item_link.required_quantity` /
+  `inventory_item_link.inventory_item.location_levels.*` chain; the
+  helper reads `required_quantity` from the pivot row and multiplies
+  by `quantity` for the real reservation amount.
+- `packages/core/src/workflows/cart/workflows/complete-cart-with-split-orders.ts`
+  — `fetch-offers-for-reservation` step reuses
+  `requiredOfferFieldsForInventoryConfirmation`. Mirror import added.
+- Three Session 10 order overrides
+  (`packages/core/src/workflows/order/workflows/{create-order-fulfillment,cancel-order-fulfillment,confirm-return-receive}.ts`):
+  rewrote the `useQueryGraphStep`/`useRemoteQueryStep` field lists to
+  use `offer.inventory_item_link.required_quantity` /
+  `inventory_item_link.inventory_item.*`, and rewrote
+  `buildOfferInventoryByLineItem` (and the equivalent helper in
+  `prepareInventoryUpdate` for `confirm-return-receive.ts`) to read the
+  pivot row shape (with `inventory_item.id` as the nested join key)
+  rather than the flat shortcut shape.
+- `integration-tests/http/offer/order/order.spec.ts` — the previously
+  `it.skip`'d test is now `it(...)` and asserts a reservation of
+  `2 × 3 = 6` against an inventory level of `50`.
+- `docs/specs/SPEC-002-offer-management.md`:
+  - The "Architectural gap" section renamed to
+    "Pivot extra-column exposure (resolved 2026-05-21)" and rewritten
+    in place. Includes a field-path table and the contract that
+    consumers needing the multiplier must traverse through
+    `inventory_item_link`.
+  - New evidence entry `2026-05-21 — Session 14: pivot extra-column
+    gap resolved + reservation test enabled`.
+  - `last_updated` bumped.
+
+#### Verification
+
+- `cd packages/core && bun run build`: clean (exit 0).
+- `bun run test:integration:http -- offer/order/order`:
+  **3 / 3 pass** (was 2 pass + 1 skip).
+- `bun run test:integration:http -- offer/cart/cart`: **6 / 6 pass**.
+- `bun run test:integration:http -- offer/vendor/offer`: **16 / 16 pass**.
+- `bunx oxlint --quiet packages/core/src/workflows/{offer,cart,order}`:
+  `0 errors / 120 warnings` (unchanged baseline).
+
+#### Why this spec still stays `in_progress`
+
+Two blockers from Session 13's list remain — the pivot gap is no
+longer one of them:
+
+1. **Store offers list page** — `GET /store/products` skim
+   (starting-from price + bulk `calculatePrices`) and a re-landed
+   `integration-tests/http/offer/store/offers.spec.ts` (the old one
+   was removed in commit `bda84357` while the shape is iterated).
+2. **Order-side fulfilment overrides without tests** — Session 10
+   shipped same-id overrides of `create-order-fulfillment`,
+   `cancel-order-fulfillment`, and `confirm-return-receive`. The
+   Session 14 reservation test exercises the
+   `order_line_item.offer.inventory_item_link.*` join shape end-to-end
+   (so the structural risk is largely contained), but the three
+   override workflows still need dedicated specs covering their full
+   admin/vendor flows.
+
+#### Next best action
+
+1. Land the `GET /store/products` offers skim (one bulk
+   `calculatePrices` across visible offers, starting-from price per
+   variant) and re-land `integration-tests/http/offer/store/`.
+2. Add integration tests for the three Session 10 order overrides
+   under `integration-tests/http/offer/order/` (createFulfillment,
+   cancelOrderFulfillment, confirmReceiveReturn). They reuse the
+   `seedSellerOfferWithShipping` + `completeCartCheckout` helpers
+   already in `order.spec.ts`.
+3. Commit Sessions 12–14 together: suggested message
+   `feat(core): resolve offer pivot extra-column exposure + reservation arithmetic`.
+
 ## Required Artifacts (status)
 
-- `claude-progress.md` -- this file (updated 2026-05-20, Session 11).
-- `feature_list.json` -- present at repo root. Currently tracks one feature; updated this session.
+- `claude-progress.md` -- this file (updated 2026-05-21, Session 14).
+- `docs/specs/SPEC-002-offer-management.md` -- updated this session;
+  Architectural-gap section rewritten as resolved, new Evidence block,
+  `last_updated` bumped.
 - `session-handoff.md` -- not present; not yet needed.
 
 ## Definition Of Done (reminder)

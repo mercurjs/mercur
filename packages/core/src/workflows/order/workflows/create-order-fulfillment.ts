@@ -46,11 +46,21 @@ type OfferInventoryLink = {
   } | null
 }
 
+type OfferInventoryItemLinkRow = {
+  required_quantity?: number | null
+  inventory_item_id?: string | null
+  inventory_item?: {
+    id: string
+    title?: string | null
+    sku?: string | null
+  } | null
+}
+
 type LineItemOfferRow = {
   id: string
   offer?: {
     id: string
-    inventory_items?: OfferInventoryLink[] | null
+    inventory_item_link?: OfferInventoryItemLinkRow[] | null
   } | null
 }
 
@@ -73,10 +83,23 @@ function buildOfferInventoryByLineItem(
 ): Map<string, Map<string, OfferInventoryLink>> {
   const byLine = new Map<string, Map<string, OfferInventoryLink>>()
   for (const row of lineItemOffers) {
-    const links = row.offer?.inventory_items ?? []
+    const links = row.offer?.inventory_item_link ?? []
     const byInventoryItem = new Map<string, OfferInventoryLink>()
     for (const link of links) {
-      byInventoryItem.set(link.inventory_item_id, link)
+      const inventoryItemId =
+        link.inventory_item?.id ?? link.inventory_item_id
+      if (!inventoryItemId) continue
+      byInventoryItem.set(inventoryItemId, {
+        inventory_item_id: inventoryItemId,
+        required_quantity: link.required_quantity ?? 1,
+        inventory: link.inventory_item
+          ? {
+              id: link.inventory_item.id,
+              title: link.inventory_item.title ?? null,
+              sku: link.inventory_item.sku ?? null,
+            }
+          : null,
+      })
     }
     byLine.set(row.id, byInventoryItem)
   }
@@ -496,11 +519,10 @@ export const createOrderFulfillmentWorkflow = overrideWorkflow(
       fields: [
         "id",
         "offer.id",
-        "offer.inventory_items.inventory_item_id",
-        "offer.inventory_items.required_quantity",
-        "offer.inventory_items.inventory.id",
-        "offer.inventory_items.inventory.title",
-        "offer.inventory_items.inventory.sku",
+        "offer.inventory_item_link.required_quantity",
+        "offer.inventory_item_link.inventory_item.id",
+        "offer.inventory_item_link.inventory_item.title",
+        "offer.inventory_item_link.inventory_item.sku",
       ],
       filters: { id: lineItemIds },
     }).config({ name: "get-line-item-offers" })

@@ -71,10 +71,11 @@ type OfferLocationLevel = {
   location_id: string
 }
 
-type OfferInventoryLink = {
-  inventory_item_id: string
-  required_quantity: number
-  inventory?: {
+type OfferInventoryItemLinkRow = {
+  required_quantity?: number | null
+  inventory_item_id?: string | null
+  inventory_item?: {
+    id: string
     location_levels?: OfferLocationLevel[] | null
   } | null
 }
@@ -85,7 +86,7 @@ type ReturnItemWithOffer = OrderReturnItemDTO & {
     variant_id?: string
     offer?: {
       id: string
-      inventory_items?: OfferInventoryLink[] | null
+      inventory_item_link?: OfferInventoryItemLinkRow[] | null
     } | null
   } | null
 }
@@ -107,7 +108,12 @@ function prepareInventoryUpdate({
     adjustment: BigNumberInput
   }[] = []
 
-  const offerInventoryById = new Map<string, OfferInventoryLink[]>()
+  type NormalizedLink = {
+    inventory_item_id: string
+    required_quantity: number
+    location_levels: OfferLocationLevel[]
+  }
+  const offerInventoryById = new Map<string, NormalizedLink[]>()
   let hasManagedInventory = false
   let hasStockLocation = false
 
@@ -116,13 +122,25 @@ function prepareInventoryUpdate({
     if (!offer?.id) continue
     if (offerInventoryById.has(offer.id)) continue
 
-    const links = offer.inventory_items ?? []
-    if (!links.length) continue
+    const rows = offer.inventory_item_link ?? []
+    if (!rows.length) continue
     hasManagedInventory = true
 
+    const normalized: NormalizedLink[] = []
+    for (const link of rows) {
+      const inventoryItemId =
+        link.inventory_item?.id ?? link.inventory_item_id
+      if (!inventoryItemId) continue
+      normalized.push({
+        inventory_item_id: inventoryItemId,
+        required_quantity: link.required_quantity ?? 1,
+        location_levels: link.inventory_item?.location_levels ?? [],
+      })
+    }
+
     if (
-      links.some((link) =>
-        (link.inventory?.location_levels ?? []).some(
+      normalized.some((link) =>
+        link.location_levels.some(
           (lvl) => lvl.location_id === orderReturn.location_id,
         ),
       )
@@ -130,7 +148,7 @@ function prepareInventoryUpdate({
       hasStockLocation = true
     }
 
-    offerInventoryById.set(offer.id, links)
+    offerInventoryById.set(offer.id, normalized)
   }
 
   if (hasManagedInventory && !hasStockLocation) {
@@ -185,9 +203,9 @@ export const confirmReturnReceiveWorkflow = overrideWorkflow(
         "items.item.id",
         "items.item.variant_id",
         "items.item.offer.id",
-        "items.item.offer.inventory_items.inventory_item_id",
-        "items.item.offer.inventory_items.required_quantity",
-        "items.item.offer.inventory_items.inventory.location_levels.location_id",
+        "items.item.offer.inventory_item_link.required_quantity",
+        "items.item.offer.inventory_item_link.inventory_item.id",
+        "items.item.offer.inventory_item_link.inventory_item.location_levels.location_id",
       ],
       variables: { id: input.return_id },
       list: false,
