@@ -1,251 +1,163 @@
-import { Input, Select, Switch, Text } from "@medusajs/ui"
-import { Controller, useFormContext } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import { HttpTypes } from "@medusajs/types";
+import { useMemo } from "react";
+import { useFormContext, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
-import { Thumbnail } from "../../../../components/common/thumbnail"
-import { defineTabMeta } from "../../../../components/tabbed-form/types"
-import { useShippingProfiles } from "../../../../hooks/api/shipping-profiles"
-import { useStockLocations } from "../../../../hooks/api/stock-locations"
-import { useStore } from "../../../../hooks/api/store"
 import {
-  CreateOfferFormValues,
-  VariantSnapshot,
-} from "./schema"
+  createDataGridHelper,
+  createDataGridLocationStockColumns,
+  createDataGridPriceColumns,
+  DataGrid,
+} from "../../../../components/data-grid";
+import { Thumbnail } from "../../../../components/common/thumbnail";
+import { useRouteModal } from "../../../../components/modals";
+import { defineTabMeta } from "../../../../components/tabbed-form/types";
+import { usePricePreferences } from "../../../../hooks/api/price-preferences";
+import { useShippingProfiles } from "../../../../hooks/api/shipping-profiles";
+import { useStockLocations } from "../../../../hooks/api/stock-locations";
+import { useStore } from "../../../../hooks/api/store";
+import { CreateOfferFormValues, OfferVariantRow } from "./schema";
 
-type LocationLite = {
-  id: string
-  name?: string | null
-}
-
-type CurrencyLite = {
-  currency_code: string
-}
+type ShippingProfileLite = { id: string; name?: string | null };
 
 const Root = () => {
-  const { t } = useTranslation()
-  const form = useFormContext<CreateOfferFormValues>()
-  const selectedVariants =
-    (form.watch("selected_variants") ?? []) as VariantSnapshot[]
-  const { stock_locations } = useStockLocations({ limit: 100 }) as {
-    stock_locations?: LocationLite[]
-  }
-  const { store } = useStore({ fields: "+supported_currencies" })
-  const { shipping_profiles } = useShippingProfiles({ limit: 100 })
+  const form = useFormContext<CreateOfferFormValues>();
+  const { setCloseOnEscape } = useRouteModal();
 
-  const locations: LocationLite[] = stock_locations ?? []
-  const currencies: CurrencyLite[] =
-    (store?.supported_currencies as CurrencyLite[] | undefined) ?? []
+  const { store } = useStore({ fields: "+supported_currencies" });
+  const { stock_locations } = useStockLocations({ limit: 100 });
+  const { shipping_profiles } = useShippingProfiles({ limit: 100 }) as {
+    shipping_profiles?: ShippingProfileLite[];
+  };
+  const { price_preferences: pricePreferences } = usePricePreferences({});
 
-  const groupedMap = new Map<
-    string,
-    { product: VariantSnapshot; variants: VariantSnapshot[] }
-  >()
-  for (const v of selectedVariants) {
-    const key = v.product_id || v.variant_id
-    if (!groupedMap.has(key)) {
-      groupedMap.set(key, { product: v, variants: [] })
-    }
-    groupedMap.get(key)!.variants.push(v)
-  }
-  const grouped = Array.from(groupedMap.values())
+  const variants = useWatch({
+    control: form.control,
+    name: "variants",
+  }) as OfferVariantRow[] | undefined;
+
+  const columns = useColumns({
+    currencies: store?.supported_currencies,
+    stockLocations: stock_locations as
+      | HttpTypes.AdminStockLocation[]
+      | undefined,
+    shippingProfiles: shipping_profiles ?? [],
+    pricePreferences,
+  });
 
   return (
-    <div className="flex flex-col p-6 gap-y-4" data-testid="offer-create-tab-stockLevelsAndPrices">
-      <div className="flex items-center justify-between gap-x-2">
-        <Text size="small" weight="plus">
-          {t("offers.create.tabs.stockLevelsAndPrices")}
-        </Text>
-        <div className="w-72">
-          <Controller
-            control={form.control}
-            name="shipping_profile_id"
-            render={({ field: { ref, onChange, ...field } }) => (
-              <Select {...field} onValueChange={onChange}>
-                <Select.Trigger ref={ref} data-testid="offer-create-shipping-profile">
-                  <Select.Value
-                    placeholder={t("offers.fields.shippingProfile")}
-                  />
-                </Select.Trigger>
-                <Select.Content>
-                  {(shipping_profiles ?? []).map((p) => (
-                    <Select.Item key={p.id} value={p.id}>
-                      {p.name}
-                    </Select.Item>
-                  ))}
-                </Select.Content>
-              </Select>
-            )}
-          />
-        </div>
-      </div>
-
-      <div className="overflow-x-auto rounded-md border">
-        <table className="min-w-full text-left text-sm">
-          <thead className="bg-ui-bg-subtle text-ui-fg-subtle border-b">
-            <tr>
-              <th className="px-4 py-3 font-medium">{t("fields.title")}</th>
-              <th className="px-4 py-3 font-medium">{t("offers.fields.sku")}</th>
-              {locations.map((loc) => (
-                <th
-                  key={loc.id}
-                  className="px-4 py-3 font-medium whitespace-nowrap"
-                >
-                  {t("offers.fields.stockLocation", { name: loc.name ?? loc.id })}
-                </th>
-              ))}
-              {currencies.map((c) => (
-                <th
-                  key={c.currency_code}
-                  className="px-4 py-3 font-medium whitespace-nowrap"
-                >
-                  {t("offers.fields.priceCurrency", {
-                    code: c.currency_code.toUpperCase(),
-                  })}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y">
-            {grouped.length === 0 && (
-              <tr>
-                <td
-                  colSpan={2 + locations.length + currencies.length}
-                  className="px-4 py-6 text-center"
-                >
-                  <Text size="small" className="text-ui-fg-subtle">
-                    {t("offers.validation.selectAtLeastOneVariant")}
-                  </Text>
-                </td>
-              </tr>
-            )}
-            {grouped.map((group) => (
-              <Fragment key={group.product.product_id} group={group}>
-                <tr className="bg-ui-bg-subtle">
-                  <td
-                    colSpan={2 + locations.length + currencies.length}
-                    className="px-4 py-2"
-                  >
-                    <div className="flex items-center gap-x-2">
-                      <Thumbnail src={group.product.product_thumbnail ?? null} />
-                      <Text size="small" weight="plus">
-                        {group.product.product_title}
-                      </Text>
-                    </div>
-                  </td>
-                </tr>
-                {group.variants.map((variant) => (
-                  <VariantRow
-                    key={variant.variant_id}
-                    variant={variant}
-                    locations={locations}
-                    currencies={currencies}
-                  />
-                ))}
-              </Fragment>
-            ))}
-          </tbody>
-        </table>
-      </div>
+    <div
+      className="flex size-full flex-col overflow-hidden"
+      data-testid="offer-create-tab-stockLevelsAndPrices"
+    >
+      <DataGrid
+        columns={columns}
+        data={variants ?? []}
+        state={form}
+        onEditingChange={(editing) => setCloseOnEscape(!editing)}
+      />
     </div>
-  )
-}
+  );
+};
 
-const Fragment = ({ children }: { children: React.ReactNode; group: unknown }) => <>{children}</>
+type ColumnArgs = {
+  currencies?: HttpTypes.AdminStore["supported_currencies"];
+  stockLocations?: HttpTypes.AdminStockLocation[];
+  shippingProfiles?: ShippingProfileLite[];
+  pricePreferences?: HttpTypes.AdminPricePreference[];
+};
 
-const VariantRow = ({
-  variant,
-  locations,
-  currencies,
-}: {
-  variant: VariantSnapshot
-  locations: LocationLite[]
-  currencies: CurrencyLite[]
-}) => {
-  const { t } = useTranslation()
-  const form = useFormContext<CreateOfferFormValues>()
-  const rowName = `rows.${variant.variant_id}` as const
+const columnHelper = createDataGridHelper<
+  OfferVariantRow,
+  CreateOfferFormValues
+>();
 
-  const error = form.formState.errors?.rows?.[variant.variant_id] as
-    | { sku?: { message?: string } }
-    | undefined
+const useColumns = ({
+  currencies = [],
+  stockLocations = [],
+  shippingProfiles = [],
+  pricePreferences = [],
+}: ColumnArgs) => {
+  const { t } = useTranslation();
 
-  return (
-    <tr data-testid={`offer-create-stock-row-${variant.variant_id}`}>
-      <td className="px-4 py-3 align-top">
-        <Text size="small" weight="plus" leading="compact">
-          {variant.variant_title}
-        </Text>
-      </td>
-      <td className="px-4 py-3 align-top">
-        <Controller
-          control={form.control}
-          name={`${rowName}.sku`}
-          render={({ field }) => (
-            <div className="flex flex-col gap-y-1">
-              <Input
-                placeholder={t("offers.fields.sku")}
-                value={field.value ?? ""}
-                onChange={field.onChange}
-                data-testid={`offer-create-stock-row-${variant.variant_id}-sku-input`}
-              />
-              {error?.sku?.message && (
-                <Text size="xsmall" className="text-ui-fg-error">
-                  {error.sku.message}
-                </Text>
-              )}
-            </div>
-          )}
-        />
-      </td>
-      {locations.map((loc) => (
-        <td key={loc.id} className="px-4 py-3 align-top">
-          <Controller
-            control={form.control}
-            name={`${rowName}.locations.${loc.id}`}
-            render={({ field }) => (
-              <div className="flex items-center gap-x-2">
-                <Switch
-                  checked={!!field.value}
-                  onCheckedChange={field.onChange}
-                  data-testid={`offer-create-stock-row-${variant.variant_id}-location-${loc.id}-toggle`}
-                />
-                <Text size="xsmall" className="text-ui-fg-subtle">
-                  {field.value
-                    ? t("offers.fields.enabled")
-                    : t("offers.fields.notEnabled")}
-                </Text>
+  return useMemo(() => {
+    const shippingProfileOptions = shippingProfiles.map((p) => ({
+      value: p.id,
+      label: p.name ?? p.id,
+    }));
+
+    return [
+      columnHelper.column({
+        id: "title",
+        header: t("fields.title"),
+        cell: (context) => {
+          const entity = context.row.original;
+          const title = entity.variant_title || "";
+          return (
+            <DataGrid.ReadonlyCell context={context}>
+              <div className="flex h-full w-full items-center gap-x-2 overflow-hidden">
+                <Thumbnail src={entity.product_thumbnail ?? null} />
+                <span className="truncate" title={title}>
+                  {title}
+                </span>
               </div>
-            )}
+            </DataGrid.ReadonlyCell>
+          );
+        },
+        disableHiding: true,
+      }),
+      columnHelper.column({
+        id: "sku",
+        name: t("fields.sku"),
+        header: t("fields.sku"),
+        field: (context) => `variants.${context.row.index}.sku`,
+        type: "text",
+        cell: (context) => <DataGrid.TextCell context={context} />,
+      }),
+      columnHelper.column({
+        id: "shipping_profile",
+        name: t("offers.fields.shippingProfile"),
+        header: t("offers.fields.shippingProfile"),
+        field: (context) => `variants.${context.row.index}.shipping_profile_id`,
+        type: "select",
+        cell: (context) => (
+          <DataGrid.SelectCell
+            context={context}
+            options={shippingProfileOptions}
+            placeholder={t("offers.fields.shippingProfile")}
           />
-        </td>
-      ))}
-      {currencies.map((c) => (
-        <td key={c.currency_code} className="px-4 py-3 align-top">
-          <Controller
-            control={form.control}
-            name={`${rowName}.prices.${c.currency_code}`}
-            render={({ field }) => (
-              <Input
-                type="number"
-                step="0.01"
-                min="0"
-                placeholder="0.00"
-                value={field.value ?? ""}
-                onChange={(e) => field.onChange(e.target.value)}
-                data-testid={`offer-create-stock-row-${variant.variant_id}-price-${c.currency_code}-input`}
-              />
-            )}
-          />
-        </td>
-      ))}
-    </tr>
-  )
-}
+        ),
+      }),
+      ...createDataGridLocationStockColumns<
+        OfferVariantRow,
+        CreateOfferFormValues
+      >({
+        stockLocations,
+        getFieldName: (context, index) => {
+          const location = stockLocations[index];
+          if (!location) return null;
+          return `variants.${context.row.index}.inventory.${location.id}`;
+        },
+        t,
+      }),
+      ...createDataGridPriceColumns<OfferVariantRow, CreateOfferFormValues>({
+        currencies: currencies.map((c) => c.currency_code),
+        pricePreferences,
+        getFieldName: (context, value) => {
+          if (context.column.id?.startsWith("currency_prices")) {
+            return `variants.${context.row.index}.prices.${value}`;
+          }
+          return null;
+        },
+        t,
+      }),
+    ];
+  }, [t, currencies, stockLocations, shippingProfiles, pricePreferences]);
+};
 
 Root._tabMeta = defineTabMeta<CreateOfferFormValues>({
   id: "stockLevelsAndPrices",
   labelKey: "offers.create.tabs.stockLevelsAndPrices",
-  validationFields: ["shipping_profile_id"],
-})
+});
 
-export const CreateOfferStockLevelsAndPricesTab = Root
+export const CreateOfferStockLevelsAndPricesTab = Root;

@@ -15,16 +15,17 @@ export type OfferTableRow = {
   product_variant?: {
     id?: string | null
     title?: string | null
-    sku?: string | null
     product_id?: string | null
     product?: {
       id?: string | null
       title?: string | null
       thumbnail?: string | null
       status?: string | null
-      categories?: { id?: string | null; name?: string | null }[] | null
-      collection?: { id?: string | null; title?: string | null } | null
     } | null
+  } | null
+  shipping_profile?: {
+    id?: string | null
+    name?: string | null
   } | null
 }
 
@@ -33,9 +34,7 @@ const columnHelper = createColumnHelper<OfferTableRow>()
 const isPublished = (row: OfferTableRow) =>
   row.product_variant?.product?.status === "published" && !row.deleted_at
 
-export const useOfferTableColumns = (
-  variantsCountByProduct?: Record<string, number>,
-) => {
+export const useOfferTableColumns = () => {
   const { t } = useTranslation()
 
   return useMemo(
@@ -61,13 +60,11 @@ export const useOfferTableColumns = (
         ),
       }),
       columnHelper.display({
-        id: "offer",
-        header: t("offers.fields.offer"),
+        id: "title",
+        header: t("fields.title"),
         cell: ({ row }) => {
           const variant = row.original.product_variant
-          const productTitle = variant?.product?.title
-          const variantTitle = variant?.title
-          const title = productTitle ?? variantTitle
+          const title = variant?.title ?? ""
 
           if (!title) {
             return <PlaceholderCell />
@@ -81,6 +78,7 @@ export const useOfferTableColumns = (
                 weight="plus"
                 leading="compact"
                 className="truncate"
+                title={title}
               >
                 {title}
               </Text>
@@ -88,41 +86,27 @@ export const useOfferTableColumns = (
           )
         },
       }),
+      columnHelper.accessor("sku", {
+        header: t("offers.fields.sku"),
+        cell: ({ getValue }) => {
+          const sku = getValue()
+          if (!sku) return <PlaceholderCell />
+          return (
+            <Text size="small" leading="compact" className="truncate">
+              {sku}
+            </Text>
+          )
+        },
+      }),
       columnHelper.display({
-        id: "category",
-        header: t("offers.fields.category"),
+        id: "shipping_profile",
+        header: t("offers.fields.shippingProfile"),
         cell: ({ row }) => {
-          const name = row.original.product_variant?.product?.categories?.[0]?.name
+          const name = row.original.shipping_profile?.name
           if (!name) return <PlaceholderCell />
           return (
             <Text size="small" leading="compact" className="truncate">
               {name}
-            </Text>
-          )
-        },
-      }),
-      columnHelper.display({
-        id: "collection",
-        header: t("offers.fields.collection"),
-        cell: ({ row }) => {
-          const title = row.original.product_variant?.product?.collection?.title
-          if (!title) return <PlaceholderCell />
-          return (
-            <Text size="small" leading="compact" className="truncate">
-              {title}
-            </Text>
-          )
-        },
-      }),
-      columnHelper.display({
-        id: "variants",
-        header: t("offers.fields.variants"),
-        cell: ({ row }) => {
-          const productId = row.original.product_variant?.product_id
-          const count = productId ? variantsCountByProduct?.[productId] ?? 1 : 1
-          return (
-            <Text size="small" leading="compact" className="truncate">
-              {t("offers.fields.variantsCount", { count })}
             </Text>
           )
         },
@@ -136,7 +120,9 @@ export const useOfferTableColumns = (
 
           if (published) {
             return (
-              <StatusBadge color="green">{t("offers.status.published")}</StatusBadge>
+              <StatusBadge color="green">
+                {t("offers.status.published")}
+              </StatusBadge>
             )
           }
 
@@ -161,6 +147,6 @@ export const useOfferTableColumns = (
         ),
       }),
     ],
-    [t, variantsCountByProduct],
+    [t],
   )
 }

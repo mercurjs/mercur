@@ -66,6 +66,8 @@ export const VendorCreateOffer = z
     shipping_profile_id: z.string(),
     inventory_items: z.array(VendorOfferInventoryItem).min(1),
     prices: z.array(VendorOfferPrice).min(1),
+    ean: z.string().min(1).nullish(),
+    upc: z.string().min(1).nullish(),
     metadata: z.record(z.string(), z.unknown()).nullish(),
   })
   .strict()

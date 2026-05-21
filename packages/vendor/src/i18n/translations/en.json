@@ -1046,6 +1046,7 @@
       "tip": "Select all relevant products that match your inventory, then easily create offers for them by simply adding your stock levels and prices.",
       "addPrice": "Add price",
       "addInventoryItem": "Add inventory item",
+      "stockLevelsWarning": "Offers created, but some stock levels could not be saved: {{message}}",
       "tabs": {
         "catalogue": "Catalogue",
         "stockLevelsAndPrices": "Stock Levels & Prices"
@@ -1053,7 +1054,7 @@
     },
     "detail": {
       "offerLabel": "Offer",
-      "masterVariant": "Master variant",
+      "productVariant": "Product Variant",
       "inventoryItems": "Inventory items",
       "manageKit": "Manage inventory kit",
       "noInventoryItems": "No inventory items attached. Open the inventory drawer to attach one.",

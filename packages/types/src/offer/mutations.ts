@@ -51,6 +51,8 @@ export interface CreateOfferDTO {
   shipping_profile_id: string
   inventory_items: CreateOfferInventoryItemDTO[]
   prices: CreateOfferPriceDTO[]
+  ean?: string | null
+  upc?: string | null
   metadata?: Record<string, unknown> | null
 }
 

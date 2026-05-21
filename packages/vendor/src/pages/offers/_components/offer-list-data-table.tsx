@@ -38,23 +38,8 @@ export const OfferListDataTable = () => {
 
   const rows = (offers ?? []) as OfferTableRow[]
 
-  const variantSetByProduct: Record<string, Set<string>> = {}
-  for (const row of rows) {
-    const productId = row.product_variant?.product_id
-    const variantId = row.product_variant?.id
-    if (!productId || !variantId) continue
-    if (!variantSetByProduct[productId]) {
-      variantSetByProduct[productId] = new Set()
-    }
-    variantSetByProduct[productId].add(variantId)
-  }
-  const variantsCountByProduct: Record<string, number> = {}
-  for (const key of Object.keys(variantSetByProduct)) {
-    variantsCountByProduct[key] = variantSetByProduct[key].size
-  }
-
   const filters = useOfferTableFilters()
-  const columns = useOfferTableColumns(variantsCountByProduct)
+  const columns = useOfferTableColumns()
   const { mutateAsync: bulkDelete } = useBulkDeleteOffers()
 
   const { table } = useDataTable({

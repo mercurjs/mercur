@@ -8,7 +8,7 @@ import { OfferDetail } from "../../common/types"
 
 type Props = { offer: OfferDetail }
 
-export const OfferMasterVariantSection = ({ offer }: Props) => {
+export const OfferVariantSection = ({ offer }: Props) => {
   const { t } = useTranslation()
   const variant = offer.product_variant
 
@@ -20,36 +20,32 @@ export const OfferMasterVariantSection = ({ offer }: Props) => {
   const link = productId ? `/products/${productId}/variants/${variant.id}` : null
 
   const title = variant.product?.title ?? variant.title ?? variant.id
-  const optionValues =
-    (variant.options ?? [])
-      .map((o) => o.value)
-      .filter((v): v is string => !!v)
-      .join(" ⋅ ") || (variant.title ?? "")
+  const subtitle = variant.title ?? ""
 
   const Inner = (
     <div
       className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-2 transition-colors"
-      data-testid="offer-detail-master-variant"
+      data-testid="offer-detail-variant"
     >
       <div className="flex items-center gap-3">
         <div
           className="shadow-elevation-card-rest rounded-md"
-          data-testid="offer-detail-master-variant-thumbnail"
+          data-testid="offer-detail-variant-thumbnail"
         >
           <Thumbnail src={variant.product?.thumbnail ?? null} />
         </div>
         <div className="flex flex-1 flex-col">
           <span
             className="text-ui-fg-base font-medium"
-            data-testid="offer-detail-master-variant-title"
+            data-testid="offer-detail-variant-title"
           >
             {title}
           </span>
           <span
             className="text-ui-fg-subtle"
-            data-testid="offer-detail-master-variant-options"
+            data-testid="offer-detail-variant-subtitle"
           >
-            {optionValues}
+            {subtitle}
           </span>
         </div>
         <div className="size-7 flex items-center justify-center">
@@ -60,19 +56,16 @@ export const OfferMasterVariantSection = ({ offer }: Props) => {
   )
 
   return (
-    <Container
-      className="p-0"
-      data-testid="offer-detail-master-variant-section"
-    >
+    <Container className="p-0" data-testid="offer-detail-variant-section">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">{t("offers.detail.masterVariant")}</Heading>
+        <Heading level="h2">{t("offers.detail.productVariant")}</Heading>
       </div>
       <div className="txt-small flex flex-col gap-2 px-2 pb-2">
         {link ? (
           <Link
             to={link}
             className="outline-none focus-within:shadow-borders-interactive-with-focus rounded-md [&:hover>div]:bg-ui-bg-component-hover"
-            data-testid="offer-detail-master-variant-link"
+            data-testid="offer-detail-variant-link"
           >
             {Inner}
           </Link>

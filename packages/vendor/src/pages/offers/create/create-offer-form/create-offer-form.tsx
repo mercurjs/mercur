@@ -1,180 +1,298 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, toast } from "@medusajs/ui"
-import { useState } from "react"
-import { useForm } from "react-hook-form"
-import { useTranslation } from "react-i18next"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Button, toast } from "@medusajs/ui";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 
-import { RouteFocusModal, useRouteModal } from "../../../../components/modals"
-import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form"
-import { useCreateOffer } from "../../../../hooks/api/offers"
-import { useCreateInventoryItem } from "../../../../hooks/api/inventory"
-import { useStore } from "../../../../hooks/api/store"
-import { CreateOfferCatalogueTab } from "./create-offer-catalogue"
-import { CreateOfferStockLevelsAndPricesTab } from "./create-offer-stock-levels-and-prices"
+import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
+import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
+import {
+  useBatchInventoryItemsLocationLevels,
+  useCreateInventoryItem,
+} from "../../../../hooks/api/inventory";
+import { useCreateOffer } from "../../../../hooks/api/offers";
+import { useVariants } from "../../../../hooks/api/product-variants";
+import { useStockLocations } from "../../../../hooks/api/stock-locations";
+import { useStore } from "../../../../hooks/api/store";
+import { CreateOfferCatalogueTab } from "./create-offer-catalogue";
+import { CreateOfferStockLevelsAndPricesTab } from "./create-offer-stock-levels-and-prices";
 import {
   CreateOfferFormValues,
   CreateOfferSchema,
-  isRowPublishable,
-  requiresSku,
-} from "./schema"
+  isVariantRowPublishable,
+  OfferVariantRow,
+  variantRowRequiresSku,
+} from "./schema";
 
 const DEFAULTS: CreateOfferFormValues = {
   selected_variant_ids: [],
-  selected_variants: [],
-  rows: {},
-  shipping_profile_id: "",
-}
+  variants: [],
+};
 
-type CurrencyLite = { currency_code: string }
+type CurrencyLite = { currency_code: string };
+
+const numericOrZero = (v: number | "" | undefined | null): number => {
+  if (v === "" || v === null || v === undefined) return 0;
+  return Number(v) || 0;
+};
 
 export const CreateOfferForm = () => {
-  const { t } = useTranslation()
-  const { handleSuccess } = useRouteModal()
-  const [isSubmitting, setIsSubmitting] = useState(false)
+  const { t } = useTranslation();
+  const { handleSuccess } = useRouteModal();
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const form = useForm<CreateOfferFormValues>({
     defaultValues: DEFAULTS,
     resolver: zodResolver(CreateOfferSchema),
-  })
+  });
 
-  const { mutateAsync: createOffer } = useCreateOffer()
-  const { mutateAsync: createInventoryItem } = useCreateInventoryItem()
-  const { store } = useStore({ fields: "+supported_currencies" })
+  const { mutateAsync: createOffer } = useCreateOffer();
+  const { mutateAsync: createInventoryItem } = useCreateInventoryItem();
+  const { mutateAsync: batchInventoryLevels } =
+    useBatchInventoryItemsLocationLevels();
+  const { store } = useStore({ fields: "+supported_currencies" });
+  const { stock_locations } = useStockLocations({ limit: 100 });
 
   const supportedCurrencies: CurrencyLite[] =
-    (store?.supported_currencies as CurrencyLite[] | undefined) ?? []
+    (store?.supported_currencies as CurrencyLite[] | undefined) ?? [];
+  const locationIds = (stock_locations ?? []).map((l) => l.id);
+
+  const selectedVariantIds = form.watch("selected_variant_ids") ?? [];
+  const selectedVariantIdsKey = selectedVariantIds.join(",");
+  const currenciesKey = supportedCurrencies
+    .map((c) => c.currency_code)
+    .join(",");
+  const locationsKey = locationIds.join(",");
+
+  const { variants: fetchedVariants } = useVariants(
+    {
+      id: selectedVariantIds,
+      limit: selectedVariantIds.length || 1,
+      fields:
+        "id,title,sku,product_id,product.id,product.title,product.thumbnail",
+    },
+    { enabled: selectedVariantIds.length > 0 },
+  );
+
+  // Hydrate `variants` from the catalogue selection. Keep already-edited
+  // rows by indexing the prior array by variant_id.
+  useEffect(() => {
+    const ids = selectedVariantIdsKey ? selectedVariantIdsKey.split(",") : [];
+    const currencyCodes = currenciesKey ? currenciesKey.split(",") : [];
+    const locIds = locationsKey ? locationsKey.split(",") : [];
+
+    const emptyPrices = currencyCodes.reduce<Record<string, number | "">>(
+      (acc, code) => {
+        acc[code] = "";
+        return acc;
+      },
+      {},
+    );
+    const emptyInventory = locIds.reduce<
+      Record<
+        string,
+        { checked: boolean; quantity: number | ""; disabledToggle: boolean }
+      >
+    >((acc, locId) => {
+      acc[locId] = { checked: false, quantity: "", disabledToggle: false };
+      return acc;
+    }, {});
+
+    const existing = form.getValues("variants") ?? [];
+    const existingByVariantId = new Map(
+      existing.map((row) => [row.variant_id, row]),
+    );
+
+    const next: OfferVariantRow[] = [];
+    for (const variantId of ids) {
+      const previous = existingByVariantId.get(variantId);
+      if (previous) {
+        // Merge in any newly-arrived currencies / locations the row didn't
+        // know about (e.g. store data arrived after the row was built).
+        next.push({
+          ...previous,
+          prices: { ...emptyPrices, ...(previous.prices ?? {}) },
+          inventory: { ...emptyInventory, ...(previous.inventory ?? {}) },
+        });
+        continue;
+      }
+      const fetched = (fetchedVariants ?? []).find((v) => v.id === variantId);
+      if (!fetched) continue;
+      next.push({
+        variant_id: variantId,
+        product_id: fetched.product_id ?? fetched.product?.id ?? "",
+        product_title: fetched.product?.title ?? "",
+        variant_title: fetched.title ?? variantId,
+        product_thumbnail: fetched.product?.thumbnail ?? null,
+        variant_sku: fetched.sku ?? null,
+        sku: fetched.sku ?? "",
+        shipping_profile_id: "",
+        prices: { ...emptyPrices },
+        inventory: { ...emptyInventory },
+      });
+    }
+    form.setValue("variants", next, { shouldDirty: false });
+  }, [
+    selectedVariantIdsKey,
+    fetchedVariants,
+    currenciesKey,
+    locationsKey,
+    form,
+  ]);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const rows = values.rows ?? {}
-    const selectedVariants = values.selected_variants ?? []
-    const shippingProfileId = values.shipping_profile_id
+    const variants = values.variants ?? [];
 
-    const publishable = selectedVariants.filter((v) => {
-      const row = rows[v.variant_id]
-      return row ? isRowPublishable(row) : false
-    })
+    const publishable = variants.filter((v) => isVariantRowPublishable(v));
 
     if (publishable.length === 0) {
-      toast.error(t("offers.validation.noPublishableRows"))
-      return
+      toast.error(t("offers.validation.noPublishableRows"));
+      return;
     }
 
-    // SKU-required validation (rows that toggled a location or set a non-zero price must have SKU)
-    let hasValidationError = false
-    const skuSeen = new Map<string, string>()
-    for (const v of publishable) {
-      const row = rows[v.variant_id]!
-      const sku = (row.sku ?? "").trim()
-      if (requiresSku(row) && !sku) {
-        form.setError(`rows.${v.variant_id}.sku`, {
+    let hasValidationError = false;
+    const skuSeen = new Map<string, number>();
+    for (let i = 0; i < variants.length; i++) {
+      const row = variants[i];
+      if (!isVariantRowPublishable(row)) continue;
+
+      const sku = (row.sku ?? "").trim();
+      if (variantRowRequiresSku(row) && !sku) {
+        form.setError(`variants.${i}.sku`, {
           type: "manual",
           message: t("offers.validation.skuRequired"),
-        })
-        hasValidationError = true
-        continue
+        });
+        hasValidationError = true;
+        continue;
       }
       if (sku) {
         if (skuSeen.has(sku)) {
-          form.setError(`rows.${v.variant_id}.sku`, {
+          form.setError(`variants.${i}.sku`, {
             type: "manual",
             message: t("offers.validation.duplicateSku"),
-          })
-          hasValidationError = true
-          continue
+          });
+          hasValidationError = true;
+          continue;
         }
-        skuSeen.set(sku, v.variant_id)
+        skuSeen.set(sku, i);
+      }
+
+      if (!row.shipping_profile_id) {
+        form.setError(`variants.${i}.shipping_profile_id`, {
+          type: "manual",
+          message: t("offers.validation.skuRequired"),
+        });
+        hasValidationError = true;
       }
     }
 
-    if (hasValidationError) return
+    if (hasValidationError) return;
 
-    setIsSubmitting(true)
-    const failed: string[] = []
+    setIsSubmitting(true);
+    const failedVariantIds: string[] = [];
+    const levelCreates: {
+      inventory_item_id: string;
+      location_id: string;
+      stocked_quantity: number;
+    }[] = [];
 
-    for (const variant of publishable) {
-      const row = rows[variant.variant_id]!
-      const sku = (row.sku ?? "").trim() || variant.variant_sku || variant.variant_id
+    for (let i = 0; i < variants.length; i++) {
+      const row = variants[i];
+      if (!isVariantRowPublishable(row)) continue;
+      const sku = (row.sku ?? "").trim() || row.variant_sku || row.variant_id;
 
       try {
         const inventoryItemResp = await createInventoryItem({
           sku,
-          title: variant.variant_title,
-        } as Parameters<typeof createInventoryItem>[0])
+          title: row.variant_title,
+        } as Parameters<typeof createInventoryItem>[0]);
 
-        const inventoryItemId =
-          (inventoryItemResp as { inventory_item?: { id?: string } })
-            ?.inventory_item?.id
+        const inventoryItemId = (
+          inventoryItemResp as { inventory_item?: { id?: string } }
+        )?.inventory_item?.id;
 
         if (!inventoryItemId) {
-          throw new Error("Inventory item creation returned no id")
+          throw new Error("Inventory item creation returned no id");
         }
 
-        const prices: {
-          amount: number
-          currency_code: string
-        }[] = []
+        const prices: { amount: number; currency_code: string }[] = [];
         for (const c of supportedCurrencies) {
-          const raw = row.prices?.[c.currency_code]
-          const amount = Number(raw ?? 0)
-          if (!Number.isFinite(amount)) continue
-          prices.push({ amount, currency_code: c.currency_code })
+          const raw = row.prices?.[c.currency_code];
+          const amount = numericOrZero(raw);
+          prices.push({ amount, currency_code: c.currency_code });
         }
-
         if (prices.length === 0) {
-          for (const c of supportedCurrencies.slice(0, 1)) {
-            prices.push({ amount: 0, currency_code: c.currency_code })
-          }
+          prices.push({ amount: 0, currency_code: "usd" });
         }
 
         await createOffer({
           sku,
-          variant_id: variant.variant_id,
-          shipping_profile_id: shippingProfileId,
-          inventory_items: [
-            { inventory_item_id: inventoryItemId, required_quantity: 1 },
-          ],
+          variant_id: row.variant_id,
+          shipping_profile_id: row.shipping_profile_id,
+          inventory_items: [{ inventory_item_id: inventoryItemId }],
           prices,
-        } as Parameters<typeof createOffer>[0])
+        } as Parameters<typeof createOffer>[0]);
 
-        // Remove the variant from the form once it succeeds.
-        const nextIds = (form.getValues("selected_variant_ids") ?? []).filter(
-          (id) => id !== variant.variant_id,
-        )
-        const nextSnapshots = (form.getValues("selected_variants") ?? []).filter(
-          (v) => v.variant_id !== variant.variant_id,
-        )
-        const nextRows = { ...(form.getValues("rows") ?? {}) }
-        delete nextRows[variant.variant_id]
-        form.setValue("selected_variant_ids", nextIds)
-        form.setValue("selected_variants", nextSnapshots)
-        form.setValue("rows", nextRows)
+        for (const [locationId, level] of Object.entries(row.inventory ?? {})) {
+          if (!level?.checked) continue;
+          levelCreates.push({
+            inventory_item_id: inventoryItemId,
+            location_id: locationId,
+            stocked_quantity: numericOrZero(level.quantity),
+          });
+        }
       } catch (err) {
-        failed.push(variant.variant_id)
-        const message = err instanceof Error ? err.message : "Unknown error"
-        form.setError(`rows.${variant.variant_id}.sku`, {
+        failedVariantIds.push(row.variant_id);
+        const message = err instanceof Error ? err.message : "Unknown error";
+        form.setError(`variants.${i}.sku`, {
           type: "manual",
           message,
-        })
+        });
       }
     }
 
-    setIsSubmitting(false)
+    if (levelCreates.length > 0) {
+      try {
+        await batchInventoryLevels({
+          create: levelCreates,
+          update: [],
+          delete: [],
+          force: true,
+        } as Parameters<typeof batchInventoryLevels>[0]);
+      } catch (err) {
+        const message = err instanceof Error ? err.message : "Unknown error";
+        toast.warning(t("offers.create.stockLevelsWarning", { message }));
+      }
+    }
 
-    const succeeded = publishable.length - failed.length
-    if (failed.length === 0) {
-      toast.success(t("offers.create.successToast"))
-      handleSuccess("/offers")
-    } else if (succeeded > 0) {
+    setIsSubmitting(false);
+
+    const succeeded = publishable.length - failedVariantIds.length;
+    if (failedVariantIds.length === 0) {
+      toast.success(t("offers.create.successToast"));
+      handleSuccess("/offers");
+      return;
+    }
+
+    const failedSet = new Set(failedVariantIds);
+    const remaining = variants.filter((v) => failedSet.has(v.variant_id));
+    form.setValue("variants", remaining);
+    form.setValue(
+      "selected_variant_ids",
+      remaining.map((v) => v.variant_id),
+    );
+
+    if (succeeded > 0) {
       toast.warning(
         t("offers.bulkDelete.partialToast", {
           succeeded,
           total: publishable.length,
-          failed: failed.length,
+          failed: failedVariantIds.length,
         }),
-      )
+      );
     } else {
-      toast.error(t("offers.create.successToast"))
+      toast.error(t("offers.create.successToast"));
     }
-  })
+  });
 
   return (
     <TabbedForm
@@ -206,9 +324,7 @@ export const CreateOfferForm = () => {
               variant="primary"
               size="small"
               onClick={() => onNext()}
-              disabled={
-                (form.watch("selected_variant_ids")?.length ?? 0) === 0
-              }
+              disabled={(form.watch("selected_variant_ids")?.length ?? 0) === 0}
             >
               {t("actions.continue")}
             </Button>
@@ -219,5 +335,5 @@ export const CreateOfferForm = () => {
       <CreateOfferCatalogueTab />
       <CreateOfferStockLevelsAndPricesTab />
     </TabbedForm>
-  )
-}
+  );
+};

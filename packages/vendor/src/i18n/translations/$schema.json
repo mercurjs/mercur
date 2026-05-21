@@ -4330,6 +4330,9 @@
             "addInventoryItem": {
               "type": "string"
             },
+            "stockLevelsWarning": {
+              "type": "string"
+            },
             "tabs": {
               "type": "object",
               "properties": {
@@ -4354,6 +4357,7 @@
             "tip",
             "addPrice",
             "addInventoryItem",
+            "stockLevelsWarning",
             "tabs"
           ],
           "additionalProperties": false
@@ -4364,7 +4368,7 @@
             "offerLabel": {
               "type": "string"
             },
-            "masterVariant": {
+            "productVariant": {
               "type": "string"
             },
             "inventoryItems": {
@@ -4382,7 +4386,7 @@
           },
           "required": [
             "offerLabel",
-            "masterVariant",
+            "productVariant",
             "inventoryItems",
             "manageKit",
             "noInventoryItems",

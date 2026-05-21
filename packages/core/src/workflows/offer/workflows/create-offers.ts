@@ -98,8 +98,8 @@ export const createOffersWorkflow = createWorkflow(
           const variant = variantById.get(offer.variant_id)!
           return {
             ...offer,
-            ean: variant.ean ?? null,
-            upc: variant.upc ?? null,
+            ean: offer.ean ?? variant.ean ?? null,
+            upc: offer.upc ?? variant.upc ?? null,
           }
         })
       }

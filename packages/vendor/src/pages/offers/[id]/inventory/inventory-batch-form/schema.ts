@@ -1,26 +1,27 @@
 import { z } from "zod"
 
-const ExistingRowSchema = z.object({
-  kind: z.literal("existing"),
-  link_id: z.string().optional(),
-  inventory_item_id: z.string().min(1),
-  required_quantity: z.coerce.number().int().positive(),
-  original_required_quantity: z.number().int().positive(),
-  marked_for_delete: z.boolean(),
-  inventory_item_title: z.string().nullish(),
-  inventory_item_sku: z.string().nullish(),
+const LocationQuantitySchema = z.object({
+  id: z.string().optional(),
+  quantity: z.union([z.number(), z.string()]),
+  checked: z.boolean(),
+  disabledToggle: z.boolean(),
 })
 
-const NewRowSchema = z.object({
-  kind: z.literal("new"),
-  inventory_item_id: z.string().min(1),
-  required_quantity: z.coerce.number().int().positive(),
+const InventoryItemLocationsSchema = z.record(
+  z.string(),
+  LocationQuantitySchema,
+)
+
+const InventoryItemSchema = z.object({
+  locations: InventoryItemLocationsSchema,
 })
 
-export const BatchInventoryFormSchema = z.object({
-  rows: z.array(z.union([ExistingRowSchema, NewRowSchema])),
+export const OfferStockSchema = z.object({
+  inventory_items: z.record(z.string(), InventoryItemSchema),
 })
 
-export type BatchInventoryFormValues = z.infer<typeof BatchInventoryFormSchema>
-export type ExistingBatchRow = z.infer<typeof ExistingRowSchema>
-export type NewBatchRow = z.infer<typeof NewRowSchema>
+export type OfferStockLocationSchema = z.infer<
+  typeof InventoryItemLocationsSchema
+>
+export type OfferStockInventoryItemSchema = z.infer<typeof InventoryItemSchema>
+export type OfferStockFormValues = z.infer<typeof OfferStockSchema>
