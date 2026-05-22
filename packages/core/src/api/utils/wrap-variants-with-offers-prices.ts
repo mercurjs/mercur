@@ -7,23 +7,15 @@ import {
   ContainerRegistrationKeys,
   Modules,
 } from "@medusajs/framework/utils"
+import type { OfferDTO } from "@mercurjs/types"
+
+type OfferOnVariant = OfferDTO & {
+  calculated_price?: CalculatedPriceSet | null
+}
 
 type VariantInput = {
   id: string
   offers?: OfferOnVariant[]
-}
-
-type OfferOnVariant = {
-  id: string
-  variant_id: string
-  seller_id: string
-  shipping_profile_id: string
-  price_set_id: string
-  sku: string
-  ean: string | null
-  upc: string | null
-  metadata: Record<string, unknown> | null
-  calculated_price?: CalculatedPriceSet | null
 }
 
 const toNumber = (value: unknown): number => {

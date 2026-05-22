@@ -151,7 +151,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 }
             )
 
-            const { ordersToCreate, sellerOrdersMap } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data }, ({ cart, shippingOptionsData }) => {
+            const { ordersToCreate, sellerOrdersMap, offerIdsByOrderId } = transform({ cart: cartData.data, shippingOptionsData: shippingOptionsData.data }, ({ cart, shippingOptionsData }) => {
                 const cartSellerIds = new Set<string>(
                     (cart.items ?? [])
                         .map((item: any) => item.offer?.seller_id)
@@ -166,6 +166,9 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
                 const sellerOrdersMap: Record<string, string> = {}
                 const ordersToCreate: (CreateOrderDTO & { id: string })[] = []
+                // positional offer ids per order; zipped with createdOrders[*].items
+                // after createOrdersStep to build order_line_item_id → offer_id pairs
+                const offerIdsByOrderId: Record<string, (string | null)[]> = {}
 
                 Array.from(cartSellerIds).map((sellerId) => {
                     const sellerCartItems = (cart.items ?? []).filter(
@@ -262,11 +265,16 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     })
 
                     sellerOrdersMap[sellerId] = orderId
+                    offerIdsByOrderId[orderId] = sellerCartItems.map(
+                        (item: any) =>
+                            (item.offer?.id as string | undefined) ?? null,
+                    )
                 })
 
                 return {
                     sellerOrdersMap,
                     ordersToCreate,
+                    offerIdsByOrderId,
                 }
             })
 
@@ -307,30 +315,50 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 createOrdersStep(ordersToCreate)
             )
 
-            const orderLineItemIdsForMirror = transform(
-                { createdOrders },
-                ({ createdOrders }) =>
-                    createdOrders
-                        .flatMap((order) => order.items ?? [])
-                        .map((item) => item.id)
+            // Pair each created order line with its source cart line's offer
+            // by zipping createdOrders[*].items with the positional offer-id
+            // list we collected during ordersToCreate construction. The order
+            // module preserves input item order within each created order,
+            // and each per-seller order is built from exactly one filtered
+            // cart-items slice, so position is sufficient — no metadata
+            // carrier is needed.
+            const orderLineOfferPairs = transform(
+                { createdOrders, offerIdsByOrderId },
+                ({ createdOrders, offerIdsByOrderId }) => {
+                    const pairs: Array<{
+                        order_line_item_id: string
+                        offer_id: string
+                    }> = []
+                    for (const order of createdOrders) {
+                        const offerIds = offerIdsByOrderId[order.id] ?? []
+                        const items = order.items ?? []
+                        for (let i = 0; i < items.length; i++) {
+                            const offerId = offerIds[i]
+                            if (offerId) {
+                                pairs.push({
+                                    order_line_item_id: items[i].id,
+                                    offer_id: offerId,
+                                })
+                            }
+                        }
+                    }
+                    return pairs
+                }
             )
 
             mirrorLineItemOfferLinksToOrderStep({
-                cart_id: cartData.data.id,
-                order_line_item_ids: orderLineItemIdsForMirror,
+                pairs: orderLineOfferPairs,
             })
 
             const offerReservationItems = transform(
-                { cart: cartData.data, createdOrders },
-                ({ cart, createdOrders }) => {
-                    // Pair each created order line back to its origin cart line via
-                    // metadata.cart_line_item_id (stamped by Mercur's prepareLineItemData)
-                    // so the reservation rows key off the new order_line_item.id while
-                    // still resolving the offer through the cart-side data.
-                    const cartItemById = new Map(
-                        (cart.items ?? []).map((i) => [i.id, i])
+                { createdOrders, orderLineOfferPairs },
+                ({ createdOrders, orderLineOfferPairs }) => {
+                    const offerByOrderLine = new Map(
+                        orderLineOfferPairs.map((p) => [
+                            p.order_line_item_id,
+                            p.offer_id,
+                        ]),
                     )
-
                     const offerItems: Array<{
                         id: string
                         quantity: number
@@ -338,15 +366,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     }> = []
                     for (const order of createdOrders) {
                         for (const ordItem of order.items ?? []) {
-                            const cartLineId = (ordItem.metadata as
-                                | Record<string, unknown>
-                                | null)?.cart_line_item_id as string | undefined
-                            const cartLine = cartLineId
-                                ? cartItemById.get(cartLineId)
-                                : undefined
-                            const offerId = (cartLine as
-                                | { offer?: { id: string } }
-                                | undefined)?.offer?.id
+                            const offerId = offerByOrderLine.get(ordItem.id)
                             offerItems.push({
                                 id: ordItem.id,
                                 quantity: Number(ordItem.quantity),

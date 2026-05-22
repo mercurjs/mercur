@@ -4,7 +4,7 @@ canonical: true
 priority: 2
 area: core/offers
 created: 2026-05-19
-last_updated: 2026-05-22  # Session 18 (2026-05-22): bulk-create endpoints landed. `CreateOfferDTO` gained an optional `inline_inventory_item: { title?, required_quantity?, stock_levels? }` branch (in addition to the existing `inventory_items` link-existing branch). `createOffersWorkflow` was merged to cover both paths in one workflow run — when an offer carries `inline_inventory_item`, the workflow calls `createInventoryItemsWorkflow.runAsStep` (carrying `location_levels` for initial stock) + `linkSellerInventoryItemStep` before splicing the new inventory_item_ids back into the offer payload and proceeding to the existing PriceSet / offer / link / event composition. Two new HTTP routes consume the merged workflow: `POST /vendor/offers/batch` (seller_id from session) and `POST /admin/offers/batch` (seller_id from body, created_by from `req.auth_context.actor_id`). Both accept `{ offers: Array<{ sku, title?, variant_id, shipping_profile_id, prices, stock_levels?, required_quantity?, ean?, upc?, metadata? }> }` (admin variant additionally requires `seller_id`), with 1 ≤ offers.length ≤ 100; failure on any row rolls the whole batch back via workflow compensation. The vendor offer create form (`packages/vendor/src/pages/offers/create/create-offer-form/create-offer-form.tsx`) was refactored to issue a single bulk request instead of the previous N×3 calls (inventory item + offer + level batch per variant), with regex-based error attribution mapping workflow errors back to the originating row when the message names a variant_id or SKU. Static: oxlint clean, `tsc --noEmit -p tsconfig.json` on @mercurjs/core exits 0; route map regenerated under `packages/core/.mercur/_generated/index.ts` (both `vendor.offers.batch` and `admin.offers.batch` present). Session 17 (2026-05-21): runtime verification green — bun run test:integration:http -- --testPathPatterns='offer/' reports 4 test suites passed, 42 tests passed, against Postgres 16 + fake Redis. Pre-flight bugs surfaced and fixed during the runtime pass: Map → Record refactor for create/cancel-order-fulfillment override (Map values don't survive the workflow runtime's JSON serialization between transform steps); region_id / currency_code stripped from req.filterableFields before query.graph in store/products route handlers; wrapVariantsWithOffersInventory now bootstraps the offer skeleton itself when only the inventory field is requested; util switched to query.graph({entity:"offer", fields:["inventory_item_link.*"]}) with stocked-reserved math because offer_inventory_item isn't a top-level Query entity and available_quantity isn't a queryable level column; offer/store seed now calls approveSeller; offer/order/return-receive test passes location_id on /vendor/returns create and drops the unnecessary shipment step. Status flipped from in_progress → passing. Session 16 (2026-05-21): closes the implementation pending list. Defense-in-depth patchStoreCartLineItemsRoute (idempotent marker stub) added to patch-medusa.ts + mirrored into integration-tests/global-setup.js so Medusa's compiled POST /store/carts/:id/line-items handler can never fire alongside Mercur's loader-winning route. Mercur's stale local cart util prepare-confirm-inventory-input.ts (variant-shaped paths) deleted along with its barrel re-export — no Mercur source consumed it, Medusa upstream consumes its own bundled copy. Variant-field-removal patches stay un-shipped because Session 13's PG run already proved case (1) of the spec holds (Query tolerates the absent variant paths cleanly). Remaining to passing: runtime PG+Redis pass on the four offer trees and the manual end-to-end walkthrough. Session 15 (2026-05-21): storefront GET /store/products(:id) override + wrap-variants-with-offers-prices/inventory utils landed under packages/core/src/api; Mercur middleware registers Medusa's setPricingContext so region_id populates req.pricingContext. Test coverage expanded across four offer trees: store/offers.spec.ts re-landed (price + inventory wrap, sales-channel scoping, single calculatePrices round-trip verified via jest.spyOn); order.spec.ts grew three describe blocks proving the Session 10 overrides for createOrderFulfillment / cancelOrderFulfillment / confirmReturnReceive correctly multiply stock + reservation deltas by required_quantity; cart.spec.ts grew the qty-update stock-hook block (qty-up over stock fails with INSUFFICIENT_INVENTORY, required_quantity is multiplied through, qty=0 skips the check); vendor/offer.spec.ts added PriceSet invariants (sibling offers get distinct price_set_ids; soft-deleted offer's price_set stays resolvable via withDeleted Query). Integration-tests/global-setup.js inlines the cart line-items middleware patch so the regex bites under bun run test:integration:http regardless of mercurjs build. Static: core build clean, tsc --noEmit clean on the new files, oxlint reports 0 errors (only the pre-existing 2 no-await-in-loop warnings on order.spec.ts's sequential shipping-method POSTs). Session 14 (2026-05-21): pivot extra-column gap resolved. `defineLink(...extraColumns)` exposes the pivot under the `<entity>_link` alias; consumers were using the `inventory_items` fieldAlias shortcut which flattens to InventoryItem (no extra columns). Switched prepare-offer-inventory-input, completeCartWithSplitOrdersWorkflow, and the three Session 10 order overrides to traverse `offer.inventory_item_link.required_quantity` / `inventory_item_link.inventory_item.*`. Skipped reservation test re-enabled and passes: 2 × required_quantity(3) = 6 reservation against 50 stock. Suites: vendor 16/16, cart 6/6, order 3/3 (no more skip). Session 13 (2026-05-21): runtime verification ran against PG (via medusaIntegrationTestRunner) + fake Redis. Earlier session sweep: foundation landed (offer module, MercurModules.OFFER, five cross-module links, create/update/delete offer workflows, vendor + admin offer API routes, first vendor offer integration test). Session 7 (2026-05-20): inventory-items batch endpoint landed; offer price updates folded into updateOffersWorkflow (replace semantics, mirrors Medusa's updateProductVariantsWorkflow). Session 8 (2026-05-20): extended integration tests covering the new prices-ladder update path, the inventory-items batch endpoint (create/update/delete/duplicate/cross-seller), and cross-seller update rejection. Session 8b (2026-05-20): offer DTOs centralized in @mercurjs/types (packages/types/src/offer + packages/types/src/http/offer.ts); workflows + steps refactored to import the shared DTOs instead of declaring inline types. Session 9 (2026-05-20): cart-line/order-line ↔ offer writable links + TypeScript augmentation of CreateCartCreateLineItemDTO with offer_id + linkLineItemToOfferStep / decorateLineItemWithOfferStep / mirrorLineItemOfferLinksToOrderStep / calculateOfferPricesStep / same-id getLineItemActionsStep step + same-id addToCartWorkflow override + inline mirror step + cart_line_item_id metadata stamp into completeCartWithSplitOrdersWorkflow. Session 10 (2026-05-20): same-id overrides of create-order-fulfillment, cancel-order-fulfillment, and confirm-return-receive — each rewires inventory math from variant.inventory_items to order_line_item.offer.inventory_items.required_quantity. Cancel-order before fulfilment still uses Medusa's deleteReservationsByLineItemsStep unchanged. Session 11 (2026-05-20): integration tests landed under integration-tests/http/offer/{store,cart,order}. Session 12 (2026-05-21): cart.spec.ts seed unblocked + patchStoreCartLineItemsMiddleware in patch-medusa.ts; the Session 12 expandDotPaths failure on offer.inventory_items.inventory.location_levels.* no longer reproduces under Session 13's run. Remaining work to move spec to passing: re-land an offer/store/* spec once the GET /store/products list-page skim is finalised, add coverage for the three Session 10 fulfilment/cancel-fulfilment/return overrides, and resolve the Architectural gap so the skipped reservation test can be enabled.
+last_updated: 2026-05-22  # Session 19 (2026-05-22): dropped the `metadata.cart_line_item_id` carrier. `completeCartWithSplitOrdersWorkflow` now captures a positional `offerIdsByOrderId: Record<order_id, (offer_id | null)[]>` map during `ordersToCreate` construction (one entry per seller-filtered cart-items slice) and zips it against `createdOrders[*].items` after `createOrdersStep` to produce `{ order_line_item_id, offer_id }` pairs in a single transform. Those pairs are handed directly to `mirrorLineItemOfferLinksToOrderStep` (whose input shape changed from `{ cart_id, order_line_item_ids }` to `{ pairs }` — it no longer joins through Query to resolve offers) and reused to build the offer-aware reservation input, eliminating the previous cart-item-by-id lookup. `prepareLineItemData` no longer stamps `metadata.cart_line_item_id`. Rationale: the order module preserves input item order within each created order (verified against `OrderModuleService.createOrderLineItemsBulk_`), so cart→order line identity can live in workflow transform state instead of a DB metadata carrier. Session 18 (2026-05-22): bulk-create endpoints landed. `CreateOfferDTO` gained an optional `inline_inventory_item: { title?, required_quantity?, stock_levels? }` branch (in addition to the existing `inventory_items` link-existing branch). `createOffersWorkflow` was merged to cover both paths in one workflow run — when an offer carries `inline_inventory_item`, the workflow calls `createInventoryItemsWorkflow.runAsStep` (carrying `location_levels` for initial stock) + `linkSellerInventoryItemStep` before splicing the new inventory_item_ids back into the offer payload and proceeding to the existing PriceSet / offer / link / event composition. Two new HTTP routes consume the merged workflow: `POST /vendor/offers/batch` (seller_id from session) and `POST /admin/offers/batch` (seller_id from body, created_by from `req.auth_context.actor_id`). Both accept `{ offers: Array<{ sku, title?, variant_id, shipping_profile_id, prices, stock_levels?, required_quantity?, ean?, upc?, metadata? }> }` (admin variant additionally requires `seller_id`), with 1 ≤ offers.length ≤ 100; failure on any row rolls the whole batch back via workflow compensation. The vendor offer create form (`packages/vendor/src/pages/offers/create/create-offer-form/create-offer-form.tsx`) was refactored to issue a single bulk request instead of the previous N×3 calls (inventory item + offer + level batch per variant), with regex-based error attribution mapping workflow errors back to the originating row when the message names a variant_id or SKU. Static: oxlint clean, `tsc --noEmit -p tsconfig.json` on @mercurjs/core exits 0; route map regenerated under `packages/core/.mercur/_generated/index.ts` (both `vendor.offers.batch` and `admin.offers.batch` present). Session 17 (2026-05-21): runtime verification green — bun run test:integration:http -- --testPathPatterns='offer/' reports 4 test suites passed, 42 tests passed, against Postgres 16 + fake Redis. Pre-flight bugs surfaced and fixed during the runtime pass: Map → Record refactor for create/cancel-order-fulfillment override (Map values don't survive the workflow runtime's JSON serialization between transform steps); region_id / currency_code stripped from req.filterableFields before query.graph in store/products route handlers; wrapVariantsWithOffersInventory now bootstraps the offer skeleton itself when only the inventory field is requested; util switched to query.graph({entity:"offer", fields:["inventory_item_link.*"]}) with stocked-reserved math because offer_inventory_item isn't a top-level Query entity and available_quantity isn't a queryable level column; offer/store seed now calls approveSeller; offer/order/return-receive test passes location_id on /vendor/returns create and drops the unnecessary shipment step. Status flipped from in_progress → passing. Session 16 (2026-05-21): closes the implementation pending list. Defense-in-depth patchStoreCartLineItemsRoute (idempotent marker stub) added to patch-medusa.ts + mirrored into integration-tests/global-setup.js so Medusa's compiled POST /store/carts/:id/line-items handler can never fire alongside Mercur's loader-winning route. Mercur's stale local cart util prepare-confirm-inventory-input.ts (variant-shaped paths) deleted along with its barrel re-export — no Mercur source consumed it, Medusa upstream consumes its own bundled copy. Variant-field-removal patches stay un-shipped because Session 13's PG run already proved case (1) of the spec holds (Query tolerates the absent variant paths cleanly). Remaining to passing: runtime PG+Redis pass on the four offer trees and the manual end-to-end walkthrough. Session 15 (2026-05-21): storefront GET /store/products(:id) override + wrap-variants-with-offers-prices/inventory utils landed under packages/core/src/api; Mercur middleware registers Medusa's setPricingContext so region_id populates req.pricingContext. Test coverage expanded across four offer trees: store/offers.spec.ts re-landed (price + inventory wrap, sales-channel scoping, single calculatePrices round-trip verified via jest.spyOn); order.spec.ts grew three describe blocks proving the Session 10 overrides for createOrderFulfillment / cancelOrderFulfillment / confirmReturnReceive correctly multiply stock + reservation deltas by required_quantity; cart.spec.ts grew the qty-update stock-hook block (qty-up over stock fails with INSUFFICIENT_INVENTORY, required_quantity is multiplied through, qty=0 skips the check); vendor/offer.spec.ts added PriceSet invariants (sibling offers get distinct price_set_ids; soft-deleted offer's price_set stays resolvable via withDeleted Query). Integration-tests/global-setup.js inlines the cart line-items middleware patch so the regex bites under bun run test:integration:http regardless of mercurjs build. Static: core build clean, tsc --noEmit clean on the new files, oxlint reports 0 errors (only the pre-existing 2 no-await-in-loop warnings on order.spec.ts's sequential shipping-method POSTs). Session 14 (2026-05-21): pivot extra-column gap resolved. `defineLink(...extraColumns)` exposes the pivot under the `<entity>_link` alias; consumers were using the `inventory_items` fieldAlias shortcut which flattens to InventoryItem (no extra columns). Switched prepare-offer-inventory-input, completeCartWithSplitOrdersWorkflow, and the three Session 10 order overrides to traverse `offer.inventory_item_link.required_quantity` / `inventory_item_link.inventory_item.*`. Skipped reservation test re-enabled and passes: 2 × required_quantity(3) = 6 reservation against 50 stock. Suites: vendor 16/16, cart 6/6, order 3/3 (no more skip). Session 13 (2026-05-21): runtime verification ran against PG (via medusaIntegrationTestRunner) + fake Redis. Earlier session sweep: foundation landed (offer module, MercurModules.OFFER, five cross-module links, create/update/delete offer workflows, vendor + admin offer API routes, first vendor offer integration test). Session 7 (2026-05-20): inventory-items batch endpoint landed; offer price updates folded into updateOffersWorkflow (replace semantics, mirrors Medusa's updateProductVariantsWorkflow). Session 8 (2026-05-20): extended integration tests covering the new prices-ladder update path, the inventory-items batch endpoint (create/update/delete/duplicate/cross-seller), and cross-seller update rejection. Session 8b (2026-05-20): offer DTOs centralized in @mercurjs/types (packages/types/src/offer + packages/types/src/http/offer.ts); workflows + steps refactored to import the shared DTOs instead of declaring inline types. Session 9 (2026-05-20): cart-line/order-line ↔ offer writable links + TypeScript augmentation of CreateCartCreateLineItemDTO with offer_id + linkLineItemToOfferStep / decorateLineItemWithOfferStep / mirrorLineItemOfferLinksToOrderStep / calculateOfferPricesStep / same-id getLineItemActionsStep step + same-id addToCartWorkflow override + inline mirror step + cart_line_item_id metadata stamp into completeCartWithSplitOrdersWorkflow. Session 10 (2026-05-20): same-id overrides of create-order-fulfillment, cancel-order-fulfillment, and confirm-return-receive — each rewires inventory math from variant.inventory_items to order_line_item.offer.inventory_items.required_quantity. Cancel-order before fulfilment still uses Medusa's deleteReservationsByLineItemsStep unchanged. Session 11 (2026-05-20): integration tests landed under integration-tests/http/offer/{store,cart,order}. Session 12 (2026-05-21): cart.spec.ts seed unblocked + patchStoreCartLineItemsMiddleware in patch-medusa.ts; the Session 12 expandDotPaths failure on offer.inventory_items.inventory.location_levels.* no longer reproduces under Session 13's run. Remaining work to move spec to passing: re-land an offer/store/* spec once the GET /store/products list-page skim is finalised, add coverage for the three Session 10 fulfilment/cancel-fulfilment/return overrides, and resolve the Architectural gap so the skipped reservation test can be enabled.
 ---
 
 # SPEC-002 Offer Management
@@ -770,14 +770,13 @@ is needed for the Mercur-owned copies; they are edited in place.
   `items.offer.inventory_item_link.inventory_item.location_levels.*`
   (the pivot path — see **Pivot extra-column exposure** below).
 - `packages/core/src/workflows/cart/utils/prepare-line-item-data.ts`
-  — must stamp the cart line-item id onto the order line via
-  `metadata.cart_line_item_id` so
-  `mirrorLineItemOfferLinksToOrderStep` can match cart-line ↔
-  order-line after `createOrdersStep` regenerates ids (see
-  **Cart→order line identity gotcha** under
-  `linkLineItemToOfferStep`). `offer_id` itself stays off the line
-  item; the cart-side link row is the canonical pointer until the
-  mirror step writes the order-side link.
+  — emits the prepared order-line items in the same order as their
+  source cart items, which is what
+  `mirrorLineItemOfferLinksToOrderStep` keys on via positional zip
+  against `createdOrders[*].items` (see **Cart→order line identity**
+  under `linkLineItemToOfferStep`). `offer_id` itself stays off the
+  line item; the cart-side link row is the canonical pointer until
+  the mirror step writes the order-side link.
 - `packages/core/src/workflows/cart/utils/prepare-confirm-inventory-input.ts`
   — replace variant-keyed inventory resolution with offer-keyed
   resolution per the `prepareOfferInventoryInput` shape documented
@@ -2007,27 +2006,25 @@ inserted **inline** into Mercur's `completeCartWithSplitOrdersWorkflow`
 `packages/core/src/workflows/cart/workflows/complete-cart-with-split-orders.ts`)
 immediately after the workflow's existing `createOrdersStep` call.
 
-> **Cart→order line identity gotcha.** `createOrdersStep`
+> **Cart→order line identity.** `createOrdersStep`
 > (`order/steps/create-orders.ts:31-51`) calls
-> `OrderModuleService.createOrders(data)` which generates **new**
-> `orli_*` ids. `prepareLineItemData` only propagates `cart_id`
-> onto the order line — not the cart line-item id
-> (`cart/utils/prepare-line-item-data.ts:140-193`). The mirror step
-> therefore cannot match by id position alone. The Mercur-owned
-> `prepareLineItemData` copy under
-> `packages/core/src/workflows/cart/utils/prepare-line-item-data.ts`
-> must stamp the cart line-item id onto the order line in a stable
-> place — the chosen carrier is `metadata.cart_line_item_id`
-> (a single deterministic key, not a free-form passthrough). The
-> mirror step reads each new order line's
-> `metadata.cart_line_item_id`, joins against the
-> `cart.LineItem ↔ Offer` rows by that key, and writes the
-> `order.OrderLineItem ↔ Offer` link rows through Medusa's link
-> service. `offer_id` is **not** put on
-> `line_item.metadata` itself — only the cart-line-id carrier is.
-> After the mirror step writes the order-side link rows, downstream
-> code reads the offer via `order_line_item.offer.*` Query
-> traversal, never via metadata.
+> `OrderModuleService.createOrders(data)` and Medusa's order module
+> preserves the input item order within each created order
+> (`createOrderLineItemsBulk_` writes line items in input-array order).
+> `completeCartWithSplitOrdersWorkflow` exploits that: as it builds
+> `ordersToCreate`, it captures a positional offer-id list per order
+> (`offerIdsByOrderId: Record<order_id, (offer_id | null)[]>`) keyed
+> off the seller-filtered slice of `cart.items`. After
+> `createOrdersStep` returns, a single `transform` zips
+> `createdOrders[*].items[*]` with that list to produce
+> `{ order_line_item_id, offer_id }` pairs, which are handed
+> directly to `mirrorLineItemOfferLinksToOrderStep` (and reused to
+> build the offer-aware reservation input). No metadata carrier on
+> the order line is required — the workflow keeps the identity in
+> its own transform state, not on the row. `offer_id` is also **not**
+> put on `line_item.metadata`. After the mirror step writes the
+> order-side link rows, downstream code reads the offer via
+> `order_line_item.offer.*` Query traversal.
 
 No `overrideWorkflow` is involved on this path — the Mercur workflow
 already owns the composition, so the step is added by editing the
@@ -2427,15 +2424,16 @@ delete; the qualifier is dropped from the workflow name.
   dismisses the rows it created)
 - `mirrorLineItemOfferLinksToOrderStep` (Mercur step composed
   **inline** into `completeCartWithSplitOrdersWorkflow` immediately
-  after `createOrdersStep`; reads each new order line's
-  `metadata.cart_line_item_id` — stamped by Mercur's
-  `prepareLineItemData` copy — joins against the
-  `cart.LineItem ↔ Offer` rows by that key, and writes mirrored
-  `order.OrderLineItem ↔ Offer` rows keyed by the new
-  `order_line_item.id`s. Necessary because `createOrdersStep`
-  generates fresh `orli_*` ids and discards cart-line identity.
-  No `overrideWorkflow` is involved because the host workflow is
-  already Mercur-owned.)
+  after `createOrdersStep`; takes a precomputed list of
+  `{ order_line_item_id, offer_id }` pairs assembled by the workflow
+  via positional zip of `createdOrders[*].items` against the
+  `offerIdsByOrderId` map captured during `ordersToCreate`
+  construction, and writes the mirrored `order.OrderLineItem ↔ Offer`
+  rows through Medusa's link service. No metadata carrier on the
+  order line is read or written — the cart-line ↔ order-line
+  identity is held in workflow transform state. Compensator dismisses
+  the rows it created. No `overrideWorkflow` is involved because the
+  host workflow is already Mercur-owned.)
 
 Emitted events (module-namespaced, mirroring Medusa's
 `<entity>.<action>` convention — see `OrderWorkflowEvents`,
@@ -2742,7 +2740,49 @@ spec moves to `passing` only when all of the following are true:
 
 ## Evidence
 
-### 2026-05-21 — Session 17: runtime verification against PG + Redis — 42 / 42 green
+### 2026-05-22 — Session 19: dropped `metadata.cart_line_item_id` carrier
+
+Cart→order line identity now lives in workflow transform state instead
+of a DB metadata column. The carrier was originally introduced in
+Session 9 to bridge `createOrdersStep` regenerating `orli_*` ids; it is
+no longer load-bearing because:
+
+- `OrderModuleService.createOrderLineItemsBulk_`
+  (`@medusajs/order/dist/services/order-module-service.js:560-578`)
+  writes line items in input-array order, so the `i`-th item of
+  `ordersToCreate[k].items` lines up with the `i`-th item of
+  `createdOrders[k].items` after the step returns.
+- `completeCartWithSplitOrdersWorkflow` already builds each per-seller
+  `items` slice from a deterministic filter over `cart.items`, so the
+  source offer for position `i` of order `k` is known at construction
+  time.
+
+Changes:
+
+- `packages/core/src/workflows/cart/utils/prepare-line-item-data.ts` —
+  the `metadata.cart_line_item_id` stamp was removed. `metadata` now
+  pipes through `item.metadata ?? null` unchanged.
+- `packages/core/src/workflows/cart/steps/mirror-line-item-offer-links-to-order.ts`
+  — input shape changed from
+  `{ cart_id, order_line_item_ids }` to
+  `{ pairs: Array<{ order_line_item_id, offer_id }> }`. The step no
+  longer issues any `query.graph` calls; it just batches the
+  precomputed pairs into a single `link.create(...)` and dismisses the
+  same rows on compensation.
+- `packages/core/src/workflows/cart/workflows/complete-cart-with-split-orders.ts`
+  — the `ordersToCreate` transform now also emits
+  `offerIdsByOrderId: Record<order_id, (offer_id | null)[]>` (one
+  entry per seller-filtered cart-items slice, in the same order the
+  items are pushed into `items: allItems`). A new `orderLineOfferPairs`
+  transform zips that map against `createdOrders[*].items` to produce
+  the pair list, which is passed to `mirrorLineItemOfferLinksToOrderStep`
+  and reused to build the offer-aware reservation input
+  (`offerReservationItems`). The previous cart-by-id lookup is gone.
+
+Static verification: `tsc --noEmit -p tsconfig.json` on
+`@mercurjs/core` exits 0.
+
+
 
 Closing the runtime gate the spec listed under **Pending work to move
 this spec to `passing`**.

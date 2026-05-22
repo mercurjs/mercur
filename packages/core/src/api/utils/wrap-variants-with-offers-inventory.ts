@@ -1,15 +1,8 @@
 import { MedusaStoreRequest } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import type { OfferDTO } from "@mercurjs/types"
 
-type OfferOnVariant = {
-  id: string
-  variant_id: string
-  seller_id?: string
-  shipping_profile_id?: string
-  price_set_id?: string
-  sku?: string
-  ean?: string | null
-  upc?: string | null
+type OfferOnVariant = OfferDTO & {
   inventory_quantity?: number | null
   in_stock?: boolean
 }
@@ -21,19 +14,17 @@ type VariantInput = {
 
 type OfferInventoryLinkRow = {
   required_quantity?: number
-  inventory_item: {
-    id: string
-    location_levels?: Array<{
-      location_id: string
-      stocked_quantity?: number
-      reserved_quantity?: number
-    }>
-  } | null
+  inventory_item: { id: string } | null
 }
 
-type OfferWithInventory = {
-  id: string
+type OfferWithInventory = Pick<OfferDTO, "id"> & {
   inventory_item_link?: OfferInventoryLinkRow[]
+}
+
+type InventoryLevelRow = {
+  inventory_item_id: string
+  stocked_quantity?: number | null
+  reserved_quantity?: number | null
 }
 
 export const wrapVariantsWithOffersInventory = async (
@@ -101,34 +92,83 @@ export const wrapVariantsWithOffersInventory = async (
     return
   }
 
+  // Resolve channel-visible locations BEFORE we fetch levels so the
+  // level query itself can be filtered at the DB. A single sales
+  // channel can fan out to thousands of seller locations; fetching
+  // every `location_level` of every linked inventory item and then
+  // filtering in JS is the path we're explicitly avoiding here.
+  const channelLocationIds = await resolveSalesChannelLocationIds(req)
+
+  // Channel has zero linked locations -> nothing on this storefront
+  // surface can be in stock. Short-circuit without touching levels.
+  if (channelLocationIds && channelLocationIds.size === 0) {
+    for (const variant of variants) {
+      const offers = variant.offers ?? []
+      for (const offer of offers) {
+        offer.inventory_quantity = 0
+        offer.in_stock = false
+      }
+      variant.offers = []
+    }
+    return
+  }
+
+  // Pull the offer → inventory_item pivot rows. We deliberately do NOT
+  // request `location_levels.*` here — we fetch those next, narrowed
+  // by channel location at the DB layer.
   const { data: offerInventory } = await query.graph({
     entity: "offer",
     fields: [
       "id",
       "inventory_item_link.required_quantity",
       "inventory_item_link.inventory_item.id",
-      "inventory_item_link.inventory_item.location_levels.location_id",
-      "inventory_item_link.inventory_item.location_levels.stocked_quantity",
-      "inventory_item_link.inventory_item.location_levels.reserved_quantity",
     ],
     filters: { id: offerIds },
   })
 
-  const channelLocationIds = await resolveSalesChannelLocationIds(req)
-
   const linksByOffer = new Map<string, OfferInventoryLinkRow[]>()
+  const inventoryItemIds = new Set<string>()
   for (const row of (offerInventory ?? []) as OfferWithInventory[]) {
-    linksByOffer.set(row.id, row.inventory_item_link ?? [])
+    const rows = row.inventory_item_link ?? []
+    linksByOffer.set(row.id, rows)
+    for (const link of rows) {
+      if (link.inventory_item?.id) {
+        inventoryItemIds.add(link.inventory_item.id)
+      }
+    }
+  }
+
+  // Fetch only the levels we'll consume. The `location_id` filter is
+  // the whole reason we resolved channel locations up-front — without
+  // it, this query would return every level for every linked item
+  // regardless of which sales channel the shopper is browsing through.
+  const levelsByItem = new Map<string, InventoryLevelRow[]>()
+  if (inventoryItemIds.size) {
+    const levelFilters: Record<string, unknown> = {
+      inventory_item_id: Array.from(inventoryItemIds),
+    }
+    if (channelLocationIds) {
+      levelFilters.location_id = Array.from(channelLocationIds)
+    }
+
+    const { data: levels } = await query.graph({
+      entity: "inventory_level",
+      fields: ["inventory_item_id", "stocked_quantity", "reserved_quantity"],
+      filters: levelFilters,
+    })
+
+    for (const lvl of (levels ?? []) as InventoryLevelRow[]) {
+      const list = levelsByItem.get(lvl.inventory_item_id) ?? []
+      list.push(lvl)
+      levelsByItem.set(lvl.inventory_item_id, list)
+    }
   }
 
   for (const variant of variants) {
     const offers = variant.offers ?? []
     for (const offer of offers) {
       const links = linksByOffer.get(offer.id) ?? []
-      offer.inventory_quantity = computeOfferAvailability(
-        links,
-        channelLocationIds,
-      )
+      offer.inventory_quantity = computeOfferAvailability(links, levelsByItem)
       offer.in_stock = (offer.inventory_quantity ?? 0) > 0
     }
     variant.offers = offers.filter((o) => o.in_stock)
@@ -137,7 +177,7 @@ export const wrapVariantsWithOffersInventory = async (
 
 const computeOfferAvailability = (
   links: OfferInventoryLinkRow[],
-  channelLocationIds: Set<string> | null,
+  levelsByItem: Map<string, InventoryLevelRow[]>,
 ): number | null => {
   if (!links.length) {
     return null
@@ -146,14 +186,9 @@ const computeOfferAvailability = (
   const perItem: number[] = []
   for (const link of links) {
     const required = link.required_quantity || 1
-    const levels = link.inventory_item?.location_levels ?? []
+    const itemId = link.inventory_item?.id
+    const levels = itemId ? (levelsByItem.get(itemId) ?? []) : []
     const available = levels.reduce((sum, level) => {
-      if (
-        channelLocationIds &&
-        !channelLocationIds.has(level.location_id)
-      ) {
-        return sum
-      }
       const stocked = Number(level.stocked_quantity ?? 0)
       const reserved = Number(level.reserved_quantity ?? 0)
       return sum + Math.max(0, stocked - reserved)

@@ -21,6 +21,7 @@ import {
   validateCartStep,
   validateLineItemPricesStep,
 } from "@medusajs/medusa/core-flows"
+import type { OfferDTO } from "@mercurjs/types"
 import {
   calculateOfferPricesStep,
   decorateLineItemWithOfferStep,
@@ -30,6 +31,17 @@ import {
 import { cartFieldsForPricingContext } from "../utils/fields"
 import { prepareLineItemData } from "../utils/prepare-line-item-data"
 import { overrideWorkflow } from "../../utils/override-workflow"
+
+type OfferForPricing = Pick<
+  OfferDTO,
+  | "id"
+  | "price_set_id"
+  | "variant_id"
+  | "sku"
+  | "seller_id"
+  | "shipping_profile_id"
+  | "deleted_at"
+>
 
 const productVariantsFields = [
   "id",
@@ -124,15 +136,7 @@ export const addToCartWorkflow = overrideWorkflow(
       { offerIds, offers },
       ({ offerIds, offers }) => {
         if (!offerIds.length) {
-          return offers as Array<{
-            id: string
-            price_set_id: string
-            variant_id: string
-            sku: string
-            seller_id: string
-            shipping_profile_id: string
-            deleted_at: string | null
-          }>
+          return offers as OfferForPricing[]
         }
         const byId = new Map(offers.map((o) => [o.id, o]))
         for (const id of offerIds) {
@@ -144,15 +148,7 @@ export const addToCartWorkflow = overrideWorkflow(
             )
           }
         }
-        return offers as Array<{
-          id: string
-          price_set_id: string
-          variant_id: string
-          sku: string
-          seller_id: string
-          shipping_profile_id: string
-          deleted_at: string | null
-        }>
+        return offers as OfferForPricing[]
       },
     )
 

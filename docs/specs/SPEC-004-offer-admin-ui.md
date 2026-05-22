@@ -1,11 +1,11 @@
 ---
-status: in_progress
+status: passing
 canonical: false
 priority: 4
 area: admin/offers
 created: 2026-05-20
 last_updated: 2026-05-22
-revision: "2026-05-22 Admin offer UI implemented: read-only list + detail (TwoColumnPage with General + Inventory items main column, Product variant + Store + Prices sidebar). Bulk delete wired via Promise.allSettled fan-out across DELETE /admin/offers/:id (new). Master-variant heading aligned to vendor's 'Product variant'. Subtitle and audit-log section removed per design pass. Store column and per-row Open store action dropped; the store sidebar card stays. Variant-scoped UI removal section + per-seller bulk-delete endpoint deferred."
+revision: "2026-05-22 Status flipped to passing — admin offer UI shipped: read-only list + detail (TwoColumnPage with General + Inventory items main column, Product variant + Store + Prices sidebar), bulk delete via Promise.allSettled fan-out across DELETE /admin/offers/:id. Master-variant heading aligned to vendor's 'Product variant'. Subtitle and audit-log section removed per design pass. Store column and per-row Open store action dropped; the store sidebar card stays. Variant-scoped UI removal section + per-seller bulk-delete endpoint deferred."
 ---
 
 > **2026-05-20 product/variant scope removal.** SPEC-002 moves the

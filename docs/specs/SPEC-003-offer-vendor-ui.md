@@ -1,11 +1,11 @@
 ---
-status: in_progress
+status: passing
 canonical: false
 priority: 3
 area: vendor/offers
 created: 2026-05-20
 last_updated: 2026-05-22
-revision: "2026-05-22 Realignment block — spec rewritten to match the shipped UI after the agent re-built the vendor surface against the vendor/admin pattern libraries"
+revision: "2026-05-22 Status flipped to passing — vendor offer UI shipped and aligned to the spec; verification recorded in the prior revision block (UI rebuilt against the vendor/admin pattern libraries)."
 ---
 
 > **2026-05-20 product/variant scope removal.** SPEC-002 moves the

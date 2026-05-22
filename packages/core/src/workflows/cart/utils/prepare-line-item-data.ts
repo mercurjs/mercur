@@ -173,10 +173,7 @@ export function prepareLineItemData(data: PrepareLineItemDataInput) {
         compare_at_unit_price: compareAtUnitPrice,
         is_tax_inclusive: !!isTaxInclusive,
 
-        metadata: {
-            ...(item?.metadata ?? {}),
-            ...(item?.id ? { cart_line_item_id: item.id } : {}),
-        },
+        metadata: item?.metadata ?? null,
     }
 
     if (isCustomPrice) {
