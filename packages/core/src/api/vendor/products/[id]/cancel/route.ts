@@ -6,16 +6,17 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { ProductChangeDTO } from "@mercurjs/types"
+import { ProductChangeDTO, ProductChangeStatus } from "@mercurjs/types"
 
 import { cancelProductEditWorkflow } from "../../../../../workflows/product-edit/workflows/cancel-product-edit"
 import { VendorCancelProductChangeType } from "../../validators"
 
 /**
  * Vendor-side cancel of the active pending `ProductChange` for a product.
- * Mirrors the admin cancel route but keys off `product_id` so the seller
- * does not need to know the change id. Validates seller ownership via the
- * `product_seller` link before delegating to `cancelProductEditWorkflow`.
+ * Ownership is keyed off `product_change.created_by` — only the seller who
+ * opened the change can cancel it, regardless of who owns the underlying
+ * master product. Sellers without a pending change on this product get
+ * 404 (nothing to cancel).
  */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCancelProductChangeType>,
@@ -25,28 +26,24 @@ export const POST = async (
   const sellerId = req.seller_context!.seller_id
   const productId = req.params.id
 
-  const { data: ownership } = await query.graph({
-    entity: "product_seller",
-    fields: ["product_id"],
-    filters: { seller_id: sellerId, product_id: productId },
-  })
-
-  if (!ownership.length) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Product with id ${productId} was not found`
-    )
-  }
-
   const { data: changes } = await query.graph({
     entity: "product_change",
     fields: ["id"],
     filters: {
       product_id: productId,
+      created_by: sellerId,
+      status: ProductChangeStatus.PENDING,
     },
   })
 
   const pendingChange = changes[0]
+
+  if (!pendingChange) {
+    throw new MedusaError(
+      MedusaError.Types.NOT_FOUND,
+      `No pending product change to cancel for product '${productId}'`
+    )
+  }
 
   await cancelProductEditWorkflow(req.scope).run({
     input: {

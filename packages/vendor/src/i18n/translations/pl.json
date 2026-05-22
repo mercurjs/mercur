@@ -487,25 +487,25 @@
         "variants": "Wybierz co najmniej jeden wariant.",
         "options": "Utwórz co najmniej jedną opcję.",
         "uniqueSku": "SKU musi być unikalny.",
-        "requiredAttribute": "This attribute is required.",
+        "requiredAttribute": "Ten atrybut jest wymagany.",
         "primaryCategoryRequired": "Kategoria główna jest wymagana",
         "titleRequired": "Tytuł jest wymagany",
         "handleInvalidFormat": "Identyfikator może zawierać tylko małe litery, cyfry i myślniki",
         "handleMustContainLetter": "Identyfikator musi zawierać co najmniej jedną literę"
       },
       "attributes": {
-        "header": "Attributes",
-        "addExisting": "Add existing",
-        "createNew": "Create new",
-        "requiredAttributes": "Required attributes",
-        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
-        "selectValues": "Select values",
-        "tip": "Tip",
-        "useForVariants": "Use for Variations",
-        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
-        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
-        "titlePlaceholder": "e.g. Color",
-        "valuePlaceholder": "Enter values",
+        "header": "Atrybuty",
+        "addExisting": "Dodaj istniejący",
+        "createNew": "Utwórz nowy",
+        "requiredAttributes": "Wymagane atrybuty",
+        "requiredAttributesHint": "Te atrybuty są wymagane przez Marketplace. Wybierz je, zanim przejdziesz dalej.",
+        "selectValues": "Wybierz wartości",
+        "tip": "Wskazówka",
+        "useForVariants": "Użyj dla wariantów",
+        "useForVariantsDescription": "Jeśli zaznaczone, będziesz mógł tworzyć warianty przy użyciu tego atrybutu. Jeśli nie, atrybut będzie używany wyłącznie w celach informacyjnych.",
+        "variantAxisTip": "Ten atrybut utworzy warianty. Możesz je zdefiniować w kolejnym kroku.",
+        "titlePlaceholder": "np. Kolor",
+        "valuePlaceholder": "Wprowadź wartości",
         "description": "Dodaj atrybuty do swojego produktu. Wybierz z atrybutów zdefiniowanych przez administratora lub stwórz własne.",
         "requiredHeading": "Wymagane atrybuty",
         "requiredDescription": "Te atrybuty są wymagane dla produktów w tej kategorii.",
@@ -2555,7 +2555,7 @@
       },
       "type": {
         "standard": {
-          "title": "Standard",
+          "title": "Standardowa",
           "description": "Standardowa promocja"
         },
         "buyget": {
@@ -2573,7 +2573,7 @@
           "description": "Stosuje wartość do wszystkich elementów"
         },
         "once": {
-          "title": "Once",
+          "title": "Jednorazowo",
           "description": "Stosuje wartość do ograniczonej liczby przedmiotów"
         }
       },
@@ -3893,7 +3893,7 @@
     "endDate": "Data końcowa",
     "draft": "Projekt",
     "values": "Wartości",
-    "brand": "Brand",
+    "brand": "Marka",
     "images": "Media",
     "brand_id": "Marka",
     "type_id": "Typ",
@@ -3954,20 +3954,20 @@
   },
   "attributes": {
     "fields": {
-      "name": "Name",
-      "handle": "Handle",
-      "required": "Required",
-      "type": "Type",
-      "values": "Values",
-      "variantAxis": "Use for Variants",
-      "filterable": "Filterable"
+      "name": "Nazwa",
+      "handle": "Identyfikator",
+      "required": "Wymagane",
+      "type": "Typ",
+      "values": "Wartości",
+      "variantAxis": "Użyj dla wariantów",
+      "filterable": "Filtrowalne"
     },
     "type": {
-      "select": "Single Select",
-      "multivalue": "Multi Select",
-      "unit": "Unit",
-      "toggle": "Toggle",
-      "text_area": "Text Area"
+      "select": "Lista jednokrotnego wyboru",
+      "multivalue": "Lista wielokrotnego wyboru",
+      "unit": "Jednostka",
+      "toggle": "Przełącznik",
+      "text_area": "Pole tekstowe"
     }
   },
   "seller": {

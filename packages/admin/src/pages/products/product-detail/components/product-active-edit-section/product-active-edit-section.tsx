@@ -32,6 +32,7 @@ import {
   useConfirmProductChange,
   useProductChange,
 } from "../../../../../hooks/api/products";
+import { useSeller } from "../../../../../hooks/api/sellers";
 import { sdk } from "../../../../../lib/client";
 
 type ProductWithSellers = HttpTypes.AdminProduct & {
@@ -253,6 +254,11 @@ export const ProductActiveEditSection = ({
     retry: false,
   });
 
+  const requesterId = product_change?.created_by ?? "";
+  const { seller: requesterSeller } = useSeller(requesterId, undefined, {
+    enabled: !!requesterId,
+  });
+
   const { mutateAsync: confirmChange, isPending: isConfirming } =
     useConfirmProductChange(product_change?.id ?? "", product.id);
   const { mutateAsync: cancelChange, isPending: isRejecting } =
@@ -312,8 +318,7 @@ export const ProductActiveEditSection = ({
       <div className="px-6 py-4">
         <Text size="small" leading="compact" className="text-ui-fg-subtle">
           {t("products.edits.panel.description", {
-            store:
-              product.sellers?.[0]?.name ?? t("products.request.fallbackStore"),
+            store: requesterSeller?.name ?? t("products.request.fallbackStore"),
           })}
         </Text>
       </div>
