@@ -3790,5 +3790,61 @@
       "enabledToast": "Commission rate enabled successfully",
       "disabledToast": "Commission rate disabled successfully"
     }
+  },
+  "offers": {
+    "domain": "Offers",
+    "empty": {
+      "heading": "No offers yet",
+      "description": "Stores haven't published any offers on this marketplace yet."
+    },
+    "filtered": {
+      "heading": "No matching offers",
+      "description": "Adjust filters or search terms."
+    },
+    "actions": {
+      "openStore": "Open store",
+      "bulkDelete": "Delete selected"
+    },
+    "fields": {
+      "store": "Store",
+      "sku": "SKU",
+      "variant": "Master variant",
+      "ean": "EAN",
+      "upc": "UPC",
+      "shippingProfile": "Shipping profile",
+      "requiredQuantity": "Required quantity",
+      "stockStatus": "Stock status"
+    },
+    "detail": {
+      "offerLabel": "Offer",
+      "productVariant": "Product variant",
+      "store": "Store",
+      "inventoryItems": "Inventory items",
+      "goToInventoryItem": "Go to inventory item",
+      "manageKit": "Inventory kit",
+      "noInventoryItems": "This offer has no inventory items linked."
+    },
+    "bulkDelete": {
+      "description": "You are about to delete {{count}} offer(s) from {{storeName}}. This cannot be undone.",
+      "successToast": "Deleted {{count}} offer(s)",
+      "errorToast": "Bulk delete failed: {{message}}",
+      "crossStoreWarning": "Select offers from one store at a time. Bulk delete is scoped per store.",
+      "crossStoreTooltip": "Bulk delete only works within one store."
+    },
+    "bulkDeleteAll": {
+      "description": "You are about to delete every offer for {{storeName}}. This cannot be undone.",
+      "actionLabel": "Delete catalog"
+    },
+    "sellerSection": {
+      "heading": "Offers",
+      "viewAll": "View all",
+      "bulkDeleteAll": "Delete catalog",
+      "empty": "This store has no offers yet."
+    },
+    "stockStatus": {
+      "in_stock": "In stock",
+      "low_stock": "Low stock",
+      "out_of_stock": "Out of stock"
+    }
   }
 }

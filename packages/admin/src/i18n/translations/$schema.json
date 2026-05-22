@@ -12796,6 +12796,146 @@
         "toggle"
       ],
       "additionalProperties": false
+    },
+    "offers": {
+      "type": "object",
+      "properties": {
+        "domain": { "type": "string" },
+        "empty": {
+          "type": "object",
+          "properties": {
+            "heading": { "type": "string" },
+            "description": { "type": "string" }
+          },
+          "required": ["heading", "description"],
+          "additionalProperties": false
+        },
+        "filtered": {
+          "type": "object",
+          "properties": {
+            "heading": { "type": "string" },
+            "description": { "type": "string" }
+          },
+          "required": ["heading", "description"],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "openStore": { "type": "string" },
+            "bulkDelete": { "type": "string" }
+          },
+          "required": ["openStore", "bulkDelete"],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "store": { "type": "string" },
+            "sku": { "type": "string" },
+            "variant": { "type": "string" },
+            "ean": { "type": "string" },
+            "upc": { "type": "string" },
+            "shippingProfile": { "type": "string" },
+            "requiredQuantity": { "type": "string" },
+            "stockStatus": { "type": "string" }
+          },
+          "required": [
+            "store",
+            "sku",
+            "variant",
+            "ean",
+            "upc",
+            "shippingProfile",
+            "requiredQuantity",
+            "stockStatus"
+          ],
+          "additionalProperties": false
+        },
+        "detail": {
+          "type": "object",
+          "properties": {
+            "offerLabel": { "type": "string" },
+            "productVariant": { "type": "string" },
+            "store": { "type": "string" },
+            "inventoryItems": { "type": "string" },
+            "goToInventoryItem": { "type": "string" },
+            "manageKit": { "type": "string" },
+            "noInventoryItems": { "type": "string" }
+          },
+          "required": [
+            "offerLabel",
+            "productVariant",
+            "store",
+            "inventoryItems",
+            "goToInventoryItem",
+            "manageKit",
+            "noInventoryItems"
+          ],
+          "additionalProperties": false
+        },
+        "bulkDelete": {
+          "type": "object",
+          "properties": {
+            "description": { "type": "string" },
+            "successToast": { "type": "string" },
+            "errorToast": { "type": "string" },
+            "crossStoreWarning": { "type": "string" },
+            "crossStoreTooltip": { "type": "string" }
+          },
+          "required": [
+            "description",
+            "successToast",
+            "errorToast",
+            "crossStoreWarning",
+            "crossStoreTooltip"
+          ],
+          "additionalProperties": false
+        },
+        "bulkDeleteAll": {
+          "type": "object",
+          "properties": {
+            "description": { "type": "string" },
+            "actionLabel": { "type": "string" }
+          },
+          "required": ["description", "actionLabel"],
+          "additionalProperties": false
+        },
+        "sellerSection": {
+          "type": "object",
+          "properties": {
+            "heading": { "type": "string" },
+            "viewAll": { "type": "string" },
+            "bulkDeleteAll": { "type": "string" },
+            "empty": { "type": "string" }
+          },
+          "required": ["heading", "viewAll", "bulkDeleteAll", "empty"],
+          "additionalProperties": false
+        },
+        "stockStatus": {
+          "type": "object",
+          "properties": {
+            "in_stock": { "type": "string" },
+            "low_stock": { "type": "string" },
+            "out_of_stock": { "type": "string" }
+          },
+          "required": ["in_stock", "low_stock", "out_of_stock"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "empty",
+        "filtered",
+        "actions",
+        "fields",
+        "detail",
+        "bulkDelete",
+        "bulkDeleteAll",
+        "sellerSection",
+        "stockStatus"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -12863,7 +13003,8 @@
     "algolia",
     "commission",
     "commissionLines",
-    "commissionRates"
+    "commissionRates",
+    "offers"
   ],
   "additionalProperties": false
 }

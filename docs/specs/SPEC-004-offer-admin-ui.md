@@ -1,11 +1,11 @@
 ---
-status: not_started
+status: in_progress
 canonical: false
 priority: 4
 area: admin/offers
 created: 2026-05-20
 last_updated: 2026-05-22
-revision: "2026-05-22 Admin offer UI realigned to mirror SPEC-003's shipped vendor patterns; added Store column + filter; every visible string is an i18n key"
+revision: "2026-05-22 Admin offer UI implemented: read-only list + detail (TwoColumnPage with General + Inventory items main column, Product variant + Store + Prices sidebar). Bulk delete wired via Promise.allSettled fan-out across DELETE /admin/offers/:id (new). Master-variant heading aligned to vendor's 'Product variant'. Subtitle and audit-log section removed per design pass. Store column and per-row Open store action dropped; the store sidebar card stays. Variant-scoped UI removal section + per-seller bulk-delete endpoint deferred."
 ---
 
 > **2026-05-20 product/variant scope removal.** SPEC-002 moves the
@@ -1207,6 +1207,119 @@ section and the audit log:
   `store-offers-section-empty`.
 
 ## Evidence
+
+### 2026-05-22 — Admin offer UI shipped (read-only list + detail + bulk delete)
+
+Implementation landed under `packages/admin/src/pages/offers/`,
+`packages/admin/src/hooks/api/offers.tsx`, and a new `DELETE` handler
+on `packages/core/src/api/admin/offers/[id]/route.ts`. Concretely:
+
+- **Hooks** (`packages/admin/src/hooks/api/offers.tsx`):
+  - `useOffers(query, options)` → `sdk.admin.offers.query(...)`
+  - `useOffer(id, query, options)` → `sdk.admin.offers.$id.query(...)`
+  - `useDeleteOffer(id, options)` → `sdk.admin.offers.$id.delete(...)`
+  - `useBulkDeleteOffers(options)` → `Promise.allSettled` fan-out over
+    `sdk.admin.offers.$id.delete` returning `{ succeeded: string[], failed: { id, error }[] }`.
+- **Backend** (`packages/core/src/api/admin/offers/[id]/route.ts`):
+  added `DELETE` handler that runs `deleteOffersWorkflow` (mirrors the
+  vendor route). Route map regenerated under
+  `packages/core/.mercur/index.d.ts` so `sdk.admin.offers.$id.delete` is typed.
+  The per-seller `POST /admin/sellers/:id/offers/bulk-delete` endpoint
+  declared in SPEC-002 §Endpoint Contracts is **not yet implemented**;
+  the admin UI fan-outs single deletes instead.
+- **List page** (`pages/offers/offer-list-page.tsx` +
+  `pages/offers/_components/*`): `SingleColumnPage` → `Container divide-y p-0`
+  → `OfferListHeader` (single `<Heading>{t("offers.domain")}</Heading>`,
+  no subtitle, no CTA) → `_DataTable` over `useOffers`.
+  - Columns (final): `select` / `title` (variant title + thumbnail) /
+    `categories` / `sku` / `shipping_profile` / `status` / `actions`.
+    The **Store** column was scaffolded then removed at design review —
+    operators always navigate from `/stores/:id` so the per-row store
+    chip was redundant. Per-row **Open store** ActionMenu action also
+    dropped.
+  - Filters: `seller_id` (Store; backed by `useSellers`), `shipping_profile_id`,
+    `sku`, `created_at`, `updated_at`.
+  - Sort: `title` / `created_at` / `updated_at`. Default `-created_at`.
+  - Page size `OFFERS_PAGE_SIZE = 10`. `keepPreviousData` on the query.
+  - Bulk command **Delete selected** (`shortcut: "d"`): `usePrompt`
+    confirmation → `useBulkDeleteOffers.mutateAsync(ids)` → success or
+    partial-failure toast; failed ids stay selected.
+- **Detail page** (`pages/offers/[id]/offer-detail-page.tsx` +
+  `_components/*`): `TwoColumnPage<OfferDetail>` with
+  `hasOutlet`, `data={typedOffer}`, `showJSON` and `showMetadata`
+  omitted (defaults to false).
+  - Page header is the **variant title**;
+    `data-testid="offer-detail-general-section"`.
+  - Main column: **General** (SectionRows: SKU / EAN / UPC /
+    Shipping profile / Created at / Updated at — kit icon next to
+    heading when `inventory_item_link.length > 1`); **Inventory items**
+    (`_DataTable` over `inventory_item_link[].inventory_item` with a
+    per-row **Go to inventory item** action; available qty renders red
+    when `quantity === 0`).
+  - Sidebar: **Product variant** card (matches vendor's
+    `offers.detail.productVariant` key; admin had originally shipped
+    the heading as "Master variant" → renamed); **Store** card
+    (Avatar + name + handle, links to `/stores/${seller.id}`);
+    **Prices** (collapsible, 3-at-a-time `Show more`, hides
+    `rules_count > 0` ladders).
+  - **Audit log** main-column section was scaffolded then removed at
+    design review. `GET /admin/offers/:id` doesn't currently return
+    `audit_log` and the admin design doesn't want it surfaced. Spec
+    section "Audit log shape" is now stale; treat the section as not
+    rendered.
+  - **No action menus anywhere** on the detail page — admin is
+    read-only per **Scope and constraints**.
+- **Routing** (`packages/admin/src/get-route-map.tsx`): `/offers` and
+  `/offers/:id` registered as **siblings** under the `main` bucket
+  (matches vendor's structure). Initially nested as a child of the
+  list route, which caused the list and detail to render stacked;
+  fixed in the same session.
+- **Sidebar** (`packages/admin/src/components/layout/main-layout/main-layout.tsx`):
+  `Offers` added as the first nested item under
+  `t("products.domain")`, mirroring SPEC-003 §Sidebar entry.
+- **i18n** (`packages/admin/src/i18n/translations/en.json` +
+  `$schema.json`): full `offers.*` namespace added (38 keys after the
+  design-review trim: removed `subtitle`, `detail.auditLog`,
+  `detail.auditLogEmpty`; renamed `detail.masterVariant` →
+  `detail.productVariant`). Schema↔en parity verified (38/38).
+- **Loader fields** (`pages/offers/common/constants.ts`):
+  `OFFER_DETAIL_FIELDS` did not initially drop
+  `product_variant.options.*`. The backend rejected the request with
+  `ValidationError: Entity 'ProductVariant' does not have property 'options'`
+  (SPEC-002 dropped `options`/`prices` from the variant). Fixed in the
+  same session by removing those two paths from both
+  `OFFER_DETAIL_FIELDS` and the `OfferDetail` type.
+
+**Static checks:**
+
+- `bunx tsc --noEmit` on `packages/admin` reports no new errors on the
+  new files. The only offer-tree warnings are four lines that match
+  vendor's existing offer code 1:1 (`InventoryRow` location_levels
+  shape, `orderBy.key` constrained by `keyof OfferTableRow`).
+- `bun run lint` clean on all new files.
+
+**Deferred from spec (unchanged from 2026-05-22 plan):**
+
+- Per-seller bulk-delete endpoint
+  `POST /admin/sellers/:id/offers/bulk-delete` (declared in
+  SPEC-002 §Endpoint Contracts but unimplemented). Admin currently
+  fan-outs `DELETE /admin/offers/:id` per row through
+  `Promise.allSettled`. When SPEC-002 lands the wildcard endpoint,
+  flip `useBulkDeleteOffers` to a single call and re-add the
+  per-store warnings + tooltip outlined under **List page** above.
+- **Variant-scoped UI removal** (the long deletion list under
+  **Variant-scoped UI to remove (admin)**). Those deletions are still
+  required for SPEC-004 to move to `passing`; tracking as a follow-up
+  in this branch.
+- **Store-scoped offer slice** on `/stores/:id`. A scaffolded section
+  shipped briefly then was removed when its `_DataTable` import flagged
+  as deprecated and the section's purpose collapsed back into the main
+  `/offers` filter chain. If we restore it, prefer the non-deprecated
+  `DataTable` primitive.
+- **Per-locale i18n sweep.** `en.json` is canonical and validated by
+  `validate-translations.spec.ts`. Sister locales (`de`, `fr`, `es`,
+  `pl`, `ja`, …) still need the `offers.*` block; recorded as a
+  follow-up.
 
 ### 2026-05-22 — Spec realigned to SPEC-003 shipped vendor patterns
 

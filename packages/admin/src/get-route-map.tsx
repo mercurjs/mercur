@@ -967,6 +967,44 @@ export function getRouteMap({
                 ],
               },
               {
+                path: "/offers",
+                errorElement: <ErrorBoundary />,
+                handle: {
+                  breadcrumb: () => t("offers.domain"),
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: async () => {
+                      const { OfferListPage } = await import(
+                        "./pages/offers"
+                      );
+                      return { Component: OfferListPage };
+                    },
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { OfferDetailPage, Breadcrumb } = await import(
+                        "./pages/offers/[id]"
+                      );
+                      const { loader } = await import(
+                        "./pages/offers/[id]/loader"
+                      );
+                      return {
+                        Component: OfferDetailPage,
+                        loader,
+                        handle: {
+                          breadcrumb: (match: UIMatch) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                  },
+                ],
+              },
+              {
                 path: "/inventory",
                 errorElement: <ErrorBoundary />,
                 handle: {
