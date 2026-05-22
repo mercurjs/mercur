@@ -13,7 +13,7 @@ export const useOfferTableFilters = () => {
     filters.push({
       type: "select",
       key: "shipping_profile_id",
-      label: t("offers.fields.shippingProfile"),
+      label: t("shippingProfile.domain"),
       multiple: true,
       searchable: true,
       options: shipping_profiles.map((p) => ({

@@ -461,6 +461,7 @@ export type Routes = {
         members: typeof import("../../src/api/admin/members/route");
         offers: typeof import("../../src/api/admin/offers/route") & {
             $id: typeof import("../../src/api/admin/offers/[id]/route");
+            batch: typeof import("../../src/api/admin/offers/batch/route");
         };
         productAttributes: typeof import("../../src/api/admin/product-attributes/route") & {
             $id: typeof import("../../src/api/admin/product-attributes/[id]/route") & {
@@ -793,6 +794,7 @@ export type Routes = {
                     batch: typeof import("../../src/api/vendor/offers/[id]/inventory-items/batch/route");
                 };
             };
+            batch: typeof import("../../src/api/vendor/offers/batch/route");
         };
         productAttributes: typeof import("../../src/api/vendor/product-attributes/route") & {
             $id: typeof import("../../src/api/vendor/product-attributes/[id]/route");

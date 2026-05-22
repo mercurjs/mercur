@@ -107,7 +107,7 @@ export const CreateShippingOptionsPricesForm = ({
 	isPickup,
 	currencies.length,
 	currencies,
-	regions.length,
+	regions?.length,
 	regions,
 	form
 ])

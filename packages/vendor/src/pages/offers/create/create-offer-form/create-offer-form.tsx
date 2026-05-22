@@ -6,11 +6,7 @@ import { useTranslation } from "react-i18next";
 
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
 import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
-import {
-  useBatchInventoryItemsLocationLevels,
-  useCreateInventoryItem,
-} from "../../../../hooks/api/inventory";
-import { useCreateOffer } from "../../../../hooks/api/offers";
+import { useBulkCreateOffers } from "../../../../hooks/api/offers";
 import { useVariants } from "../../../../hooks/api/product-variants";
 import { useStockLocations } from "../../../../hooks/api/stock-locations";
 import { useStore } from "../../../../hooks/api/store";
@@ -36,6 +32,34 @@ const numericOrZero = (v: number | "" | undefined | null): number => {
   return Number(v) || 0;
 };
 
+const attachErrorToRow = (
+  message: string,
+  rows: { row: OfferVariantRow; index: number; sku: string }[],
+  form: { setError: (path: `variants.${number}.sku`, error: { type: string; message: string }) => void },
+): boolean => {
+  const variantMatch = message.match(/variant[^a-z0-9]*(?:with id[^a-z0-9]*)?['"`]?(var(?:iant)?_[A-Za-z0-9]+)/i);
+  if (variantMatch) {
+    const target = rows.find((r) => r.row.variant_id === variantMatch[1]);
+    if (target) {
+      form.setError(`variants.${target.index}.sku`, { type: "manual", message });
+      return true;
+    }
+  }
+
+  const skuMatch =
+    message.match(/sku\s+['"`]([^'"`]+)['"`]/i) ||
+    message.match(/duplicate[^']*['"`]([^'"`]+)['"`]/i);
+  if (skuMatch) {
+    const target = rows.find((r) => r.sku === skuMatch[1]);
+    if (target) {
+      form.setError(`variants.${target.index}.sku`, { type: "manual", message });
+      return true;
+    }
+  }
+
+  return false;
+};
+
 export const CreateOfferForm = () => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
@@ -45,10 +69,7 @@ export const CreateOfferForm = () => {
     resolver: zodResolver(CreateOfferSchema),
   });
 
-  const { mutateAsync: createOffer } = useCreateOffer();
-  const { mutateAsync: createInventoryItem } = useCreateInventoryItem();
-  const { mutateAsync: batchInventoryLevels } =
-    useBatchInventoryItemsLocationLevels();
+  const { mutateAsync: bulkCreateOffers } = useBulkCreateOffers();
   const { store } = useStore({ fields: "+supported_currencies" });
   const { stock_locations } = useStockLocations({ limit: 100 });
 
@@ -188,109 +209,58 @@ export const CreateOfferForm = () => {
     if (hasValidationError) return;
 
     setIsSubmitting(true);
-    const failedVariantIds: string[] = [];
-    const levelCreates: {
-      inventory_item_id: string;
-      location_id: string;
-      stocked_quantity: number;
-    }[] = [];
 
+    const publishableRows: { row: OfferVariantRow; index: number; sku: string }[] = [];
     for (let i = 0; i < variants.length; i++) {
       const row = variants[i];
       if (!isVariantRowPublishable(row)) continue;
       const sku = (row.sku ?? "").trim() || row.variant_sku || row.variant_id;
+      publishableRows.push({ row, index: i, sku });
+    }
 
-      try {
-        const inventoryItemResp = await createInventoryItem({
-          sku,
-          title: row.variant_title,
-        } as Parameters<typeof createInventoryItem>[0]);
+    const payloadOffers = publishableRows.map(({ row, sku }) => {
+      const prices: { amount: number; currency_code: string }[] = [];
+      for (const c of supportedCurrencies) {
+        const raw = row.prices?.[c.currency_code];
+        prices.push({ amount: numericOrZero(raw), currency_code: c.currency_code });
+      }
+      if (prices.length === 0) {
+        prices.push({ amount: 0, currency_code: "usd" });
+      }
 
-        const inventoryItemId = (
-          inventoryItemResp as { inventory_item?: { id?: string } }
-        )?.inventory_item?.id;
-
-        if (!inventoryItemId) {
-          throw new Error("Inventory item creation returned no id");
-        }
-
-        const prices: { amount: number; currency_code: string }[] = [];
-        for (const c of supportedCurrencies) {
-          const raw = row.prices?.[c.currency_code];
-          const amount = numericOrZero(raw);
-          prices.push({ amount, currency_code: c.currency_code });
-        }
-        if (prices.length === 0) {
-          prices.push({ amount: 0, currency_code: "usd" });
-        }
-
-        await createOffer({
-          sku,
-          variant_id: row.variant_id,
-          shipping_profile_id: row.shipping_profile_id,
-          inventory_items: [{ inventory_item_id: inventoryItemId }],
-          prices,
-        } as Parameters<typeof createOffer>[0]);
-
-        for (const [locationId, level] of Object.entries(row.inventory ?? {})) {
-          if (!level?.checked) continue;
-          levelCreates.push({
-            inventory_item_id: inventoryItemId,
-            location_id: locationId,
-            stocked_quantity: numericOrZero(level.quantity),
-          });
-        }
-      } catch (err) {
-        failedVariantIds.push(row.variant_id);
-        const message = err instanceof Error ? err.message : "Unknown error";
-        form.setError(`variants.${i}.sku`, {
-          type: "manual",
-          message,
+      const stock_levels: { location_id: string; stocked_quantity: number }[] = [];
+      for (const [locationId, level] of Object.entries(row.inventory ?? {})) {
+        if (!level?.checked) continue;
+        stock_levels.push({
+          location_id: locationId,
+          stocked_quantity: numericOrZero(level.quantity),
         });
       }
-    }
 
-    if (levelCreates.length > 0) {
-      try {
-        await batchInventoryLevels({
-          create: levelCreates,
-          update: [],
-          delete: [],
-          force: true,
-        } as Parameters<typeof batchInventoryLevels>[0]);
-      } catch (err) {
-        const message = err instanceof Error ? err.message : "Unknown error";
-        toast.warning(t("offers.create.stockLevelsWarning", { message }));
-      }
-    }
+      return {
+        sku,
+        title: row.variant_title,
+        variant_id: row.variant_id,
+        shipping_profile_id: row.shipping_profile_id,
+        prices,
+        stock_levels,
+      };
+    });
 
-    setIsSubmitting(false);
-
-    const succeeded = publishable.length - failedVariantIds.length;
-    if (failedVariantIds.length === 0) {
+    try {
+      await bulkCreateOffers({ offers: payloadOffers } as Parameters<
+        typeof bulkCreateOffers
+      >[0]);
       toast.success(t("offers.create.successToast"));
       handleSuccess("/offers");
-      return;
-    }
-
-    const failedSet = new Set(failedVariantIds);
-    const remaining = variants.filter((v) => failedSet.has(v.variant_id));
-    form.setValue("variants", remaining);
-    form.setValue(
-      "selected_variant_ids",
-      remaining.map((v) => v.variant_id),
-    );
-
-    if (succeeded > 0) {
-      toast.warning(
-        t("offers.bulkDelete.partialToast", {
-          succeeded,
-          total: publishable.length,
-          failed: failedVariantIds.length,
-        }),
-      );
-    } else {
-      toast.error(t("offers.create.successToast"));
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Unknown error";
+      const attributed = attachErrorToRow(message, publishableRows, form);
+      if (!attributed) {
+        toast.error(message);
+      }
+    } finally {
+      setIsSubmitting(false);
     }
   });
 

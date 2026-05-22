@@ -15,8 +15,9 @@ import {
   useRouteModal,
 } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { usePricePreferences } from "../../../../../hooks/api/price-preferences"
 import { useUpdateOffer } from "../../../../../hooks/api/offers"
+import { usePricePreferences } from "../../../../../hooks/api/price-preferences"
+import { useStore } from "../../../../../hooks/api/store"
 import { OfferDetail, OfferPrice } from "../../../common/types"
 import {
   PricingFormSchema,
@@ -26,7 +27,6 @@ import {
 
 type Props = {
   offer: OfferDetail
-  currencies: string[]
 }
 
 const hasRules = (price: OfferPrice) => (price.rules_count ?? 0) > 0
@@ -52,7 +52,33 @@ const buildDefaults = (
   return { prices: [basePrice] }
 }
 
-export const PricingForm = ({ offer, currencies }: Props) => {
+export const PricingForm = ({ offer }: Props) => {
+  const { store, isPending: isStorePending } = useStore({
+    fields: "+supported_currencies",
+  })
+
+  const currencies = useMemo(
+    () =>
+      (
+        (store?.supported_currencies as
+          | HttpTypes.AdminStore["supported_currencies"]
+          | undefined) ?? []
+      ).map((c) => c.currency_code),
+    [store?.supported_currencies],
+  )
+
+  if (isStorePending || !currencies.length) return null
+
+  return <PricingFormInner offer={offer} currencies={currencies} />
+}
+
+const PricingFormInner = ({
+  offer,
+  currencies,
+}: {
+  offer: OfferDetail
+  currencies: string[]
+}) => {
   const { t } = useTranslation()
   const { handleSuccess, setCloseOnEscape } = useRouteModal()
   const { price_preferences: pricePreferences } = usePricePreferences({})

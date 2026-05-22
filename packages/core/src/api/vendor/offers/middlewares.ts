@@ -13,6 +13,7 @@ import { vendorOfferQueryConfig } from "./query-config"
 import {
   VendorBatchOfferInventoryItems,
   VendorCreateOffer,
+  VendorCreateOffersBatch,
   VendorGetOfferParams,
   VendorGetOffersParams,
   VendorUpdateOffer,
@@ -47,6 +48,17 @@ export const vendorOffersMiddlewares: MiddlewareRoute[] = [
       validateAndTransformQuery(
         VendorGetOfferParams,
         vendorOfferQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/offers/batch",
+    middlewares: [
+      validateAndTransformBody(VendorCreateOffersBatch),
+      validateAndTransformQuery(
+        VendorGetOfferParams,
+        vendorOfferQueryConfig.list
       ),
     ],
   },

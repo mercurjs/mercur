@@ -72,6 +72,25 @@ export const useCreateOffer = (
   });
 };
 
+export const useBulkCreateOffers = (
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.vendor.offers.batch.mutate>,
+    ClientError,
+    InferClientInput<typeof sdk.vendor.offers.batch.mutate>
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) => sdk.vendor.offers.batch.mutate(payload),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: offerQueryKeys.lists(),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
 export const useUpdateOffer = (
   id: string,
   options?: UseMutationOptions<

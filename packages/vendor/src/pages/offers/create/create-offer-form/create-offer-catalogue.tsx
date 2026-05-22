@@ -11,6 +11,10 @@ import { useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import {
+  CategoryCell,
+  CategoryHeader,
+} from "../../../../components/table/table-cells/product/category-cell"
+import {
   ProductStatusCell,
   ProductStatusHeader,
 } from "../../../../components/table/table-cells/product/product-status-cell"
@@ -36,6 +40,8 @@ const FIELDS = [
   "product.title",
   "product.thumbnail",
   "product.status",
+  "product.categories.id",
+  "product.categories.name",
 ].join(",")
 
 type VariantRow = HttpTypes.AdminProductVariant & {
@@ -184,6 +190,13 @@ const useColumns = () => {
             </div>
           )
         },
+      }),
+      columnHelper.display({
+        id: "categories",
+        header: () => <CategoryHeader />,
+        cell: ({ row }) => (
+          <CategoryCell categories={row.original.product?.categories} />
+        ),
       }),
       columnHelper.accessor("sku", {
         header: t("fields.sku"),

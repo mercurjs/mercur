@@ -28,3 +28,43 @@ export const AdminGetOffersParams = createFindParams({
     updated_at: createOperatorMap().optional(),
   })
 )
+
+const AdminOfferPrice = z
+  .object({
+    amount: z.number(),
+    currency_code: z.string(),
+    min_quantity: z.number().int().positive().nullish(),
+    max_quantity: z.number().int().positive().nullish(),
+    rules: z.record(z.string(), z.string()).optional(),
+  })
+  .strict()
+
+const AdminCreateOffersBatchStockLevel = z
+  .object({
+    location_id: z.string(),
+    stocked_quantity: z.number().int().min(0),
+  })
+  .strict()
+
+const AdminCreateOffersBatchItem = z
+  .object({
+    sku: z.string().min(1),
+    title: z.string().min(1).optional(),
+    variant_id: z.string(),
+    shipping_profile_id: z.string(),
+    prices: z.array(AdminOfferPrice).min(1),
+    stock_levels: z.array(AdminCreateOffersBatchStockLevel).optional(),
+    required_quantity: z.number().int().positive().default(1),
+    ean: z.string().min(1).nullish(),
+    upc: z.string().min(1).nullish(),
+    metadata: z.record(z.string(), z.unknown()).nullish(),
+  })
+  .strict()
+
+export type AdminCreateOffersBatchType = z.infer<typeof AdminCreateOffersBatch>
+export const AdminCreateOffersBatch = z
+  .object({
+    seller_id: z.string().min(1),
+    offers: z.array(AdminCreateOffersBatchItem).min(1).max(100),
+  })
+  .strict()

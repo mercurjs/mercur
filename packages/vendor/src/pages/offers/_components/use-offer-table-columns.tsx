@@ -1,41 +1,51 @@
-import { Checkbox, StatusBadge, Text } from "@medusajs/ui"
-import { createColumnHelper } from "@tanstack/react-table"
-import { useMemo } from "react"
-import { useTranslation } from "react-i18next"
+import { Checkbox, Text } from "@medusajs/ui";
+import { createColumnHelper } from "@tanstack/react-table";
+import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
-import { Thumbnail } from "../../../components/common/thumbnail"
-import { PlaceholderCell } from "../../../components/table/table-cells/common/placeholder-cell"
-import { OfferActions } from "./offer-actions"
+import { Thumbnail } from "../../../components/common/thumbnail";
+import {
+  CategoryCell,
+  CategoryHeader,
+} from "../../../components/table/table-cells/product/category-cell";
+import {
+  ProductStatusCell,
+  ProductStatusHeader,
+} from "../../../components/table/table-cells/product/product-status-cell";
+import { PlaceholderCell } from "../../../components/table/table-cells/common/placeholder-cell";
+import { ProductStatus } from "@mercurjs/types";
+import { OfferActions } from "./offer-actions";
 
 export type OfferTableRow = {
-  id: string
-  sku?: string | null
-  updated_at?: string | null
-  deleted_at?: string | null
+  id: string;
+  sku?: string | null;
+  updated_at?: string | null;
+  deleted_at?: string | null;
   product_variant?: {
-    id?: string | null
-    title?: string | null
-    product_id?: string | null
+    id?: string | null;
+    title?: string | null;
+    product_id?: string | null;
     product?: {
-      id?: string | null
-      title?: string | null
-      thumbnail?: string | null
-      status?: string | null
-    } | null
-  } | null
+      id?: string | null;
+      title?: string | null;
+      thumbnail?: string | null;
+      status?: string | null;
+      categories?: Array<{
+        id: string;
+        name: string;
+      }> | null;
+    } | null;
+  } | null;
   shipping_profile?: {
-    id?: string | null
-    name?: string | null
-  } | null
-}
+    id?: string | null;
+    name?: string | null;
+  } | null;
+};
 
-const columnHelper = createColumnHelper<OfferTableRow>()
-
-const isPublished = (row: OfferTableRow) =>
-  row.product_variant?.product?.status === "published" && !row.deleted_at
+const columnHelper = createColumnHelper<OfferTableRow>();
 
 export const useOfferTableColumns = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return useMemo(
     () => [
@@ -48,7 +58,9 @@ export const useOfferTableColumns = () => {
                 ? "indeterminate"
                 : table.getIsAllPageRowsSelected()
             }
-            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
           />
         ),
         cell: ({ row }) => (
@@ -63,76 +75,66 @@ export const useOfferTableColumns = () => {
         id: "title",
         header: t("fields.title"),
         cell: ({ row }) => {
-          const variant = row.original.product_variant
-          const title = variant?.title ?? ""
+          const variant = row.original.product_variant;
+          const title = variant?.title ?? "";
 
           if (!title) {
-            return <PlaceholderCell />
+            return <PlaceholderCell />;
           }
 
           return (
-            <div className="flex items-center gap-x-3 overflow-hidden">
-              <Thumbnail src={variant?.product?.thumbnail ?? null} />
-              <Text
-                size="small"
-                weight="plus"
-                leading="compact"
-                className="truncate"
-                title={title}
-              >
-                {title}
-              </Text>
+            <div className="flex h-full w-full max-w-[250px] items-center gap-x-3 overflow-hidden">
+              <div className="w-fit flex-shrink-0">
+                <Thumbnail src={variant?.product?.thumbnail} />
+              </div>
+              <span title={variant?.product?.title!} className="truncate">
+                {variant?.title}
+              </span>
             </div>
-          )
+          );
         },
+      }),
+      columnHelper.display({
+        id: "categories",
+        header: () => <CategoryHeader />,
+        cell: ({ row }) => (
+          <CategoryCell
+            categories={row.original.product_variant?.product?.categories}
+          />
+        ),
       }),
       columnHelper.accessor("sku", {
         header: t("offers.fields.sku"),
         cell: ({ getValue }) => {
-          const sku = getValue()
-          if (!sku) return <PlaceholderCell />
+          const sku = getValue();
+          if (!sku) return <PlaceholderCell />;
           return (
             <Text size="small" leading="compact" className="truncate">
               {sku}
             </Text>
-          )
+          );
         },
       }),
       columnHelper.display({
         id: "shipping_profile",
-        header: t("offers.fields.shippingProfile"),
+        header: t("shippingProfile.domain"),
         cell: ({ row }) => {
-          const name = row.original.shipping_profile?.name
-          if (!name) return <PlaceholderCell />
+          const name = row.original.shipping_profile?.name;
+          if (!name) return <PlaceholderCell />;
           return (
             <Text size="small" leading="compact" className="truncate">
               {name}
             </Text>
-          )
+          );
         },
       }),
       columnHelper.display({
         id: "status",
-        header: t("offers.fields.status"),
+        header: () => <ProductStatusHeader />,
         cell: ({ row }) => {
-          const status = row.original.product_variant?.product?.status
-          const published = isPublished(row.original)
-
-          if (published) {
-            return (
-              <StatusBadge color="green">
-                {t("offers.status.published")}
-              </StatusBadge>
-            )
-          }
-
-          if (!status) return <PlaceholderCell />
-
-          return (
-            <StatusBadge color="grey">
-              {t(`offers.status.${status}`, { defaultValue: status })}
-            </StatusBadge>
-          )
+          const status = row.original.product_variant?.product?.status;
+          if (!status) return <PlaceholderCell />;
+          return <ProductStatusCell status={status as ProductStatus} />;
         },
       }),
       columnHelper.display({
@@ -148,5 +150,5 @@ export const useOfferTableColumns = () => {
       }),
     ],
     [t],
-  )
-}
+  );
+};

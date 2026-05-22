@@ -5,7 +5,7 @@ import { ProductCategoryDTO } from "@mercurjs/types"
 import { PlaceholderCell } from "../../common/placeholder-cell"
 
 type CategoryCellProps = {
-  categories?: ProductCategoryDTO[] | null
+  categories?: Pick<ProductCategoryDTO, "id" | "name">[] | null
 }
 
 export const CategoryCell = ({ categories }: CategoryCellProps) => {

@@ -6,6 +6,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { AdditionalData } from "@medusajs/framework/types"
 import {
+  createInventoryItemsWorkflow,
   createPriceSetsStep,
   createRemoteLinkStep,
   emitEventStep,
@@ -15,6 +16,7 @@ import { MedusaError, Modules } from "@medusajs/framework/utils"
 import { CreateOfferDTO, MercurModules } from "@mercurjs/types"
 
 import { createOffersStep } from "../steps"
+import { linkSellerInventoryItemStep } from "../../inventory-item/steps"
 import { OfferWorkflowEvents } from "../../events"
 
 export type CreateOffersWorkflowInput = {
@@ -28,17 +30,94 @@ export const createOffersWorkflow = createWorkflow(
   function (input: CreateOffersWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    const variantIds = transform({ input }, ({ input }) =>
-      Array.from(new Set(input.offers.map((o) => o.variant_id)))
+    const inlineItemsInput = transform({ input }, ({ input }) => {
+      const items: Array<{
+        sku: string
+        title: string
+        location_levels: Array<{
+          location_id: string
+          stocked_quantity: number
+        }>
+      }> = []
+      const offerIdxToInlineIdx: Record<number, number> = {}
+
+      input.offers.forEach((offer, offerIdx) => {
+        if (offer.inline_inventory_item) {
+          offerIdxToInlineIdx[offerIdx] = items.length
+          items.push({
+            sku: offer.sku,
+            title: offer.inline_inventory_item.title ?? offer.sku,
+            location_levels:
+              offer.inline_inventory_item.stock_levels ?? [],
+          })
+        }
+      })
+
+      return { items, offerIdxToInlineIdx }
+    })
+
+    const itemsForCreation = transform(
+      { inlineItemsInput },
+      ({ inlineItemsInput }) => inlineItemsInput.items
     )
-    const inventoryItemIds = transform({ input }, ({ input }) =>
-      Array.from(
-        new Set(
-          input.offers.flatMap((o) =>
-            o.inventory_items.map((i) => i.inventory_item_id)
+
+    const createdInventoryItems = createInventoryItemsWorkflow.runAsStep({
+      input: { items: itemsForCreation },
+    })
+
+    const newInventoryItemIds = transform(
+      { createdInventoryItems },
+      ({ createdInventoryItems }) => createdInventoryItems.map((i) => i.id)
+    )
+
+    const sellerId = transform(
+      { input },
+      ({ input }) => input.offers[0]?.seller_id ?? ""
+    )
+
+    linkSellerInventoryItemStep({
+      seller_id: sellerId,
+      inventory_item_ids: newInventoryItemIds,
+    })
+
+    const offersWithInventory = transform(
+      { input, inlineItemsInput, createdInventoryItems },
+      ({ input, inlineItemsInput, createdInventoryItems }) =>
+        input.offers.map((offer, offerIdx) => {
+          const inlineIdx = inlineItemsInput.offerIdxToInlineIdx[offerIdx]
+          if (inlineIdx !== undefined) {
+            const inventoryItem = createdInventoryItems[inlineIdx]
+            const requiredQuantity =
+              offer.inline_inventory_item?.required_quantity ?? 1
+            return {
+              ...offer,
+              inventory_items: [
+                {
+                  inventory_item_id: inventoryItem.id,
+                  required_quantity: requiredQuantity,
+                },
+              ],
+            }
+          }
+          return offer
+        })
+    )
+
+    const variantIds = transform(
+      { offersWithInventory },
+      ({ offersWithInventory }) =>
+        Array.from(new Set(offersWithInventory.map((o) => o.variant_id)))
+    )
+    const inventoryItemIds = transform(
+      { offersWithInventory },
+      ({ offersWithInventory }) =>
+        Array.from(
+          new Set(
+            offersWithInventory.flatMap((o) =>
+              (o.inventory_items ?? []).map((i) => i.inventory_item_id)
+            )
           )
         )
-      )
     )
 
     const { data: variants } = useQueryGraphStep({
@@ -54,8 +133,20 @@ export const createOffersWorkflow = createWorkflow(
     }).config({ name: "get-inventory-items" })
 
     const validated = transform(
-      { input, variants, inventoryItems, variantIds, inventoryItemIds },
-      ({ input, variants, inventoryItems, variantIds, inventoryItemIds }) => {
+      {
+        offersWithInventory,
+        variants,
+        inventoryItems,
+        variantIds,
+        inventoryItemIds,
+      },
+      ({
+        offersWithInventory,
+        variants,
+        inventoryItems,
+        variantIds,
+        inventoryItemIds,
+      }) => {
         const variantById = new Map(variants.map((v) => [v.id, v]))
         const inventoryIds = new Set(inventoryItems.map((i) => i.id))
 
@@ -77,15 +168,16 @@ export const createOffersWorkflow = createWorkflow(
           )
         }
 
-        return input.offers.map((offer) => {
-          if (!offer.inventory_items.length) {
+        return offersWithInventory.map((offer) => {
+          const items = offer.inventory_items ?? []
+          if (!items.length) {
             throw new MedusaError(
               MedusaError.Types.INVALID_DATA,
               "Offer must have at least one inventory item"
             )
           }
           const seen = new Set<string>()
-          for (const item of offer.inventory_items) {
+          for (const item of items) {
             if (seen.has(item.inventory_item_id)) {
               throw new MedusaError(
                 MedusaError.Types.INVALID_DATA,
@@ -98,6 +190,7 @@ export const createOffersWorkflow = createWorkflow(
           const variant = variantById.get(offer.variant_id)!
           return {
             ...offer,
+            inventory_items: items,
             ean: offer.ean ?? variant.ean ?? null,
             upc: offer.upc ?? variant.upc ?? null,
           }

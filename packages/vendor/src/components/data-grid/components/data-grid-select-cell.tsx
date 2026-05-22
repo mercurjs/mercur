@@ -89,7 +89,7 @@ const Inner = ({
           onInputBlur()
         }}
         className={clx(
-          "size-full rounded-none border-0 bg-transparent px-4 py-2.5 text-left shadow-none",
+          "size-full rounded-none border-0 bg-transparent px-0 text-left shadow-none",
           "focus:shadow-none data-[state=open]:!shadow-none hover:bg-transparent"
         )}
         tabIndex={-1}

@@ -62,6 +62,8 @@ export const OFFER_LIST_FIELDS = [
   "product_variant.product.title",
   "product_variant.product.status",
   "product_variant.product.thumbnail",
+  "product_variant.product.categories.id",
+  "product_variant.product.categories.name",
   "shipping_profile.id",
   "shipping_profile.name",
 ].join(",")

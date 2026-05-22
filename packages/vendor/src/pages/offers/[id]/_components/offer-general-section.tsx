@@ -72,7 +72,7 @@ export const OfferGeneralSection = ({ offer }: Props) => {
       <SectionRow title={t("offers.fields.ean")} value={offer.ean ?? "-"} />
       <SectionRow title={t("offers.fields.upc")} value={offer.upc ?? "-"} />
       <SectionRow
-        title={t("offers.fields.shippingProfile")}
+        title={t("shippingProfile.domain")}
         value={offer.shipping_profile?.name ?? "-"}
       />
       <SectionRow

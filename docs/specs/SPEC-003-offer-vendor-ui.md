@@ -4,8 +4,8 @@ canonical: false
 priority: 3
 area: vendor/offers
 created: 2026-05-20
-last_updated: 2026-05-21
-revision: "2026-05-21 Figma redesign — see top of file"
+last_updated: 2026-05-22
+revision: "2026-05-22 DataGrid select cell fix for Stock Levels & Prices tab"
 ---
 
 > **2026-05-20 product/variant scope removal.** SPEC-002 moves the
@@ -1564,6 +1564,44 @@ text; `offers.actions.create` shortens from `"Create offer"` to
       `offer-inventory-batch-form`.
 
 ## Evidence
+
+### 2026-05-22 — DataGrid select cell fix (Stock Levels & Prices tab)
+
+- **Implemented at:** 2026-05-22
+- **Symptom:** the **Shipping profile** column inside the
+  Stock Levels & Prices DataGrid
+  (`packages/vendor/src/pages/offers/create/create-offer-form/create-offer-stock-levels-and-prices.tsx`)
+  required two clicks to open the dropdown, the trigger rendered
+  visibly larger than its sibling cells, and the focus/hover ring on
+  the trigger sat inside the cell with a gap between the cell border
+  and the select. Root cause was vendor data-grid drift from the
+  admin equivalent.
+- **Fix 1 — first-click open**
+  (`packages/vendor/src/components/data-grid/hooks/use-data-grid-cell.tsx:212`):
+  extended `fieldWithoutOverlay` from `type === "boolean"` to
+  `type === "boolean" || type === "select"`. With the overlay
+  suppressed for `select` cells, the `Select.Trigger` receives the
+  first mouse-down and Radix opens the dropdown immediately. Cell
+  anchoring still happens because the trigger's focus event bubbles
+  to the container, which already wires `getWrapperFocusHandler` to
+  `innerProps.onFocus`.
+- **Fix 2 — trigger padding alignment**
+  (`packages/vendor/src/components/data-grid/components/data-grid-select-cell.tsx:92`):
+  replaced the trigger's `px-4 py-2.5` with `px-0`. The cell
+  container (`data-grid-cell-container.tsx`) already provides
+  `px-4 py-2.5`, so the previous styling double-padded the trigger
+  and pushed its focus ring inboard of the cell border. With the
+  trigger at `px-0` it fills the inner cell area and the focus state
+  aligns with the cell edge.
+- **Parity:** both changes bring vendor in line with
+  `packages/admin/src/components/data-grid/hooks/use-data-grid-cell.tsx`
+  and
+  `packages/admin/src/components/data-grid/components/data-grid-select-cell.tsx`,
+  which already shipped with the same treatment.
+- **No schema, hook, or workflow changes.** Only the shipping
+  profile column in the Stock Levels & Prices tab uses
+  `type: "select"` today, so the blast radius is limited to this
+  surface.
 
 ### 2026-05-21 — Figma redesign implemented
 
