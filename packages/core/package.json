@@ -93,5 +93,9 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "pkg-dir": "4",
+    "resolve-cwd": "^3.0.0"
   }
 }
