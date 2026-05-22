@@ -4,7 +4,8 @@ canonical: false
 priority: 4
 area: admin/offers
 created: 2026-05-20
-last_updated: 2026-05-21
+last_updated: 2026-05-22
+revision: "2026-05-22 Admin offer UI realigned to mirror SPEC-003's shipped vendor patterns; added Store column + filter; every visible string is an i18n key"
 ---
 
 > **2026-05-20 product/variant scope removal.** SPEC-002 moves the
@@ -73,16 +74,26 @@ A logged-in marketplace operator opens the admin panel and sees a new
 sidebar entry **Offers** nested under **Products**, mirroring the
 vendor panel placement (SPEC-003 §Sidebar entry). Clicking it lands
 on `/offers`, a marketplace-wide list of every offer across every
-seller. The operator can search, filter (notably by seller and
-variant), sort, paginate, and open a single offer's detail page. The
-detail page renders the same data the vendor sees plus an audit log
-section. The only mutation available is bulk-delete, surfaced both
-on the list page (for offers selected on a single seller) and on the
-seller detail page (for that seller's full catalog).
+store. The operator can search, filter (notably by store and
+shipping profile), sort, paginate, and open a single offer's detail
+page. The detail page renders the same shape the vendor sees plus a
+**Store** sidebar card and an **Audit log** main-column section. The
+only mutation available is bulk-delete, surfaced both on the list
+page (for offers selected on a single store) and on the store detail
+page (for that store's full catalog).
 
-The screen vocabulary mirrors the existing admin surfaces
-(`pages/stores`, `pages/products`, `pages/inventory`) so a familiar
-operator recognizes every interaction.
+Every visible string on the new pages is wired through `t("…")`
+against the keys listed in the **i18n keys** section. No literal
+strings are rendered in component JSX — this is enforced by the
+admin-form-ui / admin-page-ui review skills the package already
+runs.
+
+The screen vocabulary mirrors SPEC-003's **shipped** vendor surface
+(`packages/vendor/src/pages/offers/`), not the older first-cut
+sections of that spec. Section names, file names, column sets,
+ordering, page size, and helper hooks all line up with the vendor
+realignment block — adapted for read-only access and adding the
+admin-only **Store** column / filter / sidebar card.
 
 ### Sidebar entry
 
@@ -111,194 +122,364 @@ child of Products.
 
 ### List page (`/offers`)
 
-- Layout: `SingleColumnPage hasOutlet` + one `Container className="divide-y p-0"`.
-- Header row: `<Heading>` "Offers" left, subtitle "Browse every
-  offer across all sellers"; no primary CTA (admin cannot create).
-- Search bar, ordering, and pagination wired through the existing
-  `_DataTable` primitive used by `StoreListDataTable` (page size
-  **20**, `keepPreviousData`).
-- Row click navigates to the detail page (`navigateTo={(row) => row.id}`).
-- Per-row `ActionMenu` (rightmost column) has a single action:
-  - **Open seller** → `to="/stores/${seller.id}"` (`BuildingStorefront`).
+**File map:** `packages/admin/src/pages/offers/offer-list-page.tsx`
++ `_components/*` + `common/constants.ts`. Folder shape mirrors
+SPEC-003 §Folder layout — actual.
 
-  Edit / Delete / Manage prices / Manage inventory are intentionally
-  absent. The detail page itself is the only "drill in" surface.
-- Bulk selection: `enableRowSelection: true`. Selection persists
-  across pagination but **only across rows belonging to the same
-  seller**. If the operator's current selection spans multiple
-  sellers, the bulk-delete command is disabled (with a tooltip
-  explaining the scope) because the bulk-delete endpoint is
-  `POST /admin/sellers/:id/offers/bulk-delete` — single-seller scoped.
-
-  The constraint is enforced client-side: `useDataTable`'s
-  `onRowSelectionChange` rejects the new selection if it would mix
-  sellers, and surfaces an inline `toast.warn` with copy
-  `offers.bulkDelete.crossSellerWarning`.
-- Bulk commands (rendered in the `_DataTable` command bar when at
-  least one row is selected):
-  - **Delete selected** (`Trash`, shortcut `d`). Opens
-    `usePrompt` confirmation:
-    `{ title: t("general.areYouSure"), description: t("offers.bulkDelete.description", { count, sellerName }), confirmText: t("actions.delete"), cancelText: t("actions.cancel"), variant: "danger" }`,
-    then calls `useBulkDeleteOffersForSeller(sellerId).mutateAsync(ids)`
-    which dispatches `POST /admin/sellers/:id/offers/bulk-delete`
-    with the selected ids in the request body.
-  - The endpoint returns `202 { job_id }`. The hook polls
-    `sdk.admin.jobs.$id.query({ $id: job_id })` at 2-second intervals
-    until the job reaches `succeeded` or `failed`, then invalidates
-    `offerQueryKeys.lists()` and toasts the outcome. The toast copy
-    differs for the two terminal states:
-    - `succeeded`: `offers.bulkDelete.successToast` `{{count}}` deleted.
-    - `failed`: `offers.bulkDelete.errorToast` with the job's error
-      summary.
-
-  Selection is cleared on success.
-- Empty states (via `_DataTable`'s built-in rendering):
-  - No offers anywhere: heading "No offers yet", description
-    "Vendors haven't published any offers on this marketplace yet.".
-  - Filtered to empty: heading "No matching offers", description
-    "Adjust filters or search terms.".
+- Layout: `SingleColumnPage` + one
+  `<Container className="divide-y p-0">` wrapping the
+  `OfferListHeader` and `OfferListDataTable` shells.
+- **Header row** (`OfferListHeader`): single
+  `<Heading>{t("offers.domain")}</Heading>` left-aligned. **No
+  primary CTA** — admin cannot create offers. (Differs from the
+  vendor header which has the **Create** button.) Optional subtitle
+  `<Text className="text-ui-fg-subtle">{t("offers.subtitle")}</Text>`
+  is wired but blank by default so the page matches the vendor
+  layout density.
+- Search bar, sort menu, pagination, filter popover, and bulk
+  command bar wired through the existing `_DataTable` primitive used
+  by `StoreListDataTable`. Page size **`OFFERS_PAGE_SIZE = 10`**
+  declared in `pages/offers/common/constants.ts` — matches the
+  shipped vendor value (SPEC-003 §Realignment).
+  `keepPreviousData: true` on the underlying query.
+- Row navigation: `navigateTo={(row) => row.id}` opens the detail
+  page. The select-cell checkbox calls `e.stopPropagation()` so
+  selection doesn't trigger row navigation (parity with
+  SPEC-003).
+- Per-row `ActionMenu` (rightmost column) carries a single action:
+  - **Open store** — `to: "/stores/${seller.id}"`, icon
+    `<BuildingStorefront />`, label `t("offers.actions.openStore")`.
+    Edit / Delete / Manage prices / Manage inventory are
+    intentionally absent — see **Scope and constraints**.
+- Bulk selection: `enableRowSelection: true` on `useDataTable`,
+  selection persisted across pagination via a controlled
+  `RowSelectionState`. **Cross-store constraint:** selection is
+  only allowed across rows belonging to the same store. When the
+  operator's pointer click would extend a selection across stores,
+  `onRowSelectionChange` rejects the new selection and surfaces an
+  inline `toast.warning(t("offers.bulkDelete.crossStoreWarning"))`.
+  The bulk-delete command is also `disabled` when the live
+  selection spans more than one `seller_id` (tooltip
+  `t("offers.bulkDelete.crossStoreTooltip")`).
+- Bulk command (rendered by `_DataTable` when at least one row is
+  selected):
+  - **Delete selected** — label `t("offers.actions.bulkDelete")`,
+    shortcut `d`, icon `<Trash />`. Opens `usePrompt` with
+    `{ title: t("general.areYouSure"), description: t("offers.bulkDelete.description", { count, storeName }), confirmText: t("actions.delete"), cancelText: t("actions.cancel"), variant: "danger" }`,
+    then calls
+    `useBulkDeleteOffersForSeller(sellerId).mutateAsync(offerIds)`
+    which dispatches
+    `POST /admin/sellers/:id/offers/bulk-delete`.
+  - The endpoint returns `202 { job_id }`. The list component pairs
+    the mutation with a `useJob(jobId)` poller (or the equivalent
+    helper admin already uses for long-running operations — if none
+    exists, a `useEffect`-based 2-second interval is acceptable).
+    On terminal state the poller invalidates
+    `offerQueryKeys.lists()`, clears the selection, and toasts:
+    - `succeeded`: `toast.success(t("offers.bulkDelete.successToast", { count }))`.
+    - `failed`: `toast.error(t("offers.bulkDelete.errorToast", { message }))`.
+- Empty states (consumed via `_DataTable`'s `noRecords` /
+  `noResults` slots, exactly like SPEC-003):
+  - No offers anywhere:
+    `noRecords={{ title: t("offers.empty.heading"), message: t("offers.empty.description") }}`.
+    No CTA (admin cannot create — the action is omitted, unlike
+    the vendor version that wires a **Create** button).
+  - Filtered-empty:
+    `noResults={{ title: t("offers.filtered.heading"), message: t("offers.filtered.description") }}`.
 
 ### Columns
 
-| Header           | Accessor / Source                                                                          | Cell                                                                                                |
-| ---------------- | ------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------- |
-| (selection)      | `display: "select"`                                                                        | Checkbox (header + row), stops propagation                                                          |
-| Seller           | `seller.name` (via `offer.seller` read-only link)                                          | `Avatar size="2xsmall"` + `<Text size="small" weight="plus">` truncated; subtitle = `seller.handle` |
-| Variant          | `variant.thumbnail` + `variant.product.title` / `variant.title`                            | Thumbnail + truncated `<Text weight="plus">` + product subtitle                                     |
-| SKU              | `sku`                                                                                      | Truncated monospaced text; `PlaceholderCell` if empty                                               |
-| Price            | Cheapest visible `price_set.prices[*]` rendered as `formatAmount(amount, currency_code)`   | Discounted + strikethrough original when a `PriceList` row applies. `PlaceholderCell` if none      |
-| Stock            | Effective stocked quantity (same computation as SPEC-003 list)                             | `StatusBadge` `in_stock` (green) / `low_stock` (orange) / `out_of_stock` (red) + numeric available  |
-| Shipping profile | `shipping_profile.name`                                                                    | Text + profile type subtitle (`<Text size="xsmall" className="text-ui-fg-subtle">`)                 |
-| Created          | `created_at`                                                                               | Relative date cell                                                                                  |
-| (actions)        | `display: "actions"`                                                                       | Row `ActionMenu` (single action: Open seller)                                                       |
+**File:** `_components/use-offer-table-columns.tsx`. Column set
+mirrors SPEC-003's **shipped** vendor list (Realignment block) with
+one admin-only addition — the **Store** column — placed between
+`select` and `title`:
 
-Stock computation reuses the helper introduced by SPEC-003
-(`pages/offers/common/utils.ts → computeEffectiveStock`); the file
-lives in the admin package's `pages/offers/common/utils.ts` and is
-identical to the vendor copy. If duplication becomes a maintenance
-burden, a future spec moves the helper into `@mercurjs/dashboard-shared`.
+| id | Header i18n key | Source | Cell |
+| --- | --- | --- | --- |
+| `select` | (none) | `display: "select"` | Checkbox header + row; `e.stopPropagation()` on row checkbox. |
+| `store` | `t("offers.fields.store")` | `seller.name`, `seller.handle` | `Avatar size="2xsmall" fallback={seller.name?.[0]}` + `<Text size="small" weight="plus">{seller.name}</Text>` with subtitle `<Text size="xsmall" className="text-ui-fg-subtle">{seller.handle}</Text>`. `PlaceholderCell` if `seller` is missing. **Admin-only column** — no vendor equivalent. |
+| `title` | `t("fields.title")` | `product_variant.title`, `product_variant.product.thumbnail`, `product_variant.product.title` | 24×24 `<Thumbnail src={product?.thumbnail} />` + truncated `<Text size="small" weight="plus" leading="compact">{variant.title}</Text>` with the product title carried in the cell's `title=` attribute (parity with vendor). |
+| `categories` | `<CategoryHeader />` | `product_variant.product.categories` | `<CategoryCell categories={categories} />` (lifted from `components/table/table-cells/product/category-cell`). |
+| `sku` | `t("offers.fields.sku")` | `offer.sku` | Truncated `<Text size="small" leading="compact">`; `PlaceholderCell` if empty. |
+| `shipping_profile` | `t("shippingProfile.domain")` | `shipping_profile.name` | Truncated `<Text size="small" leading="compact">`; `PlaceholderCell` if empty. |
+| `status` | `<ProductStatusHeader />` | `product_variant.product.status` | `<ProductStatusCell status={status} />`. |
+| `actions` | (none) | `display: "actions"` | Row `ActionMenu` with the single **Open store** action above. |
+
+Notes:
+
+- The **Store** column is the only structural addition vs the
+  vendor column set. Position is `select → store → title → …` so
+  the store is the first identifying piece of data the operator
+  sees on every row.
+- No Price / Stock / Created column — same rationale as SPEC-003
+  shipped: those concerns surface on the detail page, not the
+  list.
+- Every header string goes through `t(…)`. No literal text.
 
 ### Filters
 
-`useOfferTableFilters` returns:
+**File:** `_components/use-offer-table-filters.tsx`. Filter set
+mirrors SPEC-003's **shipped** vendor filters plus the admin-only
+**Store** filter:
 
-- **Seller** — multi-select async combobox backed by
-  `sdk.admin.sellers.query`. Routes through `seller_id[]`.
-- **Variant** — multi-select async combobox backed by
-  `sdk.admin.products.query`; the helper expands selected products
-  to their variant ids (client-side, then sends `variant_id[]`).
-- **Shipping profile** — multi-select from
-  `sdk.admin.shippingProfiles.query`.
-- **Stock status** — fixed enum applied client-side (parity with
-  SPEC-003 §Filters until the route exposes a server-side filter).
-- **Created at** / **Updated at** — date range using the standard
-  helper.
+- **Store** — `type: "select"`, `key: "seller_id"`, `multiple: true`,
+  `searchable: true`. Options backed by
+  `useSellers({ limit: 1000 })` → each `{ value: seller.id, label: seller.name ?? seller.id }`.
+  Label `t("offers.fields.store")`. **Admin-only filter** — no
+  vendor equivalent.
+- **Shipping profile** — `type: "select"`, `key: "shipping_profile_id"`,
+  `multiple: true`, `searchable: true`. Options backed by
+  `useShippingProfiles({ limit: 1000 })`. Label
+  `t("shippingProfile.domain")`. (Direct port from SPEC-003.)
+- **SKU** — `type: "string"`, `key: "sku"`. Label
+  `t("offers.fields.sku")`. (Direct port from SPEC-003.)
+- **Created at** — `type: "date"`, `key: "created_at"`. Label
+  `t("fields.createdAt")`.
+- **Updated at** — `type: "date"`, `key: "updated_at"`. Label
+  `t("fields.updatedAt")`.
 
-Ordering supports `sku`, `created_at`, `updated_at`. Default sort
-is `created_at DESC`.
+Variant filter and Stock-status filter from the older draft are
+**not** included — same rationale as SPEC-003 §Realignment
+(variant filter is a round-trip the admin doesn't need; stock
+status would require a client-side aggregate the offer module
+doesn't expose). Both are recorded under **Known follow-ups**.
+
+### Sort menu
+
+**File:** `_components/offer-list-data-table.tsx`. The `orderBy`
+prop on `_DataTable` carries three keys — same shape as the
+shipped vendor list:
+
+```tsx
+orderBy={[
+  { key: "title",      label: t("fields.title") },
+  { key: "created_at", label: t("fields.createdAt") },
+  { key: "updated_at", label: t("fields.updatedAt") },
+]}
+```
+
+Default sort: `created_at DESC` (admin operators almost always want
+"newest first" across the marketplace). The `title` key is wired
+through `order=` but the backend offers list route does not yet
+expose a title column — known follow-up under SPEC-002 query
+params, same caveat as the vendor side carries.
 
 ### Detail page (`/offers/:id`)
 
-Layout: `TwoColumnPage<HttpTypes.AdminOfferResponse["offer"]>` with
-`showJSON`, `showMetadata`, and an `<Outlet />` for nested routes
-(currently empty — included for future audit-log expansion).
+**File map:** `packages/admin/src/pages/offers/[id]/offer-detail-page.tsx`
++ `_components/{offer-general-section,offer-inventory-section,offer-pricing-section,offer-variant-section,offer-store-sidebar,offer-audit-log-section}.tsx`
++ `loader.ts` + `breadcrumb.tsx`. Folder shape mirrors SPEC-003's
+shipped detail folder — admin adds two extra section files
+(`offer-store-sidebar.tsx`, `offer-audit-log-section.tsx`).
 
-Main column (top to bottom, each `<Container className="divide-y p-0">`):
+- Layout: `TwoColumnPage<OfferDetail>` with `hasOutlet`,
+  `data={typedOffer}`, and `showJSON` / `showMetadata` **omitted**
+  (defaults to false) — matches SPEC-003 §Realignment. The JSON
+  viewer + metadata footer do not render on this page.
+- Page heading is the **variant title**
+  (`offer.product_variant?.title`), with `data-testid="offer-detail-general-section"`
+  on the General container — parity with SPEC-003 §Realignment, not
+  the older "page title is the SKU" draft.
 
-1. **General** — header row `<Heading>` "General" with **no action
-   menu**. Body rows:
-   - Seller — links to `/stores/${seller.id}`
-   - SKU
-   - Master variant — links to `/products/${variant.product_id}`
-   - EAN / UPC — snapshot from the variant at create time
-   - Created at / Updated at
+**Main column** (top to bottom, each
+`<Container className="divide-y p-0">`):
 
-2. **Pricing** — header row `<Heading>` "Pricing", no actions. Body
-   is an embedded read-only table over `price_set.prices`:
-   - Amount + currency (formatted)
-   - Region (`PriceRule { region_id }`, "—" if none)
-   - Customer group (`PriceRule { customer_group_id }`, "—" if none)
-   - Min qty / Max qty
-   - Price list (badge if the row belongs to a `PriceList`, "Base" otherwise)
+1. **General** (`_components/offer-general-section.tsx`):
+   - Header row: `<Heading title={variantTitle}>{variantTitle}</Heading>`.
+     Kit icon (`<Component />`) renders next to the heading when
+     `inventory_item_link.length > 1` (parity with vendor).
+   - **No action menu.** Admin is read-only. The vendor's Edit +
+     Delete menu is omitted entirely from this section header.
+   - Body `SectionRow`s in this order:
+     - `t("offers.fields.store")` → `seller.name` rendered as a
+       `<Link to="/stores/${seller.id}">` inside the row value.
+       Admin-only row; vendor's General section has no store row.
+     - `t("offers.fields.sku")` → `offer.sku ?? "-"`.
+     - `t("offers.fields.ean")` → `offer.ean ?? "-"`.
+     - `t("offers.fields.upc")` → `offer.upc ?? "-"`.
+     - `t("shippingProfile.domain")` → `offer.shipping_profile?.name ?? "-"`.
+     - `t("fields.createdAt")` → formatted via `Intl.DateTimeFormat`
+       (same helper SPEC-003 §Realignment uses).
+     - `t("fields.updatedAt")` → same.
 
-3. **Inventory items** — header row `<Heading>` "Inventory items",
-   no actions. Body: one row per `inventory_items[]` link entry,
-   identical to the vendor detail page's rows but with the SKU /
-   title cell linking to `/inventory/${id}` in the admin namespace.
+2. **Inventory items** (`_components/offer-inventory-section.tsx`):
+   - Header row:
+     `<Heading level="h2">{t("offers.detail.inventoryItems")}</Heading>`.
+     **No action menu.** The vendor's `Manage inventory` action is
+     not exposed to the admin.
+   - Body: `_DataTable` over `inventory_item_link[].inventory_item`,
+     columns `t("fields.title")` / `t("offers.fields.sku")` /
+     `t("offers.fields.requiredQuantity")` / `t("inventory.available")` /
+     `actions`. The actions cell carries a single
+     `t("offers.detail.goToInventoryItem")` row action that
+     navigates to `/inventory/${inventory_item.id}` (admin
+     namespace). Inventory cell renders in `text-ui-fg-error` when
+     summed `available_quantity === 0`. Same shape as SPEC-003
+     §Realignment, just under `sdk.admin.*`.
 
-4. **Audit log** — header row `<Heading>` "Audit log". Body: a
-   compact list of `audit_log` entries returned by
-   `GET /admin/offers/:id` (`{ at, actor, action, summary }`).
-   - Each row: `<Text weight="plus">${action}</Text>`,
-     `<Text size="small" className="text-ui-fg-subtle">${summary}</Text>`,
-     and `<Text size="xsmall" className="text-ui-fg-muted">${formatDate(at)} · ${actor}</Text>`.
-   - Empty state: "No audit entries yet.". The audit log is the
-     primary reason this detail page exists at the admin level —
-     vendors do not have one.
+3. **Audit log** (`_components/offer-audit-log-section.tsx`) —
+   **admin-only section, no vendor equivalent.**
+   - Header row:
+     `<Heading level="h2">{t("offers.detail.auditLog")}</Heading>`.
+     No action menu.
+   - Body: a compact list of `audit_log` entries returned by
+     `GET /admin/offers/:id`. Each entry assumed
+     `{ at, actor, action, summary }` (see **Audit log shape** in
+     Notes — if SPEC-002 lands a different shape, update the
+     section).
+   - Row layout:
+     `<Text weight="plus">{action}</Text>`,
+     `<Text size="small" className="text-ui-fg-subtle">{summary}</Text>`,
+     `<Text size="xsmall" className="text-ui-fg-muted">{formatDate(at)} · {actor}</Text>`.
+   - Empty state: `t("offers.detail.auditLogEmpty")`.
 
-Sidebar column (right):
+**Sidebar column** (top to bottom):
 
-- **Status** card: effective stock badge + numeric available;
-  soft-delete state if applicable.
-- **Seller** card: avatar + name + handle; primary
-  `Button variant="secondary" size="small" asChild` "Open seller"
-  linking to `/stores/${seller.id}`.
-- **Shipping profile** card: profile name + link to
-  `/settings/shipping-profiles/${id}`.
-- Default `MetadataSection` and `JsonViewSection`.
+1. **Master variant** (`_components/offer-variant-section.tsx`) —
+   identical shape to SPEC-003 §Realignment: single clickable card
+   lifted from the admin `InventoryItemVariantsSection` Pattern A.
+   Card contents: `<Thumbnail src={variant.product?.thumbnail} />`,
+   title `variant.product?.title ?? variant.title`, subtitle
+   joining `variant.options?.map(o => o.value)` with `⋅`, trailing
+   `<TriangleRightMini />` chevron. Card wrapper:
+   `<Link to="/products/${variant.product_id}/variants/${variant.id}">`.
+   Section header
+   `<Heading level="h2">{t("offers.detail.masterVariant")}</Heading>`,
+   no action menu.
 
-Loader: `loader.ts` calls
-`sdk.admin.offers.$id.query({ $id, fields })` with the same field
-list SPEC-003 uses, plus `audit_log` (the field is returned by
-`GET /admin/offers/:id` only — vendor reads do not include it):
+2. **Store** (`_components/offer-store-sidebar.tsx`) —
+   **admin-only section, no vendor equivalent.** Single card
+   following the same Pattern A shape as the Master variant card so
+   the sidebar reads as two stacked profile cards. Card contents:
+   - `<Avatar size="small" fallback={seller.name?.[0]}>` (the
+     seller module already carries an optional avatar; fall back
+     to the initial letter when missing).
+   - Title row: `seller.name`.
+   - Subtitle row: `seller.handle`.
+   - Trailing `<TriangleRightMini />` chevron.
+   - Wrapper: `<Link to="/stores/${seller.id}">`.
+
+   Section header
+   `<Heading level="h2">{t("offers.detail.store")}</Heading>`, no
+   action menu. `data-testid` set:
+   `offer-detail-store-sidebar`, `offer-detail-store-link`,
+   `offer-detail-store-avatar`, `offer-detail-store-name`,
+   `offer-detail-store-handle`.
+
+3. **Prices** (`_components/offer-pricing-section.tsx`) — identical
+   shape to SPEC-003 §Realignment: collapsible list of currency /
+   amount rows, **`PAGE_STEP = 3`** visible initially, `Show more`
+   (label `t("actions.showMore")`) reveals 3 at a time. Filters out
+   price ladders whose `rules_count > 0`. Section header
+   `<Heading level="h2">{t("labels.prices")}</Heading>`. **No
+   action menu** — admin cannot edit prices.
+
+The older Status / Shipping / JSON / Metadata sidebar sections from
+the first-cut draft are **not** included — matches SPEC-003
+§Realignment. Stock status surfaces inside the Inventory table's
+`Inventory` cell (red when `available === 0`); shipping profile
+collapses into a `SectionRow` inside General; metadata + JSON
+viewer are not rendered because `showJSON` / `showMetadata` are
+omitted from the `TwoColumnPage`.
+
+**Loader (`[id]/loader.ts`)** calls
+`sdk.admin.offers.$id.query({ $id, fields: OFFER_DETAIL_FIELDS })`.
+The `OFFER_DETAIL_FIELDS` constant in `common/constants.ts` is an
+explicit comma-joined column list (not a wildcard string) — same
+shape SPEC-003 §Realignment uses for the vendor loader, plus the
+admin-only additions:
 
 ```
-*price_set,*price_set.prices,*price_set.prices.price_rules,
-*shipping_profile,*variant,*variant.product,
-*seller,
-*inventory_items,*inventory_items.inventory,
-*inventory_items.inventory.location_levels,
+id,sku,ean,upc,variant_id,seller_id,shipping_profile_id,
+price_set_id,metadata,created_at,updated_at,deleted_at,
+product_variant.id,product_variant.title,product_variant.sku,
+product_variant.product_id,product_variant.product.id,
+product_variant.product.title,product_variant.product.thumbnail,
+product_variant.options.id,product_variant.options.value,
+shipping_profile.id,shipping_profile.name,shipping_profile.type,
+price_set.id,price_set.prices.id,price_set.prices.amount,
+price_set.prices.currency_code,price_set.prices.min_quantity,
+price_set.prices.max_quantity,price_set.prices.rules_count,
+price_set.prices.price_rules.attribute,price_set.prices.price_rules.value,
+inventory_item_link.id,inventory_item_link.required_quantity,
+inventory_item_link.inventory_item_id,
+inventory_item_link.inventory_item.id,
+inventory_item_link.inventory_item.sku,
+inventory_item_link.inventory_item.title,
+inventory_item_link.inventory_item.location_levels.id,
+inventory_item_link.inventory_item.location_levels.location_id,
+inventory_item_link.inventory_item.location_levels.stocked_quantity,
+inventory_item_link.inventory_item.location_levels.reserved_quantity,
+inventory_item_link.inventory_item.location_levels.incoming_quantity,
+inventory_item_link.inventory_item.location_levels.available_quantity,
+seller.id,seller.name,seller.handle,seller.email,
 audit_log
 ```
 
-Errors `throw` so the route-level `ErrorBoundary` renders the fallback.
+Two relations only present in the admin shape:
 
-### Seller-scoped offer slice
+- `seller.*` — drives the General section's Store row and the
+  sidebar Store card.
+- `audit_log` — returned by `GET /admin/offers/:id` only (vendor
+  reads omit it; see SPEC-002 §Endpoint Contracts).
+
+`OFFER_LIST_FIELDS` (also in `common/constants.ts`) is narrower —
+fetches just the columns the list table renders: variant + product
+identity (title, thumbnail, status, categories) + shipping profile
++ seller (id, name, handle) + offer timestamps. No collection /
+inventory / price fields.
+
+Errors `throw` inside `Root` so the route-level `ErrorBoundary`
+renders the fallback.
+
+### Store-scoped offer slice (store detail page)
 
 The store detail page (`pages/stores/store-details`) gains a new
 **Offers** section, modelled after the existing `StoreOrdersSection`
 (`packages/admin/src/pages/stores/store-details/components/store-orders-section.tsx`).
 
-```
-pages/stores/store-details/components/store-offers-section.tsx
-```
+**File:** `pages/stores/store-details/components/store-offers-section.tsx` (new).
 
-- `<Container className="divide-y p-0">`, header row "Offers" with
-  the seller's offer count, a secondary `Button asChild`
-  "View all" linking to `/offers?seller_id=${sellerId}`, and an
-  `ActionMenu` carrying a single destructive action:
-  - **Bulk delete catalog** → opens a confirmation prompt with
-    `offers.bulkDeleteAll.description` and calls
-    `useBulkDeleteOffersForSeller(sellerId)` with the full id set
-    returned by the section's current query (or with the wildcard
-    `{ all: true }` form once SPEC-002 documents one — until then
-    the UI sends the explicit id array).
-- Embedded `_DataTable` reusing the same column set as the main
-  list (minus the Seller column, since the section is already
-  scoped). Page size **10** (matches `StoreOrdersSection`'s
-  precedent).
-- Empty state: "This seller has no offers yet.".
+- Wrapper `<Container className="divide-y p-0">`. Header row uses
+  the standard
+  `flex items-center justify-between px-6 py-4` layout:
+  - Left: `<Heading level="h2">{t("offers.sellerSection.heading")}</Heading>`
+    + `<Text size="small" className="text-ui-fg-subtle">{count} {t("offers.domain")}</Text>`.
+  - Right cluster (`gap-x-2`):
+    - `<Button size="small" variant="secondary" asChild>` wrapping a
+      `<Link to="/offers?seller_id=${sellerId}">` →
+      `t("offers.sellerSection.viewAll")`.
+    - `<ActionMenu>` with one destructive group:
+      - `t("offers.sellerSection.bulkDeleteAll")` →
+        opens `usePrompt` with description
+        `t("offers.bulkDeleteAll.description", { storeName })` and
+        calls
+        `useBulkDeleteOffersForSeller(sellerId).mutateAsync(allOfferIds)`
+        where `allOfferIds` is the full id list returned by the
+        section's current query. If SPEC-002 later adds a wildcard
+        `{ all: true }` form, the section migrates to that.
+- Body: an embedded `_DataTable` reusing
+  `useOfferTableColumns()` **without the `store` column** (the
+  section is already store-scoped so showing the seller again would
+  be redundant). The hook returns the full set; the section filters
+  it via `.filter((c) => c.id !== "store")` so the column ordering
+  stays in lock-step with the main list.
+  - Page size **`STORE_OFFERS_SECTION_PAGE_SIZE = 10`** (matches
+    `StoreOrdersSection`'s precedent).
+- Empty state: `t("offers.sellerSection.empty")`.
 
-This gives the operator a single place to triage a seller's catalog
-without leaving the seller detail page.
+This is the operator's single triage surface for a store's catalog
+without leaving the store detail page.
 
 ## Data layer
 
 ### Hooks file
 
 `packages/admin/src/hooks/api/offers.tsx` (new). Mirrors the
-read-only shape of admin's existing per-domain hook files (e.g.
-`hooks/api/sellers.tsx`):
+**read-only** shape of admin's existing per-domain hook files (e.g.
+`hooks/api/sellers.tsx`). No create / update / batch hooks — the
+admin surface is read-only. Only `useBulkDeleteOffersForSeller`
+mutates.
 
 ```ts
 import {
@@ -354,6 +535,13 @@ through a `useJob(jobId)` poller (or whatever job-poll helper admin
 already uses for long-running operations; if none exists, a
 `useEffect`-based interval is acceptable).
 
+The vendor side ships extra hooks (`useCreateOffer`,
+`useBulkCreateOffers`, `useUpdateOffer`,
+`useBatchOfferInventoryItems`, `useDeleteOffer`,
+`useBulkDeleteOffers`) — **none of them have an admin equivalent.**
+Operators get exactly three hooks: `useOffers`, `useOffer`,
+`useBulkDeleteOffersForSeller`.
+
 ### SDK namespace
 
 All calls go through `sdk.admin.*`. No `fetch` calls anywhere in
@@ -361,44 +549,61 @@ the page tree.
 
 ## Folder layout
 
+Mirrors SPEC-003's shipped folder layout (admin variant), with the
+`[id]/{edit,pricing,inventory}` write surfaces removed and two
+extra detail sections added (`offer-store-sidebar.tsx`,
+`offer-audit-log-section.tsx`):
+
 ```
 packages/admin/src/pages/offers/
   index.ts                                 barrel
-  offer-list-page.tsx                      compound root, SingleColumnPage hasOutlet
-  components/
-    offer-list-table/
-      index.ts
-      offer-list-table.tsx                 Container shell
-      offer-list-header.tsx                title + (no CTA)
-      offer-list-data-table.tsx            _DataTable wiring + bulk commands
-      offer-actions.tsx                    row ActionMenu (Open seller)
-      use-offer-table-columns.tsx
-      use-offer-table-filters.tsx
-      use-offer-table-query.tsx
+  offer-list-page.tsx                      compound root, SingleColumnPage
   common/
-    constants.ts                           PAGE_SIZE = 20, OFFER_IDS_KEY
-    utils.ts                               computeEffectiveStock, getStockStatusProps
-  offer-detail/
+    constants.ts                           OFFERS_PAGE_SIZE = 10,
+                                            STORE_OFFERS_SECTION_PAGE_SIZE = 10,
+                                            OFFER_IDS_KEY, OFFER_DETAIL_FIELDS,
+                                            OFFER_LIST_FIELDS
+    types.ts                               OfferDetail type alias
+    utils.ts
+  _components/
     index.ts
-    offer-detail.tsx                       compound root, TwoColumnPage
+    offer-list-table.tsx                   Container shell
+    offer-list-header.tsx                  Heading; no CTA
+    offer-list-data-table.tsx              _DataTable wiring + bulk command
+    offer-actions.tsx                      row ActionMenu (Open store)
+    use-offer-table-columns.tsx
+    use-offer-table-filters.tsx
+    use-offer-table-query.tsx
+  [id]/
+    index.ts
+    offer-detail-page.tsx                  compound root, TwoColumnPage hasOutlet
     breadcrumb.tsx
     loader.ts
-    components/
+    _components/
+      index.ts
       offer-general-section.tsx
-      offer-pricing-section.tsx
       offer-inventory-section.tsx
-      offer-audit-log-section.tsx
-      offer-shipping-section.tsx
-      offer-status-sidebar.tsx
-      offer-seller-sidebar.tsx
+      offer-pricing-section.tsx
+      offer-variant-section.tsx            Master variant card (Pattern A)
+      offer-store-sidebar.tsx              ADMIN-ONLY: Store card (Pattern A)
+      offer-audit-log-section.tsx          ADMIN-ONLY: audit log main-column section
 ```
 
-Plus the seller-detail addition:
+Plus the store-detail addition:
 
 ```
 packages/admin/src/pages/stores/store-details/components/
   store-offers-section.tsx                 (new)
 ```
+
+Folder shape **deltas vs SPEC-003 shipped vendor layout**:
+
+- `[id]/edit/`, `[id]/pricing/`, `[id]/inventory/` are **absent**
+  — no write affordances.
+- `[id]/_components/offer-store-sidebar.tsx` and
+  `[id]/_components/offer-audit-log-section.tsx` are **new**, no
+  vendor equivalent.
+- `create/` is **absent** — admin cannot create offers.
 
 ## Variant-scoped UI to remove (admin)
 
@@ -682,107 +887,128 @@ deletions owned by SPEC-002:
 ```tsx
 {
   path: "/offers",
-  lazy: () => import("./pages/offers").then((m) => ({ Component: m.OfferListPage })),
+  lazy: () =>
+    import("./pages/offers").then((m) => ({ Component: m.OfferListPage })),
   children: [
     {
       path: ":id",
-      lazy: () => import("./pages/offers/offer-detail"),
+      lazy: () => import("./pages/offers/[id]"),
       handle: { breadcrumb: BreadcrumbFromLoader },
       loader: (...args) =>
-        import("./pages/offers/offer-detail/loader").then((m) => m.loader(...args)),
+        import("./pages/offers/[id]/loader").then((m) => m.loader(...args)),
     },
   ],
 },
 ```
 
-No `create`, `edit`, `pricing`, or `inventory` child routes — the
-admin surface is read-only.
+No `create`, `edit`, `pricing`, or `inventory` child routes — admin
+is read-only. Folder name is `[id]/` (mirrors SPEC-003 §Realignment
+shipped vendor folder), not the older `offer-detail/`.
 
 ## Compound exports
+
+Mirrors SPEC-003's shipped compound shape, with the admin-only
+sidebar Store card and main-column Audit log slot added. The
+vendor's `Shipping` / `StatusSidebar` parts that the older draft
+listed are **absent** here too — shipping profile is a `SectionRow`
+inside General and stock status is the Inventory cell colour.
 
 ```ts
 export const OfferListPage = Object.assign(Root, {
   Table: OfferListTable,
   Header: OfferListHeader,
   HeaderTitle: OfferListTitle,
-  HeaderActions: OfferListActions,           // empty by default; here so blocks can extend
+  HeaderActions: OfferListActions, // empty by default; blocks can extend
   DataTable: OfferListDataTable,
 })
 
 export const OfferDetailPage = Object.assign(Root, {
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
   General: OfferGeneralSection,
-  Pricing: OfferPricingSection,
   Inventory: OfferInventorySection,
-  AuditLog: OfferAuditLogSection,
-  Shipping: OfferShippingSection,
-  StatusSidebar: OfferStatusSidebar,
-  SellerSidebar: OfferSellerSidebar,
+  AuditLog: OfferAuditLogSection,   // admin-only
+  Variant: OfferVariantSection,
+  StoreSidebar: OfferStoreSidebar,  // admin-only
+  Pricing: OfferPricingSection,
 })
 ```
 
 ## i18n keys
 
 Added to `packages/admin/src/i18n/translations/en.json` first;
-sister locale files updated as part of the per-locale sweep. Many
-keys overlap with SPEC-003's vendor namespace (e.g. `offers.domain`,
-`offers.fields.*`, `offers.stockStatus.*`). Those overlap is fine —
-admin and vendor each ship their own translation files and do not
-share namespaces.
+sister locale files updated as part of the per-locale sweep.
+**Every visible string on the new pages goes through `t(...)`** —
+no literal text in JSX, no inline English copy in component
+defaults. The admin `offers.*` namespace overlaps with the vendor
+namespace by intent (so operators and sellers see consistent
+labels for the same concepts), but the admin namespace also adds
+`offers.fields.store`, `offers.detail.store`,
+`offers.actions.openStore`, `offers.detail.auditLog*`,
+`offers.bulkDelete.crossStore*`, and the
+`offers.sellerSection.*` keys that the vendor never needs.
 
-```
+```jsonc
 "offers": {
   "domain": "Offers",
-  "subtitle": "Browse every offer across all sellers",
-  "list": {
-    "empty": {
-      "heading": "No offers yet",
-      "description": "Vendors haven't published any offers on this marketplace yet."
-    },
-    "filtered": {
-      "heading": "No matching offers",
-      "description": "Adjust filters or search terms."
-    }
+  "subtitle": "Browse every offer across all stores",
+
+  "empty": {
+    "heading": "No offers yet",
+    "description": "Stores haven't published any offers on this marketplace yet."
   },
+  "filtered": {
+    "heading": "No matching offers",
+    "description": "Adjust filters or search terms."
+  },
+
+  "actions": {
+    "openStore": "Open store",
+    "bulkDelete": "Delete selected"
+  },
+
+  "fields": {
+    "store": "Store",
+    "sku": "SKU",
+    "variant": "Master variant",
+    "ean": "EAN",
+    "upc": "UPC",
+    "shippingProfile": "Shipping profile",
+    "requiredQuantity": "Required quantity",
+    "stockStatus": "Stock status"
+  },
+
   "detail": {
-    "general": "General",
-    "pricing": "Pricing",
-    "inventory": "Inventory items",
+    "offerLabel": "Offer",
+    "masterVariant": "Master variant",
+    "store": "Store",
+    "inventoryItems": "Inventory items",
     "auditLog": "Audit log",
-    "auditLog.empty": "No audit entries yet.",
-    "shipping": "Shipping profile",
-    "openSeller": "Open seller"
+    "auditLogEmpty": "No audit entries yet.",
+    "goToInventoryItem": "Go to inventory item",
+    "manageKit": "Inventory kit"
   },
+
   "bulkDelete": {
-    "description": "You are about to delete {{count}} offer(s) from {{sellerName}}. This cannot be undone.",
+    "description": "You are about to delete {{count}} offer(s) from {{storeName}}. This cannot be undone.",
     "successToast": "Deleted {{count}} offer(s)",
     "errorToast": "Bulk delete failed: {{message}}",
-    "crossSellerWarning": "Select offers from one seller at a time. Bulk delete is scoped per seller."
+    "crossStoreWarning": "Select offers from one store at a time. Bulk delete is scoped per store.",
+    "crossStoreTooltip": "Bulk delete only works within one store."
   },
+
   "bulkDeleteAll": {
-    "description": "You are about to delete every offer for {{sellerName}}. This cannot be undone.",
+    "description": "You are about to delete every offer for {{storeName}}. This cannot be undone.",
     "actionLabel": "Delete catalog"
   },
+
   "sellerSection": {
     "heading": "Offers",
     "viewAll": "View all",
-    "empty": "This seller has no offers yet."
+    "bulkDeleteAll": "Delete catalog",
+    "empty": "This store has no offers yet."
   },
-  "actions": {
-    "openSeller": "Open seller",
-    "bulkDelete": "Delete selected"
-  },
-  "fields": {
-    "seller": "Seller",
-    "sku": "SKU",
-    "variant": "Master variant",
-    "shippingProfile": "Shipping profile",
-    "ean": "EAN",
-    "upc": "UPC",
-    "requiredQuantity": "Required quantity",
-    "stockStatus": "Stock status",
-    "createdAt": "Created at",
-    "updatedAt": "Updated at"
-  },
+
   "stockStatus": {
     "in_stock": "In stock",
     "low_stock": "Low stock",
@@ -791,54 +1017,125 @@ share namespaces.
 }
 ```
 
+Reused keys (already present in the admin translation file from
+sibling pages — referenced but not re-declared above):
+`fields.title`, `fields.createdAt`, `fields.updatedAt`,
+`labels.prices`, `actions.delete`, `actions.cancel`,
+`actions.showMore`, `general.areYouSure`, `shippingProfile.domain`,
+`inventory.available`, `products.domain`, `collections.domain`,
+`categories.domain`.
+
+Naming convention:
+
+- The user-facing word for the seller entity is **"Store"**, not
+  "Seller" — matches SPEC-003's "Store everywhere user-facing"
+  policy from the 2026-05-21 Figma redesign. Internal field /
+  variable names (`seller_id`, `useSellers`, `useBulkDeleteOffersForSeller`)
+  stay on the backend term; user-visible labels read **Store**.
+- Removed (vs the older draft of this spec): `offers.actions.openSeller`,
+  `offers.fields.seller`, `offers.bulkDelete.crossSellerWarning`,
+  `offers.list.empty.*`, `offers.list.filtered.*`,
+  `offers.detail.general|pricing|inventory|shipping`,
+  `offers.detail.openSeller`. Replaced with the keys above so the
+  shape lines up with SPEC-003's shipped namespace.
+
 ## Verification
 
 1. `bun install && bun run build` succeeds with the new pages and
    hooks (`packages/admin` compiles cleanly with `bun run lint`).
-2. With a seeded marketplace (at least two sellers, each with one
+   `bunx vitest run packages/admin/src/i18n/translations/__tests__/validate-translations.spec.ts`
+   stays green after the new `offers.*` keys land in `en.json` and
+   the regenerated `$schema.json`.
+2. With a seeded marketplace (at least two stores, each with one
    product variant and one offer), log into the admin panel as an
    operator.
-   1. Sidebar shows **Offers** nested under Products.
-   2. `/offers` renders both sellers' offers in one list. No
-      "Create offer" CTA is present in the header.
-3. List interactions:
-   1. Filter by Seller → only that seller's offers remain.
-   2. Filter by Variant → list filters correctly.
-   3. Search by partial `sku` → list filters correctly.
-   4. Sort by `updated_at DESC` → most recent on top.
+   1. Sidebar shows `t("offers.domain")` nested under
+      `t("products.domain")` as the first child of Products.
+   2. `/offers` renders both stores' offers in one list. No "Create"
+      CTA is present in the header (admin is read-only). Empty-state
+      heading reads `t("offers.empty.heading")` when no offers exist
+      anywhere.
+3. List columns and interactions:
+   1. The column order reads
+      **select / Store / Title / Categories / SKU / Shipping
+      profile / Status / actions**, with `Store` rendering an
+      avatar + store name + handle subtitle.
+   2. Filter by **Store** (`offers.fields.store` label, backed by
+      `useSellers`) → only that store's offers remain.
+   3. Filter by **Shipping profile** → list filters correctly.
+   4. Filter by **SKU** (string filter) → list filters by SKU
+      substring.
+   5. Sort menu offers Title / Created at / Updated at with
+      ascending / descending toggle. Default is
+      `created_at DESC`; most recent offer is first.
+   6. Pagination footer reads
+      `1 — 10 of {N} results` (page size 10).
 4. Bulk delete:
-   1. Select two rows from seller A. Bulk-delete command is
-      enabled. Click it, confirm in the prompt. The list polls the
-      job, then toasts `offers.bulkDelete.successToast` with
-      `count = 2` and clears selection. Both rows vanish.
-   2. Try to select a row from seller A together with a row from
-      seller B. The cross-seller toast warns and the bulk-delete
-      command stays disabled.
+   1. Select two rows that share a `seller_id`. The
+      `t("offers.actions.bulkDelete")` command becomes enabled.
+      Trigger it, confirm in the prompt (description renders
+      `t("offers.bulkDelete.description", { count: 2, storeName })`).
+      The list polls the returned `job_id`; on `succeeded` it toasts
+      `t("offers.bulkDelete.successToast", { count: 2 })` and clears
+      the selection. Both rows vanish.
+   2. Attempt to extend the selection to a row that belongs to a
+      different `seller_id`. The selection change is rejected and a
+      `toast.warning(t("offers.bulkDelete.crossStoreWarning"))`
+      fires. If the operator coerces the selection to span stores,
+      the bulk-delete command stays `disabled` with tooltip
+      `t("offers.bulkDelete.crossStoreTooltip")`.
 5. Detail page:
-   1. From the list, click a row. Detail page renders General,
-      Pricing, Inventory items, Audit log, plus the sidebar Status
-      / Seller / Shipping cards.
-   2. Audit log shows at least the `created` entry.
-   3. No edit / delete / manage-prices / manage-inventory affordances
-      are present.
-   4. "Open seller" CTA navigates to `/stores/${seller.id}`.
-6. Seller-scoped slice:
-   1. On `/stores/${seller.id}`, the **Offers** section renders that
-      seller's offers (paginated at 10). "View all" navigates to
-      `/offers?seller_id=${sellerId}` and the list applies the
-      seller filter.
-   2. The section's `ActionMenu` exposes **Delete catalog**.
-      Triggering it (and confirming the prompt) bulk-deletes every
-      offer for that seller. After the job succeeds the section
-      empties out with the empty-state copy.
-7. Integration tests: the admin contracts (`GET /admin/offers`,
+   1. From the list, click a row. The page heading is the master
+      variant title; the General `<Container>` carries
+      `data-testid="offer-detail-general-section"`.
+   2. Main column renders **General** (with a `Store` SectionRow
+      linking to `/stores/${seller.id}`, SKU / EAN / UPC /
+      Shipping profile / Created at / Updated at rows; kit icon
+      next to the heading if `inventory_item_link.length > 1`),
+      **Inventory items** (`_DataTable` over the offer's inventory
+      item links with a per-row "Go to inventory item" action;
+      inventory cell red when `available === 0`), and **Audit log**
+      (one row per `audit_log[]` entry; empty-state copy
+      `t("offers.detail.auditLogEmpty")`).
+   3. Sidebar renders three stacked cards in this order:
+      **Master variant** (links to
+      `/products/<product_id>/variants/<variant_id>`),
+      **Store** (links to `/stores/<seller_id>`), and **Prices**
+      (collapsible list, 3 visible by default, `Show more` reveals
+      3 more).
+   4. No edit / delete / manage-prices / manage-inventory
+      affordances are anywhere on the page. The General section's
+      header carries no `ActionMenu`. The Inventory items section
+      carries no `ActionMenu`. The Prices section carries no
+      `ActionMenu`.
+6. Store-scoped slice:
+   1. On `/stores/${seller.id}`, the **Offers** section renders the
+      store's offers (page size 10). The header shows the count and
+      a `t("offers.sellerSection.viewAll")` secondary button that
+      navigates to `/offers?seller_id=${sellerId}` and applies the
+      store filter on the list page.
+   2. The section's table reuses `useOfferTableColumns()` filtered
+      to drop the `store` column (already scoped by the page).
+   3. The section's `ActionMenu` exposes
+      `t("offers.sellerSection.bulkDeleteAll")`. Triggering it (and
+      confirming the prompt with description
+      `t("offers.bulkDeleteAll.description", { storeName })`)
+      bulk-deletes every offer for that store. After the job
+      succeeds the section empties out and renders the
+      `t("offers.sellerSection.empty")` copy.
+7. **i18n coverage check:** `grep -RnE "(>[^<{}]*[A-Za-z]{2}[^<{}]*<)" packages/admin/src/pages/offers packages/admin/src/pages/stores/store-details/components/store-offers-section.tsx`
+   reveals no literal English copy inside JSX text nodes — every
+   string flows through `t("…")`. (Static `<Heading>` /
+   `<Text>` / `<Button>` content carries a `{t(...)}` expression,
+   never a bare string.)
+8. Integration tests: the admin contracts (`GET /admin/offers`,
    `GET /admin/offers/:id`, `POST /admin/sellers/:id/offers/bulk-delete`)
    are already covered by the existing offer suites referenced in
    SPEC-002 §Testing. This spec's verification rides on top of
    those. If a Playwright suite is introduced for the admin panel,
    add a smoke test that walks step 2 → step 6 above and asserts
    the rendered DOM via the `data-testid` attributes listed below.
-8. **Deletion checks (paired with Variant-scoped UI to remove (admin)):**
+9. **Deletion checks (paired with Variant-scoped UI to remove (admin)):**
    1. The admin product detail page no longer renders an "Edit
       prices" or "Manage stock" row action in the variants table
       ActionMenu, and the bulk command bar no longer surfaces a
@@ -876,36 +1173,77 @@ share namespaces.
 
 ### data-testid attributes
 
-Each interactive element on the new pages and the seller section
-carries a kebab-case `data-testid`:
+Each interactive element on the new pages and the store-detail
+section carries a kebab-case `data-testid`. Names mirror
+SPEC-003's vendor `data-testid` contract where the surface is
+shared, with admin-only additions for the Store column / card /
+section and the audit log:
 
-- `offer-list-table`, `offer-list-row-${id}`,
-  `offer-list-action-menu-${id}`, `offer-list-bulk-delete`,
-  `offer-list-cross-seller-warning`.
-- `offer-detail-{general,pricing,inventory,audit-log,shipping,status,seller}-section`.
-- `offer-detail-open-seller-button`.
-- `store-offers-section`, `store-offers-section-view-all`,
-  `store-offers-section-bulk-delete`.
+- List page: `offer-list-table`, `offer-list-row-${id}`,
+  `offer-list-row-${id}-store-cell`,
+  `offer-list-action-menu-${id}`, `offer-list-open-store-${id}`,
+  `offer-list-bulk-delete`, `offer-list-cross-store-warning`,
+  `offer-list-sort-trigger`, `offer-list-add-filter`.
+- Detail page:
+  `offer-detail-general-section`,
+  `offer-detail-inventory-section`,
+  `offer-detail-audit-log-section`,
+  `offer-detail-master-variant-section`,
+  `offer-detail-master-variant-link`,
+  `offer-detail-master-variant-thumbnail`,
+  `offer-detail-master-variant-title`,
+  `offer-detail-master-variant-options`,
+  `offer-detail-store-sidebar`,
+  `offer-detail-store-link`,
+  `offer-detail-store-avatar`,
+  `offer-detail-store-name`,
+  `offer-detail-store-handle`,
+  `offer-detail-prices-section`,
+  `offer-detail-inventory-row-${inventoryItemId}-go-to-inventory`.
+- Store-detail page section:
+  `store-offers-section`,
+  `store-offers-section-view-all`,
+  `store-offers-section-bulk-delete`,
+  `store-offers-section-empty`.
 
 ## Evidence
 
-To be filled in once the spec is implemented:
+### 2026-05-22 — Spec realigned to SPEC-003 shipped vendor patterns
 
-- **Implemented at:** _TBD_
-- **Source:** `packages/admin/src/pages/offers/...`,
-  `packages/admin/src/pages/stores/store-details/components/store-offers-section.tsx`,
-  hooks in `packages/admin/src/hooks/api/offers.tsx`, route
-  registration in `packages/admin/src/get-route-map.tsx`, sidebar
-  update in
-  `packages/admin/src/components/layout/main-layout/main-layout.tsx`.
-- **Translations:**
-  `packages/admin/src/i18n/translations/en.json` + sister locale
-  files.
-- **Build artifact:** admin Vite dev server (`bun run dev`) renders
-  every step in **Verification** without console errors.
-- **Test run pending:** record the Playwright run id + the
-  pre-existing admin offer suite run ids referenced in
-  SPEC-002 §Testing.
+- Spec rewritten to mirror SPEC-003 §Realignment (the **shipped**
+  vendor offer UI). Concretely:
+  - List columns become `select / store / title / categories / sku
+    / shipping_profile / status / actions` — same shape as the
+    vendor list plus the admin-only **Store** column.
+  - List filters become `seller_id` (admin-only) + `shipping_profile_id`
+    + `sku` + `created_at` + `updated_at` — same shape as the
+    vendor filters plus the admin-only **Store** filter.
+  - Sort menu carries `title` / `created_at` / `updated_at`. Page
+    size = 10 (`OFFERS_PAGE_SIZE` constant in
+    `pages/offers/common/constants.ts`).
+  - Detail page is a `TwoColumnPage` with `hasOutlet` and
+    `showJSON`/`showMetadata` omitted. Page heading is the variant
+    title. Main column = General + Inventory items + **Audit log**
+    (admin-only). Sidebar = Master variant + **Store** card
+    (admin-only) + Prices. No Status / Shipping / JSON / Metadata
+    sections.
+  - Folder layout is `pages/offers/{_components,common,[id],...}` —
+    matches SPEC-003 §Realignment, with `[id]/edit`, `[id]/pricing`,
+    `[id]/inventory`, and `create/` absent and
+    `[id]/_components/{offer-store-sidebar,offer-audit-log-section}.tsx`
+    added.
+  - Hooks file ships **only** `useOffers`, `useOffer`,
+    `useBulkDeleteOffersForSeller`. No create / update / batch
+    hooks.
+  - Every visible string flows through `t("…")`. The user-facing
+    word for the seller entity is **"Store"**; backend identifiers
+    keep `seller_id`/`useSellers` naming.
+- **No code changes in this revision.** This is a docs-only update
+  whose purpose is to bring SPEC-004 in line with the shipped
+  vendor surface before admin implementation starts.
+- **Implementation evidence (TBD):** record build artefact, lint
+  output, vitest run id, and Playwright run id once the admin
+  pages land.
 
 ## Notes
 
@@ -923,21 +1261,22 @@ A combined spec would obscure those differences. Splitting them
 keeps each scope unambiguous and avoids cross-coupling between two
 dashboards that already ship from independent packages.
 
-### Cross-seller selection constraint
+### Cross-store selection constraint
 
 The bulk-delete endpoint is `POST /admin/sellers/:id/offers/bulk-delete`
-— **single-seller scoped**. The UI surfaces a friendly client-side
-constraint instead of attempting to dispatch one request per seller
-behind the scenes, because:
+— **single-store scoped** (the route still uses `seller_id` on the
+backend; only the user-facing copy says "Store"). The UI surfaces a
+friendly client-side constraint instead of attempting to dispatch
+one request per store behind the scenes, because:
 
-- Fanning out per seller introduces partial-failure UX a single
+- Fanning out per store introduces partial-failure UX a single
   toast can't cleanly summarize, and admins are likelier than
-  vendors to be operating on a single seller anyway.
+  vendors to be operating on a single store anyway.
 - The endpoint returns a `job_id` and runs asynchronously, so
   spawning N parallel jobs would require N concurrent pollers.
   Avoidable complexity for a corner case.
 
-If marketplace operators ever ask for cross-seller bulk delete in
+If marketplace operators ever ask for cross-store bulk delete in
 real volume, the right path is a server-side
 `POST /admin/offers/bulk-delete` that does the fan-out under one
 job id. Recorded as a follow-up; not added to this spec.

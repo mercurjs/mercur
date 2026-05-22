@@ -5,7 +5,7 @@ priority: 3
 area: vendor/offers
 created: 2026-05-20
 last_updated: 2026-05-22
-revision: "2026-05-22 DataGrid select cell fix for Stock Levels & Prices tab"
+revision: "2026-05-22 Realignment block — spec rewritten to match the shipped UI after the agent re-built the vendor surface against the vendor/admin pattern libraries"
 ---
 
 > **2026-05-20 product/variant scope removal.** SPEC-002 moves the
@@ -483,6 +483,470 @@ page the Master Variant card links to.)
     not on the offer detail page itself. The earlier Figma
     detail-page draft is documented in the change history below
     but does not ship.
+
+## Realignment — 2026-05-22 (shipped UI vs. 2026-05-21 redesign)
+
+This block is the **current contract** for what the vendor offer pages
+actually ship today. The 2026-05-21 Figma redesign block above is kept
+for change history but the implementation diverged on multiple points
+because the agent that built the wizard, list, and detail surfaces
+chose to mirror existing vendor/admin patterns
+(`DataGrid` + `createDataGridLocationStockColumns` +
+`createDataGridPriceColumns` for the wizard, the `_DataTable` filter
++ orderBy chrome for the list, the admin variant-detail spine for the
+detail page) instead of hand-rolling the Figma layouts. Where the
+redesign block and this block disagree, **this block wins**; the
+redesign block stays in the file as the visual reference the next pass
+should aim for.
+
+The deltas below are exhaustive for the offer pages under
+`packages/vendor/src/pages/offers/` and `packages/vendor/src/hooks/api/offers.tsx`.
+
+### List page — what shipped
+
+**File map:** `packages/vendor/src/pages/offers/offer-list-page.tsx`
++ `_components/*` + `common/constants.ts`.
+
+- **Page size:** `OFFERS_PAGE_SIZE = 10` lives in `common/constants.ts:1`.
+  Matches the redesign block's "page size **10**" call-out;
+  contradicts the older "PAGE_SIZE = 20" note in the Folder Layout
+  section. The Folder Layout note is wrong — treat 10 as canonical.
+- **Columns (`_components/use-offer-table-columns.tsx`):** the shipped
+  set is `select` / `title` / `categories` / `sku` /
+  `shipping_profile` / `status` / `actions`. **Differs** from the
+  redesign's Offer / Category / Collection / Variants / Status column
+  set:
+  - **No Collection column.** Skipped at implementation time because
+    `OFFER_LIST_FIELDS` doesn't fetch `product.collection`.
+  - **No Variants-count column.** Skipped — the backend has no
+    aggregate count and the redesign's "fetch siblings client-side"
+    fallback was not implemented.
+  - **Extra SKU column.** Vendors said the SKU is the fastest mental
+    handle for an offer, so it stayed in the list view even though
+    the redesign moved it onto the detail page.
+  - **Extra Shipping profile column.** Same justification: kept from
+    the pre-redesign cut because shipping profile is a vendor-side
+    operational filter and dropping the column would mean a click
+    into the detail page to read it.
+  - The `Offer` column from the redesign maps to the shipped `title`
+    column (thumbnail + variant title; product title is the cell
+    `title=` attribute for tooltip but does not render as a second
+    line).
+  - Row navigation is still `navigateTo={(row) => row.id}` and the
+    select-cell checkbox still stops propagation.
+- **Filters (`_components/use-offer-table-filters.tsx`):** the shipped
+  set is `shipping_profile_id` (select, multi, searchable) + `sku`
+  (string) + `created_at` + `updated_at`. **Differs** from the older
+  "Variant / Shipping profile / Stock status / Updated at / Created
+  at" Filters section:
+  - **No Variant filter.** Dropped — offers are 1:1 with a variant
+    so a filter that requires expanding products → variants
+    client-side was deemed not worth the round trip.
+  - **No Stock status filter.** Dropped — would require the
+    client-side `computeEffectiveStock` helper and SPEC-002 does not
+    yet expose the aggregate, so it stayed off the surface.
+  - **Extra SKU string filter.** Added to mirror the SKU column.
+- **Sort menu (`_components/offer-list-data-table.tsx:74-78`):** the
+  three sort keys are `title`, `created_at`, `updated_at`. The
+  `title` key currently routes through the same backend `order=`
+  param that the offer list route does not honour (offers have no
+  title column of their own) — recorded as a known follow-up under
+  SPEC-002 query params.
+- **Bulk delete shortcut:** `d`, declared inline in
+  `offer-list-data-table.tsx:88-91`. The redesign block did not pin
+  a shortcut; `d` is the shipped value.
+- **Empty state copy:** matches the redesign — heading
+  `offers.empty.heading`, description `offers.empty.description`,
+  CTA `offers.actions.create` ("Create"), wired through
+  `_DataTable`'s `noRecords.action` (`offer-list-data-table.tsx:80-87`).
+
+### Create wizard — what shipped
+
+**File map:** `packages/vendor/src/pages/offers/create/offer-create-page.tsx`
++ `create-offer-form/{create-offer-form.tsx,create-offer-catalogue.tsx,create-offer-stock-levels-and-prices.tsx,schema.ts}`.
+
+- **Tab count:** 2 (`CreateOfferCatalogueTab` →
+  `CreateOfferStockLevelsAndPricesTab`). Matches the redesign.
+- **File names — differ from the older Folder Layout block:**
+  - `create-offer-catalogue.tsx` (was supposed to be
+    `create-offer-variant.tsx` in the older 3-tab cut).
+  - `create-offer-stock-levels-and-prices.tsx` (was supposed to be
+    `create-offer-pricing-and-stock.tsx`).
+  - `create-offer-details.tsx` is **not created**. The "Details" tab
+    is fully absorbed into the Stock Levels & Prices grid (SKU is a
+    per-row column; shipping profile is a per-row column too — see
+    next bullet).
+- **Schema shape (`create-offer-form/schema.ts`):** the shipped form
+  state is `{ selected_variant_ids: string[], variants:
+  OfferVariantRow[] }`. **Differs from** the redesign's `{
+  selected_variant_ids, selected_variants, rows, shipping_profile_id
+  }` proposal:
+  - Field is `variants`, not `rows`.
+  - There is no separate `selected_variants` metadata array — each
+    row already carries `product_id`, `product_title`,
+    `variant_title`, `product_thumbnail`, `variant_sku`, so tab 2
+    renders straight off `variants` without a secondary snapshot
+    map.
+  - There is no top-level `shipping_profile_id`. **Shipping profile
+    is a per-row column** in the Stock Levels & Prices grid
+    (`create-offer-stock-levels-and-prices.tsx:117-130`,
+    `field: variants.${row.index}.shipping_profile_id`,
+    `type: "select"`), not a single wizard-level Select rendered
+    above the grid. The redesign's "shipping profile above the
+    grid" intent is **not** what shipped; the implementation chose
+    per-row freedom because different variants from the same vendor
+    can legitimately ship under different profiles.
+- **Catalogue tab columns (`create-offer-catalogue.tsx:150-249`):**
+  the shipped column set is `select` / `title` / `categories` / `sku`
+  / `ean` / `upc` / `status`. Differs from the redesign's Product /
+  Category / Collection / Variants / Status set:
+  - No Collection column.
+  - The redesign's "Variants" column (variant title) is folded into
+    the Title cell.
+  - **Extra SKU / EAN / UPC columns** so the vendor can pre-check
+    which variant they are about to bind without leaving the
+    catalogue tab.
+  - Multi-select selection state lives in
+    `form.watch("selected_variant_ids")`; the **Continue** button
+    in `create-offer-form.tsx:297` is gated on the array being
+    non-empty (matches the redesign's gating rule).
+- **Stock Levels & Prices grid
+  (`create-offer-stock-levels-and-prices.tsx`):** the grid is a flat
+  `DataGrid` over `variants`. **Differs from the redesign in three
+  shipped-vs-spec ways:**
+  - **No product grouping.** The Figma's "product title as
+    non-editable separator row" pattern was dropped; the grid is
+    one flat row per variant. The vendor relies on the read-only
+    Title cell (thumbnail + variant title) to identify rows.
+  - **No tip footer block.** The redesign asked for the Figma
+    "Select all relevant products that match your inventory…"
+    callout above the wizard footer; that block ships **only on
+    the Catalogue tab** (the Tip footer at the bottom of
+    `create-offer-catalogue.tsx`). The `offers.create.tip` i18n
+    key still lives in `en.json` and is consumed by the catalogue
+    tab.
+  - **Shipping profile is in the grid, not above it.** See schema
+    bullet above.
+  - The per-row columns are `title` (read-only thumbnail + variant
+    title) / `sku` (text) / `shipping_profile` (select) / one
+    location stock cell per stock location (via
+    `createDataGridLocationStockColumns`) / one price cell per
+    active store currency (via `createDataGridPriceColumns`). The
+    location stock cell carries a numeric `quantity` input as well
+    as the on/off toggle — **this is richer than the redesign's
+    "Switch only" call-out**: the vendor can now set stocked
+    quantity directly in the wizard instead of jumping to
+    `/inventory/<id>` after publish.
+- **Publish flow (`create-offer-form.tsx:163-265`):** a single
+  `bulkCreateOffers` call (`sdk.vendor.offers.batch.mutate({ offers:
+  [...] })`) carries one payload entry per publishable row; the
+  backend `/vendor/offers/batch` endpoint (SPEC-002 §F2 batch) fans
+  out internally. **Differs from the redesign's
+  "one POST /vendor/offers per row + remove successful rows from the
+  grid" intent:**
+  - Successful rows are **not** removed from the form; on full
+    success the entire `RouteFocusModal` closes back to `/offers`
+    via `handleSuccess("/offers")` and the
+    `offers.create.successToast` fires.
+  - Per-row failures are still surfaced inline — `attachErrorToRow`
+    sets `errors.variants.<index>.<field>` so the failing row
+    shows a per-cell error in the DataGrid. The vendor fixes the
+    failure inline and retries.
+  - The batch endpoint also means a 409 SKU collision from one row
+    is returned in the partial-failure payload rather than
+    short-circuiting the whole publish — this is what SPEC-002
+    F2-batch was designed to support.
+- **Validation helpers (`create-offer-form/schema.ts`):**
+  `isVariantRowPublishable(row)` flags rows with any non-default
+  field (SKU, shipping profile, enabled location, non-zero price);
+  `variantRowRequiresSku(row)` flags rows that need a SKU because
+  they have an enabled location or non-zero price. Both are used at
+  publish-time to decide which rows go into the batch payload and
+  which trigger per-row SKU-required errors.
+
+### Detail page — what shipped
+
+**File map:** `packages/vendor/src/pages/offers/[id]/offer-detail-page.tsx`
++ `_components/{offer-general-section,offer-inventory-section,offer-pricing-section,offer-variant-section}.tsx`
++ `loader.ts` + `breadcrumb.tsx`.
+
+- **Layout:** `TwoColumnPage<OfferDetail>` with `hasOutlet` and
+  `data={typedOffer}`; `showJSON` / `showMetadata` are not passed
+  (they default to false), so the JSON viewer + metadata section do
+  **not** render. Matches the redesign.
+- **Sidebar section ordering:** **Master variant first, Prices
+  second** (`offer-detail-page.tsx:56-59`). Matches the redesign.
+- **General section
+  (`_components/offer-general-section.tsx`):** **page heading is the
+  variant title**, not the offer SKU. Differs from the redesign call
+  for "page title is the offer **SKU**". The SKU is rendered inside
+  the section body as a `SectionRow`. Kit icon (`<Component />`)
+  appears next to the heading when `inventory_item_link.length > 1`
+  — matches the redesign. Body `SectionRow`s in shipped order: SKU
+  / EAN / UPC / Shipping profile / Created at / Updated at —
+  matches the redesign. Action menu shows Edit + Delete.
+- **Inventory items section
+  (`_components/offer-inventory-section.tsx`):** `_DataTable` over
+  `inventory_item_link[].inventory_item` with columns Title / SKU /
+  Required quantity / Inventory + per-row `Go to inventory item`
+  action; Inventory cell text turns `text-ui-fg-error` when summed
+  `available_quantity === 0`. Matches the redesign.
+- **Master variant section (file is
+  `_components/offer-variant-section.tsx`, exported as
+  `OfferVariantSection`):** the **file and export are named
+  `OfferVariant…` rather than `OfferMasterVariant…`** as the
+  redesign block suggested. The card itself still follows Pattern A
+  from the admin `InventoryItemVariantsSection` (Thumbnail + product
+  title + option-values subtitle joined with `⋅` + chevron, wrapped
+  in `<Link to="/products/${product_id}/variants/${variant_id}">`).
+  No action menu on the section header.
+- **Prices section
+  (`_components/offer-pricing-section.tsx`):** collapsible currency
+  list, 3 visible by default, **Show more** reveals 3 at a time
+  (`PAGE_STEP = 3`, `pageSize` state). Filters out price rows whose
+  `rules_count > 0`. Matches the redesign.
+- **Loader field list
+  (`common/constants.ts:4-48`, `OFFER_DETAIL_FIELDS`):** lists each
+  selectable column explicitly rather than using the redesign's
+  `*relation,*relation.nested` wildcard form. The fields fetched
+  match the redesign's intent (price set + prices + price rules,
+  shipping profile, product variant + product + thumbnail,
+  inventory_item_link + inventory_item + location_levels with
+  `available_quantity`) plus `inventory_item.title`. Wildcard form
+  was avoided because the offer module currently rejects unknown
+  wildcards on a few of the nested relations.
+- **`OFFER_LIST_FIELDS` (`common/constants.ts:50-69`)** is narrower
+  — it fetches just the columns the list table needs (variant +
+  product identity + categories + shipping profile + status). No
+  collection fields (the column doesn't ship).
+- **Compound exports (`offer-detail-page.tsx:66-73`):** the shipped
+  shape is:
+  ```ts
+  export const OfferDetailPage = Object.assign(Root, {
+    Main: TwoColumnPage.Main,
+    Sidebar: TwoColumnPage.Sidebar,
+    General: OfferGeneralSection,
+    Inventory: OfferInventorySection,
+    Variant: OfferVariantSection,
+    Pricing: OfferPricingSection,
+  })
+  ```
+  **Differs from** the older Compound Exports block (which lists
+  General / Pricing / Inventory / Shipping / StatusSidebar). The
+  `Shipping` and `StatusSidebar` parts are gone (sections deleted),
+  `Variant` is new (master-variant card), and `Main` / `Sidebar`
+  are re-exported `TwoColumnPage` slots so downstream blocks can
+  re-host the same children inside a custom layout shell.
+
+### Edit drawer — what shipped
+
+**File map:** `packages/vendor/src/pages/offers/[id]/edit/edit-offer-form/edit-offer-form.tsx`
++ `schema.ts`.
+
+- **Fields rendered in the drawer:** `sku` + `shipping_profile_id`
+  only. **`metadata` is wired through the form state and submit
+  payload** (form defaults at line 28, payload at line 40) **but is
+  not exposed as a Form.Field in the drawer body**. Effectively the
+  drawer preserves whatever `metadata` value already exists on the
+  offer; the redesign's "metadata composite" UI is not shipped.
+  Recorded as a follow-up if vendors ask for it.
+
+### Inventory batch drawer — what shipped
+
+**File map:** `packages/vendor/src/pages/offers/[id]/inventory/inventory-batch-form/{inventory-batch-form.tsx,schema.ts,types.ts,hooks/use-offer-stock-columns.tsx}`.
+
+- **Payload shape:** `{ create: [], update: [], delete: [], force:
+  true }` (`inventory-batch-form.tsx:55-61`). The
+  `force: true` flag is **extra vs the redesign's
+  `{create, update, delete}` shape** — it instructs the backend to
+  reset `location_levels` on the offer's inventory item to exactly
+  what the form holds, rather than merging onto the existing state.
+- **Extra helper hook (`hooks/use-offer-stock-columns.tsx`)** —
+  builds the per-location stock column set the drawer renders.
+  Mirrors `createDataGridLocationStockColumns` semantics but scoped
+  to a single offer's inventory item.
+- **Extra `types.ts`** in the same folder — local types for the
+  batch payload, distinct from `common/types.ts` (which holds
+  `OfferDetail`).
+
+### Folder layout — actual
+
+The shipped layout under `packages/vendor/src/pages/offers/`:
+
+```
+offers/
+  index.ts
+  offer-list-page.tsx
+  common/
+    constants.ts                          OFFERS_PAGE_SIZE = 10, OFFER_*_FIELDS
+    types.ts                              OfferDetail type alias
+    utils.ts
+    hooks/
+      use-delete-offer-action.tsx
+  _components/
+    index.ts
+    offer-list-table.tsx
+    offer-list-header.tsx
+    offer-list-data-table.tsx
+    offer-actions.tsx
+    use-offer-table-columns.tsx
+    use-offer-table-filters.tsx
+    use-offer-table-query.tsx
+  [id]/
+    index.ts
+    offer-detail-page.tsx
+    breadcrumb.tsx
+    loader.ts
+    _components/
+      index.ts
+      offer-general-section.tsx
+      offer-inventory-section.tsx
+      offer-pricing-section.tsx
+      offer-variant-section.tsx          (was planned as offer-master-variant-section.tsx)
+    edit/
+      offer-edit-page.tsx
+      edit-offer-form/
+        index.ts
+        edit-offer-form.tsx
+        schema.ts
+    pricing/
+      offer-pricing-edit-page.tsx
+      pricing-form/
+        index.ts
+        pricing-form.tsx
+        schema.ts
+    inventory/
+      offer-inventory-batch-page.tsx
+      inventory-batch-form/
+        index.ts
+        inventory-batch-form.tsx
+        schema.ts
+        types.ts
+        hooks/
+          use-offer-stock-columns.tsx
+  create/
+    index.ts
+    offer-create-page.tsx
+    create-offer-form/
+      index.ts
+      create-offer-form.tsx
+      create-offer-catalogue.tsx          (was planned as create-offer-variant.tsx)
+      create-offer-stock-levels-and-prices.tsx
+      schema.ts
+```
+
+Compared to the older Folder Layout block:
+
+- `common/types.ts` is **present** (older block omitted it).
+- `[id]/_components/offer-shipping-section.tsx` is **gone** —
+  shipping profile is a SectionRow inside General.
+- `[id]/_components/offer-status-sidebar.tsx` is **gone** — stock
+  status is the Inventory cell colour on the inventory table.
+- `[id]/_components/offer-variant-section.tsx` is **new** (Master
+  variant card; named `OfferVariantSection`, not
+  `OfferMasterVariantSection`).
+- `[id]/inventory/inventory-batch-form/{types.ts,hooks/use-offer-stock-columns.tsx}`
+  are **new** (helper files for the batch drawer).
+- Multiple `index.ts` barrels not listed in the older block but
+  present in code.
+- `create/create-offer-form/create-offer-details.tsx` and
+  `create/create-offer-form/create-offer-pricing-and-stock.tsx`
+  **never landed**; their concerns moved into the Catalogue and
+  Stock Levels & Prices tabs respectively.
+
+### Hooks — what shipped
+
+**File:** `packages/vendor/src/hooks/api/offers.tsx`.
+
+All hooks from the older Hooks block are present, plus one extra:
+
+- `useOffers` (line 20)
+- `useOffer` (line 37)
+- `useCreateOffer` (line 56)
+- **`useBulkCreateOffers`** (line 75) — **new**, wraps
+  `sdk.vendor.offers.batch.mutate` so the create wizard's Publish
+  flow can fan out per-row payloads in a single request. Older spec
+  did not declare this hook because it assumed per-row
+  `POST /vendor/offers`.
+- `useUpdateOffer` (line 94)
+- `useBatchOfferInventoryItems` (line 118)
+- `useDeleteOffer` (line 152)
+- `useBulkDeleteOffers` (line 180)
+
+### i18n keys — what shipped
+
+The shipped `offers.*` namespace under
+`packages/vendor/src/i18n/translations/en.json` matches the redesign
+block (Realignment i18n in §2026-05-21 Evidence) with these
+implementation additions on top:
+
+- `offers.fields.sku`, `offers.fields.shippingProfile`,
+  `offers.fields.ean`, `offers.fields.upc`,
+  `offers.fields.requiredQuantity` are all consumed by the shipped
+  detail-page SectionRows and the edit drawer.
+- `offers.actions.bulkDelete` is consumed by the list page's bulk
+  command.
+- `offers.actions.create` ("Create") is consumed by both the list
+  page header CTA and the empty-state CTA.
+- `offers.validation.skuRequired`, `offers.validation.duplicateSku`,
+  `offers.validation.selectAtLeastOneVariant`,
+  `offers.validation.noPublishableRows` are consumed by the create
+  wizard's per-row validators.
+
+### Routes — what shipped
+
+The route map in `packages/vendor/src/get-route-map.tsx` ships with
+`/offers`, `/offers/create`, `/offers/:id`, `/offers/:id/edit`,
+`/offers/:id/pricing`, `/offers/:id/inventory` — matches the older
+Route Map block one-for-one.
+
+### What still matches the older spec
+
+For clarity, these older-spec contracts are still honoured by the
+shipped UI and do **not** need realignment:
+
+- Sidebar entry: **Offers** nested under **Products** as the first
+  child of the products entry in `main-layout.tsx`.
+- `RouteFocusModal` is the wizard host; `RouteDrawer` is the edit /
+  pricing / inventory host.
+- `useDeleteOfferAction` lives at `common/hooks/use-delete-offer-action.tsx`
+  and is wired into both the row ActionMenu and the detail-page
+  ActionMenu.
+- `useBulkDeleteOffers` fans out per-id `DELETE` via
+  `Promise.allSettled`; there is still no
+  `POST /vendor/offers/bulk-delete` endpoint.
+- The detail page's `Component` export (`offer-detail-page.tsx:75`)
+  is the Root, so the route lazy-import resolves cleanly.
+
+### Known follow-ups left after realignment
+
+These are intentionally **not** shipped and recorded so the next pass
+doesn't re-invent them:
+
+1. **Title sort key** routes through the offers list route's
+   `order=` param but the backend has no title column; the column
+   ordering currently no-ops. Either drop the key or wire it onto a
+   product-variant title sort on the backend (SPEC-002).
+2. **Per-row inventory stocked quantity on Publish** — the shipped
+   wizard does write `location_levels` straight from the grid, but
+   the redesign's call for "stocked quantity is set via the existing
+   `/inventory` page, not in this wizard" is **no longer true**. The
+   grid carries quantity inputs; that's an intentional improvement
+   over the redesign call-out and should be ratified back into the
+   Figma if it gets revisited.
+3. **Variant / Stock-status filter chips** on the list page —
+   dropped to keep the implementation tight; can land in a follow-up
+   if vendor feedback asks for them.
+4. **Collection + Variants-count columns** on the list — same
+   rationale; both want an aggregate that SPEC-002 doesn't expose
+   yet.
+5. **Metadata field on the edit drawer** — wired to form state but
+   no UI control; add a `MetadataForm` composite when there is a
+   concrete metadata schema for offers.
+6. **Inventory batch `force: true` flag** — shipped intentionally
+   because the drawer is a "replace this offer's location levels"
+   operation; if SPEC-002 ever adds incremental merge semantics, the
+   flag can be dropped and the form can switch to delta payloads.
 
 ## User-Visible Behavior
 
@@ -1564,6 +2028,67 @@ text; `offers.actions.create` shortens from `"Create offer"` to
       `offer-inventory-batch-form`.
 
 ## Evidence
+
+### 2026-05-22 — Spec realigned to shipped UI
+
+- **Realignment block** added above User-Visible Behavior captures
+  every delta between the 2026-05-21 Figma redesign block and the
+  code under `packages/vendor/src/pages/offers/`. Treat that block as
+  the binding contract; the older sections stay in the file as
+  change history.
+- **Driving reason:** the agent that built the vendor offer pages
+  intentionally mirrored existing vendor / admin building blocks
+  (`DataGrid` + `createDataGridLocationStockColumns` +
+  `createDataGridPriceColumns` for the create wizard, the shared
+  `_DataTable` filter / sort / pagination chrome for the list, the
+  admin variant-detail spine for the detail page) rather than
+  hand-rolling the Figma layouts. The Figma still drives the visual
+  intent but the implementation is pattern-driven, which is why the
+  shipped surface diverges on column sets, schema field names, and a
+  few section placements.
+- **High-confidence deltas captured in the realignment block:**
+  - List page: page size = 10; columns = select / title / categories
+    / sku / shipping_profile / status / actions; filters =
+    shipping_profile_id (multi) + sku (string) + created_at +
+    updated_at; sort menu = title / created_at / updated_at;
+    bulk-delete shortcut = `d`.
+  - Create wizard: 2 tabs (Catalogue + Stock Levels & Prices); form
+    state `{ selected_variant_ids, variants }` (no separate
+    `selected_variants`, no `rows`, no top-level
+    `shipping_profile_id`); shipping profile is a per-row column in
+    the grid; Stock Levels & Prices grid is flat (no product
+    grouping) and has no inline tip block; Publish fires
+    `sdk.vendor.offers.batch.mutate(...)` once with per-row payloads
+    via the new `useBulkCreateOffers` hook; on full success the modal
+    closes back to `/offers` instead of removing rows from the grid.
+  - Catalogue tab columns: select / title (variant title + product
+    thumbnail) / categories / sku / ean / upc / status (extra SKU /
+    EAN / UPC vs the redesign's Product / Category / Collection /
+    Variants / Status set).
+  - Stock Levels & Prices grid includes a per-row numeric stocked
+    quantity input next to each location toggle — richer than the
+    redesign's switch-only call-out, intentionally kept so vendors
+    don't have to bounce to `/inventory/<id>` after Publish.
+  - Detail page: page heading is the variant title (not the SKU);
+    sidebar parts are `OfferVariantSection` (master-variant card,
+    named `OfferVariant…` not `OfferMasterVariant…`) and
+    `OfferPricingSection`; compound exports are `{ Main, Sidebar,
+    General, Inventory, Variant, Pricing }` (no `Shipping`, no
+    `StatusSidebar`); detail loader uses an explicit column list in
+    `OFFER_DETAIL_FIELDS` rather than the redesign's wildcard
+    relations string.
+  - Edit drawer: SKU + Shipping profile only; metadata is wired
+    through form state and payload but not rendered as a Form.Field
+    (left for a follow-up).
+  - Inventory batch drawer: payload is
+    `{ create, update, delete, force: true }` (the `force: true`
+    flag is shipped extra vs the older spec); ships with helper
+    `hooks/use-offer-stock-columns.tsx` + local `types.ts`.
+  - Hooks: existing list plus the new `useBulkCreateOffers` that
+    wraps `sdk.vendor.offers.batch.mutate` for the Publish fan-out.
+- **No code changes in this revision.** This is a docs-only update
+  whose entire purpose is to bring the spec back in line with what
+  actually ships.
 
 ### 2026-05-22 — DataGrid select cell fix (Stock Levels & Prices tab)
 
