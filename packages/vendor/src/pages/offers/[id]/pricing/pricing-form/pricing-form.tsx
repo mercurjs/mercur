@@ -17,7 +17,7 @@ import {
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateOffer } from "../../../../../hooks/api/offers"
 import { usePricePreferences } from "../../../../../hooks/api/price-preferences"
-import { useStore } from "../../../../../hooks/api/store"
+import { useCurrentSeller } from "../../../../../hooks/api/sellers"
 import { OfferDetail, OfferPrice } from "../../../common/types"
 import {
   PricingFormSchema,
@@ -53,21 +53,14 @@ const buildDefaults = (
 }
 
 export const PricingForm = ({ offer }: Props) => {
-  const { store, isPending: isStorePending } = useStore({
-    fields: "+supported_currencies",
-  })
+  const { currency_code, isPending: isSellerPending } = useCurrentSeller()
 
   const currencies = useMemo(
-    () =>
-      (
-        (store?.supported_currencies as
-          | HttpTypes.AdminStore["supported_currencies"]
-          | undefined) ?? []
-      ).map((c) => c.currency_code),
-    [store?.supported_currencies],
+    () => (currency_code ? [currency_code] : []),
+    [currency_code],
   )
 
-  if (isStorePending || !currencies.length) return null
+  if (isSellerPending || !currencies.length) return null
 
   return <PricingFormInner offer={offer} currencies={currencies} />
 }

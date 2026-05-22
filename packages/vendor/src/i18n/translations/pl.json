@@ -1085,6 +1085,121 @@
     },
     "levelDeleted": "Poziom magazynowy został pomyślnie usunięty."
   },
+  "offers": {
+    "domain": "Oferty",
+    "subtitle": "Zarządzaj wpisami w katalogu",
+    "create": {
+      "header": "Utwórz ofertę",
+      "successToast": "Oferta została utworzona",
+      "publish": "Opublikuj",
+      "tip": "Wybierz wszystkie istotne produkty pasujące do Twojego asortymentu, a następnie łatwo utwórz dla nich oferty, dodając stany magazynowe i ceny.",
+      "addPrice": "Dodaj cenę",
+      "addInventoryItem": "Dodaj pozycję magazynową",
+      "stockLevelsWarning": "Oferty utworzone, ale nie udało się zapisać niektórych stanów magazynowych: {{message}}",
+      "tabs": {
+        "catalogue": "Katalog",
+        "stockLevelsAndPrices": "Stany magazynowe i ceny"
+      }
+    },
+    "detail": {
+      "offerLabel": "Oferta",
+      "productVariant": "Wariant produktu",
+      "inventoryItems": "Pozycje magazynowe",
+      "manageKit": "Zarządzaj zestawem magazynowym",
+      "noInventoryItems": "Brak dołączonych pozycji magazynowych. Otwórz panel magazynu, aby je dołączyć.",
+      "goToInventoryItem": "Przejdź do pozycji magazynowej"
+    },
+    "edit": {
+      "header": "Edytuj ofertę",
+      "description": "Zaktualizuj dane oferty, profil wysyłki lub metadane.",
+      "successToast": "Oferta została zaktualizowana"
+    },
+    "pricing": {
+      "header": "Zarządzaj cenami",
+      "description": "Dodaj, zmień lub usuń ceny w drabince cenowej tej oferty.",
+      "successToast": "Ceny zostały zaktualizowane",
+      "empty": "Brak skonfigurowanych cen"
+    },
+    "inventory": {
+      "header": "Zarządzaj pozycjami magazynowymi",
+      "description": "Dołącz, odłącz lub zmień wymaganą ilość dla pozycji.",
+      "successToast": "Pozycje magazynowe zostały zaktualizowane",
+      "empty": "Brak dołączonych pozycji magazynowych"
+    },
+    "delete": {
+      "description": "Zamierzasz usunąć ofertę {{sku}}. Tej akcji nie można cofnąć.",
+      "successToast": "Oferta została usunięta"
+    },
+    "bulkDelete": {
+      "description_one": "Zamierzasz usunąć {{count}} ofertę. Tej akcji nie można cofnąć.",
+      "description_few": "Zamierzasz usunąć {{count}} oferty. Tej akcji nie można cofnąć.",
+      "description_many": "Zamierzasz usunąć {{count}} ofert. Tej akcji nie można cofnąć.",
+      "description_other": "Zamierzasz usunąć {{count}} ofert. Tej akcji nie można cofnąć.",
+      "successToast_one": "Usunięto {{count}} ofertę",
+      "successToast_few": "Usunięto {{count}} oferty",
+      "successToast_many": "Usunięto {{count}} ofert",
+      "successToast_other": "Usunięto {{count}} ofert",
+      "partialToast": "Usunięto {{succeeded}} z {{total}} ofert; {{failed}} nieudanych"
+    },
+    "actions": {
+      "create": "Utwórz",
+      "manage_prices": "Zarządzaj cenami",
+      "manage_inventory": "Zarządzaj magazynem",
+      "bulkDelete": "Usuń zaznaczone"
+    },
+    "fields": {
+      "sku": "SKU",
+      "variant": "Wariant główny",
+      "shippingProfile": "Profil wysyłki",
+      "ean": "EAN",
+      "upc": "UPC",
+      "requiredQuantity": "Wymagana ilość",
+      "stockStatus": "Status magazynu",
+      "category": "Kategoria",
+      "collection": "Kolekcja",
+      "variants": "Warianty",
+      "status": "Status",
+      "offer": "Oferta",
+      "minQuantity": "Min. ilość",
+      "maxQuantity": "Maks. ilość",
+      "stockLocation": "Lokalizacja magazynowa {{name}}",
+      "priceCurrency": "Cena {{code}}",
+      "notEnabled": "Nieaktywne",
+      "enabled": "Aktywne",
+      "variantsCount_one": "{{count}} wariant",
+      "variantsCount_few": "{{count}} warianty",
+      "variantsCount_many": "{{count}} wariantów",
+      "variantsCount_other": "{{count}} wariantów"
+    },
+    "status": {
+      "published": "Opublikowana",
+      "draft": "Szkic",
+      "proposed": "Proponowana",
+      "rejected": "Odrzucona"
+    },
+    "stockStatus": {
+      "in_stock": "Dostępny",
+      "low_stock": "Niski stan",
+      "out_of_stock": "Brak w magazynie"
+    },
+    "empty": {
+      "heading": "Brak ofert",
+      "description": "Utwórz oferty, aby rozpocząć sprzedaż na marketplace"
+    },
+    "filtered": {
+      "heading": "Brak pasujących ofert",
+      "description": "Dostosuj filtry lub wyszukiwane terminy."
+    },
+    "validation": {
+      "skuRequired": "SKU jest wymagane dla wierszy z włączoną lokalizacją magazynową lub niezerową ceną.",
+      "duplicateSku": "Inny wiersz w tym zgłoszeniu używa już tego SKU.",
+      "duplicatePriceRule": "Inny wiersz cenowy ma już tę kombinację waluty, regionu, grupy klientów i przedziałów ilości.",
+      "duplicateInventoryItem": "Ta pozycja magazynowa jest już dołączona.",
+      "selectAtLeastOneVariant": "Wybierz co najmniej jeden wariant, aby kontynuować.",
+      "noPublishableRows": "Dodaj SKU, włącz lokalizację magazynową lub ustaw cenę, aby opublikować.",
+      "duplicateBatchEntry": "Pozycja magazynowa może występować tylko w jednym koszyku (utwórz, aktualizuj lub usuń)."
+    }
+  },
   "giftCards": {
     "domain": "Karty podarunkowe",
     "editGiftCard": "Edytuj kartę podarunkową",

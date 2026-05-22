@@ -8,8 +8,8 @@ import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
 import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { useBulkCreateOffers } from "../../../../hooks/api/offers";
 import { useVariants } from "../../../../hooks/api/product-variants";
+import { useCurrentSeller } from "../../../../hooks/api/sellers";
 import { useStockLocations } from "../../../../hooks/api/stock-locations";
-import { useStore } from "../../../../hooks/api/store";
 import { CreateOfferCatalogueTab } from "./create-offer-catalogue";
 import { CreateOfferStockLevelsAndPricesTab } from "./create-offer-stock-levels-and-prices";
 import {
@@ -24,8 +24,6 @@ const DEFAULTS: CreateOfferFormValues = {
   selected_variant_ids: [],
   variants: [],
 };
-
-type CurrencyLite = { currency_code: string };
 
 const numericOrZero = (v: number | "" | undefined | null): number => {
   if (v === "" || v === null || v === undefined) return 0;
@@ -70,18 +68,13 @@ export const CreateOfferForm = () => {
   });
 
   const { mutateAsync: bulkCreateOffers } = useBulkCreateOffers();
-  const { store } = useStore({ fields: "+supported_currencies" });
+  const { currency_code } = useCurrentSeller();
   const { stock_locations } = useStockLocations({ limit: 100 });
 
-  const supportedCurrencies: CurrencyLite[] =
-    (store?.supported_currencies as CurrencyLite[] | undefined) ?? [];
   const locationIds = (stock_locations ?? []).map((l) => l.id);
 
   const selectedVariantIds = form.watch("selected_variant_ids") ?? [];
   const selectedVariantIdsKey = selectedVariantIds.join(",");
-  const currenciesKey = supportedCurrencies
-    .map((c) => c.currency_code)
-    .join(",");
   const locationsKey = locationIds.join(",");
 
   const { variants: fetchedVariants } = useVariants(
@@ -98,16 +91,11 @@ export const CreateOfferForm = () => {
   // rows by indexing the prior array by variant_id.
   useEffect(() => {
     const ids = selectedVariantIdsKey ? selectedVariantIdsKey.split(",") : [];
-    const currencyCodes = currenciesKey ? currenciesKey.split(",") : [];
     const locIds = locationsKey ? locationsKey.split(",") : [];
 
-    const emptyPrices = currencyCodes.reduce<Record<string, number | "">>(
-      (acc, code) => {
-        acc[code] = "";
-        return acc;
-      },
-      {},
-    );
+    const emptyPrices: Record<string, number | ""> = currency_code
+      ? { [currency_code]: "" }
+      : {};
     const emptyInventory = locIds.reduce<
       Record<
         string,
@@ -155,7 +143,7 @@ export const CreateOfferForm = () => {
   }, [
     selectedVariantIdsKey,
     fetchedVariants,
-    currenciesKey,
+    currency_code,
     locationsKey,
     form,
   ]);
@@ -220,12 +208,11 @@ export const CreateOfferForm = () => {
 
     const payloadOffers = publishableRows.map(({ row, sku }) => {
       const prices: { amount: number; currency_code: string }[] = [];
-      for (const c of supportedCurrencies) {
-        const raw = row.prices?.[c.currency_code];
-        prices.push({ amount: numericOrZero(raw), currency_code: c.currency_code });
-      }
-      if (prices.length === 0) {
-        prices.push({ amount: 0, currency_code: "usd" });
+      if (currency_code) {
+        prices.push({
+          amount: numericOrZero(row.prices?.[currency_code]),
+          currency_code,
+        });
       }
 
       const stock_levels: { location_id: string; stocked_quantity: number }[] = [];

@@ -1,6 +1,5 @@
 import {
   AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaResponse,
   MiddlewareRoute,
@@ -9,6 +8,8 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ProductStatus } from "@mercurjs/types"
 
 import {
   vendorProductQueryConfig,
@@ -29,18 +30,44 @@ import {
   VendorUpdateProductVariant,
 } from "./validators"
 
-const applySellerProductLinkFilter = (
+/**
+ * Vendors see the union of the master catalog (any product with
+ * `status = published`) and their own products in any state. Other
+ * vendors' non-published products (draft / proposed / requires_action
+ * / rejected) stay hidden so unreleased proposals from a competing
+ * seller never leak into this list.
+ */
+const applySellerProductLinkFilter = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
+  _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  req.filterableFields.seller_id = req.seller_context?.seller_id
+  const sellerId = req.seller_context!.seller_id
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  return maybeApplyLinkFilter({
-    entryPoint: "product_seller",
-    resourceId: "product_id",
-    filterableField: "seller_id",
-  })(req, res, next)
+  const { data: links } = await query.graph({
+    entity: "product_seller",
+    fields: ["product_id"],
+    filters: { seller_id: sellerId },
+  })
+
+  const sellerProductIds = links
+    .map((link: { product_id: string | null }) => link.product_id)
+    .filter((id: string | null): id is string => Boolean(id))
+
+  req.filterableFields ??= {}
+  const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
+  req.filterableFields.$and = [
+    ...existingAnd,
+    {
+      $or: [
+        { status: ProductStatus.PUBLISHED },
+        { id: sellerProductIds },
+      ],
+    },
+  ]
+
+  return next()
 }
 
 export const vendorProductsMiddlewares: MiddlewareRoute[] = [

@@ -13,9 +13,9 @@ import { Thumbnail } from "../../../../components/common/thumbnail";
 import { useRouteModal } from "../../../../components/modals";
 import { defineTabMeta } from "../../../../components/tabbed-form/types";
 import { usePricePreferences } from "../../../../hooks/api/price-preferences";
+import { useCurrentSeller } from "../../../../hooks/api/sellers";
 import { useShippingProfiles } from "../../../../hooks/api/shipping-profiles";
 import { useStockLocations } from "../../../../hooks/api/stock-locations";
-import { useStore } from "../../../../hooks/api/store";
 import { CreateOfferFormValues, OfferVariantRow } from "./schema";
 
 type ShippingProfileLite = { id: string; name?: string | null };
@@ -24,7 +24,7 @@ const Root = () => {
   const form = useFormContext<CreateOfferFormValues>();
   const { setCloseOnEscape } = useRouteModal();
 
-  const { store } = useStore({ fields: "+supported_currencies" });
+  const { currency_code } = useCurrentSeller();
   const { stock_locations } = useStockLocations({ limit: 100 });
   const { shipping_profiles } = useShippingProfiles({ limit: 100 }) as {
     shipping_profiles?: ShippingProfileLite[];
@@ -37,7 +37,7 @@ const Root = () => {
   }) as OfferVariantRow[] | undefined;
 
   const columns = useColumns({
-    currencies: store?.supported_currencies,
+    currencyCode: currency_code,
     stockLocations: stock_locations as
       | HttpTypes.AdminStockLocation[]
       | undefined,
@@ -61,7 +61,7 @@ const Root = () => {
 };
 
 type ColumnArgs = {
-  currencies?: HttpTypes.AdminStore["supported_currencies"];
+  currencyCode?: string;
   stockLocations?: HttpTypes.AdminStockLocation[];
   shippingProfiles?: ShippingProfileLite[];
   pricePreferences?: HttpTypes.AdminPricePreference[];
@@ -73,7 +73,7 @@ const columnHelper = createDataGridHelper<
 >();
 
 const useColumns = ({
-  currencies = [],
+  currencyCode,
   stockLocations = [],
   shippingProfiles = [],
   pricePreferences = [],
@@ -85,6 +85,7 @@ const useColumns = ({
       value: p.id,
       label: p.name ?? p.id,
     }));
+    const currencies = currencyCode ? [currencyCode] : [];
 
     return [
       columnHelper.column({
@@ -141,7 +142,7 @@ const useColumns = ({
         t,
       }),
       ...createDataGridPriceColumns<OfferVariantRow, CreateOfferFormValues>({
-        currencies: currencies.map((c) => c.currency_code),
+        currencies,
         pricePreferences,
         getFieldName: (context, value) => {
           if (context.column.id?.startsWith("currency_prices")) {
@@ -152,7 +153,7 @@ const useColumns = ({
         t,
       }),
     ];
-  }, [t, currencies, stockLocations, shippingProfiles, pricePreferences]);
+  }, [t, currencyCode, stockLocations, shippingProfiles, pricePreferences]);
 };
 
 Root._tabMeta = defineTabMeta<CreateOfferFormValues>({

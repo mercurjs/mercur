@@ -3894,5 +3894,61 @@
       "enabledToast": "Stawka prowizji włączona pomyślnie",
       "disabledToast": "Stawka prowizji wyłączona pomyślnie"
     }
+  },
+  "offers": {
+    "domain": "Oferty",
+    "empty": {
+      "heading": "Brak ofert",
+      "description": "Sklepy nie opublikowały jeszcze żadnych ofert w tym marketplace."
+    },
+    "filtered": {
+      "heading": "Brak pasujących ofert",
+      "description": "Dostosuj filtry lub wyszukiwane terminy."
+    },
+    "actions": {
+      "openStore": "Otwórz sklep",
+      "bulkDelete": "Usuń zaznaczone"
+    },
+    "fields": {
+      "store": "Sklep",
+      "sku": "SKU",
+      "variant": "Wariant główny",
+      "ean": "EAN",
+      "upc": "UPC",
+      "shippingProfile": "Profil wysyłki",
+      "requiredQuantity": "Wymagana ilość",
+      "stockStatus": "Status magazynu"
+    },
+    "detail": {
+      "offerLabel": "Oferta",
+      "productVariant": "Wariant produktu",
+      "store": "Sklep",
+      "inventoryItems": "Pozycje magazynowe",
+      "goToInventoryItem": "Przejdź do pozycji magazynowej",
+      "manageKit": "Zestaw magazynowy",
+      "noInventoryItems": "Ta oferta nie ma powiązanych pozycji magazynowych."
+    },
+    "bulkDelete": {
+      "description": "Zamierzasz usunąć {{count}} ofert(y) ze sklepu {{storeName}}. Tej akcji nie można cofnąć.",
+      "successToast": "Usunięto {{count}} ofert(y)",
+      "errorToast": "Usuwanie zbiorcze nie powiodło się: {{message}}",
+      "crossStoreWarning": "Wybierz oferty z jednego sklepu na raz. Usuwanie zbiorcze działa w obrębie sklepu.",
+      "crossStoreTooltip": "Usuwanie zbiorcze działa tylko w obrębie jednego sklepu."
+    },
+    "bulkDeleteAll": {
+      "description": "Zamierzasz usunąć wszystkie oferty dla sklepu {{storeName}}. Tej akcji nie można cofnąć.",
+      "actionLabel": "Usuń katalog"
+    },
+    "sellerSection": {
+      "heading": "Oferty",
+      "viewAll": "Zobacz wszystkie",
+      "bulkDeleteAll": "Usuń katalog",
+      "empty": "Ten sklep nie ma jeszcze ofert."
+    },
+    "stockStatus": {
+      "in_stock": "Dostępny",
+      "low_stock": "Niski stan",
+      "out_of_stock": "Brak w magazynie"
+    }
   }
 }

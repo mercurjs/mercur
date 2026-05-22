@@ -40,7 +40,7 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
-  const { additional_data, ...productData } = req.validatedBody
+  const { additional_data: _, ...productData } = req.validatedBody
 
   const { result } = await submitSellerProductsWorkflow(req.scope).run({
     input: {

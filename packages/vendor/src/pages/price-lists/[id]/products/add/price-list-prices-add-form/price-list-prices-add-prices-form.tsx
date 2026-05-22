@@ -13,7 +13,7 @@ import { PriceListPricesAddSchema } from './schema';
 
 type PriceListPricesAddPricesFormProps = {
   form: UseFormReturn<PriceListPricesAddSchema>;
-  currencies: HttpTypes.AdminStoreCurrency[];
+  currencies: string[];
   regions: HttpTypes.AdminRegion[];
   pricePreferences: HttpTypes.AdminPricePreference[];
 };

@@ -6,7 +6,7 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { ProductChangeDTO, ProductChangeStatus } from "@mercurjs/types"
+import { ProductChangeDTO } from "@mercurjs/types"
 
 import { cancelProductEditWorkflow } from "../../../../../workflows/product-edit/workflows/cancel-product-edit"
 import { VendorCancelProductChangeType } from "../../validators"
@@ -43,18 +43,10 @@ export const POST = async (
     fields: ["id"],
     filters: {
       product_id: productId,
-      status: ProductChangeStatus.PENDING,
     },
   })
 
   const pendingChange = changes[0]
-
-  if (!pendingChange) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `Product '${productId}' has no pending change`
-    )
-  }
 
   await cancelProductEditWorkflow(req.scope).run({
     input: {

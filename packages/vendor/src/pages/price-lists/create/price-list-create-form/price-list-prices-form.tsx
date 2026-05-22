@@ -11,7 +11,7 @@ import { PricingCreateSchemaType } from "./schema"
 
 type PriceListPricesFormProps = {
   form: UseFormReturn<PricingCreateSchemaType>
-  currencies: HttpTypes.AdminStoreCurrency[]
+  currencies: string[]
   regions: HttpTypes.AdminRegion[]
   pricePreferences: HttpTypes.AdminPricePreference[]
 }

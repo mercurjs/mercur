@@ -1,18 +1,16 @@
 import { useRegions } from "../../../../hooks/api/regions"
-import { useStore } from "../../../../hooks/api/store"
+import { useCurrentSeller } from "../../../../hooks/api/sellers"
 import { usePricePreferences } from "../../../../hooks/api/price-preferences"
 
 export const usePriceListCurrencyData = () => {
   const {
-    store,
-    isPending: isStorePending,
-    isError: isStoreError,
-    error: storeError,
-  } = useStore({
-    fields: "+supported_currencies",
-  })
+    currency_code,
+    isPending: isSellerPending,
+    isError: isSellerError,
+    error: sellerError,
+  } = useCurrentSeller()
 
-  const currencies = store?.supported_currencies
+  const currencies = currency_code ? [currency_code] : undefined
 
   const {
     regions,
@@ -35,7 +33,7 @@ export const usePriceListCurrencyData = () => {
     !!currencies &&
     !!regions &&
     !!pricePreferences &&
-    !isStorePending &&
+    !isSellerPending &&
     !isRegionsPending &&
     !isPreferencesPending
 
@@ -43,8 +41,8 @@ export const usePriceListCurrencyData = () => {
     throw regionsError
   }
 
-  if (isStoreError) {
-    throw storeError
+  if (isSellerError) {
+    throw sellerError
   }
 
   if (isPreferencesError) {
