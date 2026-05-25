@@ -6,7 +6,7 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { ProductChangeDTO, ProductChangeStatus } from "@mercurjs/types"
+import { ProductChangeDTO, ProductChangeStatusValues } from "@mercurjs/types"
 
 import { cancelProductEditWorkflow } from "../../../../../workflows/product-edit/workflows/cancel-product-edit"
 import { VendorCancelProductChangeType } from "../../validators"
@@ -32,7 +32,7 @@ export const POST = async (
     filters: {
       product_id: productId,
       created_by: sellerId,
-      status: ProductChangeStatus.PENDING,
+      status: ProductChangeStatusValues.PENDING,
     },
   })
 

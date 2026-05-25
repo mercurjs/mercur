@@ -9,7 +9,7 @@ import { Input, Select, Textarea } from "@medusajs/ui"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { AttributeType, ProductAttributeDTO } from "@mercurjs/types"
+import { ProductAttributeDTO, AttributeTypeValues } from "@mercurjs/types"
 import { Form } from "../../../../components/common/form"
 import { SwitchBox } from "../../../../components/common/switch-box"
 import { HandleInput } from "../../../../components/inputs/handle-input"
@@ -42,11 +42,11 @@ export interface AttributeFormProps {
 }
 
 const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
-  [AttributeType.SINGLE_SELECT]: "attributes.type.select",
-  [AttributeType.MULTI_SELECT]: "attributes.type.multivalue",
-  [AttributeType.UNIT]: "attributes.type.unit",
-  [AttributeType.TOGGLE]: "attributes.type.toggle",
-  [AttributeType.TEXT]: "attributes.type.text_area",
+  [AttributeTypeValues.SINGLE_SELECT]: "attributes.type.select",
+  [AttributeTypeValues.MULTI_SELECT]: "attributes.type.multivalue",
+  [AttributeTypeValues.UNIT]: "attributes.type.unit",
+  [AttributeTypeValues.TOGGLE]: "attributes.type.toggle",
+  [AttributeTypeValues.TEXT]: "attributes.type.text_area",
 }
 
 export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
@@ -70,7 +70,7 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
         name: initialData?.name ?? "",
         description: initialData?.description ?? "",
         handle: initialData?.handle ?? "",
-        type: initialData?.type ?? AttributeType.SINGLE_SELECT,
+        type: initialData?.type ?? AttributeTypeValues.SINGLE_SELECT,
         is_filterable: initialData?.is_filterable ?? false,
         is_required: initialData?.is_required ?? false,
         is_variant_axis: initialData?.is_variant_axis ?? false,
@@ -151,8 +151,8 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
 ])
 
     const showValues =
-      type === AttributeType.SINGLE_SELECT ||
-      type === AttributeType.MULTI_SELECT
+      type === AttributeTypeValues.SINGLE_SELECT ||
+      type === AttributeTypeValues.MULTI_SELECT
 
     const renderDetailsTab = () => (
       <div

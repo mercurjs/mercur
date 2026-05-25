@@ -9,10 +9,7 @@ import {
   emitEventStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import {
-  ProductChangeActionType,
-  UpdateProductVariantDTO,
-} from "@mercurjs/types"
+import { UpdateProductVariantDTO, ProductChangeActionTypeValues } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../../product/events"
 import {
@@ -101,7 +98,7 @@ export const productEditUpdateVariantWorkflow = createWorkflow(
           {
             product_change_id: changes[0].id,
             product_id: input.product_id,
-            action: ProductChangeActionType.VARIANT_UPDATE,
+            action: ProductChangeActionTypeValues.VARIANT_UPDATE,
             details: {
               variant_id: input.variant_id,
               fields,

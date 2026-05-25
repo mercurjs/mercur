@@ -5,7 +5,7 @@ import {
   transform,
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { ProductChangeActionType } from "@mercurjs/types"
+import { ProductChangeActionTypeValues } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../../product/events"
 import {
@@ -55,7 +55,7 @@ export const productEditDeleteProductWorkflow = createWorkflow(
         {
           product_change_id: changes[0].id,
           product_id: input.product_id,
-          action: ProductChangeActionType.PRODUCT_DELETE,
+          action: ProductChangeActionTypeValues.PRODUCT_DELETE,
           details: {},
           internal_note: input.internal_note,
         },

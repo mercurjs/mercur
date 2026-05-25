@@ -1,12 +1,12 @@
 import { z } from "zod"
-import { AttributeType } from "@mercurjs/types"
+import { AttributeTypeValues } from "@mercurjs/types"
 
 export const ATTRIBUTE_TYPE_OPTIONS = [
-  AttributeType.SINGLE_SELECT,
-  AttributeType.MULTI_SELECT,
-  AttributeType.UNIT,
-  AttributeType.TOGGLE,
-  AttributeType.TEXT,
+  AttributeTypeValues.SINGLE_SELECT,
+  AttributeTypeValues.MULTI_SELECT,
+  AttributeTypeValues.UNIT,
+  AttributeTypeValues.TOGGLE,
+  AttributeTypeValues.TEXT,
 ] as const
 
 export const CreateAttributeSchema = z
@@ -19,13 +19,13 @@ export const CreateAttributeSchema = z
     is_variant_axis: z.boolean().default(false),
     type: z
       .enum([
-        AttributeType.SINGLE_SELECT,
-        AttributeType.MULTI_SELECT,
-        AttributeType.UNIT,
-        AttributeType.TOGGLE,
-        AttributeType.TEXT,
+        AttributeTypeValues.SINGLE_SELECT,
+        AttributeTypeValues.MULTI_SELECT,
+        AttributeTypeValues.UNIT,
+        AttributeTypeValues.TOGGLE,
+        AttributeTypeValues.TEXT,
       ])
-      .default(AttributeType.SINGLE_SELECT),
+      .default(AttributeTypeValues.SINGLE_SELECT),
     values: z
       .array(
         z.object({
@@ -40,7 +40,7 @@ export const CreateAttributeSchema = z
   })
   .superRefine((data, ctx) => {
     if (
-      [AttributeType.SINGLE_SELECT, AttributeType.MULTI_SELECT].includes(
+      [AttributeTypeValues.SINGLE_SELECT, AttributeTypeValues.MULTI_SELECT].includes(
         data.type
       ) &&
       (!data.values || data.values.length === 0)

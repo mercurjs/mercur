@@ -24,11 +24,16 @@ export * from "./offer"
 // Product types — explicit re-export to override Medusa's product types
 // (this module replaces Medusa's built-in product module)
 export {
-  // Enums
-  ProductStatus,
-  AttributeType,
-  ProductChangeStatus,
-  ProductChangeActionType,
+  // String-literal unions (type-only)
+  type ProductStatus,
+  type AttributeType,
+  type ProductChangeStatus,
+  type ProductChangeActionType,
+  // Runtime constants for the unions above
+  ProductStatusValues,
+  AttributeTypeValues,
+  ProductChangeStatusValues,
+  ProductChangeActionTypeValues,
   // common DTOs
   type ProductDTO,
   type ProductVariantDTO,

@@ -6,7 +6,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
-import { ProductStatus, UpdateProductDTO } from "@mercurjs/types"
+import { ProductStatusValues, UpdateProductDTO, type ProductStatus } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { updateProductsStep } from "../steps"
@@ -21,11 +21,11 @@ type BatchProductsWorkflowInput = {
 } & AdditionalData
 
 const STATUS_EVENT_MAP: Record<ProductStatus, string | undefined> = {
-  [ProductStatus.PROPOSED]: ProductWorkflowEvents.PROPOSED,
-  [ProductStatus.PUBLISHED]: ProductWorkflowEvents.PUBLISHED,
-  [ProductStatus.REJECTED]: ProductWorkflowEvents.REJECTED,
-  [ProductStatus.REQUIRES_ACTION]: ProductWorkflowEvents.CHANGES_REQUESTED,
-  [ProductStatus.DRAFT]: undefined,
+  [ProductStatusValues.PROPOSED]: ProductWorkflowEvents.PROPOSED,
+  [ProductStatusValues.PUBLISHED]: ProductWorkflowEvents.PUBLISHED,
+  [ProductStatusValues.REJECTED]: ProductWorkflowEvents.REJECTED,
+  [ProductStatusValues.REQUIRES_ACTION]: ProductWorkflowEvents.CHANGES_REQUESTED,
+  [ProductStatusValues.DRAFT]: undefined,
 }
 
 export const batchProductsWorkflow: ReturnType<typeof overrideWorkflow> = overrideWorkflow(

@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 
 import { StatusCell } from "../../common/status-cell";
-import { ProductStatus } from "@mercurjs/types";
+import { ProductStatus, ProductStatusValues } from "@mercurjs/types";
 
 type ProductStatusCellProps = {
   status: ProductStatus | `${ProductStatus}`;
@@ -11,14 +11,14 @@ export const ProductStatusCell = ({ status }: ProductStatusCellProps) => {
   const { t } = useTranslation();
 
   const [color, text] = {
-    [ProductStatus.DRAFT]: ["grey", t("products.productStatus.draft")],
-    [ProductStatus.PROPOSED]: ["orange", t("products.productStatus.proposed")],
-    [ProductStatus.PUBLISHED]: ["green", t("products.productStatus.published")],
-    [ProductStatus.REQUIRES_ACTION]: [
+    [ProductStatusValues.DRAFT]: ["grey", t("products.productStatus.draft")],
+    [ProductStatusValues.PROPOSED]: ["orange", t("products.productStatus.proposed")],
+    [ProductStatusValues.PUBLISHED]: ["green", t("products.productStatus.published")],
+    [ProductStatusValues.REQUIRES_ACTION]: [
       "blue",
       t("products.productStatus.requires_action"),
     ],
-    [ProductStatus.REJECTED]: ["red", t("products.productStatus.rejected")],
+    [ProductStatusValues.REJECTED]: ["red", t("products.productStatus.rejected")],
   }[status] as ["grey" | "orange" | "green" | "red" | "blue", string];
 
   return <StatusCell color={color}>{text}</StatusCell>;

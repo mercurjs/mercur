@@ -5,11 +5,7 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
-import {
-  AttributeType,
-  ProductAttributeValueDTO,
-  ProductDTO,
-} from "@mercurjs/types"
+import { ProductAttributeValueDTO, ProductDTO, AttributeTypeValues } from "@mercurjs/types"
 
 import { Form } from "@components/common/form"
 import { AttributeValueInput } from "@components/inputs/attribute-value-input"
@@ -195,7 +191,7 @@ export const ProductEditVariantForm = ({
                         <Form.Label>{attribute.name}</Form.Label>
                         <Form.Control>
                           <AttributeValueInput
-                            type={AttributeType.SINGLE_SELECT}
+                            type={AttributeTypeValues.SINGLE_SELECT}
                             value={typeof value === "string" ? value : ""}
                             onChange={onChange}
                             availableValues={(attribute.values ?? []).map(

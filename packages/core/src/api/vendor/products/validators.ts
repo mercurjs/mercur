@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { MercurFeatureFlags, ProductStatus } from "@mercurjs/types"
+import { MercurFeatureFlags, ProductStatusValues } from "@mercurjs/types"
 import {
   createFindParams,
   createOperatorMap,
@@ -13,7 +13,7 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 import { FeatureFlag } from "@medusajs/framework/utils"
 
-const statusEnum = z.nativeEnum(ProductStatus)
+const statusEnum = z.nativeEnum(ProductStatusValues)
 
 // --- List / retrieve query params ---
 
@@ -165,13 +165,13 @@ export const VendorCreateProduct = WithAdditionalData(CreateProduct, (schema) =>
     if (
       data.status !== undefined &&
       FeatureFlag.isFeatureEnabled(MercurFeatureFlags.PRODUCT_REQUEST) &&
-      data.status !== ProductStatus.DRAFT &&
-      data.status !== ProductStatus.PROPOSED
+      data.status !== ProductStatusValues.DRAFT &&
+      data.status !== ProductStatusValues.PROPOSED
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         path: ["status"],
-        message: `When the product request flow is enabled, status must be one of: ${ProductStatus.DRAFT}, ${ProductStatus.PROPOSED}.`,
+        message: `When the product request flow is enabled, status must be one of: ${ProductStatusValues.DRAFT}, ${ProductStatusValues.PROPOSED}.`,
       })
     }
   })

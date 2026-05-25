@@ -5,8 +5,8 @@ import {
 import {
   ContainerRegistrationKeys,
   Modules,
-  ProductStatus,
 } from "@medusajs/framework/utils";
+import { ProductStatusValues } from "@mercurjs/types";
 import {
   createWorkflow,
   transform,
@@ -526,7 +526,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
               "Reimagine the feeling of a classic T-shirt. With our cotton T-shirts, everyday essentials no longer have to be ordinary.",
             handle: "t-shirt",
             weight: 400,
-            status: ProductStatus.PUBLISHED,
+            status: ProductStatusValues.PUBLISHED,
             shipping_profile_id: shippingProfile.id,
             images: [
               {
@@ -713,7 +713,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
               "Reimagine the feeling of a classic sweatshirt. With our cotton sweatshirt, everyday essentials no longer have to be ordinary.",
             handle: "sweatshirt",
             weight: 400,
-            status: ProductStatus.PUBLISHED,
+            status: ProductStatusValues.PUBLISHED,
             shipping_profile_id: shippingProfile.id,
             images: [
               {
@@ -814,7 +814,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
               "Reimagine the feeling of classic sweatpants. With our cotton sweatpants, everyday essentials no longer have to be ordinary.",
             handle: "sweatpants",
             weight: 400,
-            status: ProductStatus.PUBLISHED,
+            status: ProductStatusValues.PUBLISHED,
             shipping_profile_id: shippingProfile.id,
             images: [
               {
@@ -915,7 +915,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
               "Reimagine the feeling of classic shorts. With our cotton shorts, everyday essentials no longer have to be ordinary.",
             handle: "shorts",
             weight: 400,
-            status: ProductStatus.PUBLISHED,
+            status: ProductStatusValues.PUBLISHED,
             shipping_profile_id: shippingProfile.id,
             images: [
               {

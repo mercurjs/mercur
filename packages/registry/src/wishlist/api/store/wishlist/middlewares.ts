@@ -4,7 +4,8 @@ import {
 } from "@medusajs/framework";
 import { authenticate, MiddlewareRoute } from "@medusajs/medusa";
 
-import { isPresent, ProductStatus } from "@medusajs/framework/utils";
+import { isPresent } from "@medusajs/framework/utils";
+import { ProductStatusValues } from "@mercurjs/types";
 import { listProductQueryConfig } from "@medusajs/medusa/api/store/products/query-config";
 import { StoreGetProductsParams } from "@medusajs/medusa/api/store/products/validators";
 import { storeWishlistQueryConfig } from "./query-config";
@@ -36,7 +37,7 @@ export const storeWishlistMiddlewares: MiddlewareRoute[] = [
         filterableField: "sales_channel_id",
       }),
       applyDefaultFilters({
-        status: ProductStatus.PUBLISHED,
+        status: ProductStatusValues.PUBLISHED,
         categories: (filters: any, _fields: string[]) => {
           const categoryIds = filters.category_id;
           delete filters.category_id;

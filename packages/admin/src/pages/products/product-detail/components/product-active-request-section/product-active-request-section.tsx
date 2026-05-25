@@ -4,7 +4,7 @@ import { ExclamationCircleSolid } from "@medusajs/icons";
 import { useTranslation } from "react-i18next";
 
 import { HttpTypes } from "@medusajs/types";
-import { ProductStatus, SellerDTO } from "@mercurjs/types";
+import { SellerDTO, ProductStatusValues } from "@mercurjs/types";
 import { ConfirmPrompt } from "../../../../../components/common/confirm-prompt";
 import {
   useConfirmProduct,
@@ -36,7 +36,7 @@ export const ProductActiveRequestSection = ({
   const { mutateAsync: rejectProduct, isPending: isRejecting } =
     useRejectProduct(product.id);
 
-  if (product.status !== ProductStatus.PROPOSED) {
+  if (product.status !== ProductStatusValues.PROPOSED) {
     return null;
   }
 

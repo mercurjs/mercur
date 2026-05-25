@@ -11,7 +11,7 @@ import {
 
 import { ProductWorkflowEvents } from "../../product/events"
 import { confirmProductChangesStep } from "../steps"
-import { ProductChangeStatus } from "@mercurjs/types"
+import { ProductChangeStatusValues } from "@mercurjs/types"
 
 export const confirmProductEditWorkflowId = "confirm-product-edit"
 
@@ -38,7 +38,7 @@ export const confirmProductEditWorkflow = createWorkflow(
     const { data: changes } = useQueryGraphStep({
       entity: "product_change",
       fields: ["id", "product_id"],
-      filters: { id: input.product_change_id, status: ProductChangeStatus.PENDING },
+      filters: { id: input.product_change_id, status: ProductChangeStatusValues.PENDING },
       options: { throwIfKeyNotFound: true },
     })
 

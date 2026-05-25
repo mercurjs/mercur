@@ -12,7 +12,7 @@ import {
   Text,
   Textarea,
 } from "@medusajs/ui";
-import { AttributeType, ProductAttributeDTO } from "@mercurjs/types";
+import { AttributeType, ProductAttributeDTO, AttributeTypeValues } from "@mercurjs/types";
 import { useEffect } from "react";
 import {
   Controller,
@@ -280,7 +280,7 @@ const SelectedAttributes = ({
                   {t("fields.values")}
                 </Label>
               </div>
-              {attrType === AttributeType.MULTI_SELECT ? (
+              {attrType === AttributeTypeValues.MULTI_SELECT ? (
                 <Controller
                   control={form.control}
                   name={`attributes.${index}.values`}
@@ -298,7 +298,7 @@ const SelectedAttributes = ({
                     />
                   )}
                 />
-              ) : attrType === AttributeType.SINGLE_SELECT ? (
+              ) : attrType === AttributeTypeValues.SINGLE_SELECT ? (
                 <Controller
                   control={form.control}
                   name={`attributes.${index}.values`}
@@ -327,7 +327,7 @@ const SelectedAttributes = ({
                     </Select>
                   )}
                 />
-              ) : attrType === AttributeType.TEXT ? (
+              ) : attrType === AttributeTypeValues.TEXT ? (
                 <Controller
                   control={form.control}
                   name={`attributes.${index}.values`}
@@ -345,7 +345,7 @@ const SelectedAttributes = ({
                     />
                   )}
                 />
-              ) : attrType === AttributeType.TOGGLE ? (
+              ) : attrType === AttributeTypeValues.TOGGLE ? (
                 <Controller
                   control={form.control}
                   name={`attributes.${index}.values`}
@@ -453,7 +453,7 @@ const RequiredAttributes = () => {
         attribute_id: attr.id,
         title: attr.name,
         values:
-          attr.type === AttributeType.MULTI_SELECT ? ([] as string[]) : "",
+          attr.type === AttributeTypeValues.MULTI_SELECT ? ([] as string[]) : "",
         is_custom: false,
         is_required: true,
         use_for_variants: attr.is_variant_axis,
@@ -521,7 +521,7 @@ const RequiredAttributeField = ({
           <Form.Label>{attribute.name}</Form.Label>
 
           <Form.Control>
-            {attribute.type === AttributeType.SINGLE_SELECT ? (
+            {attribute.type === AttributeTypeValues.SINGLE_SELECT ? (
               <Select
                 {...field}
                 value={typeof value === "string" ? value : (value?.[0] ?? "")}
@@ -542,7 +542,7 @@ const RequiredAttributeField = ({
                   ))}
                 </Select.Content>
               </Select>
-            ) : attribute.type === AttributeType.MULTI_SELECT ? (
+            ) : attribute.type === AttributeTypeValues.MULTI_SELECT ? (
               <Combobox
                 {...field}
                 ref={ref}
@@ -556,7 +556,7 @@ const RequiredAttributeField = ({
                 }
                 placeholder={t("products.create.attributes.selectValues")}
               />
-            ) : attribute.type === AttributeType.TEXT ? (
+            ) : attribute.type === AttributeTypeValues.TEXT ? (
               <Input
                 {...field}
                 ref={ref}
@@ -564,7 +564,7 @@ const RequiredAttributeField = ({
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={t("products.create.attributes.valuePlaceholder")}
               />
-            ) : attribute.type === AttributeType.TOGGLE ? (
+            ) : attribute.type === AttributeTypeValues.TOGGLE ? (
               <Switch
                 {...field}
                 className="rtl:rotate-180"

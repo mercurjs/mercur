@@ -9,7 +9,7 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { ProductStatus } from "@mercurjs/types"
+import { ProductStatusValues } from "@mercurjs/types"
 
 import {
   vendorProductQueryConfig,
@@ -61,7 +61,7 @@ const applySellerProductLinkFilter = async (
     ...existingAnd,
     {
       $or: [
-        { status: ProductStatus.PUBLISHED },
+        { status: ProductStatusValues.PUBLISHED },
         { id: sellerProductIds },
       ],
     },

@@ -14,28 +14,7 @@ import {
   promiseAll,
   toHandle,
 } from "@medusajs/framework/utils";
-import {
-  AttributeType,
-  CreateProductAttributeDTO,
-  CreateProductAttributeValueDTO,
-  CreateProductBrandDTO,
-  CreateProductDTO,
-  CreateProductVariantDTO,
-  ProductAttributeDTO,
-  ProductBrandDTO,
-  ProductChangeActionDTO,
-  ProductChangeActionType,
-  ProductChangeStatus,
-  ProductDTO,
-  ProductVariantDTO,
-  UpdateProductAttributeDTO,
-  UpdateProductAttributeValueDTO,
-  UpdateProductBrandDTO,
-  UpdateProductDTO,
-  UpdateProductVariantDTO,
-  UpsertProductAttributeValueDTO,
-  UpsertProductVariantDTO,
-} from "@mercurjs/types";
+import { AttributeType, CreateProductAttributeDTO, CreateProductAttributeValueDTO, CreateProductBrandDTO, CreateProductDTO, CreateProductVariantDTO, ProductAttributeDTO, ProductBrandDTO, ProductChangeActionDTO, ProductDTO, ProductVariantDTO, UpdateProductAttributeDTO, UpdateProductAttributeValueDTO, UpdateProductBrandDTO, UpdateProductDTO, UpdateProductVariantDTO, UpsertProductAttributeValueDTO, UpsertProductVariantDTO, AttributeTypeValues, ProductChangeStatusValues, ProductChangeActionTypeValues } from "@mercurjs/types";
 
 import {
   Product,
@@ -299,7 +278,7 @@ class ProductModuleService extends ProductModuleServiceBase {
     const [productChange] = await this.listProductChanges(
       {
         product_id: productId,
-        status: [ProductChangeStatus.PENDING],
+        status: [ProductChangeStatusValues.PENDING],
       },
       options,
       sharedContext
@@ -326,13 +305,13 @@ class ProductModuleService extends ProductModuleServiceBase {
     > & { id?: string }
   ): void {
     const VARIANT_AXIS_ALLOWED = new Set<AttributeType>([
-      AttributeType.MULTI_SELECT,
+      AttributeTypeValues.MULTI_SELECT,
     ]);
     const FILTERABLE_ALLOWED = new Set<AttributeType>([
-      AttributeType.SINGLE_SELECT,
-      AttributeType.MULTI_SELECT,
-      AttributeType.TOGGLE,
-      AttributeType.UNIT,
+      AttributeTypeValues.SINGLE_SELECT,
+      AttributeTypeValues.MULTI_SELECT,
+      AttributeTypeValues.TOGGLE,
+      AttributeTypeValues.UNIT,
     ]);
 
     if (
@@ -929,8 +908,8 @@ class ProductModuleService extends ProductModuleServiceBase {
     if (!attributes.length) return;
 
     const SELECT_TYPES = new Set([
-      AttributeType.SINGLE_SELECT,
-      AttributeType.MULTI_SELECT,
+      AttributeTypeValues.SINGLE_SELECT,
+      AttributeTypeValues.MULTI_SELECT,
     ]);
 
     const selectAttrIds: string[] = [];
@@ -2002,7 +1981,7 @@ class ProductModuleService extends ProductModuleServiceBase {
     }
 
     for (const change of changes as any[]) {
-      if (change.status !== ProductChangeStatus.PENDING) {
+      if (change.status !== ProductChangeStatusValues.PENDING) {
         throw new MedusaError(
           MedusaError.Types.NOT_ALLOWED,
           `Cannot confirm product change '${change.id}' with status '${change.status}'. Only pending changes can be confirmed.`
@@ -2014,7 +1993,7 @@ class ProductModuleService extends ProductModuleServiceBase {
       items.map((item) => {
         const update: Record<string, unknown> = {
           id: item.id,
-          status: ProductChangeStatus.CONFIRMED,
+          status: ProductChangeStatusValues.CONFIRMED,
           confirmed_by: item.confirmed_by,
           confirmed_at: new Date(),
         };
@@ -2092,7 +2071,7 @@ class ProductModuleService extends ProductModuleServiceBase {
       const details = (action.details ?? {}) as Record<string, unknown>;
 
       switch (action.action) {
-        case ProductChangeActionType.STATUS_CHANGE: {
+        case ProductChangeActionTypeValues.STATUS_CHANGE: {
           const status = (details as { status?: string }).status;
           if (status === undefined) break;
           const update =
@@ -2102,7 +2081,7 @@ class ProductModuleService extends ProductModuleServiceBase {
           productUpdatesByProductId.set(action.product_id, update);
           break;
         }
-        case ProductChangeActionType.UPDATE: {
+        case ProductChangeActionTypeValues.UPDATE: {
           const { field, value } = details as {
             field?: string;
             value?: unknown;
@@ -2115,7 +2094,7 @@ class ProductModuleService extends ProductModuleServiceBase {
           productUpdatesByProductId.set(action.product_id, update);
           break;
         }
-        case ProductChangeActionType.VARIANT_ADD: {
+        case ProductChangeActionTypeValues.VARIANT_ADD: {
           const variant = (details as { variant?: CreateProductVariantDTO })
             .variant;
           if (!variant) break;
@@ -2125,7 +2104,7 @@ class ProductModuleService extends ProductModuleServiceBase {
           });
           break;
         }
-        case ProductChangeActionType.VARIANT_UPDATE: {
+        case ProductChangeActionTypeValues.VARIANT_UPDATE: {
           const { variant_id, fields } = details as {
             variant_id?: string;
             fields?: UpdateProductVariantDTO;
@@ -2137,12 +2116,12 @@ class ProductModuleService extends ProductModuleServiceBase {
           } as UpdateProductVariantDTO & { id: string });
           break;
         }
-        case ProductChangeActionType.VARIANT_REMOVE: {
+        case ProductChangeActionTypeValues.VARIANT_REMOVE: {
           const { variant_id } = details as { variant_id?: string };
           if (variant_id) variantsToDelete.push(variant_id);
           break;
         }
-        case ProductChangeActionType.ATTRIBUTE_ADD: {
+        case ProductChangeActionTypeValues.ATTRIBUTE_ADD: {
           const { attribute_id, attribute_value_ids, values } = details as {
             attribute_id?: string;
             attribute_value_ids?: string[];
@@ -2155,7 +2134,7 @@ class ProductModuleService extends ProductModuleServiceBase {
           attributeAddsByProductId.set(action.product_id, list);
           break;
         }
-        case ProductChangeActionType.ATTRIBUTE_REMOVE: {
+        case ProductChangeActionTypeValues.ATTRIBUTE_REMOVE: {
           const { attribute_id } = details as { attribute_id?: string };
           if (!attribute_id) break;
           const list =
@@ -2164,7 +2143,7 @@ class ProductModuleService extends ProductModuleServiceBase {
           attributeRemovesByProductId.set(action.product_id, list);
           break;
         }
-        case ProductChangeActionType.PRODUCT_DELETE: {
+        case ProductChangeActionTypeValues.PRODUCT_DELETE: {
           productsToDelete.add(action.product_id);
           break;
         }
@@ -2229,7 +2208,7 @@ class ProductModuleService extends ProductModuleServiceBase {
   ) {
     const change = await this.retrieveProductChange(id, {}, sharedContext);
 
-    if (change.status !== ProductChangeStatus.PENDING) {
+    if (change.status !== ProductChangeStatusValues.PENDING) {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
         `Cannot decline product change with status '${change.status}'. Only pending changes can be declined.`
@@ -2239,7 +2218,7 @@ class ProductModuleService extends ProductModuleServiceBase {
     await this.updateProductChanges(
       {
         id,
-        status: ProductChangeStatus.DECLINED,
+        status: ProductChangeStatusValues.DECLINED,
         declined_by: data.declined_by,
         declined_at: new Date(),
         declined_reason: data.declined_reason,
@@ -2256,7 +2235,7 @@ class ProductModuleService extends ProductModuleServiceBase {
   ) {
     const change = await this.retrieveProductChange(id, {}, sharedContext);
 
-    if (change.status !== ProductChangeStatus.PENDING) {
+    if (change.status !== ProductChangeStatusValues.PENDING) {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
         `Cannot cancel product change with status '${change.status}'. Only pending changes can be canceled.`
@@ -2265,7 +2244,7 @@ class ProductModuleService extends ProductModuleServiceBase {
 
     const update: Record<string, unknown> = {
       id,
-      status: ProductChangeStatus.CANCELED,
+      status: ProductChangeStatusValues.CANCELED,
       canceled_by: data.canceled_by,
       canceled_at: new Date(),
     };
@@ -2301,7 +2280,7 @@ class ProductModuleService extends ProductModuleServiceBase {
         sharedContext
       );
 
-      if (change.status !== ProductChangeStatus.PENDING) {
+      if (change.status !== ProductChangeStatusValues.PENDING) {
         throw new MedusaError(
           MedusaError.Types.NOT_ALLOWED,
           `Cannot add action to product change with status '${change.status}'. Only pending changes accept actions.`

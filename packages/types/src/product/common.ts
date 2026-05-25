@@ -1,40 +1,69 @@
 import { SellerDTO } from "../seller/common"
 
-// --- Enums ---
+// --- Enums (as string-literal unions + runtime constants) ---
+//
+// These four are intentionally string-literal union *types* with companion
+// frozen-object runtime constants rather than TS `enum`s. The TypeScript
+// path-mapping shim that makes `import { ProductStatus } from
+// "@medusajs/types"` return the Mercur shape is a types-only mechanism —
+// it cannot redirect a runtime value. So Mercur's enums must be expressible
+// in type position alone; code that needs a JS value imports
+// `ProductStatusValues` (or the matching `<Name>Values`) instead.
+// See SPEC-005 / SPEC-006.
 
 /**
  * Replaces Medusa's ProductStatus (draft/proposed/published/rejected)
  * with marketplace product acceptance workflow statuses.
  */
-export enum ProductStatus {
-  DRAFT = 'draft',
-  PROPOSED = "proposed",
-  PUBLISHED = "published",
-  REQUIRES_ACTION = "requires_action",
-  REJECTED = "rejected",
-}
+export type ProductStatus =
+  | "draft"
+  | "proposed"
+  | "published"
+  | "requires_action"
+  | "rejected"
+
+export const ProductStatusValues = {
+  DRAFT: "draft",
+  PROPOSED: "proposed",
+  PUBLISHED: "published",
+  REQUIRES_ACTION: "requires_action",
+  REJECTED: "rejected",
+} as const satisfies Record<string, ProductStatus>
 
 /**
  * Data types for product attributes (business spec Section 4.3.2).
  * Determines validation rules and UI rendering.
  */
-export enum AttributeType {
-  SINGLE_SELECT = "single_select",
-  MULTI_SELECT = "multi_select",
-  UNIT = "unit",
-  TOGGLE = "toggle",
-  TEXT = "text",
-}
+export type AttributeType =
+  | "single_select"
+  | "multi_select"
+  | "unit"
+  | "toggle"
+  | "text"
+
+export const AttributeTypeValues = {
+  SINGLE_SELECT: "single_select",
+  MULTI_SELECT: "multi_select",
+  UNIT: "unit",
+  TOGGLE: "toggle",
+  TEXT: "text",
+} as const satisfies Record<string, AttributeType>
 
 /**
  * Product change lifecycle statuses.
  */
-export enum ProductChangeStatus {
-  PENDING = "pending",
-  CONFIRMED = "confirmed",
-  DECLINED = "declined",
-  CANCELED = "canceled",
-}
+export type ProductChangeStatus =
+  | "pending"
+  | "confirmed"
+  | "declined"
+  | "canceled"
+
+export const ProductChangeStatusValues = {
+  PENDING: "pending",
+  CONFIRMED: "confirmed",
+  DECLINED: "declined",
+  CANCELED: "canceled",
+} as const satisfies Record<string, ProductChangeStatus>
 
 /**
  * Action types for ProductChangeAction. Each action's `details` JSON carries
@@ -55,16 +84,26 @@ export enum ProductChangeStatus {
  *   after all other actions in the same change so any audit-trail updates
  *   still write through before deletion.
  */
-export enum ProductChangeActionType {
-  STATUS_CHANGE = "STATUS_CHANGE",
-  UPDATE = "UPDATE",
-  VARIANT_ADD = "VARIANT_ADD",
-  VARIANT_UPDATE = "VARIANT_UPDATE",
-  VARIANT_REMOVE = "VARIANT_REMOVE",
-  ATTRIBUTE_ADD = "ATTRIBUTE_ADD",
-  ATTRIBUTE_REMOVE = "ATTRIBUTE_REMOVE",
-  PRODUCT_DELETE = "PRODUCT_DELETE",
-}
+export type ProductChangeActionType =
+  | "STATUS_CHANGE"
+  | "UPDATE"
+  | "VARIANT_ADD"
+  | "VARIANT_UPDATE"
+  | "VARIANT_REMOVE"
+  | "ATTRIBUTE_ADD"
+  | "ATTRIBUTE_REMOVE"
+  | "PRODUCT_DELETE"
+
+export const ProductChangeActionTypeValues = {
+  STATUS_CHANGE: "STATUS_CHANGE",
+  UPDATE: "UPDATE",
+  VARIANT_ADD: "VARIANT_ADD",
+  VARIANT_UPDATE: "VARIANT_UPDATE",
+  VARIANT_REMOVE: "VARIANT_REMOVE",
+  ATTRIBUTE_ADD: "ATTRIBUTE_ADD",
+  ATTRIBUTE_REMOVE: "ATTRIBUTE_REMOVE",
+  PRODUCT_DELETE: "PRODUCT_DELETE",
+} as const satisfies Record<string, ProductChangeActionType>
 
 // --- DTOs ---
 
@@ -283,6 +322,22 @@ export interface ProductDTO {
   updated_at: string | Date;
   deleted_at: string | Date | null;
 }
+
+// --- MercurProductDTO (internal alias consumed by the .mercur/types.d.ts shim) ---
+//
+// This is the Mercur shape of a Product DTO. The TypeScript path-mapping
+// shim emitted by `mercur build` re-exports this as
+// `ProductDTO` from `@medusajs/types`, so call sites that write
+// `import { ProductDTO } from "@medusajs/types"` see the Mercur shape
+// (Mercur fields present, `status` typed as the Mercur `ProductStatus`
+// string-literal union, `options` absent).
+//
+// Outside the shim, code should not import `MercurProductDTO` by name —
+// reach for `ProductDTO` from `@medusajs/types` (in projects that extend
+// `.mercur/tsconfig.augment.json`). The alias exists here so the shim has
+// a stable internal target to point at. See SPEC-006.
+
+export type MercurProductDTO = ProductDTO
 
 // --- ProductChangeAction ---
 

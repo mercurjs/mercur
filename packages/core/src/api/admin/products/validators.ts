@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ProductStatus } from "@mercurjs/types"
+import { ProductStatusValues } from "@mercurjs/types"
 import {
   createFindParams,
   createOperatorMap,
@@ -13,7 +13,7 @@ import {
 import { AdditionalData, OperatorMap } from "@medusajs/framework/types"
 import { isPresent } from "@medusajs/framework/utils"
 
-const statusEnum = z.nativeEnum(ProductStatus)
+const statusEnum = z.nativeEnum(ProductStatusValues)
 
 // --- List / retrieve query params ---
 

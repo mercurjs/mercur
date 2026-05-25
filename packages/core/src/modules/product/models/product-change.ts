@@ -1,5 +1,5 @@
 import { model } from "@medusajs/framework/utils";
-import { ProductChangeStatus } from "@mercurjs/types";
+import { ProductChangeStatusValues } from "@mercurjs/types";
 import Product from "./product";
 import ProductChangeAction from "./product-change-action";
 
@@ -8,8 +8,8 @@ const ProductChange = model
     id: model.id({ prefix: "prodch" }).primaryKey(),
     product: model.belongsTo(() => Product, { mappedBy: "changes" }),
     status: model
-      .enum(ProductChangeStatus)
-      .default(ProductChangeStatus.PENDING),
+      .enum(ProductChangeStatusValues)
+      .default(ProductChangeStatusValues.PENDING),
     internal_note: model.text().nullable(),
     external_note: model.text().nullable(),
     created_by: model.text().nullable(),
