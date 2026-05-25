@@ -1,6 +1,6 @@
 import { ExclamationCircleSolid } from "@medusajs/icons";
 import { Button, Container, Heading, Text, toast, usePrompt } from "@medusajs/ui";
-import { ProductChangeActionDTO, ProductChangeStatusValues } from "@mercurjs/types";
+import { ProductChangeActionDTO, ProductChangeStatus } from "@mercurjs/types";
 import {
   type FieldDiff,
   type ReferenceField,
@@ -261,7 +261,7 @@ export const ProductActiveEditSection = ({
     return null;
   }
 
-  if (product_change.status !== ProductChangeStatusValues.PENDING) {
+  if (product_change.status !== ProductChangeStatus.PENDING) {
     return null;
   }
 

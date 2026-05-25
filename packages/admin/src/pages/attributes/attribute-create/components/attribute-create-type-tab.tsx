@@ -2,7 +2,7 @@ import { Heading, Select, Text } from "@medusajs/ui"
 import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { AttributeTypeValues } from "@mercurjs/types"
+import { AttributeType } from "@mercurjs/types"
 import { Form } from "../../../../components/common/form"
 import { SwitchBox } from "../../../../components/common/switch-box"
 import { useTabbedForm } from "../../../../components/tabbed-form/tabbed-form"
@@ -17,11 +17,11 @@ type AttributeCreateFormValues = {
 }
 
 const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
-  [AttributeTypeValues.SINGLE_SELECT]: "attributes.type.select",
-  [AttributeTypeValues.MULTI_SELECT]: "attributes.type.multivalue",
-  [AttributeTypeValues.UNIT]: "attributes.type.unit",
-  [AttributeTypeValues.TOGGLE]: "attributes.type.toggle",
-  [AttributeTypeValues.TEXT]: "attributes.type.text_area",
+  [AttributeType.SINGLE_SELECT]: "attributes.type.select",
+  [AttributeType.MULTI_SELECT]: "attributes.type.multivalue",
+  [AttributeType.UNIT]: "attributes.type.unit",
+  [AttributeType.TOGGLE]: "attributes.type.toggle",
+  [AttributeType.TEXT]: "attributes.type.text_area",
 }
 
 const Root = () => {
@@ -31,8 +31,8 @@ const Root = () => {
   const type = useWatch({ control: form.control, name: "type" })
 
   const showValues =
-    type === AttributeTypeValues.SINGLE_SELECT ||
-    type === AttributeTypeValues.MULTI_SELECT
+    type === AttributeType.SINGLE_SELECT ||
+    type === AttributeType.MULTI_SELECT
 
   return (
     <div
@@ -94,7 +94,7 @@ const Root = () => {
           </div>
         )}
 
-        {type === AttributeTypeValues.MULTI_SELECT && (
+        {type === AttributeType.MULTI_SELECT && (
           <SwitchBox
             control={form.control}
             name="is_variant_axis"

@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
-import { ProductAttributeDTO, AttributeTypeValues } from "@mercurjs/types"
+import { ProductAttributeDTO, AttributeType } from "@mercurjs/types"
 
 import { Form } from "@components/common/form"
 import { AttributeValueInput } from "@components/inputs/attribute-value-input"
@@ -77,7 +77,7 @@ function DetailsTab({ product }: DetailsTabProps) {
                       <Form.Label>{attribute.name}</Form.Label>
                       <Form.Control>
                         <AttributeValueInput
-                          type={AttributeTypeValues.SINGLE_SELECT}
+                          type={AttributeType.SINGLE_SELECT}
                           value={typeof value === "string" ? value : ""}
                           onChange={onChange}
                           availableValues={(attribute.values ?? []).map((v) => ({

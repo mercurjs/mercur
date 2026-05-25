@@ -4,7 +4,7 @@ import {
   transform,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
-import { ProductStatusValues, ProductChangeActionTypeValues } from "@mercurjs/types"
+import { ProductStatus, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { validateResubmitProductStep, updateProductsStep } from "../steps"
@@ -46,8 +46,8 @@ export const resubmitProductWorkflow = overrideWorkflow(
         {
           product_change_id: changes[0].id,
           product_id: product.id,
-          action: ProductChangeActionTypeValues.STATUS_CHANGE,
-          details: { status: ProductStatusValues.PROPOSED },
+          action: ProductChangeActionType.STATUS_CHANGE,
+          details: { status: ProductStatus.PROPOSED },
         },
       ]
     )
@@ -56,7 +56,7 @@ export const resubmitProductWorkflow = overrideWorkflow(
 
     const updateInput = transform({ input }, ({ input }) => ({
       selector: { id: input.product_id },
-      data: { status: ProductStatusValues.PROPOSED },
+      data: { status: ProductStatus.PROPOSED },
     }))
 
     updateProductsStep(updateInput)

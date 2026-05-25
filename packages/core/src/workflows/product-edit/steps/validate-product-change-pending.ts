@@ -1,6 +1,6 @@
 import { createStep } from "@medusajs/framework/workflows-sdk"
 import { MedusaError } from "@medusajs/framework/utils"
-import { ProductChangeStatusValues } from "@mercurjs/types"
+import { ProductChangeStatus } from "@mercurjs/types"
 
 type ValidateProductChangePendingStepInput = {
   product_change: any
@@ -22,7 +22,7 @@ export const validateProductChangePendingStep = createStep(
       )
     }
 
-    if (product_change.status !== ProductChangeStatusValues.PENDING) {
+    if (product_change.status !== ProductChangeStatus.PENDING) {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
         `Product change '${product_change.id}' is not active (status='${product_change.status}'). Only pending changes can be modified.`

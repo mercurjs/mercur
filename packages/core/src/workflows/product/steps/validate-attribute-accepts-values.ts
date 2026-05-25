@@ -1,12 +1,12 @@
 import { MedusaError, Modules } from "@medusajs/framework/utils"
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
-import { AttributeType, AttributeTypeValues } from "@mercurjs/types"
+import { AttributeType } from "@mercurjs/types"
 
 import ProductModuleService from "../../../modules/product/service"
 
 const VALUE_ACCEPTING_TYPES = new Set<AttributeType>([
-  AttributeTypeValues.SINGLE_SELECT,
-  AttributeTypeValues.MULTI_SELECT,
+  AttributeType.SINGLE_SELECT,
+  AttributeType.MULTI_SELECT,
 ])
 
 type ValidateAttributeAcceptsValuesInput = {

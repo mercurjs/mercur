@@ -6,7 +6,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { MedusaError } from "@medusajs/framework/utils"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { ProductChangeActionTypeValues } from "@mercurjs/types"
+import { ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../../product/events"
 import {
@@ -60,7 +60,7 @@ export const productEditRemoveAttributeWorkflow = createWorkflow(
           {
             product_change_id: changes[0].id,
             product_id: input.product_id,
-            action: ProductChangeActionTypeValues.ATTRIBUTE_REMOVE,
+            action: ProductChangeActionType.ATTRIBUTE_REMOVE,
             details: { attribute_id: input.attribute_id },
             internal_note: input.internal_note,
           },

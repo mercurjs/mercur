@@ -1,7 +1,7 @@
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { createDataTableFilterHelper } from "@medusajs/ui"
-import { ProductDTO, ProductStatusValues } from "@mercurjs/types"
+import { ProductDTO, ProductStatus } from "@mercurjs/types"
 import { useDataTableDateFilters } from "../../../../../components/data-table/helpers/general/use-data-table-date-filters"
 import { useProductTypes } from "../../../../../hooks/api/product-types"
 import { useProductTags, useProductCategories, useCollections } from "../../../../../hooks/api"
@@ -99,23 +99,23 @@ export const useProductTableFilters = () => {
         options: [
           {
             label: t("products.productStatus.draft"),
-            value: ProductStatusValues.DRAFT,
+            value: ProductStatus.DRAFT,
           },
           {
             label: t("products.productStatus.proposed"),
-            value: ProductStatusValues.PROPOSED,
+            value: ProductStatus.PROPOSED,
           },
           {
             label: t("products.productStatus.published"),
-            value: ProductStatusValues.PUBLISHED,
+            value: ProductStatus.PUBLISHED,
           },
           {
             label: t("products.productStatus.requires_action"),
-            value: ProductStatusValues.REQUIRES_ACTION,
+            value: ProductStatus.REQUIRES_ACTION,
           },
           {
             label: t("products.productStatus.rejected"),
-            value: ProductStatusValues.REJECTED,
+            value: ProductStatus.REJECTED,
           },
         ],
       })

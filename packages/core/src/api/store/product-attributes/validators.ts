@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { AttributeTypeValues } from "@mercurjs/types"
+import { AttributeType } from "@mercurjs/types"
 import {
   createFindParams,
   createOperatorMap,
@@ -10,7 +10,7 @@ import {
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
 
-const typeEnum = z.nativeEnum(AttributeTypeValues)
+const typeEnum = z.nativeEnum(AttributeType)
 
 export type StoreGetProductAttributeParamsType = z.infer<typeof StoreGetProductAttributeParams>
 export const StoreGetProductAttributeParams = createSelectParams()

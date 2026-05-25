@@ -1,4 +1,4 @@
-import { ProductChangeActionDTO, ProductChangeActionTypeValues } from "@mercurjs/types"
+import { ProductChangeActionDTO, ProductChangeActionType } from "@mercurjs/types"
 
 export type FieldDiff = {
   field: string
@@ -115,7 +115,7 @@ export const partitionProductChangeActions = (
     const details = action.details ?? {}
 
     switch (action.action) {
-      case ProductChangeActionTypeValues.UPDATE: {
+      case ProductChangeActionType.UPDATE: {
         updated.push({
           field: String(details.field ?? "—"),
           previous: details.previous_value,
@@ -123,7 +123,7 @@ export const partitionProductChangeActions = (
         })
         break
       }
-      case ProductChangeActionTypeValues.STATUS_CHANGE: {
+      case ProductChangeActionType.STATUS_CHANGE: {
         updated.push({
           field: "status",
           previous: details.previous_status,
@@ -131,7 +131,7 @@ export const partitionProductChangeActions = (
         })
         break
       }
-      case ProductChangeActionTypeValues.VARIANT_UPDATE: {
+      case ProductChangeActionType.VARIANT_UPDATE: {
         const fields = (details.fields ?? {}) as Record<string, unknown>
         const previousFields = (details.previous_fields ?? {}) as Record<
           string,
@@ -146,15 +146,15 @@ export const partitionProductChangeActions = (
         }
         break
       }
-      case ProductChangeActionTypeValues.VARIANT_ADD:
-      case ProductChangeActionTypeValues.ATTRIBUTE_ADD:
+      case ProductChangeActionType.VARIANT_ADD:
+      case ProductChangeActionType.ATTRIBUTE_ADD:
         added.push(action)
         break
-      case ProductChangeActionTypeValues.VARIANT_REMOVE:
-      case ProductChangeActionTypeValues.ATTRIBUTE_REMOVE:
+      case ProductChangeActionType.VARIANT_REMOVE:
+      case ProductChangeActionType.ATTRIBUTE_REMOVE:
         removed.push(action)
         break
-      case ProductChangeActionTypeValues.PRODUCT_DELETE:
+      case ProductChangeActionType.PRODUCT_DELETE:
         deleteRequested = true
         break
     }
@@ -169,17 +169,17 @@ export const describeProductChangeAction = (
 ): string => {
   const details = action.details ?? {}
   switch (action.action) {
-    case ProductChangeActionTypeValues.VARIANT_ADD: {
+    case ProductChangeActionType.VARIANT_ADD: {
       const variant = (details.variant ?? {}) as {
         title?: string
         sku?: string
       }
       return variant.title || variant.sku || fallbacks.variant
     }
-    case ProductChangeActionTypeValues.VARIANT_REMOVE:
+    case ProductChangeActionType.VARIANT_REMOVE:
       return String(details.variant_id ?? "")
-    case ProductChangeActionTypeValues.ATTRIBUTE_ADD:
-    case ProductChangeActionTypeValues.ATTRIBUTE_REMOVE:
+    case ProductChangeActionType.ATTRIBUTE_ADD:
+    case ProductChangeActionType.ATTRIBUTE_REMOVE:
       return String(details.attribute_id ?? "")
     default:
       return ""

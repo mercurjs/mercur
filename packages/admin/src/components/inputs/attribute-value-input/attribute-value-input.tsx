@@ -1,5 +1,5 @@
 import { Input, Select, Textarea } from "@medusajs/ui";
-import { AttributeType, AttributeTypeValues } from "@mercurjs/types";
+import { AttributeType } from "@mercurjs/types";
 import { useTranslation } from "react-i18next";
 import { Combobox } from "../combobox";
 
@@ -23,7 +23,7 @@ export const AttributeValueInput = ({
     placeholder ?? t("products.create.attributes.valuePlaceholder");
 
   switch (type) {
-    case AttributeTypeValues.MULTI_SELECT:
+    case AttributeType.MULTI_SELECT:
       return (
         <Combobox
           value={Array.isArray(value) ? value : []}
@@ -36,7 +36,7 @@ export const AttributeValueInput = ({
         />
       );
 
-    case AttributeTypeValues.SINGLE_SELECT:
+    case AttributeType.SINGLE_SELECT:
       return (
         <Select
           value={typeof value === "string" ? value : value?.[0] ?? ""}
@@ -57,7 +57,7 @@ export const AttributeValueInput = ({
         </Select>
       );
 
-    case AttributeTypeValues.TOGGLE:
+    case AttributeType.TOGGLE:
       return (
         <Select
           value={typeof value === "string" ? value : value?.[0] ?? ""}
@@ -75,7 +75,7 @@ export const AttributeValueInput = ({
         </Select>
       );
 
-    case AttributeTypeValues.TEXT:
+    case AttributeType.TEXT:
       return (
         <Textarea
           className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"

@@ -17,7 +17,7 @@ import {
   StoreGetProductParams,
   StoreGetProductsParams,
 } from "./validators"
-import { ProductStatusValues, SellerStatus } from "@mercurjs/types"
+import { SellerStatus, ProductStatus } from "@mercurjs/types"
 
 const applyProductFilters = (
   req: MedusaRequest,
@@ -25,7 +25,7 @@ const applyProductFilters = (
   next: MedusaNextFunction
 ) => {
   req.filterableFields = req.filterableFields ?? {}
-  req.filterableFields.status = ProductStatusValues.PUBLISHED
+  req.filterableFields.status = ProductStatus.PUBLISHED
   next()
 }
 

@@ -12,7 +12,7 @@ import {
   Text,
   toast,
 } from "@medusajs/ui";
-import { ProductAttributeDTO, AttributeTypeValues } from "@mercurjs/types";
+import { ProductAttributeDTO, AttributeType } from "@mercurjs/types";
 import { useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -136,7 +136,7 @@ const Content = ({ productId }: { productId: string }) => {
         available_values:
           attr!.values?.map((v) => ({ id: v.id, name: v.name })) ?? [],
         values:
-          attr!.type === AttributeTypeValues.MULTI_SELECT
+          attr!.type === AttributeType.MULTI_SELECT
             ? ([] as string[])
             : "",
       }));

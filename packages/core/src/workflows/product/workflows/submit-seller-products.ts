@@ -8,7 +8,7 @@ import {
 import {
   emitEventStep,
 } from "@medusajs/medusa/core-flows"
-import { CreateProductDTO, ProductChangeActionTypeValues } from "@mercurjs/types"
+import { CreateProductDTO, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import {
@@ -90,7 +90,7 @@ export const submitSellerProductsWorkflow: ReturnType<typeof overrideWorkflow> =
         (createdProducts).map((product, idx) => ({
           product_change_id: (changes)[idx].id,
           product_id: product.id,
-          action: ProductChangeActionTypeValues.STATUS_CHANGE,
+          action: ProductChangeActionType.STATUS_CHANGE,
           details: { status: product.status },
         }))
     )

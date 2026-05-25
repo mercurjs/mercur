@@ -3,7 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { ProductChangeDTO, ProductChangeStatusValues } from "@mercurjs/types"
+import { ProductChangeDTO, ProductChangeStatus } from "@mercurjs/types"
 
 /**
  * Returns the active pending `ProductChange` for a product **scoped to the
@@ -28,7 +28,7 @@ export const GET = async (
     filters: {
       product_id: productId,
       created_by: sellerId,
-      status: ProductChangeStatusValues.PENDING,
+      status: ProductChangeStatus.PENDING,
     },
   })
 

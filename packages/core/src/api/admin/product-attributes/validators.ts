@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { AttributeTypeValues } from "@mercurjs/types"
+import { AttributeType } from "@mercurjs/types"
 import {
   createFindParams,
   createOperatorMap,
@@ -13,7 +13,7 @@ import {
 import { AdditionalData, OperatorMap } from "@medusajs/framework/types"
 import { isPresent } from "@medusajs/framework/utils"
 
-const typeEnum = z.nativeEnum(AttributeTypeValues)
+const typeEnum = z.nativeEnum(AttributeType)
 
 // --- Attribute query params ---
 

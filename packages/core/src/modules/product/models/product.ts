@@ -1,5 +1,5 @@
 import { model } from "@medusajs/framework/utils";
-import { ProductStatusValues } from "@mercurjs/types";
+import { ProductStatus } from "@mercurjs/types";
 import ProductAttribute from "./product-attribute";
 import ProductAttributeValue from "./product-attribute-value";
 import ProductBrand from "./product-brand";
@@ -34,7 +34,7 @@ const Product = model
     metadata: model.json().nullable(),
 
     // --- Marketplace additions ---
-    status: model.enum(ProductStatusValues).default(ProductStatusValues.PROPOSED),
+    status: model.enum(ProductStatus).default(ProductStatus.PROPOSED),
     is_restricted: model.boolean().default(false),
     created_by: model.text().nullable(),
     created_by_actor: model.text().searchable().nullable(),

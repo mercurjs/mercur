@@ -6,7 +6,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { MedusaError } from "@medusajs/framework/utils"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { ProductChangeActionTypeValues } from "@mercurjs/types"
+import { ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../../product/events"
 import {
@@ -73,7 +73,7 @@ export const productEditUpdateFieldsWorkflow = createWorkflow(
           out.push({
             product_change_id: changes[0].id,
             product_id: input.product_id,
-            action: ProductChangeActionTypeValues.UPDATE,
+            action: ProductChangeActionType.UPDATE,
             details: { field, value, previous_value },
             internal_note: input.internal_note,
           })

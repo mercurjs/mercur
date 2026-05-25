@@ -1,5 +1,5 @@
 import { model } from "@medusajs/framework/utils";
-import { AttributeTypeValues } from "@mercurjs/types";
+import { AttributeType } from "@mercurjs/types";
 import Product from "./product";
 import ProductAttributeValue from "./product-attribute-value";
 import ProductCategory from "./product-category";
@@ -10,7 +10,7 @@ const ProductAttribute = model
     handle: model.text().nullable(),
     name: model.text().searchable(),
     description: model.text().nullable(),
-    type: model.enum(AttributeTypeValues),
+    type: model.enum(AttributeType),
     is_required: model.boolean().default(false),
     is_filterable: model.boolean().default(false),
     is_variant_axis: model.boolean().default(false),

@@ -5,7 +5,7 @@ import {
   transform,
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { CreateProductVariantDTO, ProductChangeActionTypeValues } from "@mercurjs/types"
+import { CreateProductVariantDTO, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../../product/events"
 import {
@@ -50,7 +50,7 @@ export const productEditAddVariantWorkflow = createWorkflow(
         {
           product_change_id: changes[0].id,
           product_id: input.product_id,
-          action: ProductChangeActionTypeValues.VARIANT_ADD,
+          action: ProductChangeActionType.VARIANT_ADD,
           details: { variant: input.variant },
           internal_note: input.internal_note,
         },

@@ -21,34 +21,26 @@ export * from "./payout"
 // Offer types
 export * from "./offer"
 
-// Product types — explicit re-export to override Medusa's product types
-// (this module replaces Medusa's built-in product module)
+// Product types — explicit re-export overrides Medusa's product surface.
+// Mercur's runtime enums and Mercur-extended DTOs (Omit + intersection over
+// upstream) win over the wholesale `export * from "@medusajs/types"` above.
+// Types upstream declares verbatim (ProductImageDTO, ProductTypeDTO,
+// ProductTagDTO, ProductCollectionDTO, etc.) come through the wholesale
+// re-export unchanged.
 export {
-  // String-literal unions (type-only)
-  type ProductStatus,
-  type AttributeType,
-  type ProductChangeStatus,
-  type ProductChangeActionType,
-  // Runtime constants for the unions above
-  ProductStatusValues,
-  AttributeTypeValues,
-  ProductChangeStatusValues,
-  ProductChangeActionTypeValues,
-  // common DTOs
+  ProductStatus,
+  AttributeType,
+  ProductChangeStatus,
+  ProductChangeActionType,
   type ProductDTO,
   type ProductVariantDTO,
   type ProductCategoryDTO,
-  type ProductCollectionDTO,
-  type ProductTypeDTO,
-  type ProductTagDTO,
-  type ProductImageDTO,
-  type ProductVariantProductImageDTO,
   type ProductBrandDTO,
   type ProductAttributeDTO,
   type ProductAttributeValueDTO,
   type ProductChangeDTO,
   type ProductChangeActionDTO,
-  // mutations
+  type MercurProductDTO,
   type CreateProductDTO,
   type UpdateProductDTO,
   type UpsertProductDTO,
@@ -57,15 +49,6 @@ export {
   type UpsertProductVariantDTO,
   type CreateProductCategoryDTO,
   type UpdateProductCategoryDTO,
-  type CreateProductCollectionDTO,
-  type UpdateProductCollectionDTO,
-  type CreateProductTypeDTO,
-  type UpdateProductTypeDTO,
-  type CreateProductTagDTO,
-  type UpdateProductTagDTO,
-  type CreateProductImageDTO,
-  type UpdateProductImageDTO,
-  type UpsertProductImageDTO,
   type CreateProductBrandDTO,
   type UpdateProductBrandDTO,
   type CreateProductAttributeDTO,
@@ -73,6 +56,7 @@ export {
   type CreateProductAttributeValueDTO,
   type UpdateProductAttributeValueDTO,
   type UpsertProductAttributeValueDTO,
+  type ProductAttributeInputDTO,
   type CreateProductChangeDTO,
   type CreateProductChangeActionDTO,
 } from "./product"

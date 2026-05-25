@@ -13,7 +13,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
-import { ProductAttributeDTO, ProductAttributeValueDTO, AttributeTypeValues } from "@mercurjs/types"
+import { ProductAttributeDTO, ProductAttributeValueDTO, AttributeType } from "@mercurjs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -128,7 +128,7 @@ export const AttributePossibleValuesSection = ({
   const { t } = useTranslation()
   const [search, setSearch] = useState("")
 
-  if (attribute.type !== AttributeTypeValues.SINGLE_SELECT && attribute.type !== AttributeTypeValues.MULTI_SELECT) {
+  if (attribute.type !== AttributeType.SINGLE_SELECT && attribute.type !== AttributeType.MULTI_SELECT) {
     return null
   }
 
