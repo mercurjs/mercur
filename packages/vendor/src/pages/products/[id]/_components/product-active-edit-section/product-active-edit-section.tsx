@@ -1,9 +1,6 @@
 import { ExclamationCircleSolid } from "@medusajs/icons";
 import { Button, Container, Heading, Text, toast, usePrompt } from "@medusajs/ui";
-import {
-  ProductChangeActionDTO,
-  ProductChangeStatus,
-} from "@mercurjs/types";
+import { ProductChangeActionDTO, ProductChangeStatus } from "@mercurjs/types";
 import {
   type FieldDiff,
   type ReferenceField,

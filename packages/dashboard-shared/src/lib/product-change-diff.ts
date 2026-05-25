@@ -1,7 +1,4 @@
-import {
-  ProductChangeActionDTO,
-  ProductChangeActionType,
-} from "@mercurjs/types"
+import { ProductChangeActionDTO, ProductChangeActionType } from "@mercurjs/types"
 
 export type FieldDiff = {
   field: string

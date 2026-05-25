@@ -4,7 +4,8 @@ import {
 } from "@medusajs/framework";
 import { authenticate, MiddlewareRoute } from "@medusajs/medusa";
 
-import { isPresent, ProductStatus } from "@medusajs/framework/utils";
+import { isPresent } from "@medusajs/framework/utils";
+import { ProductStatus } from "@mercurjs/types";
 import { listProductQueryConfig } from "@medusajs/medusa/api/store/products/query-config";
 import { StoreGetProductsParams } from "@medusajs/medusa/api/store/products/validators";
 import { storeWishlistQueryConfig } from "./query-config";

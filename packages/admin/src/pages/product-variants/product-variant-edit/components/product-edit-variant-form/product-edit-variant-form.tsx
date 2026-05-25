@@ -5,11 +5,7 @@ import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import { HttpTypes } from "@medusajs/types";
-import {
-  AttributeType,
-  ProductAttributeValueDTO,
-  ProductDTO,
-} from "@mercurjs/types";
+import { ProductAttributeValueDTO, ProductDTO, AttributeType } from "@mercurjs/types";
 import { Form } from "../../../../../components/common/form";
 import { AttributeValueInput } from "../../../../../components/inputs/attribute-value-input";
 import { CountrySelect } from "../../../../../components/inputs/country-select";

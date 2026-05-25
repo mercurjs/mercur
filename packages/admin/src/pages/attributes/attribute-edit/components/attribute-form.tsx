@@ -9,7 +9,7 @@ import { Input, Select, Textarea } from "@medusajs/ui"
 import { FormProvider, useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
-import { AttributeType, ProductAttributeDTO } from "@mercurjs/types"
+import { ProductAttributeDTO, AttributeType } from "@mercurjs/types"
 import { Form } from "../../../../components/common/form"
 import { SwitchBox } from "../../../../components/common/switch-box"
 import { HandleInput } from "../../../../components/inputs/handle-input"

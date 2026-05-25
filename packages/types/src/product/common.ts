@@ -1,13 +1,19 @@
+import type {
+  ProductDTO as UpstreamProductDTO,
+  ProductVariantDTO as UpstreamProductVariantDTO,
+  ProductCategoryDTO as UpstreamProductCategoryDTO,
+  ProductImageDTO,
+} from "@medusajs/types"
 import { SellerDTO } from "../seller/common"
 
 // --- Enums ---
 
 /**
- * Replaces Medusa's ProductStatus (draft/proposed/published/rejected)
- * with marketplace product acceptance workflow statuses.
+ * Mercur product acceptance workflow. Adds `REQUIRES_ACTION` to the
+ * upstream `draft / proposed / published / rejected` set.
  */
 export enum ProductStatus {
-  DRAFT = 'draft',
+  DRAFT = "draft",
   PROPOSED = "proposed",
   PUBLISHED = "published",
   REQUIRES_ACTION = "requires_action",
@@ -15,8 +21,8 @@ export enum ProductStatus {
 }
 
 /**
- * Data types for product attributes (business spec Section 4.3.2).
- * Determines validation rules and UI rendering.
+ * Data types for product attributes. Determines validation rules and UI
+ * rendering.
  */
 export enum AttributeType {
   SINGLE_SELECT = "single_select",
@@ -26,9 +32,7 @@ export enum AttributeType {
   TEXT = "text",
 }
 
-/**
- * Product change lifecycle statuses.
- */
+/** Product change lifecycle statuses. */
 export enum ProductChangeStatus {
   PENDING = "pending",
   CONFIRMED = "confirmed",
@@ -40,20 +44,6 @@ export enum ProductChangeStatus {
  * Action types for ProductChangeAction. Each action's `details` JSON carries
  * the operation payload; `ProductModuleService.applyProductChangeActions_`
  * dispatches based on `action`.
- *
- * - `STATUS_CHANGE` — `{ status: ProductStatus }`
- * - `UPDATE` — top-level Product field. `{ field, value, previous_value? }`.
- *   One action per changed field.
- * - `VARIANT_ADD` — `{ variant: CreateProductVariantDTO }`.
- * - `VARIANT_UPDATE` — `{ variant_id, fields: UpdateProductVariantDTO,
- *   previous_fields? }`. One action per updated variant.
- * - `VARIANT_REMOVE` — `{ variant_id }`.
- * - `ATTRIBUTE_ADD` — `{ attribute_id, attribute_value_ids?, values? }`.
- *   Mirrors `ProductModuleService.addAttributesToProduct` per-item shape.
- * - `ATTRIBUTE_REMOVE` — `{ attribute_id }`.
- * - `PRODUCT_DELETE` — `{}`. Soft-deletes the product on apply. Processed
- *   after all other actions in the same change so any audit-trail updates
- *   still write through before deletion.
  */
 export enum ProductChangeActionType {
   STATUS_CHANGE = "STATUS_CHANGE",
@@ -66,261 +56,139 @@ export enum ProductChangeActionType {
   PRODUCT_DELETE = "PRODUCT_DELETE",
 }
 
-// --- DTOs ---
-
-// --- ProductImage ---
-
-export interface ProductImageDTO {
-  id: string;
-  url: string;
-  rank: number;
-  metadata: Record<string, unknown> | null;
-  product?: ProductDTO;
-  product_id?: string;
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
-}
-
-// --- ProductVariantProductImage ---
-
-export interface ProductVariantProductImageDTO {
-  id: string;
-  variant_id: string;
-  image_id: string;
-  variant?: ProductVariantDTO;
-  image?: ProductImageDTO;
-}
-
-// --- ProductType ---
-
-export interface ProductTypeDTO {
-  id: string;
-  value: string;
-  metadata: Record<string, unknown> | null;
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
-}
-
-// --- ProductTag ---
-
-export interface ProductTagDTO {
-  id: string;
-  value: string;
-  metadata: Record<string, unknown> | null;
-  products?: ProductDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
-}
-
-// --- ProductCollection ---
-
-export interface ProductCollectionDTO {
-  id: string;
-  title: string;
-  handle: string;
-  metadata: Record<string, unknown> | null;
-  products?: ProductDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
-}
-
-// --- ProductBrand ---
+// --- Mercur-only DTOs ---
 
 export interface ProductBrandDTO {
-  id: string;
-  name: string;
-  handle: string;
-  is_restricted: boolean;
-  metadata: Record<string, unknown> | null;
-  products?: ProductDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
+  id: string
+  name: string
+  handle: string
+  is_restricted: boolean
+  metadata: Record<string, unknown> | null
+  products?: ProductDTO[]
+  created_at: string | Date
+  updated_at: string | Date
+  deleted_at: string | Date | null
 }
-
-// --- ProductAttributeValue ---
 
 export interface ProductAttributeValueDTO {
-  id: string;
-  handle: string | null;
-  name: string;
-  rank: number;
-  is_active: boolean;
-  metadata: Record<string, unknown> | null;
-  attribute?: ProductAttributeDTO;
-  attribute_id?: string;
-  variants?: ProductVariantDTO[];
-  products?: ProductDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
+  id: string
+  handle: string | null
+  name: string
+  rank: number
+  is_active: boolean
+  metadata: Record<string, unknown> | null
+  attribute?: ProductAttributeDTO
+  attribute_id?: string
+  variants?: ProductVariantDTO[]
+  products?: ProductDTO[]
+  created_at: string | Date
+  updated_at: string | Date
+  deleted_at: string | Date | null
 }
-
-// --- ProductAttribute ---
 
 export interface ProductAttributeDTO {
-  id: string;
-  handle: string | null;
-  name: string;
-  description: string | null;
-  type: AttributeType;
-  is_required: boolean;
-  is_filterable: boolean;
-  is_variant_axis: boolean;
-  rank: number;
-  is_active: boolean;
-  created_by: string | null;
-  product_id: string | null;
-  metadata: Record<string, unknown> | null;
-  values?: ProductAttributeValueDTO[];
-  categories?: ProductCategoryDTO[];
-  variant_products?: ProductDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
+  id: string
+  handle: string | null
+  name: string
+  description: string | null
+  type: AttributeType
+  is_required: boolean
+  is_filterable: boolean
+  is_variant_axis: boolean
+  rank: number
+  is_active: boolean
+  created_by: string | null
+  product_id: string | null
+  metadata: Record<string, unknown> | null
+  values?: ProductAttributeValueDTO[]
+  categories?: ProductCategoryDTO[]
+  variant_products?: ProductDTO[]
+  created_at: string | Date
+  updated_at: string | Date
+  deleted_at: string | Date | null
 }
-
-// --- ProductCategory ---
-
-export interface ProductCategoryDTO {
-  id: string;
-  name: string;
-  description: string;
-  handle: string;
-  mpath: string;
-  is_active: boolean;
-  is_internal: boolean;
-  is_restricted: boolean;
-  rank: number;
-  metadata: Record<string, unknown> | null;
-  parent_category: ProductCategoryDTO | null;
-  parent_category_id: string | null;
-  category_children: ProductCategoryDTO[];
-  products?: ProductDTO[];
-  attributes?: ProductAttributeDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
-}
-
-// --- ProductVariant ---
-
-export interface ProductVariantDTO {
-  id: string;
-  title: string;
-  sku: string | null;
-  barcode: string | null;
-  ean: string | null;
-  upc: string | null;
-  allow_backorder: boolean;
-  manage_inventory: boolean;
-  hs_code: string | null;
-  origin_country: string | null;
-  mid_code: string | null;
-  material: string | null;
-  weight: number | null;
-  length: number | null;
-  height: number | null;
-  width: number | null;
-  metadata: Record<string, unknown> | null;
-  variant_rank: number | null;
-  thumbnail: string | null;
-  product?: ProductDTO;
-  product_id?: string;
-  images?: ProductImageDTO[];
-  attribute_values?: ProductAttributeValueDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
-}
-
-// --- Product ---
-
-export interface ProductDTO {
-  id: string;
-  title: string;
-  handle: string;
-  subtitle: string | null;
-  description: string | null;
-  is_giftcard: boolean;
-  thumbnail: string | null;
-  weight: string | null;
-  length: string | null;
-  height: string | null;
-  width: string | null;
-  origin_country: string | null;
-  hs_code: string | null;
-  mid_code: string | null;
-  material: string | null;
-  discountable: boolean;
-  external_id: string | null;
-  metadata: Record<string, unknown> | null;
-  status: ProductStatus;
-  is_restricted: boolean;
-  created_by: string | null;
-  created_by_actor: string | null;
-  variants?: ProductVariantDTO[];
-  type?: ProductTypeDTO | null;
-  type_id?: string | null;
-  brand?: ProductBrandDTO | null;
-  brand_id?: string | null;
-  tags?: ProductTagDTO[];
-  images?: ProductImageDTO[];
-  collection?: ProductCollectionDTO | null;
-  collection_id?: string | null;
-  categories?: ProductCategoryDTO[];
-  variant_attributes?: ProductAttributeDTO[];
-  custom_attributes?: ProductAttributeDTO[];
-  attribute_values?: ProductAttributeValueDTO[];
-  attributes?: ProductAttributeDTO[];
-  sellers?: SellerDTO[];
-  changes?: ProductChangeDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
-}
-
-// --- ProductChangeAction ---
 
 export interface ProductChangeActionDTO {
-  id: string;
-  product_id: string;
-  product_change_id: string | null;
-  ordering: number;
-  action: string;
-  details: Record<string, unknown>;
-  internal_note: string | null;
-  applied: boolean;
-  product_change?: ProductChangeDTO;
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
+  id: string
+  product_id: string
+  product_change_id: string | null
+  ordering: number
+  action: string
+  details: Record<string, unknown>
+  internal_note: string | null
+  applied: boolean
+  product_change?: ProductChangeDTO
+  created_at: string | Date
+  updated_at: string | Date
+  deleted_at: string | Date | null
 }
-
-// --- ProductChange ---
 
 export interface ProductChangeDTO {
-  id: string;
-  product?: ProductDTO;
-  product_id?: string;
-  status: ProductChangeStatus;
-  internal_note: string | null;
-  external_note: string | null;
-  created_by: string | null;
-  confirmed_by: string | null;
-  confirmed_at: string | Date | null;
-  declined_by: string | null;
-  declined_at: string | Date | null;
-  declined_reason: string | null;
-  canceled_by: string | null;
-  canceled_at: string | Date | null;
-  metadata: Record<string, unknown> | null;
-  actions?: ProductChangeActionDTO[];
-  created_at: string | Date;
-  updated_at: string | Date;
-  deleted_at: string | Date | null;
+  id: string
+  product?: ProductDTO
+  product_id?: string
+  status: ProductChangeStatus
+  internal_note: string | null
+  external_note: string | null
+  created_by: string | null
+  confirmed_by: string | null
+  confirmed_at: string | Date | null
+  declined_by: string | null
+  declined_at: string | Date | null
+  declined_reason: string | null
+  canceled_by: string | null
+  canceled_at: string | Date | null
+  metadata: Record<string, unknown> | null
+  actions?: ProductChangeActionDTO[]
+  created_at: string | Date
+  updated_at: string | Date
+  deleted_at: string | Date | null
 }
+
+// --- Mercur-extended DTOs (Omit + intersection over upstream) ---
+
+/**
+ * Mercur extends `ProductCategoryDTO` with `is_restricted`. Pure addition,
+ * no field conflicts.
+ */
+export type ProductCategoryDTO = UpstreamProductCategoryDTO & {
+  is_restricted: boolean
+  attributes?: ProductAttributeDTO[]
+}
+
+/**
+ * Mercur extends `ProductVariantDTO` with `attribute_values` and Mercur's
+ * own `images` link. Upstream fields kept intact.
+ */
+export type ProductVariantDTO = UpstreamProductVariantDTO & {
+  attribute_values?: ProductAttributeValueDTO[]
+  images?: ProductImageDTO[]
+}
+
+/**
+ * Mercur's `ProductDTO`. Replaces `status` (Mercur enum includes
+ * `REQUIRES_ACTION`) and drops `options`. Adds marketplace-only fields.
+ */
+export type ProductDTO = Omit<UpstreamProductDTO, "status" | "options"> & {
+  status: ProductStatus
+  is_restricted: boolean
+  created_by: string | null
+  created_by_actor: string | null
+  variants?: ProductVariantDTO[]
+  brand?: ProductBrandDTO | null
+  brand_id?: string | null
+  categories?: ProductCategoryDTO[]
+  variant_attributes?: ProductAttributeDTO[]
+  custom_attributes?: ProductAttributeDTO[]
+  attribute_values?: ProductAttributeValueDTO[]
+  attributes?: ProductAttributeDTO[]
+  sellers?: SellerDTO[]
+  changes?: ProductChangeDTO[]
+}
+
+/**
+ * Internal alias of `ProductDTO`. Used by the `.mercur/types.d.ts` shim so
+ * consumers writing `import { ProductDTO } from "@medusajs/types"` resolve
+ * to the Mercur shape.
+ */
+export type MercurProductDTO = ProductDTO

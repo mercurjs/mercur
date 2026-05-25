@@ -13,7 +13,7 @@ import {
   Text,
   toast,
 } from "@medusajs/ui"
-import { AttributeType, ProductAttributeDTO } from "@mercurjs/types"
+import { ProductAttributeDTO, AttributeType } from "@mercurjs/types"
 import { useMemo, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"

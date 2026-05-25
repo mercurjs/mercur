@@ -1,11 +1,7 @@
 import { Fragment, useMemo, useState } from "react";
 import { ExclamationCircleSolid } from "@medusajs/icons";
 import { Button, Container, Heading, Text, toast } from "@medusajs/ui";
-import {
-  ProductChangeActionDTO,
-  ProductChangeStatus,
-  SellerDTO,
-} from "@mercurjs/types";
+import { ProductChangeActionDTO, SellerDTO, ProductChangeStatus } from "@mercurjs/types";
 import {
   type FieldDiff,
   type ReferenceField,

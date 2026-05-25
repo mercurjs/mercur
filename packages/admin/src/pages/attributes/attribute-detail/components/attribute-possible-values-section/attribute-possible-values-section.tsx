@@ -13,7 +13,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
-import { AttributeType, ProductAttributeDTO, ProductAttributeValueDTO } from "@mercurjs/types"
+import { ProductAttributeDTO, ProductAttributeValueDTO, AttributeType } from "@mercurjs/types"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { _DataTable } from "../../../../../components/table/data-table"

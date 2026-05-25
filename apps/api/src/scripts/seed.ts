@@ -5,8 +5,8 @@ import {
 import {
   ContainerRegistrationKeys,
   Modules,
-  ProductStatus,
 } from "@medusajs/framework/utils";
+import { ProductStatus } from "@mercurjs/types";
 import {
   createWorkflow,
   transform,

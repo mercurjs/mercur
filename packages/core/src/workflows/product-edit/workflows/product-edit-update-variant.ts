@@ -9,10 +9,7 @@ import {
   emitEventStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import {
-  ProductChangeActionType,
-  UpdateProductVariantDTO,
-} from "@mercurjs/types"
+import { UpdateProductVariantDTO, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../../product/events"
 import {

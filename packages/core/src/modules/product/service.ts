@@ -14,28 +14,7 @@ import {
   promiseAll,
   toHandle,
 } from "@medusajs/framework/utils";
-import {
-  AttributeType,
-  CreateProductAttributeDTO,
-  CreateProductAttributeValueDTO,
-  CreateProductBrandDTO,
-  CreateProductDTO,
-  CreateProductVariantDTO,
-  ProductAttributeDTO,
-  ProductBrandDTO,
-  ProductChangeActionDTO,
-  ProductChangeActionType,
-  ProductChangeStatus,
-  ProductDTO,
-  ProductVariantDTO,
-  UpdateProductAttributeDTO,
-  UpdateProductAttributeValueDTO,
-  UpdateProductBrandDTO,
-  UpdateProductDTO,
-  UpdateProductVariantDTO,
-  UpsertProductAttributeValueDTO,
-  UpsertProductVariantDTO,
-} from "@mercurjs/types";
+import { AttributeType, CreateProductAttributeDTO, CreateProductAttributeValueDTO, CreateProductBrandDTO, CreateProductDTO, CreateProductVariantDTO, ProductAttributeDTO, ProductBrandDTO, ProductChangeActionDTO, ProductDTO, ProductVariantDTO, UpdateProductAttributeDTO, UpdateProductAttributeValueDTO, UpdateProductBrandDTO, UpdateProductDTO, UpdateProductVariantDTO, UpsertProductAttributeValueDTO, UpsertProductVariantDTO, ProductChangeStatus, ProductChangeActionType } from "@mercurjs/types";
 
 import {
   Product,

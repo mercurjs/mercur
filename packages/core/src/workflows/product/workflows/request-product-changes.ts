@@ -4,11 +4,7 @@ import {
   transform,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
-import {
-  ProductStatus,
-  ProductChangeActionType,
-  ProductChangeStatus,
-} from "@mercurjs/types"
+import { ProductStatus, ProductChangeStatus, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { validateRequestChangesStep, updateProductsStep } from "../steps"

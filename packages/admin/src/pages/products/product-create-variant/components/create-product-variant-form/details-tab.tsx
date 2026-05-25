@@ -4,7 +4,7 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
-import { AttributeType, ProductAttributeDTO } from "@mercurjs/types"
+import { ProductAttributeDTO, AttributeType } from "@mercurjs/types"
 
 import { Form } from "../../../../../components/common/form"
 import { AttributeValueInput } from "../../../../../components/inputs/attribute-value-input"

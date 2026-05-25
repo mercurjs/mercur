@@ -17,7 +17,7 @@ import {
   StoreGetProductParams,
   StoreGetProductsParams,
 } from "./validators"
-import { ProductStatus, SellerStatus } from "@mercurjs/types"
+import { SellerStatus, ProductStatus } from "@mercurjs/types"
 
 const applyProductFilters = (
   req: MedusaRequest,

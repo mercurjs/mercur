@@ -8,10 +8,7 @@ import {
 import {
   emitEventStep,
 } from "@medusajs/medusa/core-flows"
-import {
-  CreateProductDTO,
-  ProductChangeActionType,
-} from "@mercurjs/types"
+import { CreateProductDTO, ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import {

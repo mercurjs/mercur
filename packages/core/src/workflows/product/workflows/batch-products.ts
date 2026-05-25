@@ -6,7 +6,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
-import { ProductStatus, UpdateProductDTO } from "@mercurjs/types"
+import { UpdateProductDTO, ProductStatus } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { updateProductsStep } from "../steps"
