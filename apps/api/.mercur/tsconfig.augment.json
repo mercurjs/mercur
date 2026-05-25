@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@medusajs/types": [
+        "./.mercur/types.d.ts"
+      ],
+      "@medusajs/types-original": [
+        "./node_modules/@medusajs/types"
+      ]
+    }
+  }
+}

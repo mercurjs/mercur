@@ -12,6 +12,90 @@
 
 ## Session Log
 
+### Session 16: 2026-05-25 -- SPEC-006 build wrapper + type shim (SPEC-005 starter sub-spec)
+
+**Goal**: Land the SPEC-005 starter sub-spec — reintroduce `mercur build`,
+emit the path-mapping type shim and the tsconfig augment fragment, and
+convert the four Mercur enums to string-literal unions so the shim can
+swap them at the type level.
+
+#### Completed
+
+- `packages/types/src/product/common.ts`: converted `ProductStatus`,
+  `AttributeType`, `ProductChangeStatus`, `ProductChangeActionType`
+  from TS `enum`s to string-literal union *types* with companion
+  frozen-object runtime constants (`ProductStatusValues`,
+  `AttributeTypeValues`, `ProductChangeStatusValues`,
+  `ProductChangeActionTypeValues`). Added internal `MercurProductDTO`
+  alias (consumed by the shim).
+- `packages/types/src/index.ts`: type-only re-export of the four
+  unions; value re-export of the four `*Values` constants.
+- `packages/types/package.json`: added `./product` subpath export.
+- 43 callsites migrated to `<Name>Values.<Member>` for value-position
+  uses (computed property keys, default values, `z.nativeEnum(...)`,
+  `model.enum(...)`, template literals, comparisons) across
+  `packages/core`, `packages/admin`, `packages/vendor`,
+  `packages/dashboard-shared`, `packages/registry`,
+  `apps/api/src/scripts`, `templates/basic/...`. Type-position uses
+  unchanged (the `<Name>` identifiers still resolve as union types).
+- `packages/core/src/modules/product/index.ts`: added
+  `MercurProductModuleService` alias export for the shim.
+- `packages/cli/src/commands/build.ts`: reintroduced (was deleted in
+  commit `67d6f885`). Runs preflight, spawns `medusa build`, then
+  post-processes `.medusa/types/modules-bindings.d.ts`.
+- `packages/cli/src/preflights/preflight-build.ts`: new. Emits
+  `.mercur/routes.d.ts` (via existing `writeRouteTypes`),
+  `.mercur/types.d.ts` (the shim with `ProductDTO`, `ProductStatus`,
+  and explicit `ModuleImplementations` re-declaration whose `product`
+  key is `MercurProductModuleService`), and
+  `.mercur/tsconfig.augment.json`. Exposes
+  `postprocessModulesBindings` which strips the `'product':` line
+  from the generated modules-bindings file so the upstream
+  `generateContainerTypes` output does not collide with the shim's
+  re-declared interface.
+- `packages/cli/src/utils/get-command-bin.ts`: restored (was deleted
+  in `67d6f885`).
+- `packages/cli/src/index.ts`: registered the `build` command.
+- `apps/api/tsconfig.json`: added
+  `"extends": "./.mercur/tsconfig.augment.json"`. Stale
+  `apps/api/.mercur/index.d.ts` (legacy filename) deleted; current
+  `routes.d.ts` / `types.d.ts` / `tsconfig.augment.json` checked in.
+- `docs/specs/SPEC-006-mercur-build-wrapper-and-type-shim.md`: new
+  spec file tracking this sub-spec. Status flipped to `passing` with
+  evidence recorded.
+
+#### Verification
+
+- All package builds clean except `@mercurjs/admin` (pre-existing
+  failure on `notifications.tsx`, confirmed via `git stash` test).
+- `bun run test:integration:http -- product/vendor/product`:
+  **10 / 10 pass**.
+- `bun run test:integration:http -- product/admin/product`:
+  **50 / 50 pass**.
+- `bun run test:integration:http -- offer/vendor/offer`: **18 / 18 pass**.
+- `bun run lint`: 53 errors are pre-existing `no-unused-vars` in
+  files this sub-spec did not touch.
+- Shim smoke-test on `apps/api`: `import type { ProductDTO,
+  ProductStatus, ModuleImplementations } from "@medusajs/types"`
+  resolves to Mercur shapes. `ProductDTO["sellers"]` exists,
+  `"requires_action"` is a valid `ProductStatus`, and
+  `ModuleImplementations["product"]` resolves to
+  `MercurProductModuleService` (has `addAttributesToProduct`).
+
+#### Known risks / follow-ups
+
+- `@mercurjs/admin` DTS build still fails on `notifications.tsx`
+  (pre-existing).
+- Several SPEC-005 sub-specs are still open: workflow override
+  triage (~73 `overrideWorkflow` callsites), `<Name>Input` /
+  `<Name>Output` exports, `@mercurjs/core/<domain>` subpath
+  exports, removing the wholesale `export * from "@medusajs/types"`
+  from `@mercurjs/types`, lint rule against
+  `@medusajs/core-flows` imports outside Mercur composers, and
+  shrinking `packages/types/src/product/` to deltas only (removing
+  the verbatim Medusa type duplicates). These will be tracked as
+  separate sub-specs.
+
 ### Session 1: 2026-05-11 -- i18n coverage and onboarding extensibility (#919)
 
 **Goal**: Close i18n gaps in admin + vendor, and make seller onboarding extensible.
