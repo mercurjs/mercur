@@ -23,7 +23,9 @@ import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
 import waitOn from "wait-on";
 
-const DEFAULT_BRANCH = "main";
+import packageJson from "../../package.json";
+
+const DEFAULT_BRANCH = packageJson.version?.includes("-canary") ? "canary" : "main";
 const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
