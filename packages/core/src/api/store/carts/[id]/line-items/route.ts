@@ -34,14 +34,7 @@ export const POST = async (
     input: {
       cart_id,
       items: [{ ...item, variant_id: variantId }],
-      additional_data: {
-        ...(additional_data ?? {}),
-        mercur: {
-          ...((additional_data as { mercur?: Record<string, unknown> })
-            ?.mercur ?? {}),
-          offer_ids_by_variant: { [variantId]: offer.id },
-        },
-      },
+      additional_data,
     },
   })
 

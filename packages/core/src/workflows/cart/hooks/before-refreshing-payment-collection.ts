@@ -5,50 +5,27 @@ import {
 import { refreshCartItemsWorkflow } from "@medusajs/medusa/core-flows"
 import { MercurModules } from "@mercurjs/types"
 
-type AdditionalDataPayload = {
-  mercur?: {
-    offer_ids_by_variant?: Record<string, string>
-  }
-}
-
 type CartLineWithOffer = {
   id: string
   variant_id: string | null
   offer?: { id?: string } | null
 }
 
-const readCarrier = (
-  additional_data: Record<string, unknown> | undefined,
-): Record<string, string> => {
-  const carrier = (additional_data as AdditionalDataPayload | undefined)
-    ?.mercur?.offer_ids_by_variant
-  if (!carrier || typeof carrier !== "object") {
-    return {}
-  }
-  return carrier
-}
-
-/**
- * Cart-line ↔ offer link writer. Fires inside `refreshCartItemsWorkflow`
- * after line items, taxes, and promotions have settled. Writes the
- * `cart_line_item ↔ offer` link for any new line item that doesn't have
- * one yet — the `additional_data.mercur.offer_ids_by_variant` carrier
- * (stamped by Mercur's storefront route) provides the mapping.
- *
- * SPEC-007 note: stock reservation lives in
- * `completeCartWithSplitOrdersWorkflow` (the order-split workflow's
- * `reserveInventoryStep` call), not here. The hook documented in SPEC-007
- * §"Hook 3" — diff/create/adjust/release reservation sets — is deferred
- * to a follow-up session; this lighter handler preserves the existing
- * order-placement reservation flow without double-reserving.
- */
 refreshCartItemsWorkflow.hooks.beforeRefreshingPaymentCollection(
   async ({ input }, { container }) => {
     const cartId = input.cart_id
     if (!cartId) return
 
-    const carrier = readCarrier(input.additional_data)
-    if (!Object.keys(carrier).length) return
+    const offerIdByVariant = new Map<string, string>()
+    for (const item of (input.items ?? []) as Array<{
+      variant_id?: string | null
+      offer_id?: string | null
+    }>) {
+      if (item.variant_id && item.offer_id) {
+        offerIdByVariant.set(item.variant_id, item.offer_id)
+      }
+    }
+    if (!offerIdByVariant.size) return
 
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
     const link = container.resolve(ContainerRegistrationKeys.LINK)
@@ -76,7 +53,7 @@ refreshCartItemsWorkflow.hooks.beforeRefreshingPaymentCollection(
       if (item.offer?.id) continue
       const variantId = item.variant_id
       if (!variantId) continue
-      const offerId = carrier[variantId]
+      const offerId = offerIdByVariant.get(variantId)
       if (!offerId) continue
       linksToCreate.push({ line_item_id: item.id, offer_id: offerId })
     }
