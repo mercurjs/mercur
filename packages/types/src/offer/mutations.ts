@@ -70,15 +70,16 @@ export interface CreateOfferDTO {
 
 /**
  * Persisted offer-row input — the projection that
- * `createOffersWorkflow` hands to `createOffersStep` after seeding the
- * `PriceSet`. `ean` / `upc` are snapshotted off the linked
- * `ProductVariant`.
+ * `createOffersWorkflow` hands to `createOffersStep`. The offer's price
+ * ladder lives on the master variant's shared `PriceSet`, scoped by the
+ * `offer_id` `PriceRule` Mercur stamps on every offer-owned row, so the
+ * offer row itself no longer carries a `price_set_id`. `ean` / `upc` are
+ * snapshotted off the linked `ProductVariant`.
  */
 export interface CreateOfferRowDTO {
   seller_id: string
   variant_id: string
   shipping_profile_id: string
-  price_set_id: string
   sku: string
   ean: string | null
   upc: string | null

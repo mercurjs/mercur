@@ -116,7 +116,6 @@ export const completeCartFields = [
     "items.offer.id",
     "items.offer.seller_id",
     "items.offer.shipping_profile_id",
-    "items.offer.price_set_id",
     // NOTE: per-offer inventory data (linked InventoryItem +
     // location_levels) is intentionally NOT pulled in via
     // completeCartFields. It is fetched in a dedicated

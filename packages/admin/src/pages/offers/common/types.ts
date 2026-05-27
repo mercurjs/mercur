@@ -47,7 +47,6 @@ export type OfferDetail = {
   variant_id?: string | null
   seller_id?: string | null
   shipping_profile_id?: string | null
-  price_set_id?: string | null
   metadata?: Record<string, unknown> | null
   created_at?: string | null
   updated_at?: string | null
@@ -70,10 +69,7 @@ export type OfferDetail = {
     name?: string | null
     type?: string | null
   } | null
-  price_set?: {
-    id?: string | null
-    prices?: OfferPrice[] | null
-  } | null
+  prices?: OfferPrice[] | null
   inventory_item_link?: OfferInventoryItemLink[] | null
   seller?: {
     id?: string | null

@@ -29,7 +29,11 @@ type Props = {
   offer: OfferDetail
 }
 
-const hasRules = (price: OfferPrice) => (price.rules_count ?? 0) > 0
+const isBaseRow = (price: OfferPrice) => {
+  const rules = price.price_rules ?? []
+  const extraRules = rules.filter((r) => r.attribute !== "offer_id")
+  return extraRules.length === 0
+}
 
 const buildDefaults = (
   offer: OfferDetail,
@@ -39,8 +43,8 @@ const buildDefaults = (
     id: offer.id,
     currency_prices: currencies.reduce<Record<string, number | "">>(
       (acc, code) => {
-        const existing = offer.price_set?.prices?.find(
-          (p) => !hasRules(p) && p.currency_code === code,
+        const existing = offer.prices?.find(
+          (p) => isBaseRow(p) && p.currency_code === code,
         )
         acc[code] = existing?.amount ?? ""
         return acc

@@ -3,11 +3,12 @@ declare module "@medusajs/types" {
     /**
      * Mercur extension: binds this cart line to a specific offer.
      * Required on every Mercur add-to-cart call. Consumed by the
-     * same-id `addToCartWorkflow` override to resolve `offer.price_set_id`
-     * for pricing, by the patched `getLineItemActionsStep` for merge
-     * identity, and by `linkLineItemToOfferStep` to write the
-     * `cart.LineItem ↔ Offer` link row after the line item is persisted.
-     * Not stored on the line item itself.
+     * `setPricingContext` hook on Medusa's stock `addToCartWorkflow`
+     * (and propagated through `additional_data.mercur.offer_ids_by_variant`
+     * for the downstream `refreshCartItemsWorkflow` and
+     * `beforeRefreshingPaymentCollection` hook). Not stored on the
+     * line item itself; the writable `cart_line_item ↔ offer` link
+     * is the steady-state source after the first refresh.
      */
     offer_id: string
   }

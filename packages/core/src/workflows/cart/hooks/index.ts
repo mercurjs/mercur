@@ -1,2 +1,3 @@
-import "./validate-add-to-cart-stock"
-import "./validate-update-line-item-stock"
+import "./set-pricing-context"
+import "./validate"
+import "./before-refreshing-payment-collection"

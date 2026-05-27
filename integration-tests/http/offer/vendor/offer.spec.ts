@@ -105,7 +105,13 @@ medusaIntegrationTestRunner({
                             upc: deps.upc,
                         })
                     )
-                    expect(response.data.offer.price_set_id).toBeDefined()
+                    expect(response.data.offer.prices).toHaveLength(1)
+                    expect(response.data.offer.prices[0]).toEqual(
+                        expect.objectContaining({
+                            amount: 2000,
+                            currency_code: "usd",
+                        })
+                    )
                     expect(response.data.offer.inventory_items).toHaveLength(1)
                     expect(
                         response.data.offer.inventory_items[0].id
@@ -323,10 +329,8 @@ medusaIntegrationTestRunner({
                     expect(response.data.offer.sku).toEqual(
                         "UPD-SKU-1-RENAMED"
                     )
-                    expect(response.data.offer.price_set.prices).toHaveLength(
-                        1
-                    )
-                    expect(response.data.offer.price_set.prices[0]).toEqual(
+                    expect(response.data.offer.prices).toHaveLength(1)
+                    expect(response.data.offer.prices[0]).toEqual(
                         expect.objectContaining({
                             amount: 1000,
                             currency_code: "usd",
@@ -353,7 +357,7 @@ medusaIntegrationTestRunner({
                     )
 
                     const offerId = created.data.offer.id
-                    const prices = created.data.offer.price_set.prices as Array<{
+                    const prices = created.data.offer.prices as Array<{
                         id: string
                         currency_code: string
                         amount: number
@@ -378,8 +382,7 @@ medusaIntegrationTestRunner({
                     )
 
                     expect(response.status).toEqual(200)
-                    const updated = response.data.offer.price_set
-                        .prices as Array<{
+                    const updated = response.data.offer.prices as Array<{
                         currency_code: string
                         amount: number
                     }>
@@ -665,8 +668,8 @@ medusaIntegrationTestRunner({
                 })
             })
 
-            describe("PriceSet invariants", () => {
-                it("assigns distinct price_set_ids to sibling offers on the same variant", async () => {
+            describe("Shared PriceSet invariants", () => {
+                it("stamps distinct offer_id rules on sibling offers sharing the variant's PriceSet", async () => {
                     const deps = await seedSellerOfferDeps(seller1Headers)
 
                     const offerA = (
@@ -702,14 +705,38 @@ medusaIntegrationTestRunner({
                         )
                     ).data.offer
 
-                    expect(offerA.price_set_id).toBeDefined()
-                    expect(offerB.price_set_id).toBeDefined()
-                    expect(offerA.price_set_id).not.toEqual(
-                        offerB.price_set_id
+                    const findOfferRule = (offer: any) =>
+                        (offer.prices?.[0]?.price_rules ?? []).find(
+                            (r: any) => r.attribute === "offer_id"
+                        )?.value
+
+                    expect(findOfferRule(offerA)).toEqual(offerA.id)
+                    expect(findOfferRule(offerB)).toEqual(offerB.id)
+                    expect(findOfferRule(offerA)).not.toEqual(
+                        findOfferRule(offerB)
                     )
+
+                    // Both offers' price rows belong to the same variant's
+                    // PriceSet — resolved via the writable offer ↔ price link.
+                    const query = appContainer.resolve(
+                        ContainerRegistrationKeys.QUERY
+                    )
+                    const { data: rows } = await query.graph({
+                        entity: "offer",
+                        fields: [
+                            "id",
+                            "product_variant.price_set.id",
+                        ],
+                        filters: { id: [offerA.id, offerB.id] },
+                    })
+                    const priceSetIds = (rows as any[]).map(
+                        (r) => r.product_variant?.price_set?.id
+                    )
+                    expect(priceSetIds[0]).toBeDefined()
+                    expect(priceSetIds[0]).toEqual(priceSetIds[1])
                 })
 
-                it("keeps offer.price_set resolvable via Query after soft-delete", async () => {
+                it("keeps offer.prices resolvable via Query after soft-delete", async () => {
                     const deps = await seedSellerOfferDeps(seller1Headers)
 
                     const created = await api.post(
@@ -741,9 +768,8 @@ medusaIntegrationTestRunner({
                         fields: [
                             "id",
                             "deleted_at",
-                            "price_set.id",
-                            "price_set.prices.amount",
-                            "price_set.prices.currency_code",
+                            "prices.amount",
+                            "prices.currency_code",
                         ],
                         filters: { id: offerId },
                         withDeleted: true,
@@ -752,8 +778,7 @@ medusaIntegrationTestRunner({
                     expect(rows).toHaveLength(1)
                     const row = rows[0] as any
                     expect(row.deleted_at).not.toBeNull()
-                    expect(row.price_set?.id).toBeDefined()
-                    expect(row.price_set.prices).toEqual(
+                    expect(row.prices).toEqual(
                         expect.arrayContaining([
                             expect.objectContaining({
                                 amount: 4321,

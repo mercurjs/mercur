@@ -307,8 +307,8 @@
         "@medusajs/test-utils": "^2.13.4",
         "@medusajs/types": "2.13.4",
         "@medusajs/ui": "4.1.1",
-        "@mercurjs/cli": "2.2.0-canary.2",
-        "@mercurjs/types": "2.2.0-canary.2",
+        "@mercurjs/cli": "workspace:*",
+        "@mercurjs/types": "workspace:*",
         "@swc/core": "^1.7.28",
         "@types/cors": "^2.8.17",
         "@types/express": "^4.17.21",
@@ -3445,10 +3445,6 @@
 
     "@mercurjs/cli/@mercurjs/dashboard-sdk": ["@mercurjs/dashboard-sdk@2.2.0-canary.2", "", { "dependencies": { "@babel/parser": "7.25.6", "@babel/traverse": "7.25.6", "@babel/types": "7.25.6", "esbuild-register": "^3.6.0" } }, "sha512-+wYd3nb9TxEjVWimGXo+HspPYzZ1dbcnfQPe2bhAkb0fN5WKiL7gHnCJ8WyWlL0X1dArYy9fqWQFSpWxZzTsCA=="],
 
-    "@mercurjs/core/@mercurjs/cli": ["@mercurjs/cli@2.2.0-canary.2", "", { "dependencies": { "@antfu/ni": "^27.0.1", "@medusajs/admin-bundler": "2.13.4", "@medusajs/admin-shared": "2.13.4", "@medusajs/admin-vite-plugin": "2.13.4", "@medusajs/dashboard": "2.13.4", "@medusajs/framework": "2.13.4", "@mercurjs/dashboard-sdk": "2.2.0-canary.2", "@types/cross-spawn": "^6.0.6", "@vitejs/plugin-react": "^4.2.1", "autoprefixer": "^10.4.19", "commander": "^14.0.2", "compression": "^1.8.0", "cosmiconfig": "^9.0.0", "cross-spawn": "^7.0.6", "deepmerge": "^4.3.1", "diff": "^8.0.2", "execa": "^9.6.0", "express": "^4.21.0", "fast-glob": "^3.3.3", "fs-extra": "^11.3.2", "get-port": "^5.1.1", "glob": "11.1.0", "kleur": "^4.1.5", "open": "^11.0.0", "ora": "^9.0.0", "outdent": "^0.8.0", "pg": "^8.17.1", "pkg-dir": "^9.0.0", "postcss": "^8.4.38", "prompts": "^2.4.2", "resolve-cwd": "^3.0.0", "tailwindcss": "^3.4.3", "tar": "^7.5.2", "terminal-link": "^5.0.0", "ts-morph": "^27.0.2", "tsconfig-paths": "^4.2.0", "typescript": "5.9.3", "validate-npm-package-name": "^7.0.2", "vite": "^5.4.21", "wait-on": "^9.0.3", "zod": "3.25.76" }, "bin": { "mercurjs": "dist/index.js" } }, "sha512-uPl3mHEOxHH//xpeDbKWNW0Yj8E7MzkyaIeeRPd+4uZO/nJND69+vfvtqq0qhORlG8FBD7LnorABkZOqlK9EfA=="],
-
-    "@mercurjs/core/@mercurjs/types": ["@mercurjs/types@2.2.0-canary.2", "", { "dependencies": { "@medusajs/types": "2.13.4" } }, "sha512-LaFmvkUjHElmjtxTZ2+rponQLZA7av/3miGejK6N/S4nTsp+f/YER/rTf/6+P70xbUf0uSf9ea4MytmlBtcHYw=="],
-
     "@mercurjs/core/@types/node": ["@types/node@20.19.41", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-ECymXOukMnOoVkC2bb1Vc/w/836DXncOg5m8Xj1RH7xSHZJWNYY6Zh7EH477vcnD5egKNNfy2RpNOmuChhFPgQ=="],
 
     "@mercurjs/core/pkg-dir": ["pkg-dir@4.2.0", "", { "dependencies": { "find-up": "^4.0.0" } }, "sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ=="],
@@ -3920,10 +3916,6 @@
     "@medusajs/cli/yargs/yargs-parser": ["yargs-parser@21.1.1", "", {}, "sha512-tVpsJW7DdjecAiFpbIB1e3qxIQsE6NoPc5/eTdrbbIC4h0LVsWhnoa3g+m2HclBIujHzsxZ4VJVA+GUuc2/LBw=="],
 
     "@mercurjs/admin/@mercurjs/core/pkg-dir": ["pkg-dir@4.2.0", "", { "dependencies": { "find-up": "^4.0.0" } }, "sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ=="],
-
-    "@mercurjs/core/@mercurjs/cli/@mercurjs/dashboard-sdk": ["@mercurjs/dashboard-sdk@2.2.0-canary.2", "", { "dependencies": { "@babel/parser": "7.25.6", "@babel/traverse": "7.25.6", "@babel/types": "7.25.6", "esbuild-register": "^3.6.0" } }, "sha512-+wYd3nb9TxEjVWimGXo+HspPYzZ1dbcnfQPe2bhAkb0fN5WKiL7gHnCJ8WyWlL0X1dArYy9fqWQFSpWxZzTsCA=="],
-
-    "@mercurjs/core/@mercurjs/cli/pkg-dir": ["pkg-dir@9.0.0", "", { "dependencies": { "find-up-simple": "^1.0.0" } }, "sha512-BMmxOuokumBehLGYwCKMBJxpAGSBbvGTtDn1yUV9UpCAvC4F7UWHoPTGSDGPV8eQPkYq/G8b0g1W5vIc5K/EhA=="],
 
     "@mercurjs/core/@types/node/undici-types": ["undici-types@6.21.0", "", {}, "sha512-iwDZqg0QAGrg9Rav5H4n0M64c3mkR59cJ6wQp+7C4nI0gsmExaedaYLNO44eT4AtBBwjbTiGPMlt2Md0T9H9JQ=="],
 

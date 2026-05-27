@@ -6,7 +6,6 @@ const Offer = model
     seller_id: model.text(),
     variant_id: model.text(),
     shipping_profile_id: model.text(),
-    price_set_id: model.text(),
     sku: model.text().searchable(),
     ean: model.text().searchable().nullable(),
     upc: model.text().searchable().nullable(),
@@ -33,11 +32,6 @@ const Offer = model
     {
       name: "IDX_offer_shipping_profile_id",
       on: ["shipping_profile_id"],
-      where: "deleted_at IS NULL",
-    },
-    {
-      name: "IDX_offer_price_set_id",
-      on: ["price_set_id"],
       where: "deleted_at IS NULL",
     },
     {

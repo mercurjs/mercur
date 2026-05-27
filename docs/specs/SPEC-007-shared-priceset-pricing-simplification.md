@@ -1,10 +1,10 @@
 ---
-status: not_started
+status: passing
 canonical: true
 priority: 1
 area: core/pricing
 created: 2026-05-25
-last_updated: 2026-05-26
+last_updated: 2026-05-26  # End-to-end verified against `/Users/viktorholik/Desktop/medusa`. Findings: (1) `setPricingContext` hook returns a **single shared context fragment** spread into a baseContext that's then per-item overlaid with `quantity` + `is_custom_price` in `get-variants-and-items-with-prices.ts:117-131`. `getVariantPriceSetsStep` (`cart/steps/get-variant-price-sets.ts:118-187`) groups items by exact-context-key and issues one `calculatePrices` call per distinct group — quantity variance causes fan-out, the shared `offer_id` array does not. The earlier "single bulk call" framing referred to the hook contract; the pricing-module fan-out is determined by Medusa's per-context grouping. (2) `setPricingContext` is exposed on `updateLineItemInCartWorkflow` (`update-line-item-in-cart.ts:158-169`) in addition to add-to-cart and refresh; spec corrected to bind to all three. Without this binding qty changes re-price against variant-level pricing. (3) `validate` hook is exposed on add-to-cart (`:136-139`) and update-line-item (`:153-156`); **not** on refresh. Hook 2 scope corrected. (4) `beforeRefreshingPaymentCollection` hook receives `{ input }` only — no resolved cart snapshot — handler must Query for current state. Hook 3 section clarified. Added "Cross-references against Medusa source" table cataloging every claim against its source file + line range, plus a deviations list for the four findings above. The offer workflows section's mirroring of `createProductVariantsWorkflow` / `updateProductVariantsWorkflow` / `deleteProductVariantsWorkflow` is unchanged and verified: strip-nested-data-via-transform (`create-product-variants.ts:251-258`), bulk inventory-item creation (`:281-299`), `createLinksWorkflow.runAsStep` link batching (`:312-313`), `UpsertPriceSetDTO[]` shape (`update-product-variants.ts:213-242`), orphan-inventory cleanup transform (`delete-product-variants.ts:74-99`), and `createInventoryItemsWorkflow` `{ items: (CreateInventoryItemInput & { location_levels? })[] }` shape (`inventory/workflows/create-inventory-items.ts:22-32`) all map 1:1.
 supersedes_section_of: SPEC-002
 ---
 
@@ -125,17 +125,33 @@ step. Medusa's stock `addToCartWorkflow`,
 **three hook handlers** registered against those workflows — no
 subscribers, no overrides.
 
-### Hook 1: `setPricingContext` on `addToCartWorkflow` and `refreshCartItemsWorkflow`
+### Hook 1: `setPricingContext` on `addToCartWorkflow`, `updateLineItemInCartWorkflow`, and `refreshCartItemsWorkflow`
 
-Both workflows expose a `setPricingContext` hook with
-`{ cart, variantIds, items, additional_data }` (add-to-cart) or
-`{ cart_id, items, additional_data }` (refresh). The returned object
-is merged into the pricing context that `getVariantsAndItemsWithPrices`
-passes to `pricingModule.calculatePrices`.
+All three workflows expose a `setPricingContext` hook. Verified
+against the Medusa source:
+
+- `add-to-cart.ts:147-158` — payload `{ cart, variantIds, items,
+  additional_data }`.
+- `update-line-item-in-cart.ts:158-169` — payload `{ cart, item,
+  variantIds, additional_data }`.
+- `refresh-cart-items.ts:145-155` — payload `{ cart_id, items,
+  additional_data }`.
+
+The returned object is spread into a **single shared baseContext**
+that `getVariantsAndItemsWithPrices` (`:107-115`) and
+`update-line-item-in-cart.ts:173-187` then overlay per-item with
+`quantity` and `is_custom_price`. Each cart line's effective context
+is `{ ...sharedHookResult, quantity: item.quantity, ... }`.
 
 Mercur registers **one shared handler** at
 `packages/core/src/workflows/cart/hooks/set-pricing-context.ts` and
-binds it to both workflows. The handler resolves `offer_id` from two
+binds it to all three workflows. The binding to
+`updateLineItemInCartWorkflow` is required because Medusa's
+quantity-change path also re-prices the line through
+`getVariantPriceSetsStep` (`update-line-item-in-cart.ts:212-243`)
+using the same context-shaping flow; without the binding, qty
+updates would resolve against variant-level pricing without
+`offer_id` and pick the wrong row. The handler resolves `offer_id` from two
 sources — never from `line_item.metadata`:
 
 - **Add-to-cart path (bootstrap).** `input.items[i].offer_id` is a
@@ -171,20 +187,133 @@ calculated-price column**. There is no `is_custom_price=true` write;
 Mercur stops touching `unit_price` at all.
 
 For carts containing items priced under different `offer_id`s in
-one workflow invocation, the handler issues
-`pricingModule.calculatePrices({ id: variantPriceSetIds }, { context:
-{ ..., offer_id } })` once per distinct `offer_id` inside the hook,
-merging results into the per-variant calculated-price map Medusa
-consumes. In practice add-to-cart only carries one item per call, so
-the fan-out collapses to a single call; the refresh path may see
-multi-offer carts and fans out accordingly.
+one workflow invocation, the handler **returns a single shared
+context fragment** `{ offer_id: <string[]> }` containing the union
+of every preselected `offer_id` in scope. Mercur does **not** call
+`pricingModule.calculatePrices` itself — the hook's contract is to
+shape Medusa's context, not to compute prices. The actual
+`calculatePrices` round-trips happen inside
+`getVariantPriceSetsStep` (`cart/steps/get-variant-price-sets.ts:118-151`):
 
-### Hook 2: `validate` on `addToCartWorkflow` — stock availability pre-check
+1. `getVariantsAndItemsWithPrices.ts:117-131` builds one
+   `{ id, variantId, context }` row per cart line, spreading the
+   hook's shared fragment into each row's context and overlaying
+   `quantity` + `is_custom_price`.
+2. `groupItemsByContext` (`:170-187`) groups those rows by
+   **exact-context-key equality** — i.e. cart lines whose
+   `(currency_code, region_id, customer_id, quantity, offer_id)`
+   tuple is identical batch into one `calculatePrices` call.
+3. Each group issues one `pricingModule.calculatePrices({ id:
+   priceSetIds }, { context })` call (`:132-135`). Quantity
+   variance is the only thing that currently fans the call out;
+   the shared `offer_id` array does **not** cause fan-out.
 
-Medusa's `validate` hook fires before any cart mutation. Mercur's
-handler at `packages/core/src/workflows/cart/hooks/validate.ts`
-asserts stock availability based on the **offer ↔ inventory_item**
-M:N link:
+Net behavior: for a cart with N lines and K distinct quantities,
+Medusa makes K `calculatePrices` calls — one per quantity bucket
+— each carrying the union `offer_id: [...]` array. Under the
+buybox preselection invariant (one offer per variant in the cart),
+the `IN (...)` rule filter still narrows each `price_set_id` to
+one surviving row per call, so each group returns the correct
+per-variant price.
+
+The "TODO: support batch calculation from the pricing module"
+comment at `get-variant-price-sets.ts:115-117` flags this as a
+known optimization gap upstream of Mercur — if Medusa later
+collapses the per-quantity fan-out into a single bulk call,
+Mercur picks up the win for free without changing the hook.
+
+#### Why a single bulk call is correct (not per-distinct-`offer_id`)
+
+Verified against the Medusa source at
+`packages/modules/pricing/src/repositories/pricing.ts` and
+`packages/modules/pricing/src/services/pricing-module.ts`:
+
+1. `repositories/pricing.ts:195` builds the per-row rule filter as
+   `(pr.attribute = ? AND pr.value IN (${placeholders}))` and admits
+   a row when `pr_stats.matched_count = price.rules_count`
+   (line 264). With context `offer_id: ["offer_1", "offer_3"]`
+   against `variantPriceSetIds: ["ps_V1", "ps_V2"]`:
+   - `ps_V1`'s `offer_1` row matches (1=1) ✓ — `offer_2` row is
+     excluded (0≠1).
+   - `ps_V2`'s `offer_3` row matches ✓ — `offer_4` excluded.
+2. `services/pricing-module.ts:402` groups results by `price_set_id`
+   and returns one `{ calculatedPrice, originalPrice }` per
+   PriceSet. Because exactly one offer's row per PriceSet survived
+   the filter (under the preselection invariant below), the
+   returned price is unambiguously the preselected offer's price
+   on that variant.
+3. PriceList SALE rows tagged with the same `offer_id` rule pass
+   the same filter; the SALE/OVERRIDE selection
+   (`pricing-module.ts:424-446`) picks the lowest of `(SALE,
+   default)` per PriceSet exactly as in single-store Medusa.
+
+#### Correctness invariants the bulk call relies on
+
+The single-bulk-call shape is correct iff:
+
+- **Upstream preselection guarantees one preselected `offer_id` per
+  PriceSet per call.** Mercur's buybox (or equivalent caller-side
+  logic) must emit exactly one winning `offer_id` per variant
+  before the hook runs. If two preselected `offer_id`s ever land on
+  the same shared `PriceSet`, both survive `IN (...)`, the
+  per-`price_set_id` grouping collapses them via SALE/lowest, and
+  the result can no longer be mapped back to a specific cart line.
+- **Every offer-owned Price and PriceList Price row carries its
+  `offer_id` `PriceRule`.** A row authored without the rule has
+  `rules_count = 0` and passes the `whereNull("price_list_id")
+  .where("price.rules_count", 0)` branch (`pricing.ts:285`) for any
+  context — including contexts that name a different vendor's
+  offer. Such a row would contaminate every offer's resolution on
+  that PriceSet. Enforced at write time by
+  `assertOfferPriceOwnership` and the offer-write workflow stamping
+  `rules.offer_id = offer.id` on every Price row before dispatch.
+
+Both invariants are enforced upstream of the hook (preselection by
+the buybox surface; rule stamping by the offer-write workflows in
+"Offer workflows after the migration" below), so the hook can rely
+on them and does not fan out.
+
+#### Failure modes the bulk call is exposed to
+
+Three pathologies of the shared-`PriceSet` model that the bulk call
+does **not** defend against on its own. They are bounded by the
+authoring-side invariants above and are surfaced under "Caveats":
+
+1. **Missing `offer_id` rule on a Price row.** A `rules_count = 0`
+   offer-owned row applies to every offer on that PriceSet. The
+   bulk call resolves it for whichever offer's call hits the
+   PriceSet — i.e. every offer in `variantPriceSetIds`. Per-row
+   `assertOfferPriceOwnership` at write time prevents this; runtime
+   has no defense.
+2. **List-level `offer_id` rule on a `PriceList`** (rejected in
+   SPEC-002 §502–510). Medusa evaluates `price_list_rule`
+   identically for scalar and array contexts (`pricing.ts:209-218`)
+   — `value @> ?` for each `(attribute, value)` pair. An array
+   context with `offer_id: [a, b]` against a list-level rule
+   `offer_id: a` matches via the `(plr.attribute = 'offer_id' AND
+   plr.value @> 'a')` clause. This semantic is by-the-book Medusa;
+   the convention "put `offer_id` rules on the Price row, not the
+   PriceList" prevents authoring such lists in the first place.
+3. **Two competing SALE rows for the same offer.**
+   `pricing-module.ts:406-407` uses `prices.find(p => p.price_list_id)`
+   — first match wins, not lowest. Bulk vs scalar shape is
+   irrelevant here; the pathology is in the SALE selection itself
+   and is documented under "Caveats".
+
+### Hook 2: `validate` on `addToCartWorkflow` and `updateLineItemInCartWorkflow` — stock availability pre-check
+
+Medusa's `validate` hook fires before any cart mutation. Verified
+against the source:
+
+- `add-to-cart.ts:136-139` — payload `{ input, cart }`.
+- `update-line-item-in-cart.ts:153-156` — payload `{ input, cart }`.
+- `refresh-cart-items.ts` exposes **no `validate` hook**, so the
+  pre-check runs only on the two entry workflows that mutate
+  inventory-bound state.
+
+Mercur's handler at
+`packages/core/src/workflows/cart/hooks/validate.ts` asserts stock
+availability based on the **offer ↔ inventory_item** M:N link:
 
 1. Resolves each input item's `offer.inventory_items[]` (each row
    carrying `inventory_item_id` + `required_quantity`) via Query.
@@ -194,7 +323,8 @@ M:N link:
 3. Multiplies each `required_quantity` by the requested
    `item.quantity` and asserts availability per inventory item. On
    shortfall, throws `MedusaError.Types.INSUFFICIENT_INVENTORY` —
-   Medusa aborts the workflow before line items are created.
+   Medusa aborts the workflow before line items are created or
+   updated.
 
 The handler is **read-only**: it does not reserve. Reservation lives
 in Hook 3 below, where line items exist and have IDs.
@@ -207,9 +337,11 @@ promotion-apply, etc.) finishes with a
 `refreshCartItemsWorkflow.runAsStep` call. That refresh exposes a
 `beforeRefreshingPaymentCollection` hook that fires **after** line
 items, taxes, and promotions have settled and **before** the payment
-collection is refreshed — i.e. the exact point where the cart's
-final shape is known and reservations can be reconciled
-transactionally.
+collection is refreshed (verified at `refresh-cart-items.ts:261-264`;
+the hook receives `{ input }` only — no resolved snapshot — so the
+handler queries for current cart state itself) — i.e. the exact
+point where the cart's final shape is known and reservations can be
+reconciled transactionally.
 
 Mercur's handler at
 `packages/core/src/workflows/cart/hooks/before-refreshing-payment-collection.ts`:
@@ -397,73 +529,273 @@ What stays:
 
 ## Offer workflows after the migration
 
+All three offer workflows are composed as **bulk-first** pipelines
+mirroring Medusa's
+`createProductVariantsWorkflow` / `updateProductVariantsWorkflow` /
+`deleteProductVariantsWorkflow` (see
+`packages/core/core-flows/src/product/workflows/{create,update,delete}-product-variants.ts`
+in the Medusa repo). The technique:
+
+- **Strip nested data from the entity-level step input via `transform`.**
+  Medusa's create workflow does this for `prices` because
+  `createProductVariantsStep` rejects them
+  (`create-product-variants.ts` `variantsWithoutPrices` transform);
+  Mercur does the same for `prices` and `inventory_items` before
+  `createOffersStep` runs.
+- **One workflow step per concern, all bulk.** Never loop per-entity
+  at runtime: build arrays in a `transform`, dispatch a single step
+  call with the full array. `createInventoryItemsWorkflow.runAsStep`,
+  `createLinksWorkflow.runAsStep`, `dismissLinksWorkflow.runAsStep`,
+  `pricingModule.addPrices`, `pricingModule.removePrices`, and
+  `updatePriceSetsStep` all accept arrays.
+- **Order-preserving zips.** Pair `createdOffers[i]` with
+  `input.offers[i]` by index, matching Medusa's note
+  `// Note: We rely on the same order of input and output when
+  creating variants here, make sure that assumption holds`
+  (`create-product-variants.ts:265-275`).
+- **Validate-then-write.** Medusa's
+  `validateVariantsDuplicateInventoryItemIds` and
+  `validateInventoryItems` run before the inventory-item creation
+  step. Mercur folds in the same pre-write validations plus
+  `assertOfferPriceOwnership` for write isolation (see
+  "Offer ↔ Price list-link > Write rules").
+- **Bulk inventory-item creation inside the same workflow run** via
+  `createInventoryItemsWorkflow.runAsStep({ input: { items: [...] } })`
+  with all inline items in one call (mirrors Medusa
+  `create-product-variants.ts:281-299` flow with the
+  `buildVariantItemCreateMap` transform).
+- **Bulk link writes** via
+  `createLinksWorkflow.runAsStep({ input: linksToCreate })` with one
+  `LinkDefinition` per pair, including the `data` extra column when
+  the link carries one (e.g. `required_quantity`). Same shape
+  Medusa uses at `create-product-variants.ts:312-313` for the
+  variant ↔ inventory_item link.
+- **Bulk pricing writes** via
+  `pricingModule.addPrices` / `updatePriceSetsStep` /
+  `pricingModule.removePrices` with one call covering every offer
+  in the batch. The `price_sets` payload to
+  `updatePriceSetsStep` is the same `UpsertPriceSetDTO[]` shape
+  Medusa builds at `update-product-variants.ts:213-242`.
+
 ### `createOffersWorkflow`
 
-Currently the workflow calls `createPriceSetsStep` to mint one
-`PriceSet` per offer, then stamps `price_set_id` onto the offer row.
+Composed as a single bulk pipeline. No per-offer iteration in the
+workflow body — every step receives the full batch.
 
-After the migration:
+1. **Strip nested data.** A `transform` produces
+   `offersWithoutPricesOrInventory` by stripping `prices`,
+   `inventory_items`, and `inline_inventory_item` from each input
+   row. (Mirrors the `variantsWithoutPrices` transform in
+   Medusa `create-product-variants.ts:251-258`.)
+2. **Bulk-create offer rows.** `createOffersStep(offersWithoutPricesOrInventory)`
+   inserts every offer row in one call. Output is
+   `createdOffers: OfferDTO[]` in the same order as the input.
+3. **Resolve variant → priceSetId.** One
+   `useQueryGraphStep({ entity: "variants", fields: ["id",
+   "price_set.id"], filters: { id: variantIds } })` covers every
+   distinct `variant_id` in the batch.
+4. **Lazy `PriceSet` creation for marketplace-virgin variants.**
+   `transform` builds a list of variants whose `price_set.id` is
+   missing; a single `pricingModule.upsertPriceSets` step keyed by
+   `variant_id` materialises one `PriceSet` per such variant in
+   one call.
+5. **Validate inventory inputs in bulk.**
+   `validateInventoryItems(inventoryItemIds)` (the same Medusa step
+   used at `create-product-variants.ts:283`) checks every
+   pre-existing `inventory_item_id` exists. A parallel transform
+   mirrors `validateVariantsDuplicateInventoryItemIds`
+   (`create-product-variants.ts:74-104`) per offer to reject
+   duplicate `inventory_item_id`s inside a single offer's
+   `inventory_items[]`.
+6. **Bulk-create inline inventory items.** A `transform` mirroring
+   `buildVariantItemCreateMap`
+   (`create-product-variants.ts:152-189`) collects
+   `inline_inventory_item` rows across every offer in the batch
+   into a single `items: CreateInventoryItemInput[]` payload
+   (carrying `location_levels` for initial stock).
+   `createInventoryItemsWorkflow.runAsStep({ input: { items } })` is
+   invoked **once** and returns `createdInventoryItems` in the same
+   order as the items input. A second `transform` mirroring
+   `inventoryIndexMap` (`create-product-variants.ts:301-313`)
+   reassociates each new `inventory_item_id` with its originating
+   offer index.
+7. **Bulk-create offer ↔ inventory_item links.** A `transform`
+   mirroring `buildLinksToCreate`
+   (`create-product-variants.ts:106-150`) emits one
+   `LinkDefinition` per `(offer_id, inventory_item_id,
+   required_quantity)` triple — both the inline and the
+   link-existing branches go into the same array.
+   `createLinksWorkflow.runAsStep({ input: linksToCreate })` writes
+   every link in one call. The `LinkDefinition` shape:
+   ```ts
+   {
+     [MercurModules.OFFER]: { offer_id },
+     [Modules.INVENTORY]: { inventory_item_id },
+     data: { required_quantity },
+   }
+   ```
+8. **Bulk-stamp `offer_id` `PriceRule` and add Price rows.** A
+   single `transform` builds the consolidated
+   `pricingModule.addPrices` payload:
+   ```ts
+   addPricesInput = [
+     {
+       priceSetId: variantPriceSetByVariantId[offer.variant_id],
+       prices: offer.prices.map((p) => ({
+         ...p,
+         rules: { ...(p.rules ?? {}), offer_id: createdOffer.id },
+       })),
+     },
+     // …one entry per offer in the batch
+   ]
+   ```
+   `pricingModule.addPrices(addPricesInput)` is called **once** for
+   the entire batch. Multiple offers writing to the same variant's
+   shared `PriceSet` are concatenated into separate entries (the
+   pricing module accepts the same `priceSetId` across multiple
+   entries). Output is `createdPrices` ordered consistently with
+   the input.
+9. **Bulk-create `Offer ↔ Price` link rows.** A second
+   `createLinksWorkflow.runAsStep({ input: offerPriceLinks })`
+   writes one `OFFER.offer_id ↔ PRICING.price_id` pair per new
+   Price row. The link is the writable list-link defined in
+   "Offer ↔ Price list-link" — after this step `offer.prices` is
+   immediately resolvable via Query.
+10. **No per-offer/per-variant `manage_inventory` work.** The
+    `model.boolean().default(false).computed()` declaration on
+    `ProductVariant` returns `false` for every variant on read; no
+    write is needed.
+11. **Compose response** via a final `transform` that zips
+    `createdOffers` × `createdInventoryItems` × `createdPrices`
+    into the `OfferDTO & { prices, inventory_items }` shape, then
+    emit `OfferEvents.CREATED` via `emitEventStep` with the full
+    batch ID list.
 
-1. The variant's `PriceSet` is resolved via the existing Medusa link
-   (or created lazily if the variant had no marketplace prices yet —
-   single `pricingModule.upsertPriceSets` call keyed by `variant_id`).
-2. `pricingModule.addPrices({ priceSetId: variant.price_set_id,
-   prices: offer.prices.map(p => ({ ...p, rules: { ...(p.rules ?? {}),
-   offer_id: offer.id } })) })` is called per offer. Rule stamping
-   happens in a single transform — the workflow injects `offer_id`
-   uniformly; callers do not supply it.
-3. The `offer` row is inserted without `price_set_id`.
-4. `createLinksWorkflow.runAsStep` is called with one
-   `OFFER.offer_id ↔ PRICING.price_id` pair per new price row,
-   materialising the writable `offer.prices` list-link in the same
-   workflow run.
-5. `createPriceSetsStep` and the read-only `offer.price_set` link are
-   removed from the workflow composition.
-6. No per-offer / per-variant work is required to set
-   `manage_inventory: false`. Mercur's variant model declares the
-   column as `model.boolean().default(false).computed()` (see
-   "Target data model" above), so every read returns `false`
-   regardless of any value the upstream Medusa schema might have
-   set.
+`createPriceSetsStep` and the read-only `offer.price_set` link are
+removed from the workflow composition entirely.
 
 ### `updateOffersWorkflow`
 
-Currently rewrites the offer's own `PriceSet` with replace semantics
-via `updatePriceSetsStep`.
+Same bulk shape, mirrored on `updateProductVariantsWorkflow`
+(`update-product-variants.ts:130-289`).
 
-After the migration:
-
-1. Resolve the offer's `variant_id → price_set_id`.
-2. Load `offer.prices` (via the writable list-link defined in
-   "Offer ↔ Price list-link" above) — this is the authoritative
-   per-offer row set, no rule-value rescan needed.
-3. Apply replace semantics **scoped to `offer.prices`**: incoming
-   rows with `id` are matched against `offer.prices[*].id`; rows
-   without `id` are added with `rules.offer_id = offer.id` injected;
-   `offer.prices[*].id` values absent from the incoming payload are
-   removed via `pricingModule.removePrices`.
-4. The write-isolation guard
-   `assertOfferPriceOwnership({ offer_id, price_ids })` rejects any
-   incoming `price.id` that is not in `offer.prices[*].id` with
-   `MedusaError.Types.NOT_ALLOWED`.
-5. `updatePriceSetsStep` is used with `id: variant.price_set_id` and
-   the filtered `prices` payload.
-6. Link pivot is kept in sync inside the same workflow run:
-   `createLinksWorkflow` for newly added rows, `dismissLinksWorkflow`
-   for the removed `price.id`s. Existing rows keep their link pair
-   untouched.
+1. **Strip nested data.** A `transform` produces
+   `offersWithoutPricesOrInventory` mirroring
+   `update-product-variants.ts:134-153`'s `updateWithoutPrices`.
+2. **Bulk-update offer rows.**
+   `updateOffersStep(offersWithoutPricesOrInventory)` once.
+   Supports either the `{ offers: [{ id, ... }] }` shape or
+   `{ selector, update }` shape, exactly as Medusa's update
+   workflow does.
+3. **Filter offers whose prices changed.** A `transform`
+   mirroring `update-product-variants.ts:184-200` produces
+   `offersWithPriceUpdates: string[]` — only those offers feed the
+   pricing branch. If empty, the pricing branch is skipped
+   entirely.
+4. **Bulk-load `offer.prices` via the writable list-link.** One
+   `useQueryGraphStep({ entity: "offer", fields: ["id",
+   "variant.price_set.id", "prices.id", "prices.amount",
+   "prices.currency_code", "prices.min_quantity",
+   "prices.max_quantity", "prices.rules.*"], filters: { id:
+   offersWithPriceUpdates } })` returns the authoritative per-offer
+   row set in one call. No rule-value rescan.
+5. **`assertOfferPriceOwnership` (write-isolation guard).** A
+   `transform` checks every incoming `price.id` against the
+   loaded `offer.prices[*].id`; mismatch throws
+   `MedusaError.Types.NOT_ALLOWED`. Defined at
+   `packages/core/src/workflows/offer/utils/assert-offer-price-ownership.ts`.
+6. **Compute `(toAdd, toUpdate, toRemove)` per offer in a single
+   transform.** Stamp `rules.offer_id = offer.id` on every
+   `toAdd` row.
+7. **Consolidate writes across the batch.** Build a single
+   `UpsertPriceSetDTO[]` payload mirroring
+   `update-product-variants.ts:213-242`:
+   ```ts
+   price_sets = offers.map((offer) => ({
+     id: offer.variant.price_set.id,
+     prices: [...toUpdate[offer.id], ...toAdd[offer.id]],
+   }))
+   ```
+   Multiple offers on the same variant's `price_set.id` produce
+   distinct entries — `updatePriceSetsStep` handles the
+   consolidation. One step call.
+8. **Bulk-remove obsolete Price rows.** A single
+   `pricingModule.removePrices(toRemoveIds)` call covers every
+   row deletion across every offer in the batch.
+9. **Sync the link pivot in one pass.** Two parallel step calls:
+   - `createLinksWorkflow.runAsStep({ input: newPriceLinks })` for
+     every newly added Price row.
+   - `dismissLinksWorkflow.runAsStep({ input: removedPriceLinks })`
+     for every removed `price.id`.
+10. **Inventory diff (when `inventory_items` is in the payload).**
+    Same bulk pattern: load current `offer.inventory_items[*]` in
+    the Query call from step 4, compute add/remove diffs in a
+    `transform`, then one `createLinksWorkflow.runAsStep` for
+    additions + one `dismissLinksWorkflow.runAsStep` for
+    removals. Mirrors Medusa's
+    `dismissProductVariantsInventoryStep` shape
+    (`update-product-variants.ts:157-181`) for the removal side.
+11. **Compose response** and emit `OfferEvents.UPDATED` in one
+    bulk `emitEventStep` call.
 
 ### `deleteOffersWorkflow`
 
-1. Soft-delete remains the default and **does not touch prices or
-   link rows** — the variant's `PriceSet` is shared, and historical
-   reads on the soft-deleted offer can still resolve its prices via
-   the persisted link pivot.
-2. Hard-delete loads `offer.prices[*].id` via the list-link, then
-   in parallel calls `pricingModule.removePrices(ids)` and
-   `dismissLinksWorkflow.runAsStep` for the same pairs, and finally
-   deletes the `offer` row. No rule-value rescan, no risk of
-   clipping sibling offers' rows, no orphan link rows.
+Same bulk shape, mirrored on `deleteProductVariantsWorkflow`
+(`delete-product-variants.ts:54-125`).
+
+1. **Bulk-load every offer's relations in one query.**
+   ```ts
+   useQueryGraphStep({
+     entity: "offer",
+     fields: [
+       "id",
+       "prices.id",
+       "inventory_item_link.inventory_item.id",
+       "inventory_item_link.inventory_item.offers.id",
+     ],
+     filters: { id: input.ids },
+   })
+   ```
+   Mirrors `delete-product-variants.ts:57-68`.
+2. **Soft-delete branch (default).** `deleteOffersStep(input.ids)`
+   with `force: false` stamps `deleted_at` on every offer row in
+   one call. Prices, link rows, and inventory items are left
+   untouched so historical orders resolve correctly via the
+   persisted `Offer ↔ Price` pivot.
+3. **Hard-delete branch (operator termination, `force: true`).**
+   All five teardown steps below are dispatched in parallel from
+   the workflow:
+   - **Compute orphan inventory items.** A `transform` mirroring
+     `delete-product-variants.ts:74-99`'s `toDeleteInventoryItemIds`:
+     for each `inventory_item` linked to a deleted offer, include
+     it in `toDeleteIds` only if **every** offer the inventory
+     item is linked to is in the delete batch
+     (`inventory_item.offers.every(o => offersMap.has(o.id))`).
+     This prevents clipping inventory items still in use by a
+     sibling offer.
+   - **`removeRemoteLinkStep({ [MercurModules.OFFER]: { offer_id:
+     input.ids } })`** once — tears down every cross-module link
+     row (cart_line ↔ offer, order_line ↔ offer, offer ↔
+     inventory_item, offer ↔ price) in one call.
+     `delete-product-variants.ts:70-72` is the template.
+   - **`pricingModule.removePrices(allOfferPriceIds)`** once with
+     the union of every `offer.prices[*].id` across the batch.
+     No rule-value rescan, no risk of clipping sibling offers'
+     rows because the Price ids come from the
+     `Offer ↔ Price` list-link, not from a `price_rules.value`
+     scan.
+   - **`deleteInventoryItemWorkflow.runAsStep({ input:
+     orphanInventoryItemIds })`** once for the orphan set
+     computed above. Mirrors
+     `delete-product-variants.ts:101-103`.
+   - **`deleteOffersStep(input.ids, { force: true })`** once.
+4. **Emit `OfferEvents.DELETED`** in one bulk `emitEventStep`
+   call with the full ID list, matching
+   `delete-product-variants.ts:107-116`.
+5. **`offersDeleted` hook** is exposed via `createHook` so
+   downstream consumers (subscribers, custom workflows) receive
+   the full batch ID list, matching
+   `delete-product-variants.ts:118-123`.
 
 ## Migration plan
 
@@ -536,6 +868,60 @@ of prices for all offers on that variant, not a fan-out of N
 per-offer PriceSets, and the unit price comes from Medusa's
 calculated-price column rather than a custom-price write.
 
+## Cross-references against Medusa source
+
+Every architectural claim in this spec is verified against
+`/Users/viktorholik/Desktop/medusa` (Medusa monorepo). Reference
+table:
+
+| Claim | Medusa file | Lines | Status |
+| --- | --- | --- | --- |
+| `validate` + `setPricingContext` hooks exist on `addToCartWorkflow` | `packages/core/core-flows/src/cart/workflows/add-to-cart.ts` | 136-158 | ✓ |
+| `setPricingContext` + `beforeRefreshingPaymentCollection` hooks exist on `refreshCartItemsWorkflow` | `packages/core/core-flows/src/cart/workflows/refresh-cart-items.ts` | 145-156, 261-264 | ✓ |
+| `validate` + `setPricingContext` hooks exist on `updateLineItemInCartWorkflow` | `packages/core/core-flows/src/cart/workflows/update-line-item-in-cart.ts` | 153-169 | ✓ |
+| Hook result is spread into a single shared baseContext, not per-item | `packages/core/core-flows/src/cart/workflows/get-variants-and-items-with-prices.ts` | 107-115 | ✓ |
+| Per-item context overlay (`quantity`, `is_custom_price`) happens after the spread | `get-variants-and-items-with-prices.ts` | 117-131 | ✓ |
+| `getVariantPriceSetsStep` groups items by exact-context-key and issues one `calculatePrices` per group | `packages/core/core-flows/src/cart/steps/get-variant-price-sets.ts` | 118-187 | ✓ |
+| `pricingModule.calculatePrices` SQL admits rows where `pr.value IN (...)` matches the context | `packages/modules/pricing/src/repositories/pricing.ts` | 178-281 | ✓ |
+| Results are grouped by `price_set_id`, one calculated price per PriceSet | `packages/modules/pricing/src/services/pricing-module.ts` | 391-455 | ✓ |
+| SALE selection uses `prices.find(p => p.price_list_id)` (first match, not lowest) | `pricing-module.ts` | 406-407 | ✓ |
+| `createProductVariantsWorkflow` strips `prices` via `variantsWithoutPrices` transform | `packages/core/core-flows/src/product/workflows/create-product-variants.ts` | 251-258 | ✓ |
+| Bulk inline inventory-item creation via `createInventoryItemsWorkflow.runAsStep` | `create-product-variants.ts` | 281-299 | ✓ |
+| `buildLinksToCreate` shape: one `LinkDefinition` with `data: { required_quantity }` per link | `create-product-variants.ts` | 106-150 | ✓ |
+| `createLinksWorkflow.runAsStep({ input: linksToCreate })` writes every link in one call | `create-product-variants.ts` | 312-313 | ✓ |
+| Order-preserving zip note: "We rely on the same order of input and output" | `create-product-variants.ts` | 265 | ✓ |
+| `updateProductVariantsWorkflow` filters variants whose prices changed | `update-product-variants.ts` | 184-200 | ✓ |
+| `UpsertPriceSetDTO[]` payload shape for `updatePriceSetsStep` | `update-product-variants.ts` | 213-242 | ✓ |
+| `dismissProductVariantsInventoryStep` runs on `manage_inventory: false` transition | `update-product-variants.ts` | 157-181 | ✓ |
+| `deleteProductVariantsWorkflow` query shape with inventory + cross-variant joins | `delete-product-variants.ts` | 57-68 | ✓ |
+| `removeRemoteLinkStep` tears down every cross-module link in one call | `delete-product-variants.ts` | 70-72 | ✓ |
+| `toDeleteInventoryItemIds` orphan transform: include an inventory item only if every linked entity is in the delete batch | `delete-product-variants.ts` | 74-99 | ✓ |
+| `deleteInventoryItemWorkflow.runAsStep` invoked once for orphan IDs | `delete-product-variants.ts` | 101-103 | ✓ |
+| `createInventoryItemsWorkflow` input shape: `{ items: (CreateInventoryItemInput & { location_levels? })[] }` | `packages/core/core-flows/src/inventory/workflows/create-inventory-items.ts` | 22-32 | ✓ |
+
+Deviations / outstanding gaps surfaced during this verification pass:
+
+1. **`getVariantPriceSetsStep` issues one `calculatePrices` call per
+   distinct context key**, not one bulk call. The "single bulk
+   call" framing earlier in this spec referred to **the hook
+   contract** (Mercur returns one shared context object); the
+   actual pricing-module fan-out is driven by Medusa's
+   `groupItemsByContext` logic and varies with `quantity` /
+   `is_custom_price` heterogeneity. The Hook 1 section has been
+   updated to reflect this distinction.
+2. **`setPricingContext` must be bound to `updateLineItemInCartWorkflow`
+   in addition to add-to-cart and refresh.** Quantity changes
+   re-price the line via `getVariantPriceSetsStep` and need
+   `offer_id` in context. The spec previously omitted this
+   binding; the Hook 1 section has been corrected.
+3. **`validate` hook is not exposed on `refreshCartItemsWorkflow`.**
+   Hook 2 binds to add-to-cart and update-line-item only. Refresh
+   re-uses the existing reservations via Hook 3 instead.
+4. **`beforeRefreshingPaymentCollection` receives `{ input }` only.**
+   The hook does not get a resolved snapshot of line items / taxes
+   / promotions — the handler must query for current state via
+   Query. The Hook 3 section has been clarified.
+
 ## Verification
 
 1. **Static.** `bun run lint` and `bun run build` exit clean. `tsc
@@ -576,7 +962,82 @@ calculated-price column rather than a custom-price write.
 
 ## Evidence
 
-To be filled in once the migration lands.
+Session 17 (2026-05-26) — data-model + offer workflow + cart hook
+refactor landed. Build green across all 9 packages; no new lint
+errors in any SPEC-007 file.
+
+**Build**
+```
+$ bun run build
+Tasks:    9 successful, 9 total
+Time:    ~60s
+```
+
+**Integration tests** (`bun run test:integration:http -- offer/`):
+```
+Test Suites: 1 skipped, 3 passed, 3 of 4 total
+Tests:       10 skipped, 31 passed, 41 total
+Time:        ~80s
+```
+
+Per-suite breakdown:
+- `offer/vendor/offer.spec.ts` — **17 / 17 pass**. Updated for the
+  new model: `offer.prices.*` replaces `offer.price_set.prices.*`;
+  the "PriceSet invariants" block now asserts the shared variant
+  PriceSet + per-row `offer_id` rule discrimination instead of
+  distinct per-offer PriceSet IDs.
+- `offer/cart/cart.spec.ts` — **8 pass, 2 skipped**. The two
+  skipped cases are:
+  - "should keep sibling offers on the same variant as separate
+    cart lines" — under SPEC-007's buybox preselection invariant
+    Medusa's native same-variant merge is correct.
+  - "should decorate the cart line with offer sku (overrides
+    variant_sku)" — `decorateLineItemWithOfferStep` removed;
+    offer SKU is now read from `cart.items[*].offer.sku` via Query.
+- `offer/order/order.spec.ts` — **6 / 6 pass**. The hook handler
+  for `beforeRefreshingPaymentCollection` writes the
+  `cart_line_item ↔ offer` link only; reservation stays at order
+  placement via the existing
+  `completeCartWithSplitOrdersWorkflow → reserveInventoryStep` flow
+  to avoid double-reservation. The full reservation
+  reconcile/diff/release semantics documented in §"Hook 3" are
+  deferred to a follow-up session.
+- `offer/store/offers.spec.ts` — **10 / 10 skipped** (entire suite,
+  `describe.skip`). Per the user's explicit direction the
+  storefront `/store/products` offer-price + inventory-quantity
+  enrichment is deferred ("this is for later"); the helpers
+  `wrap-variants-with-offers-{prices,inventory}.ts` and the
+  associated query-config flags were removed.
+
+**Lint** (`bun run lint`): all pre-existing failures; no new
+SPEC-007-introduced warnings (verified by filtering output for the
+files touched).
+
+**Static**
+- `\d+ offer` after fresh migrations: no `price_set_id` column, no
+  `IDX_offer_price_set_id` index (verified via migration files
+  `Migration20260520104835.ts` + `Migration20260526000000.ts`).
+- `grep -r "overrideWorkflow" packages/core/src/workflows/cart` →
+  no matches. `addToCartWorkflow` and
+  `updateLineItemInCartWorkflow` resolve to Medusa's stock
+  implementations.
+
+**Known follow-ups (not part of SPEC-007 evidence)**:
+- `cart/store/cart.spec.ts` + `cart/store/cart-commission.spec.ts`
+  fail wholesale (47 / 47) on `POST /vendor/products` with
+  "Unrecognized fields: options, prices, manage_inventory" — these
+  are pre-existing failures driven by an unrelated change to the
+  vendor product validator (the test bodies still use the legacy
+  `options + prices` shape instead of `variant_attributes`). Not
+  caused by SPEC-007.
+- `offer/store/offers.spec.ts` needs to be reactivated and
+  rewritten once the storefront enrichment is rebuilt.
+- The `beforeRefreshingPaymentCollection` hook is the lighter
+  link-writer variant; the full reservation
+  reconcile/diff/release flow described in §"Hook 3" is deferred.
+- The `migrate-shared-priceset.ts` script has not been executed
+  against a real database with legacy offers; it is idempotent by
+  design but unverified at runtime.
 
 ## Notes
 

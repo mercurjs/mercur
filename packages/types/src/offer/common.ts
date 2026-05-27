@@ -1,4 +1,4 @@
-import { InventoryItemDTO, MoneyAmountDTO, PriceSetDTO } from "@medusajs/types"
+import { InventoryItemDTO, MoneyAmountDTO } from "@medusajs/types"
 
 /**
  * One row on the offer's inventory-item link, resolved through the writable
@@ -15,30 +15,30 @@ export interface OfferInventoryItemLinkDTO {
 }
 
 /**
- * One row on the offer's price ladder, surfaced through the read-only
- * `offer ↔ price_set` link in
- * `packages/core/src/links/offer-price-set-link.ts`. The offer owns one
- * `PriceSet`, and its prices behave like Medusa `MoneyAmount` rows — Mercur
- * does not introduce its own price entity.
+ * One row on the offer's price ladder, surfaced through the writable
+ * `offer ↔ price` list-link in
+ * `packages/core/src/links/offer-price-link.ts`. The offer's prices live on
+ * the master variant's shared `PriceSet`, scoped by an `offer_id` `PriceRule`
+ * on each row — but the offer-side reads go through the list-link pivot so
+ * `offer.prices: Price[]` resolves in a single Query traversal.
  */
 export type OfferPriceDTO = MoneyAmountDTO
 
 /**
  * The marketplace's per-vendor sellable. An offer is the thin marketplace-side
- * record that points at a Medusa `ProductVariant`, owns a Medusa `PriceSet`,
- * and links to one or more Medusa `InventoryItem` rows. The base columns
- * (`seller_id`, `variant_id`, `shipping_profile_id`, `price_set_id`,
- * `sku`, `ean`, `upc`, `created_by`, `metadata`) live on the `offer` table;
- * the optional `variant` / `seller` / `shipping_profile` / `price_set` /
- * `inventory_items` relations are joined through module links and only
- * present when the consumer requested those fields.
+ * record that points at a Medusa `ProductVariant` (which owns the shared
+ * `PriceSet`) and links to one or more Medusa `InventoryItem` rows. The base
+ * columns (`seller_id`, `variant_id`, `shipping_profile_id`, `sku`, `ean`,
+ * `upc`, `created_by`, `metadata`) live on the `offer` table; the optional
+ * `variant` / `seller` / `shipping_profile` / `prices` / `inventory_items`
+ * relations are joined through module links and only present when the
+ * consumer requested those fields.
  */
 export interface OfferDTO {
   id: string
   seller_id: string
   variant_id: string
   shipping_profile_id: string
-  price_set_id: string
   sku: string
   ean: string | null
   upc: string | null
@@ -48,10 +48,12 @@ export interface OfferDTO {
   updated_at: Date
   deleted_at: Date | null
   /**
-   * Joined through `offer-price-set-link.ts`. Carries the offer's full price
-   * ladder when the field is requested.
+   * Joined through the writable `offer ↔ price` list-link defined in
+   * `packages/core/src/links/offer-price-link.ts`. Carries the offer's
+   * Price rows on the variant's shared `PriceSet` (filtered by the
+   * `offer_id` `PriceRule` Mercur stamps on every offer-owned row).
    */
-  price_set?: PriceSetDTO
+  prices?: OfferPriceDTO[]
   /**
    * Joined through the writable `offer ↔ inventory_item` link. Each row
    * carries the link's `required_quantity` plus the underlying

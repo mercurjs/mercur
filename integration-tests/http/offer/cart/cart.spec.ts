@@ -214,7 +214,7 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(400)
                 })
 
-                it("should snapshot offer price as unit_price + is_custom_price=true on the cart line", async () => {
+                it("should resolve offer price as unit_price on the cart line via setPricingContext", async () => {
                     const seed: SellerSeed = await seedSellerOffer({
                         email: "snapshot@test.com",
                         name: "Snapshot",
@@ -238,16 +238,19 @@ medusaIntegrationTestRunner({
                     const line = addResp.data.cart.items[0]
                     expect(line.variant_id).toEqual(seed.variant.id)
                     expect(line.unit_price).toEqual(4200)
-                    // `is_custom_price` is a transient hint Medusa uses to
-                    // skip pricing on refresh; it's set on the line input
-                    // by the override and persisted on the cart_line_item
-                    // row, but not surfaced on the default cart response.
-                    // Snapshot behaviour is asserted via the price staying
-                    // pinned to the offer's PriceSet on refresh elsewhere.
+                    // SPEC-007: Mercur no longer writes a custom unit_price.
+                    // The price comes from Medusa's native calculated-price
+                    // column, with the shared PriceSet's row resolution
+                    // narrowed via the `offer_id` PriceRule that
+                    // setPricingContext stamps into the pricing context.
                     expect(line.quantity).toEqual(2)
                 })
 
-                it("should keep sibling offers on the same variant as separate cart lines", async () => {
+                // SPEC-007: buybox preselection guarantees one offer per
+                // variant per cart. Medusa's default add-to-cart merges
+                // same-variant lines into a single line, which is the
+                // intended behaviour under the new model.
+                it.skip("should keep sibling offers on the same variant as separate cart lines", async () => {
                     // One seller, one variant, two offers with distinct skus + prices.
                     const result = await createSellerUser(appContainer, {
                         email: "siblings@test.com",
@@ -427,7 +430,10 @@ medusaIntegrationTestRunner({
                     )
                 })
 
-                it("should decorate the cart line with offer sku (overrides variant_sku)", async () => {
+                // SPEC-007: decorateLineItemWithOfferStep is removed.
+                // Offer SKU is now read on demand from
+                // `cart.items[*].offer.sku` via Query.
+                it.skip("should decorate the cart line with offer sku (overrides variant_sku)", async () => {
                     const seed: SellerSeed = await seedSellerOffer({
                         email: "decorate@test.com",
                         name: "Decorate",
@@ -470,7 +476,7 @@ medusaIntegrationTestRunner({
             })
 
             describe("POST /store/carts/:id/line-items/:line_id (qty update stock hook)", () => {
-                it("should allow qty-up within stock and preserve unit_price + is_custom_price", async () => {
+                it("should allow qty-up within stock and preserve unit_price", async () => {
                     const seed: SellerSeed = await seedSellerOffer({
                         email: "qtyok@test.com",
                         name: "QtyOk",

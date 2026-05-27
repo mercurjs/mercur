@@ -30,7 +30,14 @@ jest.setTimeout(120000)
 
 medusaIntegrationTestRunner({
     testSuite: ({ getContainer, api }) => {
-        describe("Store - Products with Offers", () => {
+        // SPEC-007: the store /store/products endpoints no longer enrich
+        // variants with offer calculated_price / inventory_quantity. The
+        // wrap-variants-with-offers-{prices,inventory} utilities and the
+        // associated query-config flags were removed; the endpoint
+        // surfaces plain offer skeletons via Query. The enrichment will
+        // be rebuilt later against the shared-PriceSet model, at which
+        // point this suite should be reactivated + updated.
+        describe.skip("Store - Products with Offers (deferred — SPEC-007)", () => {
             let appContainer: MedusaContainer
             let storeHeaders: any
             let region: any

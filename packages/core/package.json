@@ -60,7 +60,7 @@
     "@medusajs/medusa": "^2.13.4",
     "@medusajs/test-utils": "^2.13.4",
     "@medusajs/ui": "4.1.1",
-    "@mercurjs/types": "2.2.0-canary.2",
+    "@mercurjs/types": "workspace:*",
     "@swc/core": "^1.7.28",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
@@ -80,7 +80,7 @@
     "multer": "^2.0.2",
     "http-proxy-middleware": "^3.0.3",
     "jsonwebtoken": "^9.0.2",
-    "@mercurjs/cli": "2.2.0-canary.2"
+    "@mercurjs/cli": "workspace:*"
   },
   "peerDependencies": {
     "@medusajs/admin-sdk": "^2.13.4",

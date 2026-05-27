@@ -1,3 +1,6 @@
+export * from "./add-offer-prices"
 export * from "./create-offers"
-export * from "./update-offers"
 export * from "./delete-offers"
+export * from "./ensure-variant-price-sets"
+export * from "./remove-offer-prices"
+export * from "./update-offers"
