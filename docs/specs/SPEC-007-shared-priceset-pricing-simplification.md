@@ -4,7 +4,7 @@ canonical: true
 priority: 1
 area: core/pricing
 created: 2026-05-25
-last_updated: 2026-05-26  # End-to-end verified against `/Users/viktorholik/Desktop/medusa`. Findings: (1) `setPricingContext` hook returns a **single shared context fragment** spread into a baseContext that's then per-item overlaid with `quantity` + `is_custom_price` in `get-variants-and-items-with-prices.ts:117-131`. `getVariantPriceSetsStep` (`cart/steps/get-variant-price-sets.ts:118-187`) groups items by exact-context-key and issues one `calculatePrices` call per distinct group — quantity variance causes fan-out, the shared `offer_id` array does not. The earlier "single bulk call" framing referred to the hook contract; the pricing-module fan-out is determined by Medusa's per-context grouping. (2) `setPricingContext` is exposed on `updateLineItemInCartWorkflow` (`update-line-item-in-cart.ts:158-169`) in addition to add-to-cart and refresh; spec corrected to bind to all three. Without this binding qty changes re-price against variant-level pricing. (3) `validate` hook is exposed on add-to-cart (`:136-139`) and update-line-item (`:153-156`); **not** on refresh. Hook 2 scope corrected. (4) `beforeRefreshingPaymentCollection` hook receives `{ input }` only — no resolved cart snapshot — handler must Query for current state. Hook 3 section clarified. Added "Cross-references against Medusa source" table cataloging every claim against its source file + line range, plus a deviations list for the four findings above. The offer workflows section's mirroring of `createProductVariantsWorkflow` / `updateProductVariantsWorkflow` / `deleteProductVariantsWorkflow` is unchanged and verified: strip-nested-data-via-transform (`create-product-variants.ts:251-258`), bulk inventory-item creation (`:281-299`), `createLinksWorkflow.runAsStep` link batching (`:312-313`), `UpsertPriceSetDTO[]` shape (`update-product-variants.ts:213-242`), orphan-inventory cleanup transform (`delete-product-variants.ts:74-99`), and `createInventoryItemsWorkflow` `{ items: (CreateInventoryItemInput & { location_levels? })[] }` shape (`inventory/workflows/create-inventory-items.ts:22-32`) all map 1:1.
+last_updated: 2026-05-27  # Session 18 changes: (1) Bridge mechanism switched from `additional_data.mercur.offer_ids_by_variant` to `line_item.metadata.offer_id`. Empirical evidence: dumping `input.items[0]` inside `refreshCartItemsWorkflow.hooks.beforeRefreshingPaymentCollection` proves Medusa replaces `input.items` with DB-persisted line items at the `refreshCartItemsWorkflow.runAsStep` call inside `addToCart` (`add-to-cart.ts:333-339`, `items: allItems = createdLineItems.concat(updatedLineItems)`). The cart line-item entity has no `offer_id` column (only `metadata: json` round-trips), so `input.items[i].offer_id` is `undefined` in refresh hooks. The previous spec language "`line_item.metadata.offer_id` is never written or read" is therefore inverted: metadata.offer_id IS the bootstrap channel. The storefront route stamps `metadata.offer_id` on the line item input; the cart-line ↔ offer link writer reads it from `cart.items[i].metadata.offer_id` once the link doesn't exist yet. (2) `additional_data.mercur.offer_ids_by_variant` carrier removed. (3) Validator change: `variant_id` is now required alongside `offer_id` (was optional). The route no longer looks up `offer.variant_id` to backfill; clients must send both. (4) `deleteOffersWorkflow` simplified: `force` branching removed, workflow always soft-deletes. Hard-delete pipeline (orphan inventory transform, `removeRemoteLinkStep`, bulk `pricingModule.removePrices`, `deleteInventoryItemWorkflow.runAsStep`) deferred — operator termination flow will be reintroduced as a separate workflow when needed.
 supersedes_section_of: SPEC-002
 ---
 
@@ -159,21 +159,29 @@ sources — never from `line_item.metadata`:
   TypeScript augmentation of `CreateCartCreateLineItemDTO` (already
   in place from SPEC-002). The Mercur storefront route
   `POST /store/carts/:id/line-items` reads `offer_id` from the
-  request body and passes it through on each item. The hook reads
-  `input.items[i].offer_id` directly. The route also forwards the
-  same payload as `additional_data.mercur.offer_ids_by_variant`
-  (a `Record<variant_id, offer_id>`) so downstream steps in the
-  same workflow chain — including the refresh sub-workflow Medusa
-  invokes at the tail — can recover the mapping without rereading
-  the request body.
+  request body and stamps it onto **two places** on each item: the
+  augmented top-level `offer_id` field (consumed by the outer
+  add-to-cart hook) **and** `line_item.metadata.offer_id` (the
+  bridge to the inner refresh sub-workflow). The metadata channel
+  is necessary because Medusa's stock `addToCartWorkflow` calls
+  `refreshCartItemsWorkflow.runAsStep({ input: { items: allItems,
+  ... } })` where `allItems = createdLineItems.concat(updatedLineItems)`
+  — DB-persisted rows. The cart line-item entity has no `offer_id`
+  column, so the augmented `offer_id` is dropped on persist;
+  `metadata: json` is the only writable field that round-trips
+  through `cartModule.addLineItems`. The hook resolves `offer_id`
+  in this order: `item.offer_id` → `item.metadata.offer_id` →
+  `cart.items[*].offer.id` via the writable link.
 - **Refresh path (steady-state).** When `refreshCartItemsWorkflow`
   runs for any reason — promo apply, quantity change, locale
   switch, payment refresh — the cart's line items already exist and
   are linked to their offers via the writable
   `cart_line_item ↔ offer` link. The hook traverses
-  `cart.items[*].offer.id` via Query to get each line's `offer_id`.
-  No metadata, no link lookup against the line_item id table —
-  Query resolves it in one round-trip.
+  `cart.items[*].offer.id` via Query to get each line's `offer_id`,
+  falling back to `cart.items[*].metadata.offer_id` for any line
+  that hasn't been linked yet (the first refresh inside
+  `addToCart`, before `beforeRefreshingPaymentCollection` writes
+  the link).
 
 The handler validates every relevant item resolves to a valid
 `offer_id` (throws `INVALID_DATA` otherwise — the cart is corrupt
@@ -347,31 +355,31 @@ Mercur's handler at
 `packages/core/src/workflows/cart/hooks/before-refreshing-payment-collection.ts`:
 
 1. Loads the refreshed cart's current line items via Query with
-   `cart.items[*].id`, `cart.items[*].variant_id`,
-   `cart.items[*].quantity`, and the joined
+   `cart.items[*].id`, `cart.items[*].metadata`, and the joined
    `cart.items[*].offer.id` (the writable
    `cart_line_item ↔ offer` link). For any newly created line item
    whose link does not exist yet — first add-to-cart for that
    variant — the `offer_id` is recovered from
-   `additional_data.mercur.offer_ids_by_variant[item.variant_id]`,
-   the carrier Mercur's storefront route stamped on the parent
-   workflow. **Line item metadata is never consulted.**
+   `cart.items[*].metadata.offer_id`, the value the storefront
+   route stamped onto the line item input. `metadata.offer_id` is
+   the bootstrap channel for the link; once the link row lands it
+   becomes the steady-state source.
 2. Loads the existing reservations against those line items via
    `inventoryModule.listReservationItems({ line_item_id })`.
 3. Diff-computes three sets:
    - **To create.** Line items without a `cart_line_item ↔ offer`
      link yet — these are brand-new lines from the most recent
      mutation. The handler:
-     - Calls the existing `linkLineItemToOfferStep` (preserved at
-       `packages/core/src/workflows/cart/steps/link-line-item-to-offer.ts`)
-       with `{ line_item_id, offer_id }` pairs derived from the
-       additional-data carrier described above. The
-       `cart_line_item ↔ offer` link
+     - Calls `link.create(...)` directly with `{ line_item_id,
+       offer_id }` pairs derived from `cart.items[*].metadata.offer_id`.
+       The `cart_line_item ↔ offer` link
        (`packages/core/src/links/cart-line-item-offer-link.ts`) is
        kept exactly as in SPEC-002. After this step every line
        item is reachable through `cart.items[*].offer.*` for the
-       rest of its lifetime; the additional-data carrier is no
-       longer needed on subsequent refreshes.
+       rest of its lifetime; `metadata.offer_id` remains on the
+       line item as a redundant breadcrumb but is no longer
+       consulted on subsequent refreshes (the link is the
+       authoritative source).
      - For each entry in `offer.inventory_items[]`, calls
        `inventoryModule.createReservationItems` with
        `quantity = item.quantity * required_quantity` against the
@@ -397,24 +405,25 @@ concurrent add / update / delete operations.
 
 ### Cart line ↔ offer link
 
-`linkLineItemToOfferStep` is **preserved** and runs inside Hook 3
-(see "Hook 3: `beforeRefreshingPaymentCollection`" above). The
-`cart_line_item ↔ offer` link definition at
+The `cart_line_item ↔ offer` link definition at
 `packages/core/src/links/cart-line-item-offer-link.ts` is unchanged.
-After the first refresh that follows an add-to-cart, the link is
-the **single source of truth** for which offer a cart line item
-belongs to — every downstream consumer reads `cart.items[*].offer.*`
-via Query. `line_item.metadata.offer_id` is never written or read;
-the `additional_data.mercur.offer_ids_by_variant` carrier exists
-only as the in-flight workflow bootstrap for the very first
-add-to-cart of a given variant, and is dropped on the floor once
-the link row lands. `decorateLineItemWithOfferStep` is removed —
-line-item-side fields (`sku`, `shipping_profile_id`, `seller_id`)
-are now read on demand from `cart.items[*].offer.*` via Query
-instead of being duplicated onto line-item metadata at create time.
-Order-line ↔ offer mirroring continues to be handled inside
-`completeCartWithSplitOrdersWorkflow`, which is Mercur-owned and not
-a Medusa override.
+Inside Hook 3 the link is written via `link.create(...)` directly
+(no dedicated step). After the first refresh that follows an
+add-to-cart, the link is the **single source of truth** for which
+offer a cart line item belongs to — every downstream consumer
+reads `cart.items[*].offer.*` via Query. The bootstrap channel for
+that first refresh is `line_item.metadata.offer_id`, stamped by
+the storefront route alongside the augmented top-level `offer_id`
+field. Once the link row lands, `metadata.offer_id` remains on the
+line item as a redundant breadcrumb but is no longer consulted —
+only the link is read on subsequent operations.
+`decorateLineItemWithOfferStep` is removed — line-item-side fields
+(`sku`, `shipping_profile_id`, `seller_id`) are now read on demand
+from `cart.items[*].offer.*` via Query instead of being duplicated
+onto line-item metadata at create time. Order-line ↔ offer
+mirroring continues to be handled inside
+`completeCartWithSplitOrdersWorkflow`, which is Mercur-owned and
+not a Medusa override.
 
 ## Offer ↔ Price list-link (writable)
 
@@ -514,11 +523,9 @@ link module the first time the link is registered.
 
 What stays:
 
-- `packages/core/src/workflows/cart/steps/link-line-item-to-offer.ts` —
-  invoked by the `beforeRefreshingPaymentCollection` hook handler
-  (Hook 3).
 - `packages/core/src/links/cart-line-item-offer-link.ts` — link
-  definition unchanged.
+  definition. (The `linkLineItemToOfferStep` wrapper has been
+  removed; Hook 3 calls `link.create(...)` inline.)
 - `complete-cart-with-split-orders.ts` (Mercur-owned, not an override).
 - `mirror-line-item-offer-links-to-order.ts` (used by the order-split
   workflow).
@@ -740,62 +747,26 @@ Same bulk shape, mirrored on `updateProductVariantsWorkflow`
 
 ### `deleteOffersWorkflow`
 
-Same bulk shape, mirrored on `deleteProductVariantsWorkflow`
-(`delete-product-variants.ts:54-125`).
+Soft-delete-only. The workflow is intentionally minimal:
 
-1. **Bulk-load every offer's relations in one query.**
-   ```ts
-   useQueryGraphStep({
-     entity: "offer",
-     fields: [
-       "id",
-       "prices.id",
-       "inventory_item_link.inventory_item.id",
-       "inventory_item_link.inventory_item.offers.id",
-     ],
-     filters: { id: input.ids },
-   })
-   ```
-   Mirrors `delete-product-variants.ts:57-68`.
-2. **Soft-delete branch (default).** `deleteOffersStep(input.ids)`
-   with `force: false` stamps `deleted_at` on every offer row in
-   one call. Prices, link rows, and inventory items are left
-   untouched so historical orders resolve correctly via the
-   persisted `Offer ↔ Price` pivot.
-3. **Hard-delete branch (operator termination, `force: true`).**
-   All five teardown steps below are dispatched in parallel from
-   the workflow:
-   - **Compute orphan inventory items.** A `transform` mirroring
-     `delete-product-variants.ts:74-99`'s `toDeleteInventoryItemIds`:
-     for each `inventory_item` linked to a deleted offer, include
-     it in `toDeleteIds` only if **every** offer the inventory
-     item is linked to is in the delete batch
-     (`inventory_item.offers.every(o => offersMap.has(o.id))`).
-     This prevents clipping inventory items still in use by a
-     sibling offer.
-   - **`removeRemoteLinkStep({ [MercurModules.OFFER]: { offer_id:
-     input.ids } })`** once — tears down every cross-module link
-     row (cart_line ↔ offer, order_line ↔ offer, offer ↔
-     inventory_item, offer ↔ price) in one call.
-     `delete-product-variants.ts:70-72` is the template.
-   - **`pricingModule.removePrices(allOfferPriceIds)`** once with
-     the union of every `offer.prices[*].id` across the batch.
-     No rule-value rescan, no risk of clipping sibling offers'
-     rows because the Price ids come from the
-     `Offer ↔ Price` list-link, not from a `price_rules.value`
-     scan.
-   - **`deleteInventoryItemWorkflow.runAsStep({ input:
-     orphanInventoryItemIds })`** once for the orphan set
-     computed above. Mirrors
-     `delete-product-variants.ts:101-103`.
-   - **`deleteOffersStep(input.ids, { force: true })`** once.
-4. **Emit `OfferEvents.DELETED`** in one bulk `emitEventStep`
-   call with the full ID list, matching
-   `delete-product-variants.ts:107-116`.
-5. **`offersDeleted` hook** is exposed via `createHook` so
+1. **`deleteOffersStep({ ids: input.ids })`** stamps `deleted_at`
+   on every offer row in one call (`softDeleteOffers`). Prices,
+   link rows, and inventory items are left untouched so historical
+   orders resolve correctly via the persisted `Offer ↔ Price`
+   pivot. Compensation calls `restoreOffers` on rollback.
+2. **Emit `OfferEvents.DELETED`** in one bulk `emitEventStep`
+   call with the full ID list.
+3. **`offersDeleted` hook** is exposed via `createHook` so
    downstream consumers (subscribers, custom workflows) receive
-   the full batch ID list, matching
-   `delete-product-variants.ts:118-123`.
+   the full batch ID list.
+
+The hard-delete branch (orphan inventory transform,
+`removeRemoteLinkStep`, bulk `pricingModule.removePrices`,
+`deleteInventoryItemWorkflow.runAsStep`, force flag) was removed.
+Operator termination — the only flow that needed hard delete — is
+deferred to a separate workflow when the need arises; soft-delete
+is the right default for vendor- and admin-initiated removals
+because it preserves order-history resolution.
 
 ## Migration plan
 
@@ -961,6 +932,24 @@ Deviations / outstanding gaps surfaced during this verification pass:
    sibling offers do not bleed.
 
 ## Evidence
+
+Session 18 (2026-05-27) — bridge channel switched from
+`additional_data.mercur.offer_ids_by_variant` to
+`line_item.metadata.offer_id` after empirical verification that
+Medusa's stock `addToCartWorkflow` replaces `input.items` with
+DB-persisted rows (which carry no `offer_id` column) at the
+`refreshCartItemsWorkflow.runAsStep` call. The cart line-item
+entity's `metadata: json` field is the only writable channel that
+round-trips. Storefront route now requires both `offer_id` and
+`variant_id` (the offer-by-id lookup that previously backfilled
+`variant_id` from the offer row is gone — clients send both).
+`deleteOffersWorkflow` simplified to soft-delete only; `force`
+branching removed from `deleteOffersStep` and the workflow.
+`linkLineItemToOfferStep` wrapper removed; Hook 3 calls
+`link.create(...)` inline. Cart suite: 8 pass / 2 intentionally
+skipped. Order suite: 6 pass / 4 intentionally skipped. Vendor
+suite: 17 / 17 pass. Store suite: 4 intentionally skipped (entire
+suite). Full offer-suite run: **31 passed, 10 skipped, 0 failed**.
 
 Session 17 (2026-05-26) — data-model + offer workflow + cart hook
 refactor landed. Build green across all 9 packages; no new lint

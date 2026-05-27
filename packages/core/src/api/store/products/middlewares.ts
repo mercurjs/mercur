@@ -8,66 +8,12 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
+import { storeProductQueryConfig } from "./query-config"
 import {
   StoreGetProductParams,
   StoreGetProductsParams,
 } from "./validators"
 import { SellerStatus, ProductStatus } from "@mercurjs/types"
-
-const storeProductFields = [
-  "id",
-  "title",
-  "subtitle",
-  "status",
-  "external_id",
-  "description",
-  "handle",
-  "is_giftcard",
-  "discountable",
-  "thumbnail",
-  "collection_id",
-  "type_id",
-  "brand_id",
-  "weight",
-  "length",
-  "height",
-  "width",
-  "hs_code",
-  "origin_country",
-  "mid_code",
-  "material",
-  "created_at",
-  "updated_at",
-  "metadata",
-  "*type",
-  "*brand",
-  "*collection",
-  "*tags",
-  "*images",
-  "*categories",
-  "*variants",
-  "*variants.attribute_values",
-  "*variants.attribute_values.attribute",
-  "*variants.offers",
-  "*variant_attributes",
-  "*variant_attributes.values",
-  "*custom_attributes",
-  "*custom_attributes.values",
-  "*attribute_values",
-  "*attribute_values.attribute",
-]
-
-const storeProductQueryConfig = {
-  list: {
-    defaults: storeProductFields,
-    defaultLimit: 50,
-    isList: true,
-  },
-  retrieve: {
-    defaults: storeProductFields,
-    isList: false,
-  },
-}
 
 const applyProductFilters = (
   req: MedusaRequest,

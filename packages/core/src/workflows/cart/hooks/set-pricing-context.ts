@@ -9,15 +9,33 @@ import {
   updateLineItemInCartWorkflow,
 } from "@medusajs/medusa/core-flows"
 
+const readOfferIdFromItem = (
+  item: { offer_id?: unknown; metadata?: Record<string, unknown> | null } | null
+    | undefined,
+): string | undefined => {
+  if (typeof item?.offer_id === "string" && item.offer_id.length > 0) {
+    return item.offer_id
+  }
+  const metaOfferId = item?.metadata?.offer_id
+  if (typeof metaOfferId === "string" && metaOfferId.length > 0) {
+    return metaOfferId
+  }
+  return undefined
+}
+
 const collectFromInputItems = (
-  items: Array<{ offer_id?: string }> | undefined,
+  items:
+    | Array<{
+        offer_id?: unknown
+        metadata?: Record<string, unknown> | null
+      }>
+    | undefined,
 ): string[] => {
   if (!items?.length) return []
   const ids: string[] = []
   for (const item of items) {
-    if (typeof item.offer_id === "string" && item.offer_id.length > 0) {
-      ids.push(item.offer_id)
-    }
+    const id = readOfferIdFromItem(item)
+    if (id) ids.push(id)
   }
   return ids
 }
@@ -31,17 +49,25 @@ const collectFromCartItems = async (
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const { data: rows } = await query.graph({
     entity: "cart",
-    fields: ["id", "items.offer.id"],
+    fields: ["id", "items.offer.id", "items.metadata"],
     filters: { id: cartId },
   })
   const cart = rows[0] as
-    | { items?: Array<{ offer?: { id?: string } | null }> }
+    | {
+        items?: Array<{
+          offer?: { id?: string } | null
+          metadata?: Record<string, unknown> | null
+        }>
+      }
     | undefined
   const ids: string[] = []
   for (const item of cart?.items ?? []) {
     if (item.offer?.id) {
       ids.push(item.offer.id)
+      continue
     }
+    const fromMeta = readOfferIdFromItem(item)
+    if (fromMeta) ids.push(fromMeta)
   }
   return ids
 }

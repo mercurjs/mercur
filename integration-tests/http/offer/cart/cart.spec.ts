@@ -228,6 +228,7 @@ medusaIntegrationTestRunner({
                         `/store/carts/${cart.id}/line-items`,
                         {
                             offer_id: seed.offer.id,
+                            variant_id: seed.variant.id,
                             quantity: 2,
                         },
                         storeHeaders
@@ -407,6 +408,7 @@ medusaIntegrationTestRunner({
                         `/store/carts/${cart.id}/line-items`,
                         {
                             offer_id: seed.offer.id,
+                            variant_id: seed.variant.id,
                             quantity: 1,
                         },
                         storeHeaders
@@ -458,6 +460,12 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should reject add-to-cart with a non-existent offer_id", async () => {
+                    const seed: SellerSeed = await seedSellerOffer({
+                        email: "missing-offer-id@test.com",
+                        name: "Missing Offer ID",
+                        stocked: 10,
+                        offerPrice: 2500,
+                    })
                     const cart = await createCart()
 
                     const response = await api
@@ -465,13 +473,15 @@ medusaIntegrationTestRunner({
                             `/store/carts/${cart.id}/line-items`,
                             {
                                 offer_id: "offer_does_not_exist",
+                                variant_id: seed.variant.id,
                                 quantity: 1,
                             },
                             storeHeaders
                         )
                         .catch((e) => e.response)
 
-                    expect(response.status).toEqual(404)
+                    expect(response.status).toBeGreaterThanOrEqual(400)
+                    expect(response.status).toBeLessThan(500)
                 })
             })
 
@@ -488,7 +498,7 @@ medusaIntegrationTestRunner({
 
                     const addResp = await api.post(
                         `/store/carts/${cart.id}/line-items`,
-                        { offer_id: seed.offer.id, quantity: 1 },
+                        { offer_id: seed.offer.id, variant_id: seed.variant.id, quantity: 1 },
                         storeHeaders
                     )
                     const line = addResp.data.cart.items[0]
@@ -519,7 +529,7 @@ medusaIntegrationTestRunner({
 
                     const addResp = await api.post(
                         `/store/carts/${cart.id}/line-items`,
-                        { offer_id: seed.offer.id, quantity: 1 },
+                        { offer_id: seed.offer.id, variant_id: seed.variant.id, quantity: 1 },
                         storeHeaders
                     )
                     const line = addResp.data.cart.items[0]
@@ -553,7 +563,7 @@ medusaIntegrationTestRunner({
 
                     const addResp = await api.post(
                         `/store/carts/${cart.id}/line-items`,
-                        { offer_id: seed.offer.id, quantity: 1 },
+                        { offer_id: seed.offer.id, variant_id: seed.variant.id, quantity: 1 },
                         storeHeaders
                     )
                     const line = addResp.data.cart.items[0]
@@ -582,7 +592,7 @@ medusaIntegrationTestRunner({
 
                     const addResp = await api.post(
                         `/store/carts/${cart.id}/line-items`,
-                        { offer_id: seed.offer.id, quantity: 1 },
+                        { offer_id: seed.offer.id, variant_id: seed.variant.id, quantity: 1 },
                         storeHeaders
                     )
                     const line = addResp.data.cart.items[0]

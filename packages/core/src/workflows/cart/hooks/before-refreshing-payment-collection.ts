@@ -7,8 +7,8 @@ import { MercurModules } from "@mercurjs/types"
 
 type CartLineWithOffer = {
   id: string
-  variant_id: string | null
   offer?: { id?: string } | null
+  metadata?: Record<string, unknown> | null
 }
 
 refreshCartItemsWorkflow.hooks.beforeRefreshingPaymentCollection(
@@ -16,28 +16,12 @@ refreshCartItemsWorkflow.hooks.beforeRefreshingPaymentCollection(
     const cartId = input.cart_id
     if (!cartId) return
 
-    const offerIdByVariant = new Map<string, string>()
-    for (const item of (input.items ?? []) as Array<{
-      variant_id?: string | null
-      offer_id?: string | null
-    }>) {
-      if (item.variant_id && item.offer_id) {
-        offerIdByVariant.set(item.variant_id, item.offer_id)
-      }
-    }
-    if (!offerIdByVariant.size) return
-
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
     const link = container.resolve(ContainerRegistrationKeys.LINK)
 
     const { data: cartRows } = await query.graph({
       entity: "cart",
-      fields: [
-        "id",
-        "items.id",
-        "items.variant_id",
-        "items.offer.id",
-      ],
+      fields: ["id", "items.id", "items.offer.id", "items.metadata"],
       filters: { id: cartId },
     })
     const cart = cartRows[0] as
@@ -51,10 +35,8 @@ refreshCartItemsWorkflow.hooks.beforeRefreshingPaymentCollection(
     }> = []
     for (const item of cart.items) {
       if (item.offer?.id) continue
-      const variantId = item.variant_id
-      if (!variantId) continue
-      const offerId = offerIdByVariant.get(variantId)
-      if (!offerId) continue
+      const offerId = item.metadata?.offer_id
+      if (typeof offerId !== "string" || !offerId.length) continue
       linksToCreate.push({ line_item_id: item.id, offer_id: offerId })
     }
 

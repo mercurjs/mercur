@@ -210,6 +210,7 @@ medusaIntegrationTestRunner({
 
             const completeCartCheckout = async (
                 offerId: string,
+                variantId: string,
                 quantity: number
             ) => {
                 const cart = (
@@ -226,7 +227,7 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, quantity },
+                    { offer_id: offerId, variant_id: variantId, quantity },
                     storeHeaders
                 )
 
@@ -353,6 +354,7 @@ medusaIntegrationTestRunner({
 
                 const { completeResp } = await completeCartCheckout(
                     seed.offer.id,
+                    seed.variant.id,
                     2
                 )
                 expect(completeResp.status).toEqual(200)
@@ -393,6 +395,7 @@ medusaIntegrationTestRunner({
 
                 const { completeResp } = await completeCartCheckout(
                     seed.offer.id,
+                    seed.variant.id,
                     2
                 )
                 expect(completeResp.status).toEqual(200)
@@ -447,12 +450,20 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: sellerA.offer.id, quantity: 1 },
+                    {
+                        offer_id: sellerA.offer.id,
+                        variant_id: sellerA.variant.id,
+                        quantity: 1,
+                    },
                     storeHeaders
                 )
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: sellerB.offer.id, quantity: 1 },
+                    {
+                        offer_id: sellerB.offer.id,
+                        variant_id: sellerB.variant.id,
+                        quantity: 1,
+                    },
                     storeHeaders
                 )
 
@@ -600,6 +611,7 @@ medusaIntegrationTestRunner({
 
                     const { completeResp } = await completeCartCheckout(
                         seed.offer.id,
+                        seed.variant.id,
                         2
                     )
                     expect(completeResp.status).toEqual(200)
@@ -649,6 +661,7 @@ medusaIntegrationTestRunner({
 
                     const { completeResp } = await completeCartCheckout(
                         seed.offer.id,
+                        seed.variant.id,
                         2
                     )
                     const { orderId, itemId } = await fetchOrderId(
@@ -697,6 +710,7 @@ medusaIntegrationTestRunner({
 
                     const { completeResp } = await completeCartCheckout(
                         seed.offer.id,
+                        seed.variant.id,
                         2
                     )
                     const { orderId, itemId } = await fetchOrderId(
