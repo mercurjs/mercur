@@ -6,7 +6,7 @@ import type {
   CreateProductCategoryDTO as UpstreamCreateProductCategoryDTO,
   UpdateProductCategoryDTO as UpstreamUpdateProductCategoryDTO,
 } from "@medusajs/types"
-import { AttributeType, ProductStatus } from "./common"
+import { AttributeType, ProductChangeStatus, ProductStatus } from "./common"
 
 // --- ProductBrand (Mercur-only) ---
 
@@ -187,7 +187,7 @@ export interface CreateProductChangeDTO {
   internal_note?: string
   external_note?: string
   created_by?: string
-  status?: string
+  status?: ProductChangeStatus
   confirmed_by?: string
   confirmed_at?: Date
   metadata?: Record<string, unknown>

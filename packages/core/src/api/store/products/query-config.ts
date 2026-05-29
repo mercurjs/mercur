@@ -32,7 +32,6 @@ export const defaultStoreProductFields = [
   "*variants",
   "*variants.attribute_values",
   "*variants.attribute_values.attribute",
-  "*variants.offers",
   "*variant_attributes",
   "*variant_attributes.values",
   "*custom_attributes",

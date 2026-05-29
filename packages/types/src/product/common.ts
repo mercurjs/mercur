@@ -32,9 +32,16 @@ export enum AttributeType {
   TEXT = "text",
 }
 
-/** Product change lifecycle statuses. */
+/**
+ * Product change lifecycle statuses.
+ *
+ * `REQUIRES_ACTION` is the signal "admin asked the vendor to do more work on
+ * this product". The existence of any such row is what flips the computed
+ * `Product.requires_action` boolean to `true`; see SPEC-008.
+ */
 export enum ProductChangeStatus {
   PENDING = "pending",
+  REQUIRES_ACTION = "requires_action",
   CONFIRMED = "confirmed",
   DECLINED = "declined",
   CANCELED = "canceled",
@@ -98,9 +105,23 @@ export interface ProductAttributeDTO {
   rank: number
   is_active: boolean
   created_by: string | null
-  product_id: string | null
+  /**
+   * Legacy override-only column on the fused Mercur product module. Optional
+   * because the new standalone `product-attribute` module (SPEC-008) drops
+   * this field — product-scoped attributes are migrated to stock
+   * `ProductOption` / `ProductOptionValue` instead. The legacy fused module
+   * still populates the column until step 5 retires it.
+   */
+  product_id?: string | null
   metadata: Record<string, unknown> | null
   values?: ProductAttributeValueDTO[]
+  /**
+   * Legacy entity-level M:N relations populated by the fused Mercur product
+   * module. The new `product-attribute` module exposes these via Module
+   * Links instead (`product_attribute_category_link`,
+   * `product_variant_attribute`) and the link aliases resolve through
+   * Query Graph rather than the service.
+   */
   categories?: ProductCategoryDTO[]
   variant_products?: ProductDTO[]
   created_at: string | Date

@@ -8,10 +8,1016 @@
 - **Standard startup path**: `bun install && bun run dev`
 - **Standard verification path**: `bun run build`, `bun run lint` (oxlint), `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
-- **Active spec**: SPEC-007 (shared-priceset pricing simplification) — Session 17 (2026-05-26) landed the data model + offer workflow + cart hook rewrites. Build green across all 9 packages, lint clean for all SPEC-007 files, integration suites `offer/{vendor,cart,order}` all green (31 passing / 10 intentionally skipped). Status flipped to `passing`. Follow-ups (deferred): storefront `/store/products` offer-price + inventory-quantity enrichment ("for later" per user); full reservation reconcile/release semantics in `beforeRefreshingPaymentCollection` (the hook currently only writes the cart-line ↔ offer link, leaving reservation at order placement); runtime `medusa exec ./src/scripts/migrate-shared-priceset.ts` against a database with legacy per-offer PriceSets; probe-script re-run.
+- **Active spec**: SPEC-008 (drop Mercur product module override). Session 19 (2026-05-28) landed step 1 (scaffold new modules); Session 20 (2026-05-28) landed step 2 (seven link files under `packages/core/src/links/`); Session 22 (2026-05-28) landed step 4 sub-step A + B — the `product-attribute` workflow group at `packages/core/src/workflows/product-attribute/` AND the `product-change` workflow group at `packages/core/src/workflows/product-change/` (events.ts + 12 steps + 6 workflows: create / confirm / reject / request-changes / resubmit / cancel; step IDs `pc-`-prefixed; `applyProductChangeActionsWorkflow` deferred since it dispatches to stock product workflows). Tightened `CreateProductChangeDTO.status` to `ProductChangeStatus` enum in `@mercurjs/types`. Top-level `workflows/index.ts` does **not** re-export the new groups (name collisions with the legacy `./product` barrel); consumers import directly from `./product-attribute` / `./product-change`. Sub-step A landed (events.ts + 11 step files: create/update/delete/upsert × {attributes, values}, validateProductAttributeInput, validateAttributeAcceptsValues, validateProductAttributeNotMirrored, validateProductAttributeValueNotMirrored; 7 workflow files mirroring the spec table; barrel index; wired into `packages/core/src/workflows/index.ts`). Workflows resolve `MercurModules.PRODUCT_ATTRIBUTE` against `ProductAttributeModuleService`; workflow IDs are bare (`create-product-attributes`, …), step IDs prefixed `pa-` to avoid runtime collision with legacy `mercur-…` workflow IDs and bare-named legacy steps. `ProductAttributeDTO.product_id` + legacy entity-relation fields (`categories`, `variant_products`) marked optional in `@mercurjs/types` so the slim shape from the new module satisfies the DTO without breaking legacy fused-module readers. Hand-rolled upsert in `upsert-product-attribute-values` step (MedusaService auto-generates create/update/delete but not upsert). Validators `validateProductAttribute(Value)NotMirroredStep` read through link aliases `product_option.source_attribute.id` / `product_option_value.source_attribute_value.id` — no-ops today since no mirror writes exist; live once the mirror workflows land. Build green 9/9 (1m9s); no new lint errors in the new files. Modules **still not registered** in `withMercur()`; new workflows coexist alongside legacy `packages/core/src/workflows/product/workflows/*` until step 5. Session 21 (2026-05-28) landed step 3: a single idempotent + `--check`-dry-runnable migration script at `packages/core/src/migration-scripts/migrate-product-module-split.ts` that bundles (A) pre-link `ALTER TABLE` on the three composite-PK legacy pivots (`product_attribute_value_link`, `product_variant_attribute_value`, `product_variant_attribute`) — adds `id` (default `gen_random_uuid()::text`) + `created_at` / `updated_at` / `deleted_at`, swaps the composite PK for one on `id`, adds a partial UNIQUE on the FK pair `WHERE deleted_at IS NULL`; (B) brand → category-scoped `ProductAttribute(handle="brand", type=SINGLE_SELECT)` data migration — INSERTs the canonical `pattr_brand` attribute, one `ProductAttributeValue` per legacy `ProductBrand`, and one `product_attribute_value_link` row per product whose `brand_id` was set; (C) `ProductAttribute WHERE product_id IS NOT NULL` (custom attributes) → stock Medusa `ProductOption` / `ProductOptionValue` — runtime-guarded by `IF EXISTS (product_option)` so the pass no-ops until the SPEC-008 step-5 module-registration swap brings the stock product module online; (D) `Product.status='requires_action'` re-stamp — inserts a `ProductChange` row with `status='requires_action'` per product and updates the product status to `'proposed'`. Every pass is idempotent (re-runnable on a fully-, partially-, or freshly-migrated database) via information_schema / `pg_constraint` / `pg_indexes` probes and `WHERE NOT EXISTS` guards. The pre-link ALTERs live in this script (not in a module migration) per SPEC-008's "they pre-condition the module loading" framing. Full monorepo `bun run build` green (9/9 packages, 63s); `bun run lint` reports no new errors for the new file (only pre-existing baseline errors). Modules are **still not registered** in `withMercur()` — that swap belongs to step 5. Session 23 (2026-05-28) landed step 4 sub-step C: `applyProductChangeActionsWorkflow` at `packages/core/src/workflows/product-change/workflows/apply-product-change-actions.ts` — the cross-module dispatcher that replaces legacy `ProductModuleService.applyProductChangeActions_`. One `useQueryGraphStep` over `product_change_action` (filtered by `product_change_id IN change_ids AND applied=false`), one bucket-by-action-type `transform`, then seven sequential `when(...).then(...)` blocks dispatching to `updateProductsWorkflow` (STATUS_CHANGE+UPDATE collapsed by product_id), `deleteProductVariantsWorkflow` → `createProductVariantsWorkflow` → `updateProductVariantsWorkflow` (preserving legacy ordering for SKU/title-uniqueness safety), ATTRIBUTE_REMOVE via two `dismissRemoteLinkStep` calls (value links + variant-axis link, second silently no-ops when not a variant axis), ATTRIBUTE_ADD via two `createRemoteLinkStep` calls (value links unconditionally; variant-axis link filtered by `is_variant_axis = true` from an inline `useQueryGraphStep` on `product_attribute`), and `deleteProductsWorkflow` last so audit-trail updates write through first. Closing `updateProductChangeActionsStep` marks every dispatched action `applied: true`. ATTRIBUTE_ADD expects pre-resolved `attribute_value_ids` — the legacy find-or-create `details.values: string[]` branch is dropped from this wrapper and lives upstream (callers must invoke `upsertProductAttributeValuesWorkflow.runAsStep` first). `confirmProductChangeWorkflow` now invokes `applyProductChangeActionsWorkflow.runAsStep({ change_ids: input.ids })` between `confirmProductChangesStep` and `emitEventStep`, restoring parity with the legacy `applyProductChangeActions_` call after the status flip. Full monorepo `bun run build` green (9/9 packages, 58s). Lint clean (only baseline `no-shadow` warnings on the standard `transform({ x }, ({ x }) => …)` destructuring pattern shared with `cancel-product-change.ts` / `confirm-product-change.ts`). Modules are **still not registered** in `withMercur()` — that swap belongs to step 5. Session 24 (2026-05-28) landed step 4 sub-step D: `getProductsWithDetailsWorkflow` at `packages/core/src/workflows/product/workflows/get-products-with-details.ts` + the generic `formatProducts` util at `packages/core/src/workflows/product/utils/format-products.ts`. The util appends `requires_action: changes?.some(c => c.status === REQUIRES_ACTION) ?? false` to every product DTO — the single seam where Mercur decorates the stock product surface with marketplace-computed fields. The wrapper deduplicates `["...input.fields", "id", "changes.id", "changes.status"]` so the computed-source paths are always present regardless of caller selection (clients do **not** request `*requires_action` — it's part of the wrapper's response contract, not a joiner alias). Pattern-match `medusa/.../order/workflows/get-order-detail.ts`. Build green 9/9 (60s); lint clean (4 baseline `no-shadow` warnings on standard `transform({ x }, ({ x }) => …)` pattern). Next deferred: rewire of admin/vendor/store product routes to call this wrapper (drop `*custom_attributes` field-tree paths, add `*changes.status`), `batch-products.ts` rewrite to delegate to stock workflows, mirror-rename subscribers, then the step 5 module-registration swap in `withMercur()`.
+- **Previous active spec**: SPEC-007 (shared-priceset pricing simplification) — Session 17 (2026-05-26) landed the data model + offer workflow + cart hook rewrites. Build green across all 9 packages, lint clean for all SPEC-007 files, integration suites `offer/{vendor,cart,order}` all green (31 passing / 10 intentionally skipped). Status flipped to `passing`. Follow-ups (deferred): storefront `/store/products` offer-price + inventory-quantity enrichment ("for later" per user); full reservation reconcile/release semantics in `beforeRefreshingPaymentCollection` (the hook currently only writes the cart-line ↔ offer link, leaving reservation at order placement); runtime `medusa exec ./src/scripts/migrate-shared-priceset.ts` against a database with legacy per-offer PriceSets; probe-script re-run.
 - **Previous spec**: SPEC-002 (offer management) -- foundation landed 2026-05-20 (Session 5). Session 6 (2026-05-20) added the F2 create workflow, soft-delete + offer-row update workflows, the vendor + admin offer API routes, and the first vendor integration test. Session 7 (2026-05-20) added the offer-inventory-items batch endpoint and folded price updates into `updateOffersWorkflow` (replace semantics, mirroring Medusa's `updateProductVariantsWorkflow`); the earlier in-flight `batchOfferPricesWorkflow` was removed in the same session. Session 8 (2026-05-20) extended `integration-tests/http/offer/vendor/offer.spec.ts` with seven new cases covering the Session 7 endpoints. Session 8b (2026-05-20) centralized offer DTOs in `@mercurjs/types` (`packages/types/src/offer` + `packages/types/src/http/offer.ts`) and refactored every workflow + step under `packages/core/src/workflows/offer/` to import the shared DTOs in place of inline type aliases; SPEC-002 now has a `## Types Contract` section documenting the layout and consumer mapping. Session 9 (2026-05-20) landed the cart-side identity layer: writable `cart-line-item-offer-link` + `order-line-item-offer-link`, TypeScript augmentation of `CreateCartCreateLineItemDTO` with `offer_id`, `linkLineItemToOfferStep` + `decorateLineItemWithOfferStep` + `mirrorLineItemOfferLinksToOrderStep` + `calculateOfferPricesStep`, a same-id Mercur replacement for `getLineItemActionsStep` keyed by `(variant_id, offer_id)`, the same-id `addToCartWorkflow` override using `overrideWorkflow`, and an inline `mirrorLineItemOfferLinksToOrderStep` + `metadata.cart_line_item_id` stamp inside `completeCartWithSplitOrdersWorkflow`. Session 9b (2026-05-20) added Mercur's `POST /store/carts/:id/line-items` route (offer_id required at HTTP boundary) and a same-id `updateLineItemInCartWorkflow` override preserving `is_custom_price`. Session 9c (2026-05-20) added `prepareOfferInventoryInput`, wired the offer-aware `reserveInventoryStep` into `completeCartWithSplitOrdersWorkflow`, registered offer-aware validate-stock hooks on `addToCartWorkflow` and `updateLineItemInCartWorkflow`, and rewrote `completeCartFields` to read `items.offer.inventory_items.*` instead of the now-absent `items.variant.inventory_items.*` paths. Session 9d (2026-05-20) surfaced offers on `GET /store/products/:id` — per-variant offers list with seller / price / stock_status / shipping_profile_id / sku, one bulk `pricingModule.calculatePrices` call, effective-stock filter (`MIN(floor((stocked − reserved) / required_quantity))`), and stable price-ASC/id-ASC ordering. Cancel-order release-on-cancel works via Medusa's existing line-id-keyed `deleteReservationsByLineItemsStep` — no Mercur override needed. Session 10 (2026-05-20) added the three remaining inventory-lifecycle overrides: `createOrderFulfillmentWorkflow` (id `create-order-fulfillment`), `cancelOrderFulfillmentWorkflow` (id `cancel-order-fulfillment`), and `confirmReturnReceiveWorkflow` (id `confirm-return-receive`). Each replaces the variant-shaped `orderItem.variant.inventory_items.find(...)` lookup with an offer-shaped Query read over `order_line_item.offer.inventory_items.{inventory_item_id, required_quantity, inventory.{...}}` so the decrement / restock multiplier comes from `offer.required_quantity` instead of falling back to `1`. Still pending: the `GET /store/products` list page offers skim (starting-from price), integration tests under `integration-tests/http/offer/{store,cart,order}/`, and runtime PG+Redis verification of every override.
 
 ## Session Log
+
+### Session 25: 2026-05-29 -- SPEC-008 hot-fix: relocate new modules out of plugin auto-scan path
+
+**Goal**: Unblock the existing `http/product/{admin,store,vendor}/product.spec.ts`
+suites that were broken at container boot by a joiner alias collision
+introduced incidentally by the SPEC-008 step 4 scaffold work
+(Sessions 19–24 cont.²).
+
+**Symptom**
+
+Running `TEST_TYPE=integration:http jest --testPathPatterns="http/product/"`
+fails 3/3 suites at the `MedusaApp_` setup stage with:
+
+```
+Cannot add alias "product_attribute" for "product". It is already
+defined for Service "productAttribute".
+  at RemoteJoiner.buildReferences (remote-joiner.ts:381)
+  at MedusaAppLoader.runModulesMigrations
+```
+
+**Root cause**
+
+Medusa's plugin scanner registers any `Module()` default export under
+`<plugin>/.medusa/server/src/modules/*/index.js` automatically — there
+is no opt-in switch. Sessions 19+ landed the new
+`packages/core/src/modules/{product-attribute,product-change}/`
+folders, intending them to become live only after the step 5
+`withMercur()` registration swap. But the plugin auto-scanner picked
+them up at every boot, side-by-side with the legacy fused
+`@mercurjs/core/modules/product`. Both modules declare a
+`ProductAttribute` model + a `ProductChange` model, and `MedusaService`
+auto-derives a joiner linkable per model. The kebab keys
+(`product_attribute`, `product_change`) collide globally across the
+two services → boot abort.
+
+**Fix**
+
+Relocate every session-created module / link / subscriber outside
+Medusa's auto-scan paths. None of these files were committed yet (per
+`git status` they were all `??` untracked), so the move is local
+state-only and doesn't affect upstream.
+
+- `packages/core/src/modules/product-attribute/` →
+  `packages/core/src/_step5-pending/modules/product-attribute/`
+- `packages/core/src/modules/product-change/` →
+  `packages/core/src/_step5-pending/modules/product-change/`
+- 7 new link files (`product-attribute-{category,value}-link.ts`,
+  `product-change-link.ts`, `product-option-{attribute,value-attribute-value}-link.ts`,
+  `product-variant-attribute{,-value}-link.ts`) →
+  `packages/core/src/_step5-pending/links/`
+- 2 mirror subscribers (`mirror-product-attribute-{rename,value-rename}.ts`)
+  → `packages/core/src/_step5-pending/subscribers/`
+
+Workflows under `src/workflows/product-attribute/`, `product-change/`,
+and `product/utils/format-products.ts` STAY in place. They reference
+the moved modules only via `import type` (which gets erased at compile
+time) so the workflow source code is unchanged in its original
+location — Medusa scans workflows but workflows don't compete on
+joiner aliases. The 16 step files + 2 subscribers had their type
+imports re-pointed to `../../../_step5-pending/modules/...` (and
+`../../workflows/product-attribute` for the subscribers, since they
+moved one folder deeper).
+
+Step 5's "drop the legacy module from `withMercur()` and add the new
+modules" operation will be the inverse: move the `_step5-pending/`
+contents back into `src/modules/` / `src/links/` / `src/subscribers/`
+and explicitly register the new modules in `withMercur()`.
+
+**Verification**
+
+- `bun run build` — 9/9 packages green (1m 1s). All workflow `import
+  type` references resolve from the relocated path.
+- `find packages/core/.medusa/server/src/{modules,links,subscribers}` —
+  no compiled output for any new file lands under the auto-scan paths.
+- `TEST_TYPE=integration:http jest --testPathPatterns="http/product/"`
+  — container now boots. Results:
+  - `http/product/admin/product.spec.ts`: 100% pass (45 tests).
+  - `http/product/vendor/product.spec.ts`: 100% pass (10 tests).
+  - `http/product/store/product.spec.ts`: 6/11 pass, 5 fail. The
+    failing tests all error out with
+    `Entity 'ProductVariant' does not have property 'offers'` —
+    triggered by the default `*variants.offers` field path in
+    `storeProductQueryConfig`. This is a **pre-existing canary
+    failure** from SPEC-007's offer-variant link (the reverse-alias
+    `productVariant.offers` is not exposed by the link's current
+    `readOnly: true` + no `field` declaration on the variant side).
+    Not regressed by this session's work; the alias-collision fix
+    above simply unblocks the suite far enough to surface this
+    pre-existing failure mode. Documented for the SPEC-007 follow-up.
+  - `http/product/admin/get-products-with-details.spec.ts` (the
+    session-24 test file): skipped — still gated on
+    `SPEC_008_STEP_5_LANDED`.
+- Cross-suite smoke (`http/offer/vendor|http/seller/admin|http/seller/vendor`):
+  146/165 pass, 19 fail. The 19 failing seller tests
+  (member-creation, payment-details) don't touch product/attribute/
+  change surfaces and predate this session. Confirmed by inspecting
+  the failure shape — they are not related to the alias collision
+  fix.
+
+### Session 24 cont.²: 2026-05-28 -- SPEC-008 step 4E (mirror-rename workflows + subscribers)
+
+**Goal**: Land the mirror-rename workflow pair + subscribers the spec
+calls out under "Mirrored options for existing attributes" (SPEC-008
+lines 691-810). Closes the rename propagation loop for products that
+materialise a stock `ProductOption` from an existing
+`ProductAttribute`: when the source attribute's `name` (or any of its
+values' `name`) changes, every mirrored `ProductOption.title` (or
+`ProductOptionValue.value`) is updated in lockstep via the
+`product_option_attribute_link` + `product_option_value_attribute_value_link`
+pivots landed in Session 20.
+
+**Files added**
+
+- `packages/core/src/workflows/product-attribute/steps/update-product-option-values.ts`:
+  Direct wrapper over `IProductModuleService.updateProductOptionValues`
+  because stock Medusa exposes no `updateProductOptionValuesWorkflow`
+  — only `updateProductOptionsWorkflow` (parent option) and inline
+  `values: string[]` replacement (which reorders IDs and breaks
+  variant identity). Captures prior values for compensation.
+- `packages/core/src/workflows/product-attribute/workflows/mirror-product-attribute-rename.ts`:
+  Workflow ID `mirror-product-attribute-rename`. Input
+  `{ product_attribute_id, new_name }`.
+  `useQueryGraphStep("product_option")` filtered by
+  `source_attribute.id` to find linked options, then a
+  `when(linkedIds.length > 0).then` block invokes stock
+  `updateProductOptionsWorkflow.runAsStep({ selector: {id}, update: {title} })`.
+  Idempotent — re-running with the same name is a no-op DB-side.
+- `packages/core/src/workflows/product-attribute/workflows/mirror-product-attribute-value-rename.ts`:
+  Workflow ID `mirror-product-attribute-value-rename`. Input
+  `{ product_attribute_value_id, new_value }`.
+  `useQueryGraphStep("product_option_value")` filtered by
+  `source_attribute_value.id`, then `updateProductOptionValuesStep`
+  with `{ ids, update: { value } }`.
+- `packages/core/src/subscribers/mirror-product-attribute-rename.ts`:
+  Listens to `product-attribute.updated`. Re-fetches the attribute
+  (event payload only carries `{ id }` per the
+  `updateProductAttributesWorkflow.emitEventStep` shape), resolves
+  WORKFLOW_ENGINE, runs `mirrorProductAttributeRenameWorkflowId`
+  with the current `name`. Subscriber pattern matches the existing
+  `packages/core/src/subscribers/payout-webhook.ts`.
+- `packages/core/src/subscribers/mirror-product-attribute-value-rename.ts`:
+  Same shape for value updates → `mirrorProductAttributeValueRenameWorkflowId`.
+- `integration-tests/http/product-attribute/admin/mirror-rename.spec.ts`:
+  6 cases — direct attribute rename, direct value rename, no-linked-option
+  no-op, idempotency, subscriber-driven attribute rename, subscriber-driven
+  value rename. Gated on `SPEC_008_STEP_5_LANDED=true` like the sibling
+  product-change / get-products-with-details suites.
+
+**Files modified**
+
+- `packages/core/src/workflows/product-attribute/steps/index.ts` +
+  `workflows/index.ts`: barrel re-exports for the two new workflows
+  and `updateProductOptionValuesStep`.
+
+**Fingerprint refresh deferred**
+
+The spec's "Step 3" for both subscribers calls for
+`fingerprint = sha256(...)` to be written back onto the link row after
+each rename. This is intentionally NOT landed in this session because
+Medusa's `RemoteLink` API does not expose first-class extra-column
+upsert — the options are dismiss+recreate (compensation-heavy) or raw
+SQL (escape hatch). The spec's "Reconciliation job" (SPEC-008:795-800)
+already recomputes the fingerprint from the current source on each
+pass, so stale fingerprints are self-healing once the recon tool
+lands. Live updates revisit once the recon sub-step is in flight.
+
+**Verification**
+
+- `bun run build` — 9/9 packages green (58.7s); cache miss on
+  `@mercurjs/core` (5 new files compiled into DTS), all DTS emission
+  clean.
+- `bunx oxlint` on the new files — only baseline `no-shadow` warnings
+  from the standard `transform({ x }, ({ x }) => …)` pattern. No real
+  errors.
+- `TEST_TYPE=integration:http jest --testPathPatterns="mirror-rename|product-change|product-attribute|get-products-with-details"` —
+  **5 suites skipped, 5 tests skipped** in 2.3s. The new
+  `mirror-rename.spec.ts` parses cleanly under the same step-5 gate as
+  its siblings; no container boot attempted.
+
+**Remaining work toward step 5**
+
+- Rewire admin/vendor/store product routes to call
+  `getProductsWithDetailsWorkflow` (drop `*custom_attributes` field-tree
+  paths, add `*changes.status`).
+- `batch-products.ts` rewrite to delegate to stock workflows + map
+  status transitions against the new (no-`requires_action`) enum.
+- `submit-seller-products.ts` rewrite per SPEC-008's worked example
+  (lines 1337-1398): cross-module composition via
+  `stockCreateProductsWorkflow.runAsStep` + `parallelize` (seller link +
+  attribute-value link + change creation) + the create-mirrored-options
+  branch behind `when({use_for_variants})`.
+- Reconciliation job + fingerprint live-refresh (companion to the
+  mirror-rename subscribers).
+- Step 5: `withMercur()` module-registration swap, deletion of
+  `packages/core/src/modules/product/`, SPEC-006 shim cleanup, removal
+  of pass-through legacy workflow wrappers per the "Workflow migration"
+  table.
+
+### Session 24 cont.: 2026-05-28 -- SPEC-008 step 4 integration tests
+
+**Goal**: Land integration tests covering the workflow groups added in
+Sessions 22–24 (product-attribute CRUD, product-change lifecycle,
+applyProductChangeActionsWorkflow per-action dispatch,
+getProductsWithDetailsWorkflow computed `requires_action`). All four
+suites are **gated** on `process.env.SPEC_008_STEP_5_LANDED === "true"`
+because the new modules collide with the legacy fused
+`@mercurjs/core/modules/product` on entity names and id prefixes (both
+declare `ProductChange` with `prodch_` prefix, both declare
+`ProductAttribute` with `pattr_` prefix) — they cannot coexist until
+the SPEC-008 step 5 module-registration swap retires the legacy module.
+
+**Why gating instead of writing today-runnable tests**: registering the
+new modules in `integration-tests/medusa-config.ts` would crash app
+startup with entity-name collisions, breaking every other suite in the
+repo. The gate's runtime check skips the entire
+`medusaIntegrationTestRunner` invocation, so the container does not
+boot and the existing suites stay green. When step 5 lands, the gate
+flips on via env var (`SPEC_008_STEP_5_LANDED=true bun run
+test:integration:http -- product-change`).
+
+**Files added**
+
+- `integration-tests/http/product-change/admin/product-change.spec.ts`:
+  - 8 cases covering the lifecycle workflows: create (with
+    one-pending-per-product guard), confirm (auto-invokes apply +
+    flips status), request-changes (PENDING → REQUIRES_ACTION),
+    resubmit (REQUIRES_ACTION → PENDING), cancel (PENDING →
+    CANCELED), reject (PENDING → DECLINED). Two standalone
+    `applyProductChangeActionsWorkflow` coverage cases (one via the
+    confirm hook, one direct).
+- `integration-tests/http/product-change/admin/apply-product-change-actions.spec.ts`:
+  - Per-`ProductChangeActionType` dispatch coverage. 10 cases:
+    STATUS_CHANGE, UPDATE, VARIANT_ADD/UPDATE/REMOVE, ATTRIBUTE_ADD
+    (writes both `product_attribute_value_link` and
+    `product_variant_attribute_link` when `is_variant_axis = true`),
+    ATTRIBUTE_REMOVE (dismisses both pivots), PRODUCT_DELETE
+    (soft-deletes last), `applied=true` marking, and re-apply
+    idempotency.
+- `integration-tests/http/product/admin/get-products-with-details.spec.ts`:
+  - 6 cases for the read wrapper: `requires_action=false` for no
+    changes / PENDING / CONFIRMED / DECLINED / CANCELED;
+    `requires_action=true` after a REQUIRES_ACTION change is opened;
+    caller-requested fields preserved alongside the computed field;
+    `changes.status` join happens unconditionally even when the
+    caller's field tree omits `changes.*`; pagination + metadata
+    works for list queries.
+- `integration-tests/http/product-attribute/admin/product-attribute.spec.ts`:
+  - 4 cases for the product-attribute workflow group: create with
+    nested values; update scalar fields; upsert (create + update in
+    one call); delete (soft-deletes + dismisses link rows).
+    `batchProductAttributesWorkflow` test intentionally omitted —
+    that workflow wasn't part of Session 22's landing per the spec
+    table; tested separately when it lands.
+
+**Verification**
+
+- `bun run build` — 9/9 packages green (full-turbo cache hit, 180ms).
+- `TEST_TYPE=integration:http jest --testPathPatterns="product-change|product-attribute|get-products-with-details"` —
+  **4 suites skipped, 4 tests skipped** in 2.3s. No Medusa container
+  boot attempted. Confirms the gate fires correctly: when
+  `SPEC_008_STEP_5_LANDED` is unset, the entire
+  `medusaIntegrationTestRunner` call is bypassed and only the
+  placeholder `it.skip` runs.
+- Existing http suites untouched — gates ensure the new files do not
+  interfere with current green tests.
+
+### Session 24: 2026-05-28 -- SPEC-008 step 4D (getProductsWithDetailsWorkflow + formatProducts util)
+
+**Goal**: Sub-step D of SPEC-008's step 4 — land the read-side wrapper
+the spec calls out under "Worked example:
+`getProductsWithDetailsWorkflow`" plus the `formatProducts` util that
+appends the computed `requires_action` boolean. Replaces the legacy
+`Product.status = 'requires_action'` enum value with a wrapper-level
+response-contract field. Mirrors
+`medusa/.../order/workflows/get-order-detail.ts` (the spec's reference
+shape).
+
+**Files added**
+
+- `packages/core/src/workflows/product/utils/format-products.ts`:
+  - `formatProducts<T>(products: T[])` generic decorator. Scans
+    `product.changes` and appends
+    `requires_action: changes?.some(c => c.status === REQUIRES_ACTION) ?? false`
+    to every row. The single seam where Mercur enriches the stock
+    product DTO with marketplace-computed fields — additional computed
+    fields (e.g., future `seller_visibility`) go through this util
+    rather than spawning a new util per field. Pattern-match the spec
+    sketch at SPEC-008:513-537.
+- `packages/core/src/workflows/product/workflows/get-products-with-details.ts`:
+  - Workflow ID `get-products-with-details`. Input
+    `{ fields: string[]; filters?; pagination? }`. Three `transform`
+    steps prepare the `useQueryGraphStep` args:
+    1. `fields` — `deduplicate([...input.fields, "id", "changes.id",
+       "changes.status"])` so the computed-source paths are always
+       present regardless of the caller's selection.
+    2. `filters` — defaults to `{}`.
+    3. `pagination` — defaults to `{}`.
+  - One `useQueryGraphStep` over `entity: "product"` (named
+    `get-products-with-details-query`).
+  - Closing `transform` extracts `{data, metadata}` from the step
+    result and runs every row through `formatProducts`, returning
+    `WorkflowResponse({data: FormattedProduct[], metadata})`.
+
+**Files modified**
+
+- `packages/core/src/workflows/product/workflows/index.ts`: added
+  `export * from "./get-products-with-details"`.
+
+**Verification**
+
+- `bun run build` — 9/9 packages green (60s, `@mercurjs/core` cache
+  miss because of the new files; DTS emission clean).
+- `bunx oxlint packages/core/src/workflows/product/workflows/get-products-with-details.ts
+  packages/core/src/workflows/product/utils/format-products.ts` —
+  4 baseline `no-shadow` warnings on the standard
+  `transform({ x }, ({ x }) => …)` destructure pattern. Zero real
+  errors.
+
+**Why this is just the wrapper, not the rewire**
+
+The spec says every admin / vendor / store product list and detail
+route should call this wrapper instead of `useQueryGraphStep`
+directly. That rewire is a separate, large change (every route's
+query config plus the dashboard `PRODUCT_DETAIL_FIELDS` constants
+need to drop `*custom_attributes` and add `*changes.status`). This
+session lands the workflow primitive only; the route rewire is
+queued for a later sub-step alongside the SDK-level cleanup the spec
+catalogs under "Dashboard impact (admin + vendor)".
+
+**Not done this session (still deferred to later sub-steps)**
+
+- Rewire of admin/vendor product routes to call
+  `getProductsWithDetailsWorkflow` instead of `useQueryGraphStep` /
+  the legacy fused-module reads. Field-tree updates
+  (`PRODUCT_DETAIL_FIELDS`, vendor `PRODUCT_DETAIL_FIELDS`,
+  `vendorProductFields`) — drop `*custom_attributes` paths, add
+  `*changes.status`.
+- `batch-products.ts` rewrite to delegate to stock workflows + map
+  status transitions against the new (no-`requires_action`) enum.
+- Module-registration swap in `withMercur()` — step 5 (drops the
+  Mercur product module entry, adds `product-attribute` +
+  `product-change`).
+- Subscriber + mirror workflows for option-link fingerprint
+  propagation.
+- Wrapper-layer migration of `packages/core/src/workflows/product/
+  workflows/*` per SPEC-008's "Workflow migration" table.
+
+### Session 23: 2026-05-28 -- SPEC-008 step 4C (applyProductChangeActionsWorkflow)
+
+**Goal**: Sub-step C of SPEC-008's step 4 — land the cross-module
+dispatcher that takes a confirmed `ProductChange`'s pending actions and
+fans them out into stock product workflows + Module-Link writes.
+Replaces the legacy `ProductModuleService.applyProductChangeActions_`
+(see `packages/core/src/modules/product/service.ts:2035-2198`).
+Previous Session 22 cont. shipped the confirm/decline/request/resubmit/
+cancel workflows but left the apply step deferred since it dispatches
+to stock product workflows + the new attribute Module-Link pivots.
+
+**Files added**
+
+- `packages/core/src/workflows/product-change/workflows/apply-product-change-actions.ts`:
+  - Workflow ID `apply-product-change-actions`. Input
+    `{ change_ids: string[] }`. Returns `void`.
+  - `useQueryGraphStep` over `product_change_action` filtered by
+    `product_change_id IN change_ids AND applied = false`.
+  - One `transform` step buckets actions by `ProductChangeActionType`
+    into `productUpdates` (Map collapsed by product_id),
+    `variantCreates`, `variantUpdates`, `variantDeletes`,
+    `attributeAdds`, `attributeRemoves`, `productsToDelete`, and
+    `pendingActionIds`. Replicates the legacy switch in
+    `applyProductChangeActions_` (`service.ts:2070-2151`).
+  - Seven sequential `when(...).then(...)` blocks dispatch to:
+    1. `updateProductsWorkflow.runAsStep` for STATUS_CHANGE + UPDATE.
+    2. `deleteProductVariantsWorkflow.runAsStep` for VARIANT_REMOVE
+       (first, frees up SKU/title uniqueness for adds in the same
+       change).
+    3. `createProductVariantsWorkflow.runAsStep` for VARIANT_ADD.
+    4. `updateProductVariantsWorkflow.runAsStep` for VARIANT_UPDATE
+       (last among variant ops so it sees a stable variant set).
+    5. ATTRIBUTE_REMOVE — inline `useQueryGraphStep` on
+       `product_attribute_value` joined to `attribute.id` to resolve
+       value IDs, then two `dismissRemoteLinkStep` calls (one for
+       `product_attribute_value_link`, one for the variant-axis
+       `product_variant_attribute` link). The variant-axis dismiss
+       silently no-ops when the attribute wasn't a variant axis.
+    6. ATTRIBUTE_ADD — inline `useQueryGraphStep` on `product_attribute`
+       (fields `id`, `is_variant_axis`), then `createRemoteLinkStep`
+       for the `product_attribute_value_link` rows (one per
+       attribute_value_id) and a second `createRemoteLinkStep` for
+       the `product_variant_attribute_link` rows filtered to attributes
+       where `is_variant_axis = true`.
+    7. `deleteProductsWorkflow.runAsStep` for PRODUCT_DELETE (last so
+       any audit-trail updates above write through first).
+  - Final `when(pendingActionIds.length).then` calls
+    `updateProductChangeActionsStep` with
+    `[{id, applied: true}, …]` to mark every action processed.
+  - ATTRIBUTE_ADD expects pre-resolved `attribute_value_ids` in
+    `details`; the legacy find-or-create branch (`details.values:
+    string[]`) is dropped from this wrapper — callers that stage
+    ATTRIBUTE_ADD must invoke `upsertProductAttributeValuesWorkflow`
+    first to resolve names into IDs.
+
+**Files modified**
+
+- `packages/core/src/workflows/product-change/workflows/index.ts`:
+  added `export * from "./apply-product-change-actions"`.
+- `packages/core/src/workflows/product-change/workflows/confirm-product-change.ts`:
+  wired `applyProductChangeActionsWorkflow.runAsStep({ change_ids:
+  input.ids })` between `confirmProductChangesStep` and the final
+  `emitEventStep`. Updated the file's leading doc-comment to flip
+  step 4 from "deferred" to "dispatches the confirmed change's
+  pending actions". This restores parity with the legacy
+  `confirmProductChange` service path which called
+  `applyProductChangeActions_` after flipping status to CONFIRMED.
+
+**Verification**
+
+- `bun run build` — 9/9 packages green (58s). All packages re-compiled
+  (cache miss on `@mercurjs/core` because of the new workflow file);
+  DTS emission clean. The new workflow type-checks against the
+  `@medusajs/medusa/core-flows` exports for `updateProductsWorkflow` /
+  `createProductVariantsWorkflow` / `updateProductVariantsWorkflow` /
+  `deleteProductVariantsWorkflow` / `deleteProductsWorkflow` /
+  `createRemoteLinkStep` / `dismissRemoteLinkStep` /
+  `useQueryGraphStep`.
+- `bunx oxlint packages/core/src/workflows/product-change/` — only
+  pre-existing baseline `no-shadow` warnings on the
+  `transform({ x }, ({ x }) => …)` destructuring pattern (15 new
+  warnings on the new file, matching the same shape used in
+  `cancel-product-change.ts:56` / `confirm-product-change.ts:75`).
+  Zero real lint errors.
+
+**Not done this session (still deferred to later sub-steps)**
+
+- `get-products-with-details` read-side wrapper — joins
+  `*changes.status` and exposes `requires_action: boolean` (the
+  computed field from SPEC-008's "Computed fields:
+  `requires_action`" section).
+- `batch-products.ts` rewrite to delegate to stock workflows + map
+  status transitions against the new (no-`requires_action`) enum.
+- Module-registration swap in `withMercur()` — step 5 (drops the
+  Mercur product module entry, adds `product-attribute` +
+  `product-change`).
+- Subscriber + mirror workflows for option-link fingerprint
+  propagation (subscriber → `mirror-product-attribute-rename` /
+  `mirror-product-attribute-value-rename`).
+- Wrapper-layer migration of `packages/core/src/workflows/product/
+  workflows/*` per SPEC-008's "Workflow migration" table — every
+  legacy wrapper (`create-products`, `update-products`,
+  `delete-products`, `submit-seller-products`, the variant + category
+  CRUD pass-throughs, brand workflows, …) needs to be deleted or
+  re-pointed once step 5 swaps the module registration.
+
+### Session 22 cont.: 2026-05-28 -- SPEC-008 step 4B (product-change workflow group)
+
+**Goal**: Continuation of step 4, second workflow group. Lands the
+`product-change` group at `packages/core/src/workflows/product-change/`,
+which sits next to the previously-landed `product-attribute` group.
+Sub-step C (`applyProductChangeActionsWorkflow`) is deferred: it
+dispatches to stock product workflows (`updateProductsWorkflow`,
+`createProductVariantsWorkflow`, etc.) plus the new attribute workflows
+and is the "wrapper layer" the spec calls out separately.
+
+**Files added** (all under `packages/core/src/workflows/product-change/`):
+
+- `events.ts` — `ProductChangeWorkflowEvents` with 6 entries
+  (`product-change.created`, `.confirmed`, `.declined`, `.requires-action`,
+  `.resubmitted`, `.canceled`). Distinct from legacy `ProductWorkflowEvents`
+  (`product.*` keyed by product_id); new emitter is keyed by
+  `product_change_id` and consumers resolve `product_id` via the
+  `product_change_link` pivot.
+- `steps/create-product-change.ts` — module mutation. Slimmer input
+  `Omit<CreateProductChangeDTO, "product_id" | "status"> & { status?: ProductChangeStatus }`
+  because (a) `product_id` is now a Module Link, not a column, and (b)
+  the DTO `status` was loose `string`, the service expects the enum.
+- `steps/confirm-product-changes.ts` — module mutation. Captures
+  prev scalar state (status / confirmed_by / confirmed_at /
+  internal_note / external_note), transitions to `CONFIRMED`, stamps
+  `confirmed_at = new Date()`. Revert restores captured scalars.
+  Pattern-match `medusa/.../order/steps/confirm-order-changes.ts:26-62`.
+  Does **not** apply action side-effects — that's the deferred
+  `applyProductChangeActionsWorkflow`.
+- `steps/decline-product-change.ts` — same shape for DECLINED with
+  `declined_by`/`declined_at`/`declined_reason`. Pattern-match
+  `medusa/.../order/steps/decline-order-change.ts:17-44`.
+- `steps/request-product-changes.ts` — same shape, transitions PENDING
+  → REQUIRES_ACTION. Stamps `requires_action_by` /
+  `requires_action_at` / `requires_action_reason` / `external_note`.
+  This is the workflow that flips the computed `Product.requires_action`
+  boolean to `true` (resolved at read time by scanning linked
+  changes).
+- `steps/resubmit-product-change.ts` — REQUIRES_ACTION → PENDING.
+  Clears the `requires_action_*` stamps.
+- `steps/cancel-product-change.ts` — PENDING → CANCELED, stamps
+  `canceled_by` / `canceled_at`.
+- `steps/add-product-change-action.ts` — appends one
+  `ProductChangeAction` row. Precondition (parent change is `PENDING`)
+  is enforced by composing `validateProductChangeIsPendingStep` ahead
+  of this in the workflow, not inside the step.
+- `steps/update-product-change-actions.ts` — list-before, update,
+  revert with before-state. Pattern-match
+  `medusa/.../order/steps/update-order-change-actions.ts:21-60`.
+- `steps/validate-product-change-is-pending.ts` — pure validator.
+- `steps/validate-product-change-is-requires-action.ts` — pure validator.
+- `steps/confirm-product-change-validation.ts` — composite validator
+  ("row exists" + "status is PENDING"). The "row not stale" check is
+  delegated to the database transaction (not a separate guard).
+- `steps/validate-no-pending-product-change.ts` — Query-graph
+  validator. Reads `product` with field `changes.id`, `changes.status`
+  resolved through `product-change-link.ts`, throws if any product
+  already has a `PENDING` change linked. Used by
+  `createProductChangeWorkflow` to enforce one-pending-per-product.
+- `workflows/create-product-change.ts` — `validate` hook,
+  `validateNoPendingProductChangeStep` (over the distinct product_ids
+  in input), `createProductChangeStep` (slim input — product_id
+  stripped at workflow level), `createRemoteLinkStep` for the
+  `product_change_link` rows (one per input row), `emitEventStep`,
+  `productChangeCreated` hook.
+- `workflows/confirm-product-change.ts` — `useQueryGraphStep` (load
+  changes by id), `confirmProductChangeValidationStep` (status guard
+  against `PENDING` + existence check), `confirmProductChangesStep`,
+  `emitEventStep`, `productChangeConfirmed` hook. The
+  `applyProductChangeActionsWorkflow.runAsStep` slot the spec sketches
+  between confirm-mutation and emit is left out for this session.
+- `workflows/reject-product-change.ts` — `useQueryGraphStep`,
+  `validateProductChangeIsPendingStep`, `declineProductChangeStep`,
+  emit + hook.
+- `workflows/request-product-changes.ts` — same shape but uses
+  `requestProductChangesStep` and emits
+  `ProductChangeWorkflowEvents.REQUIRES_ACTION`.
+- `workflows/resubmit-product-change.ts` —
+  `validateProductChangeIsRequiresActionStep` then
+  `resubmitProductChangeStep`.
+- `workflows/cancel-product-change.ts` —
+  `validateProductChangeIsPendingStep` then `cancelProductChangeStep`.
+- `index.ts` + `steps/index.ts` + `workflows/index.ts` — barrels.
+
+**Files modified**:
+
+- `packages/core/src/workflows/index.ts` — added a comment block
+  noting the new groups intentionally NOT re-exported from this top
+  barrel; consumers import via the subdir path. Re-exporting both
+  would collide with `./product`'s legacy attribute / change exports
+  (TS2308). Once step 5 deletes the legacy groups, these can be added
+  here.
+- `packages/types/src/product/mutations.ts` — tightened
+  `CreateProductChangeDTO.status` from `string` to
+  `ProductChangeStatus`. Import added.
+
+**Verification**:
+
+- `bun run build` — 9/9 packages green (1m 0s).
+- `bun run lint` — pre-existing baseline errors only; zero new errors
+  in `packages/core/src/workflows/product-change/**`.
+
+**Not done this session (deferred to a later sub-step)**:
+
+- `applyProductChangeActionsWorkflow` — the spec's
+  "Cross-module workflow composition" piece. Loops over a confirmed
+  change's `ProductChangeAction` rows, buckets by action type, and
+  fans out into stock product workflows
+  (`updateProductsWorkflow.runAsStep`,
+  `createProductVariantsWorkflow.runAsStep`, etc.) plus the new
+  `product-attribute` workflows for ATTRIBUTE_ADD / ATTRIBUTE_REMOVE.
+  Until this lands, `confirmProductChangeWorkflow` mutates the change
+  row only; the action effects still come from the legacy fused
+  module's `applyProductChangeActions_` until step 5.
+- `get-products-with-details` read-side wrapper — joins `*changes.status`
+  and exposes `requires_action: boolean`.
+- `batch-products.ts` rewrite to delegate to stock workflows.
+- Module-registration swap in `withMercur()` (step 5).
+- Subscriber + mirror workflows for option-link fingerprint propagation
+  (deferred from step 4A).
+
+### Session 22: 2026-05-28 -- SPEC-008 step 4A (product-attribute workflow group)
+
+**Goal**: Step 4 of SPEC-008's implementation order, scoped to the
+**product-attribute workflow group only** ("one workflow group at a time"
+per the spec's Notes). The product-change group and the
+`get-products-with-details` read-side wrapper are deferred to future
+sessions. Mirror workflows for option propagation
+(`mirrorProductAttributeRenameWorkflow`,
+`mirrorProductAttributeValueRenameWorkflow`,
+`updateProductOptionAttributeLinkFingerprintStep`,
+`updateProductOptionValuesStep`, `reconcileMirroredOptionsWorkflow`) are
+also deferred — they require subscribers and live-mirror writes that don't
+exist yet.
+
+**Files added** (all under `packages/core/src/workflows/product-attribute/`):
+
+- `events.ts` — new constants `ProductAttributeWorkflowEvents` +
+  `ProductAttributeValueWorkflowEvents` distinct from the legacy
+  `../product/events.ts` (legacy emits `product_attribute.*`; the new
+  module emits `product-attribute.*` with hyphen — distinct so dual
+  emission during the coexistence window stays auditable).
+- `steps/create-product-attributes.ts` — module mutation. Resolves
+  `MercurModules.PRODUCT_ATTRIBUTE` and calls
+  `service.createProductAttributes`. Slimmer input type
+  `Omit<CreateProductAttributeDTO, "values" | "product_id">` because the
+  new module's MedusaService treats `values` as a relation
+  (`hasMany`) and accepts only id-arrays; nested value creation belongs
+  to `createProductAttributeValuesWorkflow`. Delete revert.
+- `steps/update-product-attributes.ts` — module mutation. Captures
+  `prevScalars` (id + scalar columns only, no `values`/`categories`/
+  `variant_products` relations) for revert; without this the spread
+  re-injects relation arrays the service rejects.
+- `steps/delete-product-attributes.ts` — soft-delete with
+  `restoreProductAttributes` revert.
+- `steps/create-product-attribute-values.ts` — module mutation.
+- `steps/update-product-attribute-values.ts` — module mutation. Same
+  scalar-only revert pattern as the attribute update step.
+- `steps/delete-product-attribute-values.ts` — soft-delete with restore
+  revert.
+- `steps/upsert-product-attribute-values.ts` — hand-rolled (Medusa
+  doesn't auto-generate upsert). Splits input by presence of `id`,
+  calls create / update separately, returns the union. Compensation
+  deletes the created rows and restores the updated ones from captured
+  scalars.
+- `steps/validate-product-attribute-input.ts` — pure validator
+  (non-empty `name`, `type ∈ AttributeType`).
+- `steps/validate-attribute-accepts-values.ts` — resolves the new
+  module service and throws if the attribute's `type` isn't in
+  `{SINGLE_SELECT, MULTI_SELECT}`.
+- `steps/validate-product-attribute-not-mirrored.ts` — pure validator.
+  Reads via Query Graph: `product_option` with field
+  `source_attribute.id` resolved through
+  `product-option-attribute-link.ts`. Throws if any option still
+  mirrors a target attribute. No-op until mirror writes start.
+- `steps/validate-product-attribute-value-not-mirrored.ts` — same
+  shape for `product_option_value.source_attribute_value.id` via
+  `product-option-value-attribute-value-link.ts`.
+- `workflows/create-product-attributes.ts` — `validate` hook,
+  `validateProductAttributeInputStep`, `createProductAttributesStep`,
+  `createRemoteLinkStep` for category links (when
+  `attributes[i].category_ids` is provided), `emitEventStep`,
+  `productAttributesCreated` hook. Returns `WorkflowResponse(attributes,
+  { hooks: [validate, productAttributesCreated] })`. Mirrors the
+  `createOffersWorkflow` shape (the `ReturnWorkflow<TInput, TOutput,
+  THooks>` annotation pattern from commit ff412612).
+- `workflows/update-product-attributes.ts` — `validate` hook,
+  `updateProductAttributesStep`, `emitEventStep`,
+  `productAttributesUpdated` hook.
+- `workflows/delete-product-attributes.ts` —
+  `validateProductAttributeNotMirroredStep`, `dismissRemoteLinkStep`
+  (drops attribute-side link rows on the `product-attribute` side),
+  `deleteProductAttributesStep`, `emitEventStep`,
+  `productAttributesDeleted` hook.
+- `workflows/create-product-attribute-values.ts` —
+  `validateAttributeAcceptsValuesStep`, value transform that stamps
+  `attribute_id`, `createProductAttributeValuesStep`, `emitEventStep`,
+  `productAttributeValuesCreated` hook.
+- `workflows/update-product-attribute-values.ts` —
+  `updateProductAttributeValuesStep`, `emitEventStep`,
+  `productAttributeValuesUpdated` hook.
+- `workflows/delete-product-attribute-values.ts` —
+  `validateProductAttributeValueNotMirroredStep`,
+  `dismissRemoteLinkStep`, `deleteProductAttributeValuesStep`,
+  `emitEventStep`, `productAttributeValuesDeleted` hook.
+- `workflows/upsert-product-attribute-values.ts` —
+  `validateAttributeAcceptsValuesStep`, value transform that stamps
+  `attribute_id` only on rows without an id (existing rows keep the
+  scalar update),  `upsertProductAttributeValuesStep`, `emitEventStep`,
+  `productAttributeValuesUpserted` hook.
+- `index.ts` + `steps/index.ts` + `workflows/index.ts` — barrels.
+
+**Files modified**:
+
+- `packages/core/src/workflows/index.ts` — added
+  `export * from './product-attribute'` after the existing
+  `./product` line.
+- `packages/types/src/product/common.ts` — made
+  `ProductAttributeDTO.product_id` optional (was required nullable) and
+  added a doc comment noting it's a legacy fused-module column being
+  dropped per SPEC-008. Legacy entity-relation fields `categories` and
+  `variant_products` already optional; doc note added explaining they
+  resolve through Module Links in the new module.
+
+**ID-collision strategy**: legacy product workflows register under
+`mercur-create-product-attributes` (etc.) since commit ff412612. New
+workflows use the bare `create-product-attributes` IDs — no collision
+during coexistence. Legacy steps use bare `create-product-attributes`
+step IDs; new steps prefix with `pa-` (`pa-create-product-attributes`,
+…) to avoid runtime collision in the step registry. When step 5 deletes
+the legacy product workflows, the `pa-` prefix can be removed if
+desired (workflow IDs already cleared).
+
+**Module not registered**: `withMercur()` still resolves
+`@mercurjs/core/modules/product`. The new workflows compile and
+type-check but their `container.resolve(MercurModules.PRODUCT_ATTRIBUTE)`
+calls won't succeed at runtime until step 5 swaps registration. They
+coexist with the legacy `workflows/product/workflows/*` group; nothing
+calls the new workflows yet. This is the "behind a feature flag if
+needed" path the spec sketches — the flag here is "the module isn't
+registered" so the workflows are inert until step 5.
+
+**Verification**:
+
+- `bun run build` — 9/9 packages green (1m9s; cache miss on
+  `@mercurjs/core`).
+- `bun run lint` — pre-existing baseline errors only; zero new errors
+  in `packages/core/src/workflows/product-attribute/**`.
+
+**Not done this session (deferred)**:
+
+- Module-registration swap in `withMercur()` (step 5).
+- The product-change workflow group (task #2 in the session task
+  list — confirm-products, reject-product, request-product-changes,
+  resubmit-product, plus apply-product-change-actions). Same shape as
+  the attribute group, distinct service surface.
+- `get-products-with-details` read-side wrapper that joins
+  `*changes.status` and computes `requires_action: boolean`.
+- `batch-products.ts` rewrite to call stock workflows and map status
+  transitions against the new (without `requires_action`) enum.
+- Subscriber + mirror workflows for the
+  `product_option_attribute_link` / `product_option_value_attribute_value_link`
+  fingerprint propagation.
+- Per-step compensation has been kept atomic (one mutation per step);
+  the dismiss-remote-link rows in delete workflows are written through
+  the stock `dismissRemoteLinkStep` and rely on its built-in revert,
+  not a local one.
+- Integration tests for the new workflows — the legacy workflows still
+  serve the routes, so the integration suite continues passing against
+  them. Once the routes are repointed in step 5, the test suite covers
+  the new path automatically.
+
+### Session 21: 2026-05-28 -- SPEC-008 step 3 (pre-link ALTERs + data-migration script)
+
+**Goal**: Step 3 of SPEC-008's implementation order — land the
+idempotent, dry-runnable migration script that pre-conditions the
+schema for the new `product-attribute` Module Links and converts
+legacy override-only data into shapes the dropped modules can carry.
+Per the spec's "Order matters when implementing" note, the script
+file (not its execution) is the deliverable.
+
+**Files added**:
+
+- `packages/core/src/migration-scripts/migrate-product-module-split.ts`
+  — single `medusa exec` entry point covering all four passes the
+  spec calls out, with `--check` for dry-run reporting. Pattern-match
+  the existing `migration-scripts/drop-fulfillment-global-unique-indexes.ts`
+  shape (PG_CONNECTION + raw SQL, no Medusa service calls so the
+  legacy module's MikroORM view of the pivot tables can't get in the
+  way).
+
+  - **Pass A — pre-link ALTER TABLE on three pivots.** For each of
+    `product_attribute_value_link`,
+    `product_variant_attribute_value`, and
+    `product_variant_attribute`: add `id text NOT NULL DEFAULT
+    gen_random_uuid()::text`, `created_at` / `updated_at`
+    timestamps, `deleted_at`, swap the composite PK for one on
+    `id`, and add a partial unique index
+    `<table>_pair_unique (fkA, fkB) WHERE deleted_at IS NULL`.
+    Idempotency is from information_schema column / table probes,
+    a `pg_constraint`-based PK shape check (`primaryKeyMatches`),
+    and `pg_indexes` lookup — no destructive writes when the shape
+    already matches.
+  - **Pass B — brand → attribute.** Inserts a canonical `pattr_brand`
+    `ProductAttribute` (`handle = "brand"`, `type = single_select`,
+    `is_filterable = true`) only when one with `handle = 'brand'`
+    doesn't already exist; inserts one `ProductAttributeValue` per
+    legacy `ProductBrand` (deduped by `(attribute_id, handle)`
+    matching the partial unique `IDX_product_attribute_value_handle_unique`);
+    then INSERTs one `product_attribute_value_link` row per product
+    whose `brand_id` is set, joining through `ProductBrand.handle`
+    so the link points at the migrated value. The link writer uses
+    the Pass A-installed partial UNIQUE on `(product_id,
+    product_attribute_value_id)` for re-run safety.
+  - **Pass C — custom_attributes → stock options.** Guarded by an
+    `IF EXISTS (product_option / product_option_value)` check so the
+    pass no-ops until the SPEC-008 step-5 module-registration swap
+    causes stock Medusa to create those tables. When the tables are
+    present: for every `ProductAttribute WHERE product_id IS NOT
+    NULL` row, create (or reuse) a stock `ProductOption` with
+    `title = attr.name` on the same product, then create
+    `ProductOptionValue` rows from the attribute's
+    `ProductAttributeValue` children (skipping rows that already
+    have a matching `(option_id, value)`). Attributes with zero
+    values are logged via `logger.warn` and skipped — recorded in
+    the dry-run summary. After conversion the legacy
+    `ProductAttribute WHERE product_id IS NOT NULL` rows and their
+    children are DELETEd (only when a matching `ProductOption` is
+    confirmed present), and the `product_attribute.product_id`
+    column is dropped if no leftover non-null rows remain.
+  - **Pass D — requires_action re-stamp.** For every
+    `Product.status='requires_action'` row, INSERT a `ProductChange`
+    row with `status='requires_action'` (idempotent on `(product_id)`
+    with the legacy `product_change.product_id` FK column still in
+    place; the eventual move into `product_change_link` belongs to
+    step 5 alongside the link runtime). Then UPDATE the product's
+    `status` to `'proposed'` so the stock product-status enum
+    (without the marketplace-only value) holds post-cutover.
+
+  Helpers (`tableExists`, `columnExists`, `indexExists`,
+  `primaryKeyMatches`) read information_schema / `pg_indexes` /
+  `pg_constraint` instead of catching errors — keeps the script
+  cheap on a fully-migrated DB.
+
+**Not done this session (deferred)**:
+
+- Module-registration swap in `withMercur()` (step 5).
+- `withMercur()` modules array still resolves
+  `@mercurjs/core/modules/product`; the two new modules are not yet
+  registered. Boot remains successful because the new modules'
+  links/joiner exports are only loaded by the route-map codegen
+  pass, not at runtime.
+- The legacy `change.product_id` FK → `product_change_link` pivot
+  move (the spec parks this with the new module's migrations at
+  step 5; Pass D writes into the legacy column on purpose).
+- Workflow wrappers and dashboard rewires (steps 4 onward).
+- Live `medusa exec` execution against a populated DB — the spec's
+  Verification step 5 (PG row-count assertions, dropped tables,
+  enum values) is for the deploy session, not the script-landing
+  session.
+
+**Verification**:
+
+- `bun run build` from the repo root: **9 / 9 packages pass**
+  (1m03s). Core `tsc --declaration` build clean with the new
+  `migration-scripts/migrate-product-module-split.ts` in tree. The
+  route-map codegen pass succeeds.
+- `bun run lint`: filtered oxlint output for paths under
+  `migration-scripts/migrate-product-module-split.ts` shows **0
+  new errors / 0 warnings** (`grep -E "migrate-product-module-split|migration-scripts"`
+  on the oxlint stdout returns no matches). The remaining baseline
+  lint errors (`no-unused-vars` on `additional_data` in several
+  admin product-attribute routes, plus a few `react-hooks(exhaustive-deps)`
+  and `jsx-a11y` warnings) all pre-date this session.
+- No `bun run dev` boot attempted — the script is invoked manually
+  via `medusa exec` at deploy time and doesn't participate in
+  module loading.
+
+### Session 20: 2026-05-28 -- SPEC-008 step 2 (land link files)
+
+**Goal**: Step 2 of SPEC-008's implementation order — write the seven
+Module Link files that connect the new `product-attribute` and
+`product-change` modules to stock Medusa `Product` / `ProductVariant` /
+`ProductCategory` / `ProductOption` / `ProductOptionValue`. Per the
+spec's `defineLink` pluralization rule, each `field` is the singular
+noun so the resolved property on the LEFT side is pluralized exactly
+once.
+
+**Files added** (`packages/core/src/links/`):
+
+- `product-variant-attribute-link.ts` — Product ↔ ProductAttribute
+  (variant axis). `field: "variant_attribute"`, `isList: true` on
+  both sides → `Product.variant_attributes`.
+  `database.table: "product_variant_attribute"` (legacy pivot, will
+  be re-pointed via pre-link ALTER TABLE in step 5).
+- `product-attribute-value-link.ts` — Product ↔ ProductAttributeValue.
+  `field: "attribute_value"`, `isList: true` →
+  `Product.attribute_values`.
+  `database.table: "product_attribute_value_link"` (legacy pivot).
+- `product-variant-attribute-value-link.ts` — ProductVariant ↔
+  ProductAttributeValue. `field: "attribute_value"`, `isList: true` →
+  `ProductVariant.attribute_values`.
+  `database.table: "product_variant_attribute_value"` (legacy pivot).
+- `product-attribute-category-link.ts` — ProductCategory ↔
+  ProductAttribute. `field: "attribute"`, `isList: true` →
+  `ProductCategory.attributes`.
+  `database.table: "product_category_attribute"` (legacy pivot).
+- `product-change-link.ts` — Product ↔ ProductChange.
+  `field: "change"`, `isList: true` → `Product.changes`.
+  `database.table: "product_change_link"` (new pivot — legacy
+  `change.product_id` FK is dropped in favor of this symmetrical
+  link).
+- `product-option-attribute-link.ts` — ProductOption ↔
+  ProductAttribute (mirrored options). `field: "source_attribute"`,
+  no `isList` on either side → `ProductOption.source_attribute`
+  (singular). `database.table: "product_option_attribute_link"` with
+  `extraColumns: { fingerprint: { type: "text", nullable: false } }`.
+- `product-option-value-attribute-value-link.ts` — ProductOptionValue ↔
+  ProductAttributeValue (mirrored values). `field:
+  "source_attribute_value"`, no `isList` → singular property.
+  `database.table: "product_option_value_attribute_value_link"` with
+  the same `fingerprint` extra column.
+
+**Imports**: every link imports `ProductModule` from
+`@medusajs/medusa/product` (stock) on the LEFT, and the new modules
+from `../modules/product-attribute` / `../modules/product-change` on
+the RIGHT — matching the spec's "Target architecture" diagram where
+stock Medusa owns Product/ProductVariant/ProductCategory/ProductOption
+and only the marketplace-specific attribute and change entities live
+in Mercur modules.
+
+**Not done this session (deferred)**:
+
+- Registering the new modules in `withMercur()`. Until that swap
+  happens (step 5 alongside data migrations + pre-link ALTER TABLE),
+  any `bun run dev` boot will fail because the link runtime
+  (`register()` in
+  `node_modules/@medusajs/utils/dist/modules-sdk/define-link.js:108`)
+  throws `Service productAttribute was not found` when both sides of
+  a link aren't loaded.
+- Pre-link `ALTER TABLE` migrations on `product_attribute_value_link`,
+  `product_variant_attribute_value`, `product_variant_attribute` (add
+  `id`, timestamps, `deleted_at`, swap PK, partial UNIQUE on the FK
+  pair). These are step 1 of the deploy "Order of operations" but the
+  implementer's step ordering puts them with the data-migration
+  bundle in step 3.
+- Data-migration script (`custom_attributes` → stock `ProductOption`,
+  brand → category-scoped `ProductAttribute`, `requires_action`
+  re-stamp). Lands in step 3.
+- All workflow wrappers, dashboard rewires, and the registration swap.
+
+**Verification**:
+
+- `bun run build` from the repo root: **9 / 9 packages pass** in
+  56.74s. Core `tsc --declaration` build clean with the seven new
+  link files in tree. The route-map codegen pass succeeds — no link
+  file is referenced in generated routes yet, since they only
+  surface through field-tree paths once their modules are
+  registered.
+- `bun run lint`: no new lint findings introduced by Session 20's
+  files (filtered oxlint output for paths under
+  `src/links/product-(variant-)?attribute*`,
+  `src/links/product-change-link*`, and
+  `src/links/product-option-*`).
+- No `bun run dev` attempted — boot would fail by design until the
+  new modules are registered. Build green is the success criterion
+  for step 2 since the link files only activate at runtime.
+
+### Session 19: 2026-05-28 -- SPEC-008 step 1 (scaffold new modules)
+
+**Goal**: Step 1 of SPEC-008's implementation order — land the two new
+modules with empty migrations and joiner configs so their
+`Module.linkable.*` exports become available to the link files in step 2.
+
+**Files added**:
+
+- `packages/core/src/modules/product-attribute/`
+  - `models/product-attribute.ts` — same column shape as the legacy
+    override, with the cross-module relations (`product`,
+    `variant_products`, `categories`) stripped. `IDX_product_attribute_handle_unique`
+    is now on `(handle)` alone (was `(product_id, handle)`) since the
+    `product_id` FK no longer lives on this model.
+  - `models/product-attribute-value.ts` — same column shape; dropped the
+    `variants` and `products` M:N relations. The `attribute` belongsTo
+    relation (intra-module) stays.
+  - `models/index.ts` — barrel.
+  - `joiner-config.ts` — `defineJoinerConfig(MercurModules.PRODUCT_ATTRIBUTE,
+    { linkableKeys: { product_attribute_id, product_attribute_value_id } })`.
+  - `service.ts` — `MedusaService({ ProductAttribute, ProductAttributeValue })`
+    with `__joinerConfig()` returning the const from `joiner-config.ts`.
+  - `index.ts` — `Module(MercurModules.PRODUCT_ATTRIBUTE, { service })`.
+    Re-exports the service class so consumers can type-resolve it.
+  - `migrations/Migration20260528000000.ts` — intentionally empty up/down.
+    The legacy `product` module still manages the underlying tables; the
+    re-point happens in step 5.
+
+- `packages/core/src/modules/product-change/`
+  - `models/product-change.ts` — same column shape as the legacy override
+    with the `product` belongsTo relation stripped and three new columns
+    added: `requires_action_by`, `requires_action_at`,
+    `requires_action_reason` (so the `REQUIRES_ACTION` lifecycle the spec
+    introduces has audit columns). The `IDX_product_change_product_id`
+    index is dropped since the FK column is now on the link pivot.
+  - `models/product-change-action.ts` — unchanged shape (the `product_id`
+    text column is still kept as a denormalised filter column per spec).
+  - `models/index.ts`, `joiner-config.ts`, `service.ts`, `index.ts`,
+    `migrations/Migration20260528000000.ts` — same shape as
+    `product-attribute`. Service stays minimal; the spec's `addAction` /
+    `requestProductChanges` helpers land in step 4 alongside the
+    workflows that drive them.
+
+**Files touched**:
+
+- `packages/types/src/modules.ts` — `MercurModules` gained
+  `PRODUCT_ATTRIBUTE = "productAttribute"` and
+  `PRODUCT_CHANGE = "productChange"`.
+- `packages/types/src/product/common.ts` — `ProductChangeStatus` gained
+  `REQUIRES_ACTION = "requires_action"` (with a docstring pointing to
+  SPEC-008's "computed `Product.requires_action`" rule).
+
+**Not done this session (deferred to next sessions)**:
+
+- Link files (step 2). The seven link files under
+  `packages/core/src/links/` listed in the spec (product-variant-
+  attribute, product-attribute-value, product-variant-attribute-value,
+  product-attribute-category, product-change, plus the mirrored-option
+  pair) are not yet written. They can be written now that the new
+  modules' `linkable.*` exports compile.
+- `withMercur()` modules array (step 5). Still registers
+  `@mercurjs/core/modules/product`; the two new modules are **not**
+  registered yet. Registering them before the data migrations and
+  link files would cause MikroORM to fight over the legacy tables.
+- Data migrations (steps 2–4 of the spec's "Order of operations"):
+  pre-link ALTER TABLE, brand→attribute conversion, custom-attribute→
+  stock-option conversion, `requires_action` re-stamp.
+- All workflow wrappers (`getProductsWithDetailsWorkflow`, the
+  `product-change` workflows, the mirrored-options materialisation,
+  `submit-seller-products` rewrite).
+- Dashboard impact list (brand-page deletion, RequiresActionBadge,
+  vendor product-create form rewire). The dashboards still consume the
+  old surface; the cutover happens once the API side is in place.
+
+**Verification**:
+
+- `bun run build` from the repo root: **9 / 9 packages pass**. Core
+  `tsc --declaration` build clean with the new modules in tree.
+- `bun run lint`: no new lint findings introduced by Session 19's files
+  (verified by filtering oxlint output for paths under
+  `modules/product-attribute`, `modules/product-change`,
+  `types/src/modules.ts`, `types/src/product/common.ts`).
+- No runtime / migration / integration-test work yet — appropriate for
+  a scaffold step that doesn't change any registered module.
 
 ### Session 17: 2026-05-26 -- SPEC-007 shared-priceset pricing simplification
 

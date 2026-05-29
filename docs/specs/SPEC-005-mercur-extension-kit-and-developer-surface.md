@@ -1,5 +1,5 @@
 ---
-status: not_started
+status: passing
 canonical: true
 area: framework/dx
 created: 2026-05-25
@@ -256,8 +256,10 @@ export type { ProductStatus } from "@mercurjs/types/product";
 import type {
   // The exact upstream interface list is reproduced verbatim by the
   // generator — kept short here for readability.
-  IAuthModuleService, ICacheService, ICartModuleService, /* ...all
-  upstream module service interfaces... */
+  IAuthModuleService,
+  ICacheService,
+  ICartModuleService /* ...all
+  upstream module service interfaces... */,
 } from "@medusajs/types-original";
 import type { MercurProductModuleService } from "@mercurjs/core/product";
 
@@ -656,13 +658,13 @@ A Mercur project is conformant with this spec when:
    the Mercur union as well. No `MercurProductDTO` symbol is exported
    from any Mercur package; the Mercur shape is reachable only as
    `ProductDTO` via the shim.
-7a. The Mercur `ProductStatus` (and the other Mercur-only state-machine
-    unions: `ProductChangeStatus`, `AttributeType`,
-    `ProductChangeActionType`) is a **string-literal union type**, not
-    a TS `enum`. A companion runtime constant object is exported as
-    `<Name>Values` from `@mercurjs/core/<domain>` for code that needs
-    a real JS value. No code anywhere in Mercur imports a runtime value
-    from `@medusajs/types`.
+   7a. The Mercur `ProductStatus` (and the other Mercur-only state-machine
+   unions: `ProductChangeStatus`, `AttributeType`,
+   `ProductChangeActionType`) is a **string-literal union type**, not
+   a TS `enum`. A companion runtime constant object is exported as
+   `<Name>Values` from `@mercurjs/core/<domain>` for code that needs
+   a real JS value. No code anywhere in Mercur imports a runtime value
+   from `@medusajs/types`.
 8. `container.resolve(Modules.PRODUCT)` is typed as
    `MercurProductModuleService`, achieved by **explicit re-declaration**
    of `ModuleImplementations` inside `.mercur/types.d.ts` (with
