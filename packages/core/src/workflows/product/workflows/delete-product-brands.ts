@@ -5,7 +5,6 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 
-import { ProductBrandWorkflowEvents } from "../events"
 import { deleteProductBrandsStep } from "../steps/delete-product-brands"
 
 export const deleteProductBrandsWorkflowId = "mercur-delete-product-brands"
@@ -24,7 +23,7 @@ export const deleteProductBrandsWorkflow = createWorkflow(
     )
 
     emitEventStep({
-      eventName: ProductBrandWorkflowEvents.DELETED,
+      eventName: "product_brand.deleted",
       data: eventData,
     })
 

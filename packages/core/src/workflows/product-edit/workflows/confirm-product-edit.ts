@@ -9,7 +9,6 @@ import {
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 
-import { ProductWorkflowEvents } from "../../product/events"
 import { confirmProductChangesStep } from "../steps"
 import { ProductChangeStatus } from "@mercurjs/types"
 
@@ -53,7 +52,7 @@ export const confirmProductEditWorkflow = createWorkflow(
     confirmProductChangesStep(confirmInput)
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.EDIT_CONFIRMED,
+      eventName: "product.edit_confirmed",
       data: transform({ changes, input }, ({ changes, input }) => ({
         id: changes[0].product_id,
         change_id: input.product_change_id,

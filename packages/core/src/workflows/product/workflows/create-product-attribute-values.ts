@@ -6,7 +6,6 @@ import {
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { CreateProductAttributeValueDTO } from "@mercurjs/types"
 
-import { ProductAttributeValueWorkflowEvents } from "../events"
 import { createProductAttributeValuesStep } from "../steps/create-product-attribute-values"
 import { validateAttributeAcceptsValuesStep } from "../steps/validate-attribute-accepts-values"
 
@@ -30,7 +29,7 @@ export const createProductAttributeValuesWorkflow = createWorkflow(
     const values = createProductAttributeValuesStep(valueInputs)
 
     emitEventStep({
-      eventName: ProductAttributeValueWorkflowEvents.CREATED,
+      eventName: "product_attribute_value.created",
       data: transform({ values }, ({ values }) =>
         values.map((v) => ({ id: v.id }))
       ),

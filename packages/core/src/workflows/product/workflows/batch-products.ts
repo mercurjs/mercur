@@ -11,7 +11,6 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import { ProductDTO, UpdateProductDTO, ProductStatus } from "@mercurjs/types"
 
-import { ProductWorkflowEvents } from "../events"
 import { updateProductsStep } from "../steps"
 import { deleteProductsWorkflow } from "./delete-products"
 
@@ -34,10 +33,10 @@ export type BatchProductsWorkflowHooks = [
 ]
 
 const STATUS_EVENT_MAP: Record<ProductStatus, string | undefined> = {
-  [ProductStatus.PROPOSED]: ProductWorkflowEvents.PROPOSED,
-  [ProductStatus.PUBLISHED]: ProductWorkflowEvents.PUBLISHED,
-  [ProductStatus.REJECTED]: ProductWorkflowEvents.REJECTED,
-  [ProductStatus.REQUIRES_ACTION]: ProductWorkflowEvents.CHANGES_REQUESTED,
+  [ProductStatus.PROPOSED]: "product.proposed",
+  [ProductStatus.PUBLISHED]: "product.published",
+  [ProductStatus.REJECTED]: "product.rejected",
+  [ProductStatus.REQUIRES_ACTION]: "product.changes_requested",
   [ProductStatus.DRAFT]: undefined,
 }
 
@@ -105,37 +104,37 @@ export const batchProductsWorkflow: ReturnWorkflow<
 
         return {
           updated: products.map((p) => ({ id: p.id })),
-          proposed: grouped[ProductWorkflowEvents.PROPOSED] ?? [],
-          published: grouped[ProductWorkflowEvents.PUBLISHED] ?? [],
-          rejected: grouped[ProductWorkflowEvents.REJECTED] ?? [],
+          proposed: grouped["product.proposed"] ?? [],
+          published: grouped["product.published"] ?? [],
+          rejected: grouped["product.rejected"] ?? [],
           changesRequested:
-            grouped[ProductWorkflowEvents.CHANGES_REQUESTED] ?? [],
+            grouped["product.changes_requested"] ?? [],
         }
       }
     )
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.UPDATED,
+      eventName: "product.updated",
       data: transform({ transitions }, ({ transitions }) => transitions.updated),
     }).config({ name: "emit-updated" })
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.PROPOSED,
+      eventName: "product.proposed",
       data: transform({ transitions }, ({ transitions }) => transitions.proposed),
     }).config({ name: "emit-proposed" })
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.PUBLISHED,
+      eventName: "product.published",
       data: transform({ transitions }, ({ transitions }) => transitions.published),
     }).config({ name: "emit-published" })
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.REJECTED,
+      eventName: "product.rejected",
       data: transform({ transitions }, ({ transitions }) => transitions.rejected),
     }).config({ name: "emit-rejected" })
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.CHANGES_REQUESTED,
+      eventName: "product.changes_requested",
       data: transform(
         { transitions },
         ({ transitions }) => transitions.changesRequested

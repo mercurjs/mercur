@@ -6,7 +6,7 @@ import {
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { UpdateProductCategoryDTO } from "@mercurjs/types"
 
-import { ProductCategoryWorkflowEvents } from "../events"
+import { ProductCategoryWorkflowEvents } from "@medusajs/framework/utils"
 import { updateProductCategoriesStep } from "../steps/update-product-categories"
 
 export const updateProductCategoriesWorkflowId = "mercur-update-product-categories"

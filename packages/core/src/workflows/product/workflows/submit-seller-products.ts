@@ -17,7 +17,6 @@ import {
   ProductDTO,
 } from "@mercurjs/types"
 
-import { ProductWorkflowEvents } from "../events"
 import {
   associateSellersWithProductStep,
   createProductsStep,
@@ -145,7 +144,7 @@ export const submitSellerProductsWorkflow: ReturnWorkflow<
     confirmProductChangesStep(confirmInputs)
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.CREATED,
+      eventName: "product.created",
       data: transform({ createdProducts }, ({ createdProducts }) =>
         (createdProducts).map((p) => ({ id: p.id }))
       ),

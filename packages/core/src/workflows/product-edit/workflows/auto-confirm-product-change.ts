@@ -9,7 +9,6 @@ import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { MercurFeatureFlags } from "@mercurjs/types"
 
 import { confirmProductChangesStep } from "../steps"
-import { ProductWorkflowEvents } from "../../product/events"
 
 export const autoConfirmProductChangeWorkflowId =
   "auto-confirm-product-change"
@@ -46,7 +45,7 @@ export const autoConfirmProductChangeWorkflow = createWorkflow(
       )
 
       emitEventStep({
-        eventName: ProductWorkflowEvents.EDIT_CONFIRMED,
+        eventName: "product.edit_confirmed",
         data: transform({ input }, ({ input }) => ({
           id: input.product_id,
           change_id: input.product_change_id,

@@ -7,7 +7,6 @@ import {
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
 import { ProductStatus, ProductChangeStatus, ProductChangeActionType } from "@mercurjs/types"
 
-import { ProductWorkflowEvents } from "../events"
 import { validateRejectProductStep, updateProductsStep } from "../steps"
 import {
   createProductChangesStep,
@@ -80,7 +79,7 @@ export const rejectProductWorkflow = createWorkflow(
     }))
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.REJECTED,
+      eventName: "product.rejected",
       data: eventData,
     })
 

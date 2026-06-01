@@ -7,7 +7,6 @@ import {
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
 import { ProductStatus, ProductChangeActionType } from "@mercurjs/types"
 
-import { ProductWorkflowEvents } from "../events"
 import { validateResubmitProductStep, updateProductsStep } from "../steps"
 import {
   createProductChangesStep,
@@ -62,7 +61,7 @@ export const resubmitProductWorkflow = createWorkflow(
     updateProductsStep(updateInput)
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.RESUBMITTED,
+      eventName: "product.submission_resubmitted",
       data: { id: input.product_id },
     })
 

@@ -10,7 +10,6 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { CreateProductDTO, ProductDTO } from "@mercurjs/types"
 
-import { ProductWorkflowEvents } from "../events"
 import { createProductsStep } from "../steps"
 import { linkSellersToProductWorkflow } from "./link-sellers-to-product"
 
@@ -64,7 +63,7 @@ export const createProductsWorkflow: ReturnWorkflow<
     )
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.CREATED,
+      eventName: "product.created",
       data: eventData,
     })
 

@@ -6,7 +6,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 
-import { ProductVariantWorkflowEvents } from "../events"
+import { ProductVariantWorkflowEvents } from "@medusajs/framework/utils"
 import { deleteProductVariantsStep } from "../steps/delete-product-variants"
 
 export const deleteProductVariantsWorkflowId = "mercur-delete-product-variants"

@@ -10,7 +10,7 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { CreateProductVariantDTO, ProductVariantDTO } from "@mercurjs/types"
 
-import { ProductVariantWorkflowEvents } from "../events"
+import { ProductVariantWorkflowEvents } from "@medusajs/framework/utils"
 import { createProductVariantsStep } from "../steps/create-product-variants"
 
 export const createProductVariantsWorkflowId = "mercur-create-product-variants"

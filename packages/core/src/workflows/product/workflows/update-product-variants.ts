@@ -10,7 +10,7 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { ProductVariantDTO, UpdateProductVariantDTO } from "@mercurjs/types"
 
-import { ProductVariantWorkflowEvents } from "../events"
+import { ProductVariantWorkflowEvents } from "@medusajs/framework/utils"
 import {
   updateProductVariantsStep,
   UpdateProductVariantsStepInput,

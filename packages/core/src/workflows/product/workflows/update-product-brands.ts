@@ -6,7 +6,6 @@ import {
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { UpdateProductBrandDTO } from "@mercurjs/types"
 
-import { ProductBrandWorkflowEvents } from "../events"
 import { updateProductBrandsStep } from "../steps/update-product-brands"
 
 export const updateProductBrandsWorkflowId = "mercur-update-product-brands"
@@ -26,7 +25,7 @@ export const updateProductBrandsWorkflow = createWorkflow(
     )
 
     emitEventStep({
-      eventName: ProductBrandWorkflowEvents.UPDATED,
+      eventName: "product_brand.updated",
       data: eventData,
     })
 

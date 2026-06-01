@@ -5,7 +5,6 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 
-import { ProductAttributeWorkflowEvents } from "../events"
 import { removeAttributeFromProductStep } from "../steps/remove-attribute-from-product"
 
 export const removeAttributeFromProductWorkflowId =
@@ -22,7 +21,7 @@ export const removeAttributeFromProductWorkflow = createWorkflow(
     removeAttributeFromProductStep(input)
 
     emitEventStep({
-      eventName: ProductAttributeWorkflowEvents.DELETED,
+      eventName: "product_attribute.deleted",
       data: transform({ input }, ({ input }) => [
         { id: input.attribute_id },
       ]),

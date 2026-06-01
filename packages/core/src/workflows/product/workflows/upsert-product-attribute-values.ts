@@ -6,7 +6,6 @@ import {
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { UpsertProductAttributeValueDTO } from "@mercurjs/types"
 
-import { ProductAttributeValueWorkflowEvents } from "../events"
 import { upsertProductAttributeValuesStep } from "../steps/upsert-product-attribute-values"
 import { validateAttributeAcceptsValuesStep } from "../steps/validate-attribute-accepts-values"
 
@@ -32,7 +31,7 @@ export const upsertProductAttributeValuesWorkflow = createWorkflow(
     const values = upsertProductAttributeValuesStep(valueInputs)
 
     emitEventStep({
-      eventName: ProductAttributeValueWorkflowEvents.UPDATED,
+      eventName: "product_attribute_value.updated",
       data: transform({ values }, ({ values }) =>
         values.map((v: any) => ({ id: v.id }))
       ),

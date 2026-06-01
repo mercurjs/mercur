@@ -9,7 +9,6 @@ import {
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 
-import { ProductWorkflowEvents } from "../../product/events"
 import {
   cancelProductChangeStep,
   validateProductChangePendingStep,
@@ -53,7 +52,7 @@ export const cancelProductEditWorkflow = createWorkflow(
     })
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.EDIT_CANCELED,
+      eventName: "product.edit_canceled",
       data: transform(
         { product_change },
         ({ product_change }) => ({

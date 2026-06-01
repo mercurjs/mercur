@@ -8,7 +8,6 @@ import { MedusaError } from "@medusajs/framework/utils"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 import { ProductChangeActionType } from "@mercurjs/types"
 
-import { ProductWorkflowEvents } from "../../product/events"
 import {
   retrieveProductWithChangeStep,
   validateNoPendingProductChangeStep,
@@ -73,7 +72,7 @@ export const productEditRemoveAttributeWorkflow = createWorkflow(
     const change = transform({ changes }, ({ changes }) => changes[0])
 
     emitEventStep({
-      eventName: ProductWorkflowEvents.EDIT_REQUESTED,
+      eventName: "product.edit_requested",
       data: transform({ input, change }, ({ input, change }) => ({
         id: input.product_id,
         change_id: (change as any).id,

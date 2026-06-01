@@ -5,7 +5,6 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
 
-import { ProductAttributeWorkflowEvents } from "../events"
 import { batchProductAttributesStep } from "../steps/batch-product-attributes"
 
 export const batchProductAttributesWorkflowId = "mercur-batch-product-attributes"
@@ -34,7 +33,7 @@ export const batchProductAttributesWorkflow = createWorkflow(
     )
 
     emitEventStep({
-      eventName: ProductAttributeWorkflowEvents.UPDATED,
+      eventName: "product_attribute.updated",
       data: transform(
         { createdEvents, deletedEvents },
         ({ createdEvents, deletedEvents }) => [
