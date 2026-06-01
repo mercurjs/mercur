@@ -2,6 +2,10 @@
 
 ## System Overview
 
+For 迭界AI, Mercur/Medusa is the cloud role marketplace implementation base,
+not an OpenClaw plugin. The plugin wording below describes Medusa's internal
+extension mechanism only.
+
 `@mercurjs/core` is the Medusa.js plugin that turns a standard Medusa
 commerce server into a multi-vendor marketplace. It is published as a
 Medusa plugin (built with `medusa plugin:develop` / `tsc` into

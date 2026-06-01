@@ -11,6 +11,10 @@ import { ProductGeneralSection } from "./components/product-general-section";
 import { ProductMediaSection } from "./components/product-media-section";
 import { ProductOptionSection } from "./components/product-option-section";
 import { ProductOrganizationSection } from "./components/product-organization-section";
+import {
+  ProductRoleReviewSection,
+  createPublicDijieRoleMetadata,
+} from "./components/product-role-review-section";
 import { ProductSalesChannelSection } from "./components/product-sales-channel-section";
 import { ProductSellerSection } from "./components/product-seller-section/product-seller-section";
 import { ProductShippingProfileSection } from "./components/product-shipping-profile-section";
@@ -20,6 +24,35 @@ import { PRODUCT_DETAIL_QUERY } from "../constants";
 
 type AdminProductWithSeller = HttpTypes.AdminProduct & {
   seller?: SellerDTO;
+};
+
+const asRecord = (value: unknown): Record<string, unknown> => {
+  return value && typeof value === "object" && !Array.isArray(value)
+    ? (value as Record<string, unknown>)
+    : {};
+};
+
+const hasDijieRoleMetadata = (product: AdminProductWithSeller) => {
+  return Object.keys(asRecord(asRecord(product.metadata).dijieRole)).length > 0;
+};
+
+const sanitizeProductForExtraData = (
+  product: AdminProductWithSeller,
+): AdminProductWithSeller => {
+  const metadata = asRecord(product.metadata);
+  const role = asRecord(metadata.dijieRole);
+
+  if (!Object.keys(role).length) {
+    return product;
+  }
+
+  return {
+    ...product,
+    metadata: {
+      ...metadata,
+      dijieRole: createPublicDijieRoleMetadata(role),
+    },
+  };
 };
 
 const Root = ({ children }: { children?: ReactNode }) => {
@@ -52,24 +85,28 @@ const Root = ({ children }: { children?: ReactNode }) => {
     throw error;
   }
 
+  const isDijieRoleProduct = hasDijieRoleMetadata(product);
+  const extraDataProduct = sanitizeProductForExtraData(product);
+
   return Children.count(children) > 0 ? (
     <TwoColumnPage
-      data={product}
+      data={extraDataProduct}
       showJSON
-      showMetadata
+      showMetadata={!isDijieRoleProduct}
       data-testid="product-detail-page"
     >
       {children}
     </TwoColumnPage>
   ) : (
     <TwoColumnPage
-      data={product}
+      data={extraDataProduct}
       showJSON
-      showMetadata
+      showMetadata={!isDijieRoleProduct}
       data-testid="product-detail-page"
     >
       <TwoColumnPage.Main data-testid="product-detail-main">
         <ProductGeneralSection product={product} />
+        <ProductRoleReviewSection product={product} />
         <ProductMediaSection product={product} />
         <ProductOptionSection product={product} />
         <ProductVariantSection product={product} />
@@ -89,6 +126,7 @@ export const ProductDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: ProductGeneralSection,
+  MainRoleReviewSection: ProductRoleReviewSection,
   MainMediaSection: ProductMediaSection,
   MainOptionSection: ProductOptionSection,
   MainVariantSection: ProductVariantSection,

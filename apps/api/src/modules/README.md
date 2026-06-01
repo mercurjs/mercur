@@ -1,5 +1,7 @@
 # Custom Module
 
+迭界AI岗位商场是云端业务系统，不是 OpenClaw 插件。本文件里的 plugin 只指 Medusa/Mercur 内部扩展机制。
+
 A module is a package of reusable functionalities. It can be integrated into your Medusa application without affecting the overall system. You can create a module as part of a plugin.
 
 > Learn more about modules in [this documentation](https://docs.medusajs.com/learn/fundamentals/modules).

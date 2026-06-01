@@ -53,6 +53,8 @@ type UploadedMedia = HttpTypes.AdminFile & {
 
 const SAVE_DRAFT_BUTTON = "save-draft-button"
 const SEC_CAT_PRODUCT_KEY = "sec_cat_product_key"
+const DEFAULT_ROLE_SCOPES = ["role.execute", "audit.write"]
+const DIJIE_ROLE_PROTOCOL_VERSION = "2026-05"
 
 const TAB_ORDER: Tab[] = [
   Tab.DETAILS,
@@ -66,6 +68,25 @@ const isMovingForward = (currentTab: Tab, newTab: Tab): boolean => {
   const currentIndex = TAB_ORDER.indexOf(currentTab)
   const newIndex = TAB_ORDER.indexOf(newTab)
   return newIndex > currentIndex
+}
+
+const parseAuthorizationFeeCents = (value?: string) => {
+  const amount = Number(value || "0")
+
+  return Number.isFinite(amount) ? Math.round(amount * 100) : 0
+}
+
+const parseNonNegativeInteger = (value?: string) => {
+  const amount = Number(value || "0")
+
+  return Number.isSafeInteger(amount) && amount >= 0 ? amount : 0
+}
+
+const parseRoleCapabilities = (value?: string) => {
+  return (value || "")
+    .split(/[\n,]/)
+    .map((capability) => capability.trim())
+    .filter(Boolean)
 }
 
 type ProductCreateFormProps = {
@@ -290,7 +311,17 @@ export const ProductCreateForm = ({
     }
 
     const media = values.media || []
-    const { secondary_categories, ...rest } = values as any
+    const {
+      secondary_categories,
+      role_authorization_fee_yuan,
+      role_capabilities,
+      role_input_token_price_cents_per_million,
+      role_manifest_ref,
+      role_output_token_price_cents_per_million,
+      role_package_id,
+      role_package_version,
+      ...rest
+    } = values as any
     const secCatProductKey =
       Array.isArray(secondary_categories) &&
       secondary_categories.length > 0
@@ -701,9 +732,62 @@ export const ProductCreateForm = ({
             ],
       metadata: (() => {
         const existing = (finalPayload as any)?.metadata ?? undefined
-        if (!secCatProductKey) return existing
-        return {
+        const authorizationFeeCents = parseAuthorizationFeeCents(
+          role_authorization_fee_yuan
+        )
+        const inputCentsPerMillion = parseNonNegativeInteger(
+          role_input_token_price_cents_per_million
+        )
+        const outputCentsPerMillion = parseNonNegativeInteger(
+          role_output_token_price_cents_per_million
+        )
+        const roleManifestRef =
+          typeof role_manifest_ref === "string" &&
+          role_manifest_ref.trim()
+            ? role_manifest_ref.trim()
+            : undefined
+
+        const metadata = {
           ...(existing ?? {}),
+          dijieRole: {
+            kind: "role_product",
+            protocolVersion: DIJIE_ROLE_PROTOCOL_VERSION,
+            title: finalPayload.title,
+            subtitle: finalPayload.subtitle || undefined,
+            description: finalPayload.description || undefined,
+            packageId: role_package_id,
+            packageVersion: role_package_version,
+            listingStatus: isDraftSubmission ? "draft" : "proposed",
+            reviewState: isDraftSubmission ? "draft" : "submitted",
+            capabilities: parseRoleCapabilities(role_capabilities),
+            pricing: {
+              kind: "one_time_authorization",
+              authorizationFeeCents,
+              currency: "CNY",
+              platformFeeBps: 0,
+              developerReceivableBps: 10000,
+              developerReceivableCents: authorizationFeeCents,
+            },
+            roleTokenPricing: {
+              currency: "CNY",
+              inputTokenCentsPerMillion: inputCentsPerMillion,
+              outputTokenCentsPerMillion: outputCentsPerMillion,
+              platformFeeBps: 0,
+              developerReceivableBps: 10000,
+            },
+            scopes: DEFAULT_ROLE_SCOPES,
+            ...(roleManifestRef
+              ? {
+                  manifestSummary: {
+                    entrypoint: roleManifestRef,
+                  },
+                }
+              : {}),
+          },
+        }
+        if (!secCatProductKey) return metadata
+        return {
+          ...metadata,
           [SEC_CAT_PRODUCT_KEY]: secCatProductKey,
         }
       })(),
@@ -779,7 +863,16 @@ export const ProductCreateForm = ({
 
     switch (currentTab) {
       case Tab.DETAILS:
-        fieldsToValidate = ["title", "handle"]
+        fieldsToValidate = [
+          "title",
+          "handle",
+          "role_package_id",
+          "role_package_version",
+          "role_authorization_fee_yuan",
+          "role_input_token_price_cents_per_million",
+          "role_output_token_price_cents_per_million",
+          "role_manifest_ref",
+        ]
         break
       case Tab.ORGANIZE:
         fieldsToValidate = ["categories"]
@@ -904,7 +997,16 @@ export const ProductCreateForm = ({
 
                 switch (tab) {
                   case Tab.DETAILS:
-                    fieldsToValidate = ["title", "handle"]
+                    fieldsToValidate = [
+                      "title",
+                      "handle",
+                      "role_package_id",
+                      "role_package_version",
+                      "role_authorization_fee_yuan",
+                      "role_input_token_price_cents_per_million",
+                      "role_output_token_price_cents_per_million",
+                      "role_manifest_ref",
+                    ]
                     break
                   case Tab.ORGANIZE:
                     fieldsToValidate = ["categories"]

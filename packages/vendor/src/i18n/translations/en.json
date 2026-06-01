@@ -144,7 +144,7 @@
     "close": "Close",
     "showMore": "Show more",
     "continue": "Continue",
-    "continueWithEmail": "Continue with Email",
+    "continueWithEmail": "登录",
     "idCopiedToClipboard": "ID copied to clipboard",
     "editVariantImages": "Edit variant images",
     "editImages": "Edit images",
@@ -172,10 +172,10 @@
   },
   "app": {
     "search": {
-      "label": "Search",
-      "title": "Search",
-      "description": "Search your entire store, including orders, products, customers, and more.",
-      "allAreas": "All areas",
+      "label": "搜索",
+      "title": "搜索",
+      "description": "搜索开发者中心中的授权订单、岗位商品、结算和更多内容。",
+      "allAreas": "全部范围",
       "navigation": "Navigation",
       "openResult": "Open result",
       "showMore": "Show more",
@@ -186,16 +186,16 @@
       "emptySearchMessage": "Enter a keyword or phrase to explore.",
       "loadMore": "Load {{count}} more",
       "groups": {
-        "all": "All areas",
+        "all": "全部范围",
         "customer": "Customers",
         "customerGroup": "Customer Groups",
-        "product": "Products",
+        "product": "岗位商品",
         "productVariant": "Product Variants",
         "inventory": "Inventory",
         "reservation": "Reservations",
         "category": "Categories",
         "collection": "Collections",
-        "order": "Orders",
+        "order": "授权订单",
         "promotion": "Promotions",
         "campaign": "Campaigns",
         "priceList": "Price Lists",
@@ -220,8 +220,8 @@
       "commandShortcut": "Commands",
       "then": "then",
       "navigation": {
-        "goToOrders": "Orders",
-        "goToProducts": "Products",
+        "goToOrders": "授权订单",
+        "goToProducts": "岗位商品",
         "goToCollections": "Collections",
         "goToCategories": "Categories",
         "goToCustomers": "Customers",
@@ -245,7 +245,7 @@
         "goToWorkflows": "Workflows",
         "goToProfile": "Profile",
         "goToReturnReasons": "Return reasons",
-        "goToStore": "Store"
+        "goToStore": "开发者中心"
       }
     },
     "menus": {
@@ -262,10 +262,10 @@
         }
       },
       "store": {
-        "label": "Store",
-        "storeSettings": "Store settings",
-        "editStore": "Edit Store",
-        "switchStore": "Switch store"
+        "label": "开发者",
+        "storeSettings": "开发者中心设置",
+        "editStore": "编辑开发者资料",
+        "switchStore": "切换开发者"
       },
       "actions": {
         "logout": "Log out"
@@ -280,8 +280,8 @@
         "extensions": "Extensions"
       },
       "main": {
-        "store": "Seller",
-        "storeSettings": "Seller settings"
+        "store": "开发者中心",
+        "storeSettings": "开发者中心设置"
       },
       "settings": {
         "header": "Settings",
@@ -432,18 +432,18 @@
     "availableIn": "Available in <0>{{x}}</0> of <1>{{y}}</1> sales channels"
   },
   "seller": {
-    "domain": "Seller"
+    "domain": "开发者"
   },
   "products": {
-    "domain": "Products",
+    "domain": "岗位商品",
     "bulkDelete": {
-      "title": "Delete Products",
-      "description": "You are about to delete {{count}} products from catalog. This action cannot be undone.",
-      "success": "Successfully deleted {{count}} products.",
-      "error": "Failed to delete products."
+      "title": "删除岗位商品",
+      "description": "即将从目录中删除 {{count}} 个岗位商品。此操作无法撤销。",
+      "success": "已删除 {{count}} 个岗位商品。",
+      "error": "删除岗位商品失败。"
     },
     "list": {
-      "noRecordsMessage": "Create your first product to start selling."
+      "noRecordsMessage": "创建第一个岗位商品后即可开始上架授权。"
     },
     "edit": {
       "header": "Edit Product",
@@ -1207,7 +1207,7 @@
         "creditLineDescription": "Refund amount as store credit"
       }
     },
-    "domain": "Orders",
+    "domain": "授权订单",
     "claim": "Claim",
     "exchange": "Exchange",
     "return": "Return",
@@ -2605,9 +2605,9 @@
     }
   },
   "payouts": {
-    "domain": "Payouts",
-    "payout": "Payout",
-    "noRecords": "No payouts found",
+    "domain": "结算",
+    "payout": "结算",
+    "noRecords": "暂无结算记录",
     "status": {
       "pending": "Pending",
       "processing": "Processing",
@@ -2724,9 +2724,9 @@
     }
   },
   "store": {
-    "domain": "Seller",
-    "manageYourStoresDetails": "Manage your seller's details",
-    "editStore": "Edit seller",
+    "domain": "开发者",
+    "manageYourStoresDetails": "管理开发者资料",
+    "editStore": "编辑开发者资料",
     "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
     "validation": {
       "nameRequired": "Please enter a name",
@@ -3235,16 +3235,16 @@
     }
   },
   "login": {
-    "forgotPassword": "Forgot password? <0>Reset</0>",
-    "title": "Welcome back!",
-    "hint": "Log in to your vendor account.",
-    "submit": "Log in",
-    "sessionExpired": "Session expired",
-    "notSellerYet": "Not a seller yet? <0>Create an account</0>",
+    "forgotPassword": "忘记密码？<0>重置</0>",
+    "title": "迭界AI岗位商场",
+    "hint": "开发者登录后管理岗位包、上架授权和结算。",
+    "submit": "登录",
+    "sessionExpired": "登录已过期",
+    "notSellerYet": "还不是开发者？<0>申请入驻</0>",
     "validation": {
-      "emailRequired": "Please enter an email",
-      "emailInvalid": "Please enter a valid email",
-      "passwordRequired": "Please enter your password"
+      "emailRequired": "请输入邮箱",
+      "emailInvalid": "请输入有效邮箱",
+      "passwordRequired": "请输入密码"
     }
   },
   "register": {
@@ -3577,8 +3577,8 @@
     "inventoryItem": "Inventory item",
     "requiredQuantity": "Required quantity",
     "description": "Description",
-    "email": "Email",
-    "password": "Password",
+    "email": "邮箱",
+    "password": "密码",
     "repeatPassword": "Repeat Password",
     "confirmPassword": "Confirm Password",
     "newPassword": "New Password",
@@ -3650,9 +3650,9 @@
     "phone": "Phone",
     "metadata": "Metadata",
     "selectCountry": "Select",
-    "products": "Products",
+    "products": "岗位商品",
     "variants": "Variants",
-    "orders": "Orders",
+    "orders": "授权订单",
     "account": "Account",
     "total": "Order Total",
     "paidTotal": "Paid Total",

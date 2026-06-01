@@ -147,8 +147,8 @@
     "search": {
       "label": "搜索",
       "title": "搜索",
-      "description": "搜索整个商店,包括订单、产品、客户等。",
-      "allAreas": "所有区域",
+      "description": "搜索开发者中心中的授权订单、岗位商品、结算和更多内容。",
+      "allAreas": "全部范围",
       "navigation": "导航",
       "openResult": "打开结果",
       "showMore": "显示更多",
@@ -159,16 +159,16 @@
       "emptySearchMessage": "输入关键词或短语以开始探索。",
       "loadMore": "加载更多 {{count}} 项",
       "groups": {
-        "all": "所有区域",
+        "all": "全部范围",
         "customer": "客户",
         "customerGroup": "客户组",
-        "product": "产品",
+        "product": "岗位商品",
         "productVariant": "产品变体",
         "inventory": "库存",
         "reservation": "预订",
         "category": "分类",
         "collection": "系列",
-        "order": "订单",
+        "order": "授权订单",
         "promotion": "促销",
         "campaign": "活动",
         "priceList": "价格表",
@@ -193,8 +193,8 @@
       "commandShortcut": "命令",
       "then": "然后",
       "navigation": {
-        "goToOrders": "订单",
-        "goToProducts": "产品",
+        "goToOrders": "授权订单",
+        "goToProducts": "岗位商品",
         "goToCollections": "系列",
         "goToCategories": "分类",
         "goToCustomers": "客户",
@@ -207,7 +207,7 @@
       },
       "settings": {
         "goToSettings": "设置",
-        "goToStore": "商店",
+        "goToStore": "开发者中心",
         "goToUsers": "用户",
         "goToRegions": "地区",
         "goToTaxRegions": "税收地区",
@@ -235,10 +235,10 @@
         }
       },
       "store": {
-        "label": "商店",
-        "storeSettings": "商店设置",
-        "editStore": "Edit Store",
-        "switchStore": "Switch store"
+        "label": "开发者",
+        "storeSettings": "开发者中心设置",
+        "editStore": "编辑开发者资料",
+        "switchStore": "切换开发者"
       },
       "actions": {
         "logout": "退出登录"
@@ -253,8 +253,8 @@
         "extensions": "扩展"
       },
       "main": {
-        "store": "商店",
-        "storeSettings": "商店设置"
+        "store": "开发者中心",
+        "storeSettings": "开发者中心设置"
       },
       "settings": {
         "header": "设置",
@@ -398,12 +398,12 @@
     "availableIn": "在 <1>{{y}}</1> 个销售渠道中的 <0>{{x}}</0> 个可用"
   },
   "products": {
-    "domain": "产品",
+    "domain": "岗位商品",
     "list": {
-      "noRecordsMessage": "创建您的第一个产品以开始销售。"
+      "noRecordsMessage": "创建第一个岗位商品后即可开始上架授权。"
     },
     "edit": {
-      "header": "编辑产品",
+      "header": "编辑岗位商品",
       "description": "编辑产品详情。",
       "successToast": "产品 {{title}} 更新成功。"
     },
@@ -1012,7 +1012,7 @@
     }
   },
   "orders": {
-    "domain": "订单",
+    "domain": "授权订单",
     "claim": "索赔",
     "exchange": "换货",
     "return": "退货",
@@ -2372,9 +2372,9 @@
     "invite": "邀请"
   },
   "store": {
-    "domain": "商店",
-    "manageYourStoresDetails": "管理您的商店详细信息",
-    "editStore": "编辑商店",
+    "domain": "开发者",
+    "manageYourStoresDetails": "管理开发者资料",
+    "editStore": "编辑开发者资料",
     "defaultCurrency": "默认货币",
     "defaultRegion": "默认地区",
     "defaultSalesChannel": "默认销售渠道",
@@ -2680,8 +2680,8 @@
   },
   "login": {
     "forgotPassword": "忘记密码？ - <0>重置</0>",
-    "title": "欢迎使用Medusa",
-    "hint": "登录以访问账户区域"
+    "title": "迭界AI岗位商场",
+    "hint": "开发者登录后管理岗位包、上架授权和结算。"
   },
   "invite": {
     "title": "欢迎使用Medusa",
@@ -2927,9 +2927,9 @@
     "phone": "电话",
     "metadata": "元数据",
     "selectCountry": "选择国家",
-    "products": "产品",
+    "products": "岗位商品",
     "variants": "变体",
-    "orders": "订单",
+    "orders": "授权订单",
     "account": "账户",
     "total": "订单总额",
     "paidTotal": "已收金额",

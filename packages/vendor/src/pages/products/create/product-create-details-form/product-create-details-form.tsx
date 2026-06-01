@@ -34,7 +34,16 @@ const Root = ({ children }: { children?: ReactNode }) => {
 Root._tabMeta = {
   id: "details",
   labelKey: "products.create.tabs.details",
-  validationFields: ["title", "media"],
+  validationFields: [
+    "title",
+    "media",
+    "role_package_id",
+    "role_package_version",
+    "role_authorization_fee_yuan",
+    "role_input_token_price_cents_per_million",
+    "role_output_token_price_cents_per_million",
+    "role_manifest_ref",
+  ],
 } satisfies TabDefinition;
 
 const Header = () => {

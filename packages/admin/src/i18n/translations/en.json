@@ -122,7 +122,7 @@
     "close": "Close",
     "showMore": "Show more",
     "continue": "Continue",
-    "continueWithEmail": "Continue with Email",
+    "continueWithEmail": "登录",
     "idCopiedToClipboard": "ID copied to clipboard",
     "addReason": "Add Reason",
     "addNote": "Add Note",
@@ -149,10 +149,10 @@
   },
   "app": {
     "search": {
-      "label": "Search",
-      "title": "Search",
-      "description": "Search your entire store, including orders, products, customers, and more.",
-      "allAreas": "All areas",
+      "label": "搜索",
+      "title": "搜索",
+      "description": "搜索迭界AI岗位商场中的授权订单、岗位商品、开发者和更多内容。",
+      "allAreas": "全部范围",
       "navigation": "Navigation",
       "openResult": "Open result",
       "showMore": "Show more",
@@ -163,17 +163,17 @@
       "emptySearchMessage": "Enter a keyword or phrase to explore.",
       "loadMore": "Load {{count}} more",
       "groups": {
-        "all": "All areas",
+        "all": "全部范围",
         "customer": "Customers",
-        "seller": "Sellers",
+        "seller": "开发者",
         "customerGroup": "Customer Groups",
-        "product": "Products",
+        "product": "岗位商品",
         "productVariant": "Product Variants",
         "inventory": "Inventory",
         "reservation": "Reservations",
         "category": "Categories",
         "collection": "Collections",
-        "order": "Orders",
+        "order": "授权订单",
         "promotion": "Promotions",
         "campaign": "Campaigns",
         "priceList": "Price Lists",
@@ -198,8 +198,8 @@
       "commandShortcut": "Commands",
       "then": "then",
       "navigation": {
-        "goToOrders": "Orders",
-        "goToProducts": "Products",
+        "goToOrders": "授权订单",
+        "goToProducts": "岗位商品",
         "goToCollections": "Collections",
         "goToCategories": "Categories",
         "goToCustomers": "Customers",
@@ -209,12 +209,12 @@
         "goToPriceLists": "Price Lists",
         "goToPromotions": "Promotions",
         "goToCampaigns": "Campaigns",
-        "goToSellers": "Sellers",
-        "goToPayouts": "Payouts"
+        "goToSellers": "开发者",
+        "goToPayouts": "结算"
       },
       "settings": {
         "goToSettings": "Settings",
-        "goToStore": "Store",
+        "goToStore": "迭界AI岗位商场",
         "goToUsers": "Users",
         "goToRegions": "Regions",
         "goToTaxRegions": "Tax Regions",
@@ -242,8 +242,8 @@
         }
       },
       "store": {
-        "label": "Store",
-        "storeSettings": "Store settings"
+        "label": "迭界AI岗位商场",
+        "storeSettings": "商场设置"
       },
       "actions": {
         "logout": "Log out"
@@ -258,10 +258,10 @@
         "extensions": "Extensions"
       },
       "main": {
-        "store": "Store",
-        "marketplace": "Marketplace",
-        "storeSettings": "Store settings",
-        "marketplaceSettings": "Marketplace settings"
+        "store": "迭界AI岗位商场",
+        "marketplace": "迭界AI岗位商场",
+        "storeSettings": "商场设置",
+        "marketplaceSettings": "商场设置"
       },
       "settings": {
         "header": "Settings",
@@ -405,20 +405,20 @@
     "availableIn": "Available in <0>{{x}}</0> of <1>{{y}}</1> sales channels"
   },
   "products": {
-    "domain": "Products",
-    "associatedStore": "Associated Store",
+    "domain": "岗位商品",
+    "associatedStore": "关联开发者",
     "additionalAttributes": "Additional Attributes",
     "list": {
-      "noRecordsMessage": "Create your first product to start selling."
+      "noRecordsMessage": "创建第一个岗位商品后即可开始上架授权。"
     },
     "edit": {
-      "header": "Edit Product",
-      "description": "Edit the product details.",
-      "successToast": "Product {{title}} was successfully updated."
+      "header": "编辑岗位商品",
+      "description": "编辑岗位商品详情。",
+      "successToast": "岗位商品 {{title}} 更新成功。"
     },
     "create": {
-      "title": "Create Product",
-      "description": "Create a new product.",
+      "title": "创建岗位商品",
+      "description": "创建新的岗位商品。",
       "header": "General",
       "tabs": {
         "details": "Details",
@@ -1061,7 +1061,7 @@
         "creditLineDescription": "Refund amount as store credit"
       }
     },
-    "domain": "Orders",
+    "domain": "授权订单",
     "claim": "Claim",
     "exchange": "Exchange",
     "return": "Return",
@@ -1069,7 +1069,7 @@
     "orderCanceled": "Order canceled successfully",
     "onDateFromSalesChannel": "{{date}} from {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Your orders will show up here."
+      "noRecordsMessage": "授权订单会显示在这里。"
     },
     "status": {
       "not_paid": "Not paid",
@@ -1515,15 +1515,15 @@
       "returnableQuantity": "Returnable quantity",
       "groupId": "Group ID",
       "orderIds": "Order IDs",
-      "vendor": "Vendor",
-      "vendorsCount_one": "{{count}} vendor",
-      "vendorsCount_other": "{{count}} vendors"
+      "vendor": "开发者",
+      "vendorsCount_one": "{{count}} 个开发者",
+      "vendorsCount_other": "{{count}} 个开发者"
     }
   },
   "payouts": {
-    "domain": "Payouts",
+    "domain": "结算",
     "list": {
-      "empty": "No payouts found"
+      "empty": "暂无结算记录"
     },
     "status": {
       "paid": "Paid",
@@ -2506,10 +2506,10 @@
     "invite": "Invite"
   },
   "marketplace": {
-    "domain": "Marketplace",
-    "manageMarketplaceDetails": "Manage your marketplace's details",
+    "domain": "迭界AI岗位商场",
+    "manageMarketplaceDetails": "管理迭界AI岗位商场资料",
     "edit": {
-      "header": "Edit Marketplace"
+      "header": "编辑迭界AI岗位商场"
     }
   },
   "store": {
@@ -3031,10 +3031,10 @@
     }
   },
   "login": {
-    "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to {{name}}",
-    "hint": "Sign in to access the admin hub",
-    "sessionExpired": "Session expired"
+    "forgotPassword": "忘记密码？<0>重置</0>",
+    "title": "{{name}}",
+    "hint": "平台运营后台：审核岗位、管理授权订单和执行审计。",
+    "sessionExpired": "登录已过期"
   },
   "invite": {
     "title": "Welcome to Mercur Admin Panel",
@@ -3242,8 +3242,8 @@
     "inventoryItem": "Inventory item",
     "requiredQuantity": "Required quantity",
     "description": "Description",
-    "email": "Email",
-    "password": "Password",
+    "email": "邮箱",
+    "password": "密码",
     "repeatPassword": "Repeat Password",
     "confirmPassword": "Confirm Password",
     "newPassword": "New Password",
@@ -3314,9 +3314,9 @@
     "phone": "Phone",
     "metadata": "Metadata",
     "selectCountry": "Select country",
-    "products": "Products",
+    "products": "岗位商品",
     "variants": "Variants",
-    "orders": "Orders",
+    "orders": "授权订单",
     "account": "Account",
     "total": "Order Total",
     "paidTotal": "Paid Total",
@@ -3428,11 +3428,11 @@
     }
   },
   "requests": {
-    "domain": "Requests",
-    "seller": "Seller",
-    "product": "Product",
+    "domain": "审核请求",
+    "seller": "开发者",
+    "product": "岗位商品",
     "review-remove": "Review Remove",
-    "return": "Order Return",
+    "return": "授权订单退回",
     "product-collection": "Product Collection",
     "product-category": "Product Category",
     "product-tag": "Product Tag",
@@ -3440,7 +3440,7 @@
     "product-update": "Product Update"
   },
   "stores": {
-    "domain": "Stores",
+    "domain": "开发者",
     "handleTooltip": "The handle is used as the URL slug for the store. Leave empty to auto-generate from the name.",
     "fields": {
       "name": "Name",
@@ -3456,7 +3456,7 @@
       "city": "City",
       "province": "Province",
       "country_code": "Country Code",
-      "seller": "Seller",
+      "seller": "开发者",
       "premium": "Featured"
     },
     "status": {
