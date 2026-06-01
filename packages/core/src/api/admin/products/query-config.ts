@@ -3,7 +3,6 @@ export const adminProductFields = [
   "title",
   "subtitle",
   "status",
-  "is_restricted",
   "external_id",
   "description",
   "handle",
@@ -12,8 +11,6 @@ export const adminProductFields = [
   "thumbnail",
   "collection_id",
   "type_id",
-  "created_by",
-  "created_by_actor",
   "weight",
   "length",
   "height",
@@ -31,21 +28,17 @@ export const adminProductFields = [
   "*tags",
   "*images",
   "*categories",
-  "*sellers",
+  "*options",
+  "*options.values",
   "*variants",
-  "*variants.attribute_values",
-  "*variants.attribute_values.attribute",
-  "*variant_attributes",
-  "*variant_attributes.values",
-  "*custom_attributes",
-  "*custom_attributes.values",
-  "*attribute_values",
-  "*attribute_values.attribute",
+  "*variants.options",
+  // Linked product-attribute value ids (Module Link alias). The GET
+  // handler enriches these into `product.attributes` via separate
+  // queries against the product-attribute module.
+  "attribute_values.id",
 ]
 
-export const adminProductRetrieveFields = [
-  ...adminProductFields,
-]
+export const adminProductRetrieveFields = [...adminProductFields]
 
 export const adminProductQueryConfig = {
   list: {
@@ -82,6 +75,9 @@ export const adminProductVariantFields = [
   "created_at",
   "updated_at",
   "product_id",
+  "manage_inventory",
+  "allow_backorder",
+  "*options",
   "*attribute_values",
   "*attribute_values.attribute",
 ]

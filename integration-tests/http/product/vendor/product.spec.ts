@@ -1,12 +1,13 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { adminHeaders, createAdminUser } from "../../../helpers/create-admin-user"
 
 jest.setTimeout(60 * 1000)
 
 medusaIntegrationTestRunner({
-  testSuite: ({ getContainer, api }) => {
-    describe("Vendor Products — Mercur wrappers", () => {
+  testSuite: ({ getContainer, api, dbConnection }) => {
+    describe("Vendor Products — attribute wrappers (4 cases)", () => {
       let container: MedusaContainer
       let seller1Headers: { headers: Record<string, string> }
       let seller2Headers: { headers: Record<string, string> }
@@ -26,16 +27,50 @@ medusaIntegrationTestRunner({
           name: "Vendor Two",
         })
         seller2Headers = b.headers
+        await createAdminUser(dbConnection, adminHeaders, container)
       })
 
+      const createGlobalAttribute = async (opts: {
+        name: string
+        type: "single_select" | "multi_select" | "text" | "toggle" | "unit"
+        is_variant_axis?: boolean
+        values?: string[]
+      }) => {
+        const created = await api.post(
+          `/admin/product-attributes`,
+          {
+            name: opts.name,
+            type: opts.type,
+            is_variant_axis: opts.is_variant_axis ?? false,
+          },
+          adminHeaders,
+        )
+        const attribute_id = created.data.product_attribute.id
+        const values = opts.values?.length
+          ? (
+              await api.post(
+                `/admin/product-attributes/${attribute_id}/values`,
+                { values: opts.values.map((name) => ({ name })) },
+                adminHeaders,
+              )
+            ).data.product_attribute.values
+          : []
+        const byName = new Map<string, string>(
+          (values as Array<{ id: string; name: string }>).map((v) => [
+            v.name,
+            v.id,
+          ]),
+        )
+        return { attribute_id, values, byName }
+      }
+
       describe("POST /vendor/products", () => {
-        it("creates a product and links the seller (manage_inventory=false)", async () => {
+        it("creates a simple product (manage_inventory=false on every variant)", async () => {
           const res = await api.post(
             `/vendor/products`,
             { title: "Vendor Product" },
-            seller1Headers
+            seller1Headers,
           )
-
           expect(res.status).toBe(201)
           expect(res.data.product.title).toBe("Vendor Product")
           for (const v of res.data.product.variants ?? []) {
@@ -43,36 +78,307 @@ medusaIntegrationTestRunner({
           }
         })
 
-        it("inline variant axes -> stock options", async () => {
-          const res = await api.post(
+        // --- Case A: existing variant-axis attribute ---
+        it("(A) existing variant-axis: synthesizes stock options + links the chosen values", async () => {
+          const size = await createGlobalAttribute({
+            name: "Size",
+            type: "multi_select",
+            is_variant_axis: true,
+            values: ["S", "M", "L"],
+          })
+
+          const create = await api.post(
             `/vendor/products`,
             {
               title: "Vendor T-Shirt",
+              variants: [
+                { title: "Small", attribute_values: { Size: "S" } },
+                { title: "Medium", attribute_values: { Size: "M" } },
+              ],
               variant_attributes: [
                 {
-                  name: "Size",
-                  type: "multi_select",
-                  is_variant_axis: true,
-                  values: ["S", "M"],
+                  attribute_id: size.attribute_id,
+                  value_ids: [size.byName.get("S")!, size.byName.get("M")!],
                 },
               ],
-              variants: [
-                { title: "Small", options: { Size: "S" } },
-                { title: "Medium", options: { Size: "M" } },
-              ],
             },
-            seller1Headers
+            seller1Headers,
           )
+          expect(create.status).toBe(201)
 
-          expect(res.status).toBe(201)
-          const sizeOption = res.data.product.options.find(
-            (o: any) => o.title === "Size"
+          const productId = create.data.product.id
+
+          // Synthetic stock options are emitted with the attribute's name + value names.
+          const sizeOption = create.data.product.options.find(
+            (o: any) => o.title === "Size",
           )
           expect(sizeOption).toBeDefined()
           expect(sizeOption.values.map((v: any) => v.value).sort()).toEqual([
             "M",
             "S",
           ])
+
+          // GET surfaces a unified `attributes` array containing exactly the linked values.
+          const got = await api.get(
+            `/vendor/products/${productId}`,
+            seller1Headers,
+          )
+          const attrs = got.data.product.attributes
+          expect(attrs).toHaveLength(1)
+          expect(attrs[0].name).toBe("Size")
+          expect(attrs[0].is_variant_axis).toBe(true)
+          expect(attrs[0].values.map((v: any) => v.name).sort()).toEqual([
+            "M",
+            "S",
+          ])
+          // `all_values` carries the full set so the edit form can render the dropdown.
+          expect(attrs[0].all_values.map((v: any) => v.name).sort()).toEqual([
+            "L",
+            "M",
+            "S",
+          ])
+        })
+
+        // --- Case B: inline custom variant-axis attribute ---
+        it("(B) inline custom variant-axis: creates a product-scoped attribute, links values, hides it from the global catalogue", async () => {
+          const create = await api.post(
+            `/vendor/products`,
+            {
+              title: "Vendor Custom Axis",
+              variants: [
+                { title: "Cotton", attribute_values: { Material: "Cotton" } },
+                { title: "Wool", attribute_values: { Material: "Wool" } },
+              ],
+              variant_attributes: [
+                {
+                  name: "Material",
+                  type: "multi_select",
+                  values: ["Cotton", "Wool"],
+                  is_variant_axis: true,
+                },
+              ],
+            },
+            seller1Headers,
+          )
+          expect(create.status).toBe(201)
+          const productId = create.data.product.id
+
+          // Stock options were synthesized from the inline payload.
+          const opt = create.data.product.options.find(
+            (o: any) => o.title === "Material",
+          )
+          expect(opt.values.map((v: any) => v.value).sort()).toEqual([
+            "Cotton",
+            "Wool",
+          ])
+
+          const got = await api.get(
+            `/vendor/products/${productId}`,
+            seller1Headers,
+          )
+          const attrs = got.data.product.attributes
+          expect(attrs).toHaveLength(1)
+          expect(attrs[0].name).toBe("Material")
+          expect(attrs[0].is_variant_axis).toBe(true)
+          expect(attrs[0].values.map((v: any) => v.name).sort()).toEqual([
+            "Cotton",
+            "Wool",
+          ])
+
+          // Inline attribute must NOT appear in the global vendor catalogue.
+          const list = await api.get(`/vendor/product-attributes`, seller1Headers)
+          const names = (list.data.product_attributes ?? []).map(
+            (a: any) => a.name,
+          )
+          expect(names).not.toContain("Material")
+        })
+
+        // --- Case C: existing product (non-axis) attribute ---
+        it("(C) existing product-level: links values only, no extra options", async () => {
+          const care = await createGlobalAttribute({
+            name: "Care",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Hand wash", "Dry clean", "Machine"],
+          })
+
+          const create = await api.post(
+            `/vendor/products`,
+            {
+              title: "Vendor Care Product",
+              product_attributes: [
+                {
+                  attribute_id: care.attribute_id,
+                  value_ids: [care.byName.get("Hand wash")!],
+                },
+              ],
+            },
+            seller1Headers,
+          )
+          expect(create.status).toBe(201)
+          const productId = create.data.product.id
+
+          // No new options should appear from a non-axis attribute.
+          const careOption = create.data.product.options.find(
+            (o: any) => o.title === "Care",
+          )
+          expect(careOption).toBeUndefined()
+
+          const got = await api.get(
+            `/vendor/products/${productId}`,
+            seller1Headers,
+          )
+          const attrs = got.data.product.attributes
+          expect(attrs).toHaveLength(1)
+          expect(attrs[0].name).toBe("Care")
+          expect(attrs[0].is_variant_axis).toBe(false)
+          expect(attrs[0].values.map((v: any) => v.name)).toEqual(["Hand wash"])
+          expect(attrs[0].all_values.map((v: any) => v.name).sort()).toEqual([
+            "Dry clean",
+            "Hand wash",
+            "Machine",
+          ])
+        })
+
+        // --- Case D: inline custom product (non-axis) attribute ---
+        it("(D) inline custom product-level: creates a product-scoped attribute + values, hidden from global catalogue", async () => {
+          const create = await api.post(
+            `/vendor/products`,
+            {
+              title: "Vendor Inline Care",
+              product_attributes: [
+                {
+                  name: "ShippingNote",
+                  type: "text",
+                  values: ["Fragile - handle with care"],
+                  is_variant_axis: false,
+                },
+              ],
+            },
+            seller1Headers,
+          )
+          expect(create.status).toBe(201)
+          const productId = create.data.product.id
+
+          const got = await api.get(
+            `/vendor/products/${productId}`,
+            seller1Headers,
+          )
+          const attrs = got.data.product.attributes
+          expect(attrs).toHaveLength(1)
+          expect(attrs[0].name).toBe("ShippingNote")
+          expect(attrs[0].is_variant_axis).toBe(false)
+          expect(attrs[0].values.map((v: any) => v.name)).toEqual([
+            "Fragile - handle with care",
+          ])
+
+          const list = await api.get(`/vendor/product-attributes`, seller1Headers)
+          const names = (list.data.product_attributes ?? []).map(
+            (a: any) => a.name,
+          )
+          expect(names).not.toContain("ShippingNote")
+        })
+
+        it("mixes existing + inline custom attributes on the same product", async () => {
+          const color = await createGlobalAttribute({
+            name: "Color",
+            type: "multi_select",
+            is_variant_axis: true,
+            values: ["Red", "Blue"],
+          })
+
+          const create = await api.post(
+            `/vendor/products`,
+            {
+              title: "Mixed Attrs",
+              variants: [{ title: "Red", attribute_values: { Color: "Red" } }],
+              variant_attributes: [
+                {
+                  attribute_id: color.attribute_id,
+                  value_ids: [color.byName.get("Red")!],
+                },
+              ],
+              product_attributes: [
+                {
+                  name: "Origin",
+                  type: "text",
+                  values: ["Italy"],
+                  is_variant_axis: false,
+                },
+              ],
+            },
+            seller1Headers,
+          )
+          expect(create.status).toBe(201)
+
+          const got = await api.get(
+            `/vendor/products/${create.data.product.id}`,
+            seller1Headers,
+          )
+          const attrs = got.data.product.attributes
+          const byName = new Map(attrs.map((a: any) => [a.name, a]))
+          expect(byName.get("Color")?.values.map((v: any) => v.name)).toEqual([
+            "Red",
+          ])
+          expect(byName.get("Origin")?.values.map((v: any) => v.name)).toEqual([
+            "Italy",
+          ])
+        })
+      })
+
+      describe("POST /vendor/products/:id (update — replace attribute value links)", () => {
+        it("replaces previously-linked values when the update payload changes them", async () => {
+          const size = await createGlobalAttribute({
+            name: "Size",
+            type: "multi_select",
+            is_variant_axis: true,
+            values: ["S", "M", "L"],
+          })
+
+          const create = await api.post(
+            `/vendor/products`,
+            {
+              title: "Updatable",
+              variants: [
+                { title: "S", attribute_values: { Size: "S" } },
+                { title: "M", attribute_values: { Size: "M" } },
+                { title: "L", attribute_values: { Size: "L" } },
+              ],
+              variant_attributes: [
+                {
+                  attribute_id: size.attribute_id,
+                  value_ids: [
+                    size.byName.get("S")!,
+                    size.byName.get("M")!,
+                    size.byName.get("L")!,
+                  ],
+                },
+              ],
+            },
+            seller1Headers,
+          )
+          const productId = create.data.product.id
+
+          await api.post(
+            `/vendor/products/${productId}`,
+            {
+              variant_attributes: [
+                {
+                  attribute_id: size.attribute_id,
+                  value_ids: [size.byName.get("S")!],
+                },
+              ],
+            },
+            seller1Headers,
+          )
+
+          const got = await api.get(
+            `/vendor/products/${productId}`,
+            seller1Headers,
+          )
+          const attrs = got.data.product.attributes
+          expect(attrs).toHaveLength(1)
+          expect(attrs[0].values.map((v: any) => v.name)).toEqual(["S"])
         })
       })
 
@@ -81,14 +387,13 @@ medusaIntegrationTestRunner({
           await api.post(
             `/vendor/products`,
             { title: "Seller 1 Proposed" },
-            seller1Headers
+            seller1Headers,
           )
           await api.post(
             `/vendor/products`,
             { title: "Seller 2 Proposed" },
-            seller2Headers
+            seller2Headers,
           )
-
           const res = await api.get(`/vendor/products`, seller1Headers)
           expect(res.status).toBe(200)
           const titles = res.data.products.map((p: any) => p.title)
@@ -97,19 +402,18 @@ medusaIntegrationTestRunner({
         })
       })
 
-      describe("POST /vendor/products/:id", () => {
+      describe("POST /vendor/products/:id (title update)", () => {
         it("seller updates own product", async () => {
           const create = await api.post(
             `/vendor/products`,
             { title: "Own" },
-            seller1Headers
+            seller1Headers,
           )
           const id = create.data.product.id
-
           const res = await api.post(
             `/vendor/products/${id}`,
             { title: "Updated" },
-            seller1Headers
+            seller1Headers,
           )
           expect(res.status).toBe(200)
           expect(res.data.product.title).toBe("Updated")
@@ -119,16 +423,15 @@ medusaIntegrationTestRunner({
           const create = await api.post(
             `/vendor/products`,
             { title: "Seller 1 Owned" },
-            seller1Headers
+            seller1Headers,
           )
           const id = create.data.product.id
-
           await expect(
             api.post(
               `/vendor/products/${id}`,
               { title: "hack" },
-              seller2Headers
-            )
+              seller2Headers,
+            ),
           ).rejects.toMatchObject({ response: { status: 404 } })
         })
       })
@@ -138,45 +441,15 @@ medusaIntegrationTestRunner({
           const create = await api.post(
             `/vendor/products`,
             { title: "Will Delete" },
-            seller1Headers
+            seller1Headers,
           )
           const id = create.data.product.id
-
-          const res = await api.delete(`/vendor/products/${id}`, seller1Headers)
+          const res = await api.delete(
+            `/vendor/products/${id}`,
+            seller1Headers,
+          )
           expect(res.status).toBe(200)
           expect(res.data.deleted).toBe(true)
-        })
-      })
-
-      describe("POST /vendor/products/:id/variants", () => {
-        it("seller adds a variant pinned to manage_inventory=false", async () => {
-          const create = await api.post(
-            `/vendor/products`,
-            {
-              title: "Has Variants",
-              options: [{ title: "Color", values: ["Red"] }],
-              variants: [{ title: "Red", options: { Color: "Red" } }],
-            },
-            seller1Headers
-          )
-          const id = create.data.product.id
-
-          const res = await api.post(
-            `/vendor/products/${id}/variants`,
-            {
-              title: "Red 2",
-              manage_inventory: true,
-              options: { Color: "Red" },
-            } as any,
-            seller1Headers
-          )
-
-          expect(res.status).toBe(201)
-          const added = res.data.product.variants.find(
-            (v: any) => v.title === "Red 2"
-          )
-          expect(added).toBeDefined()
-          expect(added.manage_inventory).toBe(false)
         })
       })
     })

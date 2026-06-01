@@ -6,19 +6,24 @@ import ProductChangeModule from "../modules/product-change"
 /**
  * Read-only link Product → ProductChange.
  * `ProductChange.product_id` references `Product.id`. No pivot table —
- * the FK column lives directly on the change row.
+ * the FK column lives directly on the change row. The `alias: "changes"`
+ * exposes the list under `product.changes` (used by
+ * `getProductsWithDetailsWorkflow` to compute the `requires_action`
+ * boolean).
  */
 export default defineLink(
   {
     linkable: ProductModule.linkable.product,
     field: "id",
+    isList: true,
   },
   {
     ...ProductChangeModule.linkable.productChange.id,
+    alias: "changes",
     primaryKey: "product_id",
-    isList: true
+    isList: true,
   },
   {
     readOnly: true,
-  },
+  }
 )

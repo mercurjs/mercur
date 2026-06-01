@@ -16,6 +16,10 @@ const ProductAttribute = model
     rank: model.number().default(0),
     is_active: model.boolean().default(true),
     created_by: model.text().nullable(),
+    // FK to stock `product` table. Non-null = product-scoped (created inline
+    // from a single product's edit/create form, not visible in the global
+    // /product-attributes catalogue). Null = global attribute.
+    product_id: model.text().nullable(),
     metadata: model.json().nullable(),
 
     values: model.hasMany(() => ProductAttributeValue, {
@@ -35,6 +39,12 @@ const ProductAttribute = model
       on: ["type"],
       unique: false,
       where: "deleted_at IS NULL",
+    },
+    {
+      name: "IDX_product_attribute_product_id",
+      on: ["product_id"],
+      unique: false,
+      where: "deleted_at IS NULL AND product_id IS NOT NULL",
     },
   ])
 

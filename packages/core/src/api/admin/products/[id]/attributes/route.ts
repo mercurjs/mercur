@@ -43,32 +43,77 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id
 
-  const {
-    data: [product],
-  } = await query.graph({
+  // Step 1: get value ids attached to this product via the Module-Link
+  // joiner alias `attribute_values` (no chained populate path).
+  const { data: products } = await query.graph({
     entity: "product",
-    fields: [
-      "id",
-      "attribute_values.attribute.id",
-      "attribute_values.attribute.name",
-    ],
+    fields: ["id", "attribute_values.id"],
     filters: { id: productId },
   })
 
-  if (!product) {
+  if (!products?.length) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
       `Product with id ${productId} was not found`
     )
   }
 
-  const attributesById = new Map<string, any>()
-  for (const v of (product as any).attribute_values ?? []) {
-    if (!v.attribute) continue
-    if (!attributesById.has(v.attribute.id)) {
-      attributesById.set(v.attribute.id, v.attribute)
-    }
+  const valueIds: string[] = (
+    (products[0] as { attribute_values?: Array<{ id: string }> })
+      .attribute_values ?? []
+  )
+    .map((v) => v.id)
+    .filter(Boolean)
+
+  if (!valueIds.length) {
+    res.json({
+      product_attributes: [],
+      count: 0,
+      offset: 0,
+      limit: 0,
+    } as any)
+    return
   }
+
+  // Step 2: load values + their parent attributes via the native belongsTo
+  // (this is inside the product-attribute module — no joiner crossing).
+  const { data: values } = await query.graph({
+    entity: "product_attribute_value",
+    fields: ["id", "name", "attribute_id"],
+    filters: { id: valueIds },
+  })
+
+  const attrIds = Array.from(
+    new Set(
+      ((values as Array<{ attribute_id: string | null }>) ?? [])
+        .map((v) => v.attribute_id)
+        .filter((id): id is string => Boolean(id))
+    )
+  )
+
+  const { data: attributes } = attrIds.length
+    ? await query.graph({
+        entity: "product_attribute",
+        fields: ["id", "name", "handle", "type", "is_variant_axis"],
+        filters: { id: attrIds },
+      })
+    : { data: [] as Array<{ id: string }> }
+
+  const attributesById = new Map<string, any>()
+  for (const attr of attributes as any[]) {
+    attributesById.set(attr.id, { ...attr, values: [] })
+  }
+  for (const v of values as Array<{
+    id: string
+    name: string
+    attribute_id: string | null
+  }>) {
+    if (!v.attribute_id) continue
+    const attr = attributesById.get(v.attribute_id)
+    if (!attr) continue
+    attr.values.push({ id: v.id, name: v.name })
+  }
+
   const product_attributes = Array.from(attributesById.values())
 
   res.json({
@@ -98,8 +143,6 @@ export const POST = async (
     values = [],
   } = req.validatedBody
 
-  // Resolve any free-text `values` against existing attribute values to
-  // their ids; values that don't match an existing row are ignored.
   let resolvedIds = attribute_value_ids
   if (values.length) {
     const { data: avs } = await query.graph({

@@ -57,12 +57,7 @@ export const createProductAttributesWorkflow: ReturnWorkflow<
 
     const attributesToCreate = transform({ input }, ({ input }) =>
       input.attributes.map((attr) => {
-        const {
-          category_ids: _category_ids,
-          values: _values,
-          product_id: _product_id,
-          ...rest
-        } = attr
+        const { category_ids: _category_ids, values: _values, ...rest } = attr
         return rest
       }),
     )

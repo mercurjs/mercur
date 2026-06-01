@@ -11,11 +11,14 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  // Same global-only filter as the admin endpoint — vendors should not
+  // see other products' inline-custom attributes.
   const { data: product_attributes, metadata } = await query.graph({
     entity: "product_attribute",
     fields: req.queryConfig.fields,
     filters: {
       ...req.filterableFields,
+      product_id: null,
     },
     pagination: req.queryConfig.pagination,
   })

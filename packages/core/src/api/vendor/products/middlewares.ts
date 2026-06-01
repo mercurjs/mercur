@@ -109,7 +109,13 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/vendor/products/:id",
-    middlewares: [validateAndTransformBody(VendorUpdateProduct)],
+    middlewares: [
+      validateAndTransformBody(VendorUpdateProduct),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      ),
+    ],
   },
   {
     method: ["DELETE"],
@@ -138,7 +144,13 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/variants",
-    middlewares: [validateAndTransformBody(VendorAddProductVariant)],
+    middlewares: [
+      validateAndTransformBody(VendorAddProductVariant),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      ),
+    ],
   },
 
   // --- /vendor/products/:id/variants/:variant_id ---
@@ -155,7 +167,13 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/variants/:variant_id",
-    middlewares: [validateAndTransformBody(VendorUpdateProductVariant)],
+    middlewares: [
+      validateAndTransformBody(VendorUpdateProductVariant),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      ),
+    ],
   },
   {
     method: ["DELETE"],
@@ -177,7 +195,13 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/attributes",
-    middlewares: [validateAndTransformBody(VendorAddProductAttribute)],
+    middlewares: [
+      validateAndTransformBody(VendorAddProductAttribute),
+      validateAndTransformQuery(
+        VendorGetProductParams,
+        vendorProductQueryConfig.retrieve
+      ),
+    ],
   },
 
   // --- /vendor/products/:id/attributes/:attribute_id ---

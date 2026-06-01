@@ -108,21 +108,47 @@ const UpdateProductVariant = z
   })
   .strict()
 
+const AttributeTypeEnum = z.enum([
+  "single_select",
+  "multi_select",
+  "text",
+  "toggle",
+  "unit",
+])
+
+/**
+ * UI-facing attribute reference. Two shapes:
+ *
+ *   1. **Existing reference** — `{ attribute_id, value_ids?, values? }`.
+ *      `attribute_id` points at a pre-created ProductAttribute. Use
+ *      `value_ids` for known ids, or `values` (names) for text/unit/toggle
+ *      upsert.
+ *
+ *   2. **Inline custom** — `{ name, type, values, is_variant_axis? }`.
+ *      Creates a new ProductAttribute scoped to the product being mutated.
+ *      For variant axes the wrapper synthesizes the matching stock `options`
+ *      entry; the new attribute is hidden from /vendor/product-attributes.
+ */
 const ProductAttributeInput = z.union([
-  z.object({
-    attribute_id: z.string(),
-    value_ids: z.array(z.string()).optional(),
-  }),
-  z.object({
-    name: z.string(),
-    type: z.enum(["single_select", "multi_select", "unit", "toggle", "text"]),
-    values: z.array(z.string()).optional(),
-    is_variant_axis: z.boolean().optional(),
-    is_filterable: z.boolean().optional(),
-    is_required: z.boolean().optional(),
-    description: z.string().nullish(),
-    metadata: z.record(z.unknown()).nullish(),
-  }),
+  z
+    .object({
+      attribute_id: z.string(),
+      value_ids: z.array(z.string()).optional(),
+      values: z.array(z.string()).optional(),
+    })
+    .strict(),
+  z
+    .object({
+      name: z.string().min(1),
+      type: AttributeTypeEnum,
+      values: z.array(z.string()).optional(),
+      is_variant_axis: z.boolean().optional(),
+      is_filterable: z.boolean().optional(),
+      is_required: z.boolean().optional(),
+      description: z.string().nullish(),
+      metadata: z.record(z.unknown()).nullish(),
+    })
+    .strict(),
 ])
 
 // --- Product create / update ---
@@ -274,6 +300,7 @@ export const VendorAddProductVariant = z
     manage_inventory: z.boolean().optional(),
     thumbnail: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
+    options: z.record(z.string()).optional(),
     attribute_values: z
       .union([z.array(z.string()), z.record(z.union([z.string(), z.array(z.string())]))])
       .optional(),
@@ -306,6 +333,7 @@ export const VendorUpdateProductVariant = z
     allow_backorder: z.boolean().optional(),
     manage_inventory: z.boolean().optional(),
     metadata: z.record(z.unknown()).nullish(),
+    options: z.record(z.string()).optional(),
     attribute_values: z
       .union([z.array(z.string()), z.record(z.union([z.string(), z.array(z.string())]))])
       .optional(),
