@@ -10,10 +10,14 @@ set -euo pipefail
 
 HOST="${MERCUR_HOST:-root@167.233.17.178}"
 BRANCH="${MERCUR_BRANCH:-main}"
+BACKEND_URL="${MERCUR_BACKEND_URL:-https://new.mercur.dev}"
 
-echo "→ Deploying $BRANCH to $HOST"
+echo "→ Deploying $BRANCH to $HOST (backend: $BACKEND_URL)"
 
-ssh -o ConnectTimeout=10 "$HOST" BRANCH="$BRANCH" bash -s <<'REMOTE'
+ssh -o ConnectTimeout=10 "$HOST" \
+  BRANCH="$BRANCH" \
+  MERCUR_BACKEND_URL="$BACKEND_URL" \
+  bash -s <<'REMOTE'
 set -euo pipefail
 
 SOURCE_DIR="/root/mercur"
@@ -66,6 +70,41 @@ STUB
 mkdir -p "$DEPLOY_DIR/packages/api/apps"
 ln -sfn "$DEPLOY_DIR/apps/admin" "$DEPLOY_DIR/packages/api/apps/admin"
 ln -sfn "$DEPLOY_DIR/apps/vendor" "$DEPLOY_DIR/packages/api/apps/vendor"
+
+# Patch the dashboard Vite configs. @mercurjs/dashboard-sdk defaults
+# backendUrl to http://localhost:9000 — that gets baked into the SPA
+# bundle and breaks every non-local deployment. We pass an empty string
+# so API calls go to the same origin the dashboard is served from.
+for app in admin vendor; do
+  cat > "$DEPLOY_DIR/apps/$app/vite.config.ts" <<VITE
+import { defineConfig } from "vite"
+import react from "@vitejs/plugin-react"
+import { mercurDashboardPlugin } from "@mercurjs/dashboard-sdk"
+
+export default defineConfig({
+  plugins: [
+    react(),
+    mercurDashboardPlugin({
+      medusaConfigPath: "../../packages/api/medusa-config.ts",
+      backendUrl: process.env.MERCUR_BACKEND_URL ?? "",
+    }),
+  ],
+})
+VITE
+done
+
+# Declare MERCUR_BACKEND_URL in turbo.json so Turbo passes it through
+# to vite. Without this turbo treats it as an undeclared env var and
+# strips it from the child process — the build then sees the empty
+# fallback and bakes a broken baseUrl into the bundle.
+python3 -c "
+import json
+with open('$DEPLOY_DIR/turbo.json') as f: t = json.load(f)
+env = t['tasks']['build'].setdefault('env', [])
+for v in ['MERCUR_BACKEND_URL', 'NODE_ENV']:
+    if v not in env: env.append(v)
+with open('$DEPLOY_DIR/turbo.json', 'w') as f: json.dump(t, f, indent=2)
+"
 
 # 3. Install + build the workspace
 cd "$DEPLOY_DIR"
