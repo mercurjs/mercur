@@ -87,21 +87,30 @@ medusaIntegrationTestRunner({
                         status: 'published',
                         title: "Vendor Order Product 1",
                         description: "Product from seller 1",
-                        options: [{ title: "Size", values: ["S", "M"] }],
+                        variant_attributes: [
+                            {
+                                name: "Size",
+                                type: "multi_select",
+                                is_variant_axis: true,
+                                values: ["S", "M"],
+                            },
+                        ],
                         variants: [
                             {
                                 title: "Small",
                                 sku: "VO-SELLER1-S",
-                                options: { Size: "S" },
-                                prices: [{ currency_code: "usd", amount: 2000 }],
-                                manage_inventory: false,
+                                attribute_values: { Size: "S" },
                             },
                         ],
-                        sales_channels: [{ id: salesChannel.id }],
                     },
                     seller1Headers
                 )
                 product1 = product1Response.data.product
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product1.id] },
+                    seller1Headers
+                )
 
                 // Create product for seller 2
                 const product2Response = await api.post(
@@ -110,21 +119,30 @@ medusaIntegrationTestRunner({
                         status: 'published',
                         title: "Vendor Order Product 2",
                         description: "Product from seller 2",
-                        options: [{ title: "Color", values: ["Red"] }],
+                        variant_attributes: [
+                            {
+                                name: "Color",
+                                type: "multi_select",
+                                is_variant_axis: true,
+                                values: ["Red"],
+                            },
+                        ],
                         variants: [
                             {
                                 title: "Red",
                                 sku: "VO-SELLER2-RED",
-                                options: { Color: "Red" },
-                                prices: [{ currency_code: "usd", amount: 3000 }],
-                                manage_inventory: false,
+                                attribute_values: { Color: "Red" },
                             },
                         ],
-                        sales_channels: [{ id: salesChannel.id }],
                     },
                     seller2Headers
                 )
                 product2 = product2Response.data.product
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product2.id] },
+                    seller2Headers
+                )
 
                 // Create shipping prerequisites for seller 1
                 const shippingPrerequisites1 = await createShippingPrerequisites(seller1Headers, "voSeller1")
