@@ -480,13 +480,6 @@ export type Routes = {
                 unterminate: typeof import("../../src/api/admin/sellers/[id]/unterminate/route");
             };
         };
-        subscriptionPlans: typeof import("../../src/api/admin/subscription-plans/route") & {
-            $id: typeof import("../../src/api/admin/subscription-plans/[id]/route") & {
-                overrides: typeof import("../../src/api/admin/subscription-plans/[id]/overrides/route") & {
-                    $overrideId: typeof import("../../src/api/admin/subscription-plans/[id]/overrides/[override_id]/route");
-                };
-            };
-        };
     };
     auth: {
         $actorType: {
@@ -800,7 +793,6 @@ export type Routes = {
             };
         };
         stores: typeof import("../../src/api/vendor/stores/route");
-        subscription: typeof import("../../src/api/vendor/subscription/route");
         uploads: typeof import("../../src/api/vendor/uploads/route");
     };
 };

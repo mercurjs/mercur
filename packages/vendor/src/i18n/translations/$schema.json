@@ -12376,6 +12376,18 @@
               ],
               "additionalProperties": false
             },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "successToast"
+              ],
+              "additionalProperties": false
+            },
             "fields": {
               "type": "object",
               "properties": {
@@ -12426,49 +12438,10 @@
             "validation",
             "empty",
             "create",
+            "edit",
             "fields",
             "deleteConfirm",
             "deleteSuccess"
-          ],
-          "additionalProperties": false
-        },
-        "subscription": {
-          "type": "object",
-          "properties": {
-            "header": {
-              "type": "string"
-            },
-            "noPlan": {
-              "type": "string"
-            },
-            "noPlanMessage": {
-              "type": "string"
-            },
-            "monthlyAmount": {
-              "type": "string"
-            },
-            "freeMonths": {
-              "type": "string"
-            },
-            "freePeriod": {
-              "type": "string"
-            },
-            "requiresOrders": {
-              "type": "string"
-            },
-            "month": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "header",
-            "noPlan",
-            "noPlanMessage",
-            "monthlyAmount",
-            "freeMonths",
-            "freePeriod",
-            "requiresOrders",
-            "month"
           ],
           "additionalProperties": false
         },
@@ -12543,7 +12516,6 @@
         "paymentDetails",
         "professionalDetails",
         "timeOff",
-        "subscription",
         "toast"
       ],
       "additionalProperties": false

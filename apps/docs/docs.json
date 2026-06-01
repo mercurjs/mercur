@@ -56,7 +56,6 @@
                 "pages": [
                   "core-concepts/seller",
                   "core-concepts/seller-members",
-                  "core-concepts/subscriptions",
                   "core-concepts/payout",
                   "core-concepts/commission",
                   "core-concepts/order-groups"

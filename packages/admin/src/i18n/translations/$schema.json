@@ -9677,15 +9677,6 @@
           "required": ["header", "edit", "fields"],
           "additionalProperties": false
         },
-        "subscription": {
-          "type": "object",
-          "properties": {
-            "header": { "type": "string" },
-            "month": { "type": "string" }
-          },
-          "required": ["header", "month"],
-          "additionalProperties": false
-        },
         "toast": {
           "type": "object",
           "properties": {
@@ -9736,7 +9727,6 @@
         "paymentDetails",
         "professionalDetails",
         "scheduledClosure",
-        "subscription",
         "toast"
       ],
       "additionalProperties": false

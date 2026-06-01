@@ -1,6 +1,5 @@
 export enum MercurModules {
     SELLER = "seller",
-    SUBSCRIPTION = "subscription",
     COMMISSION = "commission",
     PAYOUT = "payout",
     OFFER = "offer",

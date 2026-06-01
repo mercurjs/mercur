@@ -349,10 +349,6 @@ export const defaultMercurRoutes = {
     "/admin/sellers/:id/terminate": "typeof import(\"@mercurjs/core/api/admin/sellers/[id]/terminate/route\")",
     "/admin/sellers/:id/unsuspend": "typeof import(\"@mercurjs/core/api/admin/sellers/[id]/unsuspend/route\")",
     "/admin/sellers/:id/unterminate": "typeof import(\"@mercurjs/core/api/admin/sellers/[id]/unterminate/route\")",
-    "/admin/subscription-plans": "typeof import(\"@mercurjs/core/api/admin/subscription-plans/route\")",
-    "/admin/subscription-plans/:id": "typeof import(\"@mercurjs/core/api/admin/subscription-plans/[id]/route\")",
-    "/admin/subscription-plans/:id/overrides": "typeof import(\"@mercurjs/core/api/admin/subscription-plans/[id]/overrides/route\")",
-    "/admin/subscription-plans/:id/overrides/:override_id": "typeof import(\"@mercurjs/core/api/admin/subscription-plans/[id]/overrides/[override_id]/route\")",
 
     // Hooks
     "/hooks/payout": "typeof import(\"@mercurjs/core/api/hooks/payout/route\")",
@@ -505,6 +501,5 @@ export const defaultMercurRoutes = {
     "/vendor/stock-locations/:id/fulfillment-sets": "typeof import(\"@mercurjs/core/api/vendor/stock-locations/[id]/fulfillment-sets/route\")",
     "/vendor/stock-locations/:id/sales-channels": "typeof import(\"@mercurjs/core/api/vendor/stock-locations/[id]/sales-channels/route\")",
     "/vendor/stores": "typeof import(\"@mercurjs/core/api/vendor/stores/route\")",
-    "/vendor/subscription": "typeof import(\"@mercurjs/core/api/vendor/subscription/route\")",
     "/vendor/uploads": "typeof import(\"@mercurjs/core/api/vendor/uploads/route\")",
 }

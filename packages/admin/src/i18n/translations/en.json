@@ -2608,7 +2608,7 @@
       }
     },
     "deleteUserWarning": "You are about to delete the user {{name}}. This action cannot be undone.",
-    "deleteUserSuccess": "User {{name}} deleted successfully",
+    "deleteUserSuccess": "User {{name}} was successfully removed.",
     "invite": "Invite"
   },
   "marketplace": {
@@ -2653,7 +2653,7 @@
       "edit": {
         "header": "Edit Address",
         "description": "Update the address for this store.",
-        "successToast": "Address updated"
+        "successToast": "Address was successfully updated."
       },
       "validation": {
         "nameRequired": "Please enter a name",
@@ -2669,7 +2669,7 @@
       "edit": {
         "header": "Edit Payment Details",
         "description": "Update the payment details for this store.",
-        "successToast": "Payment details updated"
+        "successToast": "Payment details was successfully updated."
       },
       "fields": {
         "countryCode": "Country",
@@ -2696,7 +2696,7 @@
       "edit": {
         "header": "Edit Company Details",
         "description": "Update the company details for this store.",
-        "successToast": "Company details updated"
+        "successToast": "Company details was successfully updated."
       },
       "fields": {
         "corporateName": "Company",
@@ -2725,12 +2725,8 @@
         "closedToHint": "If empty, the store will remain closed indefinitely."
       }
     },
-    "subscription": {
-      "header": "Subscription Plan",
-      "month": "month"
-    },
     "toast": {
-      "update": "Store successfully updated",
+      "update": "Store was successfully updated.",
       "currenciesUpdated": "Currencies updated successfully",
       "currenciesRemoved": "Removed currencies from the store successfully",
       "updatedTaxInclusivitySuccessfully": "Tax inclusive pricing updated successfully"
@@ -3644,9 +3640,9 @@
         }
       },
       "invite": {
-        "resendSuccess": "Invite resent to {{email}}",
+        "resendSuccess": "Invite was successfully resent to {{email}}",
         "deleteSuccess": "Invite for {{email}} deleted",
-        "linkCopied": "Invite link copied to clipboard",
+        "linkCopied": "Invite link was successfully copied to clipboard.",
         "copyFailed": "Failed to copy invite link",
         "noVendorUrl": "Vendor URL is not configured on the backend (MERCUR_VENDOR_URL)"
       }
@@ -3673,7 +3669,7 @@
       "usersHintSecondary": "Once the store is created, the selected user will receive an invitation to join.",
       "ownerEmail": "Owner email",
       "ownerEmailHint": "The owner will be granted the Store Administration role.",
-      "successToast": "Store created successfully",
+      "successToast": "Store was successfully created.",
       "validation": {
         "nameRequired": "Please enter a name",
         "emailRequired": "Please enter an email",

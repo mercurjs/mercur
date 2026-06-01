@@ -2785,10 +2785,6 @@
         "closedToHint": "Jeśli puste, sklep pozostanie zamknięty bezterminowo."
       }
     },
-    "subscription": {
-      "header": "Plan subskrypcji",
-      "month": "miesiąc"
-    },
     "toast": {
       "update": "Sklep pomyślnie zaktualizowany",
       "currenciesUpdated": "Waluty zostały pomyślnie zaktualizowane",

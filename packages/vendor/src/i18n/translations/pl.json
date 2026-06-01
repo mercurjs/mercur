@@ -3054,16 +3054,6 @@
       },
       "deleteSuccess": "Przerwa została usunięta"
     },
-    "subscription": {
-      "header": "Subskrypcja",
-      "month": "miesiąc",
-      "noPlan": "Brak planu subskrypcji",
-      "noPlanMessage": "Twój sklep nie ma aktywnego planu subskrypcji.",
-      "monthlyAmount": "Kwota miesięczna",
-      "freeMonths": "Darmowe miesiące",
-      "freePeriod": "Okres darmowy",
-      "requiresOrders": "Wymaga zamówień"
-    },
     "scheduledClosure": {
       "header": "Zaplanowana przerwa"
     },

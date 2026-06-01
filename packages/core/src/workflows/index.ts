@@ -12,7 +12,6 @@ export * from "./stock-location"
 export * from './cart'
 export * from './events'
 export * from './custom-fields'
-export * from './subscription'
 export * from './product'
 export * from './product-attribute'
 export * from './product-change'

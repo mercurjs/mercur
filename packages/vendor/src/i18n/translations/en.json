@@ -2775,7 +2775,7 @@
       }
     },
     "deleteUserWarning": "You are about to delete the user {{name}}. This action cannot be undone.",
-    "deleteUserSuccess": "User {{name}} deleted successfully",
+    "deleteUserSuccess": "User {{name}} was successfully removed.",
     "invite": "Invite",
     "inviteForm": {
       "validation": {
@@ -2903,7 +2903,7 @@
       "edit": {
         "header": "Edit Address",
         "description": "Update the address for your store.",
-        "successToast": "Address updated"
+        "successToast": "Address was successfully updated."
       },
       "validation": {
         "nameRequired": "Please enter a name",
@@ -2919,7 +2919,7 @@
       "edit": {
         "header": "Edit Payment Details",
         "description": "Update the payment details for your store.",
-        "successToast": "Payment details updated"
+        "successToast": "Payment details was successfully updated."
       },
       "fields": {
         "countryCode": "Country",
@@ -2946,7 +2946,7 @@
       "edit": {
         "header": "Edit Company Details",
         "description": "Update the company details for your store.",
-        "successToast": "Company details updated"
+        "successToast": "Company details was successfully updated."
       },
       "fields": {
         "corporateName": "Company",
@@ -2972,7 +2972,10 @@
       "create": {
         "header": "Create Time Off",
         "description": "Schedule a time off period for your store.",
-        "successToast": "Time off saved"
+        "successToast": "Time off was successfully created."
+      },
+      "edit": {
+        "successToast": "Time off was successfully updated."
       },
       "fields": {
         "firstDay": "First day",
@@ -2984,17 +2987,7 @@
         "title": "Delete time off",
         "description": "Are you sure you want to remove this time off period?"
       },
-      "deleteSuccess": "Time off removed"
-    },
-    "subscription": {
-      "header": "Subscription",
-      "noPlan": "No subscription plan",
-      "noPlanMessage": "Your store does not have an active subscription plan.",
-      "monthlyAmount": "Monthly amount",
-      "freeMonths": "Free months",
-      "freePeriod": "Free period",
-      "requiresOrders": "Requires orders",
-      "month": "month"
+      "deleteSuccess": "Time off was successfully deleted."
     },
     "toast": {
       "update": "Store successfully updated",

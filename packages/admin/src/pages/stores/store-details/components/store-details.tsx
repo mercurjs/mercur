@@ -12,7 +12,6 @@ import { StorePaymentDetailsSection } from "./store-payment-details-section";
 import { StoreCompanyDetailsSection } from "./store-company-details-section";
 import { StoreConfigurationSection } from "./store-configuration-section";
 import { StoreAddressSection } from "./store-address-section";
-import { StoreSubscriptionSection } from "./store-subscription-section";
 import { StoreMembersSection } from "./store-members-section";
 import { StoreRequestSection } from "./store-request-section";
 import { StoreOrdersSection } from "./store-orders-section";
@@ -151,7 +150,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <StoreAddressSection seller={seller} />
         <StoreCompanyDetailsSection seller={seller} />
         <StorePaymentDetailsSection seller={seller} />
-        <StoreSubscriptionSection seller={seller} />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );
@@ -165,7 +163,6 @@ export const StoreDetailPage = Object.assign(Root, {
   MainPaymentDetailsSection: StorePaymentDetailsSection,
   MainCompanyDetailsSection: StoreCompanyDetailsSection,
   SidebarAddressSection: StoreAddressSection,
-  SidebarSubscriptionSection: StoreSubscriptionSection,
   SidebarMembersSection: StoreMembersSection,
   Header: StoreDetailHeader,
   HeaderTitle: StoreDetailTitle,

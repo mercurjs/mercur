@@ -5,13 +5,12 @@ import components from "virtual:mercur/components";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { useMe, useSubscription } from "@/hooks/api";
+import { useMe } from "@/hooks/api";
 import { SellerStatus } from "@mercurjs/types";
 
 import { StoreAddressSection } from "./_components/store-address-section";
 import { StoreTimeOffSection } from "./_components/store-time-off-section";
 import { StoreGeneralSection } from "./_components/store-general-section";
-import { StoreSubscriptionSection } from "./_components/store-subscription-section";
 import { StorePaymentDetailsSection } from "./_components/store-payment-details-section";
 import { StoreProfessionalDetailsSection } from "./_components/store-professional-details-section";
 import {
@@ -24,15 +23,10 @@ import {
 const Root = ({ children }: { children?: ReactNode }) => {
   const { t } = useTranslation();
   const { seller_member, isPending, isError, error } = useMe();
-  const {
-    subscription_plan,
-    subscription_override,
-    isPending: isSubscriptionPending,
-  } = useSubscription();
 
   const seller = seller_member?.seller;
 
-  if (isPending || isSubscriptionPending || !seller) {
+  if (isPending || !seller) {
     return <TwoColumnPageSkeleton mainSections={3} sidebarSections={3} />;
   }
 
@@ -93,10 +87,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <StoreAddressSection seller={seller} />
         <StoreProfessionalDetailsSection seller={seller} />
         <StorePaymentDetailsSection seller={seller} />
-        <StoreSubscriptionSection
-          subscription_plan={subscription_plan}
-          subscription_override={subscription_override}
-        />
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );
@@ -110,7 +100,6 @@ export const StoreDetailPage = Object.assign(Root, {
   MainProfessionalDetailsSection: StoreProfessionalDetailsSection,
   MainTimeOffSection: StoreTimeOffSection,
   SidebarAddressSection: StoreAddressSection,
-  SidebarSubscriptionSection: StoreSubscriptionSection,
   Header: StoreDetailHeader,
   HeaderTitle: StoreDetailTitle,
   HeaderActions: StoreDetailActions,

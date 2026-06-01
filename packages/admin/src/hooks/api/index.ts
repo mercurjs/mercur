@@ -30,7 +30,6 @@ export * from "./reservations";
 export * from "./members";
 export * from "./sales-channels";
 export * from "./sellers";
-export * from "./subscription-plans";
 export * from "./shipping-options";
 export * from "./shipping-option-types";
 export * from "./shipping-profiles";
