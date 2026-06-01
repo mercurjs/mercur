@@ -1,7 +1,7 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { MercurModules, ProductChangeStatus } from "@mercurjs/types"
 
-import type ProductChangeModuleService from "../../../_step5-pending/modules/product-change/service"
+import type ProductChangeModuleService from "../../../modules/product-change/service"
 
 export const declineProductChangeStepId = "pc-decline-product-change"
 

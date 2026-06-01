@@ -5,7 +5,7 @@ import {
   UpsertProductAttributeValueDTO,
 } from "@mercurjs/types"
 
-import type ProductAttributeModuleService from "../../../_step5-pending/modules/product-attribute/service"
+import type ProductAttributeModuleService from "../../../modules/product-attribute/service"
 
 export const upsertProductAttributeValuesStepId =
   "pa-upsert-product-attribute-values"
@@ -15,39 +15,17 @@ export type UpsertProductAttributeValuesStepInput =
     attribute_id?: string
   })[]
 
-type PrevValueScalar = {
-  id: string
-  handle?: string | null
-  name?: string
-  rank?: number
-  is_active?: boolean
-  metadata?: Record<string, unknown> | null
-  attribute_id?: string
-}
-
 type UpsertCompensation = {
   createdIds: string[]
-  prevScalars: PrevValueScalar[]
+  prevValues: any[]
 }
-
-const pickValueScalars = (
-  v: Record<string, unknown> & { id: string },
-): PrevValueScalar => ({
-  id: v.id,
-  handle: v.handle as string | null | undefined,
-  name: v.name as string | undefined,
-  rank: v.rank as number | undefined,
-  is_active: v.is_active as boolean | undefined,
-  metadata: v.metadata as Record<string, unknown> | null | undefined,
-  attribute_id: v.attribute_id as string | undefined,
-})
 
 /**
  * Hand-rolled upsert: MedusaService autogenerates create/update/delete but not
  * upsert for the new `product-attribute` module. Split the input into
  * create rows (no `id`) and update rows (with `id`), call create / update
  * separately, and return the union. Compensation undoes both: delete the
- * created rows and restore the updated rows from captured scalars.
+ * created rows and restore the updated rows from captured `prevValues`.
  */
 export const upsertProductAttributeValuesStep = createStep(
   upsertProductAttributeValuesStepId,
@@ -68,11 +46,10 @@ export const upsertProductAttributeValuesStep = createStep(
       })
 
     const prevValues = updateRows.length
-      ? ((await service.listProductAttributeValues({
+      ? await service.listProductAttributeValues({
           id: updateRows.map((u) => u.id),
-        })) as Array<Record<string, unknown> & { id: string }>)
+        })
       : []
-    const prevScalars = prevValues.map(pickValueScalars)
 
     const created = createRows.length
       ? await service.createProductAttributeValues(createRows)
@@ -84,7 +61,7 @@ export const upsertProductAttributeValuesStep = createStep(
 
     const compensation: UpsertCompensation = {
       createdIds: created.map((v) => v.id),
-      prevScalars,
+      prevValues,
     }
 
     return new StepResponse([...created, ...updated], compensation)
@@ -102,8 +79,10 @@ export const upsertProductAttributeValuesStep = createStep(
       await service.deleteProductAttributeValues(compensation.createdIds)
     }
 
-    if (compensation.prevScalars.length) {
-      await service.updateProductAttributeValues(compensation.prevScalars)
+    if (compensation.prevValues.length) {
+      await service.updateProductAttributeValues(
+        compensation.prevValues.map((v) => ({ ...v })),
+      )
     }
   },
 )

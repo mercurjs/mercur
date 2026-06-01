@@ -6,7 +6,7 @@ import {
   ProductAttributeDTO,
 } from "@mercurjs/types"
 
-import type ProductAttributeModuleService from "../../../_step5-pending/modules/product-attribute/service"
+import type ProductAttributeModuleService from "../../../modules/product-attribute/service"
 
 export const validateAttributeAcceptsValuesStepId =
   "pa-validate-attribute-accepts-values"

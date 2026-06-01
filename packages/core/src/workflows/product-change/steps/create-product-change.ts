@@ -5,7 +5,7 @@ import {
   ProductChangeStatus,
 } from "@mercurjs/types"
 
-import type ProductChangeModuleService from "../../../_step5-pending/modules/product-change/service"
+import type ProductChangeModuleService from "../../../modules/product-change/service"
 
 export const createProductChangeStepId = "pc-create-product-change"
 

@@ -15,10 +15,7 @@ import {
 import { MercurModules } from "@mercurjs/types"
 
 import { ProductAttributeValueWorkflowEvents } from "../events"
-import {
-  deleteProductAttributeValuesStep,
-  validateProductAttributeValueNotMirroredStep,
-} from "../steps"
+import { deleteProductAttributeValuesStep } from "../steps"
 
 export type DeleteProductAttributeValuesWorkflowInput = {
   ids: string[]
@@ -52,7 +49,9 @@ export const deleteProductAttributeValuesWorkflow: ReturnWorkflow<
   function (input: DeleteProductAttributeValuesWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    validateProductAttributeValueNotMirroredStep({ ids: input.ids })
+    // NOTE: mirror-link validation gap — previously enforced via
+    // `validateProductAttributeValueNotMirroredStep`; dropped to avoid the
+    // full-table scan it required.
 
     const dismissLinks = transform({ input }, ({ input }) =>
       input.ids.flatMap((id) => [

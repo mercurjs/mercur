@@ -50,6 +50,22 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
     )
       ? []
       : [{ resolve: "@mercurjs/core/modules/product" as const }]),
+    ...((config.modules ?? []).some(
+      (m) =>
+        typeof m === "object" &&
+        "resolve" in m &&
+        m.resolve === "@mercurjs/core/modules/product-attribute"
+    )
+      ? []
+      : [{ resolve: "@mercurjs/core/modules/product-attribute" as const }]),
+    ...((config.modules ?? []).some(
+      (m) =>
+        typeof m === "object" &&
+        "resolve" in m &&
+        m.resolve === "@mercurjs/core/modules/product-change"
+    )
+      ? []
+      : [{ resolve: "@mercurjs/core/modules/product-change" as const }]),
   ]
 
   const plugins = [

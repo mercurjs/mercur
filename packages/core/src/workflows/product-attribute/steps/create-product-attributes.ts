@@ -1,7 +1,7 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { CreateProductAttributeDTO, MercurModules } from "@mercurjs/types"
 
-import type ProductAttributeModuleService from "../../../_step5-pending/modules/product-attribute/service"
+import type ProductAttributeModuleService from "../../../modules/product-attribute/service"
 
 export const createProductAttributesStepId = "pa-create-product-attributes"
 
