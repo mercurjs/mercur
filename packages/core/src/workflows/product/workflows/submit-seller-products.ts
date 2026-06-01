@@ -67,10 +67,7 @@ export const submitSellerProductsWorkflow: ReturnWorkflow<
       const category_ids = products
         .flatMap((p) => p.category_ids ?? [])
         .filter(Boolean)
-      const brand_ids = products
-        .map((p) => p.brand_id)
-        .filter((id): id is string => Boolean(id))
-      return { seller_id, category_ids, brand_ids }
+      return { seller_id, category_ids }
     })
 
     validateSellerProductPermissionsStep(permissionData)

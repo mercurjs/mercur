@@ -5,7 +5,7 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
-import { upsertProductAttributeValuesWorkflow } from "../../../../../workflows/product/workflows/upsert-product-attribute-values"
+import { upsertProductAttributeValuesWorkflow } from "../../../../../workflows/product-attribute/workflows/upsert-product-attribute-values"
 import { AdminUpsertProductAttributeValuesType } from "../../validators"
 
 export const POST = async (

@@ -6,7 +6,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { createProductAttributesWorkflow } from "../../../../../workflows/product/workflows/create-product-attributes"
+import { createProductAttributesWorkflow } from "../../../../../workflows/product-attribute/workflows/create-product-attributes"
 import { AdminCreateProductAttributeType } from "../../../product-attributes/validators"
 
 export const GET = async (

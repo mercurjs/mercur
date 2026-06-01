@@ -8,7 +8,6 @@ import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 type ValidateSellerProductPermissionsInput = {
   seller_id: string
   category_ids?: string[]
-  brand_ids?: string[]
 }
 
 export const validateSellerProductPermissionsStep = createStep(
@@ -17,7 +16,6 @@ export const validateSellerProductPermissionsStep = createStep(
     {
       seller_id,
       category_ids,
-      brand_ids,
     }: ValidateSellerProductPermissionsInput,
     { container }
   ) => {
@@ -45,35 +43,6 @@ export const validateSellerProductPermissionsStep = createStep(
           MedusaError.Types.NOT_ALLOWED,
           `Seller is restricted from categories: ${blockedIds.join(", ")}`
         )
-      }
-    }
-
-    // Brand restriction (whitelist): only enforced when `brand.is_restricted`
-    // is true; in that case the seller must appear in the brand's sellers.
-    if (brand_ids && brand_ids.length > 0) {
-      const uniqueBrandIds = [...new Set(brand_ids)]
-
-      const { data: brands } = await query.graph({
-        entity: "product_brand",
-        fields: ["id", "is_restricted", "sellers.id"],
-        filters: { id: uniqueBrandIds },
-      })
-
-      for (const brand of brands) {
-        if (!brand.is_restricted) {
-          continue
-        }
-
-        const isAuthorized = (brand.sellers ?? []).some(
-          (s) => s.id === seller_id
-        )
-
-        if (!isAuthorized) {
-          throw new MedusaError(
-            MedusaError.Types.NOT_ALLOWED,
-            `Seller is not authorized to use restricted brand '${brand.id}'`
-          )
-        }
       }
     }
 

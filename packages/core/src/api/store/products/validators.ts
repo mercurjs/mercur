@@ -22,7 +22,6 @@ const StoreGetProductsParamsFields = z.object({
   id: z.union([z.string(), z.array(z.string())]).optional(),
   title: z.string().optional(),
   handle: z.string().optional(),
-  brand_id: z.union([z.string(), z.array(z.string())]).optional(),
   collection_id: z.union([z.string(), z.array(z.string())]).optional(),
   type_id: z.union([z.string(), z.array(z.string())]).optional(),
   category_id: z.union([z.string(), z.array(z.string())]).optional(),

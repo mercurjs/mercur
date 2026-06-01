@@ -8,7 +8,7 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { deleteProductAttributeValuesWorkflow } from "../../../../../../workflows/product/workflows/delete-product-attribute-values"
+import { deleteProductAttributeValuesWorkflow } from "../../../../../../workflows/product-attribute/workflows/delete-product-attribute-values"
 import { updateProductAttributeValuesWorkflow } from "../../../../../../workflows/product-attribute/workflows/update-product-attribute-values"
 import { AdminUpdateProductAttributeValueType } from "../../../validators"
 

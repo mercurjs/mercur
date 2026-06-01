@@ -18,7 +18,6 @@ import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/middlewares"
 
 import { adminProductsMiddlewares } from "./products/middlewares"
-import { adminProductBrandsMiddlewares } from "./product-brands/middlewares"
 import { adminProductCategoriesMiddlewares } from "./product-categories/middlewares"
 import { adminProductAttributesMiddlewares } from "./product-attributes/middlewares"
 import { adminProductChangesMiddlewares } from "./product-changes/middlewares"
@@ -60,7 +59,6 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminCommissionRatesMiddlewares,
   ...adminSubscriptionPlanRoutesMiddlewares,
   ...adminProductsMiddlewares,
-  ...adminProductBrandsMiddlewares,
   ...adminProductCategoriesMiddlewares,
   ...adminProductAttributesMiddlewares,
   ...adminProductChangesMiddlewares,

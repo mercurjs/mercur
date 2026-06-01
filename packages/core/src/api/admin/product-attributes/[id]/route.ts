@@ -10,8 +10,8 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { deleteProductAttributesWorkflow } from "../../../../workflows/product/workflows/delete-product-attributes"
-import { updateProductAttributesWorkflow } from "../../../../workflows/product/workflows/update-product-attributes"
+import { deleteProductAttributesWorkflow } from "../../../../workflows/product-attribute/workflows/delete-product-attributes"
+import { updateProductAttributesWorkflow } from "../../../../workflows/product-attribute/workflows/update-product-attributes"
 import { AdminUpdateProductAttributeType } from "../validators"
 
 export const GET = async (

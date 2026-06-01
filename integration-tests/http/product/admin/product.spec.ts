@@ -45,14 +45,7 @@ medusaIntegrationTestRunner({
           )
         })
 
-        it("should create a product with brand and categories", async () => {
-          const brandRes = await api.post(
-            `/admin/product-brands`,
-            { name: "Test Brand" },
-            adminHeaders
-          )
-          const brandId = brandRes.data.product_brand.id
-
+        it("should create a product with categories", async () => {
           const catRes = await api.post(
             `/admin/product-categories`,
             { name: "Test Category" },
@@ -64,14 +57,13 @@ medusaIntegrationTestRunner({
             `/admin/products`,
             {
               title: "Product with Relations",
-              brand_id: brandId,
               categories: [{ id: categoryId }],
             },
             adminHeaders
           ).catch(console.log)
 
           expect(response.status).toEqual(200)
-          expect(response.data.product.brand_id).toEqual(brandId)
+          expect(response.data.product.categories?.[0]?.id).toEqual(categoryId)
         })
 
         it("should create a product with variants", async () => {

@@ -447,9 +447,9 @@ export type Routes = {
                 };
             };
         };
-        productBrands: typeof import("../../src/api/admin/product-brands/route") & {
-            $id: typeof import("../../src/api/admin/product-brands/[id]/route") & {
-                sellers: typeof import("../../src/api/admin/product-brands/[id]/sellers/route");
+        productBrands: typeof import("@mercurjs/core/api/admin/product-brands/route") & {
+            $id: typeof import("@mercurjs/core/api/admin/product-brands/[id]/route") & {
+                sellers: typeof import("@mercurjs/core/api/admin/product-brands/[id]/sellers/route");
             };
         };
         productChanges: {
@@ -578,8 +578,8 @@ export type Routes = {
         productAttributes: typeof import("../../src/api/store/product-attributes/route") & {
             $id: typeof import("../../src/api/store/product-attributes/[id]/route");
         };
-        productBrands: typeof import("../../src/api/store/product-brands/route") & {
-            $id: typeof import("../../src/api/store/product-brands/[id]/route");
+        productBrands: typeof import("@mercurjs/core/api/store/product-brands/route") & {
+            $id: typeof import("@mercurjs/core/api/store/product-brands/[id]/route");
         };
         sellers: typeof import("../../src/api/store/sellers/route") & {
             $id: typeof import("../../src/api/store/sellers/[id]/route");
@@ -683,8 +683,8 @@ export type Routes = {
         productAttributes: typeof import("../../src/api/vendor/product-attributes/route") & {
             $id: typeof import("../../src/api/vendor/product-attributes/[id]/route");
         };
-        productBrands: typeof import("../../src/api/vendor/product-brands/route") & {
-            $id: typeof import("../../src/api/vendor/product-brands/[id]/route");
+        productBrands: typeof import("@mercurjs/core/api/vendor/product-brands/route") & {
+            $id: typeof import("@mercurjs/core/api/vendor/product-brands/[id]/route");
         };
         productCategories: typeof import("../../src/api/vendor/product-categories/route") & {
             $id: typeof import("../../src/api/vendor/product-categories/[id]/route");
