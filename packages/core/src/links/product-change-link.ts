@@ -3,16 +3,21 @@ import ProductModule from "@medusajs/medusa/product"
 
 import ProductChangeModule from "../modules/product-change"
 
+/**
+ * Read-only link Product → ProductChange.
+ * `ProductChange.product_id` references `Product.id`. No pivot table —
+ * the FK column lives directly on the change row.
+ */
 export default defineLink(
-  ProductModule.linkable.product,
   {
-    linkable: ProductChangeModule.linkable.productChange,
-    field: "change",
-    isList: true,
+    linkable: ProductModule.linkable.product,
+    field: "id",
   },
   {
-    database: {
-      table: "product_change_link",
-    },
+    ...ProductChangeModule.linkable.productChange.id,
+    primaryKey: "product_id",
+  },
+  {
+    readOnly: true,
   },
 )

@@ -1,5 +1,4 @@
-import { Modules } from "@medusajs/framework/utils"
-import { AdditionalData, LinkDefinition } from "@medusajs/framework/types"
+import { AdditionalData } from "@medusajs/framework/types"
 import {
   createHook,
   createWorkflow,
@@ -8,15 +7,8 @@ import {
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import {
-  createRemoteLinkStep,
-  emitEventStep,
-} from "@medusajs/medusa/core-flows"
-import {
-  CreateProductChangeDTO,
-  MercurModules,
-  ProductChangeDTO,
-} from "@mercurjs/types"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { CreateProductChangeDTO, ProductChangeDTO } from "@mercurjs/types"
 
 import { ProductChangeWorkflowEvents } from "../events"
 import {
@@ -57,31 +49,7 @@ export const createProductChangeWorkflow: ReturnWorkflow<
 
     validateNoPendingProductChangeStep({ product_ids: productIds })
 
-    const changesToCreate = transform({ input }, ({ input }) =>
-      input.changes.map(({ product_id: _product_id, ...rest }) => rest),
-    )
-
-    const changes = createProductChangeStep(changesToCreate)
-
-    const productChangeLinks = transform(
-      { input, changes },
-      ({ input, changes }) => {
-        const links: LinkDefinition[] = []
-        input.changes.forEach((c, idx) => {
-          links.push({
-            [Modules.PRODUCT]: { product_id: c.product_id },
-            [MercurModules.PRODUCT_CHANGE]: {
-              product_change_id: changes[idx].id,
-            },
-          })
-        })
-        return links
-      },
-    )
-
-    createRemoteLinkStep(productChangeLinks).config({
-      name: "pc-create-product-change-links",
-    })
+    const changes = createProductChangeStep(input.changes)
 
     emitEventStep({
       eventName: ProductChangeWorkflowEvents.CREATED,

@@ -1,4 +1,3 @@
-import { Query } from "@medusajs/framework"
 import {
   ContainerRegistrationKeys,
   MedusaError,
@@ -14,10 +13,10 @@ type ValidateNoPendingProductChangeStepInput = {
 }
 
 /**
- * Enforces "one pending change per product". Queries the
- * `product_change` entity directly with `status = PENDING` and joins
- * the linked product through the `product_change_link` pivot. Throws
- * if any of the input products already has a pending change linked.
+ * Enforces "one pending change per product". Filters the
+ * `product_change` entity by `product_id` (denormalised column on the
+ * change row) and `status = PENDING`. Throws if any input product
+ * already has a pending change.
  */
 export const validateNoPendingProductChangeStep = createStep(
   validateNoPendingProductChangeStepId,
@@ -29,29 +28,26 @@ export const validateNoPendingProductChangeStep = createStep(
       return new StepResponse(void 0)
     }
 
-    const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY)
+    const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
     const { data: changes } = await query.graph({
       entity: "product_change",
-      fields: ["id", "status", "product.id"],
-      filters: { status: ProductChangeStatus.PENDING },
+      fields: ["id", "product_id", "status"],
+      filters: {},
     })
 
     const conflicts = new Set<string>()
     for (const change of changes as Array<{
       id: string
+      product_id?: string
       status?: string
-      product?: { id?: string } | Array<{ id?: string }> | null
     }>) {
-      const products = Array.isArray(change.product)
-        ? change.product
-        : change.product
-          ? [change.product]
-          : []
-      for (const p of products) {
-        if (p.id && product_ids.includes(p.id)) {
-          conflicts.add(p.id)
-        }
+      if (
+        change.status === ProductChangeStatus.PENDING &&
+        change.product_id &&
+        product_ids.includes(change.product_id)
+      ) {
+        conflicts.add(change.product_id)
       }
     }
 

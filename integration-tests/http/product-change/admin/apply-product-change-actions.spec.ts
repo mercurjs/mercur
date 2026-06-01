@@ -52,7 +52,7 @@ medusaIntegrationTestRunner({
           {
             title: "Apply Test Product",
             status: "draft",
-            options: [{ title: "Default", values: ["one"] }],
+            options: [{ title: "Default", values: ["one", "two"] }],
             variants: [
               {
                 title: "Default Variant",
@@ -138,7 +138,7 @@ medusaIntegrationTestRunner({
             variant: {
               title: "Added Variant",
               manage_inventory: false,
-              options: { Default: "one" },
+              options: { Default: "two" },
             },
           },
         )
@@ -229,24 +229,45 @@ medusaIntegrationTestRunner({
         })
 
         const query = appContainer.resolve("query")
-        const { data } = await query.graph({
-          entity: "product",
-          fields: [
-            "id",
-            "attribute_value.id",
-            "variant_attribute.id",
-          ],
-          filters: { id: productId },
+        const { data: values } = await query.graph({
+          entity: "product_attribute_value",
+          fields: ["id", "products.id"],
+          filters: {},
         })
-        const row = data[0] as {
-          attribute_value?: Array<{ id: string }>
-          variant_attribute?: Array<{ id: string }>
-        }
-        expect(row.attribute_value?.map((v) => v.id)).toContain(value.id)
-        // is_variant_axis = true → variant-attribute link also written.
-        expect(row.variant_attribute?.map((a) => a.id)).toContain(
-          attribute.id,
-        )
+        const linkedToProduct = (
+          values as Array<{
+            id: string
+            product?: { id?: string } | Array<{ id?: string }> | null
+          }>
+        ).filter((v) => {
+          const products = Array.isArray(v.products)
+            ? v.products
+            : v.products
+              ? [v.products]
+              : []
+          return products.some((p) => p.id === productId)
+        })
+        expect(linkedToProduct.map((v) => v.id)).toContain(value.id)
+
+        const { data: attrs } = await query.graph({
+          entity: "product_attribute",
+          fields: ["id", "products.id"],
+          filters: {},
+        })
+        const variantLinked = (
+          attrs as Array<{
+            id: string
+            products?: { id?: string } | Array<{ id?: string }> | null
+          }>
+        ).filter((a) => {
+          const products = Array.isArray(a.products)
+            ? a.products
+            : a.products
+              ? [a.products]
+              : []
+          return products.some((p) => p.id === productId)
+        })
+        expect(variantLinked.map((a) => a.id)).toContain(attribute.id)
       })
 
       it("ATTRIBUTE_REMOVE → dismisses both pivots", async () => {
@@ -298,17 +319,25 @@ medusaIntegrationTestRunner({
         })
 
         const query = appContainer.resolve("query")
-        const { data } = await query.graph({
-          entity: "product",
-          fields: ["id", "attribute_value.id", "variant_attribute.id"],
-          filters: { id: productId },
+        const { data: values } = await query.graph({
+          entity: "product_attribute_value",
+          fields: ["id", "products.id"],
+          filters: {},
         })
-        const row = data[0] as {
-          attribute_value?: Array<{ id: string }>
-          variant_attribute?: Array<{ id: string }>
-        }
-        expect(row.attribute_value ?? []).toHaveLength(0)
-        expect(row.variant_attribute ?? []).toHaveLength(0)
+        const stillLinked = (
+          values as Array<{
+            id: string
+            product?: { id?: string } | Array<{ id?: string }> | null
+          }>
+        ).filter((v) => {
+          const products = Array.isArray(v.products)
+            ? v.products
+            : v.products
+              ? [v.products]
+              : []
+          return products.some((p) => p.id === productId)
+        })
+        expect(stillLinked).toHaveLength(0)
       })
 
       it("PRODUCT_DELETE → soft-deletes the product last (audit-trail safe)", async () => {

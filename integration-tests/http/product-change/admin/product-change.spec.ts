@@ -75,25 +75,12 @@ medusaIntegrationTestRunner({
         const query = appContainer.resolve("query")
         const { data } = await query.graph({
           entity: "product_change",
-          fields: ["id", "status", "product.id"],
-          filters: {},
+          fields: ["id", "status", "product_id"],
+          filters: { product_id: productId },
         })
         return (
-          data as Array<{
-            id: string
-            status: string
-            product?: { id?: string } | Array<{ id?: string }> | null
-          }>
-        )
-          .filter((c) => {
-            const products = Array.isArray(c.product)
-              ? c.product
-              : c.product
-                ? [c.product]
-                : []
-            return products.some((p) => p.id === productId)
-          })
-          .map((c) => ({ id: c.id, status: c.status }))
+          data as Array<{ id: string; status: string; product_id?: string }>
+        ).map((c) => ({ id: c.id, status: c.status }))
       }
 
       it("creates a pending change linked to the product", async () => {
@@ -136,19 +123,25 @@ medusaIntegrationTestRunner({
           },
         })
 
-        await expect(
-          createProductChangeWorkflow(appContainer).run({
-            input: {
-              changes: [
-                {
-                  product_id: productId,
-                  status: ProductChangeStatus.PENDING,
-                  created_by: "admin",
-                },
-              ],
-            },
-          }),
-        ).rejects.toThrow(/pending/i)
+        const { errors } = await createProductChangeWorkflow(
+          appContainer,
+        ).run({
+          input: {
+            changes: [
+              {
+                product_id: productId,
+                status: ProductChangeStatus.PENDING,
+                created_by: "admin",
+              },
+            ],
+          },
+          throwOnError: false,
+        })
+        expect(errors?.length ?? 0).toBeGreaterThan(0)
+        const errorMessage = (errors ?? [])
+          .map((e) => (e.error as Error)?.message ?? String(e))
+          .join(" ")
+        expect(errorMessage).toMatch(/pending/i)
       })
 
       it("confirms a pending change and runs apply", async () => {

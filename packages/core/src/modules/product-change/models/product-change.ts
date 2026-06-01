@@ -6,6 +6,7 @@ import ProductChangeAction from "./product-change-action"
 const ProductChange = model
   .define("ProductChange", {
     id: model.id({ prefix: "prodch" }).primaryKey(),
+    product_id: model.text(),
     status: model
       .enum(ProductChangeStatus)
       .default(ProductChangeStatus.PENDING),
@@ -35,6 +36,12 @@ const ProductChange = model
     {
       name: "IDX_product_change_status",
       on: ["status"],
+      unique: false,
+      where: "deleted_at IS NULL",
+    },
+    {
+      name: "IDX_product_change_product_id",
+      on: ["product_id"],
       unique: false,
       where: "deleted_at IS NULL",
     },

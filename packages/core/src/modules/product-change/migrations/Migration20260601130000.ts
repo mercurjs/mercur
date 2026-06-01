@@ -1,10 +1,11 @@
 import { Migration } from "@medusajs/framework/mikro-orm/migrations"
 
-export class Migration20260601120000 extends Migration {
+export class Migration20260601130000 extends Migration {
   override async up(): Promise<void> {
     this.addSql(`
       CREATE TABLE IF NOT EXISTS "product_change" (
         "id" text NOT NULL PRIMARY KEY,
+        "product_id" text NOT NULL,
         "status" text NOT NULL DEFAULT 'pending',
         "internal_note" text NULL,
         "external_note" text NULL,
@@ -28,6 +29,11 @@ export class Migration20260601120000 extends Migration {
     this.addSql(`
       CREATE INDEX IF NOT EXISTS "IDX_product_change_status"
         ON "product_change" ("status")
+        WHERE "deleted_at" IS NULL;
+    `)
+    this.addSql(`
+      CREATE INDEX IF NOT EXISTS "IDX_product_change_product_id"
+        ON "product_change" ("product_id")
         WHERE "deleted_at" IS NULL;
     `)
 

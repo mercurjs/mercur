@@ -10,14 +10,13 @@ import type ProductChangeModuleService from "../../../modules/product-change/ser
 export const createProductChangeStepId = "pc-create-product-change"
 
 /**
- * Scalar create input. Excludes `product_id` because in the new module the
- * `product ↔ change` relationship is a Module Link (`product_change_link`),
- * not a column on the change row. The link is written separately by the
- * composing workflow via `createRemoteLinkStep`. `status` is narrowed to
- * the enum (the DTO declares it as a `string`).
+ * Scalar create input. `product_id` is a real column on the
+ * `ProductChange` model (read-only link to `Product`), so it gets
+ * inserted directly with each change row. `status` is narrowed to the
+ * enum.
  */
 export type CreateProductChangeStepInput = Array<
-  Omit<CreateProductChangeDTO, "product_id" | "status"> & {
+  Omit<CreateProductChangeDTO, "status"> & {
     status?: ProductChangeStatus
   }
 >
