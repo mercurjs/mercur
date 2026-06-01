@@ -1,15 +1,21 @@
 /**
  * Computes a unified `attributes` array on the product by merging
- * variant_attributes, custom_attributes, and attribute_values into
- * a single grouped structure with values nested under each attribute.
+ * `variant_attributes` (Module-Link alias to `ProductAttribute` filtered
+ * by `is_variant_axis = true`) and `attribute_values` (Module-Link alias
+ * to `ProductAttributeValue` selections on the product) into a single
+ * grouped structure with values nested under each attribute.
+ *
+ * The legacy `custom_attributes` relation is gone — product-scoped
+ * "custom" attributes now live on stock Medusa `ProductOption` /
+ * `ProductOptionValue`, queried separately via `options[]`.
  *
  * Mutates the product object in place.
  */
 export function formatProductAttributes(product: any): void {
+  if (!product) return
+
   const hasAttrData =
-    product.variant_attributes ||
-    product.custom_attributes ||
-    product.attribute_values
+    product.variant_attributes || product.attribute_values
 
   if (!hasAttrData) return
 
@@ -17,15 +23,6 @@ export function formatProductAttributes(product: any): void {
 
   for (const attr of product.variant_attributes ?? []) {
     attrsById.set(attr.id, { ...attr, values: [...(attr.values ?? [])] })
-  }
-
-  for (const attr of product.custom_attributes ?? []) {
-    if (!attrsById.has(attr.id)) {
-      attrsById.set(attr.id, {
-        ...attr,
-        values: [...(attr.values ?? [])],
-      })
-    }
   }
 
   for (const val of product.attribute_values ?? []) {

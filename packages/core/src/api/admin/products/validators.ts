@@ -87,6 +87,8 @@ const CreateProductVariant = z
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
+    /** Stock Medusa: maps option title -> chosen value name (e.g. `{ Color: "Blue" }`). */
+    options: z.record(z.string()).optional(),
     // See CreateProductVariantDTO.attribute_values — resolved by the service.
     attribute_values: z
       .record(z.union([z.string(), z.array(z.string())]))
@@ -128,6 +130,7 @@ const UpdateProductVariant = z
         })
       )
       .optional(),
+    options: z.record(z.string()).optional(),
     attribute_values: z
       .record(z.union([z.string(), z.array(z.string())]))
       .optional(),
@@ -217,8 +220,15 @@ const CreateProduct = z
     seller_ids: z.array(z.string()).optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
+    /** Stock Medusa product options: drives variant generation. */
+    options: z
+      .array(z.object({ title: z.string(), values: z.array(z.string()) }))
+      .optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),
     product_attributes: z.array(ProductAttributeInput).optional(),
+    attribute_values: z
+      .record(z.union([z.string(), z.array(z.string())]))
+      .optional(),
     variants: z.array(CreateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -253,8 +263,14 @@ export const UpdateProduct = z
     collection_id: z.string().nullish(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
+    options: z
+      .array(z.object({ title: z.string(), values: z.array(z.string()) }))
+      .optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),
     product_attributes: z.array(ProductAttributeInput).optional(),
+    attribute_values: z
+      .record(z.union([z.string(), z.array(z.string())]))
+      .optional(),
     variants: z.array(UpdateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),

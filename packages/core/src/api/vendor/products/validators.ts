@@ -23,7 +23,6 @@ const VendorGetProductsParamsFields = z.object({
   title: z.string().optional(),
   handle: z.string().optional(),
   status: statusEnum.array().optional(),
-  is_restricted: booleanString().optional(),
   collection_id: z.union([z.string(), z.array(z.string())]).optional(),
   type_id: z.union([z.string(), z.array(z.string())]).optional(),
   category_id: z.union([z.string(), z.array(z.string())]).optional(),
@@ -72,6 +71,8 @@ const CreateProductVariant = z
     origin_country: z.string().optional(),
     material: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
+    /** Stock Medusa: maps option title -> chosen value name (e.g. `{ Color: "Blue" }`). */
+    options: z.record(z.string()).optional(),
     attribute_values: z
       .record(z.union([z.string(), z.array(z.string())]))
       .optional(),
@@ -100,6 +101,7 @@ const UpdateProductVariant = z
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
+    options: z.record(z.string()).optional(),
     attribute_values: z
       .record(z.union([z.string(), z.array(z.string())]))
       .optional(),
@@ -143,6 +145,10 @@ const CreateProduct = z
     collection_id: z.string().optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
+    /** Stock Medusa product options: drives variant generation. */
+    options: z
+      .array(z.object({ title: z.string(), values: z.array(z.string()) }))
+      .optional(),
     product_attributes: z.array(ProductAttributeInput).optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),
     attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
@@ -194,6 +200,10 @@ const UpdateProduct = z
     collection_id: z.string().nullish(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
+    options: z
+      .array(z.object({ title: z.string(), values: z.array(z.string()) }))
+      .optional(),
+    product_attributes: z.array(ProductAttributeInput).optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),
     attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
     variants: z.array(UpdateProductVariant).optional(),

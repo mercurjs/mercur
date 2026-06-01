@@ -16,6 +16,7 @@ export default defineLink(
   {
     ...ProductChangeModule.linkable.productChange.id,
     primaryKey: "product_id",
+    isList: true
   },
   {
     readOnly: true,
