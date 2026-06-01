@@ -1,4 +1,3 @@
-import { Modules } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
 import {
   createHook,
@@ -8,11 +7,7 @@ import {
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import {
-  dismissRemoteLinkStep,
-  emitEventStep,
-} from "@medusajs/medusa/core-flows"
-import { MercurModules } from "@mercurjs/types"
+import { emitEventStep } from "@medusajs/medusa/core-flows"
 
 import { ProductAttributeWorkflowEvents } from "../events"
 import { deleteProductAttributesStep } from "../steps"
@@ -35,6 +30,13 @@ export type DeleteProductAttributesWorkflowHooks = [
 
 export const deleteProductAttributesWorkflowId = "delete-product-attributes"
 
+/**
+ * Soft-deletes attributes. Link rows in `product_attribute_value_link`,
+ * `product_variant_attribute`, etc. are intentionally NOT dismissed here
+ * — they reference values, not the attribute itself, and Mercur's
+ * read-side query filters out soft-deleted attributes via
+ * `deleted_at IS NULL` on the attribute join.
+ */
 export const deleteProductAttributesWorkflow: ReturnWorkflow<
   DeleteProductAttributesWorkflowInput,
   void,
@@ -43,23 +45,6 @@ export const deleteProductAttributesWorkflow: ReturnWorkflow<
   deleteProductAttributesWorkflowId,
   function (input: DeleteProductAttributesWorkflowInput) {
     const validate = createHook("validate", { input })
-
-    // NOTE: mirror-link validation gap — previously enforced via
-    // `validateProductAttributeNotMirroredStep`; dropped to avoid the
-    // full-table scan it required.
-
-    const dismissLinks = transform({ input }, ({ input }) =>
-      input.ids.flatMap((id) => [
-        {
-          [MercurModules.PRODUCT_ATTRIBUTE]: { product_attribute_id: id },
-          [Modules.PRODUCT]: {},
-        },
-      ]),
-    )
-
-    dismissRemoteLinkStep(dismissLinks).config({
-      name: "pa-dismiss-attribute-links",
-    })
 
     deleteProductAttributesStep(input.ids)
 

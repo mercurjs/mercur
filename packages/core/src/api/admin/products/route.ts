@@ -48,11 +48,10 @@ export const POST = async (
       products: [{
         ...productData,
         created_by_actor: 'admin',
-        created_by: req.auth_context.actor_id
-      } as unknown as CreateProductDTO],
-      seller_ids,
+        created_by: req.auth_context.actor_id,
+      }],
       additional_data,
-    },
+    } as any,
   })
 
   const createdId = (result as { id: string }[])[0].id

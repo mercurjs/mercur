@@ -15,7 +15,7 @@ import {
 import {
   applyProductChangeActionsWorkflow,
   createProductChangeWorkflow,
-} from "../../../../packages/core/src/workflows/product-change"
+} from "@mercurjs/core/workflows"
 
 jest.setTimeout(50000)
 

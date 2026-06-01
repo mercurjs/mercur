@@ -10,8 +10,8 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { deleteProductCategoriesWorkflow } from "../../../../workflows/product/workflows/delete-product-categories"
-import { updateProductCategoriesWorkflow } from "../../../../workflows/product/workflows/update-product-categories"
+import { deleteProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
+import { updateProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 import { AdminUpdateProductCategoryType } from "../validators"
 
 export const GET = async (
@@ -48,8 +48,9 @@ export const POST = async (
 
   await updateProductCategoriesWorkflow(req.scope).run({
     input: {
-      categories: [{ id: req.params.id, ...update }],
-    },
+      selector: { id: req.params.id },
+      update,
+    } as any,
   })
 
   const {
@@ -75,7 +76,7 @@ export const DELETE = async (
   res: MedusaResponse<HttpTypes.AdminProductCategoryDeleteResponse>
 ) => {
   await deleteProductCategoriesWorkflow(req.scope).run({
-    input: { ids: [req.params.id] },
+    input: [req.params.id] as any,
   })
 
   res.status(200).json({

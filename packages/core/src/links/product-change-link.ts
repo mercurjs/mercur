@@ -4,10 +4,7 @@ import ProductModule from "@medusajs/medusa/product"
 import ProductChangeModule from "../modules/product-change"
 
 export default defineLink(
-  {
-    linkable: ProductModule.linkable.product,
-    isList: true,
-  },
+  ProductModule.linkable.product,
   {
     linkable: ProductChangeModule.linkable.productChange,
     field: "change",
@@ -17,5 +14,5 @@ export default defineLink(
     database: {
       table: "product_change_link",
     },
-  }
+  },
 )

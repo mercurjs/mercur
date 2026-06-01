@@ -255,16 +255,16 @@ export type Routes = {
                         batch: typeof import("@medusajs/medusa/api/admin/products/[id]/variants/inventory-items/batch/route");
                     };
                 };
-                attributes: typeof import("../../src/api/admin/products/[id]/attributes/route") & {
-                    $attributeId: typeof import("../../src/api/admin/products/[id]/attributes/[attribute_id]/route");
-                    batch: typeof import("../../src/api/admin/products/[id]/attributes/batch/route");
+                attributes: typeof import("@mercurjs/core/api/admin/products/[id]/attributes/route") & {
+                    $attributeId: typeof import("@mercurjs/core/api/admin/products/[id]/attributes/[attribute_id]/route");
+                    batch: typeof import("@mercurjs/core/api/admin/products/[id]/attributes/batch/route");
                 };
-                confirm: typeof import("../../src/api/admin/products/[id]/confirm/route");
-                preview: typeof import("../../src/api/admin/products/[id]/preview/route");
-                reject: typeof import("../../src/api/admin/products/[id]/reject/route");
-                requestChanges: typeof import("../../src/api/admin/products/[id]/request-changes/route");
+                confirm: typeof import("@mercurjs/core/api/admin/products/[id]/confirm/route");
+                preview: typeof import("@mercurjs/core/api/admin/products/[id]/preview/route");
+                reject: typeof import("@mercurjs/core/api/admin/products/[id]/reject/route");
+                requestChanges: typeof import("@mercurjs/core/api/admin/products/[id]/request-changes/route");
             };
-            batch: typeof import("../../src/api/admin/products/batch/route");
+            batch: typeof import("@mercurjs/core/api/admin/products/batch/route");
             export: typeof import("@medusajs/medusa/api/admin/products/export/route");
             import: typeof import("@medusajs/medusa/api/admin/products/import/route") & {
                 $transactionId: {
@@ -696,15 +696,15 @@ export type Routes = {
             $id: typeof import("../../src/api/vendor/product-types/[id]/route");
         };
         productVariants: typeof import("../../src/api/vendor/product-variants/route");
-        products: typeof import("../../src/api/vendor/products/route") & {
-            $id: typeof import("../../src/api/vendor/products/[id]/route") & {
-                attributes: typeof import("../../src/api/vendor/products/[id]/attributes/route") & {
-                    $attributeId: typeof import("../../src/api/vendor/products/[id]/attributes/[attribute_id]/route");
+        products: typeof import("@mercurjs/core/api/vendor/products/route") & {
+            $id: typeof import("@mercurjs/core/api/vendor/products/[id]/route") & {
+                attributes: typeof import("@mercurjs/core/api/vendor/products/[id]/attributes/route") & {
+                    $attributeId: typeof import("@mercurjs/core/api/vendor/products/[id]/attributes/[attribute_id]/route");
                 };
-                cancel: typeof import("../../src/api/vendor/products/[id]/cancel/route");
+                cancel: typeof import("@mercurjs/core/api/vendor/products/[id]/cancel/route");
                 preview: typeof import("../../src/api/vendor/products/[id]/preview/route");
-                variants: typeof import("../../src/api/vendor/products/[id]/variants/route") & {
-                    $variantId: typeof import("../../src/api/vendor/products/[id]/variants/[variant_id]/route");
+                variants: typeof import("@mercurjs/core/api/vendor/products/[id]/variants/route") & {
+                    $variantId: typeof import("@mercurjs/core/api/vendor/products/[id]/variants/[variant_id]/route");
                 };
             };
         };

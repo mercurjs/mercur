@@ -7,7 +7,7 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
-import { cancelProductEditWorkflow } from "../../../../../workflows/product-edit/workflows/cancel-product-edit"
+import { cancelProductChangeWorkflow } from "../../../../../workflows/product-change/workflows/cancel-product-change"
 import { AdminCancelProductChangeType } from "../../validators"
 
 /**
@@ -23,11 +23,10 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  await cancelProductEditWorkflow(req.scope).run({
+  await cancelProductChangeWorkflow(req.scope).run({
     input: {
-      product_change_id: req.params.id,
-      actor_id: req.auth_context?.actor_id,
-      internal_note: req.validatedBody?.internal_note,
+      id: req.params.id,
+      canceled_by: req.auth_context?.actor_id,
     },
   })
 

@@ -3,7 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 
-import { confirmProductEditWorkflow } from "../../../../../workflows/product-edit/workflows/confirm-product-edit"
+import { confirmProductChangeWorkflow } from "../../../../../workflows/product-change/workflows/confirm-product-change"
 import { AdminConfirmProductChangeType } from "../../validators"
 
 /**
@@ -17,10 +17,10 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<AdminConfirmProductChangeType>,
   res: MedusaResponse
 ) => {
-  await confirmProductEditWorkflow(req.scope).run({
+  await confirmProductChangeWorkflow(req.scope).run({
     input: {
-      product_change_id: req.params.id,
-      actor_id: req.auth_context?.actor_id,
+      ids: [req.params.id],
+      confirmed_by: req.auth_context?.actor_id,
       internal_note: req.validatedBody?.internal_note,
     },
   })

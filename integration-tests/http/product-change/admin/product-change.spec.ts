@@ -16,7 +16,7 @@ import {
   rejectProductChangeWorkflow,
   requestProductChangesWorkflow,
   resubmitProductChangeWorkflow,
-} from "../../../../packages/core/src/workflows/product-change"
+} from "@mercurjs/core/workflows"
 
 jest.setTimeout(50000)
 
@@ -74,12 +74,26 @@ medusaIntegrationTestRunner({
       const listChanges = async (productId: string) => {
         const query = appContainer.resolve("query")
         const { data } = await query.graph({
-          entity: "product",
-          fields: ["id", "changes.id", "changes.status"],
-          filters: { id: productId },
+          entity: "product_change",
+          fields: ["id", "status", "product.id"],
+          filters: {},
         })
-        return (data[0] as { changes?: Array<{ id: string; status: string }> })
-          .changes ?? []
+        return (
+          data as Array<{
+            id: string
+            status: string
+            product?: { id?: string } | Array<{ id?: string }> | null
+          }>
+        )
+          .filter((c) => {
+            const products = Array.isArray(c.product)
+              ? c.product
+              : c.product
+                ? [c.product]
+                : []
+            return products.some((p) => p.id === productId)
+          })
+          .map((c) => ({ id: c.id, status: c.status }))
       }
 
       it("creates a pending change linked to the product", async () => {

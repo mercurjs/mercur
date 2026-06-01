@@ -6,7 +6,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { createProductCategoriesWorkflow } from "../../../workflows/product/workflows/create-product-categories"
+import { createProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 import { AdminCreateProductCategoryType } from "./validators"
 
 export const GET = async (
@@ -40,8 +40,8 @@ export const POST = async (
 
   const { result } = await createProductCategoriesWorkflow(req.scope).run({
     input: {
-      categories: [payload],
-    },
+      product_categories: [payload],
+    } as any,
   })
 
   const createdId = result[0].id

@@ -14,9 +14,10 @@ type ValidateNoPendingProductChangeStepInput = {
 }
 
 /**
- * Enforces "one pending change per product" by reading through the
- * `product_change_link` pivot. Throws if any of the input products
- * already has a `PENDING` change linked.
+ * Enforces "one pending change per product". Queries the
+ * `product_change` entity directly with `status = PENDING` and joins
+ * the linked product through the `product_change_link` pivot. Throws
+ * if any of the input products already has a pending change linked.
  */
 export const validateNoPendingProductChangeStep = createStep(
   validateNoPendingProductChangeStepId,
@@ -30,29 +31,34 @@ export const validateNoPendingProductChangeStep = createStep(
 
     const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY)
 
-    const { data: products } = await query.graph({
-      entity: "product",
-      fields: ["id", "changes.id", "changes.status"],
-      filters: { id: product_ids },
+    const { data: changes } = await query.graph({
+      entity: "product_change",
+      fields: ["id", "status", "product.id"],
+      filters: { status: ProductChangeStatus.PENDING },
     })
 
-    const conflicts: string[] = []
-    for (const product of products as Array<{
+    const conflicts = new Set<string>()
+    for (const change of changes as Array<{
       id: string
-      changes?: Array<{ id: string; status?: string | null }>
+      status?: string
+      product?: { id?: string } | Array<{ id?: string }> | null
     }>) {
-      const hasPending = (product.changes ?? []).some(
-        (c) => c.status === ProductChangeStatus.PENDING,
-      )
-      if (hasPending) {
-        conflicts.push(product.id)
+      const products = Array.isArray(change.product)
+        ? change.product
+        : change.product
+          ? [change.product]
+          : []
+      for (const p of products) {
+        if (p.id && product_ids.includes(p.id)) {
+          conflicts.add(p.id)
+        }
       }
     }
 
-    if (conflicts.length) {
+    if (conflicts.size) {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
-        `Product(s) [${conflicts.join(", ")}] already have a pending product change. Resolve it before opening a new one.`,
+        `Product(s) [${[...conflicts].join(", ")}] already have a pending product change. Resolve it before opening a new one.`,
       )
     }
 

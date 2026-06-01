@@ -8,11 +8,11 @@ import {
   createAdminUser,
 } from "../../../helpers/create-admin-user"
 
-import { getProductsWithDetailsWorkflow } from "../../../../packages/core/src/workflows/product/workflows/get-products-with-details"
+import { getProductsWithDetailsWorkflow } from "@mercurjs/core/workflows"
 import {
   createProductChangeWorkflow,
   requestProductChangesWorkflow,
-} from "../../../../packages/core/src/workflows/product-change"
+} from "@mercurjs/core/workflows"
 
 jest.setTimeout(50000)
 

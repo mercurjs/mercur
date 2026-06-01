@@ -52,9 +52,9 @@ export const POST = async (
   await updateProductsWorkflow(req.scope).run({
     input: {
       selector: { id: req.params.id },
-      data: update as Record<string, unknown>,
+      update: update as Record<string, unknown>,
       additional_data,
-    },
+    } as any,
   })
 
   const {

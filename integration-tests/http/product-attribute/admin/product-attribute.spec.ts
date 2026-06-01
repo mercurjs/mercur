@@ -13,7 +13,7 @@ import {
   deleteProductAttributesWorkflow,
   updateProductAttributesWorkflow,
   upsertProductAttributeValuesWorkflow,
-} from "../../../../packages/core/src/workflows/product-attribute"
+} from "@mercurjs/core/workflows"
 
 jest.setTimeout(50000)
 
@@ -35,7 +35,7 @@ medusaIntegrationTestRunner({
         await createAdminUser(dbConnection, adminHeaders, appContainer)
       })
 
-      it("creates a product attribute with values", async () => {
+      it("creates a product attribute, then values via createProductAttributeValuesWorkflow", async () => {
         const { result: attributes } = await createProductAttributesWorkflow(
           appContainer,
         ).run({
@@ -47,10 +47,6 @@ medusaIntegrationTestRunner({
                 type: "multi_select",
                 is_variant_axis: true,
                 is_filterable: true,
-                values: [
-                  { name: "Small", handle: "small", rank: 0 },
-                  { name: "Medium", handle: "medium", rank: 1 },
-                ],
               },
             ],
           },
@@ -58,6 +54,16 @@ medusaIntegrationTestRunner({
 
         expect(attributes).toHaveLength(1)
         expect(attributes[0].name).toBe("Size")
+
+        await createProductAttributeValuesWorkflow(appContainer).run({
+          input: {
+            attribute_id: attributes[0].id,
+            values: [
+              { name: "Small", handle: "small", rank: 0 },
+              { name: "Medium", handle: "medium", rank: 1 },
+            ],
+          },
+        })
 
         const module = appContainer.resolve(MercurModules.PRODUCT_ATTRIBUTE)
         const values = await module.listProductAttributeValues({
@@ -87,13 +93,11 @@ medusaIntegrationTestRunner({
 
         await updateProductAttributesWorkflow(appContainer).run({
           input: {
-            attributes: [
-              {
-                id: created[0].id,
-                is_filterable: true,
-                description: "Filterable now",
-              },
-            ],
+            selector: { id: created[0].id },
+            update: {
+              is_filterable: true,
+              description: "Filterable now",
+            },
           },
         })
 
@@ -121,9 +125,9 @@ medusaIntegrationTestRunner({
         const { result: created } =
           await createProductAttributeValuesWorkflow(appContainer).run({
             input: {
+              attribute_id: attribute[0].id,
               values: [
                 {
-                  attribute_id: attribute[0].id,
                   name: "Cotton",
                   handle: "cotton",
                   rank: 0,
