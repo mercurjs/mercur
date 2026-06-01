@@ -29,9 +29,7 @@ export const GET = async (
   for (const product of products) {
     formatProductAttributes(product)
   }
-  await Promise.all(
-    products.map((p: any) => enrichProductAttributes(req.scope, p)),
-  )
+  await enrichProductAttributes(req.scope, products as any[])
 
   res.json({
     products,
@@ -71,7 +69,7 @@ export const POST = async (
   })
 
   formatProductAttributes(product)
-  await enrichProductAttributes(req.scope, product)
+  await enrichProductAttributes(req.scope, [product])
 
   res.status(200).json({ product })
 }

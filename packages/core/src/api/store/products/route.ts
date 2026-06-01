@@ -4,6 +4,11 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
+import {
+  enrichProductAttributes,
+  formatProductAttributes,
+} from "../../utils"
+
 export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -23,6 +28,11 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
     filters: productFilters,
     pagination: req.queryConfig.pagination,
   })
+
+  for (const product of products) {
+    formatProductAttributes(product)
+  }
+  await enrichProductAttributes(req.scope, products as any[])
 
   res.json({
     products,

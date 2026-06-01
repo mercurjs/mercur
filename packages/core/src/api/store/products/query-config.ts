@@ -28,14 +28,15 @@ export const defaultStoreProductFields = [
   "*images",
   "*categories",
   "*variants",
-  "*variants.attribute_values",
-  "*variants.attribute_values.attribute",
-  "*variant_attributes",
-  "*variant_attributes.values",
-  "*custom_attributes",
-  "*custom_attributes.values",
-  "*attribute_values",
-  "*attribute_values.attribute",
+  "*variants.options",
+  "*options",
+  "*options.values",
+  // Linked product-attribute value ids — the GET handler enriches
+  // these into `product.attributes` via separate queries against the
+  // product-attribute module. Cross-module chained populate (e.g.
+  // `*attribute_values.attribute.values`) crashes MikroORM's
+  // `expandDotPaths`, so we keep the joiner request single-hop.
+  "attribute_values.id",
 ]
 
 export const storeProductQueryConfig = {

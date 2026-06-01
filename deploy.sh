@@ -59,6 +59,14 @@ cat > "$DEPLOY_DIR/packages/api/.mercur/_generated/index.ts" <<'STUB'
 export type Routes = any
 STUB
 
+# Re-create the appDir symlinks for admin-ui / vendor-ui modules.
+# The compiled medusa-config.js runs from .medusa/server/, two folders
+# deeper than the source. Its `path.join(__dirname, '../../apps/admin')`
+# resolves to packages/api/apps/admin, which doesn't exist by default.
+mkdir -p "$DEPLOY_DIR/packages/api/apps"
+ln -sfn "$DEPLOY_DIR/apps/admin" "$DEPLOY_DIR/packages/api/apps/admin"
+ln -sfn "$DEPLOY_DIR/apps/vendor" "$DEPLOY_DIR/packages/api/apps/vendor"
+
 # 3. Install + build the workspace
 cd "$DEPLOY_DIR"
 log "yarn install (workspace)"

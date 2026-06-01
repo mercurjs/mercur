@@ -40,7 +40,7 @@ export const GET = async (
   }
 
   formatProductAttributes(product)
-  await enrichProductAttributes(req.scope, product)
+  await enrichProductAttributes(req.scope, [product])
 
   res.json({ product })
 }
@@ -77,7 +77,7 @@ export const POST = async (
   }
 
   formatProductAttributes(product)
-  await enrichProductAttributes(req.scope, product)
+  await enrichProductAttributes(req.scope, [product])
 
   res.json({ product })
 }
