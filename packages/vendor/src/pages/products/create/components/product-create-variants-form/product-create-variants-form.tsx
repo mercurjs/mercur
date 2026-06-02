@@ -99,7 +99,7 @@ const useColumns = ({
           return (
             <DataGrid.ReadonlyCell context={context}>
               {variantAxes
-                .map((a) => context.row.original.attribute_values?.[a.title])
+                .map((a) => context.row.original.options?.[a.title])
                 .join(" / ")}
             </DataGrid.ReadonlyCell>
           )

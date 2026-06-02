@@ -334,6 +334,52 @@ export const AdminRequestProductChanges = z.object({
   message: z.string().optional(),
 })
 
+// --- Batch product variants ---
+
+const BatchVariantCreateItem = CreateProductVariant
+const BatchVariantUpdateItem = UpdateProductVariant.extend({
+  id: z.string(),
+})
+
+const BatchProductVariants = z.object({
+  create: z.array(BatchVariantCreateItem).optional(),
+  update: z.array(BatchVariantUpdateItem).optional(),
+  delete: z.array(z.string()).optional(),
+})
+
+export type AdminBatchProductVariantsType = z.infer<typeof BatchProductVariants>
+export const AdminBatchProductVariants = BatchProductVariants
+
+// --- Batch variant ↔ inventory-item links ---
+
+const BatchVariantInventoryCreate = z
+  .object({
+    variant_id: z.string(),
+    inventory_item_id: z.string(),
+    required_quantity: z.number().nonnegative().optional(),
+  })
+  .strict()
+
+const BatchVariantInventoryUpdate = BatchVariantInventoryCreate
+
+const BatchVariantInventoryDelete = z
+  .object({
+    variant_id: z.string(),
+    inventory_item_id: z.string(),
+  })
+  .strict()
+
+const BatchVariantInventoryItems = z.object({
+  create: z.array(BatchVariantInventoryCreate).optional(),
+  update: z.array(BatchVariantInventoryUpdate).optional(),
+  delete: z.array(BatchVariantInventoryDelete).optional(),
+})
+
+export type AdminBatchVariantInventoryItemsType = z.infer<
+  typeof AdminBatchVariantInventoryItems
+>
+export const AdminBatchVariantInventoryItems = BatchVariantInventoryItems
+
 // --- Batch products ---
 
 const BatchProductsUpdateItem = UpdateProduct.extend({
@@ -371,3 +417,57 @@ export const AdminBatchProductAttributes = z.object({
   create: z.array(BatchProductAttributeCreate).optional(),
   delete: z.array(z.string()).optional(),
 })
+
+// --- Attach single product attribute ---
+//
+// Mirror of `VendorAddProductAttribute` for the admin surface. Used by
+// `POST /admin/products/:id/attributes`. Two shapes share a single
+// flat body (the middleware-friendly form); the route branches on the
+// presence of `attribute_id` vs `name`:
+//
+//   1. **Attach existing** — `{ attribute_id, attribute_value_ids? | values? }`.
+//      `attribute_value_ids` for select types; `values` (names) for
+//      text/unit/toggle types where the value is upserted by name.
+//
+//   2. **Inline create** — `{ name, type, values?, is_variant_axis?, ... }`.
+//      Creates a product-scoped `ProductAttribute` (hidden from the
+//      global `/admin/product-attributes` catalogue), materialises its
+//      values, and links them to the product. Mirrors the inline shape
+//      accepted inside the product create payload's `product_attributes`
+//      / `variant_attributes` arrays.
+
+export type AdminAddProductAttributeType = z.infer<
+  typeof AdminAddProductAttribute
+>
+export const AdminAddProductAttribute = z
+  .object({
+    attribute_id: z.string().optional(),
+    attribute_value_ids: z.array(z.string()).optional(),
+    name: z.string().min(1).optional(),
+    type: AttributeTypeEnum.optional(),
+    is_variant_axis: z.boolean().optional(),
+    is_filterable: z.boolean().optional(),
+    is_required: z.boolean().optional(),
+    description: z.string().nullish(),
+    metadata: z.record(z.unknown()).nullish(),
+    values: z.array(z.string()).optional(),
+  })
+  .strict()
+  .refine(
+    (data) => Boolean(data.attribute_id) !== Boolean(data.name),
+    {
+      message:
+        "Provide either `attribute_id` (attach existing) or `name` (inline create), not both.",
+    },
+  )
+  .refine((data) => !data.name || !!data.type, {
+    message: "Inline-create branch requires `type`.",
+    path: ["type"],
+  })
+  .refine(
+    (data) => !data.attribute_id || data.type === undefined,
+    {
+      message: "`type` is only valid with the inline-create branch.",
+      path: ["type"],
+    },
+  )

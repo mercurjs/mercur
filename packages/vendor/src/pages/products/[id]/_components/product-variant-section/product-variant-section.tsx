@@ -2,10 +2,7 @@ import { useCallback, useMemo } from "react";
 
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
-import {
-  ProductAttributeDTO,
-  ProductAttributeValueDTO,
-} from "@mercurjs/types";
+import { ProductDTO } from "@mercurjs/types";
 import {
   Badge,
   Container,
@@ -57,7 +54,7 @@ export const ProductVariantSection = ({
       created_at: created_at ? JSON.parse(created_at) : undefined,
       updated_at: updated_at ? JSON.parse(updated_at) : undefined,
       fields:
-        "title,created_at,updated_at,*attribute_values,*attribute_values.attribute",
+        "title,created_at,updated_at,*options,*options.option",
     },
     {
       placeholderData: keepPreviousData,
@@ -151,52 +148,14 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
     [mutateAsync, prompt, t],
   );
 
-  const optionColumns = useMemo(() => {
-    if (!product?.options) {
-      return [];
-    }
-
-    return product.options.map((option) => {
-      return columnHelper.display({
-        id: option.id,
-        header: option.title,
-        cell: ({ row }) => {
-          const variantOpt = row.original.options?.find(
-            (opt) => opt.option_id === option.id,
-          );
-
-          if (!variantOpt) {
-            return <span className="text-ui-fg-muted">-</span>;
-          }
-
-          return (
-            <div
-              className="flex items-center"
-              data-testid={`product-variant-option-${option.id}-${row.original.id}`}
-            >
-              <Tooltip content={variantOpt.value}>
-                <Badge
-                  size="2xsmall"
-                  title={variantOpt.value}
-                  className="inline-flex min-w-[20px] max-w-[140px] items-center justify-center overflow-hidden truncate"
-                  data-testid={`product-variant-option-badge-${option.id}-${row.original.id}-${variantOpt.value}`}
-                >
-                  {variantOpt.value}
-                </Badge>
-              </Tooltip>
-            </div>
-          );
-        },
-      });
-    });
-  }, [product]);
-
+  // Under SPEC-008 the variant table surfaces only axis attributes.
+  // Stock Medusa stores the per-variant value as a ProductOptionValue
+  // on `variant.options[]` (keyed by `option.title`, which the wrapper
+  // synthesizes from the attribute name). Read from there.
   const attributeColumns = useMemo(() => {
     const variantAttributes = (
-      product as HttpTypes.AdminProduct & {
-        variant_attributes?: ProductAttributeDTO[];
-      }
-    )?.variant_attributes?.filter((attr) => attr.is_variant_axis);
+      product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">
+    )?.attributes?.filter((attr) => attr.is_variant_axis);
 
     if (!variantAttributes?.length) {
       return [];
@@ -207,16 +166,11 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
         id: `attribute-${attribute.id}`,
         header: attribute.name,
         cell: ({ row }) => {
-          const variant = row.original as HttpTypes.AdminProductVariant & {
-            attribute_values?: ProductAttributeValueDTO[];
-          };
+          const variantOpt = row.original.options?.find(
+            (opt) => opt.option?.title === attribute.name,
+          );
 
-          const matches =
-            variant.attribute_values?.filter(
-              (v) => v.attribute?.id === attribute.id,
-            ) ?? [];
-
-          if (!matches.length) {
+          if (!variantOpt?.value) {
             return <span className="text-ui-fg-muted">-</span>;
           }
 
@@ -225,18 +179,16 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
               className="flex flex-wrap items-center gap-1"
               data-testid={`product-variant-attribute-${attribute.id}-${row.original.id}`}
             >
-              {matches.map((value) => (
-                <Tooltip key={value.id} content={value.name}>
-                  <Badge
-                    size="2xsmall"
-                    title={value.name}
-                    className="inline-flex min-w-[20px] max-w-[140px] items-center justify-center overflow-hidden truncate"
-                    data-testid={`product-variant-attribute-badge-${attribute.id}-${row.original.id}-${value.name}`}
-                  >
-                    {value.name}
-                  </Badge>
-                </Tooltip>
-              ))}
+              <Tooltip content={variantOpt.value}>
+                <Badge
+                  size="2xsmall"
+                  title={variantOpt.value}
+                  className="inline-flex min-w-[20px] max-w-[140px] items-center justify-center overflow-hidden truncate"
+                  data-testid={`product-variant-attribute-badge-${attribute.id}-${row.original.id}-${variantOpt.value}`}
+                >
+                  {variantOpt.value}
+                </Badge>
+              </Tooltip>
             </div>
           );
         },
@@ -287,14 +239,13 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
         sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
         sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
       }),
-      ...optionColumns,
       ...attributeColumns,
       ...dateColumns,
       columnHelper.action({
         actions: getActions,
       }),
     ];
-  }, [t, optionColumns, attributeColumns, dateColumns, getActions]);
+  }, [t, attributeColumns, dateColumns, getActions]);
 };
 
 const useFilters = () => {

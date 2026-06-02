@@ -26,7 +26,7 @@ const ProductCreateVariantSchema = z.object({
   material: z.string().optional(),
   origin_country: z.string().optional(),
   sku: z.string().optional(),
-  attribute_values: z.record(z.string(), z.string()).optional(),
+  options: z.record(z.string(), z.string()).optional(),
   variant_rank: z.number(),
 })
 
@@ -126,7 +126,7 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
       title: i18n.t("products.create.defaults.variantTitle"),
       should_create: true,
       variant_rank: 0,
-      attribute_values: {},
+      options: {},
       is_default: true,
     },
   ]),

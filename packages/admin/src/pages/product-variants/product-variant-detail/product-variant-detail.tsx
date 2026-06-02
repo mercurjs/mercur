@@ -7,8 +7,6 @@ import { useProductVariant } from "../../../hooks/api/products";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { VariantGeneralSection } from "./components/variant-general-section";
-import { VariantInventorySectionConnected } from "./components/variant-inventory-section";
-import { VariantPricesSection } from "./components/variant-prices-section";
 import { variantLoader } from "./loader";
 
 const Root = ({ children }: { children?: ReactNode }) => {
@@ -20,7 +18,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { variant: rawVariant, isLoading, isError, error } = useProductVariant(
     id!,
     variant_id!,
-    {},
+    { fields: "*options,*options.option" },
     {
       initialData,
     },
@@ -30,8 +28,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
   if (isLoading || !variant) {
     return (
       <TwoColumnPageSkeleton
-        mainSections={2}
-        sidebarSections={1}
+        mainSections={1}
+        sidebarSections={0}
         showJSON
         showMetadata
       />
@@ -50,11 +48,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
     <TwoColumnPage data={variant} showJSON showMetadata hasOutlet>
       <TwoColumnPage.Main>
         <VariantGeneralSection variant={variant} />
-        <VariantInventorySectionConnected variant={variant} />
       </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>
-        <VariantPricesSection variant={variant} />
-      </TwoColumnPage.Sidebar>
+      <TwoColumnPage.Sidebar>{null}</TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );
 };
@@ -63,6 +58,4 @@ export const ProductVariantDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: VariantGeneralSection,
-  MainInventorySection: VariantInventorySectionConnected,
-  SidebarPricesSection: VariantPricesSection,
 });

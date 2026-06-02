@@ -3,7 +3,7 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
-import { ProductAttributeDTO, AttributeType } from "@mercurjs/types"
+import { ProductDTO, AttributeType } from "@mercurjs/types"
 
 import { Form } from "@components/common/form"
 import { AttributeValueInput } from "@components/inputs/attribute-value-input"
@@ -21,10 +21,8 @@ function DetailsTab({ product }: DetailsTabProps) {
 
   const variantAttributes =
     (
-      product as HttpTypes.AdminProduct & {
-        variant_attributes?: ProductAttributeDTO[]
-      }
-    ).variant_attributes?.filter((a) => a.is_variant_axis) ?? []
+      product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">
+    ).attributes?.filter((a) => a.is_variant_axis) ?? []
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto">
@@ -70,7 +68,7 @@ function DetailsTab({ product }: DetailsTabProps) {
               <Form.Field
                 key={attribute.id}
                 control={form.control}
-                name={`attribute_values.${fieldKey}`}
+                name={`options.${fieldKey}`}
                 render={({ field: { value, onChange } }) => {
                   return (
                     <Form.Item>
@@ -102,7 +100,7 @@ function DetailsTab({ product }: DetailsTabProps) {
 DetailsTab._tabMeta = defineTabMeta<z.infer<typeof CreateProductVariantSchema>>({
   id: "detail",
   labelKey: "priceLists.create.tabs.details",
-  validationFields: ["title", "sku", "attribute_values"],
+  validationFields: ["title", "sku", "options"],
 })
 
 export default DetailsTab

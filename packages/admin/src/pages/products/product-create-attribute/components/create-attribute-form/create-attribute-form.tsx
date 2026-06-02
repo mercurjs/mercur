@@ -55,7 +55,7 @@ export const CreateAttributeForm = ({
         name: data.title,
         type: data.use_for_variants ? "multi_select" : "text",
         is_variant_axis: data.use_for_variants,
-        values: values.map((v, i) => ({ name: v, rank: i })),
+        values,
       },
       {
         onSuccess: () => {

@@ -5,6 +5,7 @@ import { DeepPartial, useForm } from "react-hook-form"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
+import { ProductDTO } from "@mercurjs/types"
 import { useRouteModal } from "@components/modals"
 import { TabbedForm } from "@components/tabbed-form/tabbed-form"
 import { useCreateProductVariant } from "@hooks/api/products"
@@ -25,7 +26,7 @@ type CreateProductVariantFormProps = {
 const CREATE_VARIANT_DEFAULTS: DeepPartial<CreateProductVariantSchemaType> = {
   sku: "",
   title: "",
-  attribute_values: {},
+  options: {},
 }
 
 export const CreateProductVariantForm = ({
@@ -46,20 +47,31 @@ export const CreateProductVariantForm = ({
 
   const { mutateAsync, isPending } = useCreateProductVariant(product.id)
 
-  const handleSubmit = form.handleSubmit(async (data) => {
-    const { title, attribute_values } = data
+  const variantAttributes =
+    (
+      product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">
+    ).attributes?.filter((a) => a.is_variant_axis) ?? []
 
-    const cleanedAttributeValues = Object.fromEntries(
-      Object.entries(attribute_values ?? {}).filter(([, v]) =>
-        Array.isArray(v) ? v.length > 0 : !!v
-      )
-    ) as Record<string, string | string[]>
+  const handleSubmit = form.handleSubmit(async (data) => {
+    const { title, options } = data
+
+    // Form keys variant fields by `handle ?? id`; backend keys options
+    // by option title (= attribute name). Remap before submitting.
+    const cleanedOptions = variantAttributes.reduce<Record<string, string>>(
+      (acc, attr) => {
+        const fieldKey = attr.handle ?? attr.id
+        const v = options?.[fieldKey]
+        if (v && attr.name) acc[attr.name] = v
+        return acc
+      },
+      {},
+    )
 
     await mutateAsync(
       {
         title,
-        attribute_values: Object.keys(cleanedAttributeValues).length
-          ? cleanedAttributeValues
+        options: Object.keys(cleanedOptions).length
+          ? cleanedOptions
           : undefined,
       },
       {

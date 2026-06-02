@@ -36,30 +36,29 @@ medusaIntegrationTestRunner({
         is_variant_axis?: boolean
         values?: string[]
       }) => {
+        // Single-call inline-values path. The create-attribute workflow
+        // materialises the value rows after the attribute itself —
+        // no separate POST to `/values` needed.
         const created = await api.post(
           `/admin/product-attributes`,
           {
             name: opts.name,
             type: opts.type,
             is_variant_axis: opts.is_variant_axis ?? false,
+            values: (opts.values ?? []).map((name, idx) => ({
+              name,
+              rank: idx,
+            })),
           },
           adminHeaders,
         )
         const attribute_id = created.data.product_attribute.id
-        const values = opts.values?.length
-          ? (
-              await api.post(
-                `/admin/product-attributes/${attribute_id}/values`,
-                { values: opts.values.map((name) => ({ name })) },
-                adminHeaders,
-              )
-            ).data.product_attribute.values
-          : []
+        const values =
+          (created.data.product_attribute.values as
+            | Array<{ id: string; name: string }>
+            | undefined) ?? []
         const byName = new Map<string, string>(
-          (values as Array<{ id: string; name: string }>).map((v) => [
-            v.name,
-            v.id,
-          ]),
+          values.map((v) => [v.name, v.id]),
         )
         return { attribute_id, values, byName }
       }
@@ -508,6 +507,86 @@ medusaIntegrationTestRunner({
               seller2Headers,
             ),
           ).rejects.toMatchObject({ response: { status: 404 } })
+        })
+      })
+
+      describe("POST /vendor/products/:id/attributes (inline create branch)", () => {
+        it("inline creates a product-scoped non-axis attribute and attaches its values", async () => {
+          const create = await api.post(
+            `/vendor/products`,
+            { title: "Vendor Inline Note" },
+            seller1Headers,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/vendor/products/${productId}/attributes`,
+            {
+              name: "VendorInlineNote",
+              type: "text",
+              values: ["Handmade"],
+              is_variant_axis: false,
+            },
+            seller1Headers,
+          )
+          expect(res.status).toBe(201)
+
+          const got = await api.get(
+            `/vendor/products/${productId}/attributes`,
+            seller1Headers,
+          )
+          expect(got.data.product_attributes).toHaveLength(1)
+          expect(got.data.product_attributes[0].name).toBe("VendorInlineNote")
+
+          // Product-scoped — not exposed by the global vendor catalogue.
+          const list = await api.get(
+            `/vendor/product-attributes`,
+            seller1Headers,
+          )
+          const names = (list.data.product_attributes ?? []).map(
+            (a: any) => a.name,
+          )
+          expect(names).not.toContain("VendorInlineNote")
+        })
+
+        it("rejects an inline-create body that is missing `type`", async () => {
+          const create = await api.post(
+            `/vendor/products`,
+            { title: "Vendor Inline Bad" },
+            seller1Headers,
+          )
+          const productId = create.data.product.id
+
+          const res = await api
+            .post(
+              `/vendor/products/${productId}/attributes`,
+              { name: "BadAttr" },
+              seller1Headers,
+            )
+            .catch((err) => err.response)
+          expect(res.status).toBe(400)
+        })
+
+        it("rejects attaching to another seller's product", async () => {
+          const create = await api.post(
+            `/vendor/products`,
+            { title: "Vendor Two Owned" },
+            seller2Headers,
+          )
+          const productId = create.data.product.id
+
+          const res = await api
+            .post(
+              `/vendor/products/${productId}/attributes`,
+              {
+                name: "Foreign",
+                type: "text",
+                values: ["X"],
+              },
+              seller1Headers,
+            )
+            .catch((err) => err.response)
+          expect(res.status).toBeGreaterThanOrEqual(400)
         })
       })
 

@@ -203,7 +203,7 @@ export const ProductCreateVariantsSection = () => {
                         <SortableList.DragHandle />
                         {variantAxes.map((axis, i) => (
                           <Text key={i} size="small" leading="compact">
-                            {item.attribute_values?.[axis.title] ?? "-"}
+                            {item.options?.[axis.title] ?? "-"}
                           </Text>
                         ))}
                       </div>

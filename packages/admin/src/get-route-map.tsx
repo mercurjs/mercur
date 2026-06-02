@@ -159,29 +159,9 @@ export function getRouteMap({
                               import("./pages/products/product-media"),
                           },
                           {
-                            path: "prices",
-                            lazy: () =>
-                              import("./pages/products/product-prices"),
-                          },
-                          {
-                            path: "options/create",
-                            lazy: () =>
-                              import("./pages/products/product-create-option"),
-                          },
-                          {
-                            path: "options/:option_id/edit",
-                            lazy: () =>
-                              import("./pages/products/product-edit-option"),
-                          },
-                          {
                             path: "variants/create",
                             lazy: () =>
                               import("./pages/products/product-create-variant"),
-                          },
-                          {
-                            path: "stock",
-                            lazy: () =>
-                              import("./pages/products/product-stock"),
                           },
                           {
                             path: "metadata/edit",
@@ -217,16 +197,6 @@ export function getRouteMap({
                                 path: "edit",
                                 lazy: () =>
                                   import("./pages/product-variants/product-variant-edit"),
-                              },
-                              {
-                                path: "prices",
-                                lazy: () =>
-                                  import("./pages/products/product-prices"),
-                              },
-                              {
-                                path: "manage-items",
-                                lazy: () =>
-                                  import("./pages/product-variants/product-variant-manage-inventory-items"),
                               },
                               {
                                 path: "metadata/edit",

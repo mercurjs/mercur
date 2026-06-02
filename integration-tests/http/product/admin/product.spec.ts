@@ -26,33 +26,75 @@ medusaIntegrationTestRunner({
         is_variant_axis?: boolean
         values?: string[]
       }) => {
+        // Single-call inline-values path. The create-attribute workflow
+        // materialises the value rows after the attribute itself —
+        // no separate POST to `/values` needed.
         const created = await api.post(
           `/admin/product-attributes`,
           {
             name: opts.name,
             type: opts.type,
             is_variant_axis: opts.is_variant_axis ?? false,
+            values: (opts.values ?? []).map((name, idx) => ({
+              name,
+              rank: idx,
+            })),
           },
           adminHeaders,
         )
         const attribute_id = created.data.product_attribute.id
-        const values = opts.values?.length
-          ? (
-              await api.post(
-                `/admin/product-attributes/${attribute_id}/values`,
-                { values: opts.values.map((name) => ({ name })) },
-                adminHeaders,
-              )
-            ).data.product_attribute.values
-          : []
+        const values =
+          (created.data.product_attribute.values as
+            | Array<{ id: string; name: string }>
+            | undefined) ?? []
         const byName = new Map<string, string>(
-          (values as Array<{ id: string; name: string }>).map((v) => [
-            v.name,
-            v.id,
-          ]),
+          values.map((v) => [v.name, v.id]),
         )
         return { attribute_id, values, byName }
       }
+
+      describe("POST /admin/product-attributes (inline values)", () => {
+        it("creates the attribute AND its values in a single request", async () => {
+          const res = await api.post(
+            `/admin/product-attributes`,
+            {
+              name: "Finish",
+              type: "multi_select",
+              is_variant_axis: false,
+              values: [
+                { name: "Matte", rank: 0 },
+                { name: "Glossy", rank: 1 },
+                { name: "Satin", rank: 2 },
+              ],
+            },
+            adminHeaders,
+          )
+
+          expect(res.status).toBe(200)
+          const attr = res.data.product_attribute
+          expect(attr.name).toBe("Finish")
+          expect(attr.values).toHaveLength(3)
+          expect(attr.values.map((v: any) => v.name).sort()).toEqual([
+            "Glossy",
+            "Matte",
+            "Satin",
+          ])
+          // Each value belongs to the just-created attribute.
+          for (const v of attr.values) {
+            expect(typeof v.id).toBe("string")
+          }
+        })
+
+        it("creates the attribute with no values when the array is empty / omitted", async () => {
+          const res = await api.post(
+            `/admin/product-attributes`,
+            { name: "Notes", type: "text" },
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+          expect(res.data.product_attribute.values ?? []).toEqual([])
+        })
+      })
 
       describe("POST /admin/products", () => {
         it("creates a simple product (default option + variant injected, manage_inventory=false)", async () => {
@@ -341,6 +383,566 @@ medusaIntegrationTestRunner({
           expect(del.status).toBe(200)
           expect(del.data.deleted).toBe(true)
           expect(del.data.id).toBe(id)
+        })
+      })
+
+      // --- Dedicated attribute sub-resource endpoints ---
+      //
+      // These endpoints sit alongside the product create/update payload
+      // pathways (covered above) and let callers attach/detach values
+      // after the product already exists.
+
+      describe("GET /admin/products/:id/attributes", () => {
+        it("returns an empty list when the product has no linked attribute values", async () => {
+          const create = await api.post(
+            `/admin/products`,
+            { title: "No Attributes" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+          expect(res.data.product_attributes).toEqual([])
+          expect(res.data.count).toBe(0)
+        })
+
+        it("returns linked attributes grouped with only the attached values", async () => {
+          const color = await createGlobalAttribute({
+            name: "Color",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Red", "Blue", "Green"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            {
+              title: "Listed Attrs",
+              product_attributes: [
+                {
+                  attribute_id: color.attribute_id,
+                  value_ids: [
+                    color.byName.get("Red")!,
+                    color.byName.get("Blue")!,
+                  ],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+          expect(res.data.product_attributes).toHaveLength(1)
+          const attr = res.data.product_attributes[0]
+          expect(attr.id).toBe(color.attribute_id)
+          expect(attr.name).toBe("Color")
+          expect(attr.values.map((v: any) => v.name).sort()).toEqual([
+            "Blue",
+            "Red",
+          ])
+        })
+
+        it("404s for an unknown product id", async () => {
+          const res = await api
+            .get(
+              `/admin/products/prod_does_not_exist/attributes`,
+              adminHeaders,
+            )
+            .catch((e) => e.response)
+          expect(res.status).toBe(404)
+        })
+      })
+
+      describe("POST /admin/products/:id/attributes", () => {
+        it("attaches existing values by attribute_value_ids", async () => {
+          const material = await createGlobalAttribute({
+            name: "Material",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Cotton", "Linen", "Polyester"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Attach By IDs" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes`,
+            {
+              attribute_id: material.attribute_id,
+              attribute_value_ids: [
+                material.byName.get("Cotton")!,
+                material.byName.get("Linen")!,
+              ],
+            },
+            adminHeaders,
+          )
+          expect(res.status).toBe(201)
+          expect(res.data.product.id).toBe(productId)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(got.data.product_attributes).toHaveLength(1)
+          expect(
+            got.data.product_attributes[0].values
+              .map((v: any) => v.name)
+              .sort(),
+          ).toEqual(["Cotton", "Linen"])
+        })
+
+        it("attaches values by inline `values` names (text attribute upsert by name)", async () => {
+          // For text/unit/toggle types the caller can pass `values: string[]`
+          // and the route resolves them to ids via attribute_id+name.
+          // We pre-create the values so the lookup finds them.
+          const note = await createGlobalAttribute({
+            name: "Note",
+            type: "text",
+            is_variant_axis: false,
+            values: ["Handmade", "Imported"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Attach By Names" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes`,
+            {
+              attribute_id: note.attribute_id,
+              values: ["Handmade"],
+            },
+            adminHeaders,
+          )
+          expect(res.status).toBe(201)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(got.data.product_attributes).toHaveLength(1)
+          expect(
+            got.data.product_attributes[0].values.map((v: any) => v.name),
+          ).toEqual(["Handmade"])
+        })
+
+        it("is a no-op when neither attribute_value_ids nor values are provided", async () => {
+          const color = await createGlobalAttribute({
+            name: "Color2",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["X"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Noop Attach" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes`,
+            { attribute_id: color.attribute_id },
+            adminHeaders,
+          )
+          expect(res.status).toBe(201)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(got.data.product_attributes).toEqual([])
+        })
+
+        // --- Inline-create branch: materialise a product-scoped
+        // attribute + values and link them to the product in one call.
+        it("inline creates a product-scoped non-axis attribute and attaches its values", async () => {
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Inline Attach Note" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes`,
+            {
+              name: "InlineNote",
+              type: "text",
+              values: ["Handmade in Italy"],
+              is_variant_axis: false,
+            },
+            adminHeaders,
+          )
+          expect(res.status).toBe(201)
+          expect(res.data.product.id).toBe(productId)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(got.data.product_attributes).toHaveLength(1)
+          expect(got.data.product_attributes[0].name).toBe("InlineNote")
+          expect(
+            got.data.product_attributes[0].values.map((v: any) => v.name),
+          ).toEqual(["Handmade in Italy"])
+
+          // Product-scoped attributes must NOT leak into the global catalogue.
+          const list = await api.get(`/admin/product-attributes`, adminHeaders)
+          const names = (list.data.product_attributes ?? []).map(
+            (a: any) => a.name,
+          )
+          expect(names).not.toContain("InlineNote")
+        })
+
+        it("inline creates a variant-axis attribute and synthesises a stock option", async () => {
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Inline Attach Axis" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes`,
+            {
+              name: "InlineFit",
+              type: "multi_select",
+              values: ["Slim", "Loose"],
+              is_variant_axis: true,
+            },
+            adminHeaders,
+          )
+          expect(res.status).toBe(201)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(got.data.product_attributes).toHaveLength(1)
+          expect(got.data.product_attributes[0].name).toBe("InlineFit")
+          expect(got.data.product_attributes[0].is_variant_axis).toBe(true)
+          expect(
+            got.data.product_attributes[0].values
+              .map((v: any) => v.name)
+              .sort(),
+          ).toEqual(["Loose", "Slim"])
+        })
+
+        it("rejects an inline-create body that is missing `type`", async () => {
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Inline Bad" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api
+            .post(
+              `/admin/products/${productId}/attributes`,
+              { name: "BadAttr" },
+              adminHeaders,
+            )
+            .catch((err) => err.response)
+          expect(res.status).toBe(400)
+        })
+      })
+
+      describe("DELETE /admin/products/:id/attributes/:attribute_id", () => {
+        it("removes an inline-created scoped attribute entirely (not just its values)", async () => {
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Delete Inline" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const attach = await api.post(
+            `/admin/products/${productId}/attributes`,
+            {
+              name: "InlineToDelete",
+              type: "multi_select",
+              values: ["A", "B"],
+              is_variant_axis: false,
+            },
+            adminHeaders,
+          )
+          expect(attach.status).toBe(201)
+
+          // Sanity: the attribute is present before the delete.
+          const before = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(before.data.product_attributes).toHaveLength(1)
+          const attributeId = before.data.product_attributes[0].id
+
+          const del = await api.delete(
+            `/admin/products/${productId}/attributes/${attributeId}`,
+            adminHeaders,
+          )
+          expect(del.status).toBe(200)
+          expect(del.data.deleted).toBe(true)
+
+          // After delete the attribute must be gone — not just its values.
+          const after = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(after.data.product_attributes).toEqual([])
+
+          const product = await api.get(
+            `/admin/products/${productId}`,
+            adminHeaders,
+          )
+          expect(
+            (product.data.product as any).attributes ?? [],
+          ).toEqual([])
+        })
+
+        it("only detaches links for a global attribute (does not delete the global record)", async () => {
+          const color = await createGlobalAttribute({
+            name: "GlobalToDetach",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Red"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            {
+              title: "Detach Global",
+              product_attributes: [
+                {
+                  attribute_id: color.attribute_id,
+                  value_ids: [color.byName.get("Red")!],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const del = await api.delete(
+            `/admin/products/${productId}/attributes/${color.attribute_id}`,
+            adminHeaders,
+          )
+          expect(del.status).toBe(200)
+
+          // Gone from the product…
+          const after = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(after.data.product_attributes).toEqual([])
+
+          // …but still present in the global catalogue.
+          const list = await api.get(`/admin/product-attributes`, adminHeaders)
+          const names = (list.data.product_attributes ?? []).map(
+            (a: any) => a.name,
+          )
+          expect(names).toContain("GlobalToDetach")
+        })
+      })
+
+      describe("POST /admin/products/:id/attributes/batch", () => {
+        it("batch-attaches values from multiple attributes in a single call", async () => {
+          const color = await createGlobalAttribute({
+            name: "BatchColor",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Red", "Blue"],
+          })
+          const material = await createGlobalAttribute({
+            name: "BatchMaterial",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Cotton", "Linen"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Batch Create" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes/batch`,
+            {
+              create: [
+                {
+                  attribute_id: color.attribute_id,
+                  attribute_value_ids: [color.byName.get("Red")!],
+                },
+                {
+                  attribute_id: material.attribute_id,
+                  attribute_value_ids: [
+                    material.byName.get("Cotton")!,
+                    material.byName.get("Linen")!,
+                  ],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+          expect(res.data.product.id).toBe(productId)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          const byName = new Map<string, any>(
+            (got.data.product_attributes as any[]).map((a) => [a.name, a]),
+          )
+          expect(byName.get("BatchColor")!.values.map((v: any) => v.name)).toEqual([
+            "Red",
+          ])
+          expect(
+            byName
+              .get("BatchMaterial")!
+              .values.map((v: any) => v.name)
+              .sort(),
+          ).toEqual(["Cotton", "Linen"])
+        })
+
+        it("batch-detaches every value belonging to the given attribute ids", async () => {
+          const color = await createGlobalAttribute({
+            name: "DetachColor",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Red", "Blue"],
+          })
+          const material = await createGlobalAttribute({
+            name: "DetachMaterial",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Cotton"],
+          })
+
+          // Seed both attributes via product create.
+          const create = await api.post(
+            `/admin/products`,
+            {
+              title: "Batch Delete",
+              product_attributes: [
+                {
+                  attribute_id: color.attribute_id,
+                  value_ids: [
+                    color.byName.get("Red")!,
+                    color.byName.get("Blue")!,
+                  ],
+                },
+                {
+                  attribute_id: material.attribute_id,
+                  value_ids: [material.byName.get("Cotton")!],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes/batch`,
+            { delete: [color.attribute_id] },
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(got.data.product_attributes).toHaveLength(1)
+          expect(got.data.product_attributes[0].name).toBe("DetachMaterial")
+        })
+
+        it("combines create + delete in a single batch call", async () => {
+          const color = await createGlobalAttribute({
+            name: "ComboColor",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Red", "Blue"],
+          })
+          const material = await createGlobalAttribute({
+            name: "ComboMaterial",
+            type: "multi_select",
+            is_variant_axis: false,
+            values: ["Cotton"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            {
+              title: "Batch Combined",
+              product_attributes: [
+                {
+                  attribute_id: color.attribute_id,
+                  value_ids: [color.byName.get("Red")!],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes/batch`,
+            {
+              delete: [color.attribute_id],
+              create: [
+                {
+                  attribute_id: material.attribute_id,
+                  attribute_value_ids: [material.byName.get("Cotton")!],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(got.data.product_attributes).toHaveLength(1)
+          expect(got.data.product_attributes[0].name).toBe("ComboMaterial")
+        })
+
+        it("accepts an empty body and returns the product unchanged", async () => {
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Batch Empty" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes/batch`,
+            {},
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+          expect(res.data.product.id).toBe(productId)
         })
       })
     })

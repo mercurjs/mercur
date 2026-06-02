@@ -21,7 +21,7 @@ export const ProductVariantEdit = () => {
   const { variant, isPending, isError, error } = useProductVariant(
     productId!,
     variant_id || searchVariantId!,
-    undefined,
+    { fields: "*options,*options.option" },
     {
       initialData,
     },

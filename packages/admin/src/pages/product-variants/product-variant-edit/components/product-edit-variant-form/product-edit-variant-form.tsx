@@ -1,11 +1,11 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Divider, Heading, Input, Switch, toast } from "@medusajs/ui";
+import { Button, Divider, Heading, Input, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
 
 import { HttpTypes } from "@medusajs/types";
-import { ProductAttributeValueDTO, ProductDTO, AttributeType } from "@mercurjs/types";
+import { ProductDTO, AttributeType } from "@mercurjs/types";
 import { Form } from "../../../../../components/common/form";
 import { AttributeValueInput } from "../../../../../components/inputs/attribute-value-input";
 import { CountrySelect } from "../../../../../components/inputs/country-select";
@@ -30,8 +30,6 @@ const ProductEditVariantSchema = z.object({
   ean: z.string().optional(),
   upc: z.string().optional(),
   barcode: z.string().optional(),
-  manage_inventory: z.boolean(),
-  allow_backorder: z.boolean(),
   weight: optionalInt,
   height: optionalInt,
   width: optionalInt,
@@ -39,9 +37,7 @@ const ProductEditVariantSchema = z.object({
   mid_code: z.string().optional(),
   hs_code: z.string().optional(),
   origin_country: z.string().optional(),
-  attribute_values: z
-    .record(z.union([z.string(), z.array(z.string())]))
-    .optional(),
+  options: z.record(z.string()).optional(),
 });
 
 export const ProductEditVariantForm = ({
@@ -55,23 +51,22 @@ export const ProductEditVariantForm = ({
     (product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">)
       .attributes?.filter((a) => a.is_variant_axis) ?? [];
 
-  const variantAttrValues =
-    (
-      variant as HttpTypes.AdminProductVariant & {
-        attribute_values?: ProductAttributeValueDTO[];
-      }
-    ).attribute_values ?? [];
-
-  const defaultAttributeValues = variantAttributes.reduce<
-    Record<string, string>
-  >((acc, attribute) => {
-    const key = attribute.handle ?? attribute.id;
-    const matched = variantAttrValues.find(
-      (v) => v.attribute?.id === attribute.id,
-    );
-    acc[key] = matched?.name ?? "";
-    return acc;
-  }, {});
+  // Form fields are keyed by attribute handle/id; the submit payload
+  // translates them to option titles (= attribute names) — the shape
+  // the stock Medusa variant route expects under `options`. Prefill
+  // from the existing variant.options[] (Medusa-side option-value
+  // pairing, matched to the attribute by option title = attribute name).
+  const defaultOptions = variantAttributes.reduce<Record<string, string>>(
+    (acc, attribute) => {
+      const key = attribute.handle ?? attribute.id;
+      const matched = variant.options?.find(
+        (o) => o.option?.title === attribute.name,
+      );
+      acc[key] = matched?.value ?? "";
+      return acc;
+    },
+    {},
+  );
 
   const form = useForm<z.infer<typeof ProductEditVariantSchema>>({
     defaultValues: {
@@ -81,8 +76,6 @@ export const ProductEditVariantForm = ({
       ean: variant.ean || "",
       upc: variant.upc || "",
       barcode: variant.barcode || "",
-      manage_inventory: variant.manage_inventory || false,
-      allow_backorder: variant.allow_backorder || false,
       weight: variant.weight || "",
       height: variant.height || "",
       width: variant.width || "",
@@ -90,7 +83,7 @@ export const ProductEditVariantForm = ({
       mid_code: variant.mid_code || "",
       hs_code: variant.hs_code || "",
       origin_country: variant.origin_country || "",
-      attribute_values: defaultAttributeValues,
+      options: defaultOptions,
     },
     resolver: zodResolver(ProductEditVariantSchema),
   });
@@ -107,26 +100,23 @@ export const ProductEditVariantForm = ({
       height,
       width,
       length,
-      allow_backorder,
-      manage_inventory,
-      attribute_values,
+      options,
       ...optional
     } = data;
 
     const nullableData = transformNullableFormData(optional);
 
-    // Rekey from internal `handle ?? id` form path to the attribute name —
-    // the create-products wrapper synthesizes stock option titles from the
-    // attribute name, so the variant's attribute_values must match those.
-    const cleanedAttributeValues = variantAttributes.reduce<
-      Record<string, string | string[]>
-    >((acc, attr) => {
-      const fieldKey = attr.handle ?? attr.id;
-      const v = attribute_values?.[fieldKey];
-      const isEmpty = Array.isArray(v) ? v.length === 0 : !v;
-      if (!isEmpty && attr.name) acc[attr.name] = v as string | string[];
-      return acc;
-    }, {});
+    // Backend keys options by option title (= attribute name). Form
+    // keys by handle/id; remap and drop empties.
+    const cleanedOptions = variantAttributes.reduce<Record<string, string>>(
+      (acc, attr) => {
+        const fieldKey = attr.handle ?? attr.id;
+        const v = options?.[fieldKey];
+        if (v && attr.name) acc[attr.name] = v;
+        return acc;
+      },
+      {},
+    );
 
     await mutateAsync(
       {
@@ -136,10 +126,8 @@ export const ProductEditVariantForm = ({
         width: transformNullableFormNumber(width),
         length: transformNullableFormNumber(length),
         title,
-        // allow_backorder,
-        // manage_inventory,
-        attribute_values: Object.keys(cleanedAttributeValues).length
-          ? cleanedAttributeValues
+        options: Object.keys(cleanedOptions).length
+          ? cleanedOptions
           : undefined,
         ...nullableData,
       },
@@ -223,7 +211,7 @@ export const ProductEditVariantForm = ({
                 <Form.Field
                   key={attribute.id}
                   control={form.control}
-                  name={`attribute_values.${fieldKey}`}
+                  name={`options.${fieldKey}`}
                   render={({ field: { value, onChange } }) => {
                     return (
                       <Form.Item
@@ -375,84 +363,6 @@ export const ProductEditVariantForm = ({
                 }}
               />
             </div>
-            <Form.Field
-              control={form.control}
-              name="manage_inventory"
-              render={({ field: { value, onChange, ...field } }) => {
-                return (
-                  <Form.Item data-testid="product-variant-edit-form-manage-inventory-item">
-                    <div
-                      className="flex flex-col gap-y-1"
-                      data-testid="product-variant-edit-form-manage-inventory-container"
-                    >
-                      <div
-                        className="flex items-center justify-between"
-                        data-testid="product-variant-edit-form-manage-inventory-control-row"
-                      >
-                        <Form.Label data-testid="product-variant-edit-form-manage-inventory-label">
-                          {t("products.variant.inventory.manageInventoryLabel")}
-                        </Form.Label>
-                        <Form.Control data-testid="product-variant-edit-form-manage-inventory-control">
-                          <div data-testid="product-variant-edit-form-manage-inventory-switch-wrapper">
-                            <Switch
-                              dir="ltr"
-                              checked={value}
-                              className="rtl:rotate-180"
-                              onCheckedChange={(checked) => onChange(!!checked)}
-                              {...field}
-                              data-testid="product-variant-edit-form-manage-inventory-switch"
-                            />
-                          </div>
-                        </Form.Control>
-                      </div>
-                      <Form.Hint data-testid="product-variant-edit-form-manage-inventory-hint">
-                        {t("products.variant.inventory.manageInventoryHint")}
-                      </Form.Hint>
-                    </div>
-                    <Form.ErrorMessage data-testid="product-variant-edit-form-manage-inventory-error" />
-                  </Form.Item>
-                );
-              }}
-            />
-            <Form.Field
-              control={form.control}
-              name="allow_backorder"
-              render={({ field: { value, onChange, ...field } }) => {
-                return (
-                  <Form.Item data-testid="product-variant-edit-form-allow-backorder-item">
-                    <div
-                      className="flex flex-col gap-y-1"
-                      data-testid="product-variant-edit-form-allow-backorder-container"
-                    >
-                      <div
-                        className="flex items-center justify-between"
-                        data-testid="product-variant-edit-form-allow-backorder-control-row"
-                      >
-                        <Form.Label data-testid="product-variant-edit-form-allow-backorder-label">
-                          {t("products.variant.inventory.allowBackordersLabel")}
-                        </Form.Label>
-                        <Form.Control data-testid="product-variant-edit-form-allow-backorder-control">
-                          <div data-testid="product-variant-edit-form-allow-backorder-switch-wrapper">
-                            <Switch
-                              dir="ltr"
-                              className="rtl:rotate-180"
-                              checked={value}
-                              onCheckedChange={(checked) => onChange(!!checked)}
-                              {...field}
-                              data-testid="product-variant-edit-form-allow-backorder-switch"
-                            />
-                          </div>
-                        </Form.Control>
-                      </div>
-                      <Form.Hint data-testid="product-variant-edit-form-allow-backorder-hint">
-                        {t("products.variant.inventory.allowBackordersHint")}
-                      </Form.Hint>
-                    </div>
-                    <Form.ErrorMessage data-testid="product-variant-edit-form-allow-backorder-error" />
-                  </Form.Item>
-                );
-              }}
-            />
           </div>
           <Divider data-testid="product-variant-edit-form-divider-2" />
           <div

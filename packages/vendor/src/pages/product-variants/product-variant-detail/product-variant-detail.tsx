@@ -17,7 +17,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { variant, isLoading, isError, error } = useProductVariant(
     product_id!,
     variant_id!,
-    {},
+    { fields: "*options,*options.option" },
     {
       initialData,
     }

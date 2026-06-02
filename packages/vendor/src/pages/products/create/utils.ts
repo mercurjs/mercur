@@ -57,12 +57,12 @@ export const normalizeVariants = (
   variants: ProductCreateSchemaType["variants"],
 ): any[] => {
   return variants.map((variant) => {
-    const attrVals = variant.attribute_values
-    const hasAttrVals = attrVals && Object.keys(attrVals).length > 0
+    const opts = variant.options
+    const hasOpts = opts && Object.keys(opts).length > 0
 
     return {
-      title: variant.title || (hasAttrVals ? Object.values(attrVals).join(" / ") : "Default variant"),
-      attribute_values: hasAttrVals ? attrVals : undefined,
+      title: variant.title || (hasOpts ? Object.values(opts).join(" / ") : "Default variant"),
+      options: hasOpts ? opts : undefined,
       sku: variant.sku || undefined,
       variant_rank: variant.variant_rank,
     }
@@ -225,7 +225,7 @@ export const generateVariantsFromAttributes = (
         title: "Default variant",
         should_create: true,
         variant_rank: 0,
-        attribute_values: {},
+        options: {},
         is_default: true,
       },
     ])
@@ -235,17 +235,17 @@ export const generateVariantsFromAttributes = (
 
   // Preserve existing variants that still match a permutation
   const newVariants = currentVariants.reduce((acc, variant) => {
-    const attrVals = variant.attribute_values
-    if (!attrVals || Object.keys(attrVals).length === 0) return acc
+    const opts = variant.options
+    if (!opts || Object.keys(opts).length === 0) return acc
 
     const match = permutations.find((perm) =>
-      Object.keys(attrVals).every((key) => attrVals[key] === perm[key])
+      Object.keys(opts).every((key) => opts[key] === perm[key])
     )
     if (match) {
       acc.push({
         ...variant,
         title: Object.values(match).join(" / "),
-        attribute_values: match,
+        options: match,
         is_default: false,
       })
     }
@@ -254,13 +254,13 @@ export const generateVariantsFromAttributes = (
 
   // Add new permutations not yet in the list
   const usedSet = new Set(
-    newVariants.map((v) => JSON.stringify(v.attribute_values))
+    newVariants.map((v) => JSON.stringify(v.options))
   )
   for (const perm of permutations) {
     if (!usedSet.has(JSON.stringify(perm))) {
       newVariants.push({
         title: Object.values(perm).join(" / "),
-        attribute_values: perm,
+        options: perm,
         should_create: true,
         variant_rank: newVariants.length,
       })

@@ -68,8 +68,8 @@ export const ProductCreateForm = ({
     )
 
     if (
-      JSON.stringify(newVariants.map((v) => v.attribute_values)) !==
-      JSON.stringify(currentVariants.map((v) => v.attribute_values))
+      JSON.stringify(newVariants.map((v) => v.options)) !==
+      JSON.stringify(currentVariants.map((v) => v.options))
     ) {
       form.setValue("variants", newVariants)
     }

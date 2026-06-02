@@ -1,16 +1,12 @@
 import { useCallback, useMemo } from "react";
 
-import { Buildings, Component, PencilSquare, Trash } from "@medusajs/icons";
+import { PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
-import {
-  ProductAttributeDTO,
-  ProductAttributeValueDTO,
-} from "@mercurjs/types";
+import { ProductDTO } from "@mercurjs/types";
 import {
   Badge,
   Container,
   createDataTableColumnHelper,
-  createDataTableCommandHelper,
   DataTableAction,
   Tooltip,
   usePrompt,
@@ -28,7 +24,6 @@ import {
   useProductVariants,
 } from "../../../../../hooks/api/products";
 import { useQueryParams } from "../../../../../hooks/use-query-params";
-import { PRODUCT_VARIANT_IDS_KEY } from "../../../common/constants";
 const PAGE_SIZE = 10;
 const PREFIX = "pv";
 
@@ -46,7 +41,6 @@ export const ProductVariantSection = ({
 
   const columns = useColumns(product);
   const filters = useFilters();
-  const commands = useCommands();
 
   const { variants, count, isPending, isError, error } = useProductVariants(
     product.id,
@@ -58,7 +52,7 @@ export const ProductVariantSection = ({
       created_at: created_at ? JSON.parse(created_at) : undefined,
       updated_at: updated_at ? JSON.parse(updated_at) : undefined,
       fields:
-        "title,created_at,updated_at,*attribute_values,*attribute_values.attribute",
+        "title,created_at,updated_at,*options,*options.option",
     },
     {
       placeholderData: keepPreviousData,
@@ -96,26 +90,6 @@ export const ProductVariantSection = ({
             label: t("actions.create"),
             to: `variants/create`,
           }}
-          actionMenu={{
-            groups: [
-              {
-                actions: [
-                  {
-                    label: t("products.editPrices"),
-                    to: `prices`,
-                    icon: <PencilSquare />,
-                  },
-                  {
-                    label: t("inventory.stock.action"),
-                    to: `stock`,
-                    icon: <Buildings />,
-                  },
-                ],
-              },
-            ],
-            "data-testid": "product-variant-section-action-menu",
-          }}
-          commands={commands}
           prefix={PREFIX}
         />
       </div>
@@ -165,35 +139,43 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
     [mutateAsync, prompt, t],
   );
 
-  const optionColumns = useMemo(() => {
-    if (!product?.options) {
+  // Under SPEC-008 the variant table surfaces only axis attributes.
+  // Stock Medusa stores the per-variant value as a ProductOptionValue
+  // on `variant.options[]` (keyed by `option.title`, which the wrapper
+  // synthesizes from the attribute name). Read from there.
+  const attributeColumns = useMemo(() => {
+    const variantAttributes = (
+      product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">
+    )?.attributes?.filter((attr) => attr.is_variant_axis);
+
+    if (!variantAttributes?.length) {
       return [];
     }
 
-    return product.options.map((option) => {
+    return variantAttributes.map((attribute) => {
       return columnHelper.display({
-        id: option.id,
-        header: option.title,
+        id: `attribute-${attribute.id}`,
+        header: attribute.name,
         cell: ({ row }) => {
           const variantOpt = row.original.options?.find(
-            (opt) => opt.option_id === option.id,
+            (opt) => opt.option?.title === attribute.name,
           );
 
-          if (!variantOpt) {
+          if (!variantOpt?.value) {
             return <span className="text-ui-fg-muted">-</span>;
           }
 
           return (
             <div
-              className="flex items-center"
-              data-testid={`product-variant-option-${option.id}-${row.original.id}`}
+              className="flex flex-wrap items-center gap-1"
+              data-testid={`product-variant-attribute-${attribute.id}-${row.original.id}`}
             >
               <Tooltip content={variantOpt.value}>
                 <Badge
                   size="2xsmall"
                   title={variantOpt.value}
                   className="inline-flex min-w-[20px] max-w-[140px] items-center justify-center overflow-hidden truncate"
-                  data-testid={`product-variant-option-badge-${option.id}-${row.original.id}-${variantOpt.value}`}
+                  data-testid={`product-variant-attribute-badge-${attribute.id}-${row.original.id}-${variantOpt.value}`}
                 >
                   {variantOpt.value}
                 </Badge>
@@ -205,64 +187,9 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
     });
   }, [product]);
 
-  const attributeColumns = useMemo(() => {
-    const variantAttributes = (
-      product as HttpTypes.AdminProduct & {
-        variant_attributes?: ProductAttributeDTO[];
-      }
-    )?.variant_attributes?.filter((attr) => attr.is_variant_axis);
-
-    if (!variantAttributes?.length) {
-      return [];
-    }
-
-    return variantAttributes.map((attribute) => {
-      return columnHelper.display({
-        id: `attribute-${attribute.id}`,
-        header: attribute.name,
-        cell: ({ row }) => {
-          const variant = row.original as HttpTypes.AdminProductVariant & {
-            attribute_values?: ProductAttributeValueDTO[];
-          };
-
-          const matches =
-            variant.attribute_values?.filter(
-              (v) => v.attribute?.id === attribute.id,
-            ) ?? [];
-
-          if (!matches.length) {
-            return <span className="text-ui-fg-muted">-</span>;
-          }
-
-          return (
-            <div
-              className="flex flex-wrap items-center gap-1"
-              data-testid={`product-variant-attribute-${attribute.id}-${row.original.id}`}
-            >
-              {matches.map((value) => (
-                <Tooltip key={value.id} content={value.name}>
-                  <Badge
-                    size="2xsmall"
-                    title={value.name}
-                    className="inline-flex min-w-[20px] max-w-[140px] items-center justify-center overflow-hidden truncate"
-                    data-testid={`product-variant-attribute-badge-${attribute.id}-${row.original.id}-${value.name}`}
-                  >
-                    {value.name}
-                  </Badge>
-                </Tooltip>
-              ))}
-            </div>
-          );
-        },
-      });
-    });
-  }, [product]);
-
   const getActions = useCallback(
     (ctx: CellContext<HttpTypes.AdminProductVariant, unknown>) => {
-      const variant = ctx.row.original as HttpTypes.AdminProductVariant & {
-        inventory_items: { inventory: HttpTypes.AdminInventoryItem }[];
-      };
+      const variant = ctx.row.original;
 
       const mainActions: DataTableAction<HttpTypes.AdminProductVariant>[] = [
         {
@@ -290,44 +217,6 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
           },
         ];
 
-      const inventoryItemsCount = variant.inventory_items?.length || 0;
-
-      switch (inventoryItemsCount) {
-        case 0:
-          break;
-        case 1: {
-          const inventoryItemLink = `/inventory/${variant.inventory_items![0].inventory.id}`;
-
-          mainActions.push({
-            label: t("products.variant.inventory.actions.inventoryItems"),
-            onClick: () => {
-              navigate(inventoryItemLink);
-            },
-            icon: <Buildings />,
-          });
-          break;
-        }
-        default: {
-          const ids = variant.inventory_items?.map((i) => i.inventory?.id);
-
-          if (!ids || ids.length === 0) {
-            break;
-          }
-
-          const inventoryKitLink = `/inventory?${new URLSearchParams({
-            id: ids.join(","),
-          }).toString()}`;
-
-          mainActions.push({
-            label: t("products.variant.inventory.actions.inventoryKit"),
-            onClick: () => {
-              navigate(inventoryKitLink);
-            },
-            icon: <Component />,
-          });
-        }
-      }
-
       return [mainActions, secondaryActions];
     },
     [handleDelete, navigate, t, tableSearchParams],
@@ -341,14 +230,13 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
         sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
         sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
       }),
-      ...optionColumns,
       ...attributeColumns,
       ...dateColumns,
       columnHelper.action({
         actions: getActions,
       }),
     ];
-  }, [t, optionColumns, attributeColumns, dateColumns, getActions]);
+  }, [t, attributeColumns, dateColumns, getActions]);
 };
 
 const useFilters = () => {
@@ -359,23 +247,4 @@ const useFilters = () => {
       ...dateFilters,
     ];
   }, [dateFilters]);
-};
-
-const commandHelper = createDataTableCommandHelper();
-
-const useCommands = () => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-
-  return [
-    commandHelper.command({
-      label: t("inventory.stock.action"),
-      shortcut: "i",
-      action: async (selection) => {
-        navigate(
-          `stock?${PRODUCT_VARIANT_IDS_KEY}=${Object.keys(selection).join(",")}`,
-        );
-      },
-    }),
-  ];
 };

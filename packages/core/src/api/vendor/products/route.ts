@@ -2,7 +2,7 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, ProductStatus } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
@@ -47,9 +47,7 @@ export const POST = async (
       products: [
         {
           ...payload,
-          // Vendor-owned products are always created as proposed unless
-          // the caller explicitly set draft.
-          status: payload.status ?? "proposed",
+          status: payload.status ?? ProductStatus.PROPOSED,
         } as Record<string, unknown>,
       ],
       seller_ids: [sellerId],

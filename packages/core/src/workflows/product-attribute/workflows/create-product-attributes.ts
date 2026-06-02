@@ -20,6 +20,7 @@ import {
 
 import { ProductAttributeWorkflowEvents } from "../events"
 import {
+  createProductAttributeValuesStep,
   createProductAttributesStep,
   validateProductAttributeInputStep,
 } from "../steps"
@@ -63,6 +64,33 @@ export const createProductAttributesWorkflow: ReturnWorkflow<
     )
 
     const attributes = createProductAttributesStep(attributesToCreate)
+
+    // Persist each attribute's `values[]` against the just-created ids.
+    // The underlying create-attribute service doesn't accept inline
+    // values, so they have to land via the values step.
+    const valuesToCreate = transform(
+      { input, attributes },
+      ({ input, attributes }) => {
+        const out: Array<{
+          name: string
+          handle?: string
+          rank?: number
+          is_active?: boolean
+          metadata?: Record<string, unknown> | null
+          attribute_id: string
+        }> = []
+        input.attributes.forEach((attr, idx) => {
+          const attribute_id = attributes[idx]?.id
+          if (!attribute_id) return
+          for (const v of attr.values ?? []) {
+            out.push({ ...v, attribute_id })
+          }
+        })
+        return out
+      },
+    )
+
+    createProductAttributeValuesStep(valuesToCreate)
 
     const categoryLinks = transform(
       { input, attributes },

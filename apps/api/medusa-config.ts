@@ -3,9 +3,12 @@ import { withMercur } from '@mercurjs/core'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
+const REDIS_URL = process.env.REDIS_URL || 'redis://localhost:6379'
+
 module.exports = withMercur({
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
+    redisUrl: REDIS_URL,
     http: {
       storeCors: process.env.STORE_CORS!,
       adminCors: process.env.ADMIN_CORS!,
@@ -34,6 +37,31 @@ module.exports = withMercur({
         path: '/seller',
         disable: true
       }
+    },
+    {
+      resolve: '@medusajs/medusa/cache-redis',
+      options: { redisUrl: REDIS_URL },
+    },
+    {
+      resolve: '@medusajs/medusa/event-bus-redis',
+      options: { redisUrl: REDIS_URL },
+    },
+    {
+      resolve: '@medusajs/medusa/workflow-engine-redis',
+      options: { redis: { url: REDIS_URL } },
+    },
+    {
+      resolve: '@medusajs/medusa/locking',
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/locking-redis',
+            id: 'locking-redis',
+            is_default: true,
+            options: { redisUrl: REDIS_URL },
+          },
+        ],
+      },
     },
   ],
 })

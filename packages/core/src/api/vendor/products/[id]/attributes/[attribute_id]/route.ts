@@ -5,30 +5,14 @@ import {
 import {
   ContainerRegistrationKeys,
   MedusaError,
-  Modules,
 } from "@medusajs/framework/utils"
-import { dismissRemoteLinkStep } from "@medusajs/medusa/core-flows"
-import { createWorkflow, transform, WorkflowResponse } from "@medusajs/framework/workflows-sdk"
-import { HttpTypes, MercurModules } from "@mercurjs/types"
+import { HttpTypes } from "@mercurjs/types"
 
+import {
+  deleteProductAttributesWorkflow,
+  detachProductAttributeWorkflow,
+} from "../../../../../../workflows/product-attribute"
 import { ensureSellerOwnsProduct } from "../../../helpers"
-
-const detachProductAttributeWorkflow = createWorkflow(
-  "vendor-detach-product-attribute-values",
-  function (input: { product_id: string; value_ids: string[] }) {
-    const links = transform({ input }, ({ input }) =>
-      input.value_ids.map((value_id) => ({
-        [Modules.PRODUCT]: { product_id: input.product_id },
-        [MercurModules.PRODUCT_ATTRIBUTE]: {
-          product_attribute_value_id: value_id,
-        },
-      }))
-    )
-
-    dismissRemoteLinkStep(links as any)
-    return new WorkflowResponse(void 0)
-  }
-)
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -59,8 +43,8 @@ export const GET = async (
     )
   }
 
-  const values = ((product as any).attribute_values ?? []).filter(
-    (v: any) => v.attribute?.id === attributeId
+  const values = (product.attribute_values ?? []).filter(
+    (v) => v.attribute?.id === attributeId
   )
 
   if (!values.length) {
@@ -89,20 +73,24 @@ export const DELETE = async (
 
   await ensureSellerOwnsProduct(req.scope, sellerId, productId)
 
-  // Find every linked value id that belongs to the target attribute.
-  const { data } = await query.graph({
-    entity: "product",
-    fields: ["attribute_values.id", "attribute_values.attribute.id"],
-    filters: { id: productId },
+  await detachProductAttributeWorkflow(req.scope).run({
+    input: { product_id: productId, attribute_id: attributeId },
   })
 
-  const valueIds: string[] = ((data[0] as any)?.attribute_values ?? [])
-    .filter((v: any) => v.attribute?.id === attributeId)
-    .map((v: any) => v.id)
-
-  if (valueIds.length) {
-    await detachProductAttributeWorkflow(req.scope).run({
-      input: { product_id: productId, value_ids: valueIds },
+  // Product-scoped (inline-created) attributes have `product_id` pinned
+  // to this product. They're hidden from the global catalogue and have
+  // no other consumer, so the only sensible delete is full removal —
+  // otherwise the attribute lingers on `product.attributes` with an
+  // empty value set after every value is detached.
+  const { data: attrs } = await query.graph({
+    entity: "product_attribute",
+    fields: ["id", "product_id"],
+    filters: { id: attributeId },
+  })
+  const attr = attrs?.[0] as { product_id?: string | null } | undefined
+  if (attr?.product_id === productId) {
+    await deleteProductAttributesWorkflow(req.scope).run({
+      input: { ids: [attributeId] },
     })
   }
 

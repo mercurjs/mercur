@@ -14,12 +14,12 @@ import {
   adminProductAttributeQueryConfig,
 } from "../product-attributes/query-config"
 import {
-  AdminCreateProductAttribute,
   AdminGetProductAttributeParams,
   AdminGetProductAttributesParams,
   AdminUpdateProductAttribute,
 } from "../product-attributes/validators"
 import {
+  AdminAddProductAttribute,
   AdminBatchProductAttributes,
   AdminBatchProducts,
   AdminCreateProduct,
@@ -183,14 +183,18 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
   },
 
   // --- Attribute sub-resource ---
+  //
+  // POST endpoints return the parent product, so they use the product
+  // retrieve query config. GET list returns product attributes, so it
+  // uses the attribute list config.
   {
     method: ["POST"],
     matcher: "/admin/products/:id/attributes/batch",
     middlewares: [
       validateAndTransformBody(AdminBatchProductAttributes),
       validateAndTransformQuery(
-        AdminGetProductAttributesParams,
-        adminProductAttributeQueryConfig.list
+        AdminGetProductParams,
+        adminProductQueryConfig.retrieve
       ),
     ],
   },
@@ -208,10 +212,10 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/products/:id/attributes",
     middlewares: [
-      validateAndTransformBody(AdminCreateProductAttribute),
+      validateAndTransformBody(AdminAddProductAttribute),
       validateAndTransformQuery(
-        AdminGetProductAttributeParams,
-        adminProductAttributeQueryConfig.retrieve
+        AdminGetProductParams,
+        adminProductQueryConfig.retrieve
       ),
     ],
   },

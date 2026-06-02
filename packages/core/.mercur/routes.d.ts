@@ -257,12 +257,12 @@ export type Routes = {
                 };
                 attributes: typeof import("../../src/api/admin/products/[id]/attributes/route") & {
                     $attributeId: typeof import("../../src/api/admin/products/[id]/attributes/[attribute_id]/route");
-                    batch: typeof import("@mercurjs/core/api/admin/products/[id]/attributes/batch/route");
+                    batch: typeof import("../../src/api/admin/products/[id]/attributes/batch/route");
                 };
-                confirm: typeof import("@mercurjs/core/api/admin/products/[id]/confirm/route");
-                preview: typeof import("@mercurjs/core/api/admin/products/[id]/preview/route");
-                reject: typeof import("@mercurjs/core/api/admin/products/[id]/reject/route");
-                requestChanges: typeof import("@mercurjs/core/api/admin/products/[id]/request-changes/route");
+                confirm: typeof import("../../src/api/admin/products/[id]/confirm/route");
+                preview: typeof import("../../src/api/admin/products/[id]/preview/route");
+                reject: typeof import("../../src/api/admin/products/[id]/reject/route");
+                requestChanges: typeof import("../../src/api/admin/products/[id]/request-changes/route");
             };
             batch: typeof import("@mercurjs/core/api/admin/products/batch/route");
             export: typeof import("@medusajs/medusa/api/admin/products/export/route");

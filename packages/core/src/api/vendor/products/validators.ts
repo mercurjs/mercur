@@ -353,16 +353,51 @@ export type VendorGetProductAttributeParamsType = z.infer<
 >
 export const VendorGetProductAttributeParams = createSelectParams()
 
+/**
+ * Two shapes share a single flat body (the middleware-friendly form);
+ * the route branches on the presence of `attribute_id` vs `name`:
+ *
+ *   1. **Attach existing** — `{ attribute_id, attribute_value_ids? | values? }`.
+ *   2. **Inline create** — `{ name, type, values?, is_variant_axis?, ... }`.
+ *      Creates a product-scoped `ProductAttribute` (hidden from the
+ *      global `/vendor/product-attributes` catalogue), materialises its
+ *      values, and links them to the product.
+ */
 export type VendorAddProductAttributeType = z.infer<
   typeof VendorAddProductAttribute
 >
 export const VendorAddProductAttribute = z
   .object({
-    attribute_id: z.string(),
+    attribute_id: z.string().optional(),
     attribute_value_ids: z.array(z.string()).optional(),
+    name: z.string().min(1).optional(),
+    type: AttributeTypeEnum.optional(),
+    is_variant_axis: z.boolean().optional(),
+    is_filterable: z.boolean().optional(),
+    is_required: z.boolean().optional(),
+    description: z.string().nullish(),
+    metadata: z.record(z.unknown()).nullish(),
     values: z.array(z.string()).optional(),
   })
   .strict()
+  .refine(
+    (data) => Boolean(data.attribute_id) !== Boolean(data.name),
+    {
+      message:
+        "Provide either `attribute_id` (attach existing) or `name` (inline create), not both.",
+    },
+  )
+  .refine((data) => !data.name || !!data.type, {
+    message: "Inline-create branch requires `type`.",
+    path: ["type"],
+  })
+  .refine(
+    (data) => !data.attribute_id || data.type === undefined,
+    {
+      message: "`type` is only valid with the inline-create branch.",
+      path: ["type"],
+    },
+  )
 
 export type VendorCancelProductChangeType = z.infer<
   typeof VendorCancelProductChange
