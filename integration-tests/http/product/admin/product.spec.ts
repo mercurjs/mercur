@@ -717,6 +717,55 @@ medusaIntegrationTestRunner({
           ).toEqual([])
         })
 
+        it("deletes the matching product option when detaching a variant-axis attribute", async () => {
+          // Create product with a variant-axis attribute; the create
+          // wrapper synthesises a stock option whose title matches the
+          // attribute's name. Detaching the attribute should drop the
+          // option in the same call.
+          const size = await createGlobalAttribute({
+            name: "DetachSize",
+            type: "multi_select",
+            is_variant_axis: true,
+            values: ["S", "M"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            {
+              title: "Detach Axis Product",
+              variants: [
+                { title: "S", attribute_values: { DetachSize: "S" } },
+                { title: "M", attribute_values: { DetachSize: "M" } },
+              ],
+              variant_attributes: [
+                {
+                  attribute_id: size.attribute_id,
+                  value_ids: [size.byName.get("S")!, size.byName.get("M")!],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+          expect(
+            (create.data.product.options ?? []).map((o: any) => o.title),
+          ).toContain("DetachSize")
+
+          await api.delete(
+            `/admin/products/${productId}/attributes/${size.attribute_id}`,
+            adminHeaders,
+          )
+
+          const got = await api.get(
+            `/admin/products/${productId}`,
+            adminHeaders,
+          )
+          const titles = (got.data.product.options ?? []).map(
+            (o: any) => o.title,
+          )
+          expect(titles).not.toContain("DetachSize")
+        })
+
         it("only detaches links for a global attribute (does not delete the global record)", async () => {
           const color = await createGlobalAttribute({
             name: "GlobalToDetach",
@@ -943,6 +992,198 @@ medusaIntegrationTestRunner({
           )
           expect(res.status).toBe(200)
           expect(res.data.product.id).toBe(productId)
+        })
+
+        // Variant-axis attribute attach must also synthesise a matching
+        // stock product option — same contract as the single-attach
+        // endpoint (`POST /:id/attributes`).
+        it("batch-attaches a variant-axis attribute and synthesises a matching product option", async () => {
+          const size = await createGlobalAttribute({
+            name: "BatchAxisSize",
+            type: "multi_select",
+            is_variant_axis: true,
+            values: ["S", "M", "L"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Batch Axis Create" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes/batch`,
+            {
+              create: [
+                {
+                  attribute_id: size.attribute_id,
+                  attribute_value_ids: [
+                    size.byName.get("S")!,
+                    size.byName.get("M")!,
+                  ],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+
+          const got = await api.get(
+            `/admin/products/${productId}`,
+            adminHeaders,
+          )
+          const option = (got.data.product.options ?? []).find(
+            (o: any) => o.title === "BatchAxisSize",
+          )
+          expect(option).toBeDefined()
+          expect(option.values.map((v: any) => v.value).sort()).toEqual([
+            "M",
+            "S",
+          ])
+        })
+
+        // Symmetric to the single-detach endpoint: detaching a variant-axis
+        // attribute via batch drops the matching stock product option too.
+        it("batch-detach of a variant-axis attribute also drops the matching product option", async () => {
+          const size = await createGlobalAttribute({
+            name: "BatchAxisDetach",
+            type: "multi_select",
+            is_variant_axis: true,
+            values: ["S", "M"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            {
+              title: "Batch Axis Detach",
+              variants: [
+                { title: "S", attribute_values: { BatchAxisDetach: "S" } },
+                { title: "M", attribute_values: { BatchAxisDetach: "M" } },
+              ],
+              variant_attributes: [
+                {
+                  attribute_id: size.attribute_id,
+                  value_ids: [
+                    size.byName.get("S")!,
+                    size.byName.get("M")!,
+                  ],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+          expect(
+            (create.data.product.options ?? []).map((o: any) => o.title),
+          ).toContain("BatchAxisDetach")
+
+          await api.post(
+            `/admin/products/${productId}/attributes/batch`,
+            { delete: [size.attribute_id] },
+            adminHeaders,
+          )
+
+          const got = await api.get(
+            `/admin/products/${productId}`,
+            adminHeaders,
+          )
+          const titles = (got.data.product.options ?? []).map(
+            (o: any) => o.title,
+          )
+          expect(titles).not.toContain("BatchAxisDetach")
+        })
+
+        // For non-select attribute types the UI sends free-text names via
+        // `values: string[]`. Unknown names must be upserted on the fly
+        // so the panel doesn't silently no-op when the user types a value
+        // that isn't already in the attribute's predefined set.
+        it("upserts free-form unit values when the typed name doesn't exist yet", async () => {
+          const weight = await createGlobalAttribute({
+            name: "FreeFormWeight",
+            type: "unit",
+            is_variant_axis: false,
+            values: [],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Free-form Unit Attach" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes/batch`,
+            {
+              create: [
+                {
+                  attribute_id: weight.attribute_id,
+                  values: ["123123"],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(got.data.product_attributes).toHaveLength(1)
+          const attr = got.data.product_attributes[0]
+          expect(attr.id).toBe(weight.attribute_id)
+          expect(attr.type).toBe("unit")
+          expect(attr.values.map((v: any) => v.name)).toEqual(["123123"])
+        })
+
+        // Unit-type attributes go through the `values: string[]` branch of
+        // the batch payload — the workflow resolves the names to existing
+        // ProductAttributeValue ids on (attribute_id, name) before linking.
+        it("attaches an existing unit-type attribute by value names", async () => {
+          const weight = await createGlobalAttribute({
+            name: "BatchWeight",
+            type: "unit",
+            is_variant_axis: false,
+            values: ["10 kg", "20 kg", "30 kg"],
+          })
+
+          const create = await api.post(
+            `/admin/products`,
+            { title: "Batch Unit Attach" },
+            adminHeaders,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/admin/products/${productId}/attributes/batch`,
+            {
+              create: [
+                {
+                  attribute_id: weight.attribute_id,
+                  values: ["10 kg", "20 kg"],
+                },
+              ],
+            },
+            adminHeaders,
+          )
+          expect(res.status).toBe(200)
+          expect(res.data.product.id).toBe(productId)
+
+          const got = await api.get(
+            `/admin/products/${productId}/attributes`,
+            adminHeaders,
+          )
+          expect(got.data.product_attributes).toHaveLength(1)
+          const attr = got.data.product_attributes[0]
+          expect(attr.id).toBe(weight.attribute_id)
+          expect(attr.name).toBe("BatchWeight")
+          expect(attr.type).toBe("unit")
+          expect(attr.values.map((v: any) => v.name).sort()).toEqual([
+            "10 kg",
+            "20 kg",
+          ])
         })
       })
     })

@@ -5,105 +5,11 @@ import {
 import {
   ContainerRegistrationKeys,
   MedusaError,
-  Modules,
 } from "@medusajs/framework/utils"
-import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
-import {
-  createWorkflow,
-  transform,
-  WorkflowResponse,
-} from "@medusajs/framework/workflows-sdk"
-import { AttributeType, HttpTypes, MercurModules } from "@mercurjs/types"
+import { AttributeType, HttpTypes } from "@mercurjs/types"
 
-import {
-  createProductAttributesStep,
-  createProductAttributeValuesStep,
-} from "../../../../../workflows/product-attribute/steps"
+import { addProductAttributeWorkflow } from "../../../../../workflows/product-attribute/workflows"
 import { AdminAddProductAttributeType } from "../../validators"
-
-/**
- * Mirror of `POST /vendor/products/:id/attributes` for the operator
- * surface. Admins do not need a seller-ownership check.
- */
-const attachProductAttributeValuesWorkflow = createWorkflow(
-  "admin-attach-product-attribute-values",
-  function (input: { product_id: string; value_ids: string[] }) {
-    const links = transform({ input }, ({ input }) =>
-      input.value_ids.map((value_id) => ({
-        [Modules.PRODUCT]: { product_id: input.product_id },
-        [MercurModules.PRODUCT_ATTRIBUTE]: {
-          product_attribute_value_id: value_id,
-        },
-      }))
-    )
-
-    createRemoteLinkStep(links as any)
-    return new WorkflowResponse(void 0)
-  }
-)
-
-/**
- * Creates a product-scoped `ProductAttribute` + its values and links the
- * new values to the target product. Mirrors the inline branch the
- * product create/update wrapper takes when its `product_attributes` /
- * `variant_attributes` arrays carry an inline entry — used here so the
- * dedicated "create attribute on this product" drawer can materialise a
- * scoped attribute without an extra round-trip.
- */
-const createScopedProductAttributeWorkflow = createWorkflow(
-  "admin-create-scoped-product-attribute",
-  function (input: {
-    product_id: string
-    name: string
-    type: AttributeType
-    is_variant_axis: boolean
-    is_filterable: boolean
-    is_required: boolean
-    description: string | null
-    metadata: Record<string, unknown> | null
-    value_names: string[]
-  }) {
-    const createInput = transform({ input }, ({ input }) => [
-      {
-        product_id: input.product_id,
-        name: input.name,
-        type: input.type,
-        is_variant_axis: input.is_variant_axis,
-        is_filterable: input.is_filterable,
-        is_required: input.is_required,
-        description: input.description,
-        metadata: input.metadata,
-      },
-    ])
-
-    const createdAttrs = createProductAttributesStep(createInput)
-
-    const valuesToCreate = transform(
-      { input, createdAttrs },
-      ({ input, createdAttrs }) => {
-        const attribute_id = createdAttrs[0]?.id as string | undefined
-        if (!attribute_id) return []
-        return input.value_names.map((name) => ({ name, attribute_id }))
-      }
-    )
-
-    const createdValues = createProductAttributeValuesStep(valuesToCreate)
-
-    const links = transform(
-      { input, createdValues },
-      ({ input, createdValues }) =>
-        createdValues.map((v) => ({
-          [Modules.PRODUCT]: { product_id: input.product_id },
-          [MercurModules.PRODUCT_ATTRIBUTE]: {
-            product_attribute_value_id: v.id as string,
-          },
-        }))
-    )
-
-    createRemoteLinkStep(links as any)
-    return new WorkflowResponse(void 0)
-  }
-)
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -201,44 +107,21 @@ export const POST = async (
   const productId = req.params.id
   const body = req.validatedBody
 
-  if (body.name) {
-    // Inline-create branch: materialise a product-scoped attribute and
-    // link its values to the product.
-    await createScopedProductAttributeWorkflow(req.scope).run({
-      input: {
-        product_id: productId,
-        name: body.name,
-        type: body.type as AttributeType,
-        is_variant_axis: body.is_variant_axis ?? false,
-        is_filterable: body.is_filterable ?? false,
-        is_required: body.is_required ?? false,
-        description: body.description ?? null,
-        metadata: body.metadata ?? null,
-        value_names: body.values ?? [],
-      },
-    })
-  } else {
-    // Attach-existing branch.
-    const attribute_id = body.attribute_id as string
-    const attribute_value_ids = body.attribute_value_ids ?? []
-    const values = body.values ?? []
-
-    let resolvedIds = attribute_value_ids
-    if (values.length) {
-      const { data: avs } = await query.graph({
-        entity: "product_attribute_value",
-        fields: ["id", "name"],
-        filters: { attribute_id, name: values } as Record<string, unknown>,
-      })
-      resolvedIds = [...resolvedIds, ...avs.map((v: { id: string }) => v.id)]
-    }
-
-    if (resolvedIds.length) {
-      await attachProductAttributeValuesWorkflow(req.scope).run({
-        input: { product_id: productId, value_ids: resolvedIds },
-      })
-    }
-  }
+  await addProductAttributeWorkflow(req.scope).run({
+    input: {
+      product_id: productId,
+      attribute_id: body.attribute_id,
+      value_ids: body.attribute_value_ids,
+      name: body.name,
+      type: body.type as AttributeType | undefined,
+      values: body.values,
+      is_variant_axis: body.is_variant_axis,
+      is_filterable: body.is_filterable,
+      is_required: body.is_required,
+      description: body.description ?? null,
+      metadata: body.metadata ?? null,
+    },
+  })
 
   const {
     data: [product],

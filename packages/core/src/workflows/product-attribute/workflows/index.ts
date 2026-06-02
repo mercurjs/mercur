@@ -1,3 +1,4 @@
+export * from "./add-product-attribute"
 export * from "./create-product-attributes"
 export * from "./update-product-attributes"
 export * from "./delete-product-attributes"

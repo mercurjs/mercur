@@ -510,6 +510,50 @@ medusaIntegrationTestRunner({
         })
       })
 
+      describe("POST /vendor/products/:id/attributes (attach existing branch)", () => {
+        it("attaches an existing variant-axis attribute and synthesises a matching product option", async () => {
+          const size = await createGlobalAttribute({
+            name: "AttachSize",
+            type: "multi_select",
+            is_variant_axis: true,
+            values: ["S", "M", "L"],
+          })
+
+          const create = await api.post(
+            `/vendor/products`,
+            { title: "Attach Axis Product" },
+            seller1Headers,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/vendor/products/${productId}/attributes`,
+            {
+              attribute_id: size.attribute_id,
+              attribute_value_ids: [
+                size.byName.get("S")!,
+                size.byName.get("M")!,
+              ],
+            },
+            seller1Headers,
+          )
+          expect(res.status).toBe(201)
+
+          const got = await api.get(
+            `/vendor/products/${productId}`,
+            seller1Headers,
+          )
+          const option = (got.data.product.options ?? []).find(
+            (o: any) => o.title === "AttachSize",
+          )
+          expect(option).toBeDefined()
+          expect(option.values.map((v: any) => v.value).sort()).toEqual([
+            "M",
+            "S",
+          ])
+        })
+      })
+
       describe("POST /vendor/products/:id/attributes (inline create branch)", () => {
         it("inline creates a product-scoped non-axis attribute and attaches its values", async () => {
           const create = await api.post(

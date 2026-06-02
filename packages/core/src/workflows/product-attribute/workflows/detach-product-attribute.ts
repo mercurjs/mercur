@@ -8,6 +8,7 @@ import {
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import {
+  deleteProductOptionsWorkflow,
   dismissRemoteLinkStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
@@ -44,22 +45,48 @@ export const detachProductAttributeWorkflow: ReturnWorkflow<
 
     const { data: products } = useQueryGraphStep({
       entity: "product",
-      fields: ["attribute_values.id", "attribute_values.attribute.id"],
+      fields: [
+        "options.id",
+        "options.title",
+        "attribute_values.id",
+        "attribute_values.attribute.id",
+        "attribute_values.attribute.name",
+      ],
       filters: { id: input.product_id },
     }).config({ name: "detach-pa-load-product" })
 
-    const valueIds = transform({ products, input }, ({ products, input }) => {
-      const values = (products[0]?.attribute_values ?? []) as Array<{
-        id: string
-        attribute?: { id?: string }
-      }>
-      return values
-        .filter((v) => v.attribute?.id === input.attribute_id)
-        .map((v) => v.id)
-    })
+    const detachPlan = transform(
+      { products, input },
+      ({ products, input }) => {
+        const product = products[0] as
+          | {
+              options?: Array<{ id: string; title: string }>
+              attribute_values?: Array<{
+                id: string
+                attribute?: { id?: string; name?: string }
+              }>
+            }
+          | undefined
 
-    const links = transform({ valueIds, input }, ({ valueIds, input }) =>
-      valueIds.map((value_id) => ({
+        const matched = (product?.attribute_values ?? []).filter(
+          (v) => v.attribute?.id === input.attribute_id,
+        )
+
+        const value_ids = matched.map((v) => v.id)
+        const attribute_name = matched[0]?.attribute?.name
+
+        const option_ids = attribute_name
+          ? (product?.options ?? [])
+              .filter((o) => o.title === attribute_name)
+              .map((o) => o.id)
+          : []
+
+        return { value_ids, option_ids }
+      },
+    )
+
+    const links = transform({ detachPlan, input }, ({ detachPlan, input }) =>
+      detachPlan.value_ids.map((value_id) => ({
         [Modules.PRODUCT]: { product_id: input.product_id },
         [MercurModules.PRODUCT_ATTRIBUTE]: {
           product_attribute_value_id: value_id,
@@ -71,10 +98,23 @@ export const detachProductAttributeWorkflow: ReturnWorkflow<
       name: "pa-detach-product-attribute-links",
     })
 
+    // Symmetric to the create flow: variant-axis attributes synthesise a
+    // product option, so detaching them should drop the matching option
+    // too (matched by title === attribute.name). Non-axis attributes
+    // never produce an option, so `option_ids` is empty for them.
+    deleteProductOptionsWorkflow.runAsStep({
+      input: transform({ detachPlan }, ({ detachPlan }) => ({
+        ids: detachPlan.option_ids,
+      })),
+    })
+
     const productAttributeDetached = createHook("productAttributeDetached", {
       product_id: input.product_id,
       attribute_id: input.attribute_id,
-      detached_value_ids: valueIds,
+      detached_value_ids: transform(
+        { detachPlan },
+        ({ detachPlan }) => detachPlan.value_ids,
+      ),
     })
 
     return new WorkflowResponse(void 0, {
