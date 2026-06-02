@@ -8,17 +8,6 @@ import { SellerDTO } from "../seller/common"
 
 // --- Enums ---
 
-/**
- * Mercur product acceptance workflow. Adds `REQUIRES_ACTION` to the
- * upstream `draft / proposed / published / rejected` set.
- */
-export enum ProductStatus {
-  DRAFT = "draft",
-  PROPOSED = "proposed",
-  PUBLISHED = "published",
-  REQUIRES_ACTION = "requires_action",
-  REJECTED = "rejected",
-}
 
 /**
  * Data types for product attributes. Determines validation rules and UI
@@ -190,14 +179,8 @@ export type ProductVariantDTO = UpstreamProductVariantDTO & {
  * Mercur's `ProductDTO`. Replaces `status` (Mercur enum includes
  * `REQUIRES_ACTION`) and drops `options`. Adds marketplace-only fields.
  */
-export type ProductDTO = Omit<UpstreamProductDTO, "status" | "options"> & {
-  status: ProductStatus
-  is_restricted: boolean
-  created_by: string | null
-  created_by_actor: string | null
+export type ProductDTO = UpstreamProductDTO & {
   variants?: ProductVariantDTO[]
-  brand?: ProductBrandDTO | null
-  brand_id?: string | null
   categories?: ProductCategoryDTO[]
   variant_attributes?: ProductAttributeDTO[]
   custom_attributes?: ProductAttributeDTO[]
@@ -206,10 +189,3 @@ export type ProductDTO = Omit<UpstreamProductDTO, "status" | "options"> & {
   sellers?: SellerDTO[]
   changes?: ProductChangeDTO[]
 }
-
-/**
- * Internal alias of `ProductDTO`. Used by the `.mercur/types.d.ts` shim so
- * consumers writing `import { ProductDTO } from "@medusajs/types"` resolve
- * to the Mercur shape.
- */
-export type MercurProductDTO = ProductDTO

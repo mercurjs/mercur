@@ -250,6 +250,26 @@ export type InlinePlanEntry = {
  * align with the flat outputs of `createProductAttributesStep` /
  * `createProductAttributeValuesStep`.
  */
+/**
+ * Drops empty entries and de-duplicates value names per ref. The
+ * underlying `ProductAttributeValue` uniqueness index is on
+ * `(attribute_id, handle)`, but two values with the same `name` are
+ * legal at the DB level — the UI form, however, treats names as the
+ * user-facing identity. Deduping here keeps the materialised set in
+ * line with what the form expects to round-trip.
+ */
+const dedupeValueNames = (values: string[]): string[] => {
+  const seen = new Set<string>()
+  const out: string[] = []
+  for (const v of values) {
+    const trimmed = v?.trim()
+    if (!trimmed || seen.has(trimmed)) continue
+    seen.add(trimmed)
+    out.push(trimmed)
+  }
+  return out
+}
+
 export function buildInlinePlan(
   groups: ResolvedRefs[],
   productIdAt: (groupIdx: number) => string | undefined,
@@ -269,7 +289,7 @@ export function buildInlinePlan(
         metadata: ref.metadata ?? null,
         product_id,
         _group_idx: idx,
-        _value_names: ref.values,
+        _value_names: dedupeValueNames(ref.values),
       })
     }
     for (const ref of r.inline_product) {
@@ -283,7 +303,7 @@ export function buildInlinePlan(
         metadata: ref.metadata ?? null,
         product_id,
         _group_idx: idx,
-        _value_names: ref.values,
+        _value_names: dedupeValueNames(ref.values),
       })
     }
   })

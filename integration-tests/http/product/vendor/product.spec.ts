@@ -380,6 +380,81 @@ medusaIntegrationTestRunner({
           expect(attrs).toHaveLength(1)
           expect(attrs[0].values.map((v: any) => v.name)).toEqual(["S"])
         })
+
+        // Round-trip: a product first created with an inline-custom
+        // attribute should NOT materialise a second ProductAttribute row
+        // when the UI re-sends it as an existing reference (i.e. uses the
+        // `attribute_id` returned by GET) on subsequent updates.
+        it("inline custom round-trip via attribute_id does not materialise duplicate attributes", async () => {
+          const create = await api.post(
+            `/vendor/products`,
+            {
+              title: "Round-trip custom",
+              variants: [
+                { title: "S", attribute_values: { Caliber: "S" } },
+                { title: "M", attribute_values: { Caliber: "M" } },
+              ],
+              variant_attributes: [
+                {
+                  name: "Caliber",
+                  type: "multi_select",
+                  values: ["S", "M"],
+                  is_variant_axis: true,
+                },
+              ],
+            },
+            seller1Headers,
+          )
+          const productId = create.data.product.id
+
+          const first = await api.get(
+            `/vendor/products/${productId}`,
+            seller1Headers,
+          )
+          const inlineAttr = first.data.product.attributes.find(
+            (a: any) => a.name === "Caliber",
+          )
+          expect(inlineAttr).toBeDefined()
+          const inlineAttributeId = inlineAttr.id
+          const sId = inlineAttr.values.find(
+            (v: any) => v.name === "S",
+          ).id
+          const mId = inlineAttr.values.find(
+            (v: any) => v.name === "M",
+          ).id
+
+          // Re-send as an existing reference (mirrors what the edit form
+          // does after a round-trip).
+          await api.post(
+            `/vendor/products/${productId}`,
+            {
+              variant_attributes: [
+                {
+                  attribute_id: inlineAttributeId,
+                  value_ids: [sId],
+                },
+              ],
+            },
+            seller1Headers,
+          )
+
+          const second = await api.get(
+            `/vendor/products/${productId}`,
+            seller1Headers,
+          )
+          const attrs = second.data.product.attributes
+          expect(attrs).toHaveLength(1)
+          expect(attrs[0].id).toBe(inlineAttributeId)
+          expect(attrs[0].values.map((v: any) => v.name)).toEqual(["S"])
+          // `all_values` should still contain both originally-created
+          // values — the attribute itself wasn't re-materialised.
+          expect(attrs[0].all_values.map((v: any) => v.name).sort()).toEqual([
+            "M",
+            "S",
+          ])
+          // Reference for documentation; not used otherwise.
+          expect(typeof mId).toBe("string")
+        })
       })
 
       describe("GET /vendor/products", () => {

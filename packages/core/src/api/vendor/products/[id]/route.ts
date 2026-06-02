@@ -11,10 +11,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { deleteProductsWorkflow } from "@medusajs/medusa/core-flows"
 import { updateProductsWorkflow } from "../../../../workflows/product/workflows/update-products"
-import {
-  enrichProductAttributes,
-  formatProductAttributes,
-} from "../../../utils"
+import { enrichProductAttributes } from "../../../utils"
 import { ensureSellerOwnsProduct } from "../helpers"
 import { VendorUpdateProductType } from "../validators"
 
@@ -39,7 +36,6 @@ export const GET = async (
     )
   }
 
-  formatProductAttributes(product)
   await enrichProductAttributes(req.scope, [product])
 
   res.json({ product })
@@ -72,7 +68,6 @@ export const POST = async (
     filters: { id: req.params.id },
   })
 
-  formatProductAttributes(product)
   await enrichProductAttributes(req.scope, [product])
 
   res.json({ product })

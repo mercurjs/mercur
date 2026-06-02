@@ -14,12 +14,8 @@ export const ProductStatusCell = ({ status }: ProductStatusCellProps) => {
     [ProductStatus.DRAFT]: ["grey", t("products.productStatus.draft")],
     [ProductStatus.PROPOSED]: ["orange", t("products.productStatus.proposed")],
     [ProductStatus.PUBLISHED]: ["green", t("products.productStatus.published")],
-    [ProductStatus.REQUIRES_ACTION]: [
-      "blue",
-      t("products.productStatus.requires_action"),
-    ],
     [ProductStatus.REJECTED]: ["red", t("products.productStatus.rejected")],
-  }[status] as ["grey" | "orange" | "green" | "red" | "blue", string];
+  }[status] as ["grey" | "orange" | "green" | "red", string];
 
   return <StatusCell color={color}>{text}</StatusCell>;
 };

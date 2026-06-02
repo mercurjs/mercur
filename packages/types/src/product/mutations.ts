@@ -2,27 +2,9 @@ import type {
   CreateProductDTO as UpstreamCreateProductDTO,
   UpdateProductDTO as UpstreamUpdateProductDTO,
   CreateProductVariantDTO as UpstreamCreateProductVariantDTO,
-  UpdateProductVariantDTO as UpstreamUpdateProductVariantDTO,
-  CreateProductCategoryDTO as UpstreamCreateProductCategoryDTO,
-  UpdateProductCategoryDTO as UpstreamUpdateProductCategoryDTO,
 } from "@medusajs/types"
-import { AttributeType, ProductChangeStatus, ProductStatus } from "./common"
-
-// --- ProductBrand (Mercur-only) ---
-
-export interface CreateProductBrandDTO {
-  name: string
-  handle?: string
-  is_restricted?: boolean
-  metadata?: Record<string, unknown> | null
-}
-
-export interface UpdateProductBrandDTO {
-  name?: string
-  handle?: string
-  is_restricted?: boolean
-  metadata?: Record<string, unknown> | null
-}
+import { AttributeType, ProductChangeStatus } from "./common"
+import { ProductStatus } from "./status"
 
 // --- ProductAttributeValue (Mercur-only) ---
 
@@ -105,16 +87,6 @@ export type ProductAttributeInputDTO =
       metadata?: Record<string, unknown> | null
     }
 
-// --- ProductCategory (Mercur extends with is_restricted) ---
-
-export type CreateProductCategoryDTO = UpstreamCreateProductCategoryDTO & {
-  is_restricted?: boolean
-}
-
-export type UpdateProductCategoryDTO = UpstreamUpdateProductCategoryDTO & {
-  is_restricted?: boolean
-}
-
 // --- ProductVariant (Mercur extends with attribute_values) ---
 
 /**
@@ -133,23 +105,10 @@ export type CreateProductVariantDTO = UpstreamCreateProductVariantDTO & {
   attribute_values?: VariantAttributeValuesInput
 }
 
-export type UpdateProductVariantDTO = UpstreamUpdateProductVariantDTO & {
-  attribute_values?: VariantAttributeValuesInput
-}
-
-export type UpsertProductVariantDTO = UpdateProductVariantDTO & {
-  id?: string
-  title: string
-}
-
 // --- Product (Mercur overrides status + adds marketplace fields) ---
 
 export type CreateProductDTO = Omit<UpstreamCreateProductDTO, "status"> & {
   status?: ProductStatus
-  is_restricted?: boolean
-  created_by?: string | null
-  created_by_actor?: string | null
-  brand_id?: string | null
   variants?: CreateProductVariantDTO[]
   /**
    * Product variant attributes. Each entry is either:
@@ -166,18 +125,10 @@ export type CreateProductDTO = Omit<UpstreamCreateProductDTO, "status"> & {
 
 export type UpdateProductDTO = Omit<UpstreamUpdateProductDTO, "status"> & {
   status?: ProductStatus
-  is_restricted?: boolean
-  brand_id?: string | null
-  variants?: UpsertProductVariantDTO[]
   /** See {@link CreateProductDTO.variant_attributes}. */
   variant_attributes?: ProductAttributeInputDTO[]
   /** See {@link CreateProductDTO.product_attributes}. */
   product_attributes?: ProductAttributeInputDTO[]
-}
-
-export type UpsertProductDTO = UpdateProductDTO & {
-  id?: string
-  title: string
 }
 
 // --- ProductChange (Mercur-only) ---

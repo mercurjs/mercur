@@ -15,7 +15,6 @@ export class Migration20260601000000 extends Migration {
         "rank" integer NOT NULL DEFAULT 0,
         "is_active" boolean NOT NULL DEFAULT true,
         "created_by" text NULL,
-        "product_id" text NULL,
         "metadata" jsonb NULL,
         "created_at" timestamptz NOT NULL DEFAULT now(),
         "updated_at" timestamptz NOT NULL DEFAULT now(),
@@ -31,11 +30,6 @@ export class Migration20260601000000 extends Migration {
       CREATE INDEX IF NOT EXISTS "IDX_product_attribute_type"
         ON "product_attribute" ("type")
         WHERE "deleted_at" IS NULL;
-    `)
-    this.addSql(`
-      CREATE INDEX IF NOT EXISTS "IDX_product_attribute_product_id"
-        ON "product_attribute" ("product_id")
-        WHERE "deleted_at" IS NULL AND "product_id" IS NOT NULL;
     `)
 
     this.addSql(`

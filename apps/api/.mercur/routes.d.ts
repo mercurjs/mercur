@@ -480,13 +480,6 @@ export type Routes = {
                 unterminate: typeof import("@mercurjs/core/api/admin/sellers/[id]/unterminate/route");
             };
         };
-        subscriptionPlans: typeof import("@mercurjs/core/api/admin/subscription-plans/route") & {
-            $id: typeof import("@mercurjs/core/api/admin/subscription-plans/[id]/route") & {
-                overrides: typeof import("@mercurjs/core/api/admin/subscription-plans/[id]/overrides/route") & {
-                    $overrideId: typeof import("@mercurjs/core/api/admin/subscription-plans/[id]/overrides/[override_id]/route");
-                };
-            };
-        };
         custom: typeof import("../../src/api/admin/custom/route");
     };
     auth: {
@@ -802,7 +795,6 @@ export type Routes = {
             };
         };
         stores: typeof import("@mercurjs/core/api/vendor/stores/route");
-        subscription: typeof import("@mercurjs/core/api/vendor/subscription/route");
         uploads: typeof import("@mercurjs/core/api/vendor/uploads/route");
     };
 };

@@ -23,7 +23,6 @@ type ProductOrganizationFormProps = {
 const ProductOrganizationSchema = zod.object({
   type_id: zod.string().nullable(),
   collection_id: zod.string().nullable(),
-  brand_id: zod.string().nullable(),
   category_id: zod.string().optional(),
   tag_ids: zod.array(zod.string()),
 });
@@ -68,21 +67,10 @@ export const ProductOrganizationForm = ({
       })),
   });
 
-  const brands = useComboboxData({
-    queryKey: ["product_brands"],
-    queryFn: (params) => sdk.vendor.productBrands.query(params as any),
-    getOptions: (data) =>
-      data.product_brands.map((brand: { id: string; name: string }) => ({
-        label: brand.name,
-        value: brand.id,
-      })),
-  });
-
   const form = useForm({
     defaultValues: {
       type_id: product.type_id ?? "",
       collection_id: product.collection_id ?? "",
-      brand_id: product.brand_id ?? "",
       category_id: product.categories?.[0]?.id ?? "",
       tag_ids: product.tags?.map((t: { id: string }) => t.id) || [],
     },
@@ -96,7 +84,6 @@ export const ProductOrganizationForm = ({
       {
         type_id: data.type_id || null,
         collection_id: data.collection_id || null,
-        brand_id: data.brand_id || null,
         categories: data.category_id ? [{ id: data.category_id }] : [],
         tags: data.tag_ids?.map((t) => ({ id: t })),
       } as any,
@@ -153,34 +140,6 @@ export const ProductOrganizationForm = ({
                       />
                     </Form.Control>
                     <Form.ErrorMessage data-testid="product-organization-form-type-error" />
-                  </Form.Item>
-                );
-              }}
-            />
-            <Form.Field
-              control={form.control}
-              name="brand_id"
-              render={({ field }) => {
-                return (
-                  <Form.Item data-testid="product-organization-form-brand-item">
-                    <Form.Label
-                      optional
-                      data-testid="product-organization-form-brand-label"
-                    >
-                      {t("fields.brand")}
-                    </Form.Label>
-                    <Form.Control data-testid="product-organization-form-brand-control">
-                      <Combobox
-                        {...field}
-                        multiple={false}
-                        options={brands.options}
-                        searchValue={brands.searchValue}
-                        onSearchValueChange={brands.onSearchValueChange}
-                        fetchNextPage={brands.fetchNextPage}
-                        data-testid="product-organization-form-brand-combobox"
-                      />
-                    </Form.Control>
-                    <Form.ErrorMessage data-testid="product-organization-form-brand-error" />
                   </Form.Item>
                 );
               }}

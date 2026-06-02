@@ -1,4 +1,10 @@
-import { MiddlewareRoute } from "@medusajs/framework/http"
+import {
+  maybeApplyLinkFilter,
+  MedusaNextFunction,
+  MedusaRequest,
+  MedusaResponse,
+  MiddlewareRoute,
+} from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
   validateAndTransformQuery,
@@ -20,6 +26,28 @@ const applyAttributeFilters = (req, _, next) => {
   next()
 }
 
+// The link pivot's FK column is `product_category_id` (derived from the
+// productCategory linkable key), not `category_id`. Map the URL filter
+// to the column the link service actually exposes.
+const renameCategoryIdFilter = (
+  req: MedusaRequest,
+  _: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  const categoryId = req.filterableFields?.category_id
+  if (categoryId !== undefined) {
+    req.filterableFields.product_category_id = categoryId
+    delete req.filterableFields.category_id
+  }
+  return next()
+}
+
+const filterByCategoryLink = maybeApplyLinkFilter({
+  entryPoint: "category_owning_attribute",
+  resourceId: "product_attribute_id",
+  filterableField: "product_category_id",
+})
+
 export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
   // --- /admin/product-attributes ---
   {
@@ -31,6 +59,8 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
         adminProductAttributeQueryConfig.list
       ),
       applyAttributeFilters,
+      renameCategoryIdFilter,
+      filterByCategoryLink,
     ],
   },
   {

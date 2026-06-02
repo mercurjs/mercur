@@ -7,10 +7,7 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
 import { createProductsWorkflow } from "../../../workflows/product/workflows/create-products"
-import {
-  enrichProductAttributes,
-  formatProductAttributes,
-} from "../../utils"
+import { enrichProductAttributes } from "../../utils"
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 
 export const GET = async (
@@ -26,9 +23,6 @@ export const GET = async (
     pagination: req.queryConfig.pagination,
   })
 
-  for (const product of products) {
-    formatProductAttributes(product)
-  }
   await enrichProductAttributes(req.scope, products as any[])
 
   res.json({
@@ -73,7 +67,6 @@ export const POST = async (
     filters: { id: createdId },
   })
 
-  formatProductAttributes(product)
   await enrichProductAttributes(req.scope, [product])
 
   res.status(201).json({ product })

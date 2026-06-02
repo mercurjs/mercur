@@ -24,8 +24,13 @@ export * from "./offer"
 // Types upstream declares verbatim (ProductImageDTO, ProductTypeDTO,
 // ProductTagDTO, ProductCollectionDTO, etc.) come through the wholesale
 // re-export unchanged.
+// `ProductStatus` is Medusa's `"draft" | "proposed" | "published" |
+// "rejected"` union. The matching runtime const is co-exported so
+// consumers can keep doing `ProductStatus.PUBLISHED`-style access.
+// `requires_action` is no longer a product status — it's a computed
+// boolean derived from `ProductChange`.
+export { ProductStatus } from "./product/status"
 export {
-  ProductStatus,
   AttributeType,
   ProductChangeStatus,
   ProductChangeActionType,
@@ -37,17 +42,9 @@ export {
   type ProductAttributeValueDTO,
   type ProductChangeDTO,
   type ProductChangeActionDTO,
-  type MercurProductDTO,
   type CreateProductDTO,
   type UpdateProductDTO,
-  type UpsertProductDTO,
   type CreateProductVariantDTO,
-  type UpdateProductVariantDTO,
-  type UpsertProductVariantDTO,
-  type CreateProductCategoryDTO,
-  type UpdateProductCategoryDTO,
-  type CreateProductBrandDTO,
-  type UpdateProductBrandDTO,
   type CreateProductAttributeDTO,
   type UpdateProductAttributeDTO,
   type CreateProductAttributeValueDTO,

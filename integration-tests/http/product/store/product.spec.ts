@@ -279,6 +279,30 @@ medusaIntegrationTestRunner({
                     )
                 })
 
+                it("surfaces linked attributes on product.attributes", async () => {
+                    const product = await createProduct(approvedSellerHeaders, {
+                        title: "Product with attribute",
+                    })
+
+                    const response = await api.get(
+                        `/store/products/${product.id}`,
+                        storeHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    // The inline-custom `Size` axis added by `createProduct`
+                    // should round-trip through the storefront response.
+                    const attrs = response.data.product.attributes
+                    expect(Array.isArray(attrs)).toBe(true)
+                    const sizeAttr = attrs.find(
+                        (a: any) => a.name === "Size"
+                    )
+                    expect(sizeAttr).toBeDefined()
+                    expect(
+                        sizeAttr.values.map((v: any) => v.name)
+                    ).toEqual(["M"])
+                })
+
                 it("should return 404 for a non-existent product", async () => {
                     const response = await api
                         .get(`/store/products/prod_nonexistent`, storeHeaders)

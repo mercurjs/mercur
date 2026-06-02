@@ -13,18 +13,6 @@ type AttrAccum = {
 }
 
 /**
- * Sync placeholder kept for backwards-compatibility with callers that
- * don't have the container in scope. Initialises `product.attributes
- * = []` so downstream code doesn't crash when the response was queried
- * without the attribute joiner. The real work happens in
- * `enrichProductAttributes`.
- */
-export function formatProductAttributes(product: any): void {
-  if (!product) return
-  if (!product.attributes) product.attributes = []
-}
-
-/**
  * Builds a unified `product.attributes` array on each product from the
  * linked value ids (single-hop joiner) by issuing TWO bulk queries
  * against the product-attribute module — one for every selected value
@@ -35,9 +23,11 @@ export function formatProductAttributes(product: any): void {
  *   - `all_values`: the parent attribute's full value set so the edit
  *     form can render the dropdown with `values` pre-selected.
  *
- * Cross-module chained populate (`attribute_values.attribute.values`)
- * crashes Medusa's joiner here because the value side lives in another
- * module — splitting the read avoids that path entirely.
+ * Always seeds `product.attributes = []` even when there's nothing to
+ * enrich, so downstream code can rely on the field existing. Cross-
+ * module chained populate (`attribute_values.attribute.values`) crashes
+ * Medusa's joiner here because the value side lives in another module —
+ * splitting the read avoids that path entirely.
  *
  * Mutates each product object in place.
  */
@@ -47,36 +37,39 @@ export async function enrichProductAttributes(
 ): Promise<void> {
   if (!products?.length) return
 
+  // Guarantee the field is present even if the product carries no
+  // attribute joiner data.
+  for (const product of products) {
+    if (product && !product.attributes) product.attributes = []
+  }
+
   // Collect linked value ids and product-scoped attribute ids across
   // the whole batch so we issue one query per module entity instead of
   // N (where N = list size).
-  const allValueIds = new Set<string>()
-  const allScopedAttrIds = new Set<string>()
+  const linkedValueIds = new Set<string>()
+  const inlineAttributeIds = new Set<string>()
   for (const product of products) {
     for (const v of (product?.attribute_values ?? []) as Array<{
       id?: string
     }>) {
-      if (typeof v?.id === "string") allValueIds.add(v.id)
+      if (typeof v?.id === "string") linkedValueIds.add(v.id)
     }
     for (const a of (product?.scoped_attributes ?? []) as Array<{
       id?: string
     }>) {
-      if (typeof a?.id === "string") allScopedAttrIds.add(a.id)
+      if (typeof a?.id === "string") inlineAttributeIds.add(a.id)
     }
   }
 
-  if (!allValueIds.size && !allScopedAttrIds.size) {
-    for (const product of products) product.attributes = []
-    return
-  }
+  if (!linkedValueIds.size && !inlineAttributeIds.size) return
 
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: selectedValues } = allValueIds.size
+  const { data: selectedValues } = linkedValueIds.size
     ? await query.graph({
         entity: "product_attribute_value",
         fields: ["id", "name", "rank", "attribute_id"],
-        filters: { id: Array.from(allValueIds) },
+        filters: { id: Array.from(linkedValueIds) },
       })
     : {
         data: [] as Array<{
@@ -105,17 +98,14 @@ export async function enrichProductAttributes(
     selectedValueById.set(v.id, v)
   }
 
-  const attributeIds = new Set<string>(allScopedAttrIds)
+  const attributeIds = new Set<string>(inlineAttributeIds)
   for (const v of selectedValues as Array<{
     attribute_id: string | null
   }>) {
     if (v.attribute_id) attributeIds.add(v.attribute_id)
   }
 
-  if (!attributeIds.size) {
-    for (const product of products) product.attributes = []
-    return
-  }
+  if (!attributeIds.size) return
 
   const { data: attributes } = await query.graph({
     entity: "product_attribute",

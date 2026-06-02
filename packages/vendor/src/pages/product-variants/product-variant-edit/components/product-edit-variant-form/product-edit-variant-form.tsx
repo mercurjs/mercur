@@ -110,11 +110,18 @@ export const ProductEditVariantForm = ({
 
     const nullableData = transformNullableFormData(optional)
 
-    const cleanedAttributeValues = Object.fromEntries(
-      Object.entries(attribute_values ?? {}).filter(([, v]) =>
-        Array.isArray(v) ? v.length > 0 : !!v,
-      ),
-    ) as Record<string, string | string[]>
+    // Rekey from internal `handle ?? id` form path to the attribute name —
+    // the create-products wrapper synthesizes stock option titles from the
+    // attribute name, so the variant's attribute_values must match those.
+    const cleanedAttributeValues = variantAttributes.reduce<
+      Record<string, string | string[]>
+    >((acc, attr) => {
+      const fieldKey = attr.handle ?? attr.id
+      const v = attribute_values?.[fieldKey]
+      const isEmpty = Array.isArray(v) ? v.length === 0 : !v
+      if (!isEmpty && attr.name) acc[attr.name] = v as string | string[]
+      return acc
+    }, {})
 
     await mutateAsync(
       {

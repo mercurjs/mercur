@@ -13,7 +13,6 @@ export const adminProductCategoryFields = [
   "metadata",
   "*parent_category",
   "*category_children",
-  "*attributes",
 ]
 
 export const adminProductCategoryQueryConfig = {

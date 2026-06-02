@@ -157,10 +157,6 @@ export const useProductTableFilters = (
         value: ProductStatus.PUBLISHED,
       },
       {
-        label: t("products.productStatus.requires_action"),
-        value: ProductStatus.REQUIRES_ACTION,
-      },
-      {
         label: t("products.productStatus.rejected"),
         value: ProductStatus.REJECTED,
       },

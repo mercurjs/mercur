@@ -10,8 +10,7 @@ import {
   applyAndAndOrOperators,
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
-import { AdditionalData, OperatorMap } from "@medusajs/framework/types"
-import { isPresent } from "@medusajs/framework/utils"
+import { AdditionalData } from "@medusajs/framework/types"
 
 const typeEnum = z.nativeEnum(AttributeType)
 
@@ -46,20 +45,6 @@ export const AdminGetProductAttributesParams = createFindParams({
 })
   .merge(AdminProductAttributesParamsFields)
   .merge(applyAndAndOrOperators(AdminProductAttributesParamsFields))
-  .transform((data) => {
-    const res = { ...data } as Record<string, unknown>
-
-    if (isPresent(data.category_id)) {
-      // Return attributes that belong to the given category OR have no category (global)
-      res.$or = [
-        { categories: { id: data.category_id as OperatorMap<string> } },
-        { categories: { id: null } },
-      ]
-      delete res.category_id
-    }
-
-    return res
-  })
 
 // --- Attribute create / update ---
 
