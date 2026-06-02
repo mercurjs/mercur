@@ -6,9 +6,9 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { AttributeType, HttpTypes } from "@mercurjs/types"
+import { AttributeType, HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 
-import { addProductAttributeWorkflow } from "../../../../../workflows/product-attribute/workflows"
+import { productEditUpdateAttributesWorkflow } from "../../../../../workflows/product-edit/workflows/product-edit-update-attributes"
 import { ensureSellerOwnsProduct } from "../../helpers"
 import { VendorAddProductAttributeType } from "../../validators"
 
@@ -51,9 +51,17 @@ export const GET = async (
   } as any)
 }
 
+/**
+ * Stages an `ATTRIBUTE_ADD` action. Supports both branches the
+ * validator allows: attach-existing (`attribute_id` + `value_ids` /
+ * `values`) and inline-create (`name` + `type` + `values`). The
+ * staging workflow resolves names → ids and creates inline
+ * `ProductAttribute` rows up-front so the action carries pre-resolved
+ * `attribute_value_ids` (the apply-actions contract).
+ */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorAddProductAttributeType>,
-  res: MedusaResponse<HttpTypes.VendorProductResponse>
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
@@ -62,29 +70,41 @@ export const POST = async (
 
   await ensureSellerOwnsProduct(req.scope, sellerId, productId)
 
-  await addProductAttributeWorkflow(req.scope).run({
+  const op =
+    body.attribute_id !== undefined
+      ? ({
+          type: "add" as const,
+          attribute_id: body.attribute_id,
+          value_ids: body.attribute_value_ids,
+          values: body.values,
+        })
+      : ({
+          type: "add" as const,
+          name: body.name!,
+          attribute_type: body.type as AttributeType,
+          values: body.values ?? [],
+          is_variant_axis: body.is_variant_axis,
+          is_filterable: body.is_filterable,
+          is_required: body.is_required,
+          description: body.description ?? null,
+          metadata: body.metadata ?? null,
+        })
+
+  const { result } = await productEditUpdateAttributesWorkflow(req.scope).run({
     input: {
       product_id: productId,
-      attribute_id: body.attribute_id,
-      value_ids: body.attribute_value_ids,
-      name: body.name,
-      type: body.type as AttributeType | undefined,
-      values: body.values,
-      is_variant_axis: body.is_variant_axis,
-      is_filterable: body.is_filterable,
-      is_required: body.is_required,
-      description: body.description ?? null,
-      metadata: body.metadata ?? null,
+      created_by: sellerId,
+      operations: [op],
     },
   })
 
   const {
-    data: [product],
+    data: [product_change],
   } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: { id: productId },
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
   })
 
-  res.status(201).json({ product })
+  res.status(202).json({ product_change: product_change ?? result })
 }

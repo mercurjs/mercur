@@ -7,7 +7,7 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
-import { cancelProductChangeWorkflow } from "../../../../../workflows/product-change/workflows/cancel-product-change"
+import { cancelProductChangeWorkflow } from "../../../../../workflows/product-edit/workflows/cancel-product-change"
 import { AdminCancelProductChangeType } from "../../validators"
 
 /**

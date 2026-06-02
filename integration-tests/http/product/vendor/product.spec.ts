@@ -325,7 +325,14 @@ medusaIntegrationTestRunner({
         })
       })
 
-      describe("POST /vendor/products/:id (update — replace attribute value links)", () => {
+      describe("Vendor product attribute link replacement (via dedicated /attributes endpoints)", () => {
+        // The replace-semantics test originally exercised
+        // `POST /vendor/products/:id` carrying `variant_attributes`,
+        // which the legacy direct-mutation route resolved via the Mercur
+        // wrapper of `updateProductsWorkflow`. The new staging contract
+        // routes attribute mutations through the dedicated
+        // `/vendor/products/:id/attributes` endpoints instead — so the
+        // same end state is reached by DELETE-then-POST.
         it("replaces previously-linked values when the update payload changes them", async () => {
           const size = await createGlobalAttribute({
             name: "Size",
@@ -358,15 +365,15 @@ medusaIntegrationTestRunner({
           )
           const productId = create.data.product.id
 
+          await api.delete(
+            `/vendor/products/${productId}/attributes/${size.attribute_id}`,
+            seller1Headers,
+          )
           await api.post(
-            `/vendor/products/${productId}`,
+            `/vendor/products/${productId}/attributes`,
             {
-              variant_attributes: [
-                {
-                  attribute_id: size.attribute_id,
-                  value_ids: [size.byName.get("S")!],
-                },
-              ],
+              attribute_id: size.attribute_id,
+              attribute_value_ids: [size.byName.get("S")!],
             },
             seller1Headers,
           )
@@ -423,16 +430,18 @@ medusaIntegrationTestRunner({
           ).id
 
           // Re-send as an existing reference (mirrors what the edit form
-          // does after a round-trip).
+          // does after a round-trip) — through the dedicated attributes
+          // endpoints. We DELETE the existing link set then re-attach the
+          // narrower selection so the final link set is exactly `[S]`.
+          await api.delete(
+            `/vendor/products/${productId}/attributes/${inlineAttributeId}`,
+            seller1Headers,
+          )
           await api.post(
-            `/vendor/products/${productId}`,
+            `/vendor/products/${productId}/attributes`,
             {
-              variant_attributes: [
-                {
-                  attribute_id: inlineAttributeId,
-                  value_ids: [sId],
-                },
-              ],
+              attribute_id: inlineAttributeId,
+              attribute_value_ids: [sId],
             },
             seller1Headers,
           )
@@ -489,8 +498,14 @@ medusaIntegrationTestRunner({
             { title: "Updated" },
             seller1Headers,
           )
-          expect(res.status).toBe(200)
-          expect(res.data.product.title).toBe("Updated")
+          // POST /vendor/products/:id stages a ProductChange and returns 202.
+          // The test env has `MEDUSA_FF_PRODUCT_REQUEST=false`, so the change
+          // is auto-confirmed and the underlying product is already updated
+          // by the time we read it back.
+          expect(res.status).toBe(202)
+          expect(res.data.product_change).toBeDefined()
+          const got = await api.get(`/vendor/products/${id}`, seller1Headers)
+          expect(got.data.product.title).toBe("Updated")
         })
 
         it("seller cannot update another seller's product", async () => {
@@ -537,7 +552,10 @@ medusaIntegrationTestRunner({
             },
             seller1Headers,
           )
-          expect(res.status).toBe(201)
+          // Attribute attach stages an ATTRIBUTE_ADD action; auto-confirm
+          // applies it inline because the test env disables the flag.
+          expect(res.status).toBe(202)
+          expect(res.data.product_change).toBeDefined()
 
           const got = await api.get(
             `/vendor/products/${productId}`,
@@ -573,7 +591,9 @@ medusaIntegrationTestRunner({
             },
             seller1Headers,
           )
-          expect(res.status).toBe(201)
+          // Inline-create attribute stages ATTRIBUTE_ADD; auto-confirm
+          // applies the link inline.
+          expect(res.status).toBe(202)
 
           const got = await api.get(
             `/vendor/products/${productId}/attributes`,
@@ -646,8 +666,12 @@ medusaIntegrationTestRunner({
             `/vendor/products/${id}`,
             seller1Headers,
           )
-          expect(res.status).toBe(200)
-          expect(res.data.deleted).toBe(true)
+          // Delete is staged as PRODUCT_DELETE and auto-confirmed.
+          expect(res.status).toBe(202)
+          expect(res.data.product_change).toBeDefined()
+          await expect(
+            api.get(`/vendor/products/${id}`, seller1Headers),
+          ).rejects.toMatchObject({ response: { status: 404 } })
         })
       })
     })

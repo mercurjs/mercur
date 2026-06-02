@@ -8,7 +8,7 @@ import {
 } from "@medusajs/framework/utils"
 import { HttpTypes, ProductChangeStatus } from "@mercurjs/types"
 
-import { confirmProductChangeWorkflow } from "../../../../../workflows/product-change/workflows/confirm-product-change"
+import { confirmProductChangeWorkflow } from "../../../../../workflows/product-edit/workflows/confirm-product-change"
 import { AdminConfirmProductType } from "../../validators"
 
 /**

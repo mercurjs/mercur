@@ -20,6 +20,7 @@ import {
 import { MercurModules, ProductChangeActionType } from "@mercurjs/types"
 
 import { updateProductChangeActionsStep } from "../steps"
+import { upsertProductOptionsForAxisStep } from "../../product-attribute/steps"
 
 export type ApplyProductChangeActionsWorkflowInput = {
   change_ids: string[]
@@ -357,6 +358,58 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         createRemoteLinkStep(variantAttrLinksToCreate).config({
           name: "pc-create-variant-attribute-links",
         })
+
+        // Synthesize the corresponding stock product option for each
+        // variant-axis attribute add. Mirrors what
+        // `addProductAttributeWorkflow` does inline so a confirmed
+        // ATTRIBUTE_ADD reaches the same product-options state as a
+        // direct attach. Needs the attribute name + value names, which
+        // we pull from the freshly-loaded attribute rows.
+        const { data: optionAttributes } = useQueryGraphStep({
+          entity: "product_attribute",
+          fields: ["id", "name", "is_variant_axis", "values.id", "values.name"],
+          filters: { id: addedAttributeIds },
+        }).config({ name: "pc-load-attribute-values-for-options" })
+
+        const optionsToUpsert = transform(
+          { buckets, optionAttributes },
+          ({ buckets, optionAttributes }) => {
+            const byId = new Map<
+              string,
+              { name: string; is_variant_axis: boolean; values: Array<{ id: string; name: string }> }
+            >()
+            for (const a of (optionAttributes ?? []) as Array<{
+              id: string
+              name: string
+              is_variant_axis?: boolean
+              values?: Array<{ id: string; name: string }>
+            }>) {
+              byId.set(a.id, {
+                name: a.name,
+                is_variant_axis: Boolean(a.is_variant_axis),
+                values: a.values ?? [],
+              })
+            }
+            const out: Array<{ product_id: string; title: string; values: string[] }> = []
+            for (const a of buckets.attributeAdds) {
+              const meta = byId.get(a.attribute_id)
+              if (!meta || !meta.is_variant_axis) continue
+              const valueIdSet = new Set(a.attribute_value_ids)
+              const valueNames = meta.values
+                .filter((v) => valueIdSet.has(v.id))
+                .map((v) => v.name)
+              if (!valueNames.length) continue
+              out.push({
+                product_id: a.product_id,
+                title: meta.name,
+                values: valueNames,
+              })
+            }
+            return out
+          },
+        )
+
+        upsertProductOptionsForAxisStep(optionsToUpsert)
       },
     )
 

@@ -7,10 +7,10 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
-import { HttpTypes } from "@mercurjs/types"
+import { HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 
-import { deleteProductsWorkflow } from "@medusajs/medusa/core-flows"
-import { updateProductsWorkflow } from "../../../../workflows/product/workflows/update-products"
+import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
+import { productEditUpdateFieldsWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-update-fields"
 import { enrichProductAttributes } from "../../../utils"
 import { ensureSellerOwnsProduct } from "../helpers"
 import { VendorUpdateProductType } from "../validators"
@@ -41,52 +41,72 @@ export const GET = async (
   res.json({ product })
 }
 
+/**
+ * Stages a vendor product edit as a pending `ProductChange`. Each
+ * changed field becomes a `ProductChangeAction` (`STATUS_CHANGE` for
+ * status, `UPDATE { field, value }` otherwise). When the
+ * `PRODUCT_REQUEST` feature flag is disabled the staged change is
+ * confirmed inline and applied to the underlying product before the
+ * response returns. Returns 202 with `{ product_change }` so the
+ * vendor UI can show pending state regardless of flag.
+ */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateProductType & AdditionalData>,
-  res: MedusaResponse<HttpTypes.VendorProductResponse>
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
 
   await ensureSellerOwnsProduct(req.scope, sellerId, req.params.id)
 
-  const { additional_data, ...update } = req.validatedBody
+  const { additional_data: _ad, ...update } = req.validatedBody
 
-  await updateProductsWorkflow(req.scope).run({
+  const { result } = await productEditUpdateFieldsWorkflow(req.scope).run({
     input: {
-      selector: { id: req.params.id },
+      product_id: req.params.id,
+      created_by: sellerId,
       update: update as Record<string, unknown>,
-      additional_data,
     },
   })
 
   const {
-    data: [product],
+    data: [product_change],
   } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: { id: req.params.id },
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
   })
 
-  await enrichProductAttributes(req.scope, [product])
-
-  res.json({ product })
+  res.status(202).json({ product_change: product_change ?? result })
 }
 
+/**
+ * Stages a vendor-initiated delete as a `PRODUCT_DELETE` action on a
+ * fresh `ProductChange`. Auto-confirm applies it inline when the
+ * `PRODUCT_REQUEST` feature flag is disabled.
+ */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>
 ) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
   await ensureSellerOwnsProduct(req.scope, sellerId, req.params.id)
 
-  await deleteProductsWorkflow(req.scope).run({
-    input: { ids: [req.params.id] },
+  const { result } = await productEditDeleteProductWorkflow(req.scope).run({
+    input: {
+      product_id: req.params.id,
+      created_by: sellerId,
+    },
   })
 
-  res.status(200).json({
-    id: req.params.id,
-    object: "product",
-    deleted: true,
+  const {
+    data: [product_change],
+  } = await query.graph({
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
   })
+
+  res.status(202).json({ product_change: product_change ?? result })
 }

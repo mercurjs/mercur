@@ -6,11 +6,9 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
+import { HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 
-import {
-  detachProductAttributeWorkflow,
-} from "../../../../../../workflows/product-attribute"
+import { productEditUpdateAttributesWorkflow } from "../../../../../../workflows/product-edit/workflows/product-edit-update-attributes"
 import { ensureSellerOwnsProduct } from "../../../helpers"
 
 export const GET = async (
@@ -61,23 +59,36 @@ export const GET = async (
   res.json({ product_attribute })
 }
 
+/**
+ * Stages an `ATTRIBUTE_REMOVE` action. Auto-confirm dismisses the
+ * remote links inline when the flag is off.
+ */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>
 ) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
   const productId = req.params.id
   const attributeId = req.params.attribute_id
 
   await ensureSellerOwnsProduct(req.scope, sellerId, productId)
 
-  await detachProductAttributeWorkflow(req.scope).run({
-    input: { product_id: productId, attribute_id: attributeId },
+  const { result } = await productEditUpdateAttributesWorkflow(req.scope).run({
+    input: {
+      product_id: productId,
+      created_by: sellerId,
+      operations: [{ type: "remove", attribute_id: attributeId }],
+    },
   })
 
-  res.json({
-    id: attributeId,
-    object: "product_attribute",
-    deleted: true,
+  const {
+    data: [product_change],
+  } = await query.graph({
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
   })
+
+  res.status(202).json({ product_change: product_change ?? result })
 }

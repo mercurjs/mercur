@@ -6,12 +6,9 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import {
-  deleteProductVariantsWorkflow,
-  updateProductVariantsWorkflow,
-} from "@medusajs/medusa/core-flows"
-import { HttpTypes } from "@mercurjs/types"
+import { HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 
+import { productEditUpdateVariantsWorkflow } from "../../../../../../workflows/product-edit/workflows/product-edit-update-variants"
 import { ensureSellerOwnsProduct } from "../../../helpers"
 import { VendorUpdateProductVariantType } from "../../../validators"
 
@@ -39,9 +36,13 @@ export const GET = async (
   res.json({ variant })
 }
 
+/**
+ * Stages a `VARIANT_UPDATE` action. Auto-confirm runs
+ * `updateProductVariantsWorkflow` inline when the flag is off.
+ */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateProductVariantType>,
-  res: MedusaResponse<HttpTypes.VendorProductResponse>
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
@@ -52,41 +53,61 @@ export const POST = async (
 
   const { attribute_values: _av, ...update } = req.validatedBody
 
-  await updateProductVariantsWorkflow(req.scope).run({
+  const { result } = await productEditUpdateVariantsWorkflow(req.scope).run({
     input: {
-      selector: { id: variantId, product_id: productId } as any,
-      update: { ...update, manage_inventory: false } as any,
+      product_id: productId,
+      created_by: sellerId,
+      operations: [
+        {
+          type: "update",
+          variant_id: variantId,
+          fields: { ...update, manage_inventory: false },
+        },
+      ],
     },
   })
 
   const {
-    data: [product],
+    data: [product_change],
   } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: { id: productId },
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
   })
 
-  res.json({ product })
+  res.status(202).json({ product_change: product_change ?? result })
 }
 
+/**
+ * Stages a `VARIANT_REMOVE` action. Auto-confirm runs
+ * `deleteProductVariantsWorkflow` inline when the flag is off.
+ */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>
 ) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
   const productId = req.params.id
   const variantId = req.params.variant_id
 
   await ensureSellerOwnsProduct(req.scope, sellerId, productId)
 
-  await deleteProductVariantsWorkflow(req.scope).run({
-    input: { ids: [variantId] },
+  const { result } = await productEditUpdateVariantsWorkflow(req.scope).run({
+    input: {
+      product_id: productId,
+      created_by: sellerId,
+      operations: [{ type: "remove", variant_id: variantId }],
+    },
   })
 
-  res.json({
-    id: variantId,
-    object: "variant",
-    deleted: true,
+  const {
+    data: [product_change],
+  } = await query.graph({
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
   })
+
+  res.status(202).json({ product_change: product_change ?? result })
 }

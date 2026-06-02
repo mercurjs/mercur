@@ -3,7 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 
-import { confirmProductChangeWorkflow } from "../../../../../workflows/product-change/workflows/confirm-product-change"
+import { confirmProductChangeWorkflow } from "../../../../../workflows/product-edit/workflows/confirm-product-change"
 import { AdminConfirmProductChangeType } from "../../validators"
 
 /**
