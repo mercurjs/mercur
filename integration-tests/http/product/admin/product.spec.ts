@@ -1029,6 +1029,7 @@ medusaIntegrationTestRunner({
           )
           expect(res.status).toBe(200)
 
+          const variantsBefore = create.data.product.variants ?? []
           const got = await api.get(
             `/admin/products/${productId}`,
             adminHeaders,
@@ -1041,6 +1042,14 @@ medusaIntegrationTestRunner({
             "M",
             "S",
           ])
+
+          // Attaching axis option values must NOT regenerate or upsert
+          // variants — only the product option set is touched. Variants
+          // remain the responsibility of the variant-edit pathway.
+          const variantsAfter = got.data.product.variants ?? []
+          expect(variantsAfter.map((v: any) => v.id).sort()).toEqual(
+            variantsBefore.map((v: any) => v.id).sort(),
+          )
         })
 
         // Symmetric to the single-detach endpoint: detaching a variant-axis
