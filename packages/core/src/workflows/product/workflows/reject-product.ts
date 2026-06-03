@@ -10,17 +10,11 @@ import {
   updateProductsStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import {
-  ProductChangeActionType,
-  ProductChangeStatus,
-} from "@mercurjs/types"
+import { ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
-import { validateRejectProductStep } from "../steps/validate-reject-product"
-import {
-  createProductChangeActionsStep,
-  createProductChangesStep,
-} from "../../product-edit/steps"
+import { validateProductsStatusStep } from "../steps/validate-products-status"
+import { recordProductAuditChangeWorkflow } from "../../product-edit/workflows/record-product-audit-change"
 
 export const rejectProductWorkflowId = "mercur-reject-product"
 
@@ -47,47 +41,36 @@ export const rejectProductWorkflow = createWorkflow(
       options: { throwIfKeyNotFound: true },
     }).config({ name: "get-product" })
 
-    const product = transform({ products }, ({ products }) => products[0])
+    validateProductsStatusStep({
+      products,
+      expected_status: ProductStatus.PROPOSED,
+    })
 
-    validateRejectProductStep({ product })
+    recordProductAuditChangeWorkflow.runAsStep({
+      input: transform({ input }, ({ input }) => ({
+        actor_id: input.actor_id,
+        changes: [
+          {
+            product_id: input.product_id,
+            external_note: input.message,
+            actions: [
+              {
+                product_id: input.product_id,
+                action: ProductChangeActionType.STATUS_CHANGE,
+                details: { status: ProductStatus.REJECTED },
+              },
+            ],
+          },
+        ],
+      })),
+    })
 
-    const changeData = transform(
-      { product, input },
-      ({ product, input }) => [
-        {
-          product_id: product.id as string,
-          created_by: input.actor_id,
-          status: ProductChangeStatus.CONFIRMED,
-          confirmed_by: input.actor_id,
-          confirmed_at: new Date(),
-          external_note: input.message,
-        },
-      ],
+    updateProductsStep(
+      transform({ input }, ({ input }) => ({
+        selector: { id: input.product_id },
+        update: { status: ProductStatus.REJECTED },
+      })),
     )
-
-    const changes = createProductChangesStep(changeData)
-
-    const actionData = transform(
-      { changes, product },
-      ({ changes, product }) => [
-        {
-          product_change_id: changes[0].id as string,
-          product_id: product.id as string,
-          action: ProductChangeActionType.STATUS_CHANGE,
-          details: { status: ProductStatus.REJECTED },
-          applied: true,
-        },
-      ],
-    )
-
-    createProductChangeActionsStep(actionData)
-
-    const updateInput = transform({ input }, ({ input }) => ({
-      selector: { id: input.product_id },
-      update: { status: ProductStatus.REJECTED },
-    }))
-
-    updateProductsStep(updateInput)
 
     emitEventStep({
       eventName: ProductWorkflowEvents.REJECTED,

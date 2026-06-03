@@ -17,15 +17,8 @@ import {
   ProductChangeActionType,
 } from "@mercurjs/types"
 
-import {
-  createProductAttributesStep,
-  createProductAttributeValuesStep,
-} from "../../product-attribute/steps"
-import {
-  confirmProductChangesStep,
-  createProductChangeActionsStep,
-  createProductChangesStep,
-} from "../../product-edit/steps"
+import { materializeProductAttributesWorkflow } from "../../product-attribute/workflows/materialize-product-attributes"
+import { recordProductAuditChangeWorkflow } from "../../product-edit/workflows/record-product-audit-change"
 import {
   associateSellersWithProductStep,
   buildInlinePlan,
@@ -194,31 +187,15 @@ export const createProductsWorkflow: any = createWorkflow(
         buildInlinePlan(resolved, (idx) => createdProducts[idx]?.id as string | undefined),
     )
 
-    const inlineAttributesToCreate = transform(
-      { inlinePlan },
-      ({ inlinePlan }) =>
-        inlinePlan.map(({ _group_idx, _value_names, ...attr }) => attr),
-    )
+    const materialized = materializeProductAttributesWorkflow.runAsStep({
+      input: transform({ inlinePlan }, ({ inlinePlan }) => ({
+        plan: inlinePlan,
+      })),
+    })
 
-    const createdInlineAttrs = createProductAttributesStep(
-      inlineAttributesToCreate,
-    )
-
-    const inlineValuesToCreate = transform(
-      { inlinePlan, createdInlineAttrs },
-      ({ inlinePlan, createdInlineAttrs }) => {
-        const out: { name: string; attribute_id: string }[] = []
-        inlinePlan.forEach((p, i) => {
-          const attribute_id = createdInlineAttrs[i]?.id as string | undefined
-          if (!attribute_id) return
-          for (const name of p._value_names) out.push({ name, attribute_id })
-        })
-        return out
-      },
-    )
-
-    const createdInlineValues = createProductAttributeValuesStep(
-      inlineValuesToCreate,
+    const createdInlineValues = transform(
+      { materialized },
+      ({ materialized }) => materialized.inline_values,
     )
 
     const sellerProductLinks = transform(
@@ -291,44 +268,29 @@ export const createProductsWorkflow: any = createWorkflow(
     })
 
     // Audit-trail ProductChange per created product. The change is
-    // confirmed immediately — creation itself never lands in the
-    // approval queue (admin publish/reject/request-changes flows open
-    // their own audit changes). A `STATUS_CHANGE` action records the
-    // initial status so the history is self-describing.
-    const changeInputs = transform(
-      { createdProducts },
-      ({ createdProducts }) =>
-        createdProducts.map((p) => ({
-          product_id: p.id as string,
-        })),
-    )
-
-    const auditChanges = createProductChangesStep(changeInputs)
-
-    const auditActionInputs = transform(
-      { auditChanges, createdProducts },
-      ({ auditChanges, createdProducts }) =>
-        createdProducts.map((product, idx) => ({
-          product_change_id: auditChanges[idx].id as string,
-          product_id: product.id as string,
-          action: ProductChangeActionType.STATUS_CHANGE,
-          details: { status: product.status as string },
-          applied: true,
-        })),
-    )
-
-    createProductChangeActionsStep(auditActionInputs)
-
-    const confirmInputs = transform(
-      { auditChanges, input },
-      ({ auditChanges, input }) =>
-        auditChanges.map((change) => ({
-          id: change.id as string,
-          confirmed_by: input.seller_ids?.[0],
-        })),
-    )
-
-    confirmProductChangesStep(confirmInputs)
+    // born CONFIRMED via `recordProductAuditChangeWorkflow` —
+    // creation never lands in the approval queue (admin
+    // publish/reject/request-changes flows open their own audit
+    // changes). A `STATUS_CHANGE` action records the initial status
+    // so the history is self-describing.
+    recordProductAuditChangeWorkflow.runAsStep({
+      input: transform(
+        { createdProducts, input },
+        ({ createdProducts, input }) => ({
+          actor_id: input.seller_ids?.[0],
+          changes: createdProducts.map((product) => ({
+            product_id: product.id as string,
+            actions: [
+              {
+                product_id: product.id as string,
+                action: ProductChangeActionType.STATUS_CHANGE,
+                details: { status: product.status as string },
+              },
+            ],
+          })),
+        }),
+      ),
+    })
 
     const productsCreated = createHook("productsCreated", {
       products: createdProducts,

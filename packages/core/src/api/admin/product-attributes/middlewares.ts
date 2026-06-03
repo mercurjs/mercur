@@ -1,5 +1,4 @@
 import {
-  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse,
@@ -10,6 +9,7 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 
+import { filterAttributesByCategoryLinkOrGlobal } from "../../utils"
 import { adminProductAttributeQueryConfig } from "./query-config"
 import {
   AdminCreateProductAttribute,
@@ -42,12 +42,6 @@ const renameCategoryIdFilter = (
   return next()
 }
 
-const filterByCategoryLink = maybeApplyLinkFilter({
-  entryPoint: "category_owning_attribute",
-  resourceId: "product_attribute_id",
-  filterableField: "product_category_id",
-})
-
 export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
   // --- /admin/product-attributes ---
   {
@@ -60,7 +54,7 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
       ),
       applyAttributeFilters,
       renameCategoryIdFilter,
-      filterByCategoryLink,
+      filterAttributesByCategoryLinkOrGlobal,
     ],
   },
   {

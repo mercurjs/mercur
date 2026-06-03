@@ -10,16 +10,13 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import {
   createRemoteLinkStep,
-  deleteProductOptionsWorkflow,
   dismissRemoteLinkStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import { MercurModules } from "@mercurjs/types"
 
-import {
-  createProductAttributeValuesStep,
-  upsertProductOptionsForAxisStep,
-} from "../steps"
+import { createProductAttributeValuesStep } from "../steps"
+import { syncProductAttributeOptionsWorkflow } from "./sync-product-attribute-options"
 
 export type BatchProductAttributeValuesCreateInput = {
   attribute_id: string
@@ -384,12 +381,14 @@ export const batchProductAttributeValuesWorkflow: ReturnWorkflow<
       })
     )
 
-    upsertProductOptionsForAxisStep(optionsToUpsert)
-
-    deleteProductOptionsWorkflow.runAsStep({
-      input: transform({ optionIdsToDelete }, ({ optionIdsToDelete }) => ({
-        ids: optionIdsToDelete,
-      })),
+    syncProductAttributeOptionsWorkflow.runAsStep({
+      input: transform(
+        { optionsToUpsert, optionIdsToDelete },
+        ({ optionsToUpsert, optionIdsToDelete }) => ({
+          upsert: optionsToUpsert,
+          delete_ids: optionIdsToDelete,
+        }),
+      ),
     })
 
     const productAttributeValuesBatched = createHook(

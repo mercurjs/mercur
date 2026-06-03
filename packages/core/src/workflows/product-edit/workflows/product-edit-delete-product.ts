@@ -5,20 +5,13 @@ import {
   WorkflowResponse,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
 import {
   ProductChangeActionType,
   ProductChangeDTO,
-  ProductChangeStatus,
 } from "@mercurjs/types"
 
-import { ProductChangeWorkflowEvents } from "../events"
-import {
-  createProductChangeActionsStep,
-  createProductChangesStep,
-  validateNoPendingProductChangeStep,
-} from "../steps"
-import { autoConfirmProductChangeWorkflow } from "./auto-confirm-product-change"
+import { validateNoPendingProductChangeStep } from "../steps"
+import { stageProductChangeWorkflow } from "./stage-product-change"
 
 export type ProductEditDeleteProductWorkflowInput = {
   product_id: string
@@ -30,9 +23,10 @@ export const productEditDeleteProductWorkflowId =
 
 /**
  * Vendor "delete product" orchestrator. Stages a `PRODUCT_DELETE`
- * action on a fresh `ProductChange` and lets
- * `autoConfirmProductChangeWorkflow` either leave it pending for
- * admin approval (flag on) or apply it inline (flag off).
+ * action on a fresh `ProductChange` via `stageProductChangeWorkflow`,
+ * which dispatches through `autoConfirmProductChangeWorkflow` —
+ * either leaves it pending for admin approval (flag on) or applies it
+ * inline (flag off).
  */
 export const productEditDeleteProductWorkflow: ReturnWorkflow<
   ProductEditDeleteProductWorkflowInput,
@@ -47,43 +41,20 @@ export const productEditDeleteProductWorkflow: ReturnWorkflow<
       })),
     )
 
-    const changes = createProductChangesStep(
-      transform({ input }, ({ input }) => [
-        {
-          product_id: input.product_id,
-          created_by: input.created_by,
-          status: ProductChangeStatus.PENDING,
-        },
-      ]),
-    )
-
-    createProductChangeActionsStep(
-      transform({ input, changes }, ({ input, changes }) => [
-        {
-          product_change_id: changes[0]?.id as string,
-          product_id: input.product_id,
-          action: ProductChangeActionType.PRODUCT_DELETE,
-          details: {},
-        },
-      ]),
-    )
-
-    emitEventStep({
-      eventName: ProductChangeWorkflowEvents.CREATED,
-      data: transform({ changes }, ({ changes }) => ({
-        id: changes[0]?.id,
+    const change = stageProductChangeWorkflow.runAsStep({
+      input: transform({ input }, ({ input }) => ({
+        product_id: input.product_id,
+        created_by: input.created_by,
+        actions: [
+          {
+            product_id: input.product_id,
+            action: ProductChangeActionType.PRODUCT_DELETE,
+            details: {},
+          },
+        ],
       })),
     })
 
-    autoConfirmProductChangeWorkflow.runAsStep({
-      input: transform({ changes, input }, ({ changes, input }) => ({
-        change_id: changes[0]?.id as string,
-        confirmed_by: input.created_by,
-      })),
-    })
-
-    return new WorkflowResponse(
-      transform({ changes }, ({ changes }) => changes[0] as ProductChangeDTO),
-    )
+    return new WorkflowResponse(change)
   },
 )

@@ -4,21 +4,16 @@ import {
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
+import { ProductStatus } from "@medusajs/framework/utils"
 import {
   emitEventStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import {
-  ProductChangeActionType,
-  ProductChangeStatus,
-} from "@mercurjs/types"
+import { ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
-import { validateRequestProductChangeStep } from "../steps/validate-request-product-change"
-import {
-  createProductChangeActionsStep,
-  createProductChangesStep,
-} from "../../product-edit/steps"
+import { validateProductsStatusStep } from "../steps/validate-products-status"
+import { recordProductAuditChangeWorkflow } from "../../product-edit/workflows/record-product-audit-change"
 
 export const requestProductChangeWorkflowId = "mercur-request-product-change"
 
@@ -35,10 +30,10 @@ type RequestProductChangeWorkflowInput = {
  *
  *   1. Validate the product is eligible (still in the publish-approval
  *      window).
- *   2. Stamp a confirmed `ProductChange` audit row carrying one
- *      `CHANGE_REQUESTED` action (`applied: true`). The operator's
- *      optional `message` lands on `external_note` so the seller sees
- *      it on their product detail panel.
+ *   2. Record a confirmed `ProductChange` audit row carrying one
+ *      pre-applied `CHANGE_REQUESTED` action (via
+ *      `recordProductAuditChangeWorkflow`). The operator's optional
+ *      `message` lands on `external_note` so the seller sees it.
  *   3. Emit `product.change-requested` so a notification handler can
  *      ship an email.
  */
@@ -52,40 +47,29 @@ export const requestProductChangeWorkflow = createWorkflow(
       options: { throwIfKeyNotFound: true },
     }).config({ name: "get-product" })
 
-    const product = transform({ products }, ({ products }) => products[0])
+    validateProductsStatusStep({
+      products,
+      expected_status: ProductStatus.PROPOSED,
+    })
 
-    validateRequestProductChangeStep({ product })
-
-    const changeData = transform(
-      { product, input },
-      ({ product, input }) => [
-        {
-          product_id: product.id as string,
-          created_by: input.actor_id,
-          status: ProductChangeStatus.CONFIRMED,
-          confirmed_by: input.actor_id,
-          confirmed_at: new Date(),
-          external_note: input.message,
-        },
-      ],
-    )
-
-    const changes = createProductChangesStep(changeData)
-
-    const actionData = transform(
-      { changes, product, input },
-      ({ changes, product, input }) => [
-        {
-          product_change_id: changes[0].id as string,
-          product_id: product.id as string,
-          action: ProductChangeActionType.CHANGE_REQUESTED,
-          details: { message: input.message ?? null },
-          applied: true,
-        },
-      ],
-    )
-
-    createProductChangeActionsStep(actionData)
+    recordProductAuditChangeWorkflow.runAsStep({
+      input: transform({ input }, ({ input }) => ({
+        actor_id: input.actor_id,
+        changes: [
+          {
+            product_id: input.product_id,
+            external_note: input.message,
+            actions: [
+              {
+                product_id: input.product_id,
+                action: ProductChangeActionType.CHANGE_REQUESTED,
+                details: { message: input.message ?? null },
+              },
+            ],
+          },
+        ],
+      })),
+    })
 
     emitEventStep({
       eventName: ProductWorkflowEvents.CHANGE_REQUESTED,

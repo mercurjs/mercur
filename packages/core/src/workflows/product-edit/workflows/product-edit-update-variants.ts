@@ -5,24 +5,15 @@ import {
   WorkflowResponse,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import {
-  emitEventStep,
-  useQueryGraphStep,
-} from "@medusajs/medusa/core-flows"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import {
   CreateProductChangeActionDTO,
   ProductChangeActionType,
   ProductChangeDTO,
-  ProductChangeStatus,
 } from "@mercurjs/types"
 
-import { ProductChangeWorkflowEvents } from "../events"
-import {
-  createProductChangeActionsStep,
-  createProductChangesStep,
-  validateNoPendingProductChangeStep,
-} from "../steps"
-import { autoConfirmProductChangeWorkflow } from "./auto-confirm-product-change"
+import { validateNoPendingProductChangeStep } from "../steps"
+import { stageProductChangeWorkflow } from "./stage-product-change"
 
 export type ProductEditVariantAddOperation = {
   type: "add"
@@ -57,12 +48,12 @@ export const productEditUpdateVariantsWorkflowId =
 /**
  * Vendor "edit product variants" orchestrator. Translates each
  * `operations[]` entry into a `VARIANT_ADD` / `VARIANT_UPDATE` /
- * `VARIANT_REMOVE` action on a fresh `ProductChange`, then defers to
- * `autoConfirmProductChangeWorkflow`. Reusing this single workflow
- * for all three verbs keeps `/vendor/products/:id/variants[...]`
- * routes thin and lets `applyProductChangeActionsWorkflow` do its
- * dependency-ordered dispatch (deletes before creates before updates)
- * without the route having to know about it.
+ * `VARIANT_REMOVE` action on a fresh `ProductChange` via
+ * `stageProductChangeWorkflow`. Reusing this single workflow for all
+ * three verbs keeps `/vendor/products/:id/variants[...]` routes thin
+ * and lets `applyProductChangeActionsWorkflow` do its dependency-
+ * ordered dispatch (deletes before creates before updates) without
+ * the route having to know about it.
  */
 export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
   ProductEditUpdateVariantsWorkflowInput,
@@ -85,7 +76,15 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
       Array.from(
         new Set(
           (input.operations ?? [])
-            .filter((op): op is { type: "update"; variant_id: string; fields: Record<string, unknown> } => op.type === "update")
+            .filter(
+              (
+                op,
+              ): op is {
+                type: "update"
+                variant_id: string
+                fields: Record<string, unknown>
+              } => op.type === "update",
+            )
             .map((op) => op.variant_id),
         ),
       ),
@@ -117,24 +116,20 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
       filters: { id: variantIdsToLoad },
     }).config({ name: "pc-load-variants-for-diff" })
 
-    const changes = createProductChangesStep(
-      transform({ input }, ({ input }) => [
-        {
-          product_id: input.product_id,
-          created_by: input.created_by,
-          status: ProductChangeStatus.PENDING,
-        },
-      ]),
-    )
-
     const actions = transform(
-      { input, changes, currentVariants },
-      ({ input, changes, currentVariants }) => {
-        const changeId = changes[0]?.id as string
-        const acts: CreateProductChangeActionDTO[] = []
+      { input, currentVariants },
+      ({ input, currentVariants }) => {
+        const acts: Array<
+          Omit<CreateProductChangeActionDTO, "product_change_id">
+        > = []
 
-        const currentVariantsById = new Map<string, Record<string, unknown>>()
-        for (const v of (currentVariants ?? []) as Array<Record<string, unknown> & { id: string }>) {
+        const currentVariantsById = new Map<
+          string,
+          Record<string, unknown>
+        >()
+        for (const v of (currentVariants ?? []) as Array<
+          Record<string, unknown> & { id: string }
+        >) {
           currentVariantsById.set(v.id, v)
         }
 
@@ -142,7 +137,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
           switch (op.type) {
             case "add":
               acts.push({
-                product_change_id: changeId,
                 product_id: input.product_id,
                 action: ProductChangeActionType.VARIANT_ADD,
                 details: { variant: op.variant },
@@ -155,7 +149,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
                 previousFields[field] = current[field] ?? null
               }
               acts.push({
-                product_change_id: changeId,
                 product_id: input.product_id,
                 action: ProductChangeActionType.VARIANT_UPDATE,
                 details: {
@@ -168,7 +161,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
             }
             case "remove":
               acts.push({
-                product_change_id: changeId,
                 product_id: input.product_id,
                 action: ProductChangeActionType.VARIANT_REMOVE,
                 details: { variant_id: op.variant_id },
@@ -181,24 +173,14 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
       },
     )
 
-    createProductChangeActionsStep(actions)
-
-    emitEventStep({
-      eventName: ProductChangeWorkflowEvents.CREATED,
-      data: transform({ changes }, ({ changes }) => ({
-        id: changes[0]?.id,
+    const change = stageProductChangeWorkflow.runAsStep({
+      input: transform({ input, actions }, ({ input, actions }) => ({
+        product_id: input.product_id,
+        created_by: input.created_by,
+        actions,
       })),
     })
 
-    autoConfirmProductChangeWorkflow.runAsStep({
-      input: transform({ changes, input }, ({ changes, input }) => ({
-        change_id: changes[0]?.id as string,
-        confirmed_by: input.created_by,
-      })),
-    })
-
-    return new WorkflowResponse(
-      transform({ changes }, ({ changes }) => changes[0] as ProductChangeDTO),
-    )
+    return new WorkflowResponse(change)
   },
 )

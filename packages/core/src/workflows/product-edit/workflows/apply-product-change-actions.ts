@@ -1,5 +1,3 @@
-import { LinkDefinition } from "@medusajs/framework/types"
-import { Modules } from "@medusajs/framework/utils"
 import {
   createWorkflow,
   transform,
@@ -9,18 +7,16 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import {
   createProductVariantsWorkflow,
-  createRemoteLinkStep,
   deleteProductsWorkflow,
   deleteProductVariantsWorkflow,
-  dismissRemoteLinkStep,
   updateProductsWorkflow,
   updateProductVariantsWorkflow,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import { MercurModules, ProductChangeActionType } from "@mercurjs/types"
+import { ProductChangeActionType } from "@mercurjs/types"
 
 import { updateProductChangeActionsStep } from "../steps"
-import { upsertProductOptionsForAxisStep } from "../../product-attribute/steps"
+import { applyProductAttributeChangeActionsWorkflow } from "./apply-product-attribute-change-actions"
 
 export type ApplyProductChangeActionsWorkflowInput = {
   change_ids: string[]
@@ -48,8 +44,8 @@ export const applyProductChangeActionsWorkflowId =
  * Cross-module dispatcher for a confirmed `ProductChange`'s pending
  * actions. Replaces the legacy `ProductModuleService.applyProductChangeActions_`
  * by composing stock Medusa product workflows (update/create/delete
- * variants, update/delete products) with Module-Link writes for
- * attribute pivots.
+ * variants, update/delete products) with the attribute apply workflow
+ * (`applyProductAttributeChangeActionsWorkflow`).
  *
  * Pattern-match `medusa/.../order/workflows/apply-order-change.ts`:
  * load pending rows, bucket by action type, dispatch in dependency
@@ -61,17 +57,17 @@ export const applyProductChangeActionsWorkflowId =
  *   2. Variant deletes — frees up SKU / title uniqueness before adds.
  *   3. Variant creates.
  *   4. Variant updates — see a stable variant set.
- *   5. Attribute removes — happen before adds so a single change can
- *      re-link the same attribute with a different value set.
- *   6. Attribute adds.
- *   7. Product deletes — last so any audit-trail updates above write
+ *   5. Attribute add/remove + option sync — delegated to
+ *      `applyProductAttributeChangeActionsWorkflow`. Removes run
+ *      before adds inside that workflow so a single change can re-link
+ *      the same attribute with a different value set.
+ *   6. Product deletes — last so any audit-trail updates above write
  *      through before the row is soft-deleted.
- *   8. Mark action rows applied.
+ *   7. Mark action rows applied.
  *
  * `ATTRIBUTE_ADD` actions are expected to carry pre-resolved
  * `attribute_value_ids` in their `details` JSON. The find-or-create
- * branch (`details.values: string[]`) the legacy service supported
- * lives upstream now — workflows that stage an `ATTRIBUTE_ADD` call
+ * branch lives upstream — workflows that stage an `ATTRIBUTE_ADD` call
  * `upsertProductAttributeValuesWorkflow` first to resolve names into
  * IDs before persisting the action.
  */
@@ -244,174 +240,12 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
       },
     )
 
-    when(
-      { buckets },
-      ({ buckets }) => buckets.attributeRemoves.length > 0,
-    ).then(() => {
-      const removedAttributeIds = transform({ buckets }, ({ buckets }) =>
-        Array.from(new Set(buckets.attributeRemoves.map((r) => r.attribute_id))),
-      )
-
-      const { data: valuesForRemoval } = useQueryGraphStep({
-        entity: "product_attribute_value",
-        fields: ["id", "attribute.id"],
-        filters: { attribute_id: removedAttributeIds },
-      }).config({ name: "pc-load-attribute-values-for-removal" })
-
-      const valueLinksToDismiss = transform(
-        { buckets, valuesForRemoval },
-        ({ buckets, valuesForRemoval }) => {
-          const valuesByAttr = new Map<string, string[]>()
-          for (const v of valuesForRemoval ?? []) {
-            const attrId = (v as { attribute?: { id?: string } }).attribute?.id
-            if (!attrId) continue
-            const list = valuesByAttr.get(attrId) ?? []
-            list.push((v as { id: string }).id)
-            valuesByAttr.set(attrId, list)
-          }
-          const links: LinkDefinition[] = []
-          for (const r of buckets.attributeRemoves) {
-            const valueIds = valuesByAttr.get(r.attribute_id) ?? []
-            for (const valueId of valueIds) {
-              links.push({
-                [Modules.PRODUCT]: { product_id: r.product_id },
-                [MercurModules.PRODUCT_ATTRIBUTE]: {
-                  product_attribute_value_id: valueId,
-                },
-              })
-            }
-          }
-          return links
-        },
-      )
-
-      dismissRemoteLinkStep(valueLinksToDismiss).config({
-        name: "pc-dismiss-attribute-value-links",
-      })
-
-      const variantAttrLinksToDismiss = transform(
-        { buckets },
-        ({ buckets }) =>
-          buckets.attributeRemoves.map<LinkDefinition>((r) => ({
-            [Modules.PRODUCT]: { product_id: r.product_id },
-            [MercurModules.PRODUCT_ATTRIBUTE]: {
-              product_attribute_id: r.attribute_id,
-            },
-          })),
-      )
-
-      dismissRemoteLinkStep(variantAttrLinksToDismiss).config({
-        name: "pc-dismiss-variant-attribute-links",
-      })
+    applyProductAttributeChangeActionsWorkflow.runAsStep({
+      input: transform({ buckets }, ({ buckets }) => ({
+        add_actions: buckets.attributeAdds,
+        remove_actions: buckets.attributeRemoves,
+      })),
     })
-
-    when({ buckets }, ({ buckets }) => buckets.attributeAdds.length > 0).then(
-      () => {
-        const addedAttributeIds = transform({ buckets }, ({ buckets }) =>
-          Array.from(new Set(buckets.attributeAdds.map((a) => a.attribute_id))),
-        )
-
-        const { data: addedAttributes } = useQueryGraphStep({
-          entity: "product_attribute",
-          fields: ["id", "is_variant_axis"],
-          filters: { id: addedAttributeIds },
-        }).config({ name: "pc-load-attributes-for-add" })
-
-        const valueLinksToCreate = transform({ buckets }, ({ buckets }) =>
-          buckets.attributeAdds.flatMap((a) =>
-            a.attribute_value_ids.map<LinkDefinition>((valueId) => ({
-              [Modules.PRODUCT]: { product_id: a.product_id },
-              [MercurModules.PRODUCT_ATTRIBUTE]: {
-                product_attribute_value_id: valueId,
-              },
-            })),
-          ),
-        )
-
-        createRemoteLinkStep(valueLinksToCreate).config({
-          name: "pc-create-attribute-value-links",
-        })
-
-        const variantAttrLinksToCreate = transform(
-          { buckets, addedAttributes },
-          ({ buckets, addedAttributes }) => {
-            const variantAxisById = new Map<string, boolean>()
-            for (const a of addedAttributes ?? []) {
-              variantAxisById.set(
-                (a as { id: string }).id,
-                Boolean(
-                  (a as { is_variant_axis?: boolean }).is_variant_axis,
-                ),
-              )
-            }
-            return buckets.attributeAdds
-              .filter((a) => variantAxisById.get(a.attribute_id) === true)
-              .map<LinkDefinition>((a) => ({
-                [Modules.PRODUCT]: { product_id: a.product_id },
-                [MercurModules.PRODUCT_ATTRIBUTE]: {
-                  product_attribute_id: a.attribute_id,
-                },
-              }))
-          },
-        )
-
-        createRemoteLinkStep(variantAttrLinksToCreate).config({
-          name: "pc-create-variant-attribute-links",
-        })
-
-        // Synthesize the corresponding stock product option for each
-        // variant-axis attribute add. Mirrors what
-        // `addProductAttributeWorkflow` does inline so a confirmed
-        // ATTRIBUTE_ADD reaches the same product-options state as a
-        // direct attach. Needs the attribute name + value names, which
-        // we pull from the freshly-loaded attribute rows.
-        const { data: optionAttributes } = useQueryGraphStep({
-          entity: "product_attribute",
-          fields: ["id", "name", "is_variant_axis", "values.id", "values.name"],
-          filters: { id: addedAttributeIds },
-        }).config({ name: "pc-load-attribute-values-for-options" })
-
-        const optionsToUpsert = transform(
-          { buckets, optionAttributes },
-          ({ buckets, optionAttributes }) => {
-            const byId = new Map<
-              string,
-              { name: string; is_variant_axis: boolean; values: Array<{ id: string; name: string }> }
-            >()
-            for (const a of (optionAttributes ?? []) as Array<{
-              id: string
-              name: string
-              is_variant_axis?: boolean
-              values?: Array<{ id: string; name: string }>
-            }>) {
-              byId.set(a.id, {
-                name: a.name,
-                is_variant_axis: Boolean(a.is_variant_axis),
-                values: a.values ?? [],
-              })
-            }
-            const out: Array<{ product_id: string; title: string; values: string[] }> = []
-            for (const a of buckets.attributeAdds) {
-              const meta = byId.get(a.attribute_id)
-              if (!meta || !meta.is_variant_axis) continue
-              const valueIdSet = new Set(a.attribute_value_ids)
-              const valueNames = meta.values
-                .filter((v) => valueIdSet.has(v.id))
-                .map((v) => v.name)
-              if (!valueNames.length) continue
-              out.push({
-                product_id: a.product_id,
-                title: meta.name,
-                values: valueNames,
-              })
-            }
-            return out
-          },
-        )
-
-        upsertProductOptionsForAxisStep(optionsToUpsert)
-      },
-    )
 
     when(
       { buckets },

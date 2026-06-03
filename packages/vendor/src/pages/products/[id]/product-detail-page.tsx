@@ -44,7 +44,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage data={product} data-testid="product-detail-page">
       <TwoColumnPage.Main data-testid="product-detail-main">
-        <ProductActiveEditSection productId={product.id} />
+        <ProductActiveEditSection product={product} />
         <ProductGeneralSection product={product} />
         <ProductMediaSection product={product} />
         <ProductVariantSection product={product} />

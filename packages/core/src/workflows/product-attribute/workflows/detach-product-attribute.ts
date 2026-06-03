@@ -8,11 +8,12 @@ import {
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import {
-  deleteProductOptionsWorkflow,
   dismissRemoteLinkStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import { MercurModules } from "@mercurjs/types"
+
+import { syncProductAttributeOptionsWorkflow } from "./sync-product-attribute-options"
 
 export type DetachProductAttributeWorkflowInput = {
   product_id: string
@@ -102,9 +103,9 @@ export const detachProductAttributeWorkflow: ReturnWorkflow<
     // product option, so detaching them should drop the matching option
     // too (matched by title === attribute.name). Non-axis attributes
     // never produce an option, so `option_ids` is empty for them.
-    deleteProductOptionsWorkflow.runAsStep({
+    syncProductAttributeOptionsWorkflow.runAsStep({
       input: transform({ detachPlan }, ({ detachPlan }) => ({
-        ids: detachPlan.option_ids,
+        delete_ids: detachPlan.option_ids,
       })),
     })
 

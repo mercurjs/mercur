@@ -12,10 +12,7 @@ import {
 } from "@medusajs/medusa/core-flows"
 import { UpdateProductDTO } from "@mercurjs/types"
 
-import {
-  createProductAttributesStep,
-  createProductAttributeValuesStep,
-} from "../../product-attribute/steps"
+import { materializeProductAttributesWorkflow } from "../../product-attribute/workflows/materialize-product-attributes"
 import {
   associateSellersWithProductStep,
   buildInlinePlan,
@@ -164,31 +161,15 @@ export const updateProductsWorkflow: any = createWorkflow(
       },
     )
 
-    const inlineAttributesToCreate = transform(
-      { inlinePlan },
-      ({ inlinePlan }) =>
-        inlinePlan.map(({ _group_idx, _value_names, ...attr }) => attr),
-    )
+    const materialized = materializeProductAttributesWorkflow.runAsStep({
+      input: transform({ inlinePlan }, ({ inlinePlan }) => ({
+        plan: inlinePlan,
+      })),
+    })
 
-    const createdInlineAttrs = createProductAttributesStep(
-      inlineAttributesToCreate,
-    )
-
-    const inlineValuesToCreate = transform(
-      { inlinePlan, createdInlineAttrs },
-      ({ inlinePlan, createdInlineAttrs }) => {
-        const out: { name: string; attribute_id: string }[] = []
-        inlinePlan.forEach((p, i) => {
-          const attribute_id = createdInlineAttrs[i]?.id as string | undefined
-          if (!attribute_id) return
-          for (const name of p._value_names) out.push({ name, attribute_id })
-        })
-        return out
-      },
-    )
-
-    const createdInlineValues = createProductAttributeValuesStep(
-      inlineValuesToCreate,
+    const createdInlineValues = transform(
+      { materialized },
+      ({ materialized }) => materialized.inline_values,
     )
 
     const sellerProductLinks = transform(

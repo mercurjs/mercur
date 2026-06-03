@@ -575,6 +575,84 @@ medusaIntegrationTestRunner({
             "S",
           ])
         })
+
+        // Free-form values (unit / text / toggle) submitted against an
+        // existing attribute don't pre-exist in the attribute's preset
+        // `values`. The staging workflow must materialise them so the
+        // staged ATTRIBUTE_ADD action carries non-empty
+        // `attribute_value_ids` (the dispatcher contract).
+        it("materialises free-form values on an existing unit attribute", async () => {
+          const weight = await createGlobalAttribute({
+            name: "Weight",
+            type: "unit",
+            values: [],
+          })
+
+          const create = await api.post(
+            `/vendor/products`,
+            { title: "Weighty Product" },
+            seller1Headers,
+          )
+          const productId = create.data.product.id
+
+          const res = await api.post(
+            `/vendor/products/${productId}/attributes`,
+            {
+              attribute_id: weight.attribute_id,
+              values: ["10kg"],
+            },
+            seller1Headers,
+          )
+          expect(res.status).toBe(202)
+          const actions = res.data.product_change?.actions ?? []
+          const addActions = actions.filter(
+            (a: any) => a.action === "ATTRIBUTE_ADD",
+          )
+          expect(addActions).toHaveLength(1)
+          expect(addActions[0].details.attribute_id).toBe(weight.attribute_id)
+          expect(addActions[0].details.attribute_value_ids).toHaveLength(1)
+
+          // The value row is now persisted on the attribute, so the
+          // active-edit panel (`useProductAttribute`) can resolve the
+          // name from the staged id.
+          const got = await api.get(
+            `/vendor/product-attributes/${weight.attribute_id}`,
+            seller1Headers,
+          )
+          const names = (got.data.product_attribute.values ?? []).map(
+            (v: any) => v.name,
+          )
+          expect(names).toContain("10kg")
+        })
+
+        it("rejects free-form `values` against a select-type attribute when names do not match presets", async () => {
+          const color = await createGlobalAttribute({
+            name: "Color",
+            type: "multi_select",
+            values: ["Red", "Blue"],
+          })
+
+          const create = await api.post(
+            `/vendor/products`,
+            { title: "Picky Product" },
+            seller1Headers,
+          )
+          const productId = create.data.product.id
+
+          const res = await api
+            .post(
+              `/vendor/products/${productId}/attributes`,
+              {
+                attribute_id: color.attribute_id,
+                values: ["Magenta"],
+              },
+              seller1Headers,
+            )
+            .catch((e: any) => e.response)
+          expect(res.status).toBeGreaterThanOrEqual(400)
+          expect(res.status).toBeLessThan(500)
+          expect(JSON.stringify(res.data)).toMatch(/Magenta/)
+        })
       })
 
       describe("POST /vendor/products/:id/attributes (inline create branch)", () => {

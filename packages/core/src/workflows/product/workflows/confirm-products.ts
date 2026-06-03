@@ -10,17 +10,11 @@ import {
   updateProductsStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import {
-  ProductChangeActionType,
-  ProductChangeStatus,
-} from "@mercurjs/types"
+import { ProductChangeActionType } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
-import { validateConfirmProductsStep } from "../steps/validate-confirm-products"
-import {
-  createProductChangeActionsStep,
-  createProductChangesStep,
-} from "../../product-edit/steps"
+import { validateProductsStatusStep } from "../steps/validate-products-status"
+import { recordProductAuditChangeWorkflow } from "../../product-edit/workflows/record-product-audit-change"
 
 export const confirmProductsWorkflowId = "mercur-confirm-products"
 
@@ -39,15 +33,12 @@ type ConfirmProductsWorkflowInput = {
  * pattern used by `createProductsWorkflow`:
  *
  *   1. Load + validate the products are `proposed`.
- *   2. Stamp one `ProductChange` per product, already `CONFIRMED`
- *      with `confirmed_by` / `confirmed_at` set — no admin queue, the
- *      change is the audit row.
- *   3. Attach a `STATUS_CHANGE` action recording the new status as
- *      already `applied`. Lets downstream history readers reconstruct
- *      "who published this and when" without joining to the events
- *      bus.
- *   4. Apply the actual product status update.
- *   5. Emit `product.published` so notifications / search reindex.
+ *   2. Record one CONFIRMED `ProductChange` per product with a
+ *      pre-applied `STATUS_CHANGE` action (delegated to
+ *      `recordProductAuditChangeWorkflow`). The change is the audit
+ *      row — no admin queue.
+ *   3. Apply the actual product status update.
+ *   4. Emit `product.published` so notifications / search reindex.
  */
 export const confirmProductsWorkflow = createWorkflow(
   confirmProductsWorkflowId,
@@ -59,43 +50,34 @@ export const confirmProductsWorkflow = createWorkflow(
       options: { throwIfKeyNotFound: true },
     }).config({ name: "get-products" })
 
-    validateConfirmProductsStep({ products })
+    validateProductsStatusStep({
+      products,
+      expected_status: ProductStatus.PROPOSED,
+    })
 
-    const changeData = transform(
-      { products, input },
-      ({ products, input }) =>
-        products.map((product) => ({
+    recordProductAuditChangeWorkflow.runAsStep({
+      input: transform({ products, input }, ({ products, input }) => ({
+        actor_id: input.actor_id,
+        changes: products.map((product) => ({
           product_id: product.id as string,
-          created_by: input.actor_id,
-          status: ProductChangeStatus.CONFIRMED,
-          confirmed_by: input.actor_id,
-          confirmed_at: new Date(),
           internal_note: input.internal_note,
+          actions: [
+            {
+              product_id: product.id as string,
+              action: ProductChangeActionType.STATUS_CHANGE,
+              details: { status: ProductStatus.PUBLISHED },
+            },
+          ],
         })),
+      })),
+    })
+
+    updateProductsStep(
+      transform({ input }, ({ input }) => ({
+        selector: { id: input.product_ids },
+        update: { status: ProductStatus.PUBLISHED },
+      })),
     )
-
-    const changes = createProductChangesStep(changeData)
-
-    const actionData = transform(
-      { products, changes },
-      ({ products, changes }) =>
-        products.map((product, index) => ({
-          product_change_id: changes[index].id as string,
-          product_id: product.id as string,
-          action: ProductChangeActionType.STATUS_CHANGE,
-          details: { status: ProductStatus.PUBLISHED },
-          applied: true,
-        })),
-    )
-
-    createProductChangeActionsStep(actionData)
-
-    const updateInput = transform({ input }, ({ input }) => ({
-      selector: { id: input.product_ids },
-      update: { status: ProductStatus.PUBLISHED },
-    }))
-
-    updateProductsStep(updateInput)
 
     emitEventStep({
       eventName: ProductWorkflowEvents.PUBLISHED,

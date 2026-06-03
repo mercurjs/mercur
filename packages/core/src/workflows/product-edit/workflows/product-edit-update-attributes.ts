@@ -1,32 +1,23 @@
 import { AdditionalData } from "@medusajs/framework/types"
+import { MedusaError } from "@medusajs/framework/utils"
 import {
   createWorkflow,
   transform,
   WorkflowResponse,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
 import {
   AttributeType,
   CreateProductChangeActionDTO,
   ProductAttributeInputDTO,
   ProductChangeActionType,
   ProductChangeDTO,
-  ProductChangeStatus,
 } from "@mercurjs/types"
 
-import { ProductChangeWorkflowEvents } from "../events"
-import {
-  createProductChangeActionsStep,
-  createProductChangesStep,
-  validateNoPendingProductChangeStep,
-} from "../steps"
-import {
-  createProductAttributesStep,
-  createProductAttributeValuesStep,
-} from "../../product-attribute/steps"
-import { resolveAttributeRefsStep } from "../../product/steps"
-import { autoConfirmProductChangeWorkflow } from "./auto-confirm-product-change"
+import { validateNoPendingProductChangeStep } from "../steps"
+import { materializeProductAttributesWorkflow } from "../../product-attribute/workflows/materialize-product-attributes"
+import { buildInlinePlan, resolveAttributeRefsStep } from "../../product/steps"
+import { stageProductChangeWorkflow } from "./stage-product-change"
 
 /**
  * Existing-attribute reference passed by the vendor. `value_ids` are
@@ -133,79 +124,136 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
 
     const resolved = resolveAttributeRefsStep({ groups: resolveGroups })
 
-    const inlineAttrInput = transform(
+    const inlinePlan = transform(
       { input, resolved },
-      ({ input, resolved }) => {
-        const inlines = resolved[0]?.inline_product ?? []
-        return inlines.map((i) => ({
-          product_id: input.product_id,
-          name: i.name,
-          type: i.type,
-          is_variant_axis: i.is_variant_axis,
-          is_filterable: i.is_filterable ?? false,
-          is_required: i.is_required ?? false,
-          description: i.description ?? null,
-          metadata: i.metadata ?? null,
-        }))
-      },
+      ({ input, resolved }) =>
+        buildInlinePlan(resolved, () => input.product_id),
     )
 
-    const createdInlineAttrs = createProductAttributesStep(inlineAttrInput)
+    // Free-form values (unit/text/toggle) submitted against an existing
+    // attribute won't pre-exist in the attribute's preset `values`, so
+    // `resolveAttributeRefsStep` leaves them out of `value_ids`.
+    // Materialise the unresolved names so the staged action carries
+    // resolved ids (the dispatcher contract in
+    // `apply-product-change-actions.ts`). Select-type misses are not
+    // valid free-form values — surface as NOT_FOUND.
+    const freeFormValueInput = transform(
+      { input, resolved },
+      ({ input, resolved }) => {
+        const existing = resolved[0]?.existing_product ?? []
 
-    const inlineValuesInput = transform(
-      { resolved, createdInlineAttrs },
-      ({ resolved, createdInlineAttrs }) => {
-        const inlines = resolved[0]?.inline_product ?? []
+        const requestedByAttrId = new Map<string, string[]>()
+        for (const op of input.operations ?? []) {
+          if (op.type !== "add") continue
+          if (op.attribute_id === undefined) continue
+          if (!op.values?.length) continue
+          requestedByAttrId.set(op.attribute_id, op.values)
+        }
+
         const out: Array<{ name: string; attribute_id: string }> = []
-        inlines.forEach((inline, idx) => {
-          const attribute_id = createdInlineAttrs[idx]?.id as string | undefined
-          if (!attribute_id) return
-          for (const name of inline.values ?? []) {
-            out.push({ name, attribute_id })
+        for (const ref of existing) {
+          const requested = requestedByAttrId.get(ref.attribute_id)
+          if (!requested?.length) continue
+
+          const resolvedNames = new Set(ref.value_names)
+          const seen = new Set<string>()
+          const unresolved: string[] = []
+          for (const raw of requested) {
+            const name = raw?.trim()
+            if (!name) continue
+            if (resolvedNames.has(name)) continue
+            if (seen.has(name)) continue
+            seen.add(name)
+            unresolved.push(name)
           }
-        })
+
+          if (!unresolved.length) continue
+
+          if (
+            ref.attribute_type === AttributeType.SINGLE_SELECT ||
+            ref.attribute_type === AttributeType.MULTI_SELECT
+          ) {
+            throw new MedusaError(
+              MedusaError.Types.NOT_FOUND,
+              `Product attribute value(s) ${unresolved
+                .map((v) => `"${v}"`)
+                .join(", ")} not found on attribute ${ref.attribute_id}`,
+            )
+          }
+
+          for (const name of unresolved) {
+            out.push({ name, attribute_id: ref.attribute_id })
+          }
+        }
+
         return out
       },
     )
 
-    const createdInlineValues = createProductAttributeValuesStep(
-      inlineValuesInput,
-    )
+    const materialized = materializeProductAttributesWorkflow.runAsStep({
+      input: transform(
+        { inlinePlan, freeFormValueInput },
+        ({ inlinePlan, freeFormValueInput }) => ({
+          plan: inlinePlan,
+          free_form_values: freeFormValueInput,
+        }),
+      ),
+    })
 
-    const changes = createProductChangesStep(
-      transform({ input }, ({ input }) => [
-        {
-          product_id: input.product_id,
-          created_by: input.created_by,
-          status: ProductChangeStatus.PENDING,
-        },
-      ]),
+    const createdInlineAttrs = transform(
+      { materialized },
+      ({ materialized }) => materialized.inline_attributes,
+    )
+    const createdInlineValues = transform(
+      { materialized },
+      ({ materialized }) => materialized.inline_values,
+    )
+    const createdFreeFormValues = transform(
+      { materialized },
+      ({ materialized }) => materialized.free_form_values,
     )
 
     const actions = transform(
-      { input, resolved, createdInlineAttrs, createdInlineValues, changes },
+      {
+        input,
+        resolved,
+        createdInlineAttrs,
+        createdInlineValues,
+        createdFreeFormValues,
+      },
       ({
         input,
         resolved,
         createdInlineAttrs,
         createdInlineValues,
-        changes,
+        createdFreeFormValues,
       }) => {
-        const changeId = changes[0]?.id as string
-        const acts: CreateProductChangeActionDTO[] = []
+        const acts: Array<
+          Omit<CreateProductChangeActionDTO, "product_change_id">
+        > = []
 
         const existing = resolved[0]?.existing_product ?? []
         const inlines = resolved[0]?.inline_product ?? []
 
+        const freeFormByAttrId = new Map<string, string[]>()
+        for (const v of createdFreeFormValues ?? []) {
+          const aid = (v as { attribute_id?: string }).attribute_id
+          if (!aid) continue
+          const list = freeFormByAttrId.get(aid) ?? []
+          list.push((v as { id: string }).id)
+          freeFormByAttrId.set(aid, list)
+        }
+
         for (const r of existing) {
-          if (!r.value_ids.length) continue
+          const newIds = freeFormByAttrId.get(r.attribute_id) ?? []
+          const allIds = [...r.value_ids, ...newIds]
+          if (!allIds.length) continue
           acts.push({
-            product_change_id: changeId,
             product_id: input.product_id,
             action: ProductChangeActionType.ATTRIBUTE_ADD,
             details: {
               attribute_id: r.attribute_id,
-              attribute_value_ids: r.value_ids,
+              attribute_value_ids: allIds,
             },
           })
         }
@@ -226,7 +274,6 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
           const valueIds = valuesByAttrId.get(attributeId) ?? []
           if (!valueIds.length) return
           acts.push({
-            product_change_id: changeId,
             product_id: input.product_id,
             action: ProductChangeActionType.ATTRIBUTE_ADD,
             details: {
@@ -239,7 +286,6 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
         for (const op of input.operations ?? []) {
           if (op.type !== "remove") continue
           acts.push({
-            product_change_id: changeId,
             product_id: input.product_id,
             action: ProductChangeActionType.ATTRIBUTE_REMOVE,
             details: { attribute_id: op.attribute_id },
@@ -250,24 +296,14 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
       },
     )
 
-    createProductChangeActionsStep(actions)
-
-    emitEventStep({
-      eventName: ProductChangeWorkflowEvents.CREATED,
-      data: transform({ changes }, ({ changes }) => ({
-        id: changes[0]?.id,
+    const change = stageProductChangeWorkflow.runAsStep({
+      input: transform({ input, actions }, ({ input, actions }) => ({
+        product_id: input.product_id,
+        created_by: input.created_by,
+        actions,
       })),
     })
 
-    autoConfirmProductChangeWorkflow.runAsStep({
-      input: transform({ changes, input }, ({ changes, input }) => ({
-        change_id: changes[0]?.id as string,
-        confirmed_by: input.created_by,
-      })),
-    })
-
-    return new WorkflowResponse(
-      transform({ changes }, ({ changes }) => changes[0] as ProductChangeDTO),
-    )
+    return new WorkflowResponse(change)
   },
 )

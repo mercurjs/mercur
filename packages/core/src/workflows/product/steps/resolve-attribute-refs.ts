@@ -37,6 +37,7 @@ export const isInlineRef = (
 export type ResolvedExistingRef = {
   attribute_id: string
   attribute_name: string
+  attribute_type: AttributeType
   is_variant_axis: boolean
   value_ids: string[]
   value_names: string[]
@@ -102,6 +103,7 @@ export const resolveAttributeRefsStep = createStep(
       {
         id: string
         name: string
+        type: AttributeType
         is_variant_axis: boolean
         values: { id: string; name: string }[]
       }
@@ -114,7 +116,7 @@ export const resolveAttributeRefsStep = createStep(
         { id: Array.from(attributeIds) },
         {
           relations: ["values"],
-          select: ["id", "name", "is_variant_axis"],
+          select: ["id", "name", "type", "is_variant_axis"],
         },
       )
       attrsById = new Map(
@@ -123,6 +125,7 @@ export const resolveAttributeRefsStep = createStep(
           {
             id: a.id,
             name: a.name,
+            type: a.type as AttributeType,
             is_variant_axis: !!a.is_variant_axis,
             values: (a.values ?? []).map((v) => ({ id: v.id, name: v.name })),
           },
@@ -172,6 +175,7 @@ export const resolveAttributeRefsStep = createStep(
       return {
         attribute_id: ref.attribute_id,
         attribute_name: attr.name,
+        attribute_type: attr.type,
         is_variant_axis: attr.is_variant_axis,
         value_ids,
         value_names,

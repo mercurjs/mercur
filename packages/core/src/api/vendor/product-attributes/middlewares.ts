@@ -1,5 +1,4 @@
 import {
-  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse,
@@ -9,6 +8,7 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 
+import { filterAttributesByCategoryLinkOrGlobal } from "../../utils"
 import { vendorProductAttributeQueryConfig } from "./query-config"
 import {
   VendorGetProductAttributeParams,
@@ -31,12 +31,6 @@ const renameCategoryIdFilter = (
   return next()
 }
 
-const filterByCategoryLink = maybeApplyLinkFilter({
-  entryPoint: "category_owning_attribute",
-  resourceId: "product_attribute_id",
-  filterableField: "product_category_id",
-})
-
 export const vendorProductAttributesMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
@@ -47,7 +41,7 @@ export const vendorProductAttributesMiddlewares: MiddlewareRoute[] = [
         vendorProductAttributeQueryConfig.list
       ),
       renameCategoryIdFilter,
-      filterByCategoryLink,
+      filterAttributesByCategoryLinkOrGlobal,
     ],
   },
   {

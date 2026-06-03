@@ -5,24 +5,15 @@ import {
   WorkflowResponse,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import {
-  emitEventStep,
-  useQueryGraphStep,
-} from "@medusajs/medusa/core-flows"
+import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import {
   CreateProductChangeActionDTO,
   ProductChangeActionType,
   ProductChangeDTO,
-  ProductChangeStatus,
 } from "@mercurjs/types"
 
-import { ProductChangeWorkflowEvents } from "../events"
-import {
-  createProductChangeActionsStep,
-  createProductChangesStep,
-  validateNoPendingProductChangeStep,
-} from "../steps"
-import { autoConfirmProductChangeWorkflow } from "./auto-confirm-product-change"
+import { validateNoPendingProductChangeStep } from "../steps"
+import { stageProductChangeWorkflow } from "./stage-product-change"
 
 export type ProductEditUpdateFieldsWorkflowInput = {
   product_id: string
@@ -66,9 +57,10 @@ export const productEditUpdateFieldsWorkflowId = "product-edit-update-fields"
  * Vendor "edit product fields" orchestrator. Diffs the proposed
  * payload against the current product, stages one
  * `ProductChangeAction` per changed field (`STATUS_CHANGE` for
- * `status`, `UPDATE { field, value }` for everything else), and runs
- * the auto-confirm conditional so the change is applied inline when
- * the marketplace has the `PRODUCT_REQUEST` flag disabled.
+ * `status`, `UPDATE { field, value }` for everything else) via
+ * `stageProductChangeWorkflow`. The shared building block runs the
+ * auto-confirm conditional so the change is applied inline when the
+ * marketplace has the `PRODUCT_REQUEST` flag disabled.
  *
  * The dispatcher (`applyProductChangeActionsWorkflow`) collapses all
  * UPDATE actions for the same product into a single
@@ -119,22 +111,11 @@ export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
       filters: transform({ input }, ({ input }) => ({ id: input.product_id })),
     }).config({ name: "load-current-product-for-diff" })
 
-    const changes = createProductChangesStep(
-      transform({ input }, ({ input }) => [
-        {
-          product_id: input.product_id,
-          created_by: input.created_by,
-          status: ProductChangeStatus.PENDING,
-        },
-      ]),
-    )
-
     const actions = transform(
-      { input, currentProducts, changes },
-      ({ input, currentProducts, changes }) => {
+      { input, currentProducts },
+      ({ input, currentProducts }) => {
         const current = (currentProducts?.[0] ?? {}) as Record<string, unknown>
         const proposed = input.update ?? {}
-        const changeId = changes[0]?.id as string
 
         const normalize = (value: unknown): unknown => {
           if (Array.isArray(value)) {
@@ -156,12 +137,13 @@ export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
         const isEqual = (a: unknown, b: unknown): boolean =>
           JSON.stringify(normalize(a)) === JSON.stringify(normalize(b))
 
-        const acts: CreateProductChangeActionDTO[] = []
+        const acts: Array<
+          Omit<CreateProductChangeActionDTO, "product_change_id">
+        > = []
 
         if (proposed.status !== undefined) {
           if (!isEqual(current.status, proposed.status)) {
             acts.push({
-              product_change_id: changeId,
               product_id: input.product_id,
               action: ProductChangeActionType.STATUS_CHANGE,
               details: {
@@ -179,7 +161,6 @@ export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
           if (isEqual(currentValue, proposedValue)) continue
 
           acts.push({
-            product_change_id: changeId,
             product_id: input.product_id,
             action: ProductChangeActionType.UPDATE,
             details: {
@@ -194,24 +175,14 @@ export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
       },
     )
 
-    createProductChangeActionsStep(actions)
-
-    emitEventStep({
-      eventName: ProductChangeWorkflowEvents.CREATED,
-      data: transform({ changes }, ({ changes }) => ({
-        id: changes[0]?.id,
+    const change = stageProductChangeWorkflow.runAsStep({
+      input: transform({ input, actions }, ({ input, actions }) => ({
+        product_id: input.product_id,
+        created_by: input.created_by,
+        actions,
       })),
     })
 
-    autoConfirmProductChangeWorkflow.runAsStep({
-      input: transform({ changes, input }, ({ changes, input }) => ({
-        change_id: changes[0]?.id as string,
-        confirmed_by: input.created_by,
-      })),
-    })
-
-    return new WorkflowResponse(
-      transform({ changes }, ({ changes }) => changes[0] as ProductChangeDTO),
-    )
+    return new WorkflowResponse(change)
   },
 )
