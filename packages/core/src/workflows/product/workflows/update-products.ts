@@ -4,7 +4,7 @@ import {
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { AdditionalData } from "@medusajs/framework/types"
+import { AdditionalData, ProductTypes } from "@medusajs/framework/types"
 import {
   emitEventStep,
   updateProductsWorkflow as stockUpdateProductsWorkflow,
@@ -61,7 +61,7 @@ export const updateProductsWorkflowId = "mercur-update-products"
  * every variant in the payload (defensive — the marketplace invariant
  * cannot regress through a vendor patch).
  */
-export const updateProductsWorkflow: any = createWorkflow(
+export const updateProductsWorkflow = createWorkflow(
   updateProductsWorkflowId,
   function (input: UpdateProductsWorkflowInput) {
     const resolvedGroups = resolveAttributeRefsStep({

@@ -5,7 +5,7 @@ import {
   ProductChangeStatus,
 } from "@mercurjs/types"
 
-import type ProductChangeModuleService from "../../../modules/product-change/service"
+import type ProductChangeModuleService from "../../../modules/product-edit/service"
 
 export const createProductChangesStepId = "pc-create-product-changes"
 
@@ -25,7 +25,7 @@ export const createProductChangesStep = createStep(
   createProductChangesStepId,
   async (data: CreateProductChangesStepInput, { container }) => {
     const service = container.resolve<ProductChangeModuleService>(
-      MercurModules.PRODUCT_CHANGE,
+      MercurModules.PRODUCT_EDIT,
     )
     const changes = await service.createProductChanges(data)
     return new StepResponse(
@@ -38,7 +38,7 @@ export const createProductChangesStep = createStep(
       return
     }
     const service = container.resolve<ProductChangeModuleService>(
-      MercurModules.PRODUCT_CHANGE,
+      MercurModules.PRODUCT_EDIT,
     )
     await service.deleteProductChanges(ids)
   },

@@ -1,7 +1,7 @@
 import { defineLink } from "@medusajs/framework/utils"
 import ProductModule from "@medusajs/medusa/product"
 
-import ProductChangeModule from "../modules/product-change"
+import ProductChangeModule from "../modules/product-edit"
 
 /**
  * Read-only link Product → ProductChange.

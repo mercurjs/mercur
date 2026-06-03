@@ -1,7 +1,7 @@
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 import { MercurModules, ProductChangeStatus } from "@mercurjs/types"
 
-import type ProductChangeModuleService from "../../../modules/product-change/service"
+import type ProductChangeModuleService from "../../../modules/product-edit/service"
 
 export const declineProductChangeStepId = "pc-decline-product-change"
 
@@ -28,7 +28,7 @@ export const declineProductChangeStep = createStep(
   declineProductChangeStepId,
   async (input: DeclineProductChangeStepInput, { container }) => {
     const service = container.resolve<ProductChangeModuleService>(
-      MercurModules.PRODUCT_CHANGE,
+      MercurModules.PRODUCT_EDIT,
     )
 
     const prev = (await service.retrieveProductChange(input.id)) as Record<
@@ -63,7 +63,7 @@ export const declineProductChangeStep = createStep(
       return
     }
     const service = container.resolve<ProductChangeModuleService>(
-      MercurModules.PRODUCT_CHANGE,
+      MercurModules.PRODUCT_EDIT,
     )
     await service.updateProductChanges([prevScalar])
   },

@@ -4,7 +4,11 @@ import {
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { AdditionalData, LinkDefinition } from "@medusajs/framework/types"
+import {
+  AdditionalData,
+  LinkDefinition,
+  ProductTypes,
+} from "@medusajs/framework/types"
 import { Modules } from "@medusajs/framework/utils"
 import {
   createProductsWorkflow as stockCreateProductsWorkflow,
@@ -89,7 +93,13 @@ const DEFAULT_OPTION_VALUE = "Default option value"
  *      so the edit form can pre-select them.
  *   9. Writes `product_seller` link rows for the requested seller_ids.
  */
-export const createProductsWorkflow: any = createWorkflow(
+export const createProductsWorkflow: ReturnType<
+  typeof createWorkflow<
+    CreateProductsWorkflowInput,
+    ProductTypes.ProductDTO[],
+    any
+  >
+> = createWorkflow(
   createProductsWorkflowId,
   function (input: CreateProductsWorkflowInput) {
     const validate = createHook("validate", {

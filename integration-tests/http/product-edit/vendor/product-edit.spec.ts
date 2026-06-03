@@ -77,7 +77,7 @@ medusaIntegrationTestRunner({
         sellerId: string,
         actions: Array<{ action: ProductChangeActionType; details: Record<string, unknown> }>,
       ): Promise<string> => {
-        const service: any = container.resolve(MercurModules.PRODUCT_CHANGE)
+        const service: any = container.resolve(MercurModules.PRODUCT_EDIT)
         const [change] = await service.createProductChanges([
           {
             product_id: productId,

@@ -213,3 +213,57 @@ export async function enrichProductAttributes(
     )
   }
 }
+
+type ProductAttributeValueRow = {
+  id: string
+  name: string
+  attribute?: {
+    id: string
+    name?: string
+    handle?: string | null
+    type?: string
+    is_variant_axis?: boolean
+  } | null
+}
+
+type GroupedProductAttribute = {
+  id: string
+  name?: string
+  handle?: string | null
+  type?: string
+  is_variant_axis?: boolean
+  values: { id: string; name: string }[]
+}
+
+/**
+ * Groups `product.attribute_values` (from a 2-hop graph fetch with
+ * `attribute_values.attribute.*`) into one entry per attribute, each
+ * carrying only the values selected on this product. Pass
+ * `options.attributeId` to narrow the result to a single attribute for
+ * detail endpoints.
+ */
+export function groupProductAttributeValues(
+  attributeValues: ProductAttributeValueRow[] | undefined,
+  options?: { attributeId?: string },
+): GroupedProductAttribute[] {
+  const byId = new Map<string, GroupedProductAttribute>()
+  for (const v of attributeValues ?? []) {
+    const attr = v.attribute
+    if (!attr?.id) continue
+    if (options?.attributeId && attr.id !== options.attributeId) continue
+    let grouped = byId.get(attr.id)
+    if (!grouped) {
+      grouped = {
+        id: attr.id,
+        name: attr.name,
+        handle: attr.handle ?? null,
+        type: attr.type,
+        is_variant_axis: !!attr.is_variant_axis,
+        values: [],
+      }
+      byId.set(attr.id, grouped)
+    }
+    grouped.values.push({ id: v.id, name: v.name })
+  }
+  return Array.from(byId.values())
+}
