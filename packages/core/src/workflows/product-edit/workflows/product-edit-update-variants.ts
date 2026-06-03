@@ -19,7 +19,7 @@ import {
 import { ProductChangeWorkflowEvents } from "../events"
 import {
   createProductChangeActionsStep,
-  createProductChangeStep,
+  createProductChangesStep,
   validateNoPendingProductChangeStep,
 } from "../steps"
 import { autoConfirmProductChangeWorkflow } from "./auto-confirm-product-change"
@@ -117,7 +117,7 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
       filters: { id: variantIdsToLoad },
     }).config({ name: "pc-load-variants-for-diff" })
 
-    const changes = createProductChangeStep(
+    const changes = createProductChangesStep(
       transform({ input }, ({ input }) => [
         {
           product_id: input.product_id,

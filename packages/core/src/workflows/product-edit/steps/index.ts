@@ -1,4 +1,4 @@
-export * from "./create-product-change"
+export * from "./create-product-changes"
 export * from "./confirm-product-changes"
 export * from "./decline-product-change"
 export * from "./request-product-changes"

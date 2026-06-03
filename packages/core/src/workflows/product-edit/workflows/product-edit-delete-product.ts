@@ -15,7 +15,7 @@ import {
 import { ProductChangeWorkflowEvents } from "../events"
 import {
   createProductChangeActionsStep,
-  createProductChangeStep,
+  createProductChangesStep,
   validateNoPendingProductChangeStep,
 } from "../steps"
 import { autoConfirmProductChangeWorkflow } from "./auto-confirm-product-change"
@@ -47,7 +47,7 @@ export const productEditDeleteProductWorkflow: ReturnWorkflow<
       })),
     )
 
-    const changes = createProductChangeStep(
+    const changes = createProductChangesStep(
       transform({ input }, ({ input }) => [
         {
           product_id: input.product_id,

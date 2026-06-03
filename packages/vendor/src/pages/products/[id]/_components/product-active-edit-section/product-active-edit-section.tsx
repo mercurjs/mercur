@@ -16,7 +16,7 @@ import {
   isReferenceField,
   partitionProductChangeActions,
 } from "@mercurjs/dashboard-shared";
-import { useQuery } from "@tanstack/react-query";
+import { useQueries, useQuery } from "@tanstack/react-query";
 import { Fragment, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -24,7 +24,10 @@ import { Thumbnail } from "@components/common/thumbnail";
 import { useCollection } from "@hooks/api/collections";
 import { useProductCategory } from "@hooks/api/categories";
 import { useCancelProductEdit, useProductChange } from "@hooks/api/products";
-import { useProductAttribute } from "@hooks/api/product-attributes";
+import {
+  productAttributesQueryKeys,
+  useProductAttribute,
+} from "@hooks/api/product-attributes";
 import { useProductTag } from "@hooks/api/tags";
 import { useProductType } from "@hooks/api/product-types";
 import { sdk } from "@lib/client";
@@ -293,6 +296,29 @@ export const ProductActiveEditSection = ({
     [product_change],
   );
 
+  const attributeIds = useMemo(() => {
+    const ids = new Set<string>();
+    for (const action of [...added, ...removed]) {
+      if (
+        action.action === ProductChangeActionType.ATTRIBUTE_ADD ||
+        action.action === ProductChangeActionType.ATTRIBUTE_REMOVE
+      ) {
+        const details = (action.details ?? {}) as { attribute_id?: string };
+        if (details.attribute_id) ids.add(details.attribute_id);
+      }
+    }
+    return Array.from(ids);
+  }, [added, removed]);
+
+  const attributeQueries = useQueries({
+    queries: attributeIds.map((id) => ({
+      queryKey: productAttributesQueryKeys.detail(id),
+      queryFn: () => sdk.vendor.productAttributes.$id.query({ $id: id }),
+    })),
+  });
+
+  const isLoadingAttributes = attributeQueries.some((q) => q.isPending);
+
   const onCancel = async () => {
     const confirmed = await prompt({
       title: t("products.edits.panel.cancelTitle"),
@@ -316,6 +342,10 @@ export const ProductActiveEditSection = ({
   }
 
   if (product_change.status !== ProductChangeStatus.PENDING) {
+    return null;
+  }
+
+  if (isLoadingAttributes) {
     return null;
   }
 

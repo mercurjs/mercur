@@ -12,7 +12,7 @@ import { CreateProductChangeDTO, ProductChangeDTO } from "@mercurjs/types"
 
 import { ProductChangeWorkflowEvents } from "../events"
 import {
-  createProductChangeStep,
+  createProductChangesStep,
   validateNoPendingProductChangeStep,
 } from "../steps"
 
@@ -49,7 +49,7 @@ export const createProductChangeWorkflow: ReturnWorkflow<
 
     validateNoPendingProductChangeStep({ product_ids: productIds })
 
-    const changes = createProductChangeStep(input.changes)
+    const changes = createProductChangesStep(input.changes)
 
     emitEventStep({
       eventName: ProductChangeWorkflowEvents.CREATED,

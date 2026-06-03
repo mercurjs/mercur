@@ -7,7 +7,7 @@ import {
 
 import type ProductChangeModuleService from "../../../modules/product-change/service"
 
-export const createProductChangeStepId = "pc-create-product-change"
+export const createProductChangesStepId = "pc-create-product-changes"
 
 /**
  * Scalar create input. `product_id` is a real column on the
@@ -15,15 +15,15 @@ export const createProductChangeStepId = "pc-create-product-change"
  * inserted directly with each change row. `status` is narrowed to the
  * enum.
  */
-export type CreateProductChangeStepInput = Array<
+export type CreateProductChangesStepInput = Array<
   Omit<CreateProductChangeDTO, "status"> & {
     status?: ProductChangeStatus
   }
 >
 
-export const createProductChangeStep = createStep(
-  createProductChangeStepId,
-  async (data: CreateProductChangeStepInput, { container }) => {
+export const createProductChangesStep = createStep(
+  createProductChangesStepId,
+  async (data: CreateProductChangesStepInput, { container }) => {
     const service = container.resolve<ProductChangeModuleService>(
       MercurModules.PRODUCT_CHANGE,
     )

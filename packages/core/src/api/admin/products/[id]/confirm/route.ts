@@ -2,20 +2,23 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import {
-  ContainerRegistrationKeys,
-  MedusaError,
-} from "@medusajs/framework/utils"
-import { HttpTypes, ProductChangeStatus } from "@mercurjs/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
-import { confirmProductChangeWorkflow } from "../../../../../workflows/product-edit/workflows/confirm-product-change"
+import { confirmProductsWorkflow } from "../../../../../workflows/product/workflows/confirm-products"
 import { AdminConfirmProductType } from "../../validators"
 
 /**
- * Admin-side confirm of the pending `ProductChange` attached to a
- * product. Resolves the change id from `(product_id, status: pending)`
- * and delegates to `confirmProductChangeWorkflow`. The change's staged
- * actions are then applied to the product in a single transaction.
+ * Admin-side "publish a vendor submission". Delegates to
+ * `confirmProductsWorkflow`, which:
+ *   - validates the product is `proposed`,
+ *   - stamps a confirmed `ProductChange` (audit row) with a
+ *     `STATUS_CHANGE → published` action,
+ *   - updates the product status to `published`,
+ *   - emits `product.published`.
+ *
+ * The operator's optional `internal_note` is recorded on the audit
+ * change so the team can correlate the publish with a reason later.
  */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminConfirmProductType>,
@@ -24,26 +27,10 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id
 
-  const { data: changes } = await query.graph({
-    entity: "product_change",
-    fields: ["id"],
-    filters: {
-      product_id: productId,
-      status: ProductChangeStatus.PENDING,
-    },
-  })
-
-  if (!changes.length) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `No pending product change found for product ${productId}`,
-    )
-  }
-
-  await confirmProductChangeWorkflow(req.scope).run({
+  await confirmProductsWorkflow(req.scope).run({
     input: {
-      ids: [changes[0].id],
-      confirmed_by: req.auth_context?.actor_id,
+      product_ids: [productId],
+      actor_id: req.auth_context?.actor_id,
       internal_note: req.validatedBody?.internal_note,
     },
   })

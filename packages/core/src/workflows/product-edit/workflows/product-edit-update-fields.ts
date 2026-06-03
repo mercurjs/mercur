@@ -19,7 +19,7 @@ import {
 import { ProductChangeWorkflowEvents } from "../events"
 import {
   createProductChangeActionsStep,
-  createProductChangeStep,
+  createProductChangesStep,
   validateNoPendingProductChangeStep,
 } from "../steps"
 import { autoConfirmProductChangeWorkflow } from "./auto-confirm-product-change"
@@ -119,7 +119,7 @@ export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
       filters: transform({ input }, ({ input }) => ({ id: input.product_id })),
     }).config({ name: "load-current-product-for-diff" })
 
-    const changes = createProductChangeStep(
+    const changes = createProductChangesStep(
       transform({ input }, ({ input }) => [
         {
           product_id: input.product_id,

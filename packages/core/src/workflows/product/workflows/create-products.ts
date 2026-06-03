@@ -11,18 +11,28 @@ import {
   createRemoteLinkStep,
   emitEventStep,
 } from "@medusajs/medusa/core-flows"
-import { CreateProductDTO, MercurModules } from "@mercurjs/types"
+import {
+  CreateProductDTO,
+  MercurModules,
+  ProductChangeActionType,
+} from "@mercurjs/types"
 
 import {
   createProductAttributesStep,
   createProductAttributeValuesStep,
 } from "../../product-attribute/steps"
 import {
+  confirmProductChangesStep,
+  createProductChangeActionsStep,
+  createProductChangesStep,
+} from "../../product-edit/steps"
+import {
   associateSellersWithProductStep,
   buildInlinePlan,
   resolveAttributeRefsStep,
   type AttributeRef,
 } from "../steps"
+import { ProductWorkflowEvents } from "../events"
 
 type ProductOptionInput = { title: string; values: string[] }
 
@@ -280,13 +290,53 @@ export const createProductsWorkflow: any = createWorkflow(
       name: "mercur-create-products-attribute-value-links",
     })
 
+    // Audit-trail ProductChange per created product. The change is
+    // confirmed immediately — creation itself never lands in the
+    // approval queue (admin publish/reject/request-changes flows open
+    // their own audit changes). A `STATUS_CHANGE` action records the
+    // initial status so the history is self-describing.
+    const changeInputs = transform(
+      { createdProducts },
+      ({ createdProducts }) =>
+        createdProducts.map((p) => ({
+          product_id: p.id as string,
+        })),
+    )
+
+    const auditChanges = createProductChangesStep(changeInputs)
+
+    const auditActionInputs = transform(
+      { auditChanges, createdProducts },
+      ({ auditChanges, createdProducts }) =>
+        createdProducts.map((product, idx) => ({
+          product_change_id: auditChanges[idx].id as string,
+          product_id: product.id as string,
+          action: ProductChangeActionType.STATUS_CHANGE,
+          details: { status: product.status as string },
+          applied: true,
+        })),
+    )
+
+    createProductChangeActionsStep(auditActionInputs)
+
+    const confirmInputs = transform(
+      { auditChanges, input },
+      ({ auditChanges, input }) =>
+        auditChanges.map((change) => ({
+          id: change.id as string,
+          confirmed_by: input.seller_ids?.[0],
+        })),
+    )
+
+    confirmProductChangesStep(confirmInputs)
+
     const productsCreated = createHook("productsCreated", {
       products: createdProducts,
       additional_data: input.additional_data,
     })
 
     emitEventStep({
-      eventName: "product.created",
+      eventName: ProductWorkflowEvents.CREATED,
       data: transform({ createdProducts }, ({ createdProducts }) =>
         createdProducts.map((p) => ({ id: p.id })),
       ),

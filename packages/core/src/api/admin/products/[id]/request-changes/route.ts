@@ -2,22 +2,20 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import {
-  ContainerRegistrationKeys,
-  MedusaError,
-} from "@medusajs/framework/utils"
-import { HttpTypes, ProductChangeStatus } from "@mercurjs/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
-import { requestProductChangesWorkflow } from "../../../../../workflows/product-edit/workflows/request-product-changes"
+import { requestProductRevisionWorkflow } from "../../../../../workflows/product/workflows/request-product-revision"
 import { AdminRequestProductChangesType } from "../../validators"
 
 /**
- * Admin-side "request changes" — transitions the pending
- * `ProductChange` for a product to `REQUIRES_ACTION`, surfacing a
- * message back to the vendor. Resolves the change id from
- * `(product_id, status: pending)` and delegates to
- * `requestProductChangesWorkflow`. This flips the computed
- * `Product.requires_action` boolean to `true`.
+ * Admin-side "ask the vendor to revise the submission". Delegates to
+ * `requestProductRevisionWorkflow` — validates the product is
+ * `proposed`, stamps a confirmed `ProductChange` (audit row) with a
+ * `STATUS_CHANGE → draft` action, drops the product back to `draft`
+ * so the vendor can edit and re-propose, and emits
+ * `product.requires-action`. The operator `message` lands on the
+ * audit change's `external_note`.
  */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminRequestProductChangesType>,
@@ -26,28 +24,11 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id
 
-  const { data: changes } = await query.graph({
-    entity: "product_change",
-    fields: ["id"],
-    filters: {
-      product_id: productId,
-      status: ProductChangeStatus.PENDING,
-    },
-  })
-
-  if (!changes.length) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `No pending product change found for product ${productId}`,
-    )
-  }
-
-  await requestProductChangesWorkflow(req.scope).run({
+  await requestProductRevisionWorkflow(req.scope).run({
     input: {
-      id: changes[0].id,
-      requires_action_by: req.auth_context?.actor_id,
-      requires_action_reason: req.validatedBody?.message,
-      external_note: req.validatedBody?.message,
+      product_id: productId,
+      message: req.validatedBody?.message,
+      actor_id: req.auth_context?.actor_id,
     },
   })
 

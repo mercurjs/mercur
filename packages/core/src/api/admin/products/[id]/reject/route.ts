@@ -2,21 +2,19 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import {
-  ContainerRegistrationKeys,
-  MedusaError,
-} from "@medusajs/framework/utils"
-import { HttpTypes, ProductChangeStatus } from "@mercurjs/types"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
-import { rejectProductChangeWorkflow } from "../../../../../workflows/product-edit/workflows/reject-product-change"
+import { rejectProductWorkflow } from "../../../../../workflows/product/workflows/reject-product"
 import { AdminRejectProductType } from "../../validators"
 
 /**
- * Admin-side reject of the pending `ProductChange` attached to a
- * product. Resolves the pending change id from
- * `(product_id, status: pending)` and delegates to
- * `rejectProductChangeWorkflow`. The change is marked `DECLINED`; the
- * optional `message` is persisted as `declined_reason`.
+ * Admin-side "reject a vendor submission". Delegates to
+ * `rejectProductWorkflow` — validates the product is `proposed`,
+ * stamps a confirmed `ProductChange` with a `STATUS_CHANGE → rejected`
+ * action, updates product status, and emits `product.rejected`. The
+ * operator `message` is recorded on the audit change's `external_note`
+ * so the vendor sees the reason on their product detail panel.
  */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminRejectProductType>,
@@ -25,27 +23,11 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id
 
-  const { data: changes } = await query.graph({
-    entity: "product_change",
-    fields: ["id"],
-    filters: {
-      product_id: productId,
-      status: ProductChangeStatus.PENDING,
-    },
-  })
-
-  if (!changes.length) {
-    throw new MedusaError(
-      MedusaError.Types.NOT_FOUND,
-      `No pending product change found for product ${productId}`,
-    )
-  }
-
-  await rejectProductChangeWorkflow(req.scope).run({
+  await rejectProductWorkflow(req.scope).run({
     input: {
-      id: changes[0].id,
-      declined_by: req.auth_context?.actor_id,
-      declined_reason: req.validatedBody?.message,
+      product_id: productId,
+      message: req.validatedBody?.message,
+      actor_id: req.auth_context?.actor_id,
     },
   })
 

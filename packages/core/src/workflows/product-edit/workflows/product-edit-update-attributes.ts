@@ -18,7 +18,7 @@ import {
 import { ProductChangeWorkflowEvents } from "../events"
 import {
   createProductChangeActionsStep,
-  createProductChangeStep,
+  createProductChangesStep,
   validateNoPendingProductChangeStep,
 } from "../steps"
 import {
@@ -172,7 +172,7 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
       inlineValuesInput,
     )
 
-    const changes = createProductChangeStep(
+    const changes = createProductChangesStep(
       transform({ input }, ({ input }) => [
         {
           product_id: input.product_id,
