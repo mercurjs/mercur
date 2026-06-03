@@ -9,6 +9,7 @@ import {
 import { HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 
 import { productEditUpdateAttributesWorkflow } from "../../../../../../workflows/product-edit/workflows/product-edit-update-attributes"
+import { groupProductAttributeValues } from "../../../../../utils/format-product-attributes"
 import { ensureSellerOwnsProduct } from "../../../helpers"
 
 export const GET = async (
@@ -28,7 +29,9 @@ export const GET = async (
       "attribute_values.name",
       "attribute_values.attribute.id",
       "attribute_values.attribute.name",
+      "attribute_values.attribute.handle",
       "attribute_values.attribute.type",
+      "attribute_values.attribute.is_variant_axis",
     ],
     filters: { id: productId },
   })
@@ -40,23 +43,22 @@ export const GET = async (
     )
   }
 
-  const values = (product.attribute_values ?? []).filter(
-    (v) => v.attribute?.id === attributeId
+  const [product_attribute] = groupProductAttributeValues(
+    product.attribute_values,
+    { attributeId }
   )
 
-  if (!values.length) {
+  if (!product_attribute) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
       `Attribute with id ${attributeId} was not found on product ${productId}`
     )
   }
 
-  const product_attribute = {
-    ...values[0].attribute,
-    values: values.map((v: any) => ({ id: v.id, name: v.name })),
-  }
-
-  res.json({ product_attribute })
+  res.json({
+    product_attribute:
+      product_attribute as unknown as HttpTypes.VendorProductAttributeResponse["product_attribute"],
+  })
 }
 
 /**
