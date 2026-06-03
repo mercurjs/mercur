@@ -1,6 +1,7 @@
 import {
   createHook,
   createWorkflow,
+  type ReturnWorkflow,
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
@@ -93,12 +94,10 @@ const DEFAULT_OPTION_VALUE = "Default option value"
  *      so the edit form can pre-select them.
  *   9. Writes `product_seller` link rows for the requested seller_ids.
  */
-export const createProductsWorkflow: ReturnType<
-  typeof createWorkflow<
-    CreateProductsWorkflowInput,
-    ProductTypes.ProductDTO[],
-    any
-  >
+export const createProductsWorkflow: ReturnWorkflow<
+  CreateProductsWorkflowInput,
+  ProductTypes.ProductDTO[],
+  unknown[]
 > = createWorkflow(
   createProductsWorkflowId,
   function (input: CreateProductsWorkflowInput) {

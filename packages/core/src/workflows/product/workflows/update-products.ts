@@ -1,6 +1,7 @@
 import {
   createHook,
   createWorkflow,
+  type ReturnWorkflow,
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
@@ -61,7 +62,11 @@ export const updateProductsWorkflowId = "mercur-update-products"
  * every variant in the payload (defensive — the marketplace invariant
  * cannot regress through a vendor patch).
  */
-export const updateProductsWorkflow = createWorkflow(
+export const updateProductsWorkflow: ReturnWorkflow<
+  UpdateProductsWorkflowInput,
+  ProductTypes.ProductDTO[],
+  unknown[]
+> = createWorkflow(
   updateProductsWorkflowId,
   function (input: UpdateProductsWorkflowInput) {
     const resolvedGroups = resolveAttributeRefsStep({

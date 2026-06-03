@@ -6,7 +6,10 @@ import { ContainerRegistrationKeys, ProductStatus } from "@medusajs/framework/ut
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { createProductsWorkflow } from "../../../workflows/product/workflows/create-products"
+import {
+  createProductsWorkflow,
+  type CreateProductWorkflowInput,
+} from "../../../workflows/product/workflows/create-products"
 import { enrichProductAttributes } from "../../utils"
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 
@@ -57,7 +60,7 @@ export const POST = async (
         {
           ...payload,
           status: payload.status ?? ProductStatus.PROPOSED,
-        } as Record<string, unknown>,
+        } as CreateProductWorkflowInput,
       ],
       seller_ids: [sellerId],
       additional_data,
