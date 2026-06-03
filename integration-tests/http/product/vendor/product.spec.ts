@@ -466,22 +466,27 @@ medusaIntegrationTestRunner({
       })
 
       describe("GET /vendor/products", () => {
-        it("lists own products and excludes other vendors' proposed products", async () => {
+        it("lists own products and excludes other vendors' unpublished products", async () => {
+          // Use `draft` to keep products unpublished. The vendor create
+          // flow opens a publish-approval ProductChange that auto-confirms
+          // when MEDUSA_FF_PRODUCT_REQUEST is off (the test env), which
+          // would otherwise leak the second seller's product into the
+          // first seller's master-catalog view.
           await api.post(
             `/vendor/products`,
-            { title: "Seller 1 Proposed" },
+            { title: "Seller 1 Draft", status: "draft" },
             seller1Headers,
           )
           await api.post(
             `/vendor/products`,
-            { title: "Seller 2 Proposed" },
+            { title: "Seller 2 Draft", status: "draft" },
             seller2Headers,
           )
           const res = await api.get(`/vendor/products`, seller1Headers)
           expect(res.status).toBe(200)
           const titles = res.data.products.map((p: any) => p.title)
-          expect(titles).toContain("Seller 1 Proposed")
-          expect(titles).not.toContain("Seller 2 Proposed")
+          expect(titles).toContain("Seller 1 Draft")
+          expect(titles).not.toContain("Seller 2 Draft")
         })
       })
 

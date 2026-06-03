@@ -1,6 +1,10 @@
 import { ExclamationCircleSolid } from "@medusajs/icons";
 import { Button, Container, Heading, Text, toast, usePrompt } from "@medusajs/ui";
-import { ProductChangeActionDTO, ProductChangeStatus } from "@mercurjs/types";
+import {
+  ProductChangeActionDTO,
+  ProductChangeActionType,
+  ProductChangeStatus,
+} from "@mercurjs/types";
 import {
   type FieldDiff,
   type ReferenceField,
@@ -20,6 +24,7 @@ import { Thumbnail } from "@components/common/thumbnail";
 import { useCollection } from "@hooks/api/collections";
 import { useProductCategory } from "@hooks/api/categories";
 import { useCancelProductEdit, useProductChange } from "@hooks/api/products";
+import { useProductAttribute } from "@hooks/api/product-attributes";
 import { useProductTag } from "@hooks/api/tags";
 import { useProductType } from "@hooks/api/product-types";
 import { sdk } from "@lib/client";
@@ -209,8 +214,57 @@ const FieldRow = ({ diff }: { diff: FieldDiff }) => {
   );
 };
 
+const AttributeActionLine = ({
+  attributeId,
+  valueIds,
+}: {
+  attributeId: string;
+  valueIds?: string[];
+}) => {
+  const { product_attribute } = useProductAttribute(attributeId);
+
+  const name = product_attribute?.name ?? attributeId;
+  const values = product_attribute?.values ?? [];
+  const selectedNames =
+    valueIds && valueIds.length
+      ? valueIds.map((id) => {
+          const match = values.find((v) => v.id === id);
+          return match?.name ?? id;
+        })
+      : [];
+
+  return (
+    <Text size="small" leading="compact" className="text-ui-fg-subtle">
+      <span className="font-medium text-ui-fg-base">{name}</span>
+      {selectedNames.length > 0 && `: ${selectedNames.join(", ")}`}
+    </Text>
+  );
+};
+
 const ActionLine = ({ action }: { action: ProductChangeActionDTO }) => {
   const { t } = useTranslation();
+  const details = (action.details ?? {}) as {
+    attribute_id?: string;
+    attribute_value_ids?: string[];
+  };
+
+  if (
+    action.action === ProductChangeActionType.ATTRIBUTE_ADD ||
+    action.action === ProductChangeActionType.ATTRIBUTE_REMOVE
+  ) {
+    if (!details.attribute_id) return null;
+    return (
+      <AttributeActionLine
+        attributeId={details.attribute_id}
+        valueIds={
+          action.action === ProductChangeActionType.ATTRIBUTE_ADD
+            ? details.attribute_value_ids
+            : undefined
+        }
+      />
+    );
+  }
+
   const label = describeProductChangeAction(action, {
     variant: t("fields.variant", { defaultValue: "Variant" }),
   });

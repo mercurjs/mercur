@@ -4,9 +4,16 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys, ProductStatus } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
-import { HttpTypes } from "@mercurjs/types"
+import {
+  HttpTypes,
+  MercurModules,
+  ProductChangeActionType,
+  ProductChangeStatus,
+} from "@mercurjs/types"
 
 import { createProductsWorkflow } from "../../../workflows/product/workflows/create-products"
+import { autoConfirmProductChangeWorkflow } from "../../../workflows/product-edit/workflows/auto-confirm-product-change"
+import type ProductChangeModuleService from "../../../modules/product-change/service"
 import { enrichProductAttributes } from "../../utils"
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 
@@ -41,13 +48,14 @@ export const POST = async (
   const sellerId = req.seller_context!.seller_id
 
   const { additional_data, ...payload } = req.validatedBody
+  const createdStatus = payload.status ?? ProductStatus.PROPOSED
 
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
       products: [
         {
           ...payload,
-          status: payload.status ?? ProductStatus.PROPOSED,
+          status: createdStatus,
         } as Record<string, unknown>,
       ],
       seller_ids: [sellerId],
@@ -56,6 +64,42 @@ export const POST = async (
   })
 
   const createdId = (result as { id: string }[])[0].id
+
+  // Open the publish-approval `ProductChange` so the admin
+  // confirm / reject / request-changes endpoints have something to
+  // act on. Only `PROPOSED` products are awaiting publish — `DRAFT`
+  // ones haven't been submitted yet, so they don't need a change.
+  // The change carries a `STATUS_CHANGE` action that publishes the
+  // product when the admin confirms it; `autoConfirmProductChangeWorkflow`
+  // applies it inline when `MEDUSA_FF_PRODUCT_REQUEST` is disabled so
+  // marketplaces without an approval queue still publish on create.
+  if (createdStatus === ProductStatus.PROPOSED) {
+    const service = req.scope.resolve<ProductChangeModuleService>(
+      MercurModules.PRODUCT_CHANGE,
+    )
+    const [change] = await service.createProductChanges([
+      {
+        product_id: createdId,
+        created_by: sellerId,
+        status: ProductChangeStatus.PENDING,
+      },
+    ])
+    await service.createProductChangeActions([
+      {
+        product_change_id: change.id,
+        product_id: createdId,
+        action: ProductChangeActionType.STATUS_CHANGE,
+        details: {
+          status: ProductStatus.PUBLISHED,
+          previous_status: ProductStatus.PROPOSED,
+        },
+      },
+    ])
+
+    await autoConfirmProductChangeWorkflow(req.scope).run({
+      input: { change_id: change.id, confirmed_by: sellerId },
+    })
+  }
 
   const {
     data: [product],

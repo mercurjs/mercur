@@ -153,9 +153,20 @@ medusaIntegrationTestRunner({
           )
           expect(got.data.product.title).toBe("After")
 
+          // The product carries two changes by the time we look: the
+          // publish-approval change opened on create + the edit change
+          // opened by this test. Both are auto-confirmed in the test
+          // env. Assert specifically on the edit change.
           const changes = await listChanges(productId)
-          expect(changes).toHaveLength(1)
-          expect(changes[0].status).toBe(ProductChangeStatus.CONFIRMED)
+          const editChange = changes.find((c) =>
+            c.actions.some(
+              (a) =>
+                a.action === ProductChangeActionType.UPDATE &&
+                a.details.field === "title",
+            ),
+          )
+          expect(editChange).toBeDefined()
+          expect(editChange!.status).toBe(ProductChangeStatus.CONFIRMED)
         })
 
         it("rejects a second pending edit while one is already open", async () => {
