@@ -1,21 +1,21 @@
 import { MedusaError, ProductStatus } from "@medusajs/framework/utils"
 import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 
-type ValidateRequestProductChangesStepInput = {
+type ValidateRequestProductChangeStepInput = {
   product: { id: string; status: string } | undefined
 }
 
-export const validateRequestProductChangesStepId =
-  "validate-request-product-changes"
+export const validateRequestProductChangeStepId =
+  "validate-request-product-change"
 
 /**
- * Guard for `requestProductChangesWorkflow`. Same eligibility window
+ * Guard for `requestProductChangeWorkflow`. Same eligibility window
  * as confirm + reject: `proposed` is the publish-approval state where
  * an operator can ask the seller to revise the submission.
  */
-export const validateRequestProductChangesStep = createStep(
-  validateRequestProductChangesStepId,
-  async ({ product }: ValidateRequestProductChangesStepInput) => {
+export const validateRequestProductChangeStep = createStep(
+  validateRequestProductChangeStepId,
+  async ({ product }: ValidateRequestProductChangeStepInput) => {
     if (!product) {
       throw new MedusaError(
         MedusaError.Types.NOT_FOUND,

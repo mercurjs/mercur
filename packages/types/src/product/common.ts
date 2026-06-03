@@ -22,15 +22,13 @@ export enum AttributeType {
 }
 
 /**
- * Product change lifecycle statuses.
- *
- * `REQUIRES_ACTION` is the signal "admin asked the vendor to do more work on
- * this product". The existence of any such row is what flips the computed
- * `Product.requires_action` boolean to `true`; see SPEC-008.
+ * Product change lifecycle statuses. Vendor edits land as `PENDING`
+ * (awaiting admin action) and resolve to `CONFIRMED` / `DECLINED` /
+ * `CANCELED`. Audit-trail rows (publish approval, change requests)
+ * are created already `CONFIRMED`.
  */
 export enum ProductChangeStatus {
   PENDING = "pending",
-  REQUIRES_ACTION = "requires_action",
   CONFIRMED = "confirmed",
   DECLINED = "declined",
   CANCELED = "canceled",
@@ -50,6 +48,13 @@ export enum ProductChangeActionType {
   ATTRIBUTE_ADD = "ATTRIBUTE_ADD",
   ATTRIBUTE_REMOVE = "ATTRIBUTE_REMOVE",
   PRODUCT_DELETE = "PRODUCT_DELETE",
+  /**
+   * Operator asked the vendor to revise a submission. Auto-applied
+   * (no product mutation) — the parent `ProductChange.external_note`
+   * carries the operator's message and the action's existence in the
+   * audit trail is the durable signal.
+   */
+  CHANGE_REQUESTED = "CHANGE_REQUESTED",
 }
 
 // --- Mercur-only DTOs ---

@@ -8,5 +8,5 @@ export const ProductWorkflowEvents = {
   CREATED: "product.created",
   PUBLISHED: "product.published",
   REJECTED: "product.rejected",
-  REQUIRES_ACTION: "product.requires-action",
+  CHANGE_REQUESTED: "product.change-requested",
 } as const

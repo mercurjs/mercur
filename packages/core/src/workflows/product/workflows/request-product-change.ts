@@ -4,10 +4,8 @@ import {
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { ProductStatus } from "@medusajs/framework/utils"
 import {
   emitEventStep,
-  updateProductsStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import {
@@ -16,30 +14,37 @@ import {
 } from "@mercurjs/types"
 
 import { ProductWorkflowEvents } from "../events"
-import { validateRequestProductChangesStep } from "../steps/validate-request-product-changes"
+import { validateRequestProductChangeStep } from "../steps/validate-request-product-change"
 import {
   createProductChangeActionsStep,
   createProductChangesStep,
 } from "../../product-edit/steps"
 
-export const requestProductRevisionWorkflowId = "mercur-request-product-revision"
+export const requestProductChangeWorkflowId = "mercur-request-product-change"
 
-type RequestProductChangesWorkflowInput = {
+type RequestProductChangeWorkflowInput = {
   product_id: string
   message?: string
   actor_id?: string
 }
 
 /**
- * Admin-side "ask the seller to revise the submission". Same audit-
- * trail pattern as confirm + reject, transitioning the product to
- * `draft` so the seller can edit and re-propose. The operator
- * `message` lands on the change's `external_note` so the seller sees
- * the reason on their product detail panel.
+ * Admin-side "ask the vendor to revise the submission". Deliberately
+ * side-effect-free on the product itself — the status stays where it
+ * is. All this workflow does:
+ *
+ *   1. Validate the product is eligible (still in the publish-approval
+ *      window).
+ *   2. Stamp a confirmed `ProductChange` audit row carrying one
+ *      `CHANGE_REQUESTED` action (`applied: true`). The operator's
+ *      optional `message` lands on `external_note` so the seller sees
+ *      it on their product detail panel.
+ *   3. Emit `product.change-requested` so a notification handler can
+ *      ship an email.
  */
-export const requestProductRevisionWorkflow = createWorkflow(
-  requestProductRevisionWorkflowId,
-  function (input: RequestProductChangesWorkflowInput) {
+export const requestProductChangeWorkflow = createWorkflow(
+  requestProductChangeWorkflowId,
+  function (input: RequestProductChangeWorkflowInput) {
     const { data: products } = useQueryGraphStep({
       entity: "product",
       fields: ["id", "status"],
@@ -49,7 +54,7 @@ export const requestProductRevisionWorkflow = createWorkflow(
 
     const product = transform({ products }, ({ products }) => products[0])
 
-    validateRequestProductChangesStep({ product })
+    validateRequestProductChangeStep({ product })
 
     const changeData = transform(
       { product, input },
@@ -68,13 +73,13 @@ export const requestProductRevisionWorkflow = createWorkflow(
     const changes = createProductChangesStep(changeData)
 
     const actionData = transform(
-      { changes, product },
-      ({ changes, product }) => [
+      { changes, product, input },
+      ({ changes, product, input }) => [
         {
           product_change_id: changes[0].id as string,
           product_id: product.id as string,
-          action: ProductChangeActionType.STATUS_CHANGE,
-          details: { status: ProductStatus.DRAFT },
+          action: ProductChangeActionType.CHANGE_REQUESTED,
+          details: { message: input.message ?? null },
           applied: true,
         },
       ],
@@ -82,26 +87,20 @@ export const requestProductRevisionWorkflow = createWorkflow(
 
     createProductChangeActionsStep(actionData)
 
-    const updateInput = transform({ input }, ({ input }) => ({
-      selector: { id: input.product_id },
-      update: { status: ProductStatus.DRAFT },
-    }))
-
-    updateProductsStep(updateInput)
-
     emitEventStep({
-      eventName: ProductWorkflowEvents.REQUIRES_ACTION,
+      eventName: ProductWorkflowEvents.CHANGE_REQUESTED,
       data: transform({ input }, ({ input }) => ({
         id: input.product_id,
         message: input.message,
+        actor_id: input.actor_id,
       })),
     })
 
-    const productRequiresAction = createHook("productRequiresAction", {
+    const productChangeRequested = createHook("productChangeRequested", {
       product_id: input.product_id,
       message: input.message,
     })
 
-    return new WorkflowResponse(void 0, { hooks: [productRequiresAction] })
+    return new WorkflowResponse(void 0, { hooks: [productChangeRequested] })
   },
 )

@@ -7,9 +7,7 @@ import ProductChangeModule from "../modules/product-change"
  * Read-only link Product → ProductChange.
  * `ProductChange.product_id` references `Product.id`. No pivot table —
  * the FK column lives directly on the change row. The `alias: "changes"`
- * exposes the list under `product.changes` (used by
- * `getProductsWithDetailsWorkflow` to compute the `requires_action`
- * boolean).
+ * exposes the list under `product.changes` for audit-history reads.
  */
 export default defineLink(
   {

@@ -6,7 +6,6 @@ export const ProductBulkEditItemSchema = z.object({
     "draft",
     "proposed",
     "published",
-    "requires_action",
     "rejected",
   ]),
   discountable: z.boolean(),

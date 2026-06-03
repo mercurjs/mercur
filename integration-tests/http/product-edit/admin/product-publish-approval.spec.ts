@@ -150,7 +150,7 @@ medusaIntegrationTestRunner({
         expect(rejectChange!.external_note).toBe("Missing description")
       })
 
-      it("admin request-changes drops the product back to draft and stamps a STATUS_CHANGE → draft audit change", async () => {
+      it("admin request-changes leaves the product status untouched and stamps a CHANGE_REQUESTED audit change with the operator message", async () => {
         const productId = await createVendorProduct("Needs Revision")
 
         const res = await api.post(
@@ -160,17 +160,22 @@ medusaIntegrationTestRunner({
         )
 
         expect(res.status).toBe(200)
-        expect(res.data.product.status).toBe("draft")
+        // Status stays put — the change-request only signals via audit
+        // history + event, not a status transition.
+        expect(res.data.product.status).toBe("proposed")
 
         const changes = await listChanges(productId)
         const requestChange = changes.find((c) =>
-          c.actions.some(
-            (a) => a.action === "STATUS_CHANGE" && a.details.status === "draft",
-          ),
+          c.actions.some((a) => a.action === "CHANGE_REQUESTED"),
         )
         expect(requestChange).toBeDefined()
         expect(requestChange!.status).toBe(ProductChangeStatus.CONFIRMED)
         expect(requestChange!.external_note).toBe("Please add photos")
+        const action = requestChange!.actions.find(
+          (a) => a.action === "CHANGE_REQUESTED",
+        )!
+        expect(action.applied).toBe(true)
+        expect(action.details.message).toBe("Please add photos")
       })
 
       it("rejects admin confirm when the product is not `proposed`", async () => {

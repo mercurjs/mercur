@@ -4,6 +4,7 @@ export type FieldDiff = {
   field: string
   previous: unknown
   next: unknown
+  variant_id?: string
 }
 
 export type ProductChangePartition = {
@@ -137,11 +138,16 @@ export const partitionProductChangeActions = (
           string,
           unknown
         >
+        const variantId =
+          details.variant_id !== undefined && details.variant_id !== null
+            ? String(details.variant_id)
+            : undefined
         for (const [field, value] of Object.entries(fields)) {
           updated.push({
             field,
             previous: previousFields[field],
             next: value,
+            variant_id: variantId,
           })
         }
         break
@@ -156,6 +162,13 @@ export const partitionProductChangeActions = (
         break
       case ProductChangeActionType.PRODUCT_DELETE:
         deleteRequested = true
+        break
+      case ProductChangeActionType.CHANGE_REQUESTED:
+        // Audit-only signal — the operator's message lives on the parent
+        // `ProductChange.external_note`, not in any diff bucket. The
+        // active-edit panel ignores it (it filters to pending changes;
+        // CHANGE_REQUESTED rows are created already confirmed). Listed
+        // here so the switch stays exhaustive over the enum.
         break
     }
   }

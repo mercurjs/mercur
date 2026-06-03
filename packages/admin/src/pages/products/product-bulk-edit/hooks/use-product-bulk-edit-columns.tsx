@@ -17,7 +17,6 @@ const STATUS_OPTIONS = [
   "draft",
   "proposed",
   "published",
-  "requires_action",
   "rejected",
 ] as const
 

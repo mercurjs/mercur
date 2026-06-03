@@ -9,7 +9,5 @@ export const ProductChangeWorkflowEvents = {
   CREATED: "product-change.created",
   CONFIRMED: "product-change.confirmed",
   DECLINED: "product-change.declined",
-  REQUIRES_ACTION: "product-change.requires-action",
-  RESUBMITTED: "product-change.resubmitted",
   CANCELED: "product-change.canceled",
 } as const
