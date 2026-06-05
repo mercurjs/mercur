@@ -5,7 +5,7 @@ export const Home = () => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    navigate("/products", { replace: true })
+    navigate("/orders", { replace: true })
   }, [navigate])
 
   return <div />

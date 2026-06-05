@@ -4,8 +4,6 @@ import {
   InferClientOutput,
 } from "@mercurjs/client";
 import {
-  AdminApiKeyListResponse,
-  AdminApiKeyResponse,
   ApiKeyDTO,
   HttpTypes,
 } from "@medusajs/types";

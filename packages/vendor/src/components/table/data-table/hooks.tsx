@@ -30,7 +30,11 @@ export const useSelectedParams = ({
         newValue.set(identifier, value)
       }
 
-      multiple ? updateMultipleValues() : updateSingleValue()
+      if (multiple) {
+        updateMultipleValues()
+      } else {
+        updateSingleValue()
+      }
       newValue.delete(offsetKey)
 
       return newValue
@@ -53,7 +57,11 @@ export const useSelectedParams = ({
 
     setSearchParams((prev) => {
       if (value) {
-        multiple ? deleteMultipleValues(prev) : deleteSingleValue(prev)
+        if (multiple) {
+          deleteMultipleValues(prev)
+        } else {
+          deleteSingleValue(prev)
+        }
         if (!prev.get(identifier)) {
           prev.delete(identifier)
         }

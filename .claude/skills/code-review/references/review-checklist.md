@@ -2,7 +2,7 @@
 
 Area-specific checks for mercur code review. Use alongside the main `SKILL.md`.
 
-## API Routes (`packages/core-plugin/`, `packages/registry/`)
+## API Routes (`packages/core/`, `packages/registry/`)
 
 - [ ] Route handler has concrete generics: `AuthenticatedMedusaRequest<BodyType>`, `MedusaResponse<ResponseType>`
 - [ ] Request validation matches the generic body type

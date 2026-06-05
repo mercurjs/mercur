@@ -1,14 +1,44 @@
+import { useMemo } from "react";
 import { PencilSquare } from "@medusajs/icons";
 import { Badge, Container, Heading, Tooltip } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { ActionMenu } from "@components/common/action-menu";
 import { SectionRow } from "@components/common/section";
+import { useProductCategories } from "@hooks/api/categories";
 import { useProductDetailContext } from "../../context";
 
 export const ProductOrganizationSection = () => {
   const { product } = useProductDetailContext();
   const { t } = useTranslation();
+
+  const additionalSecondaryCategoryIds = useMemo(() => {
+    const additional = (product as any).additional_data?.secondary_categories
+    if (!additional || !Array.isArray(additional)) return []
+    return additional.flatMap((entry: any) =>
+      Array.isArray(entry.category_ids) ? entry.category_ids : []
+    )
+  }, [product])
+
+  const hasSecondaryFromAdditional = additionalSecondaryCategoryIds.length > 0
+
+  const { product_categories: allCategories } = useProductCategories(
+    {
+      id: additionalSecondaryCategoryIds,
+      limit: 100,
+    },
+    { enabled: hasSecondaryFromAdditional }
+  )
+
+  const secondaryCategories = useMemo(() => {
+    if ((product as any).secondary_categories?.length) {
+      return (product as any).secondary_categories
+    }
+    if (hasSecondaryFromAdditional && allCategories) {
+      return allCategories
+    }
+    return []
+  }, [product, hasSecondaryFromAdditional, allCategories])
 
   return (
     <Container className="divide-y p-0">
@@ -68,7 +98,7 @@ export const ProductOrganizationSection = () => {
       />
 
       <SectionRow
-        title={t("fields.categories")}
+        title={t("products.fields.primaryCategory.label")}
         value={
           product.categories?.length
             ? product.categories.map((pcat) => (
@@ -76,6 +106,21 @@ export const ProductOrganizationSection = () => {
                   key={pcat.id}
                   label={pcat.name}
                   to={`/categories/${pcat.id}`}
+                />
+              ))
+            : undefined
+        }
+      />
+
+      <SectionRow
+        title={t("products.fields.secondaryCategories.label", "Secondary Categories")}
+        value={
+          secondaryCategories?.length
+            ? secondaryCategories.map((cat: any) => (
+                <OrganizationTag
+                  key={cat.id}
+                  label={cat.name}
+                  to={`/categories/${cat.id}`}
                 />
               ))
             : undefined

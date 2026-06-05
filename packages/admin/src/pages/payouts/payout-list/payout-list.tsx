@@ -14,8 +14,10 @@ import { PayoutDTO } from "@mercurjs/types"
 const PAGE_SIZE = 10
 
 export const PayoutListTitle = () => {
+  const { t } = useTranslation()
+
   return (
-    <Heading level="h2">Payouts</Heading>
+    <Heading level="h2">{t("payouts.domain")}</Heading>
   )
 }
 
@@ -86,7 +88,7 @@ export const PayoutListDataTable = () => {
       ]}
       queryObject={raw}
       noRecords={{
-        message: "No payouts found",
+        message: t("payouts.list.empty"),
       }}
     />
   )

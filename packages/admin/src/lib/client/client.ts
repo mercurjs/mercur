@@ -1,5 +1,5 @@
 import { createClient, InferClient } from '@mercurjs/client'
-import { Routes } from '@mercurjs/core-plugin/_generated'
+import { Routes } from '@mercurjs/core/_generated'
 import config from 'virtual:mercur/config'
 
 export const backendUrl = config.backendUrl ?? 'http://localhost:9000'
@@ -82,18 +82,10 @@ export const uploadFilesQuery = async (files: any[]) => {
   const formData = new FormData()
 
   for (const { file } of files) {
-    formData.append('files', file)
+    formData.append("files", file)
   }
 
-  const response = await fetch(`${backendUrl}/vendor/uploads`, {
-    method: 'POST',
-    credentials: 'include',
-    body: formData,
+  return sdk.admin.uploads.mutate({
+    fetchOptions: { body: formData },
   })
-
-  if (!response.ok) {
-    return null
-  }
-
-  return response.json()
 }

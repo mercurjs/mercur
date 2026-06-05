@@ -47,6 +47,8 @@
     "countOfTotalSelected": "{{count}} of {{total}} selected",
     "plusCount": "+ {{count}}",
     "plusCountMore": "+ {{count}} more",
+    "yes": "Yes",
+    "no": "No",
     "areYouSure": "Are you sure?",
     "areYouSureDescription": "You are about to delete the {{entity}} {{title}}. This action cannot be undone.",
     "noRecordsFound": "No records found",
@@ -62,7 +64,15 @@
     "unsavedChangesDescription": "You have unsaved changes that will be lost if you exit this form.",
     "includesTaxTooltip": "Prices in this column are tax inclusive.",
     "excludesTaxTooltip": "Prices in this column are tax exclusive.",
-    "noMoreData": "No more data"
+    "noMoreData": "No more data",
+    "searchOptions": "Search options...",
+    "noOptionsFound": "No options found",
+    "noOptionsAvailable": "No options available",
+    "selectValues": "Select values...",
+    "true": "True",
+    "false": "False",
+    "decrement": "Decrement",
+    "increment": "Increment"
   },
   "json": {
     "header": "JSON",
@@ -99,13 +109,20 @@
     }
   },
   "validation": {
-    "mustBeInt": "The value must be a whole number.",
-    "mustBePositive": "The value must be a positive number."
+    "rules": {
+      "lower": "At least one lowercase letter",
+      "upper": "At least one uppercase letter",
+      "12chars": "At least 12 characters",
+      "digit": "At least one digit",
+      "specialChar": "At least one special character"
+    },
+    "mustBeInt": "Must be a whole number",
+    "mustBePositive": "Must be a positive number"
   },
   "actions": {
     "save": "Save",
     "saveChanges": "Save changes",
-    "saveAsDraft": "Save as draft",
+    "saveAsDraft": "Save draft",
     "saveAndClose": "Save and close",
     "copy": "Copy",
     "copied": "Copied",
@@ -217,7 +234,6 @@
       },
       "settings": {
         "goToSettings": "Settings",
-        "goToSeller": "Seller",
         "goToUsers": "Users",
         "goToRegions": "Regions",
         "goToTaxRegions": "Tax Regions",
@@ -228,7 +244,8 @@
         "goToSecretApiKeys": "Secret API Keys",
         "goToWorkflows": "Workflows",
         "goToProfile": "Profile",
-        "goToReturnReasons": "Return reasons"
+        "goToReturnReasons": "Return reasons",
+        "goToStore": "Store"
       }
     },
     "menus": {
@@ -245,13 +262,10 @@
         }
       },
       "store": {
-        "label": "Seller",
-        "storeSettings": "Seller settings"
-      },
-      "seller": {
-        "label": "Seller",
-        "sellerSettings": "Seller settings",
-        "editSeller": "Edit Seller"
+        "label": "Store",
+        "storeSettings": "Store settings",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Log out"
@@ -278,6 +292,10 @@
     }
   },
   "dataGrid": {
+    "toggle": {
+      "enabled": "Enabled",
+      "notEnabled": "Not enabled"
+    },
     "columns": {
       "view": "View",
       "resetToDefault": "Reset to default",
@@ -420,8 +438,8 @@
     "domain": "Products",
     "bulkDelete": {
       "title": "Delete Products",
-      "description": "You are about to delete {{count}} product(s). This action cannot be undone.",
-      "success": "Successfully deleted {{count}} product(s).",
+      "description": "You are about to delete {{count}} products from catalog. This action cannot be undone.",
+      "success": "Successfully deleted {{count}} products.",
       "error": "Failed to delete products."
     },
     "list": {
@@ -430,7 +448,23 @@
     "edit": {
       "header": "Edit Product",
       "description": "Edit the product details.",
-      "successToast": "Product {{title}} was successfully updated."
+      "successToast": "Product {{title}} was successfully updated.",
+      "attributes": {
+        "addAttribute": "Add Attribute",
+        "editHeader": "Edit Attribute",
+        "required": "Required attribute",
+        "valuesRequired": "At least one value is required",
+        "valuesPlaceholder": "Select or enter value",
+        "useForVariations": "Use for Variations",
+        "useForVariationsDescription": "Convert this attribute to a product option that generates variants.",
+        "conversionWarning": "Converting this attribute to a variation will affect existing product variants. This action may delete or modify variants.",
+        "editCustomValueTitle": "Custom Value",
+        "editCustomValueDescription": "Replacing this with a custom value will affect how your product appears in search and filters. Custom values are not searchable or filterable."
+      },
+      "informationalAttributes": {
+        "header": "Product Information",
+        "description": "Attributes used for informational purposes"
+      }
     },
     "create": {
       "title": "Create Product",
@@ -440,12 +474,22 @@
         "details": "Details",
         "organize": "Organize",
         "variants": "Variants",
-        "inventory": "Inventory kits"
+        "inventory": "Inventory kits",
+        "attributes": "Attributes"
+      },
+      "defaults": {
+        "optionTitle": "Default option",
+        "optionValue": "Default option value",
+        "variantTitle": "Default variant"
       },
       "errors": {
         "variants": "Please select at least one variant.",
         "options": "Please create at least one option.",
-        "uniqueSku": "SKU must be unique."
+        "uniqueSku": "SKU must be unique across variants",
+        "primaryCategoryRequired": "Primary category is required",
+        "titleRequired": "Title is required",
+        "handleInvalidFormat": "Handle must contain only lowercase letters, numbers, and hyphens",
+        "handleMustContainLetter": "Handle must contain at least one letter"
       },
       "inventory": {
         "heading": "Inventory kits",
@@ -455,6 +499,7 @@
       },
       "variants": {
         "header": "Variants",
+        "optionsHeader": "Options",
         "subHeadingTitle": "Yes, this is a product with variants",
         "subHeadingDescription": "When unchecked, we will create a default variant for you",
         "optionTitle": {
@@ -464,17 +509,27 @@
           "placeholder": "Small, Medium, Large"
         },
         "productVariants": {
-          "label": "Product variants",
-          "hint": "This ranking will affect the variants' order in your storefront.",
-          "alert": "Add options to create variants.",
-          "tip": "Variants left unchecked won't be created. You can always create and edit variants afterwards but this list fits the variations in your product options."
+          "searchPlaceholder": "Search variants...",
+          "media": "Media",
+          "tip": "Only variants with prices and stock will be visible to customers."
         },
         "productOptions": {
           "label": "Product options",
           "hint": "Define the options for the product, e.g. color, size, etc."
         }
       },
-      "successToast": "Product {{title}} was successfully created."
+      "successToast": "Product {{title}} was successfully created.",
+      "attributes": {
+        "description": "Add attributes to your product. Select from admin-defined attributes or create your own.",
+        "requiredHeading": "Required Attributes",
+        "requiredDescription": "These attributes are required for products in this category.",
+        "buttonLabel": "Attribute",
+        "loading": "Loading attributes...",
+        "learnMore": {
+          "label": "Learn more about attributes",
+          "content": "Attributes help customers find and filter your products. Admin-defined attributes appear in search results."
+        }
+      }
     },
     "export": {
       "header": "Export Product List",
@@ -514,12 +569,6 @@
       }
     },
     "deleteWarning": "You are about to delete the product {{title}}. This action cannot be undone.",
-    "bulkDelete": {
-      "title": "Delete Products",
-      "description": "You are about to delete {{count}} products from catalog. This action cannot be undone.",
-      "success": "Successfully deleted {{count}} products.",
-      "error": "Failed to delete products."
-    },
     "variants": {
       "header": "Variants",
       "empty": {
@@ -529,9 +578,18 @@
       "filtered": {
         "heading": "No results",
         "description": "No variants match the current filter criteria."
+      },
+      "editStocksAndPrices": {
+        "header": "Edit Stocks & Prices",
+        "description": "Manage stock locations and prices for all variants",
+        "action": "Edit Stocks & Prices",
+        "successToast": "Stocks and prices updated successfully"
       }
     },
     "attributes": "Attributes",
+    "attributesSection": {
+      "removeWarning": "You are about to remove this attribute from the product. This action cannot be undone."
+    },
     "editAttributes": "Edit Attributes",
     "editOptions": "Edit Options",
     "editPrices": "Edit prices",
@@ -539,7 +597,7 @@
       "label": "Media",
       "editHint": "Add media to the product to showcase it in your storefront.",
       "manageImageVariants": "Manage associated variants",
-      "makeThumbnail": "Make thumbnail",
+      "makeThumbnail": "Make Thumbnail",
       "uploadImagesLabel": "Upload images",
       "uploadImagesHint": "Drag and drop images here or click to upload.",
       "invalidFileType": "'{{name}}' is not a supported file type. Supported file types are: {{types}}.",
@@ -549,21 +607,25 @@
       "deleteWarning_other": "You are about to delete {{count}} images. This action cannot be undone.",
       "deleteWarningWithThumbnail_one": "You are about to delete {{count}} image including the thumbnail. This action cannot be undone.",
       "deleteWarningWithThumbnail_other": "You are about to delete {{count}} images including the thumbnail. This action cannot be undone.",
-      "thumbnailTooltip": "Thumbnail",
+      "thumbnailTooltip": "This image is the thumbnail",
       "galleryLabel": "Gallery",
       "downloadImageLabel": "Download current image",
       "deleteImageLabel": "Delete current image",
       "emptyState": {
-        "header": "No media yet",
-        "description": "Add media to showcase it in your storefront.",
-        "action": "Add media"
+        "header": "No media",
+        "description": "No images assigned to this variant.",
+        "action": "Add images",
+        "variantDescription": "This variant has no images. Add images to the variant."
       },
       "successToast": "Media was successfully updated.",
       "variantImages": "Variant images",
       "showAvailableImages": "Show available images",
       "availableImages": "Select images",
       "selectToAdd": "Add product images to the variant. To add new images, add them to the product first.",
-      "removeSelected": "Remove Selected"
+      "removeSelected": "Remove Selected",
+      "selectImages": "Select Images",
+      "selectImagesHint": "Click images to add them to this variant.",
+      "editLabel": "Edit"
     },
     "variantMedia": {
       "label": "Variant Media",
@@ -604,7 +666,8 @@
       "title": {
         "label": "Title",
         "hint": "Give your product a short and clear title.<0/>50-60 characters is the recommended length for search engines.",
-        "placeholder": "Winter jacket"
+        "placeholder": "Winter jacket",
+        "required": "Please enter a title"
       },
       "subtitle": {
         "label": "Subtitle",
@@ -666,9 +729,9 @@
         "label": "Product options",
         "hint": "Options are used to define the color, size, etc. of the product",
         "add": "Add option",
-        "optionTitle": "Option title",
+        "optionTitle": "Title",
         "optionTitlePlaceholder": "Color",
-        "variations": "Variations (comma-separated)",
+        "variations": "Values",
         "variantionsPlaceholder": "Red, Blue, Green"
       },
       "variants": {
@@ -680,6 +743,40 @@
       },
       "hs_code": {
         "label": "HS code"
+      },
+      "attributes": {
+        "add": {
+          "title": {
+            "label": "Title",
+            "placeholder": "Search or type attribute name...",
+            "required": "Attribute title is required"
+          },
+          "values": {
+            "label": "Values",
+            "placeholder": "Type values separated by commas",
+            "required": "At least one value is required"
+          }
+        },
+        "useForVariants": {
+          "label": "Use for Variations",
+          "description": "Enable this to create product variants based on this attribute.",
+          "editDescription": "Changing this will affect existing product variants."
+        },
+        "validation": {
+          "required": "{{name}} is required",
+          "requiredSelect": "Please select a value",
+          "requiredEnter": "Please enter a value",
+          "requiredSelectMultiple": "Please select at least one value"
+        },
+        "enterValuePlaceholder": "Enter value",
+        "selectValuePlaceholder": "Select a value"
+      },
+      "secondaryCategories": {
+        "label": "Secondary Categories"
+      },
+      "primaryCategory": {
+        "label": "Primary Category",
+        "tooltip": "The primary category defines which attributes are available for this product. Attributes are created by the Admin when setting up the marketplace."
       }
     },
     "variant": {
@@ -735,7 +832,11 @@
         "header": "Create Option",
         "successToast": "Option {{title}} was successfully created."
       },
-      "deleteWarning": "You are about to delete the product option: {{title}}. This action cannot be undone."
+      "deleteWarning": "Are you sure you want to delete the option \"{{title}}\"? This will remove all associated variants.",
+      "variations": {
+        "label": "Variations",
+        "description": "Attributes used to create product variants."
+      }
     },
     "organization": {
       "header": "Organize",
@@ -779,6 +880,12 @@
           "header": "Failed to delete product"
         }
       }
+    },
+    "bulkEdit": {
+      "title": "Bulk Edit Products",
+      "description": "Edit multiple products at once.",
+      "noChanges": "No changes to save.",
+      "success": "Products updated successfully."
     }
   },
   "collections": {
@@ -1159,6 +1266,8 @@
       "title": "Payments",
       "isReadyToBeCaptured": "Payment <0/> is ready to be captured.",
       "totalPaidByCustomer": "Total paid by customer",
+      "totalPending": "Total pending",
+      "totalRefunded": "Refunded",
       "totalStoreCreditRefunds": "Total store credit refunds",
       "capture": "Capture payment",
       "capture_short": "Capture",
@@ -1399,6 +1508,8 @@
       "trackingUrl": "Tracking URL",
       "labelUrl": "Label URL",
       "addTracking": "Add tracking number",
+      "addTrackingUrl": "Add tracking URL",
+      "trackingUrlPlaceholder": "https://www.dhl.com/shipment/1234567890",
       "sendNotification": "Send notification",
       "sendNotificationHint": "Notify the customer about this shipment.",
       "toastCreated": "Shipment created successfully."
@@ -1444,7 +1555,10 @@
         "partiallyReturned": "Partially returned",
         "returned": "Returned",
         "canceled": "Canceled",
-        "requiresAction": "Requires action"
+        "requiresAction": "Requires action",
+        "awaitingPickup": "Awaiting pickup",
+        "awaitingShipping": "Awaiting shipping",
+        "awaitingDelivery": "Awaiting delivery"
       },
       "toast": {
         "created": "Fulfillment created successfully",
@@ -2490,16 +2604,30 @@
       }
     }
   },
+  "payouts": {
+    "domain": "Payouts",
+    "payout": "Payout",
+    "noRecords": "No payouts found",
+    "status": {
+      "pending": "Pending",
+      "processing": "Processing",
+      "paid": "Paid",
+      "failed": "Failed",
+      "canceled": "Canceled"
+    }
+  },
   "profile": {
     "domain": "Profile",
     "manageYourProfileDetails": "Manage your profile details.",
     "fields": {
+      "firstName": "First name",
+      "lastName": "Last name",
       "languageLabel": "Language",
       "usageInsightsLabel": "Usage insights"
     },
     "edit": {
       "header": "Edit Profile",
-      "languageHint": "The language you want to use in the admin dashboard. This doesn't change the language of your store.",
+      "languageHint": "The language you want to use in the vendor dashboard. This doesn't change the language of your store.",
       "languagePlaceholder": "Select language",
       "usageInsightsHint": "Share usage insights and help us improve Medusa. You can read more about what we collect and how we use it in our <0>documentation</0>."
     },
@@ -2513,6 +2641,7 @@
     "inviteUser": "Invite User",
     "inviteUserHint": "Invite a new user to your store.",
     "sendInvite": "Send invite",
+    "selectRole": "Select a role",
     "pendingInvites": "Pending Invites",
     "deleteInviteWarning": "You are about to delete the invite for {{email}}. This action cannot be undone.",
     "resendInvite": "Resend invite",
@@ -2528,7 +2657,12 @@
     "roles": {
       "admin": "Admin",
       "developer": "Developer",
-      "member": "Member"
+      "member": "Member",
+      "administration": "Administration",
+      "inventoryManagement": "Inventory Management",
+      "orderManagement": "Order Management",
+      "accounting": "Accounting",
+      "support": "Support"
     },
     "list": {
       "empty": {
@@ -2542,7 +2676,13 @@
     },
     "deleteUserWarning": "You are about to delete the user {{name}}. This action cannot be undone.",
     "deleteUserSuccess": "User {{name}} deleted successfully",
-    "invite": "Invite"
+    "invite": "Invite",
+    "inviteForm": {
+      "validation": {
+        "emailInvalid": "Please enter a valid email",
+        "roleRequired": "Please select a role"
+      }
+    }
   },
   "translations": {
     "domain": "Translations",
@@ -2587,6 +2727,41 @@
     "domain": "Seller",
     "manageYourStoresDetails": "Manage your seller's details",
     "editStore": "Edit seller",
+    "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
+    "validation": {
+      "nameRequired": "Please enter a name",
+      "nameTooLong": "Name must be at most 100 characters",
+      "emailInvalid": "Please enter a valid email"
+    },
+    "profileCompletion": {
+      "title": "Complete store profile",
+      "steps": {
+        "storeDetails": "Add store details",
+        "address": "Add address",
+        "companyDetails": "Add company details",
+        "paymentDetails": "Add payment details"
+      }
+    },
+    "status": {
+      "active": "Active",
+      "pendingApproval": "Pending",
+      "suspended": "Inactive",
+      "terminated": "Terminated"
+    },
+    "alert": {
+      "pendingApproval": {
+        "title": "Store request",
+        "description": "Store request has been submitted successfully. Once the Admin reviews it, you'll receive a notification in your panel."
+      },
+      "suspended": {
+        "title": "Your store has been suspended",
+        "description": "Your store has been suspended by the platform administrator. Please contact support for more information."
+      },
+      "terminated": {
+        "title": "Your store has been terminated",
+        "description": "Your store has been permanently terminated by the platform administrator. Please contact support for more information."
+      }
+    },
     "defaultCurrency": "Default currency",
     "defaultLocale": "Default locale",
     "defaultRegion": "Default region",
@@ -2609,11 +2784,120 @@
     "company": "Company",
     "manageCompanyDetails": "Manage your company details",
     "logo": "Logo",
+    "banner": "Banner",
     "edit": {
       "header": "Edit Store"
     },
     "editCompany": {
       "header": "Edit Company"
+    },
+    "address": {
+      "header": "Address",
+      "defaultName": "Headquarters",
+      "nameLabel": "Name",
+      "namePlaceholder": "Headquarters",
+      "empty": {
+        "title": "No address",
+        "message": "There are no records to show"
+      },
+      "edit": {
+        "header": "Edit Address",
+        "description": "Update the address for your store.",
+        "successToast": "Address updated"
+      },
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "countryRequired": "Please select a country"
+      }
+    },
+    "paymentDetails": {
+      "header": "Payment Details",
+      "empty": {
+        "title": "No payment details",
+        "message": "There are no records to show"
+      },
+      "edit": {
+        "header": "Edit Payment Details",
+        "description": "Update the payment details for your store.",
+        "successToast": "Payment details updated"
+      },
+      "fields": {
+        "countryCode": "Country",
+        "holderName": "Account name",
+        "bankName": "Bank name",
+        "iban": "IBAN",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
+        "routingNumber": "Routing number",
+        "achRoutingNumber": "ACH routing number",
+        "accountNumber": "Account number"
+      },
+      "validation": {
+        "countryRequired": "Please select a country",
+        "accountNameRequired": "Please enter an account name"
+      }
+    },
+    "professionalDetails": {
+      "header": "Company Details",
+      "empty": {
+        "title": "No company details",
+        "message": "There are no records to show"
+      },
+      "edit": {
+        "header": "Edit Company Details",
+        "description": "Update the company details for your store.",
+        "successToast": "Company details updated"
+      },
+      "fields": {
+        "corporateName": "Company",
+        "registrationNumber": "Registration number",
+        "taxId": "Tax ID"
+      }
+    },
+    "timeOff": {
+      "header": "Time off",
+      "columns": {
+        "firstDay": "First day",
+        "lastDay": "Last day",
+        "note": "Note"
+      },
+      "validation": {
+        "firstDayRequired": "Please enter a first day"
+      },
+      "empty": {
+        "title": "No time off yet",
+        "message": "This store doesn't have scheduled time off",
+        "action": "Create"
+      },
+      "create": {
+        "header": "Create Time Off",
+        "description": "Schedule a time off period for your store.",
+        "successToast": "Time off saved"
+      },
+      "fields": {
+        "firstDay": "First day",
+        "lastDay": "Last day",
+        "lastDayHint": "Leave empty to keep the store closed indefinitely",
+        "note": "Note"
+      },
+      "deleteConfirm": {
+        "title": "Delete time off",
+        "description": "Are you sure you want to remove this time off period?"
+      },
+      "deleteSuccess": "Time off removed"
+    },
+    "subscription": {
+      "header": "Subscription",
+      "noPlan": "No subscription plan",
+      "noPlanMessage": "Your store does not have an active subscription plan.",
+      "monthlyAmount": "Monthly amount",
+      "freeMonths": "Free months",
+      "freePeriod": "Free period",
+      "requiresOrders": "Requires orders",
+      "month": "month"
+    },
+    "edit": {
+      "websiteHint": "Must include protocol (e.g. https://)"
     },
     "toast": {
       "update": "Store successfully updated",
@@ -2938,27 +3222,52 @@
       }
     }
   },
+  "storeSelect": {
+    "title": "Select a store",
+    "subtitle": "Choose a store to continue.",
+    "pendingApproval": "Pending",
+    "addNewStore": "Add new store",
+    "status": {
+      "open": "Active",
+      "pendingApproval": "Pending",
+      "suspended": "Inactive",
+      "terminated": "Terminated"
+    }
+  },
   "login": {
-    "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to {{name}}",
-    "hint": "Sign in to access the vendor hub",
-    "notSellerYet": "Not a seller yet? - <0>Create an account</0>"
+    "forgotPassword": "Forgot password? <0>Reset</0>",
+    "title": "Welcome back!",
+    "hint": "Log in to your vendor account.",
+    "submit": "Log in",
+    "sessionExpired": "Session expired",
+    "notSellerYet": "Not a seller yet? <0>Create an account</0>",
+    "validation": {
+      "emailRequired": "Please enter an email",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Please enter your password"
+    }
   },
   "register": {
-    "title": "Start selling on {{name}}",
-    "hint": "Create account to get started",
+    "title": "Join {{name}}!",
+    "hint": "Enter your details and create a password to set up your admin account.",
     "companyName": "Company name",
     "confirmPassword": "Confirm password",
     "signUp": "Sign up",
-    "alreadySeller": "Already have an account? - <0>Sign In</0>",
+    "alreadySeller": "Already have an account? <0>Log in</0>",
     "passwordMismatch": "Passwords don't match",
     "emailTaken": "Provided email is already taken",
     "validation": {
       "nameRequired": "Name must be at least 2 characters",
+      "firstNameRequired": "Please enter your first name",
+      "lastNameRequired": "Please enter your last name",
       "emailInvalid": "Please enter a valid email address",
       "passwordMinLength": "Password must be at least 8 characters",
+      "passwordComplexity": "Password must include one lowercase letter, one uppercase letter, and one number or symbol",
       "confirmPasswordRequired": "Please confirm your password"
     },
+    "firstName": "First name",
+    "lastName": "Last name",
+    "passwordHint": "Your password must include at least 8 characters, one lowercase letter, one uppercase letter, one number or symbol",
     "successTitle": "Thank you for registering!",
     "successHint": "You may need to wait for admin authorization before logging in. A confirmation email will be sent to you shortly.",
     "backToLogin": "Back to login"
@@ -2976,6 +3285,8 @@
       "subtitle": "Specify the details of your store",
       "storeName": "Store name",
       "storeNamePlaceholder": "My Store",
+      "storeEmail": "Store email",
+      "storeEmailHint": "Public contact email for your store",
       "selectCurrency": "Select a currency",
       "currencyHint": "Cannot be changed after store is created",
       "descriptionPlaceholder": "A description of your store"
@@ -2989,7 +3300,7 @@
       "professionalSubtitle": "Professional seller information",
       "isProfessional": "Professional seller",
       "isProfessionalDescription": "Register as a business entity",
-      "corporateName": "Corporate name",
+      "corporateName": "Company",
       "registrationNumber": "Registration number",
       "taxId": "Tax ID",
       "completeSetup": "Complete setup"
@@ -2997,21 +3308,83 @@
     "submitted": {
       "title": "Application submitted!",
       "description": "Your seller account has been created and is pending approval. We'll notify you at {{email}} once your store is reviewed.",
-      "hint": "In the meantime, you can log in to complete your store setup.",
-      "action": "Go to login"
+      "hint": "In the meantime, you can select your store and complete your setup.",
+      "action": "Continue to dashboard"
+    },
+    "wizard": {
+      "stepOf": "Step {{current}} of {{total}}",
+      "steps": {
+        "store": "Store Details",
+        "address": "Address",
+        "company": "Company Details",
+        "payment": "Payment Details"
+      },
+      "store": {
+        "title": "Enter your store details",
+        "name": "Name",
+        "email": "Email",
+        "handle": "Handle",
+        "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
+        "handlePlaceholder": "my-store",
+        "currency": "Currency",
+        "selectCurrency": "Select",
+        "currencyHint": "Cannot be changed after store is created"
+      },
+      "skip": "Skip",
+      "address": {
+        "title": "Enter your address",
+        "name": "Name",
+        "namePlaceholder": "Headquarters",
+        "address": "Address",
+        "address2": "Apartment, suite, etc.",
+        "postalCode": "Postal Code",
+        "city": "City",
+        "country": "Country",
+        "state": "State"
+      },
+      "company": {
+        "title": "Enter your company details",
+        "subtitle": "Professional seller information",
+        "corporateName": "Company",
+        "registrationNumber": "Registration number",
+        "taxId": "Tax ID"
+      },
+      "payment": {
+        "title": "Enter your payment details",
+        "subtitle": "How you'd like to receive payouts",
+        "accountName": "Account name",
+        "accountNumber": "Account number",
+        "achRoutingNumber": "ACH routing number",
+        "iban": "IBAN",
+        "swiftBic": "SWIFT / BIC"
+      },
+      "validation": {
+        "nameRequired": "Please enter a name",
+        "emailInvalid": "Please enter an email",
+        "currencyRequired": "Please select a currency",
+        "countryRequired": "Please select a country",
+        "accountNameRequired": "Please enter an account name"
+      },
+      "preview": {
+        "title": "Welcome to Mercur",
+        "description": "Your all-in-one vendor portal for managing your store, products, orders, and payouts.",
+        "placeholder": "App preview"
+      }
     }
   },
   "invite": {
-    "title": "Welcome to Mercur",
-    "hint": "Create your account below",
+    "title": "You're invited to join {{name}}!",
+    "hint": "Enter your details and create a password to set up your account.",
+    "existingMemberHint": "Sign in with your existing account",
     "backToLogin": "Back to login",
     "createAccount": "Create account",
-    "alreadyHaveAccount": "Already have an account? - <0>Log in</0>",
+    "signIn": "Sign in",
+    "alreadyHaveAccount": "Already have an account?",
+    "logIn": "Log in",
     "emailTooltip": "Your email cannot be changed. If you would like to use another email, a new invite must be sent.",
     "invalidInvite": "The invite is invalid or has expired.",
-    "successTitle": "Your account has been registered",
-    "successHint": "Get started with Mercur right away.",
-    "successAction": "Start Mercur",
+    "successTitle": "Welcome to {{name}}!",
+    "successHint": "Setting up your account...",
     "invalidTokenTitle": "Your invite token is invalid",
     "invalidTokenHint": "Try requesting a new invite link.",
     "passwordMismatch": "Passwords do not match",
@@ -3221,6 +3594,7 @@
     "discountable": "Discountable",
     "promotionCode": "Promotion code",
     "handle": "Handle",
+    "website": "Website",
     "subtitle": "Subtitle",
     "by": "By",
     "item": "Item",
@@ -3260,6 +3634,7 @@
     "availability": "Availability",
     "inventory": "Inventory",
     "optional": "Optional",
+    "commission": "Commission",
     "note": "Note",
     "automaticTaxes": "Automatic Taxes",
     "taxInclusivePricing": "Tax inclusive pricing",
@@ -3274,7 +3649,7 @@
     "company": "Company",
     "phone": "Phone",
     "metadata": "Metadata",
-    "selectCountry": "Select country",
+    "selectCountry": "Select",
     "products": "Products",
     "variants": "Variants",
     "orders": "Orders",
@@ -3350,7 +3725,9 @@
     "startDate": "Start date",
     "endDate": "End date",
     "draft": "Draft",
-    "values": "Values"
+    "values": "Values",
+    "premium": "Premium",
+    "professional": "Professional"
   },
   "dateTime": {
     "years_one": "Year",

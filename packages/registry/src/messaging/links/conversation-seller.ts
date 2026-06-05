@@ -1,6 +1,6 @@
 import { defineLink } from "@medusajs/framework/utils"
 
-import SellerModule from "@mercurjs/core-plugin/modules/seller"
+import SellerModule from "@mercurjs/core/modules/seller"
 import MessagingModule from "../modules/messaging"
 
 export default defineLink(SellerModule.linkable.seller, {

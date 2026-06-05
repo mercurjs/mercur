@@ -30,7 +30,7 @@ export const Login = () => {
   const reason = searchParams.get("reason") || "";
   const reasonMessage =
     reason && reason.toLowerCase() === "unauthorized"
-      ? "Session expired"
+      ? t("login.sessionExpired")
       : reason;
   const from = location.state?.from?.pathname || "/orders";
 

@@ -212,7 +212,7 @@ export const useProductTableFilters = (
   if (sellers) {
     const sellerFilter: Filter = {
       key: "seller_id",
-      label: t("sellers.domain"),
+      label: t("stores.domain"),
       type: "select",
       multiple: true,
       searchable: true,

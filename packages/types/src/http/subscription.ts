@@ -18,3 +18,8 @@ export interface AdminSubscriptionOverrideResponse {
 
 export type AdminSubscriptionOverrideDeleteResponse =
   DeleteResponse<"subscription_override">
+
+export interface VendorSubscriptionResponse {
+  subscription_plan: SubscriptionPlanDTO | null
+  subscription_override: SubscriptionOverrideDTO | null
+}

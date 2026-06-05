@@ -1,4 +1,4 @@
-import { loadEnv, defineConfig, Modules } from '@medusajs/framework/utils'
+import { loadEnv, defineConfig } from '@medusajs/framework/utils'
 
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
@@ -22,7 +22,7 @@ module.exports = defineConfig({
       resolve: "@medusajs/medusa/rbac",
     },
     {
-      resolve: '@mercurjs/core-plugin/modules/admin-ui',
+      resolve: '@mercurjs/core/modules/admin-ui',
       options: {
         appDir: '',
         path: '/dashboard',
@@ -30,17 +30,25 @@ module.exports = defineConfig({
       }
     },
     {
-      resolve: '@mercurjs/core-plugin/modules/vendor-ui',
+      resolve: '@mercurjs/core/modules/vendor-ui',
       options: {
         appDir: '',
         path: '/seller',
         disable: true
       }
     },
+    // Meilisearch block — loaded only when env vars are present (e.g. meilisearch integration tests)
+    ...(process.env.MEILISEARCH_HOST ? [{
+      resolve: '../packages/registry/src/meilisearch/modules/meilisearch',
+      options: {
+        host: process.env.MEILISEARCH_HOST,
+        apiKey: process.env.MEILISEARCH_API_KEY,
+      },
+    }] : []),
   ],
   plugins: [
     {
-      resolve: "@mercurjs/core-plugin",
+      resolve: "@mercurjs/core",
       options: {}
     }
   ]

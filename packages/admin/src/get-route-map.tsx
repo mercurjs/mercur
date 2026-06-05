@@ -799,21 +799,31 @@ export function getRouteMap({
                 ],
               },
               {
-                path: "/sellers",
+                path: "/stores",
                 errorElement: <ErrorBoundary />,
                 handle: {
-                  breadcrumb: () => t("sellers.domain"),
+                  breadcrumb: () => t("stores.domain"),
                 },
                 children: [
                   {
                     path: "",
-                    lazy: () => import("./pages/sellers/seller-list"),
+                    lazy: () => import("./pages/stores/store-list"),
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () => import("./pages/stores/store-create"),
+                      },
+                      {
+                        path: "bulk-edit",
+                        lazy: () => import("./pages/stores/store-bulk-edit"),
+                      },
+                    ],
                   },
                   {
                     path: ":id",
                     lazy: async () => {
                       const { Breadcrumb } =
-                        await import("./pages/sellers/seller-details");
+                        await import("./pages/stores/store-details");
 
                       return {
                         Component: Outlet,
@@ -827,16 +837,40 @@ export function getRouteMap({
                     children: [
                       {
                         path: "",
-                        lazy: () => import("./pages/sellers/seller-details"),
+                        lazy: () => import("./pages/stores/store-details"),
                         children: [
                           {
                             path: "edit",
-                            lazy: () => import("./pages/sellers/seller-edit"),
+                            lazy: () => import("./pages/stores/store-edit"),
                           },
                           {
                             path: "edit-address",
                             lazy: () =>
-                              import("./pages/sellers/seller-address-edit"),
+                              import("./pages/stores/store-address-edit"),
+                          },
+                          {
+                            path: "professional-details",
+                            lazy: () =>
+                              import(
+                                "./pages/stores/store-professional-details-edit"
+                              ),
+                          },
+                          {
+                            path: "payment-details",
+                            lazy: () =>
+                              import(
+                                "./pages/stores/store-payment-details-edit"
+                              ),
+                          },
+                          {
+                            path: "store-closure",
+                            lazy: () =>
+                              import("./pages/stores/store-closure-edit"),
+                          },
+                          {
+                            path: "invite",
+                            lazy: () =>
+                              import("./pages/stores/store-member-invite"),
                           },
                         ],
                       },
@@ -1145,7 +1179,7 @@ export function getRouteMap({
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
                 handle: {
-                  breadcrumb: () => "Commission Rates",
+                  breadcrumb: () => t("commissionRates.domain"),
                 },
                 children: [
                   {
@@ -1583,6 +1617,79 @@ export function getRouteMap({
                             path: "metadata/edit",
                             lazy: () =>
                               import("./pages/product-tags/product-tag-metadata"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: "attributes",
+                errorElement: <ErrorBoundary />,
+                element: <Outlet />,
+                handle: {
+                  breadcrumb: () => t("attributes.domain"),
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("./pages/attributes/attribute-list"),
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () =>
+                          import("./pages/attributes/attribute-create"),
+                      },
+                    ],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Breadcrumb, loader } =
+                        await import("./pages/attributes/attribute-detail");
+
+                      return {
+                        Component: Outlet,
+                        loader,
+                        handle: {
+                          breadcrumb: (
+                            match: UIMatch,
+                          ) => <Breadcrumb {...match} />,
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () =>
+                          import("./pages/attributes/attribute-detail"),
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import("./pages/attributes/attribute-edit"),
+                          },
+                          {
+                            path: "edit-possible-value",
+                            lazy: () =>
+                              import(
+                                "./pages/attributes/attribute-edit-possible-value"
+                              ),
+                          },
+                          {
+                            path: "create-possible-value",
+                            lazy: () =>
+                              import(
+                                "./pages/attributes/attribute-create-possible-value"
+                              ),
+                          },
+                          {
+                            path: "edit-ranking",
+                            lazy: () =>
+                              import(
+                                "./pages/attributes/attribute-edit-ranking"
+                              ),
                           },
                         ],
                       },

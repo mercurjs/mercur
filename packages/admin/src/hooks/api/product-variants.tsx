@@ -1,7 +1,6 @@
 import {
   ClientError,
   InferClientInput,
-  InferClientOutput,
 } from "@mercurjs/client";
 import { QueryKey, useQuery, UseQueryOptions } from "@tanstack/react-query";
 import { sdk } from "../../lib/client";

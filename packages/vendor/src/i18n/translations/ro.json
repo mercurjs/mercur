@@ -235,7 +235,9 @@
       },
       "store": {
         "label": "Magazin",
-        "storeSettings": "Memorează setările"
+        "storeSettings": "Memorează setările",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Deconectați-vă"

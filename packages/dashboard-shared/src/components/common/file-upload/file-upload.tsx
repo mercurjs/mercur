@@ -116,7 +116,7 @@ export const FileUpload = ({
       >
         {uploadedImage ? (
           <div>
-            <img src={uploadedImage} className="w-32 h-32 rounded-md" />
+            <img src={uploadedImage} alt="" className="w-32 h-32 rounded-md" />
           </div>
         ) : (
           <>

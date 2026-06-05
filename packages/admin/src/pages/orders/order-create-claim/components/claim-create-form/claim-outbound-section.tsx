@@ -101,7 +101,7 @@ export const ClaimOutboundSection = ({
             (a) => a.claim_id === claim.id && a.action === "ITEM_ADD"
           )
       ),
-    [preview.items]
+    [preview.items, claim.id]
   )
 
   const variantItemMap = useMemo(
@@ -121,7 +121,7 @@ export const ClaimOutboundSection = ({
 
   const variantOutboundMap = useMemo(
     () => new Map(previewOutboundItems.map((i) => [i.variant_id, i])),
-    [previewOutboundItems, outboundItems]
+    [previewOutboundItems]
   )
 
   useEffect(() => {
@@ -156,14 +156,20 @@ export const ClaimOutboundSection = ({
         remove(ind)
       }
     })
-  }, [previewOutboundItems])
+  }, [
+	previewOutboundItems,
+	remove,
+	outboundItems,
+	append,
+	update
+])
 
   const locationId = form.watch("location_id")
   const showOutboundItemsPlaceholder = !outboundItems.length
 
   const onItemsSelected = async () => {
-    itemsToAdd.length &&
-      (await addOutboundItem(
+    if (itemsToAdd.length) {
+      await addOutboundItem(
         {
           items: itemsToAdd.map((variantId) => ({
             variant_id: variantId,
@@ -175,7 +181,8 @@ export const ClaimOutboundSection = ({
             toast.error(error.message)
           },
         }
-      ))
+      )
+    }
 
     for (const itemToRemove of itemsToRemove) {
       const action = previewOutboundItems
@@ -202,7 +209,7 @@ export const ClaimOutboundSection = ({
         (a) => a.action === "SHIPPING_ADD" && !a.return_id
       )
 
-      return action && !!!action?.return_id
+      return action && !action?.return_id
     })
 
     const promises = outboundShippingMethods
@@ -254,7 +261,12 @@ export const ClaimOutboundSection = ({
       .every(Boolean)
 
     return !allItemsHaveLocation
-  }, [outboundItems, inventoryMap, locationId])
+  }, [
+	outboundItems,
+	inventoryMap,
+	locationId,
+	variantItemMap
+])
 
   useEffect(() => {
     // TODO: Ensure inventory validation occurs correctly
@@ -295,9 +307,9 @@ export const ClaimOutboundSection = ({
 
         <StackedFocusModal id="outbound-items">
           <StackedFocusModal.Trigger asChild>
-            <a className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
+            <button type="button" className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
               {t("actions.addItems")}
-            </a>
+            </button>
           </StackedFocusModal.Trigger>
           <StackedFocusModal.Content>
             <StackedFocusModal.Header />
@@ -325,11 +337,12 @@ export const ClaimOutboundSection = ({
                       {t("actions.cancel")}
                     </Button>
                   </RouteFocusModal.Close>
-                  <Button
+                  <Button tabIndex={0}
                     key="submit-button"
                     type="submit"
                     variant="primary"
                     size="small"
+                    // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                     role="button"
                     onClick={async () => await onItemsSelected()}
                   >

@@ -20,7 +20,7 @@ const columnHelper = createDataGridHelper<
 
 export const usePriceListGridColumns = ({
   currencies = [],
-  regions = [],
+  regions: _regions = [],
   pricePreferences = [],
 }: {
   currencies?: HttpTypes.AdminStoreCurrency[]
@@ -86,7 +86,7 @@ export const usePriceListGridColumns = ({
         showCurrentPriceCell: true,
       }),
     ]
-  }, [t, currencies, regions, pricePreferences])
+  }, [t, currencies, pricePreferences])
 
   return colDefs
 }

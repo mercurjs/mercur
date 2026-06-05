@@ -168,7 +168,7 @@ export const PromotionGeneralSection = ({
         </Text>
 
         <Text size="small" leading="compact" className="text-pretty capitalize">
-          {promotion.application_method?.allocation!}
+          {promotion.application_method?.allocation}
         </Text>
       </div>
     </Container>

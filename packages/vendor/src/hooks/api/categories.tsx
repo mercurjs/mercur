@@ -18,7 +18,7 @@ import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
 import { productsQueryKeys } from "./products";
 import { useInfiniteList } from "../use-infinite-list";
-import { AdminProductCategoryResponse, HttpTypes } from "@mercurjs/types";
+import { AdminProductCategoryResponse } from "@mercurjs/types";
 
 const CATEGORIES_QUERY_KEY = "categories" as const;
 export const categoriesQueryKeys = queryKeysFactory(CATEGORIES_QUERY_KEY);

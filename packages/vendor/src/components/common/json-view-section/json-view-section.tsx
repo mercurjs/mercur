@@ -194,6 +194,7 @@ const Copied = ({ style, value }: CopiedProps) => {
   }
 
   return (
+    // oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions
     <span style={{ ...style, ...styl }} onClick={handler}>
       <SquareTwoStack className="text-ui-contrast-fg-secondary" />
     </span>

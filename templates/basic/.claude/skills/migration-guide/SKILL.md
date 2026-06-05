@@ -15,8 +15,8 @@ Use this skill when:
 
 | 1.x | 2.0 |
 |-------|--------|
-| `@mercurjs/b2c-core` | `@mercurjs/core-plugin` — all core modules built in |
-| `@mercurjs/commission` | Built into core-plugin |
+| `@mercurjs/b2c-core` | `@mercurjs/core` — all core modules built in |
+| `@mercurjs/commission` | Built into core |
 | `@mercurjs/algolia` | Registry block: `mercurjs add algolia` |
 | `@mercurjs/resend` | No 2.0 equivalent — port manually |
 | `@mercurjs/payment-stripe-connect` | No 2.0 equivalent — port manually |
@@ -47,7 +47,7 @@ Use this skill when:
 | `from "@hooks/*"` | `from "@mercurjs/dashboard-shared"` or local |
 | `from "@components/*"` | `from "@mercurjs/dashboard-shared"` |
 | `from "@lib/*"` | `from "@mercurjs/dashboard-shared"` |
-| `from "@mercurjs/b2c-core"` | `from "@mercurjs/core-plugin"` |
+| `from "@mercurjs/b2c-core"` | `from "@mercurjs/core"` |
 
 ## Provider Registration
 
@@ -76,7 +76,7 @@ import { Modules, ModuleProvider } from "@medusajs/framework/utils"
 plugins: [{ resolve: "@mercurjs/b2c-core", options: {} }]
 
 // 2.0
-plugins: [{ resolve: "@mercurjs/core-plugin", options: {} }]
+plugins: [{ resolve: "@mercurjs/core", options: {} }]
 // + individual module registrations in modules array
 ```
 
@@ -108,7 +108,7 @@ Communicate classification to user before proceeding.
 ### Step 3: Map each element
 
 For every custom element found, determine:
-- Has 2.0 equivalent in core-plugin? → skip, already there
+- Has 2.0 equivalent in core? → skip, already there
 - Has registry block? → install with `mercurjs add <block>`
 - Needs manual port? → queue for Step 4
 
@@ -119,7 +119,7 @@ Port in this order:
 2. **Providers** — copy to `packages/api/src/providers/`, fix imports
 3. **Modules** — copy to `packages/api/src/modules/`, register in config
 4. **Workflows** — copy to `packages/api/src/workflows/<entity>/`
-5. **Links** — copy to `packages/api/src/links/` (skip core-plugin duplicates)
+5. **Links** — copy to `packages/api/src/links/` (skip core duplicates)
 6. **Subscribers** — copy to `packages/api/src/subscribers/`
 7. **API routes** — copy to `packages/api/src/api/`, type both generics
 8. **Middleware** — merge into `packages/api/src/api/middlewares.ts`
@@ -141,7 +141,7 @@ After dashboard: run `bun vite build` in `apps/admin` and `apps/vendor`.
 ## Stop Conditions
 
 Stop and ask the user when:
-- A custom module depends on internal APIs not in core-plugin
+- A custom module depends on internal APIs not in core
 - A third-party integration has no clear migration path
 - Database schema conflicts arise
 - The old project uses MedusaJS core modifications
@@ -153,7 +153,7 @@ Stop and ask the user when:
 - Do not attempt in-place upgrades of 1.x projects
 - Do not install 1.x packages in a 2.0 project
 - Do not create barrel `index.ts` files in `workflows/` or `steps/` (conflicts with block installation)
-- Do not duplicate links that core-plugin already provides
+- Do not duplicate links that core already provides
 
 ## More Info
 

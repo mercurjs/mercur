@@ -1,12 +1,11 @@
 import {
-  BuildingStorefront,
   Buildings,
   CogSixTooth,
   CurrencyDollar,
   CreditCardRefresh,
   EllipsisHorizontal,
   MagnifyingGlass,
-  OpenRectArrowOut,
+  Plus,
   ReceiptPercent,
   ShoppingCart,
   Tag,
@@ -19,11 +18,10 @@ import { Skeleton } from "../../common/skeleton";
 import { INavItem, NavItem } from "../../layout/nav-item";
 import { Shell } from "../../layout/shell";
 
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { useLogout, useMe } from "../../../hooks/api";
-import { queryClient } from "../../../lib/query-client";
+import { useLocation, useNavigate } from "react-router-dom";
+import { useMe, useSelectSeller, useSellers } from "../../../hooks/api";
 import { useSearch } from "../../../providers/search-provider";
-import { ThemeToggle } from "../user-menu";
+import { UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
@@ -112,42 +110,79 @@ const MainSidebar = () => {
   );
 };
 
-const Logout = () => {
+const StoreList = ({ currentSellerId }: { currentSellerId: string }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { seller_member } = useMe();
+  const { seller_members } = useSellers();
+  const { mutateAsync: selectSeller } = useSelectSeller();
 
-  const { mutateAsync: logoutMutation } = useLogout();
-
-  const handleLogout = async () => {
-    await logoutMutation(undefined, {
-      onSuccess: () => {
-        /**
-         * When the user logs out, we want to clear the query cache
-         */
-        queryClient.clear();
-        navigate("/login");
-      },
-    });
+  const handleSelect = async (sellerId: string) => {
+    if (sellerId === currentSellerId) return;
+    await selectSeller({ seller_id: sellerId });
+    navigate("/", { replace: true });
   };
 
   return (
-    <DropdownMenu.Item onClick={handleLogout}>
-      <div className="flex items-center gap-x-2">
-        <OpenRectArrowOut className="text-ui-fg-subtle" />
-        <span>{t("app.menus.actions.logout")}</span>
-      </div>
-    </DropdownMenu.Item>
+    <>
+      {!!seller_members?.length && (
+        <DropdownMenu.RadioGroup value={currentSellerId}>
+          {seller_members.map((member) => {
+            const seller = member.seller;
+            return (
+              <DropdownMenu.RadioItem
+                key={seller.id}
+                value={seller.id}
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSelect(seller.id);
+                }}
+                className="gap-x-2"
+              >
+                <Avatar
+                  variant="squared"
+                  size="xsmall"
+                  fallback={seller.name.charAt(0).toUpperCase()}
+                />
+                <Text
+                  size="small"
+                  weight="plus"
+                  leading="compact"
+                  className="truncate"
+                >
+                  {seller.name}
+                </Text>
+              </DropdownMenu.RadioItem>
+            );
+          })}
+        </DropdownMenu.RadioGroup>
+      )}
+      {!!seller_members?.length && <DropdownMenu.Separator />}
+      <DropdownMenu.Item
+        onClick={() =>
+          navigate("/onboarding", {
+            state: { email: seller_member?.member.email },
+          })
+        }
+        className="gap-x-2"
+      >
+        <Plus className="text-ui-fg-subtle" />
+        <Text size="small" weight="plus" leading="compact">
+          {t("storeSelect.addNewStore")}
+        </Text>
+      </DropdownMenu.Item>
+    </>
   );
 };
 
 export const Header = () => {
   const { t } = useTranslation();
-  const { seller, isPending, isError, error } = useMe();
+  const { seller_member, isPending, isError, error } = useMe();
   const direction = useDocumentDirection();
-  const name = seller?.name;
-  const fallback = seller?.name?.slice(0, 1).toUpperCase();
+  const name = seller_member?.seller.name;
+  const fallback = seller_member?.seller?.name?.slice(0, 1).toUpperCase();
 
-  const isLoaded = !isPending && !!seller && !!name && !!fallback;
+  const isLoaded = !isPending && !!seller_member && !!name && !!fallback;
 
   if (isError) {
     throw error;
@@ -178,7 +213,7 @@ export const Header = () => {
                 leading="compact"
                 className="truncate"
               >
-                {seller.name}
+                {seller_member.seller.name}
               </Text>
             ) : (
               <Skeleton className="h-[9px] w-[120px]" />
@@ -204,21 +239,12 @@ export const Header = () => {
                   leading="compact"
                   className="text-ui-fg-subtle"
                 >
-                  {t("app.menus.seller.label")}
+                  {t("app.menus.store.label")}
                 </Text>
               </div>
             </div>
             <DropdownMenu.Separator />
-            <DropdownMenu.Item className="gap-x-2" asChild>
-              <Link to="/settings/seller">
-                <BuildingStorefront className="text-ui-fg-subtle" />
-                {t("app.menus.seller.editSeller")}
-              </Link>
-            </DropdownMenu.Item>
-            <DropdownMenu.Separator />
-            <ThemeToggle />
-            <DropdownMenu.Separator />
-            <Logout />
+            <StoreList currentSellerId={seller_member.seller.id} />
           </DropdownMenu.Content>
         )}
       </DropdownMenu>
@@ -292,7 +318,7 @@ export const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
     },
     {
       icon: <CreditCardRefresh />,
-      label: "Payouts",
+      label: t("payouts.domain"),
       to: "/payouts",
     },
   ];
@@ -331,13 +357,19 @@ const UtilitySection = () => {
   const { t } = useTranslation();
 
   return (
-    <div className="flex flex-col gap-y-0.5 py-3">
-      <NavItem
-        label={t("app.nav.settings.header")}
-        to="/settings"
-        from={location.pathname}
-        icon={<CogSixTooth />}
-      />
+    <div className="flex flex-col">
+      <div className="flex flex-col gap-y-0.5 py-3">
+        <NavItem
+          label={t("app.nav.settings.header")}
+          to="/settings"
+          from={location.pathname}
+          icon={<CogSixTooth />}
+        />
+      </div>
+      <div className="px-3">
+        <Divider variant="dashed" />
+      </div>
+      <UserMenu />
     </div>
   );
 };

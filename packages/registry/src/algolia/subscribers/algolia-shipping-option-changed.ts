@@ -2,8 +2,8 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import { AlgoliaEvents, IntermediateEvents } from '../modules/algolia/types'
-import productSellerLink from '@mercurjs/core-plugin/links/product-seller-link'
-import shippingOptionSellerLink from '@mercurjs/core-plugin/links/shipping-option-seller-link'
+import productSellerLink from '@mercurjs/core/links/product-seller-link'
+import shippingOptionSellerLink from '@mercurjs/core/links/shipping-option-seller-link'
 
 export default async function shippingOptionChangedHandler({
   event,

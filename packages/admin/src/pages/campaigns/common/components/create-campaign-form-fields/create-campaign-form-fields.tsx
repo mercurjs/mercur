@@ -52,7 +52,12 @@ export const CreateCampaignFormFields = ({ form, fieldScope = "" }) => {
     } else {
       form.setValue(`campaign.budget.currency_code`, null)
     }
-  }, [promotionCurrencyValue, isTypeSpend])
+  }, [
+	promotionCurrencyValue,
+	isTypeSpend,
+	fieldScope,
+	form
+])
 
   if (promotionCurrencyValue) {
     const formCampaignBudget = form.getValues().campaign?.budget

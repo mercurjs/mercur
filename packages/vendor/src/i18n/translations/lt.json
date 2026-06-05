@@ -236,7 +236,9 @@
       },
       "store": {
         "label": "Parduotuvė",
-        "storeSettings": "Parduotuvės nustatymai"
+        "storeSettings": "Parduotuvės nustatymai",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Atsijungti"
@@ -2656,7 +2658,10 @@
         "placeholder": "klaidingas_dydis",
         "tooltip": "Vertė turėtų būti unikalus grąžinimo priežasties identifikatorius."
       },
-      "label": { "label": "Antraštė", "placeholder": "Klaidingas dydis" },
+      "label": {
+        "label": "Antraštė",
+        "placeholder": "Klaidingas dydis"
+      },
       "description": {
         "label": "Aprašymas",
         "placeholder": "Klientas gavo netinkamą dydį"

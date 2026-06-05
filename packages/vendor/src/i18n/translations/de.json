@@ -234,7 +234,9 @@
       },
       "store": {
         "label": "Shop",
-        "storeSettings": "Shop-Einstellungen"
+        "storeSettings": "Shop-Einstellungen",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Abmelden"

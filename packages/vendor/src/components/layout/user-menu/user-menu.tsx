@@ -2,6 +2,7 @@ import {
   BookOpen,
   CircleHalfSolid,
   EllipsisHorizontal,
+  GlobeEurope,
   Keyboard,
   OpenRectArrowOut,
   TimelineVertical,
@@ -30,6 +31,7 @@ import { queryClient } from "../../../lib/query-client";
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks";
 import { useTheme } from "../../../providers/theme-provider";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
+import { languages } from "../../../i18n/languages";
 
 export const UserMenu = () => {
   const { t } = useTranslation();
@@ -59,13 +61,13 @@ export const UserMenu = () => {
           </DropdownMenu.Item>
           <DropdownMenu.Separator />
           <DropdownMenu.Item asChild>
-            <Link to="https://docs.mercurjs.com/introduction" target="_blank">
+            <Link to="https://docs.mercurjs.com/welcome" target="_blank">
               <BookOpen className="text-ui-fg-subtle me-2" />
               {t("app.menus.user.documentation")}
             </Link>
           </DropdownMenu.Item>
           <DropdownMenu.Item asChild>
-            <Link to="https://medusajs.com/changelog/" target="_blank">
+            <Link to="https://www.mercurjs.com/updates" target="_blank">
               <TimelineVertical className="text-ui-fg-subtle me-2" />
               {t("app.menus.user.changelog")}
             </Link>
@@ -76,6 +78,7 @@ export const UserMenu = () => {
             {t("app.menus.user.shortcuts")}
           </DropdownMenu.Item>
           <ThemeToggle />
+          <LanguageToggle />
           <DropdownMenu.Separator />
           <Logout />
         </DropdownMenu.Content>
@@ -86,9 +89,14 @@ export const UserMenu = () => {
 };
 
 const UserBadge = () => {
-  const { seller, isPending, isError, error } = useMe();
+  const { seller_member, isPending, isError, error } = useMe();
+  const member = seller_member?.member;
 
-  const displayName = seller?.name || seller?.email;
+  const fullName = [member?.first_name, member?.last_name]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const displayName = fullName || member?.email;
 
   const fallback = displayName ? displayName[0].toUpperCase() : null;
 
@@ -108,7 +116,7 @@ const UserBadge = () => {
   return (
     <div className="p-3">
       <DropdownMenu.Trigger
-        disabled={!seller}
+        disabled={!member}
         className={clx(
           "bg-ui-bg-subtle grid w-full cursor-pointer grid-cols-[24px_1fr_15px] items-center gap-2 rounded-md py-1 ps-0.5 pe-2 outline-none",
           "hover:bg-ui-bg-subtle-hover",
@@ -187,6 +195,48 @@ export const ThemeToggle = () => {
           >
             {t("app.menus.user.theme.dark")}
           </DropdownMenu.RadioItem>
+        </DropdownMenu.RadioGroup>
+      </DropdownMenu.SubMenuContent>
+    </DropdownMenu.SubMenu>
+  );
+};
+
+export const LanguageToggle = () => {
+  const { t, i18n } = useTranslation();
+
+  const sortedLanguages = languages.sort((a, b) =>
+    a.display_name.localeCompare(b.display_name)
+  );
+
+  const currentLanguage = sortedLanguages.find(
+    (lang) => lang.code === i18n.language
+  );
+
+  return (
+    <DropdownMenu.SubMenu>
+      <DropdownMenu.SubMenuTrigger
+        dir="ltr"
+        className="rounded-md rtl:rotate-180"
+      >
+        <GlobeEurope className="text-ui-fg-subtle me-2" />
+        <span className="rtl:rotate-180">
+          {currentLanguage?.display_name ?? t("profile.fields.languageLabel")}
+        </span>
+      </DropdownMenu.SubMenuTrigger>
+      <DropdownMenu.SubMenuContent className="max-h-[300px] overflow-y-auto">
+        <DropdownMenu.RadioGroup value={i18n.language}>
+          {sortedLanguages.map((language) => (
+            <DropdownMenu.RadioItem
+              key={language.code}
+              value={language.code}
+              onClick={(e) => {
+                e.preventDefault();
+                i18n.changeLanguage(language.code);
+              }}
+            >
+              {language.display_name}
+            </DropdownMenu.RadioItem>
+          ))}
         </DropdownMenu.RadioGroup>
       </DropdownMenu.SubMenuContent>
     </DropdownMenu.SubMenu>
@@ -301,18 +351,22 @@ const GlobalKeybindsModal = (props: {
 };
 
 const UserItem = () => {
-  const { seller, isPending, isError, error } = useMe();
+  const { seller_member, isPending, isError, error } = useMe();
+  const member = seller_member?.member;
 
-  const loaded = !isPending && !!seller;
+  const loaded = !isPending && !!member;
 
   if (!loaded) {
     return <div></div>;
   }
 
-  const displayName = seller.name || seller.email;
-  const email = seller.email;
-  const fallback = displayName ? displayName[0].toUpperCase() : "S";
-  const avatar = seller.logo;
+  const fullName = [member.first_name, member.last_name]
+    .filter(Boolean)
+    .join(" ")
+    .trim();
+  const displayName = fullName || member.email;
+  const email = member.email;
+  const fallback = displayName ? displayName[0].toUpperCase() : "U";
 
   if (isError) {
     throw error;
@@ -320,12 +374,7 @@ const UserItem = () => {
 
   return (
     <div className="flex items-center gap-x-3 overflow-hidden px-2 py-1">
-      <Avatar
-        size="small"
-        variant="rounded"
-        src={avatar || undefined}
-        fallback={fallback}
-      />
+      <Avatar size="small" variant="rounded" fallback={fallback} />
       <div className="block w-full min-w-0 max-w-[187px] overflow-hidden whitespace-nowrap">
         <Text
           size="small"

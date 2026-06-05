@@ -2,11 +2,13 @@ import { useCallback } from "react"
 import { UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
+import config from "virtual:mercur/config"
 import {
   FileType,
   FileUpload,
 } from "../../../../../components/common/file-upload"
 import { Form } from "../../../../../components/common/form"
+import { formatFileSize } from "../../../../../lib/format-file-size"
 import { MediaSchema } from "../../../product-create/constants"
 import {
   EditProductMediaSchemaType,
@@ -58,6 +60,22 @@ export const UploadMediaFormItem = ({
           message: t("products.media.invalidFileType", {
             name: invalidFile.file.name,
             types: SUPPORTED_FORMATS_FILE_EXTENSIONS.join(", "),
+          }),
+        })
+
+        return true
+      }
+
+      const oversizedFile = fileList.find(
+        (f) => f.file.size > config.imageLimit
+      )
+
+      if (oversizedFile) {
+        form.setError("media", {
+          type: "invalid_file",
+          message: t("products.media.fileTooLarge", {
+            name: oversizedFile.file.name,
+            size: formatFileSize(config.imageLimit),
           }),
         })
 

@@ -117,7 +117,13 @@ export function useTableConfiguration({
 
       return prev
     })
-  }, [currentActiveView, apiColumns])
+  }, [
+	currentActiveView,
+	apiColumns,
+	queryPrefix,
+	originalHandleViewChange,
+	setSearchParams
+])
 
   // Current configuration from URL
   const currentConfiguration = useMemo(() => {
@@ -259,7 +265,13 @@ export function useTableConfiguration({
 
       return prev
     })
-  }, [currentActiveView, apiColumns, queryPrefix])
+  }, [
+	currentActiveView,
+	apiColumns,
+	queryPrefix,
+	originalHandleViewChange,
+	setSearchParams
+])
 
   // Calculate required fields based on visible columns
   const requiredFields = useMemo(() => {

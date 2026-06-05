@@ -222,7 +222,7 @@ const useColumns = () => {
             return (
               <Tooltip
                 content={t("campaigns.promotions.alreadyAddedDiffCampaign", {
-                  name: row.original?.campaign?.name!,
+                  name: row.original?.campaign?.name,
                 })}
                 side="right"
               >

@@ -236,6 +236,63 @@ export const useUpdateProductVariant = (
   });
 };
 
+type UpdateVariantMediaPayload = {
+  add?: string[];
+  remove?: string[];
+};
+
+export const useUpdateVariantMedia = (
+  productId: string,
+  variantId: string,
+  options?: any
+) => {
+  return useMutation({
+    mutationFn: (payload: UpdateVariantMediaPayload) =>
+      fetchQuery(`/vendor/products/${productId}/variants/${variantId}/media`, {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.detail(variantId),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useUpdateProductVariantsBatch = (
+  productId: string,
+  options?: any
+) => {
+  return useMutation({
+    mutationFn: async (variants: Array<{ id: string; [key: string]: any }>) => {
+      const promises = variants.map((variant) => {
+        const { id, ...updateData } = variant
+        return fetchQuery(`/vendor/products/${productId}/variants/${id}`, {
+          method: "POST",
+          body: updateData,
+        })
+      })
+      return Promise.all(promises)
+    },
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.lists(),
+      })
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
 export const useDeleteVariant = (
   productId: string,
   variantId: string,
@@ -442,17 +499,207 @@ const productAttributesQueryKey = (id: string) => [
   id,
 ]
 
-export const useProductAttributes = (id: string) => {
+export const useProductAttributes = (_id: string) => {
   const { data, ...rest } = useQuery<ProductAttributesResponse>({
     queryFn: () =>
-      fetchQuery(`/vendor/products/${id}/applicable-attributes`, {
-        method: "GET",
-        query: { fields: "+is_required" },
-      }),
-    queryKey: productAttributesQueryKey(id),
+      sdk.vendor.attributes.query({
+        fields: "id,name,handle,description,ui_component,is_required,possible_values.*,product_categories.*",
+        limit: 100,
+      } as any),
+    queryKey: productAttributesQueryKey(_id),
   })
 
   return { ...data, ...rest }
+}
+
+/* Attribute Management Hooks */
+
+type AddProductAttributePayload = {
+  name?: string
+  values: string[]
+  use_for_variations: boolean
+  ui_component?: string
+  attribute_id?: string
+}
+
+export const useAddProductAttribute = (
+  productId: string,
+  options?: UseMutationOptions<any, ClientError, AddProductAttributePayload>
+) => {
+  return useMutation({
+    mutationFn: (payload: AddProductAttributePayload) =>
+      fetchQuery(`/vendor/products/${productId}/attributes`, {
+        method: "POST",
+        body: payload,
+      }),
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: productAttributesQueryKey(productId),
+      })
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
+type UpdateProductAttributePayload = {
+  values?: string[]
+  use_for_variations?: boolean
+  name?: string
+  ui_component?: string
+}
+
+export const useUpdateProductAttribute = (
+  productId: string,
+  attributeId: string,
+  options?: UseMutationOptions<
+    any,
+    ClientError,
+    UpdateProductAttributePayload
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload: UpdateProductAttributePayload) =>
+      fetchQuery(
+        `/vendor/products/${productId}/attributes/${attributeId}`,
+        {
+          method: "POST",
+          body: payload,
+        }
+      ),
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: productAttributesQueryKey(productId),
+      })
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
+type RemoveProductAttributeResponse = {
+  product_id: string
+  attribute_id: string
+  deleted: boolean
+  removed_values_count: number
+}
+
+export const useRemoveProductAttribute = (
+  productId: string,
+  attributeId: string,
+  options?: UseMutationOptions<
+    RemoveProductAttributeResponse,
+    ClientError,
+    void
+  >
+) => {
+  return useMutation({
+    mutationFn: () =>
+      fetchQuery(
+        `/vendor/products/${productId}/attributes/${attributeId}`,
+        {
+          method: "DELETE",
+        }
+      ),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: productAttributesQueryKey(productId),
+      })
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
+/* Variant Media Hook */
+
+type BatchVariantImagesPayload = {
+  add?: string[]
+  remove?: string[]
+}
+
+type BatchVariantImagesResponse = {
+  added: number
+  removed: number
+}
+
+export const useBatchVariantImages = (
+  productId: string,
+  variantId: string,
+  options?: UseMutationOptions<
+    BatchVariantImagesResponse,
+    ClientError,
+    BatchVariantImagesPayload
+  >
+) => {
+  return useMutation({
+    mutationFn: (payload: BatchVariantImagesPayload) =>
+      fetchQuery(
+        `/vendor/products/${productId}/variants/${variantId}/media`,
+        {
+          method: "POST",
+          body: payload,
+        }
+      ),
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.detail(variantId),
+      })
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      })
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
+}
+
+/* Batch Update Products */
+
+export type BatchUpdateProductItem = {
+  id: string
+  title?: string
+  status?: "draft" | "published"
+  discountable?: boolean
+}
+
+export type BatchUpdateProductsPayload = {
+  update: BatchUpdateProductItem[]
+  delete?: string[]
+}
+
+export const useBatchUpdateProducts = (
+  options?: UseMutationOptions<void, ClientError, BatchUpdateProductsPayload>
+) => {
+  return useMutation({
+    mutationFn: async (payload: BatchUpdateProductsPayload) => {
+      return fetchQuery(`/vendor/products/batch`, {
+        method: "POST",
+        body: payload,
+      })
+    },
+    onSuccess: (data: any, variables: any, context: any) => {
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.lists(),
+      })
+      variables.update?.forEach((item: BatchUpdateProductItem) => {
+        queryClient.invalidateQueries({
+          queryKey: productsQueryKeys.detail(item.id),
+        })
+      })
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
 }
 
 export const useBulkDeleteProducts = (

@@ -12,7 +12,7 @@ All packages are published under the `@mercurjs` scope on npm.
 - `@mercurjs/types`
 - `@mercurjs/dashboard-sdk`
 - `@mercurjs/dashboard-shared`
-- `@mercurjs/core-plugin`
+- `@mercurjs/core`
 - `@mercurjs/vendor`
 - `@mercurjs/payout-stripe-connect`
 

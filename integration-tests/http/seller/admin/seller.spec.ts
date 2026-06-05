@@ -15,7 +15,7 @@ medusaIntegrationTestRunner({
       let sellerA: any
       let sellerB: any
       let sellerC: any
-      let memberA: any
+      let _memberA: any
       let memberB: any
       let memberC: any
 
@@ -31,7 +31,7 @@ medusaIntegrationTestRunner({
           name: "Alpha Store",
         })
         sellerA = resultA.seller
-        memberA = resultA.member
+        _memberA = resultA.member
 
         const resultB = await createSellerUser(appContainer, {
           email: "beta@test.com",
@@ -788,12 +788,15 @@ medusaIntegrationTestRunner({
           )
         })
 
-        it("should fail when seller is pending_approval", async () => {
-          const response = await api
-            .post(`/admin/sellers/${sellerA.id}/suspend`, {}, adminHeaders)
-            .catch((e) => e.response)
+        it("should suspend a pending_approval seller", async () => {
+          const response = await api.post(
+            `/admin/sellers/${sellerA.id}/suspend`,
+            {},
+            adminHeaders
+          )
 
-          expect(response.status).toBeGreaterThanOrEqual(400)
+          expect(response.status).toEqual(200)
+          expect(response.data.seller.status).toEqual("suspended")
         })
 
         it("should fail when seller is already suspended", async () => {

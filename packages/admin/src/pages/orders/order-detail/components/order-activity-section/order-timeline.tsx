@@ -177,7 +177,7 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
 
   const payments = getPaymentsFromOrder(order);
 
-  const notes = [];
+  const _notes = [];
   const isLoading = false;
   // const { notes, isLoading, isError, error } = useNotes(
   //   {
@@ -541,15 +541,16 @@ const useActivityItems = (order: AdminOrder): Activity[] => {
 
     return [...sortedActivities, createdAt];
   }, [
-    order,
-    payments,
-    returns,
-    exchanges,
-    orderChanges,
-    notes,
-    isLoading,
-    itemsMap,
-  ]);
+	order,
+	payments,
+	returns,
+	exchanges,
+	orderChanges,
+	isLoading,
+	itemsMap,
+	claims,
+	t
+]);
 };
 
 type OrderActivityItemProps = PropsWithChildren<{

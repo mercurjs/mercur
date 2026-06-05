@@ -57,6 +57,8 @@ Every form field MUST follow this structure:
 9. Do NOT use `window.confirm` — use `usePrompt()` for confirmations.
 10. Do NOT use raw `<form>` — use `<KeyboundForm>` for Ctrl/Cmd+Enter support.
 11. Do NOT skip `isPending` guard on submit — both button `isLoading` AND keyboard submit must check it.
+12. Do NOT hand-roll custom input components — ALWAYS check `packages/admin/src/components/inputs/` and the Field Types Reference table below FIRST. If a component exists (HandleInput, ChipInput, SwitchBox, etc.), use it. Never create a custom wrapper for something that already has a reusable component.
+13. Do NOT call `useRouteModal()` outside of `RouteDrawer` or `RouteFocusModal` — it requires the provider. Split into outer shell (RouteDrawer + data fetch) and inner form component (useRouteModal + form logic). See RouteDrawer Form Structure below.
 
 ## Form.Label Features
 

@@ -2,8 +2,8 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import { AlgoliaEvents, IntermediateEvents } from '../modules/algolia/types'
-import sellerFulfillmentSet from '@mercurjs/core-plugin/links/fulfillment-set-seller-link'
-import productSellerLink from '@mercurjs/core-plugin/links/product-seller-link'
+import sellerFulfillmentSet from '@mercurjs/core/links/fulfillment-set-seller-link'
+import productSellerLink from '@mercurjs/core/links/product-seller-link'
 
 export default async function fulfillmentSetChangedHandler({
   event,

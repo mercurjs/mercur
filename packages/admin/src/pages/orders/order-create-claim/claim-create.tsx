@@ -28,7 +28,7 @@ export const ClaimCreate = () => {
   const { claim } = useClaim(activeClaimId!, undefined, {
     enabled: !!activeClaimId,
   })
-  const { return: orderReturn } = useReturn(claim?.return_id!, undefined, {
+  const { return: orderReturn } = useReturn(claim?.return_id, undefined, {
     enabled: !!claim?.return_id,
   })
 
@@ -67,7 +67,12 @@ export const ClaimCreate = () => {
     }
 
     run()
-  }, [preview])
+  }, [
+	preview,
+	navigate,
+	t,
+	createClaim
+])
 
   return (
     <RouteFocusModal data-testid="order-create-claim-modal">

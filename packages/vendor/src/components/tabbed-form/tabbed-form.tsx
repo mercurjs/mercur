@@ -16,7 +16,7 @@ import { KeyboundForm } from "@components/utilities/keybound-form"
 import { TabDefinition } from "./types"
 import { useTabManagement } from "./use-tab-management"
 
-const TabbedFormContext = createContext<UseFormReturn<any> | null>(null)
+export const TabbedFormContext = createContext<UseFormReturn<any> | null>(null)
 
 export const useTabbedForm = <T extends FieldValues = FieldValues>() => {
   const form = useContext(TabbedFormContext)

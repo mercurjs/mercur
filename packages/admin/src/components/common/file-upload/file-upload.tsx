@@ -1,6 +1,7 @@
-import { ArrowDownTray } from "@medusajs/icons";
-import { Text, clx } from "@medusajs/ui";
+import { ArrowDownTray, XMark } from "@medusajs/icons";
+import { IconButton, Text, clx } from "@medusajs/ui";
 import { ChangeEvent, DragEvent, useRef, useState } from "react";
+import { formatFileSize } from "@lib/format-file-size";
 
 export interface FileType {
   id: string;
@@ -15,7 +16,10 @@ export interface FileUploadProps {
   hasError?: boolean;
   formats: string[];
   onUploaded: (files: FileType[]) => void;
+  onRemove?: () => void;
   uploadedImage?: string | null;
+  fileName?: string;
+  fileSize?: number;
 }
 
 export const FileUpload = ({
@@ -25,7 +29,10 @@ export const FileUpload = ({
   hasError,
   formats,
   onUploaded,
+  onRemove,
   uploadedImage = "",
+  fileName,
+  fileSize,
 }: FileUploadProps) => {
   const [isDragOver, setIsDragOver] = useState<boolean>(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -94,6 +101,56 @@ export const FileUpload = ({
     handleUploaded(event.target.files);
   };
 
+  const showFileRow = !multiple && uploadedImage;
+
+  if (showFileRow) {
+    return (
+      <div>
+        <div className="bg-ui-bg-component shadow-borders-base flex items-center gap-x-3 rounded-lg p-3">
+          <div className="flex h-10 w-[30px] shrink-0 items-center justify-center overflow-hidden rounded-md">
+            <img
+              src={uploadedImage}
+              alt={fileName}
+              className="h-full w-full object-cover"
+            />
+          </div>
+          <div className="flex flex-1 flex-col">
+            <Text size="small" leading="compact" weight="plus">
+              {fileName || "image"}
+            </Text>
+            {fileSize != null && (
+              <Text
+                size="small"
+                leading="compact"
+                className="text-ui-fg-subtle"
+              >
+                {formatFileSize(fileSize)}
+              </Text>
+            )}
+          </div>
+          {onRemove && (
+            <IconButton
+              type="button"
+              variant="transparent"
+              size="small"
+              onClick={onRemove}
+            >
+              <XMark />
+            </IconButton>
+          )}
+        </div>
+        <input
+          hidden
+          ref={inputRef}
+          onChange={handleFileChange}
+          type="file"
+          accept={formats.join(",")}
+          multiple={false}
+        />
+      </div>
+    );
+  }
+
   return (
     <div>
       <button
@@ -114,26 +171,18 @@ export const FileUpload = ({
           },
         )}
       >
-        {uploadedImage ? (
-          <div>
-            <img src={uploadedImage} className="w-32 h-32 rounded-md" />
-          </div>
-        ) : (
-          <>
-            <div className="text-ui-fg-subtle group-disabled:text-ui-fg-disabled flex items-center gap-x-2">
-              <ArrowDownTray />
-              <Text>{label}</Text>
-            </div>
-            {!!hint && (
-              <Text
-                size="small"
-                leading="compact"
-                className="text-ui-fg-muted group-disabled:text-ui-fg-disabled"
-              >
-                {hint}
-              </Text>
-            )}
-          </>
+        <div className="text-ui-fg-subtle group-disabled:text-ui-fg-disabled flex items-center gap-x-2">
+          <ArrowDownTray />
+          <Text>{label}</Text>
+        </div>
+        {!!hint && (
+          <Text
+            size="small"
+            leading="compact"
+            className="text-ui-fg-muted group-disabled:text-ui-fg-disabled"
+          >
+            {hint}
+          </Text>
         )}
       </button>
       <input

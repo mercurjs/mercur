@@ -7,7 +7,7 @@ import { Link, useLocation } from "react-router-dom";
 
 import { INavItem, NavItem } from "../nav-item";
 import { Shell } from "../shell";
-import { Header as SellerDropdown } from "../main-layout/main-layout";
+import { UserMenu } from "../user-menu";
 import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
 import { getMenuItemsByType } from "../../../utils/routes";
@@ -40,13 +40,17 @@ const useSettingRoutes = (): INavItem[] => {
   return useMemo(
     () => [
       {
-        label: t("seller.domain", "Seller"),
-        to: "/settings/seller",
+        label: t("profile.domain"),
+        to: "/settings/profile",
       },
-      // {
-      //   label: t("users.domain"),
-      //   to: "/settings/users",
-      // },
+      {
+        label: t("app.menus.store.label"),
+        to: "/settings/store",
+      },
+      {
+        label: t("users.domain"),
+        to: "/settings/users",
+      },
       {
         label: t("productTypes.domain"),
         to: "/settings/product-types",
@@ -181,7 +185,7 @@ const UserSection = () => {
       <div className="px-3">
         <Divider variant="dashed" />
       </div>
-      <SellerDropdown />
+      <UserMenu />
     </div>
   );
 };

@@ -225,7 +225,6 @@ async function getDbClient({
         connectionTimeoutMillis: 5000,
       });
       await client.connect();
-      spinnerRef?.stop();
       return {
         client,
         dbConnectionString: formatConnectionString({
@@ -295,11 +294,13 @@ async function runMigrations({ projectDir, spinner: parentSpinner }: DbSetupArgs
         ? ["bun", "run", "build"]
         : ["npm", "run", "build"];
 
-  const runnerCmd = packageManager === "pnpm"
-    ? ["pnpm", "dlx"]
-    : packageManager === "bun"
-      ? ["bunx"]
-      : ["npx"];
+  const runnerCmd = packageManager === "yarn"
+    ? ["yarn"]
+    : packageManager === "pnpm"
+      ? ["pnpm", "exec"]
+      : packageManager === "bun"
+        ? ["bunx"]
+        : ["npx"];
 
   try {
     // Build first - compiles TypeScript so ts-node is not needed
@@ -326,11 +327,13 @@ async function createAdminInvite({ projectDir }: { projectDir: string }): Promis
   const apiDir = path.join(projectDir, API_DIR);
   const packageManager = await getPackageManager(apiDir);
 
-  const runnerCmd = packageManager === "pnpm"
-    ? ["pnpm", "dlx"]
-    : packageManager === "bun"
-      ? ["bunx"]
-      : ["npx"];
+  const runnerCmd = packageManager === "yarn"
+    ? ["yarn"]
+    : packageManager === "pnpm"
+      ? ["pnpm", "exec"]
+      : packageManager === "bun"
+        ? ["bunx"]
+        : ["npx"];
 
   try {
     const result = await execa(runnerCmd[0], [...runnerCmd.slice(1), "medusa", "user", "-e", ADMIN_EMAIL, "--invite"], {
@@ -362,7 +365,7 @@ async function seedDatabase({ projectDir, spinner: parentSpinner }: DbSetupArgs)
           ? ["bun", "run", "seed"]
           : ["npm", "run", "seed"];
 
-    seedSpinner.text = "Seeding database...";
+    seedSpinner.text = "Seeding database with demo data...";
     await execa(seedCmd[0], seedCmd.slice(1), { cwd: apiDir });
 
     if (!parentSpinner) {

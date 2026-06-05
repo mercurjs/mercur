@@ -239,7 +239,9 @@
       },
       "store": {
         "label": "Loja",
-        "storeSettings": "Definições da loja"
+        "storeSettings": "Definições da loja",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Terminar sessão"

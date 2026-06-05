@@ -92,6 +92,14 @@ Typical checks:
 - If a task is about CLI choice, initialization, or registry commands, use `mercur-cli`.
 - If a task adds custom admin or vendor UI, load `medusa-ui-conformance` before inventing new components.
 
+## AI Resources
+
+- **Docs**: https://docs.mercurjs.com
+- **MCP Server**: https://docs.mercurjs.com/mcp — connect your AI agent for documentation search
+- **llms.txt**: https://docs.mercurjs.com/llms.txt — machine-readable project summary
+- **Skills**: `.claude/skills/` — domain-specific patterns auto-loaded by Claude Code
+- **AI Development Guide**: https://docs.mercurjs.com/v2/ai-development/mcp
+
 ## Lessons Learned
 
 When you encounter a repeatable bug, a non-obvious gotcha, or learn something that would save time in future sessions, write it to `.claude/lessons.md`.

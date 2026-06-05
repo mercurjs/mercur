@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/admin",
-  "version": "2.1.0-canary.0",
+  "version": "2.1.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -26,11 +26,11 @@
   "scripts": {
     "dev": "tsup --watch",
     "build": "tsup",
-    "lint": "eslint . --ext ts,tsx --report-unused-disable-directives --max-warnings 0"
+    "lint": "oxlint --max-warnings 0"
   },
   "dependencies": {
-    "@mercurjs/dashboard-shared": "2.0.0-canary.97",
-    "@mercurjs/client": "2.0.0-canary.97",
+    "@mercurjs/dashboard-shared": "2.1.5",
+    "@mercurjs/client": "2.1.5",
     "@ariakit/react": "^0.4.15",
     "@babel/runtime": "^7.26.10",
     "@dnd-kit/core": "^6.1.0",
@@ -80,7 +80,7 @@
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
     "@medusajs/types": "2.13.4",
-    "@mercurjs/core-plugin": "workspace:*",
+    "@mercurjs/core": "workspace:*",
     "@mercurjs/dashboard-sdk": "workspace:*",
     "@mercurjs/types": "workspace:*"
   }

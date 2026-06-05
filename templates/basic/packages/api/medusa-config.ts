@@ -4,9 +4,6 @@ import path from 'path'
 loadEnv(process.env.NODE_ENV || 'development', process.cwd())
 
 module.exports = defineConfig({
-  admin: {
-    disable: true
-  },
   projectConfig: {
     databaseUrl: process.env.DATABASE_URL,
     http: {
@@ -19,26 +16,31 @@ module.exports = defineConfig({
       cookieSecret: process.env.COOKIE_SECRET || "supersecret",
     }
   },
+  featureFlags: {
+    rbac: true,
+    seller_registration: true
+  },
   modules: [
     {
-      resolve: '@mercurjs/core-plugin/modules/admin-ui',
+      resolve: "@medusajs/medusa/rbac",
+    },
+    {
+      resolve: '@mercurjs/core/modules/admin-ui',
       options: {
         appDir: path.join(__dirname, '../../apps/admin'),
         path: '/dashboard',
-        disable: true
       } as DashboardModuleOptions
     },
     {
-      resolve: '@mercurjs/core-plugin/modules/vendor-ui',
+      resolve: '@mercurjs/core/modules/vendor-ui',
       options: {
         appDir: path.join(__dirname, '../../apps/vendor'),
         path: '/seller',
-        disable: true
       } as DashboardModuleOptions
     },
   ],
   plugins: [{
-    resolve: "@mercurjs/core-plugin",
+    resolve: "@mercurjs/core",
     options: {}
   }]
 })

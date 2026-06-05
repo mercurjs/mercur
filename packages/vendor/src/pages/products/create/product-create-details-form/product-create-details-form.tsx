@@ -1,11 +1,10 @@
-import { Divider, Heading } from "@medusajs/ui";
+import { Heading } from "@medusajs/ui";
 import { Children, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 
 import { TabDefinition } from "../types";
 import { ProductCreateGeneralSection } from "./components/product-create-details-general-section";
 import { ProductCreateMediaSection } from "./components/product-create-details-media-section";
-import { ProductCreateVariantsSection } from "./components/product-create-details-variant-section";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   if (Children.count(children) > 0) {
@@ -27,8 +26,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <ProductCreateGeneralSection />
           <ProductCreateMediaSection />
         </div>
-        <Divider />
-        <ProductCreateVariantsSection />
       </div>
     </div>
   );
@@ -37,7 +34,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 Root._tabMeta = {
   id: "details",
   labelKey: "products.create.tabs.details",
-  validationFields: ["title", "media", "options", "variants", "enable_variants"],
+  validationFields: ["title", "media"],
 } satisfies TabDefinition;
 
 const Header = () => {
@@ -45,7 +42,7 @@ const Header = () => {
 
   return (
     <div className="flex flex-col">
-      <Heading>{t("products.create.header")}</Heading>
+      <Heading>{t("products.create.tabs.details")}</Heading>
     </div>
   );
 };
@@ -54,5 +51,4 @@ export const ProductCreateDetailsForm = Object.assign(Root, {
   _tabMeta: Root._tabMeta,
   GeneralSection: ProductCreateGeneralSection,
   MediaSection: ProductCreateMediaSection,
-  VariantsSection: ProductCreateVariantsSection,
 });

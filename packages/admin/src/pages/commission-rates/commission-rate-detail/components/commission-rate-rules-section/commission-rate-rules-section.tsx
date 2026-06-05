@@ -48,7 +48,7 @@ export const CommissionRateRulesSection = ({
       {entries.length === 0 ? (
         <div className="flex items-center justify-center px-6 py-8">
           <Text size="small" className="text-ui-fg-subtle">
-            No rules configured
+            {t("commissionRates.rules.empty")}
           </Text>
         </div>
       ) : (

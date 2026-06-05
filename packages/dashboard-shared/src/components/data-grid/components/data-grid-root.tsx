@@ -1,3 +1,7 @@
+/* eslint-disable jsx-a11y/prefer-tag-over-role -- virtualized grid intentionally uses divs with grid/row/gridcell roles; semantic table tags would break CSS grid layout */
+/* eslint-disable jsx-a11y/click-events-have-key-events -- keyboard handling is managed at the grid container level */
+/* eslint-disable jsx-a11y/no-static-element-interactions -- grid cells/anchors are part of grid semantics */
+/* eslint-disable jsx-a11y/no-noninteractive-tabindex -- grid container is focusable for keyboard navigation */
 import {
   Adjustments,
   AdjustmentsDone,
@@ -293,10 +297,13 @@ export const DataGridRoot = <
 
     return () => {
       clearTimeout(timeoutId)
-      const scrollElement = containerRef.current
-      scrollElement?.removeEventListener("scroll", handleScroll)
+      container.removeEventListener("scroll", handleScroll)
     }
-  }, [isLazyMode, hasData])
+  }, [
+	isLazyMode,
+	hasData,
+	handleScroll
+])
 
   const columnVirtualizer = useVirtualizer({
     count: visibleColumns.length,
@@ -675,7 +682,7 @@ export const DataGridRoot = <
         <div className="size-full overflow-hidden">
           <div
             ref={containerRef}
-            autoFocus
+            
             tabIndex={0}
             className="relative h-full select-none overflow-auto outline-none"
             onFocus={handleRestoreGridFocus}

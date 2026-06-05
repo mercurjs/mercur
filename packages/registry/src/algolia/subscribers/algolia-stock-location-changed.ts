@@ -2,8 +2,8 @@ import { SubscriberArgs, SubscriberConfig } from '@medusajs/framework'
 import { ContainerRegistrationKeys, Modules } from '@medusajs/framework/utils'
 
 import { AlgoliaEvents, IntermediateEvents } from '../modules/algolia/types'
-import productSellerLink from '@mercurjs/core-plugin/links/product-seller-link'
-import stockLocationSellerLink from '@mercurjs/core-plugin/links/stock-location-seller-link'
+import productSellerLink from '@mercurjs/core/links/product-seller-link'
+import stockLocationSellerLink from '@mercurjs/core/links/stock-location-seller-link'
 
 export default async function stockLocationChangedHandler({
   event,

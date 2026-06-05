@@ -5,7 +5,8 @@ import {
   createAdminUser,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
-import { createSellerDefaultsWorkflow } from "@mercurjs/core-plugin/workflows"
+import { createSellerDefaultsWorkflow } from "@mercurjs/core/workflows"
+import { SellerRole } from "@mercurjs/types"
 
 jest.setTimeout(50000)
 
@@ -15,13 +16,13 @@ medusaIntegrationTestRunner({
       let appContainer: MedusaContainer
       let sellerA: any
       let sellerB: any
-      let sellerC: any
+      let _sellerC: any
       let memberA: any
       let memberB: any
-      let memberC: any
+      let _memberC: any
       let headersA: any
       let headersB: any
-      let headersC: any
+      let _headersC: any
 
       beforeAll(async () => {
         appContainer = getContainer()
@@ -51,9 +52,9 @@ medusaIntegrationTestRunner({
           email: "gamma@test.com",
           name: "Gamma Shop",
         })
-        sellerC = resultC.seller
-        memberC = resultC.member
-        headersC = resultC.headers
+        _sellerC = resultC.seller
+        _memberC = resultC.member
+        _headersC = resultC.headers
 
         // Approve sellerA so tests have both pending and open sellers
         await api.post(
@@ -79,6 +80,8 @@ medusaIntegrationTestRunner({
         const { token } = registerResponse.data
 
         return {
+          email,
+          password,
           headers: {
             headers: {
               authorization: `Bearer ${token}`,
@@ -96,6 +99,7 @@ medusaIntegrationTestRunner({
             {
               name: "New Vendor",
               email: "newvendor@test.com",
+              member_email: "newvendor-member@test.com",
               currency_code: "usd",
             },
             headers
@@ -119,6 +123,7 @@ medusaIntegrationTestRunner({
             {
               name: "My Awesome Vendor",
               email: "awesomevendor@test.com",
+              member_email: "awesomevendor-member@test.com",
               currency_code: "usd",
             },
             headers
@@ -136,6 +141,7 @@ medusaIntegrationTestRunner({
             {
               name: "Pending Vendor",
               email: "pendingvendor@test.com",
+              member_email: "pendingvendor-member@test.com",
               currency_code: "usd",
             },
             headers
@@ -143,6 +149,49 @@ medusaIntegrationTestRunner({
 
           expect(response.status).toEqual(201)
           expect(response.data.seller.status).toEqual("pending_approval")
+        })
+
+        it("should create an owner member linked to the new seller", async () => {
+          const { email, password, headers } = await createUnregisteredToken()
+
+          const createResponse = await api.post(
+            `/vendor/sellers`,
+            {
+              name: "Member Check Vendor",
+              email: "membercheck@test.com",
+              member_email: "membercheck-member@test.com",
+              currency_code: "usd",
+            },
+            headers
+          )
+
+          expect(createResponse.status).toEqual(201)
+
+          const sellerId = createResponse.data.seller.id
+
+          // Re-authenticate to get a token with actor_id set
+          const authResponse = await api.post(
+            `/auth/member/emailpass`,
+            { email, password }
+          )
+          const authenticatedHeaders = {
+            headers: {
+              authorization: `Bearer ${authResponse.data.token}`,
+              "x-seller-id": sellerId,
+            },
+          }
+
+          const membersResponse = await api.get(
+            `/vendor/sellers/${sellerId}/members`,
+            authenticatedHeaders
+          )
+
+          expect(membersResponse.data.seller_members).toBeDefined()
+          expect(membersResponse.data.seller_members.length).toEqual(1)
+
+          const ownerMember = membersResponse.data.seller_members[0]
+          expect(ownerMember.is_owner).toBe(true)
+          expect(ownerMember.member).toBeDefined()
         })
 
         it("should include optional address during registration", async () => {
@@ -153,6 +202,7 @@ medusaIntegrationTestRunner({
             {
               name: "Address Vendor",
               email: "addressvendor@test.com",
+              member_email: "addressvendor-member@test.com",
               currency_code: "usd",
               address: {
                 first_name: "John",
@@ -170,20 +220,25 @@ medusaIntegrationTestRunner({
           expect(response.data.seller).toBeDefined()
         })
 
-        it("should fail when already registered as member", async () => {
-          const response = await api
-            .post(
-              `/vendor/sellers`,
-              {
-                name: "Duplicate Registration",
-                email: "duplicate@test.com",
-                currency_code: "usd",
-              },
-              headersA
-            )
-            .catch((e) => e.response)
+        it("should create a second store for an existing member", async () => {
+          const response = await api.post(
+            `/vendor/sellers`,
+            {
+              name: "Second Store",
+              email: "second-store@test.com",
+              currency_code: "usd",
+            },
+            headersA
+          )
 
-          expect(response.status).toEqual(400)
+          expect(response.status).toEqual(201)
+          expect(response.data.seller).toEqual(
+            expect.objectContaining({
+              name: "Second Store",
+              email: "second-store@test.com",
+              status: "pending_approval",
+            })
+          )
         })
 
         it("should fail for missing name", async () => {
@@ -194,6 +249,7 @@ medusaIntegrationTestRunner({
               `/vendor/sellers`,
               {
                 email: "noname@test.com",
+                member_email: "noname-member@test.com",
                 currency_code: "usd",
               },
               headers
@@ -211,6 +267,7 @@ medusaIntegrationTestRunner({
               `/vendor/sellers`,
               {
                 name: "No Email Vendor",
+                member_email: "noemail-member@test.com",
                 currency_code: "usd",
               },
               headers
@@ -229,6 +286,25 @@ medusaIntegrationTestRunner({
               {
                 name: "No Currency Vendor",
                 email: "nocurrency@test.com",
+                member_email: "nocurrency-member@test.com",
+              },
+              headers
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(400)
+        })
+
+        it("should fail for missing member_email", async () => {
+          const { headers } = await createUnregisteredToken()
+
+          const response = await api
+            .post(
+              `/vendor/sellers`,
+              {
+                name: "No Member Email Vendor",
+                email: "nomemberemail@test.com",
+                currency_code: "usd",
               },
               headers
             )
@@ -246,6 +322,7 @@ medusaIntegrationTestRunner({
               {
                 name: "Bad Email Vendor",
                 email: "not-an-email",
+                member_email: "bademail-member@test.com",
                 currency_code: "usd",
               },
               headers
@@ -253,6 +330,54 @@ medusaIntegrationTestRunner({
             .catch((e) => e.response)
 
           expect(response.status).toEqual(400)
+        })
+
+        it("should list multiple stores for a member with multiple sellers", async () => {
+          await api.post(
+            `/vendor/sellers`,
+            {
+              name: "Second Alpha Store",
+              email: "second-alpha@test.com",
+              currency_code: "usd",
+            },
+            headersA
+          )
+
+          const response = await api.get(`/vendor/sellers`, headersA)
+
+          expect(response.status).toEqual(200)
+          expect(response.data.seller_members.length).toEqual(2)
+        })
+
+        it("should create owner seller_member for existing member's new store", async () => {
+          const createResponse = await api.post(
+            `/vendor/sellers`,
+            {
+              name: "Ownership Check Store",
+              email: "ownership-check@test.com",
+              currency_code: "usd",
+            },
+            headersA
+          )
+
+          const sellerId = createResponse.data.seller.id
+          const headersA_newSeller = {
+            headers: {
+              ...headersA.headers,
+              "x-seller-id": sellerId,
+            },
+          }
+
+          const membersResponse = await api.get(
+            `/vendor/sellers/${sellerId}/members`,
+            headersA_newSeller
+          )
+
+          expect(membersResponse.data.seller_members.length).toEqual(1)
+          expect(membersResponse.data.seller_members[0].is_owner).toBe(true)
+          expect(membersResponse.data.seller_members[0].member.id).toEqual(
+            memberA.id
+          )
         })
       })
 
@@ -539,7 +664,7 @@ medusaIntegrationTestRunner({
               } as any,
               headersA
             )
-            .catch(() => {})
+            .catch(() => { })
 
           const after = await api.get(
             `/vendor/sellers/${sellerA.id}`,
@@ -849,7 +974,7 @@ medusaIntegrationTestRunner({
             `/vendor/sellers/${sellerA.id}/members`,
             {
               email: "invite@test.com",
-              role_id: "role_test",
+              role_id: SellerRole.SELLER_ADMINISTRATION,
             },
             headersA
           )
@@ -857,7 +982,7 @@ medusaIntegrationTestRunner({
           expect(response.status).toEqual(201)
           expect(response.data.member_invite).toBeDefined()
           expect(response.data.member_invite.email).toEqual("invite@test.com")
-          expect(response.data.member_invite.role_id).toEqual("role_test")
+          expect(response.data.member_invite.role_id).toEqual(SellerRole.SELLER_ADMINISTRATION)
         })
 
         it("should fail for invalid email format", async () => {
@@ -866,7 +991,7 @@ medusaIntegrationTestRunner({
               `/vendor/sellers/${sellerA.id}/members`,
               {
                 email: "not-an-email",
-                role_id: "role_test",
+                role_id: SellerRole.SELLER_ADMINISTRATION,
               },
               headersA
             )
@@ -880,7 +1005,7 @@ medusaIntegrationTestRunner({
             .post(
               `/vendor/sellers/${sellerA.id}/members`,
               {
-                role_id: "role_test",
+                role_id: SellerRole.SELLER_ADMINISTRATION,
               },
               headersA
             )
@@ -902,6 +1027,21 @@ medusaIntegrationTestRunner({
 
           expect(response.status).toEqual(400)
         })
+
+        it("should fail for invalid role_id", async () => {
+          const response = await api
+            .post(
+              `/vendor/sellers/${sellerA.id}/members`,
+              {
+                email: "invalidrole@test.com",
+                role_id: "invalid_role",
+              },
+              headersA
+            )
+            .catch((e) => e.response)
+
+          expect(response.status).toEqual(400)
+        })
       })
 
       describe("POST /vendor/sellers/:id/members/:member_id", () => {
@@ -913,7 +1053,7 @@ medusaIntegrationTestRunner({
             `/admin/sellers/${sellerA.id}/members`,
             {
               member_id: memberB.id,
-              role_id: "role_test",
+              role_id: SellerRole.SELLER_ADMINISTRATION,
             },
             adminHeaders
           )
@@ -923,7 +1063,7 @@ medusaIntegrationTestRunner({
         it("should update role on an existing seller_member", async () => {
           const response = await api.post(
             `/vendor/sellers/${sellerA.id}/members/${sellerMemberBId}`,
-            { role_id: "role_admin" },
+            { role_id: SellerRole.ORDER_MANAGEMENT },
             headersA
           )
 
@@ -952,7 +1092,7 @@ medusaIntegrationTestRunner({
             `/admin/sellers/${sellerA.id}/members`,
             {
               member_id: memberB.id,
-              role_id: "role_test",
+              role_id: SellerRole.SELLER_ADMINISTRATION,
             },
             adminHeaders
           )
@@ -990,6 +1130,69 @@ medusaIntegrationTestRunner({
             .catch((e) => e.response)
 
           expect(response.status).toBeGreaterThanOrEqual(400)
+        })
+      })
+
+      describe("GET /vendor/sellers/:id/members/me", () => {
+        it("should return current authenticated member", async () => {
+          const response = await api.get(
+            `/vendor/sellers/${sellerA.id}/members/me`,
+            headersA
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.seller_member).toBeDefined()
+          expect(response.data.seller_member.member).toBeDefined()
+          expect(response.data.seller_member.is_owner).toBe(true)
+        })
+
+        it("should return member with default fields", async () => {
+          const response = await api.get(
+            `/vendor/sellers/${sellerA.id}/members/me`,
+            headersA
+          )
+
+          expect(response.status).toEqual(200)
+          const sm = response.data.seller_member
+          expect(sm).toHaveProperty("id")
+          expect(sm).toHaveProperty("is_owner")
+          expect(sm).toHaveProperty("member")
+          expect(sm).toHaveProperty("rbac_role")
+        })
+
+        it("should return different members for different users", async () => {
+          const responseA = await api.get(
+            `/vendor/sellers/${sellerA.id}/members/me`,
+            headersA
+          )
+
+          // Add memberB to sellerA
+          await api.post(
+            `/admin/sellers/${sellerA.id}/members`,
+            {
+              member_id: memberB.id,
+              role_id: SellerRole.SELLER_ADMINISTRATION,
+            },
+            adminHeaders
+          )
+
+          const headersB_sellerA = {
+            headers: {
+              ...headersB.headers,
+              "x-seller-id": sellerA.id,
+            },
+          }
+
+          const responseB = await api.get(
+            `/vendor/sellers/${sellerA.id}/members/me`,
+            headersB_sellerA
+          )
+
+          expect(responseA.data.seller_member.id).not.toEqual(
+            responseB.data.seller_member.id
+          )
+          expect(responseA.data.seller_member.is_owner).toBe(true)
+          expect(responseB.data.seller_member.is_owner).toBe(false)
         })
       })
     })

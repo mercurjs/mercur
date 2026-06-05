@@ -235,7 +235,9 @@
       },
       "store": {
         "label": "Negozio",
-        "storeSettings": "Impostazioni negozio"
+        "storeSettings": "Impostazioni negozio",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Disconnetti"

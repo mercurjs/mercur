@@ -4,7 +4,7 @@ import {
     ISalesChannelModuleService,
     MedusaContainer,
 } from "@medusajs/framework/types"
-import { ApiKeyType, ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
@@ -17,7 +17,7 @@ medusaIntegrationTestRunner({
             let appContainer: MedusaContainer
             let seller: any
             let sellerHeaders: any
-            let customer: any
+            let _customer: any
             let customerHeaders: any
             let storeHeaders: any
             let region: any
@@ -44,7 +44,7 @@ medusaIntegrationTestRunner({
                     first_name: "Test",
                     last_name: "Customer",
                 })
-                customer = customerResult.customer
+                _customer = customerResult.customer
                 customerHeaders = customerResult.headers
 
                 const apiKey = await generatePublishableKey(appContainer)
@@ -1615,7 +1615,7 @@ medusaIntegrationTestRunner({
                         email: "seller2-shipping-method@test.com",
                         name: "Shipping Method Seller 2",
                     })
-                    const seller2 = seller2Result.seller
+                    
                     const seller2Headers = seller2Result.headers
 
                     // Create product for seller 2

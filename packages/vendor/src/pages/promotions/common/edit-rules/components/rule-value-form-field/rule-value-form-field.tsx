@@ -69,7 +69,7 @@ export const RuleValueFormField = ({
           limit: params?.limit ?? 100,
           offset: params?.offset ?? 0,
           $ruleType: ruleType,
-          $ruleAttributeId: attribute?.id!,
+          $ruleAttributeId: attribute?.id,
           ...params,
           ...buildFilters(attribute?.id, store!),
           application_method_target_type:
@@ -108,7 +108,11 @@ export const RuleValueFormField = ({
     } else {
       form.setValue(name, []);
     }
-  }, [watchOperator]);
+  }, [
+	watchOperator,
+	form,
+	name
+]);
 
   return (
     <Form.Field

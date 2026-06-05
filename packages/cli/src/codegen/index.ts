@@ -127,7 +127,7 @@ export type Routes = ${routesType};
 }
 
 export async function writeRouteTypes(rootDir: string) {
-    const entryFilePath = path.join(rootDir, DIST_DIR, "index.ts");
+    const entryFilePath = path.join(rootDir, DIST_DIR, "index.d.ts");
     const apiDir = path.join(rootDir, "src", "api");
     const entryDir = path.dirname(entryFilePath);
 

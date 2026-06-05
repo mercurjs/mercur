@@ -119,7 +119,11 @@ export const CreateProductVariantForm = ({
         required_quantity: undefined,
       })
     }
-  }, [isInventoryKitEnabled])
+  }, [
+	isInventoryKitEnabled,
+	inventoryField.fields.length,
+	inventoryField
+])
 
   const handleChangeTab = (update: Tab.DETAIL | Tab.PRICE | Tab.INVENTORY) => {
     if (tab === update) {

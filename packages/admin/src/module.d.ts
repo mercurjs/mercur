@@ -1,4 +1,5 @@
 declare const __BASE__: string
+declare const __VENDOR_URL__: string
 
 declare module "virtual:mercur/routes" {
     import { Route } from './utils/routes'
@@ -6,8 +7,8 @@ declare module "virtual:mercur/routes" {
 }
 
 declare module "virtual:mercur/config" {
-    import { MercurConfig } from '@mercurjs/dashboard-sdk'
-    const config: MercurConfig
+    import { BuiltMercurConfig } from '@mercurjs/dashboard-sdk'
+    const config: BuiltMercurConfig
     export default config
 }
 
@@ -27,4 +28,3 @@ declare module "virtual:mercur/i18n" {
     const i18nResources: Record<string, { translation: Record<string, any> }>
     export default i18nResources
 }
-

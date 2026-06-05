@@ -269,6 +269,7 @@ const ProductActions = ({ product }: { product: HttpTypes.AdminProduct }) => {
 const columnHelper = createColumnHelper<HttpTypes.AdminProduct>();
 
 const useColumns = () => {
+  const { t } = useTranslation();
   const base = useProductTableColumns();
 
   const columns = useMemo(
@@ -276,7 +277,7 @@ const useColumns = () => {
       ...base,
       columnHelper.display({
         id: "seller",
-        header: "Seller",
+        header: t("store.domain"),
         cell: ({ row }) => {
           const seller = (row.original as any).seller;
           return seller?.name || "-";
@@ -297,7 +298,7 @@ const useColumns = () => {
         },
       }),
     ],
-    [base],
+    [base, t],
   );
 
   return columns;

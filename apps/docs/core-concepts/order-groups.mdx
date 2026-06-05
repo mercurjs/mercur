@@ -1,0 +1,114 @@
+---
+title: "Order Groups"
+description: "How multi-seller checkout creates order groups — the container that ties a single cart to multiple seller orders."
+---
+
+An order group is a container created during checkout when a customer buys from multiple sellers. It groups the individual per-seller orders that originate from a single cart, giving customers and admins a unified view of what was purchased.
+
+## Data model
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `id` | `text` | Unique identifier (prefix `og_`) |
+| `display_id` | `serial` | Auto-incrementing human-readable ID |
+| `customer_id` | `text` | The customer who placed the order (nullable) |
+| `cart_id` | `text` | The cart this order group originated from |
+| `seller_count` | `number` | Number of distinct sellers in the group (computed) |
+| `total` | `bigNumber` | Sum of all order totals in the group (computed) |
+
+<Info>
+  `seller_count` and `total` are **computed fields** — they are calculated from linked orders at query time, not stored as columns. `seller_count` is the count of distinct sellers across all orders in the group, and `total` is the sum of each order's `current_order_total` from the order summary.
+</Info>
+
+## Relationships
+
+Order groups connect to other entities through two links:
+
+### Cart (read-only)
+
+Links the order group back to its originating cart via the `cart_id` field. This is a read-only link — carts are immutable after checkout.
+
+```
+order_group.cart_id → cart.id
+```
+
+### Orders (one-to-many)
+
+Links the order group to multiple orders through a join table `order_group_order`. Each order in the group belongs to a different seller.
+
+```
+order_group ←→ order (via order_group_order)
+```
+
+## How order groups are created
+
+Order groups are created automatically during checkout by the `completeCartWithSplitOrdersWorkflow`. This is what happens when a customer completes a cart containing products from multiple sellers:
+
+1. **Lock** — The workflow acquires a lock on the cart to prevent double-processing
+2. **Group by seller** — Cart items are grouped by seller (via the product-seller link)
+3. **Create orders** — A separate Medusa order is created for each seller, containing only that seller's items and shipping
+4. **Create order group** — An order group is created with the customer and cart references
+5. **Link everything** — The workflow creates links between:
+   - Each order and the order group
+   - Each order and its seller
+   - Each order and the cart's payment collection
+   - Each seller and the customer (if new relationship)
+6. **Finalize** — Inventory is reserved, payment is authorized, and the `order_group.created` event is emitted
+
+<Info>
+  Payment collections are linked at the **individual order level**, not on the order group. This is a deliberate design decision — each per-seller order gets its own link to the payment collection, which enables per-order capture and refund flows.
+</Info>
+
+## Events
+
+| Event | Payload | When |
+|-------|---------|------|
+| `order_group.created` | `{ id: string }` | After checkout creates a new order group |
+
+## API endpoints
+
+### List order groups (Admin)
+
+```bash
+curl http://localhost:9000/admin/order-groups \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+Supports filtering by `customer_id`, `seller_id`, `status`, `sales_channel_id`, and `created_at`. Paginated with `offset` and `limit` (default 50).
+
+### Get order group detail (Admin)
+
+```bash
+curl http://localhost:9000/admin/order-groups/<order-group-id> \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+Returns the order group with aggregated payment and fulfillment statuses across all orders.
+
+### List order groups (Store)
+
+```bash
+curl http://localhost:9000/store/order-groups \
+  -H "Authorization: Bearer <customer-token>"
+```
+
+Returns only order groups belonging to the authenticated customer. Includes nested order data with items, variants, products, and seller information.
+
+### Get order group detail (Store)
+
+```bash
+curl http://localhost:9000/store/order-groups/<order-group-id> \
+  -H "Authorization: Bearer <customer-token>"
+```
+
+Returns a single order group. Throws `404` if the order group doesn't belong to the authenticated customer.
+
+## Workflows
+
+| Workflow | Purpose |
+|----------|---------|
+| `getOrderGroupsListWorkflow` | Retrieves a paginated list of order groups with aggregated payment and fulfillment statuses for each |
+| `getOrderGroupDetailWorkflow` | Retrieves a single order group with full order details and aggregated statuses |
+| `createOrderGroupStep` | Internal step used by `completeCartWithSplitOrdersWorkflow` — not called directly |
+
+The list and detail workflows automatically inject order-related fields (items, payment collections, fulfillments) and compute an overall `payment_status` and `fulfillment_status` for each order group by aggregating across all linked orders.

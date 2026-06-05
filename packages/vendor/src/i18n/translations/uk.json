@@ -235,7 +235,9 @@
       },
       "store": {
         "label": "Магазин",
-        "storeSettings": "Налаштування магазину"
+        "storeSettings": "Налаштування магазину",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Вийти"
@@ -2509,7 +2511,10 @@
         "placeholder": "неправильний_розмір",
         "tooltip": "Значення має бути унікальним ідентифікатором для причини повернення."
       },
-      "label": { "label": "Мітка", "placeholder": "Неправильний розмір" },
+      "label": {
+        "label": "Мітка",
+        "placeholder": "Неправильний розмір"
+      },
       "description": {
         "label": "Опис",
         "placeholder": "Клієнт отримав неправильний розмір"

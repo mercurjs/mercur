@@ -1,0 +1,83 @@
+---
+title: "Medusa Cloud deployment"
+description: "Install and deploy Mercur on Medusa Cloud."
+---
+
+## Introduction
+
+[Medusa Cloud](https://cloud.medusajs.com) is a dedicated hosting service for Medusa-based applications. It automatically detects changes on your repository, pulls and builds the code, and provisions a database, Redis, and file storage.
+
+Head to the [Medusa Cloud signup page](https://cloud.medusajs.com/signup) to get started. After registration is complete and your account is active, authorize the Medusa Cloud GitHub app in your organization or personal account.
+
+<Info>
+  Medusa Cloud only deploys the **backend**. The admin panel and vendor panel
+  must be deployed separately (for example, on Vercel, Netlify, or your own
+  infrastructure) and pointed at the deployed backend URL.
+</Info>
+
+## Prerequisites
+
+- A Mercur project created with [`@mercurjs/cli`](/getting-started/installation) and pushed to a GitHub repository
+- A [Medusa Cloud](https://cloud.medusajs.com) account with the GitHub app authorized
+- API keys for any third-party services you plan to use (Stripe, Resend, Algolia, etc.)
+
+## Setup
+
+1. From the Medusa Cloud dashboard, choose **Import your existing repository into the Cloud** (the Mercur project lives in your own GitHub repo, not in the bundled DTC/B2B starters).
+   ![Medusa Cloud welcome screen](/images/v2/cloud_1.png)
+2. On the **Repository** step, make sure the Medusa Cloud GitHub app is installed, pick your Mercur repository from the list, and click **Continue**.
+   ![Choose repository](/images/v2/cloud_2.png)
+3. On the **Configure** step, fill in:
+   - **Project name** and **Custom subdomain**.
+   - **Region** closest to your users.
+   - **Medusa root directory**: `/packages/api`.
+   - **Initial user** — the first admin email and password.
+
+   Leave **Storefront root directory** empty — the Mercur basic template doesn't ship a storefront.
+   ![Configure project — name, region, Medusa root directory](/images/v2/cloud_3.png)
+4. Scroll down to **Environment variables** and add the **Backend Environment Variables** below. Medusa Cloud provisions the database, Redis, and file storage automatically, so you don't need to set those.
+   ![Environment variables](/images/v2/cloud_4.png)
+
+Only the following variables should be set:
+
+```bash
+# CORS (point to the URLs that will host your panels and storefront)
+STORE_CORS=
+ADMIN_CORS=
+VENDOR_CORS=
+AUTH_CORS=
+
+# Secrets
+JWT_SECRET=
+COOKIE_SECRET=
+
+# Vendor panel URL used in seller emails and onboarding flows
+MERCUR_VENDOR_URL=
+
+# Stripe (customer payments + Mercur payout provider)
+STRIPE_API_KEY=
+STRIPE_WEBHOOK_SECRET=
+STRIPE_PAYOUT_WEBHOOK_SECRET=
+
+# Email (optional, e.g. Resend)
+RESEND_API_KEY=
+RESEND_FROM_EMAIL=
+
+# Search (optional)
+ALGOLIA_APP_ID=
+ALGOLIA_API_KEY=
+```
+
+<Info>
+  For Stripe setup, including which keys go where and how to wire both webhooks,
+  see the [Stripe Connect integration
+  guide](/how-to-guides/stripe-connect-integration).
+</Info>
+
+5. Click **Create**. The build and deploy process will start and can take a few minutes to complete.
+
+You can change these variables later from the project's environment settings, and switch the deployment branch at any time. Medusa Cloud will automatically pull and rebuild your environment whenever a new commit is pushed to the selected branch.
+
+## After deployment
+
+Once the build succeeds, the backend is available at `https://<your-subdomain>.medusajs.app`. Point your separately-deployed admin and vendor panels at this URL via their `VITE_MEDUSA_BACKEND_URL` (or equivalent) build-time variable, and make sure that URL is included in the backend's `ADMIN_CORS`, `VENDOR_CORS`, `STORE_CORS`, and `AUTH_CORS` environment variables.

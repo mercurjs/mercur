@@ -1,5 +1,5 @@
 import { DeleteResponse, PaginatedResponse } from "@medusajs/types"
-import { SellerDTO } from "../seller"
+import { MemberInviteDTO, SellerDTO, SellerMemberDTO } from "../seller"
 
 export interface VendorSellerResponse {
   /**
@@ -13,6 +13,27 @@ export type VendorSellerListResponse = PaginatedResponse<{
    * The list of sellers.
    */
   sellers: SellerDTO[]
+}>
+
+export interface VendorSellerMemberResponse {
+  /**
+   * The seller member's details.
+   */
+  seller_member: SellerMemberDTO
+}
+
+export type VendorSellerMemberListResponse = PaginatedResponse<{
+  /**
+   * The list of seller members.
+   */
+  seller_members: SellerMemberDTO[]
+}>
+
+export type VendorMemberInviteListResponse = PaginatedResponse<{
+  /**
+   * The list of member invites.
+   */
+  member_invites: MemberInviteDTO[]
 }>
 
 export type VendorSellerDeleteResponse = DeleteResponse<"seller">

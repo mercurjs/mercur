@@ -1,18 +1,23 @@
 import { Children, ReactNode, useState } from "react"
 
 import { zodResolver } from "@hookform/resolvers/zod"
+import { Spinner } from "@medusajs/icons"
 import { Button, Heading, Hint, Input, Text } from "@medusajs/ui"
+import { MercurFeatureFlags } from "@mercurjs/types"
 import { useForm } from "react-hook-form"
 import { Trans, useTranslation } from "react-i18next"
-import { Link, useNavigate } from "react-router-dom"
+import { Link, Navigate, useNavigate } from "react-router-dom"
 import config from "virtual:mercur/config"
 import * as z from "zod"
 
 import { Form } from "@components/common/form"
 import AvatarBox from "@components/common/logo-box/avatar-box"
-import { useSignUpWithEmailPass, useSignInWithEmailPass } from "@hooks/api"
+import { AuthLayout } from "@components/layout/auth-layout"
+import { useFeatureFlags, useSignUpWithEmailPass } from "@hooks/api"
 
 import { RegisterSchema } from "./register-schema"
+
+const REGISTER_DRAFT_KEY = "mercur_register_draft"
 
 const RegisterLogo = () => {
   return <AvatarBox />
@@ -22,10 +27,10 @@ const RegisterHeader = () => {
   const { t } = useTranslation()
 
   return (
-    <div className="mb-4 flex flex-col items-center">
+    <div className="mb-6 flex flex-col">
       <Heading>{t("register.title", { name: config.name ?? "Mercur" })}</Heading>
-      <Text size="small" className="text-ui-fg-subtle text-center">
-        {t("register.hint")}
+      <Text size="small" className="text-ui-fg-subtle">
+        {t("register.hint", { name: config.name ?? "Mercur" })}
       </Text>
     </div>
   )
@@ -38,120 +43,113 @@ const RegisterForm = () => {
 
   const form = useForm<z.infer<typeof RegisterSchema>>({
     resolver: zodResolver(RegisterSchema),
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     defaultValues: {
+      first_name: "",
+      last_name: "",
       email: "",
       password: "",
-      confirmPassword: "",
     },
   })
 
-  const { mutateAsync: signUp, isPending: isSigningUp } =
-    useSignUpWithEmailPass()
-  const { mutateAsync: signIn, isPending: isSigningIn } =
-    useSignInWithEmailPass()
+  const { mutateAsync: signUp, isPending } = useSignUpWithEmailPass()
 
-  const isPending = isSigningUp || isSigningIn
-
-  const handleSubmit = form.handleSubmit(async ({ email, password }) => {
+  const handleSubmit = form.handleSubmit(async ({ first_name, last_name, email, password }) => {
     setServerError(null)
     try {
       await signUp({ email, password })
-      await signIn({ email, password })
-      navigate("/onboarding", { state: { email } })
-    } catch (error: any) {
-      setServerError(
-        error?.message || t("register.error")
+      // Persist identity details for onboarding step that creates the seller member.
+      // Backend emailpass register does not accept these fields directly today,
+      // so they ride through sessionStorage and land on the member via onboarding.
+      sessionStorage.setItem(
+        REGISTER_DRAFT_KEY,
+        JSON.stringify({ first_name, last_name, email }),
       )
+      navigate("/onboarding", { state: { email, first_name, last_name } })
+    } catch (error: any) {
+      setServerError(error?.message || t("register.error"))
     }
   })
 
-  const validationError =
-    form.formState.errors.email?.message ||
-    form.formState.errors.password?.message ||
-    form.formState.errors.confirmPassword?.message
-
-  const displayError = validationError || serverError
-
   return (
-    <div className="flex w-full flex-col items-center">
-      <Form {...form}>
-        <form
-          onSubmit={handleSubmit}
-          className="flex w-full flex-col gap-y-6"
-        >
-          <div className="flex flex-col gap-y-2">
-            <Form.Field
-              control={form.control}
-              name="email"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <Input
-                      autoComplete="email"
-                      {...field}
-                      className="bg-ui-bg-field-component"
-                      placeholder={t("fields.email")}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="password"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <Input
-                      type="password"
-                      autoComplete="new-password"
-                      {...field}
-                      className="bg-ui-bg-field-component"
-                      placeholder={t("fields.password")}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="confirmPassword"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Control>
-                    <Input
-                      type="password"
-                      autoComplete="new-password"
-                      {...field}
-                      className="bg-ui-bg-field-component"
-                      placeholder={t("register.confirmPassword")}
-                    />
-                  </Form.Control>
-                </Form.Item>
-              )}
-            />
-            {displayError && (
-              <div className="mt-6 text-center">
-                <Hint className="inline-flex" variant={"error"}>
-                  {displayError}
-                </Hint>
-              </div>
+    <Form {...form}>
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
+        <div className="flex flex-col gap-y-4">
+          <Form.Field
+            control={form.control}
+            name="first_name"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("register.firstName")}</Form.Label>
+                <Form.Control>
+                  <Input autoComplete="given-name" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
             )}
-          </div>
-          <Button className="w-full" type="submit" isLoading={isPending}>
-            {t("actions.continue")}
-          </Button>
-        </form>
-      </Form>
-      <RegisterFooter />
-    </div>
+          />
+          <Form.Field
+            control={form.control}
+            name="last_name"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("register.lastName")}</Form.Label>
+                <Form.Control>
+                  <Input autoComplete="family-name" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.email")}</Form.Label>
+                <Form.Control>
+                  <Input autoComplete="email" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.password")}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="password"
+                    autoComplete="new-password"
+                    {...field}
+                  />
+                </Form.Control>
+                <Form.Hint>{t("register.passwordHint")}</Form.Hint>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          {serverError && (
+            <Hint className="inline-flex" variant="error">
+              {serverError}
+            </Hint>
+          )}
+        </div>
+        <Button className="w-full" type="submit" isLoading={isPending}>
+          {t("actions.continue")}
+        </Button>
+      </form>
+    </Form>
   )
 }
 
 const RegisterFooter = () => {
   return (
-    <div className="flex w-full flex-col items-center">
-      <div className="my-6 h-px w-full border-b border-dotted" />
+    <div className="mt-auto">
       <span className="text-ui-fg-muted txt-small">
         <Trans
           i18nKey="register.alreadySeller"
@@ -159,7 +157,7 @@ const RegisterFooter = () => {
             <Link
               key="login-link"
               to="/login"
-              className="txt-small text-ui-fg-base transition-fg hover:text-ui-fg-base-hover focus-visible:text-ui-fg-base-hover font-medium outline-none"
+              className="text-ui-fg-interactive transition-fg hover:text-ui-fg-interactive-hover focus-visible:text-ui-fg-interactive-hover font-medium outline-none"
             />,
           ]}
         />
@@ -169,20 +167,35 @@ const RegisterFooter = () => {
 }
 
 const Root = ({ children }: { children?: ReactNode }) => {
+  const { feature_flags, isLoading } = useFeatureFlags()
+
+  if (isLoading) {
+    return (
+      <div className="flex min-h-screen items-center justify-center">
+        <Spinner className="text-ui-fg-interactive animate-spin" />
+      </div>
+    )
+  }
+
+  if (!feature_flags?.[MercurFeatureFlags.SELLER_REGISTRATION]) {
+    return <Navigate to="/login" replace />
+  }
+
   return (
-    <div className="bg-ui-bg-subtle relative flex min-h-dvh w-dvw items-center justify-center p-4">
-      <div className="flex w-full max-w-[360px] flex-col items-center">
-        {Children.count(children) > 0 ? (
-          children
-        ) : (
-          <>
-            <RegisterLogo />
+    <AuthLayout>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <RegisterLogo />
+          <div className="mt-6">
             <RegisterHeader />
             <RegisterForm />
-          </>
-        )}
-      </div>
-    </div>
+          </div>
+          <RegisterFooter />
+        </>
+      )}
+    </AuthLayout>
   )
 }
 

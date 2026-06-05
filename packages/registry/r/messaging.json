@@ -101,7 +101,7 @@
     },
     {
       "path": "messaging/links/conversation-seller.ts",
-      "content": "import { defineLink } from \"@medusajs/framework/utils\"\n\nimport SellerModule from \"@mercurjs/core-plugin/modules/seller\"\nimport MessagingModule from \"../modules/messaging\"\n\nexport default defineLink(SellerModule.linkable.seller, {\n  linkable: MessagingModule.linkable.conversation,\n  isList: true,\n})\n",
+      "content": "import { defineLink } from \"@medusajs/framework/utils\"\n\nimport SellerModule from \"@mercurjs/core/modules/seller\"\nimport MessagingModule from \"../modules/messaging\"\n\nexport default defineLink(SellerModule.linkable.seller, {\n  linkable: MessagingModule.linkable.conversation,\n  isList: true,\n})\n",
       "type": "registry:api"
     },
     {

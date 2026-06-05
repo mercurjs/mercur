@@ -1,5 +1,5 @@
-import { zodResolver } from "@hookform/resolvers/zod"
-import { XMarkMini } from "@medusajs/icons"
+import { zodResolver } from "@hookform/resolvers/zod";
+import { XMarkMini } from "@medusajs/icons";
 import {
   Button,
   Checkbox,
@@ -10,38 +10,41 @@ import {
   Text,
   clx,
   toast,
-} from "@medusajs/ui"
-import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
-import { useForm, useWatch } from "react-hook-form"
-import { useTranslation } from "react-i18next"
-import * as zod from "zod"
+} from "@medusajs/ui";
+import { RowSelectionState, createColumnHelper } from "@tanstack/react-table";
+import { useMemo, useState } from "react";
+import { useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
+import * as zod from "zod";
 
-import { Form } from "../../../../../components/common/form"
-import { Combobox } from "../../../../../components/inputs/combobox"
+import { Form } from "../../../../../components/common/form";
+import { Combobox } from "../../../../../components/inputs/combobox";
 import {
   RouteFocusModal,
   StackedFocusModal,
   useRouteModal,
   useStackedModal,
-} from "../../../../../components/modals"
-import { _DataTable } from "../../../../../components/table/data-table"
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
-import { useCreateRegion } from "../../../../../hooks/api/regions"
-import { useDataTable } from "../../../../../hooks/use-data-table"
-import { countries as staticCountries, StaticCountry } from "../../../../../lib/data/countries"
-import { CurrencyInfo } from "../../../../../lib/data/currencies"
-import { formatProvider } from "../../../../../lib/format-provider"
-import { useCountries } from "../../../common/hooks/use-countries"
-import { useCountryTableColumns } from "../../../common/hooks/use-country-table-columns"
-import { useCountryTableQuery } from "../../../common/hooks/use-country-table-query"
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
-import { useComboboxData } from "../../../../../hooks/use-combobox-data"
-import { sdk } from "../../../../../lib/client"
+} from "../../../../../components/modals";
+import { _DataTable } from "../../../../../components/table/data-table";
+import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
+import { useCreateRegion } from "../../../../../hooks/api/regions";
+import { useDataTable } from "../../../../../hooks/use-data-table";
+import {
+  countries as staticCountries,
+  StaticCountry,
+} from "../../../../../lib/data/countries";
+import { CurrencyInfo } from "../../../../../lib/data/currencies";
+import { formatProvider } from "../../../../../lib/format-provider";
+import { useCountries } from "../../../common/hooks/use-countries";
+import { useCountryTableColumns } from "../../../common/hooks/use-country-table-columns";
+import { useCountryTableQuery } from "../../../common/hooks/use-country-table-query";
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
+import { useComboboxData } from "../../../../../hooks/use-combobox-data";
+import { sdk } from "../../../../../lib/client";
 
 type CreateRegionFormProps = {
-  currencies: CurrencyInfo[]
-}
+  currencies: CurrencyInfo[];
+};
 
 const CreateRegionSchema = zod.object({
   name: zod.string().min(1),
@@ -50,18 +53,18 @@ const CreateRegionSchema = zod.object({
   is_tax_inclusive: zod.boolean(),
   countries: zod.array(zod.object({ code: zod.string(), name: zod.string() })),
   payment_providers: zod.array(zod.string()).min(1),
-})
+});
 
-const PREFIX = "cr"
-const PAGE_SIZE = 50
+const PREFIX = "cr";
+const PAGE_SIZE = 50;
 
-const STACKED_MODAL_ID = "countries-modal"
+const STACKED_MODAL_ID = "countries-modal";
 
 export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
-  const { setIsOpen } = useStackedModal()
-  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const { handleSuccess } = useRouteModal()
-  const direction = useDocumentDirection()
+  const { setIsOpen } = useStackedModal();
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const { handleSuccess } = useRouteModal();
+  const direction = useDocumentDirection();
   const form = useForm<zod.infer<typeof CreateRegionSchema>>({
     defaultValues: {
       name: "",
@@ -72,18 +75,18 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
       payment_providers: [],
     },
     resolver: zodResolver(CreateRegionSchema),
-  })
+  });
 
   const selectedCountries = useWatch({
     control: form.control,
     name: "countries",
     defaultValue: [],
-  })
+  });
 
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const { mutateAsync: createRegion, isPending: isPendingRegion } =
-    useCreateRegion()
+    useCreateRegion();
 
   const handleSubmit = form.handleSubmit(async (values) => {
     await createRegion(
@@ -97,20 +100,20 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
       },
       {
         onSuccess: ({ region }) => {
-          toast.success(t("regions.toast.create"))
-          handleSuccess(`../${region.id}`)
+          toast.success(t("regions.toast.create"));
+          handleSuccess(`../${region.id}`);
         },
         onError: (e) => {
-          toast.error(e.message)
+          toast.error(e.message);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   const { searchParams, raw } = useCountryTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
-  })
+  });
   const { countries, count } = useCountries({
     countries: staticCountries.map((c, i) => ({
       display_name: c.display_name,
@@ -123,9 +126,9 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
       region: {},
     })),
     ...searchParams,
-  })
+  });
 
-  const columns = useColumns()
+  const columns = useColumns();
 
   const { table } = useDataTable({
     data: countries || [],
@@ -140,12 +143,12 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
     getRowId: (row) => row.iso_2,
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
-  })
+  });
 
   const saveCountries = () => {
     const selected = Object.keys(rowSelection).filter(
-      (key) => rowSelection[key]
-    )
+      (key) => rowSelection[key],
+    );
 
     form.setValue(
       "countries",
@@ -153,41 +156,48 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
         code: key,
         name: staticCountries.find((c) => c.iso_2 === key)!.display_name,
       })),
-      { shouldDirty: true, shouldTouch: true }
-    )
+      { shouldDirty: true, shouldTouch: true },
+    );
 
-    setIsOpen(STACKED_MODAL_ID, false)
-  }
+    setIsOpen(STACKED_MODAL_ID, false);
+  };
 
   const removeCountry = (code: string) => {
-    const update = selectedCountries.filter((c) => c.code !== code)
+    const update = selectedCountries.filter((c) => c.code !== code);
     const ids = update
       .map((c) => c.code)
       .reduce((acc, c) => {
-        acc[c] = true
-        
-        return acc
-      }, {} as RowSelectionState)
+        acc[c] = true;
 
-    form.setValue("countries", update, { shouldDirty: true, shouldTouch: true })
-    setRowSelection(ids)
-  }
+        return acc;
+      }, {} as RowSelectionState);
+
+    form.setValue("countries", update, {
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    setRowSelection(ids);
+  };
 
   const clearCountries = () => {
-    form.setValue("countries", [], { shouldDirty: true, shouldTouch: true })
-    setRowSelection({})
-  }
+    form.setValue("countries", [], { shouldDirty: true, shouldTouch: true });
+    setRowSelection({});
+  };
 
   const comboboxProviders = useComboboxData({
     queryFn: (params) =>
-      sdk.admin.payment.listPaymentProviders({ ...params, is_enabled: true }),
+      sdk.admin.payments.paymentProviders.query({
+        ...params,
+        is_enabled: true,
+        id: [],
+      }),
     queryKey: ["payment_providers"],
     getOptions: (data) =>
       data.payment_providers.map((pp) => ({
         label: formatProvider(pp.id),
         value: pp.id,
       })),
-  })
+  });
 
   return (
     <RouteFocusModal.Form form={form} data-testid="region-create-form">
@@ -196,17 +206,26 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
         onSubmit={handleSubmit}
       >
         <RouteFocusModal.Header data-testid="region-create-form-header" />
-        <RouteFocusModal.Body className="flex overflow-hidden" data-testid="region-create-form-body">
+        <RouteFocusModal.Body
+          className="flex overflow-hidden"
+          data-testid="region-create-form-body"
+        >
           <div
             className={clx(
-              "flex h-full w-full flex-col items-center overflow-y-auto p-16"
+              "flex h-full w-full flex-col items-center overflow-y-auto p-16",
             )}
             id="form-section"
           >
             <div className="flex w-full max-w-[720px] flex-col gap-y-8">
               <div data-testid="region-create-form-header-section">
-                <Heading data-testid="region-create-form-heading">{t("regions.createRegion")}</Heading>
-                <Text size="small" className="text-ui-fg-subtle" data-testid="region-create-form-hint">
+                <Heading data-testid="region-create-form-heading">
+                  {t("regions.createRegion")}
+                </Heading>
+                <Text
+                  size="small"
+                  className="text-ui-fg-subtle"
+                  data-testid="region-create-form-hint"
+                >
                   {t("regions.createRegionHint")}
                 </Text>
               </div>
@@ -218,13 +237,18 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                     render={({ field }) => {
                       return (
                         <Form.Item data-testid="region-create-form-name-item">
-                          <Form.Label data-testid="region-create-form-name-label">{t("fields.name")}</Form.Label>
+                          <Form.Label data-testid="region-create-form-name-label">
+                            {t("fields.name")}
+                          </Form.Label>
                           <Form.Control data-testid="region-create-form-name-control">
-                            <Input {...field} data-testid="region-create-form-name-input" />
+                            <Input
+                              {...field}
+                              data-testid="region-create-form-name-input"
+                            />
                           </Form.Control>
                           <Form.ErrorMessage data-testid="region-create-form-name-error" />
                         </Form.Item>
-                      )
+                      );
                     }}
                   />
                   <Form.Field
@@ -233,7 +257,9 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                     render={({ field: { onChange, ref, ...field } }) => {
                       return (
                         <Form.Item data-testid="region-create-form-currency-item">
-                          <Form.Label data-testid="region-create-form-currency-label">{t("fields.currency")}</Form.Label>
+                          <Form.Label data-testid="region-create-form-currency-label">
+                            {t("fields.currency")}
+                          </Form.Label>
                           <Form.Control data-testid="region-create-form-currency-control">
                             <Select
                               dir={direction}
@@ -241,7 +267,10 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                               onValueChange={onChange}
                               data-testid="region-create-form-currency-select"
                             >
-                              <Select.Trigger ref={ref} data-testid="region-create-form-currency-select-trigger">
+                              <Select.Trigger
+                                ref={ref}
+                                data-testid="region-create-form-currency-select-trigger"
+                              >
                                 <Select.Value />
                               </Select.Trigger>
                               <Select.Content data-testid="region-create-form-currency-select-content">
@@ -259,7 +288,7 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                           </Form.Control>
                           <Form.ErrorMessage data-testid="region-create-form-currency-error" />
                         </Form.Item>
-                      )
+                      );
                     }}
                   />
                 </div>
@@ -272,7 +301,9 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                     <Form.Item data-testid="region-create-form-automatic-taxes-item">
                       <div>
                         <div className="flex items-start justify-between">
-                          <Form.Label data-testid="region-create-form-automatic-taxes-label">{t("fields.automaticTaxes")}</Form.Label>
+                          <Form.Label data-testid="region-create-form-automatic-taxes-label">
+                            {t("fields.automaticTaxes")}
+                          </Form.Label>
                           <Form.Control data-testid="region-create-form-automatic-taxes-control">
                             <Switch
                               dir="ltr"
@@ -284,11 +315,13 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                             />
                           </Form.Control>
                         </div>
-                        <Form.Hint data-testid="region-create-form-automatic-taxes-hint">{t("regions.automaticTaxesHint")}</Form.Hint>
+                        <Form.Hint data-testid="region-create-form-automatic-taxes-hint">
+                          {t("regions.automaticTaxesHint")}
+                        </Form.Hint>
                         <Form.ErrorMessage data-testid="region-create-form-automatic-taxes-error" />
                       </div>
                     </Form.Item>
-                  )
+                  );
                 }}
               />
 
@@ -314,26 +347,43 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                             />
                           </Form.Control>
                         </div>
-                        <Form.Hint data-testid="region-create-form-tax-inclusive-hint">{t("regions.taxInclusiveHint")}</Form.Hint>
+                        <Form.Hint data-testid="region-create-form-tax-inclusive-hint">
+                          {t("regions.taxInclusiveHint")}
+                        </Form.Hint>
                         <Form.ErrorMessage data-testid="region-create-form-tax-inclusive-error" />
                       </div>
                     </Form.Item>
-                  )
+                  );
                 }}
               />
 
               <div className="bg-ui-border-base h-px w-full" />
-              <div className="flex flex-col gap-y-4" data-testid="region-create-form-countries-section">
+              <div
+                className="flex flex-col gap-y-4"
+                data-testid="region-create-form-countries-section"
+              >
                 <div data-testid="region-create-form-countries-header">
-                  <Text size="small" leading="compact" weight="plus" data-testid="region-create-form-countries-label">
+                  <Text
+                    size="small"
+                    leading="compact"
+                    weight="plus"
+                    data-testid="region-create-form-countries-label"
+                  >
                     {t("fields.countries")}
                   </Text>
-                  <Text size="small" className="text-ui-fg-subtle" data-testid="region-create-form-countries-hint">
+                  <Text
+                    size="small"
+                    className="text-ui-fg-subtle"
+                    data-testid="region-create-form-countries-hint"
+                  >
                     {t("regions.countriesHint")}
                   </Text>
                 </div>
                 {selectedCountries.length > 0 && (
-                  <div className="flex flex-wrap gap-2" data-testid="region-create-form-countries-selected">
+                  <div
+                    className="flex flex-wrap gap-2"
+                    data-testid="region-create-form-countries-selected"
+                  >
                     {selectedCountries.map((country) => (
                       <CountryTag
                         key={country.code}
@@ -352,10 +402,17 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                     </Button>
                   </div>
                 )}
-                <StackedFocusModal id={STACKED_MODAL_ID} data-testid="region-create-form-countries-modal">
+                <StackedFocusModal
+                  id={STACKED_MODAL_ID}
+                  data-testid="region-create-form-countries-modal"
+                >
                   <div className="flex items-center justify-end">
                     <StackedFocusModal.Trigger asChild>
-                      <Button variant="secondary" size="small" data-testid="region-create-form-countries-add-button">
+                      <Button
+                        variant="secondary"
+                        size="small"
+                        data-testid="region-create-form-countries-add-button"
+                      >
                         {t("regions.addCountries")}
                       </Button>
                     </StackedFocusModal.Trigger>
@@ -369,7 +426,10 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                           </span>
                         </StackedFocusModal.Title>
                       </StackedFocusModal.Header>
-                      <StackedFocusModal.Body className="overflow-hidden" data-testid="region-create-form-countries-modal-body">
+                      <StackedFocusModal.Body
+                        className="overflow-hidden"
+                        data-testid="region-create-form-countries-modal-body"
+                      >
                         <_DataTable
                           table={table}
                           columns={columns}
@@ -390,7 +450,11 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                       <StackedFocusModal.Footer data-testid="region-create-form-countries-modal-footer">
                         <div className="flex items-center justify-end gap-x-2">
                           <StackedFocusModal.Close asChild>
-                            <Button variant="secondary" size="small" data-testid="region-create-form-countries-modal-cancel-button">
+                            <Button
+                              variant="secondary"
+                              size="small"
+                              data-testid="region-create-form-countries-modal-cancel-button"
+                            >
                               {t("actions.cancel")}
                             </Button>
                           </StackedFocusModal.Close>
@@ -409,12 +473,24 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                 </StackedFocusModal>
               </div>
               <div className="bg-ui-border-base h-px w-full" />
-              <div className="flex flex-col gap-y-4" data-testid="region-create-form-payment-providers-section">
+              <div
+                className="flex flex-col gap-y-4"
+                data-testid="region-create-form-payment-providers-section"
+              >
                 <div data-testid="region-create-form-payment-providers-header">
-                  <Text size="small" leading="compact" weight="plus" data-testid="region-create-form-payment-providers-label">
+                  <Text
+                    size="small"
+                    leading="compact"
+                    weight="plus"
+                    data-testid="region-create-form-payment-providers-label"
+                  >
                     {t("fields.providers")}
                   </Text>
-                  <Text size="small" className="text-ui-fg-subtle" data-testid="region-create-form-payment-providers-hint">
+                  <Text
+                    size="small"
+                    className="text-ui-fg-subtle"
+                    data-testid="region-create-form-payment-providers-hint"
+                  >
                     {t("regions.providersHint")}
                   </Text>
                 </div>
@@ -439,7 +515,7 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
                           </Form.Control>
                           <Form.ErrorMessage data-testid="region-create-form-payment-providers-item-error" />
                         </Form.Item>
-                      )
+                      );
                     }}
                   />
                 </div>
@@ -449,23 +525,32 @@ export const CreateRegionForm = ({ currencies }: CreateRegionFormProps) => {
         </RouteFocusModal.Body>
         <RouteFocusModal.Footer data-testid="region-create-form-footer">
           <RouteFocusModal.Close asChild>
-            <Button size="small" variant="secondary" data-testid="region-create-form-cancel-button">
+            <Button
+              size="small"
+              variant="secondary"
+              data-testid="region-create-form-cancel-button"
+            >
               {t("actions.cancel")}
             </Button>
           </RouteFocusModal.Close>
-          <Button size="small" type="submit" isLoading={isPendingRegion} data-testid="region-create-form-save-button">
+          <Button
+            size="small"
+            type="submit"
+            isLoading={isPendingRegion}
+            data-testid="region-create-form-save-button"
+          >
             {t("actions.save")}
           </Button>
         </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
+  );
+};
 
-const columnHelper = createColumnHelper<StaticCountry>()
+const columnHelper = createColumnHelper<StaticCountry>();
 
 const useColumns = () => {
-  const base = useCountryTableColumns()
+  const base = useCountryTableColumns();
 
   return useMemo(
     () => [
@@ -484,10 +569,10 @@ const useColumns = () => {
               }
               data-testid="region-create-form-countries-modal-select-all-checkbox"
             />
-          )
+          );
         },
         cell: ({ row }) => {
-          const isPreselected = !row.getCanSelect()
+          const isPreselected = !row.getCanSelect();
 
           return (
             <Checkbox
@@ -495,29 +580,35 @@ const useColumns = () => {
               disabled={isPreselected}
               onCheckedChange={(value) => row.toggleSelected(!!value)}
               onClick={(e) => {
-                e.stopPropagation()
+                e.stopPropagation();
               }}
               data-testid={`region-create-form-countries-modal-select-checkbox-${row.original.iso_2}`}
             />
-          )
+          );
         },
       }),
       ...base,
     ],
-    [base]
-  )
-}
+    [base],
+  );
+};
 
 const CountryTag = ({
   country,
   onRemove,
 }: {
-  country: { code: string; name: string }
-  onRemove: (code: string) => void
+  country: { code: string; name: string };
+  onRemove: (code: string) => void;
 }) => {
   return (
-    <div className="bg-ui-bg-field shadow-borders-base transition-fg hover:bg-ui-bg-field-hover flex h-7 items-center overflow-hidden rounded-md" data-testid={`region-create-form-country-tag-${country.code}`}>
-      <div className="txt-compact-small-plus flex h-full select-none items-center justify-center px-2 py-0.5" data-testid={`region-create-form-country-tag-${country.code}-name`}>
+    <div
+      className="bg-ui-bg-field shadow-borders-base transition-fg hover:bg-ui-bg-field-hover flex h-7 items-center overflow-hidden rounded-md"
+      data-testid={`region-create-form-country-tag-${country.code}`}
+    >
+      <div
+        className="txt-compact-small-plus flex h-full select-none items-center justify-center px-2 py-0.5"
+        data-testid={`region-create-form-country-tag-${country.code}-name`}
+      >
         {country.name}
       </div>
       <button
@@ -529,5 +620,5 @@ const CountryTag = ({
         <XMarkMini className="text-ui-fg-muted" />
       </button>
     </div>
-  )
-}
+  );
+};

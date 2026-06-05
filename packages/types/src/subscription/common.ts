@@ -8,6 +8,7 @@ export interface SubscriptionPlanDTO {
   created_at: Date
   updated_at: Date
   deleted_at: Date | null
+  overrides?: SubscriptionOverrideDTO[]
 }
 
 export interface SubscriptionOverrideDTO {

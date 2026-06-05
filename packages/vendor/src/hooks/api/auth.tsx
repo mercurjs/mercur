@@ -19,7 +19,7 @@ export const useSignInWithEmailPass = (
   return useMutation({
     mutationFn: async (payload) => {
       const data = (await sdk.auth.$actorType.$authProvider.mutate({
-        $actorType: "seller",
+        $actorType: "member",
         $authProvider: "emailpass",
         ...payload,
       })) as { token: string };
@@ -56,12 +56,20 @@ export const useSignUpWithEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.register.mutate({
-        $actorType: "seller",
+        $actorType: "member",
         $authProvider: "emailpass",
         ...payload,
       }),
     onSuccess: async (data, variables, context) => {
       options?.onSuccess?.(data, variables, context);
+
+      await sdk.auth.session.mutate({
+        fetchOptions: {
+          headers: {
+            Authorization: `Bearer ${(data as { token: string }).token}`,
+          },
+        },
+      });
     },
     ...options,
   });
@@ -69,7 +77,7 @@ export const useSignUpWithEmailPass = (
 
 export const useSignUpForInvite = (
   options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.auth.$actorType.$authProvider.register.mutate>,
+    { token: string },
     ClientError,
     Omit<
       InferClientInput<
@@ -80,12 +88,39 @@ export const useSignUpForInvite = (
   >,
 ) => {
   return useMutation({
-    mutationFn: (payload) =>
-      sdk.auth.$actorType.$authProvider.register.mutate({
-        $actorType: "seller",
+    mutationFn: async (payload) => {
+      const result = await sdk.auth.$actorType.$authProvider.register.mutate({
+        $actorType: "member",
         $authProvider: "emailpass",
         ...payload,
-      }),
+      });
+
+      return result as { token: string };
+    },
+    ...options,
+  });
+};
+
+export const useSignInForInvite = (
+  options?: UseMutationOptions<
+    { token: string },
+    ClientError,
+    Omit<
+      InferClientInput<typeof sdk.auth.$actorType.$authProvider.mutate>,
+      "$actorType" | "$authProvider"
+    >
+  >,
+) => {
+  return useMutation({
+    mutationFn: async (payload) => {
+      const result = await sdk.auth.$actorType.$authProvider.mutate({
+        $actorType: "member",
+        $authProvider: "emailpass",
+        ...payload,
+      });
+
+      return result as { token: string };
+    },
     ...options,
   });
 };
@@ -102,7 +137,7 @@ export const useResetPasswordForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.resetPassword.mutate({
-        $actorType: "seller",
+        $actorType: "member",
         $authProvider: "emailpass",
         identifier: payload.email,
         metadata: {},
@@ -140,7 +175,7 @@ export const useUpdateProviderForEmailPass = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.auth.$actorType.$authProvider.update.mutate({
-        $actorType: "seller",
+        $actorType: "member",
         $authProvider: "emailpass",
         ...payload,
         fetchOptions: {

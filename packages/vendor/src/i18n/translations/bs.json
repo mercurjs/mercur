@@ -236,7 +236,9 @@
       },
       "store": {
         "label": "Trgovina",
-        "storeSettings": "Postavke trgovine"
+        "storeSettings": "Postavke trgovine",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Odjavi se"
@@ -598,7 +600,6 @@
       "weight": {
         "label": "Težina"
       },
-
       "options": {
         "label": "Opcije proizvoda",
         "hint": "Opcije se koriste za definisanje boje, veličine itd. proizvoda",
@@ -2665,7 +2666,10 @@
         "placeholder": "pogrešna_veličina",
         "tooltip": "Vrijednost treba biti jedinstveni identifikator za razlog povrata."
       },
-      "label": { "label": "Oznaka", "placeholder": "Pogrešna veličina" },
+      "label": {
+        "label": "Oznaka",
+        "placeholder": "Pogrešna veličina"
+      },
       "description": {
         "label": "Opis",
         "placeholder": "Kupac je primio pogrešnu veličinu"

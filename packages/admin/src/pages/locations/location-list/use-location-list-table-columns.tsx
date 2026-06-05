@@ -180,6 +180,7 @@ export const useLocationListTableColumns = () => {
         },
       }),
     ],
-    []
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    [navigate, t]
   )
 }

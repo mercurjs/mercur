@@ -1,6 +1,7 @@
 import { TriangleRightMini } from "@medusajs/icons";
 import { Avatar, Container, Heading } from "@medusajs/ui";
 import { SellerDTO } from "@mercurjs/types";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
 type ProductSellerSectionProps = {
@@ -8,6 +9,8 @@ type ProductSellerSectionProps = {
 };
 
 export const ProductSellerSection = ({ seller }: ProductSellerSectionProps) => {
+  const { t } = useTranslation();
+
   if (!seller) {
     return null;
   }
@@ -15,11 +18,11 @@ export const ProductSellerSection = ({ seller }: ProductSellerSectionProps) => {
   return (
     <Container className="p-0">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">Associated Seller</Heading>
+        <Heading level="h2">{t("products.associatedStore")}</Heading>
       </div>
       <div className="txt-small flex flex-col gap-2 px-2 pb-2">
         <Link
-          to={`/sellers/${seller.id}`}
+          to={`/stores/${seller.id}`}
           className="outline-none focus-within:shadow-borders-interactive-with-focus rounded-md [&:hover>div]:bg-ui-bg-component-hover"
         >
           <div className="shadow-elevation-card-rest bg-ui-bg-component rounded-md px-4 py-2 transition-colors">

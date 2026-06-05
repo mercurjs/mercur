@@ -1,58 +1,68 @@
-import { Children, ReactNode } from "react"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { Alert, Button, Heading, Hint, Input, Text } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
-import { Trans, useTranslation } from "react-i18next"
-import { Link, useNavigate, useSearchParams } from "react-router-dom"
-import * as z from "zod"
+import { Children, ReactNode } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
+import { Alert, Button, Heading, Input, Text } from "@medusajs/ui";
+import { useForm } from "react-hook-form";
+import { Trans, useTranslation } from "react-i18next";
+import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import * as z from "zod";
 
-import { Form } from "@components/common/form"
-import AvatarBox from "@components/common/logo-box/avatar-box"
-import { useSignInWithEmailPass } from "@hooks/api"
-import { isFetchError } from "@lib/is-fetch-error"
-import config from "virtual:mercur/config"
+import { Form } from "@components/common/form";
+import AvatarBox from "@components/common/logo-box/avatar-box";
+import { AuthLayout } from "@components/layout/auth-layout";
+import { useSignInWithEmailPass } from "@hooks/api";
+import { isFetchError } from "@lib/is-fetch-error";
+import config from "virtual:mercur/config";
 
 const LoginSchema = z.object({
-  email: z.string().email(),
-  password: z.string(),
-})
+  email: z
+    .string()
+    .min(1, { message: i18n.t("login.validation.emailRequired") })
+    .email({ message: i18n.t("login.validation.emailInvalid") }),
+  password: z
+    .string()
+    .min(1, { message: i18n.t("login.validation.passwordRequired") }),
+});
 
 const LoginLogo = () => {
-  return <AvatarBox />
-}
+  return <AvatarBox />;
+};
 
 const LoginHeader = () => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
-    <div className="mb-4 flex flex-col items-center">
+    <div className="mb-6 flex flex-col">
       <Heading>{t("login.title", { name: config.name ?? "Mercur" })}</Heading>
-      <Text size="small" className="text-ui-fg-subtle text-center">
+      <Text size="small" className="text-ui-fg-subtle">
         {t("login.hint")}
       </Text>
     </div>
-  )
-}
+  );
+};
 
 const LoginForm = () => {
-  const { t } = useTranslation()
-  const navigate = useNavigate()
-  const [searchParams] = useSearchParams()
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
 
-  const reason = searchParams.get("reason") || ""
-  const reasonMessage = reason && reason.toLowerCase() === "unauthorized" ? "Session expired" : reason
-
-  const from = "/"
+  const reason = searchParams.get("reason") || "";
+  const reasonMessage =
+    reason && reason.toLowerCase() === "unauthorized"
+      ? t("login.sessionExpired")
+      : reason;
 
   const form = useForm<z.infer<typeof LoginSchema>>({
     resolver: zodResolver(LoginSchema),
+    mode: "onSubmit",
+    reValidateMode: "onSubmit",
     defaultValues: {
       email: "",
       password: "",
     },
-  })
+  });
 
-  const { mutateAsync, isPending } = useSignInWithEmailPass()
+  const { mutateAsync, isPending } = useSignInWithEmailPass();
 
   const handleSubmit = form.handleSubmit(async ({ email, password }) => {
     await mutateAsync(
@@ -67,107 +77,89 @@ const LoginForm = () => {
               form.setError("email", {
                 type: "manual",
                 message: error.message,
-              })
+              });
 
-              return
+              return;
             }
           }
 
           form.setError("root.serverError", {
             type: "manual",
             message: error.message,
-          })
+          });
         },
         onSuccess: () => {
+          const email = form.getValues("email");
           setTimeout(() => {
-            navigate(from, { replace: true })
-          }, 1000)
+            navigate("/store-select", {
+              replace: true,
+              state: { email },
+            });
+          }, 1000);
         },
-      }
-    )
-  })
+      },
+    );
+  });
 
   const serverError =
-    form.formState.errors?.root?.serverError?.message || reasonMessage
-  const validationError =
-    form.formState.errors.email?.message ||
-    form.formState.errors.password?.message
+    form.formState.errors?.root?.serverError?.message || reasonMessage;
 
   return (
-    <div className="flex w-full flex-col gap-y-3">
-      <Form {...form}>
-        <form
-          onSubmit={handleSubmit}
-          className="flex w-full flex-col gap-y-6"
-        >
-          <div className="flex flex-col gap-y-2">
-            <Form.Field
-              control={form.control}
-              name="email"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        autoComplete="email"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.email")}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )
-              }}
-            />
-            <Form.Field
-              control={form.control}
-              name="password"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Control>
-                      <Input
-                        type="password"
-                        autoComplete="current-password"
-                        {...field}
-                        className="bg-ui-bg-field-component"
-                        placeholder={t("fields.password")}
-                      />
-                    </Form.Control>
-                  </Form.Item>
-                )
-              }}
-            />
-            {validationError && (
-              <div className="mt-6 text-center">
-                <Hint className="inline-flex" variant={"error"}>
-                  {validationError}
-                </Hint>
-              </div>
+    <Form {...form}>
+      <form onSubmit={handleSubmit} className="flex w-full flex-col gap-y-6">
+        <div className="flex flex-col gap-y-4">
+          <Form.Field
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.email")}</Form.Label>
+                <Form.Control>
+                  <Input autoComplete="email" {...field} />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
             )}
-            {serverError && (
-              <Alert
-                className="bg-ui-bg-base items-center p-2"
-                dismissible
-                variant="error"
-              >
-                {serverError}
-              </Alert>
+          />
+          <Form.Field
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <Form.Item>
+                <Form.Label>{t("fields.password")}</Form.Label>
+                <Form.Control>
+                  <Input
+                    type="password"
+                    autoComplete="current-password"
+                    {...field}
+                  />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
             )}
-          </div>
-          <Button className="w-full" type="submit" isLoading={isPending}>
-            Sign In
-          </Button>
-        </form>
-      </Form>
-    </div>
-  )
-}
+          />
+          {serverError && (
+            <Alert
+              className="bg-ui-bg-base items-center p-2"
+              dismissible
+              variant="error"
+            >
+              {serverError}
+            </Alert>
+          )}
+        </div>
+        <Button className="w-full" type="submit" isLoading={isPending}>
+          {t("login.submit")}
+        </Button>
+      </form>
+    </Form>
+  );
+};
 
 const LoginFooter = () => {
   return (
-    <div className="flex flex-col items-center">
-      <span className="text-ui-fg-muted txt-small my-6">
+    <div className="mt-auto flex flex-col gap-y-2">
+      <span className="text-ui-fg-muted txt-small">
         <Trans
           i18nKey="login.forgotPassword"
           components={[
@@ -194,31 +186,31 @@ const LoginFooter = () => {
         </span>
       )}
     </div>
-  )
-}
+  );
+};
 
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
-    <div className="bg-ui-bg-subtle flex min-h-dvh w-dvw items-center justify-center">
-      <div className="m-4 flex w-full max-w-[280px] flex-col items-center">
-        {Children.count(children) > 0 ? (
-          children
-        ) : (
-          <>
-            <LoginLogo />
+    <AuthLayout>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <LoginLogo />
+          <div className="mt-6">
             <LoginHeader />
             <LoginForm />
-            <LoginFooter />
-          </>
-        )}
-      </div>
-    </div>
-  )
-}
+          </div>
+          <LoginFooter />
+        </>
+      )}
+    </AuthLayout>
+  );
+};
 
 export const LoginPage = Object.assign(Root, {
   Logo: LoginLogo,
   Header: LoginHeader,
   Form: LoginForm,
   Footer: LoginFooter,
-})
+});

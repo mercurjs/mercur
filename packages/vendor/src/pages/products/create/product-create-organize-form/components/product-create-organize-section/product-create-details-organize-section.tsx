@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 import { Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
@@ -66,6 +68,29 @@ export const ProductCreateOrganizationSection = () => {
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Form.Field
           control={form.control}
+          name="tags"
+          render={({ field }) => {
+            return (
+              <Form.Item>
+                <Form.Label optional>
+                  {t("products.fields.tags.label")}
+                </Form.Label>
+                <Form.Control>
+                  <Combobox
+                    {...field}
+                    options={tags.options}
+                    searchValue={tags.searchValue}
+                    onSearchValueChange={tags.onSearchValueChange}
+                    fetchNextPage={tags.fetchNextPage}
+                  />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            );
+          }}
+        />
+        <Form.Field
+          control={form.control}
           name="type_id"
           render={({ field }) => {
             return (
@@ -88,6 +113,58 @@ export const ProductCreateOrganizationSection = () => {
             );
           }}
         />
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+        <Form.Field
+          control={form.control}
+          name="categories"
+          render={({ field }) => {
+            const [isFocused, setIsFocused] = useState(false);
+
+            return (
+              <Form.Item>
+                <Form.Label tooltip={t("products.fields.primaryCategory.tooltip")}>
+                  {t("products.fields.primaryCategory.label")}
+                </Form.Label>
+                <Form.Control>
+                  <CategoryCombobox
+                    {...field}
+                    onFocus={() => setIsFocused(true)}
+                    onBlur={() => {
+                      setIsFocused(false);
+                      field.onBlur();
+                    }}
+                    isSingleSelect
+                    allowClear={false}
+                  />
+                </Form.Control>
+                {!isFocused && <Form.ErrorMessage />}
+              </Form.Item>
+            );
+          }}
+        />
+        <Form.Field
+          control={form.control}
+          name={"secondary_categories" as any}
+          render={({ field }) => {
+            return (
+              <Form.Item>
+                <Form.Label optional>
+                  {t("products.fields.secondaryCategories.label", "Secondary Categories")}
+                </Form.Label>
+                <Form.Control>
+                  <CategoryCombobox
+                    {...field}
+                    value={field.value || []}
+                  />
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            );
+          }}
+        />
+      </div>
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
         <Form.Field
           control={form.control}
           name="collection_id"
@@ -105,48 +182,6 @@ export const ProductCreateOrganizationSection = () => {
                     onSearchValueChange={collections.onSearchValueChange}
                     fetchNextPage={collections.fetchNextPage}
                     allowClear
-                  />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            );
-          }}
-        />
-      </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-        <Form.Field
-          control={form.control}
-          name="categories"
-          render={({ field }) => {
-            return (
-              <Form.Item>
-                <Form.Label optional>
-                  {t("products.fields.categories.label")}
-                </Form.Label>
-                <Form.Control>
-                  <CategoryCombobox {...field} />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            );
-          }}
-        />
-        <Form.Field
-          control={form.control}
-          name="tags"
-          render={({ field }) => {
-            return (
-              <Form.Item>
-                <Form.Label optional>
-                  {t("products.fields.tags.label")}
-                </Form.Label>
-                <Form.Control>
-                  <Combobox
-                    {...field}
-                    options={tags.options}
-                    searchValue={tags.searchValue}
-                    onSearchValueChange={tags.onSearchValueChange}
-                    fetchNextPage={tags.fetchNextPage}
                   />
                 </Form.Control>
                 <Form.ErrorMessage />

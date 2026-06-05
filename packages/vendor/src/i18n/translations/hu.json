@@ -236,7 +236,9 @@
       },
       "store": {
         "label": "Áruház",
-        "storeSettings": "Áruházbeállítások"
+        "storeSettings": "Áruházbeállítások",
+        "editStore": "Edit Store",
+        "switchStore": "Switch store"
       },
       "actions": {
         "logout": "Kijelentkezés"
@@ -2654,7 +2656,10 @@
         "placeholder": "wrong_size",
         "tooltip": "Az értéknek egyedi azonosítónak kell lennie a visszaküldési okhoz."
       },
-      "label": { "label": "Címke", "placeholder": "Rossz méret" },
+      "label": {
+        "label": "Címke",
+        "placeholder": "Rossz méret"
+      },
       "description": {
         "label": "Leírás",
         "placeholder": "A vásárló rossz méretet kapott"

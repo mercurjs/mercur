@@ -152,8 +152,8 @@ medusaIntegrationTestRunner({
       })
 
       describe("GET /admin/subscription-plans", () => {
-        let planA: any
-        let planB: any
+        let _planA: any
+        let _planB: any
 
         beforeEach(async () => {
           const responseA = await api.post(
@@ -164,7 +164,7 @@ medusaIntegrationTestRunner({
             },
             adminHeaders
           )
-          planA = responseA.data.subscription_plan
+          _planA = responseA.data.subscription_plan
 
           const responseB = await api.post(
             `/admin/subscription-plans`,
@@ -174,7 +174,7 @@ medusaIntegrationTestRunner({
             },
             adminHeaders
           )
-          planB = responseB.data.subscription_plan
+          _planB = responseB.data.subscription_plan
         })
 
         it("should list all subscription plans", async () => {

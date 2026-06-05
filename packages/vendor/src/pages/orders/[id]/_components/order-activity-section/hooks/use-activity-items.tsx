@@ -23,7 +23,7 @@ import { TransferOrderRequestBody } from "../components"
 /**
  * Order Changes that are not related to RMA flows
  */
-const NON_RMA_CHANGE_TYPES = ["transfer", "update_order"]
+
 
 export type Activity = {
   title: string | ReactNode
@@ -39,9 +39,7 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
 
   const { order_changes: orderChanges = [] } = useOrderChanges(order.id)
 
-  const rmaChanges = orderChanges.filter(
-    (oc) => oc.change_type && !NON_RMA_CHANGE_TYPES.includes(oc.change_type)
-  )
+  
 
   const itemsMap = useMemo(() => {
     return new Map<string, ExtendedAdminOrderLineItemWithInventory>(
@@ -69,7 +67,7 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
   // });
 
 
-  const notes: any[] = []
+  const _notes: any[] = []
   const isLoading = false
   // const { notes, isLoading, isError, error } = useNotes(
   //   {
@@ -88,7 +86,7 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
 
 
   // TODO: uncomment and fix payment related logic when backend returns data about payment cancel/capture/refund dates
-  const payments = order.payment_collections
+  const _payments = order.payment_collections
 
   return useMemo(() => {
     if (isLoading) {
@@ -432,15 +430,14 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
     }
 
     return [...sortedActivities, createdAt]
+  /* oxlint-disable react-hooks/exhaustive-deps */
   }, [
-    order,
-    payments,
-    returns,
-    exchanges,
-    orderChanges,
-    notes,
-    isLoading,
-    itemsMap,
-  ])
+	order,
+	exchanges,
+	orderChanges,
+	isLoading,
+	itemsMap
+])
+  /* oxlint-enable react-hooks/exhaustive-deps */
 }
 

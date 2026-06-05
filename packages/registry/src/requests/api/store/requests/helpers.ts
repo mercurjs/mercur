@@ -1,6 +1,6 @@
 import { MedusaNextFunction, MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
 import { MercurModules } from "@mercurjs/types"
-import type { CustomFieldsModuleService } from "@mercurjs/core-plugin/modules/custom-fields"
+import type { CustomFieldsModuleService } from "@mercurjs/core/modules/custom-fields"
 
 export function excludePendingRequestEntities(alias: string) {
   return async function (

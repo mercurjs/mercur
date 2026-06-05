@@ -90,6 +90,11 @@ export function getRouteMap({
                           };
                         },
                       },
+                      {
+                        path: "bulk-edit",
+                        lazy: () =>
+                          import("./pages/products/bulk-edit"),
+                      },
                     ],
                   },
                   {
@@ -143,9 +148,14 @@ export function getRouteMap({
                               import("./pages/products/[id]/attributes"),
                           },
                           {
-                            path: "additional-attributes",
+                            path: "attributes/add",
                             lazy: () =>
-                              import("./pages/products/[id]/additional-attributes"),
+                              import("./pages/products/[id]/attributes/add"),
+                          },
+                          {
+                            path: "informational-attributes/:attribute_id/edit",
+                            lazy: () =>
+                              import("./pages/products/[id]/informational-attributes/[attribute_id]/edit"),
                           },
                           {
                             path: "metadata",
@@ -167,6 +177,13 @@ export function getRouteMap({
                               import("./pages/products/[id]/options/create"),
                           },
                           {
+                            path: "options/:option_id/edit",
+                            lazy: () =>
+                              import(
+                                "./pages/products/[id]/options/[optionId]/edit"
+                              ),
+                          },
+                          {
                             path: "variants/create",
                             lazy: () =>
                               import("./pages/products/[id]/variants/create"),
@@ -176,6 +193,11 @@ export function getRouteMap({
                       {
                         path: "stock",
                         lazy: () => import("./pages/products/[id]/stock"),
+                      },
+                      {
+                        path: "edit-stocks-and-prices",
+                        lazy: () =>
+                          import("./pages/products/[id]/edit-stocks-and-prices"),
                       },
                     ],
                   },
@@ -230,12 +252,13 @@ export function getRouteMap({
                             lazy: () =>
                               import("./pages/orders/[id]/allocate-items"),
                           },
+                          {
+                            path: ":f_id/create-shipment",
+                            lazy: () =>
+                              import("./pages/orders/[id]/shipment"),
+                          },
                         ],
                       },
-                      // {
-                      //   path: "fulfillments/:f_id/shipment",
-                      //   lazy: () => import("./pages/orders/[id]/shipment"),
-                      // },
                     ],
                   },
                 ],
@@ -862,25 +885,73 @@ export function getRouteMap({
                 lazy: () => import("./pages/settings"),
               },
 
-              // STORE
+              // PROFILE
               {
-                path: "seller",
+                path: "profile",
                 errorElement: <ErrorBoundary />,
                 handle: {
-                  breadcrumb: () => t("seller.domain", "Seller"),
+                  breadcrumb: () => t("profile.domain"),
                 },
                 children: [
                   {
                     path: "",
                     lazy: async () => {
-                      const { SellerDetailPage } =
-                        await import("./pages/settings/seller");
-                      return { Component: SellerDetailPage };
+                      const { ProfileDetailPage } =
+                        await import("./pages/settings/profile");
+                      return { Component: ProfileDetailPage };
                     },
                     children: [
                       {
                         path: "edit",
-                        lazy: () => import("./pages/settings/seller/edit"),
+                        lazy: async () => {
+                          const { ProfileEdit } =
+                            await import("./pages/settings/profile");
+                          return { Component: ProfileEdit };
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
+
+              // STORE
+              {
+                path: "store",
+                errorElement: <ErrorBoundary />,
+                handle: {
+                  breadcrumb: () => t("app.menus.store.label"),
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: async () => {
+                      const { StoreDetailPage } =
+                        await import("./pages/settings/store");
+                      return { Component: StoreDetailPage };
+                    },
+                    children: [
+                      {
+                        path: "edit",
+                        lazy: () => import("./pages/settings/store/edit"),
+                      },
+                      {
+                        path: "address",
+                        lazy: () => import("./pages/settings/store/address"),
+                      },
+                      {
+                        path: "payment-details",
+                        lazy: () =>
+                          import("./pages/settings/store/payment-details"),
+                      },
+                      {
+                        path: "professional-details",
+                        lazy: () =>
+                          import("./pages/settings/store/professional-details"),
+                      },
+                      {
+                        path: "store-closure",
+                        lazy: () =>
+                          import("./pages/settings/store/store-closure"),
                       },
                     ],
                   },
@@ -1204,6 +1275,35 @@ export function getRouteMap({
                 ],
               },
 
+              // USERS
+              {
+                path: "users",
+                errorElement: <ErrorBoundary />,
+                element: <Outlet />,
+                handle: { breadcrumb: () => t("users.domain") },
+                children: [
+                  {
+                    path: "",
+                    lazy: async () => {
+                      const { TeamListPage } =
+                        await import("./pages/settings/team");
+                      return { Component: TeamListPage };
+                    },
+                    children: [
+                      {
+                        path: "invite",
+                        lazy: async () => {
+                          const { TeamInvite } =
+                            await import("./pages/settings/team/invite");
+
+                          return { Component: TeamInvite };
+                        },
+                      },
+                    ],
+                  },
+                ],
+              },
+
               // PRODUCT TYPES
               {
                 path: "product-types",
@@ -1318,14 +1418,25 @@ export function getRouteMap({
             {
               path: "/register",
               lazy: async () => {
-                const { RegisterPage } =
-                  await import("./pages/register");
+                const { RegisterPage } = await import("./pages/register");
                 return { Component: RegisterPage };
               },
             },
             {
               path: "/onboarding",
               lazy: () => import("./pages/onboarding"),
+            },
+            {
+              path: "/invite",
+              lazy: () => import("./pages/invite"),
+            },
+            {
+              path: "/store-select",
+              lazy: async () => {
+                const { StoreSelectPage } =
+                  await import("./pages/store-select");
+                return { Component: StoreSelectPage };
+              },
             },
             ...customPublicRoutes,
             {

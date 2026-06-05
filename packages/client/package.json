@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/client",
-  "version": "2.1.0-canary.0",
+  "version": "2.1.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -9,6 +9,14 @@
   "type": "commonjs",
   "author": "MercurJS (https://github.com/mercurjs)",
   "license": "MIT",
+  "keywords": [
+    "marketplace",
+    "multi-vendor",
+    "medusajs",
+    "ecommerce",
+    "marketplace-client",
+    "api-client"
+  ],
   "publishConfig": {
     "access": "public"
   },

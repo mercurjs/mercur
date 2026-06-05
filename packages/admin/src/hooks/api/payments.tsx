@@ -1,7 +1,6 @@
 import {
   ClientError,
   InferClientInput,
-  InferClientOutput,
 } from "@mercurjs/client";
 import { AdminPaymentResponse, HttpTypes } from "@medusajs/types";
 import {

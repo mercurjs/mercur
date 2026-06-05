@@ -3,6 +3,7 @@ import {
   ComponentType,
   forwardRef,
   useImperativeHandle,
+  useMemo,
   useRef,
 } from "react";
 import { useTranslation } from "react-i18next";
@@ -15,14 +16,35 @@ type CountrySelectProps = ComponentPropsWithoutRef<typeof Select> & {
   onChange?: (value: string) => void;
 };
 
+const getDisplayNames = (language: string) => {
+  try {
+    return new Intl.DisplayNames([language], { type: "region" });
+  } catch {
+    return null;
+  }
+};
+
 export const CountrySelect: ComponentType<CountrySelectProps> = forwardRef<
   HTMLButtonElement,
   CountrySelectProps
 >(({ disabled, placeholder, defaultValue, onChange, ...field }, ref) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const innerRef = useRef<HTMLButtonElement>(null);
 
   useImperativeHandle(ref, () => innerRef.current as HTMLButtonElement);
+
+  const localizedCountries = useMemo(() => {
+    const displayNames = getDisplayNames(i18n.language);
+    const collator = new Intl.Collator(i18n.language, { sensitivity: "base" });
+
+    return countries
+      .map((country) => ({
+        ...country,
+        localized_name:
+          displayNames?.of(country.iso_2.toUpperCase()) ?? country.display_name,
+      }))
+      .sort((a, b) => collator.compare(a.localized_name, b.localized_name));
+  }, [i18n.language]);
 
   return (
     <div className="relative">
@@ -39,12 +61,12 @@ export const CountrySelect: ComponentType<CountrySelectProps> = forwardRef<
           />
         </Select.Trigger>
         <Select.Content>
-          {countries.map((country) => (
+          {localizedCountries.map((country) => (
             <Select.Item
               key={country.iso_2}
               value={country.iso_2.toLowerCase()}
             >
-              {country.display_name}
+              {country.localized_name}
             </Select.Item>
           ))}
         </Select.Content>

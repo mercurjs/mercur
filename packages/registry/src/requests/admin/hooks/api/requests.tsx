@@ -9,7 +9,6 @@ import { queryKeysFactory } from "@mercurjs/dashboard-shared";
 import { client } from "../../lib/client";
 import {
   ClientError,
-  InferClientInput,
   InferClientOutput,
 } from "@mercurjs/client";
 

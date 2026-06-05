@@ -71,7 +71,7 @@ export const RulesFormField = ({
     : {};
 
   const { rules, isLoading } = usePromotionRules(
-    promotion?.id!,
+    promotion?.id,
     ruleType,
     query,
     {
@@ -398,10 +398,11 @@ export const RulesFormField = ({
                 .map((field: any, index) => (field.required ? null : index))
                 .filter((f) => f !== null);
 
-              setRulesToRemove &&
+              if (setRulesToRemove) {
                 setRulesToRemove(
                   fields.filter((field: any) => !field.required),
                 );
+              }
               remove(indicesToRemove);
             }}
           >

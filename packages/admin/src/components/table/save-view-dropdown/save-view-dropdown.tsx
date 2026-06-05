@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from "react"
+import React from "react"
 import {
   DropdownMenu,
   Button,
-  toast,
   usePrompt,
 } from "@medusajs/ui"
 import {
-  Plus,
   CloudArrowUp,
   SquarePlusMicro,
 } from "@medusajs/icons"

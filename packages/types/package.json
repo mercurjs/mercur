@@ -1,11 +1,18 @@
 {
   "name": "@mercurjs/types",
-  "version": "2.1.0-canary.0",
+  "version": "2.1.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
     "directory": "packages/types"
   },
+  "keywords": [
+    "marketplace",
+    "multi-vendor",
+    "medusajs",
+    "ecommerce",
+    "marketplace-types"
+  ],
   "description": "Type definitions for Mercur",
   "author": "Mercur",
   "license": "MIT",
