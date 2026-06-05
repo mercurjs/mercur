@@ -5,7 +5,14 @@ import { EntityManager, type Knex } from "@medusajs/framework/mikro-orm/knex"
 import { Conversation } from "./models/conversation"
 import { Message } from "./models/message"
 import { ChatBlock } from "./models/chat-block"
-import { CursorPaginatedResult, ConversationDTO, MessageDTO } from "./types/common"
+import {
+  CursorPaginatedResult,
+  ConversationDTO,
+  MessageDTO,
+  MessagingModuleOptions,
+  ResolvedMessagingModuleOptions,
+  MESSAGING_MODULE_OPTION_DEFAULTS,
+} from "./types/common"
 
 const TABLE_CONVERSATION = "conversation"
 const TABLE_MESSAGE = "message"
@@ -33,6 +40,23 @@ class MessagingModuleService extends MedusaService({
   Message,
   ChatBlock,
 }) {
+  protected readonly options_: ResolvedMessagingModuleOptions
+
+  constructor(_deps: unknown, options?: MessagingModuleOptions) {
+    // @ts-ignore — MedusaService base accepts arbitrary constructor args
+    super(...arguments)
+    this.options_ = {
+      rateLimits: {
+        ...MESSAGING_MODULE_OPTION_DEFAULTS.rateLimits,
+        ...(options?.rateLimits ?? {}),
+      },
+    }
+  }
+
+  getOptions(): ResolvedMessagingModuleOptions {
+    return this.options_
+  }
+
   @InjectManager()
   async checkBuyersBlocked(
     buyerIds: string[],

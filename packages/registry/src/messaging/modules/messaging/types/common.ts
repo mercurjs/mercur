@@ -96,3 +96,30 @@ export interface UnreadCountResponse {
 export interface SseTokenResponse {
   token: string
 }
+
+export type MessagingRateLimitOptions = {
+  /** Maximum messages a single sender can send per minute. */
+  messagesPerMinute?: number
+  /** Maximum new conversations a single sender can open per hour. */
+  conversationsPerHour?: number
+}
+
+export type MessagingModuleOptions = {
+  rateLimits?: MessagingRateLimitOptions
+}
+
+export type ResolvedMessagingRateLimitOptions = {
+  messagesPerMinute: number
+  conversationsPerHour: number
+}
+
+export type ResolvedMessagingModuleOptions = {
+  rateLimits: ResolvedMessagingRateLimitOptions
+}
+
+export const MESSAGING_MODULE_OPTION_DEFAULTS: ResolvedMessagingModuleOptions = {
+  rateLimits: {
+    messagesPerMinute: 20,
+    conversationsPerHour: 5,
+  },
+}

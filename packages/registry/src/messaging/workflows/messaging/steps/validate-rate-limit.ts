@@ -3,6 +3,8 @@ import { MedusaError } from "@medusajs/framework/utils"
 
 import { MESSAGING_REDIS_MODULE } from "../../../modules/messaging-redis"
 import type MessagingRedisModuleService from "../../../modules/messaging-redis/service"
+import { MESSAGING_MODULE } from "../../../modules/messaging"
+import type MessagingModuleService from "../../../modules/messaging/service"
 
 type ValidateRateLimitInput = {
   sender_id: string
@@ -25,11 +27,13 @@ export const validateRateLimitStep = createStep(
       return new StepResponse(undefined)
     }
 
+    const messagingService = container.resolve<MessagingModuleService>(MESSAGING_MODULE)
+    const rateLimits = messagingService.getOptions().rateLimits
+
     try {
-      // Check message rate limit: 20 per minute
       const msgResult = await redisService.checkRateLimit(
         `ratelimit:msg:${input.sender_id}`,
-        20,
+        rateLimits.messagesPerMinute,
         60
       )
 
@@ -40,11 +44,10 @@ export const validateRateLimitStep = createStep(
         )
       }
 
-      // Check conversation creation rate limit: 5 per hour
       if (input.is_new_conversation) {
         const convResult = await redisService.checkRateLimit(
           `ratelimit:conv:${input.sender_id}`,
-          5,
+          rateLimits.conversationsPerHour,
           3600
         )
 

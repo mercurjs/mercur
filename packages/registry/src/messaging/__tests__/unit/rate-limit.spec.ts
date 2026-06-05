@@ -1,5 +1,7 @@
 import { describe, it, expect } from "vitest"
 
+import { MESSAGING_MODULE_OPTION_DEFAULTS } from "../../modules/messaging/types/common"
+
 /**
  * Tests for rate limit sliding window logic.
  * The actual rate limiting uses Redis INCR + EXPIRE in validate-rate-limit step.
@@ -10,8 +12,8 @@ type RateLimitState = {
   counters: Map<string, { count: number; expiresAt: number }>
 }
 
-const MESSAGES_PER_MINUTE = 20
-const CONVERSATIONS_PER_HOUR = 5
+const MESSAGES_PER_MINUTE = MESSAGING_MODULE_OPTION_DEFAULTS.rateLimits.messagesPerMinute
+const CONVERSATIONS_PER_HOUR = MESSAGING_MODULE_OPTION_DEFAULTS.rateLimits.conversationsPerHour
 const MSG_WINDOW_MS = 60_000
 const CONV_WINDOW_MS = 3_600_000
 
@@ -224,6 +226,16 @@ describe("Rate Limit Sliding Window", () => {
       const afterWindow = now + MSG_WINDOW_MS + 1
       checkRateLimit(state, "user_1", false, afterWindow)
       expect(state.counters.get(msgKey)?.count).toBe(1)
+    })
+  })
+
+  describe("module option defaults", () => {
+    it("defaults to 20 messages per minute", () => {
+      expect(MESSAGING_MODULE_OPTION_DEFAULTS.rateLimits.messagesPerMinute).toBe(20)
+    })
+
+    it("defaults to 5 conversations per hour", () => {
+      expect(MESSAGING_MODULE_OPTION_DEFAULTS.rateLimits.conversationsPerHour).toBe(5)
     })
   })
 })
