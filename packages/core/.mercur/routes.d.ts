@@ -794,5 +794,10 @@ export type Routes = {
         };
         stores: typeof import("../../src/api/vendor/stores/route");
         uploads: typeof import("../../src/api/vendor/uploads/route");
+        paymentCollections: {
+            $id: {
+                markAsPaid: typeof import("../../src/api/vendor/payment-collections/[id]/mark-as-paid/route");
+            };
+        };
     };
 };

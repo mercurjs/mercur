@@ -21,8 +21,16 @@ export const VendorGetOrdersParams = createFindParams({
     sales_channel_id: z.union([z.string(), z.array(z.string())]).optional(),
     region_id: z.union([z.string(), z.array(z.string())]).optional(),
     currency_code: z.union([z.string(), z.array(z.string())]).optional(),
-    fulfillment_status: z.string().optional(),
-    payment_status: z.string().optional(),
+    fulfillment_status: z
+      .union([z.string(), z.array(z.string())])
+      .optional(),
+    payment_status: z
+      .union([z.string(), z.array(z.string())])
+      .optional(),
+    has_open_request: z
+      .union([z.boolean(), z.enum(["true", "false"])])
+      .transform((v) => (typeof v === "boolean" ? v : v === "true"))
+      .optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })

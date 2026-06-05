@@ -18,7 +18,13 @@ export const vendorOrderFields = [
   "*billing_address",
   "*shipping_methods",
   "*payment_collections",
+  "*payment_collections.payments",
+  "*payment_collections.payments.refunds",
+  "*payment_collections.payment_sessions",
   "*fulfillments",
+  "*returns",
+  "*returns.items",
+  "*returns.shipping_methods",
   "*summary",
 ]
 

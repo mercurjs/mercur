@@ -13,6 +13,7 @@ import { vendorFulfillmentSetsMiddlewares } from "./fulfillment-sets/middlewares
 import { vendorInventoryItemsMiddlewares } from "./inventory-items/middlewares"
 import { vendorOffersMiddlewares } from "./offers/middlewares"
 import { vendorOrdersMiddlewares } from "./orders/middlewares"
+import { vendorPaymentCollectionsMiddlewares } from "./payment-collections/middlewares"
 import { vendorPaymentsMiddlewares } from "./payments/middlewares"
 import { vendorPayoutsMiddlewares } from "./payouts/middlewares"
 import { vendorPayoutAccountsMiddlewares } from "./payout-accounts/middlewares"
@@ -93,6 +94,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorInventoryItemsMiddlewares,
   ...vendorOffersMiddlewares,
   ...vendorOrdersMiddlewares,
+  ...vendorPaymentCollectionsMiddlewares,
   ...vendorPaymentsMiddlewares,
   ...vendorPayoutsMiddlewares,
   ...vendorPayoutAccountsMiddlewares,
