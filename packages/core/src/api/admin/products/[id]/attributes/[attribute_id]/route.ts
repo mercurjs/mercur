@@ -9,9 +9,9 @@ import {
 import { HttpTypes } from "@mercurjs/types"
 
 import {
-  addProductAttributeWorkflow,
   deleteProductAttributesWorkflow,
   detachProductAttributeWorkflow,
+  updateProductAttributeWorkflow,
 } from "../../../../../../workflows/product-attribute"
 import { AdminUpdateProductAttributeType } from "../../../validators"
 
@@ -66,23 +66,19 @@ export const GET = async (
 /**
  * Replaces the value set of a product attribute in one round-trip.
  * Admin operates directly on the catalogue (no ProductChange staging
- * like the vendor surface) — detach + re-add chained inline so the new
- * value set is the only end state visible to readers.
+ * like the vendor surface), so the handler delegates to
+ * `updateProductAttributeWorkflow` which composes detach + add inside
+ * a single workflow run and re-reads the refreshed attribute payload.
  */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminUpdateProductAttributeType>,
   res: MedusaResponse<HttpTypes.AdminProductAttributeResponse>
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id
   const attributeId = req.params.attribute_id
   const body = req.validatedBody
 
-  await detachProductAttributeWorkflow(req.scope).run({
-    input: { product_id: productId, attribute_id: attributeId },
-  })
-
-  await addProductAttributeWorkflow(req.scope).run({
+  const { result } = await updateProductAttributeWorkflow(req.scope).run({
     input: {
       product_id: productId,
       attribute_id: attributeId,
@@ -91,38 +87,14 @@ export const POST = async (
     },
   })
 
-  const {
-    data: [product],
-  } = await query.graph({
-    entity: "product",
-    fields: [
-      "attribute_values.id",
-      "attribute_values.name",
-      "attribute_values.attribute.id",
-      "attribute_values.attribute.name",
-      "attribute_values.attribute.type",
-    ],
-    filters: { id: productId },
-  })
-
-  if (!product) {
+  if (!result.product_attribute) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
-      `Product with id ${productId} was not found`
+      `Attribute with id ${attributeId} was not found on product ${productId}`
     )
   }
 
-  const values = ((product as any).attribute_values ?? []).filter(
-    (v: any) => v.attribute?.id === attributeId
-  )
-  const product_attribute = values.length
-    ? {
-        ...values[0].attribute,
-        values: values.map((v: any) => ({ id: v.id, name: v.name })),
-      }
-    : null
-
-  res.json({ product_attribute } as HttpTypes.AdminProductAttributeResponse)
+  res.json({ product_attribute: result.product_attribute })
 }
 
 export const DELETE = async (
