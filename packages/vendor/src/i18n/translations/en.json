@@ -2840,7 +2840,7 @@
     "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
     "validation": {
       "nameRequired": "Please enter a name",
-      "nameTooLong": "Name must be at most 100 characters",
+      "emailRequired": "Please enter an email",
       "emailInvalid": "Please enter a valid email"
     },
     "profileCompletion": {
@@ -2896,7 +2896,14 @@
     "logo": "Logo",
     "banner": "Banner",
     "edit": {
-      "websiteHint": "Must include protocol (e.g. https://)"
+      "websiteHint": "Must include protocol (e.g. https://)",
+      "mediaHeading": "Media",
+      "mediaTipLabel": "Tip:",
+      "mediaTipBody": "This media will be visible on the storefront.",
+      "uploadLogoLabel": "Upload logo",
+      "uploadLogoHint": "Drag and drop your logo here or click to upload.",
+      "uploadBannerLabel": "Upload banner",
+      "uploadBannerHint": "Drag and drop your banner here or click to upload."
     },
     "editCompany": {
       "header": "Edit Company"

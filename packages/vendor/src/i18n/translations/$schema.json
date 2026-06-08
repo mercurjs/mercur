@@ -12057,10 +12057,38 @@
           "properties": {
             "websiteHint": {
               "type": "string"
+            },
+            "mediaHeading": {
+              "type": "string"
+            },
+            "mediaTipLabel": {
+              "type": "string"
+            },
+            "mediaTipBody": {
+              "type": "string"
+            },
+            "uploadLogoLabel": {
+              "type": "string"
+            },
+            "uploadLogoHint": {
+              "type": "string"
+            },
+            "uploadBannerLabel": {
+              "type": "string"
+            },
+            "uploadBannerHint": {
+              "type": "string"
             }
           },
           "required": [
-            "websiteHint"
+            "websiteHint",
+            "mediaHeading",
+            "mediaTipLabel",
+            "mediaTipBody",
+            "uploadLogoLabel",
+            "uploadLogoHint",
+            "uploadBannerLabel",
+            "uploadBannerHint"
           ],
           "additionalProperties": false
         },
