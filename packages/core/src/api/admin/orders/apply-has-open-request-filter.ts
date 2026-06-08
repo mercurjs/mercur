@@ -13,15 +13,13 @@ export const applyHasOpenRequestFilter = async (
   _: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  const raw = req.query.has_open_request
+  const filterableFields = req.filterableFields ?? {}
+  const hasOpenRequest = filterableFields.has_open_request
 
-  if (raw === undefined) {
+  if (hasOpenRequest === undefined) {
     return next()
   }
 
-  const hasOpenRequest = raw === "true"
-
-  const filterableFields = req.filterableFields ?? {}
   delete filterableFields.has_open_request
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
