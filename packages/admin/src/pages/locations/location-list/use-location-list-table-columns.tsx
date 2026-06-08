@@ -40,7 +40,7 @@ export const useLocationListTableColumns = () => {
     }
 
     try {
-      await sdk.admin.stockLocation.delete(location.id)
+      await sdk.admin.stockLocations.$id.delete({ $id: location.id })
       queryClient.invalidateQueries({
         queryKey: stockLocationsQueryKeys.lists(),
       })

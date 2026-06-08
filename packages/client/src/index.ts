@@ -37,10 +37,6 @@ export function createClient(options: ClientOptions) {
         const method =
             action === "query" ? "GET" : action === "mutate" ? "POST" : action === "delete" ? "DELETE" : null;
 
-        if (!method) {
-            throw new Error(`Action '${action}' is not a valid action.`);
-        }
-
         const { fetchOptions: inputFetchOptions, ...rest } = input;
 
         const urlParts = path.map((segment) => {
@@ -53,6 +49,25 @@ export function createClient(options: ClientOptions) {
         });
 
         const urlPath = "/" + urlParts.join("/");
+
+        if (!method) {
+            const route = urlPath || "/";
+            const legacyHints: Record<string, "query" | "mutate" | "delete"> = {
+                create: "mutate",
+                update: "mutate",
+                upsert: "mutate",
+                retrieve: "query",
+                list: "query",
+                destroy: "delete",
+            };
+            const hint = legacyHints[action];
+            const suggestion = hint
+                ? ` Did you mean '${hint}'? The legacy SDK action '${action}' was replaced by '${hint}'.`
+                : "";
+            throw new Error(
+                `Invalid action '${action}' on route '${route}'. Valid actions: query, mutate, delete.${suggestion}`
+            );
+        }
 
         const base = new URL(baseUrl);
         const fullPath = `${base.pathname.replace(/\/$/, "")}/${urlPath.replace(/^\//, "")}`;

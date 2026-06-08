@@ -25,7 +25,7 @@ import {
  * ```ts
  * const { data, fetchNextPage, hasNextPage } = useInfiniteList({
  *   queryKey: (params) => productVariantQueryKeys.list(params),
- *   queryFn: async (params) => sdk.admin.productVariant.list(params),
+ *   queryFn: async (params) => sdk.admin.productVariants.query(params),
  *   query: { status: "published" },
  * })
  * ```
