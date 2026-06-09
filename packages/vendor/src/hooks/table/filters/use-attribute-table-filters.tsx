@@ -1,33 +1,28 @@
+import { ProductAttributeDTO } from "@mercurjs/types"
+import { createDataTableFilterHelper } from "@medusajs/ui"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { Filter } from "../../../components/table/data-table"
+
+import { useDataTableDateFilters } from "@components/data-table/helpers/general/use-data-table-date-filters"
+
+const filterHelper = createDataTableFilterHelper<ProductAttributeDTO>()
 
 export const useAttributeTableFilters = () => {
   const { t } = useTranslation()
+  const dateFilters = useDataTableDateFilters()
 
-  const filterableFilter: Filter = {
-    key: "is_filterable",
-    label: t("attributes.fields.filterable"),
-    type: "select",
-    options: [
-      {
-        label: t("filters.radio.yes"),
-        value: "true",
-      },
-      {
-        label: t("filters.radio.no"),
-        value: "false",
-      },
+  return useMemo(
+    () => [
+      filterHelper.accessor("is_filterable", {
+        label: t("attributes.fields.filterable"),
+        type: "select",
+        options: [
+          { label: t("filters.radio.yes"), value: "true" },
+          { label: t("filters.radio.no"), value: "false" },
+        ],
+      }),
+      ...dateFilters,
     ],
-  }
-
-  const dateFilters: Filter[] = [
-    { label: t("fields.createdAt"), key: "created_at" },
-    { label: t("fields.updatedAt"), key: "updated_at" },
-  ].map((f) => ({
-    key: f.key,
-    label: f.label,
-    type: "date" as const,
-  }))
-
-  return [filterableFilter, ...dateFilters]
+    [t, dateFilters]
+  )
 }

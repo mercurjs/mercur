@@ -302,8 +302,20 @@ const useColumns = () => {
       }),
       columnHelper.accessor("is_required", {
         header: t("attributes.fields.required"),
-        cell: (info: any) =>
-          info.getValue() ? t("filters.radio.yes") : t("filters.radio.no"),
+        cell: (info: any) => {
+          if (info.getValue()) {
+            return (
+              <Tooltip
+                content={t("products.create.attributes.requiredTooltip")}
+              >
+                <span className="cursor-help underline decoration-dotted underline-offset-2">
+                  {t("filters.radio.yes")}
+                </span>
+              </Tooltip>
+            );
+          }
+          return t("filters.radio.no");
+        },
         enableSorting: false,
       }),
       columnHelper.accessor("type", {
