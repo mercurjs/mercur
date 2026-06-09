@@ -1,5 +1,27 @@
 import { ClaimReason, ClaimType } from "@medusajs/framework/utils"
 import { z } from "zod"
+import {
+  createFindParams,
+  createOperatorMap,
+  createSelectParams,
+} from "@medusajs/medusa/api/utils/validators"
+
+export type VendorGetClaimParamsType = z.infer<typeof VendorGetClaimParams>
+export const VendorGetClaimParams = createSelectParams()
+
+export const VendorGetClaimsParams = createFindParams({
+  limit: 20,
+  offset: 0,
+}).merge(
+  z.object({
+    id: z.union([z.string(), z.array(z.string())]).optional(),
+    order_id: z.union([z.string(), z.array(z.string())]).optional(),
+    return_id: z.union([z.string(), z.array(z.string())]).optional(),
+    created_at: createOperatorMap().optional(),
+    updated_at: createOperatorMap().optional(),
+  })
+)
+export type VendorGetClaimsParamsType = z.infer<typeof VendorGetClaimsParams>
 
 export const VendorPostOrderClaimsReq = z.object({
   type: z.nativeEnum(ClaimType),
@@ -72,13 +94,19 @@ export type VendorPostClaimsRequestItemsReturnActionReqType = z.infer<
 
 export const VendorPostClaimsAddItemsReq = z.object({
   items: z.array(
-    z.object({
-      variant_id: z.string(),
-      quantity: z.number(),
-      unit_price: z.number().optional(),
-      internal_note: z.string().optional(),
-      metadata: z.record(z.string(), z.unknown()).optional(),
-    })
+    z
+      .object({
+        variant_id: z.string().optional(),
+        offer_id: z.string().optional(),
+        quantity: z.number(),
+        unit_price: z.number().optional(),
+        internal_note: z.string().optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      })
+      .refine(
+        (data) => !!data.offer_id || !!data.variant_id,
+        "Each item must include either offer_id or variant_id"
+      )
   ),
 })
 export type VendorPostClaimsAddItemsReqType = z.infer<

@@ -5475,6 +5475,55 @@
         "return": {
           "type": "string"
         },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "request": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "edit": {
+                  "type": "string"
+                },
+                "return": {
+                  "type": "string"
+                },
+                "exchange": {
+                  "type": "string"
+                },
+                "claim": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "label",
+                "edit",
+                "return",
+                "exchange",
+                "claim"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "request"
+          ],
+          "additionalProperties": false
+        },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "cancelDisabledFulfilled": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "cancelDisabledFulfilled"
+          ],
+          "additionalProperties": false
+        },
         "cancelWarning": {
           "type": "string"
         },
@@ -5794,6 +5843,9 @@
             },
             "selectPaymentToRefund": {
               "type": "string"
+            },
+            "outstandingAmount": {
+              "type": "string"
             }
           },
           "required": [
@@ -5819,7 +5871,8 @@
             "createRefundWrongQuantity",
             "refundAmount",
             "paymentLink",
-            "selectPaymentToRefund"
+            "selectPaymentToRefund",
+            "outstandingAmount"
           ],
           "additionalProperties": false
         },
@@ -7370,6 +7423,8 @@
         "claim",
         "exchange",
         "return",
+        "filters",
+        "actions",
         "cancelWarning",
         "orderCanceled",
         "onDateFromSalesChannel",

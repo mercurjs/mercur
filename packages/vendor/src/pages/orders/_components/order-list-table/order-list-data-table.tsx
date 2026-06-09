@@ -28,7 +28,6 @@ export const OrderListDataTable = () => {
       "total",
       "currency_code",
       "*customer",
-      "*sales_channel",
       "*payment_collections",
     ].join(","),
     ...searchParams,

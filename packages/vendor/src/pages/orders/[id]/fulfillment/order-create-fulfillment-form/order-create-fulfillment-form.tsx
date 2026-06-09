@@ -110,7 +110,14 @@ export function OrderCreateFulfillmentForm({
 
     const itemShippingProfileMap = order.items.reduce(
       (acc, item) => {
-        acc[item.id] = item.variant?.product?.shipping_profile?.id ?? null
+        // In Mercur the shipping profile is owned by the offer
+        // (per-seller); fall back to the product's shipping profile for
+        // legacy / non-offer lines.
+        const offerProfileId = (
+          item as unknown as { offer?: { shipping_profile_id?: string } | null }
+        ).offer?.shipping_profile_id ?? null
+        acc[item.id] =
+          offerProfileId ?? item.variant?.product?.shipping_profile?.id ?? null
         return acc
       },
       {} as Record<string, string | null>
@@ -350,11 +357,27 @@ export function OrderCreateFulfillmentForm({
 
                     <div className="flex flex-col gap-y-1">
                       {fulfillableItems.map((item) => {
-                        const isShippingProfileMatching =
-                          shipping_options.find(
-                            (o) => o?.id === shippingOptionId
-                          )?.shipping_profile_id ===
+                        const offerProfileId = (
+                          item as unknown as {
+                            offer?: { shipping_profile_id?: string } | null
+                          }
+                        ).offer?.shipping_profile_id
+                        const itemShippingProfileId =
+                          offerProfileId ??
                           item.variant?.product?.shipping_profile?.id
+                        // Only flag the item as disabled when an option is
+                        // actually selected AND its shipping profile
+                        // doesn't match the item's. With no option
+                        // selected the message "shipping option you have
+                        // selected don't allow fulfillment" is misleading
+                        // — the user hasn't selected anything yet.
+                        const selectedShippingOption = shipping_options.find(
+                          (o) => o?.id === shippingOptionId
+                        )
+                        const disabled =
+                          !!selectedShippingOption &&
+                          selectedShippingOption.shipping_profile_id !==
+                            itemShippingProfileId
 
                         return (
                           <OrderCreateFulfillmentItem
@@ -364,7 +387,7 @@ export function OrderCreateFulfillmentForm({
                             locationId={selectedLocationId}
                             currencyCode={order.currency_code}
                             onItemRemove={() => {}}
-                            disabled={!isShippingProfileMatching}
+                            disabled={disabled}
                           />
                         )
                       })}

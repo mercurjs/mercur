@@ -33,6 +33,12 @@ const DEFAULT_RELATIONS = [
   "+items.variant.inventory_items.required_quantity",
   "*items.variant.prices",
   "*items.commission_lines",
+  "*items.offer",
+  "*items.offer.prices",
+  "*items.offer.shipping_profile",
+  "*items.offer.inventory_item_link",
+  "*items.offer.inventory_item_link.inventory_item",
+  "*items.offer.inventory_item_link.inventory_item.location_levels",
   "+summary",
   "*shipping_address",
   "*billing_address",
@@ -47,8 +53,9 @@ const DEFAULT_RELATIONS = [
   "region.automatic_taxes",
   "*payment_collections",
   "*payment_collections.payments",
+  "*payment_collections.payments.refunds",
+  "*payment_collections.payments.refunds.refund_reason",
   "payment_status",
-  "*returns",
 ]
 
 export const DEFAULT_FIELDS = `${DEFAULT_PROPERTIES.join(

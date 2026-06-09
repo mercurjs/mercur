@@ -353,15 +353,15 @@ medusaIntegrationTestRunner({
                 seller2Headers = seller2Seed.headers
             })
 
-            describe("has_open_request filter", () => {
-                it("returns empty list when has_open_request=true and no open requests exist", async () => {
+            describe("request filter (§A — multi-select)", () => {
+                it("returns empty list when request=edit and no open edit exists", async () => {
                     await completeCartCheckout(
                         seller1Seed.offer.id,
                         seller1Seed.variant.id
                     )
 
                     const response = await api.get(
-                        `/vendor/orders?has_open_request=true`,
+                        `/vendor/orders?request=edit`,
                         seller1Seed.headers
                     )
 
@@ -369,38 +369,120 @@ medusaIntegrationTestRunner({
                     expect(response.data.orders.length).toEqual(0)
                 })
 
-                it("returns the order when has_open_request=false and no open requests exist", async () => {
+                it("returns the order when request=edit and an order edit is in progress", async () => {
                     const order = await completeCartCheckout(
                         seller1Seed.offer.id,
                         seller1Seed.variant.id
                     )
 
+                    // Begin an order edit so the filter has something to match on.
+                    await api.post(
+                        `/vendor/order-edits`,
+                        { order_id: order.id },
+                        seller1Seed.headers
+                    )
+
                     const response = await api.get(
-                        `/vendor/orders?has_open_request=false`,
+                        `/vendor/orders?request=edit`,
                         seller1Seed.headers
                     )
 
                     expect(response.status).toEqual(200)
                     expect(
-                        response.data.orders.some((o: any) => o.id === order.id)
+                        response.data.orders.some(
+                            (o: any) => o.id === order.id
+                        )
                     ).toBe(true)
                 })
 
-                it("respects seller scoping when combined with has_open_request", async () => {
-                    const order1 = await completeCartCheckout(
+                it("accepts comma-separated and array shapes for request", async () => {
+                    const order = await completeCartCheckout(
                         seller1Seed.offer.id,
                         seller1Seed.variant.id
                     )
+                    await api.post(
+                        `/vendor/order-edits`,
+                        { order_id: order.id },
+                        seller1Seed.headers
+                    )
+
+                    const commaResp = await api.get(
+                        `/vendor/orders?request=edit,return`,
+                        seller1Seed.headers
+                    )
+                    const arrayResp = await api.get(
+                        `/vendor/orders?request=edit&request=return`,
+                        seller1Seed.headers
+                    )
+
+                    expect(commaResp.status).toEqual(200)
+                    expect(arrayResp.status).toEqual(200)
+                    expect(
+                        commaResp.data.orders.some(
+                            (o: any) => o.id === order.id
+                        )
+                    ).toBe(true)
+                    expect(
+                        arrayResp.data.orders.some(
+                            (o: any) => o.id === order.id
+                        )
+                    ).toBe(true)
+                })
+
+                it("rejects request values outside the enum", async () => {
+                    const response = await api
+                        .get(
+                            `/vendor/orders?request=invalid`,
+                            seller1Seed.headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+
+                it("respects seller scoping — seller B does not see seller A's open edit", async () => {
+                    const orderA = await completeCartCheckout(
+                        seller1Seed.offer.id,
+                        seller1Seed.variant.id
+                    )
+                    await api.post(
+                        `/vendor/order-edits`,
+                        { order_id: orderA.id },
+                        seller1Seed.headers
+                    )
 
                     const response = await api.get(
-                        `/vendor/orders?has_open_request=false`,
+                        `/vendor/orders?request=edit`,
                         seller2Headers
                     )
 
                     expect(response.status).toEqual(200)
                     expect(
-                        response.data.orders.some((o: any) => o.id === order1.id)
+                        response.data.orders.some(
+                            (o: any) => o.id === orderA.id
+                        )
                     ).toBe(false)
+                })
+
+                it("rejects legacy has_open_request param (hard-swap regression)", async () => {
+                    // Session (hh) swapped has_open_request → request. The
+                    // Medusa query validator is strict (rejects unknown
+                    // params with 400) so the legacy param is rejected
+                    // outright rather than silently ignored. That's the
+                    // stronger proof of the hard swap.
+                    await completeCartCheckout(
+                        seller1Seed.offer.id,
+                        seller1Seed.variant.id
+                    )
+
+                    const response = await api
+                        .get(
+                            `/vendor/orders?has_open_request=true`,
+                            seller1Seed.headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
                 })
             })
         })

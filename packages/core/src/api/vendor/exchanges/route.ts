@@ -4,8 +4,33 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-import { VendorPostOrderExchangesReqType } from "./validators"
+import {
+  VendorGetExchangesParamsType,
+  VendorPostOrderExchangesReqType,
+} from "./validators"
+
+export const GET = async (
+  req: AuthenticatedMedusaRequest<VendorGetExchangesParamsType>,
+  res: MedusaResponse<HttpTypes.AdminExchangeListResponse>
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: exchanges, metadata } = await query.graph({
+    entity: "order_exchange",
+    fields: req.queryConfig.fields,
+    filters: req.filterableFields,
+    pagination: req.queryConfig.pagination,
+  })
+
+  res.json({
+    exchanges,
+    count: metadata!.count,
+    offset: metadata!.skip,
+    limit: metadata!.take,
+  } as HttpTypes.AdminExchangeListResponse)
+}
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorPostOrderExchangesReqType>,

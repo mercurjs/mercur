@@ -1,4 +1,24 @@
 import { z } from "zod"
+import {
+  createFindParams,
+  createOperatorMap,
+} from "@medusajs/medusa/api/utils/validators"
+
+export const VendorGetExchangesParams = createFindParams({
+  limit: 20,
+  offset: 0,
+}).merge(
+  z.object({
+    id: z.union([z.string(), z.array(z.string())]).optional(),
+    order_id: z.union([z.string(), z.array(z.string())]).optional(),
+    return_id: z.union([z.string(), z.array(z.string())]).optional(),
+    created_at: createOperatorMap().optional(),
+    updated_at: createOperatorMap().optional(),
+  })
+)
+export type VendorGetExchangesParamsType = z.infer<
+  typeof VendorGetExchangesParams
+>
 
 export const VendorPostOrderExchangesReq = z.object({
   order_id: z.string(),
@@ -46,14 +66,20 @@ export type VendorPostExchangesRequestItemsReturnActionReqType = z.infer<
 
 export const VendorPostExchangesAddItemsReq = z.object({
   items: z.array(
-    z.object({
-      variant_id: z.string(),
-      quantity: z.number(),
-      unit_price: z.number().optional(),
-      internal_note: z.string().optional(),
-      allow_backorder: z.boolean().optional(),
-      metadata: z.record(z.string(), z.unknown()).optional(),
-    })
+    z
+      .object({
+        variant_id: z.string().optional(),
+        offer_id: z.string().optional(),
+        quantity: z.number(),
+        unit_price: z.number().optional(),
+        internal_note: z.string().optional(),
+        allow_backorder: z.boolean().optional(),
+        metadata: z.record(z.string(), z.unknown()).optional(),
+      })
+      .refine(
+        (data) => !!data.offer_id || !!data.variant_id,
+        "Each item must include either offer_id or variant_id"
+      )
   ),
 })
 export type VendorPostExchangesAddItemsReqType = z.infer<

@@ -1,3 +1,5 @@
 export * from "./create-order-fulfillment"
 export * from "./cancel-order-fulfillment"
 export * from "./confirm-return-receive"
+export * from "./mercur-confirm-exchange-request"
+export * from "./mercur-confirm-claim-request"

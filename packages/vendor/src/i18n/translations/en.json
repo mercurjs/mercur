@@ -1329,9 +1329,16 @@
     "exchange": "Exchange",
     "return": "Return",
     "filters": {
-      "request": "Request",
-      "hasOpenRequest": "Has open request",
-      "noOpenRequest": "No open request"
+      "request": {
+        "label": "Request",
+        "edit": "Edit",
+        "return": "Return",
+        "exchange": "Exchange",
+        "claim": "Claim"
+      }
+    },
+    "actions": {
+      "cancelDisabledFulfilled": "Cannot cancel an order that has fulfilled items."
     },
     "cancelWarning": "You are about to cancel the order {{id}}. This action cannot be undone.",
     "orderCanceled": "Order canceled successfully",
@@ -1423,7 +1430,8 @@
       "copyLinkError": "Failed to copy payment link",
       "copyLinkMissing": "No payment link available for this order",
       "markAsPaidSuccess": "Payment collection marked as paid",
-      "selectPaymentToRefund": "Select payment to refund"
+      "selectPaymentToRefund": "Select payment to refund",
+      "outstandingAmount": "Outstanding amount"
     },
     "edits": {
       "title": "Edit order",
@@ -1449,11 +1457,13 @@
       },
       "toast": {
         "canceledSuccessfully": "Order edit cancelled",
-        "confirmedSuccessfully": "Order edit confirmed"
+        "confirmedSuccessfully": "Order edit confirmed",
+        "requestSent": "Edit request sent to customer"
       },
       "validation": {
         "quantityLowerThanFulfillment": "Cannot set quantity to be less then or equal to fulfilled quantity"
-      }
+      },
+      "removeBlockedFulfilledOrReturned": "Cannot remove items that were fulfilled or returned."
     },
     "edit": {
       "email": {
@@ -1471,6 +1481,9 @@
     },
     "returns": {
       "create": "Create Return",
+      "policyHint": "Returns are accepted within {{days}} days of delivery.",
+      "outOfPolicy": "Returns are accepted within {{days}} days of delivery.",
+      "restockPreview": "Receiving {{quantity}} × {{offerSku}} → +{{delta}} to {{inventoryItem}} at {{location}}",
       "noItemsSelected": "Select at least one item to return.",
       "confirm": "Confirm Return",
       "confirmText": "You are about to confirm a Return. This action cannot be undone.",
@@ -1544,6 +1557,12 @@
       "create": "Create Claim",
       "title": "Create Claim",
       "description": "Choose claim type and select items the customer wants to claim.",
+      "policyHint": "Claims are accepted within {{days}} days of delivery.",
+      "outOfPolicy": "Claims are accepted within {{days}} days of delivery.",
+      "location": "Location",
+      "locationHint": "Stock location where the returned items will be received.",
+      "inboundShipping": "Return shipping (optional)",
+      "inboundShippingHint": "Shipping method the customer will use to return the items.",
       "typeLabel": "Claim type",
       "typeRefund": "Refund — no replacement shipment",
       "typeReplace": "Replace — ship replacement items",
@@ -1599,6 +1618,8 @@
       "create": "Create Exchange",
       "title": "Create Exchange",
       "description": "Select returnable items and confirm to create an exchange request.",
+      "policyHint": "Exchanges are accepted within {{days}} days of delivery.",
+      "outOfPolicy": "Exchanges are accepted within {{days}} days of delivery.",
       "inboundItems": "Items to return",
       "noReturnableItems": "No returnable items on this order.",
       "outboundItems": "Items to send",
@@ -1676,7 +1697,7 @@
       }
     },
     "shipment": {
-      "title": "Mark fulfillment shipped",
+      "title": "Mark Fulfillment as Shipped",
       "trackingNumber": "Tracking number",
       "trackingUrl": "Tracking URL",
       "labelUrl": "Label URL",
@@ -1684,7 +1705,7 @@
       "addTrackingUrl": "Add tracking URL",
       "trackingUrlPlaceholder": "https://www.dhl.com/shipment/1234567890",
       "sendNotification": "Send notification",
-      "sendNotificationHint": "Notify the customer about this shipment.",
+      "sendNotificationHint": "Notify the customer about shipment",
       "toastCreated": "Shipment created successfully."
     },
     "fulfillment": {

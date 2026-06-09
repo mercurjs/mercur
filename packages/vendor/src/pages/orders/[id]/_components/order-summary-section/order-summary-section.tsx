@@ -5,12 +5,17 @@ import { Link } from "react-router-dom"
 import {
   ArrowDownRightMini,
   ArrowLongRight,
+  ArrowPath,
+  ArrowUturnLeft,
   DocumentText,
+  ExclamationCircle,
+  PencilSquare,
   TriangleDownMini,
 } from "@medusajs/icons"
 import {
   AdminOrder,
   AdminOrderLineItem,
+  AdminOrderPreview,
   AdminReservation,
   AdminReturn,
   AdminReturnItem,
@@ -27,10 +32,14 @@ import {
   StatusBadge,
   Text,
   Tooltip,
+  toast,
 } from "@medusajs/ui"
 
 import { ActionMenu } from "@components/common/action-menu"
+import { useOrderPreview } from "../../../../../hooks/api/orders"
+import { useMarkPaymentCollectionAsPaid } from "../../../../../hooks/api/payment-collections"
 import { useReservationItems } from "../../../../../hooks/api/reservations"
+import { useReturns } from "../../../../../hooks/api/returns"
 import {
   getLocaleAmount,
   getStylizedAmount,
@@ -38,6 +47,13 @@ import {
 } from "@lib/money-amount-helpers"
 import { getTotalCaptured } from "@lib/payment"
 import { getReservationsLimitCount } from "../../../../../lib/orders"
+import {
+  CLAIM_POLICY_DAYS,
+  EXCHANGE_POLICY_DAYS,
+  RETURN_POLICY_DAYS,
+  isOutsidePolicyWindow,
+} from "@lib/policy"
+import { getReturnableQuantity } from "@lib/rma"
 import { useDate } from "../../../../../hooks/use-date"
 import ReturnInfoPopover from "./return-info-popover"
 import ShippingInfoPopover from "./shipping-info-popover"
@@ -64,17 +80,26 @@ export const OrderSummarySection = ({
     { enabled: Array.isArray(order?.items) }
   )
 
+  const { order: orderPreview } = useOrderPreview(order.id)
+
   const reservationList = useMemo(
     () => (reservations ?? []) as AdminReservation[],
     [reservations]
   )
 
+  const { returns: receivableReturnsList = [] } = useReturns({
+    status: "requested",
+    order_id: order.id,
+    fields: "+received_at",
+  })
+
   const receivableReturns = useMemo(
-    () => order.returns?.filter((r) => !r.canceled_at),
-    [order]
+    () =>
+      (receivableReturnsList as AdminReturn[]).filter((r) => !r.canceled_at),
+    [receivableReturnsList]
   )
 
-  const showReturns = !!receivableReturns?.length
+  const showReturns = !!receivableReturns.length
 
   const showAllocateButton = useMemo(() => {
     if (!reservations) {
@@ -112,7 +137,7 @@ export const OrderSummarySection = ({
 
   return (
     <Container className="divide-y p-0">
-      <Header />
+      <Header order={order} orderPreview={orderPreview} />
       <ItemBreakdown order={order} reservations={reservationList} />
       <CostBreakdown order={order} />
       <Total order={order} />
@@ -120,7 +145,7 @@ export const OrderSummarySection = ({
       {(showReturns || showRefund || showAllocateButton) && (
         <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
           {showReturns &&
-            (receivableReturns?.length === 1 ? (
+            (receivableReturns.length === 1 ? (
               <Button asChild variant="secondary" size="small">
                 <Link
                   to={`/orders/${order.id}/returns/${receivableReturns[0].id}/receive`}
@@ -132,7 +157,7 @@ export const OrderSummarySection = ({
               <ActionMenu
                 groups={[
                   {
-                    actions: receivableReturns?.map((r) => {
+                    actions: receivableReturns.map((r) => {
                       let id = r.id
                       let returnType = "Return"
 
@@ -191,16 +216,134 @@ export const OrderSummarySection = ({
           )}
         </div>
       )}
+
+      <OutstandingActions order={order} />
     </Container>
   )
 }
 
-const Header = () => {
+const Header = ({
+  order,
+  orderPreview,
+}: {
+  order: HttpTypes.AdminOrder
+  orderPreview?: AdminOrderPreview
+}) => {
   const { t } = useTranslation()
+
+  const isCanceled = !!order.canceled_at
+  const returnOutOfPolicy = isOutsidePolicyWindow(order, RETURN_POLICY_DAYS)
+  const exchangeOutOfPolicy = isOutsidePolicyWindow(
+    order,
+    EXCHANGE_POLICY_DAYS
+  )
+  const claimOutOfPolicy = isOutsidePolicyWindow(order, CLAIM_POLICY_DAYS)
+
+  const shouldDisableReturn = (order.items || []).every(
+    (i) => !(getReturnableQuantity(i) > 0)
+  )
+
+  const orderChange = orderPreview?.order_change
+  const isOrderEditActive = orderChange?.change_type === "edit"
+  const isOrderEditPending =
+    orderChange?.change_type === "edit" && orderChange?.status === "pending"
+
+  const editDisabled =
+    isCanceled ||
+    (!!orderChange && orderChange.change_type !== "edit") ||
+    (orderChange?.change_type === "edit" && orderChange?.status === "requested")
+
+  const returnDisabledByChange =
+    isOrderEditActive ||
+    !!orderChange?.exchange_id ||
+    !!orderChange?.claim_id
+
+  const exchangeDisabledByChange =
+    isOrderEditActive ||
+    (!!orderChange?.return_id && !orderChange?.exchange_id) ||
+    !!orderChange?.claim_id
+
+  const claimDisabledByChange =
+    isOrderEditActive ||
+    (!!orderChange?.return_id && !orderChange?.claim_id) ||
+    !!orderChange?.exchange_id
 
   return (
     <div className="flex items-center justify-between px-6 py-4">
       <Heading level="h2">{t("fields.summary")}</Heading>
+      <ActionMenu
+        groups={[
+          {
+            actions: [
+              {
+                label: t(
+                  isOrderEditPending
+                    ? "orders.summary.editOrderContinue"
+                    : "orders.edits.create"
+                ),
+                to: "edit",
+                disabled: editDisabled,
+                icon: <PencilSquare />,
+              },
+            ],
+          },
+          {
+            actions: [
+              {
+                label: t("orders.returns.create"),
+                to: "returns/create",
+                disabled:
+                  isCanceled ||
+                  returnOutOfPolicy ||
+                  shouldDisableReturn ||
+                  returnDisabledByChange,
+                disabledTooltip: returnOutOfPolicy
+                  ? t("orders.returns.outOfPolicy", {
+                      days: RETURN_POLICY_DAYS,
+                    })
+                  : undefined,
+                icon: <ArrowUturnLeft />,
+              },
+              {
+                label:
+                  orderChange?.id && orderChange?.exchange_id
+                    ? t("orders.exchanges.manage")
+                    : t("orders.exchanges.create"),
+                to: "exchanges/create",
+                disabled:
+                  isCanceled ||
+                  exchangeOutOfPolicy ||
+                  shouldDisableReturn ||
+                  exchangeDisabledByChange,
+                disabledTooltip: exchangeOutOfPolicy
+                  ? t("orders.exchanges.outOfPolicy", {
+                      days: EXCHANGE_POLICY_DAYS,
+                    })
+                  : undefined,
+                icon: <ArrowPath />,
+              },
+              {
+                label:
+                  orderChange?.id && orderChange?.claim_id
+                    ? t("orders.claims.manage")
+                    : t("orders.claims.create"),
+                to: "claims/create",
+                disabled:
+                  isCanceled ||
+                  claimOutOfPolicy ||
+                  shouldDisableReturn ||
+                  claimDisabledByChange,
+                disabledTooltip: claimOutOfPolicy
+                  ? t("orders.claims.outOfPolicy", {
+                      days: CLAIM_POLICY_DAYS,
+                    })
+                  : undefined,
+                icon: <ExclamationCircle />,
+              },
+            ],
+          },
+        ]}
+      />
     </div>
   )
 }
@@ -226,6 +369,12 @@ const Item = ({
   const hasUnfulfilledItems =
     item.quantity - (item.detail?.fulfilled_quantity ?? 0) > 0
 
+  // `offer` is wired through Mercur's order-line-item-offer link but isn't in
+  // Medusa's public AdminOrderLineItem type. Pull it off the runtime shape.
+  const offerSku =
+    (item as unknown as { offer?: { sku?: string | null } }).offer?.sku ?? null
+  const captionSku = offerSku ?? item.variant_sku ?? null
+
   return (
     <>
       <div
@@ -244,10 +393,10 @@ const Item = ({
               {item.title || item.product_title}
             </Text>
 
-            {item.variant_sku && (
+            {captionSku && (
               <div className="flex items-center gap-x-1">
-                <Text size="small">{item.variant_sku}</Text>
-                <Copy content={item.variant_sku} className="text-ui-fg-muted" />
+                <Text size="small">{captionSku}</Text>
+                <Copy content={captionSku} className="text-ui-fg-muted" />
               </div>
             )}
             <Text size="small">
@@ -311,12 +460,15 @@ const ItemBreakdown = ({
   order: AdminOrder
   reservations: AdminReservation[]
 }) => {
+  const { returns: returnsList = [] } = useReturns({
+    order_id: order.id,
+    fields: "*items,*items.reason",
+  })
+
   const returns = useMemo<ReturnWithReason[]>(
     () =>
-      (order.returns as ReturnWithReason[] | undefined)?.filter(
-        (r) => !r.canceled_at
-      ) ?? [],
-    [order.returns]
+      (returnsList as ReturnWithReason[]).filter((r) => !r.canceled_at),
+    [returnsList]
   )
 
   const reservationsMap = useMemo(
@@ -723,6 +875,8 @@ const CostBreakdown = ({
 
 const Total = ({ order }: { order: AdminOrder }) => {
   const { t } = useTranslation()
+  const totalCaptured = getTotalCaptured(order.payment_collections || [])
+  const outstanding = Math.max(0, order.total - totalCaptured)
 
   return (
     <div className=" flex flex-col gap-y-2 px-6 py-4">
@@ -760,12 +914,92 @@ const Total = ({ order }: { order: AdminOrder }) => {
           size="small"
           leading="compact"
         >
-          {getStylizedAmount(
-            getTotalCaptured(order.payment_collections || []),
-            order.currency_code
-          )}
+          {getStylizedAmount(totalCaptured, order.currency_code)}
         </Text>
       </div>
+
+      <div className="text-ui-fg-base flex items-center justify-between">
+        <Text weight="plus" size="small" leading="compact">
+          {t("orders.payment.outstandingAmount")}
+        </Text>
+        <Text weight="plus" size="small" leading="compact">
+          {getStylizedAmount(outstanding, order.currency_code)}
+        </Text>
+      </div>
+    </div>
+  )
+}
+
+const OutstandingActions = ({ order }: { order: HttpTypes.AdminOrder }) => {
+  const { t } = useTranslation()
+
+  const unpaidCollection = order.payment_collections?.find(
+    (pc) => pc.status !== "captured" && pc.status !== "canceled"
+  )
+
+  const pendingDifference = order.summary?.pending_difference || 0
+  const isOutstanding =
+    pendingDifference > 0.005 &&
+    order.status !== "canceled" &&
+    !!unpaidCollection
+
+  const markAsPaid = useMarkPaymentCollectionAsPaid(
+    order.id,
+    unpaidCollection?.id ?? ""
+  )
+
+  if (!isOutstanding || !unpaidCollection) {
+    return null
+  }
+
+  const paymentLink =
+    (
+      unpaidCollection.payment_sessions?.[0]?.data as
+        | { url?: string }
+        | undefined
+    )?.url ?? null
+
+  const handleCopyLink = async () => {
+    if (!paymentLink) {
+      toast.error(t("orders.payment.copyLinkMissing"))
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(paymentLink)
+      toast.success(t("orders.payment.copyLinkSuccess"))
+    } catch {
+      toast.error(t("orders.payment.copyLinkError"))
+    }
+  }
+
+  const handleMarkAsPaid = () => {
+    markAsPaid.mutate(
+      { order_id: order.id },
+      {
+        onSuccess: () => toast.success(t("orders.payment.markAsPaidSuccess")),
+        onError: (e) => toast.error(e.message),
+      }
+    )
+  }
+
+  return (
+    <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
+      {paymentLink && (
+        <Button size="small" variant="secondary" onClick={handleCopyLink}>
+          {t("orders.payment.copyPaymentLink", {
+            amount: getStylizedAmount(pendingDifference, order.currency_code),
+          })}
+        </Button>
+      )}
+
+      <Button
+        size="small"
+        variant="secondary"
+        onClick={handleMarkAsPaid}
+        isLoading={markAsPaid.isPending}
+      >
+        {t("orders.payment.markAsPaid")}
+      </Button>
     </div>
   )
 }

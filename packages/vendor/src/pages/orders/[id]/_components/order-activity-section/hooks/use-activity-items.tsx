@@ -7,6 +7,9 @@ import { By } from "@components/common/user-link"
 import {
   useOrderChanges,
 } from "@hooks/api"
+import { useClaims } from "@hooks/api/claims"
+import { useExchanges } from "@hooks/api/exchanges"
+import { useReturns } from "@hooks/api/returns"
 import { ExtendedAdminOrderLineItemWithInventory } from "@custom-types/order"
 import { ExtendedAdminOrder, ExtendedAdminOrderChange } from "@custom-types/order"
 import { getStylizedAmount } from "@lib/money-amount-helpers"
@@ -47,18 +50,22 @@ export const useActivityItems = (order: ExtendedAdminOrder): Activity[] => {
     )
   }, [order.items])
 
-  const returns: AdminReturn[] = (order.returns as AdminReturn[] | undefined) ?? []
-  // SPEC-008: claim/exchange data lives on OrderClaim / OrderExchange,
-  // not on Order directly — see admin's order query-config which also
-  // omits them. Surfacing them via `*claims.*` / `*exchanges.*` field
-  // expansion on the order tree triggers MikroORM populate-path errors
-  // (session y revert). Dedicated `useClaims(orderId)` / `useExchanges(orderId)`
-  // hooks against `/vendor/claims?order_id=` / `/vendor/exchanges?order_id=`
-  // are the right shape — slated for a follow-up session. Activity rules
-  // below stay wired so they light up once those hooks land.
-  const claims: AdminClaim[] = []
-  const exchanges: AdminExchange[] = []
+  const { returns: returnsList = [] } = useReturns({
+    order_id: order.id,
+    fields: "+received_at,*items",
+  })
+  const { claims: claimsList = [] } = useClaims({
+    order_id: order.id,
+    fields: "*additional_items",
+  })
+  const { exchanges: exchangesList = [] } = useExchanges({
+    order_id: order.id,
+    fields: "*additional_items",
+  })
 
+  const returns = returnsList as AdminReturn[]
+  const claims = claimsList as AdminClaim[]
+  const exchanges = exchangesList as AdminExchange[]
 
   const isLoading = false
 

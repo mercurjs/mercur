@@ -42,15 +42,21 @@ export type VendorPostOrderEditsAddItemsReqType = z.infer<
 >
 export const VendorPostOrderEditsAddItemsReq = z.object({
   items: z.array(
-    z.object({
-      variant_id: z.string(),
-      quantity: z.number(),
-      unit_price: z.number().nullish(),
-      compare_at_unit_price: z.number().nullish(),
-      internal_note: z.string().nullish(),
-      allow_backorder: z.boolean().optional(),
-      metadata: z.record(z.unknown()).optional(),
-    })
+    z
+      .object({
+        variant_id: z.string().optional(),
+        offer_id: z.string().optional(),
+        quantity: z.number(),
+        unit_price: z.number().nullish(),
+        compare_at_unit_price: z.number().nullish(),
+        internal_note: z.string().nullish(),
+        allow_backorder: z.boolean().optional(),
+        metadata: z.record(z.unknown()).optional(),
+      })
+      .refine(
+        (data) => !!data.offer_id || !!data.variant_id,
+        "Each item must include either offer_id or variant_id"
+      )
   ),
 })
 

@@ -40,16 +40,25 @@ export const getNativeSymbol = (currencyCode: string) => {
  * user's locale and is only used in cases where we want to display the
  * currency code and symbol explicitly, e.g. for totals.
  */
-export const getStylizedAmount = (amount: number, currencyCode: string) => {
+export const getStylizedAmount = (
+  amount: number | null | undefined,
+  currencyCode: string
+) => {
+  // Tolerate missing amounts. Some Medusa derived totals (e.g.
+  // `pending_difference`, `total` when the order query didn't ask for
+  // it) arrive as undefined and would otherwise blow up React.
+  const safeAmount = typeof amount === "number" && Number.isFinite(amount)
+    ? amount
+    : 0
   const symbol = getNativeSymbol(currencyCode)
   const decimalDigits = getDecimalDigits(currencyCode)
 
   const lessThanRoundingPrecission = isAmountLessThenRoundingError(
-    amount,
+    safeAmount,
     currencyCode
   )
 
-  const total = amount.toLocaleString(undefined, {
+  const total = safeAmount.toLocaleString(undefined, {
     minimumFractionDigits: decimalDigits,
     maximumFractionDigits: decimalDigits,
     signDisplay: lessThanRoundingPrecission ? "exceptZero" : "auto",

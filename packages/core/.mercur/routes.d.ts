@@ -798,7 +798,7 @@ export type Routes = {
         stores: typeof import("../../src/api/vendor/stores/route");
         uploads: typeof import("../../src/api/vendor/uploads/route");
         claims: typeof import("../../src/api/vendor/claims/route") & {
-            $id: {
+            $id: typeof import("../../src/api/vendor/claims/[id]/route") & {
                 cancel: typeof import("../../src/api/vendor/claims/[id]/cancel/route");
                 claimItems: typeof import("../../src/api/vendor/claims/[id]/claim-items/route") & {
                     $actionId: typeof import("../../src/api/vendor/claims/[id]/claim-items/[action_id]/route");
@@ -863,6 +863,9 @@ export type Routes = {
             $id: {
                 markAsPaid: typeof import("../../src/api/vendor/payment-collections/[id]/mark-as-paid/route");
             };
+        };
+        reservations: typeof import("../../src/api/vendor/reservations/route") & {
+            $id: typeof import("../../src/api/vendor/reservations/[id]/route");
         };
     };
 };

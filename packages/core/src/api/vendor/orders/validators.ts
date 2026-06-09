@@ -4,10 +4,11 @@ import {
   createOperatorMap,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
-import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type VendorGetOrderParamsType = z.infer<typeof VendorGetOrderParams>
 export const VendorGetOrderParams = createSelectParams()
+
+const REQUEST_FILTER_VALUES = ["edit", "return", "exchange", "claim"] as const
 
 export type VendorGetOrdersParamsType = z.infer<typeof VendorGetOrdersParams>
 export const VendorGetOrdersParams = createFindParams({
@@ -24,7 +25,11 @@ export const VendorGetOrdersParams = createFindParams({
     currency_code: z.union([z.string(), z.array(z.string())]).optional(),
     fulfillment_status: z.string().optional(),
     payment_status: z.string().optional(),
-    has_open_request: booleanString().optional(),
+    request: z
+      .union([z.string(), z.array(z.string())])
+      .transform((v) => (Array.isArray(v) ? v : v.split(",")))
+      .pipe(z.array(z.enum(REQUEST_FILTER_VALUES)))
+      .optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })

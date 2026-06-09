@@ -3,15 +3,42 @@ import {
   InferClientInput,
   InferClientOutput,
 } from "@mercurjs/client";
-import { useMutation, UseMutationOptions } from "@tanstack/react-query";
+import {
+  useMutation,
+  UseMutationOptions,
+  useQuery,
+  UseQueryOptions,
+} from "@tanstack/react-query";
 import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
+import { queryKeysFactory } from "../../lib/query-key-factory";
 import { ordersQueryKeys } from "./orders";
+
+const EXCHANGES_QUERY_KEY = "exchanges" as const;
+export const exchangesQueryKeys = queryKeysFactory(EXCHANGES_QUERY_KEY);
 
 const invalidateOrder = (orderId: string) => {
   queryClient.invalidateQueries({ queryKey: ordersQueryKeys.details() });
   queryClient.invalidateQueries({ queryKey: ordersQueryKeys.preview(orderId) });
   queryClient.invalidateQueries({ queryKey: ordersQueryKeys.changes(orderId) });
+  queryClient.invalidateQueries({ queryKey: exchangesQueryKeys.lists() });
+};
+
+export const useExchanges = (
+  query?: InferClientInput<typeof sdk.vendor.exchanges.query>,
+  options?: UseQueryOptions<
+    unknown,
+    ClientError,
+    InferClientOutput<typeof sdk.vendor.exchanges.query>
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: async () => sdk.vendor.exchanges.query({ ...query }),
+    queryKey: exchangesQueryKeys.list(query),
+    ...options,
+  });
+
+  return { ...data, ...rest };
 };
 
 export const useCreateExchange = (

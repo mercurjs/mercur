@@ -1,23 +1,29 @@
-import { ArrowUturnLeft } from "@medusajs/icons"
+import { ArrowUturnLeft, DocumentText } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import {
-  Button,
+  Badge,
   Container,
   Heading,
   StatusBadge,
   Text,
   Tooltip,
-  toast,
 } from "@medusajs/ui"
 
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "@components/common/action-menu"
-import { useMarkPaymentCollectionAsPaid } from "../../../../../hooks/api/payment-collections"
-import { getStylizedAmount } from "@lib/money-amount-helpers"
+import { getLocaleAmount, getStylizedAmount } from "@lib/money-amount-helpers"
 import { getOrderPaymentStatus } from "@lib/order-helpers"
 import { getTotalCaptured, getTotalPending } from "@lib/payment"
 import { useDate } from "@hooks/use-date"
+
+type PaymentRefund = {
+  id: string
+  amount?: number
+  created_at?: string | null
+  note?: string | null
+  refund_reason?: { label?: string | null } | null
+}
 
 type OrderPaymentSectionProps = {
   order: HttpTypes.AdminOrder
@@ -44,7 +50,6 @@ export const OrderPaymentSection = ({ order }: OrderPaymentSectionProps) => {
         </ul>
       )}
       <Total order={order} />
-      <OutstandingActions order={order} />
     </Container>
   )
 }
@@ -155,8 +160,9 @@ const PaymentRow = ({
   const { getFullDate } = useDate()
 
   const status = getPaymentStatus(payment)
-  const refundedAmount = (payment.refunds ?? []).reduce(
-    (acc: number, r: { amount?: number }) => acc + (r.amount ?? 0),
+  const refunds = (payment.refunds ?? []) as PaymentRefund[]
+  const refundedAmount = refunds.reduce(
+    (acc, r) => acc + (r.amount ?? 0),
     0
   )
   const isFullyRefunded =
@@ -165,129 +171,123 @@ const PaymentRow = ({
     !!payment.captured_at && !payment.canceled_at && !isFullyRefunded
 
   return (
-    <div
-      className="flex items-center justify-between px-6 py-4"
-      data-testid={`payment-row-${payment.id}`}
-    >
-      <div className="flex min-w-0 flex-col">
-        <Tooltip content={payment.id}>
+    <li data-testid={`payment-row-${payment.id}`}>
+      <div className="flex items-center justify-between px-6 py-4">
+        <div className="flex min-w-0 flex-col">
+          <Tooltip content={payment.id}>
+            <Text
+              size="small"
+              weight="plus"
+              leading="compact"
+              className={
+                isFullyRefunded
+                  ? "text-ui-fg-muted truncate line-through"
+                  : "text-ui-fg-base truncate"
+              }
+            >
+              {`#${payment.id.slice(-7)}`}
+            </Text>
+          </Tooltip>
+          <Text
+            size="xsmall"
+            leading="compact"
+            className={
+              isFullyRefunded
+                ? "text-ui-fg-muted line-through"
+                : "text-ui-fg-subtle"
+            }
+          >
+            {payment.created_at
+              ? getFullDate({ date: payment.created_at, includeTime: true })
+              : null}
+          </Text>
+        </div>
+
+        <div className="flex items-center gap-x-3">
+          <StatusBadge color={status.color} className="text-nowrap">
+            {status.label}
+          </StatusBadge>
           <Text
             size="small"
             weight="plus"
             leading="compact"
-            className="text-ui-fg-base truncate"
+            className={isFullyRefunded ? "line-through" : undefined}
           >
-            {`#${payment.id.slice(-7)}`}
+            {getStylizedAmount(payment.amount as number, order.currency_code)}
           </Text>
-        </Tooltip>
-        <Text
-          size="xsmall"
-          leading="compact"
-          className={
-            isFullyRefunded
-              ? "text-ui-fg-muted line-through"
-              : "text-ui-fg-subtle"
-          }
-        >
-          {payment.created_at
-            ? getFullDate({ date: payment.created_at, includeTime: true })
-            : null}
-        </Text>
+
+          <ActionMenu
+            groups={[
+              {
+                actions: [
+                  {
+                    label: t("orders.payment.createRefund"),
+                    icon: <ArrowUturnLeft />,
+                    to: `/orders/${order.id}/refund?payment_id=${payment.id}`,
+                    disabled: !canRefund,
+                  },
+                ],
+              },
+            ]}
+          />
+        </div>
       </div>
 
-      <div className="flex items-center gap-x-3">
-        <StatusBadge color={status.color} className="text-nowrap">
-          {status.label}
-        </StatusBadge>
-        <Text size="small" weight="plus" leading="compact">
-          {getStylizedAmount(payment.amount as number, order.currency_code)}
-        </Text>
-
-        <ActionMenu
-          groups={[
-            {
-              actions: [
-                {
-                  label: t("orders.payment.createRefund"),
-                  icon: <ArrowUturnLeft />,
-                  to: `/orders/${order.id}/refund?payment_id=${payment.id}`,
-                  disabled: !canRefund,
-                },
-              ],
-            },
-          ]}
+      {refunds.map((refund) => (
+        <RefundRow
+          key={refund.id}
+          refund={refund}
+          currencyCode={order.currency_code}
         />
-      </div>
-    </div>
+      ))}
+    </li>
   )
 }
 
-const OutstandingActions = ({ order }: { order: HttpTypes.AdminOrder }) => {
+const RefundRow = ({
+  refund,
+  currencyCode,
+}: {
+  refund: PaymentRefund
+  currencyCode: string
+}) => {
   const { t } = useTranslation()
+  const { getFullDate } = useDate()
 
-  const unpaidCollection = order.payment_collections?.find(
-    (pc) => pc.status !== "captured" && pc.status !== "canceled"
-  )
-
-  const pendingDifference = order.summary?.pending_difference || 0
-  const isOutstanding =
-    pendingDifference > 0.005 && order.status !== "canceled" && !!unpaidCollection
-
-  const markAsPaid = useMarkPaymentCollectionAsPaid(
-    order.id,
-    unpaidCollection?.id ?? ""
-  )
-
-  if (!isOutstanding || !unpaidCollection) {
-    return null
-  }
-
-  const paymentLink =
-    (unpaidCollection.payment_sessions?.[0]?.data as
-      | { url?: string }
-      | undefined)?.url ?? null
-
-  const handleCopyLink = async () => {
-    if (!paymentLink) {
-      toast.error(t("orders.payment.copyLinkMissing"))
-      return
-    }
-    try {
-      await navigator.clipboard.writeText(paymentLink)
-      toast.success(t("orders.payment.copyLinkSuccess"))
-    } catch {
-      toast.error(t("orders.payment.copyLinkError"))
-    }
-  }
-
-  const handleMarkAsPaid = () => {
-    markAsPaid.mutate(
-      { order_id: order.id },
-      {
-        onSuccess: () => toast.success(t("orders.payment.markAsPaidSuccess")),
-        onError: (e) => toast.error(e.message),
-      }
-    )
-  }
+  const reasonLabel = refund.refund_reason?.label ?? null
 
   return (
-    <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
-      {paymentLink && (
-        <Button size="small" variant="secondary" onClick={handleCopyLink}>
-          {t("orders.payment.copyPaymentLink", {
-            amount: getStylizedAmount(pendingDifference, order.currency_code),
-          })}
-        </Button>
-      )}
+    <div
+      className="flex items-center justify-between px-6 py-3 pl-12 bg-ui-bg-subtle"
+      data-testid={`refund-row-${refund.id}`}
+    >
+      <div className="flex min-w-0 flex-col">
+        <div className="flex items-center gap-x-2">
+          <Text size="small" leading="compact" className="text-ui-fg-subtle">
+            {t("orders.payment.refund")}
+          </Text>
+          {reasonLabel && (
+            <Badge size="2xsmall" rounded="full">
+              {reasonLabel}
+            </Badge>
+          )}
+          {refund.note && (
+            <Tooltip content={refund.note}>
+              <DocumentText className="text-ui-fg-subtle h-3 w-3" />
+            </Tooltip>
+          )}
+        </div>
+        {refund.created_at && (
+          <Text size="xsmall" leading="compact" className="text-ui-fg-subtle">
+            {getFullDate({ date: refund.created_at, includeTime: true })}
+          </Text>
+        )}
+      </div>
 
-      <Button
-        size="small"
-        variant="secondary"
-        onClick={handleMarkAsPaid}
-        isLoading={markAsPaid.isPending}
-      >
-        {t("orders.payment.markAsPaid")}
-      </Button>
+      <Text size="small" weight="plus" leading="compact">
+        {`- ${getLocaleAmount(refund.amount ?? 0, currencyCode)}`}
+      </Text>
     </div>
   )
 }
+

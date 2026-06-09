@@ -11,7 +11,11 @@ export const Component = () => {
   const requiresShipping = searchParams.get("requires_shipping") === "true"
 
   const { order, isLoading, isError, error } = useOrder(id!, {
-    fields: "*items.variant.product.shipping_profile",
+    // `*foo,*foo.bar` or `+foo.bar.baz` makes Medusa's query parser try
+    // to look up a literal property `*items` / `+items` on Order and
+    // 500. Use `<rel>.*` plus bare scalar names.
+    fields:
+      "currency_code,items.*,items.variant.*,items.variant.product.shipping_profile.id,items.offer.shipping_profile_id,shipping_address.*,shipping_methods.shipping_option_id,no_notification",
   })
 
   if (isError) {

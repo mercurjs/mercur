@@ -1,14 +1,20 @@
 import {
   AuthenticatedMedusaRequest,
+  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
-import { validateAndTransformBody } from "@medusajs/framework"
+import {
+  validateAndTransformBody,
+  validateAndTransformQuery,
+} from "@medusajs/framework"
 
 import { validateSellerOrder } from "../orders/helpers"
+import { vendorExchangeQueryConfig } from "./query-config"
 import { validateSellerExchange } from "./helpers"
 import {
+  VendorGetExchangesParams,
   VendorPostCancelExchangeReq,
   VendorPostExchangesAddItemsReq,
   VendorPostExchangesItemsActionReq,
@@ -41,7 +47,42 @@ const assertSellerOwnsExchangeInParam = async (
   return next()
 }
 
+const applySellerExchangesFilter = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  if (req.filterableFields.order_id) {
+    await validateSellerOrder(
+      req.scope,
+      req.seller_context!.seller_id,
+      req.filterableFields.order_id as string | string[]
+    )
+    return next()
+  }
+
+  req.filterableFields.seller_id = req.seller_context!.seller_id
+
+  return maybeApplyLinkFilter({
+    entryPoint: "order_seller",
+    resourceId: "order_id",
+    filterableField: "seller_id",
+    filterByField: "order_id",
+  })(req, res, next)
+}
+
 export const vendorExchangesMiddlewares: MiddlewareRoute[] = [
+  {
+    method: ["GET"],
+    matcher: "/vendor/exchanges",
+    middlewares: [
+      validateAndTransformQuery(
+        VendorGetExchangesParams,
+        vendorExchangeQueryConfig.list
+      ),
+      applySellerExchangesFilter,
+    ],
+  },
   {
     method: ["POST"],
     matcher: "/vendor/exchanges",

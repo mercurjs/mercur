@@ -178,9 +178,39 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     const sellerCartShippingMethods = (cart.shipping_methods ?? []).filter((sm) => sellerShippingOptions.some((so) => so.id === sm.shipping_option_id))
 
                     const allItems = sellerCartItems.map((item) => {
+                        // In Mercur the shipping profile lives on the offer
+                        // (per-seller), not on the product. Force
+                        // requires_shipping=true whenever the line carries
+                        // an offer with a shipping_profile_id, otherwise
+                        // every order line ends up with
+                        // requires_shipping=false and the vendor
+                        // fulfillment UI hides the matching shipping
+                        // option. Also surface the profile onto
+                        // variant.product so downstream code that reads
+                        // product.shipping_profile sees it.
+                        const offerShippingProfileId = (
+                            item as { offer?: { shipping_profile_id?: string } | null }
+                        ).offer?.shipping_profile_id
+                        const itemForLineItem = offerShippingProfileId
+                            ? { ...item, requires_shipping: true }
+                            : item
+                        const variantForLineItem =
+                            item.variant && offerShippingProfileId
+                                ? {
+                                      ...item.variant,
+                                      product: {
+                                          ...(item.variant.product ?? {}),
+                                          shipping_profile:
+                                              (item.variant.product as { shipping_profile?: { id: string } } | undefined)
+                                                  ?.shipping_profile ?? {
+                                                  id: offerShippingProfileId,
+                                              },
+                                      },
+                                  }
+                                : item.variant
                         const input: PrepareLineItemDataInput = {
-                            item,
-                            variant: item.variant,
+                            item: itemForLineItem,
+                            variant: variantForLineItem,
                             cartId: cart.id,
                             unitPrice: item.unit_price,
                             isTaxInclusive: item.is_tax_inclusive,

@@ -1,11 +1,4 @@
-import {
-  ArrowPath,
-  ArrowUturnLeft,
-  CheckCircle,
-  ExclamationCircle,
-  PencilSquare,
-  XCircle,
-} from "@medusajs/icons"
+import { XCircle } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import {
   Container,
@@ -18,10 +11,7 @@ import {
 } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { ActionMenu } from "@components/common/action-menu"
-import {
-  useCancelOrder,
-  useCompleteOrder,
-} from "@hooks/api/orders"
+import { useCancelOrder } from "@hooks/api/orders"
 import { useDate } from "@hooks/use-date"
 import {
   getCanceledOrderStatus,
@@ -39,18 +29,18 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
   const { getFullDate } = useDate()
 
   const { mutateAsync: cancelOrder } = useCancelOrder(order.id)
-  const { mutateAsync: completeOrder } = useCompleteOrder(order.id)
 
-  const handleComplete = async () => {
-    await completeOrder(undefined, {
-      onSuccess: () => {
-        toast.success("Order completed")
-      },
-      onError: (e) => {
-        toast.error(e.message)
-      },
-    })
-  }
+  const hasAnyFulfilledItem = order.items?.some(
+    // @ts-ignore — detail.fulfilled_quantity is exposed via Mercur query-config
+    (i) => (i.detail?.fulfilled_quantity ?? 0) > 0
+  )
+
+  const cancelDisabled = !!order.canceled_at || !!hasAnyFulfilledItem
+  const cancelDisabledTooltip = order.canceled_at
+    ? undefined
+    : hasAnyFulfilledItem
+      ? t("orders.actions.cancelDisabledFulfilled")
+      : undefined
 
   const handleCancel = async () => {
     const res = await prompt({
@@ -101,48 +91,10 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
             {
               actions: [
                 {
-                  label: t("actions.complete"),
-                  onClick: handleComplete,
-                  disabled: order.status !== "pending",
-                  icon: <CheckCircle />,
-                },
-                {
-                  label: t("orders.edits.create"),
-                  to: "edit",
-                  //@ts-ignore
-                  disabled: !!order.canceled_at,
-                  icon: <PencilSquare />,
-                },
-                {
-                  label: t("orders.returns.create"),
-                  to: "returns/create",
-                  //@ts-ignore
-                  disabled: !!order.canceled_at,
-                  icon: <ArrowUturnLeft />,
-                },
-                {
-                  label: t("orders.exchanges.create"),
-                  to: "exchanges/create",
-                  //@ts-ignore
-                  disabled: !!order.canceled_at,
-                  icon: <ArrowPath />,
-                },
-                {
-                  label: t("orders.claims.create"),
-                  to: "claims/create",
-                  //@ts-ignore
-                  disabled: !!order.canceled_at,
-                  icon: <ExclamationCircle />,
-                },
-              ],
-            },
-            {
-              actions: [
-                {
                   label: t("actions.cancel"),
                   onClick: handleCancel,
-                  //@ts-ignore
-                  disabled: !!order.canceled_at,
+                  disabled: cancelDisabled,
+                  disabledTooltip: cancelDisabledTooltip,
                   icon: <XCircle />,
                 },
               ],
