@@ -83,7 +83,7 @@ export function OrderCreateShipmentForm({
       >
         <RouteFocusModal.Header />
         <RouteFocusModal.Body className="flex flex-col items-center overflow-y-auto p-16">
-          <div className="flex w-full max-w-[720px] flex-col gap-y-6">
+          <div className="flex w-full max-w-[736px] flex-col gap-8">
             <div className="flex items-center justify-between">
               <Heading>{t("orders.shipment.title")}</Heading>
               <Button
@@ -102,12 +102,12 @@ export function OrderCreateShipmentForm({
               </Button>
             </div>
 
-            <div className="flex flex-col gap-y-4">
+            <div className="flex flex-col gap-8 divide-y divide-dashed">
               {labels.map((label, index) => (
-                <div key={label.id} className="flex flex-col gap-y-4">
-                  {index > 0 && (
-                    <div className="border-ui-border-base border-t" />
-                  )}
+                <div
+                  key={label.id}
+                  className="flex flex-col gap-y-4 [&:not(:first-child)]:pt-8"
+                >
                   <Form.Field
                     control={form.control}
                     name={`labels.${index}.tracking_url`}
@@ -151,16 +151,16 @@ export function OrderCreateShipmentForm({
                   />
                 </div>
               ))}
+
+              <div className="pt-8">
+                <SwitchBox
+                  control={form.control}
+                  name="notify"
+                  label={t("orders.shipment.sendNotification")}
+                  description={t("orders.shipment.sendNotificationHint")}
+                />
+              </div>
             </div>
-
-            <div className="border-ui-border-base border-t" />
-
-            <SwitchBox
-              control={form.control}
-              name="notify"
-              label={t("orders.shipment.sendNotification")}
-              description={t("orders.shipment.sendNotificationHint")}
-            />
           </div>
         </RouteFocusModal.Body>
         <RouteFocusModal.Footer>
