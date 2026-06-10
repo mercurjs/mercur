@@ -989,7 +989,6 @@
     },
     "summary": {
       "requestReturn": "Побарајте враќање",
-      "allocateItems": "Распоредете ставки",
       "editOrder": "Уреди редослед",
       "editOrderContinue": "Продолжете со уредување на нарачката",
       "inventoryKit": "Се состои од {{count}}x инвентар артикли",
@@ -1229,26 +1228,6 @@
       "panel": {
         "title": "Започна замена",
         "description": "Постои отворено барање за замена што треба да се заврши"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Доделени",
-      "notAllocatedLabel": "Не е доделено"
-    },
-    "allocateItems": {
-      "action": "Распоредете ставки",
-      "title": "Доделете ставки за нарачка",
-      "locationDescription": "Изберете од која локација сакате да доделите.",
-      "itemsToAllocate": "Ставки за распределба",
-      "itemsToAllocateDesc": "Изберете го бројот на ставки што сакате да ги распределите",
-      "search": "Пребарајте ставки",
-      "consistsOf": "Се состои од {{num}}x инвентар артикли",
-      "requires": "Бара {{num}} по варијанта",
-      "toast": {
-        "created": "Ставките се успешно распределени"
-      },
-      "error": {
-        "quantityNotAllocated": "Има нераспределени ставки."
       }
     },
     "shipment": {

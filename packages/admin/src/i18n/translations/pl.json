@@ -1226,7 +1226,6 @@
     },
     "summary": {
       "requestReturn": "Zgłoś zwrot",
-      "allocateItems": "Przydziel produkty",
       "editOrder": "Edytuj zamówienie",
       "editOrderContinue": "Kontynuuj edycję zamówienia",
       "inventoryKit": "Składa się z {{count}} produktów magazynowych",
@@ -1469,27 +1468,6 @@
       "panel": {
         "title": "Inicjowana wymiana",
         "description": "Istnieje otwarty wniosek o wymianę do realizacji"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Przydzielone",
-      "notAllocatedLabel": "Nieprzydzielone"
-    },
-    "allocateItems": {
-      "action": "Przydziel produkty",
-      "title": "Przydziel produkty zamówienia",
-      "locationDescription": "Wybierz lokalizację, z której chcesz przydzielić.",
-      "itemsToAllocate": "Produkty do przydzielenia",
-      "itemsToAllocateDesc": "Wybierz liczbę produktów, które chcesz przydzielić",
-      "search": "Szukaj produktów",
-      "consistsOf": "Składa się z {{num}}x produktów magazynowych",
-      "requires": "Wymaga {{num}} na wariant",
-      "toast": {
-        "created": "Produkty zostały pomyślnie przydzielone",
-        "error": "Wystąpił błąd podczas przydzielania produktów: {{items}}"
-      },
-      "error": {
-        "quantityNotAllocated": "Istnieją nieprzydzielone produkty."
       }
     },
     "shipment": {

@@ -1028,7 +1028,6 @@
     },
     "summary": {
       "requestReturn": "Visszaküldés igénylése",
-      "allocateItems": "Tételek kiosztása",
       "editOrder": "Rendelés szerkesztése",
       "editOrderContinue": "Folytatás",
       "inventoryKit": "{{count}} készletelemből áll",
@@ -1268,26 +1267,6 @@
       "panel": {
         "title": "Csere kezdeményezve",
         "description": "Van egy nyitott csere kérelem, amelyet be kell fejezni"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Kiosztva",
-      "notAllocatedLabel": "Nincs kiosztva"
-    },
-    "allocateItems": {
-      "action": "Tételek kiosztása",
-      "title": "Rendelési tételek kiosztása",
-      "locationDescription": "Válassza ki, melyik helyszínről szeretne kiosztani.",
-      "itemsToAllocate": "Kiosztandó tételek",
-      "itemsToAllocateDesc": "Válassza ki a kiosztani kívánt tételek számát",
-      "search": "Tételek keresése",
-      "consistsOf": "{{num}}x készletelemből áll",
-      "requires": "{{num}} szükséges variánsonként",
-      "toast": {
-        "created": "Tételek sikeresen kiosztva"
-      },
-      "error": {
-        "quantityNotAllocated": "Vannak ki nem osztott tételek."
       }
     },
     "shipment": {

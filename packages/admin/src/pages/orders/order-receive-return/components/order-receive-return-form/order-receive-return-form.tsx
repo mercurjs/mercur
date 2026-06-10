@@ -23,7 +23,7 @@ import { getStylizedAmount } from "../../../../../lib/money-amount-helpers"
 import { ReceiveReturnSchema } from "./constants"
 import DismissedQuantity from "./dismissed-quantity"
 
-type OrderAllocateItemsFormProps = {
+type OrderReceiveReturnFormProps = {
   order: AdminOrder
   preview: AdminOrder
   orderReturn: AdminReturn
@@ -33,7 +33,7 @@ export function OrderReceiveReturnForm({
   order,
   preview,
   orderReturn,
-}: OrderAllocateItemsFormProps) {
+}: OrderReceiveReturnFormProps) {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 

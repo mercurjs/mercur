@@ -997,7 +997,6 @@
     },
     "summary": {
       "requestReturn": "İade talebi",
-      "allocateItems": "Ürünleri tahsis et",
       "editOrder": "Siparişi düzenle",
       "editOrderContinue": "Sipariş düzenlemeye devam et",
       "inventoryKit": "{{count}}x envanter öğesinden oluşur",
@@ -1215,26 +1214,6 @@
       "panel": {
         "title": "Değişim başlatıldı",
         "description": "Tamamlanması gereken açık bir değişim talebi var"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Tahsis Edildi",
-      "notAllocatedLabel": "Tahsis Edilmedi"
-    },
-    "allocateItems": {
-      "action": "Ürünleri tahsis et",
-      "title": "Sipariş ürünlerini tahsis et",
-      "locationDescription": "Hangi konumdan tahsis etmek istediğinizi seçin.",
-      "itemsToAllocate": "Tahsis edilecek ürünler",
-      "itemsToAllocateDesc": "Tahsis etmek istediğiniz ürün sayısını seçin",
-      "search": "Ürünleri ara",
-      "consistsOf": "{{num}}x envanter öğesinden oluşur",
-      "requires": "Her bir varyant için {{num}} gerektirir",
-      "toast": {
-        "created": "Ürünler başarıyla tahsis edildi"
-      },
-      "error": {
-        "quantityNotAllocated": "Tahsis edilmemiş ürünler var."
       }
     },
     "shipment": {

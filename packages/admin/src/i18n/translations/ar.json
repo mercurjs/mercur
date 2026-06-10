@@ -1007,7 +1007,6 @@
     },
     "summary": {
       "requestReturn": "طلب إرجاع",
-      "allocateItems": "تخصيص العناصر",
       "editOrder": "تحرير الطلب",
       "editOrderContinue": "متابعة تحرير الطلب",
       "inventoryKit": "يتكون من {{count}}x عناصر المخزون",
@@ -1247,26 +1246,6 @@
       "panel": {
         "title": "تم بدء التبادل",
         "description": "هناك طلب تبادل مفتوح ليتم إكماله"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "مخصص",
-      "notAllocatedLabel": "غير مخصص"
-    },
-    "allocateItems": {
-      "action": "تخصيص العناصر",
-      "title": "تخصيص عناصر الطلب",
-      "locationDescription": "اختر الموقع الذي تريد التخصيص منه.",
-      "itemsToAllocate": "العناصر للتخصيص",
-      "itemsToAllocateDesc": "اختر عدد العناصر التي ترغب في تخصيصها",
-      "search": "بحث عن العناصر",
-      "consistsOf": "يتكون من {{num}}x عناصر المخزون",
-      "requires": "يتطلب {{num}} لكل بديل",
-      "toast": {
-        "created": "تم تخصيص العناصر بنجاح"
-      },
-      "error": {
-        "quantityNotAllocated": "هناك عناصر غير مخصصة."
       }
     },
     "shipment": {

@@ -1028,7 +1028,6 @@
     },
     "summary": {
       "requestReturn": "Retour aanvragen",
-      "allocateItems": "Items toewijzen",
       "editOrder": "Bestelling bewerken",
       "editOrderContinue": "Doorgaan met bewerken",
       "inventoryKit": "Bevat {{count}}x voorraaditems",
@@ -1268,26 +1267,6 @@
       "panel": {
         "title": "Omruiling geïnitieerd",
         "description": "Er is een open omruilingsverzoek dat moet worden voltooid"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Toegewezen",
-      "notAllocatedLabel": "Niet toegewezen"
-    },
-    "allocateItems": {
-      "action": "Items toewijzen",
-      "title": "Bestelitems toewijzen",
-      "locationDescription": "Kies van welke locatie u wilt toewijzen.",
-      "itemsToAllocate": "Items om toe te wijzen",
-      "itemsToAllocateDesc": "Selecteer het aantal items dat u wilt toewijzen",
-      "search": "Items zoeken",
-      "consistsOf": "Bevat {{num}}x voorraaditems",
-      "requires": "Vereist {{num}} per variant",
-      "toast": {
-        "created": "Items succesvol toegewezen"
-      },
-      "error": {
-        "quantityNotAllocated": "Er zijn niet-toegewezen items."
       }
     },
     "shipment": {

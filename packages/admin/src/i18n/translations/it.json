@@ -945,7 +945,6 @@
     },
     "summary": {
       "requestReturn": "Richiedi reso",
-      "allocateItems": "Alloca articoli",
       "editOrder": "Modifica ordine",
       "editOrderContinue": "Continua modifica ordine",
       "inventoryKit": "Consiste di {{count}}x articoli di inventario",
@@ -1032,15 +1031,19 @@
     "edit": {
       "email": {
         "title": "Modifica email",
-        "requestSuccess": "L'email è stata aggiornata con successo."
+        "requestSuccess": "Email ordine aggiornata a {{email}}."
       },
       "shippingAddress": {
         "title": "Modifica indirizzo di spedizione",
-        "requestSuccess": "L'indirizzo di spedizione dell'ordine è stato aggiornato."
+        "requestSuccess": "Indirizzo di spedizione ordine aggiornato.",
+        "validation": {
+          "addressRequired": "Inserisci un indirizzo",
+          "countryRequired": "Seleziona un paese"
+        }
       },
       "billingAddress": {
         "title": "Modifica indirizzo di fatturazione",
-        "requestSuccess": "L'indirizzo di fatturazione dell'ordine è stato aggiornato."
+        "requestSuccess": "Indirizzo di fatturazione ordine aggiornato."
       }
     },
     "returns": {
@@ -1177,26 +1180,6 @@
       "panel": {
         "title": "Scambio avviato",
         "description": "C'è una richiesta di scambio aperta da completare"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Allocato",
-      "notAllocatedLabel": "Non allocato"
-    },
-    "allocateItems": {
-      "action": "Allocare articoli",
-      "title": "Allocare articoli dell'ordine",
-      "locationDescription": "Scegli quale posizione vuoi allocare.",
-      "itemsToAllocate": "Articoli da allocare",
-      "itemsToAllocateDesc": "Seleziona il numero di articoli che desideri allocare",
-      "search": "Cerca articoli",
-      "consistsOf": "Consiste di {{num}}x articoli di inventario",
-      "requires": "Richiede {{num}} per variante",
-      "toast": {
-        "created": "Articoli allocati con successo"
-      },
-      "error": {
-        "quantityNotAllocated": "Ci sono articoli non allocati."
       }
     },
     "shipment": {
@@ -1349,24 +1332,6 @@
       "displayId": "ID di visualizzazione",
       "refundableAmount": "Importo rimborsabile",
       "returnableQuantity": "Quantità restituibile"
-    },
-    "edit": {
-      "email": {
-        "title": "Modifica email",
-        "requestSuccess": "Email ordine aggiornata a {{email}}."
-      },
-      "shippingAddress": {
-        "title": "Modifica indirizzo di spedizione",
-        "requestSuccess": "Indirizzo di spedizione ordine aggiornato.",
-        "validation": {
-          "addressRequired": "Inserisci un indirizzo",
-          "countryRequired": "Seleziona un paese"
-        }
-      },
-      "billingAddress": {
-        "title": "Modifica indirizzo di fatturazione",
-        "requestSuccess": "Indirizzo di fatturazione ordine aggiornato."
-      }
     }
   },
   "draftOrders": {

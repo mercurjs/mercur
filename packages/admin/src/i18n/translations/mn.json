@@ -989,7 +989,6 @@
     },
     "summary": {
       "requestReturn": "Буцаалт хүсэх",
-      "allocateItems": "Зүйлсийг хуваарилах",
       "editOrder": "Захиалгыг засах",
       "editOrderContinue": "Захиалгын засварыг үргэлжлүүлэх",
       "inventoryKit": "{{count}}x барааны үлдэгдэл зүйлсээс бүрдэнэ",
@@ -1229,26 +1228,6 @@
       "panel": {
         "title": "Солилцоо эхлүүлсэн",
         "description": "Дуусгах хэрэгтэй нээлттэй солилцооны хүсэлт байна"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Хуваарилагдсан",
-      "notAllocatedLabel": "Хуваарилагдаагүй"
-    },
-    "allocateItems": {
-      "action": "Зүйлсийг хуваарилах",
-      "title": "Захиалгын зүйлсийг хуваарилах",
-      "locationDescription": "Хаанаас хуваарилахыг хүсэж байгаагаа сонго.",
-      "itemsToAllocate": "Хуваарилах зүйлс",
-      "itemsToAllocateDesc": "Хуваарилахыг хүсэж буй зүйлсийн тоог сонго",
-      "search": "Зүйлсийг хайх",
-      "consistsOf": "{{num}}x барааны үлдэгдэл зүйлсээс бүрдэнэ",
-      "requires": "Хувилбар бүрт {{num}} шаардлагатай",
-      "toast": {
-        "created": "Зүйлс амжилттай хуваарилагдсан"
-      },
-      "error": {
-        "quantityNotAllocated": "Хуваарилагдаагүй зүйлс байна."
       }
     },
     "shipment": {

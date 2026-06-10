@@ -939,7 +939,6 @@
     },
     "summary": {
       "requestReturn": "Запросити повернення",
-      "allocateItems": "Розподілити товари",
       "editOrder": "Редагувати замовлення",
       "editOrderContinue": "Продовжити редагування замовлення",
       "inventoryKit": "Складається з {{count}}x товарів на складі",
@@ -1179,26 +1178,6 @@
       "panel": {
         "title": "Обмін ініційований",
         "description": "Є відкритий запит на обмін, який потрібно завершити"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Виділено",
-      "notAllocatedLabel": "Не виділено"
-    },
-    "allocateItems": {
-      "action": "Виділити товари",
-      "title": "Виділити товари замовлення",
-      "locationDescription": "Оберіть місце, з якого ви хочете виділити товари.",
-      "itemsToAllocate": "Товари для виділення",
-      "itemsToAllocateDesc": "Оберіть кількість товарів, яку ви хочете виділити",
-      "search": "Шукати товари",
-      "consistsOf": "Містить {{num}}x товарів на складі",
-      "requires": "Потрібно {{num}} на кожен варіант",
-      "toast": {
-        "created": "Товари успішно виділені"
-      },
-      "error": {
-        "quantityNotAllocated": "Є невиділені товари."
       }
     },
     "shipment": {

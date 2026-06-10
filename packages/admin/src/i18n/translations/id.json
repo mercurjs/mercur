@@ -1032,7 +1032,6 @@
     },
     "summary": {
       "requestReturn": "Minta pengembalian",
-      "allocateItems": "Alokasikan item",
       "editOrder": "Edit pesanan",
       "editOrderContinue": "Lanjutkan edit pesanan",
       "inventoryKit": "Terdiri dari {{count}}x item inventaris",
@@ -1268,26 +1267,6 @@
       "panel": {
         "title": "Penukaran dimulai",
         "description": "Ada permintaan penukaran terbuka yang harus diselesaikan"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Dialokasikan",
-      "notAllocatedLabel": "Tidak dialokasikan"
-    },
-    "allocateItems": {
-      "action": "Alokasikan item",
-      "title": "Alokasikan item pesanan",
-      "locationDescription": "Pilih lokasi mana yang ingin Anda alokasikan.",
-      "itemsToAllocate": "Item yang akan dialokasikan",
-      "itemsToAllocateDesc": "Pilih jumlah item yang ingin Anda alokasikan",
-      "search": "Cari item",
-      "consistsOf": "Terdiri dari {{num}}x item inventaris",
-      "requires": "Membutuhkan {{num}} per varian",
-      "toast": {
-        "created": "Item berhasil dialokasikan"
-      },
-      "error": {
-        "quantityNotAllocated": "Ada item yang belum dialokasikan."
       }
     },
     "shipment": {

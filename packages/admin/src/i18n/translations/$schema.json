@@ -4274,9 +4274,6 @@
             "requestReturn": {
               "type": "string"
             },
-            "allocateItems": {
-              "type": "string"
-            },
             "editOrder": {
               "type": "string"
             },
@@ -4316,7 +4313,6 @@
           },
           "required": [
             "requestReturn",
-            "allocateItems",
             "editOrder",
             "editOrderContinue",
             "inventoryKit",
@@ -5211,84 +5207,6 @@
           ],
           "additionalProperties": false
         },
-        "reservations": {
-          "type": "object",
-          "properties": {
-            "allocatedLabel": {
-              "type": "string"
-            },
-            "notAllocatedLabel": {
-              "type": "string"
-            }
-          },
-          "required": ["allocatedLabel", "notAllocatedLabel"],
-          "additionalProperties": false
-        },
-        "allocateItems": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "type": "string"
-            },
-            "title": {
-              "type": "string"
-            },
-            "locationDescription": {
-              "type": "string"
-            },
-            "itemsToAllocate": {
-              "type": "string"
-            },
-            "itemsToAllocateDesc": {
-              "type": "string"
-            },
-            "search": {
-              "type": "string"
-            },
-            "consistsOf": {
-              "type": "string"
-            },
-            "requires": {
-              "type": "string"
-            },
-            "toast": {
-              "type": "object",
-              "properties": {
-                "created": {
-                  "type": "string"
-                },
-                "error": {
-                  "type": "string"
-                }
-              },
-              "required": ["created", "error"],
-              "additionalProperties": false
-            },
-            "error": {
-              "type": "object",
-              "properties": {
-                "quantityNotAllocated": {
-                  "type": "string"
-                }
-              },
-              "required": ["quantityNotAllocated"],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "action",
-            "title",
-            "locationDescription",
-            "itemsToAllocate",
-            "itemsToAllocateDesc",
-            "search",
-            "consistsOf",
-            "requires",
-            "toast",
-            "error"
-          ],
-          "additionalProperties": false
-        },
         "shipment": {
           "type": "object",
           "properties": {
@@ -5982,8 +5900,6 @@
         "returns",
         "claims",
         "exchanges",
-        "reservations",
-        "allocateItems",
         "shipment",
         "fulfillment",
         "refund",

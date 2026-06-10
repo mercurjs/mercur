@@ -29,14 +29,12 @@ import {
   Container,
   Copy,
   Heading,
-  StatusBadge,
   Text,
   toast,
   Tooltip,
   usePrompt,
 } from "@medusajs/ui";
 
-import type { AdminReservation } from "@medusajs/types";
 import { format } from "date-fns";
 import { ActionMenu } from "../../../../../components/common/action-menu/index.ts";
 import DisplayId from "../../../../../components/common/display-id/display-id.tsx";
@@ -45,12 +43,10 @@ import { useClaims } from "../../../../../hooks/api/claims.tsx";
 import { useExchanges } from "../../../../../hooks/api/exchanges.tsx";
 import { useOrderPreview } from "../../../../../hooks/api/orders.tsx";
 import { useMarkPaymentCollectionAsPaid } from "../../../../../hooks/api/payment-collections.tsx";
-import { useReservationItems } from "../../../../../hooks/api/reservations.tsx";
 import { useReturns } from "../../../../../hooks/api/returns.tsx";
 import { useDate } from "../../../../../hooks/use-date.tsx";
 import { getTotalCreditLines } from "../../../../../lib/credit-line.ts";
 import { formatCurrency } from "../../../../../lib/format-currency.ts";
-import { getReservationsLimitCount } from "../../../../../lib/orders.ts";
 import {
   getLocaleAmount,
   getStylizedAmount,
@@ -70,14 +66,6 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
 
-  const { reservations } = useReservationItems(
-    {
-      line_item_id: order?.items?.map((i) => i.id),
-      limit: getReservationsLimitCount(order),
-    },
-    { enabled: Array.isArray(order?.items) },
-  );
-
   const { order: orderPreview } = useOrderPreview(order.id!);
 
   const { returns = [] } = useReturns({
@@ -92,34 +80,6 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
   );
 
   const showReturns = !!receivableReturns.length;
-
-  /**
-   * Show Allocation button only if there are unfulfilled items that don't have reservations
-   */
-  const showAllocateButton = useMemo(() => {
-    if (!reservations) {
-      return false;
-    }
-
-    const reservationsMap = new Map(
-      reservations.map((r) => [r.line_item_id, r.id]),
-    );
-
-    for (const item of order.items) {
-      // Inventory is managed
-      if (item.variant?.manage_inventory) {
-        // There are items that are unfulfilled
-        if (item.quantity - item.detail.fulfilled_quantity > 0) {
-          // Reservation for this item doesn't exist
-          if (!reservationsMap.has(item.id)) {
-            return true;
-          }
-        }
-      }
-    }
-
-    return false;
-  }, [order.items, reservations]);
 
   const unpaidPaymentCollection = order.payment_collections.find(
     (pc) => pc.status === "not_paid",
@@ -186,12 +146,12 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
       data-testid="order-summary-section"
     >
       <Header order={order} orderPreview={orderPreview} />
-      <ItemBreakdown order={order} reservations={reservations!} />
+      <ItemBreakdown order={order} />
       <CostBreakdown order={order} />
       <DiscountAndTotalBreakdown order={order} />
       <Total order={order} />
 
-      {(showAllocateButton || showReturns || showPayment || showRefund) && (
+      {(showReturns || showPayment || showRefund) && (
         <div
           className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4"
           data-testid="order-summary-actions"
@@ -246,19 +206,6 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
                 </Button>
               </ActionMenu>
             ))}
-
-          {showAllocateButton && (
-            <Button
-              asChild
-              variant="secondary"
-              size="small"
-              data-testid="order-summary-allocate-items-button"
-            >
-              <Link to="allocate-items">
-                {t("orders.allocateItems.action")}
-              </Link>
-            </Button>
-          )}
 
           {showPayment && (
             <Button
@@ -397,27 +344,21 @@ const Header = ({
 const Item = ({
   item,
   currencyCode,
-  reservation,
   returns,
   claims,
   exchanges,
 }: {
   item: AdminOrderLineItem;
   currencyCode: string;
-  reservation?: AdminReservation;
   returns: AdminReturn[];
   claims: AdminClaim[];
   exchanges: AdminExchange[];
 }) => {
-  const { t } = useTranslation();
-
   const isInventoryManaged = item.variant?.manage_inventory;
   const hasInventoryKit =
     isInventoryManaged &&
     ((item.variant?.inventory_items?.length || 0) > 1 ||
       item.variant?.inventory_items?.some((i) => i.required_quantity > 1));
-  const hasUnfulfilledItems =
-    item.quantity - item.detail.fulfilled_quantity > 0;
 
   return (
     <>
@@ -481,20 +422,6 @@ const Item = ({
                 <span className="tabular-nums">{item.quantity}</span>x
               </Text>
             </div>
-
-            <div className="overflow-visible">
-              {isInventoryManaged && hasUnfulfilledItems && (
-                <StatusBadge
-                  color={reservation ? "green" : "orange"}
-                  className="text-nowrap"
-                  data-testid={`order-summary-item-${item.id}-reservation-badge`}
-                >
-                  {reservation
-                    ? t("orders.reservations.allocatedLabel")
-                    : t("orders.reservations.notAllocatedLabel")}
-                </StatusBadge>
-              )}
-            </div>
           </div>
 
           <div className="flex items-center justify-end">
@@ -530,13 +457,7 @@ const Item = ({
   );
 };
 
-const ItemBreakdown = ({
-  order,
-  reservations,
-}: {
-  order: AdminOrder;
-  reservations?: AdminReservation[];
-}) => {
+const ItemBreakdown = ({ order }: { order: AdminOrder }) => {
   const { claims = [] } = useClaims({
     order_id: order.id,
     fields: "*additional_items",
@@ -552,28 +473,18 @@ const ItemBreakdown = ({
     fields: "*items,*items.reason",
   });
 
-  const reservationsMap = useMemo(
-    () => new Map((reservations || []).map((r) => [r.line_item_id, r])),
-    [reservations],
-  );
-
   return (
     <div data-testid="order-summary-items-breakdown">
-      {order.items?.map((item) => {
-        const reservation = reservationsMap.get(item.id);
-
-        return (
-          <Item
-            key={item.id}
-            item={item}
-            currencyCode={order.currency_code}
-            reservation={reservation}
-            returns={returns}
-            exchanges={exchanges}
-            claims={claims}
-          />
-        );
-      })}
+      {order.items?.map((item) => (
+        <Item
+          key={item.id}
+          item={item}
+          currencyCode={order.currency_code}
+          returns={returns}
+          exchanges={exchanges}
+          claims={claims}
+        />
+      ))}
     </div>
   );
 };

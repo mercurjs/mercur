@@ -934,7 +934,6 @@
     },
     "summary": {
       "requestReturn": "Demander un retour",
-      "allocateItems": "Allouer des articles",
       "editOrder": "Editer la commande",
       "editOrderContinue": "Continuer l'édition de la commande",
       "inventoryKit": "Consiste de {{count}}x articles d'inventaire",
@@ -1020,16 +1019,20 @@
     },
     "edit": {
       "email": {
-        "title": "Modifier l'adresse e-mail",
-        "requestSuccess": "L'e-mail a été mis à jour avec succès."
+        "title": "Modifier l'email",
+        "requestSuccess": "Email de la commande mis à jour vers {{email}}."
       },
       "shippingAddress": {
         "title": "Modifier l'adresse de livraison",
-        "requestSuccess": "L'adresse de livraison de la commande a été mise à jour."
+        "requestSuccess": "Adresse de livraison de la commande mise à jour.",
+        "validation": {
+          "addressRequired": "Veuillez entrer une adresse",
+          "countryRequired": "Veuillez sélectionner un pays"
+        }
       },
       "billingAddress": {
         "title": "Modifier l'adresse de facturation",
-        "requestSuccess": "L'adresse de facturation de la commande a été mise à jour."
+        "requestSuccess": "Adresse de facturation de la commande mise à jour."
       }
     },
     "returns": {
@@ -1166,26 +1169,6 @@
       "panel": {
         "title": "Échange demandé",
         "description": "Il existe une demande d'échange à compléter"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Alloué",
-      "notAllocatedLabel": "Non alloué"
-    },
-    "allocateItems": {
-      "action": "Allouer des articles",
-      "title": "Allouer les articles de la commande",
-      "locationDescription": "Choisir l'emplacement à partir duquel allouer les articles.",
-      "itemsToAllocate": "Articles à allouer",
-      "itemsToAllocateDesc": "Sélectionner le nombre d'articles que vous souhaitez allouer",
-      "search": "Rechercher des articles",
-      "consistsOf": "Consiste de {{num}}x articles d'inventaire",
-      "requires": "Requiert {{num}} par variant",
-      "toast": {
-        "created": "Articles alloués avec succès"
-      },
-      "error": {
-        "quantityNotAllocated": "Il existe des articles non alloués."
       }
     },
     "shipment": {
@@ -1338,24 +1321,6 @@
       "displayId": "Display ID",
       "refundableAmount": "Montant remboursable",
       "returnableQuantity": "Quantité retournable"
-    },
-    "edit": {
-      "email": {
-        "title": "Modifier l'email",
-        "requestSuccess": "Email de la commande mis à jour vers {{email}}."
-      },
-      "shippingAddress": {
-        "title": "Modifier l'adresse de livraison",
-        "requestSuccess": "Adresse de livraison de la commande mise à jour.",
-        "validation": {
-          "addressRequired": "Veuillez entrer une adresse",
-          "countryRequired": "Veuillez sélectionner un pays"
-        }
-      },
-      "billingAddress": {
-        "title": "Modifier l'adresse de facturation",
-        "requestSuccess": "Adresse de facturation de la commande mise à jour."
-      }
     }
   },
   "draftOrders": {

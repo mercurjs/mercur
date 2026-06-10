@@ -989,7 +989,6 @@
     },
     "summary": {
       "requestReturn": "درخواست بازگشت",
-      "allocateItems": "اختصاص آیتم‌ها",
       "editOrder": "ویرایش سفارش",
       "editOrderContinue": "ادامه ویرایش سفارش",
       "inventoryKit": "شامل {{count}} آیتم موجودی",
@@ -1229,26 +1228,6 @@
       "panel": {
         "title": "تعویض آغاز شد",
         "description": "یک درخواست تعویض باز برای تکمیل وجود دارد"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "تخصیص داده شده",
-      "notAllocatedLabel": "تخصیص داده نشده"
-    },
-    "allocateItems": {
-      "action": "تخصیص آیتم‌ها",
-      "title": "تخصیص آیتم‌های سفارش",
-      "locationDescription": "مکانی که می‌خواهید از آن تخصیص دهید را انتخاب کنید.",
-      "itemsToAllocate": "آیتم‌ها برای تخصیص",
-      "itemsToAllocateDesc": "تعداد آیتم‌هایی که می‌خواهید تخصیص دهید را انتخاب کنید",
-      "search": "جستجوی آیتم‌ها",
-      "consistsOf": "شامل {{num}}x آیتم‌ موجودی",
-      "requires": "نیاز به {{num}} نوع برای هر آیتم",
-      "toast": {
-        "created": "آیتم‌ها با موفقیت تخصیص داده شدند"
-      },
-      "error": {
-        "quantityNotAllocated": "آیتم‌های تخصیص‌ نشده وجود دارند."
       }
     },
     "shipment": {

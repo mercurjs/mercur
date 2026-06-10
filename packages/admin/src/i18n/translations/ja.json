@@ -939,7 +939,6 @@
     },
     "summary": {
       "requestReturn": "返品をリクエスト",
-      "allocateItems": "アイテムを割り当てる",
       "editOrder": "注文を編集",
       "editOrderContinue": "注文編集を続ける",
       "inventoryKit": "{{count}}個の在庫アイテムで構成",
@@ -1179,26 +1178,6 @@
       "panel": {
         "title": "交換が開始されました",
         "description": "完了する必要のある未処理の交換リクエストがあります"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "割り当て済み",
-      "notAllocatedLabel": "未割り当て"
-    },
-    "allocateItems": {
-      "action": "アイテムを割り当てる",
-      "title": "注文アイテムを割り当てる",
-      "locationDescription": "割り当てる拠点を選択してください。",
-      "itemsToAllocate": "割り当てるアイテム",
-      "itemsToAllocateDesc": "割り当てたいアイテムの数を選択してください",
-      "search": "アイテムを検索",
-      "consistsOf": "{{num}}個の在庫アイテムで構成",
-      "requires": "バリエーションごとに{{num}}個必要",
-      "toast": {
-        "created": "アイテムが正常に割り当てられました"
-      },
-      "error": {
-        "quantityNotAllocated": "割り当てられていないアイテムがあります。"
       }
     },
     "shipment": {

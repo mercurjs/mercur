@@ -1032,7 +1032,6 @@
     },
     "summary": {
       "requestReturn": "Zatraži povrat",
-      "allocateItems": "Dodijeli artikle",
       "editOrder": "Uredi narudžbu",
       "editOrderContinue": "Nastavi uređivanje narudžbe",
       "inventoryKit": "Sastoji se od {{count}}x inventarnih artikala",
@@ -1272,26 +1271,6 @@
       "panel": {
         "title": "Zamjena pokrenuta",
         "description": "Postoji otvoreni zahtjev za zamjenu koji treba biti dovršen"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Dodijeljeno",
-      "notAllocatedLabel": "Nije dodijeljeno"
-    },
-    "allocateItems": {
-      "action": "Dodijeli stavke",
-      "title": "Dodijeli stavke narudžbe",
-      "locationDescription": "Izaberite koju lokaciju želite dodijeliti.",
-      "itemsToAllocate": "Stavke za dodjelu",
-      "itemsToAllocateDesc": "Izaberite broj stavki koje želite dodijeliti",
-      "search": "Pretraži stavke",
-      "consistsOf": "Sastoji se od {{num}}x inventarnih stavki",
-      "requires": "Zahtijeva {{num}} po varijanti",
-      "toast": {
-        "created": "Stavke uspješno dodijeljene"
-      },
-      "error": {
-        "quantityNotAllocated": "Postoje nedodijeljene stavke."
       }
     },
     "shipment": {

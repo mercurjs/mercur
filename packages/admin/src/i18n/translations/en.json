@@ -1195,7 +1195,6 @@
     },
     "summary": {
       "requestReturn": "Request return",
-      "allocateItems": "Allocate items",
       "editOrder": "Edit order",
       "editOrderContinue": "Continue order edit",
       "inventoryKit": "Consists of {{count}}x inventory items",
@@ -1438,27 +1437,6 @@
       "panel": {
         "title": "Exchange initiated",
         "description": "There is an open exchange request to be completed"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Allocated",
-      "notAllocatedLabel": "Not allocated"
-    },
-    "allocateItems": {
-      "action": "Allocate items",
-      "title": "Allocate order items",
-      "locationDescription": "Choose which location you want to allocate from.",
-      "itemsToAllocate": "Items to allocate",
-      "itemsToAllocateDesc": "Select the number of items you wish to allocate",
-      "search": "Search items",
-      "consistsOf": "Consists of {{num}}x inventory items",
-      "requires": "Requires {{num}} per variant",
-      "toast": {
-        "created": "Items successfully allocated",
-        "error": "Failed to allocate following items: {{items}}"
-      },
-      "error": {
-        "quantityNotAllocated": "There are unallocated items."
       }
     },
     "shipment": {

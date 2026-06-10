@@ -1032,7 +1032,6 @@
     },
     "summary": {
       "requestReturn": "申请退货",
-      "allocateItems": "分配商品",
       "editOrder": "编辑订单",
       "editOrderContinue": "继续编辑订单",
       "inventoryKit": "包含 {{count}}x 库存项目",
@@ -1272,26 +1271,6 @@
       "panel": {
         "title": "已发起换货",
         "description": "有一个待完成的换货请求"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "已分配",
-      "notAllocatedLabel": "未分配"
-    },
-    "allocateItems": {
-      "action": "分配商品",
-      "title": "分配订单商品",
-      "locationDescription": "选择您想要从哪个位置分配。",
-      "itemsToAllocate": "要分配的商品",
-      "itemsToAllocateDesc": "选择您想要分配的商品数量",
-      "search": "搜索商品",
-      "consistsOf": "包含 {{num}}x 库存商品",
-      "requires": "每个变体需要 {{num}}",
-      "toast": {
-        "created": "商品分配成功"
-      },
-      "error": {
-        "quantityNotAllocated": "有未分配的商品。"
       }
     },
     "shipment": {

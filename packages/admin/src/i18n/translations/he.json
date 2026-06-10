@@ -1032,7 +1032,6 @@
     },
     "summary": {
       "requestReturn": "בקשת החזרה",
-      "allocateItems": "הקצאת פריטים",
       "editOrder": "ערוך הזמנה",
       "editOrderContinue": "המשך עריכת הזמנה",
       "inventoryKit": "מורכב מ{{count}} פריטי מלאי",
@@ -1272,26 +1271,6 @@
       "panel": {
         "title": "החלפה התחילה",
         "description": "יש בקשת החלפה פתוחה להשלמה"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "הוקצה",
-      "notAllocatedLabel": "לא הוקצה"
-    },
-    "allocateItems": {
-      "action": "הקצה פריטים",
-      "title": "הקצה פריטי הזמנה",
-      "locationDescription": "בחר מאיזה מיקום ברצונך להקצות.",
-      "itemsToAllocate": "פריטים להקצאה",
-      "itemsToAllocateDesc": "בחר את מספר הפריטים שברצונך להקצות",
-      "search": "חפש פריטים",
-      "consistsOf": "מורכב מ{{num}} פריטי מלאי",
-      "requires": "דורש {{num}} לכל וריאנט",
-      "toast": {
-        "created": "הפריטים הוקצו בהצלחה"
-      },
-      "error": {
-        "quantityNotAllocated": "יש פריטים שלא הוקצו."
       }
     },
     "shipment": {

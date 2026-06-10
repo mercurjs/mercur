@@ -933,7 +933,6 @@
     },
     "summary": {
       "requestReturn": "Rücksendung anfordern",
-      "allocateItems": "Artikel zuordnen",
       "editOrder": "Bestellung bearbeiten",
       "editOrderContinue": "Bearbeiten Sie die Bestellung weiter",
       "inventoryKit": "Besteht aus {{count}}x Inventargegenständen",
@@ -1020,15 +1019,19 @@
     "edit": {
       "email": {
         "title": "E-Mail bearbeiten",
-        "requestSuccess": "E-Mail wurde erfolgreich aktualisiert."
+        "requestSuccess": "Bestellungs-E-Mail aktualisiert auf {{email}}."
       },
       "shippingAddress": {
         "title": "Lieferadresse bearbeiten",
-        "requestSuccess": "Lieferadresse der Bestellung wurde aktualisiert."
+        "requestSuccess": "Lieferadresse der Bestellung aktualisiert.",
+        "validation": {
+          "addressRequired": "Bitte geben Sie eine Adresse ein",
+          "countryRequired": "Bitte wählen Sie ein Land aus"
+        }
       },
       "billingAddress": {
         "title": "Rechnungsadresse bearbeiten",
-        "requestSuccess": "Rechnungsadresse der Bestellung wurde aktualisiert."
+        "requestSuccess": "Rechnungsadresse der Bestellung aktualisiert."
       }
     },
     "returns": {
@@ -1165,26 +1168,6 @@
       "panel": {
         "title": "Austausch eingeleitet",
         "description": "Es muss eine offene Austauschanfrage ausgefüllt werden"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Zugewiesen",
-      "notAllocatedLabel": "Nicht zugeordnet"
-    },
-    "allocateItems": {
-      "action": "Artikel zuordnen",
-      "title": "Bestellpositionen zuordnen",
-      "locationDescription": "Wählen Sie den Standort aus, von dem aus Sie zuweisen möchten.",
-      "itemsToAllocate": "Zuzuordnende Elemente",
-      "itemsToAllocateDesc": "Wählen Sie die Anzahl der Elemente aus, die Sie zuweisen möchten",
-      "search": "Elemente suchen",
-      "consistsOf": "Besteht aus {{num}}x Inventargegenständen",
-      "requires": "Benötigt {{num}} pro Variante",
-      "toast": {
-        "created": "Elemente erfolgreich zugewiesen"
-      },
-      "error": {
-        "quantityNotAllocated": "Es sind nicht zugeordnete Elemente vorhanden."
       }
     },
     "shipment": {
@@ -1336,24 +1319,6 @@
       "displayId": "Anzeige-ID",
       "refundableAmount": "Rückerstattungsbetrag",
       "returnableQuantity": "Rückgabemenge"
-    },
-    "edit": {
-      "email": {
-        "title": "E-Mail bearbeiten",
-        "requestSuccess": "Bestellungs-E-Mail aktualisiert auf {{email}}."
-      },
-      "shippingAddress": {
-        "title": "Lieferadresse bearbeiten",
-        "requestSuccess": "Lieferadresse der Bestellung aktualisiert.",
-        "validation": {
-          "addressRequired": "Bitte geben Sie eine Adresse ein",
-          "countryRequired": "Bitte wählen Sie ein Land aus"
-        }
-      },
-      "billingAddress": {
-        "title": "Rechnungsadresse bearbeiten",
-        "requestSuccess": "Rechnungsadresse der Bestellung aktualisiert."
-      }
     }
   },
   "draftOrders": {

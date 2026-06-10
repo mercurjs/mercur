@@ -1057,7 +1057,6 @@
     },
     "summary": {
       "requestReturn": "Yêu cầu trả hàng",
-      "allocateItems": "Phân bổ mục hàng",
       "editOrder": "Chỉnh sửa đơn hàng",
       "editOrderContinue": "Tiếp tục chỉnh sửa đơn hàng",
       "inventoryKit": "Bao gồm {{count}} mục kho hàng",
@@ -1298,26 +1297,6 @@
       "panel": {
         "title": "Đã khởi tạo đổi hàng",
         "description": "Có một yêu cầu đổi hàng đang mở cần được hoàn tất"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Đã phân bổ",
-      "notAllocatedLabel": "Chưa phân bổ"
-    },
-    "allocateItems": {
-      "action": "Phân bổ mục hàng",
-      "title": "Phân bổ các mục trong đơn hàng",
-      "locationDescription": "Chọn vị trí bạn muốn phân bổ từ đó.",
-      "itemsToAllocate": "Mục hàng cần phân bổ",
-      "itemsToAllocateDesc": "Chọn số lượng mục hàng bạn muốn phân bổ",
-      "search": "Tìm kiếm mục hàng",
-      "consistsOf": "Bao gồm {{num}} mục kho hàng",
-      "requires": "Yêu cầu {{num}} cho mỗi biến thể",
-      "toast": {
-        "created": "Mục hàng đã được phân bổ thành công"
-      },
-      "error": {
-        "quantityNotAllocated": "Vẫn còn các mục hàng chưa được phân bổ."
       }
     },
     "shipment": {

@@ -1057,7 +1057,6 @@
     },
     "summary": {
       "requestReturn": "Požádat o vrácení",
-      "allocateItems": "Přidělit položky",
       "editOrder": "Upravit objednávku",
       "editOrderContinue": "Pokračovat v úpravě objednávky",
       "inventoryKit": "Skládá se z {{count}}x inventárních položek",
@@ -1294,26 +1293,6 @@
       "panel": {
         "title": "Výměna zahájena",
         "description": "Existuje otevřená žádost o výměnu, která musí být dokončena"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Přiděleno",
-      "notAllocatedLabel": "Nepřiděleno"
-    },
-    "allocateItems": {
-      "action": "Přidělit položky",
-      "title": "Přidělit položky objednávky",
-      "locationDescription": "Vyberte, z které lokace chcete přidělit položky.",
-      "itemsToAllocate": "Položky k přidělení",
-      "itemsToAllocateDesc": "Vyberte počet položek, které chcete přidělit",
-      "search": "Hledat položky",
-      "consistsOf": "Skládá se z {{num}}x inventárních položek",
-      "requires": "Vyžaduje {{num}} na variantu",
-      "toast": {
-        "created": "Položky byly úspěšně přiděleny"
-      },
-      "error": {
-        "quantityNotAllocated": "Existují nepřidělené položky."
       }
     },
     "shipment": {

@@ -1032,7 +1032,6 @@
     },
     "summary": {
       "requestReturn": "반품 요청",
-      "allocateItems": "재고 할당",
       "editOrder": "주문 편집",
       "editOrderContinue": "주문 편집 계속하기",
       "inventoryKit": "{{count}}개의 개별 상품으로 구성됨",
@@ -1273,26 +1272,6 @@
       "panel": {
         "title": "교환 시작됨",
         "description": "완료해야 할 미처리 교환 요청이 있습니다"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "할당됨",
-      "notAllocatedLabel": "할당되지 않음"
-    },
-    "allocateItems": {
-      "action": "재고 할당",
-      "title": "주문 상품 재고 할당",
-      "locationDescription": "할당할 위치를 선택하세요.",
-      "itemsToAllocate": "할당할 상품",
-      "itemsToAllocateDesc": "할당하려는 상품 수량을 선택하세요",
-      "search": "상품 검색",
-      "consistsOf": "{{num}}개의 개별 상품으로 구성됨",
-      "requires": "변형당 {{num}}개 필요",
-      "toast": {
-        "created": "상품이 성공적으로 할당되었습니다"
-      },
-      "error": {
-        "quantityNotAllocated": "할당되지 않은 상품이 있습니다."
       }
     },
     "shipment": {

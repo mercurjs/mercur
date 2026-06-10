@@ -933,7 +933,6 @@
     },
     "summary": {
       "requestReturn": "ขอคืนสินค้า",
-      "allocateItems": "จัดสรรสินค้า",
       "editOrder": "แก้ไขคำสั่งซื้อ",
       "editOrderContinue": "ดำเนินการแก้ไขคำสั่งซื้อ",
       "inventoryKit": "ประกอบด้วยสินค้าคงคลัง {{count}} ชิ้น",
@@ -1020,15 +1019,19 @@
     "edit": {
       "email": {
         "title": "แก้ไขอีเมล",
-        "requestSuccess": "อีเมลได้รับการอัปเดตสำเร็จแล้ว"
+        "requestSuccess": "อีเมลคำสั่งซื้ออัปเดตเป็น {{email}} แล้ว"
       },
       "shippingAddress": {
         "title": "แก้ไขที่อยู่จัดส่ง",
-        "requestSuccess": "ที่อยู่จัดส่งของคำสั่งซื้อได้รับการอัปเดตแล้ว"
+        "requestSuccess": "ที่อยู่จัดส่งคำสั่งซื้ออัปเดตแล้ว",
+        "validation": {
+          "addressRequired": "กรุณากรอกที่อยู่",
+          "countryRequired": "กรุณาเลือกประเทศ"
+        }
       },
       "billingAddress": {
         "title": "แก้ไขที่อยู่สำหรับเรียกเก็บเงิน",
-        "requestSuccess": "ที่อยู่สำหรับเรียกเก็บเงินของคำสั่งซื้อได้รับการอัปเดตแล้ว"
+        "requestSuccess": "ที่อยู่สำหรับเรียกเก็บเงินคำสั่งซื้ออัปเดตแล้ว"
       }
     },
     "returns": {
@@ -1165,26 +1168,6 @@
       "panel": {
         "title": "เริ่มต้นการแลกเปลี่ยน",
         "description": "มีคำขอการแลกเปลี่ยนที่เปิดอยู่เพื่อดำเนินการให้เสร็จสิ้น"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "จัดสรรแล้ว",
-      "notAllocatedLabel": "ยังไม่ได้จัดสรร"
-    },
-    "allocateItems": {
-      "action": "จัดสรรสินค้า",
-      "title": "จัดสรรรายการสินค้าในคำสั่งซื้อ",
-      "locationDescription": "เลือกสถานที่ที่คุณต้องการจัดสรรสินค้า",
-      "itemsToAllocate": "สินค้าที่จะจัดสรร",
-      "itemsToAllocateDesc": "เลือกจำนวนสินค้าที่คุณต้องการจัดสรร",
-      "search": "ค้นหารายการ",
-      "consistsOf": "ประกอบด้วยสินค้าคงคลัง {{num}} รายการ",
-      "requires": "ต้องการ {{num}} ต่อรูปแบบ",
-      "toast": {
-        "created": "จัดสรรสินค้าเรียบร้อยแล้ว"
-      },
-      "error": {
-        "quantityNotAllocated": "มีสินค้าที่ไม่ได้รับการจัดสรร"
       }
     },
     "shipment": {
@@ -1336,24 +1319,6 @@
       "displayId": "หมายเลขคำสั่งซื้อที่แสดง",
       "refundableAmount": "จำนวนเงินที่สามารถคืนได้",
       "returnableQuantity": "จำนวนสินค้าที่สามารถคืนได้"
-    },
-    "edit": {
-      "email": {
-        "title": "แก้ไขอีเมล",
-        "requestSuccess": "อีเมลคำสั่งซื้ออัปเดตเป็น {{email}} แล้ว"
-      },
-      "shippingAddress": {
-        "title": "แก้ไขที่อยู่จัดส่ง",
-        "requestSuccess": "ที่อยู่จัดส่งคำสั่งซื้ออัปเดตแล้ว",
-        "validation": {
-          "addressRequired": "กรุณากรอกที่อยู่",
-          "countryRequired": "กรุณาเลือกประเทศ"
-        }
-      },
-      "billingAddress": {
-        "title": "แก้ไขที่อยู่สำหรับเรียกเก็บเงิน",
-        "requestSuccess": "ที่อยู่สำหรับเรียกเก็บเงินคำสั่งซื้ออัปเดตแล้ว"
-      }
     }
   },
   "draftOrders": {

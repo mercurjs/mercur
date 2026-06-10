@@ -989,7 +989,6 @@
     },
     "summary": {
       "requestReturn": "Solicitați retur",
-      "allocateItems": "Alocați articole",
       "editOrder": "Editați comanda",
       "editOrderContinue": "Continuați editarea comenzii",
       "inventoryKit": "Consta din {{count}}x articole de inventar",
@@ -1229,26 +1228,6 @@
       "panel": {
         "title": "Schimbul a fost inițiat",
         "description": "Există o cerere de schimb deschisă care trebuie completată"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Alocat",
-      "notAllocatedLabel": "Nealocat"
-    },
-    "allocateItems": {
-      "action": "Alocați articole",
-      "title": "Alocați articolele de comandă",
-      "locationDescription": "Alegeți locația din care doriți să alocați.",
-      "itemsToAllocate": "Elemente de alocat",
-      "itemsToAllocateDesc": "Selectați numărul de articole pe care doriți să le alocați",
-      "search": "Căutați articole",
-      "consistsOf": "Consta din {{num}}x articole de inventar",
-      "requires": "Necesită {{num}} pe variantă",
-      "toast": {
-        "created": "Articole alocate cu succes"
-      },
-      "error": {
-        "quantityNotAllocated": "Sunt articole nealocate."
       }
     },
     "shipment": {

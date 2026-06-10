@@ -330,11 +330,6 @@ export function getRouteMap({
                               import("./pages/orders/order-receive-return"),
                           },
                           {
-                            path: "allocate-items",
-                            lazy: () =>
-                              import("./pages/orders/order-allocate-items"),
-                          },
-                          {
                             path: ":f_id/create-shipment",
                             lazy: () =>
                               import("./pages/orders/order-create-shipment"),

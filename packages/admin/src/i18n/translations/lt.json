@@ -1030,7 +1030,6 @@
     },
     "summary": {
       "requestReturn": "Prašyti grąžinimo",
-      "allocateItems": "Priskirti atsargas",
       "editOrder": "Keisti užsakymą",
       "editOrderContinue": "Tęsti užsakymo keitimą",
       "inventoryKit": "Susideda iš {{count}}x atsargų",
@@ -1270,26 +1269,6 @@
       "panel": {
         "title": "Keitimas inicijuotas",
         "description": "Jau yra nagrinėjamas keitimas, kuris turi būti užbaigtas"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Atidėta",
-      "notAllocatedLabel": "Neatidėta"
-    },
-    "allocateItems": {
-      "action": "Atidėti prekes",
-      "title": "Atidėti uždakymo prekes",
-      "locationDescription": "Pasirinkite vietą, kurioje norite atidėti.",
-      "itemsToAllocate": "Prekių atidėjimui",
-      "itemsToAllocateDesc": "Pasirinkite kiek prekių norite atidėti",
-      "search": "Prekių paieška",
-      "consistsOf": "Susideda iš {{num}}x atsargų",
-      "requires": "Reikalinga {{num}} kiekvienam variantui",
-      "toast": {
-        "created": "Prekė sėkmingai atidėta"
-      },
-      "error": {
-        "quantityNotAllocated": "Yra neatidėtų prekių."
       }
     },
     "shipment": {

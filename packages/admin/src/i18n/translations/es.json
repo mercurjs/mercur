@@ -1106,7 +1106,6 @@
     },
     "summary": {
       "requestReturn": "Solicitar devolución",
-      "allocateItems": "Asignar artículos",
       "editOrder": "Editar pedido",
       "editOrderContinue": "Continuar con la edición del pedido",
       "inventoryKit": "Consiste en {{count}}x artículos de inventario",
@@ -1326,27 +1325,6 @@
       "panel": {
         "title": "Intercambio iniciado",
         "description": "Hay una solicitud de intercambio pendiente de completar"
-      }
-    },
-    "reservations": {
-      "allocatedLabel": "Asignado",
-      "notAllocatedLabel": "No asignado"
-    },
-    "allocateItems": {
-      "action": "Asignar artículos",
-      "title": "Asignar artículos del pedido",
-      "locationDescription": "Elige de qué ubicación deseas asignar.",
-      "itemsToAllocate": "Artículos a asignar",
-      "itemsToAllocateDesc": "Selecciona el número de artículos que deseas asignar",
-      "search": "Buscar artículos",
-      "consistsOf": "Consiste en {{num}}x artículos de inventario",
-      "requires": "Requiere {{num}} por variante",
-      "toast": {
-        "created": "Artículos asignados correctamente",
-        "error": "Error al asignar los siguientes artículos: {{items}}"
-      },
-      "error": {
-        "quantityNotAllocated": "Existen artículos no asignados."
       }
     },
     "shipment": {
