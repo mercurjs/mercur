@@ -165,7 +165,7 @@
       "groups": {
         "all": "All areas",
         "customer": "Customers",
-        "seller": "Sellers",
+        "seller": "Stores",
         "customerGroup": "Customer Groups",
         "product": "Products",
         "productVariant": "Product Variants",
@@ -209,7 +209,7 @@
         "goToPriceLists": "Price Lists",
         "goToPromotions": "Promotions",
         "goToCampaigns": "Campaigns",
-        "goToSellers": "Sellers",
+        "goToSellers": "Stores",
         "goToPayouts": "Payouts"
       },
       "settings": {
@@ -600,7 +600,7 @@
         "title": "Product request",
         "description": "{{store}} has submitted a product request. Review the details, make any necessary updates, and choose whether to confirm and publish the product, request the update or reject the request."
       },
-      "fallbackStore": "The seller",
+      "fallbackStore": "The store",
       "actions": {
         "requestUpdate": "Request update",
         "reject": "Reject"
@@ -1186,6 +1186,9 @@
         "exchange": "Exchange",
         "claim": "Claim"
       }
+    },
+    "actions": {
+      "cancelDisabledFulfilled": "Cannot cancel an order that has fulfilled items."
     },
     "cancelWarning": "You are about to cancel the order {{id}}. This action cannot be undone.",
     "orderCanceled": "Order canceled successfully",
@@ -3578,7 +3581,7 @@
   },
   "requests": {
     "domain": "Requests",
-    "seller": "Seller",
+    "seller": "Store",
     "product": "Product",
     "review-remove": "Review Remove",
     "return": "Order Return",
@@ -3605,7 +3608,7 @@
       "city": "City",
       "province": "Province",
       "country_code": "Country Code",
-      "seller": "Seller",
+      "seller": "Store",
       "premium": "Featured"
     },
     "status": {

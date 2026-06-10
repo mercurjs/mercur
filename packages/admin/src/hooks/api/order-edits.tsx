@@ -116,7 +116,7 @@ export const useCancelOrderEdit = (
   options?: UseMutationOptions<any, ClientError, any>
 ) => {
   return useMutation({
-    mutationFn: () => sdk.admin.orderEdits.$id.request.delete({ $id: orderId }),
+    mutationFn: () => sdk.admin.orderEdits.$id.delete({ $id: orderId }),
     onSuccess: (data: any, variables: any, context: any) => {
       queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),

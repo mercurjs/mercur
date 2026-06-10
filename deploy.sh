@@ -182,6 +182,14 @@ nodeLinker: node-modules
 enableImmutableInstalls: false
 YRC
 
+# Clean yarn caches. The npm registry can flip a just-published version into
+# "quarantined" state for a few minutes; yarn caches that metadata and then
+# refuses to resolve it (YN0016). Wipe both the global mirror and any local
+# `.yarn/cache` so the next install re-fetches fresh metadata.
+log "Cleaning yarn cache"
+rm -rf "$DEPLOY_DIR/.yarn/cache" "$DEPLOY_DIR/.yarn/install-state.gz"
+yarn cache clean --all >/tmp/mercur-yarn-cache.log 2>&1 || true
+
 log "yarn install (workspace)"
 yarn install >/tmp/mercur-yarn.log 2>&1 || { tail -n 40 /tmp/mercur-yarn.log; exit 1; }
 
@@ -196,6 +204,10 @@ touch "$PROD_DIR/yarn.lock"
 [ -f "$PROD_DIR/.yarnrc.yml" ] || echo "nodeLinker: node-modules" > "$PROD_DIR/.yarnrc.yml"
 
 cd "$PROD_DIR"
+log "Cleaning yarn cache (prod)"
+rm -rf "$PROD_DIR/.yarn/cache" "$PROD_DIR/.yarn/install-state.gz"
+yarn cache clean --all >/tmp/mercur-yarn-cache-prod.log 2>&1 || true
+
 log "yarn install (prod)"
 yarn install >/tmp/mercur-yarn-prod.log 2>&1 || { tail -n 40 /tmp/mercur-yarn-prod.log; exit 1; }
 

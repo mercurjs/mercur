@@ -51,6 +51,8 @@ type OfferPickerRowExtended = OfferPickerRow &
       >
   }
 
+export type OfferPickerSelection = { variantId: string; offerId: string }
+
 type AddOrderEditItemsTableProps = {
   /**
    * Currency of the order this picker is feeding. Offers without a price
@@ -58,14 +60,13 @@ type AddOrderEditItemsTableProps = {
    */
   currencyCode?: string
   /**
-   * Receives the picked rows' **variant IDs**. The admin backend goes
-   * through Medusa's native `/admin/order-edits/:id/items` route which
-   * only accepts `variant_id` — no offer-id resolver on the admin side
-   * (vendor has its own Mercur extension at `/vendor/order-edits`).
-   * The picker still surfaces offer-aware columns (SKU, product, variant
-   * title) but selection maps to the underlying variant.
+   * Receives the picked rows as `{ variantId, offerId }` pairs. The admin
+   * backend overrides at `packages/core/src/api/admin/order-edits/[id]/
+   * items` read `metadata.offer_id` to apply offer-aware unit pricing and
+   * the bundle-reservation multiplier — so the offer id must travel
+   * alongside the variant id.
    */
-  onSelectionChange: (variantIds: string[]) => void
+  onSelectionChange: (selections: OfferPickerSelection[]) => void
 }
 
 const offerHasInventory = (offer: OfferPickerRowExtended): boolean => {
@@ -94,14 +95,6 @@ export const AddOrderEditItemsTable = ({
   const { t } = useTranslation()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-
-  const updater: OnChangeFn<RowSelectionState> = (fn) => {
-    const newState: RowSelectionState =
-      typeof fn === "function" ? fn(rowSelection) : fn
-
-    setRowSelection(newState)
-    onSelectionChange(Object.keys(newState))
-  }
 
   const { searchParams, raw } = useOrderEditItemTableQuery({
     pageSize: PAGE_SIZE,
@@ -136,16 +129,39 @@ export const AddOrderEditItemsTable = ({
   const columns = useOrderEditItemsTableColumns()
   const filters = useOrderEditItemTableFilters()
 
+  // Map offer id -> { variantId, offerId } so the row's selection state can be
+  // turned back into the `{ variantId, offerId }` pairs the parent submits.
+  const selectionByOfferId = useMemo(() => {
+    const map = new Map<string, OfferPickerSelection>()
+    for (const offer of offers) {
+      if (offer.id && offer.variant_id) {
+        map.set(offer.id, { variantId: offer.variant_id, offerId: offer.id })
+      }
+    }
+    return map
+  }, [offers])
+
+  const updater: OnChangeFn<RowSelectionState> = (fn) => {
+    const newState: RowSelectionState =
+      typeof fn === "function" ? fn(rowSelection) : fn
+
+    setRowSelection(newState)
+    const pairs = Object.keys(newState)
+      .map((offerId) => selectionByOfferId.get(offerId))
+      .filter((p): p is OfferPickerSelection => !!p)
+    onSelectionChange(pairs)
+  }
+
   const { table } = useDataTable({
     data: offers,
     columns,
     count,
     enablePagination: true,
-    // Row id maps to the underlying variant so existing admin add-items
-    // mutations (which thread `variant_id` through Medusa's native route)
-    // keep working. Two offers backed by the same variant collapse to one
-    // row — acceptable for the operator's pick-a-variant UX.
-    getRowId: (row) => row.variant_id ?? row.id,
+    // Row id is the offer id so each offer has its own row (two offers backed
+    // by the same variant no longer collapse). The parent maps each picked
+    // row to `{ variantId, offerId }` and sends `metadata.offer_id` so the
+    // admin override route can apply the offer's price + reservation math.
+    getRowId: (row) => row.id ?? row.variant_id!,
     pageSize: PAGE_SIZE,
     enableRowSelection: () => true,
     rowSelection: {

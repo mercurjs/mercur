@@ -173,7 +173,7 @@
       "groups": {
         "all": "Wszystkie obszary",
         "customer": "Klienci",
-        "seller": "Sprzedawcy",
+        "seller": "Sklepy",
         "customerGroup": "Grupy Klientów",
         "product": "Produkty",
         "productVariant": "Warianty Produktów",
@@ -217,7 +217,7 @@
         "goToPriceLists": "Cenniki",
         "goToPromotions": "Promocje",
         "goToCampaigns": "Kampanie",
-        "goToSellers": "Sprzedawcy",
+        "goToSellers": "Sklepy",
         "goToPayouts": "Wypłaty"
       },
       "settings": {
@@ -607,7 +607,7 @@
         "title": "Prośba o produkt",
         "description": "{{store}} przesłał prośbę o produkt. Przejrzyj szczegóły, wprowadź niezbędne zmiany i wybierz, czy potwierdzić i opublikować produkt, poprosić o aktualizację lub odrzucić prośbę."
       },
-      "fallbackStore": "Sprzedawca",
+      "fallbackStore": "Sklep",
       "actions": {
         "requestUpdate": "Poproś o aktualizację",
         "reject": "Odrzuć"
@@ -1209,6 +1209,9 @@
     "claim": "Reklamacja",
     "exchange": "Wymiana",
     "return": "Zwrot",
+    "actions": {
+      "cancelDisabledFulfilled": "Nie można anulować zamówienia, które ma zrealizowane pozycje."
+    },
     "cancelWarning": "Masz zamiar anulować zamówienie {{id}}. Tej akcji nie można cofnąć.",
     "orderCanceled": "Zamówienie zostało pomyślnie anulowane",
     "onDateFromSalesChannel": "{{date}} z {{salesChannel}}",
@@ -3645,7 +3648,7 @@
   },
   "requests": {
     "domain": "Prośby",
-    "seller": "Sprzedawca",
+    "seller": "Sklep",
     "product": "Produkt",
     "review-remove": "Usunięcie recenzji",
     "return": "Zwrot zamówienia",
@@ -3672,7 +3675,7 @@
       "city": "Miasto",
       "province": "Województwo",
       "country_code": "Kod kraju",
-      "seller": "Sprzedawca",
+      "seller": "Sklep",
       "premium": "Wyróżniony"
     },
     "status": {

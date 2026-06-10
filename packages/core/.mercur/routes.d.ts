@@ -29,14 +29,14 @@ export type Routes = {
                     };
                 };
                 outbound: {
-                    items: typeof import("@medusajs/medusa/api/admin/claims/[id]/outbound/items/route") & {
+                    items: typeof import("../../src/api/admin/claims/[id]/outbound/items/route") & {
                         $actionId: typeof import("@medusajs/medusa/api/admin/claims/[id]/outbound/items/[action_id]/route");
                     };
                     shippingMethod: typeof import("@medusajs/medusa/api/admin/claims/[id]/outbound/shipping-method/route") & {
                         $actionId: typeof import("@medusajs/medusa/api/admin/claims/[id]/outbound/shipping-method/[action_id]/route");
                     };
                 };
-                request: typeof import("@medusajs/medusa/api/admin/claims/[id]/request/route");
+                request: typeof import("../../src/api/admin/claims/[id]/request/route");
             };
         };
         collections: typeof import("@medusajs/medusa/api/admin/collections/route") & {
@@ -94,14 +94,14 @@ export type Routes = {
                     };
                 };
                 outbound: {
-                    items: typeof import("@medusajs/medusa/api/admin/exchanges/[id]/outbound/items/route") & {
+                    items: typeof import("../../src/api/admin/exchanges/[id]/outbound/items/route") & {
                         $actionId: typeof import("@medusajs/medusa/api/admin/exchanges/[id]/outbound/items/[action_id]/route");
                     };
                     shippingMethod: typeof import("@medusajs/medusa/api/admin/exchanges/[id]/outbound/shipping-method/route") & {
                         $actionId: typeof import("@medusajs/medusa/api/admin/exchanges/[id]/outbound/shipping-method/[action_id]/route");
                     };
                 };
-                request: typeof import("@medusajs/medusa/api/admin/exchanges/[id]/request/route");
+                request: typeof import("../../src/api/admin/exchanges/[id]/request/route");
             };
         };
         featureFlags: typeof import("@medusajs/medusa/api/admin/feature-flags/route");
@@ -156,7 +156,7 @@ export type Routes = {
         orderEdits: typeof import("@medusajs/medusa/api/admin/order-edits/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/order-edits/[id]/route") & {
                 confirm: typeof import("@medusajs/medusa/api/admin/order-edits/[id]/confirm/route");
-                items: typeof import("@medusajs/medusa/api/admin/order-edits/[id]/items/route") & {
+                items: typeof import("../../src/api/admin/order-edits/[id]/items/route") & {
                     $actionId: typeof import("@medusajs/medusa/api/admin/order-edits/[id]/items/[action_id]/route");
                     item: {
                         $itemId: typeof import("@medusajs/medusa/api/admin/order-edits/[id]/items/item/[item_id]/route");
@@ -330,7 +330,7 @@ export type Routes = {
                     $actionId: typeof import("@medusajs/medusa/api/admin/returns/[id]/dismiss-items/[action_id]/route");
                 };
                 receive: typeof import("@medusajs/medusa/api/admin/returns/[id]/receive/route") & {
-                    confirm: typeof import("@medusajs/medusa/api/admin/returns/[id]/receive/confirm/route");
+                    confirm: typeof import("../../src/api/admin/returns/[id]/receive/confirm/route");
                 };
                 receiveItems: typeof import("@medusajs/medusa/api/admin/returns/[id]/receive-items/route") & {
                     $actionId: typeof import("@medusajs/medusa/api/admin/returns/[id]/receive-items/[action_id]/route");

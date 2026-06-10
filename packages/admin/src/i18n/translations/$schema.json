@@ -4242,6 +4242,16 @@
           "required": ["request"],
           "additionalProperties": false
         },
+        "actions": {
+          "type": "object",
+          "properties": {
+            "cancelDisabledFulfilled": {
+              "type": "string"
+            }
+          },
+          "required": ["cancelDisabledFulfilled"],
+          "additionalProperties": false
+        },
         "cancelWarning": {
           "type": "string"
         },
@@ -5999,6 +6009,7 @@
         "exchange",
         "return",
         "filters",
+        "actions",
         "cancelWarning",
         "orderCanceled",
         "onDateFromSalesChannel",

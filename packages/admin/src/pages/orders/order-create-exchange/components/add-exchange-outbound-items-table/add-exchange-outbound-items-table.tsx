@@ -45,13 +45,21 @@ type OutboundOfferPickerRowExtended = OutboundOfferPickerRow &
       >
   }
 
+export type ExchangeOfferPickerSelection = {
+  variantId: string
+  offerId: string
+}
+
 type AddExchangeOutboundItemsTableProps = {
   currencyCode?: string
   /**
-   * Receives the picked rows' variant IDs. See add-order-edit-items-table
-   * for why admin maps row id to variant rather than offer.
+   * Receives the picked rows as `{ variantId, offerId }` pairs. The admin
+   * override at `packages/core/src/api/admin/exchanges/[id]/outbound/items`
+   * reads `metadata.offer_id` to apply the offer's unit price and the
+   * bundle-reservation multiplier on confirm.
    */
-  onSelectionChange: (variantIds: string[]) => void
+  onSelectionChange: (selections: ExchangeOfferPickerSelection[]) => void
+  /** Selected offer ids — used to hydrate the initial selection. */
   selectedItems?: string[]
 }
 
@@ -88,14 +96,6 @@ export const AddExchangeOutboundItemsTable = ({
     }, {})
   )
 
-  const updater: OnChangeFn<RowSelectionState> = (fn) => {
-    const newState: RowSelectionState =
-      typeof fn === "function" ? fn(rowSelection) : fn
-
-    setRowSelection(newState)
-    onSelectionChange(Object.keys(newState))
-  }
-
   const { searchParams, raw } = useExchangeOutboundItemTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
@@ -129,12 +129,35 @@ export const AddExchangeOutboundItemsTable = ({
   const columns = useExchangeOutboundItemTableColumns()
   const filters = useExchangeOutboundItemTableFilters()
 
+  const selectionByOfferId = useMemo(() => {
+    const map = new Map<string, ExchangeOfferPickerSelection>()
+    for (const offer of offers) {
+      if (offer.id && offer.variant_id) {
+        map.set(offer.id, { variantId: offer.variant_id, offerId: offer.id })
+      }
+    }
+    return map
+  }, [offers])
+
+  const updater: OnChangeFn<RowSelectionState> = (fn) => {
+    const newState: RowSelectionState =
+      typeof fn === "function" ? fn(rowSelection) : fn
+
+    setRowSelection(newState)
+    const pairs = Object.keys(newState)
+      .map((offerId) => selectionByOfferId.get(offerId))
+      .filter((p): p is ExchangeOfferPickerSelection => !!p)
+    onSelectionChange(pairs)
+  }
+
   const { table } = useDataTable({
     data: offers,
     columns,
     count,
     enablePagination: true,
-    getRowId: (row) => row.variant_id ?? row.id,
+    // Row id is the offer id so each offer surfaces as a distinct row and the
+    // selection can be turned back into `{ variantId, offerId }` pairs.
+    getRowId: (row) => row.id ?? row.variant_id!,
     pageSize: PAGE_SIZE,
     enableRowSelection: () => true,
     rowSelection: {
