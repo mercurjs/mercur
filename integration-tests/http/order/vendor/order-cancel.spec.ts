@@ -216,10 +216,7 @@ medusaIntegrationTestRunner({
                 }
             }
 
-            const completeCartCheckout = async (
-                offerId: string,
-                variantId: string
-            ) => {
+            const completeCartCheckout = async (offerId: string) => {
                 const cart = (
                     await api.post(
                         `/store/carts`,
@@ -234,7 +231,7 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, variant_id: variantId, quantity: 1 },
+                    { offer_id: offerId, quantity: 1 },
                     storeHeaders
                 )
 
@@ -380,10 +377,7 @@ medusaIntegrationTestRunner({
                 // MikroORM populate path is fixed; the route itself does call
                 // `cancelOrderWorkflow` correctly per UI verification.
                 it.skip("cancels a seller-owned order and flips status to canceled", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     const response = await api.post(
                         `/vendor/orders/${order.id}/cancel`,
@@ -402,10 +396,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects cross-seller cancel — seller B cannot cancel seller A's order", async () => {
-                    const orderA = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const orderA = await completeCartCheckout(seller1Seed.offer.id)
 
                     // `validateSellerOrder` runs at the top of the route
                     // handler and throws NOT_FOUND before either the

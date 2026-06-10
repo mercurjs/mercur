@@ -237,10 +237,7 @@ medusaIntegrationTestRunner({
                 }
             }
 
-            const completeCartCheckout = async (
-                offerId: string,
-                variantId: string
-            ) => {
+            const completeCartCheckout = async (offerId: string) => {
                 const cart = (
                     await api.post(
                         `/store/carts`,
@@ -255,7 +252,7 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, variant_id: variantId, quantity: 1 },
+                    { offer_id: offerId, quantity: 1 },
                     storeHeaders
                 )
 
@@ -465,10 +462,7 @@ medusaIntegrationTestRunner({
                     sellerSeed = standardSeed
 
                     // Standard order placement with the standard offer.
-                    const order = await completeCartCheckout(
-                        standardSeed.offer.id,
-                        standardSeed.variant.id
-                    )
+                    const order = await completeCartCheckout(standardSeed.offer.id)
 
                     // Bundle-multiplier offer (required_quantity=3) — same
                     // seller, used as the OUTBOUND item in the exchange.

@@ -199,10 +199,7 @@ medusaIntegrationTestRunner({
                 }
             }
 
-            const completeCartCheckout = async (
-                offerId: string,
-                variantId: string
-            ) => {
+            const completeCartCheckout = async (offerId: string) => {
                 const cart = (
                     await api.post(
                         `/store/carts`,
@@ -217,7 +214,7 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, variant_id: variantId, quantity: 1 },
+                    { offer_id: offerId, quantity: 1 },
                     storeHeaders
                 )
 
@@ -355,10 +352,7 @@ medusaIntegrationTestRunner({
 
             describe("request filter (§A — multi-select)", () => {
                 it("returns empty list when request=edit and no open edit exists", async () => {
-                    await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    await completeCartCheckout(seller1Seed.offer.id)
 
                     const response = await api.get(
                         `/vendor/orders?request=edit`,
@@ -370,10 +364,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("returns the order when request=edit and an order edit is in progress", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     // Begin an order edit so the filter has something to match on.
                     await api.post(
@@ -396,10 +387,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("accepts comma-separated and array shapes for request", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     await api.post(
                         `/vendor/order-edits`,
                         { order_id: order.id },
@@ -441,10 +429,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("respects seller scoping — seller B does not see seller A's open edit", async () => {
-                    const orderA = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const orderA = await completeCartCheckout(seller1Seed.offer.id)
                     await api.post(
                         `/vendor/order-edits`,
                         { order_id: orderA.id },
@@ -470,10 +455,7 @@ medusaIntegrationTestRunner({
                     // params with 400) so the legacy param is rejected
                     // outright rather than silently ignored. That's the
                     // stronger proof of the hard swap.
-                    await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    await completeCartCheckout(seller1Seed.offer.id)
 
                     const response = await api
                         .get(

@@ -3394,7 +3394,7 @@
     "hint": "Zaloguj się, aby uzyskać dostęp do obszaru konta",
     "submit": "Zaloguj się",
     "sessionExpired": "Sesja wygasła",
-    "notSellerYet": "Nie jesteś jeszcze sprzedawcą? <0>Utwórz konto</0>",
+    "notSellerYet": "Nie masz jeszcze sklepu? <0>Utwórz konto</0>",
     "validation": {
       "emailRequired": "Wprowadź adres e-mail",
       "emailInvalid": "Wprowadź prawidłowy adres e-mail",
@@ -3403,7 +3403,7 @@
   },
   "register": {
     "title": "Dołącz do {{name}}!",
-    "hint": "Wprowadź swoje dane i utwórz hasło, aby skonfigurować konto sprzedawcy w {{name}}.",
+    "hint": "Wprowadź swoje dane i utwórz hasło, aby skonfigurować konto sklepu w {{name}}.",
     "companyName": "Nazwa firmy",
     "confirmPassword": "Potwierdź hasło",
     "signUp": "Zarejestruj się",
@@ -3452,8 +3452,8 @@
       "addressTitle": "Adres",
       "addressSubtitle": "Adres Twojej firmy",
       "professionalTitle": "Dane firmy",
-      "professionalSubtitle": "Informacje o sprzedawcy biznesowym",
-      "isProfessional": "Sprzedawca biznesowy",
+      "professionalSubtitle": "Informacje o sklepie biznesowym",
+      "isProfessional": "Sklep biznesowy",
       "isProfessionalDescription": "Zarejestruj się jako podmiot gospodarczy",
       "corporateName": "Firma",
       "registrationNumber": "Numer rejestracyjny",
@@ -3462,7 +3462,7 @@
     },
     "submitted": {
       "title": "Wniosek został wysłany!",
-      "description": "Twoje konto sprzedawcy zostało utworzone i oczekuje na zatwierdzenie. Powiadomimy Cię pod adresem {{email}}, gdy Twój sklep zostanie zweryfikowany.",
+      "description": "Twoje konto sklepu zostało utworzone i oczekuje na zatwierdzenie. Powiadomimy Cię pod adresem {{email}}, gdy Twój sklep zostanie zweryfikowany.",
       "hint": "W międzyczasie możesz wybrać swój sklep i dokończyć konfigurację.",
       "action": "Przejdź do panelu"
     },
@@ -3499,7 +3499,7 @@
       },
       "company": {
         "title": "Wprowadź dane swojej firmy",
-        "subtitle": "Informacje o sprzedawcy biznesowym",
+        "subtitle": "Informacje o sklepie biznesowym",
         "corporateName": "Firma",
         "registrationNumber": "Numer rejestracyjny",
         "taxId": "NIP"
@@ -3522,7 +3522,7 @@
       },
       "preview": {
         "title": "Witamy w Mercur",
-        "description": "Twój kompleksowy panel sprzedawcy do zarządzania sklepem, produktami, zamówieniami i wypłatami.",
+        "description": "Twój kompleksowy panel sklepu do zarządzania sklepem, produktami, zamówieniami i wypłatami.",
         "placeholder": "Podgląd aplikacji"
       }
     }
@@ -3959,7 +3959,7 @@
     }
   },
   "seller": {
-    "domain": "Sprzedawca"
+    "domain": "Sklep"
   },
   "translations": {
     "domain": "Tłumaczenia",

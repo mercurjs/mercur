@@ -227,7 +227,7 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, variant_id: variantId, quantity },
+                    { offer_id: offerId, quantity },
                     storeHeaders
                 )
 
@@ -452,7 +452,6 @@ medusaIntegrationTestRunner({
                     `/store/carts/${cart.id}/line-items`,
                     {
                         offer_id: sellerA.offer.id,
-                        variant_id: sellerA.variant.id,
                         quantity: 1,
                     },
                     storeHeaders
@@ -461,7 +460,6 @@ medusaIntegrationTestRunner({
                     `/store/carts/${cart.id}/line-items`,
                     {
                         offer_id: sellerB.offer.id,
-                        variant_id: sellerB.variant.id,
                         quantity: 1,
                     },
                     storeHeaders

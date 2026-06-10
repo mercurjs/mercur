@@ -39,10 +39,26 @@ const DEFAULT_RELATIONS = [
   "+items.variant.manage_inventory",
   "*items.variant.inventory_items.inventory",
   "+items.variant.inventory_items.required_quantity",
+  // Mercur offer link — wired through the `order_line_item ↔ offer` module
+  // link on order placement / order-edit / exchange / claim confirms. Drives
+  // the offer-aware UI (Item caption SKU, Allocate Items predicate,
+  // restock preview in return / exchange / claim create).
+  "*items.offer",
+  "*items.offer.prices",
+  "*items.offer.shipping_profile",
+  "*items.offer.inventory_item_link",
+  "+items.offer.inventory_item_link.required_quantity",
+  "*items.offer.inventory_item_link.inventory_item",
+  "*items.offer.inventory_item_link.inventory_item.location_levels",
   "+summary",
   "*shipping_address",
   "*billing_address",
   "*sales_channel",
+  // Mercur seller link — exposes `order.seller` so admin order-action
+  // forms (fulfillment, allocate, return, exchange, claim) can scope
+  // stock-location / shipping-option / shipping-profile lookups to the
+  // vendor that owns the order via `?seller_id=…`.
+  "*seller",
   // "*promotions",
   "*shipping_methods",
   "*credit_lines",

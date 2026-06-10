@@ -1,36 +1,52 @@
-import { Checkbox } from "@medusajs/ui"
+import { Checkbox, Text } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-import {
-  ProductCell,
-  ProductHeader,
-} from "../../../../../components/table/table-cells/product/product-cell"
+import { Thumbnail } from "@components/common/thumbnail"
+import { PlaceholderCell } from "@components/table/table-cells/common/placeholder-cell"
 
-const columnHelper = createColumnHelper<any>()
+// Row shape coming from `sdk.admin.offers.query` (subset). The `created_at` /
+// `updated_at` fields are surfaced so the `orderBy` keys on the picker
+// satisfy `keyof TData` — the offer model actually carries them; we just
+// don't render them.
+export type OfferPickerRow = {
+  id: string
+  sku?: string | null
+  variant_id?: string | null
+  created_at?: string | null
+  updated_at?: string | null
+  product_variant?: {
+    id?: string | null
+    title?: string | null
+    product?: {
+      title?: string | null
+      thumbnail?: string | null
+    } | null
+  } | null
+}
 
-export const useOrderEditItemsTableColumns = (_currencyCode: string) => {
+const columnHelper = createColumnHelper<OfferPickerRow>()
+
+export const useOrderEditItemsTableColumns = () => {
   const { t } = useTranslation()
 
   return useMemo(
     () => [
       columnHelper.display({
         id: "select",
-        header: ({ table }) => {
-          return (
-            <Checkbox
-              checked={
-                table.getIsSomePageRowsSelected()
-                  ? "indeterminate"
-                  : table.getIsAllPageRowsSelected()
-              }
-              onCheckedChange={(value) =>
-                table.toggleAllPageRowsSelected(!!value)
-              }
-            />
-          )
-        },
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsSomePageRowsSelected()
+                ? "indeterminate"
+                : table.getIsAllPageRowsSelected()
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+          />
+        ),
         cell: ({ row }) => {
           const isSelectable = row.getCanSelect()
 
@@ -48,19 +64,52 @@ export const useOrderEditItemsTableColumns = (_currencyCode: string) => {
       }),
       columnHelper.display({
         id: "product",
-        header: () => <ProductHeader />,
+        header: t("fields.product"),
         cell: ({ row }) => {
-          return <ProductCell product={row.original.product} />
+          const variant = row.original.product_variant
+          const productTitle = variant?.product?.title
+          if (!productTitle) {
+            return <PlaceholderCell />
+          }
+          return (
+            <div className="flex h-full w-full max-w-[300px] items-center gap-x-3 overflow-hidden">
+              <Thumbnail src={variant?.product?.thumbnail} />
+              <Text
+                size="small"
+                leading="compact"
+                className="truncate"
+                title={productTitle}
+              >
+                {productTitle}
+              </Text>
+            </div>
+          )
         },
       }),
       columnHelper.accessor("sku", {
         header: t("fields.sku"),
         cell: ({ getValue }) => {
-          return getValue() || "-"
+          const sku = getValue()
+          if (!sku) return <PlaceholderCell />
+          return (
+            <Text size="small" leading="compact" className="truncate">
+              {sku}
+            </Text>
+          )
         },
       }),
-      columnHelper.accessor("title", {
+      columnHelper.display({
+        id: "variant_title",
         header: t("fields.title"),
+        cell: ({ row }) => {
+          const title = row.original.product_variant?.title
+          if (!title) return <PlaceholderCell />
+          return (
+            <Text size="small" leading="compact" className="truncate">
+              {title}
+            </Text>
+          )
+        },
       }),
     ],
     [t]

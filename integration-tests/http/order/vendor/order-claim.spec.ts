@@ -198,10 +198,7 @@ medusaIntegrationTestRunner({
                 }
             }
 
-            const completeCartCheckout = async (
-                offerId: string,
-                variantId: string
-            ) => {
+            const completeCartCheckout = async (offerId: string) => {
                 const cart = (
                     await api.post(
                         `/store/carts`,
@@ -216,7 +213,7 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, variant_id: variantId, quantity: 1 },
+                    { offer_id: offerId, quantity: 1 },
                     storeHeaders
                 )
 
@@ -353,10 +350,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/claims (begin)", () => {
                 it("begins a claim on a seller-owned order", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     const response = await api.post(
                         `/vendor/claims`,
@@ -374,10 +368,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects when caller does not own the order", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     const response = await api
                         .post(
@@ -393,10 +384,7 @@ medusaIntegrationTestRunner({
 
             describe("/:id sub-routes (seller-scope)", () => {
                 it("rejects claim-items add from non-owning seller", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     const claimId = (
                         await api.post(
                             `/vendor/claims`,
@@ -417,10 +405,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects inbound items from non-owning seller", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     const claimId = (
                         await api.post(
                             `/vendor/claims`,
@@ -441,10 +426,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects outbound items from non-owning seller", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     const claimId = (
                         await api.post(
                             `/vendor/claims`,
@@ -469,10 +451,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("DELETE /:id/request cancels the in-flight claim draft", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     const claimId = (
                         await api.post(
                             `/vendor/claims`,
@@ -491,10 +470,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("DELETE /:id/request rejects when caller does not own claim", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     const claimId = (
                         await api.post(
                             `/vendor/claims`,

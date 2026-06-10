@@ -280,8 +280,8 @@
         "extensions": "Extensions"
       },
       "main": {
-        "store": "Seller",
-        "storeSettings": "Seller settings"
+        "store": "Store",
+        "storeSettings": "Store settings"
       },
       "settings": {
         "header": "Settings",
@@ -432,7 +432,7 @@
     "availableIn": "Available in <0>{{x}}</0> of <1>{{y}}</1> sales channels"
   },
   "seller": {
-    "domain": "Seller"
+    "domain": "Store"
   },
   "products": {
     "domain": "Products",
@@ -2918,9 +2918,9 @@
     }
   },
   "store": {
-    "domain": "Seller",
-    "manageYourStoresDetails": "Manage your seller's details",
-    "editStore": "Edit seller",
+    "domain": "Store",
+    "manageYourStoresDetails": "Manage your store's details",
+    "editStore": "Edit store",
     "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
     "validation": {
       "nameRequired": "Please enter a name",
@@ -3431,7 +3431,7 @@
     "hint": "Log in to your vendor account.",
     "submit": "Log in",
     "sessionExpired": "Session expired",
-    "notSellerYet": "Not a seller yet? <0>Create an account</0>",
+    "notSellerYet": "Don't have a store yet? <0>Create an account</0>",
     "validation": {
       "emailRequired": "Please enter an email",
       "emailInvalid": "Please enter a valid email",
@@ -3488,8 +3488,8 @@
       "addressTitle": "Address",
       "addressSubtitle": "Your business address",
       "professionalTitle": "Business details",
-      "professionalSubtitle": "Professional seller information",
-      "isProfessional": "Professional seller",
+      "professionalSubtitle": "Professional store information",
+      "isProfessional": "Professional store",
       "isProfessionalDescription": "Register as a business entity",
       "corporateName": "Company",
       "registrationNumber": "Registration number",
@@ -3498,7 +3498,7 @@
     },
     "submitted": {
       "title": "Application submitted!",
-      "description": "Your seller account has been created and is pending approval. We'll notify you at {{email}} once your store is reviewed.",
+      "description": "Your store account has been created and is pending approval. We'll notify you at {{email}} once your store is reviewed.",
       "hint": "In the meantime, you can select your store and complete your setup.",
       "action": "Continue to dashboard"
     },
@@ -3535,7 +3535,7 @@
       },
       "company": {
         "title": "Enter your company details",
-        "subtitle": "Professional seller information",
+        "subtitle": "Professional store information",
         "corporateName": "Company",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"

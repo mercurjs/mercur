@@ -198,10 +198,7 @@ medusaIntegrationTestRunner({
                 }
             }
 
-            const completeCartCheckout = async (
-                offerId: string,
-                variantId: string
-            ) => {
+            const completeCartCheckout = async (offerId: string) => {
                 const cart = (
                     await api.post(
                         `/store/carts`,
@@ -216,7 +213,7 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, variant_id: variantId, quantity: 1 },
+                    { offer_id: offerId, quantity: 1 },
                     storeHeaders
                 )
 
@@ -364,10 +361,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/payment-collections/:id/mark-as-paid", () => {
                 it("rejects a request from a seller that does not own the order", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     const paymentCollection = await getOrderPaymentCollection(
                         order.id,
                         seller1Seed.headers
@@ -385,10 +379,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects when the order_id in the body does not match the linked order", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     const paymentCollection = await getOrderPaymentCollection(
                         order.id,
                         seller1Seed.headers
@@ -419,10 +410,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("reaches the underlying workflow for the owning seller", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     const paymentCollection = await getOrderPaymentCollection(
                         order.id,
                         seller1Seed.headers

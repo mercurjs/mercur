@@ -320,21 +320,6 @@ export function getRouteMap({
                         lazy: () => import("./pages/orders/order-detail"),
                         children: [
                           {
-                            path: "fulfillment",
-                            lazy: () =>
-                              import("./pages/orders/order-create-fulfillment"),
-                          },
-                          {
-                            path: "returns/:return_id/receive",
-                            lazy: () =>
-                              import("./pages/orders/order-receive-return"),
-                          },
-                          {
-                            path: ":f_id/create-shipment",
-                            lazy: () =>
-                              import("./pages/orders/order-create-shipment"),
-                          },
-                          {
                             path: "returns",
                             lazy: () =>
                               import("./pages/orders/order-create-return"),

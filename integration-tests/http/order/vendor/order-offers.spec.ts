@@ -225,10 +225,7 @@ medusaIntegrationTestRunner({
                 }
             }
 
-            const completeCartCheckout = async (
-                offerId: string,
-                variantId: string
-            ) => {
+            const completeCartCheckout = async (offerId: string) => {
                 const cart = (
                     await api.post(
                         `/store/carts`,
@@ -243,7 +240,7 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, variant_id: variantId, quantity: 1 },
+                    { offer_id: offerId, quantity: 1 },
                     storeHeaders
                 )
 
@@ -382,10 +379,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/order-edits/:id/items with offer_id", () => {
                 it("resolves a seller-owned offer_id to its variant + price", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     // Seed a second offer for seller1 so we have a distinct
                     // offer to add (different SKU from the one already on
@@ -424,10 +418,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects an offer_id belonging to another seller", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,
@@ -457,10 +448,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects an unknown offer_id", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,
@@ -487,10 +475,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects items missing both offer_id and variant_id", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,

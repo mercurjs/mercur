@@ -1,4 +1,3 @@
-import { Buildings, XCircle } from "@medusajs/icons"
 import {
   AdminOrder,
   AdminOrderFulfillment,
@@ -7,26 +6,18 @@ import {
   OrderLineItemDTO,
 } from "@medusajs/types"
 import {
-  Button,
   Container,
   Copy,
   Heading,
   StatusBadge,
   Text,
   Tooltip,
-  toast,
-  usePrompt,
 } from "@medusajs/ui"
 import { format } from "date-fns"
 import { useTranslation } from "react-i18next"
-import { Link, useNavigate } from "react-router-dom"
-import { ActionMenu } from "../../../../../components/common/action-menu"
+import { Link } from "react-router-dom"
 import { Skeleton } from "../../../../../components/common/skeleton"
 import { Thumbnail } from "../../../../../components/common/thumbnail"
-import {
-  useCancelOrderFulfillment,
-  useMarkOrderFulfillmentAsDelivered,
-} from "../../../../../hooks/api/orders"
 import { useStockLocation } from "../../../../../hooks/api/stock-locations"
 import { formatProvider } from "../../../../../lib/format-provider"
 import { getLocaleAmount } from "../../../../../lib/money-amount-helpers"
@@ -110,7 +101,6 @@ const UnfulfilledItem = ({
 }
 
 const UnfulfilledItemBreakdown = ({ order }: { order: AdminOrder }) => {
-  // Create an array of order items that haven't been fulfilled or at least not fully fulfilled
   const unfulfilledItemsWithShipping = order.items!.filter(
     (i) => i.requires_shipping && i.detail.fulfilled_quantity < i.quantity
   )
@@ -170,21 +160,6 @@ const UnfulfilledItemDisplay = ({
           <StatusBadge color="red" className="text-nowrap" data-testid="order-fulfillment-unfulfilled-awaiting-badge">
             {t("orders.fulfillment.awaitingFulfillmentBadge")}
           </StatusBadge>
-
-          <ActionMenu
-            groups={[
-              {
-                actions: [
-                  {
-                    label: t("orders.fulfillment.fulfillItems"),
-                    icon: <Buildings />,
-                    to: `/orders/${order.id}/fulfillment?requires_shipping=${requiresShipping}`,
-                  },
-                ],
-              },
-            ]}
-            data-testid="order-fulfillment-unfulfilled-action-menu"
-          />
         </div>
       </div>
       <div data-testid="order-fulfillment-unfulfilled-items">
@@ -202,7 +177,6 @@ const UnfulfilledItemDisplay = ({
 
 const Fulfillment = ({
   fulfillment,
-  order,
   index,
 }: {
   fulfillment: AdminOrderFulfillment
@@ -210,8 +184,6 @@ const Fulfillment = ({
   index: number
 }) => {
   const { t } = useTranslation()
-  const prompt = usePrompt()
-  const navigate = useNavigate()
 
   const showLocation = !!fulfillment.location_id
   const isPickUpFulfillment =
@@ -248,74 +220,6 @@ const Fulfillment = ({
     statusTimestamp = fulfillment.shipped_at
   }
 
-  const { mutateAsync } = useCancelOrderFulfillment(order.id, fulfillment.id)
-  const { mutateAsync: markAsDelivered } = useMarkOrderFulfillmentAsDelivered(
-    order.id,
-    fulfillment.id
-  )
-
-  const showShippingButton =
-    !fulfillment.canceled_at &&
-    !fulfillment.shipped_at &&
-    !fulfillment.delivered_at &&
-    fulfillment.requires_shipping &&
-    !isPickUpFulfillment
-
-  const showDeliveryButton =
-    !fulfillment.canceled_at && !fulfillment.delivered_at
-
-  const handleMarkAsDelivered = async () => {
-    const res = await prompt({
-      title: t("general.areYouSure"),
-      description: t("orders.fulfillment.markAsDeliveredWarning"),
-      confirmText: t("actions.continue"),
-      cancelText: t("actions.cancel"),
-      variant: "confirmation",
-    })
-
-    if (res) {
-      await markAsDelivered(undefined, {
-        onSuccess: () => {
-          toast.success(
-            t(
-              isPickUpFulfillment
-                ? "orders.fulfillment.toast.fulfillmentPickedUp"
-                : "orders.fulfillment.toast.fulfillmentDelivered"
-            )
-          )
-        },
-        onError: (e) => {
-          toast.error(e.message)
-        },
-      })
-    }
-  }
-
-  const handleCancel = async () => {
-    if (fulfillment.shipped_at) {
-      toast.warning(t("orders.fulfillment.toast.fulfillmentShipped"))
-      return
-    }
-
-    const res = await prompt({
-      title: t("general.areYouSure"),
-      description: t("orders.fulfillment.cancelWarning"),
-      confirmText: t("actions.continue"),
-      cancelText: t("actions.cancel"),
-    })
-
-    if (res) {
-      await mutateAsync(undefined, {
-        onSuccess: () => {
-          toast.success(t("orders.fulfillment.toast.canceled"))
-        },
-        onError: (e) => {
-          toast.error(e.message)
-        },
-      })
-    }
-  }
-
   if (isError) {
     throw error
   }
@@ -341,24 +245,6 @@ const Fulfillment = ({
               {statusText}
             </StatusBadge>
           </Tooltip>
-          <ActionMenu
-            groups={[
-              {
-                actions: [
-                  {
-                    label: t("actions.cancel"),
-                    icon: <XCircle />,
-                    onClick: handleCancel,
-                    disabled:
-                      !!fulfillment.canceled_at ||
-                      !!fulfillment.shipped_at ||
-                      !!fulfillment.delivered_at,
-                  },
-                ],
-              },
-            ]}
-            data-testid={`order-fulfillment-${fulfillment.id}-action-menu`}
-          />
         </div>
       </div>
       <div className="text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4">
@@ -462,30 +348,6 @@ const Fulfillment = ({
           )}
         </div>
       </div>
-
-      {(showShippingButton || showDeliveryButton) && (
-        <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4" data-testid={`order-fulfillment-${fulfillment.id}-actions`}>
-          {showDeliveryButton && (
-            <Button onClick={handleMarkAsDelivered} variant="secondary" data-testid={`order-fulfillment-${fulfillment.id}-mark-delivered-button`}>
-              {t(
-                isPickUpFulfillment
-                  ? "orders.fulfillment.markAsPickedUp"
-                  : "orders.fulfillment.markAsDelivered"
-              )}
-            </Button>
-          )}
-
-          {showShippingButton && (
-            <Button
-              onClick={() => navigate(`./${fulfillment.id}/create-shipment`)}
-              variant="secondary"
-              data-testid={`order-fulfillment-${fulfillment.id}-mark-shipped-button`}
-            >
-              {t("orders.fulfillment.markAsShipped")}
-            </Button>
-          )}
-        </div>
-      )}
     </Container>
   )
 }

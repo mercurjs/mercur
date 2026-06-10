@@ -198,10 +198,7 @@ medusaIntegrationTestRunner({
                 }
             }
 
-            const completeCartCheckout = async (
-                offerId: string,
-                variantId: string
-            ) => {
+            const completeCartCheckout = async (offerId: string) => {
                 const cart = (
                     await api.post(
                         `/store/carts`,
@@ -216,7 +213,7 @@ medusaIntegrationTestRunner({
 
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
-                    { offer_id: offerId, variant_id: variantId, quantity: 1 },
+                    { offer_id: offerId, quantity: 1 },
                     storeHeaders
                 )
 
@@ -353,10 +350,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/order-edits (begin)", () => {
                 it("begins an edit on a seller-owned order", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     const response = await api.post(
                         `/vendor/order-edits`,
@@ -371,10 +365,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects when the caller does not own the order", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     const response = await api
                         .post(
@@ -402,10 +393,7 @@ medusaIntegrationTestRunner({
 
             describe("DELETE /vendor/order-edits/:id (cancel begin)", () => {
                 it("cancels a begun edit and frees the order for a new edit", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,
@@ -436,10 +424,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects cancel from a non-owner", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
                     await api.post(
                         `/vendor/order-edits`,
                         { order_id: order.id },
@@ -459,10 +444,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/order-edits/:id/items (add new item)", () => {
                 it("adds a new item action to a begun edit", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,
@@ -489,10 +471,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("rejects add-item from a non-owner seller", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,
@@ -522,10 +501,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/order-edits/:id/request", () => {
                 it("rejects request from a non-owner", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,
@@ -545,10 +521,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("reaches the underlying workflow for the owning seller", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,
@@ -574,10 +547,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/order-edits/:id/confirm", () => {
                 it("rejects confirm from a non-owner", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,
@@ -599,10 +569,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/order-edits/:id/shipping-method", () => {
                 it("rejects add-shipping-method from a non-owner", async () => {
-                    const order = await completeCartCheckout(
-                        seller1Seed.offer.id,
-                        seller1Seed.variant.id
-                    )
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
 
                     await api.post(
                         `/vendor/order-edits`,

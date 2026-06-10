@@ -191,7 +191,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /store/carts/:id/line-items", () => {
                 it("should reject add-to-cart when offer_id is missing", async () => {
-                    const { variant } = await seedSellerOffer({
+                    await seedSellerOffer({
                         email: "missing-offer@test.com",
                         name: "Missing Offer",
                         stocked: 10,
@@ -204,7 +204,6 @@ medusaIntegrationTestRunner({
                         .post(
                             `/store/carts/${cart.id}/line-items`,
                             {
-                                variant_id: variant.id,
                                 quantity: 1,
                             },
                             storeHeaders
@@ -228,7 +227,6 @@ medusaIntegrationTestRunner({
                         `/store/carts/${cart.id}/line-items`,
                         {
                             offer_id: seed.offer.id,
-                            variant_id: seed.variant.id,
                             quantity: 2,
                         },
                         storeHeaders
@@ -408,7 +406,6 @@ medusaIntegrationTestRunner({
                         `/store/carts/${cart.id}/line-items`,
                         {
                             offer_id: seed.offer.id,
-                            variant_id: seed.variant.id,
                             quantity: 1,
                         },
                         storeHeaders
@@ -460,7 +457,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should reject add-to-cart with a non-existent offer_id", async () => {
-                    const seed: SellerSeed = await seedSellerOffer({
+                    await seedSellerOffer({
                         email: "missing-offer-id@test.com",
                         name: "Missing Offer ID",
                         stocked: 10,
@@ -473,7 +470,6 @@ medusaIntegrationTestRunner({
                             `/store/carts/${cart.id}/line-items`,
                             {
                                 offer_id: "offer_does_not_exist",
-                                variant_id: seed.variant.id,
                                 quantity: 1,
                             },
                             storeHeaders
@@ -498,7 +494,7 @@ medusaIntegrationTestRunner({
 
                     const addResp = await api.post(
                         `/store/carts/${cart.id}/line-items`,
-                        { offer_id: seed.offer.id, variant_id: seed.variant.id, quantity: 1 },
+                        { offer_id: seed.offer.id, quantity: 1 },
                         storeHeaders
                     )
                     const line = addResp.data.cart.items[0]
@@ -529,7 +525,7 @@ medusaIntegrationTestRunner({
 
                     const addResp = await api.post(
                         `/store/carts/${cart.id}/line-items`,
-                        { offer_id: seed.offer.id, variant_id: seed.variant.id, quantity: 1 },
+                        { offer_id: seed.offer.id, quantity: 1 },
                         storeHeaders
                     )
                     const line = addResp.data.cart.items[0]
@@ -563,7 +559,7 @@ medusaIntegrationTestRunner({
 
                     const addResp = await api.post(
                         `/store/carts/${cart.id}/line-items`,
-                        { offer_id: seed.offer.id, variant_id: seed.variant.id, quantity: 1 },
+                        { offer_id: seed.offer.id, quantity: 1 },
                         storeHeaders
                     )
                     const line = addResp.data.cart.items[0]
@@ -592,7 +588,7 @@ medusaIntegrationTestRunner({
 
                     const addResp = await api.post(
                         `/store/carts/${cart.id}/line-items`,
-                        { offer_id: seed.offer.id, variant_id: seed.variant.id, quantity: 1 },
+                        { offer_id: seed.offer.id, quantity: 1 },
                         storeHeaders
                     )
                     const line = addResp.data.cart.items[0]

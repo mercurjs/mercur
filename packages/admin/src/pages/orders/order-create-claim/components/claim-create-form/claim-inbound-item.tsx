@@ -10,6 +10,10 @@ import { Thumbnail } from "../../../../../components/common/thumbnail"
 import { Combobox } from "../../../../../components/inputs/combobox"
 import { MoneyAmountCell } from "../../../../../components/table/table-cells/common/money-amount-cell"
 import { useReturnReasons } from "../../../../../hooks/api/return-reasons"
+import {
+  getOfferRestockPreview,
+  type LineItemShape,
+} from "../../../../../lib/inventory-preview"
 
 type OrderEditItemProps = {
   item: AdminOrderLineItem
@@ -21,6 +25,9 @@ type OrderEditItemProps = {
   onUpdate: (payload: HttpTypes.AdminUpdateReturnItems) => void
 
   form: UseFormReturn<any>
+
+  locationId?: string
+  locationName?: string
 }
 
 function ClaimInboundItem({
@@ -31,6 +38,8 @@ function ClaimInboundItem({
   onRemove,
   onUpdate,
   index,
+  locationId,
+  locationName,
 }: OrderEditItemProps) {
   const { t } = useTranslation()
   const { return_reasons = [] } = useReturnReasons({ fields: "+label" })
@@ -38,6 +47,15 @@ function ClaimInboundItem({
   const formItem = form.watch(`inbound_items.${index}`)
   const showReturnReason = typeof formItem.reason_id === "string"
   const showNote = typeof formItem.note === "string"
+
+  const restockRows = locationId
+    ? getOfferRestockPreview(
+        item as unknown as LineItemShape,
+        formItem?.quantity ?? 0
+      )
+    : []
+  const offerSku =
+    (item as unknown as LineItemShape).offer?.sku ?? item.variant_sku ?? null
 
   return (
     <div className="bg-ui-bg-subtle shadow-elevation-card-rest my-2 rounded-xl ">
@@ -130,6 +148,27 @@ function ClaimInboundItem({
           />
         </div>
       </div>
+
+      {restockRows.length > 0 && (
+        <div className="bg-ui-bg-subtle flex flex-col gap-y-1 rounded-md px-3 py-2">
+          {restockRows.map((row) => (
+            <Text
+              key={row.inventoryItemId}
+              size="xsmall"
+              className="text-ui-fg-subtle"
+              data-testid={`claim-inbound-item-${item.id}-restock-${row.inventoryItemId}`}
+            >
+              {t("orders.returns.restockPreview", {
+                quantity: formItem?.quantity ?? 0,
+                offerSku: offerSku ?? "—",
+                delta: row.delta,
+                inventoryItem: row.inventoryItemLabel,
+                location: locationName ?? "—",
+              })}
+            </Text>
+          ))}
+        </div>
+      )}
       <>
         {/*REASON*/}
         {showReturnReason && (

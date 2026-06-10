@@ -118,12 +118,19 @@ export const ExchangeInboundSection = ({
   /**
    * HOOKS
    */
-  const { stock_locations = [] } = useStockLocations({ limit: 999 })
+  // Mercur seller link — not part of Medusa's AdminOrder type; included via
+  // order-detail/constants.ts DEFAULT_FIELDS (`*seller`).
+  const sellerId = (order as { seller?: { id?: string } | null }).seller?.id
+  const { stock_locations = [] } = useStockLocations({
+    limit: 999,
+    ...(sellerId ? { seller_id: sellerId } : {}),
+  })
   const { shipping_options = [] } = useShippingOptions(
     {
       limit: 999,
       fields: "*prices,+service_zone.fulfillment_set.location.id",
       stock_location_id: locationId,
+      ...(sellerId ? { seller_id: sellerId } : {}),
     },
     {
       enabled: !!locationId,
@@ -417,6 +424,10 @@ export const ExchangeInboundSection = ({
               previewItem={inboundItemsMap.get(item.item_id)!}
               currencyCode={order.currency_code}
               form={form}
+              locationId={locationId}
+              locationName={
+                stock_locations.find((l) => l.id === locationId)?.name
+              }
               onRemove={() => {
                 const actionId = previewInboundItems
                   .find((i) => i.id === item.item_id)
