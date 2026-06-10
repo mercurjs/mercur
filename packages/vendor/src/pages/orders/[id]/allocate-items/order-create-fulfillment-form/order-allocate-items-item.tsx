@@ -8,25 +8,58 @@ import {
 import { UseFormReturn, useWatch } from "react-hook-form"
 import { Input, Text, clx } from "@medusajs/ui"
 import * as zod from "zod"
+import type { AdminOrderLineItem, OrderLineItemDTO } from "@medusajs/types"
 
 import { Thumbnail } from "@components/common/thumbnail"
 import { getFulfillableQuantity } from "@lib/order-item"
 import { Form } from "@components/common/form"
 import { AllocateItemsSchema } from "./constants"
-import { ExtendedAdminOrderLineItemWithInventory, ExtendedAdminProductVariantInventory } from "@custom-types/order"
+
+export type OfferLinkLocationLevel = {
+  id?: string
+  location_id?: string
+  stocked_quantity?: number | null
+  reserved_quantity?: number | null
+  incoming_quantity?: number | null
+  available_quantity?: number | null
+}
+
+export type OfferLinkRow = {
+  id?: string
+  inventory_item_id?: string | null
+  required_quantity?: number | null
+  inventory_item?: {
+    id?: string | null
+    sku?: string | null
+    title?: string | null
+    location_levels?: OfferLinkLocationLevel[] | null
+  } | null
+}
+
+export type OrderLineItemWithOffer = AdminOrderLineItem & {
+  offer?: {
+    id?: string
+    sku?: string | null
+    inventory_item_link?: OfferLinkRow[] | null
+  } | null
+}
 
 type OrderEditItemProps = {
-  item: ExtendedAdminOrderLineItemWithInventory
+  item: OrderLineItemWithOffer
   locationId?: string
   form: UseFormReturn<zod.infer<typeof AllocateItemsSchema>>
   onQuantityChange: (
-    inventoryItem: ExtendedAdminProductVariantInventory,
-    lineItem: ExtendedAdminOrderLineItemWithInventory,
+    link: OfferLinkRow,
+    lineItem: OrderLineItemWithOffer,
     hasInventoryKit: boolean,
     value: number | null,
     isRoot?: boolean
   ) => void
 }
+
+const resolveInventoryItemId = (link: OfferLinkRow): string | null =>
+  link.inventory_item?.id ?? link.inventory_item_id ?? null
+
 export function OrderAllocateItemsItem({
   item,
   form,
@@ -34,8 +67,7 @@ export function OrderAllocateItemsItem({
   onQuantityChange,
 }: OrderEditItemProps) {
   const { t } = useTranslation()
-  const variant = item.variant
-  const inventory = item.variant?.inventory || []
+  const inventoryLinks = item.offer?.inventory_item_link ?? []
 
   const [isOpen, setIsOpen] = useState(false)
 
@@ -44,15 +76,19 @@ export function OrderAllocateItemsItem({
     name: "quantity",
   })
 
-  const hasInventoryKit =
-    !!variant?.inventory_items && variant.inventory_items.length > 1
+  const hasInventoryKit = inventoryLinks.length > 1
+  const firstLink = inventoryLinks[0]
+  const firstLinkId = firstLink ? resolveInventoryItemId(firstLink) : null
 
   const { availableQuantity, inStockQuantity } = useMemo(() => {
-    if (!variant || !locationId) {
-      return {}
+    if (!firstLink || !locationId) {
+      return {} as {
+        availableQuantity?: number | null
+        inStockQuantity?: number | null
+      }
     }
 
-    const locationInventory = inventory[0]?.location_levels?.find(
+    const locationInventory = firstLink.inventory_item?.location_levels?.find(
       (inv) => inv.location_id === locationId
     )
 
@@ -65,22 +101,22 @@ export function OrderAllocateItemsItem({
       inStockQuantity: locationInventory.stocked_quantity,
     }
     // oxlint-disable-next-line react-hooks/exhaustive-deps
-  }, [variant, locationId, inventory])
+  }, [firstLink, locationId])
 
   const hasQuantityError =
     !hasInventoryKit &&
     availableQuantity &&
-    item.variant?.inventory?.[0]?.id &&
-    quantityField[`${item.id}-${item.variant.inventory[0].id}`] &&
-    Number(quantityField[`${item.id}-${item.variant.inventory[0].id}`]) >
+    firstLinkId &&
+    quantityField[`${item.id}-${firstLinkId}`] &&
+    Number(quantityField[`${item.id}-${firstLinkId}`]) >
       availableQuantity
 
   const minValue = 0
   const maxValue = Math.min(
-    getFulfillableQuantity(item) ?? 0,
+    getFulfillableQuantity(item as unknown as OrderLineItemDTO) ?? 0,
     availableQuantity || Number.MAX_SAFE_INTEGER
   )
-  
+
   return (
     <div className="bg-ui-bg-subtle shadow-elevation-card-rest my-2 min-w-[720px] divide-y divide-dashed rounded-xl">
       <div className="flex items-center gap-x-3 p-3 text-sm">
@@ -95,10 +131,10 @@ export function OrderAllocateItemsItem({
                 <Text className="txt-small flex" as="span" weight="plus">
                   {item.product_title}
                 </Text>
-                {item.variant_sku && (
+                {(item.offer?.sku ?? item.variant_sku) && (
                   <span className="text-ui-fg-subtle">
                     {" "}
-                    ({item.variant_sku})
+                    ({item.offer?.sku ?? item.variant_sku})
                   </span>
                 )}
                 {hasInventoryKit && (
@@ -131,17 +167,11 @@ export function OrderAllocateItemsItem({
                     {availableQuantity || "-"}
                     {availableQuantity &&
                       !hasInventoryKit &&
-                      item.variant?.inventory?.[0]?.id &&
-                      quantityField[
-                        `${item.id}-${item.variant.inventory[0].id}`
-                      ] && (
+                      firstLinkId &&
+                      quantityField[`${item.id}-${firstLinkId}`] && (
                         <span className="text-ui-fg-error txt-small ml-1">
                           -
-                          {
-                            quantityField[
-                              `${item.id}-${item.variant.inventory[0].id}`
-                            ]
-                          }
+                          {quantityField[`${item.id}-${firstLinkId}`]}
                         </span>
                       )}
                   </span>
@@ -170,9 +200,9 @@ export function OrderAllocateItemsItem({
               <Form.Field
                 control={form.control}
                 name={
-                  hasInventoryKit && item.variant?.inventory?.[0]?.id
+                  hasInventoryKit && firstLinkId
                     ? (`quantity.${item.id}-`)
-                    : (`quantity.${item.id}-${item.variant?.inventory?.[0].id}`) as `quantity.${string}`
+                    : (`quantity.${item.id}-${firstLinkId ?? ""}`) as `quantity.${string}`
                 }
                 rules={{
                   required: !hasInventoryKit,
@@ -194,10 +224,9 @@ export function OrderAllocateItemsItem({
                                 ? null
                                 : Number(e.target.value)
 
-                            const firstInventory = item.variant?.inventory?.[0]
-                            if (firstInventory) {
+                            if (firstLink) {
                               onQuantityChange(
-                                firstInventory,
+                                firstLink,
                                 item,
                                 hasInventoryKit,
                                 val,
@@ -230,7 +259,7 @@ export function OrderAllocateItemsItem({
             />
             <span className="txt-small text-ui-fg-muted cursor-pointer">
               {t("orders.allocateItems.consistsOf", {
-                num: inventory.length,
+                num: inventoryLinks.length,
               })}
             </span>
           </div>
@@ -238,27 +267,38 @@ export function OrderAllocateItemsItem({
       )}
 
       {isOpen &&
-        variant?.inventory?.map((i, ind) => {
-          const location = i.location_levels?.find(
+        inventoryLinks.map((link, ind) => {
+          const inventoryItemId = resolveInventoryItemId(link)
+          const location = link.inventory_item?.location_levels?.find(
             (l) => l.location_id === locationId
           )
+          const required = link.required_quantity ?? 1
 
-          const hasQuantityError =
-            !!quantityField[`${item.id}-${i.id}`] &&
+          const quantityKey = `${item.id}-${inventoryItemId ?? ""}`
+          const childHasError =
+            !!quantityField[quantityKey] &&
             location &&
-            Number(quantityField[`${item.id}-${i.id}`]) > location.available_quantity
+            Number(quantityField[quantityKey]) >
+              (location.available_quantity ?? 0)
 
           return (
-            <div key={i.id} className="txt-small flex items-center gap-x-3 p-4">
+            <div
+              key={link.id ?? inventoryItemId ?? `link-${ind}`}
+              className="txt-small flex items-center gap-x-3 p-4"
+            >
               <div className="flex flex-1 flex-row items-center gap-3">
-                {hasQuantityError && (
+                {childHasError && (
                   <ExclamationCircleSolid className="text-ui-fg-error" />
                 )}
                 <div className="flex flex-col">
-                  <span className="text-ui-fg-subtle">{i?.title ?? i.sku ?? `Inventory Item ${ind + 1}`}</span>
+                  <span className="text-ui-fg-subtle">
+                    {link.inventory_item?.title ??
+                      link.inventory_item?.sku ??
+                      `Inventory Item ${ind + 1}`}
+                  </span>
                   <span className="text-ui-fg-muted">
                     {t("orders.allocateItems.requires", {
-                      num: variant?.inventory_items?.[ind]?.required_quantity || 0,
+                      num: required,
                     })}
                   </span>
                 </div>
@@ -275,9 +315,9 @@ export function OrderAllocateItemsItem({
                     <span className="text-ui-fg-muted">
                       {location?.available_quantity || "-"}
                       {location?.available_quantity &&
-                        quantityField[`${item.id}-${i.id}`] && (
+                        quantityField[quantityKey] && (
                           <span className="text-ui-fg-error txt-small ml-1">
-                            -{quantityField[`${item.id}-${i.id}`]}
+                            -{quantityField[quantityKey]}
                           </span>
                         )}
                     </span>
@@ -303,11 +343,11 @@ export function OrderAllocateItemsItem({
                   <div className="text-ui-fg-subtle txt-small mr-1 flex flex-row items-center gap-2">
                     <Form.Field
                       control={form.control}
-                      name={`quantity.${item.id}-${i.id}` as `quantity.${string}`}
+                      name={`quantity.${item.id}-${inventoryItemId ?? ""}` as `quantity.${string}`}
                       rules={{
                         required: true,
                         min: 0,
-                        max: location?.available_quantity,
+                        max: location?.available_quantity ?? undefined,
                       }}
                       render={({ field }) => {
                         return (
@@ -325,7 +365,7 @@ export function OrderAllocateItemsItem({
                                       : Number(e.target.value)
 
                                   onQuantityChange(
-                                    i,
+                                    link,
                                     item,
                                     hasInventoryKit,
                                     val
@@ -337,10 +377,7 @@ export function OrderAllocateItemsItem({
                         )
                       }}
                     />
-                    /{" "}
-                    {item.quantity *
-                      (variant.inventory_items?.[ind]?.required_quantity ?? 0)}{" "}
-                    {t("fields.qty")}
+                    / {item.quantity * required} {t("fields.qty")}
                   </div>
                 </div>
               </div>

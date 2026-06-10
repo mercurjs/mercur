@@ -111,7 +111,10 @@ export const OrderSummarySection = ({
     )
 
     return order.items?.some((item) => {
-      if (!item.variant?.manage_inventory) {
+      const offerLinks = (item as unknown as {
+        offer?: { inventory_item_link?: unknown[] | null }
+      }).offer?.inventory_item_link
+      if (!offerLinks?.length) {
         return false
       }
       const fulfilled = item.detail?.fulfilled_quantity ?? 0
@@ -365,7 +368,11 @@ const Item = ({
       ?.amount || 0
   const price = item.unit_price
 
-  const isInventoryManaged = !!item.variant?.manage_inventory
+  const offerInventoryLinks =
+    (item as unknown as {
+      offer?: { inventory_item_link?: unknown[] | null }
+    }).offer?.inventory_item_link ?? []
+  const isInventoryManaged = !!offerInventoryLinks.length
   const hasUnfulfilledItems =
     item.quantity - (item.detail?.fulfilled_quantity ?? 0) > 0
 

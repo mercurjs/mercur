@@ -16,11 +16,15 @@ import { useCreateReservationItem } from "@hooks/api/reservations"
 import { useStockLocations } from "@hooks/api/stock-locations"
 import { queryClient } from "@lib/query-client"
 import { AllocateItemsSchema } from "./constants"
-import { OrderAllocateItemsItem } from "./order-allocate-items-item"
-import { ExtendedAdminOrder, ExtendedAdminOrderLineItemWithInventory, ExtendedAdminProductVariantInventory } from "@custom-types/order"
+import {
+  OrderAllocateItemsItem,
+  type OfferLinkRow,
+  type OrderLineItemWithOffer,
+} from "./order-allocate-items-item"
+import type { HttpTypes } from "@medusajs/types"
 
 type OrderAllocateItemsFormProps = {
-  order: ExtendedAdminOrder
+  order: HttpTypes.AdminOrder
 }
 
 export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
@@ -35,11 +39,10 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
 
   const itemsToAllocate = useMemo(
     () =>
-      order.items.filter(
+      (order.items as OrderLineItemWithOffer[]).filter(
         (item) =>
-          item.variant?.manage_inventory &&
-          !!item.variant.inventory?.length &&
-          item?.quantity - item.detail?.fulfilled_quantity > 0
+          !!item.offer?.inventory_item_link?.length &&
+          item?.quantity - (item.detail?.fulfilled_quantity ?? 0) > 0
       ),
     [order.items]
   )
@@ -51,8 +54,6 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
         i.product_title?.toLowerCase().includes(filterTerm)
     )
   }, [itemsToAllocate, filterTerm])
-
-  // TODO - empty state UI
 
   const form = useForm<zod.infer<typeof AllocateItemsSchema>>({
     defaultValues: {
@@ -93,7 +94,6 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
        */
       await Promise.all(promises)
 
-      // invalidate order details so we get new item.variant.inventory items
       await queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
       })
@@ -111,63 +111,59 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
   })
 
   const onQuantityChange = (
-    inventoryItem: ExtendedAdminProductVariantInventory,
-    lineItem: ExtendedAdminOrderLineItemWithInventory,
+    link: OfferLinkRow,
+    lineItem: OrderLineItemWithOffer,
     hasInventoryKit: boolean,
     value: number | null,
     isRoot?: boolean
   ) => {
     let shouldDisableSubmit = false
 
+    const inventoryItemId = resolveInventoryItemId(link)
+
     const key =
       isRoot && hasInventoryKit
         ? `quantity.${lineItem.id}-`
-        : `quantity.${lineItem.id}-${inventoryItem.id}`
+        : `quantity.${lineItem.id}-${inventoryItemId ?? ""}`
 
     form.setValue(key as `quantity.${string}`, value ?? "")
 
-    if (value && inventoryItem.location_levels) {
-      const location = inventoryItem.location_levels.find(
-        (l) => l.location_id === selectedLocationId
-      )
-      if (location) {
-        if (location.available_quantity < value) {
-          shouldDisableSubmit = true
-        }
+    const levels = link.inventory_item?.location_levels
+    if (value && levels) {
+      const location = levels.find((l) => l.location_id === selectedLocationId)
+      if (location && (location.available_quantity ?? 0) < value) {
+        shouldDisableSubmit = true
       }
     }
 
     if (hasInventoryKit && !isRoot) {
-      // changed subitem in the kit -> we need to set parent to "-"
       form.resetField(`quantity.${lineItem.id}-` as `quantity.${string}`, { defaultValue: "" })
     }
 
     if (hasInventoryKit && isRoot) {
-      // changed root -> we need to set items to parent quantity x required_quantity
-
       const item = itemsToAllocate.find((i) => i.id === lineItem.id)
 
-      if (!item || !item.variant) return
+      if (!item || !item.offer?.inventory_item_link) return
 
-      item.variant.inventory_items?.forEach((ii, ind) => {
+      item.offer.inventory_item_link.forEach((childLink) => {
         const num = value || 0
-        const inventory = item.variant?.inventory?.[ind]
+        const childInventoryItemId = resolveInventoryItemId(childLink)
+        if (!childInventoryItemId) return
 
-        if (!inventory) return
+        const required = childLink.required_quantity ?? 1
 
         form.setValue(
-          `quantity.${lineItem.id}-${inventory.id}` as `quantity.${string}`,
-          num * ii.required_quantity
+          `quantity.${lineItem.id}-${childInventoryItemId}` as `quantity.${string}`,
+          num * required
         )
 
-        if (value && inventory.location_levels) {
-          const location = inventory.location_levels.find(
+        const childLevels = childLink.inventory_item?.location_levels
+        if (value && childLevels) {
+          const location = childLevels.find(
             (l) => l.location_id === selectedLocationId
           )
-          if (location) {
-            if (location.available_quantity < value) {
-              shouldDisableSubmit = true
-            }
+          if (location && (location.available_quantity ?? 0) < num * required) {
+            shouldDisableSubmit = true
           }
         }
       })
@@ -313,21 +309,27 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
   )
 }
 
-function defaultAllocations(items: ExtendedAdminOrderLineItemWithInventory[]) {
+const resolveInventoryItemId = (link: OfferLinkRow): string | null =>
+  link.inventory_item?.id ?? link.inventory_item_id ?? null
+
+function defaultAllocations(items: OrderLineItemWithOffer[]) {
   const ret: Record<string, string | number> = {}
 
   items.forEach((item) => {
-    const hasInventoryKit = (item.variant?.inventory_items?.length || 0) > 1
+    const links = item.offer?.inventory_item_link ?? []
+    const hasInventoryKit = links.length > 1
+    const firstInventoryItemId = resolveInventoryItemId(links[0] ?? {})
 
     ret[
       hasInventoryKit
         ? `${item.id}-`
-        : `${item.id}-${item.variant?.inventory?.[0]?.id || ''}`
+        : `${item.id}-${firstInventoryItemId ?? ""}`
     ] = ""
 
-    if (hasInventoryKit && item.variant?.inventory) {
-      item.variant.inventory.forEach((i) => {
-        ret[`${item.id}-${i.id}`] = ""
+    if (hasInventoryKit) {
+      links.forEach((link) => {
+        const id = resolveInventoryItemId(link)
+        if (id) ret[`${item.id}-${id}`] = ""
       })
     }
   })
