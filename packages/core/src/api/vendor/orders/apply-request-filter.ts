@@ -1,6 +1,6 @@
 import {
+  AuthenticatedMedusaRequest,
   MedusaNextFunction,
-  MedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
 import {
@@ -13,9 +13,22 @@ type RequestType = "edit" | "return" | "exchange" | "claim"
 const isOpenOrderChange = { status: ["requested", "pending"] }
 const isRequestedStatus = { status: "requested" }
 
+const respondEmpty = (req: AuthenticatedMedusaRequest, res: MedusaResponse) => {
+  const pagination = (req.queryConfig?.pagination ?? {}) as {
+    skip?: number
+    take?: number
+  }
+  res.json({
+    orders: [],
+    count: 0,
+    offset: pagination.skip ?? 0,
+    limit: pagination.take ?? 0,
+  })
+}
+
 export const applyRequestFilter = async (
-  req: MedusaRequest,
-  _: MedusaResponse,
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
   const filterableFields = req.filterableFields ?? {}
@@ -29,6 +42,22 @@ export const applyRequestFilter = async (
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  // Scope every lookup to orders the calling seller owns. Otherwise we
+  // scan every open order_change/return/exchange/claim row in the
+  // marketplace and only filter by seller after the join.
+  const { data: sellerLinks } = await query.graph({
+    entity: "order_seller",
+    fields: ["order_id"],
+    filters: { seller_id: req.seller_context!.seller_id },
+  })
+  const sellerOrderIds = sellerLinks.map(
+    (l: { order_id: string }) => l.order_id
+  )
+
+  if (sellerOrderIds.length === 0) {
+    return respondEmpty(req, res)
+  }
+
   const wantsEdit = request.includes("edit")
   const wantsReturn = request.includes("return")
   const wantsExchange = request.includes("exchange")
@@ -41,28 +70,32 @@ export const applyRequestFilter = async (
       ? query.graph({
           entity: "order_change",
           fields: ["order_id"],
-          filters: { ...isOpenOrderChange, change_type: "edit" },
+          filters: {
+            ...isOpenOrderChange,
+            change_type: "edit",
+            order_id: sellerOrderIds,
+          },
         })
       : emptyResult,
     wantsReturn
       ? query.graph({
           entity: "return",
           fields: ["order_id"],
-          filters: isRequestedStatus,
+          filters: { ...isRequestedStatus, order_id: sellerOrderIds },
         })
       : emptyResult,
     wantsExchange
       ? query.graph({
           entity: "order_exchange",
           fields: ["order_id"],
-          filters: isRequestedStatus,
+          filters: { ...isRequestedStatus, order_id: sellerOrderIds },
         })
       : emptyResult,
     wantsClaim
       ? query.graph({
           entity: "order_claim",
           fields: ["order_id"],
-          filters: isRequestedStatus,
+          filters: { ...isRequestedStatus, order_id: sellerOrderIds },
         })
       : emptyResult,
   ])
@@ -76,11 +109,13 @@ export const applyRequestFilter = async (
     ])
   )
 
+  if (matchingOrderIds.length === 0) {
+    return respondEmpty(req, res)
+  }
+
   const existingId = filterableFields.id
 
-  if (matchingOrderIds.length === 0) {
-    filterableFields.id = { $in: [""] }
-  } else if (existingId !== undefined) {
+  if (existingId !== undefined) {
     filterableFields.$and = [
       { id: existingId },
       { id: { $in: matchingOrderIds } },

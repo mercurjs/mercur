@@ -1,6 +1,5 @@
 import { z } from "zod"
 import { createFindParams, createOperatorMap } from "@medusajs/medusa/api/utils/validators"
-import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 const AdminGetOrdersParamsBase = createFindParams({
   limit: 15,
@@ -22,7 +21,6 @@ const AdminGetOrdersParamsBase = createFindParams({
     updated_at: createOperatorMap().optional(),
     total: createOperatorMap().optional(),
     seller_id: z.union([z.string(), z.array(z.string())]).optional(),
-    has_open_request: booleanString().optional(),
   })
 )
 

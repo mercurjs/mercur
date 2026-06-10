@@ -5,7 +5,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 
-import { mercurConfirmExchangeRequestWorkflow } from "../../../../../workflows/order/workflows/mercur-confirm-exchange-request"
+import { confirmExchangeRequestWorkflow } from "../../../../../workflows/order/workflows/confirm-exchange-request"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest,
@@ -18,7 +18,7 @@ export const POST = async (
   // Mercur wrapper: runs Medusa's `confirmExchangeRequestWorkflow` then
   // adjusts outbound reservations through `offer.inventory_item_link[]
   // .required_quantity` so bundle-style offers don't under-reserve.
-  const { result } = await mercurConfirmExchangeRequestWorkflow(req.scope).run({
+  const { result } = await confirmExchangeRequestWorkflow(req.scope).run({
     input: {
       exchange_id: id,
       confirmed_by: req.seller_context!.seller_id,

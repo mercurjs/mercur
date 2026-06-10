@@ -10,17 +10,31 @@ import {
   StepResponse,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { confirmClaimRequestWorkflow } from "@medusajs/medusa/core-flows"
+import { confirmExchangeRequestWorkflow as baseConfirmExchangeRequestWorkflow } from "@medusajs/medusa/core-flows"
 
 /**
- * Mercur wrapper around Medusa's `confirmClaimRequestWorkflow`. Mirror of
- * `mercur-confirm-exchange-request` — see that file's header for the offer
- * inventory model + scope decisions. Handles both the single-link
- * `required_quantity > 1` case (update reservation qty) and the bundle case
- * (`inventory_item_link.length > 1` — delete Medusa's variant-keyed
- * reservation, create one per offer link).
+ * Mercur wrapper around Medusa's `confirmExchangeRequestWorkflow`.
  *
- * Called from `packages/core/src/api/vendor/claims/[id]/request/route.ts`.
+ * Background. In Mercur, inventory ownership lives on the **offer**, not on
+ * the variant. The `offer ↔ inventory_item` join carries a
+ * `required_quantity` column (default `1`) that lets a single offer sale
+ * consume N units of a linked inventory item (think bundles / multi-SKU
+ * kits). Medusa's `confirmExchangeRequestWorkflow` calls `reserveInventoryStep`
+ * keyed by the variant's inventory item with `quantity × 1`, so any outbound
+ * exchange item whose offer has `required_quantity > 1` is under-reserved,
+ * and a bundle offer (`inventory_item_link.length > 1`) only reserves the
+ * variant's primary inventory item.
+ *
+ * This wrapper runs Medusa's confirm workflow as a step (so all of Medusa's
+ * logic — return creation, change confirmation, payment-collection sync,
+ * exchange shipping fulfilment, the `order.exchange_created` event — runs
+ * unchanged), then walks the reservations Medusa just created and either:
+ *  - Updates the single existing reservation's quantity (single-link case
+ *    with `required_quantity > 1`), or
+ *  - Deletes Medusa's variant-keyed reservation set and creates one new
+ *    reservation per `inventory_item_link` row (bundle case).
+ *
+ * Called from `packages/core/src/api/vendor/exchanges/[id]/request/route.ts`.
  */
 
 type OfferLinkRow = {
@@ -53,16 +67,16 @@ type CompensationEntry =
   | CompensationDelete
   | CompensationCreate
 
-const adjustClaimReservationsForOffersStepId =
-  "mercur-adjust-claim-reservations-for-offers"
+const adjustExchangeReservationsForOffersStepId =
+  "mercur-adjust-exchange-reservations-for-offers"
 
-const adjustClaimReservationsForOffersStep = createStep(
-  adjustClaimReservationsForOffersStepId,
-  async (input: { claim_id: string }, { container }) => {
+const adjustExchangeReservationsForOffersStep = createStep(
+  adjustExchangeReservationsForOffersStepId,
+  async (input: { exchange_id: string }, { container }) => {
     const query = container.resolve(ContainerRegistrationKeys.QUERY)
 
-    const { data: claims } = await query.graph({
-      entity: "order_claim",
+    const { data: exchanges } = await query.graph({
+      entity: "order_exchange",
       fields: [
         "id",
         "additional_items.quantity",
@@ -73,10 +87,10 @@ const adjustClaimReservationsForOffersStep = createStep(
         "additional_items.item.offer.inventory_item_link.inventory_item_id",
         "additional_items.item.offer.inventory_item_link.inventory_item.id",
       ],
-      filters: { id: input.claim_id },
+      filters: { id: input.exchange_id },
     })
 
-    const claim = claims?.[0] as
+    const exchange = exchanges?.[0] as
       | {
           additional_items?: Array<{
             quantity?: number
@@ -89,14 +103,14 @@ const adjustClaimReservationsForOffersStep = createStep(
         }
       | undefined
 
-    if (!claim?.additional_items?.length) {
+    if (!exchange?.additional_items?.length) {
       return new StepResponse({ adjusted: false }, [] as CompensationEntry[])
     }
 
     const inventoryService = container.resolve(Modules.INVENTORY)
     const compensation: CompensationEntry[] = []
 
-    for (const ai of claim.additional_items) {
+    for (const ai of exchange.additional_items) {
       const lineItemId = ai.item?.id
       const links = ai.item?.offer?.inventory_item_link ?? []
       if (!lineItemId || links.length === 0) {
@@ -108,6 +122,8 @@ const adjustClaimReservationsForOffersStep = createStep(
         continue
       }
 
+      // Normalize links: drop entries missing an inventory_item_id; default
+      // required_quantity to 1.
       const normalizedLinks = links
         .map((link) => ({
           inventory_item_id:
@@ -123,6 +139,7 @@ const adjustClaimReservationsForOffersStep = createStep(
         continue
       }
 
+      // Single-link case: keep Medusa's reservation, update its quantity.
       if (normalizedLinks.length === 1) {
         const link = normalizedLinks[0]
         if (link.required_quantity === 1) {
@@ -161,12 +178,16 @@ const adjustClaimReservationsForOffersStep = createStep(
       if (existingReservations.length === 0) {
         continue
       }
+      // All existing reservations should share a location_id — Medusa picks
+      // one stock location per line item at confirm time. Use the first as
+      // the canonical location for the new bundle reservations.
       const locationId = (existingReservations[0] as { location_id: string })
         .location_id
       if (!locationId) {
         continue
       }
 
+      // Stash existing reservations for compensation (re-create on rollback).
       for (const r of existingReservations) {
         compensation.push({
           type: "create",
@@ -193,6 +214,7 @@ const adjustClaimReservationsForOffersStep = createStep(
       const created = await inventoryService.createReservationItems(
         newReservations
       )
+      // Stash created ids for compensation (delete on rollback).
       for (const r of created) {
         compensation.push({ type: "delete", id: r.id })
       }
@@ -232,27 +254,27 @@ const adjustClaimReservationsForOffersStep = createStep(
   }
 )
 
-export type MercurConfirmClaimRequestWorkflowInput = {
-  claim_id: string
+export type ConfirmExchangeRequestWorkflowInput = {
+  exchange_id: string
   confirmed_by?: string
 }
 
-export const mercurConfirmClaimRequestWorkflowId =
-  "mercur-confirm-claim-request"
+export const confirmExchangeRequestWorkflowId =
+  "mercur-confirm-exchange-request"
 
-export const mercurConfirmClaimRequestWorkflow = createWorkflow(
-  mercurConfirmClaimRequestWorkflowId,
+export const confirmExchangeRequestWorkflow = createWorkflow(
+  confirmExchangeRequestWorkflowId,
   function (
-    input: MercurConfirmClaimRequestWorkflowInput
+    input: ConfirmExchangeRequestWorkflowInput
   ): WorkflowResponse<OrderPreviewDTO> {
-    const orderPreview = confirmClaimRequestWorkflow.runAsStep({
+    const orderPreview = baseConfirmExchangeRequestWorkflow.runAsStep({
       input: {
-        claim_id: input.claim_id,
+        exchange_id: input.exchange_id,
         confirmed_by: input.confirmed_by,
       },
     })
 
-    adjustClaimReservationsForOffersStep({ claim_id: input.claim_id })
+    adjustExchangeReservationsForOffersStep({ exchange_id: input.exchange_id })
 
     return new WorkflowResponse(orderPreview)
   }

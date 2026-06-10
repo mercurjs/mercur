@@ -82,29 +82,6 @@ export const useOrderGroupTableFilters = () => {
       ],
     })
 
-    filters.push({
-      key: "has_open_request",
-      label: t("orders.filters.hasOpenRequest", {
-        defaultValue: "Request",
-      }),
-      type: "select",
-      multiple: false,
-      options: [
-        {
-          label: t("orders.filters.hasOpenRequestTrue", {
-            defaultValue: "Pending request",
-          }),
-          value: "true",
-        },
-        {
-          label: t("orders.filters.hasOpenRequestFalse", {
-            defaultValue: "No pending request",
-          }),
-          value: "false",
-        },
-      ],
-    })
-
     filters.push(
       {
         key: "created_at",

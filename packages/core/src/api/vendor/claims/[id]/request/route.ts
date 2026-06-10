@@ -5,7 +5,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 
-import { mercurConfirmClaimRequestWorkflow } from "../../../../../workflows/order/workflows/mercur-confirm-claim-request"
+import { confirmClaimRequestWorkflow } from "../../../../../workflows/order/workflows/confirm-claim-request"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest,
@@ -18,7 +18,7 @@ export const POST = async (
   // Mercur wrapper: runs Medusa's `confirmClaimRequestWorkflow` then adjusts
   // outbound reservations through `offer.inventory_item_link[]
   // .required_quantity` so bundle-style offers don't under-reserve.
-  const { result } = await mercurConfirmClaimRequestWorkflow(req.scope).run({
+  const { result } = await confirmClaimRequestWorkflow(req.scope).run({
     input: {
       claim_id: id,
       confirmed_by: req.seller_context!.seller_id,

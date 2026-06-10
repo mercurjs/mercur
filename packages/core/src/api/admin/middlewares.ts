@@ -20,7 +20,6 @@ import { adminProductsMiddlewares } from "./products/middlewares"
 import { adminProductCategoriesMiddlewares } from "./product-categories/middlewares"
 import { adminProductAttributesMiddlewares } from "./product-attributes/middlewares"
 import { adminProductChangesMiddlewares } from "./product-changes/middlewares"
-import { applyHasOpenRequestFilter } from "./orders/apply-has-open-request-filter"
 
 const maybeApplySellerOrderFilter = (
   req: AuthenticatedMedusaRequest,
@@ -64,6 +63,6 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
     matcher: "/admin/orders",
-    middlewares: [maybeApplySellerOrderFilter, applyHasOpenRequestFilter],
+    middlewares: [maybeApplySellerOrderFilter],
   },
 ]

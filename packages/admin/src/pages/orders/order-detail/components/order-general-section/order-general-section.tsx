@@ -87,29 +87,25 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
                 {
                   label: t("orders.edits.create"),
                   to: "edits",
-                  // @ts-ignore
-                  disabled: !!order.canceled_at,
+                  disabled: order.status === "canceled",
                   icon: <PencilSquare />,
                 },
                 {
                   label: t("orders.returns.create"),
                   to: "returns",
-                  // @ts-ignore
-                  disabled: !!order.canceled_at,
+                  disabled: order.status === "canceled",
                   icon: <ArrowUturnLeft />,
                 },
                 {
                   label: t("orders.exchanges.create"),
                   to: "exchanges",
-                  // @ts-ignore
-                  disabled: !!order.canceled_at,
+                  disabled: order.status === "canceled",
                   icon: <ArrowPath />,
                 },
                 {
                   label: t("orders.claims.create"),
                   to: "claims",
-                  // @ts-ignore
-                  disabled: !!order.canceled_at,
+                  disabled: order.status === "canceled",
                   icon: <ExclamationCircle />,
                 },
               ],
@@ -119,7 +115,7 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
                 {
                   label: t("actions.cancel"),
                   onClick: handleCancel,
-                  disabled: !!order.canceled_at,
+                  disabled: order.status === "canceled",
                   icon: <XCircle />,
                 },
               ],
