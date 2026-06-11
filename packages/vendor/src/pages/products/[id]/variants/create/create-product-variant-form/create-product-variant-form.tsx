@@ -1,16 +1,18 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { toast } from "@medusajs/ui"
-import { Children, ReactNode, useMemo } from "react"
-import { DeepPartial, useForm } from "react-hook-form"
+import { Button, Heading, Input, toast } from "@medusajs/ui"
+import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
-import { ProductDTO } from "@mercurjs/types"
-import { useRouteModal } from "@components/modals"
-import { TabbedForm } from "@components/tabbed-form/tabbed-form"
+import { AttributeType, ProductDTO } from "@mercurjs/types"
+
+import { Form } from "@components/common/form"
+import { AttributeValueInput } from "@components/inputs/attribute-value-input"
+import { RouteFocusModal, useRouteModal } from "@components/modals"
+import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useCreateProductVariant } from "@hooks/api/products"
 import { CreateProductVariantSchema } from "./constants"
-import DetailsTab from "./details-tab"
 
 export type CreateProductVariantSchemaType = z.infer<
   typeof CreateProductVariantSchema
@@ -18,23 +20,12 @@ export type CreateProductVariantSchemaType = z.infer<
 
 type CreateProductVariantFormProps = {
   product: HttpTypes.AdminProduct
-  children?: ReactNode
-  schema?: z.ZodType<CreateProductVariantSchemaType>
-  defaultValues?: DeepPartial<CreateProductVariantSchemaType>
-}
-
-const CREATE_VARIANT_DEFAULTS: DeepPartial<CreateProductVariantSchemaType> = {
-  sku: "",
-  title: "",
-  options: {},
 }
 
 export const CreateProductVariantForm = ({
   product,
-  children,
-  schema,
-  defaultValues: extraDefaults,
 }: CreateProductVariantFormProps) => {
+  const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
   const variantAttributes =
@@ -54,11 +45,11 @@ export const CreateProductVariantForm = ({
 
   const form = useForm<CreateProductVariantSchemaType>({
     defaultValues: {
-      ...CREATE_VARIANT_DEFAULTS,
+      title: "",
+      sku: "",
       options: defaultOptions,
-      ...extraDefaults,
-    } as CreateProductVariantSchemaType,
-    resolver: zodResolver(schema ?? CreateProductVariantSchema),
+    },
+    resolver: zodResolver(CreateProductVariantSchema),
   })
 
   const { mutateAsync, isPending } = useCreateProductVariant(product.id)
@@ -75,7 +66,7 @@ export const CreateProductVariantForm = ({
         if (v && attr.name) acc[attr.name] = v
         return acc
       },
-      {},
+      {}
     )
 
     await mutateAsync(
@@ -96,16 +87,117 @@ export const CreateProductVariantForm = ({
     )
   })
 
-  const defaultTabs = useMemo(
-    () => [<DetailsTab key="details" product={product} />],
-    [product]
-  )
-
-  const hasCustomChildren = Children.count(children) > 0
-
   return (
-    <TabbedForm form={form} onSubmit={handleSubmit} isLoading={isPending}>
-      {hasCustomChildren ? children : defaultTabs}
-    </TabbedForm>
+    <RouteFocusModal.Form form={form}>
+      <KeyboundForm onSubmit={handleSubmit} className="flex h-full flex-col">
+        <RouteFocusModal.Header>
+          <RouteFocusModal.Title asChild>
+            <span className="sr-only">
+              {t("products.variant.create.header")}
+            </span>
+          </RouteFocusModal.Title>
+          <RouteFocusModal.Description className="sr-only">
+            {t("products.variant.create.header")}
+          </RouteFocusModal.Description>
+        </RouteFocusModal.Header>
+
+        <RouteFocusModal.Body className="flex flex-1 flex-col items-center overflow-y-auto">
+          <div className="flex w-full max-w-[720px] flex-col gap-y-8 px-8 py-16">
+            <Heading level="h1">{t("products.variant.create.header")}</Heading>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Form.Field
+                control={form.control}
+                name="title"
+                render={({ field }) => {
+                  return (
+                    <Form.Item>
+                      <Form.Label>{t("fields.title")}</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          data-testid="create-variant-title-input"
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )
+                }}
+              />
+
+              <Form.Field
+                control={form.control}
+                name="sku"
+                render={({ field }) => {
+                  return (
+                    <Form.Item>
+                      <Form.Label optional>{t("fields.sku")}</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          data-testid="create-variant-sku-input"
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )
+                }}
+              />
+
+              {variantAttributes.map((attribute) => {
+                const fieldKey = attribute.handle ?? attribute.id
+                return (
+                  <Form.Field
+                    key={attribute.id}
+                    control={form.control}
+                    name={`options.${fieldKey}`}
+                    render={({ field: { value, onChange } }) => {
+                      return (
+                        <Form.Item>
+                          <Form.Label>{attribute.name}</Form.Label>
+                          <Form.Control>
+                            <AttributeValueInput
+                              type={AttributeType.SINGLE_SELECT}
+                              value={typeof value === "string" ? value : ""}
+                              onChange={onChange}
+                              availableValues={(attribute.values ?? []).map(
+                                (v) => ({
+                                  id: v.id,
+                                  name: v.name,
+                                })
+                              )}
+                            />
+                          </Form.Control>
+                          <Form.ErrorMessage />
+                        </Form.Item>
+                      )
+                    }}
+                  />
+                )
+              })}
+            </div>
+          </div>
+        </RouteFocusModal.Body>
+
+        <RouteFocusModal.Footer>
+          <div className="flex items-center justify-end gap-x-2">
+            <RouteFocusModal.Close asChild>
+              <Button variant="secondary" size="small">
+                {t("actions.cancel")}
+              </Button>
+            </RouteFocusModal.Close>
+            <Button
+              type="submit"
+              variant="primary"
+              size="small"
+              isLoading={isPending}
+              data-testid="create-variant-submit-button"
+            >
+              {t("actions.save")}
+            </Button>
+          </div>
+        </RouteFocusModal.Footer>
+      </KeyboundForm>
+    </RouteFocusModal.Form>
   )
 }

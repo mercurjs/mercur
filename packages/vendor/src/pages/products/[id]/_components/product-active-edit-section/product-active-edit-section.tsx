@@ -17,7 +17,7 @@ import {
   partitionProductChangeActions,
 } from "@mercurjs/dashboard-shared";
 import { useQueries } from "@tanstack/react-query";
-import { Fragment, useMemo } from "react";
+import { Fragment, ReactNode, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
 import { Thumbnail } from "@components/common/thumbnail";
@@ -215,6 +215,29 @@ const FieldRow = ({ diff }: { diff: FieldDiff }) => {
   );
 };
 
+// A change row inside an Added/Removed group: a type label (Variant, an
+// attribute name, ...) on the left and the changed value on the right,
+// mirroring the "Label + Text" layout in the design.
+const ActionRow = ({
+  label,
+  children,
+}: {
+  label: ReactNode;
+  children: ReactNode;
+}) => (
+  <div className="flex items-start gap-4">
+    <Text
+      size="small"
+      weight="plus"
+      leading="compact"
+      className="text-ui-fg-subtle w-[160px] shrink-0"
+    >
+      {label}
+    </Text>
+    <div className="flex flex-1 flex-col gap-y-1">{children}</div>
+  </div>
+);
+
 const AttributeActionLine = ({
   attributeId,
   valueIds,
@@ -235,27 +258,38 @@ const AttributeActionLine = ({
       : [];
 
   return (
-    <Text size="small" leading="compact" className="text-ui-fg-subtle">
-      <span className="font-medium text-ui-fg-base">{name}</span>
-      {selectedNames.length > 0 && `: ${selectedNames.join(", ")}`}
-    </Text>
+    <ActionRow label={name}>
+      <Text size="small" leading="compact" className="text-ui-fg-subtle">
+        {selectedNames.length > 0 ? selectedNames.join(", ") : "-"}
+      </Text>
+    </ActionRow>
   );
 };
 
 const VariantActionLine = ({
   title,
+  sku,
   images,
 }: {
   title: string;
+  sku?: string | null;
   images?: { url: string }[];
-}) => (
-  <div className="flex items-center gap-3">
-    {images && images.length > 0 && <ImageStrip images={images} />}
-    <Text size="small" leading="compact" className="text-ui-fg-subtle">
-      <span className="font-medium text-ui-fg-base">{title}</span>
-    </Text>
-  </div>
-);
+}) => {
+  const { t } = useTranslation();
+  const src = images && images.length > 0 ? images[0].url : null;
+
+  return (
+    <ActionRow label={t("fields.variant", { defaultValue: "Variant" })}>
+      <div className="flex items-center gap-2">
+        <Thumbnail src={src} size="base" />
+        <Text size="small" leading="compact" className="text-ui-fg-subtle">
+          <span className="font-medium text-ui-fg-base">{title}</span>
+          {sku ? ` · ${sku}` : null}
+        </Text>
+      </div>
+    </ActionRow>
+  );
+};
 
 const ActionLine = ({
   action,
@@ -292,9 +326,14 @@ const ActionLine = ({
   const variantFallback = t("fields.variant", { defaultValue: "Variant" });
 
   if (action.action === ProductChangeActionType.VARIANT_ADD) {
-    const title =
-      details.variant?.title || details.variant?.sku || variantFallback;
-    return <VariantActionLine title={title} />;
+    const variantTitle = details.variant?.title;
+    const sku = details.variant?.sku;
+    const title = variantTitle || sku || variantFallback;
+    // Only show the SKU separately when there is a real title — otherwise
+    // the SKU was promoted to the title and would otherwise read "443 · 443".
+    return (
+      <VariantActionLine title={title} sku={variantTitle ? sku : undefined} />
+    );
   }
 
   if (action.action === ProductChangeActionType.VARIANT_REMOVE) {
@@ -303,7 +342,13 @@ const ActionLine = ({
     const title =
       found?.title || found?.sku || variantId || variantFallback;
     const images = isImageList(found?.images) ? found?.images : undefined;
-    return <VariantActionLine title={title} images={images} />;
+    return (
+      <VariantActionLine
+        title={title}
+        sku={found?.title ? found?.sku : undefined}
+        images={images}
+      />
+    );
   }
 
   const label = describeProductChangeAction(action, {
