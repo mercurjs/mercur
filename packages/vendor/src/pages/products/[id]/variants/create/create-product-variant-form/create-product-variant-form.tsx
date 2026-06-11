@@ -37,20 +37,31 @@ export const CreateProductVariantForm = ({
 }: CreateProductVariantFormProps) => {
   const { handleSuccess } = useRouteModal()
 
+  const variantAttributes =
+    (
+      product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">
+    ).attributes?.filter((a) => a.is_variant_axis) ?? []
+
+  // Seed every variant-axis option with an empty value so the required
+  // validation fires for untouched selects (an empty record would pass).
+  const defaultOptions = variantAttributes.reduce<Record<string, string>>(
+    (acc, attribute) => {
+      acc[attribute.handle ?? attribute.id] = ""
+      return acc
+    },
+    {}
+  )
+
   const form = useForm<CreateProductVariantSchemaType>({
     defaultValues: {
       ...CREATE_VARIANT_DEFAULTS,
+      options: defaultOptions,
       ...extraDefaults,
     } as CreateProductVariantSchemaType,
     resolver: zodResolver(schema ?? CreateProductVariantSchema),
   })
 
   const { mutateAsync, isPending } = useCreateProductVariant(product.id)
-
-  const variantAttributes =
-    (
-      product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">
-    ).attributes?.filter((a) => a.is_variant_axis) ?? []
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const { title, options } = data

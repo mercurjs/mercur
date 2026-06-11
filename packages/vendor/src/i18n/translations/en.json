@@ -826,9 +826,14 @@
       }
     },
     "variant": {
+      "validation": {
+        "titleRequired": "Please enter a title",
+        "optionRequired": "Please select a value"
+      },
       "edit": {
         "header": "Edit Variant",
-        "success": "Product variant edited successfully"
+        "success": "Product variant edited successfully",
+        "attributesTooltip": "These are default values used to describe the item. They are not defined by Marketplace."
       },
       "create": {
         "header": "Variant details"

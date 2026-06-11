@@ -3351,6 +3351,22 @@
         "variant": {
           "type": "object",
           "properties": {
+            "validation": {
+              "type": "object",
+              "properties": {
+                "titleRequired": {
+                  "type": "string"
+                },
+                "optionRequired": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "titleRequired",
+                "optionRequired"
+              ],
+              "additionalProperties": false
+            },
             "edit": {
               "type": "object",
               "properties": {
@@ -3359,11 +3375,15 @@
                 },
                 "success": {
                   "type": "string"
+                },
+                "attributesTooltip": {
+                  "type": "string"
                 }
               },
               "required": [
                 "header",
-                "success"
+                "success",
+                "attributesTooltip"
               ],
               "additionalProperties": false
             },
@@ -3399,6 +3419,7 @@
             }
           },
           "required": [
+            "validation",
             "edit",
             "create",
             "deleteWarning",

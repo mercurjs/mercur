@@ -1,5 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Divider, Heading, Input, toast } from "@medusajs/ui"
+import { InformationCircleSolid } from "@medusajs/icons"
+import { Button, Divider, Heading, Input, Tooltip, toast } from "@medusajs/ui"
+import i18next from "i18next"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -25,8 +27,7 @@ type ProductEditVariantFormProps = {
 }
 
 const ProductEditVariantSchema = z.object({
-  title: z.string().min(1),
-  material: z.string().optional(),
+  title: z.string().min(1, i18next.t("products.variant.validation.titleRequired")),
   sku: z.string().optional(),
   ean: z.string().optional(),
   upc: z.string().optional(),
@@ -38,7 +39,9 @@ const ProductEditVariantSchema = z.object({
   mid_code: z.string().optional(),
   hs_code: z.string().optional(),
   origin_country: z.string().optional(),
-  options: z.record(z.string()).optional(),
+  options: z
+    .record(z.string().min(1, i18next.t("products.variant.validation.optionRequired")))
+    .optional(),
 })
 
 export const ProductEditVariantForm = ({
@@ -72,7 +75,6 @@ export const ProductEditVariantForm = ({
   const form = useForm<z.infer<typeof ProductEditVariantSchema>>({
     defaultValues: {
       title: variant.title || "",
-      material: variant.material || "",
       sku: variant.sku || "",
       ean: variant.ean || "",
       upc: variant.upc || "",
@@ -158,21 +160,6 @@ export const ProductEditVariantForm = ({
                 return (
                   <Form.Item>
                     <Form.Label>{t("fields.title")}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                )
-              }}
-            />
-            <Form.Field
-              control={form.control}
-              name="material"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Label optional>{t("fields.material")}</Form.Label>
                     <Form.Control>
                       <Input {...field} />
                     </Form.Control>
@@ -280,7 +267,12 @@ export const ProductEditVariantForm = ({
           </div>
           <Divider />
           <div className="flex flex-col gap-y-4">
-            <Heading level="h2">{t("products.attributes")}</Heading>
+            <div className="flex items-center gap-x-1">
+              <Heading level="h2">{t("products.attributes")}</Heading>
+              <Tooltip content={t("products.variant.edit.attributesTooltip")}>
+                <InformationCircleSolid className="text-ui-fg-muted" />
+              </Tooltip>
+            </div>
             <Form.Field
               control={form.control}
               name="weight"
