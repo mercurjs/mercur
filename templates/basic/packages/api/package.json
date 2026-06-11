@@ -6,7 +6,7 @@
   "license": "MIT",
   "exports": {
     "./_generated": {
-      "types": "./.mercur/_generated/routes.d.ts"
+      "types": "./.mercur/routes.d.ts"
     }
   },
   "keywords": [
@@ -18,13 +18,15 @@
     "medusa"
   ],
   "scripts": {
-    "build": "medusa build",
+    "build": "medusa build && node ./scripts/bundle-dashboards.mjs",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start",
     "dev": "medusa develop",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
+    "codegen": "mercurjs codegen",
+    "cloud:prebuild": "mercurjs codegen"
   },
   "dependencies": {
     "@medusajs/admin-sdk": "2.13.4",
@@ -40,6 +42,8 @@
     "@mercurjs/cli": "2.2.0-canary.11"
   },
   "devDependencies": {
+    "@acme/admin": "workspace:*",
+    "@acme/vendor": "workspace:*",
     "@medusajs/test-utils": "2.13.4",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",
