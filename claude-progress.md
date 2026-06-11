@@ -14,6 +14,52 @@
 
 ## Session Log
 
+### Session 32: 2026-06-11 -- Medusa Cloud single-deployment: panels served from the backend (PR #971)
+
+**Goal.** Let a fresh `templates/basic` project deploy on Medusa Cloud as ONE
+deployment — backend API + admin panel (`/dashboard`) + vendor panel (`/seller`)
+served by the backend (`DashboardBase` static mode from `.medusa/server/dashboards/<name>`),
+replacing the documented "host the panels separately on Vercel" flow. Pattern was
+first validated end-to-end on a real Cloud project, then generalized here.
+
+**Final result.** PR #971 (`feat/cloud-served-dashboards` → `canary`, 7 commits) open
+and self-reviewed (adversarial pass; fixes in `fab5c72e`). Pieces: (1) `templates/basic` —
+api devDepends on the panel apps so `turbo prune` ships their sources to the Cloud
+builder (panels' `@acme/api` dep → tsconfig paths alias to avoid the turbo cycle);
+new `packages/api/scripts/bundle-dashboards.mjs` after `medusa build` (sub-path base
+assert, copy dists into the artifact, strip `workspace:` deps from the artifact
+package.json; production fails fast on missing panel/base/`MERCUR_BACKEND_URL`, dev
+warns + skips); artifact-aware `dashboardAppDir()` in medusa-config; vite configs read
+`MERCUR_BACKEND_URL`/`VITE_MERCUR_BACKEND_URL`; `cloud:prebuild: mercurjs codegen`;
+turbo.json env passthrough (`NODE_ENV` — turbo strict envMode strips undeclared vars!)
++ `$TURBO_ROOT$` input + restored outputs; `.yarnrc.yml` restored (Medusa ⊥ PnP).
+(2) `dashboard-sdk` — `loadMedusaConfig` imports the config with cwd = config dir
+(canary `withMercur` resolves `@medusajs/medusa` from cwd via resolve-from → threw
+under yarn workspace hoisting → silent catch → base "/" → assets 404 under sub-path);
+silent catch now warns. (3) `core` — `detectServingMode` skips the Vite probe when
+`NODE_ENV=production` (2 ms detection, no dev-port hijack). (4) Pre-existing template
+bug fixed: `./_generated` export pointed at `.mercur/_generated/routes.d.ts`; codegen
+writes `.mercur/routes.d.ts`. (5) docs `how-to-guides/medusa-cloud.mdx` rewritten +
+re-registered + redirect fixed; v2 screenshots restored from `main` (they were dropped
+from canary with the old guide — note: they rode along in `fab5c72e`).
+
+**Verification.** Fresh-template simulation (copy of templates/basic, yarn 4.6,
+published canary pkgs + locally built sdk): `turbo prune @acme/api --docker` includes
+panels + route types; production build without `MERCUR_BACKEND_URL` fails fast; with
+URL green — artifact has both panels, correct `/dashboard/assets/`+`/seller/assets/`
+bases, baked URL, no `workspace:` in artifact pkg; patched `DashboardBase` (express,
+NODE_ENV=production) serves panels/deep-links/assets all 200; fresh-user path with the
+PUBLISHED sdk (no chdir fix) warns + stays green after `fab5c72e`. turbo 2.7.4 floor
+parses the new turbo.json (dry-run exit 0). oxlint clean on all touched files.
+
+**Known caveats for the next session.** Repo-wide `bun run lint` fails on pre-existing
+issues outside this PR; `packages/core`'s own build fails on a fresh clone before the
+CLI is built (`bunx @mercurjs/cli codegen` — pre-existing, reproduced on pristine
+canary). Release coupling: fresh templates get the full flow only once sdk/core ship
+these fixes and template pins bump — until then template builds warn (dev) or fail
+loudly (production), never deploy a broken panel. No unit harness exists in core/sdk —
+verification recorded above instead (user decision: don't add one for now).
+
 ### Session 31: 2026-06-09 -- SPEC-008 vendor-orders Figma gap — ran integration tests + three bug fixes
 
 **Goal.** Run the integration test suite and validate every SPEC-008
