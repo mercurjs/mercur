@@ -1,15 +1,10 @@
-import {
-  AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
-  MedusaNextFunction,
-  MedusaResponse,
-  MiddlewareRoute,
-} from "@medusajs/framework/http"
+import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
 import { adminOrderGroupsMiddlewares } from "./order-groups/middlewares"
 import { adminOrderGroupQueryConfig } from "./order-groups/query-config"
 import { AdminGetOrderGroupParams } from "./order-groups/validators"
+import { adminOrdersMiddlewares } from "./orders/middlewares"
 import { adminOffersMiddlewares } from "./offers/middlewares"
 import { adminPayoutsMiddlewares } from "./payouts/middlewares"
 import { adminSellersMiddlewares } from "./sellers/middlewares"
@@ -24,24 +19,6 @@ import { adminStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { adminShippingOptionsMiddlewares } from "./shipping-options/middlewares"
 import { adminShippingProfilesMiddlewares } from "./shipping-profiles/middlewares"
 
-const maybeApplySellerOrderFilter = (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  if (!req.query.seller_id) {
-    return next()
-  }
-
-  req.filterableFields.seller_id = req.query.seller_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: "order_seller",
-    resourceId: "order_id",
-    filterableField: "seller_id",
-  })(req, res, next)
-}
-
 export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminOrderGroupsMiddlewares,
   {
@@ -54,6 +31,7 @@ export const adminMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
+  ...adminOrdersMiddlewares,
   ...adminOffersMiddlewares,
   ...adminPayoutsMiddlewares,
   ...adminSellersMiddlewares,
@@ -66,9 +44,4 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminStockLocationsMiddlewares,
   ...adminShippingOptionsMiddlewares,
   ...adminShippingProfilesMiddlewares,
-  {
-    method: ["GET"],
-    matcher: "/admin/orders",
-    middlewares: [maybeApplySellerOrderFilter],
-  },
 ]

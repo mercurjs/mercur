@@ -158,12 +158,22 @@ export const applyRequestFilter = async (
   if (existingId !== undefined) {
     filterableFields.$and = [
       { id: existingId },
-      { id: { $in: matchingOrderGroupIds } },
+      { id: matchingOrderGroupIds },
     ]
     delete filterableFields.id
   } else {
-    filterableFields.id = { $in: matchingOrderGroupIds }
+    // Medusa's QueryGraph for `order_group` treats a plain array as IN.
+    // `{$in: [...]}` returns no matches here (the entity doesn't honour
+    // the operator map for the primary key) — pass the array directly.
+    filterableFields.id = matchingOrderGroupIds
   }
+
+  // The raw `request` query param landed on `filterableFields` via the
+  // validator; the underlying order_group query doesn't recognise it.
+  // Strip it now that the filter has been turned into an `id` lookup —
+  // otherwise Medusa's QueryGraph silently filters on an unknown field and
+  // returns nothing.
+  delete filterableFields.request
 
   req.filterableFields = filterableFields
 

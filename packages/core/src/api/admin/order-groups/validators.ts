@@ -22,5 +22,11 @@ export const AdminGetOrderGroupsParams = createFindParams({
     sales_channel_id: z.union([z.string(), z.array(z.string())]).optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
+    // Mercur extension consumed by `applyRequestFilter` — filters order
+    // groups by whether any child order has an open edit / return /
+    // exchange / claim. Declared as a permissive string|array on the
+    // schema so the validator doesn't reject the raw query; the
+    // middleware does enum parsing via `parseRequestParam`.
+    request: z.union([z.string(), z.array(z.string())]).optional(),
   })
 )
