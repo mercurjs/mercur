@@ -14,6 +14,12 @@
     ],
     "skipLibCheck": true,
     "baseUrl": ".",
+    // Type-only access to the generated route map. A package dependency on @acme/api would
+    // form a workspace cycle — packages/api devDepends on this app so its sources travel
+    // with the API through workspace-graph pruning (e.g. the Medusa Cloud builder).
+    "paths": {
+      "@acme/api/_generated": ["../../packages/api/.mercur/routes.d.ts"]
+    },
     /* Bundler mode */
     "moduleResolution": "bundler",
     "allowImportingTsExtensions": true,

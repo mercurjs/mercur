@@ -4,8 +4,13 @@
   "tasks": {
     "build": {
       "dependsOn": ["^build"],
-      "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": [".next/**", "!.next/cache/**"]
+      "inputs": [
+        "$TURBO_DEFAULT$",
+        ".env*",
+        "$TURBO_ROOT$/packages/api/medusa-config.ts"
+      ],
+      "env": ["NODE_ENV", "MERCUR_BACKEND_URL", "VITE_MERCUR_BACKEND_URL"],
+      "outputs": [".next/**", "!.next/cache/**", ".medusa/**", "dist/**"]
     },
     "lint": {
       "dependsOn": ["^lint"]
