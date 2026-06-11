@@ -10,13 +10,14 @@
  *     or /seller/… — a base of "/" would 404 once the backend strips the route prefix),
  *  3. copies each dist into .medusa/server/dashboards/<name>/dist, where medusa-config.ts
  *     resolves it via dashboardAppDir(),
- *  4. removes the workspace-protocol devDependencies from the artifact's package.json copy —
+ *  4. removes the workspace-protocol dependencies from the artifact's package.json copy —
  *     `workspace:*` is not installable outside the monorepo and the artifact only needs
  *     the copied dist.
  *
  * In production builds (NODE_ENV=production — Medusa Cloud builds this way) the script fails
- * fast on a missing panel build or a missing MERCUR_BACKEND_URL instead of shipping a panel
- * that points at http://localhost:9000.
+ * fast on a missing panel build, a wrong base path, or a missing MERCUR_BACKEND_URL instead
+ * of shipping a panel that points at http://localhost:9000 or 404s on its own assets.
+ * Outside production it warns and skips the affected panel, so local builds keep working.
  */
 import fs from 'node:fs'
 import path from 'node:path'
@@ -52,6 +53,8 @@ if (isProduction && !process.env.MERCUR_BACKEND_URL && !process.env.VITE_MERCUR_
   )
 }
 
+let bundled = 0
+
 for (const panel of PANELS) {
   const dist = path.join(repoRoot, 'apps', panel.name, 'dist')
   const indexHtml = path.join(dist, 'index.html')
@@ -69,17 +72,22 @@ for (const panel of PANELS) {
 
   const html = fs.readFileSync(indexHtml, 'utf8')
   if (!html.includes(`${panel.basePath}assets/`)) {
-    fail(
+    const message =
       `the ${panel.name} panel was built with the wrong base path — index.html does not ` +
-        `reference ${panel.basePath}assets/, so its assets would 404 when served under ` +
-        `${panel.basePath.slice(0, -1)}. This usually means the dashboard-sdk Vite plugin ` +
-        'could not load medusa-config.ts at build time (check the build output for its warning).'
-    )
+      `reference ${panel.basePath}assets/, so its assets would 404 when served under ` +
+      `${panel.basePath.slice(0, -1)}. This usually means the dashboard-sdk Vite plugin ` +
+      'could not load medusa-config.ts at build time (check the build output for its warning).'
+    if (isProduction) {
+      fail(message)
+    }
+    console.warn(`[bundle-dashboards] ${message} Skipping the ${panel.name} panel.`)
+    continue
   }
 
   const target = path.join(artifactDir, 'dashboards', panel.name, 'dist')
   fs.rmSync(target, { recursive: true, force: true })
   fs.cpSync(dist, target, { recursive: true })
+  bundled++
   console.log(`[bundle-dashboards] ${panel.name}: apps/${panel.name}/dist -> ${path.relative(apiDir, target)}`)
 }
 
@@ -97,4 +105,8 @@ for (const field of ['dependencies', 'devDependencies']) {
 }
 fs.writeFileSync(artifactPkgPath, JSON.stringify(artifactPkg, null, 2) + '\n')
 
-console.log('[bundle-dashboards] done — the artifact serves the panels at their configured paths.')
+console.log(
+  bundled > 0
+    ? `[bundle-dashboards] done — the artifact serves ${bundled} panel(s) at their configured paths.`
+    : '[bundle-dashboards] done — no panels were bundled (see the warnings above).'
+)
