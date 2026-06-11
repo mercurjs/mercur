@@ -182,6 +182,36 @@ nodeLinker: node-modules
 enableImmutableInstalls: false
 YRC
 
+# Bypass npm's metadata quarantine by pinning quarantined @mercurjs/* deps to
+# their tarball URLs. Quarantine blocks `npm view <pkg>@<ver>` metadata for
+# up to 24h after publish, but the tarballs themselves are immutable and
+# downloadable at registry.npmjs.org/<pkg>/-/<basename>-<ver>.tgz.
+log "Rewriting quarantined @mercurjs/* deps to tarball URLs"
+python3 - <<'PY'
+import json, glob, os
+VERSION = "2.2.0-canary.12"
+SCOPE = "@mercurjs/"
+def tarball(name, ver):
+    base = name.split("/", 1)[1]
+    return f"https://registry.npmjs.org/{name}/-/{base}-{ver}.tgz"
+for path in ["package.json"] + glob.glob("packages/*/package.json") + glob.glob("apps/*/package.json"):
+    if not os.path.exists(path):
+        continue
+    with open(path) as f:
+        data = json.load(f)
+    changed = False
+    for key in ("dependencies", "devDependencies", "peerDependencies", "optionalDependencies"):
+        deps = data.get(key) or {}
+        for name, spec in list(deps.items()):
+            if name.startswith(SCOPE) and spec == VERSION:
+                deps[name] = tarball(name, VERSION)
+                changed = True
+    if changed:
+        with open(path, "w") as f:
+            json.dump(data, f, indent=2)
+            f.write("\n")
+PY
+
 # Clean yarn caches. The npm registry can flip a just-published version into
 # "quarantined" state for a few minutes; yarn caches that metadata and then
 # refuses to resolve it (YN0016). Wipe both the global mirror and any local

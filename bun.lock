@@ -166,7 +166,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -226,7 +226,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -285,7 +285,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -302,7 +302,7 @@
     },
     "packages/core": {
       "name": "@mercurjs/core",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "dependencies": {
         "pkg-dir": "4",
         "resolve-cwd": "^3.0.0",
@@ -350,7 +350,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "dependencies": {
         "@babel/parser": "7.25.6",
         "@babel/traverse": "7.25.6",
@@ -367,7 +367,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -421,7 +421,7 @@
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "dependencies": {
         "stripe": "^15.5.0",
       },
@@ -436,7 +436,7 @@
     },
     "packages/registry": {
       "name": "@mercurjs/registry",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "dependencies": {
         "@hookform/resolvers": "3.4.2",
         "@medusajs/core-flows": "^2.13.4",
@@ -479,7 +479,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "dependencies": {
         "@medusajs/types": "2.13.4",
       },
@@ -489,7 +489,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.2.0-canary.11",
+      "version": "2.2.0-canary.12",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
