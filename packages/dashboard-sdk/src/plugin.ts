@@ -105,12 +105,24 @@ async function loadMedusaConfig(
     pluginExtensions: string[];
     vendorAppUrl?: string;
 }> {
+    const configDir = path.dirname(medusaConfigPath);
+
     try {
-        const mod = await getFileExports(medusaConfigPath);
+        // Medusa configs assume they execute from their own directory — `medusa` itself
+        // runs them that way (loadEnv(process.cwd()), cwd-relative module resolution).
+        // We load the config from a panel's directory, so emulate Medusa's cwd for the
+        // duration of the import.
+        const previousCwd = process.cwd();
+        let mod: Awaited<ReturnType<typeof getFileExports>>;
+        process.chdir(configDir);
+        try {
+            mod = await getFileExports(medusaConfigPath);
+        } finally {
+            process.chdir(previousCwd);
+        }
         const medusaConfig = mod.default ?? mod;
 
         const modules = medusaConfig?.modules ?? {};
-        const configDir = path.dirname(medusaConfigPath);
 
         let base: string | undefined;
         let appType: "admin" | "vendor" = "admin";
@@ -154,7 +166,16 @@ async function loadMedusaConfig(
         const pluginExtensions = resolvePluginExtensions(plugins, configDir, appType);
 
         return { base, pluginExtensions, vendorAppUrl };
-    } catch {
+    } catch (error) {
+        // Don't fail the build — but never fail silently either: without the Medusa config
+        // the panel is built with base "/" and no plugin extensions, and a panel served
+        // under a sub-path (e.g. /dashboard) would then request assets that 404.
+        console.warn(
+            `[@mercurjs/dashboard-sdk] Could not load the Medusa config from "${medusaConfigPath}": ` +
+                `${error instanceof Error ? error.message : String(error)}. ` +
+                `Building with base "/" and no plugin extensions — if this panel is served ` +
+                `under a sub-path (e.g. /dashboard), its assets will not resolve.`,
+        );
         return { pluginExtensions: [] };
     }
 }
