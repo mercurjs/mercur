@@ -146,6 +146,10 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
               const current = currentVariantsById.get(op.variant_id) ?? {}
               const previousFields: Record<string, unknown> = {}
               for (const field of Object.keys(op.fields ?? {})) {
+                // `images` is a relation reconciled separately on apply;
+                // it carries no scalar before/after worth diffing, so
+                // keep it out of the strikethrough preview.
+                if (field === "images") continue
                 previousFields[field] = current[field] ?? null
               }
               acts.push({

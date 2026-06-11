@@ -349,6 +349,13 @@ export const VendorUpdateProductVariant = z
     manage_inventory: z.boolean().optional(),
     metadata: z.record(z.unknown()).nullish(),
     options: z.record(z.string()).optional(),
+    // Variant-scoped media. Each entry is a product image (existing ones
+    // carry `id`, freshly-uploaded ones carry only `url`); the full list
+    // is the variant's desired image set and is reconciled against the
+    // product↔variant image link when the change is applied.
+    images: z
+      .array(z.object({ id: z.string().optional(), url: z.string() }))
+      .optional(),
     attribute_values: z
       .union([z.array(z.string()), z.record(z.union([z.string(), z.array(z.string())]))])
       .optional(),

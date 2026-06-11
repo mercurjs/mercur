@@ -363,6 +363,9 @@ export const useUpdateProductVariant = (
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
       });
+      queryClient.invalidateQueries({
+        queryKey: variantsQueryKeys.detail(variantId),
+      });
 
       options?.onSuccess?.(data, variables, context);
     },
