@@ -76,7 +76,8 @@
               {
                 "group": "How-to Guides",
                 "pages": [
-                  "how-to-guides/stripe-connect-integration"
+                  "how-to-guides/stripe-connect-integration",
+                  "how-to-guides/medusa-cloud"
                 ]
               },
               {
@@ -529,7 +530,7 @@
     },
     {
       "source": "/medusa-cloud",
-      "destination": "/v1/medusa-cloud"
+      "destination": "/how-to-guides/medusa-cloud"
     }
   ],
   "footer": {
