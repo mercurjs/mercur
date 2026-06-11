@@ -8,6 +8,28 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import { confirmClaimRequestWorkflow } from "../../../../../workflows/order/workflows/confirm-claim-request"
 
+const RETURN_FIELDS = [
+  "id",
+  "order_id",
+  "exchange_id",
+  "claim_id",
+  "display_id",
+  "location_id",
+  "order_version",
+  "status",
+  "metadata",
+  "no_notification",
+  "refund_amount",
+  "created_by",
+  "created_at",
+  "updated_at",
+  "canceled_at",
+  "requested_at",
+  "received_at",
+  "items.*",
+  "items.reason.*",
+]
+
 /**
  * Mercur override of Medusa's `POST /admin/claims/:id/request`.
  * Calls Mercur's `confirmClaimRequestWorkflow` so outbound reservations
@@ -45,7 +67,7 @@ export const POST = async (
   if (returnId) {
     const { data: returns } = await query.graph({
       entity: "return",
-      fields: req.queryConfig.fields,
+      fields: RETURN_FIELDS,
       filters: { id: returnId },
     })
     orderReturn = returns?.[0] as unknown as HttpTypes.AdminReturn | undefined

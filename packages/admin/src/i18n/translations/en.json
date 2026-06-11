@@ -1317,6 +1317,7 @@
       }
     },
     "returns": {
+      "restockPreview": "Receiving {{quantity}} × {{offerSku}} → +{{delta}} to {{inventoryItem}} at {{location}}",
       "create": "Create Return",
       "confirm": "Confirm Return",
       "confirmText": "You are about to confirm a Return. This action cannot be undone.",

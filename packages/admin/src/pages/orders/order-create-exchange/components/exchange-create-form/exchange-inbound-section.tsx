@@ -3,10 +3,9 @@ import {
   AdminOrder,
   AdminOrderPreview,
   AdminReturn,
-  InventoryLevelDTO,
 } from "@medusajs/types"
-import { Alert, Button, Heading, Text, toast } from "@medusajs/ui"
-import { useEffect, useMemo, useState } from "react"
+import { Button, Heading, Text, toast } from "@medusajs/ui"
+import { useEffect, useMemo } from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -27,7 +26,6 @@ import {
   useUpdateExchangeInboundItem,
 } from "../../../../../hooks/api/exchanges"
 import { useUpdateReturn } from "../../../../../hooks/api/returns"
-import { sdk } from "../../../../../lib/client"
 import { ReturnShippingPlaceholder } from "../../../common/placeholders"
 import { ItemPlaceholder } from "../../../order-create-claim/components/claim-create-form/item-placeholder"
 import { AddExchangeInboundItemsTable } from "../add-exchange-inbound-items-table"
@@ -58,9 +56,6 @@ export const ExchangeInboundSection = ({
    * STATE
    */
   const { setIsOpen } = useStackedModal()
-  const [inventoryMap, setInventoryMap] = useState<
-    Record<string, InventoryLevelDTO[]>
-  >({})
 
   /**
    * MUTATIONS
@@ -294,67 +289,6 @@ export const ExchangeInboundSection = ({
     }
   }
 
-  const showLevelsWarning = useMemo(() => {
-    if (!locationId) {
-      return false
-    }
-
-    const allItemsHaveLocation = inboundItems
-      .map((_i) => {
-        const item = itemsMap.get(_i.item_id)
-        if (!item?.variant_id || !item?.variant) {
-          return true
-        }
-
-        if (!item.variant?.manage_inventory) {
-          return true
-        }
-
-        return inventoryMap[item.variant_id]?.find(
-          (l) => l.location_id === locationId
-        )
-      })
-      .every(Boolean)
-
-    return !allItemsHaveLocation
-  }, [
-	inboundItems,
-	inventoryMap,
-	locationId,
-	itemsMap
-])
-
-  useEffect(() => {
-    const getInventoryMap = async () => {
-      const ret: Record<string, InventoryLevelDTO[]> = {}
-
-      if (!inboundItems.length) {
-        return ret
-      }
-
-      const variantIds = inboundItems
-        .map((item) => item?.variant_id)
-        .filter(Boolean)
-
-      const variants = (
-        await sdk.admin.productVariants.query({
-          id: variantIds,
-          fields: "*inventory.location_levels",
-        })
-      ).variants
-
-      variants.forEach((variant) => {
-        ret[variant.id] = variant.inventory?.[0]?.location_levels || []
-      })
-
-      return ret
-    }
-
-    getInventoryMap().then((map) => {
-      setInventoryMap(map)
-    })
-  }, [inboundItems])
-
   return (
     <div>
       <div className="mt-8 flex items-center justify-between">
@@ -555,16 +489,6 @@ export const ExchangeInboundSection = ({
             />
           </div>
         </div>
-      )}
-      {showLevelsWarning && (
-        <Alert variant="warning" dismissible className="mt-4 p-5">
-          <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">
-            {t("orders.returns.noInventoryLevel")}
-          </div>
-          <Text className="text-ui-fg-subtle txt-small leading-normal">
-            {t("orders.returns.noInventoryLevelDesc")}
-          </Text>
-        </Alert>
       )}
     </div>
   )

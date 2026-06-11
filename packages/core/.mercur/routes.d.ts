@@ -155,7 +155,7 @@ export type Routes = {
         };
         orderEdits: typeof import("@medusajs/medusa/api/admin/order-edits/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/order-edits/[id]/route") & {
-                confirm: typeof import("@medusajs/medusa/api/admin/order-edits/[id]/confirm/route");
+                confirm: typeof import("../../src/api/admin/order-edits/[id]/confirm/route");
                 items: typeof import("../../src/api/admin/order-edits/[id]/items/route") & {
                     $actionId: typeof import("@medusajs/medusa/api/admin/order-edits/[id]/items/[action_id]/route");
                     item: {

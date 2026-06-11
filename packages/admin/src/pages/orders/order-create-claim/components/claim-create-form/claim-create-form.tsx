@@ -4,10 +4,8 @@ import {
   AdminClaim,
   AdminOrder,
   AdminOrderPreview,
-  InventoryLevelDTO,
 } from "@medusajs/types";
 import {
-  Alert,
   Button,
   CurrencyInput,
   Heading,
@@ -51,7 +49,6 @@ import {
   useUpdateClaimOutboundShipping,
 } from "../../../../../hooks/api/claims.tsx";
 import { useUpdateReturn } from "../../../../../hooks/api/returns.tsx";
-import { sdk } from "../../../../../lib/client/index.ts";
 import { currencies } from "../../../../../lib/data/currencies.ts";
 import { ReturnShippingPlaceholder } from "../../../common/placeholders.tsx";
 import { ClaimOutboundSection } from "./claim-outbound-section.tsx";
@@ -97,10 +94,6 @@ export const ClaimCreateForm = ({
       value: "0",
       float: 0,
     });
-
-  const [inventoryMap, setInventoryMap] = useState<
-    Record<string, InventoryLevelDTO[]>
-  >({});
 
   /**
    * MUTATIONS
@@ -507,68 +500,6 @@ export const ClaimCreateForm = ({
     }
   }, [isShippingOutboundPriceEdit]);
 
-  const showLevelsWarning = useMemo(() => {
-    if (!locationId) {
-      return false;
-    }
-
-    const allItemsHaveLocation = inboundItems
-      .map((_i) => {
-        const item = itemsMap.get(_i.item_id);
-        if (!item?.variant_id || !item?.variant) {
-          return true;
-        }
-
-        if (!item.variant?.manage_inventory) {
-          return true;
-        }
-
-        return inventoryMap[item.variant_id]?.find(
-          (l) => l.location_id === locationId,
-        );
-      })
-      .every(Boolean);
-
-    return !allItemsHaveLocation;
-  }, [
-	inboundItems,
-	inventoryMap,
-	locationId,
-	itemsMap
-]);
-
-  useEffect(() => {
-    const getInventoryMap = async () => {
-      const ret: Record<string, InventoryLevelDTO[]> = {};
-
-      if (!inboundItems.length) {
-        return ret;
-      }
-
-      const variantIds = inboundItems
-        .map((item) => item?.variant_id)
-        .filter(Boolean);
-
-      const variants = (
-        await sdk.admin.productVariants.query({
-          id: variantIds,
-          fields: "*inventory.location_levels",
-        })
-      ).variants;
-
-      variants.forEach((variant) => {
-        // TODO: fix this for inventory kits
-        ret[variant.id] = variant.inventory?.[0]?.location_levels || [];
-      });
-
-      return ret;
-    };
-
-    getInventoryMap().then((map) => {
-      setInventoryMap(map);
-    });
-  }, [inboundItems]);
-
   useEffect(() => {
     /**
      * Unmount hook
@@ -828,17 +759,6 @@ export const ClaimCreateForm = ({
                 </div>
               </div>
             )}
-            {showLevelsWarning && (
-              <Alert variant="warning" dismissible className="mt-4 p-5">
-                <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">
-                  {t("orders.returns.noInventoryLevel")}
-                </div>
-                <Text className="text-ui-fg-subtle txt-small leading-normal">
-                  {t("orders.returns.noInventoryLevelDesc")}
-                </Text>
-              </Alert>
-            )}
-
             <ClaimOutboundSection
               form={form}
               preview={preview}

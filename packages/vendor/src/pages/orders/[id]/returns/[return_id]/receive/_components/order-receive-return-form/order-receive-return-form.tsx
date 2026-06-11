@@ -16,17 +16,19 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
+import { Combobox } from "@components/inputs/combobox"
 import { Form } from "@components/common/form"
 import { Thumbnail } from "@components/common/thumbnail"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
-import { useStockLocation } from "@hooks/api/stock-locations"
+import { useStockLocations } from "@hooks/api/stock-locations"
 import {
   useAddReceiveItems,
   useCancelReceiveReturn,
   useConfirmReturnReceive,
   useRemoveReceiveItems,
   useUpdateReceiveItem,
+  useUpdateReturn,
 } from "@hooks/api/returns"
 import { getStylizedAmount } from "@lib/money-amount-helpers"
 
@@ -90,12 +92,13 @@ export function OrderReceiveReturnForm({
     order.id
   )
 
-  const { stock_location } = useStockLocation(
-    orderReturn.location_id ?? "",
-    undefined,
-    {
-      enabled: !!orderReturn.location_id,
-    } as never
+  const { stock_locations: stockLocations = [] } = useStockLocations({
+    limit: 999,
+  })
+
+  const { mutateAsync: updateReturn } = useUpdateReturn(
+    orderReturn.id,
+    order.id
   )
 
   const itemsMap = useMemo(() => {
@@ -106,6 +109,7 @@ export function OrderReceiveReturnForm({
 
   const form = useForm<zod.infer<typeof ReceiveReturnSchema>>({
     defaultValues: {
+      location_id: orderReturn.location_id ?? "",
       items: previewItems
         ?.sort((i1, i2) => i1.id.localeCompare(i2.id))
         .map((i) => ({ item_id: i.id })),
@@ -113,6 +117,16 @@ export function OrderReceiveReturnForm({
     },
     resolver: zodResolver(ReceiveReturnSchema),
   })
+
+  const handleLocationChange = async (selectedLocationId: string) => {
+    try {
+      await updateReturn({ location_id: selectedLocationId })
+    } catch (e) {
+      toast.error(
+        e instanceof Error ? e.message : t("errorBoundary.defaultTitle")
+      )
+    }
+  }
 
   useEffect(() => {
     previewItems
@@ -224,17 +238,39 @@ export function OrderReceiveReturnForm({
         className="flex size-full flex-col overflow-hidden"
       >
         <RouteDrawer.Body className="flex size-full flex-col overflow-auto">
-          <div className="flex justify-between">
-            <div>
-              {stock_location && (
-                <div className="flex items-center gap-2">
-                  <ArrowRight className="text-ui-fg-subtle" />{" "}
-                  <span className="text-ui-fg-base txt-small font-medium">
-                    {stock_location.name}
-                  </span>
-                </div>
-              )}
+          <div className="mb-4 flex flex-col gap-y-1">
+            <div className="flex items-center gap-2">
+              <ArrowRight className="text-ui-fg-subtle" />
+              <Form.Label>{t("orders.returns.location")}</Form.Label>
             </div>
+            <Form.Field
+              control={form.control}
+              name="location_id"
+              render={({ field: { value, onChange, ...field } }) => (
+                <Form.Item>
+                  <Form.Control>
+                    <Combobox
+                      value={value ?? undefined}
+                      onChange={(v) => {
+                        onChange(v ?? "")
+                        if (v) {
+                          handleLocationChange(v)
+                        }
+                      }}
+                      {...field}
+                      options={(stockLocations ?? []).map((loc) => ({
+                        label: loc.name,
+                        value: loc.id,
+                      }))}
+                      data-testid="return-receive-location"
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+          </div>
+          <div className="flex justify-end">
             <span className="text-ui-fg-muted txt-small text-right">
               {t("orders.returns.receive.itemsLabel")}
             </span>

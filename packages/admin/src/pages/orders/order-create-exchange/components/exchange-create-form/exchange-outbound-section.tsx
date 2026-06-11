@@ -2,10 +2,9 @@ import {
   AdminExchange,
   AdminOrder,
   AdminOrderPreview,
-  InventoryLevelDTO,
 } from "@medusajs/types"
-import { Alert, Button, Heading, Text, toast } from "@medusajs/ui"
-import { useEffect, useMemo, useState } from "react"
+import { Button, Heading, toast } from "@medusajs/ui"
+import { useEffect, useMemo } from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -23,7 +22,6 @@ import {
   useRemoveExchangeOutboundItem,
   useUpdateExchangeOutboundItems,
 } from "../../../../../hooks/api/exchanges"
-import { sdk } from "../../../../../lib/client"
 import { OutboundShippingPlaceholder } from "../../../common/placeholders"
 import { ItemPlaceholder } from "../../../order-create-claim/components/claim-create-form/item-placeholder"
 import { AddExchangeOutboundItemsTable } from "../add-exchange-outbound-items-table"
@@ -52,9 +50,6 @@ export const ExchangeOutboundSection = ({
   const { t } = useTranslation()
 
   const { setIsOpen } = useStackedModal()
-  const [inventoryMap, setInventoryMap] = useState<
-    Record<string, InventoryLevelDTO[]>
-  >({})
 
   /**
    * HOOKS
@@ -102,11 +97,6 @@ export const ExchangeOutboundSection = ({
           )
       ),
     [preview.items, exchange.id]
-  )
-
-  const variantItemMap = useMemo(
-    () => new Map(order?.items?.map((i) => [i.variant_id, i])),
-    [order.items]
   )
 
   const {
@@ -164,7 +154,6 @@ export const ExchangeOutboundSection = ({
 	append
 ])
 
-  const locationId = form.watch("location_id")
   const showOutboundItemsPlaceholder = !outboundItems.length
 
   const onItemsSelected = async () => {
@@ -248,67 +237,6 @@ export const ExchangeOutboundSection = ({
       )
     }
   }
-
-  const showLevelsWarning = useMemo(() => {
-    if (!locationId) {
-      return false
-    }
-
-    const allItemsHaveLocation = outboundItems
-      .map((i) => {
-        const item = variantItemMap.get(i.variant_id)
-        if (!item?.variant_id || !item?.variant) {
-          return true
-        }
-
-        if (!item.variant?.manage_inventory) {
-          return true
-        }
-
-        return inventoryMap[item.variant_id]?.find(
-          (l) => l.location_id === locationId
-        )
-      })
-      .every(Boolean)
-
-    return !allItemsHaveLocation
-  }, [
-	outboundItems,
-	inventoryMap,
-	locationId,
-	variantItemMap
-])
-
-  useEffect(() => {
-    const getInventoryMap = async () => {
-      const ret: Record<string, InventoryLevelDTO[]> = {}
-
-      if (!outboundItems.length) {
-        return ret
-      }
-
-      const variantIds = outboundItems
-        .map((item) => item?.variant_id)
-        .filter(Boolean)
-
-      const variants = (
-        await sdk.admin.productVariants.query({
-          id: variantIds,
-          fields: "*inventory.location_levels",
-        })
-      ).variants
-
-      variants.forEach((variant) => {
-        ret[variant.id] = variant.inventory?.[0]?.location_levels || []
-      })
-
-      return ret
-    }
-
-    getInventoryMap().then((map) => {
-      setInventoryMap(map)
-    })
-  }, [outboundItems])
 
   return (
     <div>
@@ -463,16 +391,6 @@ export const ExchangeOutboundSection = ({
         </div>
       )}
 
-      {showLevelsWarning && (
-        <Alert variant="warning" dismissible className="mt-4 p-5">
-          <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">
-            {t("orders.returns.noInventoryLevel")}
-          </div>
-          <Text className="text-ui-fg-subtle txt-small leading-normal">
-            {t("orders.returns.noInventoryLevelDesc")}
-          </Text>
-        </Alert>
-      )}
     </div>
   )
 }
