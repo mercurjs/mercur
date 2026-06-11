@@ -450,7 +450,7 @@
       "header": "Edit Product",
       "description": "Edit the product details.",
       "successToast": "Product {{title}} was successfully updated.",
-      "requestSuccessToast": "Product update request has been submitted successfully.",
+      "requestSuccessToast": "Product update was successfully requested. Once confirmed by the Admin, changes will appear on the storefront.",
       "duplicateRequestErrorToast": "You already have an active request. You can only have one at a time.",
       "attributes": {
         "addAttribute": "Add Attribute",
@@ -477,7 +477,7 @@
         "cancelDescription": "Are you sure you want to cancel this product update request? This action cannot be undone."
       },
       "toast": {
-        "canceledSuccessfully": "Product update request canceled"
+        "canceledSuccessfully": "Product update request was successfully canceled."
       }
     },
     "create": {
