@@ -874,7 +874,7 @@
       "edit": {
         "header": "Shipping Configuration",
         "toasts": {
-          "success": "Successfully updated the shipping profile for {{title}}."
+          "success": "Shipping configuration was successfully updated."
         }
       },
       "create": {
@@ -1063,7 +1063,7 @@
     "subtitle": "Manage your catalog listings",
     "create": {
       "header": "Create offer",
-      "successToast": "Offer created",
+      "successToast": "Offer was successfully published. Only offers with stock levels and prices set will be visible on the storefront.",
       "publish": "Publish",
       "tip": "Select all relevant products that match your inventory, then easily create offers for them by simply adding your stock levels and prices.",
       "addPrice": "Add price",
@@ -1090,18 +1090,18 @@
     "pricing": {
       "header": "Manage prices",
       "description": "Add, change, or remove prices on this offer's ladder.",
-      "successToast": "Prices updated",
+      "successToast": "Prices were successfully updated.",
       "empty": "No prices configured"
     },
     "inventory": {
       "header": "Manage inventory items",
       "description": "Attach, detach, or change the required quantity per item.",
-      "successToast": "Inventory items updated",
+      "successToast": "Stock levels were successfully updated.",
       "empty": "No inventory items attached"
     },
     "delete": {
       "description": "You are about to delete offer {{sku}}. This cannot be undone.",
-      "successToast": "Offer deleted"
+      "successToast": "Offer was successfully deleted."
     },
     "bulkDelete": {
       "description_one": "You are about to delete {{count}} offer. This cannot be undone.",
