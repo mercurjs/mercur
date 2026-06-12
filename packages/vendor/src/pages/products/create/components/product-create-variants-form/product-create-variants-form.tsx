@@ -1,4 +1,5 @@
-import { useMemo } from "react"
+import { Input } from "@medusajs/ui"
+import { useMemo, useState } from "react"
 import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -11,8 +12,11 @@ import { ProductCreateVariantSchema } from "../../constants"
 import { ProductCreateSchemaType } from "../../types"
 
 const Root = () => {
+  const { t } = useTranslation()
   const form = useTabbedForm<ProductCreateSchemaType>()
   const { setCloseOnEscape } = useRouteModal()
+
+  const [search, setSearch] = useState("")
 
   const variants = useWatch({
     control: form.control,
@@ -48,6 +52,37 @@ const Root = () => {
     return ret
   }, [variants])
 
+  const filteredVariantData = useMemo(() => {
+    const query = search.trim().toLowerCase()
+    if (!query) {
+      return variantData
+    }
+
+    return variantData.filter((variant) => {
+      const haystack = [
+        variant.title,
+        variant.sku,
+        ...Object.values(variant.options ?? {}),
+      ]
+
+      return haystack.some((value) => value?.toLowerCase().includes(query))
+    })
+  }, [variantData, search])
+
+  const headerContent = (
+    <Input
+      type="search"
+      size="small"
+      autoComplete="off"
+      value={search}
+      onChange={(event) => setSearch(event.target.value)}
+      placeholder={t(
+        "products.create.variants.productVariants.searchPlaceholder"
+      )}
+      data-testid="product-create-variants-search-input"
+    />
+  )
+
   return (
     <div
       className="flex size-full flex-col divide-y overflow-hidden"
@@ -56,9 +91,10 @@ const Root = () => {
       <div data-testid="product-create-variants-form-datagrid">
         <DataGrid
           columns={columns}
-          data={variantData}
+          data={filteredVariantData}
           state={form}
           onEditingChange={(editing) => setCloseOnEscape(!editing)}
+          headerContent={headerContent}
         />
       </div>
     </div>

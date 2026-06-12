@@ -67,6 +67,60 @@ const DEFAULT_OPTION_TITLE = "Default option"
 const DEFAULT_OPTION_VALUE = "Default option value"
 
 /**
+ * Ensures every option value referenced by a variant exists on the
+ * corresponding product option.
+ *
+ * Product `options` are synthesised from `variant_attributes` (value
+ * ids → value names), but a variant's `options` map carries value
+ * *names* the UI generated from the raw selection. When a selected
+ * value can't be resolved to an id — e.g. a user-entered custom value
+ * on an existing attribute, which the value-id resolution drops — the
+ * synthesised option ends up missing that value while a variant still
+ * references it. Stock variant creation then rejects the product with
+ * "Option value X does not exist for option Y" (MER-127).
+ *
+ * Unioning the variant-referenced names back into the options keeps the
+ * product self-consistent so creation succeeds. Existing option titles
+ * are augmented in place; a title referenced only by a variant is
+ * appended (preserving first-seen order) so the same error can't slip
+ * through a different way.
+ */
+export const unionVariantOptionValues = (
+  options: ProductOptionInput[],
+  variants: Array<{ options?: Record<string, string> }>,
+): ProductOptionInput[] => {
+  const valuesByTitle = new Map<string, Set<string>>()
+  const order: string[] = []
+
+  const ensureTitle = (title: string) => {
+    if (!valuesByTitle.has(title)) {
+      valuesByTitle.set(title, new Set())
+      order.push(title)
+    }
+    return valuesByTitle.get(title)!
+  }
+
+  for (const option of options) {
+    const set = ensureTitle(option.title)
+    for (const value of option.values) set.add(value)
+  }
+
+  for (const variant of variants) {
+    const variantOptions = variant.options
+    if (!variantOptions) continue
+    for (const [title, value] of Object.entries(variantOptions)) {
+      if (value === undefined || value === null || value === "") continue
+      ensureTitle(title).add(value)
+    }
+  }
+
+  return order.map((title) => ({
+    title,
+    values: Array.from(valuesByTitle.get(title)!),
+  }))
+}
+
+/**
  * Marketplace wrapper over stock `createProductsWorkflow`.
  *
  * On top of stock it:
@@ -193,7 +247,7 @@ export const createProductsWorkflow: ReturnWorkflow<
 
           return {
             ...rest,
-            options,
+            options: unionVariantOptionValues(options, stockVariants),
             ...(stockVariants.length ? { variants: stockVariants } : {}),
           }
         }),

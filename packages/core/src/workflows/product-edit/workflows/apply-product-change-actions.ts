@@ -15,7 +15,11 @@ import {
 } from "@medusajs/medusa/core-flows"
 import { ProductChangeActionType } from "@mercurjs/types"
 
-import { updateProductChangeActionsStep } from "../steps"
+import {
+  applyVariantImageLinksStep,
+  updateProductChangeActionsStep,
+  type VariantImageLinks,
+} from "../steps"
 import { applyProductAttributeChangeActionsWorkflow } from "./apply-product-attribute-change-actions"
 
 export type ApplyProductChangeActionsWorkflowInput = {
@@ -26,6 +30,7 @@ type BucketedActions = {
   productUpdates: Array<Record<string, unknown> & { id: string }>
   variantCreates: Array<Record<string, unknown> & { product_id: string }>
   variantUpdates: Array<Record<string, unknown> & { id: string }>
+  variantImageLinks: VariantImageLinks[]
   variantDeletes: string[]
   attributeAdds: Array<{
     product_id: string
@@ -96,6 +101,7 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         Record<string, unknown> & { product_id: string }
       > = []
       const variantUpdates: Array<Record<string, unknown> & { id: string }> = []
+      const variantImageLinks: VariantImageLinks[] = []
       const variantDeletes: string[] = []
       const attributeAdds: BucketedActions["attributeAdds"] = []
       const attributeRemoves: BucketedActions["attributeRemoves"] = []
@@ -148,7 +154,21 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
               !Object.keys(fields as object).length
             )
               break
-            variantUpdates.push({ id: variant_id, ...fields })
+            // `images` is a variant↔image relation, not a scalar column,
+            // so split it out of the variant update (which goes through
+            // `updateProductVariantsWorkflow`) and apply the link changes
+            // separately via `applyVariantImageLinksStep`.
+            const { images, ...scalarFields } = fields as {
+              images?: { add?: string[]; remove?: string[] }
+            } & Record<string, unknown>
+            const add = images?.add ?? []
+            const remove = images?.remove ?? []
+            if (add.length || remove.length) {
+              variantImageLinks.push({ variant_id, add, remove })
+            }
+            if (Object.keys(scalarFields).length) {
+              variantUpdates.push({ id: variant_id, ...scalarFields })
+            }
             break
           }
           case ProductChangeActionType.VARIANT_REMOVE: {
@@ -192,6 +212,7 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         ),
         variantCreates,
         variantUpdates,
+        variantImageLinks,
         variantDeletes,
         attributeAdds,
         attributeRemoves,
@@ -239,6 +260,21 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         })
       },
     )
+
+    // Variant media: link/unlink product↔variant images after the
+    // variants themselves are stable. Runs last among variant work so the
+    // target variants are guaranteed to exist.
+    when(
+      { buckets },
+      ({ buckets }) => buckets.variantImageLinks.length > 0,
+    ).then(() => {
+      applyVariantImageLinksStep({
+        updates: transform(
+          { buckets },
+          ({ buckets }) => buckets.variantImageLinks,
+        ),
+      })
+    })
 
     applyProductAttributeChangeActionsWorkflow.runAsStep({
       input: transform({ buckets }, ({ buckets }) => ({

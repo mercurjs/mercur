@@ -65,6 +65,11 @@ export const applyRequestFilter = async (
 
   const emptyResult = Promise.resolve({ data: [] as { order_id: string }[] })
 
+  // `return` carries its own `status` column, so it is queried directly.
+  // `order_claim`/`order_exchange` do NOT have a status field — their open
+  // state lives on the associated `order_change` row (change_type
+  // "claim"/"exchange"). Filtering those entities by status throws, so we
+  // resolve claim/exchange through `order_change`, exactly like "edit".
   const [editRes, returnRes, exchangeRes, claimRes] = await promiseAll([
     wantsEdit
       ? query.graph({
@@ -86,16 +91,24 @@ export const applyRequestFilter = async (
       : emptyResult,
     wantsExchange
       ? query.graph({
-          entity: "order_exchange",
+          entity: "order_change",
           fields: ["order_id"],
-          filters: { ...isRequestedStatus, order_id: sellerOrderIds },
+          filters: {
+            ...isOpenOrderChange,
+            change_type: "exchange",
+            order_id: sellerOrderIds,
+          },
         })
       : emptyResult,
     wantsClaim
       ? query.graph({
-          entity: "order_claim",
+          entity: "order_change",
           fields: ["order_id"],
-          filters: { ...isRequestedStatus, order_id: sellerOrderIds },
+          filters: {
+            ...isOpenOrderChange,
+            change_type: "claim",
+            order_id: sellerOrderIds,
+          },
         })
       : emptyResult,
   ])

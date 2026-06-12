@@ -98,13 +98,6 @@ interface DataTableProps<TData> {
     order: string[]
   }
   filterBarContent?: React.ReactNode
-  /**
-   * When true, the top toolbar row is hidden and Search is rendered inside
-   * the auto filter bar (single-row layout with Add filter on the left and
-   * Search/Sort on the right). FilterMenu and SortingMenu are not duplicated
-   * in a second row.
-   */
-  compact?: boolean
 }
 
 export const DataTable = <TData,>({
@@ -140,7 +133,6 @@ export const DataTable = <TData,>({
   entity: _entity,
   currentColumns: _currentColumns,
   filterBarContent,
-  compact = false,
 }: DataTableProps<TData>) => {
   const { t } = useTranslation()
 
@@ -366,15 +358,18 @@ export const DataTable = <TData,>({
 
   const shouldRenderHeading = heading || subHeading
 
-  const compactFilterBarContent =
-    compact && enableSearch ? (
-      <>
-        <UiDataTable.Search placeholder={t("filters.searchLabel")} />
-        {filterBarContent}
-      </>
-    ) : (
-      filterBarContent
-    )
+  // When the consumer supplies a heading or toolbar actions, render the full
+  // toolbar (heading + filter/sort/search row) and let Medusa append its own
+  // filter bar underneath. When it supplies none of those — e.g. a section
+  // that draws its own header in a Container — render Medusa's filter bar
+  // directly: a single row with Add filter on the left and Search/Sort on the
+  // right (its own `border-t` acts as the separator), instead of an empty
+  // toolbar band stacked on top of the filter bar.
+  const hasToolbarHeader =
+    Boolean(shouldRenderHeading) ||
+    Boolean(actionMenu) ||
+    Boolean(actions && actions.length > 0) ||
+    Boolean(action)
 
   return (
     <UiDataTable
@@ -383,16 +378,12 @@ export const DataTable = <TData,>({
         layout === "fill" ? "h-full [&_tr]:last-of-type:!border-b" : undefined
       }
     >
-      <UiDataTable.Toolbar
-        className={
-          compact
-            ? "hidden"
-            : "flex flex-col items-start justify-between gap-2 md:flex-row md:items-center"
-        }
-        translations={toolbarTranslations}
-        filterBarContent={compactFilterBarContent}
-      >
-        {compact ? null : (
+      {hasToolbarHeader ? (
+        <UiDataTable.Toolbar
+          className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center"
+          translations={toolbarTranslations}
+          filterBarContent={filterBarContent}
+        >
           <div className="flex w-full items-center justify-between gap-2">
             <div className="flex items-center gap-x-4">
               {shouldRenderHeading && (
@@ -425,8 +416,20 @@ export const DataTable = <TData,>({
               {!actions && action && <DataTableAction {...action} />}
             </div>
           </div>
-        )}
-      </UiDataTable.Toolbar>
+        </UiDataTable.Toolbar>
+      ) : (
+        <UiDataTable.FilterBar
+          alwaysShow
+          clearAllFiltersLabel={toolbarTranslations.clearAll}
+          sortingTooltip={toolbarTranslations.sort}
+          columnsTooltip={toolbarTranslations.columns}
+        >
+          {enableSearch && (
+            <UiDataTable.Search placeholder={t("filters.searchLabel")} />
+          )}
+          {filterBarContent}
+        </UiDataTable.FilterBar>
+      )}
       <UiDataTable.Table emptyState={emptyState} />
       {enablePagination && (
         <UiDataTable.Pagination translations={paginationTranslations} />

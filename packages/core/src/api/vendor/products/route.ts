@@ -11,6 +11,7 @@ import {
   type CreateProductWorkflowInput,
 } from "../../../workflows/product/workflows/create-products"
 import { enrichProductAttributes } from "../../utils"
+import { wrapProductVariantsWithOffers } from "./helpers"
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 
 export const GET = async (
@@ -18,6 +19,19 @@ export const GET = async (
   res: MedusaResponse<HttpTypes.VendorProductListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  // Offers are a per-seller overlay on the shared Offer ↔ Variant link;
+  // strip the requested `variants.offers.*` fields before the graph read
+  // and re-attach the active seller's offers afterwards so a competitor's
+  // offers on a master variant never leak (Medusa's strip-then-wrap flow).
+  const withOffers = req.queryConfig.fields.some((field) =>
+    field.includes("variants.offers")
+  )
+  if (withOffers) {
+    req.queryConfig.fields = req.queryConfig.fields.filter(
+      (field) => !field.includes("variants.offers")
+    )
+  }
 
   const { data: products, metadata } = await query.graph({
     entity: "product",
@@ -27,6 +41,14 @@ export const GET = async (
   })
 
   await enrichProductAttributes(req.scope, products as any[])
+
+  if (withOffers) {
+    await wrapProductVariantsWithOffers(
+      req.scope,
+      req.seller_context!.seller_id,
+      products as Parameters<typeof wrapProductVariantsWithOffers>[2]
+    )
+  }
 
   res.json({
     products,

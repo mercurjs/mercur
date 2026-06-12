@@ -185,6 +185,52 @@ medusaIntegrationTestRunner({
           ])
         })
 
+        // MER-127: a variant may reference an option value that the
+        // synthesised options miss — e.g. a user-entered custom value on an
+        // existing attribute, which value-id resolution drops. Stock variant
+        // creation used to reject the product with "Option value L does not
+        // exist for option Size". The wrapper now unions variant-referenced
+        // values back into the product options so creation succeeds.
+        it("(A2) creates the product when a variant references a value missing from variant_attributes value_ids", async () => {
+          const size = await createGlobalAttribute({
+            name: "Size",
+            type: "multi_select",
+            is_variant_axis: true,
+            values: ["S", "M"],
+          })
+
+          const create = await api.post(
+            `/vendor/products`,
+            {
+              title: "Vendor Custom Value",
+              variants: [
+                { title: "Small", attribute_values: { Size: "S" } },
+                // "L" is not part of the resolved variant_attributes below.
+                { title: "Large", attribute_values: { Size: "L" } },
+              ],
+              variant_attributes: [
+                {
+                  attribute_id: size.attribute_id,
+                  value_ids: [size.byName.get("S")!],
+                },
+              ],
+            },
+            seller1Headers,
+          )
+          expect(create.status).toBe(201)
+
+          const sizeOption = create.data.product.options.find(
+            (o: any) => o.title === "Size",
+          )
+          expect(sizeOption).toBeDefined()
+          expect(sizeOption.values.map((v: any) => v.value).sort()).toEqual([
+            "L",
+            "S",
+          ])
+          // Both variants were created against the unioned option set.
+          expect(create.data.product.variants).toHaveLength(2)
+        })
+
         // --- Case B: inline custom variant-axis attribute ---
         it("(B) inline custom variant-axis: creates a product-scoped attribute, links values, hides it from the global catalogue", async () => {
           const create = await api.post(

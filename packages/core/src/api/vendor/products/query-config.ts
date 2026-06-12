@@ -76,7 +76,12 @@ export const vendorProductVariantFields = [
   "product_id",
   "manage_inventory",
   "allow_backorder",
+  "thumbnail",
   "*options",
+  "images.id",
+  "images.url",
+  "images.rank",
+  "images.variants.id",
 ]
 
 export const vendorProductVariantQueryConfig = {

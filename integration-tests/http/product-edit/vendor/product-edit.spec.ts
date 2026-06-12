@@ -411,6 +411,115 @@ medusaIntegrationTestRunner({
           )
           expect(updates).toHaveLength(0)
         })
+
+        // Creates a product whose single variant sits on a variant axis, so
+        // the variant carries real Medusa `options`. Returns the applied
+        // variant id and its current `{ option_title: value }` map.
+        const createProductWithVariantOptions = async (
+          title: string,
+          tag: string,
+        ): Promise<{
+          productId: string
+          variantId: string
+          currentOptions: Record<string, string>
+        }> => {
+          const product = (
+            await api.post(
+              `/vendor/products`,
+              {
+                status: "published",
+                title,
+                variant_attributes: [
+                  {
+                    name: `Color${tag}`,
+                    type: "multi_select",
+                    values: ["Red", "Blue"],
+                    is_variant_axis: true,
+                  },
+                ],
+                variants: [
+                  {
+                    title: "Red Variant",
+                    sku: `OPT-${tag}`,
+                    attribute_values: { [`Color${tag}`]: "Red" },
+                  },
+                ],
+              },
+              sellerHeaders,
+            )
+          ).data.product
+
+          const variantId = product.variants[0].id as string
+
+          const query = container.resolve(ContainerRegistrationKeys.QUERY)
+          const {
+            data: [loaded],
+          } = await query.graph({
+            entity: "variant",
+            fields: ["id", "options.value", "options.option.title"],
+            filters: { id: variantId },
+          })
+
+          const currentOptions = (
+            (loaded.options ?? []) as Array<{
+              value?: string
+              option?: { title?: string }
+            }>
+          ).reduce<Record<string, string>>((acc, o) => {
+            if (o.option?.title) acc[o.option.title] = o.value ?? ""
+            return acc
+          }, {})
+
+          // Guard: the test only means something if the axis synthesized a
+          // real variant option to diff against.
+          expect(Object.keys(currentOptions).length).toBeGreaterThan(0)
+
+          return { productId: product.id, variantId, currentOptions }
+        }
+
+        it("does not stage options when the variant options are unchanged (MER-168)", async () => {
+          const { productId, variantId, currentOptions } =
+            await createProductWithVariantOptions("Options Unchanged", "U1")
+
+          const res = await api.post(
+            `/vendor/products/${productId}/variants/${variantId}`,
+            // The edit form always re-submits `options`; only the sku changed.
+            { title: "Red Variant", sku: "OPT-CHANGED", options: currentOptions },
+            sellerHeaders,
+          )
+
+          expect(res.status).toBe(202)
+          const update = (res.data.product_change.actions as Array<any>).find(
+            (a) => a.action === ProductChangeActionType.VARIANT_UPDATE,
+          )
+          expect(update).toBeDefined()
+          expect(Object.keys(update.details.fields)).toEqual(["sku"])
+          expect(update.details.fields).not.toHaveProperty("options")
+        })
+
+        it("stages options when an option value actually changed (MER-168)", async () => {
+          const { productId, variantId, currentOptions } =
+            await createProductWithVariantOptions("Options Changed", "C1")
+
+          const [optionTitle] = Object.keys(currentOptions)
+          const changedOptions = { ...currentOptions, [optionTitle]: "Blue" }
+
+          const res = await api.post(
+            `/vendor/products/${productId}/variants/${variantId}`,
+            { title: "Red Variant", options: changedOptions },
+            sellerHeaders,
+          )
+
+          expect(res.status).toBe(202)
+          const update = (res.data.product_change.actions as Array<any>).find(
+            (a) => a.action === ProductChangeActionType.VARIANT_UPDATE,
+          )
+          expect(update).toBeDefined()
+          expect(update.details.fields).toHaveProperty("options")
+          expect(update.details.fields.options[optionTitle]).toBe("Blue")
+          // The previous map is carried for the before/after render.
+          expect(update.details.previous_fields.options).toEqual(currentOptions)
+        })
       })
     })
   },

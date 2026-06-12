@@ -20,8 +20,11 @@ import { useUpdateProduct } from "@hooks/api/products"
 
 export const ProductMediaSection = ({
   product,
+  readOnly = false,
 }: {
   product: Record<string, any>;
+  /** Display media only — no edit kebab, selection, or delete (SPEC-009 offer detail). */
+  readOnly?: boolean;
 }) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
@@ -82,19 +85,21 @@ export const ProductMediaSection = ({
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t('products.media.label')}</Heading>
-        <ActionMenu
-          groups={[
-            {
-              actions: [
-                {
-                  label: t('actions.edit'),
-                  to: 'media?view=edit',
-                  icon: <PencilSquare />
-                }
-              ]
-            }
-          ]}
-        />
+        {!readOnly && (
+          <ActionMenu
+            groups={[
+              {
+                actions: [
+                  {
+                    label: t('actions.edit'),
+                    to: 'media?view=edit',
+                    icon: <PencilSquare />
+                  }
+                ]
+              }
+            ]}
+          />
+        )}
       </div>
       {media.length > 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-4 px-6 py-4">
@@ -103,22 +108,27 @@ export const ProductMediaSection = ({
 
             return (
               <div
-                className="group relative aspect-square size-full cursor-pointer overflow-hidden rounded-[8px] shadow-elevation-card-rest transition-fg hover:shadow-elevation-card-hover"
+                className={clx(
+                  "group relative aspect-square size-full overflow-hidden rounded-[8px] shadow-elevation-card-rest transition-fg",
+                  { "cursor-pointer hover:shadow-elevation-card-hover": !readOnly }
+                )}
                 key={i.id}
               >
-                <div
-                  className={clx(
-                    'invisible absolute right-2 top-2 opacity-0 transition-fg group-hover:visible group-hover:opacity-100',
-                    {
-                      'visible opacity-100': isSelected
-                    }
-                  )}
-                >
-                  <Checkbox
-                    checked={selection[i.id] || false}
-                    onCheckedChange={() => handleCheckedChange(i.id)}
-                  />
-                </div>
+                {!readOnly && (
+                  <div
+                    className={clx(
+                      'invisible absolute right-2 top-2 opacity-0 transition-fg group-hover:visible group-hover:opacity-100',
+                      {
+                        'visible opacity-100': isSelected
+                      }
+                    )}
+                  >
+                    <Checkbox
+                      checked={selection[i.id] || false}
+                      onCheckedChange={() => handleCheckedChange(i.id)}
+                    />
+                  </div>
+                )}
                 {i.isThumbnail && (
                   <div className="absolute left-2 top-2">
                     <Tooltip content={t('fields.thumbnail')}>
@@ -126,16 +136,21 @@ export const ProductMediaSection = ({
                     </Tooltip>
                   </div>
                 )}
-                <Link
-                  to={`media`}
-                  state={{ curr: index }}
-                >
+                {readOnly ? (
                   <img
                     src={i.url}
                     alt={product.title}
                     className="size-full object-cover"
                   />
-                </Link>
+                ) : (
+                  <Link to={`media`} state={{ curr: index }}>
+                    <img
+                      src={i.url}
+                      alt={product.title}
+                      className="size-full object-cover"
+                    />
+                  </Link>
+                )}
               </div>
             );
           })}
@@ -158,30 +173,34 @@ export const ProductMediaSection = ({
               {t('products.media.emptyState.description')}
             </Text>
           </div>
-          <Button
-            size="small"
-            variant="secondary"
-            asChild
-          >
-            <Link to="media?view=edit">{t('products.media.emptyState.action')}</Link>
-          </Button>
+          {!readOnly && (
+            <Button
+              size="small"
+              variant="secondary"
+              asChild
+            >
+              <Link to="media?view=edit">{t('products.media.emptyState.action')}</Link>
+            </Button>
+          )}
         </div>
       )}
-      <CommandBar open={!!Object.keys(selection).length}>
-        <CommandBar.Bar>
-          <CommandBar.Value>
-            {t('general.countSelected', {
-              count: Object.keys(selection).length
-            })}
-          </CommandBar.Value>
-          <CommandBar.Seperator />
-          <CommandBar.Command
-            action={handleDelete}
-            label={t('actions.delete')}
-            shortcut="d"
-          />
-        </CommandBar.Bar>
-      </CommandBar>
+      {!readOnly && (
+        <CommandBar open={!!Object.keys(selection).length}>
+          <CommandBar.Bar>
+            <CommandBar.Value>
+              {t('general.countSelected', {
+                count: Object.keys(selection).length
+              })}
+            </CommandBar.Value>
+            <CommandBar.Seperator />
+            <CommandBar.Command
+              action={handleDelete}
+              label={t('actions.delete')}
+              shortcut="d"
+            />
+          </CommandBar.Bar>
+        </CommandBar>
+      )}
     </Container>
   );
 };

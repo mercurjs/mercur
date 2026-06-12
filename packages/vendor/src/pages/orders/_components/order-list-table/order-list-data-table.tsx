@@ -73,6 +73,7 @@ export const OrderListDataTable = () => {
           label: t("fields.updatedAt"),
         },
       ]}
+      defaultOrderBy="-display_id"
       queryObject={raw}
       noRecords={{
         message: t("orders.list.noRecordsMessage"),

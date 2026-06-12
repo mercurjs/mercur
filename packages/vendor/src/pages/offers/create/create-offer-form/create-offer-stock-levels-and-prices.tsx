@@ -20,6 +20,27 @@ import { CreateOfferFormValues, OfferVariantRow } from "./schema";
 
 type ShippingProfileLite = { id: string; name?: string | null };
 
+/**
+ * The grid interleaves a non-editable product "group" row above each
+ * product's variants (SPEC-009 / Figma `40016485:530743`). The form's
+ * `variants` array stays variant-only; each variant grid row carries its
+ * `__formIndex` so field paths bind to the right form entry regardless of
+ * the interleaved group rows.
+ */
+type ProductGroupRow = {
+  __group: true;
+  id: string;
+  product_title: string;
+};
+type VariantGridRow = OfferVariantRow & {
+  __group?: false;
+  __formIndex: number;
+};
+type GridRow = ProductGroupRow | VariantGridRow;
+
+const isGroup = (row: GridRow): row is ProductGroupRow =>
+  (row as ProductGroupRow).__group === true;
+
 const Root = () => {
   const form = useFormContext<CreateOfferFormValues>();
   const { setCloseOnEscape } = useRouteModal();
@@ -35,6 +56,23 @@ const Root = () => {
     control: form.control,
     name: "variants",
   }) as OfferVariantRow[] | undefined;
+
+  const gridData = useMemo<GridRow[]>(() => {
+    const rows: GridRow[] = [];
+    let lastProductId: string | undefined;
+    (variants ?? []).forEach((variant, index) => {
+      if (variant.product_id !== lastProductId) {
+        rows.push({
+          __group: true,
+          id: `group-${variant.product_id}`,
+          product_title: variant.product_title,
+        });
+        lastProductId = variant.product_id;
+      }
+      rows.push({ ...variant, __group: false, __formIndex: index });
+    });
+    return rows;
+  }, [variants]);
 
   const columns = useColumns({
     currencyCode: currency_code,
@@ -52,7 +90,7 @@ const Root = () => {
     >
       <DataGrid
         columns={columns}
-        data={variants ?? []}
+        data={gridData}
         state={form}
         onEditingChange={(editing) => setCloseOnEscape(!editing)}
       />
@@ -67,10 +105,7 @@ type ColumnArgs = {
   pricePreferences?: HttpTypes.AdminPricePreference[];
 };
 
-const columnHelper = createDataGridHelper<
-  OfferVariantRow,
-  CreateOfferFormValues
->();
+const columnHelper = createDataGridHelper<GridRow, CreateOfferFormValues>();
 
 const useColumns = ({
   currencyCode,
@@ -92,12 +127,24 @@ const useColumns = ({
         id: "title",
         header: t("fields.title"),
         cell: (context) => {
-          const entity = context.row.original;
-          const title = entity.variant_title || "";
+          const row = context.row.original;
+          if (isGroup(row)) {
+            return (
+              <DataGrid.ReadonlyCell context={context}>
+                <span
+                  className="text-ui-fg-subtle truncate font-medium"
+                  title={row.product_title}
+                >
+                  {row.product_title}
+                </span>
+              </DataGrid.ReadonlyCell>
+            );
+          }
+          const title = row.variant_title || "";
           return (
             <DataGrid.ReadonlyCell context={context}>
               <div className="flex h-full w-full items-center gap-x-2 overflow-hidden">
-                <Thumbnail src={entity.product_thumbnail ?? null} />
+                <Thumbnail src={row.product_thumbnail ?? null} />
                 <span className="truncate" title={title}>
                   {title}
                 </span>
@@ -111,42 +158,61 @@ const useColumns = ({
         id: "sku",
         name: t("fields.sku"),
         header: t("fields.sku"),
-        field: (context) => `variants.${context.row.index}.sku`,
+        field: (context) => {
+          const row = context.row.original;
+          return isGroup(row) ? null : `variants.${row.__formIndex}.sku`;
+        },
         type: "text",
-        cell: (context) => <DataGrid.TextCell context={context} />,
+        cell: (context) =>
+          isGroup(context.row.original) ? (
+            <DataGrid.ReadonlyCell context={context} />
+          ) : (
+            <DataGrid.TextCell context={context} />
+          ),
       }),
       columnHelper.column({
         id: "shipping_profile",
-        name: t("shippingProfile.domain"),
-        header: t("shippingProfile.domain"),
-        field: (context) => `variants.${context.row.index}.shipping_profile_id`,
+        name: t("offers.fields.shippingProfile"),
+        header: t("offers.fields.shippingProfile"),
+        field: (context) => {
+          const row = context.row.original;
+          return isGroup(row)
+            ? null
+            : `variants.${row.__formIndex}.shipping_profile_id`;
+        },
         type: "select",
-        cell: (context) => (
-          <DataGrid.SelectCell
-            context={context}
-            options={shippingProfileOptions}
-            placeholder={t("shippingProfile.domain")}
-          />
-        ),
+        cell: (context) =>
+          isGroup(context.row.original) ? (
+            <DataGrid.ReadonlyCell context={context} />
+          ) : (
+            <DataGrid.SelectCell
+              context={context}
+              options={shippingProfileOptions}
+              placeholder=""
+            />
+          ),
       }),
-      ...createDataGridLocationStockColumns<
-        OfferVariantRow,
-        CreateOfferFormValues
-      >({
+      ...createDataGridLocationStockColumns<GridRow, CreateOfferFormValues>({
         stockLocations,
+        isReadyOnly: (context) => isGroup(context.row.original),
         getFieldName: (context, index) => {
+          const row = context.row.original;
+          if (isGroup(row)) return null;
           const location = stockLocations[index];
           if (!location) return null;
-          return `variants.${context.row.index}.inventory.${location.id}`;
+          return `variants.${row.__formIndex}.inventory.${location.id}`;
         },
         t,
       }),
-      ...createDataGridPriceColumns<OfferVariantRow, CreateOfferFormValues>({
+      ...createDataGridPriceColumns<GridRow, CreateOfferFormValues>({
         currencies,
         pricePreferences,
+        isReadyOnly: (context) => isGroup(context.row.original),
         getFieldName: (context, value) => {
+          const row = context.row.original;
+          if (isGroup(row)) return null;
           if (context.column.id?.startsWith("currency_prices")) {
-            return `variants.${context.row.index}.prices.${value}`;
+            return `variants.${row.__formIndex}.prices.${value}`;
           }
           return null;
         },

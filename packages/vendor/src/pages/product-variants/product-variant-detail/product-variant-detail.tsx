@@ -4,9 +4,10 @@ import { useLoaderData, useParams } from "react-router-dom"
 import { useProductVariant } from "@hooks/api/products"
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
-import { TwoColumnPage } from "@components/layout/pages"
+import { SingleColumnPage } from "@components/layout/pages"
 import { VariantGeneralSection } from "./components/variant-general-section"
-import { variantLoader } from "./loader"
+import { VariantMediaSection } from "./components/variant-media-section"
+import { variantLoader, VARIANT_DETAIL_FIELDS } from "./loader"
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -17,36 +18,35 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { variant, isLoading, isError, error } = useProductVariant(
     product_id!,
     variant_id!,
-    { fields: "*options,*options.option" },
+    { fields: VARIANT_DETAIL_FIELDS },
     {
       initialData,
     }
   )
 
   if (isLoading || !variant) {
-    return <TwoColumnPageSkeleton mainSections={1} sidebarSections={0} />
+    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={0} />
   }
 
   if (isError) {
     throw error
   }
 
-  return Children.count(children) > 0 ? (
-    <TwoColumnPage data={variant} hasOutlet>
-      {children}
-    </TwoColumnPage>
-  ) : (
-    <TwoColumnPage data={variant} hasOutlet>
-      <TwoColumnPage.Main>
-        <VariantGeneralSection variant={variant} />
-      </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar />
-    </TwoColumnPage>
+  return (
+    <SingleColumnPage data={variant} hasOutlet>
+      {Children.count(children) > 0 ? (
+        children
+      ) : (
+        <>
+          <VariantGeneralSection variant={variant} />
+          <VariantMediaSection variant={variant} />
+        </>
+      )}
+    </SingleColumnPage>
   )
 }
 
 export const ProductVariantDetail = Object.assign(Root, {
-  Main: TwoColumnPage.Main,
-  Sidebar: TwoColumnPage.Sidebar,
-  MainGeneralSection: VariantGeneralSection,
+  GeneralSection: VariantGeneralSection,
+  MediaSection: VariantMediaSection,
 })

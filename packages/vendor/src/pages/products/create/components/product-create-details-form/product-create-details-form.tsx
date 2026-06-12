@@ -5,7 +5,6 @@ import { defineTabMeta } from "@components/tabbed-form/types"
 import { ProductCreateSchemaType } from "../../types"
 import { ProductCreateGeneralSection } from "./components/product-create-details-general-section"
 import { ProductCreateMediaSection } from "./components/product-create-details-media-section"
-import { ProductCreateVariantsSection } from "./components/product-create-details-variant-section"
 
 const Root = () => {
   return (
@@ -25,7 +24,6 @@ const Root = () => {
           <ProductCreateGeneralSection />
           <ProductCreateMediaSection />
         </div>
-        <ProductCreateVariantsSection />
       </div>
     </div>
   )

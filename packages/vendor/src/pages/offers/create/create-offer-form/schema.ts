@@ -25,7 +25,9 @@ const VariantRowSchema = z.object({
 export type OfferVariantRow = z.infer<typeof VariantRowSchema>
 
 export const CreateOfferSchema = z.object({
-  selected_variant_ids: z.array(z.string().min(1)).min(1),
+  // The catalogue tab selects whole products (SPEC-009); the stock &
+  // prices tab fans them out to their variants.
+  selected_product_ids: z.array(z.string().min(1)).min(1),
   variants: z.array(VariantRowSchema).min(1),
 })
 

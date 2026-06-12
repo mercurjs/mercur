@@ -131,9 +131,8 @@ export const SingleCategoryCombobox = forwardRef<
         e.preventDefault()
         e.stopPropagation()
 
-        if (value === option.value) {
-          onChange(null)
-        } else {
+        // A selected category can only be changed to another one, not deselected.
+        if (value !== option.value) {
           onChange(option.value)
           handleOpenChange(false)
         }

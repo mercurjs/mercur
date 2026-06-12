@@ -120,6 +120,11 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
         "material",
         "variant_rank",
         "metadata",
+        // Loaded so an unchanged `options` payload is diffed away rather
+        // than re-staged on every edit (MER-168). `options` arrives as a
+        // `{ [option_title]: value }` map; rebuild the same shape from these.
+        "options.value",
+        "options.option.title",
       ],
       filters: { id: variantIdsToLoad },
     }).config({ name: "pc-load-variants-for-diff" })
@@ -164,6 +169,45 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
         const isEqual = (a: unknown, b: unknown): boolean =>
           JSON.stringify(normalize(a)) === JSON.stringify(normalize(b))
 
+        // Reduce a value to a stable `{ option_title: value }` map for
+        // comparison. The proposed payload is already that shape; the
+        // current variant carries `options: [{ value, option: { title } }]`.
+        const toOptionsMap = (value: unknown): Record<string, string> => {
+          const out: Record<string, string> = {}
+          if (Array.isArray(value)) {
+            for (const entry of value) {
+              const title = (entry as { option?: { title?: string } })?.option
+                ?.title
+              if (title) {
+                out[title] = String(
+                  (entry as { value?: unknown })?.value ?? "",
+                )
+              }
+            }
+          } else if (value && typeof value === "object") {
+            for (const [k, v] of Object.entries(
+              value as Record<string, unknown>,
+            )) {
+              out[k] = String(v ?? "")
+            }
+          }
+          return out
+        }
+
+        // Order-independent equality for the options map.
+        const optionsEqual = (
+          a: Record<string, string>,
+          b: Record<string, string>,
+        ): boolean => {
+          const stable = (m: Record<string, string>) =>
+            JSON.stringify(
+              Object.keys(m)
+                .sort()
+                .map((k) => [k, m[k]]),
+            )
+          return stable(a) === stable(b)
+        }
+
         for (const op of input.operations ?? []) {
           switch (op.type) {
             case "add":
@@ -177,7 +221,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
               const current = currentVariantsById.get(op.variant_id) ?? {}
               const changedFields: Record<string, unknown> = {}
               const previousFields: Record<string, unknown> = {}
-
               for (const [field, proposedValue] of Object.entries(
                 op.fields ?? {},
               )) {
@@ -186,12 +229,28 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
                 if (NON_EDITABLE_VARIANT_FIELDS.has(field)) continue
 
                 // `options` is a relation update (option-title → value
-                // pairs), not a scalar column we load for diffing. Forward
-                // it untouched when provided so the apply step can re-pair
-                // variant options; it carries no meaningful previous value.
+                // pairs). Diff it against the variant's current options so an
+                // unchanged map (the form always re-submits it) never surfaces
+                // as a phantom change row (MER-168). Forward the proposed map
+                // verbatim when it actually differs so the apply step can
+                // re-pair variant options.
                 if (field === "options") {
+                  if (proposedValue === undefined) continue
+                  const currentOptions = toOptionsMap(current.options)
+                  if (optionsEqual(currentOptions, toOptionsMap(proposedValue)))
+                    continue
+                  changedFields.options = proposedValue
+                  previousFields.options = currentOptions
+                  continue
+                }
+
+                // `images` is a relation (variant↔image links), not a
+                // scalar column we load for diffing. Forward it untouched
+                // so the apply step can reconcile the links; it carries no
+                // meaningful previous value and stays out of the preview.
+                if (field === "images") {
                   if (proposedValue !== undefined) {
-                    changedFields.options = proposedValue
+                    changedFields.images = proposedValue
                   }
                   continue
                 }

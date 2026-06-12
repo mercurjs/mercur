@@ -7,7 +7,7 @@ import { ActionMenu } from "@components/common/action-menu";
 import { SectionRow } from "@components/common/section";
 import { useDeleteProduct } from "@hooks/api/products";
 
-const productStatusColor = (status: string) => {
+export const productStatusColor = (status: string) => {
   switch (status) {
     case "draft":
       return "grey";

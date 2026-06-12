@@ -189,7 +189,7 @@ YRC
 log "Rewriting quarantined @mercurjs/* deps to tarball URLs"
 python3 - <<'PY'
 import json, glob, os
-VERSION = "2.2.0-canary.12"
+VERSION = "2.2.0-canary.14"
 SCOPE = "@mercurjs/"
 def tarball(name, ver):
     base = name.split("/", 1)[1]

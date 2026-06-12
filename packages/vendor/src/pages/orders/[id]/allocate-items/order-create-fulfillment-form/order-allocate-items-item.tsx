@@ -6,7 +6,7 @@ import {
   TriangleDownMini,
 } from "@medusajs/icons"
 import { UseFormReturn, useWatch } from "react-hook-form"
-import { Input, Text, clx } from "@medusajs/ui"
+import { Checkbox, Input, Text, clx } from "@medusajs/ui"
 import * as zod from "zod"
 import type { AdminOrderLineItem, OrderLineItemDTO } from "@medusajs/types"
 
@@ -55,6 +55,7 @@ type OrderEditItemProps = {
     value: number | null,
     isRoot?: boolean
   ) => void
+  onToggleSelected: (itemId: string, checked: boolean) => void
 }
 
 const resolveInventoryItemId = (link: OfferLinkRow): string | null =>
@@ -65,6 +66,7 @@ export function OrderAllocateItemsItem({
   form,
   locationId,
   onQuantityChange,
+  onToggleSelected,
 }: OrderEditItemProps) {
   const { t } = useTranslation()
   const inventoryLinks = item.offer?.inventory_item_link ?? []
@@ -75,6 +77,12 @@ export function OrderAllocateItemsItem({
     control: form.control,
     name: "quantity",
   })
+
+  const isSelected =
+    useWatch({
+      control: form.control,
+      name: `selected.${item.id}` as `selected.${string}`,
+    }) !== false
 
   const hasInventoryKit = inventoryLinks.length > 1
   const firstLink = inventoryLinks[0]
@@ -118,8 +126,18 @@ export function OrderAllocateItemsItem({
   )
 
   return (
-    <div className="bg-ui-bg-subtle shadow-elevation-card-rest my-2 min-w-[720px] divide-y divide-dashed rounded-xl">
+    <div
+      className={clx(
+        "bg-ui-bg-subtle shadow-elevation-card-rest min-w-[720px] divide-y divide-dashed rounded-xl",
+        !isSelected && "opacity-60"
+      )}
+    >
       <div className="flex items-center gap-x-3 p-3 text-sm">
+        <Checkbox
+          checked={isSelected}
+          onCheckedChange={(value) => onToggleSelected(item.id, value === true)}
+          data-testid={`allocate-item-${item.id}-checkbox`}
+        />
         <div className="flex flex-1 items-center">
           <div className="flex items-center gap-x-3">
             {hasQuantityError && (
@@ -127,18 +145,22 @@ export function OrderAllocateItemsItem({
             )}
             <Thumbnail src={item.thumbnail} />
             <div className="flex flex-col">
-              <div className="flex flex-row">
-                <Text className="txt-small flex" as="span" weight="plus">
+              <div className="flex flex-row items-center gap-x-1">
+                <Text size="small" weight="plus" as="span">
                   {item.product_title}
                 </Text>
                 {(item.offer?.sku ?? item.variant_sku) && (
-                  <span className="text-ui-fg-subtle">
-                    {" "}
+                  <Text
+                    size="small"
+                    weight="plus"
+                    as="span"
+                    className="text-ui-fg-subtle"
+                  >
                     ({item.offer?.sku ?? item.variant_sku})
-                  </span>
+                  </Text>
                 )}
                 {hasInventoryKit && (
-                  <Component className="text-ui-fg-muted ml-2 overflow-visible pt-[2px]" />
+                  <Component className="text-ui-fg-muted ml-1 overflow-visible" />
                 )}
               </div>
               <Text as="div" className="text-ui-fg-subtle txt-small">
@@ -217,7 +239,7 @@ export function OrderAllocateItemsItem({
                           className="bg-ui-bg-base txt-small w-[46px] rounded-lg text-right [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                           type="number"
                           {...field}
-                          disabled={!locationId}
+                          disabled={!locationId || !isSelected}
                           onChange={(e) => {
                             const val =
                               e.target.value === ""
@@ -357,7 +379,7 @@ export function OrderAllocateItemsItem({
                                 className="bg-ui-bg-base txt-small w-[46px] rounded-lg text-right [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
                                 type="number"
                                 {...field}
-                                disabled={!locationId}
+                                disabled={!locationId || !isSelected}
                                 onChange={(e) => {
                                   const val =
                                     e.target.value === ""
