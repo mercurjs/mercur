@@ -575,6 +575,21 @@ Design layout: a wide main column (≈739px) + a narrow sidebar
     "only variants with an attached offer" rule is product direction,
     implemented by flattening over `v.offers` (non-offered variants
     contribute zero rows).
+  - **Status (2026-06-12): toolbar parity landed.**
+    `offer-variants-section.tsx` now mirrors the product variants table
+    (`product-variant-section.tsx`): a compact filter bar with **Search**
+    (client-side over variant title + offer/variant SKU), **Sort**
+    (Title / SKU / Created / Updated, via sortable accessor columns), and
+    **Add filter → Created / Updated** date filters
+    (`useDataTableDateFilters`, matching `40016489:640014`). Because the
+    rows come from the wrapped product graph (client-side), search / sort
+    / date-filter / pagination are applied **in memory** against the offer
+    rows (`PAGE_SIZE = 10`, prefix `ov`) rather than re-fetched. The
+    Created/Updated date columns are shown (parity with the product table;
+    the static B2C mock omits them) and key off the **offer's**
+    `created_at` / `updated_at` — so `OFFER_PRODUCT_DETAIL_FIELDS` now
+    requests `variants.offers.created_at` / `.updated_at`. Empty vs
+    filtered states wired (`offers.empty.*` / `offers.filtered.*`).
 
 Sidebar:
 
@@ -1290,17 +1305,12 @@ Implemented:
 
 ### Slice 6 — create-wizard delta ✅ PASSING (2026-06-12)
 
-- Tab-1 label **"Catalogue" → "Products"** (`offers.create.tabs.catalogue`
-  value) to match Figma.
-- **Deliberate deviation (documented):** tab-1 keeps its **per-variant**
-  selection grain rather than the design's per-product grain, and tab-2
-  keeps a flat grid (no product-group separators). The whole wizard +
-  schema (`selected_variant_ids`) + submit are built around per-variant
-  selection and produce exactly the same offers as the per-product
-  framing; refactoring a working multi-step wizard to per-product grain
-  is a large, non-runtime-testable change for no change in outcome, so it
-  is intentionally out of scope. Revisit if product-level multi-select is
-  a hard requirement.
+- Tab-1 label **"Catalogue" → "Products"**.
+- **Per-product grain (delivered in the post-review pass, see below):**
+  tab-1 selects whole **products** (`selected_product_ids`); the form
+  fans each selected product out to one row per variant in tab-2, which
+  renders **product-group separator rows** above each product's variants.
+  _(This supersedes the earlier "per-variant deviation" note.)_
 
 ### Final consolidation ✅ (2026-06-12)
 
@@ -1309,14 +1319,83 @@ Implemented:
   tests passed** (existing vendor offer suite + 7 `offer-products`
   wrap/filter/inventory-link tests). No regression to offer CRUD.
 
+### Post-review & design-feedback fixes ✅ (2026-06-12)
+
+Changes after PR [mercurjs#977](https://github.com/mercurjs/mercur/pull/977)
+opened, from review comments + designer feedback. Each verified with the
+vendor build (2/2); backend changes re-checked against the 24 integration
+tests.
+
+**PR review (`090674e7`):**
+- `has_offer` uses Medusa `booleanString()` in the validator; middleware
+  checks a real boolean.
+- Loaders use the typed `sdk` (`sdk.vendor.products/offers.$id.query`)
+  instead of raw `fetchQuery`.
+- Reuse over copies: `ProductStatusCell`/`StatusBadge` for the status,
+  `ProductMediaSection` for media; canonical DTO types
+  (`OfferProduct`/`OfferProductVariant` = `HttpTypes.AdminProduct/Variant`
+  + `OfferDTO`) across the detail, list, variants section, cards, and
+  bulk grids.
+
+**Cache invalidation (`ce9939c6`):** every offer mutation hook
+(`useCreateOffer` / `useBulkCreateOffers` / `useUpdateOffer` /
+`useBatchOfferInventoryItems` / `useDeleteOffer` / `useBulkDeleteOffers`)
+now also invalidates `productsQueryKeys.all`, so the product-backed list
++ detail refresh after create / update / delete.
+
+**Detail-page polish (`52fbc554`, `f305e58b`):**
+- General-section status badge matches the product detail
+  (`productStatusColor` exported + reused with `StatusBadge`).
+- **Variants table rebuilt on the shared `DataTable`** to match the
+  product detail's variants table: Title / SKU / one column per product
+  option / Inventory ("N available at M locations"), with search, sort,
+  and Created/Updated date filters — offer-scoped (one row per offer →
+  `variants/:offer_id`).
+- "Shipping Configuration" sidebar card mirrors the "Associated product"
+  card's Pattern-A structure/size.
+
+**Read-only media + create wizard + polish (`806fba9a`, `f750ba5c`):**
+- Offer-detail **Media is read-only** via a new `readOnly` prop on
+  `ProductMediaSection` (no edit kebab, selection, image links, or
+  delete) — also fixes the earlier broken media-edit link / product
+  mutation on the offer surface.
+- **Create wizard → per-product grain** (Slice 6 above):
+  `selected_variant_ids` → `selected_product_ids`; catalogue lists
+  products; form hydrates variants per selected product; tab-2 shows
+  **product-group separator rows** (interleaved read-only group rows;
+  each variant grid row carries its `__formIndex` so field paths bind
+  past the group rows).
+- Tab-2 shipping column → singular **"Shipping Profile"** with an empty
+  select placeholder.
+- Create success toast → "Offer was successfully published. Only offers
+  with stock levels and prices set will be visible on the storefront."
+
+**Copy fixes (`8afe3104`):**
+- Deleting a product listing reads **"1 offer"** (the listing) in the
+  prompt + toast, not the count of its underlying per-variant offers.
+- Catalogue helper text renders a bold **"Tip:"** label (Figma
+  `40016485:453778`).
+
 ### Status: implemented
 
 All SPEC-009 surfaces are implemented and type-check/build clean, with
-backend behavior covered by integration tests. The two bulk DataGrid
-editors (Edit Price, Edit Stock Levels) are **type-checked**; their
-in-grid editing + seed/submit round-trips should get a manual runtime
-QA pass (not exercisable headlessly). One intentional deviation: the
-create wizard keeps per-variant selection (see Slice 6).
+backend behavior covered by integration tests, plus the post-review and
+design-feedback fixes above. The two bulk DataGrid editors (Edit Price,
+Edit Stock Levels) and the create wizard's grouped grid are
+**type-checked**; their in-grid editing / seed-submit round-trips should
+get a manual runtime QA pass (not exercisable headlessly). **No
+remaining intentional deviations** — the per-variant create-grain
+deviation was resolved.
+
+### Known open item
+
+**Bulk Edit Price is single-currency + replace-semantics** — saving the
+bulk Edit Price grid submits only the seller's primary currency with
+`useUpdateOffer({ prices })` (replace), so an offer's prices in *other*
+currencies would be wiped. Fix = discover the full currency set (union of
+every currency on the offers' existing prices + the seller's) and submit
+all. (The per-variant Edit Price, which reuses `PricingForm`, is not
+affected.)
 
 ## Notes
 
