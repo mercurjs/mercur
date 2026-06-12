@@ -500,7 +500,7 @@
         "options": "Please create at least one option.",
         "uniqueSku": "SKU must be unique across variants",
         "primaryCategoryRequired": "Primary category is required",
-        "categoryRequired": "Please select category",
+        "categoryRequired": "Please select a category",
         "titleRequired": "Title is required",
         "handleInvalidFormat": "Handle must contain only lowercase letters, numbers, and hyphens",
         "handleMustContainLetter": "Handle must contain at least one letter",
@@ -822,7 +822,7 @@
       },
       "primaryCategory": {
         "label": "Primary Category",
-        "tooltip": "The primary category defines which attributes are available for this product. Attributes are created by the Admin when setting up the marketplace."
+        "tooltip": "Category could define attributes that apply to this product. Attributes are created by the Admin when setting up the marketplace."
       }
     },
     "variant": {
