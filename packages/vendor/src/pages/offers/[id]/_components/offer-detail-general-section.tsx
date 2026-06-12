@@ -1,11 +1,11 @@
 import { Trash } from "@medusajs/icons"
-import { Container, Heading, toast, usePrompt } from "@medusajs/ui"
+import { Container, Heading, StatusBadge, toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { SectionRow } from "../../../../components/common/section"
-import { ProductStatusCell } from "../../../../components/table/table-cells/product/product-status-cell"
+import { productStatusColor } from "../../../products/[id]/_components/product-general-section"
 import { useBulkDeleteOffers } from "../../../../hooks/api/offers"
 import { OfferProduct } from "../../common/types"
 
@@ -69,7 +69,11 @@ export const OfferDetailGeneralSection = ({
       <div className="flex items-center justify-between px-6 py-4">
         <Heading>{product.title}</Heading>
         <div className="flex items-center gap-x-4">
-          {product.status && <ProductStatusCell status={product.status} />}
+          {product.status && (
+            <StatusBadge color={productStatusColor(product.status)}>
+              {t(`products.productStatus.${product.status}`)}
+            </StatusBadge>
+          )}
           <ActionMenu
             groups={[
               {
