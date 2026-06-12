@@ -449,6 +449,119 @@ medusaIntegrationTestRunner({
                     ).toBe(false)
                 })
 
+                // Regression (MER-185): claim/exchange have no `status`
+                // column — their open state lives on `order_change`. The
+                // filter used to query the `order_claim`/`order_exchange`
+                // entities by `status`, which threw a 500. These assert the
+                // filter resolves cleanly (200 + empty/list), never a 500.
+                it("returns empty list when request=claim and no open claim exists", async () => {
+                    await completeCartCheckout(seller1Seed.offer.id)
+
+                    const response = await api.get(
+                        `/vendor/orders?request=claim`,
+                        seller1Seed.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.orders.length).toEqual(0)
+                })
+
+                it("returns empty list when request=exchange and no open exchange exists", async () => {
+                    await completeCartCheckout(seller1Seed.offer.id)
+
+                    const response = await api.get(
+                        `/vendor/orders?request=exchange`,
+                        seller1Seed.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.orders.length).toEqual(0)
+                })
+
+                it("does not 500 when request=claim,exchange are combined", async () => {
+                    await completeCartCheckout(seller1Seed.offer.id)
+
+                    const response = await api.get(
+                        `/vendor/orders?request=claim,exchange`,
+                        seller1Seed.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(Array.isArray(response.data.orders)).toBe(true)
+                })
+
+                it("returns the order when request=claim and a claim is in progress", async () => {
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
+
+                    await api.post(
+                        `/vendor/claims`,
+                        {
+                            type: "refund",
+                            order_id: order.id,
+                            description: "Damaged on arrival",
+                        },
+                        seller1Seed.headers
+                    )
+
+                    const response = await api.get(
+                        `/vendor/orders?request=claim`,
+                        seller1Seed.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(
+                        response.data.orders.some(
+                            (o: any) => o.id === order.id
+                        )
+                    ).toBe(true)
+                })
+
+                it("returns the order when request=exchange and an exchange is in progress", async () => {
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
+
+                    await api.post(
+                        `/vendor/exchanges`,
+                        {
+                            order_id: order.id,
+                            description: "Customer wants different size",
+                        },
+                        seller1Seed.headers
+                    )
+
+                    const response = await api.get(
+                        `/vendor/orders?request=exchange`,
+                        seller1Seed.headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(
+                        response.data.orders.some(
+                            (o: any) => o.id === order.id
+                        )
+                    ).toBe(true)
+                })
+
+                it("scopes claim filter to the owning seller", async () => {
+                    const orderA = await completeCartCheckout(seller1Seed.offer.id)
+                    await api.post(
+                        `/vendor/claims`,
+                        { type: "refund", order_id: orderA.id },
+                        seller1Seed.headers
+                    )
+
+                    const response = await api.get(
+                        `/vendor/orders?request=claim`,
+                        seller2Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(
+                        response.data.orders.some(
+                            (o: any) => o.id === orderA.id
+                        )
+                    ).toBe(false)
+                })
+
                 it("rejects legacy has_open_request param (hard-swap regression)", async () => {
                     // Session (hh) swapped has_open_request → request. The
                     // Medusa query validator is strict (rejects unknown
