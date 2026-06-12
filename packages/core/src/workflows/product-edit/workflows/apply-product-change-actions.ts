@@ -16,9 +16,9 @@ import {
 import { ProductChangeActionType } from "@mercurjs/types"
 
 import {
-  reconcileVariantImagesStep,
+  applyVariantImageLinksStep,
   updateProductChangeActionsStep,
-  type VariantImageUpdate,
+  type VariantImageLinks,
 } from "../steps"
 import { applyProductAttributeChangeActionsWorkflow } from "./apply-product-attribute-change-actions"
 
@@ -30,7 +30,7 @@ type BucketedActions = {
   productUpdates: Array<Record<string, unknown> & { id: string }>
   variantCreates: Array<Record<string, unknown> & { product_id: string }>
   variantUpdates: Array<Record<string, unknown> & { id: string }>
-  variantImageUpdates: VariantImageUpdate[]
+  variantImageLinks: VariantImageLinks[]
   variantDeletes: string[]
   attributeAdds: Array<{
     product_id: string
@@ -101,7 +101,7 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         Record<string, unknown> & { product_id: string }
       > = []
       const variantUpdates: Array<Record<string, unknown> & { id: string }> = []
-      const variantImageUpdates: VariantImageUpdate[] = []
+      const variantImageLinks: VariantImageLinks[] = []
       const variantDeletes: string[] = []
       const attributeAdds: BucketedActions["attributeAdds"] = []
       const attributeRemoves: BucketedActions["attributeRemoves"] = []
@@ -156,17 +156,15 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
               break
             // `images` is a variant↔image relation, not a scalar column,
             // so split it out of the variant update (which goes through
-            // `updateProductVariantsWorkflow`) and reconcile the links
-            // separately via `reconcileVariantImagesStep`.
+            // `updateProductVariantsWorkflow`) and apply the link changes
+            // separately via `applyVariantImageLinksStep`.
             const { images, ...scalarFields } = fields as {
-              images?: Array<{ id?: string; url: string }>
+              images?: { add?: string[]; remove?: string[] }
             } & Record<string, unknown>
-            if (Array.isArray(images)) {
-              variantImageUpdates.push({
-                product_id: productId,
-                variant_id,
-                images,
-              })
+            const add = images?.add ?? []
+            const remove = images?.remove ?? []
+            if (add.length || remove.length) {
+              variantImageLinks.push({ variant_id, add, remove })
             }
             if (Object.keys(scalarFields).length) {
               variantUpdates.push({ id: variant_id, ...scalarFields })
@@ -214,7 +212,7 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         ),
         variantCreates,
         variantUpdates,
-        variantImageUpdates,
+        variantImageLinks,
         variantDeletes,
         attributeAdds,
         attributeRemoves,
@@ -263,17 +261,17 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
       },
     )
 
-    // Variant media: reconcile the product↔variant image links after the
+    // Variant media: link/unlink product↔variant images after the
     // variants themselves are stable. Runs last among variant work so the
     // target variants are guaranteed to exist.
     when(
       { buckets },
-      ({ buckets }) => buckets.variantImageUpdates.length > 0,
+      ({ buckets }) => buckets.variantImageLinks.length > 0,
     ).then(() => {
-      reconcileVariantImagesStep({
+      applyVariantImageLinksStep({
         updates: transform(
           { buckets },
-          ({ buckets }) => buckets.variantImageUpdates,
+          ({ buckets }) => buckets.variantImageLinks,
         ),
       })
     })

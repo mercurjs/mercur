@@ -92,13 +92,14 @@ export const VariantMediaSection = ({
       return
     }
 
-    const imagesToKeep = getVariantImages(variant)
-      .filter((image) => !ids.includes(image.id))
-      .map((image) => ({ id: image.id, url: image.url }))
+    // Unlink the selected images from the variant (the synthetic
+    // thumbnail entry is not a linked image, so it is filtered out).
+    const linkedIds = new Set(getVariantImages(variant).map((i) => i.id))
+    const remove = ids.filter((id) => linkedIds.has(id))
 
     await mutateAsync(
       {
-        images: imagesToKeep,
+        images: { remove },
         thumbnail: includingThumbnail ? "" : undefined,
       },
       {

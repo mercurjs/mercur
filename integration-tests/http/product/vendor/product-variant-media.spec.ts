@@ -6,11 +6,13 @@ import { createSellerUser } from "../../../helpers/create-seller-user"
 jest.setTimeout(60_000)
 
 /**
- * Vendor variant media (MER-137). Exercises the variant-scoped image
- * flow added on top of the product-change apply path. The test env runs
- * with `MEDUSA_FF_PRODUCT_REQUEST=false`, so each staged `VARIANT_UPDATE`
- * auto-confirms inline and `reconcileVariantImagesStep` links/unlinks the
- * product↔variant images in the same request.
+ * Vendor variant media (MER-137). Variant images are existing product
+ * images linked through the product↔variant junction. The vendor selects
+ * which product images belong to a variant; the variant update carries an
+ * `images: { add, remove }` diff (mirroring Medusa's batch endpoint) that
+ * `applyVariantImageLinksStep` links/unlinks. The test env runs with
+ * `MEDUSA_FF_PRODUCT_REQUEST=false`, so each staged `VARIANT_UPDATE`
+ * auto-confirms inline and the links are applied in the same request.
  */
 medusaIntegrationTestRunner({
   testSuite: ({ getContainer, api }) => {
@@ -33,13 +35,19 @@ medusaIntegrationTestRunner({
         sellerHeaders = a.headers
       })
 
-      const createProductWithVariant = async (): Promise<{
+      // Create a product seeded with two general images plus one variant.
+      const seed = async (): Promise<{
         productId: string
         variantId: string
+        imageIdA: string
+        imageIdB: string
       }> => {
         const productRes = await api.post(
           `/vendor/products`,
-          { title: "Variant Media Product" },
+          {
+            title: "Variant Media Product",
+            images: [{ url: IMG_A }, { url: IMG_B }],
+          },
           sellerHeaders
         )
         const productId = productRes.data.product.id as string
@@ -56,7 +64,18 @@ medusaIntegrationTestRunner({
         )
         const variantId = listRes.data.variants[0].id as string
 
-        return { productId, variantId }
+        const productImagesRes = await api.get(
+          `/vendor/products/${productId}?fields=images.id,images.url`,
+          sellerHeaders
+        )
+        const images = productImagesRes.data.product.images as Array<{
+          id: string
+          url: string
+        }>
+        const imageIdA = images.find((i) => i.url === IMG_A)!.id
+        const imageIdB = images.find((i) => i.url === IMG_B)!.id
+
+        return { productId, variantId, imageIdA, imageIdB }
       }
 
       const getVariant = async (productId: string, variantId: string) => {
@@ -87,12 +106,17 @@ medusaIntegrationTestRunner({
           .map((image) => image.url)
           .sort()
 
-      it("links uploaded images to the variant and sets its thumbnail", async () => {
-        const { productId, variantId } = await createProductWithVariant()
+      it("links selected product images to the variant and sets its thumbnail", async () => {
+        const { productId, variantId, imageIdA, imageIdB } = await seed()
+
+        // Initially no images are linked to the variant.
+        expect(linkedImageUrls(await getVariant(productId, variantId))).toEqual(
+          []
+        )
 
         const res = await api.post(
           `/vendor/products/${productId}/variants/${variantId}`,
-          { images: [{ url: IMG_A }, { url: IMG_B }], thumbnail: IMG_A },
+          { images: { add: [imageIdA, imageIdB] }, thumbnail: IMG_A },
           sellerHeaders
         )
         expect(res.status).toBe(202)
@@ -100,37 +124,24 @@ medusaIntegrationTestRunner({
         const variant = await getVariant(productId, variantId)
         expect(linkedImageUrls(variant)).toEqual([IMG_A, IMG_B].sort())
         expect(variant.thumbnail).toBe(IMG_A)
-
-        // Variant images are product images, so they also surface on the
-        // product's image pool.
-        const productRes = await api.get(
-          `/vendor/products/${productId}?fields=images.url`,
-          sellerHeaders
-        )
-        const productUrls = (
-          productRes.data.product.images ?? ([] as Array<{ url: string }>)
-        ).map((i: { url: string }) => i.url)
-        expect(productUrls).toEqual(expect.arrayContaining([IMG_A, IMG_B]))
       })
 
-      it("unlinks an image from the variant when it is dropped from the set", async () => {
-        const { productId, variantId } = await createProductWithVariant()
+      it("unlinks an image from the variant without removing it from the product", async () => {
+        const { productId, variantId, imageIdA, imageIdB } = await seed()
 
         await api.post(
           `/vendor/products/${productId}/variants/${variantId}`,
-          { images: [{ url: IMG_A }, { url: IMG_B }] },
+          { images: { add: [imageIdA, imageIdB] } },
           sellerHeaders
         )
 
         const seeded = await getVariant(productId, variantId)
         expect(linkedImageUrls(seeded)).toEqual([IMG_A, IMG_B].sort())
-        const imageA = (seeded.images ?? []).find((i) => i.url === IMG_A)!
-        expect(imageA).toBeDefined()
 
-        // Re-submit with only image A — image B should be unlinked.
+        // Unlink image B.
         await api.post(
           `/vendor/products/${productId}/variants/${variantId}`,
-          { images: [{ id: imageA.id, url: IMG_A }] },
+          { images: { remove: [imageIdB] } },
           sellerHeaders
         )
 

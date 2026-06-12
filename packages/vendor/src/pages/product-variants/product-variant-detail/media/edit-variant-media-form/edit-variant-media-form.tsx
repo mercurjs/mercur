@@ -1,31 +1,10 @@
-import {
-  defaultDropAnimationSideEffects,
-  DndContext,
-  DragEndEvent,
-  DragOverlay,
-  DragStartEvent,
-  DropAnimation,
-  KeyboardSensor,
-  PointerSensor,
-  UniqueIdentifier,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core"
-import {
-  arrayMove,
-  rectSortingStrategy,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-} from "@dnd-kit/sortable"
-import { CSS } from "@dnd-kit/utilities"
 import { zodResolver } from "@hookform/resolvers/zod"
-import { ThumbnailBadge } from "@medusajs/icons"
+import { Plus, ThumbnailBadge } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { MercurFeatureFlags } from "@mercurjs/types"
 import { Button, Checkbox, clx, CommandBar, toast, Tooltip } from "@medusajs/ui"
 import { Fragment, useCallback, useState } from "react"
-import { useFieldArray, useForm } from "react-hook-form"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -33,44 +12,40 @@ import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useFeatureFlags } from "@hooks/api"
 import { useUpdateProductVariant } from "@hooks/api/products"
-import { uploadFilesQuery } from "@lib/client"
 
-import { UploadMediaFormItem } from "../../../../products/common/components/upload-media-form-item"
-import {
-  EditProductMediaSchema,
-  MediaSchema,
-} from "../../../../products/create/constants"
-import { EditProductMediaSchemaType } from "../../../../products/create/types"
-
-type VariantImage = {
+type ProductImage = {
   id: string
   url: string
   variants?: Array<{ id: string }> | null
 }
 
 type VariantWithMedia = HttpTypes.AdminProductVariant & {
-  images?: VariantImage[] | null
   thumbnail?: string | null
+  product?: { images?: ProductImage[] | null } | null
 }
 
+const MediaSchema = z.object({
+  image_ids: z.array(z.string()),
+  thumbnail: z.string().nullable(),
+})
+
+type MediaSchemaType = z.infer<typeof MediaSchema>
+
 /**
- * `variant.images` also surfaces product-level (general) images linked
- * to no variant. The variant media editor only manages this variant's
- * own images, so keep the ones explicitly linked to it.
+ * Selection-only variant media editor (mirrors Medusa admin).
+ *
+ * Variant images are product images linked through the product↔variant
+ * junction. The vendor picks which of the product's images belong to
+ * this variant; new files are uploaded on the product media page, not
+ * here. On submit we diff the selection into `add`/`remove` image ids and
+ * hand them to the variant update, which stages a `VARIANT_UPDATE` change
+ * that links/unlinks the junction on apply.
  */
-const getVariantImages = (variant: VariantWithMedia): VariantImage[] =>
-  (variant.images ?? []).filter((image) =>
-    (image.variants ?? []).some((v) => v.id === variant.id)
-  )
-
-type Media = z.infer<typeof MediaSchema>
-
 export const EditVariantMediaForm = ({
   variant,
 }: {
   variant: VariantWithMedia
 }) => {
-  const [selection, setSelection] = useState<Record<string, true>>({})
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
@@ -78,93 +53,50 @@ export const EditVariantMediaForm = ({
   const isProductRequestEnabled =
     !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
 
-  const form = useForm<EditProductMediaSchemaType>({
+  const allProductImages = variant.product?.images ?? []
+  const variantImageIds = allProductImages
+    .filter((image) => (image.variants ?? []).some((v) => v.id === variant.id))
+    .map((image) => image.id)
+
+  const [selection, setSelection] = useState<Record<string, true>>({})
+
+  const form = useForm<MediaSchemaType>({
     defaultValues: {
-      media: getDefaultValues(getVariantImages(variant), variant.thumbnail),
+      image_ids: variantImageIds,
+      thumbnail: variant.thumbnail ?? null,
     },
-    resolver: zodResolver(EditProductMediaSchema),
+    resolver: zodResolver(MediaSchema),
   })
 
-  const { fields, append, remove, update } = useFieldArray({
-    name: "media",
-    control: form.control,
-    keyName: "field_id",
-  })
+  const formImageIds = form.watch("image_ids")
+  const formThumbnail = form.watch("thumbnail")
 
-  const [activeId, setActiveId] = useState<UniqueIdentifier | null>(null)
-
-  const sensors = useSensors(
-    useSensor(PointerSensor),
-    useSensor(KeyboardSensor, {
-      coordinateGetter: sortableKeyboardCoordinates,
-    })
+  const availableImages = allProductImages.filter(
+    (image) => !formImageIds.includes(image.id)
   )
-
-  const handleDragStart = (event: DragStartEvent) => {
-    setActiveId(event.active.id)
-  }
-
-  const handleDragEnd = (event: DragEndEvent) => {
-    setActiveId(null)
-    const { active, over } = event
-
-    if (active.id !== over?.id) {
-      const oldIndex = fields.findIndex((item) => item.field_id === active.id)
-      const newIndex = fields.findIndex((item) => item.field_id === over?.id)
-
-      form.setValue("media", arrayMove(fields, oldIndex, newIndex), {
-        shouldDirty: true,
-        shouldTouch: true,
-      })
-    }
-  }
-
-  const handleDragCancel = () => {
-    setActiveId(null)
-  }
 
   const { mutateAsync, isPending } = useUpdateProductVariant(
     variant.product_id!,
     variant.id
   )
 
-  const handleSubmit = form.handleSubmit(async ({ media }) => {
-    const filesToUpload = media
-      .map((m, i) => ({ file: m.file, index: i }))
-      .filter((m) => !!m.file)
+  const handleSubmit = form.handleSubmit(async (data) => {
+    const add = data.image_ids.filter((id) => !variantImageIds.includes(id))
+    const remove = variantImageIds.filter((id) => !data.image_ids.includes(id))
 
-    let uploaded: HttpTypes.AdminFile[] = []
-
-    if (filesToUpload.length) {
-      const { files } = await uploadFilesQuery(filesToUpload).catch(() => {
-        form.setError("media", {
-          type: "invalid_file",
-          message: t("products.media.failedToUpload"),
-        })
-        return { files: [] }
-      })
-      uploaded = files
-    }
-
-    const withUpdatedUrls = media.map((entry, i) => {
-      const toUploadIndex = filesToUpload.findIndex((m) => m.index === i)
-      if (toUploadIndex > -1) {
-        return {
-          ...entry,
-          url: uploaded[toUploadIndex]?.url,
-        }
-      }
-      return entry
-    })
-
-    const thumbnail = withUpdatedUrls.find((m) => m.isThumbnail)?.url
+    // Drop a thumbnail that no longer points at one of the variant's images.
+    const selectedUrls = new Set(
+      allProductImages
+        .filter((image) => data.image_ids.includes(image.id))
+        .map((image) => image.url)
+    )
+    const thumbnail =
+      data.thumbnail && selectedUrls.has(data.thumbnail) ? data.thumbnail : null
 
     await mutateAsync(
       {
-        images: withUpdatedUrls
-          .filter((file) => !!file.url)
-          .map((file) => ({ url: file.url, id: file.id })),
-        thumbnail: thumbnail || null,
+        images: { add, remove },
+        thumbnail,
       },
       {
         onSuccess: () => {
@@ -182,6 +114,13 @@ export const EditVariantMediaForm = ({
     )
   })
 
+  const handleAddImageToVariant = (imageId: string) => {
+    form.setValue("image_ids", [...form.getValues("image_ids"), imageId], {
+      shouldDirty: true,
+      shouldTouch: true,
+    })
+  }
+
   const handleCheckedChange = useCallback(
     (id: string) => {
       return (val: boolean) => {
@@ -196,41 +135,41 @@ export const EditVariantMediaForm = ({
     [selection]
   )
 
-  const handleDelete = () => {
-    const ids = Object.keys(selection)
-    const indices = ids.map((id) => fields.findIndex((m) => m.id === id))
-
-    remove(indices)
-    setSelection({})
-  }
-
   const handlePromoteToThumbnail = () => {
     const ids = Object.keys(selection)
-
     if (!ids.length) {
       return
     }
 
-    const currentThumbnailIndex = fields.findIndex((m) => m.isThumbnail)
-
-    if (currentThumbnailIndex > -1) {
-      update(currentThumbnailIndex, {
-        ...fields[currentThumbnailIndex],
-        isThumbnail: false,
+    const selectedImage = allProductImages.find((image) => image.id === ids[0])
+    if (selectedImage) {
+      form.setValue("thumbnail", selectedImage.url, {
+        shouldDirty: true,
+        shouldTouch: true,
       })
     }
+    setSelection({})
+  }
 
-    const index = fields.findIndex((m) => m.id === ids[0])
+  const handleRemoveSelectedImages = () => {
+    const selectedIds = Object.keys(selection)
+    if (!selectedIds.length) {
+      return
+    }
 
-    update(index, {
-      ...fields[index],
-      isThumbnail: true,
-    })
-
+    form.setValue(
+      "image_ids",
+      form.getValues("image_ids").filter((id) => !selectedIds.includes(id)),
+      { shouldDirty: true, shouldTouch: true }
+    )
     setSelection({})
   }
 
   const selectionCount = Object.keys(selection).length
+  const isSelectedImageThumbnail =
+    selectionCount === 1 &&
+    allProductImages.find((image) => image.id === Object.keys(selection)[0])
+      ?.url === formThumbnail
 
   return (
     <RouteFocusModal.Form blockSearchParams form={form}>
@@ -240,59 +179,59 @@ export const EditVariantMediaForm = ({
       >
         <RouteFocusModal.Header />
         <RouteFocusModal.Body className="flex flex-col overflow-hidden">
-          <div className="flex size-full flex-col-reverse lg:grid lg:grid-cols-[1fr_560px]">
-            <DndContext
-              sensors={sensors}
-              onDragEnd={handleDragEnd}
-              onDragStart={handleDragStart}
-              onDragCancel={handleDragCancel}
-            >
-              <div className="bg-ui-bg-subtle size-full overflow-auto">
-                <div className="grid h-fit auto-rows-auto grid-cols-4 gap-6 p-6">
-                  <SortableContext
-                    items={fields.map((m) => m.field_id)}
-                    strategy={rectSortingStrategy}
-                  >
-                    {fields.map((m) => {
-                      return (
-                        <MediaGridItem
-                          onCheckedChange={handleCheckedChange(m.id!)}
-                          checked={!!selection[m.id!]}
-                          key={m.field_id}
-                          media={m}
-                        />
-                      )
-                    })}
-                  </SortableContext>
-                  <DragOverlay dropAnimation={dropAnimationConfig}>
-                    {activeId ? (
-                      <MediaGridItemOverlay
-                        media={fields.find((m) => m.field_id === activeId)!}
-                        checked={
-                          !!selection[
-                            fields.find((m) => m.field_id === activeId)!.id!
-                          ]
-                        }
-                      />
-                    ) : null}
-                  </DragOverlay>
-                </div>
+          <div className="relative flex size-full">
+            <div className="bg-ui-bg-subtle flex-1 overflow-auto">
+              <div className="grid h-fit auto-rows-auto grid-cols-2 gap-4 p-4 sm:grid-cols-3 lg:grid-cols-6 lg:gap-6 lg:p-6">
+                {allProductImages
+                  .filter((image) => formImageIds.includes(image.id))
+                  .map((image) => (
+                    <MediaGridItem
+                      key={image.id}
+                      media={image}
+                      checked={!!selection[image.id]}
+                      onCheckedChange={handleCheckedChange(image.id)}
+                      isThumbnail={image.url === formThumbnail}
+                    />
+                  ))}
               </div>
-            </DndContext>
-            <div className="bg-ui-bg-base overflow-auto border-b px-6 py-4 lg:border-b-0 lg:border-l">
-              <UploadMediaFormItem form={form} append={append} />
+            </div>
+
+            <div className="border-ui-border-base bg-ui-bg-base hidden w-80 border-l lg:block">
+              <div className="border-ui-border-base flex flex-col gap-y-1 border-b px-4 py-4">
+                <span className="text-ui-fg-base txt-compact-small-plus">
+                  {t("products.media.availableImages")}
+                </span>
+                <span className="text-ui-fg-muted txt-small">
+                  {t("products.media.selectToAdd")}
+                </span>
+              </div>
+              <div className="overflow-auto">
+                {availableImages.length ? (
+                  <div className="grid grid-cols-2 gap-4 p-4">
+                    {availableImages.map((image) => (
+                      <UnassociatedImageItem
+                        key={image.id}
+                        media={image}
+                        onAdd={() => handleAddImageToVariant(image.id)}
+                      />
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-ui-fg-muted txt-small px-4 py-6">
+                    {t("products.media.emptyState.description")}
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </RouteFocusModal.Body>
         <CommandBar open={!!selectionCount}>
           <CommandBar.Bar>
             <CommandBar.Value>
-              {t("general.countSelected", {
-                count: selectionCount,
-              })}
+              {t("general.countSelected", { count: selectionCount })}
             </CommandBar.Value>
             <CommandBar.Seperator />
-            {selectionCount === 1 && (
+            {selectionCount === 1 && !isSelectedImageThumbnail && (
               <Fragment>
                 <CommandBar.Command
                   action={handlePromoteToThumbnail}
@@ -303,9 +242,9 @@ export const EditVariantMediaForm = ({
               </Fragment>
             )}
             <CommandBar.Command
-              action={handleDelete}
-              label={t("actions.delete")}
-              shortcut="d"
+              action={handleRemoveSelectedImages}
+              label={t("products.media.removeSelected")}
+              shortcut="r"
             />
           </CommandBar.Bar>
         </CommandBar>
@@ -326,94 +265,27 @@ export const EditVariantMediaForm = ({
   )
 }
 
-const getDefaultValues = (
-  images: VariantImage[] | null | undefined,
-  thumbnail: string | null | undefined
-) => {
-  const media: Media[] =
-    images?.map((image) => ({
-      id: image.id,
-      url: image.url,
-      isThumbnail: image.url === thumbnail,
-      file: null,
-    })) || []
-
-  if (thumbnail && !media.some((mediaItem) => mediaItem.url === thumbnail)) {
-    const id = Math.random().toString(36).substring(7)
-
-    media.unshift({
-      id: id,
-      url: thumbnail,
-      isThumbnail: true,
-      file: null,
-    })
-  }
-
-  return media
-}
-
 interface MediaView {
-  id?: string
-  field_id: string
+  id: string
   url: string
-  isThumbnail: boolean
-}
-
-const dropAnimationConfig: DropAnimation = {
-  sideEffects: defaultDropAnimationSideEffects({
-    styles: {
-      active: {
-        opacity: "0.4",
-      },
-    },
-  }),
-}
-
-interface MediaGridItemProps {
-  media: MediaView
-  checked: boolean
-  onCheckedChange: (value: boolean) => void
 }
 
 const MediaGridItem = ({
   media,
   checked,
   onCheckedChange,
-}: MediaGridItemProps) => {
+  isThumbnail,
+}: {
+  media: MediaView
+  checked: boolean
+  onCheckedChange: (value: boolean) => void
+  isThumbnail: boolean
+}) => {
   const { t } = useTranslation()
 
-  const handleToggle = useCallback(
-    (value: boolean) => {
-      onCheckedChange(value)
-    },
-    [onCheckedChange]
-  )
-
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({ id: media.field_id })
-
-  const style = {
-    opacity: isDragging ? 0.4 : undefined,
-    transform: CSS.Transform.toString(transform),
-    transition,
-  }
-
   return (
-    <div
-      className={clx(
-        "shadow-elevation-card-rest hover:shadow-elevation-card-hover focus-visible:shadow-borders-focus bg-ui-bg-subtle-hover group relative aspect-square h-auto max-w-full overflow-hidden rounded-lg outline-none"
-      )}
-      style={style}
-      ref={setNodeRef}
-    >
-      {media.isThumbnail && (
+    <div className="shadow-elevation-card-rest hover:shadow-elevation-card-hover focus-visible:shadow-borders-focus bg-ui-bg-subtle-hover group relative aspect-square h-auto max-w-full overflow-hidden rounded-lg outline-none">
+      {isThumbnail && (
         <div className="absolute left-2 top-2">
           <Tooltip content={t("products.media.thumbnailTooltip")}>
             <ThumbnailBadge />
@@ -421,26 +293,16 @@ const MediaGridItem = ({
         </div>
       )}
       <div
-        className={clx("absolute inset-0 cursor-grab touch-none outline-none", {
-          "cursor-grabbing": isDragging,
-        })}
-        ref={setActivatorNodeRef}
-        {...attributes}
-        {...listeners}
-      />
-      <div
         className={clx("transition-fg absolute right-2 top-2 opacity-0", {
           "group-focus-within:opacity-100 group-hover:opacity-100 group-focus:opacity-100":
-            !isDragging && !checked,
+            !checked,
           "opacity-100": checked,
         })}
       >
         <Checkbox
-          onClick={(e) => {
-            e.stopPropagation()
-          }}
+          onClick={(e) => e.stopPropagation()}
           checked={checked}
-          onCheckedChange={handleToggle}
+          onCheckedChange={onCheckedChange}
         />
       </div>
       <img
@@ -452,32 +314,29 @@ const MediaGridItem = ({
   )
 }
 
-const MediaGridItemOverlay = ({
+const UnassociatedImageItem = ({
   media,
-  checked,
+  onAdd,
 }: {
   media: MediaView
-  checked: boolean
+  onAdd: () => void
 }) => {
   return (
-    <div className="shadow-elevation-card-rest hover:shadow-elevation-card-hover focus-visible:shadow-borders-focus bg-ui-bg-subtle-hover group relative aspect-square h-auto max-w-full cursor-grabbing overflow-hidden rounded-lg outline-none">
-      {media.isThumbnail && (
-        <div className="absolute left-2 top-2">
-          <ThumbnailBadge />
+    <button
+      type="button"
+      className="shadow-elevation-card-rest hover:shadow-elevation-card-hover focus-visible:shadow-borders-focus bg-ui-bg-subtle-hover group relative aspect-square h-auto max-w-full cursor-pointer overflow-hidden rounded-lg outline-none"
+      onClick={onAdd}
+    >
+      <div className="transition-fg absolute inset-0 flex items-center justify-center bg-black/30 opacity-0 group-focus-within:opacity-100 group-hover:opacity-100 group-focus:opacity-100">
+        <div className="bg-ui-bg-base border-ui-border-base shadow-elevation-card-rest flex h-12 w-12 items-center justify-center rounded-full border">
+          <Plus />
         </div>
-      )}
-      <div
-        className={clx("transition-fg absolute right-2 top-2 opacity-0", {
-          "opacity-100": checked,
-        })}
-      >
-        <Checkbox checked={checked} />
       </div>
       <img
         src={media.url}
         alt=""
         className="size-full object-cover object-center"
       />
-    </div>
+    </button>
   )
 }
