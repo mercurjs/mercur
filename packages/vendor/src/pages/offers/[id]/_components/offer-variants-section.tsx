@@ -1,25 +1,123 @@
-import { Buildings, CurrencyDollar, TriangleRightMini } from "@medusajs/icons"
-import { Badge, Container, Heading, Text } from "@medusajs/ui"
+import { Buildings, CurrencyDollar } from "@medusajs/icons"
+import {
+  Badge,
+  Container,
+  createDataTableColumnHelper,
+  Heading,
+  Text,
+} from "@medusajs/ui"
+import { OfferDTO } from "@mercurjs/types"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
-import { NoRecords } from "../../../../components/common/empty-table-content"
+import { DataTable } from "../../../../components/data-table"
 import { OfferProductVariant } from "../../common/types"
 
-type VariantOfferRow = {
-  key: string
+const PAGE_SIZE = 50
+
+/** The wrap attaches per-location stock under the offer's inventory link. */
+type OfferWithInventory = OfferDTO & {
+  inventory_item_link?: Array<{
+    inventory_item?: {
+      location_levels?: Array<{
+        location_id?: string | null
+        stocked_quantity?: number | null
+      }> | null
+    } | null
+  }> | null
+}
+
+/** One row per offer, carrying its parent variant for the shared columns. */
+type OfferVariantRow = {
   offerId: string
-  variantTitle: string
-  sku?: string | null
-  options: NonNullable<OfferProductVariant["options"]>
+  variant: OfferProductVariant
+  offer: OfferWithInventory
+}
+
+const inventoryOf = (offer: OfferWithInventory) => {
+  const links = offer.inventory_item_link ?? []
+  let available = 0
+  const locations = new Set<string>()
+  for (const link of links) {
+    for (const level of link.inventory_item?.location_levels ?? []) {
+      available += level.stocked_quantity ?? 0
+      if (level.location_id) {
+        locations.add(level.location_id)
+      }
+    }
+  }
+  return { hasItems: links.length > 0, available, locationCount: locations.size }
+}
+
+const columnHelper = createDataTableColumnHelper<OfferVariantRow>()
+
+const useColumns = (optionTitles: string[]) => {
+  const { t } = useTranslation()
+
+  return useMemo(
+    () => [
+      columnHelper.display({
+        id: "title",
+        header: t("fields.title"),
+        cell: ({ row }) => row.original.variant.title ?? "-",
+      }),
+      columnHelper.display({
+        id: "sku",
+        header: t("fields.sku"),
+        cell: ({ row }) => {
+          const sku = row.original.offer.sku ?? row.original.variant.sku
+          return sku ? sku : <span className="text-ui-fg-muted">-</span>
+        },
+      }),
+      ...optionTitles.map((title) =>
+        columnHelper.display({
+          id: `option-${title}`,
+          header: title,
+          cell: ({ row }) => {
+            const opt = row.original.variant.options?.find(
+              (o) => o.option?.title === title,
+            )
+            return opt?.value ? (
+              <Badge size="2xsmall">{opt.value}</Badge>
+            ) : (
+              <span className="text-ui-fg-muted">-</span>
+            )
+          },
+        }),
+      ),
+      columnHelper.display({
+        id: "inventory",
+        header: t("fields.inventory"),
+        cell: ({ row }) => {
+          const { hasItems, available, locationCount } = inventoryOf(
+            row.original.offer,
+          )
+          if (!hasItems) {
+            return <span className="text-ui-fg-muted">-</span>
+          }
+          return (
+            <Text size="small" leading="compact">
+              {t("products.variant.tableItem", {
+                availableCount: available,
+                locationCount,
+                count: locationCount,
+              })}
+            </Text>
+          )
+        },
+      }),
+    ],
+    [t, optionTitles],
+  )
 }
 
 /**
- * Variants table of the product-shaped offer detail. One row per offer
- * (the "row = offer" model — a variant with multiple offers shows as
- * multiple rows), navigating to the offer-keyed variant detail
- * `variants/:offer_id` (Figma `40016500:747473`).
+ * Variants table of the product-shaped offer detail (Figma
+ * `40016500:747473`). Mirrors the product detail's variants table
+ * (Title / SKU / per-option columns / Inventory), but is offer-scoped:
+ * one row per offer, navigating to the offer-keyed variant detail
+ * `variants/:offer_id`.
  */
 export const OfferVariantsSection = ({
   variants,
@@ -28,15 +126,31 @@ export const OfferVariantsSection = ({
 }) => {
   const { t } = useTranslation()
 
-  const rows: VariantOfferRow[] = (variants ?? []).flatMap((variant) =>
-    (variant.offers ?? []).map((offer) => ({
-      key: offer.id,
-      offerId: offer.id,
-      variantTitle: variant.title ?? "-",
-      sku: offer.sku,
-      options: variant.options ?? [],
-    })),
+  const rows: OfferVariantRow[] = useMemo(
+    () =>
+      (variants ?? []).flatMap((variant) =>
+        (variant.offers ?? []).map((offer) => ({
+          offerId: offer.id,
+          variant,
+          offer: offer as OfferWithInventory,
+        })),
+      ),
+    [variants],
   )
+
+  const optionTitles = useMemo(() => {
+    const set = new Set<string>()
+    for (const variant of variants ?? []) {
+      for (const opt of variant.options ?? []) {
+        if (opt.option?.title) {
+          set.add(opt.option.title)
+        }
+      }
+    }
+    return Array.from(set)
+  }, [variants])
+
+  const columns = useColumns(optionTitles)
 
   return (
     <Container className="divide-y p-0">
@@ -66,44 +180,21 @@ export const OfferVariantsSection = ({
           />
         </div>
       </div>
-
-      {rows.length === 0 ? (
-        <NoRecords
-          className="h-60"
-          title={t("offers.empty.heading")}
-          message={t("offers.empty.description")}
-        />
-      ) : (
-        rows.map((row) => (
-          <Link
-            key={row.key}
-            to={`variants/${row.offerId}`}
-            className="bg-ui-bg-base hover:bg-ui-bg-base-hover transition-fg grid grid-cols-[1fr_1fr_1fr_28px] items-center gap-4 px-6 py-4"
-            data-testid={`offer-variant-row-${row.offerId}`}
-          >
-            <Text size="small" leading="compact" weight="plus" className="truncate">
-              {row.variantTitle}
-            </Text>
-            <Text size="small" leading="compact" className="text-ui-fg-subtle truncate">
-              {row.sku || "-"}
-            </Text>
-            <div className="flex flex-wrap gap-1">
-              {row.options.length > 0 ? (
-                row.options.map((opt, i) => (
-                  <Badge key={i} size="2xsmall">
-                    {opt.value}
-                  </Badge>
-                ))
-              ) : (
-                <Text size="small" className="text-ui-fg-muted">
-                  -
-                </Text>
-              )}
-            </div>
-            <TriangleRightMini className="text-ui-fg-muted" />
-          </Link>
-        ))
-      )}
+      <DataTable
+        data={rows}
+        columns={columns}
+        getRowId={(row) => row.offerId}
+        rowHref={(row) => `variants/${row.offerId}`}
+        rowCount={rows.length}
+        pageSize={PAGE_SIZE}
+        compact
+        emptyState={{
+          empty: {
+            heading: t("offers.empty.heading"),
+            description: t("offers.empty.description"),
+          },
+        }}
+      />
     </Container>
   )
 }
