@@ -6743,10 +6743,14 @@
               "properties": {
                 "quantityNotAllocated": {
                   "type": "string"
+                },
+                "noItemsSelected": {
+                  "type": "string"
                 }
               },
               "required": [
-                "quantityNotAllocated"
+                "quantityNotAllocated",
+                "noItemsSelected"
               ],
               "additionalProperties": false
             }

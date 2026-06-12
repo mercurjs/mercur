@@ -1693,9 +1693,9 @@
     "allocateItems": {
       "action": "Allocate items",
       "title": "Allocate order items",
-      "locationDescription": "Choose which location you want to allocate from.",
+      "locationDescription": "Choose which location you want to allocate items from",
       "itemsToAllocate": "Items to allocate",
-      "itemsToAllocateDesc": "Select the number of items you wish to allocate",
+      "itemsToAllocateDesc": "Choose items and quantities to allocate",
       "search": "Search items",
       "consistsOf": "Consists of {{num}}x inventory items",
       "requires": "Requires {{num}} per variant",
@@ -1704,7 +1704,8 @@
         "error": "Failed to allocate following items: {{items}}"
       },
       "error": {
-        "quantityNotAllocated": "There are unallocated items."
+        "quantityNotAllocated": "There are unallocated items.",
+        "noItemsSelected": "Select at least one item to allocate."
       }
     },
     "shipment": {
