@@ -1,20 +1,13 @@
 import { Badge, Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { ProductVariantDTO } from "@mercurjs/types"
 
 import { SectionRow } from "../../../../../../components/common/section"
 
 export type OfferVariantData = {
   id: string
   sku?: string | null
-  product_variant?: {
-    title?: string | null
-    options?: Array<{
-      id?: string | null
-      value?: string | null
-      option?: { id?: string | null; title?: string | null } | null
-    }> | null
-    product?: { thumbnail?: string | null } | null
-  } | null
+  product_variant?: ProductVariantDTO | null
 }
 
 /**

@@ -10,8 +10,10 @@ import {
   createProductsWorkflow,
   type CreateProductWorkflowInput,
 } from "../../../workflows/product/workflows/create-products"
-import { enrichProductAttributes } from "../../utils"
-import { wrapProductVariantsWithOffers } from "./helpers"
+import {
+  enrichProductAttributes,
+  wrapProductVariantsWithOffers,
+} from "../../utils"
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 
 export const GET = async (
@@ -45,8 +47,8 @@ export const GET = async (
   if (withOffers) {
     await wrapProductVariantsWithOffers(
       req.scope,
-      req.seller_context!.seller_id,
-      products as Parameters<typeof wrapProductVariantsWithOffers>[2]
+      products as Parameters<typeof wrapProductVariantsWithOffers>[1],
+      req.seller_context!.seller_id
     )
   }
 

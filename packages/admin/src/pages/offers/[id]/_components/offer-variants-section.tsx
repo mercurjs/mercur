@@ -20,22 +20,39 @@ import { useDataTableDateFilters } from "../../../../components/data-table/helpe
 import { useBulkDeleteOffers } from "../../../../hooks/api/offers"
 import { useDate } from "../../../../hooks/use-date"
 import { useQueryParams } from "../../../../hooks/use-query-params"
-import { OfferProductOffer, OfferProductVariant } from "../../common/types"
+import { OfferDTO } from "@mercurjs/types"
+import { OfferProductVariant } from "../../common/types"
 
 const PAGE_SIZE = 10
 const PREFIX = "ov"
+
+/**
+ * The `withOffers` wrap attaches per-location stock under each offer's
+ * inventory link (`inventory_item_link`), which is not part of the base
+ * `OfferDTO` — extend it locally just for the inventory cell.
+ */
+type OfferWithInventory = OfferDTO & {
+  inventory_item_link?: Array<{
+    inventory_item?: {
+      location_levels?: Array<{
+        location_id?: string | null
+        stocked_quantity?: number | null
+      }> | null
+    } | null
+  }> | null
+}
 
 /** One row per offer, carrying its parent variant for the shared columns. */
 type OfferVariantRow = {
   /** The offer id — also the table row id, so `row.id` resolves it. */
   id: string
   variant: OfferProductVariant
-  offer: OfferProductOffer
+  offer: OfferWithInventory
 }
 
 const skuOf = (row: OfferVariantRow) => row.offer.sku ?? row.variant.sku ?? ""
 
-const inventoryOf = (offer: OfferProductOffer) => {
+const inventoryOf = (offer: OfferWithInventory) => {
   const links = offer.inventory_item_link ?? []
   let available = 0
   const locations = new Set<string>()
@@ -255,7 +272,7 @@ export const OfferVariantsSection = ({
         (variant.offers ?? []).map((offer) => ({
           id: offer.id,
           variant,
-          offer,
+          offer: offer as OfferWithInventory,
         })),
       ),
     [variants],

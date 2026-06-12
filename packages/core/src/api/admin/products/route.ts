@@ -7,8 +7,10 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
 import { createProductsWorkflow } from "../../../workflows/product/workflows/create-products"
-import { enrichProductAttributes } from "../../utils"
-import { wrapProductVariantsWithOffers } from "./helpers"
+import {
+  enrichProductAttributes,
+  wrapProductVariantsWithOffers,
+} from "../../utils"
 import { AdminCreateProductType, AdminGetProductsParamsType } from "./validators"
 
 export const GET = async (

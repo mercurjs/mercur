@@ -11,8 +11,10 @@ import { HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 
 import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
 import { productEditUpdateFieldsWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-update-fields"
-import { enrichProductAttributes } from "../../../utils"
-import { wrapProductVariantsWithOffers } from "../helpers"
+import {
+  enrichProductAttributes,
+  wrapProductVariantsWithOffers,
+} from "../../../utils"
 import { VendorUpdateProductType } from "../validators"
 
 export const GET = async (
@@ -54,8 +56,8 @@ export const GET = async (
   if (withOffers) {
     await wrapProductVariantsWithOffers(
       req.scope,
-      req.seller_context!.seller_id,
-      [product] as Parameters<typeof wrapProductVariantsWithOffers>[2]
+      [product] as Parameters<typeof wrapProductVariantsWithOffers>[1],
+      req.seller_context!.seller_id
     )
   }
 

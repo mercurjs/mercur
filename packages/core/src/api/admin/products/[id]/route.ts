@@ -12,8 +12,10 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { deleteProductsWorkflow } from "@medusajs/medusa/core-flows"
 import { updateProductsWorkflow } from "../../../../workflows/product/workflows/update-products"
-import { enrichProductAttributes } from "../../../utils"
-import { wrapProductVariantsWithOffers } from "../helpers"
+import {
+  enrichProductAttributes,
+  wrapProductVariantsWithOffers,
+} from "../../../utils"
 import { AdminUpdateProductType } from "../validators"
 
 export const GET = async (

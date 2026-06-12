@@ -1,12 +1,9 @@
 import { Buildings } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { OfferDTO } from "@mercurjs/types"
 
 import { NoRecords } from "../../../../../../components/common/empty-table-content"
-
-type OfferShippingData = {
-  shipping_profile?: { name?: string | null; type?: string | null } | null
-}
 
 /**
  * Sidebar "Shipping Configuration" card of the read-only admin Offer
@@ -17,7 +14,7 @@ type OfferShippingData = {
 export const OfferVariantShippingSection = ({
   offer,
 }: {
-  offer: OfferShippingData
+  offer: Pick<OfferDTO, "shipping_profile">
 }) => {
   const { t } = useTranslation()
   const profile = offer.shipping_profile

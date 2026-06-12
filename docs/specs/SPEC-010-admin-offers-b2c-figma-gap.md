@@ -1,5 +1,5 @@
 ---
-status: not_started
+status: implemented
 canonical: false
 priority: 2
 area: admin/offers
@@ -695,7 +695,106 @@ store. The operator cannot create or edit offers; the only action is
 
 ## Evidence
 
-_None yet — `not_started`._
+### Implemented (2026-06-12) — branch `feat/admin-offers-b2c` off `origin/canary`
+
+**Backend (Slice 1)** — `packages/core/src/api/admin/products/`:
+- `helpers.ts` — new `wrapProductVariantsWithOffers(scope, products, sellerId?)`:
+  platform-wide by default (attaches **every** seller's offers, each with
+  `offer.seller`), bounded `query.graph` over the page's variant ids,
+  keyed onto variants in place; `offers: []` when none.
+- `route.ts` + `[id]/route.ts` — `withOffers` strip-then-wrap on both GET
+  handlers, beside `enrichProductAttributes`.
+- `validators.ts` — `has_offer: booleanString()` pseudo-filter.
+- `middlewares.ts` — `applyOfferedProductsFilter` on `GET /admin/products`:
+  scopes products to those with any offer; when `seller_id` is present it
+  is reinterpreted as the **offer's store** (consumed, so it never filters
+  products by ownership) and the offered-variant set is resolved for that
+  seller.
+
+**Frontend (Slices 2–4)** — `packages/admin/src/pages/offers/`:
+- List → `useProducts` + `OFFER_PRODUCT_LIST_FIELDS` + `has_offer`;
+  columns **Store** (distinct sellers via `SellerCell`) / Product /
+  Category / Collection / Variants (offered count) / Status, select kept;
+  filters Store + Category/Collection/Type/Tag/Status/Created/Updated;
+  row kebab **Open store** (single-store) + **Delete**; per-row + bulk
+  delete collect offer ids across the product's variants.
+- Product-shaped detail (`[id]/`) — `TwoColumnPage`: Details (Delete-only
+  kebab) + read-only `OfferMediaSection` + `OfferVariantsSection`
+  (one row per offer, **Store** column, Delete-only, row →
+  `variants/:offer_id`) | sidebar **Associated product** + **Stores** card.
+- Offer Variant detail (`[id]/variants/[offer_id]/`) — **read-only**
+  `TwoColumnPage`: General (SKU + options, no Edit) + reused
+  `OfferInventorySection` | reused `OfferPricingSection` + read-only
+  Shipping Configuration card + reused `OfferStoreSidebar`. Loaded by
+  offer id from `/admin/offers/:id`. Route wired in `get-route-map.tsx`.
+- i18n (`en.json` + `$schema.json`): `offers.fields.variants` /
+  `variantsCount`, `offers.detail.{associatedProduct,stores,offerVariant,
+  shippingConfiguration}`, `offers.delete.*`.
+
+**Tests** — `integration-tests/http/product/admin/offer-products.spec.ts`
+(6 cases): wrap attaches **all** sellers' offers on a shared variant (the
+inverse of the vendor isolation test) with `offer.seller` populated;
+multiple offers per variant kept; wrap inert without `variants.offers`;
+`?has_offer=true` returns only offered products (any seller);
+`?has_offer=true&seller_id=X` scopes the product set to one store; wrap
+applies on list rows too.
+
+**Verification:**
+- `bun run build` (turbo, all 9 packages) → **9/9 successful** (core tsc +
+  codegen; admin ESM + DTS type-check clean).
+- `oxlint` on all newly authored files → clean. (Pre-existing warnings in
+  the reused `offer-inventory-section.tsx` from SPEC-004 are untouched.)
+- `bun run test:integration:http http/product/admin/offer-products` →
+  **1 suite, 6 tests passed** (31.3s).
+
+### Implementation decisions / deviations from the draft
+
+1. **The wrap attaches all sellers' offers unconditionally; the Store
+   filter narrows the product set, not the attach.** The helper keeps an
+   optional `sellerId` param, but both admin routes call it without one.
+   So `?seller_id=X` collapses the *list* to that store's offered products
+   while the detail's Variants table still shows every store's offers on a
+   variant (disambiguated by the Store column) — an operator overview, not
+   a per-store filter on the attach. Per-store scoping of the attach is a
+   future option (the helper already supports it).
+2. **Bulk delete is product-row-grained without the SPEC-004 cross-store
+   guard.** Since rows are products (potentially spanning stores), the
+   cross-store selection guard no longer maps; selecting product rows
+   collects their offer ids (all stores) and removes them via the existing
+   per-offer DELETE fan-out (`useBulkDeleteOffers`). The dedicated
+   `POST /admin/sellers/:id/offers/bulk-delete` endpoint remains deferred
+   (as in SPEC-004).
+3. **Media is a dedicated read-only `OfferMediaSection`**, not the admin
+   product detail's editable `ProductMediaSection` (which has no `readOnly`
+   prop) — admin offers never mutate product media.
+
+### Review fixes (PR [mercurjs#981](https://github.com/mercurjs/mercur/pull/981))
+
+- **Deduplicated the backend** — the wrap and the offered-products filter
+  now live once in `packages/core/src/api/utils/offers.ts` and are reused
+  by both the vendor and admin product endpoints.
+  `wrapProductVariantsWithOffers(scope, products, sellerId?)` takes an
+  optional seller (vendor passes the active seller; admin passes none —
+  platform-wide). `applyOfferedProductsFilter` reads the seller scope from
+  `req.seller_context` (vendor) or the `seller_id` query param (admin Store
+  filter). The admin `helpers.ts` duplicate and the vendor
+  `applySellerOfferedProductsFilter` copy were removed.
+- **Canonical DTOs** — `OfferDTO` (`@mercurjs/types`) gained the
+  documented-but-missing `seller` / `product_variant` / `shipping_profile`
+  relations. The admin offer types now compose `OfferDTO` /
+  `ProductVariantDTO` instead of ad-hoc local shapes (the offers array is
+  `OfferDTO[]`; the variant General section types its variant as
+  `ProductVariantDTO`; the Shipping card consumes `OfferDTO["shipping_profile"]`).
+- Re-verified: `bun run build` → 9/9; `offer-products` suites (admin +
+  vendor) → **13 tests passed**.
+
+### Known follow-ups
+- Runtime QA of the admin Offers screens in the live dashboard (the
+  backend wrap/filter is integration-covered; the UI is type-checked +
+  build-clean but not exercised headlessly).
+- Optional: per-store scoping of the wrap attach + the
+  `POST /admin/sellers/:id/offers/bulk-delete` endpoint if operators want
+  store-isolated deletes.
 
 ## Notes
 

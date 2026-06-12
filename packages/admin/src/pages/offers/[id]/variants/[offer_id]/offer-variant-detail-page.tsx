@@ -4,6 +4,7 @@ import { useLoaderData, useParams } from "react-router-dom"
 import { TwoColumnPageSkeleton } from "../../../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../../../components/layout/pages"
 import { useOffer } from "../../../../../hooks/api/offers"
+import { OfferDTO } from "@mercurjs/types"
 import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../common/constants"
 import { OfferDetail } from "../../../common/types"
 import { OfferInventorySection } from "../../_components/offer-inventory-section"
@@ -39,7 +40,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     return <TwoColumnPageSkeleton mainSections={2} sidebarSections={3} />
   }
 
-  const typed = offer as unknown as OfferDetail & OfferVariantData
+  const typed = offer as unknown as OfferDetail &
+    OfferVariantData &
+    Pick<OfferDTO, "shipping_profile">
 
   return (
     <>
