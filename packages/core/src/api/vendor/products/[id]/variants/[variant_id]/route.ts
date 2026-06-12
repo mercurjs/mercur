@@ -50,6 +50,12 @@ export const POST = async (
 
   const { attribute_values: _av, ...update } = req.validatedBody
 
+  // `manage_inventory` is a marketplace invariant pinned to `false` at
+  // variant creation (see `create-products` / variant create route); it
+  // is not vendor-editable, so we deliberately do NOT inject it here.
+  // Forcing it in re-staged a phantom no-op change on every edit, which
+  // polluted the request block (MER-168). The workflow diffs the rest of
+  // the payload and stages only the fields that actually changed.
   const { result } = await productEditUpdateVariantsWorkflow(req.scope).run({
     input: {
       product_id: productId,
@@ -58,7 +64,7 @@ export const POST = async (
         {
           type: "update",
           variant_id: variantId,
-          fields: { ...update, manage_inventory: false },
+          fields: update,
         },
       ],
     },

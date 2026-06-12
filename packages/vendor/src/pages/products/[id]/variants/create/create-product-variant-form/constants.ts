@@ -8,13 +8,3 @@ export const CreateProductVariantSchema = z.object({
     .record(z.string().min(1, i18next.t("products.variant.validation.optionRequired")))
     .optional(),
 })
-
-export const CreateVariantDetailsSchema = CreateProductVariantSchema.pick({
-  title: true,
-  sku: true,
-  options: true,
-})
-
-export const CreateVariantDetailsFields = Object.keys(
-  CreateVariantDetailsSchema.shape
-) as (keyof typeof CreateVariantDetailsSchema.shape)[]

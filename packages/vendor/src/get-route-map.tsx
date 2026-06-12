@@ -579,25 +579,75 @@ export function getRouteMap({
                         },
                         children: [
                           {
-                            path: "edit",
+                            path: "edit-price",
                             lazy: () =>
-                              import(
-                                "./pages/offers/[id]/edit/offer-edit-page"
-                              ),
+                              import("./pages/offers/[id]/edit-price"),
                           },
                           {
-                            path: "pricing",
+                            path: "edit-stock",
                             lazy: () =>
-                              import(
-                                "./pages/offers/[id]/pricing/offer-pricing-edit-page"
-                              ),
+                              import("./pages/offers/[id]/edit-stock"),
                           },
-                          {
-                            path: "inventory",
-                            lazy: () =>
-                              import(
-                                "./pages/offers/[id]/inventory/offer-inventory-batch-page"
+                        ],
+                      },
+                      {
+                        path: "variants/:offer_id",
+                        lazy: async () => {
+                          const { loader } = await import(
+                            "./pages/offers/[id]/variants/[offer_id]/loader"
+                          );
+                          const { Breadcrumb } = await import(
+                            "./pages/offers/[id]/variants/[offer_id]/breadcrumb"
+                          );
+                          return {
+                            Component: Outlet,
+                            loader,
+                            handle: {
+                              breadcrumb: (match: UIMatch<any>) => (
+                                <Breadcrumb {...match} />
                               ),
+                            },
+                          };
+                        },
+                        children: [
+                          {
+                            path: "",
+                            lazy: async () => {
+                              const { OfferVariantDetailPage } = await import(
+                                "./pages/offers/[id]/variants/[offer_id]/offer-variant-detail-page"
+                              );
+                              return { Component: OfferVariantDetailPage };
+                            },
+                            children: [
+                              {
+                                path: "edit",
+                                lazy: () =>
+                                  import(
+                                    "./pages/offers/[id]/variants/[offer_id]/edit"
+                                  ),
+                              },
+                              {
+                                path: "shipping",
+                                lazy: () =>
+                                  import(
+                                    "./pages/offers/[id]/variants/[offer_id]/shipping"
+                                  ),
+                              },
+                              {
+                                path: "pricing",
+                                lazy: () =>
+                                  import(
+                                    "./pages/offers/[id]/variants/[offer_id]/pricing"
+                                  ),
+                              },
+                              {
+                                path: "inventory",
+                                lazy: () =>
+                                  import(
+                                    "./pages/offers/[id]/variants/[offer_id]/inventory"
+                                  ),
+                              },
+                            ],
                           },
                         ],
                       },

@@ -1,18 +1,18 @@
 import { UIMatch } from "react-router-dom"
 
-import { useOffer } from "../../../hooks/api/offers"
-import { OFFER_DETAIL_FIELDS } from "../common/constants"
+import { useProduct } from "../../../hooks/api/products"
+import { OFFER_PRODUCT_DETAIL_FIELDS } from "../common/constants"
 
-type OfferBreadcrumbProps = UIMatch<{ offer?: { sku?: string | null } }>
+type OfferBreadcrumbProps = UIMatch<{ product?: { title?: string | null } }>
 
 export const Breadcrumb = (props: OfferBreadcrumbProps) => {
   const { id } = props.params || {}
-  const { offer } = useOffer(
+  const { product } = useProduct(
     id!,
-    { fields: OFFER_DETAIL_FIELDS },
+    { fields: OFFER_PRODUCT_DETAIL_FIELDS },
     { initialData: props.data, enabled: Boolean(id) },
   )
 
-  if (!offer) return null
-  return <span>{offer.sku ?? id}</span>
+  if (!product) return null
+  return <span>{product.title ?? id}</span>
 }

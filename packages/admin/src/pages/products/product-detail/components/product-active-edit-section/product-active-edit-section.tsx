@@ -343,36 +343,61 @@ const VariantUpdateBlock = ({
 }) => {
   const { t } = useTranslation();
   const found = variantsById.get(variantId);
-  const title =
-    found?.title ||
-    found?.sku ||
-    variantId ||
-    t("fields.variant", { defaultValue: "Variant" });
+  const variantFallback = t("fields.variant", { defaultValue: "Variant" });
+  const title = found?.title || found?.sku || variantId || variantFallback;
+  // Only append the SKU when it adds information beyond the title.
+  const sku = found?.sku && title !== found.sku ? found.sku : undefined;
   const images = isImageList(found?.images) ? found?.images : undefined;
 
   return (
-    <div
-      className="flex flex-col gap-y-3"
-      data-testid={`product-active-edit-variant-${variantId}`}
-    >
-      <div className="flex items-center gap-3">
-        {images && images.length > 0 && <ImageStrip images={images} />}
-        <Text size="small" leading="compact" className="text-ui-fg-subtle">
-          <span className="font-medium text-ui-fg-base">
-            {t("products.edits.panel.variantUpdated", {
-              defaultValue: "Variant updated",
-            })}
-          </span>
-          {": "}
-          {title}
+    <>
+      <div
+        className="flex items-start gap-4 px-6 py-4"
+        data-testid={`product-active-edit-variant-${variantId}`}
+      >
+        <Text
+          size="small"
+          weight="plus"
+          leading="compact"
+          className="text-ui-fg-subtle w-[160px] shrink-0"
+        >
+          {variantFallback}
         </Text>
+        <div className="flex flex-1 items-center gap-2">
+          {images && images.length > 0 && <ImageStrip images={images} />}
+          <Text
+            size="small"
+            leading="compact"
+            className="text-ui-fg-base font-medium"
+          >
+            {title}
+          </Text>
+          {sku && (
+            <Text size="small" leading="compact" className="text-ui-fg-subtle">
+              {`· ${sku}`}
+            </Text>
+          )}
+        </div>
       </div>
-      <div className="flex flex-col gap-y-4 pl-1">
-        {diffs.map((diff, idx) => (
-          <FieldRow key={`${variantId}-${diff.field}-${idx}`} diff={diff} />
-        ))}
-      </div>
-    </div>
+
+      {diffs.length > 0 && (
+        <div className="flex items-start gap-4 px-6 py-4">
+          <Text
+            size="small"
+            weight="plus"
+            leading="compact"
+            className="text-ui-fg-subtle w-[160px] shrink-0"
+          >
+            {t("labels.updated")}
+          </Text>
+          <div className="flex flex-1 flex-col gap-y-4">
+            {diffs.map((diff, idx) => (
+              <FieldRow key={`${variantId}-${diff.field}-${idx}`} diff={diff} />
+            ))}
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
@@ -562,30 +587,15 @@ export const ProductActiveEditSection = ({
             </div>
           )}
 
-          {variantsUpdated.size > 0 && (
-            <div className="flex items-start gap-4 px-6 py-4">
-              <Text
-                size="small"
-                weight="plus"
-                leading="compact"
-                className="text-ui-fg-subtle w-[160px] shrink-0"
-              >
-                {t("labels.updated")}
-              </Text>
-              <div className="flex flex-1 flex-col gap-y-6">
-                {Array.from(variantsUpdated.entries()).map(
-                  ([variantId, diffs]) => (
-                    <VariantUpdateBlock
-                      key={variantId}
-                      variantId={variantId}
-                      diffs={diffs}
-                      variantsById={variantsById}
-                    />
-                  ),
-                )}
-              </div>
-            </div>
-          )}
+          {variantsUpdated.size > 0 &&
+            Array.from(variantsUpdated.entries()).map(([variantId, diffs]) => (
+              <VariantUpdateBlock
+                key={variantId}
+                variantId={variantId}
+                diffs={diffs}
+                variantsById={variantsById}
+              />
+            ))}
 
           {added.length > 0 && (
             <div className="flex items-start gap-4 px-6 py-4">

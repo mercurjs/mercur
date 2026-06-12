@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
 import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { useBulkCreateOffers } from "../../../../hooks/api/offers";
-import { useVariants } from "../../../../hooks/api/product-variants";
+import { useProducts } from "../../../../hooks/api/products";
 import { useCurrentSeller } from "../../../../hooks/api/sellers";
 import { useStockLocations } from "../../../../hooks/api/stock-locations";
 import { CreateOfferCatalogueTab } from "./create-offer-catalogue";
@@ -21,7 +21,7 @@ import {
 } from "./schema";
 
 const DEFAULTS: CreateOfferFormValues = {
-  selected_variant_ids: [],
+  selected_product_ids: [],
   variants: [],
 };
 
@@ -73,24 +73,25 @@ export const CreateOfferForm = () => {
 
   const locationIds = (stock_locations ?? []).map((l) => l.id);
 
-  const selectedVariantIds = form.watch("selected_variant_ids") ?? [];
-  const selectedVariantIdsKey = selectedVariantIds.join(",");
+  const selectedProductIds = form.watch("selected_product_ids") ?? [];
+  const selectedProductIdsKey = selectedProductIds.join(",");
   const locationsKey = locationIds.join(",");
 
-  const { variants: fetchedVariants } = useVariants(
+  // Fetch the selected products with their variants — the stock & prices
+  // tab fans each product out to one row per variant (SPEC-009).
+  const { products: fetchedProducts } = useProducts(
     {
-      id: selectedVariantIds,
-      limit: selectedVariantIds.length || 1,
+      id: selectedProductIds,
+      limit: selectedProductIds.length || 1,
       fields:
-        "id,title,sku,product_id,product.id,product.title,product.thumbnail",
+        "id,title,thumbnail,variants.id,variants.title,variants.sku",
     },
-    { enabled: selectedVariantIds.length > 0 },
+    { enabled: selectedProductIds.length > 0 },
   );
 
-  // Hydrate `variants` from the catalogue selection. Keep already-edited
-  // rows by indexing the prior array by variant_id.
+  // Hydrate `variants` from the selected products' variants. Keep
+  // already-edited rows by indexing the prior array by variant_id.
   useEffect(() => {
-    const ids = selectedVariantIdsKey ? selectedVariantIdsKey.split(",") : [];
     const locIds = locationsKey ? locationsKey.split(",") : [];
 
     const emptyPrices: Record<string, number | ""> = currency_code
@@ -112,37 +113,37 @@ export const CreateOfferForm = () => {
     );
 
     const next: OfferVariantRow[] = [];
-    for (const variantId of ids) {
-      const previous = existingByVariantId.get(variantId);
-      if (previous) {
-        // Merge in any newly-arrived currencies / locations the row didn't
-        // know about (e.g. store data arrived after the row was built).
+    for (const product of fetchedProducts ?? []) {
+      for (const variant of product.variants ?? []) {
+        const previous = existingByVariantId.get(variant.id);
+        if (previous) {
+          // Merge in any newly-arrived currencies / locations the row
+          // didn't know about (e.g. store data arrived after build).
+          next.push({
+            ...previous,
+            prices: { ...emptyPrices, ...(previous.prices ?? {}) },
+            inventory: { ...emptyInventory, ...(previous.inventory ?? {}) },
+          });
+          continue;
+        }
         next.push({
-          ...previous,
-          prices: { ...emptyPrices, ...(previous.prices ?? {}) },
-          inventory: { ...emptyInventory, ...(previous.inventory ?? {}) },
+          variant_id: variant.id,
+          product_id: product.id ?? "",
+          product_title: product.title ?? "",
+          variant_title: variant.title ?? variant.id,
+          product_thumbnail: product.thumbnail ?? null,
+          variant_sku: variant.sku ?? null,
+          sku: variant.sku ?? "",
+          shipping_profile_id: "",
+          prices: { ...emptyPrices },
+          inventory: { ...emptyInventory },
         });
-        continue;
       }
-      const fetched = (fetchedVariants ?? []).find((v) => v.id === variantId);
-      if (!fetched) continue;
-      next.push({
-        variant_id: variantId,
-        product_id: fetched.product_id ?? fetched.product?.id ?? "",
-        product_title: fetched.product?.title ?? "",
-        variant_title: fetched.title ?? variantId,
-        product_thumbnail: fetched.product?.thumbnail ?? null,
-        variant_sku: fetched.sku ?? null,
-        sku: fetched.sku ?? "",
-        shipping_profile_id: "",
-        prices: { ...emptyPrices },
-        inventory: { ...emptyInventory },
-      });
     }
     form.setValue("variants", next, { shouldDirty: false });
   }, [
-    selectedVariantIdsKey,
-    fetchedVariants,
+    selectedProductIdsKey,
+    fetchedProducts,
     currency_code,
     locationsKey,
     form,
@@ -285,7 +286,7 @@ export const CreateOfferForm = () => {
               variant="primary"
               size="small"
               onClick={() => onNext()}
-              disabled={(form.watch("selected_variant_ids")?.length ?? 0) === 0}
+              disabled={(form.watch("selected_product_ids")?.length ?? 0) === 0}
             >
               {t("actions.continue")}
             </Button>

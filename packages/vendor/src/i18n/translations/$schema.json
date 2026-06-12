@@ -4382,6 +4382,9 @@
             "publish": {
               "type": "string"
             },
+            "tipLabel": {
+              "type": "string"
+            },
             "tip": {
               "type": "string"
             },
@@ -4415,6 +4418,7 @@
             "header",
             "successToast",
             "publish",
+            "tipLabel",
             "tip",
             "addPrice",
             "addInventoryItem",
@@ -4430,6 +4434,15 @@
               "type": "string"
             },
             "productVariant": {
+              "type": "string"
+            },
+            "offerVariant": {
+              "type": "string"
+            },
+            "associatedProduct": {
+              "type": "string"
+            },
+            "shippingConfiguration": {
               "type": "string"
             },
             "inventoryItems": {
@@ -4448,6 +4461,9 @@
           "required": [
             "offerLabel",
             "productVariant",
+            "offerVariant",
+            "associatedProduct",
+            "shippingConfiguration",
             "inventoryItems",
             "manageKit",
             "noInventoryItems",
@@ -4579,6 +4595,12 @@
             "manage_inventory": {
               "type": "string"
             },
+            "edit_prices": {
+              "type": "string"
+            },
+            "edit_stock_levels": {
+              "type": "string"
+            },
             "bulkDelete": {
               "type": "string"
             }
@@ -4587,6 +4609,8 @@
             "create",
             "manage_prices",
             "manage_inventory",
+            "edit_prices",
+            "edit_stock_levels",
             "bulkDelete"
           ],
           "additionalProperties": false

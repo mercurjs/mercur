@@ -36,6 +36,12 @@ export type StageProductChangeWorkflowInput = {
   >
   internal_note?: string
   external_note?: string
+  /**
+   * Force inline confirmation regardless of the `PRODUCT_REQUEST`
+   * feature flag. Forwarded to `autoConfirmProductChangeWorkflow`.
+   * Used by `productEditDeleteProductWorkflow` for `draft` products.
+   */
+  auto_confirm?: boolean
 }
 
 export const stageProductChangeWorkflowId = "stage-product-change"
@@ -96,6 +102,7 @@ export const stageProductChangeWorkflow = createWorkflow(
       input: transform({ changes, input }, ({ changes, input }) => ({
         change_id: changes[0]?.id as string,
         confirmed_by: input.created_by,
+        force: input.auto_confirm,
       })),
     })
 

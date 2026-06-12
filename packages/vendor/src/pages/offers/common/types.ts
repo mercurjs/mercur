@@ -1,4 +1,21 @@
+import { HttpTypes } from "@medusajs/types"
+import { OfferDTO } from "@mercurjs/types"
+
 import { OfferStockShape } from "./utils"
+
+/**
+ * A product variant carrying the active seller's offers, as returned by
+ * the vendor product endpoint's `withOffers` wrap (SPEC-009). Composed
+ * from the Medusa `AdminProductVariant` DTO + the Mercur `OfferDTO`.
+ */
+export type OfferProductVariant = HttpTypes.AdminProductVariant & {
+  offers?: OfferDTO[] | null
+}
+
+/** A product with the seller's offers wrapped under each variant. */
+export type OfferProduct = HttpTypes.AdminProduct & {
+  variants?: OfferProductVariant[] | null
+}
 
 export type OfferPriceRule = {
   attribute?: string | null

@@ -34,6 +34,11 @@ const VendorGetProductsParamsFields = z.object({
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
   deleted_at: createOperatorMap().optional(),
+  // Pseudo-filter consumed by `applySellerOfferedProductsFilter`: when
+  // true, scopes the list to products the active seller has an offer on
+  // (the Offers list). Stripped from `filterableFields` before the
+  // product graph read.
+  has_offer: booleanString().optional(),
 })
 
 export type VendorGetProductsParamsType = z.infer<typeof VendorGetProductsParams>

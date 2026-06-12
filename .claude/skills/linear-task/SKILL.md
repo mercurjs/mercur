@@ -81,7 +81,7 @@ This is the part that varies by ticket. Anchor on:
 - **`CLAUDE.md`, `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, `docs/UI-ARCHITECTURE.md`** — already in your context. The team's conventions live there; follow them.
 - **Existing skills** — if the ticket touches admin pages, forms, or tabs, the `admin-page-ui` / `admin-form-ui` / `admin-tab-ui` / `medusa-ui-conformance` skills already encode the rules. Use them; don't re-derive.
 - **Tests** — per `CLAUDE.md`: bug fixes and new features must include tests. For a reproducible bug, write the failing test first.
-- **Conventional Commits** — `feat(scope):`, `fix(scope):`, `docs:`, `chore:`, `refactor(scope):`. `!` for breaking changes. The scope usually matches the Mercur area (e.g. `orders`, `admin`, `vendor`, `core`).
+- **Conventional Commits & branch conventions** — follow the rules in `@CLAUDE.md` (Conventional Commits: `feat(scope):`, `fix(scope):`, `docs:`, `chore:`, `refactor(scope):`; `!` for breaking changes; PRs target `canary`). The scope usually matches the Mercur area (e.g. `orders`, `admin`, `vendor`, `core`). For the branch name itself, use Linear's `gitBranchName` verbatim (see step 4).
 
 If during implementation you hit something you can't resolve without input — credentials you don't have, an ambiguous spec where two valid interpretations would produce different UX, a dependency on work in another repo — that's a real blocker. Go to step 7b.
 

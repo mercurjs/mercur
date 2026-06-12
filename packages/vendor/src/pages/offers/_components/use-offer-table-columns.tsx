@@ -1,154 +1,110 @@
-import { Checkbox, Text } from "@medusajs/ui";
-import { createColumnHelper } from "@tanstack/react-table";
-import { useMemo } from "react";
-import { useTranslation } from "react-i18next";
+import { Text } from "@medusajs/ui"
+import { createColumnHelper } from "@tanstack/react-table"
+import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
-import { Thumbnail } from "../../../components/common/thumbnail";
 import {
   CategoryCell,
   CategoryHeader,
-} from "../../../components/table/table-cells/product/category-cell";
+} from "../../../components/table/table-cells/product/category-cell"
+import {
+  ProductCell,
+  ProductHeader,
+} from "../../../components/table/table-cells/product/product-cell"
 import {
   ProductStatusCell,
   ProductStatusHeader,
-} from "../../../components/table/table-cells/product/product-status-cell";
-import { PlaceholderCell } from "../../../components/table/table-cells/common/placeholder-cell";
-import { ProductStatus } from "@mercurjs/types";
-import { OfferActions } from "./offer-actions";
+} from "../../../components/table/table-cells/product/product-status-cell"
+import { PlaceholderCell } from "../../../components/table/table-cells/common/placeholder-cell"
+import { ProductStatus } from "@mercurjs/types"
+import { OfferProduct } from "../common/types"
+import { OfferActions } from "./offer-actions"
 
-export type OfferTableRow = {
-  id: string;
-  sku?: string | null;
-  updated_at?: string | null;
-  deleted_at?: string | null;
-  product_variant?: {
-    id?: string | null;
-    title?: string | null;
-    product_id?: string | null;
-    product?: {
-      id?: string | null;
-      title?: string | null;
-      thumbnail?: string | null;
-      status?: string | null;
-      categories?: Array<{
-        id: string;
-        name: string;
-      }> | null;
-    } | null;
-  } | null;
-  shipping_profile?: {
-    id?: string | null;
-    name?: string | null;
-  } | null;
-};
+/**
+ * A row on the product-backed Offers list: a product with the active
+ * seller's offers wrapped under each variant (SPEC-009). The list
+ * collapses the seller's offers by product, so the row identity is the
+ * product; `variants[].offers[]` drives the offered-variant count and
+ * the product-level delete.
+ */
+const columnHelper = createColumnHelper<OfferProduct>()
 
-const columnHelper = createColumnHelper<OfferTableRow>();
+const countOfferedVariants = (row: OfferProduct) =>
+  (row.variants ?? []).filter((v) => (v.offers?.length ?? 0) > 0).length
+
+export const collectOfferIds = (row: OfferProduct) =>
+  (row.variants ?? []).flatMap((v) => (v.offers ?? []).map((o) => o.id))
 
 export const useOfferTableColumns = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return useMemo(
     () => [
       columnHelper.display({
-        id: "select",
-        header: ({ table }) => (
-          <Checkbox
-            checked={
-              table.getIsSomePageRowsSelected()
-                ? "indeterminate"
-                : table.getIsAllPageRowsSelected()
-            }
-            onCheckedChange={(value) =>
-              table.toggleAllPageRowsSelected(!!value)
-            }
-          />
-        ),
+        id: "product",
+        header: () => <ProductHeader />,
         cell: ({ row }) => (
-          <Checkbox
-            checked={row.getIsSelected()}
-            onCheckedChange={(value) => row.toggleSelected(!!value)}
-            onClick={(e) => e.stopPropagation()}
+          <ProductCell
+            product={{
+              title: row.original.title ?? "",
+              thumbnail: row.original.thumbnail ?? null,
+            }}
           />
         ),
-      }),
-      columnHelper.display({
-        id: "title",
-        header: t("fields.title"),
-        cell: ({ row }) => {
-          const variant = row.original.product_variant;
-          const title = variant?.title ?? "";
-
-          if (!title) {
-            return <PlaceholderCell />;
-          }
-
-          return (
-            <div className="flex h-full w-full max-w-[250px] items-center gap-x-3 overflow-hidden">
-              <div className="w-fit flex-shrink-0">
-                <Thumbnail src={variant?.product?.thumbnail} />
-              </div>
-              <span title={variant?.product?.title!} className="truncate">
-                {variant?.title}
-              </span>
-            </div>
-          );
-        },
       }),
       columnHelper.display({
         id: "categories",
         header: () => <CategoryHeader />,
         cell: ({ row }) => (
-          <CategoryCell
-            categories={row.original.product_variant?.product?.categories}
-          />
+          <CategoryCell categories={row.original.categories} />
         ),
       }),
-      columnHelper.accessor("sku", {
-        header: t("offers.fields.sku"),
-        cell: ({ getValue }) => {
-          const sku = getValue();
-          if (!sku) return <PlaceholderCell />;
+      columnHelper.display({
+        id: "collection",
+        header: t("fields.collection"),
+        cell: ({ row }) => {
+          const collection = row.original.collection
+          if (!collection?.title) return <PlaceholderCell />
           return (
             <Text size="small" leading="compact" className="truncate">
-              {sku}
+              {collection.title}
             </Text>
-          );
+          )
         },
       }),
       columnHelper.display({
-        id: "shipping_profile",
-        header: t("shippingProfile.domain"),
-        cell: ({ row }) => {
-          const name = row.original.shipping_profile?.name;
-          if (!name) return <PlaceholderCell />;
-          return (
-            <Text size="small" leading="compact" className="truncate">
-              {name}
-            </Text>
-          );
-        },
+        id: "variants",
+        header: t("offers.fields.variants"),
+        cell: ({ row }) => (
+          <Text size="small" leading="compact" className="truncate">
+            {t("offers.fields.variantsCount", {
+              count: countOfferedVariants(row.original),
+            })}
+          </Text>
+        ),
       }),
       columnHelper.display({
         id: "status",
         header: () => <ProductStatusHeader />,
         cell: ({ row }) => {
-          const status = row.original.product_variant?.product?.status;
-          if (!status) return <PlaceholderCell />;
-          return <ProductStatusCell status={status as ProductStatus} />;
+          const status = row.original.status
+          if (!status) return <PlaceholderCell />
+          return <ProductStatusCell status={status as ProductStatus} />
         },
       }),
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => (
           <OfferActions
-            offer={{
+            product={{
               id: row.original.id,
-              sku: row.original.sku ?? "",
+              title: row.original.title ?? "",
+              offerIds: collectOfferIds(row.original),
             }}
           />
         ),
       }),
     ],
     [t],
-  );
-};
+  )
+}

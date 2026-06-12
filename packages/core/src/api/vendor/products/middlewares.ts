@@ -72,6 +72,56 @@ const applySellerProductLinkFilter = async (
   return next()
 }
 
+/**
+ * Scopes the product list to products the active seller has at least one
+ * offer on, when `?has_offer=true`. The bare vendor-products list returns
+ * the master-catalogue union (every published product + the seller's
+ * own), which is far larger than the Offers surface; this narrows it to
+ * the seller's offered products by resolving their offers' variant ids
+ * and filtering products to those carrying one of those variants. The
+ * `has_offer` pseudo-filter is consumed here and removed so it never
+ * reaches the product graph read.
+ */
+const applySellerOfferedProductsFilter = async (
+  req: AuthenticatedMedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  req.filterableFields ??= {}
+  const hasOffer = req.filterableFields.has_offer
+  delete req.filterableFields.has_offer
+
+  if (hasOffer !== true) {
+    return next()
+  }
+
+  const sellerId = req.seller_context!.seller_id
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: offers } = await query.graph({
+    entity: "offer",
+    fields: ["variant_id"],
+    filters: { seller_id: sellerId },
+  })
+
+  const variantIds = Array.from(
+    new Set(
+      offers
+        .map((offer: { variant_id: string | null }) => offer.variant_id)
+        .filter((id: string | null): id is string => Boolean(id))
+    )
+  )
+
+  const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
+  req.filterableFields.$and = [
+    ...existingAnd,
+    // No offers → match nothing (empty list) rather than the whole catalogue.
+    { variants: { id: variantIds.length ? variantIds : ["__none__"] } },
+  ]
+
+  return next()
+}
+
 export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   // --- /vendor/products ---
   {
@@ -83,6 +133,7 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.list
       ),
       applySellerProductLinkFilter,
+      applySellerOfferedProductsFilter,
     ],
   },
   {

@@ -319,6 +319,99 @@ medusaIntegrationTestRunner({
           expect(add.details.variant.title).toBe("Variant A")
         })
       })
+
+      describe("POST /vendor/products/:id/variants/:variant_id (staging)", () => {
+        // Adds a variant (auto-confirmed in the test env) and returns its
+        // applied id so the update flow has a real variant to diff against.
+        const addVariant = async (
+          productId: string,
+          payload: Record<string, unknown>,
+        ): Promise<string> => {
+          await api.post(
+            `/vendor/products/${productId}/variants`,
+            payload,
+            sellerHeaders,
+          )
+          const got = await api.get(
+            `/vendor/products/${productId}`,
+            sellerHeaders,
+          )
+          const variant = (got.data.product.variants as Array<any>).find(
+            (v) => v.title === payload.title,
+          )
+          return variant.id as string
+        }
+
+        it("stages a VARIANT_UPDATE carrying the variant_id and only the changed fields", async () => {
+          const productId = await createVendorProduct("Variant Update Product")
+          const variantId = await addVariant(productId, {
+            title: "Variant A",
+            sku: "OLD-SKU",
+          })
+
+          const res = await api.post(
+            `/vendor/products/${productId}/variants/${variantId}`,
+            // title unchanged, sku changed
+            { title: "Variant A", sku: "NEW-SKU" },
+            sellerHeaders,
+          )
+
+          expect(res.status).toBe(202)
+          const update = (res.data.product_change.actions as Array<any>).find(
+            (a) => a.action === ProductChangeActionType.VARIANT_UPDATE,
+          )
+          expect(update).toBeDefined()
+          expect(update.details.variant_id).toBe(variantId)
+          // Only the field that actually changed is staged.
+          expect(Object.keys(update.details.fields)).toEqual(["sku"])
+          expect(update.details.fields.sku).toBe("NEW-SKU")
+          expect(update.details.previous_fields.sku).toBe("OLD-SKU")
+        })
+
+        it("never stages manage_inventory — it is not vendor-editable (MER-168)", async () => {
+          const productId = await createVendorProduct("Manage Inventory Product")
+          const variantId = await addVariant(productId, {
+            title: "Variant B",
+            sku: "SKU-B",
+          })
+
+          const res = await api.post(
+            `/vendor/products/${productId}/variants/${variantId}`,
+            // Client tries to flip manage_inventory alongside a real edit.
+            { sku: "SKU-B2", manage_inventory: true },
+            sellerHeaders,
+          )
+
+          expect(res.status).toBe(202)
+          const update = (res.data.product_change.actions as Array<any>).find(
+            (a) => a.action === ProductChangeActionType.VARIANT_UPDATE,
+          )
+          expect(update).toBeDefined()
+          expect(Object.keys(update.details.fields)).toEqual(["sku"])
+          expect(update.details.fields).not.toHaveProperty("manage_inventory")
+        })
+
+        it("stages no VARIANT_UPDATE action when nothing editable changed", async () => {
+          const productId = await createVendorProduct("No Change Product")
+          const variantId = await addVariant(productId, {
+            title: "Variant C",
+            sku: "SKU-C",
+          })
+
+          const res = await api.post(
+            `/vendor/products/${productId}/variants/${variantId}`,
+            // Same title + sku, plus a non-editable field.
+            { title: "Variant C", sku: "SKU-C", manage_inventory: true },
+            sellerHeaders,
+          )
+
+          expect(res.status).toBe(202)
+          const updates = (res.data.product_change.actions as Array<any>).filter(
+            (a) => a.action === ProductChangeActionType.VARIANT_UPDATE,
+          )
+          expect(updates).toHaveLength(0)
+        })
+      })
     })
   },
 })

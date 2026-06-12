@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { Checkbox } from "@medusajs/ui"
+import { Checkbox, Text } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import {
   OnChangeFn,
@@ -15,15 +15,19 @@ import {
   CategoryHeader,
 } from "../../../../components/table/table-cells/product/category-cell"
 import {
+  ProductCell,
+  ProductHeader,
+} from "../../../../components/table/table-cells/product/product-cell"
+import {
   ProductStatusCell,
   ProductStatusHeader,
 } from "../../../../components/table/table-cells/product/product-status-cell"
 import { PlaceholderCell } from "../../../../components/table/table-cells/common/placeholder-cell"
-import { Thumbnail } from "../../../../components/common/thumbnail"
 import { _DataTable } from "../../../../components/table/data-table"
 import { defineTabMeta } from "../../../../components/tabbed-form/types"
-import { useVariants } from "../../../../hooks/api/product-variants"
-import { useProductVariantsTableQuery } from "../../../../hooks/table/query/use-product-variants-table-query"
+import { useProducts } from "../../../../hooks/api/products"
+import { useProductTableFilters } from "../../../../hooks/table/filters/use-product-table-filters"
+import { useProductTableQuery } from "../../../../hooks/table/query/use-product-table-query"
 import { useDataTable } from "../../../../hooks/use-data-table"
 import { CreateOfferFormValues } from "./schema"
 
@@ -32,28 +36,22 @@ const PAGE_SIZE = 10
 const FIELDS = [
   "id",
   "title",
-  "sku",
-  "ean",
-  "upc",
-  "product_id",
-  "product.id",
-  "product.title",
-  "product.thumbnail",
-  "product.status",
-  "product.categories.id",
-  "product.categories.name",
+  "handle",
+  "status",
+  "thumbnail",
+  "*collection",
+  "categories.id",
+  "categories.name",
+  "variants.id",
 ].join(",")
 
-type VariantRow = HttpTypes.AdminProductVariant & {
-  ean?: string | null
-  upc?: string | null
-}
+type ProductRow = HttpTypes.AdminProduct
 
 const Root = () => {
   const { t } = useTranslation()
   const form = useFormContext<CreateOfferFormValues>()
 
-  const initialSelection = (form.getValues("selected_variant_ids") ?? []).reduce(
+  const initialSelection = (form.getValues("selected_product_ids") ?? []).reduce(
     (acc, id) => {
       acc[id] = true
       return acc
@@ -67,32 +65,25 @@ const Root = () => {
     const state = typeof fn === "function" ? fn(rowSelection) : fn
     setRowSelection(state)
     const ids = Object.keys(state)
-    form.setValue("selected_variant_ids", ids, {
+    form.setValue("selected_product_ids", ids, {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
     })
   }
 
-  const { searchParams, raw } = useProductVariantsTableQuery({
-    pageSize: PAGE_SIZE,
-  })
+  const { searchParams, raw } = useProductTableQuery({ pageSize: PAGE_SIZE })
 
-  const {
-    variants,
-    count,
-    isPending: isLoading,
-    isError,
-    error,
-  } = useVariants(
+  const { products, count, isLoading, isError, error } = useProducts(
     { ...searchParams, fields: FIELDS },
     { placeholderData: keepPreviousData },
   )
 
+  const filters = useProductTableFilters()
   const columns = useColumns()
 
   const { table } = useDataTable({
-    data: (variants ?? []) as VariantRow[],
+    data: (products ?? []) as ProductRow[],
     columns,
     enablePagination: true,
     enableRowSelection: true,
@@ -106,7 +97,7 @@ const Root = () => {
   })
 
   useEffect(() => {
-    void form.trigger("selected_variant_ids")
+    void form.trigger("selected_product_ids")
   }, [rowSelection, form])
 
   if (isError) {
@@ -124,6 +115,7 @@ const Root = () => {
         columns={columns}
         pageSize={PAGE_SIZE}
         isLoading={isLoading}
+        filters={filters}
         orderBy={[
           { key: "title", label: t("fields.title") },
           { key: "created_at", label: t("fields.createdAt") },
@@ -134,14 +126,19 @@ const Root = () => {
         pagination
         search="autofocus"
       />
-      <div className="bg-ui-bg-subtle text-ui-fg-subtle border-t px-6 py-4">
-        <span className="txt-small">{t("offers.create.tip")}</span>
+      <div className="bg-ui-bg-subtle border-t px-6 py-4">
+        <p className="border-ui-border-strong txt-small text-ui-fg-subtle border-l-2 pl-3">
+          <span className="text-ui-fg-base font-medium">
+            {t("offers.create.tipLabel")}
+          </span>{" "}
+          {t("offers.create.tip")}
+        </p>
       </div>
     </div>
   )
 }
 
-const columnHelper = createColumnHelper<VariantRow>()
+const columnHelper = createColumnHelper<ProductRow>()
 
 const useColumns = () => {
   const { t } = useTranslation()
@@ -157,9 +154,7 @@ const useColumns = () => {
                 ? "indeterminate"
                 : table.getIsAllPageRowsSelected()
             }
-            onCheckedChange={(value) =>
-              table.toggleAllPageRowsSelected(!!value)
-            }
+            onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
             data-testid="offer-create-catalogue-select-all-checkbox"
           />
         ),
@@ -173,72 +168,53 @@ const useColumns = () => {
         ),
       }),
       columnHelper.display({
-        id: "title",
-        header: t("fields.title"),
-        cell: ({ row }) => {
-          const variant = row.original
-          const title = variant.title ?? ""
-          if (!title) return <PlaceholderCell />
-          return (
-            <div className="flex h-full w-full max-w-[320px] items-center gap-x-3 overflow-hidden">
-              <div className="w-fit flex-shrink-0">
-                <Thumbnail src={variant.product?.thumbnail ?? null} />
-              </div>
-              <span className="truncate" title={title}>
-                {title}
-              </span>
-            </div>
-          )
-        },
+        id: "product",
+        header: () => <ProductHeader />,
+        cell: ({ row }) => (
+          <ProductCell
+            product={{
+              title: row.original.title ?? "",
+              thumbnail: row.original.thumbnail ?? null,
+            }}
+          />
+        ),
       }),
       columnHelper.display({
         id: "categories",
         header: () => <CategoryHeader />,
         cell: ({ row }) => (
-          <CategoryCell categories={row.original.product?.categories} />
+          <CategoryCell categories={row.original.categories} />
         ),
       }),
-      columnHelper.accessor("sku", {
-        header: t("fields.sku"),
-        cell: ({ getValue }) => {
-          const sku = getValue()
-          if (!sku) return <PlaceholderCell />
+      columnHelper.display({
+        id: "collection",
+        header: t("fields.collection"),
+        cell: ({ row }) => {
+          const title = row.original.collection?.title
+          if (!title) return <PlaceholderCell />
           return (
-            <div className="flex h-full w-full items-center overflow-hidden">
-              <span className="truncate">{sku}</span>
-            </div>
+            <Text size="small" leading="compact" className="truncate">
+              {title}
+            </Text>
           )
         },
       }),
-      columnHelper.accessor("ean", {
-        header: t("offers.fields.ean"),
-        cell: ({ getValue }) => {
-          const value = getValue()
-          if (!value) return <PlaceholderCell />
-          return (
-            <div className="flex h-full w-full items-center overflow-hidden">
-              <span className="truncate">{value}</span>
-            </div>
-          )
-        },
-      }),
-      columnHelper.accessor("upc", {
-        header: t("offers.fields.upc"),
-        cell: ({ getValue }) => {
-          const value = getValue()
-          if (!value) return <PlaceholderCell />
-          return (
-            <div className="flex h-full w-full items-center overflow-hidden">
-              <span className="truncate">{value}</span>
-            </div>
-          )
-        },
+      columnHelper.display({
+        id: "variants",
+        header: t("offers.fields.variants"),
+        cell: ({ row }) => (
+          <Text size="small" leading="compact" className="truncate">
+            {t("offers.fields.variantsCount", {
+              count: row.original.variants?.length ?? 0,
+            })}
+          </Text>
+        ),
       }),
       columnHelper.display({
         id: "status",
         header: () => <ProductStatusHeader />,
         cell: ({ row }) => {
-          const status = row.original.product?.status
+          const status = row.original.status
           if (!status) return <PlaceholderCell />
           return <ProductStatusCell status={status} />
         },
@@ -251,7 +227,7 @@ const useColumns = () => {
 Root._tabMeta = defineTabMeta<CreateOfferFormValues>({
   id: "catalogue",
   labelKey: "offers.create.tabs.catalogue",
-  validationFields: ["selected_variant_ids"],
+  validationFields: ["selected_product_ids"],
 })
 
 export const CreateOfferCatalogueTab = Root

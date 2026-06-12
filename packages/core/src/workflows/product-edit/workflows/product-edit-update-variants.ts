@@ -46,6 +46,14 @@ export const productEditUpdateVariantsWorkflowId =
   "product-edit-update-variants"
 
 /**
+ * Variant fields that are not vendor-editable and must never be staged
+ * as part of a `VARIANT_UPDATE`. `manage_inventory` is a marketplace
+ * invariant pinned to `false` at variant creation — surfacing it in the
+ * request block (as a phantom `Off → On` row) was the core of MER-168.
+ */
+const NON_EDITABLE_VARIANT_FIELDS = new Set(["manage_inventory"])
+
+/**
  * Vendor "edit product variants" orchestrator. Translates each
  * `operations[]` entry into a `VARIANT_ADD` / `VARIANT_UPDATE` /
  * `VARIANT_REMOVE` action on a fresh `ProductChange` via
@@ -133,6 +141,29 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
           currentVariantsById.set(v.id, v)
         }
 
+        // Mirror the product-level field diff (`product-edit-update-fields`):
+        // normalize relation/array shapes to ids/urls before comparing so an
+        // unchanged value never produces a spurious change row.
+        const normalize = (value: unknown): unknown => {
+          if (Array.isArray(value)) {
+            return value
+              .map((item) => {
+                if (item && typeof item === "object" && "id" in item) {
+                  return (item as { id: string }).id
+                }
+                if (item && typeof item === "object" && "url" in item) {
+                  return (item as { url: string }).url
+                }
+                return item
+              })
+              .sort()
+          }
+          return value ?? null
+        }
+
+        const isEqual = (a: unknown, b: unknown): boolean =>
+          JSON.stringify(normalize(a)) === JSON.stringify(normalize(b))
+
         for (const op of input.operations ?? []) {
           switch (op.type) {
             case "add":
@@ -144,20 +175,53 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
               break
             case "update": {
               const current = currentVariantsById.get(op.variant_id) ?? {}
+              const changedFields: Record<string, unknown> = {}
               const previousFields: Record<string, unknown> = {}
-              for (const field of Object.keys(op.fields ?? {})) {
-                // `images` is a relation reconciled separately on apply;
-                // it carries no scalar before/after worth diffing, so
-                // keep it out of the strikethrough preview.
-                if (field === "images") continue
+              for (const [field, proposedValue] of Object.entries(
+                op.fields ?? {},
+              )) {
+                // Never stage fields the vendor can't edit (e.g.
+                // `manage_inventory`).
+                if (NON_EDITABLE_VARIANT_FIELDS.has(field)) continue
+
+                // `options` is a relation update (option-title → value
+                // pairs), not a scalar column we load for diffing. Forward
+                // it untouched when provided so the apply step can re-pair
+                // variant options; it carries no meaningful previous value.
+                if (field === "options") {
+                  if (proposedValue !== undefined) {
+                    changedFields.options = proposedValue
+                  }
+                  continue
+                }
+
+                // `images` is a relation (variant↔image links), not a
+                // scalar column we load for diffing. Forward it untouched
+                // so the apply step can reconcile the links; it carries no
+                // meaningful previous value and stays out of the preview.
+                if (field === "images") {
+                  if (proposedValue !== undefined) {
+                    changedFields.images = proposedValue
+                  }
+                  continue
+                }
+
+                // Skip fields that did not actually change.
+                if (isEqual(current[field], proposedValue)) continue
+
+                changedFields[field] = proposedValue
                 previousFields[field] = current[field] ?? null
               }
+
+              // Nothing editable changed — don't stage an empty action.
+              if (!Object.keys(changedFields).length) break
+
               acts.push({
                 product_id: input.product_id,
                 action: ProductChangeActionType.VARIANT_UPDATE,
                 details: {
                   variant_id: op.variant_id,
-                  fields: op.fields,
+                  fields: changedFields,
                   previous_fields: previousFields,
                 },
               })

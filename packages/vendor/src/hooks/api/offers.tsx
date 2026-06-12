@@ -13,6 +13,7 @@ import {
 import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory } from "../../lib/query-key-factory";
+import { productsQueryKeys } from "./products";
 
 const OFFERS_QUERY_KEY = "offers" as const;
 export const offerQueryKeys = queryKeysFactory(OFFERS_QUERY_KEY);
@@ -66,6 +67,11 @@ export const useCreateOffer = (
       queryClient.invalidateQueries({
         queryKey: offerQueryKeys.lists(),
       });
+      // The Offers list + product-shaped detail read from the product
+      // endpoint (SPEC-009), so refresh those too after any offer mutation.
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.all,
+      });
       options?.onSuccess?.(data, variables, context);
     },
     ...options,
@@ -84,6 +90,11 @@ export const useBulkCreateOffers = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: offerQueryKeys.lists(),
+      });
+      // The Offers list + product-shaped detail read from the product
+      // endpoint (SPEC-009), so refresh those too after any offer mutation.
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.all,
       });
       options?.onSuccess?.(data, variables, context);
     },
@@ -105,6 +116,11 @@ export const useUpdateOffer = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: offerQueryKeys.lists(),
+      });
+      // The Offers list + product-shaped detail read from the product
+      // endpoint (SPEC-009), so refresh those too after any offer mutation.
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.all,
       });
       queryClient.invalidateQueries({
         queryKey: offerQueryKeys.detail(id),
@@ -140,6 +156,11 @@ export const useBatchOfferInventoryItems = (
       queryClient.invalidateQueries({
         queryKey: offerQueryKeys.lists(),
       });
+      // The Offers list + product-shaped detail read from the product
+      // endpoint (SPEC-009), so refresh those too after any offer mutation.
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.all,
+      });
       queryClient.invalidateQueries({
         queryKey: offerQueryKeys.detail(id),
       });
@@ -162,6 +183,11 @@ export const useDeleteOffer = (
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: offerQueryKeys.lists(),
+      });
+      // The Offers list + product-shaped detail read from the product
+      // endpoint (SPEC-009), so refresh those too after any offer mutation.
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.all,
       });
       queryClient.removeQueries({
         queryKey: offerQueryKeys.detail(id),
@@ -202,6 +228,11 @@ export const useBulkDeleteOffers = (
     onSuccess: (result, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: offerQueryKeys.lists(),
+      });
+      // The Offers list + product-shaped detail read from the product
+      // endpoint (SPEC-009), so refresh those too after any offer mutation.
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.all,
       });
       result.succeeded.forEach((id) => {
         queryClient.removeQueries({

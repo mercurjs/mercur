@@ -12,6 +12,7 @@ import { HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
 import { productEditUpdateFieldsWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-update-fields"
 import { enrichProductAttributes } from "../../../utils"
+import { wrapProductVariantsWithOffers } from "../helpers"
 import { VendorUpdateProductType } from "../validators"
 
 export const GET = async (
@@ -19,6 +20,19 @@ export const GET = async (
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  // Strip-then-wrap: the product-shaped offer detail requests
+  // `variants.offers.*`; re-attach the active seller's offers after the
+  // graph read so only the caller's offers surface (see
+  // `wrapProductVariantsWithOffers`).
+  const withOffers = req.queryConfig.fields.some((field) =>
+    field.includes("variants.offers")
+  )
+  if (withOffers) {
+    req.queryConfig.fields = req.queryConfig.fields.filter(
+      (field) => !field.includes("variants.offers")
+    )
+  }
 
   const {
     data: [product],
@@ -36,6 +50,14 @@ export const GET = async (
   }
 
   await enrichProductAttributes(req.scope, [product])
+
+  if (withOffers) {
+    await wrapProductVariantsWithOffers(
+      req.scope,
+      req.seller_context!.seller_id,
+      [product] as Parameters<typeof wrapProductVariantsWithOffers>[2]
+    )
+  }
 
   res.json({ product })
 }

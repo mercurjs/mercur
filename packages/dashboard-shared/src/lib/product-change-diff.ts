@@ -30,6 +30,14 @@ export const REFERENCE_FIELDS: ReferenceField[] = [
 export const isReferenceField = (field: string): field is ReferenceField =>
   (REFERENCE_FIELDS as string[]).includes(field)
 
+/**
+ * Variant fields that are not vendor-editable and must never surface in
+ * the request block. The staging workflow already strips these, but
+ * older pending changes may still carry them — keep the display defensive
+ * so non-editable rows (e.g. `manage_inventory`) never render (MER-168).
+ */
+export const NON_EDITABLE_VARIANT_FIELDS = new Set(["manage_inventory"])
+
 export const isImageList = (value: unknown): value is { url: string }[] =>
   Array.isArray(value) &&
   value.length > 0 &&
@@ -141,6 +149,7 @@ export const partitionProductChangeActions = (
             ? String(details.variant_id)
             : undefined
         for (const [field, value] of Object.entries(fields)) {
+          if (NON_EDITABLE_VARIANT_FIELDS.has(field)) continue
           updated.push({
             field,
             previous: previousFields[field],

@@ -450,7 +450,7 @@
       "header": "Edit Product",
       "description": "Edit the product details.",
       "successToast": "Product {{title}} was successfully updated.",
-      "requestSuccessToast": "Product update request has been submitted successfully.",
+      "requestSuccessToast": "Product update was successfully requested. Once confirmed by the Admin, changes will appear on the storefront.",
       "duplicateRequestErrorToast": "You already have an active request. You can only have one at a time.",
       "attributes": {
         "addAttribute": "Add Attribute",
@@ -477,7 +477,7 @@
         "cancelDescription": "Are you sure you want to cancel this product update request? This action cannot be undone."
       },
       "toast": {
-        "canceledSuccessfully": "Product update request canceled"
+        "canceledSuccessfully": "Product update request was successfully canceled."
       }
     },
     "create": {
@@ -500,7 +500,7 @@
         "options": "Please create at least one option.",
         "uniqueSku": "SKU must be unique across variants",
         "primaryCategoryRequired": "Primary category is required",
-        "categoryRequired": "Please select category",
+        "categoryRequired": "Please select a category",
         "titleRequired": "Title is required",
         "handleInvalidFormat": "Handle must contain only lowercase letters, numbers, and hyphens",
         "handleMustContainLetter": "Handle must contain at least one letter",
@@ -822,7 +822,7 @@
       },
       "primaryCategory": {
         "label": "Primary Category",
-        "tooltip": "The primary category defines which attributes are available for this product. Attributes are created by the Admin when setting up the marketplace."
+        "tooltip": "Category could define attributes that apply to this product. Attributes are created by the Admin when setting up the marketplace."
       }
     },
     "variant": {
@@ -1065,18 +1065,22 @@
       "header": "Create offer",
       "successToast": "Offer was successfully published. Only offers with stock levels and prices set will be visible on the storefront.",
       "publish": "Publish",
+      "tipLabel": "Tip:",
       "tip": "Select all relevant products that match your inventory, then easily create offers for them by simply adding your stock levels and prices.",
       "addPrice": "Add price",
       "addInventoryItem": "Add inventory item",
       "stockLevelsWarning": "Offers created, but some stock levels could not be saved: {{message}}",
       "tabs": {
-        "catalogue": "Catalogue",
+        "catalogue": "Products",
         "stockLevelsAndPrices": "Stock Levels & Prices"
       }
     },
     "detail": {
       "offerLabel": "Offer",
       "productVariant": "Product Variant",
+      "offerVariant": "Offer Variant",
+      "associatedProduct": "Associated product",
+      "shippingConfiguration": "Shipping Configuration",
       "inventoryItems": "Inventory items",
       "manageKit": "Manage inventory kit",
       "noInventoryItems": "No inventory items attached. Open the inventory drawer to attach one.",
@@ -1114,12 +1118,14 @@
       "create": "Create",
       "manage_prices": "Manage prices",
       "manage_inventory": "Manage inventory",
+      "edit_prices": "Edit prices",
+      "edit_stock_levels": "Edit stock levels",
       "bulkDelete": "Delete selected"
     },
     "fields": {
       "sku": "SKU",
       "variant": "Master variant",
-      "shippingProfile": "Shipping profile",
+      "shippingProfile": "Shipping Profile",
       "ean": "EAN",
       "upc": "UPC",
       "requiredQuantity": "Required quantity",
