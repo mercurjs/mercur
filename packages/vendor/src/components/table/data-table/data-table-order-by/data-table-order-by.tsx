@@ -33,11 +33,11 @@ const initState = (
   defaultKey?: string,
 ): SortState => {
   const param = prefix ? `${prefix}_order` : "order"
-  const sortParam = params.get(param)
+  const sortParam = params.get(param) ?? defaultKey
 
   if (!sortParam) {
     return {
-      key: defaultKey,
+      key: undefined,
       dir: SortDirection.ASC,
     }
   }

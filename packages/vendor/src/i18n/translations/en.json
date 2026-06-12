@@ -1872,7 +1872,7 @@
       }
     },
     "fields": {
-      "displayId": "Display ID",
+      "displayId": "Order ID",
       "refundableAmount": "Refundable amount",
       "returnableQuantity": "Returnable quantity"
     }
