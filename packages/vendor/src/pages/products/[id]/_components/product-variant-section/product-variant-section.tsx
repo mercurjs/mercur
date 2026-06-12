@@ -67,8 +67,13 @@ export const ProductVariantSection = ({
     throw error;
   }
 
+  // No `divide-y` on the Container: in compact mode the DataTable's filter
+  // bar already renders its own `border-t`, so a Container divider would
+  // stack a second line between the header and the filter row (the doubled
+  // divider reported in MER-129). The compact filter bar always renders
+  // (search + sort + filters), so it owns the header/filter separator.
   return (
-    <Container className="divide-y p-0" data-testid="product-variant-section">
+    <Container className="p-0" data-testid="product-variant-section">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("products.variants.header")}</Heading>
         <Button
