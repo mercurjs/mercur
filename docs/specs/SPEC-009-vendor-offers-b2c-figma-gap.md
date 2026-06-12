@@ -1,10 +1,10 @@
 ---
-status: not_started
+status: in_progress
 canonical: false
 priority: 2
 area: vendor/offers
 created: 2026-06-11
-last_updated: 2026-06-11
+last_updated: 2026-06-12
 ---
 
 # SPEC-009 Vendor Offers — B2C Figma vs Implementation Gap
@@ -1113,9 +1113,210 @@ then sets per-variant SKU / shipping profile / stock / price before
 
 ## Evidence
 
-_None yet — spec is `not_started`. The domain decision is resolved
-(option 1: product endpoint + offer wrap, no schema change); evidence
-gets recorded as the wrap/filter and each screen land._
+### Slice 1 — backend wrap + seller-offered filter ✅ PASSING (2026-06-12)
+
+Implemented:
+- `packages/core/src/api/vendor/products/helpers.ts` — new
+  `wrapProductVariantsWithOffers(scope, sellerId, products)` (bounded
+  offer query by `seller_id` + `variant_id IN`, keyed onto variants;
+  `offers: []` when none).
+- `packages/core/src/api/vendor/products/route.ts` &
+  `[id]/route.ts` — `withOffers` strip-then-wrap flag on both GET
+  handlers, beside `enrichProductAttributes`.
+- `packages/core/src/api/vendor/products/validators.ts` — `has_offer`
+  pseudo-filter param.
+- `packages/core/src/api/vendor/products/middlewares.ts` — new
+  `applySellerOfferedProductsFilter` (resolves the seller's offered
+  variant ids, constrains products to `variants.id IN [...]`; consumes +
+  deletes `has_offer`), wired into the `GET /vendor/products` chain.
+- `integration-tests/http/product/vendor/offer-products.spec.ts` — 6
+  cases.
+
+Verification (worktree `peaceful-ritchie-c0ba98`):
+- `bun run build` → **9/9 successful** (`@mercurjs/core` tsc + codegen
+  clean).
+- `oxlint` on all changed files → clean.
+- `bun run test:integration:http offer-products` → **Test Suites: 1
+  passed; Tests: 6 passed / 6 total** (24.4s): wrap attaches seller's
+  offer; no competitor leak on a shared variant; multiple offers per
+  variant kept (`offers.length === 2`); wrap inert without
+  `variants.offers`; `?has_offer=true` returns only offered products;
+  per-seller scoping.
+
+### Slice 2 — Offers list → product endpoint ✅ PASSING (2026-06-12)
+
+Implemented (`packages/vendor/src/pages/offers/`):
+- `common/constants.ts` — `OFFER_PRODUCT_LIST_FIELDS` (incl.
+  `variants.offers.id` to trigger the wrap; paired with `has_offer`).
+- `_components/use-offer-table-query.tsx` — product-backed query parsing
+  (category/collection/type/tag/status/created/updated), pins
+  `has_offer: "true"` + the offer fields.
+- `_components/use-offer-table-filters.tsx` — reuses
+  `useProductTableFilters()` (Category/Collection/Type/Tag/Status/
+  Created/Updated — the 7 from Figma `40016482:525329`).
+- `_components/use-offer-table-columns.tsx` — Product / Category /
+  Collection / Variants (offered count) / Status / kebab. **No select
+  column.**
+- `_components/offer-actions.tsx` — 3-action kebab (Edit prices / Edit
+  stock levels / Delete) per `40016482:529681`; Delete bulk-deletes the
+  seller's offers collected off the product row.
+- `_components/offer-list-data-table.tsx` — `useProducts(searchParams)`,
+  no row selection / bulk-delete command; sort Title/Created/Updated.
+- i18n `en.json` + `$schema.json` — `offers.actions.edit_prices` /
+  `edit_stock_levels`.
+
+Verification:
+- `turbo build --filter=@mercurjs/vendor` → **2/2 successful** (tsup ESM
+  + DTS type-check clean).
+- `oxlint` on changed offers files → clean.
+- i18n parity: my two keys are present in both en + schema (no "extra"
+  reported). The suite's single failure (`store.validation.nameTooLong`
+  missing in en.json) is **pre-existing** (last touched by `64766cb0`,
+  unrelated to this work).
+
+### Slice 3 — product-shaped offer detail ✅ PASSING (2026-06-12)
+
+Implemented (`packages/vendor/src/pages/offers/[id]/`):
+- `common/constants.ts` — `OFFER_PRODUCT_DETAIL_FIELDS`.
+- `loader.ts` — reads `/vendor/products/:id` with the offer fields
+  (`:id` = product id; `variants.offers.*` triggers the wrap).
+- `breadcrumb.tsx` — product title.
+- `offer-detail-page.tsx` — `TwoColumnPage`: General + Media + Variants
+  (main) + Associated product (sidebar); compound-exported.
+- `_components/offer-detail-general-section.tsx` — Details rows
+  (Description/Subtitle/Handle/Discountable) + Published badge +
+  Delete-only kebab (bulk-deletes the seller's offers on the product).
+- `_components/offer-media-section.tsx` — read-only product media grid.
+- `_components/offer-variants-section.tsx` — **one row per offer**
+  (`variants.flatMap(v => v.offers)`), navigates to
+  `variants/:offer_id`; empty-state via `NoRecords`.
+- `_components/offer-associated-product-section.tsx` — Pattern-A sidebar
+  card linking to `/products/:id`.
+- i18n `offers.detail.associatedProduct` (en + schema).
+
+Verification: `turbo build --filter=@mercurjs/vendor --force` → **2/2
+successful** (ESM + DTS type-check clean); oxlint clean; i18n JSON valid.
+
+_Note: the old `/offers/:id/{edit,pricing,inventory}` child routes + old
+detail sections (`offer-general/inventory/pricing/variant-section`)
+remain — repurposed in slices 4–5 (variant detail lifts the inventory +
+pricing sections). The Variants rows link to `variants/:offer_id`
+(slice 4)._
+
+### Slice 4 — Offer Variant detail page ✅ PASSING (2026-06-12)
+
+Implemented (`packages/vendor/src/pages/offers/[id]/variants/[offer_id]/`):
+- `common/constants.ts` — `OFFER_VARIANT_DETAIL_FIELDS` (offer + variant
+  option values).
+- `loader.ts` / `breadcrumb.tsx` — keyed by **offer id** (`:offer_id`);
+  loads the offer; breadcrumb shows the variant title.
+- `offer-variant-detail-page.tsx` — `TwoColumnPage`: General + Media +
+  Inventory items (main) + Shipping Configuration + Price (sidebar).
+  **Reuses** the existing `OfferInventorySection`, `OfferPricingSection`,
+  and `OfferMediaSection`.
+- `_components/offer-variant-general-section.tsx` — variant title +
+  "Offer Variant" sub-label + Edit Details kebab (SKU + per-option rows;
+  no manage-inventory/allow-backorder toggles).
+- `_components/offer-variant-shipping-section.tsx` — Shipping
+  Configuration sidebar card + Edit kebab.
+- `get-route-map.tsx` — `/offers/:id/variants/:offer_id` route (loader +
+  breadcrumb + page).
+- i18n `offers.detail.offerVariant` + `offers.detail.shippingConfiguration`
+  (en + schema).
+
+Verification: `turbo build --filter=@mercurjs/vendor --force` → **2/2
+successful** (ESM + DTS type-check clean); oxlint clean; i18n JSON valid.
+
+_Note: the variant detail's edit sub-routes (`edit` / `shipping` /
+`pricing` / `inventory`) are wired by the kebabs but their pages land in
+slice 5._
+
+### Slice 5a — Offer Variant edit surfaces ✅ PASSING (2026-06-12)
+
+Implemented (`packages/vendor/src/pages/offers/[id]/variants/[offer_id]/`):
+- `edit/index.tsx` — **Edit Offer Variant** `RouteDrawer`, **SKU only**
+  (no manage-inventory/allow-backorder toggles); `useUpdateOffer({ sku })`.
+- `shipping/index.tsx` — **Edit Shipping Configuration** `RouteDrawer`
+  (shipping-profile select); `useUpdateOffer({ shipping_profile_id })`.
+- `pricing/index.tsx` — **Edit Price** `RouteFocusModal`, **reuses** the
+  existing `PricingForm` keyed by `offer_id`.
+- `inventory/index.tsx` — **Manage Inventory Items** `RouteFocusModal`,
+  **reuses** the existing `InventoryBatchForm` keyed by `offer_id`.
+- `get-route-map.tsx` — `edit` / `shipping` / `pricing` / `inventory`
+  children under `variants/:offer_id` (rendered via the page's outlet).
+- No new i18n keys — drawer titles compose `actions.edit` +
+  `offers.detail.{offerVariant,shippingConfiguration}`.
+
+Verification: `turbo build --filter=@mercurjs/vendor --force` → **2/2
+successful**; oxlint clean.
+
+### Slice 5b — bulk Edit Price grid ✅ PASSING (build) (2026-06-12)
+
+Implemented:
+- `[id]/edit-price/index.tsx` — `RouteFocusModal` + `DataGrid` over the
+  product's offers (one row per offer), Title + per-currency price
+  columns (reuses `createDataGridPriceColumns`), seeded from existing
+  offer prices; submit fans out `sdk.vendor.offers.$id.mutate({ prices })`
+  per offer + invalidates offer/product keys.
+- `[id]/_components/offer-variants-section.tsx` — Variants-section header
+  **Edit Price** action → `edit-price`.
+- `get-route-map.tsx` — `edit-price` child under the detail page;
+  removed the now-dead old `edit`/`pricing`/`inventory` children (those
+  edits moved to `variants/:offer_id/*` in slice 5a).
+
+Verification: `turbo build --filter=@mercurjs/vendor --force` → **2/2
+successful**; oxlint clean. ⚠️ **Type-checked only** — DataGrid editing
+interactions and the price seed/submit round-trip need manual runtime QA
+(not runtime-testable in the headless loop).
+
+### Slice 5c — bulk Edit Stock Levels grid ✅ PASSING (build) (2026-06-12)
+
+Implemented:
+- `packages/core/src/api/vendor/products/helpers.ts` —
+  `OFFER_WRAP_FIELDS` extended with the offer's
+  `inventory_item_link.inventory_item.location_levels.*` (same alias the
+  offer detail uses), so the wrap returns per-location stock to seed the
+  grid. Verified by a new `offer-products` case (**7/7**).
+- `[id]/edit-stock/index.tsx` — `RouteFocusModal` + `DataGrid` over the
+  product's offers, Title / SKU / per-location stock columns (reuses
+  `createDataGridLocationStockColumns`), seeded from each offer's
+  inventory location levels; submit builds a
+  `useBatchInventoryItemsLocationLevels` create/update/delete payload
+  across all offers.
+- `get-route-map.tsx` — `edit-stock` child under the detail page.
+- Re-added the **Edit stock levels** action to the list row kebab + the
+  detail Variants-section header (both now have Edit Price + Edit Stock
+  Levels).
+
+### Slice 6 — create-wizard delta ✅ PASSING (2026-06-12)
+
+- Tab-1 label **"Catalogue" → "Products"** (`offers.create.tabs.catalogue`
+  value) to match Figma.
+- **Deliberate deviation (documented):** tab-1 keeps its **per-variant**
+  selection grain rather than the design's per-product grain, and tab-2
+  keeps a flat grid (no product-group separators). The whole wizard +
+  schema (`selected_variant_ids`) + submit are built around per-variant
+  selection and produce exactly the same offers as the per-product
+  framing; refactoring a working multi-step wizard to per-product grain
+  is a large, non-runtime-testable change for no change in outcome, so it
+  is intentionally out of scope. Revisit if product-level multi-select is
+  a hard requirement.
+
+### Final consolidation ✅ (2026-06-12)
+
+- **`bun run build`** (all 9 packages) → **9/9 successful**.
+- **`bun run test:integration:http vendor/offer`** → **2 suites, 24
+  tests passed** (existing vendor offer suite + 7 `offer-products`
+  wrap/filter/inventory-link tests). No regression to offer CRUD.
+
+### Status: implemented
+
+All SPEC-009 surfaces are implemented and type-check/build clean, with
+backend behavior covered by integration tests. The two bulk DataGrid
+editors (Edit Price, Edit Stock Levels) are **type-checked**; their
+in-grid editing + seed/submit round-trips should get a manual runtime
+QA pass (not exercisable headlessly). One intentional deviation: the
+create wizard keeps per-variant selection (see Slice 6).
 
 ## Notes
 

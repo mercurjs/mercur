@@ -1065,13 +1065,16 @@
       "addInventoryItem": "Add inventory item",
       "stockLevelsWarning": "Offers created, but some stock levels could not be saved: {{message}}",
       "tabs": {
-        "catalogue": "Catalogue",
+        "catalogue": "Products",
         "stockLevelsAndPrices": "Stock Levels & Prices"
       }
     },
     "detail": {
       "offerLabel": "Offer",
       "productVariant": "Product Variant",
+      "offerVariant": "Offer Variant",
+      "associatedProduct": "Associated product",
+      "shippingConfiguration": "Shipping Configuration",
       "inventoryItems": "Inventory items",
       "manageKit": "Manage inventory kit",
       "noInventoryItems": "No inventory items attached. Open the inventory drawer to attach one.",
@@ -1109,6 +1112,8 @@
       "create": "Create",
       "manage_prices": "Manage prices",
       "manage_inventory": "Manage inventory",
+      "edit_prices": "Edit prices",
+      "edit_stock_levels": "Edit stock levels",
       "bulkDelete": "Delete selected"
     },
     "fields": {
