@@ -126,8 +126,13 @@ const Root = () => {
         pagination
         search="autofocus"
       />
-      <div className="bg-ui-bg-subtle text-ui-fg-subtle border-t px-6 py-4">
-        <span className="txt-small">{t("offers.create.tip")}</span>
+      <div className="bg-ui-bg-subtle border-t px-6 py-4">
+        <p className="border-ui-border-strong txt-small text-ui-fg-subtle border-l-2 pl-3">
+          <span className="text-ui-fg-base font-medium">
+            {t("offers.create.tipLabel")}
+          </span>{" "}
+          {t("offers.create.tip")}
+        </p>
       </div>
     </div>
   )

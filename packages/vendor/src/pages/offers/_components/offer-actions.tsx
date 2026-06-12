@@ -31,9 +31,9 @@ export const OfferActions = ({ product }: { product: OfferProductActions }) => {
 
     const confirmed = await prompt({
       title: t("general.areYouSure"),
-      description: t("offers.bulkDelete.description", {
-        count: product.offerIds.length,
-      }),
+      // The product listing is one offer to the seller, regardless of how
+      // many of its variants are offered under the hood.
+      description: t("offers.bulkDelete.description", { count: 1 }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
       variant: "danger",
@@ -46,11 +46,7 @@ export const OfferActions = ({ product }: { product: OfferProductActions }) => {
     const result = await bulkDelete(product.offerIds)
 
     if (result.failed.length === 0) {
-      toast.success(
-        t("offers.bulkDelete.successToast", {
-          count: result.succeeded.length,
-        }),
-      )
+      toast.success(t("offers.bulkDelete.successToast", { count: 1 }))
     } else {
       toast.warning(
         t("offers.bulkDelete.partialToast", {

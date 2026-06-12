@@ -1060,6 +1060,7 @@
       "header": "Create offer",
       "successToast": "Offer was successfully published. Only offers with stock levels and prices set will be visible on the storefront.",
       "publish": "Publish",
+      "tipLabel": "Tip:",
       "tip": "Select all relevant products that match your inventory, then easily create offers for them by simply adding your stock levels and prices.",
       "addPrice": "Add price",
       "addInventoryItem": "Add inventory item",

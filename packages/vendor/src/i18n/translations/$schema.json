@@ -4361,6 +4361,9 @@
             "publish": {
               "type": "string"
             },
+            "tipLabel": {
+              "type": "string"
+            },
             "tip": {
               "type": "string"
             },
@@ -4394,6 +4397,7 @@
             "header",
             "successToast",
             "publish",
+            "tipLabel",
             "tip",
             "addPrice",
             "addInventoryItem",

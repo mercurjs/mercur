@@ -36,7 +36,9 @@ export const OfferDetailGeneralSection = ({
 
     const confirmed = await prompt({
       title: t("general.areYouSure"),
-      description: t("offers.bulkDelete.description", { count: offerIds.length }),
+      // The product listing is one offer to the seller, regardless of how
+      // many of its variants are offered under the hood.
+      description: t("offers.bulkDelete.description", { count: 1 }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
       variant: "danger",
@@ -49,9 +51,7 @@ export const OfferDetailGeneralSection = ({
     const result = await bulkDelete(offerIds)
 
     if (result.failed.length === 0) {
-      toast.success(
-        t("offers.bulkDelete.successToast", { count: result.succeeded.length }),
-      )
+      toast.success(t("offers.bulkDelete.successToast", { count: 1 }))
       navigate("/offers")
     } else {
       toast.warning(
