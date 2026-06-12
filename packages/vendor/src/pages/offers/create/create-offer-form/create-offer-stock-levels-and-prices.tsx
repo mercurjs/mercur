@@ -117,15 +117,15 @@ const useColumns = ({
       }),
       columnHelper.column({
         id: "shipping_profile",
-        name: t("shippingProfile.domain"),
-        header: t("shippingProfile.domain"),
+        name: t("offers.fields.shippingProfile"),
+        header: t("offers.fields.shippingProfile"),
         field: (context) => `variants.${context.row.index}.shipping_profile_id`,
         type: "select",
         cell: (context) => (
           <DataGrid.SelectCell
             context={context}
             options={shippingProfileOptions}
-            placeholder={t("shippingProfile.domain")}
+            placeholder=""
           />
         ),
       }),

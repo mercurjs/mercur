@@ -1058,7 +1058,7 @@
     "subtitle": "Manage your catalog listings",
     "create": {
       "header": "Create offer",
-      "successToast": "Offer created",
+      "successToast": "Offer was successfully published. Only offers with stock levels and prices set will be visible on the storefront.",
       "publish": "Publish",
       "tip": "Select all relevant products that match your inventory, then easily create offers for them by simply adding your stock levels and prices.",
       "addPrice": "Add price",
@@ -1119,7 +1119,7 @@
     "fields": {
       "sku": "SKU",
       "variant": "Master variant",
-      "shippingProfile": "Shipping profile",
+      "shippingProfile": "Shipping Profile",
       "ean": "EAN",
       "upc": "UPC",
       "requiredQuantity": "Required quantity",
