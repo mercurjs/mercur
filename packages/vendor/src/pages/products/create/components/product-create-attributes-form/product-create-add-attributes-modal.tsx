@@ -233,7 +233,6 @@ export const ProductCreateAddAttributesModal = () => {
           isLoading={isLoading}
           layout="fill"
           prefix={ADD_ATTRIBUTES_MODAL_ID}
-          compact
           emptyState={emptyState}
         />
       </StackedFocusModal.Body>

@@ -406,11 +406,10 @@ export const OfferVariantsSection = ({
   const columns = useColumns({ optionTitles, thumbnail, getActions })
   const filters = useDataTableDateFilters()
 
-  // No `divide-y` on the Container: in compact mode the DataTable's
-  // filter bar already renders its own `border-t`, so a Container divider
-  // would stack a second line between the header and the filter row. The
-  // filter bar always renders (search + sort + filters), so it owns the
-  // header/filter separator.
+  // No `divide-y` on the Container: this section draws its own header, so the
+  // DataTable renders only its filter bar, which already has a `border-t`. A
+  // Container divider would stack a second line between the header and the
+  // filter row; the filter bar owns that separator.
   return (
     <Container className="p-0" data-testid="offer-variants-section">
       <div className="flex items-center justify-between px-6 py-4">
@@ -445,7 +444,6 @@ export const OfferVariantsSection = ({
         rowCount={sortedRows.length}
         pageSize={PAGE_SIZE}
         prefix={PREFIX}
-        compact
         emptyState={{
           empty: {
             heading: t("offers.empty.heading"),
