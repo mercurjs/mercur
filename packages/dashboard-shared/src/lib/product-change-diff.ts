@@ -103,7 +103,7 @@ export const formatFieldValue = (value: unknown, field?: string): string => {
   if (typeof value === "boolean") return value ? "True" : "False"
   if (typeof value === "string") return value
   if (typeof value === "number") return String(value)
-  if (field === "attribute_values") {
+  if (field === "attribute_values" || field === "options") {
     const pretty = formatAttributeValues(value)
     if (pretty) return pretty
   }
