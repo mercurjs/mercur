@@ -32,6 +32,11 @@ const AdminGetProductsParamsFields = z.object({
   ean: z.string().optional(),
   upc: z.string().optional(),
   barcode: z.string().optional(),
+  // Offers-list pseudo-filter: scope products to those carrying at least
+  // one offer. Consumed (and removed) by `applyOfferedProductsFilter`
+  // before the product graph read. When paired with `seller_id` on the
+  // Offers surface, the seller scope is reinterpreted as the offer's store.
+  has_offer: booleanString().optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
   deleted_at: createOperatorMap().optional(),

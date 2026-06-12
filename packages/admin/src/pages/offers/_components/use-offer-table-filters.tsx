@@ -1,13 +1,33 @@
 import { useTranslation } from "react-i18next"
+import { ProductStatus } from "@mercurjs/types"
 
 import { Filter } from "../../../components/table/data-table"
 import { useSellers } from "../../../hooks/api/sellers"
-import { useShippingProfiles } from "../../../hooks/api/shipping-profiles"
+import {
+  useCollections,
+  useProductCategories,
+  useProductTags,
+} from "../../../hooks/api"
+import { useProductTypes } from "../../../hooks/api/product-types"
 
+/**
+ * Filters for the product-backed admin Offers list (SPEC-010): the
+ * admin-only **Store** filter (carried over from SPEC-004) plus the
+ * product-graph filters that match the B2C design — Category / Collection
+ * / Type / Tag / Status / Created / Updated. The shipped SKU +
+ * shipping-profile filters are dropped (those concerns live on the Offer
+ * Variant detail now).
+ */
 export const useOfferTableFilters = (): Filter[] => {
   const { t } = useTranslation()
   const { sellers } = useSellers({ limit: 1000 })
-  const { shipping_profiles } = useShippingProfiles({ limit: 1000 })
+  const { product_categories } = useProductCategories({
+    limit: 1000,
+    fields: "id,name",
+  })
+  const { collections } = useCollections({ limit: 1000 })
+  const { product_types } = useProductTypes({ limit: 1000 })
+  const { product_tags } = useProductTags({ limit: 1000 })
 
   const filters: Filter[] = []
 
@@ -25,26 +45,90 @@ export const useOfferTableFilters = (): Filter[] => {
     })
   }
 
-  if (shipping_profiles && shipping_profiles.length > 0) {
+  if (product_categories && product_categories.length > 0) {
     filters.push({
       type: "select",
-      key: "shipping_profile_id",
-      label: t("shippingProfile.domain"),
+      key: "category_id",
+      label: t("fields.category"),
       multiple: true,
       searchable: true,
-      options: shipping_profiles.map(
-        (p: { id: string; name?: string | null }) => ({
-          label: p.name ?? p.id,
-          value: p.id,
+      options: product_categories.map(
+        (c: { id: string; name?: string | null }) => ({
+          label: c.name ?? c.id,
+          value: c.id,
+        }),
+      ),
+    })
+  }
+
+  if (collections && collections.length > 0) {
+    filters.push({
+      type: "select",
+      key: "collection_id",
+      label: t("fields.collection"),
+      multiple: true,
+      searchable: true,
+      options: collections.map(
+        (c: { id: string; title?: string | null }) => ({
+          label: c.title ?? c.id,
+          value: c.id,
+        }),
+      ),
+    })
+  }
+
+  if (product_types && product_types.length > 0) {
+    filters.push({
+      type: "select",
+      key: "type_id",
+      label: t("fields.type"),
+      multiple: true,
+      searchable: true,
+      options: product_types.map(
+        (pt: { id: string; value?: string | null }) => ({
+          label: pt.value ?? pt.id,
+          value: pt.id,
+        }),
+      ),
+    })
+  }
+
+  if (product_tags && product_tags.length > 0) {
+    filters.push({
+      type: "select",
+      key: "tag_id",
+      label: t("fields.tag"),
+      multiple: true,
+      searchable: true,
+      options: product_tags.map(
+        (pt: { id: string; value?: string | null }) => ({
+          label: pt.value ?? pt.id,
+          value: pt.id,
         }),
       ),
     })
   }
 
   filters.push({
-    type: "string",
-    key: "sku",
-    label: t("offers.fields.sku"),
+    type: "select",
+    key: "status",
+    label: t("fields.status"),
+    multiple: true,
+    options: [
+      { label: t("products.productStatus.draft"), value: ProductStatus.DRAFT },
+      {
+        label: t("products.productStatus.proposed"),
+        value: ProductStatus.PROPOSED,
+      },
+      {
+        label: t("products.productStatus.published"),
+        value: ProductStatus.PUBLISHED,
+      },
+      {
+        label: t("products.productStatus.rejected"),
+        value: ProductStatus.REJECTED,
+      },
+    ],
   })
 
   filters.push({

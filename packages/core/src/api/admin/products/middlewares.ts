@@ -1,10 +1,14 @@
 import {
+  AuthenticatedMedusaRequest,
+  MedusaNextFunction,
+  MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import {
   adminProductQueryConfig,
@@ -35,6 +39,64 @@ import {
   AdminUpdateProductVariant,
 } from "./validators"
 
+/**
+ * Scopes the product list to products carrying at least one offer, when
+ * `?has_offer=true`. The admin Offers surface is product-grained but
+ * platform-wide, so (unlike the seller-scoped vendor variant) offered
+ * variant ids are resolved across **all** sellers by default. When a
+ * `seller_id` is also present on the Offers list it is reinterpreted as
+ * the offer's **store** (not product ownership) and consumed here, so the
+ * scope becomes "products this store has an offer on". Both pseudo-filters
+ * are removed before the product graph read.
+ */
+const applyOfferedProductsFilter = async (
+  req: AuthenticatedMedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  req.filterableFields ??= {}
+  const hasOffer = req.filterableFields.has_offer
+  delete req.filterableFields.has_offer
+
+  if (hasOffer !== true) {
+    return next()
+  }
+
+  // On the Offers surface, `seller_id` scopes the offer's store rather
+  // than product ownership — pull it off the product filters and apply it
+  // to the offer lookup instead.
+  const storeId = req.filterableFields.seller_id as
+    | string
+    | string[]
+    | undefined
+  delete req.filterableFields.seller_id
+
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: offers } = await query.graph({
+    entity: "offer",
+    fields: ["variant_id"],
+    filters: storeId ? { seller_id: storeId } : {},
+  })
+
+  const variantIds = Array.from(
+    new Set(
+      offers
+        .map((offer: { variant_id: string | null }) => offer.variant_id)
+        .filter((id: string | null): id is string => Boolean(id))
+    )
+  )
+
+  const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
+  req.filterableFields.$and = [
+    ...existingAnd,
+    // No offers → match nothing (empty list) rather than the whole catalogue.
+    { variants: { id: variantIds.length ? variantIds : ["__none__"] } },
+  ]
+
+  return next()
+}
+
 export const adminProductsMiddlewares: MiddlewareRoute[] = [
   // --- CRUD ---
   {
@@ -45,6 +107,7 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         AdminGetProductsParams,
         adminProductQueryConfig.list
       ),
+      applyOfferedProductsFilter,
     ],
   },
   {

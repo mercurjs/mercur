@@ -13,6 +13,7 @@ import { HttpTypes } from "@mercurjs/types"
 import { deleteProductsWorkflow } from "@medusajs/medusa/core-flows"
 import { updateProductsWorkflow } from "../../../../workflows/product/workflows/update-products"
 import { enrichProductAttributes } from "../../../utils"
+import { wrapProductVariantsWithOffers } from "../helpers"
 import { AdminUpdateProductType } from "../validators"
 
 export const GET = async (
@@ -20,6 +21,18 @@ export const GET = async (
   res: MedusaResponse<HttpTypes.AdminProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+  // Strip-then-wrap: the product-shaped offer detail requests
+  // `variants.offers.*`; re-attach every seller's offers after the graph
+  // read so the admin detail can render per-variant offers + their Store.
+  const withOffers = req.queryConfig.fields.some((field) =>
+    field.includes("variants.offers")
+  )
+  if (withOffers) {
+    req.queryConfig.fields = req.queryConfig.fields.filter(
+      (field) => !field.includes("variants.offers")
+    )
+  }
 
   const {
     data: [product],
@@ -37,6 +50,13 @@ export const GET = async (
   }
 
   await enrichProductAttributes(req.scope, [product])
+
+  if (withOffers) {
+    await wrapProductVariantsWithOffers(
+      req.scope,
+      [product] as Parameters<typeof wrapProductVariantsWithOffers>[1]
+    )
+  }
 
   res.json({ product })
 }

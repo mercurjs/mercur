@@ -12866,7 +12866,10 @@
             "upc": { "type": "string" },
             "shippingProfile": { "type": "string" },
             "requiredQuantity": { "type": "string" },
-            "stockStatus": { "type": "string" }
+            "stockStatus": { "type": "string" },
+            "variants": { "type": "string" },
+            "variantsCount_one": { "type": "string" },
+            "variantsCount_other": { "type": "string" }
           },
           "required": [
             "store",
@@ -12889,7 +12892,11 @@
             "inventoryItems": { "type": "string" },
             "goToInventoryItem": { "type": "string" },
             "manageKit": { "type": "string" },
-            "noInventoryItems": { "type": "string" }
+            "noInventoryItems": { "type": "string" },
+            "associatedProduct": { "type": "string" },
+            "stores": { "type": "string" },
+            "offerVariant": { "type": "string" },
+            "shippingConfiguration": { "type": "string" }
           },
           "required": [
             "offerLabel",
@@ -12900,6 +12907,15 @@
             "manageKit",
             "noInventoryItems"
           ],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "description": { "type": "string" },
+            "successToast": { "type": "string" }
+          },
+          "required": ["description", "successToast"],
           "additionalProperties": false
         },
         "bulkDelete": {

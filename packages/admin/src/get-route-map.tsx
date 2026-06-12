@@ -940,14 +940,14 @@ export function getRouteMap({
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { OfferDetailPage, Breadcrumb } = await import(
-                        "./pages/offers/[id]"
-                      );
                       const { loader } = await import(
                         "./pages/offers/[id]/loader"
                       );
+                      const { Breadcrumb } = await import(
+                        "./pages/offers/[id]/breadcrumb"
+                      );
                       return {
-                        Component: OfferDetailPage,
+                        Component: Outlet,
                         loader,
                         handle: {
                           breadcrumb: (match: UIMatch) => (
@@ -956,6 +956,48 @@ export function getRouteMap({
                         },
                       };
                     },
+                    children: [
+                      {
+                        path: "",
+                        lazy: async () => {
+                          const { OfferDetailPage } = await import(
+                            "./pages/offers/[id]/offer-detail-page"
+                          );
+                          return { Component: OfferDetailPage };
+                        },
+                      },
+                      {
+                        path: "variants/:offer_id",
+                        lazy: async () => {
+                          const { loader } = await import(
+                            "./pages/offers/[id]/variants/[offer_id]/loader"
+                          );
+                          const { Breadcrumb } = await import(
+                            "./pages/offers/[id]/variants/[offer_id]/breadcrumb"
+                          );
+                          return {
+                            Component: Outlet,
+                            loader,
+                            handle: {
+                              breadcrumb: (match: UIMatch) => (
+                                <Breadcrumb {...match} />
+                              ),
+                            },
+                          };
+                        },
+                        children: [
+                          {
+                            path: "",
+                            lazy: async () => {
+                              const { OfferVariantDetailPage } = await import(
+                                "./pages/offers/[id]/variants/[offer_id]/offer-variant-detail-page"
+                              );
+                              return { Component: OfferVariantDetailPage };
+                            },
+                          },
+                        ],
+                      },
+                    ],
                   },
                 ],
               },

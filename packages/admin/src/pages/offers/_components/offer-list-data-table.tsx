@@ -6,12 +6,22 @@ import { useTranslation } from "react-i18next"
 
 import { _DataTable } from "../../../components/table/data-table"
 import { useDataTable } from "../../../hooks/use-data-table"
-import { useBulkDeleteOffers, useOffers } from "../../../hooks/api/offers"
-import { OFFERS_PAGE_SIZE, OFFER_LIST_FIELDS } from "../common/constants"
-import { useOfferTableColumns, OfferTableRow } from "./use-offer-table-columns"
+import { useBulkDeleteOffers } from "../../../hooks/api/offers"
+import { useProducts } from "../../../hooks/api/products"
+import { OFFERS_PAGE_SIZE } from "../common/constants"
+import { OfferProduct } from "../common/types"
+import { collectOfferIds, useOfferTableColumns } from "./use-offer-table-columns"
 import { useOfferTableFilters } from "./use-offer-table-filters"
 import { useOfferTableQuery } from "./use-offer-table-query"
 
+/**
+ * Product-backed admin Offers list (SPEC-010). Reads `/admin/products`
+ * scoped to products that carry an offer (`has_offer=true`) with every
+ * seller's offers wrapped under each variant. One row per product. Admin
+ * is read-only except for delete — the bulk command collects the offer
+ * ids across the selected product rows and removes them (per-offer DELETE
+ * fan-out via `useBulkDeleteOffers`).
+ */
 export const OfferListDataTable = () => {
   const { t } = useTranslation()
   const prompt = usePrompt()
@@ -22,18 +32,12 @@ export const OfferListDataTable = () => {
     pageSize: OFFERS_PAGE_SIZE,
   })
 
-  const {
-    offers,
-    count,
-    isPending: isLoading,
-    isError,
-    error,
-  } = useOffers(
-    { ...searchParams, fields: OFFER_LIST_FIELDS },
+  const { products, count, isLoading, isError, error } = useProducts(
+    searchParams,
     { placeholderData: keepPreviousData },
   )
 
-  const rows = (offers ?? []) as OfferTableRow[]
+  const rows = (products ?? []) as OfferProduct[]
 
   const filters = useOfferTableFilters()
   const columns = useOfferTableColumns()
@@ -73,6 +77,7 @@ export const OfferListDataTable = () => {
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
+      defaultOrderBy="title"
       navigateTo={(row) => `${row.id}`}
       noRecords={{
         title: t("offers.empty.heading"),
@@ -83,13 +88,17 @@ export const OfferListDataTable = () => {
           label: t("offers.actions.bulkDelete"),
           shortcut: "d",
           action: async (currentSelection) => {
-            const ids = Object.keys(currentSelection)
-            if (ids.length === 0) return
+            const productIds = Object.keys(currentSelection)
+            if (productIds.length === 0) return
+
+            const selectedRows = rows.filter((r) => productIds.includes(r.id))
+            const offerIds = selectedRows.flatMap((r) => collectOfferIds(r))
+            if (offerIds.length === 0) return
 
             const confirmed = await prompt({
               title: t("general.areYouSure"),
               description: t("offers.bulkDelete.description", {
-                count: ids.length,
+                count: offerIds.length,
               }),
               confirmText: t("actions.delete"),
               cancelText: t("actions.cancel"),
@@ -98,7 +107,7 @@ export const OfferListDataTable = () => {
 
             if (!confirmed) return
 
-            const result = await bulkDelete(ids)
+            const result = await bulkDelete(offerIds)
             const succeededCount = result.succeeded.length
             const failedCount = result.failed.length
 
@@ -110,17 +119,9 @@ export const OfferListDataTable = () => {
             } else {
               toast.warning(
                 t("offers.bulkDelete.errorToast", {
-                  message: `${succeededCount}/${ids.length} succeeded`,
+                  message: `${succeededCount}/${offerIds.length} succeeded`,
                 }),
               )
-              const failedIds = new Set(result.failed.map((f) => f.id))
-              setSelection((prev) => {
-                const next: RowSelectionState = {}
-                for (const id of Object.keys(prev)) {
-                  if (failedIds.has(id)) next[id] = true
-                }
-                return next
-              })
             }
           },
         },

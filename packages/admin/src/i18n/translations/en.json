@@ -3816,7 +3816,10 @@
       "upc": "UPC",
       "shippingProfile": "Shipping profile",
       "requiredQuantity": "Required quantity",
-      "stockStatus": "Stock status"
+      "stockStatus": "Stock status",
+      "variants": "Variants",
+      "variantsCount_one": "{{count}} variant",
+      "variantsCount_other": "{{count}} variants"
     },
     "detail": {
       "offerLabel": "Offer",
@@ -3825,7 +3828,15 @@
       "inventoryItems": "Inventory items",
       "goToInventoryItem": "Go to inventory item",
       "manageKit": "Inventory kit",
-      "noInventoryItems": "This offer has no inventory items linked."
+      "noInventoryItems": "This offer has no inventory items linked.",
+      "associatedProduct": "Associated product",
+      "stores": "Stores",
+      "offerVariant": "Offer Variant",
+      "shippingConfiguration": "Shipping Configuration"
+    },
+    "delete": {
+      "description": "You are about to delete offer {{sku}}. This cannot be undone.",
+      "successToast": "Offer was successfully deleted."
     },
     "bulkDelete": {
       "description": "You are about to delete {{count}} offer(s) from {{storeName}}. This cannot be undone.",
