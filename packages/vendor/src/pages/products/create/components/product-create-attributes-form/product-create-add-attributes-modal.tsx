@@ -19,6 +19,7 @@ import { useAttributeTableQuery } from "@hooks/table/query/use-attribute-table-q
 import { useAttributeTableFilters } from "@hooks/table/filters/use-attribute-table-filters";
 
 import { ProductCreateSchemaType } from "../../types";
+import { mergeSelectedAttributes } from "./attribute-merge";
 
 export const ADD_ATTRIBUTES_MODAL_ID = "add-attributes";
 const PAGE_SIZE = 20;
@@ -168,7 +169,6 @@ export const ProductCreateAddAttributesModal = () => {
 
   const handleAdd = () => {
     const currentAttributes = getValues("attributes") ?? [];
-    const customAttributes = currentAttributes.filter((a) => a.is_custom);
 
     const requiredIds = new Set(
       product_attributes
@@ -187,10 +187,18 @@ export const ProductCreateAddAttributesModal = () => {
       available_values: a.available_values,
     }));
 
-    setValue("attributes", [...selectedAttributes, ...customAttributes], {
-      shouldDirty: true,
-      shouldTouch: true,
-    });
+    // MER-183: apply the selection without reordering the array. Keeping
+    // custom (and still-selected) entries in their original positions avoids
+    // desyncing the live form values from the `useFieldArray` snapshot, which
+    // is what crossed the toggle/value rendering and wiped values.
+    setValue(
+      "attributes",
+      mergeSelectedAttributes(currentAttributes, selectedAttributes),
+      {
+        shouldDirty: true,
+        shouldTouch: true,
+      },
+    );
     setIsOpen(ADD_ATTRIBUTES_MODAL_ID, false);
   };
 

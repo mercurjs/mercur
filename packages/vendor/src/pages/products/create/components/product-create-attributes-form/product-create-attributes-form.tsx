@@ -34,6 +34,10 @@ import { useProductAttributes } from "@hooks/api";
 
 import { ProductCreateSchemaType } from "../../types";
 import {
+  mergeRequiredAttributes,
+  RequiredAttributeInput,
+} from "./attribute-merge";
+import {
   ADD_ATTRIBUTES_MODAL_ID,
   ProductCreateAddAttributesModal,
 } from "./product-create-add-attributes-modal";
@@ -437,33 +441,20 @@ const RequiredAttributes = () => {
     if (!product_attributes) return;
 
     const currentAttributes = form.getValues("attributes") || [];
-    const requiredIds = new Set(product_attributes.map((a: any) => a.id));
 
-    // Keep all non-required attributes (custom + modal-added) untouched
-    const otherAttributes = currentAttributes.filter(
-      (a) => a.is_custom || !requiredIds.has(a.attribute_id ?? ""),
+    // MER-183: merge required attributes WITHOUT reordering the array.
+    // `mergeRequiredAttributes` keeps existing entries in place (so the live
+    // values stay index-aligned with the `useFieldArray` snapshot) and returns
+    // the same reference when nothing changed — so a refetch (e.g. on window
+    // focus) no longer rewrites/remounts the rows and wipes their values.
+    const nextAttributes = mergeRequiredAttributes(
+      currentAttributes,
+      product_attributes as RequiredAttributeInput[],
     );
 
-    // Merge required attributes — preserve existing values if already in form
-    const requiredAttributes = product_attributes.map((attr: any) => {
-      const existing = currentAttributes.find(
-        (a) => a.attribute_id === attr.id,
-      );
-      if (existing) return existing;
-
-      return {
-        attribute_id: attr.id,
-        title: attr.name,
-        values:
-          attr.type === AttributeType.MULTI_SELECT ? ([] as string[]) : "",
-        is_custom: false,
-        is_required: true,
-        use_for_variants: attr.is_variant_axis,
-        type: attr.type,
-      };
-    });
-
-    form.setValue("attributes", [...otherAttributes, ...requiredAttributes]);
+    if (nextAttributes !== currentAttributes) {
+      form.setValue("attributes", nextAttributes);
+    }
   }, [product_attributes]);
 
   if (!categoryId || !product_attributes?.length) return null;
