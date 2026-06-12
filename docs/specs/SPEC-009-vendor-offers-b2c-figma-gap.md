@@ -590,6 +590,28 @@ Design layout: a wide main column (≈739px) + a narrow sidebar
     `created_at` / `updated_at` — so `OFFER_PRODUCT_DETAIL_FIELDS` now
     requests `variants.offers.created_at` / `.updated_at`. Empty vs
     filtered states wired (`offers.empty.*` / `offers.filtered.*`).
+    Follow-up fixes in the same pass:
+    - **Row navigation bug.** Row click resolved to
+      `variants/undefined`. Medusa's `DataTable` passes the **TanStack
+      Row** (not the original datum) to `rowHref`/`onRowClick`, so the
+      custom `row.offerId` field read `undefined`. Renamed the flattened
+      row's id field to **`id`** (= the offer id) and switched
+      `getRowId` / `rowHref` to `row.id`, which resolves correctly whether
+      the callback receives the Row (its `.id` is the `getRowId` result)
+      or the original datum — the same reason `product-variant-section`'s
+      `row.id` works.
+    - **Removed the header "N variants" count text** (`variantsCount`),
+      leaving just the section heading + actions kebab, matching the Figma
+      header (`40016491:701157`).
+    - **Double-border fix.** Dropped `divide-y` from the section
+      `Container` (now `p-0`). In compact mode the DataTable's filter bar
+      already carries its own `border-t`, and the hidden toolbar row
+      collapses to zero height, so a Container divider stacked a second
+      1px line between the header and the filter row. The filter bar now
+      owns the header/filter separator; the table supplies its own
+      `border-y`. (The offers **list** table avoids this only because it
+      is non-compact, so its visible toolbar row separates the two
+      borders.)
 
 Sidebar:
 

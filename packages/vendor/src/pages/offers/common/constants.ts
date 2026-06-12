@@ -167,6 +167,8 @@ export const OFFER_PRODUCT_DETAIL_FIELDS = [
   "variants.options.option.title",
   "variants.offers.id",
   "variants.offers.sku",
+  "variants.offers.created_at",
+  "variants.offers.updated_at",
   "variants.offers.prices.amount",
   "variants.offers.prices.currency_code",
   "variants.offers.shipping_profile.id",
