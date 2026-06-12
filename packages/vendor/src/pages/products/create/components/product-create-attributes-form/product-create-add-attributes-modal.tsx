@@ -1,22 +1,22 @@
 import { ProductAttributeDTO } from "@mercurjs/types";
+import { Badge, Button, Checkbox, Tooltip } from "@medusajs/ui";
 import {
-  Badge,
-  Button,
-  Checkbox,
-  createDataTableColumnHelper,
-  DataTableRowSelectionState,
-  Tooltip,
-} from "@medusajs/ui";
+  OnChangeFn,
+  RowSelectionState,
+  createColumnHelper,
+} from "@tanstack/react-table";
 import { useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { keepPreviousData } from "@tanstack/react-query";
 
-import { DataTable } from "@components/data-table";
+import { Filter } from "@components/table/data-table";
+import { _DataTable } from "@components/table/data-table/data-table";
 import { StackedFocusModal, useStackedModal } from "@components/modals";
 import { useTabbedForm } from "@components/tabbed-form/tabbed-form";
 import { useProductAttributes } from "@hooks/api";
+import { useDataTable } from "@hooks/use-data-table";
 import { useAttributeTableQuery } from "@hooks/table/query/use-attribute-table-query";
-import { useAttributeTableFilters } from "@hooks/table/filters/use-attribute-table-filters";
+import { useDateTableFilters } from "@hooks/table/filters/use-date-table-filters";
 
 import { ProductCreateSchemaType } from "../../types";
 import { mergeSelectedAttributes } from "./attribute-merge";
@@ -41,27 +41,25 @@ const ROW_HIGHLIGHT_CLASSES = [
   "[&_tr:has(button[role=checkbox][data-state=checked][disabled])>td]:!bg-ui-bg-subtle",
 ].join(" ");
 
+type SelectedAttribute = {
+  id: string;
+  name: string;
+  values: string[];
+  is_variant_axis: boolean;
+  type: string;
+  available_values: { id: string; name: string }[];
+};
+
 export const ProductCreateAddAttributesModal = () => {
   const form = useTabbedForm<ProductCreateSchemaType>();
   const { t } = useTranslation();
   const { getValues, setValue } = form;
   const { setIsOpen, getIsOpen } = useStackedModal();
 
-  const [rowSelection, setRowSelection] = useState<DataTableRowSelectionState>(
-    {},
-  );
-  const [state, setState] = useState<
-    {
-      id: string;
-      name: string;
-      values: string[];
-      is_variant_axis: boolean;
-      type: string;
-      available_values: { id: string; name: string }[];
-    }[]
-  >([]);
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({});
+  const [state, setState] = useState<SelectedAttribute[]>([]);
 
-  const { searchParams } = useAttributeTableQuery({
+  const { searchParams, raw } = useAttributeTableQuery({
     pageSize: PAGE_SIZE,
     prefix: ADD_ATTRIBUTES_MODAL_ID,
   });
@@ -80,8 +78,8 @@ export const ProductCreateAddAttributesModal = () => {
     const attributes = getValues("attributes") ?? [];
     const existing = attributes.filter((a) => a.attribute_id);
 
-    const selection: DataTableRowSelectionState = {};
-    const stateEntries: typeof state = [];
+    const selection: RowSelectionState = {};
+    const stateEntries: SelectedAttribute[] = [];
 
     for (const a of existing) {
       if (a.attribute_id) {
@@ -128,7 +126,7 @@ export const ProductCreateAddAttributesModal = () => {
     setState(stateEntries);
   }, [open, getValues, product_attributes]);
 
-  const onRowSelectionChange = (next: DataTableRowSelectionState) => {
+  const applySelectionChange = (next: RowSelectionState) => {
     if (product_attributes) {
       for (const attr of product_attributes) {
         if (attr.is_required) {
@@ -143,7 +141,7 @@ export const ProductCreateAddAttributesModal = () => {
       ids.filter((id) => next[id] && !rowSelection[id]),
     );
 
-    let addedAttributes: typeof state = [];
+    let addedAttributes: SelectedAttribute[] = [];
 
     if (addedIdsSet.size > 0) {
       addedAttributes =
@@ -165,6 +163,12 @@ export const ProductCreateAddAttributesModal = () => {
       return Array.from(new Set([...filteredPrev, ...addedAttributes]));
     });
     setRowSelection(next);
+  };
+
+  const onRowSelectionChange: OnChangeFn<RowSelectionState> = (updater) => {
+    const next =
+      typeof updater === "function" ? updater(rowSelection) : updater;
+    applySelectionChange({ ...next });
   };
 
   const handleAdd = () => {
@@ -202,22 +206,42 @@ export const ProductCreateAddAttributesModal = () => {
     setIsOpen(ADD_ATTRIBUTES_MODAL_ID, false);
   };
 
-  const filters = useAttributeTableFilters();
+  const dateFilters = useDateTableFilters();
+  const filters = useMemo<Filter[]>(
+    () => [
+      {
+        key: "is_filterable",
+        label: t("attributes.fields.filterable"),
+        type: "select",
+        options: [
+          { label: t("filters.radio.yes"), value: "true" },
+          { label: t("filters.radio.no"), value: "false" },
+        ],
+      },
+      ...dateFilters,
+    ],
+    [t, dateFilters],
+  );
   const columns = useColumns();
+
+  const { table } = useDataTable({
+    data: product_attributes ?? [],
+    columns,
+    count,
+    pageSize: PAGE_SIZE,
+    prefix: ADD_ATTRIBUTES_MODAL_ID,
+    getRowId: (row) => row.id,
+    enableRowSelection: true,
+    rowSelection: {
+      state: rowSelection,
+      updater: onRowSelectionChange,
+    },
+    enablePagination: true,
+  });
 
   if (isError) {
     throw error;
   }
-
-  const emptyState = useMemo(
-    () => ({
-      empty: {
-        heading: t("products.create.attributes.noAttributesTitle"),
-        description: t("products.create.attributes.noAttributesDescription"),
-      },
-    }),
-    [t],
-  );
 
   return (
     <StackedFocusModal.Content className="flex flex-col overflow-hidden">
@@ -226,22 +250,27 @@ export const ProductCreateAddAttributesModal = () => {
         className={`flex-1 overflow-hidden ${ROW_HIGHLIGHT_CLASSES}`}
         data-testid="product-create-add-attributes-table"
       >
-        <DataTable
-          data={product_attributes}
+        <_DataTable
+          table={table}
           columns={columns}
           filters={filters}
-          rowCount={count}
+          count={count}
           pageSize={PAGE_SIZE}
-          getRowId={(row: ProductAttributeDTO) => row.id}
-          rowSelection={{
-            state: rowSelection,
-            onRowSelectionChange,
-            enableRowSelection: (row: any) => !row.original.is_required,
-          }}
+          queryObject={raw}
           isLoading={isLoading}
           layout="fill"
           prefix={ADD_ATTRIBUTES_MODAL_ID}
-          emptyState={emptyState}
+          pagination
+          search="autofocus"
+          orderBy={[
+            { key: "name", label: t("attributes.fields.name") },
+            { key: "created_at", label: t("fields.createdAt") },
+            { key: "updated_at", label: t("fields.updatedAt") },
+          ]}
+          noRecords={{
+            title: t("products.create.attributes.noAttributesTitle"),
+            message: t("products.create.attributes.noAttributesDescription"),
+          }}
         />
       </StackedFocusModal.Body>
       <StackedFocusModal.Footer>
@@ -260,29 +289,40 @@ export const ProductCreateAddAttributesModal = () => {
   );
 };
 
-const columnHelper = createDataTableColumnHelper<ProductAttributeDTO>();
+const columnHelper = createColumnHelper<ProductAttributeDTO>();
 
 const useColumns = () => {
   const { t } = useTranslation();
 
   return useMemo(
     () => [
-      columnHelper.select({
-        cell: (ctx) => {
-          const checked = ctx.row.getIsSelected();
-          const onChange = ctx.row.getToggleSelectedHandler();
-          const disabled = !ctx.row.getCanSelect();
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsSomePageRowsSelected()
+                ? "indeterminate"
+                : table.getIsAllPageRowsSelected()
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+          />
+        ),
+        cell: ({ row }) => {
+          const isRequired = (row.original as any).is_required;
           const checkbox = (
             <Checkbox
               onClick={(e) => e.stopPropagation()}
-              checked={checked}
-              onCheckedChange={onChange}
-              disabled={disabled}
+              checked={row.getIsSelected() || isRequired}
+              onCheckedChange={(value) => row.toggleSelected(!!value)}
+              disabled={isRequired}
             />
           );
 
           // Required attributes can't be deselected — explain via tooltip.
-          if (disabled) {
+          if (isRequired) {
             return (
               <Tooltip
                 content={t("products.create.attributes.requiredTooltip")}
