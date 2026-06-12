@@ -1,4 +1,4 @@
-import { CircleMiniFilledSolid, XMarkMini } from "@medusajs/icons";
+import { EllipseMiniSolid, XMarkMini } from "@medusajs/icons";
 import {
   Button,
   Heading,
@@ -523,7 +523,7 @@ const RadioSelectItem = forwardRef<
   >
     <span className="flex h-[15px] w-[15px] items-center justify-center">
       <RadixSelect.ItemIndicator className="flex items-center justify-center">
-        <CircleMiniFilledSolid />
+        <EllipseMiniSolid />
       </RadixSelect.ItemIndicator>
     </span>
     <RadixSelect.ItemText className="flex-1 truncate">
