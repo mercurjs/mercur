@@ -41,7 +41,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <TwoColumnPage.Main>
             <OfferDetailGeneralSection product={typed} />
             <ProductMediaSection product={typed} readOnly />
-            <OfferVariantsSection variants={typed.variants} />
+            <OfferVariantsSection
+              variants={typed.variants}
+              thumbnail={typed.thumbnail}
+            />
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
             <OfferAssociatedProductSection product={typed} />

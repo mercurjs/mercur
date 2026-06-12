@@ -1,19 +1,32 @@
-import { Buildings, CurrencyDollar } from "@medusajs/icons"
+import {
+  Buildings,
+  Component,
+  CurrencyDollar,
+  PencilSquare,
+  Trash,
+} from "@medusajs/icons"
 import {
   Badge,
+  clx,
   Container,
   createDataTableColumnHelper,
+  type DataTableAction,
   Heading,
-  Text,
+  toast,
   Tooltip,
+  usePrompt,
 } from "@medusajs/ui"
 import { OfferDTO } from "@mercurjs/types"
-import { useMemo } from "react"
+import type { CellContext } from "@tanstack/react-table"
+import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { useNavigate } from "react-router-dom"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
+import { Thumbnail } from "../../../../components/common/thumbnail"
 import { DataTable } from "../../../../components/data-table"
 import { useDataTableDateFilters } from "../../../../components/data-table/helpers/general/use-data-table-date-filters"
+import { useBulkDeleteOffers } from "../../../../hooks/api/offers"
 import { useDate } from "../../../../hooks/use-date"
 import { useQueryParams } from "../../../../hooks/use-query-params"
 import { OfferProductVariant } from "../../common/types"
@@ -55,7 +68,14 @@ const inventoryOf = (offer: OfferWithInventory) => {
       }
     }
   }
-  return { hasItems: links.length > 0, available, locationCount: locations.size }
+  return {
+    hasItems: links.length > 0,
+    // More than one backing inventory item ⇒ the offer is an inventory
+    // kit; the table marks it with a Component glyph (Figma `40016500:749885`).
+    isKit: links.length > 1,
+    available,
+    locationCount: locations.size,
+  }
 }
 
 /** Matches an ISO date against a `{ $gte, $lte }` filter value. */
@@ -81,12 +101,34 @@ const matchesDateFilter = (
 
 const columnHelper = createDataTableColumnHelper<OfferVariantRow>()
 
-const useColumns = (optionTitles: string[]) => {
+const useColumns = ({
+  optionTitles,
+  thumbnail,
+  getActions,
+}: {
+  optionTitles: string[]
+  thumbnail?: string | null
+  getActions: (
+    ctx: CellContext<OfferVariantRow, unknown>,
+  ) => DataTableAction<OfferVariantRow>[][]
+}) => {
   const { t } = useTranslation()
   const { getFullDate } = useDate()
 
   return useMemo(
     () => [
+      columnHelper.display({
+        id: "thumbnail",
+        header: "",
+        // Variant-level images aren't carried by the `withOffers` wrap, so
+        // every row falls back to the product thumbnail (Figma shows a
+        // thumbnail in the Title cell, `40016500:747487`).
+        cell: () => (
+          <div className="flex items-center">
+            <Thumbnail src={thumbnail ?? null} />
+          </div>
+        ),
+      }),
       columnHelper.accessor((row) => row.variant.title ?? "", {
         id: "title",
         header: t("fields.title"),
@@ -125,20 +167,30 @@ const useColumns = (optionTitles: string[]) => {
         id: "inventory",
         header: t("fields.inventory"),
         cell: ({ row }) => {
-          const { hasItems, available, locationCount } = inventoryOf(
+          const { hasItems, isKit, available, locationCount } = inventoryOf(
             row.original.offer,
           )
           if (!hasItems) {
             return <span className="text-ui-fg-muted">-</span>
           }
+          const text = t("products.variant.tableItem", {
+            availableCount: available,
+            locationCount,
+            count: locationCount,
+          })
           return (
-            <Text size="small" leading="compact">
-              {t("products.variant.tableItem", {
-                availableCount: available,
-                locationCount,
-                count: locationCount,
-              })}
-            </Text>
+            <Tooltip content={text}>
+              <div className="flex h-full w-full items-center gap-2 overflow-hidden">
+                {isKit && <Component className="text-ui-fg-subtle" />}
+                <span
+                  className={clx("truncate", {
+                    "text-ui-fg-error": available === 0,
+                  })}
+                >
+                  {text}
+                </span>
+              </div>
+            </Tooltip>
           )
         },
       }),
@@ -178,8 +230,9 @@ const useColumns = (optionTitles: string[]) => {
           )
         },
       }),
+      columnHelper.action({ actions: getActions }),
     ],
-    [t, optionTitles, getFullDate],
+    [t, optionTitles, thumbnail, getActions, getFullDate],
   )
 }
 
@@ -196,10 +249,15 @@ const useColumns = (optionTitles: string[]) => {
  */
 export const OfferVariantsSection = ({
   variants,
+  thumbnail,
 }: {
   variants?: OfferProductVariant[] | null
+  thumbnail?: string | null
 }) => {
   const { t } = useTranslation()
+  const navigate = useNavigate()
+  const prompt = usePrompt()
+  const { mutateAsync: bulkDelete } = useBulkDeleteOffers()
 
   const { q, order, offset, created_at, updated_at } = useQueryParams(
     ["q", "order", "offset", "created_at", "updated_at"],
@@ -296,7 +354,56 @@ export const OfferVariantsSection = ({
     [sortedRows, pageIndex],
   )
 
-  const columns = useColumns(optionTitles)
+  const handleDelete = useCallback(
+    async (offerId: string, sku: string) => {
+      const confirmed = await prompt({
+        title: t("general.areYouSure"),
+        description: t("offers.delete.description", { sku: sku || "-" }),
+        confirmText: t("actions.delete"),
+        cancelText: t("actions.cancel"),
+        variant: "danger",
+      })
+
+      if (!confirmed) {
+        return
+      }
+
+      const result = await bulkDelete([offerId])
+      if (result.failed.length === 0) {
+        toast.success(t("offers.delete.successToast"))
+      } else {
+        toast.error(result.failed[0]?.error.message)
+      }
+    },
+    [prompt, bulkDelete, t],
+  )
+
+  const getActions = useCallback(
+    (
+      ctx: CellContext<OfferVariantRow, unknown>,
+    ): DataTableAction<OfferVariantRow>[][] => {
+      const row = ctx.row.original
+      return [
+        [
+          {
+            icon: <PencilSquare />,
+            label: t("actions.edit"),
+            onClick: () => navigate(`variants/${row.id}/edit`),
+          },
+        ],
+        [
+          {
+            icon: <Trash />,
+            label: t("actions.delete"),
+            onClick: () => handleDelete(row.offer.id, skuOf(row)),
+          },
+        ],
+      ]
+    },
+    [navigate, handleDelete, t],
+  )
+
+  const columns = useColumns({ optionTitles, thumbnail, getActions })
   const filters = useDataTableDateFilters()
 
   // No `divide-y` on the Container: in compact mode the DataTable's

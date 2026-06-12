@@ -612,6 +612,31 @@ Design layout: a wide main column (≈739px) + a narrow sidebar
       `border-y`. (The offers **list** table avoids this only because it
       is non-compact, so its visible toolbar row separates the two
       borders.)
+  - **Status (2026-06-12, follow-up): three remaining cell gaps closed.**
+    `offer-variants-section.tsx` now matches the Figma row anatomy
+    (`40016500:747473`):
+    - **Per-row kebab.** Added `columnHelper.action({ actions })` (the
+      28px trailing cell in the design) with **Edit** (→
+      `variants/:offer_id/edit`) and **Delete** (per-offer, via
+      `useBulkDeleteOffers([offerId])` + `usePrompt` → toast). Mirrors the
+      product variants table's Edit/Delete kebab; row-click still
+      navigates to the Offer Variant detail.
+    - **Leading thumbnail column.** Empty-header 24px thumbnail cell
+      (Figma `40016500:747487`). Variant-level images aren't carried by
+      the `withOffers` wrap, so the cell falls back to the **product**
+      thumbnail (passed in via a new `thumbnail` prop from
+      `offer-detail-page.tsx`).
+    - **Inventory cell parity.** Now renders the canonical Medusa shape: a
+      `Component` kit glyph when the offer is an inventory kit
+      (`inventory_item_link.length > 1`, Figma `40016500:749885`) and
+      `text-ui-fg-error` red text when `available === 0` (the "0 available
+      at 0 loc" rows). Data comes from the wrap's
+      `inventory_item_link.inventory_item.location_levels` (always
+      attached server-side, independent of requested
+      `variants.offers.*` fields).
+    - The extra Created/Updated columns are **kept** (documented
+      intentional parity with the product table; the static mock omits
+      them).
 
 Sidebar:
 
