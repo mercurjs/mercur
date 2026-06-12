@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs } from "react-router-dom"
 
 import { offerQueryKeys } from "../../../../../hooks/api/offers"
-import { fetchQuery } from "../../../../../lib/client"
+import { sdk } from "../../../../../lib/client"
 import { queryClient } from "../../../../../lib/query-client"
 import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../common/constants"
 
@@ -15,9 +15,9 @@ const offerVariantDetailQuery = (offerId: string) => ({
     fields: OFFER_VARIANT_DETAIL_FIELDS,
   }),
   queryFn: async () =>
-    fetchQuery(`/vendor/offers/${offerId}`, {
-      method: "GET",
-      query: { fields: OFFER_VARIANT_DETAIL_FIELDS },
+    sdk.vendor.offers.$id.query({
+      $id: offerId,
+      fields: OFFER_VARIANT_DETAIL_FIELDS,
     }),
 })
 

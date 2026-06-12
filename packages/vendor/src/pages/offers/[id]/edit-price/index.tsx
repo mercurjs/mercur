@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { OfferDTO } from "@mercurjs/types"
 import { Button, toast } from "@medusajs/ui"
 import { useMemo } from "react"
 import { useForm } from "react-hook-form"
@@ -30,23 +31,16 @@ type EditPriceRow = {
 
 type FormValues = { rows: EditPriceRow[] }
 
-type OfferLite = {
-  id: string
-  prices?: Array<{ amount?: number | null; currency_code?: string | null }> | null
-}
-
-type ProductLite = {
-  thumbnail?: string | null
-  variants?: Array<{
-    title?: string | null
-    offers?: OfferLite[] | null
-  }> | null
+type PriceProduct = HttpTypes.AdminProduct & {
+  variants?: Array<
+    HttpTypes.AdminProductVariant & { offers?: OfferDTO[] | null }
+  > | null
 }
 
 const numericOrZero = (v: number | "" | undefined | null): number =>
   v === "" || v === null || v === undefined ? 0 : Number(v) || 0
 
-const buildRows = (product: ProductLite, currencies: string[]): EditPriceRow[] =>
+const buildRows = (product: PriceProduct, currencies: string[]): EditPriceRow[] =>
   (product.variants ?? []).flatMap((variant) =>
     (variant.offers ?? []).map((offer) => {
       const prices: Record<string, number | ""> = {}
@@ -116,7 +110,7 @@ const EditPriceGrid = ({
   product,
   productId,
 }: {
-  product: ProductLite
+  product: PriceProduct
   productId: string
 }) => {
   const { t } = useTranslation()
@@ -213,7 +207,7 @@ export const OfferEditPricePage = () => {
         <span className="sr-only">{t("offers.pricing.description")}</span>
       </RouteFocusModal.Description>
       {!isPending && product && (
-        <EditPriceGrid product={product as ProductLite} productId={id!} />
+        <EditPriceGrid product={product as PriceProduct} productId={id!} />
       )}
     </RouteFocusModal>
   )

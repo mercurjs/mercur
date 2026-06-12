@@ -5,26 +5,14 @@ import { Link } from "react-router-dom"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { NoRecords } from "../../../../components/common/empty-table-content"
-
-type OfferVariantOption = {
-  value?: string | null
-  option?: { title?: string | null } | null
-}
-
-export type OfferVariant = {
-  id?: string | null
-  title?: string | null
-  sku?: string | null
-  options?: OfferVariantOption[] | null
-  offers?: Array<{ id: string; sku?: string | null }> | null
-}
+import { OfferProductVariant } from "../../common/types"
 
 type VariantOfferRow = {
   key: string
   offerId: string
   variantTitle: string
   sku?: string | null
-  options: OfferVariantOption[]
+  options: NonNullable<OfferProductVariant["options"]>
 }
 
 /**
@@ -36,7 +24,7 @@ type VariantOfferRow = {
 export const OfferVariantsSection = ({
   variants,
 }: {
-  variants?: OfferVariant[] | null
+  variants?: OfferProductVariant[] | null
 }) => {
   const { t } = useTranslation()
 

@@ -5,10 +5,8 @@ import { _DataTable } from "../../../components/table/data-table"
 import { useDataTable } from "../../../hooks/use-data-table"
 import { useProducts } from "../../../hooks/api/products"
 import { OFFERS_PAGE_SIZE } from "../common/constants"
-import {
-  useOfferTableColumns,
-  OfferProductRow,
-} from "./use-offer-table-columns"
+import { OfferProduct } from "../common/types"
+import { useOfferTableColumns } from "./use-offer-table-columns"
 import { useOfferTableFilters } from "./use-offer-table-filters"
 import { useOfferTableQuery } from "./use-offer-table-query"
 
@@ -30,7 +28,7 @@ export const OfferListDataTable = () => {
     { placeholderData: keepPreviousData },
   )
 
-  const rows = (products ?? []) as OfferProductRow[]
+  const rows = (products ?? []) as OfferProduct[]
 
   const filters = useOfferTableFilters()
   const columns = useOfferTableColumns()

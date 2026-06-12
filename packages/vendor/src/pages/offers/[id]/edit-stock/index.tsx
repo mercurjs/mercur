@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { OfferDTO } from "@mercurjs/types"
 import { Button, toast } from "@medusajs/ui"
 import { useMemo, useRef } from "react"
 import { useForm } from "react-hook-form"
@@ -33,9 +34,12 @@ type EditStockRow = {
 
 type FormValues = { rows: EditStockRow[] }
 
-type OfferLite = {
-  id: string
-  sku?: string | null
+/**
+ * The wrap returns each offer with its inventory link + per-location
+ * stock levels (OFFER_WRAP_FIELDS). `OfferDTO` doesn't model that link
+ * relation, so extend it with the `inventory_item_link` the wrap adds.
+ */
+type OfferWithInventory = OfferDTO & {
   inventory_item_link?: Array<{
     inventory_item_id?: string | null
     inventory_item?: {
@@ -48,20 +52,17 @@ type OfferLite = {
   }> | null
 }
 
-type ProductLite = {
-  thumbnail?: string | null
-  variants?: Array<{
-    title?: string | null
-    sku?: string | null
-    offers?: OfferLite[] | null
-  }> | null
+type StockProduct = HttpTypes.AdminProduct & {
+  variants?: Array<
+    HttpTypes.AdminProductVariant & { offers?: OfferWithInventory[] | null }
+  > | null
 }
 
 const castNumber = (v: number | "" | undefined | null): number =>
   v === "" || v === null || v === undefined ? 0 : Number(v) || 0
 
 const buildRows = (
-  product: ProductLite,
+  product: StockProduct,
   locations: HttpTypes.AdminStockLocation[],
 ): EditStockRow[] =>
   (product.variants ?? []).flatMap((variant) =>
@@ -148,7 +149,7 @@ const EditStockGrid = ({
   productId,
   locations,
 }: {
-  product: ProductLite
+  product: StockProduct
   productId: string
   locations: HttpTypes.AdminStockLocation[]
 }) => {
@@ -274,7 +275,7 @@ export const OfferEditStockPage = () => {
       </RouteFocusModal.Description>
       {ready && (
         <EditStockGrid
-          product={product as ProductLite}
+          product={product as StockProduct}
           productId={id!}
           locations={stock_locations as HttpTypes.AdminStockLocation[]}
         />

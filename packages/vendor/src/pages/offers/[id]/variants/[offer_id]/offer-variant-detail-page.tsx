@@ -8,7 +8,6 @@ import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../common/constants"
 import { OfferDetail } from "../../../common/types"
 import { OfferInventorySection } from "../../_components/offer-inventory-section"
 import { OfferPricingSection } from "../../_components/offer-pricing-section"
-import { OfferMediaSection } from "../../_components/offer-media-section"
 import {
   OfferVariantGeneralSection,
   type OfferVariantData,
@@ -36,7 +35,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   if (isLoading || !offer) {
-    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={2} />
+    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={2} />
   }
 
   const typed = offer as unknown as OfferDetail & OfferVariantData
@@ -49,12 +48,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <TwoColumnPage data={typed} hasOutlet>
           <TwoColumnPage.Main>
             <OfferVariantGeneralSection offer={typed} />
-            <OfferMediaSection
-              product={{
-                title: typed.product_variant?.title ?? "",
-                thumbnail: typed.product_variant?.product?.thumbnail ?? null,
-              }}
-            />
             <OfferInventorySection offer={typed} />
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>

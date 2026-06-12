@@ -1,16 +1,10 @@
 import { TriangleRightMini } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
+import { HttpTypes } from "@medusajs/types"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import { Thumbnail } from "../../../../components/common/thumbnail"
-
-type OfferAssociatedProduct = {
-  id: string
-  title?: string | null
-  handle?: string | null
-  thumbnail?: string | null
-}
 
 /**
  * Sidebar "Associated product" card (Figma `40016500:747559`). Links to
@@ -20,7 +14,7 @@ type OfferAssociatedProduct = {
 export const OfferAssociatedProductSection = ({
   product,
 }: {
-  product: OfferAssociatedProduct
+  product: Pick<HttpTypes.AdminProduct, "id" | "title" | "handle" | "thumbnail">
 }) => {
   const { t } = useTranslation()
 

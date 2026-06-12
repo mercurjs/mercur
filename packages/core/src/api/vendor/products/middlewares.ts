@@ -91,7 +91,7 @@ const applySellerOfferedProductsFilter = async (
   const hasOffer = req.filterableFields.has_offer
   delete req.filterableFields.has_offer
 
-  if (hasOffer !== "true") {
+  if (hasOffer !== true) {
     return next()
   }
 

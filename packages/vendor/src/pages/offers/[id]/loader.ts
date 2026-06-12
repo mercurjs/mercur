@@ -1,7 +1,7 @@
 import { LoaderFunctionArgs } from "react-router-dom"
 
 import { productsQueryKeys } from "../../../hooks/api/products"
-import { fetchQuery } from "../../../lib/client"
+import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 import { OFFER_PRODUCT_DETAIL_FIELDS } from "../common/constants"
 
@@ -15,9 +15,9 @@ const offerProductDetailQuery = (id: string) => ({
     fields: OFFER_PRODUCT_DETAIL_FIELDS,
   }),
   queryFn: async () =>
-    fetchQuery(`/vendor/products/${id}`, {
-      method: "GET",
-      query: { fields: OFFER_PRODUCT_DETAIL_FIELDS },
+    sdk.vendor.products.$id.query({
+      $id: id,
+      fields: OFFER_PRODUCT_DETAIL_FIELDS,
     }),
 })
 

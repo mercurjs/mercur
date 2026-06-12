@@ -1,37 +1,13 @@
 import { Trash } from "@medusajs/icons"
-import { Container, Heading, StatusBadge, toast, usePrompt } from "@medusajs/ui"
+import { Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { SectionRow } from "../../../../components/common/section"
+import { ProductStatusCell } from "../../../../components/table/table-cells/product/product-status-cell"
 import { useBulkDeleteOffers } from "../../../../hooks/api/offers"
-
-const statusColor = (status?: string | null) => {
-  switch (status) {
-    case "draft":
-      return "grey"
-    case "proposed":
-      return "orange"
-    case "published":
-      return "green"
-    case "rejected":
-      return "red"
-    default:
-      return "grey"
-  }
-}
-
-export type OfferDetailProduct = {
-  id: string
-  title?: string | null
-  subtitle?: string | null
-  description?: string | null
-  handle?: string | null
-  discountable?: boolean | null
-  status?: string | null
-  variants?: Array<{ offers?: Array<{ id: string }> | null }> | null
-}
+import { OfferProduct } from "../../common/types"
 
 /**
  * Details section of the product-shaped offer detail. Shows the
@@ -42,7 +18,7 @@ export type OfferDetailProduct = {
 export const OfferDetailGeneralSection = ({
   product,
 }: {
-  product: OfferDetailProduct
+  product: OfferProduct
 }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
@@ -93,11 +69,7 @@ export const OfferDetailGeneralSection = ({
       <div className="flex items-center justify-between px-6 py-4">
         <Heading>{product.title}</Heading>
         <div className="flex items-center gap-x-4">
-          {product.status && (
-            <StatusBadge color={statusColor(product.status)}>
-              {t(`products.productStatus.${product.status}`)}
-            </StatusBadge>
-          )}
+          {product.status && <ProductStatusCell status={product.status} />}
           <ActionMenu
             groups={[
               {
