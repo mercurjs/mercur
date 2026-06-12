@@ -23,11 +23,7 @@ import { useTranslation } from "react-i18next";
 import { Thumbnail } from "@components/common/thumbnail";
 import { useCollection } from "@hooks/api/collections";
 import { useProductCategory } from "@hooks/api/categories";
-import {
-  useCancelProductEdit,
-  useProductChange,
-  variantsQueryKeys,
-} from "@hooks/api/products";
+import { useCancelProductEdit, useProductChange } from "@hooks/api/products";
 import {
   productAttributesQueryKeys,
   useProductAttribute,
@@ -45,16 +41,12 @@ type VariantInfo = {
 
 type ProductForActiveEdit = {
   id: string;
+  variants?: (VariantInfo | null)[] | null;
 };
 
 type ProductActiveEditSectionProps = {
   product: ProductForActiveEdit;
 };
-
-// The product-detail query only loads `*variants.images` (id + images), not
-// the variant title/sku the identity row needs (MER-168). Fetch those per
-// referenced variant instead of reading them off `product.variants`.
-const VARIANT_LOOKUP_FIELDS = "id,title,sku,*images";
 
 const ImageStrip = ({
   images,
@@ -446,6 +438,16 @@ export const ProductActiveEditSection = ({
 
   const productId = product.id;
 
+  // The product-detail query carries variant identity (title · sku · images),
+  // so the request block resolves it inline — no extra per-variant fetch.
+  const variantsById = useMemo(() => {
+    const map = new Map<string, VariantInfo>();
+    for (const variant of product.variants ?? []) {
+      if (variant?.id) map.set(variant.id, variant);
+    }
+    return map;
+  }, [product.variants]);
+
   const { product_change, isError } = useProductChange(productId, {
     retry: false,
   });
@@ -497,49 +499,6 @@ export const ProductActiveEditSection = ({
 
   const isLoadingAttributes = attributeQueries.some((q) => q.isPending);
 
-  // Resolve the identity (title · sku · thumbnail) for every variant
-  // referenced by an update or removal. The product-detail query does not
-  // carry variant title/sku, so look them up directly (MER-168).
-  const variantIds = useMemo(() => {
-    const ids = new Set<string>();
-    for (const action of removed) {
-      if (action.action === ProductChangeActionType.VARIANT_REMOVE) {
-        const details = (action.details ?? {}) as { variant_id?: string };
-        if (details.variant_id) ids.add(details.variant_id);
-      }
-    }
-    for (const diff of updated) {
-      if (diff.variant_id) ids.add(diff.variant_id);
-    }
-    return Array.from(ids);
-  }, [removed, updated]);
-
-  const variantQueryInput = { fields: VARIANT_LOOKUP_FIELDS } as const;
-
-  const variantQueries = useQueries({
-    queries: variantIds.map((variantId) => ({
-      queryKey: variantsQueryKeys.detail(variantId, variantQueryInput),
-      queryFn: () =>
-        sdk.vendor.products.$id.variants.$variantId.query({
-          $id: productId,
-          $variantId: variantId,
-          ...variantQueryInput,
-        }),
-    })),
-  });
-
-  const isLoadingVariants = variantQueries.some((q) => q.isPending);
-
-  const variantsById = useMemo(() => {
-    const map = new Map<string, VariantInfo>();
-    for (const query of variantQueries) {
-      const variant = (query.data as { variant?: VariantInfo } | undefined)
-        ?.variant;
-      if (variant?.id) map.set(variant.id, variant);
-    }
-    return map;
-  }, [variantQueries]);
-
   const onCancel = async () => {
     const confirmed = await prompt({
       title: t("products.edits.panel.cancelTitle"),
@@ -566,7 +525,7 @@ export const ProductActiveEditSection = ({
     return null;
   }
 
-  if (isLoadingAttributes || isLoadingVariants) {
+  if (isLoadingAttributes) {
     return null;
   }
 
