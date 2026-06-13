@@ -1,6 +1,6 @@
 import { exec } from "child_process"
 import { existsSync } from "fs"
-import { join } from "path"
+import { dirname, join } from "path"
 import { Logger } from "@medusajs/medusa"
 
 export default class CodegenModuleService {
@@ -28,17 +28,34 @@ export default class CodegenModuleService {
         }
     }
 
-    private detectPackageRunner_(): string {
-        const cwd = process.cwd()
-        const lockfiles: [string, string][] = [
-            ["bun.lockb", "bunx"],
-            ["bun.lock", "bunx"],
-            ["pnpm-lock.yaml", "pnpm exec"],
-            ["yarn.lock", "yarn"],
-        ]
+    private findNearestLockfileRunner_(): string | undefined {
+        let currentDir = process.cwd()
 
-        const runner = lockfiles.find(([file]) => existsSync(join(cwd, file)))
-        return `${runner ? runner[1] : "npx"} @mercurjs/cli codegen`
+        while (true) {
+            const lockfiles: [string, string][] = [
+                ["bun.lockb", "bunx"],
+                ["bun.lock", "bunx"],
+                ["pnpm-lock.yaml", "pnpm exec"],
+                ["yarn.lock", "yarn"],
+            ]
+
+            const runner = lockfiles.find(([file]) => existsSync(join(currentDir, file)))
+            if (runner) {
+                return runner[1]
+            }
+
+            const parentDir = dirname(currentDir)
+            if (parentDir === currentDir) {
+                return undefined
+            }
+
+            currentDir = parentDir
+        }
+    }
+
+    private detectPackageRunner_(): string {
+        const runner = this.findNearestLockfileRunner_()
+        return `${runner ?? "npx"} @mercurjs/cli codegen`
     }
 
     private runCodegen_(): Promise<void> {
