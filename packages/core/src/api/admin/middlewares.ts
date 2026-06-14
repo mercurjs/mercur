@@ -16,6 +16,7 @@ import { adminMembersMiddlewares } from "./members/middlewares"
 import { adminAttributeMiddlewares } from "./attributes/middlewares"
 import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 import { adminSubscriptionPlanRoutesMiddlewares } from "./subscription-plans/middlewares"
+import { blockDefaultAdminProductRoute } from "./default-product-route-blocker"
 
 const maybeApplySellerProductFilter = (
   req: AuthenticatedMedusaRequest,
@@ -54,6 +55,11 @@ const maybeApplySellerOrderFilter = (
 }
 
 export const adminMiddlewares: MiddlewareRoute[] = [
+  {
+    method: ["GET", "POST", "DELETE"],
+    matcher: "/admin/product-variants*",
+    middlewares: [blockDefaultAdminProductRoute],
+  },
   ...adminAttributeMiddlewares,
   ...adminOrderGroupsMiddlewares,
   {
