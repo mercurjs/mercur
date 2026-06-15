@@ -6840,6 +6840,17 @@
             "disabledItemTooltip": {
               "type": "string"
             },
+            "noInventoryLevel": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              }
+            },
             "unfulfilledItems": {
               "type": "string"
             },
