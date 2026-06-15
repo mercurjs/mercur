@@ -10,7 +10,7 @@
     "preview": "vite preview --port 7001"
   },
   "dependencies": {
-    "@mercurjs/vendor": "2.2.0-canary.17"
+    "@mercurjs/vendor": "2.2.0-canary.18"
   },
   "devDependencies": {
     "@types/node": "^24.10.1"
