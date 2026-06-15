@@ -121,8 +121,13 @@ export const AddOrderEditItemsTable = ({
     ...searchParams,
     fields: OFFER_PICKER_FIELDS,
   });
-  const rawOffers = ((offersResponse as any).offers ??
-    []) as OfferPickerRowExtended[];
+  const rawOffersSource = (offersResponse as any).offers as
+    | OfferPickerRowExtended[]
+    | undefined;
+  const rawOffers = useMemo<OfferPickerRowExtended[]>(
+    () => rawOffersSource ?? [],
+    [rawOffersSource]
+  );
   const rawCount = (offersResponse as any).count ?? 0;
 
   // Picker defaults: only offers (1) with a price in the order's currency

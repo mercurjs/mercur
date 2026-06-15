@@ -24,6 +24,7 @@ type AuthFixtures = {
 }
 
 export const test = base.extend<AuthFixtures>({
+  // oxlint-disable-next-line no-empty-pattern
   sellerId: async ({}, use) => {
     const ctx = JSON.parse(readFileSync(CONTEXT_PATH, "utf-8")) as VendorContext
     await use(ctx.sellerId)

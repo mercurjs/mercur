@@ -17,7 +17,7 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.AdminProductAttributeResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { additional_data, ...update } = req.validatedBody
+  const { additional_data: _additional_data, ...update } = req.validatedBody
 
   await updateProductAttributeValuesWorkflow(req.scope).run({
     input: {

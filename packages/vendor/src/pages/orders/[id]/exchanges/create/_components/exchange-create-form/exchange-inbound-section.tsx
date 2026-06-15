@@ -146,13 +146,13 @@ export const ExchangeInboundSection = ({
 
   const locationId = form.watch("location_id")
 
-  const { stock_locations: stock_locations = [] } = useStockLocations({
+  const { stock_locations = [] } = useStockLocations({
     limit: 999,
   } as never)
   // Vendor's typed `useShippingOptions` overload requires a `queryKey` in
   // the options object — `enabled` alone is rejected. Cast through the
   // existing parameter shape to keep the call site readable.
-  const { shipping_options: shipping_options = [] } = useShippingOptions(
+  const { shipping_options = [] } = useShippingOptions(
     {
       limit: 999,
       stock_location_id: locationId,
@@ -185,7 +185,7 @@ export const ExchangeInboundSection = ({
 
   const inboundItemsMap = useMemo(
     () => new Map(previewInboundItems.map((i) => [i.id, i])),
-    [previewInboundItems, inboundItems]
+    [previewInboundItems]
   )
 
   // Reconcile RHF field array with the change-preview items the server
@@ -317,7 +317,12 @@ export const ExchangeInboundSection = ({
 
         <StackedFocusModal id="inbound-items">
           <StackedFocusModal.Trigger asChild>
-            <a className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
+            {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
+            <a
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
+            >
               {t("actions.addItems")}
             </a>
           </StackedFocusModal.Trigger>
@@ -354,7 +359,6 @@ export const ExchangeInboundSection = ({
                     type="submit"
                     variant="primary"
                     size="small"
-                    role="button"
                     onClick={async () => await onItemsSelected()}
                   >
                     {t("actions.save")}

@@ -120,9 +120,13 @@ export const AddClaimOutboundItemsTable = ({
     fields: OFFER_PICKER_FIELDS,
   })
 
-  const rawOffers = ((
+  const rawOffersSource = (
     offersResponse as unknown as { offers?: OfferPickerRowExtended[] }
-  ).offers ?? []) as OfferPickerRowExtended[]
+  ).offers
+  const rawOffers = useMemo<OfferPickerRowExtended[]>(
+    () => rawOffersSource ?? [],
+    [rawOffersSource]
+  )
 
   const offers = useMemo<OfferPickerRowExtended[]>(() => {
     return rawOffers.filter((offer) => {

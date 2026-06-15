@@ -49,9 +49,18 @@ const FilterableToggle = ({
 
   return (
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+      role="button"
+      tabIndex={0}
       onClick={(e) => {
         e.preventDefault()
         e.stopPropagation()
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          e.stopPropagation()
+        }
       }}
     >
       <Switch
@@ -82,9 +91,18 @@ const RequiredToggle = ({
 
   return (
     <div
+      // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
+      role="button"
+      tabIndex={0}
       onClick={(e) => {
         e.preventDefault()
         e.stopPropagation()
+      }}
+      onKeyDown={(e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault()
+          e.stopPropagation()
+        }
       }}
     >
       <Switch

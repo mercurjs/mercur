@@ -44,7 +44,7 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { additional_data, ...update } = req.validatedBody
+  const { additional_data: _additional_data, ...update } = req.validatedBody
 
   await updateProductAttributesWorkflow(req.scope).run({
     input: {

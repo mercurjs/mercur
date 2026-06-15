@@ -97,7 +97,7 @@ export const ProductCreateForm = ({
     ) {
       form.setValue("variants", newVariants);
     }
-  }, [watchedAttributes]);
+  }, [watchedAttributes, form]);
 
   const handleSubmit = form.handleSubmit(async (values, e) => {
     if (isRegionsPending) {

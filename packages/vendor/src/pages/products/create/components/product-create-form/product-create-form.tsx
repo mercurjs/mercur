@@ -70,7 +70,7 @@ export const ProductCreateForm = ({
     ) {
       form.setValue("variants", newVariants)
     }
-  }, [watchedAttributes])
+  }, [watchedAttributes, form])
 
   const submitProduct = async (
     values: ProductCreateSchemaType,

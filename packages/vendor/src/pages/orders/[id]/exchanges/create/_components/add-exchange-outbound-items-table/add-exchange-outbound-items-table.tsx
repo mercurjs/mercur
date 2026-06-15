@@ -127,7 +127,10 @@ export const AddExchangeOutboundItemsTable = ({
     offers?: OutboundOfferPickerRowExtended[]
     count?: number
   }
-  const rawOffers = offersResponse.offers ?? []
+  const rawOffers = useMemo(
+    () => offersResponse.offers ?? [],
+    [offersResponse.offers]
+  )
   const rawCount = offersResponse.count ?? 0
 
   // Picker defaults: only offers (1) with a price in the order's currency

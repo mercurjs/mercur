@@ -170,6 +170,7 @@ export const ChipInput = forwardRef<HTMLInputElement, ChipInputProps>(
           )
         })}
         <input
+          aria-label="Chip input"
           className={clx(
             "caret-ui-fg-base text-ui-fg-base txt-compact-small flex-1 appearance-none bg-transparent",
             "disabled:text-ui-fg-disabled disabled:cursor-not-allowed",

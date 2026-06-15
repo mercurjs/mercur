@@ -324,6 +324,7 @@ const UnassociatedImageItem = ({
   return (
     <button
       type="button"
+      aria-label="Variant media file input"
       className="shadow-elevation-card-rest hover:shadow-elevation-card-hover focus-visible:shadow-borders-focus bg-ui-bg-subtle-hover group relative aspect-square h-auto max-w-full cursor-pointer overflow-hidden rounded-lg outline-none"
       onClick={onAdd}
     >

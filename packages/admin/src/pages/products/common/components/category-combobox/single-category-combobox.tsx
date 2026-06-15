@@ -141,7 +141,8 @@ export const SingleCategoryCombobox = forwardRef<
         innerRef.current?.focus()
       }
     },
-    [value, onChange]
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    [value, onChange, handleOpenChange]
   )
 
   function handleOpenChange(open: boolean) {
@@ -293,6 +294,7 @@ export const SingleCategoryCombobox = forwardRef<
       </RadixPopover.Anchor>
       <RadixPopover.Content
         sideOffset={4}
+        // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
         role="listbox"
         className={clx(
           "shadow-elevation-flyout bg-ui-bg-base -start-2 z-50 w-[var(--radix-popper-anchor-width)] rounded-[8px]",
@@ -318,7 +320,6 @@ export const SingleCategoryCombobox = forwardRef<
             <div className="p-1">
               <button
                 data-active={focusedIndex === 0}
-                role="button"
                 className={clx(
                   "transition-fg grid w-full appearance-none grid-cols-[20px_1fr] items-center justify-center gap-2 rounded-md px-2 py-1.5 text-start outline-none",
                   "data-[active=true]:bg-ui-bg-field-hover"
@@ -358,7 +359,9 @@ export const SingleCategoryCombobox = forwardRef<
                       : focusedIndex === index
                   }
                   type="button"
+                  // oxlint-disable-next-line jsx-a11y/prefer-tag-over-role
                   role="option"
+                  aria-selected={value === option.value}
                   className={clx(
                     "grid h-full w-full appearance-none grid-cols-[20px_1fr] items-center gap-2 overflow-hidden rounded-md px-2 py-1.5 text-start outline-none",
                     "data-[active=true]:bg-ui-bg-field-hover"

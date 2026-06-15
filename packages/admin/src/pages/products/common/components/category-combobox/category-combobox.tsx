@@ -139,7 +139,8 @@ export const CategoryCombobox = forwardRef<
         innerRef.current?.focus()
       }
     },
-    [value, onChange, isSingleSelect]
+    // oxlint-disable-next-line react-hooks/exhaustive-deps
+    [value, onChange, isSingleSelect, handleOpenChange]
   )
 
   function handleOpenChange(open: boolean) {
