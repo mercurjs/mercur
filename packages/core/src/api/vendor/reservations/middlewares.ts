@@ -1,8 +1,4 @@
 import {
-  AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
-  MedusaNextFunction,
-  MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import {
@@ -20,27 +16,6 @@ import {
   VendorUpdateReservation,
 } from "./validators"
 
-// Mirror of `applySellerInventoryItemLinkFilter` in
-// `vendor/inventory-items/middlewares.ts`. A reservation belongs to a
-// seller iff its `inventory_item_id` belongs to the seller via the
-// `inventory_item_seller` link. We push the seller_id onto
-// `filterableFields` and then have `maybeApplyLinkFilter` join through
-// the link table so the remote query only returns reservations on the
-// seller's own inventory.
-const applySellerReservationLinkFilter = (
-  req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  req.filterableFields.seller_id = req.seller_context!.seller_id
-
-  return maybeApplyLinkFilter({
-    entryPoint: "inventory_item_seller",
-    resourceId: "inventory_item_id",
-    filterableField: "seller_id",
-  })(req, res, next)
-}
-
 export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
@@ -50,7 +25,6 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
         VendorGetReservationsParams,
         vendorReservationQueryConfig.list
       ),
-      applySellerReservationLinkFilter,
     ],
   },
   {
