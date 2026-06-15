@@ -5966,6 +5966,12 @@
             "noteHint": {
               "type": "string"
             },
+            "sendNotification": {
+              "type": "string"
+            },
+            "sendNotificationHint": {
+              "type": "string"
+            },
             "cancelSuccessToast": {
               "type": "string"
             },
@@ -6035,6 +6041,8 @@
             "create",
             "currentTotal",
             "noteHint",
+            "sendNotification",
+            "sendNotificationHint",
             "cancelSuccessToast",
             "createSuccessToast",
             "activeChangeError",

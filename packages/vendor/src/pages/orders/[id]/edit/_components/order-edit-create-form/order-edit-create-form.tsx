@@ -165,18 +165,14 @@ export const OrderEditCreateForm = ({
                   <Form.Item>
                     <div className="mt-8 flex">
                       <div className="block flex-1">
-                        <Form.Label>{t("fields.note")}</Form.Label>
+                        <Form.Label optional>{t("fields.note")}</Form.Label>
                         <Form.Hint className="!mt-1">
                           {t("orders.edits.noteHint")}
                         </Form.Hint>
                       </div>
                       <div className="w-full flex-1 flex-grow">
                         <Form.Control>
-                          <Input
-                            {...field}
-                            placeholder={t("fields.note")}
-                            data-testid="edit-internal-note"
-                          />
+                          <Input {...field} data-testid="edit-internal-note" />
                         </Form.Control>
                       </div>
                     </div>
@@ -205,10 +201,10 @@ export const OrderEditCreateForm = ({
                         </Form.Control>
                         <div className="block">
                           <Form.Label>
-                            {t("orders.returns.sendNotification")}
+                            {t("orders.edits.sendNotification")}
                           </Form.Label>
                           <Form.Hint className="!mt-1">
-                            {t("orders.returns.sendNotificationHint")}
+                            {t("orders.edits.sendNotificationHint")}
                           </Form.Hint>
                         </div>
                       </div>
