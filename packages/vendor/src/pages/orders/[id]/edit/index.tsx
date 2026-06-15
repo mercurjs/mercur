@@ -72,7 +72,7 @@ export const Component = () => {
     }
 
     run()
-  }, [preview])
+  }, [preview, createOrderEdit, navigate, t])
 
   return (
     <RouteFocusModal>

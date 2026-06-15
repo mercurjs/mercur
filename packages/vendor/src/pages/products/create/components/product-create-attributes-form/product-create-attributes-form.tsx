@@ -455,7 +455,7 @@ const RequiredAttributes = () => {
     if (nextAttributes !== currentAttributes) {
       form.setValue("attributes", nextAttributes);
     }
-  }, [product_attributes]);
+  }, [product_attributes, form]);
 
   if (!categoryId || !product_attributes?.length) return null;
 

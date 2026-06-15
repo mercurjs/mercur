@@ -142,7 +142,6 @@ export const OrderEditItemsSection = ({
                       type="submit"
                       variant="primary"
                       size="small"
-                      role="button"
                       disabled={isPending}
                       onClick={async () => await onItemsSelected()}
                       data-testid="edit-add-items-save"

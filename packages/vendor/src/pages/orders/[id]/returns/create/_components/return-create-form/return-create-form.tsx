@@ -450,7 +450,10 @@ export const ReturnCreateForm = ({
               <Heading level="h2">{t("orders.returns.inbound")}</Heading>
               <StackedFocusModal id="items">
                 <StackedFocusModal.Trigger asChild>
+                  {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
                   <a
+                    href="#"
+                    onClick={(e) => e.preventDefault()}
                     className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
                     data-testid="return-create-add-items-trigger"
                   >
@@ -492,7 +495,6 @@ export const ReturnCreateForm = ({
                           type="button"
                           variant="primary"
                           size="small"
-                          role="button"
                           onClick={onItemsSelected}
                           data-testid="return-create-add-items-save"
                         >

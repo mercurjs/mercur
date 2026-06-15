@@ -49,7 +49,7 @@ medusaIntegrationTestRunner({
     testSuite: ({ getContainer, api }) => {
         describe("Vendor - Reservation multiplier (§N + §O)", () => {
             let appContainer: MedusaContainer
-            let sellerSeed: any
+            let _sellerSeed: any
             let storeHeaders: any
             let region: any
             let salesChannel: any
@@ -459,7 +459,7 @@ medusaIntegrationTestRunner({
                         stocked: 50,
                         offerPrice: 2500,
                     })
-                    sellerSeed = standardSeed
+                    _sellerSeed = standardSeed
 
                     // Standard order placement with the standard offer.
                     const order = await completeCartCheckout(standardSeed.offer.id)

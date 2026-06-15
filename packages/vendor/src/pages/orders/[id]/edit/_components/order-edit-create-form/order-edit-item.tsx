@@ -53,7 +53,10 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
     useUpdateOrderEditOriginalItem(orderId)
   const { mutateAsync: undoAction } = useRemoveOrderEditAddedItem(orderId)
 
-  const actions = (item.actions ?? []) as AdminOrderChangeAction[]
+  const actions = useMemo(
+    () => (item.actions ?? []) as AdminOrderChangeAction[],
+    [item.actions]
+  )
 
   const isAddedItem = useMemo(
     () => !!actions.find((a) => a.action === "ITEM_ADD"),

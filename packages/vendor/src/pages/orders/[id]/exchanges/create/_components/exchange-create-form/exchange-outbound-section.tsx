@@ -141,7 +141,7 @@ export const ExchangeOutboundSection = ({
 
   const previewItemsMap = useMemo(
     () => new Map(previewOutboundItems.map((i) => [i.id, i])),
-    [previewOutboundItems, outboundItems]
+    [previewOutboundItems]
   )
 
   useEffect(() => {
@@ -261,7 +261,12 @@ export const ExchangeOutboundSection = ({
 
         <StackedFocusModal id="outbound-items">
           <StackedFocusModal.Trigger asChild>
-            <a className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
+            {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
+            <a
+              href="#"
+              onClick={(e) => e.preventDefault()}
+              className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
+            >
               {t("actions.addItems")}
             </a>
           </StackedFocusModal.Trigger>
@@ -300,7 +305,6 @@ export const ExchangeOutboundSection = ({
                     type="submit"
                     variant="primary"
                     size="small"
-                    role="button"
                     onClick={async () => await onItemsSelected()}
                   >
                     {t("actions.save")}

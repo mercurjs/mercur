@@ -110,7 +110,10 @@ export const ClaimOutboundSection = ({
 
         <StackedFocusModal id={STACKED_MODAL_ID}>
           <StackedFocusModal.Trigger asChild>
+            {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
             <a
+              href="#"
+              onClick={(e) => e.preventDefault()}
               className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
               data-testid="claim-add-outbound-trigger"
             >
@@ -200,7 +203,6 @@ const PickerBody = ({
             type="button"
             variant="primary"
             size="small"
-            role="button"
             data-testid="claim-add-outbound-save"
             onClick={() => onSubmit(selectedOfferIds, selectedOfferLookup)}
           >

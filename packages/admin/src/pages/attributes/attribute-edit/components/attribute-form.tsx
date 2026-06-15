@@ -143,11 +143,11 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
     }, [
 	formStateKey,
 	onFormStateChange,
-	uiComponent,
 	handle,
 	description,
 	name,
-	possibleValues.length
+	type,
+	values?.length
 ])
 
     const showValues =

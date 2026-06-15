@@ -132,7 +132,10 @@ export const AttributePossibleValuesSection = ({
     return null
   }
 
-  const allValues = attribute.values ?? []
+  const allValues = useMemo(
+    () => attribute.values ?? [],
+    [attribute.values]
+  )
 
   const filtered = useMemo(() => {
     if (!search) return allValues

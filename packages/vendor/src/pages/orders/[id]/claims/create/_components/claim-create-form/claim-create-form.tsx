@@ -109,7 +109,7 @@ export const ClaimCreateForm = ({
   } = useAddClaimInboundShipping(claim.id, order.id)
 
   const {
-    mutateAsync: updateInboundShipping,
+    mutateAsync: _updateInboundShipping,
     isPending: isUpdatingInboundShipping,
   } = useUpdateClaimInboundShipping(claim.id, order.id)
 
@@ -237,7 +237,7 @@ export const ClaimCreateForm = ({
 
   const previewItemsMap = useMemo(
     () => new Map(previewItems.map((i) => [i.id, i])),
-    [previewItems, inboundItems]
+    [previewItems]
   )
 
   useEffect(() => {
@@ -332,8 +332,8 @@ export const ClaimCreateForm = ({
   })
 
   const onItemsSelected = async () => {
-    itemsToAdd.length &&
-      (await addInboundItem(
+    if (itemsToAdd.length) {
+      await addInboundItem(
         {
           items: itemsToAdd.map((id) => ({
             id,
@@ -345,7 +345,8 @@ export const ClaimCreateForm = ({
             toast.error(error.message)
           },
         }
-      ))
+      )
+    }
 
     for (const itemToRemove of itemsToRemove) {
       const actionId = previewItems
@@ -461,7 +462,12 @@ export const ClaimCreateForm = ({
 
               <StackedFocusModal id="inbound-items">
                 <StackedFocusModal.Trigger asChild>
-                  <a className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400">
+                  {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
+                  <a
+                    href="#"
+                    onClick={(e) => e.preventDefault()}
+                    className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
+                  >
                     {t("actions.addItems")}
                   </a>
                 </StackedFocusModal.Trigger>
@@ -504,7 +510,6 @@ export const ClaimCreateForm = ({
                           type="submit"
                           variant="primary"
                           size="small"
-                          role="button"
                           onClick={async () => await onItemsSelected()}
                         >
                           {t("actions.save")}
