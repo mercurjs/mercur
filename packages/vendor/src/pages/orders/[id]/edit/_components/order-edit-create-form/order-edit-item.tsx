@@ -1,9 +1,4 @@
-import {
-  ArrowUturnLeft,
-  DocumentSeries,
-  ReceiptPercent,
-  XCircle,
-} from "@medusajs/icons"
+import { ArrowUturnLeft, ReceiptPercent, XCircle } from "@medusajs/icons"
 import {
   AdminOrderChangeAction,
   AdminOrderLineItem,
@@ -17,7 +12,6 @@ import { ActionMenu } from "@components/common/action-menu"
 import { Thumbnail } from "@components/common/thumbnail"
 import { MoneyAmountCell } from "@components/table/table-cells/common/money-amount-cell"
 import {
-  useAddOrderEditItems,
   useRemoveOrderEditAddedItem,
   useUpdateOrderEditAddedItem,
   useUpdateOrderEditOriginalItem,
@@ -47,7 +41,6 @@ type OrderEditItemProps = {
 function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
   const { t } = useTranslation()
 
-  const { mutateAsync: addItems } = useAddOrderEditItems(orderId)
   const { mutateAsync: updateAddedItem } = useUpdateOrderEditAddedItem(orderId)
   const { mutateAsync: updateOriginalItem } =
     useUpdateOrderEditOriginalItem(orderId)
@@ -142,29 +135,6 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
       if (updateItemAction) {
         await undoAction(updateItemAction.id)
       }
-    } catch (e) {
-      toast.error(
-        e instanceof Error ? e.message : t("errorBoundary.defaultTitle")
-      )
-    }
-  }
-
-  const onDuplicate = async () => {
-    // Duplicate uses variant_id (the existing line's variant). The vendor
-    // backend resolves variant_id → offer at confirm-time via the offer-link
-    // subscriber, so passing variant_id is sufficient here.
-    if (!item.variant_id) {
-      return
-    }
-    try {
-      await addItems({
-        items: [
-          {
-            variant_id: item.variant_id,
-            quantity: item.quantity,
-          },
-        ],
-      })
     } catch (e) {
       toast.error(
         e instanceof Error ? e.message : t("errorBoundary.defaultTitle")
@@ -284,15 +254,6 @@ function OrderEditItem({ item, currencyCode, orderId }: OrderEditItemProps) {
 
           <ActionMenu
             groups={[
-              {
-                actions: [
-                  {
-                    label: t("actions.duplicate"),
-                    onClick: onDuplicate,
-                    icon: <DocumentSeries />,
-                  },
-                ],
-              },
               {
                 actions: [
                   !isItemRemoved
