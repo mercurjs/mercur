@@ -23,7 +23,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@mercurjs/client": "workspace:*",
+    "@mercurjs/client": "2.2.0-canary.2",
     "@ariakit/react": "^0.4.15",
     "@babel/runtime": "^7.26.10",
     "@dnd-kit/core": "^6.1.0",
@@ -64,8 +64,8 @@
   },
   "devDependencies": {
     "@mercurjs/types": "workspace:*",
-    "@mercurjs/core": "workspace:*",
-    "@mercurjs/dashboard-sdk": "workspace:*",
+    "@mercurjs/core": "2.2.0-canary.2",
+    "@mercurjs/dashboard-sdk": "2.2.0-canary.2",
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
     "@types/lodash.debounce": "^4.0.8",
