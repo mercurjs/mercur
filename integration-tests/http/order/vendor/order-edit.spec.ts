@@ -470,6 +470,68 @@ medusaIntegrationTestRunner({
                     expect(response.data.order_preview).toBeDefined()
                 })
 
+                it("sets requires_shipping on an added offer item so it keeps the Mark as Shipped action (MER-191)", async () => {
+                    const order = await completeCartCheckout(seller1Seed.offer.id)
+
+                    await api.post(
+                        `/vendor/order-edits`,
+                        { order_id: order.id },
+                        seller1Seed.headers
+                    )
+
+                    // Add a second item via offer_id (the path the vendor UI
+                    // uses). The offer carries a shipping profile, so the
+                    // resulting line item must require shipping — otherwise the
+                    // created fulfillment loses the "Mark as Shipped" action.
+                    const addResp = await api.post(
+                        `/vendor/order-edits/${order.id}/items`,
+                        {
+                            items: [
+                                {
+                                    offer_id: seller1Seed.offer.id,
+                                    quantity: 1,
+                                },
+                            ],
+                        },
+                        seller1Seed.headers
+                    )
+                    expect(addResp.status).toEqual(200)
+
+                    await api.post(
+                        `/vendor/order-edits/${order.id}/request`,
+                        {},
+                        seller1Seed.headers
+                    )
+                    await api.post(
+                        `/vendor/order-edits/${order.id}/confirm`,
+                        {},
+                        seller1Seed.headers
+                    )
+
+                    const query = appContainer.resolve(
+                        ContainerRegistrationKeys.QUERY
+                    )
+                    const { data: orders } = await query.graph({
+                        entity: "order",
+                        fields: ["id", "items.id", "items.requires_shipping"],
+                        filters: { id: order.id },
+                    })
+
+                    const items = (orders[0] as any).items as Array<{
+                        requires_shipping: boolean
+                    }>
+
+                    // The original checkout item already requires shipping; the
+                    // added item must too. Before the fix the added line item
+                    // defaulted to requires_shipping=false (Medusa derives it
+                    // from the product's shipping profile / inventory, neither
+                    // of which reflects Mercur's offer-owned shipping profile).
+                    expect(items.length).toBeGreaterThanOrEqual(1)
+                    for (const item of items) {
+                        expect(item.requires_shipping).toBe(true)
+                    }
+                })
+
                 it("rejects add-item from a non-owner seller", async () => {
                     const order = await completeCartCheckout(seller1Seed.offer.id)
 
