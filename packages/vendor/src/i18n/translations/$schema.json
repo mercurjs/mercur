@@ -6831,6 +6831,9 @@
             "cancelWarning": {
               "type": "string"
             },
+            "cancelDisabledTooltip": {
+              "type": "string"
+            },
             "markAsDeliveredWarning": {
               "type": "string"
             },
@@ -7026,6 +7029,7 @@
           },
           "required": [
             "cancelWarning",
+            "cancelDisabledTooltip",
             "markAsDeliveredWarning",
             "differentOptionSelected",
             "disabledItemTooltip",
