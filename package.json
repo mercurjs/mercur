@@ -6,12 +6,16 @@
     "dev": "turbo run dev",
     "lint": "oxlint --quiet",
     "test:integration:http": "cd integration-tests && bun run test:integration:http",
-    "test:e2e": "cd e2e-tests && bun run test"
+    "test:e2e": "cd e2e-tests && bun run test",
+    "changeset": "changeset",
+    "version:canary": "changeset version --snapshot canary",
+    "release:canary": "changeset publish --no-git-tags --snapshot --tag canary"
   },
   "dependencies": {
     "@mercurjs/core": "workspace:*"
   },
   "devDependencies": {
+    "@changesets/cli": "^2.31.0",
     "@eslint/js": "^9.39.2",
     "eslint": "^9.39.2",
     "globals": "^17.0.0",
