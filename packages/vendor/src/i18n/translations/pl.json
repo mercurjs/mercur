@@ -532,7 +532,7 @@
           "hint": "Ta kolejność wpłynie na porządek wariantów w Twoim sklepie.",
           "alert": "Dodaj opcje, aby utworzyć warianty.",
           "tip": "Warianty, które nie zostały wybrane, nie zostaną utworzone. Możesz zawsze później dodać i edytować warianty.",
-          "searchPlaceholder": "Wyszukaj warianty...",
+          "searchPlaceholder": "Wyszukaj",
           "media": "Media"
         },
         "productOptions": {

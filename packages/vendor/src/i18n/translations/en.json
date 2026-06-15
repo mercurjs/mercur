@@ -521,7 +521,7 @@
           "placeholder": "Small, Medium, Large"
         },
         "productVariants": {
-          "searchPlaceholder": "Search variants...",
+          "searchPlaceholder": "Search",
           "media": "Media",
           "tip": "Only variants with prices and stock will be visible to customers.",
           "label": "Product variants",
