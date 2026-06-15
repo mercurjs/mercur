@@ -270,6 +270,13 @@ const Fulfillment = ({
   const showDeliveryButton =
     !fulfillment.canceled_at && !fulfillment.delivered_at
 
+  // Once a fulfillment has shipped (or been delivered/canceled) it can no
+  // longer be canceled — keep the action visible but disabled.
+  const cancelDisabled =
+    !!fulfillment.canceled_at ||
+    !!fulfillment.shipped_at ||
+    !!fulfillment.delivered_at
+
   const handleMarkAsDelivered = async () => {
     const res = await prompt({
       title: t("general.areYouSure"),
@@ -353,7 +360,10 @@ const Fulfillment = ({
                     label: t("actions.cancel"),
                     icon: <XCircle />,
                     onClick: handleCancel,
-                    disabled: !!fulfillment.canceled_at,
+                    disabled: cancelDisabled,
+                    disabledTooltip: fulfillment.shipped_at
+                      ? t("orders.fulfillment.cancelDisabledTooltip")
+                      : undefined,
                   },
                 ],
               },
