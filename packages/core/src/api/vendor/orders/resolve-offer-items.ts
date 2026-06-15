@@ -35,6 +35,7 @@ export type AddItemInput = {
 type ResolvedAddItem = Omit<AddItemInput, "offer_id"> & {
   variant_id: string
   unit_price?: number | null
+  requires_shipping?: boolean
   metadata?: Record<string, unknown> | null
 }
 
@@ -135,6 +136,15 @@ export const resolveOfferItems = async ({
       variant_id: offer.variant_id,
       quantity: item.quantity,
       unit_price: item.unit_price ?? offerPrice ?? null,
+      // In Mercur the shipping profile is owned by the offer (per-seller),
+      // not the product. Medusa's add-items workflow derives a line item's
+      // `requires_shipping` from `product.shipping_profile` /
+      // `inventory.requires_shipping`, neither of which reflects the offer —
+      // so offer items added via order-edit / exchange / claim flows would
+      // otherwise default to `requires_shipping: false` and lose the
+      // "Mark as Shipped" fulfillment action. Set it explicitly from the
+      // offer's shipping profile so it matches checkout behavior.
+      requires_shipping: !!offer.shipping_profile_id,
       internal_note: item.internal_note,
       allow_backorder: item.allow_backorder,
       metadata: {
