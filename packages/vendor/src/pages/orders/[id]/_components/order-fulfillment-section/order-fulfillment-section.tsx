@@ -1,4 +1,4 @@
-import { XCircle } from "@medusajs/icons"
+import { DocumentText, XCircle } from "@medusajs/icons"
 import { AdminOrderLineItem } from "@medusajs/types"
 import {
   Button,
@@ -176,6 +176,20 @@ const UnfulfilledItemDisplay = ({
           <StatusBadge color="red" className="text-nowrap">
             {t("orders.fulfillment.awaitingFulfillmentBadge")}
           </StatusBadge>
+
+          <ActionMenu
+            groups={[
+              {
+                actions: [
+                  {
+                    label: t("orders.fulfillment.fulfillItems"),
+                    icon: <DocumentText />,
+                    to: `/orders/${order.id}/fulfillment?requires_shipping=${requiresShipping}`,
+                  },
+                ],
+              },
+            ]}
+          />
         </div>
       </div>
       <div>
@@ -186,13 +200,6 @@ const UnfulfilledItemDisplay = ({
             currencyCode={order.currency_code}
           />
         ))}
-      </div>
-      <div className="px-6 py-4 flex justify-end">
-        <Link
-          to={`/orders/${order.id}/fulfillment?requires_shipping=${requiresShipping}`}
-        >
-          <Button size="small">{t("orders.fulfillment.fulfillItems")}</Button>
-        </Link>
       </div>
     </Container>
   )
