@@ -4,13 +4,12 @@ import { useLoaderData, useParams } from "react-router-dom"
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { useProduct } from "../../../hooks/api/products"
+import { ProductMediaSection } from "../../products/product-detail/components/product-media-section/product-media-section"
 import { OFFER_PRODUCT_DETAIL_FIELDS } from "../common/constants"
 import { OfferProduct } from "../common/types"
 import {
   OfferAssociatedProductSection,
   OfferDetailGeneralSection,
-  OfferMediaSection,
-  OfferStoresSection,
   OfferVariantsSection,
 } from "./_components"
 import { loader } from "./loader"
@@ -30,7 +29,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   if (isLoading || !product) {
-    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={2} />
+    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={1} />
   }
 
   const typed = product as OfferProduct
@@ -43,7 +42,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <TwoColumnPage data={typed} hasOutlet>
           <TwoColumnPage.Main>
             <OfferDetailGeneralSection product={typed} />
-            <OfferMediaSection product={typed} />
+            <ProductMediaSection product={typed} readOnly />
             <OfferVariantsSection
               variants={typed.variants}
               thumbnail={typed.thumbnail}
@@ -51,7 +50,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
             <OfferAssociatedProductSection product={typed} />
-            <OfferStoresSection product={typed} />
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}
@@ -63,10 +61,9 @@ export const OfferDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   General: OfferDetailGeneralSection,
-  Media: OfferMediaSection,
+  Media: ProductMediaSection,
   Variants: OfferVariantsSection,
   AssociatedProduct: OfferAssociatedProductSection,
-  Stores: OfferStoresSection,
 })
 
 export const Component = Root

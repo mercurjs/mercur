@@ -17,10 +17,6 @@ import {
   ProductStatusCell,
   ProductStatusHeader,
 } from "../../../components/table/table-cells/product/product-status-cell"
-import {
-  SellerCell,
-  SellerHeader,
-} from "../../../components/table/table-cells/product/seller-cell/seller-cell"
 import { ProductStatus } from "@mercurjs/types"
 import { OfferProduct } from "../common/types"
 import { OfferActions } from "./offer-actions"
@@ -28,8 +24,8 @@ import { OfferActions } from "./offer-actions"
 /**
  * A row on the product-backed admin Offers list (SPEC-010): a product
  * with every seller's offers wrapped under each variant. Row identity is
- * the product; `variants[].offers[]` drive the Store column, the
- * offered-variant count, and the product-level delete.
+ * the product; `variants[].offers[]` drive the offered-variant count, the
+ * single-store "Open store" action, and the product-level delete.
  */
 const columnHelper = createColumnHelper<OfferProduct>()
 
@@ -79,13 +75,6 @@ export const useOfferTableColumns = () => {
             onCheckedChange={(value) => row.toggleSelected(!!value)}
             onClick={(e) => e.stopPropagation()}
           />
-        ),
-      }),
-      columnHelper.display({
-        id: "store",
-        header: () => <SellerHeader />,
-        cell: ({ row }) => (
-          <SellerCell sellers={collectOfferSellers(row.original)} />
         ),
       }),
       columnHelper.display({

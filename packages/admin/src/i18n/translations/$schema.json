@@ -12894,7 +12894,6 @@
             "manageKit": { "type": "string" },
             "noInventoryItems": { "type": "string" },
             "associatedProduct": { "type": "string" },
-            "stores": { "type": "string" },
             "offerVariant": { "type": "string" },
             "shippingConfiguration": { "type": "string" }
           },

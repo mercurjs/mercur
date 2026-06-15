@@ -788,6 +788,24 @@ applies on list rows too.
 - Re-verified: `bun run build` → 9/9; `offer-products` suites (admin +
   vendor) → **13 tests passed**.
 
+### Design revisions (post-review feedback)
+
+- **List Store column removed.** The Offers list no longer renders a Store
+  column (rows are product-grained; a product can span stores). The Store
+  **filter** (`seller_id`) and the row "Open store" action (when a single
+  store offers the product) are kept.
+- **Detail "Stores" sidebar card removed.** The product-shaped offer detail
+  sidebar now shows only the Associated-product card. (`offers.detail.stores`
+  i18n key removed.)
+- **Media reuses the product detail's `ProductMediaSection`.** A `readOnly`
+  prop was added to the admin `ProductMediaSection` (mirroring the vendor
+  panel) and the offer detail consumes it, replacing the bespoke
+  `OfferMediaSection` so the media grid/empty-state matches the product
+  detail exactly.
+- **Variants-section header border.** The section `Container` now uses
+  `divide-y p-0` (matching the admin product variant-section) so the header
+  is separated from the table by a border.
+
 ### Known follow-ups
 - Runtime QA of the admin Offers screens in the live dashboard (the
   backend wrap/filter is integration-covered; the UI is type-checked +

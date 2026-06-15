@@ -3830,7 +3830,6 @@
       "manageKit": "Inventory kit",
       "noInventoryItems": "This offer has no inventory items linked.",
       "associatedProduct": "Associated product",
-      "stores": "Stores",
       "offerVariant": "Offer Variant",
       "shippingConfiguration": "Shipping Configuration"
     },
