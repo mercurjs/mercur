@@ -113,7 +113,7 @@ export const OfferDetailGeneralSection = ({
       />
       <SectionRow
         title={t("fields.discountable")}
-        value={product.discountable ? t("general.true") : t("general.false")}
+        value={product.discountable ? t("fields.true") : t("fields.false")}
       />
     </Container>
   )
