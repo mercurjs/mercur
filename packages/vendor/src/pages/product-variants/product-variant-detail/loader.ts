@@ -4,8 +4,10 @@ import { variantsQueryKeys } from "@hooks/api/products"
 import { sdk } from "@lib/client"
 import { queryClient } from "@lib/query-client"
 
+// Prefix bare fields with `+` so they're additive — otherwise Medusa's
+// FieldParser treats them as "replace defaults" and strips title/sku/etc.
 export const VARIANT_DETAIL_FIELDS =
-  "*options,*options.option,thumbnail,images.id,images.url,images.rank,images.variants.id,product.images.id,product.images.url,product.images.rank,product.images.variants.id"
+  "*options,*options.option,+thumbnail,+images.id,+images.url,+images.rank,+images.variants.id,+product.images.id,+product.images.url,+product.images.rank,+product.images.variants.id"
 
 const variantDetailQuery = (productId: string, variantId: string) => ({
   queryKey: variantsQueryKeys.detail(variantId, { fields: VARIANT_DETAIL_FIELDS }),

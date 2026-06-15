@@ -13,8 +13,10 @@ export const PRODUCT_VARIANT_IDS_KEY = "product_variant_ids"
 export const PRODUCT_DETAIL_FIELDS = [
   "*variants.images",
   // Variant identity used by the active edit-request block (MER-168).
-  "variants.title",
-  "variants.sku",
+  // Use `+` so these don't trigger Medusa's "replace defaults" rule
+  // (any bare field strips title/description/subtitle from the product).
+  "+variants.title",
+  "+variants.sku",
   "*categories",
   "+additional_data",
   "*scoped_attributes",
