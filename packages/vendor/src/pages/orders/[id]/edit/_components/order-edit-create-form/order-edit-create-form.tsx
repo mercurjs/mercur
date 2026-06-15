@@ -7,11 +7,7 @@ import { useTranslation } from "react-i18next"
 import { Form } from "@components/common/form"
 import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
-import {
-  useCancelOrderEdit,
-  useConfirmOrderEdit,
-  useRequestOrderEdit,
-} from "@hooks/api/order-edits"
+import { useCancelOrderEdit, useRequestOrderEdit } from "@hooks/api/order-edits"
 import { getStylizedAmount } from "@lib/money-amount-helpers"
 
 import { OrderEditItemsSection } from "./order-edit-items-section"
@@ -39,10 +35,7 @@ export const OrderEditCreateForm = ({
   const { mutateAsync: requestOrderEdit, isPending: isRequesting } =
     useRequestOrderEdit(order.id)
 
-  const { mutateAsync: confirmOrderEdit, isPending: isConfirming } =
-    useConfirmOrderEdit(order.id)
-
-  const isRequestRunning = isCanceling || isRequesting || isConfirming
+  const isRequestRunning = isCanceling || isRequesting
 
   /**
    * FORM
@@ -73,14 +66,11 @@ export const OrderEditCreateForm = ({
         return
       }
 
-      // Vendor MVP flow: request → notify "sent" → confirm. Mirrors the
-      // previous custom modal; admin only emits `request` because admin can
-      // force-confirm via the active-edit banner later. Vendor confirms
-      // inline so the customer sees the change immediately.
+      // Request only — the edit stays pending and the vendor reviews/applies it
+      // from the active-edit banner on the order detail page (Force confirm /
+      // Cancel), matching the admin flow.
       await requestOrderEdit()
-      toast.success(t("orders.edits.toast.requestSent"))
-      await confirmOrderEdit()
-      toast.success(t("orders.edits.toast.confirmedSuccessfully"))
+      toast.success(t("orders.edits.createSuccessToast"))
       handleSuccess(`/orders/${order.id}`)
     } catch (e) {
       toast.error(t("general.error"), {
