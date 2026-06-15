@@ -58,42 +58,40 @@ git push origin main --tags
    - Builds all packages with `bun run build` (Turborepo)
    - Publishes every non-private package to npm with `--tag latest`
 
-### Canary Release
+### Canary Release (automated)
 
-1. Bump the version in every package's `package.json`:
+Canary releases are **fully automated** — there is no manual version bump and
+nothing is committed back to the repo. Every push to the `canary` branch runs
+[`.github/workflows/canary.yml`](.github/workflows/canary.yml), which publishes
+an ephemeral [Changesets](https://github.com/changesets/changesets) snapshot of
+every published `@mercurjs/*` package to npm under the `@canary` dist-tag.
 
-```
-"version": "2.X.Y-canary.Z"
-```
+- **Versions are ephemeral and uniform**, e.g. `2.2.0-canary-20260615125707`
+  (calculated base + UTC timestamp). All packages share the same version because
+  they are version-locked via the `fixed` group in
+  [`.changeset/config.json`](.changeset/config.json).
+- **Nothing is committed.** The snapshot version is written only to the npm
+  tarball, never back to git — so this is fully compatible with branch
+  protection on `canary`.
+- Internal dependencies use `workspace:*` and are rewritten to the snapshot
+  version at publish time by `changeset publish`.
 
-Where `Z` is the next incremental number (0, 1, 2, ...).
-
-2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template to the same `2.X.Y-canary.Z` value:
-
-   - `templates/basic/package.json` — `@mercurjs/dashboard-sdk`, `@mercurjs/dashboard-shared`, `@mercurjs/client`
-   - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
-   - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
-   - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
-
-3. Refresh the lockfile so workspace versions match `package.json`:
-
-```bash
-bun install
-```
-
-   Commit the updated `bun.lock` together with the version bumps — CI runs
-   `bun install --frozen-lockfile` and will fail otherwise.
-
-4. Commit and tag:
+To consume a canary build:
 
 ```bash
-git add -A
-git commit -m "chore: v2.X.Y-canary.Z"
-git tag v2.X.Y-canary.Z
-git push origin canary --tags
+npm install @mercurjs/cli@canary
 ```
 
-5. The GitHub Action detects `canary` in the tag name and publishes with `--tag canary`.
+To reproduce a snapshot locally without publishing:
+
+```bash
+bunx changeset add            # or drop a file in .changeset/
+bun run version:canary        # changeset version --snapshot canary
+# inspect the bumped package.json files, then discard with: git checkout -- packages
+```
+
+> The previous manual flow (hand-bumping `2.X.Y-canary.Z`, committing, and
+> pushing a tag) is superseded. The `NPM_TOKEN` secret is still required.
 
 ## Installing Packages
 

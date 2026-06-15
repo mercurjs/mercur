@@ -1,0 +1,66 @@
+name: Canary Release
+
+# Publishes an ephemeral snapshot of every @mercurjs/* package to npm under the
+# `@canary` dist-tag on each push to `canary`. Versions are NOT committed back —
+# they exist only on npm. Install with: npm install @mercurjs/<pkg>@canary
+on:
+  push:
+    branches:
+      - canary
+    paths-ignore:
+      - "docs/**"
+      - "apps/docs/**"
+      - "**/*.md"
+      - ".github/**"
+
+concurrency:
+  group: canary-release
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  id-token: write # npm provenance
+
+jobs:
+  canary:
+    name: Publish canary snapshot
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
+        with:
+          fetch-depth: 0
+
+      - uses: oven-sh/setup-bun@3d267786b128fe76c2f16a390aa2448b815359f3 # v2
+
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version: "20"
+          registry-url: "https://registry.npmjs.org"
+
+      - name: Install dependencies (frozen)
+        run: bun install --frozen-lockfile
+
+      - name: Build
+        run: bun run build
+
+      # Snapshot publishing only acts on packages that have a pending changeset.
+      # Stage one ephemeral changeset so the whole `fixed` group is snapshotted
+      # on every push. This file is never committed (CI checkout only).
+      - name: Stage canary changeset
+        run: |
+          cat > .changeset/zzz-canary-snapshot.md <<'EOF'
+          ---
+          "@mercurjs/core": patch
+          ---
+
+          Canary snapshot build.
+          EOF
+
+      - name: Version (snapshot)
+        run: bunx changeset version --snapshot canary
+
+      - name: Publish to npm (@canary)
+        run: bunx changeset publish --no-git-tags --snapshot --tag canary
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
