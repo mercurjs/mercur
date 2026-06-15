@@ -43,6 +43,14 @@ jobs:
 
     env:
       DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mercur
+      # @medusajs/test-utils derives its Postgres connection from these DB_*
+      # vars (NOT DATABASE_URL). Without DB_PASSWORD the generated connection
+      # URL has no password segment and SCRAM auth fails with
+      # "client password must be a string".
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
       REDIS_URL: redis://localhost:6379
       MEDUSA_FF_SELLER_REGISTRATION: "true"
       MEDUSA_FF_PRODUCT_REQUEST: "false"
