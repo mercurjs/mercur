@@ -86,8 +86,8 @@ const useSettingRoutes = (): INavItem[] => {
         to: "/settings/locations",
       },
       {
-        label: t("commissionRates.domain"),
-        to: "/settings/commission-rates",
+        label: t("commissions.domain", "Commissions"),
+        to: "/settings/commissions",
       },
       ...extensionNavItems,
     ],

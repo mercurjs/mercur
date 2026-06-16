@@ -1,13 +1,23 @@
-import { OrderEditWorkflowEvents } from "@medusajs/framework/utils"
+import {
+  OrderEditWorkflowEvents,
+  OrderWorkflowEvents,
+} from "@medusajs/framework/utils"
 import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
 
 import { refreshOrderCommissionLinesWorkflow } from "../workflows/commission/workflows/refresh-order-commission-lines"
 
-export default async function orderEditConfirmedHandler({
+/**
+ * Recompute an order's commission lines whenever its composition changes —
+ * order edits, returns, claims, and exchanges — so the seller's commission
+ * tracks what the customer actually kept. The refresh is idempotent
+ * (delete-then-insert), so re-running on follow-up events is safe.
+ */
+export default async function orderCommissionRefreshHandler({
   event,
   container,
-}: SubscriberArgs<{ order_id: string }>) {
-  const orderId = event.data.order_id
+}: SubscriberArgs<{ order_id?: string; id?: string }>) {
+  // Different events surface the order id under different keys.
+  const orderId = event.data.order_id ?? event.data.id
 
   if (!orderId) {
     return
@@ -19,8 +29,13 @@ export default async function orderEditConfirmedHandler({
 }
 
 export const config: SubscriberConfig = {
-  event: OrderEditWorkflowEvents.CONFIRMED,
+  event: [
+    OrderEditWorkflowEvents.CONFIRMED,
+    OrderWorkflowEvents.RETURN_RECEIVED,
+    OrderWorkflowEvents.CLAIM_CREATED,
+    OrderWorkflowEvents.EXCHANGE_CREATED,
+  ],
   context: {
-    subscriberId: "order-edit-confirmed-handler",
+    subscriberId: "order-commission-refresh-handler",
   },
 }

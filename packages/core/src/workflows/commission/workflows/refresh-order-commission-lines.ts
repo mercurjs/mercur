@@ -25,6 +25,7 @@ const orderFields = [
   "subtotal",
   "items.*",
   "items.subtotal",
+  "items.tax_total",
   "items.product.id",
   "items.product.collection_id",
   "items.product.categories.id",

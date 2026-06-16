@@ -1,21 +1,24 @@
 import { model } from "@medusajs/framework/utils"
-import { CommissionRateType, CommissionRateTarget } from "@mercurjs/types"
+import { CommissionRateType } from "@mercurjs/types"
 
 import CommissionRule from "./commission-rule"
+import CommissionRateValue from "./commission-rate-value"
 
 const CommissionRate = model.define("commission_rate", {
   id: model.id({ prefix: "comrate" }).primaryKey(),
   is_enabled: model.boolean().default(true),
-  priority: model.number().default(0),
+  is_default: model.boolean().default(false),
   currency_code: model.text().nullable(),
-  name: model.text(),
-  code: model.text().unique(),
+  name: model.text().searchable(),
+  code: model.text().unique().searchable(),
   type: model.enum(CommissionRateType),
-  target: model.enum(CommissionRateTarget).default(CommissionRateTarget.ITEM),
   value: model.bigNumber(),
-  min_amount: model.bigNumber().nullable(),
   include_tax: model.boolean().default(false),
+  include_shipping: model.boolean().default(false),
   rules: model.hasMany(() => CommissionRule, {
+    mappedBy: "commission_rate",
+  }),
+  values: model.hasMany(() => CommissionRateValue, {
     mappedBy: "commission_rate",
   }),
 })

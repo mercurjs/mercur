@@ -1211,34 +1211,39 @@ export function getRouteMap({
                 ],
               },
               {
-                path: "commission-rates",
+                path: "commissions",
                 errorElement: <ErrorBoundary />,
                 element: <Outlet />,
                 handle: {
-                  breadcrumb: () => t("commissionRates.domain"),
+                  breadcrumb: () => t("commissions.domain", "Commissions"),
                 },
                 children: [
                   {
                     path: "",
                     lazy: () =>
-                      import("./pages/commission-rates/commission-rate-list"),
+                      import("./pages/commissions/commissions-list"),
                     children: [
                       {
                         path: "create",
                         lazy: () =>
-                          import("./pages/commission-rates/commission-rate-create"),
+                          import("./pages/commissions/commission-rule-create"),
+                      },
+                      {
+                        path: "edit-global",
+                        lazy: () =>
+                          import("./pages/commissions/global-commission-edit"),
                       },
                     ],
                   },
                   {
                     path: ":id",
                     lazy: async () => {
-                      const { Breadcrumb, loader } =
-                        await import("./pages/commission-rates/commission-rate-detail");
+                      const { Breadcrumb } = await import(
+                        "./pages/commissions/commission-rule-detail"
+                      );
 
                       return {
                         Component: Outlet,
-                        loader,
                         handle: {
                           breadcrumb: (match: UIMatch) => (
                             <Breadcrumb {...match} />
@@ -1250,12 +1255,19 @@ export function getRouteMap({
                       {
                         path: "",
                         lazy: () =>
-                          import("./pages/commission-rates/commission-rate-detail"),
+                          import("./pages/commissions/commission-rule-detail"),
                         children: [
                           {
                             path: "edit",
                             lazy: () =>
-                              import("./pages/commission-rates/commission-rate-edit"),
+                              import("./pages/commissions/commission-rule-edit"),
+                          },
+                          {
+                            path: "edit-commission",
+                            lazy: () =>
+                              import(
+                                "./pages/commissions/commission-rule-commission-edit"
+                              ),
                           },
                         ],
                       },

@@ -1,4 +1,4 @@
-import { CommissionRateType, CommissionRateTarget } from "./common"
+import { CommissionRateType } from "./common"
 
 export interface CreateCommissionRuleDTO {
   reference: string
@@ -11,17 +11,26 @@ export interface UpdateCommissionRuleDTO {
   reference_id?: string
 }
 
+export interface CreateCommissionRateValueDTO {
+  currency_code: string
+  amount: number
+}
+
+// Note: `rules` and `values` (hasMany relations) are intentionally NOT typed
+// here. Medusa's auto-generated create/update types a hasMany as `string[]`
+// (link-by-id), which conflicts with passing nested-create objects. They are
+// validated at the HTTP boundary and flow through to the module's nested
+// create/update at runtime (same mechanism the legacy `rules` relied on).
 export interface CreateCommissionRateDTO {
   name: string
   code: string
   type: CommissionRateType
-  target?: CommissionRateTarget
   value: number
   currency_code?: string | null
-  min_amount?: number | null
   include_tax?: boolean
+  include_shipping?: boolean
   is_enabled?: boolean
-  priority?: number
+  is_default?: boolean
 }
 
 export interface UpdateCommissionRateDTO {
@@ -29,11 +38,10 @@ export interface UpdateCommissionRateDTO {
   name?: string
   code?: string
   type?: CommissionRateType
-  target?: CommissionRateTarget
   value?: number
   currency_code?: string | null
-  min_amount?: number | null
   include_tax?: boolean
+  include_shipping?: boolean
   is_enabled?: boolean
-  priority?: number
+  is_default?: boolean
 }

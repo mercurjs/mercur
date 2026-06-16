@@ -189,6 +189,7 @@ export type Routes = {
                     cancel: typeof import("@medusajs/medusa/api/admin/orders/[id]/transfer/cancel/route");
                 };
                 orderGroup: typeof import("../../src/api/admin/orders/[id]/order-group/route");
+                commissionLines: typeof import("../../src/api/admin/orders/[id]/commission-lines/route");
             };
             export: typeof import("@medusajs/medusa/api/admin/orders/export/route");
         };
@@ -647,6 +648,7 @@ export type Routes = {
                     };
                 };
                 preview: typeof import("../../src/api/vendor/orders/[id]/preview/route");
+                commissionLines: typeof import("../../src/api/vendor/orders/[id]/commission-lines/route");
             };
         };
         payments: typeof import("../../src/api/vendor/payments/route") & {

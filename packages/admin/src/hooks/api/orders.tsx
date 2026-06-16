@@ -1,4 +1,8 @@
-import { ClientError, InferClientInput } from "@mercurjs/client";
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
 import {
   AdminOrderResponse,
   CreateOrderCreditLineDTO,
@@ -303,4 +307,33 @@ export const useCreateOrderCreditLine = (
     },
     ...options,
   });
+};
+
+type OrderCommissionLinesResponse = InferClientOutput<
+  typeof sdk.admin.orders.$id.commissionLines.query
+>;
+
+export type OrderCommissionLine =
+  OrderCommissionLinesResponse["commission_lines"][number];
+
+export const useOrderCommissionLines = (
+  id: string,
+  options?: Omit<
+    UseQueryOptions<
+      OrderCommissionLinesResponse,
+      ClientError,
+      OrderCommissionLinesResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: async () =>
+      sdk.admin.orders.$id.commissionLines.query({ $id: id }),
+    queryKey: ordersQueryKeys.detail(`${id}/commission-lines`),
+    ...options,
+  });
+
+  return { commission_lines: data?.commission_lines ?? [], ...rest };
 };
