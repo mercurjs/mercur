@@ -1,10 +1,10 @@
 ---
-status: not_started
+status: in_progress
 canonical: false
 priority: 2
 area: admin/commissions
 created: 2026-06-15
-last_updated: 2026-06-15
+last_updated: 2026-06-16
 ---
 
 # SPEC-012 Admin Commissions — Figma UI
@@ -716,6 +716,60 @@ _(empty — not yet implemented)_
   - **Scope editing** — whether the rule edit drawer also edits scope
     dimensions (reuse `useBatchCommissionRules`) or scope is immutable
     post-create. Confirm against product intent.
+
+## Evidence
+
+### Implemented (2026-06-16) — branch `claude/sharp-germain-6a2615-admin-ui`
+
+The admin Commissions UI was rebuilt under `packages/admin/src/pages/commissions/`
+(the old `commission-rates` page family + `hooks/api/commission-rates.tsx`
+were deleted; `pages/index.ts` + `hooks/api/index.ts` repointed).
+
+- **Hooks** `hooks/api/commissions.tsx` — `useCommissionRule(s)`,
+  `useDefaultCommission` (the `is_default` rate), `useCreate/Update/Delete
+  CommissionRule`, `useBatchCommissionRules`; `queryKeysFactory("commissions")`,
+  invalidation on every mutation.
+- **`common/`** — `types.ts` (`ScopeType` + `SCOPE_TYPE_DIMENSIONS`),
+  `utils.ts` (scope-type derivation from rules, scope summary, value
+  formatter, status-badge props), `constants.ts`, and the
+  `use-delete-commission-rule-action` prompt hook.
+- **Commissions page** (`commissions-list`) — `SingleColumnPage` hosting the
+  **Global Commission** section (`useDefaultCommission` → Code/Type/Value/Tax/
+  Shipping + Edit kebab) and the **Commission Rules** table (DataTable,
+  page-size 20, columns Rule/Type/Scope/Value/Status + row kebab, `is_default=
+  false` so the default isn't listed, Create button → wizard).
+- **Edit Global Commission** drawer (`global-commission-edit`) — RouteDrawer +
+  Code/Type/Value + Tax/Shipping `SwitchBox`es, writes the default rate.
+- **Create wizard** (`commission-rule-create`) — `RouteFocusModal` +
+  `TabbedForm`: Details tab (Title, Code, scope-combo Type + conditional
+  Stores/Product-Types/Categories `Combobox`es via `useComboboxData`) →
+  Commission tab (Type, Value, Tax, Shipping). Submit expands the combo into
+  dimension-grouped `rules[]` and creates the rate in one call.
+- **Rule detail** (`commission-rule-detail`) — `SingleColumnPage`: Scope
+  section (derived Type + per-dimension rows + Status badge + Edit/Delete
+  kebab) and Commission section (Type/Value/Tax/Shipping + Edit kebab) +
+  breadcrumb.
+- **Edit Commission Rule** drawer (`commission-rule-edit`) — RouteDrawer
+  editing name/code/type/value/enabled/tax/shipping.
+- **Routing** `/settings/commissions` (+ `create`, `edit-global`, `:id`,
+  `:id/edit`); settings sidebar label → "Commissions". Strings use
+  `t(key, fallback)` so no i18n-schema changes were needed.
+
+**Verification:** `bun run build` → **9/9**; `bun run lint` clean on the new
+files.
+
+### Deviations / remaining
+- **Per-currency Fixed values is single-value** for now. The create wizard +
+  both drawers use one numeric `value` for Fixed (backend resolves Fixed from
+  `value` when `values[]` is absent — SPEC-011). The Figma per-currency
+  `CurrencyInput` stack (`values[]`) is a follow-up.
+- **Scope editing in the rule drawer** — the edit drawer edits the commission
+  part + name/code/status; dimension (scope) editing via
+  `useBatchCommissionRules` is not yet wired into the drawer.
+- **List filters** (Add filter) and search/sort beyond the default DataTable
+  controls are minimal.
+- Runtime QA of the screens in the live dashboard (build + lint pass; not
+  exercised headlessly).
 
 ## Order detail — Commission section (admin + vendor)
 

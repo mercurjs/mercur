@@ -1,0 +1,97 @@
+import { Heading, Input, Select } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+
+import { Form } from "../../../../../components/common/form";
+import { SwitchBox } from "../../../../../components/common/switch-box";
+import {
+  defineTabMeta,
+  useTabbedForm,
+} from "../../../../../components/tabbed-form";
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
+import { CreateCommissionRuleSchemaType } from "./schema";
+
+export const CreateCommissionRuleCommission = () => {
+  const { t } = useTranslation();
+  const form = useTabbedForm<CreateCommissionRuleSchemaType>();
+  const direction = useDocumentDirection();
+
+  const commissionType = form.watch("commissionType");
+
+  return (
+    <div className="flex flex-col items-center p-16">
+      <div className="flex w-full max-w-[720px] flex-col gap-y-8">
+        <Heading>{t("commissions.create.commission", "Commission")}</Heading>
+        <Form.Field
+          control={form.control}
+          name="commissionType"
+          render={({ field: { onChange, ref, ...field } }) => (
+            <Form.Item>
+              <Form.Label>
+                {t("commissions.fields.type.label", "Type")}
+              </Form.Label>
+              <Form.Control>
+                <Select {...field} onValueChange={onChange} dir={direction}>
+                  <Select.Trigger ref={ref}>
+                    <Select.Value />
+                  </Select.Trigger>
+                  <Select.Content>
+                    <Select.Item value="percentage">
+                      {t("commissions.fields.type.percentage", "Percentage")}
+                    </Select.Item>
+                    <Select.Item value="fixed">
+                      {t("commissions.fields.type.fixed", "Fixed")}
+                    </Select.Item>
+                  </Select.Content>
+                </Select>
+              </Form.Control>
+              <Form.ErrorMessage />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
+          name="value"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>
+                {commissionType === "percentage"
+                  ? t("commissions.fields.percentageValue", "Value (%)")
+                  : t("commissions.fields.fixedValue", "Value")}
+              </Form.Label>
+              <Form.Control>
+                <Input type="number" min={0} step="any" {...field} />
+              </Form.Control>
+              <Form.ErrorMessage />
+            </Form.Item>
+          )}
+        />
+        <SwitchBox
+          control={form.control}
+          name="include_tax"
+          label={t("commissions.fields.taxIncluded", "Tax included")}
+          description={t(
+            "commissions.fields.taxIncludedHint",
+            "If checked, commission is calculated on the total including tax. If unchecked, tax is excluded and goes entirely to the store."
+          )}
+        />
+        <SwitchBox
+          control={form.control}
+          name="include_shipping"
+          label={t("commissions.fields.shippingIncluded", "Shipping included")}
+          description={t(
+            "commissions.fields.shippingIncludedHint",
+            "If checked, commission is calculated on the total including shipping. If unchecked, shipping fees go entirely to the store."
+          )}
+        />
+      </div>
+    </div>
+  );
+};
+
+CreateCommissionRuleCommission._tabMeta =
+  defineTabMeta<CreateCommissionRuleSchemaType>({
+    id: "commission",
+    labelKey: "commissions.create.commission",
+    label: "Commission",
+    validationFields: ["commissionType", "value"],
+  });

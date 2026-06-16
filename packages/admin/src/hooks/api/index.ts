@@ -4,7 +4,7 @@ export * from "./auth";
 export * from "./campaigns";
 export * from "./categories";
 export * from "./collections";
-export * from "./commission-rates";
+export * from "./commissions";
 export * from "./currencies";
 export * from "./customer-groups";
 export * from "./customers";
