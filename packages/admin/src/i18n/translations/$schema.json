@@ -12700,6 +12700,177 @@
       "required": ["domain"],
       "additionalProperties": false
     },
+    "commissions": {
+      "type": "object",
+      "properties": {
+        "domain": { "type": "string" },
+        "create": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "details": { "type": "string" },
+            "commission": { "type": "string" },
+            "successToast": { "type": "string" }
+          },
+          "required": ["header", "details", "commission", "successToast"],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "header": { "type": "string" },
+            "successToast": { "type": "string" }
+          },
+          "required": ["header", "successToast"],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "description": { "type": "string" },
+            "successToast": { "type": "string" }
+          },
+          "required": ["description", "successToast"],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "code": { "type": "string" },
+            "value": { "type": "string" },
+            "enabled": { "type": "string" },
+            "enabledHint": { "type": "string" },
+            "stores": { "type": "string" },
+            "productTypes": { "type": "string" },
+            "categories": { "type": "string" },
+            "taxIncluded": { "type": "string" },
+            "taxIncludedHint": { "type": "string" },
+            "shippingIncluded": { "type": "string" },
+            "shippingIncludedHint": { "type": "string" },
+            "type": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "percentage": { "type": "string" },
+                "fixed": { "type": "string" }
+              },
+              "required": ["label", "percentage", "fixed"],
+              "additionalProperties": false
+            },
+            "scopeType": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "store": { "type": "string" },
+                "productType": { "type": "string" },
+                "category": { "type": "string" },
+                "storeProductType": { "type": "string" },
+                "storeCategory": { "type": "string" }
+              },
+              "required": [
+                "label",
+                "store",
+                "productType",
+                "category",
+                "storeProductType",
+                "storeCategory"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "code",
+            "value",
+            "enabled",
+            "enabledHint",
+            "stores",
+            "productTypes",
+            "categories",
+            "taxIncluded",
+            "taxIncludedHint",
+            "shippingIncluded",
+            "shippingIncludedHint",
+            "type",
+            "scopeType"
+          ],
+          "additionalProperties": false
+        },
+        "global": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "code": { "type": "string" },
+            "type": { "type": "string" },
+            "value": { "type": "string" },
+            "tax": { "type": "string" },
+            "shipping": { "type": "string" },
+            "included": { "type": "string" },
+            "notIncluded": { "type": "string" },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "successToast"],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "title",
+            "code",
+            "type",
+            "value",
+            "tax",
+            "shipping",
+            "included",
+            "notIncluded",
+            "edit"
+          ],
+          "additionalProperties": false
+        },
+        "rules": {
+          "type": "object",
+          "properties": {
+            "title": { "type": "string" },
+            "columns": {
+              "type": "object",
+              "properties": {
+                "rule": { "type": "string" },
+                "scope": { "type": "string" },
+                "type": { "type": "string" },
+                "value": { "type": "string" },
+                "status": { "type": "string" }
+              },
+              "required": ["rule", "scope", "type", "value", "status"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["title", "columns"],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "enabled": { "type": "string" },
+            "disabled": { "type": "string" }
+          },
+          "required": ["enabled", "disabled"],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "create",
+        "edit",
+        "delete",
+        "fields",
+        "global",
+        "rules",
+        "status"
+      ],
+      "additionalProperties": false
+    },
     "commissionRates": {
       "type": "object",
       "properties": {
@@ -13046,6 +13217,7 @@
     "algolia",
     "commission",
     "commissionLines",
+    "commissions",
     "commissionRates",
     "offers"
   ],

@@ -1,0 +1,78 @@
+import { PencilSquare } from "@medusajs/icons";
+import { Container, Heading } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+
+import { ActionMenu } from "../../../../../components/common/action-menu";
+import { SectionRow } from "../../../../../components/common/section";
+import { useDefaultCommission } from "../../../../../hooks/api/commissions";
+import { CommissionRate } from "../../../common/types";
+import { formatCommissionValue } from "../../../common/utils";
+
+export const GlobalCommissionSection = () => {
+  const { t } = useTranslation();
+  const { default_commission, isLoading, isError, error } =
+    useDefaultCommission();
+
+  if (isError) {
+    throw error;
+  }
+
+  const rate = default_commission as CommissionRate | undefined;
+
+  return (
+    <Container className="divide-y p-0" data-testid="global-commission-section">
+      <div className="flex items-center justify-between px-6 py-4">
+        <Heading>{t("commissions.global.title", "Global Commission")}</Heading>
+        <ActionMenu
+          groups={[
+            {
+              actions: [
+                {
+                  label: t("actions.edit"),
+                  icon: <PencilSquare />,
+                  to: "edit-global",
+                },
+              ],
+            },
+          ]}
+        />
+      </div>
+      {!isLoading && rate && (
+        <>
+          <SectionRow
+            title={t("commissions.global.code", "Code")}
+            value={rate.code}
+          />
+          <SectionRow
+            title={t("commissions.global.type", "Type")}
+            value={
+              rate.type === "percentage"
+                ? t("commissions.fields.type.percentage", "Percentage")
+                : t("commissions.fields.type.fixed", "Fixed")
+            }
+          />
+          <SectionRow
+            title={t("commissions.global.value", "Value")}
+            value={formatCommissionValue(rate)}
+          />
+          <SectionRow
+            title={t("commissions.global.tax", "Tax")}
+            value={
+              rate.include_tax
+                ? t("commissions.global.included", "Included in commission")
+                : t("commissions.global.notIncluded", "Not included")
+            }
+          />
+          <SectionRow
+            title={t("commissions.global.shipping", "Shipping")}
+            value={
+              rate.include_shipping
+                ? t("commissions.global.included", "Included in commission")
+                : t("commissions.global.notIncluded", "Not included")
+            }
+          />
+        </>
+      )}
+    </Container>
+  );
+};

@@ -23,7 +23,7 @@ export default async function seedDefaultCommissionRateLoader({
 
     await rateService.create({
       name: "Default",
-      code: "DEFAULT",
+      code: "default",
       type: "percentage",
       value: 0,
       is_enabled: true,
@@ -33,8 +33,7 @@ export default async function seedDefaultCommissionRateLoader({
     })
   } catch (error) {
     logger?.warn(
-      `Failed to seed the default commission rate: ${
-        (error as Error)?.message ?? error
+      `Failed to seed the default commission rate: ${(error as Error)?.message ?? error
       }`
     )
   }
