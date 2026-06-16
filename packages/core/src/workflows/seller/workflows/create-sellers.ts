@@ -15,9 +15,12 @@ import {
 } from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
-import { createSellersStep } from "../steps"
+import {
+  createSellersStep,
+  upsertMembersStep,
+  createSellerMembersStep,
+} from "../steps"
 import { SellerWorkflowEvents } from "../../events"
-import { createMemberInvitesWorkflow } from "./create-member-invites"
 
 export const createSellersWorkflowId = "create-sellers"
 
@@ -58,17 +61,25 @@ export const createSellersWorkflow: ReturnWorkflow<
       )
     )
 
-    createMemberInvitesWorkflow.runAsStep({
-      input: transform(
-        { sellers, input },
-        ({ sellers, input }) =>
-          sellers.map((seller, i) => ({
-            seller_id: seller.id,
-            email: input.sellers[i].member.email,
-            role_id: SellerRole.SELLER_ADMINISTRATION,
-          }))
+    // Admin-created sellers get their member provisioned directly as the
+    // store owner (the admin assigns an existing or new member by email),
+    // mirroring the self-service create-seller-account flow.
+    const members = upsertMembersStep(
+      transform(input, ({ sellers }) =>
+        sellers.map(({ member }) => ({ email: member.email }))
       )
-    })
+    )
+
+    createSellerMembersStep(
+      transform({ sellers, members }, ({ sellers, members }) =>
+        sellers.map((seller, i) => ({
+          seller_id: seller.id,
+          member_id: members[i].id,
+          role_id: SellerRole.SELLER_ADMINISTRATION,
+          is_owner: true,
+        }))
+      )
+    )
 
     const sellersCreated = createHook("sellersCreated", {
       sellers,

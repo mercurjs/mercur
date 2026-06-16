@@ -27,6 +27,8 @@ medusaIntegrationTestRunner({
             let salesChannel: any
             let product1: any
             let product2: any
+            let offer1: any
+            let offer2: any
             let _shippingOption1: any
             let _shippingOption2: any
 
@@ -174,6 +176,33 @@ medusaIntegrationTestRunner({
                 )
                 _shippingOption1 = shippingOption1Response.data.shipping_option
 
+                // Create a store offer for seller 1's product (store add-to-cart
+                // resolves the variant + price from the offer).
+                offer1 = (
+                    await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "OFFER-SELLER1-S",
+                            variant_id: product1.variants[0].id,
+                            shipping_profile_id: shippingPrerequisites1.shippingProfile.id,
+                            inventory_items: [
+                                {
+                                    title: "Offer Inv Seller 1",
+                                    required_quantity: 1,
+                                    stock_levels: [
+                                        {
+                                            location_id: shippingPrerequisites1.stockLocation.id,
+                                            stocked_quantity: 100,
+                                        },
+                                    ],
+                                },
+                            ],
+                            prices: [{ currency_code: "usd", amount: 2000 }],
+                        },
+                        seller1Headers
+                    )
+                ).data.offer
+
                 // Create shipping prerequisites for seller 2
                 const shippingPrerequisites2 = await createShippingPrerequisites(seller2Headers, "seller2")
 
@@ -203,6 +232,32 @@ medusaIntegrationTestRunner({
                     seller2Headers
                 )
                 _shippingOption2 = shippingOption2Response.data.shipping_option
+
+                // Create a store offer for seller 2's product.
+                offer2 = (
+                    await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "OFFER-SELLER2-RED",
+                            variant_id: product2.variants[0].id,
+                            shipping_profile_id: shippingPrerequisites2.shippingProfile.id,
+                            inventory_items: [
+                                {
+                                    title: "Offer Inv Seller 2",
+                                    required_quantity: 1,
+                                    stock_levels: [
+                                        {
+                                            location_id: shippingPrerequisites2.stockLocation.id,
+                                            stocked_quantity: 100,
+                                        },
+                                    ],
+                                },
+                            ],
+                            prices: [{ currency_code: "usd", amount: 3000 }],
+                        },
+                        seller2Headers
+                    )
+                ).data.offer
             })
 
             let prerequisiteCounter = 0
@@ -282,7 +337,7 @@ medusaIntegrationTestRunner({
 
             const completeCartForCustomer = async (
                 customerStoreHeaders: any,
-                productVariantId: string
+                offerId: string
             ) => {
                 // Create cart
                 const cartResponse = await api.post(
@@ -296,11 +351,11 @@ medusaIntegrationTestRunner({
                 )
                 let cart = cartResponse.data.cart
 
-                // Add item
+                // Add item via the seller's store offer
                 const addItemResponse = await api.post(
                     `/store/carts/${cart.id}/line-items`,
                     {
-                        variant_id: productVariantId,
+                        offer_id: offerId,
                         quantity: 1,
                     },
                     customerStoreHeaders
@@ -353,7 +408,7 @@ medusaIntegrationTestRunner({
             describe("GET /vendor/customers", () => {
                 it("should list customers who have placed orders with the vendor", async () => {
                     // Customer 1 places order with Seller 1
-                    await completeCartForCustomer(customer1StoreHeaders, product1.variants[0].id)
+                    await completeCartForCustomer(customer1StoreHeaders, offer1.id)
 
                     // Seller 1 should see customer 1
                     const response = await api.get(
@@ -375,7 +430,7 @@ medusaIntegrationTestRunner({
 
                 it("should not list customers who have not placed orders with the vendor", async () => {
                     // Customer 1 places order with Seller 1 only
-                    await completeCartForCustomer(customer1StoreHeaders, product1.variants[0].id)
+                    await completeCartForCustomer(customer1StoreHeaders, offer1.id)
 
                     // Seller 2 should NOT see customer 1
                     const response = await api.get(
@@ -389,8 +444,8 @@ medusaIntegrationTestRunner({
 
                 it("should list multiple customers who have placed orders with the vendor", async () => {
                     // Both customers place orders with Seller 1
-                    await completeCartForCustomer(customer1StoreHeaders, product1.variants[0].id)
-                    await completeCartForCustomer(customer2StoreHeaders, product1.variants[0].id)
+                    await completeCartForCustomer(customer1StoreHeaders, offer1.id)
+                    await completeCartForCustomer(customer2StoreHeaders, offer1.id)
 
                     const response = await api.get(
                         `/vendor/customers`,
@@ -405,8 +460,8 @@ medusaIntegrationTestRunner({
 
                 it("should only list unique customers even with multiple orders", async () => {
                     // Customer 1 places multiple orders with Seller 1
-                    await completeCartForCustomer(customer1StoreHeaders, product1.variants[0].id)
-                    await completeCartForCustomer(customer1StoreHeaders, product1.variants[0].id)
+                    await completeCartForCustomer(customer1StoreHeaders, offer1.id)
+                    await completeCartForCustomer(customer1StoreHeaders, offer1.id)
 
                     const response = await api.get(
                         `/vendor/customers`,
@@ -420,10 +475,10 @@ medusaIntegrationTestRunner({
 
                 it("each vendor should only see their own customers", async () => {
                     // Customer 1 orders from Seller 1
-                    await completeCartForCustomer(customer1StoreHeaders, product1.variants[0].id)
+                    await completeCartForCustomer(customer1StoreHeaders, offer1.id)
 
                     // Customer 2 orders from Seller 2
-                    await completeCartForCustomer(customer2StoreHeaders, product2.variants[0].id)
+                    await completeCartForCustomer(customer2StoreHeaders, offer2.id)
 
                     // Seller 1 should only see Customer 1
                     const seller1Response = await api.get(
@@ -448,7 +503,7 @@ medusaIntegrationTestRunner({
             describe("GET /vendor/customers/:id", () => {
                 it("should get a customer by id if they have placed an order with the vendor", async () => {
                     // Customer 1 places order with Seller 1
-                    await completeCartForCustomer(customer1StoreHeaders, product1.variants[0].id)
+                    await completeCartForCustomer(customer1StoreHeaders, offer1.id)
 
                     const response = await api.get(
                         `/vendor/customers/${customer1.id}`,
@@ -468,7 +523,7 @@ medusaIntegrationTestRunner({
 
                 it("should return 404 for customer who has not ordered from the vendor", async () => {
                     // Customer 1 places order with Seller 1 only
-                    await completeCartForCustomer(customer1StoreHeaders, product1.variants[0].id)
+                    await completeCartForCustomer(customer1StoreHeaders, offer1.id)
 
                     // Seller 2 tries to get Customer 1
                     const response = await api

@@ -12,7 +12,7 @@ import {
 } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
-import { createPayoutAccountWorkflow, creditOrderToPayoutAccountWorkflow, createPayoutWorkflow } from '@mercurjs/core/workflows'
+import { createPayoutAccountWorkflow, createPayoutWorkflow } from '@mercurjs/core/workflows'
 
 jest.setTimeout(120000)
 
@@ -28,6 +28,7 @@ medusaIntegrationTestRunner({
       let region: any
       let salesChannel: any
       let product: any
+      let offer: any
       let shippingOption: any
       let payoutAccount: any
 
@@ -131,6 +132,33 @@ medusaIntegrationTestRunner({
         )
         shippingOption = shippingOptionResponse.data.shipping_option
 
+        // Create a store offer for the product (store add-to-cart resolves the
+        // variant + price from the offer).
+        offer = (
+          await api.post(
+            `/vendor/offers`,
+            {
+              sku: "PAYOUT-OFFER-S",
+              variant_id: product.variants[0].id,
+              shipping_profile_id: shippingPrerequisites.shippingProfile.id,
+              inventory_items: [
+                {
+                  title: "Payout Offer Inventory",
+                  required_quantity: 1,
+                  stock_levels: [
+                    {
+                      location_id: shippingPrerequisites.stockLocation.id,
+                      stocked_quantity: 100,
+                    },
+                  ],
+                },
+              ],
+              prices: [{ currency_code: "usd", amount: 10000 }], // $100
+            },
+            sellerHeaders
+          )
+        ).data.offer
+
         // Create 10% marketplace commission
         await commissionService.createCommissionRates({
           name: "Marketplace Commission",
@@ -225,10 +253,10 @@ medusaIntegrationTestRunner({
         return response.data.cart
       }
 
-      const addItemToCart = async (cartId: string, variantId: string, quantity: number) => {
+      const addItemToCart = async (cartId: string, offerId: string, quantity: number) => {
         const response = await api.post(
           `/store/carts/${cartId}/line-items`,
-          { variant_id: variantId, quantity },
+          { offer_id: offerId, quantity },
           storeHeaders
         )
         return response.data.cart
@@ -289,160 +317,101 @@ medusaIntegrationTestRunner({
       }
 
       describe("Payout Flow", () => {
-        it("should complete full payout flow: commission -> order -> credit balance -> create payout -> list payouts", async () => {
-          // 1. Create cart and complete order
+        const getOrderFromGroup = async (orderGroupId: string) => {
+          const { data: [orderGroup] } = await query.graph({
+            entity: "order_group",
+            fields: [
+              "id",
+              "orders.*",
+              "orders.items.*",
+              "orders.items.commission_lines.*",
+            ],
+            filters: { id: orderGroupId },
+          })
+          return orderGroup.orders[0]
+        }
+
+        const placeOrder = async (quantity: number) => {
           const cart = await createCart()
-          await addItemToCart(cart.id, product.variants[0].id, 1) // $100 item
+          await addItemToCart(cart.id, offer.id, quantity)
           await updateCartWithAddress(cart.id)
           await addShippingMethodToCart(cart.id, shippingOption.id)
 
           const completeResult = await completeCart(cart.id)
           expect(completeResult.type).toEqual("order_group")
 
-          const orderGroupId = completeResult.order_group.id
+          return getOrderFromGroup(completeResult.order_group.id)
+        }
 
-          // Get the order from order group
-          const { data: [orderGroup] } = await query.graph({
-            entity: "order_group",
-            fields: ["id", "orders.*", "orders.items.*", "orders.items.commission_lines.*"],
-            filters: { id: orderGroupId },
-          })
-          const order = orderGroup.orders[0]
+        it("should create a payout for an order and expose it via /vendor/payouts", async () => {
+          const order = await placeOrder(1) // $100 item + $10 shipping
 
           expect(order).toBeDefined()
           expect(order.items).toHaveLength(1)
 
-          // Verify commission was applied (10% of $100 = $10)
+          // Commission (10% of the $100 item) is recorded on the order item.
           const commissionLine = order.items[0].commission_lines?.[0]
           expect(commissionLine).toBeDefined()
           expect(commissionLine.amount).toEqual(1000) // $10 in cents
 
-          // 2. Credit order earnings to seller's payout account
-          const creditResult = await creditOrderToPayoutAccountWorkflow(appContainer).run({
-            input: {
-              order_id: order.id,
-            },
-          })
-
-          expect(creditResult.result).toBeDefined()
-          expect(creditResult.result).toHaveLength(1)
-
-          // Verify balance was credited (order total - commission)
-          // Order total is $100 (item) + $10 (shipping) = $110
-          // Commission is $10
-          // Seller amount = $110 - $10 = $100
-          const transaction = creditResult.result[0]
-          expect(transaction.reference).toEqual("order")
-          expect(transaction.reference_id).toEqual(order.id)
-
-          // Check payout balance
-          const { data: [balance] } = await query.graph({
-            entity: "payout_balance",
-            fields: ["id", "account_id", "currency_code", "totals"],
-            filters: { account_id: payoutAccount.id, currency_code: "usd" },
-          })
-
-          expect(balance).toBeDefined()
-          expect(balance.totals.balance).toBeGreaterThan(0)
-
-          // 3. Create a payout
+          // Create the payout directly from the order.
           const payoutResult = await createPayoutWorkflow(appContainer).run({
-            input: {
-              account_id: payoutAccount.id,
-              amount: 5000, // $50 payout
-              currency_code: "usd",
-            },
+            input: { order_id: order.id },
           })
 
-          expect(payoutResult.result).toBeDefined()
-          expect(payoutResult.result.id).toBeDefined()
+          const payout = payoutResult.result
+          expect(payout).toBeDefined()
+          expect(payout.id).toBeDefined()
+          expect(Number(payout.amount)).toBeGreaterThan(0)
+          expect(payout.currency_code).toEqual("usd")
 
-          const payoutId = payoutResult.result.id
-
-          // 4. Verify payout is available in /vendor/payouts endpoint
-          const payoutsResponse = await api.get(
-            `/vendor/payouts`,
-            sellerHeaders
-          )
+          // The seller can see the payout on their payouts endpoint.
+          const payoutsResponse = await api.get(`/vendor/payouts`, sellerHeaders)
 
           expect(payoutsResponse.status).toEqual(200)
-          expect(payoutsResponse.data.payouts).toBeDefined()
-          expect(payoutsResponse.data.payouts.length).toBeGreaterThan(0)
-
-          const payout = payoutsResponse.data.payouts.find((p: any) => p.id === payoutId)
-          expect(payout).toBeDefined()
-          expect(payout.amount).toEqual(5000)
-          expect(payout.currency_code).toEqual("usd")
+          const listed = payoutsResponse.data.payouts.find(
+            (p: any) => p.id === payout.id
+          )
+          expect(listed).toBeDefined()
+          expect(Number(listed.amount)).toEqual(Number(payout.amount))
+          expect(listed.currency_code).toEqual("usd")
         })
 
-        it("should reject payout when insufficient balance", async () => {
-          // Try to create payout without any balance
+        it("should reject creating a payout for a non-existent order", async () => {
           const { errors } = await createPayoutWorkflow(appContainer).run({
-            input: {
-              account_id: payoutAccount.id,
-              amount: 100000, // $1000 - more than available
-              currency_code: "usd",
-            },
+            input: { order_id: "order_does_not_exist" },
             throwOnError: false,
           })
 
-          expect(errors).toHaveLength(1)
-          expect(errors[0].error.message).toContain("Insufficient funds")
+          expect(errors.length).toBeGreaterThan(0)
         })
 
-        it("should correctly calculate seller earnings after multiple orders", async () => {
-          // Create and complete first order
-          const cart1 = await createCart()
-          await addItemToCart(cart1.id, product.variants[0].id, 2) // 2 x $100 = $200
-          await updateCartWithAddress(cart1.id)
-          await addShippingMethodToCart(cart1.id, shippingOption.id)
+        it("should create separate payouts for multiple orders", async () => {
+          const order1 = await placeOrder(2) // 2 x $100
+          const payout1 = (
+            await createPayoutWorkflow(appContainer).run({
+              input: { order_id: order1.id },
+            })
+          ).result
 
-          const result1 = await completeCart(cart1.id)
-          const { data: [orderGroup1] } = await query.graph({
-            entity: "order_group",
-            fields: ["id", "orders.*"],
-            filters: { id: result1.order_group.id },
-          })
-          const order1 = orderGroup1.orders[0]
+          const order2 = await placeOrder(1) // 1 x $100
+          const payout2 = (
+            await createPayoutWorkflow(appContainer).run({
+              input: { order_id: order2.id },
+            })
+          ).result
 
-          // Credit first order
-          await creditOrderToPayoutAccountWorkflow(appContainer).run({
-            input: { order_id: order1.id },
-          })
+          expect(payout1.id).not.toEqual(payout2.id)
+          expect(Number(payout1.amount)).toBeGreaterThan(0)
+          expect(Number(payout2.amount)).toBeGreaterThan(0)
 
-          // Create and complete second order
-          const cart2 = await createCart()
-          await addItemToCart(cart2.id, product.variants[0].id, 1) // 1 x $100
-          await updateCartWithAddress(cart2.id)
-          await addShippingMethodToCart(cart2.id, shippingOption.id)
+          // The larger order should yield the larger payout.
+          expect(Number(payout1.amount)).toBeGreaterThan(Number(payout2.amount))
 
-          const result2 = await completeCart(cart2.id)
-          const { data: [orderGroup2] } = await query.graph({
-            entity: "order_group",
-            fields: ["id", "orders.*"],
-            filters: { id: result2.order_group.id },
-          })
-          const order2 = orderGroup2.orders[0]
-
-          // Credit second order
-          await creditOrderToPayoutAccountWorkflow(appContainer).run({
-            input: { order_id: order2.id },
-          })
-
-          // Check total balance
-          // Order 1: ($200 item + $10 shipping) - $20 commission = $190
-          // Order 2: ($100 item + $10 shipping) - $10 commission = $100
-          // Total: $290
-
-          const { data: [balance] } = await query.graph({
-            entity: "payout_balance",
-            fields: ["id", "totals"],
-            filters: { account_id: payoutAccount.id, currency_code: "usd" },
-          })
-
-          expect(balance).toBeDefined()
-          // Balance should be sum of both orders' seller earnings
-          expect(balance.totals.balance).toBeGreaterThan(0)
+          const payoutsResponse = await api.get(`/vendor/payouts`, sellerHeaders)
+          const ids = payoutsResponse.data.payouts.map((p: any) => p.id)
+          expect(ids).toContain(payout1.id)
+          expect(ids).toContain(payout2.id)
         })
       })
     })

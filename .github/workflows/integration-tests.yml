@@ -14,7 +14,10 @@ jobs:
   integration-http:
     name: HTTP integration tests (shard ${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    # Shards are balanced by duration (see integration-tests/test-sequencer.js),
+    # so this is a safety net against a genuinely hung spec, not the normal
+    # runtime — a balanced shard finishes well under this.
+    timeout-minutes: 40
 
     strategy:
       # Run every shard to completion even if one fails, so a single broken
@@ -105,8 +108,9 @@ jobs:
         run: bun run build
 
       - name: Run HTTP integration tests
-        # Jest balances spec files across shards by count; each shard runs an
-        # independent ~1/4 of the suite against its own Postgres/Redis service.
+        # A custom sequencer (integration-tests/test-sequencer.js) bin-packs
+        # specs across shards by estimated duration, so each shard runs a
+        # ~equal-time slice of the suite against its own Postgres/Redis service.
         run: cd integration-tests && bun run test:integration:http -- --shard=${{ matrix.shard }}/4
 
   # Single required status check that aggregates every shard. Branch protection

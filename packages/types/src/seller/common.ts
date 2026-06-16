@@ -42,8 +42,8 @@ export interface UpdateProfessionalDetailsDTO {
 
 export interface PaymentDetailsDTO {
   id: string
-  country_code: string
-  holder_name: string
+  country_code: string | null
+  holder_name: string | null
   bank_name: string | null
   iban: string | null
   bic: string | null
@@ -54,8 +54,8 @@ export interface PaymentDetailsDTO {
 }
 
 export interface CreatePaymentDetailsDTO {
-  country_code: string
-  holder_name: string
+  country_code?: string | null
+  holder_name?: string | null
   bank_name?: string | null
   iban?: string | null
   bic?: string | null
