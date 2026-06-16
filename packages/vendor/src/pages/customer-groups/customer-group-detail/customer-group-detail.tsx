@@ -25,7 +25,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   );
 
   if (isLoading || !customer_group) {
-    return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />;
+    return <SingleColumnPageSkeleton sections={2} showJSON />;
   }
 
   if (isError) {
@@ -33,11 +33,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return Children.count(children) > 0 ? (
-    <SingleColumnPage showJSON showMetadata data={customer_group} hasOutlet>
+    <SingleColumnPage showJSON data={customer_group} hasOutlet>
       {children}
     </SingleColumnPage>
   ) : (
-    <SingleColumnPage showJSON showMetadata data={customer_group} hasOutlet>
+    <SingleColumnPage showJSON data={customer_group} hasOutlet>
       <CustomerGroupGeneralSection group={customer_group} />
       <CustomerGroupCustomerSection group={customer_group} />
     </SingleColumnPage>

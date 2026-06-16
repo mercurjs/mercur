@@ -585,13 +585,6 @@ export function getRouteMap({
                                 "./pages/customer-groups/customer-group-add-customers"
                               ),
                           },
-                          {
-                            path: "metadata",
-                            lazy: () =>
-                              import(
-                                "./pages/customer-groups/customer-group-metadata"
-                              ),
-                          },
                         ],
                       },
                     ],
