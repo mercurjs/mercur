@@ -1,16 +1,6 @@
 import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-
-export type OrderCommissionLine = {
-  id: string
-  item_id: string | null
-  shipping_method_id: string | null
-  commission_rate_id: string | null
-  code: string
-  rate: number
-  amount: number
-  description: string | null
-}
+import { CommissionLineDTO } from "@mercurjs/types"
 
 const COMMISSION_LINE_FIELDS = [
   "id",
@@ -21,6 +11,9 @@ const COMMISSION_LINE_FIELDS = [
   "rate",
   "amount",
   "description",
+  "created_at",
+  "updated_at",
+  "deleted_at",
 ]
 
 /**
@@ -39,7 +32,7 @@ export const getOrderCommissionLines = async (
   scope: MedusaContainer,
   orderId: string,
   sellerId?: string
-): Promise<{ found: boolean; commission_lines: OrderCommissionLine[] }> => {
+): Promise<{ found: boolean; commission_lines: CommissionLineDTO[] }> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const orderFields = ["id", "items.id", "shipping_methods.id"]
@@ -92,5 +85,8 @@ export const getOrderCommissionLines = async (
     filters: { $or: filters },
   })
 
-  return { found: true, commission_lines }
+  return {
+    found: true,
+    commission_lines: commission_lines as CommissionLineDTO[],
+  }
 }

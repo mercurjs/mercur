@@ -3,14 +3,12 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/framework/utils"
+import { CommissionLineDTO } from "@mercurjs/types"
 
-import {
-  getOrderCommissionLines,
-  OrderCommissionLine,
-} from "../../../../utils/order-commission-lines"
+import { getOrderCommissionLines } from "../../../../utils/order-commission-lines"
 
 export type VendorOrderCommissionLinesResponse = {
-  commission_lines: OrderCommissionLine[]
+  commission_lines: CommissionLineDTO[]
   count: number
 }
 
