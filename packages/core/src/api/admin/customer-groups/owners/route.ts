@@ -24,7 +24,9 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const raw = req.validatedQuery.group_ids
-  const groupIds = Array.isArray(raw) ? raw : [raw]
+  const groupIds = (Array.isArray(raw) ? raw : [raw]).flatMap((v) =>
+    v.split(",")
+  )
 
   if (groupIds.length === 0) {
     res.json({ owners: [] })
