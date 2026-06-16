@@ -12,9 +12,16 @@ concurrency:
 
 jobs:
   integration-http:
-    name: HTTP integration tests
+    name: HTTP integration tests (shard ${{ matrix.shard }}/4)
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
+
+    strategy:
+      # Run every shard to completion even if one fails, so a single broken
+      # shard doesn't mask failures (or passes) in the others.
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
 
     services:
       postgres:
@@ -84,8 +91,11 @@ jobs:
         uses: actions/cache@v4
         with:
           path: .turbo
-          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          # Per-shard key so parallel shards don't race to save the same entry;
+          # restore-keys still lets each shard reuse another shard's build cache.
+          key: ${{ runner.os }}-turbo-${{ github.sha }}-${{ matrix.shard }}
           restore-keys: |
+            ${{ runner.os }}-turbo-${{ github.sha }}-
             ${{ runner.os }}-turbo-
 
       - name: Install dependencies
@@ -95,4 +105,23 @@ jobs:
         run: bun run build
 
       - name: Run HTTP integration tests
-        run: bun run test:integration:http
+        # Jest balances spec files across shards by count; each shard runs an
+        # independent ~1/4 of the suite against its own Postgres/Redis service.
+        run: cd integration-tests && bun run test:integration:http -- --shard=${{ matrix.shard }}/4
+
+  # Single required status check that aggregates every shard. Branch protection
+  # should require this job instead of the individual matrix shards (whose names
+  # change if the shard count changes).
+  all-passed:
+    name: Integration tests passed
+    if: always()
+    needs: integration-http
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all shards succeeded
+        run: |
+          if [ "${{ needs.integration-http.result }}" != "success" ]; then
+            echo "One or more integration test shards did not succeed (result: ${{ needs.integration-http.result }})"
+            exit 1
+          fi
+          echo "All integration test shards passed."
