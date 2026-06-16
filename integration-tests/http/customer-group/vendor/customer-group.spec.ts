@@ -302,6 +302,38 @@ medusaIntegrationTestRunner({
           )
           expect(list.data.customer_groups[0].customers).toHaveLength(2)
         })
+
+        it("does not expose groups owned by other sellers", async () => {
+          const link = appContainer.resolve(ContainerRegistrationKeys.LINK)
+          // customer1 is known to both sellers
+          await link.create({
+            [MercurModules.SELLER]: { seller_id: seller1.id },
+            [Modules.CUSTOMER]: { customer_id: customer1.id },
+          })
+
+          const ownGroup = await createGroup(seller1Headers, "Seller1 VIP")
+          const otherGroup = await createGroup(seller2Headers, "Seller2 VIP")
+
+          await api.post(
+            `/vendor/customer-groups/${ownGroup.id}/customers`,
+            { add: [customer1.id] },
+            seller1Headers
+          )
+          await api.post(
+            `/vendor/customer-groups/${otherGroup.id}/customers`,
+            { add: [customer1.id] },
+            seller2Headers
+          )
+
+          const res = await api.get(
+            `/vendor/customers/${customer1.id}`,
+            seller1Headers
+          )
+
+          const ids = res.data.customer.groups.map((g: any) => g.id)
+          expect(ids).toContain(ownGroup.id)
+          expect(ids).not.toContain(otherGroup.id)
+        })
       })
     })
   },
