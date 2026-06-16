@@ -25,25 +25,36 @@ export const refetchCustomerGroup = async (
 export const validateSellerCustomerGroup = async (
   scope: MedusaContainer,
   sellerId: string,
-  customerGroupId: string
+  customerGroupId: string | string[]
 ) => {
+  const ids = Array.isArray(customerGroupId)
+    ? customerGroupId
+    : [customerGroupId]
+
+  if (ids.length === 0) {
+    return
+  }
+
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const {
-    data: [sellerCustomerGroup],
-  } = await query.graph({
+  const { data: sellerCustomerGroups } = await query.graph({
     entity: "seller_customer_group",
     filters: {
       seller_id: sellerId,
-      customer_group_id: customerGroupId,
+      customer_group_id: ids,
     },
-    fields: ["seller_id", "customer_group_id"],
+    fields: ["customer_group_id"],
   })
 
-  if (!sellerCustomerGroup) {
+  const ownedIds = new Set(
+    sellerCustomerGroups.map((row) => row.customer_group_id)
+  )
+  const missingId = ids.find((id) => !ownedIds.has(id))
+
+  if (missingId) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
-      `Customer group with id: ${customerGroupId} was not found`
+      `Customer group with id: ${missingId} was not found`
     )
   }
 }

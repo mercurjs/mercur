@@ -3,10 +3,7 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { linkCustomerGroupsToCustomerWorkflow } from "@medusajs/core-flows"
-import {
-  ContainerRegistrationKeys,
-  promiseAll,
-} from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { validateSellerCustomerGroup } from "../../../customer-groups/helpers"
@@ -26,11 +23,7 @@ export const POST = async (
   const remove = req.validatedBody.remove ?? []
 
   // Ensure every targeted group is owned by the seller before mutating.
-  await promiseAll(
-    [...add, ...remove].map((groupId) =>
-      validateSellerCustomerGroup(req.scope, sellerId, groupId)
-    )
-  )
+  await validateSellerCustomerGroup(req.scope, sellerId, [...add, ...remove])
 
   await linkCustomerGroupsToCustomerWorkflow(req.scope).run({
     input: { id, add, remove },
