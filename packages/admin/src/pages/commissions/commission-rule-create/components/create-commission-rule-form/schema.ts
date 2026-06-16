@@ -15,6 +15,7 @@ export const CreateCommissionRuleSchema = zod.object({
   categories: zod.array(zod.string()),
   commissionType: zod.enum(["percentage", "fixed"]),
   value: zod.coerce.number().min(0),
+  fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
   include_tax: zod.boolean(),
   include_shipping: zod.boolean(),
 });

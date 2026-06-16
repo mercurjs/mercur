@@ -14,13 +14,17 @@ import {
   useCommissionRule,
   useUpdateCommissionRule,
 } from "../../../hooks/api/commissions";
+import { CommissionValueFields } from "../common/components/commission-value-fields";
+import { useStoreCurrencies } from "../common/hooks/use-store-currencies";
 import { CommissionRate } from "../common/types";
+import { buildValuesPayload, fixedValuesFromRate } from "../common/utils";
 
 const EditCommissionRuleSchema = zod.object({
   name: zod.string().min(1),
   code: zod.string().min(1),
   type: zod.enum(["percentage", "fixed"]),
   value: zod.coerce.number().min(0),
+  fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
   include_tax: zod.boolean(),
   include_shipping: zod.boolean(),
   is_enabled: zod.boolean(),
@@ -30,6 +34,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const direction = useDocumentDirection();
+  const { currencies } = useStoreCurrencies();
 
   const form = useForm<zod.infer<typeof EditCommissionRuleSchema>>({
     defaultValues: {
@@ -37,6 +42,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
       code: rule.code,
       type: rule.type,
       value: rule.value,
+      fixed_values: fixedValuesFromRate(rule),
       include_tax: rule.include_tax,
       include_shipping: rule.include_shipping,
       is_enabled: rule.is_enabled,
@@ -47,7 +53,21 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
   const { mutateAsync, isPending } = useUpdateCommissionRule(rule.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    await mutateAsync(values, {
+    const isFixed = values.type === "fixed";
+    const payload = {
+      name: values.name,
+      code: values.code,
+      type: values.type,
+      value: isFixed ? 0 : values.value,
+      ...(isFixed
+        ? { values: buildValuesPayload(currencies, values.fixed_values) }
+        : {}),
+      include_tax: values.include_tax,
+      include_shipping: values.include_shipping,
+      is_enabled: values.is_enabled,
+    };
+
+    await mutateAsync(payload, {
       onSuccess: () => {
         toast.success(
           t("commissions.edit.successToast", {
@@ -120,22 +140,10 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                 </Form.Item>
               )}
             />
-            <Form.Field
+            <CommissionValueFields
               control={form.control}
-              name="value"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>
-                    {watchType === "percentage"
-                      ? t("commissions.fields.percentageValue", "Value (%)")
-                      : t("commissions.fields.fixedValue", "Value")}
-                  </Form.Label>
-                  <Form.Control>
-                    <Input type="number" min={0} step="any" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
+              type={watchType}
+              currencies={currencies}
             />
             <SwitchBox
               control={form.control}

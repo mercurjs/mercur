@@ -99,3 +99,21 @@ export const getIsActiveProps = (isEnabled: boolean, t: TFunction) =>
         color: "grey" as const,
         label: t("commissions.status.disabled", "Inactive"),
       };
+
+/** Form `fixed_values` map → the API `values[]` payload (one per currency). */
+export const buildValuesPayload = (
+  currencies: string[],
+  fixedValues: Record<string, number> = {}
+): { currency_code: string; amount: number }[] =>
+  currencies.map((code) => ({
+    currency_code: code,
+    amount: Number(fixedValues[code] ?? 0),
+  }));
+
+/** A rate's `values[]` → the form `fixed_values` map (for edit defaults). */
+export const fixedValuesFromRate = (
+  rate: CommissionRate
+): Record<string, number> =>
+  Object.fromEntries(
+    (rate.values ?? []).map((v) => [v.currency_code, v.amount])
+  );

@@ -13,12 +13,16 @@ import {
   useDefaultCommission,
   useUpdateCommissionRule,
 } from "../../../hooks/api/commissions";
+import { CommissionValueFields } from "../common/components/commission-value-fields";
+import { useStoreCurrencies } from "../common/hooks/use-store-currencies";
 import { CommissionRate } from "../common/types";
+import { buildValuesPayload, fixedValuesFromRate } from "../common/utils";
 
 const EditGlobalCommissionSchema = zod.object({
   code: zod.string().min(1),
   type: zod.enum(["percentage", "fixed"]),
   value: zod.coerce.number().min(0),
+  fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
   include_tax: zod.boolean(),
   include_shipping: zod.boolean(),
 });
@@ -27,12 +31,14 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const direction = useDocumentDirection();
+  const { currencies } = useStoreCurrencies();
 
   const form = useForm<zod.infer<typeof EditGlobalCommissionSchema>>({
     defaultValues: {
       code: rate.code,
       type: rate.type,
       value: rate.value,
+      fixed_values: fixedValuesFromRate(rate),
       include_tax: rate.include_tax,
       include_shipping: rate.include_shipping,
     },
@@ -42,7 +48,19 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
   const { mutateAsync, isPending } = useUpdateCommissionRule(rate.id);
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    await mutateAsync(values, {
+    const isFixed = values.type === "fixed";
+    const payload = {
+      code: values.code,
+      type: values.type,
+      value: isFixed ? 0 : values.value,
+      ...(isFixed
+        ? { values: buildValuesPayload(currencies, values.fixed_values) }
+        : {}),
+      include_tax: values.include_tax,
+      include_shipping: values.include_shipping,
+    };
+
+    await mutateAsync(payload, {
       onSuccess: () => {
         toast.success(
           t("commissions.global.edit.successToast", {
@@ -106,22 +124,10 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
                 </Form.Item>
               )}
             />
-            <Form.Field
+            <CommissionValueFields
               control={form.control}
-              name="value"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>
-                    {watchType === "percentage"
-                      ? t("commissions.fields.percentageValue", "Value (%)")
-                      : t("commissions.fields.fixedValue", "Value")}
-                  </Form.Label>
-                  <Form.Control>
-                    <Input type="number" min={0} step="any" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
+              type={watchType}
+              currencies={currencies}
             />
             <SwitchBox
               control={form.control}

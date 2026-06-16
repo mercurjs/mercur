@@ -6,7 +6,9 @@ import { useTranslation } from "react-i18next";
 import { TabbedForm } from "../../../../../components/tabbed-form";
 import { useRouteModal } from "../../../../../components/modals";
 import { useCreateCommissionRule } from "../../../../../hooks/api/commissions";
+import { useStoreCurrencies } from "../../../common/hooks/use-store-currencies";
 import { SCOPE_TYPE_DIMENSIONS } from "../../../common/types";
+import { buildValuesPayload } from "../../../common/utils";
 import { CreateCommissionRuleCommission } from "./create-commission-rule-commission";
 import { CreateCommissionRuleDetails } from "./create-commission-rule-details";
 import {
@@ -17,6 +19,7 @@ import {
 export const CreateCommissionRuleForm = () => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
+  const { currencies } = useStoreCurrencies();
 
   const form = useForm<CreateCommissionRuleSchemaType>({
     defaultValues: {
@@ -28,6 +31,7 @@ export const CreateCommissionRuleForm = () => {
       categories: [],
       commissionType: "percentage",
       value: 0,
+      fixed_values: {},
       include_tax: false,
       include_shipping: false,
     },
@@ -56,12 +60,17 @@ export const CreateCommissionRuleForm = () => {
       );
     }
 
+    const isFixed = values.commissionType === "fixed";
+
     await mutateAsync(
       {
         name: values.title,
         code: values.code,
         type: values.commissionType,
-        value: values.value,
+        value: isFixed ? 0 : values.value,
+        ...(isFixed
+          ? { values: buildValuesPayload(currencies, values.fixed_values) }
+          : {}),
         include_tax: values.include_tax,
         include_shipping: values.include_shipping,
         is_enabled: true,

@@ -53,6 +53,7 @@ export const CreateCommissionRuleDetails = () => {
     <div className="flex flex-col items-center p-16">
       <div className="flex w-full max-w-[720px] flex-col gap-y-8">
         <Heading>{t("commissions.create.details", "Details")}</Heading>
+        <div className="flex flex-col gap-y-4">
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <Form.Field
             control={form.control}
@@ -195,6 +196,7 @@ export const CreateCommissionRuleDetails = () => {
             )}
           />
         )}
+        </div>
       </div>
     </div>
   );
@@ -204,7 +206,6 @@ CreateCommissionRuleDetails._tabMeta = defineTabMeta<CreateCommissionRuleSchemaT
   {
     id: "details",
     labelKey: "commissions.create.details",
-    label: "Details",
     validationFields: ["title", "code", "scopeType"],
   }
 );

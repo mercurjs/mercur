@@ -3743,6 +3743,77 @@
   "commissionLines": {
     "domain": "Commission Lines"
   },
+  "commissions": {
+    "domain": "Commissions",
+    "create": {
+      "header": "Create Commission Rule",
+      "details": "Details",
+      "commission": "Commission",
+      "successToast": "Commission rule created"
+    },
+    "edit": {
+      "header": "Edit Commission Rule",
+      "successToast": "Commission rule updated"
+    },
+    "delete": {
+      "description": "Are you sure you want to delete this commission rule?",
+      "successToast": "Commission rule deleted"
+    },
+    "fields": {
+      "code": "Code",
+      "value": "Value",
+      "enabled": "Enabled",
+      "enabledHint": "Enable or disable this commission rule.",
+      "stores": "Stores",
+      "productTypes": "Product Types",
+      "categories": "Categories",
+      "taxIncluded": "Tax included",
+      "taxIncludedHint": "If checked, commission is calculated on the total including tax. If unchecked, tax is excluded and goes entirely to the store.",
+      "shippingIncluded": "Shipping included",
+      "shippingIncludedHint": "If checked, commission is calculated on the total including shipping. If unchecked, shipping fees go entirely to the store.",
+      "type": {
+        "label": "Type",
+        "percentage": "Percentage",
+        "fixed": "Fixed"
+      },
+      "scopeType": {
+        "label": "Type",
+        "store": "Store",
+        "productType": "Product Type",
+        "category": "Category",
+        "storeProductType": "Store + Product Type",
+        "storeCategory": "Store + Category"
+      }
+    },
+    "global": {
+      "title": "Global Commission",
+      "code": "Code",
+      "type": "Type",
+      "value": "Value",
+      "tax": "Tax",
+      "shipping": "Shipping",
+      "included": "Included",
+      "notIncluded": "Not included",
+      "edit": {
+        "header": "Edit Global Commission",
+        "successToast": "Global commission updated"
+      }
+    },
+    "rules": {
+      "title": "Commission Rules",
+      "columns": {
+        "rule": "Rule",
+        "scope": "Scope",
+        "type": "Type",
+        "value": "Value",
+        "status": "Status"
+      }
+    },
+    "status": {
+      "enabled": "Active",
+      "disabled": "Inactive"
+    }
+  },
   "commissionRates": {
     "domain": "Commission Rates",
     "description": "Manage commission rates and rules for your marketplace.",
