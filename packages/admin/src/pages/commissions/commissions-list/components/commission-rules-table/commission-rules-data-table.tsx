@@ -16,6 +16,7 @@ import { useDataTable } from "../../../../../hooks/use-data-table";
 import { useDeleteCommissionRuleAction } from "../../../common/hooks/use-delete-commission-rule-action";
 import { useScopeReferenceNames } from "../../../common/hooks/use-scope-reference-names";
 import { CommissionRate } from "../../../common/types";
+import { useCommissionRulesFilters } from "./use-commission-rules-filters";
 import { useCommissionRulesQuery } from "./use-commission-rules-query";
 import {
   formatCommissionValue,
@@ -30,6 +31,7 @@ export const CommissionRulesDataTable = () => {
   const { t } = useTranslation();
 
   const { searchParams, raw } = useCommissionRulesQuery({ pageSize: PAGE_SIZE });
+  const filters = useCommissionRulesFilters();
 
   const {
     commission_rates,
@@ -79,6 +81,7 @@ export const CommissionRulesDataTable = () => {
       pageSize={PAGE_SIZE}
       isLoading={isLoading}
       queryObject={raw}
+      filters={filters}
       navigateTo={(row) => `${row.original.id}`}
       pagination
       search
