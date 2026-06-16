@@ -7,7 +7,7 @@ import {
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import { CommissionLineDTO } from "@mercurjs/types"
 
-import { getCommissionLinesStep, replaceCommissionLinesStep } from "../steps"
+import { getCommissionLinesStep, upsertCommissionLinesStep } from "../steps"
 
 const orderFields = [
   "id",
@@ -91,28 +91,12 @@ export const refreshOrderCommissionLinesWorkflow = createWorkflow(
       }))
     })
 
-    const affectedIds = transform({ orders }, ({ orders }) => {
-      const item_ids: string[] = []
-      const shipping_method_ids: string[] = []
-      for (const order of orders as any[]) {
-        for (const item of order.items ?? []) {
-          item_ids.push(item.id)
-        }
-        for (const method of order.shipping_methods ?? []) {
-          shipping_method_ids.push(method.id)
-        }
-      }
-      return { item_ids, shipping_method_ids }
-    })
-
     const commissionLines = getCommissionLinesStep(commissionContexts)
 
-    const replacedCommissionLines = replaceCommissionLinesStep({
-      item_ids: affectedIds.item_ids,
-      shipping_method_ids: affectedIds.shipping_method_ids,
+    const upsertedCommissionLines = upsertCommissionLinesStep({
       commission_lines: commissionLines,
     })
 
-    return new WorkflowResponse(replacedCommissionLines)
+    return new WorkflowResponse(upsertedCommissionLines)
   }
 )

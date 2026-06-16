@@ -309,27 +309,42 @@ export const useCompleteOrder = (
   });
 };
 
-type OrderCommission = {
-  commission: any
+export type OrderCommissionLine = {
+  id: string
+  item_id: string | null
+  shipping_method_id: string | null
+  commission_rate_id: string | null
+  code: string
+  rate: number
+  amount: number
+  description: string | null
 }
 
-export const useOrderCommission = (
+type OrderCommissionLinesResponse = {
+  commission_lines: OrderCommissionLine[]
+  count: number
+}
+
+export const useOrderCommissionLines = (
   id: string,
-  query?: Record<string, any>,
   options?: Omit<
-    UseQueryOptions<OrderCommission, Error, OrderCommission, QueryKey>,
+    UseQueryOptions<
+      OrderCommissionLinesResponse,
+      Error,
+      OrderCommissionLinesResponse,
+      QueryKey
+    >,
     "queryFn" | "queryKey"
   >
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
-      fetchQuery(`/vendor/orders/${id}/commission`, {
+      fetchQuery(`/vendor/orders/${id}/commission-lines`, {
         method: "GET",
-        query,
-      }),
-    queryKey: ordersQueryKeys.detail(`${id}/commission`, query),
+      }) as Promise<OrderCommissionLinesResponse>,
+    queryKey: ordersQueryKeys.detail(`${id}/commission-lines`),
     ...options,
   });
 
-  return { commission: data?.commission, ...rest };
+  return { commission_lines: data?.commission_lines ?? [], ...rest };
 };

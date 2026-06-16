@@ -19,7 +19,6 @@ import {
   CommissionLineDTO,
   CommissionRateType,
   CreateCommissionLineDTO,
-  UpdateCommissionLineDTO,
 } from "@mercurjs/types"
 
 import {
@@ -251,78 +250,53 @@ class CommissionModuleService extends MedusaService({
     return commissionLines
   }
 
-  @InjectManager()
-  async deleteCommissionLinesForOrderItems(
-    { item_ids = [], shipping_method_ids = [] }: {
-      item_ids?: string[]
-      shipping_method_ids?: string[]
-    },
-    @MedusaContext() sharedContext: Context = {}
-  ): Promise<void> {
-    const filters: Record<string, unknown>[] = []
-    if (item_ids.length) {
-      filters.push({ item_id: item_ids })
-    }
-    if (shipping_method_ids.length) {
-      filters.push({ shipping_method_id: shipping_method_ids })
-    }
-
-    if (!filters.length) {
-      return
-    }
-
-    const existing = await this.commissionLineService_.list(
-      { $or: filters },
-      {},
-      sharedContext
-    )
-
-    if (existing.length) {
-      await this.commissionLineService_.delete(
-        existing.map((line) => line.id),
-        sharedContext
-      )
-    }
-  }
-
-  @InjectManager()
-  async sumCommissionForOrderItems(
-    { item_ids = [], shipping_method_ids = [] }: {
-      item_ids?: string[]
-      shipping_method_ids?: string[]
-    },
-    @MedusaContext() sharedContext: Context = {}
-  ): Promise<number> {
-    const filters: Record<string, unknown>[] = []
-    if (item_ids.length) {
-      filters.push({ item_id: item_ids })
-    }
-    if (shipping_method_ids.length) {
-      filters.push({ shipping_method_id: shipping_method_ids })
-    }
-
-    if (!filters.length) {
-      return 0
-    }
-
-    const lines = await this.commissionLineService_.list(
-      { $or: filters },
-      {},
-      sharedContext
-    )
-
-    return lines.reduce(
-      (acc, line) => MathBN.convert(MathBN.add(acc, line.amount)).toNumber(),
-      0
-    )
-  }
-
+  /**
+   * Overrides the auto-generated upsert with idempotent **replace**
+   * semantics keyed on the line's anchor (item_id / shipping_method_id):
+   * delete any existing lines for the incoming anchors, then insert the new
+   * set, in a single transaction. The computed lines carry no `id`, so a
+   * plain primary-key upsert would duplicate them on every refresh; deleting
+   * by anchor first makes re-running the refresh idempotent.
+   */
   @InjectManager()
   @EmitEvents()
   async upsertCommissionLines(
-    commissionLines: (CreateCommissionLineDTO | UpdateCommissionLineDTO)[],
+    commissionLines: CreateCommissionLineDTO[],
     @MedusaContext() sharedContext: Context = {}
   ): Promise<CommissionLineDTO[]> {
+    const itemIds = commissionLines
+      .map((line) => line.item_id)
+      .filter((id): id is string => !!id)
+    const shippingMethodIds = commissionLines
+      .map((line) => line.shipping_method_id)
+      .filter((id): id is string => !!id)
+
+    const filters: Record<string, unknown>[] = []
+    if (itemIds.length) {
+      filters.push({ item_id: itemIds })
+    }
+    if (shippingMethodIds.length) {
+      filters.push({ shipping_method_id: shippingMethodIds })
+    }
+
+    if (filters.length) {
+      const existing = await this.commissionLineService_.list(
+        { $or: filters },
+        {},
+        sharedContext
+      )
+      if (existing.length) {
+        await this.commissionLineService_.delete(
+          existing.map((line) => line.id),
+          sharedContext
+        )
+      }
+    }
+
+    if (!commissionLines.length) {
+      return []
+    }
+
     const result = await this.commissionLineService_.upsert(
       commissionLines,
       sharedContext

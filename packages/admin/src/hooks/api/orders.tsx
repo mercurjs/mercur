@@ -11,7 +11,7 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { sdk } from "../../lib/client";
+import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory, TQueryKey } from "../../lib/query-key-factory";
 
@@ -303,4 +303,44 @@ export const useCreateOrderCreditLine = (
     },
     ...options,
   });
+};
+
+export type OrderCommissionLine = {
+  id: string;
+  item_id: string | null;
+  shipping_method_id: string | null;
+  commission_rate_id: string | null;
+  code: string;
+  rate: number;
+  amount: number;
+  description: string | null;
+};
+
+type OrderCommissionLinesResponse = {
+  commission_lines: OrderCommissionLine[];
+  count: number;
+};
+
+export const useOrderCommissionLines = (
+  id: string,
+  options?: Omit<
+    UseQueryOptions<
+      OrderCommissionLinesResponse,
+      Error,
+      OrderCommissionLinesResponse,
+      QueryKey
+    >,
+    "queryFn" | "queryKey"
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: async () =>
+      fetchQuery(`/admin/orders/${id}/commission-lines`, {
+        method: "GET",
+      }) as Promise<OrderCommissionLinesResponse>,
+    queryKey: ordersQueryKeys.detail(`${id}/commission-lines`),
+    ...options,
+  });
+
+  return { commission_lines: data?.commission_lines ?? [], ...rest };
 };

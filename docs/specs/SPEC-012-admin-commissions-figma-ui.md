@@ -717,6 +717,28 @@ _(empty — not yet implemented)_
     dimensions (reuse `useBatchCommissionRules`) or scope is immutable
     post-create. Confirm against product intent.
 
+## Order detail — Commission section (admin + vendor)
+
+Implemented (2026-06-16). Both the **admin** and **vendor** order-detail
+pages render a **Commission** section (`order-commission-section`) in the
+main column, between the Summary and Payment sections.
+
+- **Data** — `useOrderCommissionLines(orderId)` (admin + vendor
+  `hooks/api/orders`) calls `GET /{admin,vendor}/orders/:id/commission-lines`
+  (SPEC-011 review follow-ups) and returns the order's item **and** shipping
+  commission lines. The vendor endpoint is seller-scoped. (This replaces the
+  vendor's broken `useOrderCommission` hook, which pointed at a non-existent
+  `/vendor/orders/:id/commission` route, and supersedes summing only
+  `items.commission_lines` off the order graph — which silently missed
+  shipping commission.)
+- **UI** — a `<Container className="divide-y p-0">` section: a row per line
+  (item lines labelled by the order item's title, shipping lines as
+  "Shipping") with the amount, and a **Total** footer row. Hidden when the
+  order has no commission lines. Strings via `t(...)` with safe fallbacks
+  (`fields.commission`, `fields.shipping`, `orders.commission.total`), so no
+  new i18n keys were required (the i18n schema test enforces exact en.json ↔
+  `$schema.json` match).
+
 ## Notes
 
 - The rename `commission-rates` → `commissions` ripples through routes,

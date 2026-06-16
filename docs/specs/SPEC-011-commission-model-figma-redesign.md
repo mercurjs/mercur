@@ -626,24 +626,58 @@ add `include_shipping`/`is_default`/`values[]` + `is_default` list filter
   module in this env, so the snapshot was reconciled manually (it only
   feeds future generator diffs).
 
-### Deviation 3 — payout sums commission from the module, not the link
+### Review follow-ups (2026-06-16)
 
-The `order.shipping_methods.<alias>` read-only link is **defined correctly**
-(verified against Medusa's `defineLink`/remote-joiner internals) and the
-stored `shipping_method_id` matches the `OrderShippingMethod.id` byte-for-
-byte, yet the remote joiner returns `[]` when traversing
-`order.shipping_methods → commission_lines` (the structurally identical
-`order.items` path resolves). Rather than depend on that traversal,
-`createPayoutWorkflow` now sums commission via a new
-`sumCommissionForOrderItems(service)` + `getOrderCommissionTotalStep`
-(query the commission module directly by the order's item + shipping-method
-ids). The shipping-method link file is kept (it is correct and may resolve
-in store/HTTP query contexts); nothing depends on it.
+**Idempotent refresh folded into `upsertCommissionLines`.** Instead of a
+separate replace step + method, the module's auto-generated
+`upsertCommissionLines` is **overridden** with replace semantics: it derives
+the anchors (`item_id` / `shipping_method_id`) from the incoming lines,
+deletes existing lines for those anchors, then inserts — one transaction.
+The computed lines carry no `id`, so a plain primary-key upsert would
+duplicate them; deleting by anchor first makes the refresh idempotent. The
+`replace-commission-lines` step + `deleteCommissionLinesForOrderItems`
+method were removed; `refresh-order-commission-lines` now just calls
+`upsertCommissionLinesStep`.
+
+**Order → commission line: a cross-module link cannot serve this.** A
+read-only link (`defineLink` and `MedusaModule.setCustomLink` both tested)
+resolves `order.items.commission_lines` but **not**
+`order.shipping_methods.commission_lines`. Root cause (traced through the
+remote joiner): two cross-module relations pointing at the **same target
+entity** (`commission_line`) **collide when co-resolved** — the joiner
+reuses the first-resolved relationship's join key (`item_id`) for both, so
+the shipping side runs `commission_line WHERE item_id IN (shipping_method_ids)`
+→ `[]`. Queried **alone** each resolves; **co-requested** the shipping side
+fails; a **shared alias** fails even alone. This is a genuine joiner
+constraint, not a config error. **The link file was removed.**
+
+**Commission is read by querying the `commission_line` entity directly** —
+the supported cross-module pattern (mirrors Medusa's loyalty/gift-card,
+which queries its own module by id rather than navigating the order graph).
+Two consumers:
+
+- **Payout** — `createPayoutWorkflow` totals commission via
+  `useQueryGraphStep({ entity: "commission_line", filters: { $or: [
+  { item_id }, { shipping_method_id } ] } })` and sums in a transform
+  (`payout.amount = order.total − Σ amount`). The earlier
+  `sumCommissionForOrderItems` method + `getOrderCommissionTotalStep` were
+  removed in favour of the plain query.
+- **Order detail endpoints (new)** —
+  `GET /admin/orders/:id/commission-lines` and
+  `GET /vendor/orders/:id/commission-lines` (vendor seller-scoped via the
+  order↔seller link) return an order's item **and** shipping commission
+  lines. Backed by a shared
+  `packages/core/src/api/utils/order-commission-lines.ts` helper that
+  resolves the order's item/shipping ids then queries `commission_line` by
+  `$or`. Integration-covered (returns 2 lines, total 15, one shipping line).
+  The vendor + admin **order-detail UIs** render a **Commission** section
+  from these endpoints (`useOrderCommissionLines` hook → per-line breakdown
+  + total) — see SPEC-012.
 
 ### Remaining (not yet done)
 - Full end-to-end `createPayoutWorkflow` test (needs a seller payout
   account + provider seeding); the deduction **math** is covered by the
-  `sumCommissionForOrderItems` test.
+  payout-total query test + the `commission-lines` endpoint test.
 - Recalc-on-return **net** subtotal end-to-end (needs the return flow);
   the refresh wiring + idempotency are covered. Return-aware `orderFields`
   still relies on Medusa's net `item.subtotal`; revisit if returns don't net.

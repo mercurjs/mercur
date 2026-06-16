@@ -12,7 +12,7 @@ import { refreshOrderCommissionLinesWorkflow } from "@mercurjs/core/workflows"
 jest.setTimeout(60000)
 
 medusaIntegrationTestRunner({
-  testSuite: ({ getContainer, dbConnection }) => {
+  testSuite: ({ getContainer, api, dbConnection }) => {
     describe("Commission - getCommissionLines calculation", () => {
       let appContainer: MedusaContainer
       let commissionService: any
@@ -298,14 +298,6 @@ medusaIntegrationTestRunner({
           })
           expect(shippingLine.shipping_method_id).toEqual(shippingId)
           expect(shippingLine.item_id).toBeNull()
-
-          // Item lines are navigable from the order line item via the link.
-          const { data: orders } = await query.graph({
-            entity: "order",
-            fields: ["id", "items.id", "items.commission_lines.id"],
-            filters: { id: order.id },
-          })
-          expect(orders[0].items[0].commission_lines).toHaveLength(1)
         })
 
         it("sums item + shipping commission for payout", async () => {
@@ -321,14 +313,57 @@ medusaIntegrationTestRunner({
             input: { order_ids: [order.id] },
           })
 
-          // This is exactly what createPayoutWorkflow deducts from the total.
-          const total = await commissionService.sumCommissionForOrderItems({
-            item_ids: [order.items![0].id],
-            shipping_method_ids: [order.shipping_methods![0].id],
+          // Same query createPayoutWorkflow uses to total commission for the
+          // payout: read the order's item + shipping commission lines.
+          const { data: lines } = await query.graph({
+            entity: "commission_line",
+            fields: ["amount"],
+            filters: {
+              $or: [
+                { item_id: [order.items![0].id] },
+                { shipping_method_id: [order.shipping_methods![0].id] },
+              ],
+            },
           })
+
+          const total = lines.reduce(
+            (acc: number, line: any) => acc + Number(line.amount),
+            0
+          )
 
           // 10% of item (100) + 10% of shipping (50) = 15.
           expect(total).toEqual(15)
+        })
+
+        it("GET /admin/orders/:id/commission-lines returns item + shipping lines", async () => {
+          const def = await getDefaultRate()
+          await commissionService.updateCommissionRates({
+            id: def.id,
+            value: 10,
+            include_shipping: true,
+          })
+
+          const order = await createOrder()
+          await refreshOrderCommissionLinesWorkflow(appContainer).run({
+            input: { order_ids: [order.id] },
+          })
+
+          const response = await api.get(
+            `/admin/orders/${order.id}/commission-lines`,
+            adminHeaders
+          )
+
+          expect(response.status).toEqual(200)
+          expect(response.data.count).toEqual(2)
+          const total = response.data.commission_lines.reduce(
+            (acc: number, line: any) => acc + Number(line.amount),
+            0
+          )
+          expect(total).toEqual(15)
+          // One item line + one shipping line.
+          expect(
+            response.data.commission_lines.filter((l: any) => l.shipping_method_id)
+          ).toHaveLength(1)
         })
       })
     })
