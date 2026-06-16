@@ -267,6 +267,42 @@ medusaIntegrationTestRunner({
           expect(res.status).toEqual(404)
         })
       })
+
+      describe("Customer detail groups + counts", () => {
+        it("exposes the customer's groups and a per-group customer count", async () => {
+          const link = appContainer.resolve(ContainerRegistrationKeys.LINK)
+          await link.create({
+            [MercurModules.SELLER]: { seller_id: seller1.id },
+            [Modules.CUSTOMER]: { customer_id: customer1.id },
+          })
+
+          const group = await createGroup(seller1Headers, "VIP")
+          await api.post(
+            `/vendor/customer-groups/${group.id}/customers`,
+            { add: [customer1.id, customer2.id] },
+            seller1Headers
+          )
+
+          // Customer detail carries the customer's groups (drives the section)
+          const detail = await api.get(
+            `/vendor/customers/${customer1.id}`,
+            seller1Headers
+          )
+          expect(detail.status).toEqual(200)
+          const target = detail.data.customer.groups.find(
+            (g: any) => g.id === group.id
+          )
+          expect(target).toBeTruthy()
+          expect(target.name).toEqual("VIP")
+
+          // The count column resolves via the groups list filtered by id
+          const list = await api.get(
+            `/vendor/customer-groups?id=${group.id}&fields=id,customers.id`,
+            seller1Headers
+          )
+          expect(list.data.customer_groups[0].customers).toHaveLength(2)
+        })
+      })
     })
   },
 })

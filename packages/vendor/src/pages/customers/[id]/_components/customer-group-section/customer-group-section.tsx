@@ -22,7 +22,10 @@ import {
   TextHeader,
 } from "@components/table/table-cells/common/text-cell"
 import { useBatchCustomerCustomerGroups } from "@hooks/api"
-import { useRemoveCustomersFromGroup } from "@hooks/api/customer-groups"
+import {
+  useCustomerGroups,
+  useRemoveCustomersFromGroup,
+} from "@hooks/api/customer-groups"
 import { useCustomerGroupTableFilters } from "@hooks/table/filters/use-customer-group-table-filters"
 import { useCustomerGroupTableQuery } from "@hooks/table/query/use-customer-group-table-query"
 import { useDataTable } from "@hooks/use-data-table"
@@ -46,12 +49,23 @@ export const CustomerGroupSection = ({
   })
 
   const flatCustomerGroups = customer.groups ?? []
+  const groupIds = flatCustomerGroups.map((g) => g.id)
+
+  const { customer_groups: groupsWithCounts } = useCustomerGroups(
+    { id: groupIds, fields: "id,customers.id", limit: groupIds.length || 1 },
+    { enabled: groupIds.length > 0 }
+  )
+
+  const customerCountByGroup: Record<string, number> = {}
+  for (const g of groupsWithCounts ?? []) {
+    customerCountByGroup[g.id] = g.customers?.length ?? 0
+  }
 
   const { mutateAsync: batchCustomerCustomerGroups } =
     useBatchCustomerCustomerGroups(customer.id)
 
   const filters = useCustomerGroupTableFilters()
-  const columns = useColumns(customer.id)
+  const columns = useColumns(customer.id, customerCountByGroup)
 
   const { table } = useDataTable({
     data: flatCustomerGroups ?? [],
@@ -209,7 +223,10 @@ const CustomerGroupRowActions = ({
 
 const columnHelper = createColumnHelper<HttpTypes.AdminCustomerGroup>()
 
-const useColumns = (customerId: string) => {
+const useColumns = (
+  customerId: string,
+  customerCountByGroup: Record<string, number> = {}
+) => {
   const { t } = useTranslation()
 
   return useMemo(
@@ -249,6 +266,15 @@ const useColumns = (customerId: string) => {
         },
       }),
       columnHelper.display({
+        id: "customers",
+        header: () => <TextHeader text={t("customers.domain")} />,
+        cell: ({ row }) => {
+          return (
+            <TextCell text={`${customerCountByGroup[row.original.id] ?? 0}`} />
+          )
+        },
+      }),
+      columnHelper.display({
         id: "actions",
         cell: ({ row }) => (
           <CustomerGroupRowActions
@@ -258,6 +284,6 @@ const useColumns = (customerId: string) => {
         ),
       }),
     ],
-    [customerId, t]
+    [customerId, t, customerCountByGroup]
   )
 }
