@@ -46,6 +46,13 @@ export const AdminProductCategoriesParams = createFindParams({
   .merge(AdminProductCategoriesParamsFields)
   .merge(applyAndAndOrOperators(AdminProductCategoriesParamsFields))
 
+const ProductCategoryMedia = z.object({
+  url: z.string(),
+  is_thumbnail: z.boolean().optional(),
+  is_banner: z.boolean().optional(),
+  rank: z.number().optional(),
+})
+
 export type AdminCreateProductCategoryType = z.infer<
   typeof CreateProductCategory
 > &
@@ -61,6 +68,8 @@ const CreateProductCategory = z.object({
   attribute_ids: z.array(z.string()).optional(),
   metadata: z.record(z.unknown()).nullish(),
   rank: z.number().nonnegative().optional(),
+  media: z.array(ProductCategoryMedia).optional(),
+  icon: z.string().nullish(),
 })
 export const AdminCreateProductCategory = WithAdditionalData(
   CreateProductCategory
@@ -81,6 +90,8 @@ const UpdateProductCategory = z.object({
   attribute_ids: z.array(z.string()).optional(),
   metadata: z.record(z.unknown()).nullish(),
   rank: z.number().nonnegative().optional(),
+  media: z.array(ProductCategoryMedia).optional(),
+  icon: z.string().nullish(),
 })
 export const AdminUpdateProductCategory = WithAdditionalData(
   UpdateProductCategory

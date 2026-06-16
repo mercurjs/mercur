@@ -267,6 +267,16 @@ export function getRouteMap({
                               import("./pages/categories/category-edit"),
                           },
                           {
+                            path: "media/edit",
+                            lazy: () =>
+                              import("./pages/categories/category-media-edit"),
+                          },
+                          {
+                            path: "icon/edit",
+                            lazy: () =>
+                              import("./pages/categories/category-icon-edit"),
+                          },
+                          {
                             path: "products",
                             lazy: () =>
                               import("./pages/categories/category-products"),

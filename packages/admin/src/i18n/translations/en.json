@@ -921,6 +921,40 @@
       "header": "Organize",
       "action": "Edit ranking"
     },
+    "media": {
+      "label": "Media",
+      "thumbnail": "Thumbnail",
+      "banner": "Banner",
+      "empty": "No media added yet.",
+      "upload": {
+        "title": "Upload images",
+        "hint": "Drag and drop images here or click to upload."
+      },
+      "actions": {
+        "setThumbnail": "Make thumbnail",
+        "removeThumbnail": "Remove thumbnail",
+        "setBanner": "Make banner",
+        "removeBanner": "Remove banner"
+      },
+      "edit": {
+        "header": "Edit Media",
+        "description": "Upload images and choose the thumbnail and banner shown on the storefront.",
+        "successToast": "Category media was successfully updated."
+      }
+    },
+    "icon": {
+      "label": "Icon",
+      "empty": "No icon added yet.",
+      "hint": "This icon will appear near the category label on the storefront.",
+      "upload": {
+        "title": "Upload icon"
+      },
+      "edit": {
+        "header": "Edit Icon",
+        "description": "Upload a single icon shown near the category label on the storefront.",
+        "successToast": "Category icon was successfully updated."
+      }
+    },
     "fields": {
       "visibility": {
         "label": "Visibility",

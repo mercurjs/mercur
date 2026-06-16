@@ -13,6 +13,7 @@ import { HttpTypes } from "@mercurjs/types"
 import { deleteProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 import { updateProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 import { AdminUpdateProductCategoryType } from "../validators"
+import { setCategoryImagesWorkflow } from "../../../../workflows/media/workflows/set-category-images"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -44,7 +45,12 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { additional_data: _additional_data, ...update } = req.validatedBody
+  const {
+    additional_data: _additional_data,
+    media,
+    icon,
+    ...update
+  } = req.validatedBody
 
   await updateProductCategoriesWorkflow(req.scope).run({
     input: {
@@ -52,6 +58,12 @@ export const POST = async (
       update,
     } as any,
   })
+
+  if (media !== undefined || icon !== undefined) {
+    await setCategoryImagesWorkflow(req.scope).run({
+      input: { category_id: req.params.id, media, icon },
+    })
+  }
 
   const {
     data: [product_category],
@@ -75,6 +87,11 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminProductCategoryDeleteResponse>
 ) => {
+  // Remove the category's linked images so they don't dangle.
+  await setCategoryImagesWorkflow(req.scope).run({
+    input: { category_id: req.params.id, media: [], icon: null },
+  })
+
   await deleteProductCategoriesWorkflow(req.scope).run({
     input: [req.params.id] as any,
   })

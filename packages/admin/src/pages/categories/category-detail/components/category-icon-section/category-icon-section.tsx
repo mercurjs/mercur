@@ -1,0 +1,60 @@
+import { PencilSquare } from "@medusajs/icons"
+import { HttpTypes } from "@medusajs/types"
+import { Container, Heading, Text } from "@medusajs/ui"
+import { useTranslation } from "react-i18next"
+
+import { ActionMenu } from "../../../../../components/common/action-menu"
+import {
+  CategoryWithImages,
+  getCategoryIcon,
+} from "../../../common/components/category-image-fields"
+
+type CategoryIconSectionProps = {
+  category: HttpTypes.AdminProductCategory & CategoryWithImages
+}
+
+export const CategoryIconSection = ({
+  category,
+}: CategoryIconSectionProps) => {
+  const { t } = useTranslation()
+
+  const icon = getCategoryIcon(category.images)
+
+  return (
+    <Container className="divide-y p-0" data-testid="category-icon-section">
+      <div className="flex items-center justify-between px-6 py-4">
+        <Heading>{t("categories.icon.label")}</Heading>
+        <ActionMenu
+          groups={[
+            {
+              actions: [
+                {
+                  label: t("actions.edit"),
+                  icon: <PencilSquare />,
+                  to: "icon/edit",
+                },
+              ],
+            },
+          ]}
+          data-testid="category-icon-section-menu"
+        />
+      </div>
+      <div className="px-6 py-4">
+        {icon ? (
+          <div className="bg-ui-bg-subtle shadow-elevation-card-rest flex size-16 items-center justify-center overflow-hidden rounded-lg">
+            <img
+              src={icon.url}
+              alt=""
+              className="size-full object-contain object-center p-2"
+              data-testid="category-icon-section-image"
+            />
+          </div>
+        ) : (
+          <Text size="small" className="text-ui-fg-subtle">
+            {t("categories.icon.empty")}
+          </Text>
+        )}
+      </div>
+    </Container>
+  )
+}
