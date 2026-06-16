@@ -1,4 +1,4 @@
-import { ClientError } from "@mercurjs/client"
+import { ClientError, InferClientOutput } from "@mercurjs/client"
 
 import { HttpTypes } from "@medusajs/types";
 import {
@@ -309,28 +309,19 @@ export const useCompleteOrder = (
   });
 };
 
-export type OrderCommissionLine = {
-  id: string
-  item_id: string | null
-  shipping_method_id: string | null
-  commission_rate_id: string | null
-  code: string
-  rate: number
-  amount: number
-  description: string | null
-}
+type OrderCommissionLinesResponse = InferClientOutput<
+  typeof sdk.vendor.orders.$id.commissionLines.query
+>;
 
-type OrderCommissionLinesResponse = {
-  commission_lines: OrderCommissionLine[]
-  count: number
-}
+export type OrderCommissionLine =
+  OrderCommissionLinesResponse["commission_lines"][number];
 
 export const useOrderCommissionLines = (
   id: string,
   options?: Omit<
     UseQueryOptions<
       OrderCommissionLinesResponse,
-      Error,
+      ClientError,
       OrderCommissionLinesResponse,
       QueryKey
     >,
@@ -339,9 +330,7 @@ export const useOrderCommissionLines = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
-      fetchQuery(`/vendor/orders/${id}/commission-lines`, {
-        method: "GET",
-      }) as Promise<OrderCommissionLinesResponse>,
+      sdk.vendor.orders.$id.commissionLines.query({ $id: id }),
     queryKey: ordersQueryKeys.detail(`${id}/commission-lines`),
     ...options,
   });

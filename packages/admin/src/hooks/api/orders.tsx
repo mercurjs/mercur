@@ -1,4 +1,8 @@
-import { ClientError, InferClientInput } from "@mercurjs/client";
+import {
+  ClientError,
+  InferClientInput,
+  InferClientOutput,
+} from "@mercurjs/client";
 import {
   AdminOrderResponse,
   CreateOrderCreditLineDTO,
@@ -11,7 +15,7 @@ import {
   useQuery,
   UseQueryOptions,
 } from "@tanstack/react-query";
-import { sdk, fetchQuery } from "../../lib/client";
+import { sdk } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
 import { queryKeysFactory, TQueryKey } from "../../lib/query-key-factory";
 
@@ -305,28 +309,19 @@ export const useCreateOrderCreditLine = (
   });
 };
 
-export type OrderCommissionLine = {
-  id: string;
-  item_id: string | null;
-  shipping_method_id: string | null;
-  commission_rate_id: string | null;
-  code: string;
-  rate: number;
-  amount: number;
-  description: string | null;
-};
+type OrderCommissionLinesResponse = InferClientOutput<
+  typeof sdk.admin.orders.$id.commissionLines.query
+>;
 
-type OrderCommissionLinesResponse = {
-  commission_lines: OrderCommissionLine[];
-  count: number;
-};
+export type OrderCommissionLine =
+  OrderCommissionLinesResponse["commission_lines"][number];
 
 export const useOrderCommissionLines = (
   id: string,
   options?: Omit<
     UseQueryOptions<
       OrderCommissionLinesResponse,
-      Error,
+      ClientError,
       OrderCommissionLinesResponse,
       QueryKey
     >,
@@ -335,9 +330,7 @@ export const useOrderCommissionLines = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
-      fetchQuery(`/admin/orders/${id}/commission-lines`, {
-        method: "GET",
-      }) as Promise<OrderCommissionLinesResponse>,
+      sdk.admin.orders.$id.commissionLines.query({ $id: id }),
     queryKey: ordersQueryKeys.detail(`${id}/commission-lines`),
     ...options,
   });

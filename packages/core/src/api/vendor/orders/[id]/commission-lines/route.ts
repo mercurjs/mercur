@@ -4,11 +4,19 @@ import {
 } from "@medusajs/framework/http"
 import { MedusaError } from "@medusajs/framework/utils"
 
-import { getOrderCommissionLines } from "../../../../utils/order-commission-lines"
+import {
+  getOrderCommissionLines,
+  OrderCommissionLine,
+} from "../../../../utils/order-commission-lines"
+
+export type VendorOrderCommissionLinesResponse = {
+  commission_lines: OrderCommissionLine[]
+  count: number
+}
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse
+  res: MedusaResponse<VendorOrderCommissionLinesResponse>
 ) => {
   const sellerId = req.seller_context!.seller_id
 
