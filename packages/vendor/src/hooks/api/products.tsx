@@ -203,6 +203,9 @@ export const useDeleteProduct = (
         queryKey: productChangeQueryKeys.detail(id),
       });
       queryClient.invalidateQueries({ queryKey: productsQueryKeys.detail(id) });
+      // A draft delete applies inline (the product is gone on the server), so
+      // the list must refetch or the deleted row lingers and 404s on click.
+      queryClient.invalidateQueries({ queryKey: productsQueryKeys.lists() });
 
       options?.onSuccess?.(data, variables, context);
     },
