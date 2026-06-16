@@ -82,7 +82,9 @@ medusaIntegrationTestRunner({
                     [Modules.PAYMENT]: { payment_provider_id: "pp_system_default" },
                 })
 
-                // Create product for seller 1
+                // Create product for seller 1. Pricing + inventory live on the
+                // offer (see SPEC-002); link the product to the sales channel
+                // separately.
                 const product1Response = await api.post(
                     `/vendor/products`,
                     {
@@ -95,15 +97,17 @@ medusaIntegrationTestRunner({
                                 title: "Small",
                                 sku: "RET-SELLER1-S",
                                 options: { Size: "S" },
-                                prices: [{ currency_code: "usd", amount: 2000 }],
-                                manage_inventory: false,
                             },
                         ],
-                        sales_channels: [{ id: salesChannel.id }],
                     },
                     seller1Headers
                 )
                 product1 = product1Response.data.product
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product1.id] },
+                    seller1Headers
+                )
 
                 // Create product for seller 2
                 const product2Response = await api.post(
@@ -118,15 +122,17 @@ medusaIntegrationTestRunner({
                                 title: "Red",
                                 sku: "RET-SELLER2-RED",
                                 options: { Color: "Red" },
-                                prices: [{ currency_code: "usd", amount: 3000 }],
-                                manage_inventory: false,
                             },
                         ],
-                        sales_channels: [{ id: salesChannel.id }],
                     },
                     seller2Headers
                 )
                 product2 = product2Response.data.product
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product2.id] },
+                    seller2Headers
+                )
 
                 // Create shipping prerequisites for seller 1
                 const shippingPrerequisites1 = await createShippingPrerequisites(seller1Headers, "retSeller1")

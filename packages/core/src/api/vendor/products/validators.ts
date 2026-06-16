@@ -71,25 +71,9 @@ export const VendorGetProductParams = createSelectParams()
 
 const IdAssociation = z.object({ id: z.string() })
 
-const CreateProductVariantPrice = z.object({
-  currency_code: z.string().optional(),
-  amount: z.number(),
-  min_quantity: z.number().nullish(),
-  max_quantity: z.number().nullish(),
-  rules: z.record(z.string()).optional(),
-})
-
 const CreateProductVariant = z
   .object({
     title: z.string(),
-    /** Per-currency/region variant prices forwarded to stock variant create. */
-    prices: z.array(CreateProductVariantPrice).optional(),
-    /**
-     * Accepted for API compatibility with stock Medusa payloads; the
-     * marketplace pins every vendor variant to `manage_inventory: false`
-     * regardless (see create-products workflow).
-     */
-    manage_inventory: z.boolean().optional(),
     sku: z.string().optional(),
     ean: z.string().optional(),
     upc: z.string().optional(),
@@ -207,7 +191,6 @@ const CreateProduct = z
     collection_id: z.string().optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    sales_channels: z.array(IdAssociation).optional(),
     /** Stock Medusa product options: drives variant generation. */
     options: z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))

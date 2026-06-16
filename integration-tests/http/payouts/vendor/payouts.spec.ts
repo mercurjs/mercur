@@ -81,7 +81,8 @@ medusaIntegrationTestRunner({
           [Modules.PAYMENT]: { payment_provider_id: "pp_system_default" },
         })
 
-        // Create product with variant
+        // Create product with variant. Pricing + inventory live on the offer
+        // (see SPEC-002); the product is linked to the sales channel separately.
         const productResponse = await api.post(
           `/vendor/products`,
           {
@@ -94,15 +95,17 @@ medusaIntegrationTestRunner({
                 title: "Small",
                 sku: "PAYOUT-TEST-S",
                 options: { Size: "S" },
-                prices: [{ currency_code: "usd", amount: 10000 }], // $100
-                manage_inventory: false,
               },
             ],
-            sales_channels: [{ id: salesChannel.id }],
           },
           sellerHeaders
         )
         product = productResponse.data.product
+        await api.post(
+          `/vendor/sales-channels/${salesChannel.id}/products`,
+          { add: [product.id] },
+          sellerHeaders
+        )
 
         // Create shipping prerequisites and option
         const shippingPrerequisites = await createShippingPrerequisites(sellerHeaders)
