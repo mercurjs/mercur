@@ -1262,6 +1262,13 @@ export function getRouteMap({
                             lazy: () =>
                               import("./pages/commissions/commission-rule-edit"),
                           },
+                          {
+                            path: "edit-commission",
+                            lazy: () =>
+                              import(
+                                "./pages/commissions/commission-rule-commission-edit"
+                              ),
+                          },
                         ],
                       },
                     ],

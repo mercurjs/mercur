@@ -7,8 +7,7 @@ import { TabbedForm } from "../../../../../components/tabbed-form";
 import { useRouteModal } from "../../../../../components/modals";
 import { useCreateCommissionRule } from "../../../../../hooks/api/commissions";
 import { useStoreCurrencies } from "../../../common/hooks/use-store-currencies";
-import { SCOPE_TYPE_DIMENSIONS } from "../../../common/types";
-import { buildValuesPayload } from "../../../common/utils";
+import { buildRulesFromScope, buildValuesPayload } from "../../../common/utils";
 import { CreateCommissionRuleCommission } from "./create-commission-rule-commission";
 import { CreateCommissionRuleDetails } from "./create-commission-rule-details";
 import {
@@ -41,24 +40,11 @@ export const CreateCommissionRuleForm = () => {
   const { mutateAsync, isPending } = useCreateCommissionRule();
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const dimensions = SCOPE_TYPE_DIMENSIONS[values.scopeType];
-    const rules: { reference: string; reference_id: string }[] = [];
-
-    if (dimensions.includes("seller")) {
-      values.stores.forEach((id) =>
-        rules.push({ reference: "seller", reference_id: id })
-      );
-    }
-    if (dimensions.includes("product_type")) {
-      values.productTypes.forEach((id) =>
-        rules.push({ reference: "product_type", reference_id: id })
-      );
-    }
-    if (dimensions.includes("product_category")) {
-      values.categories.forEach((id) =>
-        rules.push({ reference: "product_category", reference_id: id })
-      );
-    }
+    const rules = buildRulesFromScope(values.scopeType, {
+      stores: values.stores,
+      productTypes: values.productTypes,
+      categories: values.categories,
+    });
 
     const isFixed = values.commissionType === "fixed";
 

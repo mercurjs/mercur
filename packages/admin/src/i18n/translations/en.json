@@ -3792,8 +3792,8 @@
       "value": "Value",
       "tax": "Tax",
       "shipping": "Shipping",
-      "included": "Included",
-      "notIncluded": "Not included",
+      "included": "Included in commission",
+      "notIncluded": "Not included in commission",
       "edit": {
         "header": "Edit Global Commission",
         "successToast": "Global commission updated"

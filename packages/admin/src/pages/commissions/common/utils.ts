@@ -4,7 +4,67 @@ import {
   CommissionRate,
   CommissionRuleDTO,
   ScopeType,
+  SCOPE_TYPE_DIMENSIONS,
 } from "./types";
+
+type ScopeSelections = {
+  stores: string[];
+  productTypes: string[];
+  categories: string[];
+};
+
+type RulePayload = { reference: string; reference_id: string };
+
+/**
+ * Expand a scope-combo selection into the flat `{ reference, reference_id }`
+ * rule rows the API stores (one row per chosen dimension value).
+ */
+export const buildRulesFromScope = (
+  scopeType: ScopeType,
+  { stores, productTypes, categories }: ScopeSelections
+): RulePayload[] => {
+  const dimensions = SCOPE_TYPE_DIMENSIONS[scopeType];
+  const rules: RulePayload[] = [];
+
+  if (dimensions.includes("seller")) {
+    stores.forEach((id) => rules.push({ reference: "seller", reference_id: id }));
+  }
+  if (dimensions.includes("product_type")) {
+    productTypes.forEach((id) =>
+      rules.push({ reference: "product_type", reference_id: id })
+    );
+  }
+  if (dimensions.includes("product_category")) {
+    categories.forEach((id) =>
+      rules.push({ reference: "product_category", reference_id: id })
+    );
+  }
+
+  return rules;
+};
+
+/**
+ * Diff the rate's existing rules against the desired set and produce the
+ * `{ create, delete }` payload for the batch-rules endpoint. Rules are
+ * matched by `reference` + `reference_id`.
+ */
+export const diffScopeRules = (
+  existing: CommissionRuleDTO[] = [],
+  desired: RulePayload[] = []
+): { create: RulePayload[]; delete: string[] } => {
+  const key = (r: { reference: string; reference_id: string }) =>
+    `${r.reference}:${r.reference_id}`;
+
+  const existingByKey = new Map(existing.map((r) => [key(r), r]));
+  const desiredKeys = new Set(desired.map(key));
+
+  const create = desired.filter((r) => !existingByKey.has(key(r)));
+  const remove = existing
+    .filter((r) => !desiredKeys.has(key(r)))
+    .map((r) => r.id);
+
+  return { create, delete: remove };
+};
 
 /**
  * Derive the scope-combo Type from the set of `reference`s present on a
@@ -57,14 +117,19 @@ export const referenceIds = (
 ): string[] =>
   rules.filter((r) => r.reference === reference).map((r) => r.reference_id);
 
-/** "ACME, EMCA +3" style summary of the chosen references. */
+/**
+ * "ACME, EMCA +3" style summary of the chosen references. When a `names`
+ * map (`reference_id -> name`) is provided, ids are rendered as their
+ * resolved names; ids missing from the map fall back to the raw id.
+ */
 export const getScopeSummary = (
-  rules: CommissionRuleDTO[] = []
+  rules: CommissionRuleDTO[] = [],
+  names?: Record<string, string>
 ): string => {
   if (!rules.length) return "-";
-  const ids = rules.map((r) => r.reference_id);
-  const head = ids.slice(0, 2).join(", ");
-  const extra = ids.length - 2;
+  const labels = rules.map((r) => names?.[r.reference_id] ?? r.reference_id);
+  const head = labels.slice(0, 2).join(", ");
+  const extra = labels.length - 2;
   return extra > 0 ? `${head} +${extra}` : head;
 };
 

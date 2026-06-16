@@ -5,82 +5,132 @@ import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 import * as zod from "zod";
 
+import { Combobox } from "../../../components/inputs/combobox";
 import { Form } from "../../../components/common/form";
-import { SwitchBox } from "../../../components/common/switch-box";
 import { RouteDrawer, useRouteModal } from "../../../components/modals";
 import { KeyboundForm } from "../../../components/utilities/keybound-form";
+import { useComboboxData } from "../../../hooks/use-combobox-data";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import {
+  useBatchCommissionRules,
   useCommissionRule,
   useUpdateCommissionRule,
 } from "../../../hooks/api/commissions";
-import { CommissionValueFields } from "../common/components/commission-value-fields";
-import { useStoreCurrencies } from "../common/hooks/use-store-currencies";
-import { CommissionRate } from "../common/types";
-import { buildValuesPayload, fixedValuesFromRate } from "../common/utils";
+import { sdk } from "../../../lib/client";
+import { CommissionRate, SCOPE_TYPE_DIMENSIONS } from "../common/types";
+import {
+  buildRulesFromScope,
+  deriveScopeType,
+  diffScopeRules,
+  referenceIds,
+} from "../common/utils";
 
 const EditCommissionRuleSchema = zod.object({
+  status: zod.enum(["active", "inactive"]),
   name: zod.string().min(1),
   code: zod.string().min(1),
-  type: zod.enum(["percentage", "fixed"]),
-  value: zod.coerce.number().min(0),
-  fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
-  include_tax: zod.boolean(),
-  include_shipping: zod.boolean(),
-  is_enabled: zod.boolean(),
+  scopeType: zod.enum([
+    "store",
+    "product_type",
+    "category",
+    "store_product_type",
+    "store_category",
+  ]),
+  stores: zod.array(zod.string()),
+  productTypes: zod.array(zod.string()),
+  categories: zod.array(zod.string()),
 });
+
+type EditCommissionRuleSchemaType = zod.infer<typeof EditCommissionRuleSchema>;
 
 const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const direction = useDocumentDirection();
-  const { currencies } = useStoreCurrencies();
 
-  const form = useForm<zod.infer<typeof EditCommissionRuleSchema>>({
+  const form = useForm<EditCommissionRuleSchemaType>({
     defaultValues: {
+      status: rule.is_enabled ? "active" : "inactive",
       name: rule.name,
       code: rule.code,
-      type: rule.type,
-      value: rule.value,
-      fixed_values: fixedValuesFromRate(rule),
-      include_tax: rule.include_tax,
-      include_shipping: rule.include_shipping,
-      is_enabled: rule.is_enabled,
+      scopeType: deriveScopeType(rule.rules) ?? "store",
+      stores: referenceIds(rule.rules, "seller"),
+      productTypes: referenceIds(rule.rules, "product_type"),
+      categories: referenceIds(rule.rules, "product_category"),
     },
     resolver: zodResolver(EditCommissionRuleSchema),
   });
 
-  const { mutateAsync, isPending } = useUpdateCommissionRule(rule.id);
+  const { mutateAsync: updateRule, isPending: isUpdating } =
+    useUpdateCommissionRule(rule.id);
+  const { mutateAsync: batchRules, isPending: isBatching } =
+    useBatchCommissionRules(rule.id);
 
-  const handleSubmit = form.handleSubmit(async (values) => {
-    const isFixed = values.type === "fixed";
-    const payload = {
-      name: values.name,
-      code: values.code,
-      type: values.type,
-      value: isFixed ? 0 : values.value,
-      ...(isFixed
-        ? { values: buildValuesPayload(currencies, values.fixed_values) }
-        : {}),
-      include_tax: values.include_tax,
-      include_shipping: values.include_shipping,
-      is_enabled: values.is_enabled,
-    };
-
-    await mutateAsync(payload, {
-      onSuccess: () => {
-        toast.success(
-          t("commissions.edit.successToast", {
-            defaultValue: "Commission rule updated",
-          })
-        );
-        handleSuccess();
-      },
-      onError: (e) => toast.error(e.message),
-    });
+  const stores = useComboboxData({
+    queryKey: ["commission_stores"],
+    queryFn: (params) => sdk.admin.sellers.query({ ...params }),
+    getOptions: (data) =>
+      data.sellers.map((s: { id: string; name: string }) => ({
+        label: s.name,
+        value: s.id,
+      })),
   });
 
-  const watchType = form.watch("type");
+  const productTypes = useComboboxData({
+    queryKey: ["commission_product_types"],
+    queryFn: (params) => sdk.admin.productTypes.query({ ...params }),
+    getOptions: (data) =>
+      data.product_types.map((pt: { id: string; value: string }) => ({
+        label: pt.value,
+        value: pt.id,
+      })),
+  });
+
+  const categories = useComboboxData({
+    queryKey: ["commission_categories"],
+    queryFn: (params) => sdk.admin.productCategories.query({ ...params }),
+    getOptions: (data) =>
+      data.product_categories.map((c: { id: string; name: string }) => ({
+        label: c.name,
+        value: c.id,
+      })),
+  });
+
+  const scopeType = form.watch("scopeType");
+  const dimensions = SCOPE_TYPE_DIMENSIONS[scopeType];
+
+  const handleSubmit = form.handleSubmit(async (values) => {
+    const desired = buildRulesFromScope(values.scopeType, {
+      stores: values.stores,
+      productTypes: values.productTypes,
+      categories: values.categories,
+    });
+    const ruleDiff = diffScopeRules(rule.rules, desired);
+
+    try {
+      await updateRule({
+        name: values.name,
+        code: values.code,
+        is_enabled: values.status === "active",
+      });
+
+      if (ruleDiff.create.length > 0 || ruleDiff.delete.length > 0) {
+        await batchRules({
+          create: ruleDiff.create,
+          delete: ruleDiff.delete,
+        });
+      }
+
+      toast.success(
+        t("commissions.edit.successToast", {
+          defaultValue: "Commission rule updated",
+        })
+      );
+      handleSuccess();
+    } catch (e) {
+      toast.error((e as Error).message);
+    }
+  });
 
   return (
     <RouteDrawer.Form form={form}>
@@ -89,12 +139,46 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
           <div className="flex flex-col gap-y-4">
             <Form.Field
               control={form.control}
+              name="status"
+              render={({ field: { onChange, ref, ...field } }) => (
+                <Form.Item>
+                  <Form.Label>
+                    {t("commissions.fields.status", "Status")}
+                  </Form.Label>
+                  <Form.Control>
+                    <Select {...field} onValueChange={onChange} dir={direction}>
+                      <Select.Trigger
+                        ref={ref}
+                        data-testid="commission-rule-edit-status-select"
+                      >
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        <Select.Item value="active">
+                          {t("commissions.status.enabled", "Active")}
+                        </Select.Item>
+                        <Select.Item value="inactive">
+                          {t("commissions.status.disabled", "Inactive")}
+                        </Select.Item>
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
               name="name"
               render={({ field }) => (
                 <Form.Item>
                   <Form.Label>{t("fields.title")}</Form.Label>
                   <Form.Control>
-                    <Input autoComplete="off" {...field} />
+                    <Input
+                      autoComplete="off"
+                      data-testid="commission-rule-edit-title-input"
+                      {...field}
+                    />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -107,7 +191,11 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                 <Form.Item>
                   <Form.Label>{t("commissions.fields.code", "Code")}</Form.Label>
                   <Form.Control>
-                    <Input autoComplete="off" {...field} />
+                    <Input
+                      autoComplete="off"
+                      data-testid="commission-rule-edit-code-input"
+                      {...field}
+                    />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -115,23 +203,47 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
             />
             <Form.Field
               control={form.control}
-              name="type"
+              name="scopeType"
               render={({ field: { onChange, ref, ...field } }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t("commissions.fields.type.label", "Type")}
+                    {t("commissions.fields.scopeType.label", "Type")}
                   </Form.Label>
                   <Form.Control>
                     <Select {...field} onValueChange={onChange} dir={direction}>
-                      <Select.Trigger ref={ref}>
+                      <Select.Trigger
+                        ref={ref}
+                        data-testid="commission-rule-edit-type-select"
+                      >
                         <Select.Value />
                       </Select.Trigger>
                       <Select.Content>
-                        <Select.Item value="percentage">
-                          {t("commissions.fields.type.percentage", "Percentage")}
+                        <Select.Item value="store">
+                          {t("commissions.fields.scopeType.store", "Store")}
                         </Select.Item>
-                        <Select.Item value="fixed">
-                          {t("commissions.fields.type.fixed", "Fixed")}
+                        <Select.Item value="product_type">
+                          {t(
+                            "commissions.fields.scopeType.productType",
+                            "Product Type"
+                          )}
+                        </Select.Item>
+                        <Select.Item value="category">
+                          {t(
+                            "commissions.fields.scopeType.category",
+                            "Category"
+                          )}
+                        </Select.Item>
+                        <Select.Item value="store_product_type">
+                          {t(
+                            "commissions.fields.scopeType.storeProductType",
+                            "Store + Product Type"
+                          )}
+                        </Select.Item>
+                        <Select.Item value="store_category">
+                          {t(
+                            "commissions.fields.scopeType.storeCategory",
+                            "Store + Category"
+                          )}
                         </Select.Item>
                       </Select.Content>
                     </Select>
@@ -140,38 +252,75 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                 </Form.Item>
               )}
             />
-            <CommissionValueFields
-              control={form.control}
-              type={watchType}
-              currencies={currencies}
-            />
-            <SwitchBox
-              control={form.control}
-              name="is_enabled"
-              label={t("commissions.fields.enabled", "Enabled")}
-              description={t(
-                "commissions.fields.enabledHint",
-                "Enable or disable this commission rule."
-              )}
-            />
-            <SwitchBox
-              control={form.control}
-              name="include_tax"
-              label={t("commissions.fields.taxIncluded", "Tax included")}
-              description={t(
-                "commissions.fields.taxIncludedHint",
-                "If checked, commission is calculated on the total including tax."
-              )}
-            />
-            <SwitchBox
-              control={form.control}
-              name="include_shipping"
-              label={t("commissions.fields.shippingIncluded", "Shipping included")}
-              description={t(
-                "commissions.fields.shippingIncludedHint",
-                "If checked, commission is calculated on the total including shipping."
-              )}
-            />
+            {dimensions.includes("seller") && (
+              <Form.Field
+                control={form.control}
+                name="stores"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t("commissions.fields.stores", "Stores")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Combobox
+                        options={stores.options}
+                        fetchNextPage={stores.fetchNextPage}
+                        searchValue={stores.searchValue}
+                        onSearchValueChange={stores.onSearchValueChange}
+                        {...field}
+                      />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+            )}
+            {dimensions.includes("product_type") && (
+              <Form.Field
+                control={form.control}
+                name="productTypes"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t("commissions.fields.productTypes", "Product Types")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Combobox
+                        options={productTypes.options}
+                        fetchNextPage={productTypes.fetchNextPage}
+                        searchValue={productTypes.searchValue}
+                        onSearchValueChange={productTypes.onSearchValueChange}
+                        {...field}
+                      />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+            )}
+            {dimensions.includes("product_category") && (
+              <Form.Field
+                control={form.control}
+                name="categories"
+                render={({ field }) => (
+                  <Form.Item>
+                    <Form.Label>
+                      {t("commissions.fields.categories", "Categories")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Combobox
+                        options={categories.options}
+                        fetchNextPage={categories.fetchNextPage}
+                        searchValue={categories.searchValue}
+                        onSearchValueChange={categories.onSearchValueChange}
+                        {...field}
+                      />
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                )}
+              />
+            )}
           </div>
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
@@ -181,7 +330,12 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button size="small" type="submit" isLoading={isPending}>
+            <Button
+              size="small"
+              type="submit"
+              isLoading={isUpdating || isBatching}
+              data-testid="commission-rule-edit-submit"
+            >
               {t("actions.save")}
             </Button>
           </div>

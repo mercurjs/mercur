@@ -8,6 +8,7 @@ import { SectionRow } from "../../../components/common/section";
 import { SingleColumnPage } from "../../../components/layout/pages";
 import { useCommissionRule } from "../../../hooks/api/commissions";
 import { useDeleteCommissionRuleAction } from "../common/hooks/use-delete-commission-rule-action";
+import { useScopeReferenceNames } from "../common/hooks/use-scope-reference-names";
 import { CommissionRate } from "../common/types";
 import {
   formatCommissionValue,
@@ -21,6 +22,8 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
   const { t } = useTranslation();
   const handleDelete = useDeleteCommissionRuleAction(rule);
   const statusProps = getIsActiveProps(rule.is_enabled, t);
+
+  const { names } = useScopeReferenceNames(rule.rules);
 
   const stores = referenceIds(rule.rules, "seller");
   const productTypes = referenceIds(rule.rules, "product_type");
@@ -59,6 +62,10 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
         </div>
       </div>
       <SectionRow
+        title={t("commissions.fields.code", "Code")}
+        value={rule.code}
+      />
+      <SectionRow
         title={t("commissions.rules.columns.type", "Type")}
         value={getScopeTypeLabel(rule.rules, t)}
       />
@@ -66,7 +73,8 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
         <SectionRow
           title={t("commissions.fields.stores", "Stores")}
           value={getScopeSummary(
-            (rule.rules ?? []).filter((r) => r.reference === "seller")
+            (rule.rules ?? []).filter((r) => r.reference === "seller"),
+            names
           )}
         />
       )}
@@ -74,7 +82,8 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
         <SectionRow
           title={t("commissions.fields.productTypes", "Product Types")}
           value={getScopeSummary(
-            (rule.rules ?? []).filter((r) => r.reference === "product_type")
+            (rule.rules ?? []).filter((r) => r.reference === "product_type"),
+            names
           )}
         />
       )}
@@ -84,7 +93,8 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
           value={getScopeSummary(
             (rule.rules ?? []).filter(
               (r) => r.reference === "product_category"
-            )
+            ),
+            names
           )}
         />
       )}
@@ -106,7 +116,7 @@ const CommissionSection = ({ rule }: { rule: CommissionRate }) => {
                 {
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
-                  to: "edit",
+                  to: "edit-commission",
                 },
               ],
             },

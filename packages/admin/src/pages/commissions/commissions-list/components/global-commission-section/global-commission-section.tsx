@@ -4,9 +4,18 @@ import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { SectionRow } from "../../../../../components/common/section";
+import { Skeleton } from "../../../../../components/common/skeleton";
 import { useDefaultCommission } from "../../../../../hooks/api/commissions";
 import { CommissionRate } from "../../../common/types";
 import { formatCommissionValue } from "../../../common/utils";
+
+const GLOBAL_COMMISSION_ROWS = [
+  { key: "code", fallback: "Code" },
+  { key: "type", fallback: "Type" },
+  { key: "value", fallback: "Value" },
+  { key: "tax", fallback: "Tax" },
+  { key: "shipping", fallback: "Shipping" },
+] as const;
 
 export const GlobalCommissionSection = () => {
   const { t } = useTranslation();
@@ -37,42 +46,50 @@ export const GlobalCommissionSection = () => {
           ]}
         />
       </div>
-      {!isLoading && rate && (
-        <>
-          <SectionRow
-            title={t("commissions.global.code", "Code")}
-            value={rate.code}
-          />
-          <SectionRow
-            title={t("commissions.global.type", "Type")}
-            value={
-              rate.type === "percentage"
-                ? t("commissions.fields.type.percentage", "Percentage")
-                : t("commissions.fields.type.fixed", "Fixed")
-            }
-          />
-          <SectionRow
-            title={t("commissions.global.value", "Value")}
-            value={formatCommissionValue(rate)}
-          />
-          <SectionRow
-            title={t("commissions.global.tax", "Tax")}
-            value={
-              rate.include_tax
-                ? t("commissions.global.included", "Included in commission")
-                : t("commissions.global.notIncluded", "Not included")
-            }
-          />
-          <SectionRow
-            title={t("commissions.global.shipping", "Shipping")}
-            value={
-              rate.include_shipping
-                ? t("commissions.global.included", "Included in commission")
-                : t("commissions.global.notIncluded", "Not included")
-            }
-          />
-        </>
-      )}
+      {isLoading || !rate
+        ? GLOBAL_COMMISSION_ROWS.map(({ key, fallback }) => (
+            <SectionRow
+              key={key}
+              title={t(`commissions.global.${key}`, fallback)}
+              value={<Skeleton className="h-5 w-24" />}
+            />
+          ))
+        : (
+          <>
+            <SectionRow
+              title={t("commissions.global.code", "Code")}
+              value={rate.code}
+            />
+            <SectionRow
+              title={t("commissions.global.type", "Type")}
+              value={
+                rate.type === "percentage"
+                  ? t("commissions.fields.type.percentage", "Percentage")
+                  : t("commissions.fields.type.fixed", "Fixed")
+              }
+            />
+            <SectionRow
+              title={t("commissions.global.value", "Value")}
+              value={formatCommissionValue(rate)}
+            />
+            <SectionRow
+              title={t("commissions.global.tax", "Tax")}
+              value={
+                rate.include_tax
+                  ? t("commissions.global.included", "Included in commission")
+                  : t("commissions.global.notIncluded", "Not included")
+              }
+            />
+            <SectionRow
+              title={t("commissions.global.shipping", "Shipping")}
+              value={
+                rate.include_shipping
+                  ? t("commissions.global.included", "Included in commission")
+                  : t("commissions.global.notIncluded", "Not included")
+              }
+            />
+          </>
+        )}
     </Container>
   );
 };

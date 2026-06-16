@@ -14,7 +14,9 @@ import { _DataTable } from "../../../../../components/table/data-table";
 import { useCommissionRules } from "../../../../../hooks/api/commissions";
 import { useDataTable } from "../../../../../hooks/use-data-table";
 import { useDeleteCommissionRuleAction } from "../../../common/hooks/use-delete-commission-rule-action";
+import { useScopeReferenceNames } from "../../../common/hooks/use-scope-reference-names";
 import { CommissionRate } from "../../../common/types";
+import { useCommissionRulesQuery } from "./use-commission-rules-query";
 import {
   formatCommissionValue,
   getIsActiveProps,
@@ -27,6 +29,8 @@ const PAGE_SIZE = 20;
 export const CommissionRulesDataTable = () => {
   const { t } = useTranslation();
 
+  const { searchParams, raw } = useCommissionRulesQuery({ pageSize: PAGE_SIZE });
+
   const {
     commission_rates,
     count,
@@ -35,8 +39,7 @@ export const CommissionRulesDataTable = () => {
     error,
   } = useCommissionRules(
     {
-      limit: PAGE_SIZE,
-      offset: 0,
+      ...searchParams,
       is_default: false,
       fields: "id,name,code,type,value,currency_code,is_enabled,*rules,*values",
     },
@@ -45,9 +48,15 @@ export const CommissionRulesDataTable = () => {
     }
   );
 
-  const columns = useColumns();
-
   const data = (commission_rates ?? []) as unknown as CommissionRate[];
+
+  const allRules = useMemo(
+    () => data.flatMap((rate) => rate.rules ?? []),
+    [data]
+  );
+  const { names } = useScopeReferenceNames(allRules);
+
+  const columns = useColumns(names);
 
   const { table } = useDataTable({
     data,
@@ -69,6 +78,7 @@ export const CommissionRulesDataTable = () => {
       count={count ?? 0}
       pageSize={PAGE_SIZE}
       isLoading={isLoading}
+      queryObject={raw}
       navigateTo={(row) => `${row.original.id}`}
       pagination
       search
@@ -113,7 +123,7 @@ const CommissionRuleRowActions = ({ rule }: { rule: CommissionRate }) => {
 
 const columnHelper = createColumnHelper<CommissionRate>();
 
-const useColumns = () => {
+const useColumns = (names: Record<string, string>) => {
   const { t } = useTranslation();
 
   return useMemo(
@@ -138,7 +148,9 @@ const useColumns = () => {
         header: () => (
           <TextHeader text={t("commissions.rules.columns.scope", "Scope")} />
         ),
-        cell: ({ row }) => <TextCell text={getScopeSummary(row.original.rules)} />,
+        cell: ({ row }) => (
+          <TextCell text={getScopeSummary(row.original.rules, names)} />
+        ),
       }),
       columnHelper.display({
         id: "value",
@@ -165,6 +177,6 @@ const useColumns = () => {
         cell: ({ row }) => <CommissionRuleRowActions rule={row.original} />,
       }),
     ],
-    [t]
+    [t, names]
   );
 };
