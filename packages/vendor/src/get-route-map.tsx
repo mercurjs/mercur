@@ -503,18 +503,9 @@ export function getRouteMap({
                         },
                         children: [
                           {
-                            path: "edit",
-                            lazy: () => import("./pages/customers/[id]/edit"),
-                          },
-                          {
                             path: "add-customer-groups",
                             lazy: () =>
                               import("./pages/customers/[id]/add-customer-groups"),
-                          },
-                          {
-                            path: "metadata",
-                            lazy: () =>
-                              import("./pages/customers/[id]/metadata"),
                           },
                         ],
                       },
@@ -523,11 +514,83 @@ export function getRouteMap({
                 ],
               },
 
-              // CUSTOMER GROUPS - disabled
-              // {
-              //   path: "/customer-groups",
-              //   ...
-              // },
+              // CUSTOMER GROUPS
+              {
+                path: "/customer-groups",
+                errorElement: <ErrorBoundary />,
+                handle: { breadcrumb: () => t("customerGroups.domain") },
+                children: [
+                  {
+                    path: "",
+                    lazy: async () => {
+                      const { CustomerGroupListPage } = await import(
+                        "./pages/customer-groups"
+                      );
+                      return {
+                        Component: CustomerGroupListPage,
+                      };
+                    },
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () =>
+                          import(
+                            "./pages/customer-groups/customer-group-create"
+                          ),
+                      },
+                    ],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { loader } = await import(
+                        "./pages/customer-groups/customer-group-detail"
+                      );
+                      const { Breadcrumb } = await import(
+                        "./pages/customer-groups/customer-group-detail/breadcrumb"
+                      );
+                      return {
+                        Component: Outlet,
+                        loader,
+                        handle: {
+                          breadcrumb: (match: UIMatch<any>) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: async () => {
+                          const { CustomerGroupDetailPage } = await import(
+                            "./pages/customer-groups/customer-group-detail"
+                          );
+                          return {
+                            Component: CustomerGroupDetailPage,
+                          };
+                        },
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import(
+                                "./pages/customer-groups/customer-group-edit"
+                              ),
+                          },
+                          {
+                            path: "add-customers",
+                            lazy: () =>
+                              import(
+                                "./pages/customer-groups/customer-group-add-customers"
+                              ),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
 
               // OFFERS
               {

@@ -14,6 +14,38 @@
 
 ## Session Log
 
+### Session 33: 2026-06-16 -- SPEC-011 vendor Customers & Customer Groups (MER-147 / MER-148)
+
+**Goal.** Implement the vendor Customers + Customer Groups surfaces per the
+Figma gap audit (`docs/specs/SPEC-011-vendor-customers-and-groups-figma-gap.md`).
+
+**Backend** (`packages/core`). New `seller_customer_group` module link
+(`links/seller-customer-group-link.ts`) so groups are seller-owned. New
+`workflows/customer-group/` wrapper `createSellerCustomerGroupsWorkflow`
+(wraps Medusa `createCustomerGroupsWorkflow` + `linkSellerCustomerGroupStep`,
+with dismiss compensation), mirroring the campaign wrapper. New
+`api/vendor/customer-groups/` tree (list/create/get/update/delete +
+`[id]/customers` batch members), all seller-scoped via
+`validateSellerCustomerGroup` (link check) / `maybeApplyLinkFilter` on
+`seller_customer_group`. New `api/vendor/customers/[id]/customer-groups`
+batch route (manages a customer's groups, guarded by `validateSellerCustomer`
++ per-group ownership). `@mercurjs/types` got `VendorCustomerGroup{,List,Delete}Response`.
+codegen regenerated `packages/core/.mercur/routes.d.ts`.
+
+**Frontend** (`packages/vendor`). Customer detail → `TwoColumnPage` (Main:
+General + Orders + now-mounted `CustomerGroupSection`; Sidebar: new read-only
+`CustomerAddressSection`; metadata/JSON). New `pages/customer-groups/`
+surface (list / detail / create / edit / add-customers / metadata) ported
+from admin. `/customer-groups` route block enabled + nested sidebar link.
+Speculative customer `edit/` drawer removed (out of design — vendor customer
+view is read-only).
+
+**Verification.** `bunx turbo run build` → 9/9 packages pass. New
+`integration-tests/http/customer-group/vendor/customer-group.spec.ts` →
+12/12 pass (ownership link, list scoping, CRUD own-vs-cross-seller 404,
+members add/remove, customer's-groups batch). oxlint clean on touched files.
+Spec flipped to `passing`. Not committed.
+
 ### Session 32: 2026-06-11 -- Medusa Cloud single-deployment: panels served from the backend (PR #971)
 
 **Goal.** Let a fresh `templates/basic` project deploy on Medusa Cloud as ONE

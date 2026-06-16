@@ -1,10 +1,11 @@
 import { Children, ReactNode } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { SingleColumnPageSkeleton } from "@components/common/skeleton";
-import { SingleColumnPage } from "@components/layout/pages";
+import { TwoColumnPageSkeleton } from "@components/common/skeleton";
+import { TwoColumnPage } from "@components/layout/pages";
 import { useCustomer } from "@hooks/api/customers";
 
+import { CustomerAddressSection } from "./_components/customer-address-section";
 import { CustomerGeneralSection } from "./_components/customer-general-section";
 import { CustomerGroupSection } from "./_components/customer-group-section";
 import { CustomerOrderSection } from "./_components/customer-order-section";
@@ -20,7 +21,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     { initialData },
   );
 
-  if (isLoading || !customer) return <SingleColumnPageSkeleton sections={2} />;
+  if (isLoading || !customer) {
+    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={1} />;
+  }
   if (isError) throw error;
 
   return (
@@ -28,17 +31,26 @@ const Root = ({ children }: { children?: ReactNode }) => {
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <SingleColumnPage data={customer} hasOutlet>
-          <CustomerGeneralSection customer={customer} />
-          <CustomerOrderSection customer={customer} />
-        </SingleColumnPage>
+        <TwoColumnPage data={customer} showJSON hasOutlet>
+          <TwoColumnPage.Main>
+            <CustomerGeneralSection customer={customer} />
+            <CustomerOrderSection customer={customer} />
+            <CustomerGroupSection customer={customer} />
+          </TwoColumnPage.Main>
+          <TwoColumnPage.Sidebar>
+            <CustomerAddressSection customer={customer} />
+          </TwoColumnPage.Sidebar>
+        </TwoColumnPage>
       )}
     </>
   );
 };
 
 export const CustomerDetailPage = Object.assign(Root, {
+  Main: TwoColumnPage.Main,
+  Sidebar: TwoColumnPage.Sidebar,
   GeneralSection: CustomerGeneralSection,
   OrderSection: CustomerOrderSection,
   GroupSection: CustomerGroupSection,
+  AddressSection: CustomerAddressSection,
 });
