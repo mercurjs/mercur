@@ -31,7 +31,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <TwoColumnPage data={customer} showMetadata showJSON hasOutlet>
+        <TwoColumnPage data={customer} showJSON hasOutlet>
           <TwoColumnPage.Main>
             <CustomerGeneralSection customer={customer} />
             <CustomerOrderSection customer={customer} />

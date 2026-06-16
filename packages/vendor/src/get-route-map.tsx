@@ -507,11 +507,6 @@ export function getRouteMap({
                             lazy: () =>
                               import("./pages/customers/[id]/add-customer-groups"),
                           },
-                          {
-                            path: "metadata",
-                            lazy: () =>
-                              import("./pages/customers/[id]/metadata"),
-                          },
                         ],
                       },
                     ],
