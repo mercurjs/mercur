@@ -5,7 +5,10 @@ import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
-import { useDeleteCustomerGroup } from "../../../../../hooks/api/customer-groups"
+import {
+  useCustomerGroupOwners,
+  useDeleteCustomerGroup,
+} from "../../../../../hooks/api/customer-groups"
 
 type CustomerGroupGeneralSectionProps = {
   group: HttpTypes.AdminCustomerGroup
@@ -19,6 +22,7 @@ export const CustomerGroupGeneralSection = ({
   const navigate = useNavigate()
 
   const { mutateAsync } = useDeleteCustomerGroup(group.id)
+  const { ownerMap } = useCustomerGroupOwners([group.id])
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -84,6 +88,14 @@ export const CustomerGroupGeneralSection = ({
         </Text>
         <Text size="small" leading="compact" data-testid="customer-group-general-section-customers-value">
           {group.customers?.length || "-"}
+        </Text>
+      </div>
+      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-group-general-section-owner-row">
+        <Text size="small" leading="compact" weight="plus">
+          {t("customerGroups.fields.owner")}
+        </Text>
+        <Text size="small" leading="compact">
+          {ownerMap[group.id] ?? t("customerGroups.fields.platformOwner")}
         </Text>
       </div>
     </Container>

@@ -16,6 +16,7 @@ import { Link } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
 import {
+  useCustomerGroupOwners,
   useCustomerGroups,
   useDeleteCustomerGroupLazy,
 } from "../../../../../hooks/api"
@@ -88,8 +89,11 @@ export const CustomerGroupListDataTable = () => {
       },
     )
 
+  const groupIds = (customer_groups ?? []).map((g) => g.id)
+  const { ownerMap } = useCustomerGroupOwners(groupIds)
+
   const filters = useCustomerGroupTableFilters()
-  const columns = useColumns()
+  const columns = useColumns(ownerMap)
 
   const { table } = useDataTable({
     data: customer_groups ?? [],
@@ -213,7 +217,7 @@ const CustomerGroupActions = ({
 
 const columnHelper = createColumnHelper<HttpTypes.AdminCustomerGroup>()
 
-const useColumns = () => {
+const useColumns = (ownerMap: Record<string, string> = {}) => {
   const { t } = useTranslation()
   const { getFullDate } = useDate()
 
@@ -228,6 +232,16 @@ const useColumns = () => {
         cell: ({ row }) => {
           return <span>{row.original.customers?.length ?? 0}</span>
         },
+      }),
+      columnHelper.display({
+        id: "owner",
+        header: t("customerGroups.fields.owner"),
+        cell: ({ row }) => (
+          <span>
+            {ownerMap[row.original.id] ??
+              t("customerGroups.fields.platformOwner")}
+          </span>
+        ),
       }),
       columnHelper.accessor("created_at", {
         header: t("fields.createdAt"),
@@ -260,6 +274,6 @@ const useColumns = () => {
         cell: ({ row }) => <CustomerGroupActions group={row.original} />,
       }),
     ],
-    [t, getFullDate]
+    [t, getFullDate, ownerMap]
   )
 }

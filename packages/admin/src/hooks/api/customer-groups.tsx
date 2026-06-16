@@ -67,6 +67,34 @@ export const useCustomerGroups = (
   return { ...data, ...rest }
 }
 
+export const useCustomerGroupOwners = (
+  groupIds: string[],
+  options?: Omit<
+    UseQueryOptions<
+      InferClientOutput<typeof sdk.admin.customerGroups.owners.query>,
+      ClientError,
+      InferClientOutput<typeof sdk.admin.customerGroups.owners.query>,
+      QueryKey
+    >,
+    "queryKey" | "queryFn"
+  >
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      sdk.admin.customerGroups.owners.query({ group_ids: groupIds }),
+    queryKey: customerGroupsQueryKeys.list({ owners: groupIds }),
+    enabled: groupIds.length > 0,
+    ...options,
+  })
+
+  const ownerMap: Record<string, string> = {}
+  for (const owner of data?.owners ?? []) {
+    ownerMap[owner.customer_group_id] = owner.seller_name
+  }
+
+  return { ownerMap, ...rest }
+}
+
 export const useCreateCustomerGroup = (
   options?: UseMutationOptions<
     InferClientOutput<typeof sdk.admin.customerGroups.mutate>,

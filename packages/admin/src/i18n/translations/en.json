@@ -1102,6 +1102,10 @@
     }
   },
   "customerGroups": {
+    "fields": {
+      "owner": "Owner",
+      "platformOwner": "Mercur"
+    },
     "domain": "Customer Groups",
     "subtitle": "Organize customers into groups. Groups can have different promotions and prices.",
     "list": {
