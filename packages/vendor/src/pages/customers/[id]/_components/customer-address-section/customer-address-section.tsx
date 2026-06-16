@@ -3,6 +3,7 @@ import { Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { NoRecords } from "@components/common/empty-table-content"
+import { getCountryByIso2 } from "@lib/data/countries"
 
 type CustomerAddressSectionProps = {
   customer: HttpTypes.AdminCustomer
@@ -28,10 +29,7 @@ export const CustomerAddressSection = ({
   const addresses = customer.addresses ?? []
 
   return (
-    <Container
-      className="divide-y p-0"
-      data-testid="customer-address-section"
-    >
+    <Container className="divide-y p-0" data-testid="customer-address-section">
       <div
         className="flex items-center justify-between px-6 py-4"
         data-testid="customer-address-section-header"
@@ -51,35 +49,64 @@ export const CustomerAddressSection = ({
           />
         </div>
       ) : (
-        addresses.map((address) => (
-          <div
-            key={address.id}
-            className="flex flex-col gap-y-1 px-6 py-4"
-            data-testid={`customer-address-section-address-${address.id}`}
-          >
-            <Text size="small" weight="plus" leading="compact">
-              {getAddressLabel(address)}
-            </Text>
-            {address.address_1 && (
-              <Text size="small" leading="compact" className="text-ui-fg-subtle">
-                {address.address_1}
-              </Text>
-            )}
-            {address.address_2 && (
-              <Text size="small" leading="compact" className="text-ui-fg-subtle">
-                {address.address_2}
-              </Text>
-            )}
-            <Text size="small" leading="compact" className="text-ui-fg-subtle">
-              {[address.city, address.postal_code].filter(Boolean).join(", ")}
-            </Text>
-            {address.country_code && (
-              <Text size="small" leading="compact" className="text-ui-fg-subtle">
-                {address.country_code.toUpperCase()}
-              </Text>
-            )}
-          </div>
-        ))
+        <div className="flex flex-col gap-y-2 px-6 py-4">
+          {addresses.map((address) => {
+            const country =
+              getCountryByIso2(address.country_code)?.display_name ??
+              address.country_code?.toUpperCase()
+            const cityLine = [address.city, address.postal_code]
+              .filter(Boolean)
+              .join(", ")
+
+            return (
+              <div
+                key={address.id}
+                className="bg-ui-bg-component shadow-elevation-card-rest flex flex-col gap-y-1 rounded-lg px-4 py-3"
+                data-testid={`customer-address-section-address-${address.id}`}
+              >
+                <Text size="small" weight="plus" leading="compact">
+                  {getAddressLabel(address)}
+                </Text>
+                {address.address_1 && (
+                  <Text
+                    size="small"
+                    leading="compact"
+                    className="text-ui-fg-subtle"
+                  >
+                    {address.address_1}
+                  </Text>
+                )}
+                {address.address_2 && (
+                  <Text
+                    size="small"
+                    leading="compact"
+                    className="text-ui-fg-subtle"
+                  >
+                    {address.address_2}
+                  </Text>
+                )}
+                {cityLine && (
+                  <Text
+                    size="small"
+                    leading="compact"
+                    className="text-ui-fg-subtle"
+                  >
+                    {cityLine}
+                  </Text>
+                )}
+                {country && (
+                  <Text
+                    size="small"
+                    leading="compact"
+                    className="text-ui-fg-subtle"
+                  >
+                    {country}
+                  </Text>
+                )}
+              </div>
+            )
+          })}
+        </div>
       )}
     </Container>
   )
