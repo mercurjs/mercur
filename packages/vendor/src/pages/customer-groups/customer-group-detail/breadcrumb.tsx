@@ -29,3 +29,5 @@ export const CustomerGroupDetailBreadcrumb = (
 
   return <span>{customer_group.name}</span>;
 };
+
+export { CustomerGroupDetailBreadcrumb as Breadcrumb };

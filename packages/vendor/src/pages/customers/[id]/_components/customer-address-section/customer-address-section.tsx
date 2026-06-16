@@ -44,7 +44,7 @@ export const CustomerAddressSection = ({
       {addresses.length === 0 ? (
         <div data-testid="customer-address-section-empty">
           <NoRecords
-            className="flex h-full flex-col overflow-hidden border-t p-6"
+            className="flex h-full flex-col overflow-hidden p-6"
             icon={null}
             title={t("general.noRecordsTitle")}
             message={t("general.noRecordsMessage")}

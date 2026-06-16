@@ -80,7 +80,7 @@ export const AddCustomerGroupsForm = ({
     isError,
     error,
   } = useCustomerGroups({
-    fields: "*customers",
+    fields: "id,name,customers.id",
     ...searchParams,
   })
 
@@ -99,13 +99,8 @@ export const AddCustomerGroupsForm = ({
 
   const columns = useColumns()
 
-
-  const flatCustomerGroups = customer_groups?.map((cg) => ({
-    ...cg.customer_group
-  }))
-
   const { table } = useDataTable({
-    data: flatCustomerGroups ?? [],
+    data: customer_groups ?? [],
     columns,
     count,
     enablePagination: true,
