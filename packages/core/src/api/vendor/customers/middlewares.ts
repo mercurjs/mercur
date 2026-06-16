@@ -5,10 +5,17 @@ import {
   MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
-import { validateAndTransformQuery } from "@medusajs/framework"
+import {
+  validateAndTransformBody,
+  validateAndTransformQuery,
+} from "@medusajs/framework"
 
 import { vendorCustomerQueryConfig } from "./query-config"
-import { VendorGetCustomerParams, VendorGetCustomersParams } from "./validators"
+import {
+  VendorGetCustomerParams,
+  VendorGetCustomersParams,
+  VendorManageCustomerCustomerGroups,
+} from "./validators"
 
 const applySellerCustomerLinkFilter = (
   req: AuthenticatedMedusaRequest,
@@ -40,6 +47,17 @@ export const vendorCustomersMiddlewares: MiddlewareRoute[] = [
     method: ["GET"],
     matcher: "/vendor/customers/:id",
     middlewares: [
+      validateAndTransformQuery(
+        VendorGetCustomerParams,
+        vendorCustomerQueryConfig.retrieve
+      ),
+    ],
+  },
+  {
+    method: ["POST"],
+    matcher: "/vendor/customers/:id/customer-groups",
+    middlewares: [
+      validateAndTransformBody(VendorManageCustomerCustomerGroups),
       validateAndTransformQuery(
         VendorGetCustomerParams,
         vendorCustomerQueryConfig.retrieve

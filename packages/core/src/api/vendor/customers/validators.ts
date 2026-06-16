@@ -19,7 +19,18 @@ export const VendorGetCustomersParams = createFindParams({
     id: z.union([z.string(), z.array(z.string())]).optional(),
     email: z.union([z.string(), z.array(z.string())]).optional(),
     has_account: booleanString().optional(),
+    groups: z.union([z.string(), z.array(z.string())]).optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })
 )
+
+export type VendorManageCustomerCustomerGroupsType = z.infer<
+  typeof VendorManageCustomerCustomerGroups
+>
+export const VendorManageCustomerCustomerGroups = z
+  .object({
+    add: z.array(z.string()).optional(),
+    remove: z.array(z.string()).optional(),
+  })
+  .strict()

@@ -302,7 +302,12 @@ export const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <Users />,
       label: t("customers.domain"),
       to: "/customers",
-      items: [],
+      items: [
+        {
+          label: t("customerGroups.domain"),
+          to: "/customer-groups",
+        },
+      ],
     },
     {
       icon: <ReceiptPercent />,
