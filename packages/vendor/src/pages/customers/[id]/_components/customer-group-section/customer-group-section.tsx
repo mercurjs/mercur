@@ -22,10 +22,7 @@ import {
   TextHeader,
 } from "@components/table/table-cells/common/text-cell"
 import { useBatchCustomerCustomerGroups } from "@hooks/api"
-import {
-  useCustomerGroups,
-  useRemoveCustomersFromGroup,
-} from "@hooks/api/customer-groups"
+import { useRemoveCustomersFromGroup } from "@hooks/api/customer-groups"
 import { useCustomerGroupTableFilters } from "@hooks/table/filters/use-customer-group-table-filters"
 import { useCustomerGroupTableQuery } from "@hooks/table/query/use-customer-group-table-query"
 import { useDataTable } from "@hooks/use-data-table"
@@ -43,36 +40,12 @@ export const CustomerGroupSection = ({
   const prompt = usePrompt()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const { raw, searchParams } = useCustomerGroupTableQuery({
+  const { raw } = useCustomerGroupTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-  
-  const {
-    customer_groups: customerGroups,
-    isLoading,
-    isError,
-    error,
-  } = useCustomerGroups(
-    {
-      ...searchParams,
-      fields: "+customers.id",
-    },
-    undefined,
-    {
-      created_at: searchParams.created_at,
-      updated_at: searchParams.updated_at,
-      sort: searchParams.order,
-    }
-  )
 
-  const filteredCustomerGroups = customerGroups?.filter((cg) =>
-    customer.groups?.some((g) => g.id === cg.customer_group_id)
-  )
-
-  const flatCustomerGroups = filteredCustomerGroups?.map((cg) => ({
-    ...cg.customer_group
-  }))
+  const flatCustomerGroups = customer.groups ?? []
 
   const { mutateAsync: batchCustomerCustomerGroups } =
     useBatchCustomerCustomerGroups(customer.id)
@@ -137,10 +110,6 @@ export const CustomerGroupSection = ({
     )
   }
 
-  if (isError) {
-    throw error
-  }
-
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
@@ -155,7 +124,7 @@ export const CustomerGroupSection = ({
         table={table}
         columns={columns}
         pageSize={PAGE_SIZE}
-        isLoading={isLoading}
+        isLoading={false}
         count={flatCustomerGroups?.length ?? 0}
         prefix={PREFIX}
         navigateTo={(row) => `/customer-groups/${row.original.id}`}
