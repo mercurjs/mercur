@@ -22,7 +22,10 @@ export const CreateSellerAccount = z.object({
   handle: z.string().optional(),
   email: z.string().email(),
   phone: z.string().nullable().optional(),
-  member_email: z.string().email(),
+  // Optional: an already-authenticated member (creating an additional store)
+  // is resolved from the auth context. Only required when an unregistered
+  // token provisions a brand-new member.
+  member_email: z.string().email().optional(),
   first_name: z.string().nullable().optional(),
   last_name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),

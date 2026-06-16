@@ -24,6 +24,8 @@ medusaIntegrationTestRunner({
             let salesChannel: any
             let product1: any
             let product2: any
+            let offer1: any
+            let offer2: any
             let stockLocation1: any
             let stockLocation2: any
 
@@ -80,7 +82,9 @@ medusaIntegrationTestRunner({
                     [Modules.PAYMENT]: { payment_provider_id: "pp_system_default" },
                 })
 
-                // Create product for seller 1
+                // Create product for seller 1. Pricing + inventory live on the
+                // offer (see SPEC-002); link the product to the sales channel
+                // separately.
                 const product1Response = await api.post(
                     `/vendor/products`,
                     {
@@ -93,15 +97,17 @@ medusaIntegrationTestRunner({
                                 title: "Small",
                                 sku: "RET-SELLER1-S",
                                 options: { Size: "S" },
-                                prices: [{ currency_code: "usd", amount: 2000 }],
-                                manage_inventory: false,
                             },
                         ],
-                        sales_channels: [{ id: salesChannel.id }],
                     },
                     seller1Headers
                 )
                 product1 = product1Response.data.product
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product1.id] },
+                    seller1Headers
+                )
 
                 // Create product for seller 2
                 const product2Response = await api.post(
@@ -116,15 +122,17 @@ medusaIntegrationTestRunner({
                                 title: "Red",
                                 sku: "RET-SELLER2-RED",
                                 options: { Color: "Red" },
-                                prices: [{ currency_code: "usd", amount: 3000 }],
-                                manage_inventory: false,
                             },
                         ],
-                        sales_channels: [{ id: salesChannel.id }],
                     },
                     seller2Headers
                 )
                 product2 = product2Response.data.product
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product2.id] },
+                    seller2Headers
+                )
 
                 // Create shipping prerequisites for seller 1
                 const shippingPrerequisites1 = await createShippingPrerequisites(seller1Headers, "retSeller1")
@@ -156,6 +164,32 @@ medusaIntegrationTestRunner({
                     seller1Headers
                 )
 
+                // Create a store offer for seller 1's product.
+                offer1 = (
+                    await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "RET-OFFER-SELLER1",
+                            variant_id: product1.variants[0].id,
+                            shipping_profile_id: shippingPrerequisites1.shippingProfile.id,
+                            inventory_items: [
+                                {
+                                    title: "Returns Offer Inv 1",
+                                    required_quantity: 1,
+                                    stock_levels: [
+                                        {
+                                            location_id: shippingPrerequisites1.stockLocation.id,
+                                            stocked_quantity: 100,
+                                        },
+                                    ],
+                                },
+                            ],
+                            prices: [{ currency_code: "usd", amount: 2000 }],
+                        },
+                        seller1Headers
+                    )
+                ).data.offer
+
                 // Create shipping prerequisites for seller 2
                 const shippingPrerequisites2 = await createShippingPrerequisites(seller2Headers, "retSeller2")
                 stockLocation2 = shippingPrerequisites2.stockLocation
@@ -185,6 +219,32 @@ medusaIntegrationTestRunner({
                     },
                     seller2Headers
                 )
+
+                // Create a store offer for seller 2's product.
+                offer2 = (
+                    await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "RET-OFFER-SELLER2",
+                            variant_id: product2.variants[0].id,
+                            shipping_profile_id: shippingPrerequisites2.shippingProfile.id,
+                            inventory_items: [
+                                {
+                                    title: "Returns Offer Inv 2",
+                                    required_quantity: 1,
+                                    stock_levels: [
+                                        {
+                                            location_id: shippingPrerequisites2.stockLocation.id,
+                                            stocked_quantity: 100,
+                                        },
+                                    ],
+                                },
+                            ],
+                            prices: [{ currency_code: "usd", amount: 3000 }],
+                        },
+                        seller2Headers
+                    )
+                ).data.offer
             })
 
             let prerequisiteCounter = 0
@@ -265,7 +325,7 @@ medusaIntegrationTestRunner({
             // Helper to create and complete a cart, returning the order with fulfilled items
             const createFulfilledOrder = async (
                 sellerHeaders: any,
-                product: any,
+                offer: any,
                 stockLocation: any
             ) => {
                 // Create cart
@@ -280,11 +340,11 @@ medusaIntegrationTestRunner({
                 )
                 let cart = cartResponse.data.cart
 
-                // Add item
+                // Add item via the seller's store offer
                 await api.post(
                     `/store/carts/${cart.id}/line-items`,
                     {
-                        variant_id: product.variants[0].id,
+                        offer_id: offer.id,
                         quantity: 2,
                     },
                     storeHeaders
@@ -397,7 +457,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/returns", () => {
                 it("should create a return for an order", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     const response = await api.post(
                         `/vendor/returns`,
@@ -415,7 +475,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should not allow creating return for another vendor's order", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     const response = await api
                         .post(
@@ -434,7 +494,7 @@ medusaIntegrationTestRunner({
 
             describe("GET /vendor/returns", () => {
                 it("should list returns for the vendor", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return
                     await api.post(
@@ -454,8 +514,8 @@ medusaIntegrationTestRunner({
 
                 it("should only return returns belonging to the vendor", async () => {
                     // Create fulfilled orders for both sellers
-                    const { order: order1 } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
-                    const { order: order2 } = await createFulfilledOrder(seller2Headers, product2, stockLocation2)
+                    const { order: order1 } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
+                    const { order: order2 } = await createFulfilledOrder(seller2Headers, offer2, stockLocation2)
 
                     // Create returns for both sellers
                     await api.post(
@@ -489,7 +549,7 @@ medusaIntegrationTestRunner({
 
             describe("GET /vendor/returns/:id", () => {
                 it("should get a single return by id", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return
                     const createResponse = await api.post(
@@ -507,7 +567,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should not allow vendor to access another vendor's return", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return as seller 1
                     const createResponse = await api.post(
@@ -528,7 +588,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/returns/:id", () => {
                 it("should update a return", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return
                     const createResponse = await api.post(
@@ -551,7 +611,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should not allow updating another vendor's return", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return as seller 1
                     const createResponse = await api.post(
@@ -576,7 +636,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/returns/:id/request-items", () => {
                 it("should add items to return request", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return
                     const createResponse = await api.post(
@@ -604,7 +664,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should not allow adding items to another vendor's return", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return as seller 1
                     const createResponse = await api.post(
@@ -634,7 +694,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/returns/:id/request", () => {
                 it("should confirm return request", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return
                     const createResponse = await api.post(
@@ -669,7 +729,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should not allow confirming another vendor's return request", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return as seller 1
                     const createResponse = await api.post(
@@ -706,7 +766,7 @@ medusaIntegrationTestRunner({
 
             describe("DELETE /vendor/returns/:id/request", () => {
                 it("should cancel return request", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return
                     const createResponse = await api.post(
@@ -741,7 +801,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should not allow canceling another vendor's return request", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return as seller 1
                     const createResponse = await api.post(
@@ -762,7 +822,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/returns/:id/receive", () => {
                 it("should begin receiving a return", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return
                     const createResponse = await api.post(
@@ -806,7 +866,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should not allow receiving another vendor's return", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return as seller 1
                     const createResponse = await api.post(
@@ -849,7 +909,7 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/returns/:id/cancel", () => {
                 it("should cancel a return", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return
                     const createResponse = await api.post(
@@ -889,7 +949,7 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should not allow canceling another vendor's return", async () => {
-                    const { order } = await createFulfilledOrder(seller1Headers, product1, stockLocation1)
+                    const { order } = await createFulfilledOrder(seller1Headers, offer1, stockLocation1)
 
                     // Create a return as seller 1
                     const createResponse = await api.post(
