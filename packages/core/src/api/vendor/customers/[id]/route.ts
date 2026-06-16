@@ -34,5 +34,23 @@ export const GET = async (
     )
   }
 
+  // A customer may belong to groups owned by several sellers; only expose the
+  // groups owned by the requesting seller (via the seller_customer_group link).
+  if (customer.groups?.length) {
+    const { data: ownedLinks } = await query.graph({
+      entity: "seller_customer_group",
+      fields: ["customer_group_id"],
+      filters: {
+        seller_id: sellerId,
+        customer_group_id: customer.groups.map((g) => g.id),
+      },
+    })
+
+    const ownedGroupIds = new Set(
+      ownedLinks.map((link) => link.customer_group_id)
+    )
+    customer.groups = customer.groups.filter((g) => ownedGroupIds.has(g.id))
+  }
+
   res.json({ customer })
 }

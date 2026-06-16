@@ -1,8 +1,8 @@
-import { useMemo } from "react"
+import { useEffect, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
-import { clx, Input, Text, Tooltip } from "@medusajs/ui"
-import { UseFormReturn } from "react-hook-form"
+import { Checkbox, clx, Input, Text, Tooltip } from "@medusajs/ui"
+import { UseFormReturn, useWatch } from "react-hook-form"
 import { HttpTypes } from "@medusajs/types"
 
 import { Form } from "@components/common/form/index"
@@ -19,6 +19,8 @@ type OrderEditItemProps = {
   onItemRemove: (itemId: string) => void
   form: UseFormReturn<zod.infer<typeof CreateFulfillmentSchema>>
   disabled: boolean
+  onToggleSelected: (itemId: string, checked: boolean) => void
+  onInventoryStatusChange: (itemId: string, missingLevel: boolean) => void
 }
 
 export function OrderCreateFulfillmentItem({
@@ -26,6 +28,8 @@ export function OrderCreateFulfillmentItem({
   form,
   locationId,
   disabled,
+  onToggleSelected,
+  onInventoryStatusChange,
 }: OrderEditItemProps) {
   const { t } = useTranslation()
 
@@ -40,32 +44,51 @@ export function OrderCreateFulfillmentItem({
     }
   )
 
-  const { availableQuantity, inStockQuantity } = useMemo(() => {
-    if (!variant || !locationId) {
-      return {}
+  // Items are fulfilled by default; deselecting via the checkbox excludes
+  // the item from the payload. Undefined (never toggled) reads as selected.
+  const isSelected =
+    useWatch({
+      control: form.control,
+      name: `selection.${item.id}` as `selection.${string}`,
+    }) !== false
+
+  const { availableQuantity, inStockQuantity, missingLevel } = useMemo(() => {
+    const inventory = (variant as any)?.inventory
+    const hasInventoryItem = Array.isArray(inventory) && inventory.length > 0
+
+    if (!hasInventoryItem || !locationId) {
+      return { missingLevel: false }
     }
 
-    const { inventory } = variant as any
-
-    const locationInventory = inventory?.[0]?.location_levels?.find(
+    const locationInventory = inventory[0]?.location_levels?.find(
       (inv: any) => inv.location_id === locationId
     )
 
+    // The variant is inventory-managed but has no level at the chosen
+    // location — it cannot be fulfilled from here. Surface this up so the
+    // form can render an aggregate warning.
     if (!locationInventory) {
-      return {}
+      return { missingLevel: true }
     }
 
     return {
       availableQuantity: locationInventory.available_quantity,
       inStockQuantity: locationInventory.stocked_quantity,
+      missingLevel: false,
     }
   }, [variant, locationId])
+
+  useEffect(() => {
+    onInventoryStatusChange(item.id, missingLevel)
+  }, [item.id, missingLevel, onInventoryStatusChange])
 
   const minValue = 0
   const maxValue = Math.min(
     getFulfillableQuantity(item as any),
     availableQuantity || Number.MAX_SAFE_INTEGER
   )
+
+  const inputDisabled = disabled || !isSelected
 
   return (
     <Form.Field
@@ -78,18 +101,31 @@ export function OrderCreateFulfillmentItem({
       }}
       render={({ field }) => {
         return (
-          <div className="bg-ui-bg-subtle shadow-elevation-card-rest my-2 rounded-xl">
+          <div
+            className={clx(
+              "bg-ui-bg-subtle shadow-elevation-card-rest rounded-xl",
+              !isSelected && "opacity-60"
+            )}
+          >
             <div className="flex flex-row items-center">
-              {disabled && (
-                <div className="inline-flex items-center ml-4">
+              <div className="ml-4 flex items-center gap-x-2">
+                <Checkbox
+                  checked={isSelected}
+                  disabled={disabled}
+                  onCheckedChange={(value) =>
+                    onToggleSelected(item.id, value === true)
+                  }
+                  data-testid={`fulfillment-item-${item.id}-checkbox`}
+                />
+                {disabled && (
                   <Tooltip
                     content={t("orders.fulfillment.disabledItemTooltip")}
                     side="top"
                   >
                     <InformationCircleSolid className="text-ui-tag-orange-icon" />
                   </Tooltip>
-                </div>
-              )}
+                )}
+              </div>
 
               <div
                 className={clx(
@@ -143,42 +179,41 @@ export function OrderCreateFulfillmentItem({
                   </div>
 
                   <div className="flex flex-1 items-center gap-1">
+                    <Form.Item>
+                      <Form.Control>
+                        <Input
+                          className="bg-ui-bg-base txt-small w-[50px] rounded-lg text-right [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                          type="number"
+                          {...field}
+                          disabled={inputDisabled}
+                          onChange={(e) => {
+                            const val =
+                              e.target.value === ""
+                                ? null
+                                : Number(e.target.value)
 
-                          <Form.Item>
-                            <Form.Control>
-                              <Input
-                                className="bg-ui-bg-base txt-small w-[50px] rounded-lg text-right [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
-                                type="number"
-                                {...field}
-                                onChange={(e) => {
-                                  const val =
-                                    e.target.value === ""
-                                      ? null
-                                      : Number(e.target.value)
+                            field.onChange(val)
 
-                                  field.onChange(val)
-
-                                  if (val !== null && !isNaN(val ?? 0)) {
-                                    if (val < minValue || val > maxValue) {
-                                      form.setError(`quantity.${item.id}`, {
-                                        type: "manual",
-                                        message: t(
-                                          "orders.fulfillment.error.wrongQuantity",
-                                          {
-                                            count: maxValue,
-                                            number: maxValue,
-                                          }
-                                        ),
-                                      })
-                                    } else {
-                                      form.clearErrors(`quantity.${item.id}`)
+                            if (val !== null && !isNaN(val ?? 0)) {
+                              if (val < minValue || val > maxValue) {
+                                form.setError(`quantity.${item.id}`, {
+                                  type: "manual",
+                                  message: t(
+                                    "orders.fulfillment.error.wrongQuantity",
+                                    {
+                                      count: maxValue,
+                                      number: maxValue,
                                     }
-                                  }
-                                }}
-                              />
-                            </Form.Control>
-                          </Form.Item>
-
+                                  ),
+                                })
+                              } else {
+                                form.clearErrors(`quantity.${item.id}`)
+                              }
+                            }
+                          }}
+                        />
+                      </Form.Control>
+                    </Form.Item>
 
                     <span className="text-ui-fg-subtle">
                       / {item.quantity} {t("fields.qty")}

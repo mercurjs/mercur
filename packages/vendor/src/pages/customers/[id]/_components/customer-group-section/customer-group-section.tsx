@@ -43,42 +43,29 @@ export const CustomerGroupSection = ({
   const prompt = usePrompt()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const { raw, searchParams } = useCustomerGroupTableQuery({
+  const { raw } = useCustomerGroupTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-  
-  const {
-    customer_groups: customerGroups,
-    isLoading,
-    isError,
-    error,
-  } = useCustomerGroups(
-    {
-      ...searchParams,
-      fields: "+customers.id",
-    },
-    undefined,
-    {
-      created_at: searchParams.created_at,
-      updated_at: searchParams.updated_at,
-      sort: searchParams.order,
-    }
+
+  const flatCustomerGroups = customer.groups ?? []
+  const groupIds = flatCustomerGroups.map((g) => g.id)
+
+  const { customer_groups: groupsWithCounts } = useCustomerGroups(
+    { id: groupIds, fields: "id,customers.id", limit: groupIds.length || 1 },
+    { enabled: groupIds.length > 0 }
   )
 
-  const filteredCustomerGroups = customerGroups?.filter((cg) =>
-    customer.groups?.some((g) => g.id === cg.customer_group_id)
-  )
-
-  const flatCustomerGroups = filteredCustomerGroups?.map((cg) => ({
-    ...cg.customer_group
-  }))
+  const customerCountByGroup: Record<string, number> = {}
+  for (const g of groupsWithCounts ?? []) {
+    customerCountByGroup[g.id] = g.customers?.length ?? 0
+  }
 
   const { mutateAsync: batchCustomerCustomerGroups } =
     useBatchCustomerCustomerGroups(customer.id)
 
   const filters = useCustomerGroupTableFilters()
-  const columns = useColumns(customer.id)
+  const columns = useColumns(customer.id, customerCountByGroup)
 
   const { table } = useDataTable({
     data: flatCustomerGroups ?? [],
@@ -137,10 +124,6 @@ export const CustomerGroupSection = ({
     )
   }
 
-  if (isError) {
-    throw error
-  }
-
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
@@ -155,7 +138,7 @@ export const CustomerGroupSection = ({
         table={table}
         columns={columns}
         pageSize={PAGE_SIZE}
-        isLoading={isLoading}
+        isLoading={false}
         count={flatCustomerGroups?.length ?? 0}
         prefix={PREFIX}
         navigateTo={(row) => `/customer-groups/${row.original.id}`}
@@ -240,7 +223,10 @@ const CustomerGroupRowActions = ({
 
 const columnHelper = createColumnHelper<HttpTypes.AdminCustomerGroup>()
 
-const useColumns = (customerId: string) => {
+const useColumns = (
+  customerId: string,
+  customerCountByGroup: Record<string, number> = {}
+) => {
   const { t } = useTranslation()
 
   return useMemo(
@@ -280,6 +266,15 @@ const useColumns = (customerId: string) => {
         },
       }),
       columnHelper.display({
+        id: "customers",
+        header: () => <TextHeader text={t("customers.domain")} />,
+        cell: ({ row }) => {
+          return (
+            <TextCell text={`${customerCountByGroup[row.original.id] ?? 0}`} />
+          )
+        },
+      }),
+      columnHelper.display({
         id: "actions",
         cell: ({ row }) => (
           <CustomerGroupRowActions
@@ -289,6 +284,6 @@ const useColumns = (customerId: string) => {
         ),
       }),
     ],
-    [customerId, t]
+    [customerId, t, customerCountByGroup]
   )
 }

@@ -3,8 +3,8 @@ import Seller from "./seller"
 
 const PaymentDetails = model.define("PaymentDetails", {
   id: model.id({ prefix: "selpaydet" }).primaryKey(),
-  country_code: model.text(),
-  holder_name: model.text(),
+  country_code: model.text().nullable(),
+  holder_name: model.text().nullable(),
   bank_name: model.text().nullable(),
   iban: model.text().nullable(),
   bic: model.text().nullable(),

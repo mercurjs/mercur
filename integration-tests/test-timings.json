@@ -1,0 +1,15 @@
+{
+  "_comment": "Approximate per-spec wall time in SECONDS on CI runners, used by test-sequencer.js to balance shards by duration instead of file count. Seeded from observed CI/local runs; specs not listed fall back to a test-count heuristic. Refresh periodically from a real CI run (each shard logs its spec durations).",
+  "http/seller/admin/seller.spec.ts": 220,
+  "http/seller/store/seller.spec.ts": 200,
+  "http/seller/vendor/seller.spec.ts": 150,
+  "http/returns/vendor/returns.spec.ts": 150,
+  "http/payouts/vendor/payouts.spec.ts": 130,
+  "http/customer/vendor/customer.spec.ts": 110,
+  "http/product/vendor/product.spec.ts": 75,
+  "http/order/vendor/order-offers.spec.ts": 90,
+  "http/order/vendor/order-edit.spec.ts": 90,
+  "http/order/vendor/order-exchange.spec.ts": 90,
+  "http/order/vendor/order-claim.spec.ts": 90,
+  "http/price-lists/vendor/price-lists.spec.ts": 45
+}

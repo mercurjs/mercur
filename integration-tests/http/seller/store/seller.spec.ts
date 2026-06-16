@@ -8,7 +8,10 @@ import {
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 
-jest.setTimeout(50000)
+// Each test's setup provisions three sellers (each a full account workflow +
+// password hash), so use the same generous timeout as the other heavy
+// seller-creating suites — 50s can be exceeded when the runner is under load.
+jest.setTimeout(120000)
 
 medusaIntegrationTestRunner({
   testSuite: ({ getContainer, api, dbConnection }) => {

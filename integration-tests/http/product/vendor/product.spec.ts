@@ -788,20 +788,24 @@ medusaIntegrationTestRunner({
           expect(got.data.product.title).toBe("Updated")
         })
 
-        it("seller cannot update another seller's product", async () => {
+        it("any seller can update another seller's product", async () => {
+          // Marketplace products are edited through the shared product-edit
+          // module — any seller may stage a change on any product.
           const create = await api.post(
             `/vendor/products`,
             { title: "Seller 1 Owned" },
             seller1Headers,
           )
           const id = create.data.product.id
-          await expect(
-            api.post(
-              `/vendor/products/${id}`,
-              { title: "hack" },
-              seller2Headers,
-            ),
-          ).rejects.toMatchObject({ response: { status: 404 } })
+          const res = await api.post(
+            `/vendor/products/${id}`,
+            { title: "edited by seller 2" },
+            seller2Headers,
+          )
+          expect(res.status).toBe(202)
+          expect(res.data.product_change).toBeDefined()
+          const got = await api.get(`/vendor/products/${id}`, seller1Headers)
+          expect(got.data.product.title).toBe("edited by seller 2")
         })
       })
 
@@ -1137,7 +1141,9 @@ medusaIntegrationTestRunner({
           expect((note!.values ?? []).map((v) => v.name)).toEqual(["Fragile"])
         })
 
-        it("rejects attaching to another seller's product", async () => {
+        it("any seller can attach an attribute to another seller's product", async () => {
+          // Attribute mutations go through the same shared product-edit module,
+          // so a seller may attach attributes to any marketplace product.
           const create = await api.post(
             `/vendor/products`,
             { title: "Vendor Two Owned" },
@@ -1145,18 +1151,16 @@ medusaIntegrationTestRunner({
           )
           const productId = create.data.product.id
 
-          const res = await api
-            .post(
-              `/vendor/products/${productId}/attributes`,
-              {
-                name: "Foreign",
-                type: "text",
-                values: ["X"],
-              },
-              seller1Headers,
-            )
-            .catch((err) => err.response)
-          expect(res.status).toBeGreaterThanOrEqual(400)
+          const res = await api.post(
+            `/vendor/products/${productId}/attributes`,
+            {
+              name: "Foreign",
+              type: "text",
+              values: ["X"],
+            },
+            seller1Headers,
+          )
+          expect(res.status).toBe(202)
         })
       })
 

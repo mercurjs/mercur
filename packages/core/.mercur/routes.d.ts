@@ -597,7 +597,9 @@ export type Routes = {
             $code: typeof import("../../src/api/vendor/currencies/[code]/route");
         };
         customers: typeof import("../../src/api/vendor/customers/route") & {
-            $id: typeof import("../../src/api/vendor/customers/[id]/route");
+            $id: typeof import("../../src/api/vendor/customers/[id]/route") & {
+                customerGroups: typeof import("../../src/api/vendor/customers/[id]/customer-groups/route");
+            };
         };
         featureFlags: typeof import("../../src/api/vendor/feature-flags/route");
         fulfillmentProviders: typeof import("../../src/api/vendor/fulfillment-providers/route");
@@ -822,6 +824,11 @@ export type Routes = {
                     };
                 };
                 request: typeof import("../../src/api/vendor/claims/[id]/request/route");
+            };
+        };
+        customerGroups: typeof import("../../src/api/vendor/customer-groups/route") & {
+            $id: typeof import("../../src/api/vendor/customer-groups/[id]/route") & {
+                customers: typeof import("../../src/api/vendor/customer-groups/[id]/customers/route");
             };
         };
         exchanges: typeof import("../../src/api/vendor/exchanges/route") & {
