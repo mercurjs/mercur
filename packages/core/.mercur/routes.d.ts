@@ -51,6 +51,7 @@ export type Routes = {
             $id: typeof import("@medusajs/medusa/api/admin/customer-groups/[id]/route") & {
                 customers: typeof import("@medusajs/medusa/api/admin/customer-groups/[id]/customers/route");
             };
+            owners: typeof import("../../src/api/admin/customer-groups/owners/route");
         };
         customers: typeof import("@medusajs/medusa/api/admin/customers/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/customers/[id]/route") & {
