@@ -1,32 +1,32 @@
-import { HttpTypes } from "@medusajs/types"
-import { Container, Heading, Text } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+import { HttpTypes } from "@medusajs/types";
+import { Container, Heading, Text } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 
-import { NoRecords } from "@components/common/empty-table-content"
-import { getCountryByIso2 } from "@lib/data/countries"
+import { NoRecords } from "@components/common/empty-table-content";
+import { getCountryByIso2 } from "@lib/data/countries";
 
 type CustomerAddressSectionProps = {
-  customer: HttpTypes.AdminCustomer
-}
+  customer: HttpTypes.AdminCustomer;
+};
 
 const getAddressLabel = (address: HttpTypes.AdminCustomerAddress) => {
   if (address.address_name) {
-    return address.address_name
+    return address.address_name;
   }
 
   const name = [address.first_name, address.last_name]
     .filter(Boolean)
-    .join(" ")
+    .join(" ");
 
-  return name || "Address"
-}
+  return name || "Address";
+};
 
 export const CustomerAddressSection = ({
   customer,
 }: CustomerAddressSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const addresses = customer.addresses ?? []
+  const addresses = customer.addresses ?? [];
 
   return (
     <Container className="divide-y p-0" data-testid="customer-address-section">
@@ -49,19 +49,19 @@ export const CustomerAddressSection = ({
           />
         </div>
       ) : (
-        <div className="flex flex-col gap-y-3 px-6 py-4">
+        <div className="flex flex-col gap-y-2 p-3">
           {addresses.map((address) => {
             const country =
               getCountryByIso2(address.country_code)?.display_name ??
-              address.country_code?.toUpperCase()
+              address.country_code?.toUpperCase();
             const cityLine = [address.city, address.postal_code]
               .filter(Boolean)
-              .join(", ")
+              .join(", ");
 
             return (
               <div
                 key={address.id}
-                className="bg-ui-bg-subtle border-ui-border-base flex flex-col gap-y-1 rounded-lg border px-4 py-3"
+                className="bg-ui-bg-subtle border-ui-border-base flex flex-col gap-y-1 rounded-lg border px-3 py-2"
                 data-testid={`customer-address-section-address-${address.id}`}
               >
                 <Text size="small" weight="plus" leading="compact">
@@ -104,10 +104,10 @@ export const CustomerAddressSection = ({
                   </Text>
                 )}
               </div>
-            )
+            );
           })}
         </div>
       )}
     </Container>
-  )
-}
+  );
+};
