@@ -5,6 +5,7 @@ import { MathBN, MedusaError } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
 
 import { createPayoutStep } from "../steps"
+import { getOrderCommissionTotalStep } from "../../commission/steps"
 
 type CreatePayoutWorkflowInput = {
   order_id: string
@@ -24,34 +25,42 @@ export const createPayoutWorkflow = createWorkflow(
           'total',
           'seller.*',
           'seller.payout_account.*',
-          'items.*',
-          'items.commission_lines.*',
+          'items.id',
+          'shipping_methods.id',
         ],
       }
     })
 
-    const payoutInput = transform({ order }, ({ order }) => {
-      const payoutAccountId = (order as any).seller?.payout_account?.id
-      const sellerId = (order as any).seller?.id
+    const commissionIds = transform({ order }, ({ order }) => ({
+      item_ids: (order.items ?? []).map((item: any) => item.id),
+      shipping_method_ids: ((order as any).shipping_methods ?? []).map(
+        (method: any) => method.id
+      ),
+    }))
 
-      if (!payoutAccountId) {
-        throw new MedusaError(
-          MedusaError.Types.NOT_FOUND,
-          `Seller does not have a payout account`
-        )
-      }
+    // Sum commission (item + shipping lines) straight from the commission
+    // module rather than traversing the order→commission links.
+    const totalCommission = getOrderCommissionTotalStep(commissionIds)
 
-      const totalCommission = (order.items ?? []).reduce(
-        (acc: number, item: any) => {
-          const commissionAmount = item.commission_line?.amount ?? 0
-          return MathBN.add(acc, commissionAmount) as unknown as number
-        },
-        0
-      )
+    const payoutInput = transform(
+      { order, totalCommission },
+      ({ order, totalCommission }) => {
+        const payoutAccountId = (order as any).seller?.payout_account?.id
+        const sellerId = (order as any).seller?.id
 
-      const amount = MathBN.sub(order.total, totalCommission) as unknown as number
+        if (!payoutAccountId) {
+          throw new MedusaError(
+            MedusaError.Types.NOT_FOUND,
+            `Seller does not have a payout account`
+          )
+        }
 
-      return {
+        const amount = MathBN.sub(
+          order.total,
+          totalCommission
+        ) as unknown as number
+
+        return {
         account_id: payoutAccountId,
         seller_id: sellerId,
         amount,

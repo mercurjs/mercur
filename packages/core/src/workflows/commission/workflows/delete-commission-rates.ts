@@ -6,6 +6,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 
 import { deleteCommissionRatesStep } from "../steps/delete-commission-rates"
+import { validateCommissionRatesDeletableStep } from "../steps/validate-commission-rates-deletable"
 
 export type DeleteCommissionRatesWorkflowInput = {
   ids: string[]
@@ -16,6 +17,8 @@ export const deleteCommissionRatesWorkflowId = "delete-commission-rates"
 export const deleteCommissionRatesWorkflow = createWorkflow(
   deleteCommissionRatesWorkflowId,
   (input: WorkflowData<DeleteCommissionRatesWorkflowInput>) => {
+    validateCommissionRatesDeletableStep(input.ids)
+
     const deletedCommissionRates = deleteCommissionRatesStep(input.ids)
 
     const commissionRatesDeleted = createHook("commissionRatesDeleted", {

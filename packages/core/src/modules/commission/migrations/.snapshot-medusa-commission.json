@@ -21,7 +21,16 @@
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": false,
+          "nullable": true,
+          "mappedType": "text"
+        },
+        "shipping_method_id": {
+          "name": "shipping_method_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
           "mappedType": "text"
         },
         "commission_rate_id": {
@@ -115,6 +124,24 @@
       "schema": "public",
       "indexes": [
         {
+          "keyName": "IDX_commission_line_item_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_commission_line_item_id\" ON \"commission_line\" (\"item_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_commission_line_shipping_method_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_commission_line_shipping_method_id\" ON \"commission_line\" (\"shipping_method_id\") WHERE deleted_at IS NULL"
+        },
+        {
           "keyName": "IDX_commission_line_deleted_at",
           "columnNames": [],
           "composite": false,
@@ -134,7 +161,12 @@
           "unique": true
         }
       ],
-      "checks": [],
+      "checks": [
+        {
+          "name": "commission_line_item_or_shipping_check",
+          "expression": "num_nonnulls(\"item_id\", \"shipping_method_id\") = 1"
+        }
+      ],
       "foreignKeys": {},
       "nativeEnums": {}
     },
@@ -159,15 +191,15 @@
           "default": "true",
           "mappedType": "boolean"
         },
-        "priority": {
-          "name": "priority",
-          "type": "integer",
+        "is_default": {
+          "name": "is_default",
+          "type": "boolean",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "default": "0",
-          "mappedType": "integer"
+          "default": "false",
+          "mappedType": "boolean"
         },
         "currency_code": {
           "name": "currency_code",
@@ -209,20 +241,6 @@
           ],
           "mappedType": "enum"
         },
-        "target": {
-          "name": "target",
-          "type": "text",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "default": "'item'",
-          "enumItems": [
-            "item",
-            "shipping"
-          ],
-          "mappedType": "enum"
-        },
         "value": {
           "name": "value",
           "type": "numeric",
@@ -232,17 +250,18 @@
           "nullable": false,
           "mappedType": "decimal"
         },
-        "min_amount": {
-          "name": "min_amount",
-          "type": "numeric",
+        "include_tax": {
+          "name": "include_tax",
+          "type": "boolean",
           "unsigned": false,
           "autoincrement": false,
           "primary": false,
-          "nullable": true,
-          "mappedType": "decimal"
+          "nullable": false,
+          "default": "false",
+          "mappedType": "boolean"
         },
-        "include_tax": {
-          "name": "include_tax",
+        "include_shipping": {
+          "name": "include_shipping",
           "type": "boolean",
           "unsigned": false,
           "autoincrement": false,
@@ -258,15 +277,6 @@
           "autoincrement": false,
           "primary": false,
           "nullable": false,
-          "mappedType": "json"
-        },
-        "raw_min_amount": {
-          "name": "raw_min_amount",
-          "type": "jsonb",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": true,
           "mappedType": "json"
         },
         "created_at": {
@@ -336,6 +346,144 @@
       ],
       "checks": [],
       "foreignKeys": {},
+      "nativeEnums": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "currency_code": {
+          "name": "currency_code",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "amount": {
+          "name": "amount",
+          "type": "numeric",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "decimal"
+        },
+        "commission_rate_id": {
+          "name": "commission_rate_id",
+          "type": "text",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "text"
+        },
+        "raw_amount": {
+          "name": "raw_amount",
+          "type": "jsonb",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "json"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "default": "now()",
+          "mappedType": "datetime"
+        },
+        "deleted_at": {
+          "name": "deleted_at",
+          "type": "timestamptz",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": true,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "commission_rate_value",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "IDX_commission_rate_value_commission_rate_id",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_commission_rate_value_commission_rate_id\" ON \"commission_rate_value\" (\"commission_rate_id\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_commission_rate_value_currency_code",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_commission_rate_value_currency_code\" ON \"commission_rate_value\" (\"currency_code\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "IDX_commission_rate_value_deleted_at",
+          "columnNames": [],
+          "composite": false,
+          "constraint": false,
+          "primary": false,
+          "unique": false,
+          "expression": "CREATE INDEX IF NOT EXISTS \"IDX_commission_rate_value_deleted_at\" ON \"commission_rate_value\" (\"deleted_at\") WHERE deleted_at IS NULL"
+        },
+        {
+          "keyName": "commission_rate_value_pkey",
+          "columnNames": [
+            "id"
+          ],
+          "composite": false,
+          "constraint": true,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {
+        "commission_rate_value_commission_rate_id_foreign": {
+          "constraintName": "commission_rate_value_commission_rate_id_foreign",
+          "columnNames": [
+            "commission_rate_id"
+          ],
+          "localTableName": "public.commission_rate_value",
+          "referencedColumnNames": [
+            "id"
+          ],
+          "referencedTableName": "public.commission_rate",
+          "updateRule": "cascade"
+        }
+      },
       "nativeEnums": {}
     },
     {

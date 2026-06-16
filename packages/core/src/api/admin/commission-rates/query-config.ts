@@ -3,18 +3,20 @@ export const adminCommissionRateFields = [
   "name",
   "code",
   "type",
-  "target",
   "value",
   "currency_code",
-  "min_amount",
   "include_tax",
+  "include_shipping",
   "is_enabled",
-  "priority",
+  "is_default",
   "created_at",
   "updated_at",
   "rules.id",
   "rules.reference",
   "rules.reference_id",
+  "values.id",
+  "values.currency_code",
+  "values.amount",
 ]
 
 export const adminCommissionRateQueryConfig = {
