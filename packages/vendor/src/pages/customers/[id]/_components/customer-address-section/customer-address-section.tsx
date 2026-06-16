@@ -49,7 +49,7 @@ export const CustomerAddressSection = ({
           />
         </div>
       ) : (
-        <div className="flex flex-col gap-y-2 px-6 py-4">
+        <div className="flex flex-col gap-y-3 px-6 py-4">
           {addresses.map((address) => {
             const country =
               getCountryByIso2(address.country_code)?.display_name ??
@@ -61,7 +61,7 @@ export const CustomerAddressSection = ({
             return (
               <div
                 key={address.id}
-                className="bg-ui-bg-component shadow-elevation-card-rest flex flex-col gap-y-1 rounded-lg px-4 py-3"
+                className="bg-ui-bg-subtle border-ui-border-base flex flex-col gap-y-1 rounded-lg border px-4 py-3"
                 data-testid={`customer-address-section-address-${address.id}`}
               >
                 <Text size="small" weight="plus" leading="compact">
