@@ -4545,12 +4545,16 @@
             "description": {
               "type": "string"
             },
+            "descriptionByName": {
+              "type": "string"
+            },
             "successToast": {
               "type": "string"
             }
           },
           "required": [
             "description",
+            "descriptionByName",
             "successToast"
           ],
           "additionalProperties": false
