@@ -33,7 +33,7 @@ export const OfferActions = ({ product }: { product: OfferProductActions }) => {
       title: t("general.areYouSure"),
       // The product listing is one offer to the seller, regardless of how
       // many of its variants are offered under the hood.
-      description: t("offers.bulkDelete.description", { count: 1 }),
+      description: t("offers.delete.descriptionByName", { name: product.title }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
       variant: "danger",
@@ -46,7 +46,7 @@ export const OfferActions = ({ product }: { product: OfferProductActions }) => {
     const result = await bulkDelete(product.offerIds)
 
     if (result.failed.length === 0) {
-      toast.success(t("offers.bulkDelete.successToast", { count: 1 }))
+      toast.success(t("offers.delete.successToast"))
     } else {
       toast.warning(
         t("offers.bulkDelete.partialToast", {

@@ -1105,6 +1105,7 @@
     },
     "delete": {
       "description": "You are about to delete offer {{sku}}. This cannot be undone.",
+      "descriptionByName": "You are about to delete the offer {{name}}. This action cannot be undone.",
       "successToast": "Offer was successfully deleted."
     },
     "bulkDelete": {

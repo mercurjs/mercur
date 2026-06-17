@@ -9,7 +9,6 @@ import {
 } from "../../../components/table/table-cells/product/category-cell"
 import {
   ProductCell,
-  ProductHeader,
 } from "../../../components/table/table-cells/product/product-cell"
 import {
   ProductStatusCell,
@@ -42,7 +41,7 @@ export const useOfferTableColumns = () => {
     () => [
       columnHelper.display({
         id: "product",
-        header: () => <ProductHeader />,
+        header: t("offers.domain"),
         cell: ({ row }) => (
           <ProductCell
             product={{

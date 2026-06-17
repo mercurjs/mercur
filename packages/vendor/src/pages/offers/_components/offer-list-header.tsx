@@ -12,7 +12,7 @@ export const OfferListActions = () => {
   const { t } = useTranslation()
 
   return (
-    <Button size="small" variant="primary" asChild>
+    <Button size="small" variant="secondary" asChild>
       <Link to="create" data-testid="offer-list-create-button">
         {t("offers.actions.create")}
       </Link>
