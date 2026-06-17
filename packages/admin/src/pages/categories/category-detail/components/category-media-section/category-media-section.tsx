@@ -31,7 +31,7 @@ export const CategoryMediaSection = ({
                 {
                   label: t("actions.edit"),
                   icon: <PencilSquare />,
-                  to: "media/edit",
+                  to: "media?view=edit",
                 },
               ],
             },
@@ -71,9 +71,19 @@ export const CategoryMediaSection = ({
             ))}
           </div>
         ) : (
-          <Text size="small" className="text-ui-fg-subtle">
-            {t("categories.media.empty")}
-          </Text>
+          <div className="flex flex-col items-center justify-center gap-y-1 py-8">
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              className="text-ui-fg-subtle"
+            >
+              {t("categories.media.empty.header")}
+            </Text>
+            <Text size="small" className="text-ui-fg-muted">
+              {t("categories.media.empty.description")}
+            </Text>
+          </div>
         )}
       </div>
     </Container>

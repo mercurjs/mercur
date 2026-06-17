@@ -435,13 +435,13 @@ stack run); behavior is covered by the integration tests above.
   do not invent new gallery primitives; the product-media create section,
   detail section, and full-screen gallery editor already implement upload,
   reorder, thumbnail designation, and delete.
-- **Deviation — `media/edit` is a `RouteDrawer`, not a full-screen
-  `RouteFocusModal` gallery.** The implementation reuses the same
-  `CategoryMediaInput` (dropzone + list + per-row thumbnail/banner toggle)
-  in a drawer, matching the icon edit flow and the create wizard. This is
-  simpler, consistent with the edit-flow convention, and delivers the same
-  capability minus drag-to-reorder (rank is assigned by list order). Revisit
-  if drag-reorder of the gallery becomes a requirement.
+- **Media modal mirrors `product-media`.** The detail Media section opens a
+  full-screen `RouteFocusModal` at `categories/:id/media` with two views —
+  `gallery` (carousel) and `?view=edit` (DnD grid + side upload panel +
+  `CommandBar` for *Make thumbnail* / *Make banner* / *Delete*) — a scoped
+  copy of `pages/products/product-media`, adapted for the category
+  thumbnail **and** banner roles. The icon keeps its own `RouteDrawer`
+  (`icon/edit`) since it is a single image.
 - Vendor categories are *more minimal* than admin today (no status/
   visibility columns, no general-section actions). Bringing vendor to
   parity is **not** part of MER-156 (admin label) — track separately if

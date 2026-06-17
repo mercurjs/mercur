@@ -5,11 +5,16 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { Thumbnail } from "../../../../../components/common/thumbnail"
 import { StatusCell } from "../../../../../components/table/table-cells/common/status-cell"
 import {
   TextCell,
   TextHeader,
 } from "../../../../../components/table/table-cells/common/text-cell"
+import {
+  CategoryWithImages,
+  getCategoryGallery,
+} from "../../../common/components/category-image-fields"
 import {
   getCategoryPath,
   getIsActiveProps,
@@ -24,6 +29,21 @@ export const useCategoryTableColumns = () => {
 
   return useMemo(
     () => [
+      columnHelper.display({
+        id: "thumbnail",
+        header: "",
+        cell: ({ row }) => {
+          const gallery = getCategoryGallery(
+            (row.original as CategoryWithImages).images
+          )
+          const src =
+            gallery.find((image) => image.is_thumbnail)?.url ??
+            gallery[0]?.url ??
+            null
+
+          return <Thumbnail src={src} />
+        },
+      }),
       columnHelper.accessor("name", {
         header: () => <TextHeader text={t("fields.name")} />,
         cell: ({ getValue, row }) => {

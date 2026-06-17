@@ -3254,7 +3254,18 @@
             "label": { "type": "string" },
             "thumbnail": { "type": "string" },
             "banner": { "type": "string" },
-            "empty": { "type": "string" },
+            "galleryLabel": { "type": "string" },
+            "editHint": { "type": "string" },
+            "deleteWarning": { "type": "string" },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "required": ["header", "description"],
+              "additionalProperties": false
+            },
             "upload": {
               "type": "object",
               "properties": {
@@ -3262,6 +3273,15 @@
                 "hint": { "type": "string" }
               },
               "required": ["title", "hint"],
+              "additionalProperties": false
+            },
+            "tooltips": {
+              "type": "object",
+              "properties": {
+                "thumbnail": { "type": "string" },
+                "banner": { "type": "string" }
+              },
+              "required": ["thumbnail", "banner"],
               "additionalProperties": false
             },
             "actions": {
@@ -3291,21 +3311,38 @@
               "additionalProperties": false
             }
           },
-          "required": ["label", "thumbnail", "banner", "empty", "upload", "actions", "edit"],
+          "required": ["label", "thumbnail", "banner", "galleryLabel", "editHint", "deleteWarning", "empty", "upload", "tooltips", "actions", "edit"],
           "additionalProperties": false
         },
         "icon": {
           "type": "object",
           "properties": {
             "label": { "type": "string" },
-            "empty": { "type": "string" },
-            "hint": { "type": "string" },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "required": ["header", "description"],
+              "additionalProperties": false
+            },
+            "tip": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "text": { "type": "string" }
+              },
+              "required": ["label", "text"],
+              "additionalProperties": false
+            },
             "upload": {
               "type": "object",
               "properties": {
-                "title": { "type": "string" }
+                "title": { "type": "string" },
+                "hint": { "type": "string" }
               },
-              "required": ["title"],
+              "required": ["title", "hint"],
               "additionalProperties": false
             },
             "edit": {
@@ -3319,7 +3356,7 @@
               "additionalProperties": false
             }
           },
-          "required": ["label", "empty", "hint", "upload", "edit"],
+          "required": ["label", "empty", "tip", "upload", "edit"],
           "additionalProperties": false
         },
         "fields": {

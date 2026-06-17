@@ -1,8 +1,14 @@
-import { Photo, Trash, XMark } from "@medusajs/icons"
-import { Badge, IconButton, Text } from "@medusajs/ui"
+import {
+  EllipsisHorizontal,
+  InformationCircleSolid,
+  Photo,
+  ThumbnailBadge,
+  Trash,
+  XMark,
+} from "@medusajs/icons"
+import { DropdownMenu, IconButton, Text, Tooltip, clx } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { ActionMenu } from "@components/common/action-menu"
 import { FileType, FileUpload } from "@components/common/file-upload"
 import { formatFileSize } from "@lib/format-file-size"
 import { CATEGORY_IMAGE_FORMATS, CategoryMediaItem } from "./types"
@@ -62,7 +68,10 @@ export const CategoryMediaInput = ({
         onUploaded={handleUploaded}
       />
       {value.length > 0 && (
-        <ul className="flex flex-col gap-y-2" data-testid="category-media-input-list">
+        <ul
+          className="flex flex-col gap-y-2"
+          data-testid="category-media-input-list"
+        >
           {value.map((item, index) => (
             <li
               key={item.field_id ?? `${item.url}-${index}`}
@@ -85,16 +94,12 @@ export const CategoryMediaInput = ({
                   <Text size="small" leading="compact">
                     {item.file?.name ?? item.url}
                   </Text>
-                  <div className="flex items-center gap-x-1">
+                  <div className="text-ui-fg-subtle flex items-center gap-x-1">
                     {item.is_thumbnail && (
-                      <Badge size="2xsmall" color="green">
-                        {t("categories.media.thumbnail")}
-                      </Badge>
+                      <ThumbnailBadge data-testid="category-media-input-item-thumbnail-badge" />
                     )}
                     {item.is_banner && (
-                      <Badge size="2xsmall" color="blue">
-                        {t("categories.media.banner")}
-                      </Badge>
+                      <Photo data-testid="category-media-input-item-banner-badge" />
                     )}
                     {item.file && (
                       <Text
@@ -109,39 +114,16 @@ export const CategoryMediaInput = ({
                 </div>
               </div>
               <div className="flex items-center gap-x-1">
-                <ActionMenu
-                  groups={[
-                    {
-                      actions: [
-                        {
-                          label: item.is_thumbnail
-                            ? t("categories.media.actions.removeThumbnail")
-                            : t("categories.media.actions.setThumbnail"),
-                          icon: <Photo />,
-                          onClick: () =>
-                            toggleRole(index, "is_thumbnail", !item.is_thumbnail),
-                        },
-                        {
-                          label: item.is_banner
-                            ? t("categories.media.actions.removeBanner")
-                            : t("categories.media.actions.setBanner"),
-                          icon: <Photo />,
-                          onClick: () =>
-                            toggleRole(index, "is_banner", !item.is_banner),
-                        },
-                      ],
-                    },
-                    {
-                      actions: [
-                        {
-                          label: t("actions.delete"),
-                          icon: <Trash />,
-                          onClick: () => remove(index),
-                        },
-                      ],
-                    },
-                  ]}
-                  data-testid={`category-media-input-item-menu-${index}`}
+                <CategoryMediaItemMenu
+                  item={item}
+                  onToggleThumbnail={() =>
+                    toggleRole(index, "is_thumbnail", !item.is_thumbnail)
+                  }
+                  onToggleBanner={() =>
+                    toggleRole(index, "is_banner", !item.is_banner)
+                  }
+                  onDelete={() => remove(index)}
+                  testId={`category-media-input-item-menu-${index}`}
                 />
                 <IconButton
                   type="button"
@@ -158,5 +140,93 @@ export const CategoryMediaInput = ({
         </ul>
       )}
     </div>
+  )
+}
+
+type CategoryMediaItemMenuProps = {
+  item: CategoryMediaItem
+  onToggleThumbnail: () => void
+  onToggleBanner: () => void
+  onDelete: () => void
+  testId?: string
+}
+
+const CategoryMediaItemMenu = ({
+  item,
+  onToggleThumbnail,
+  onToggleBanner,
+  onDelete,
+  testId,
+}: CategoryMediaItemMenuProps) => {
+  const { t } = useTranslation()
+
+  return (
+    <DropdownMenu>
+      <DropdownMenu.Trigger asChild>
+        <IconButton size="small" variant="transparent" data-testid={testId}>
+          <EllipsisHorizontal />
+        </IconButton>
+      </DropdownMenu.Trigger>
+      <DropdownMenu.Content>
+        <MenuItemWithTooltip
+          icon={<ThumbnailBadge />}
+          label={
+            item.is_thumbnail
+              ? t("categories.media.actions.removeThumbnail")
+              : t("categories.media.actions.setThumbnail")
+          }
+          tooltip={t("categories.media.tooltips.thumbnail")}
+          onClick={onToggleThumbnail}
+        />
+        <MenuItemWithTooltip
+          icon={<Photo />}
+          label={
+            item.is_banner
+              ? t("categories.media.actions.removeBanner")
+              : t("categories.media.actions.setBanner")
+          }
+          tooltip={t("categories.media.tooltips.banner")}
+          onClick={onToggleBanner}
+        />
+        <DropdownMenu.Separator />
+        <DropdownMenu.Item
+          className="[&_svg]:text-ui-fg-subtle flex items-center gap-x-2"
+          onClick={onDelete}
+        >
+          <Trash />
+          <span>{t("actions.delete")}</span>
+        </DropdownMenu.Item>
+      </DropdownMenu.Content>
+    </DropdownMenu>
+  )
+}
+
+const MenuItemWithTooltip = ({
+  icon,
+  label,
+  tooltip,
+  onClick,
+}: {
+  icon: React.ReactNode
+  label: string
+  tooltip: string
+  onClick: () => void
+}) => {
+  return (
+    <DropdownMenu.Item
+      className={clx(
+        "[&_svg]:text-ui-fg-subtle flex items-center gap-x-2",
+        "justify-between"
+      )}
+      onClick={onClick}
+    >
+      <div className="flex items-center gap-x-2">
+        {icon}
+        <span>{label}</span>
+      </div>
+      <Tooltip content={tooltip}>
+        <InformationCircleSolid className="text-ui-fg-muted" />
+      </Tooltip>
+    </DropdownMenu.Item>
   )
 }

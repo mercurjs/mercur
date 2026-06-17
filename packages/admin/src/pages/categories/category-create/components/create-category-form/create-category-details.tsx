@@ -8,6 +8,7 @@ import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 import {
   CategoryIconInput,
+  CategoryIconTip,
   CategoryMediaInput,
 } from "../../../common/components/category-image-fields"
 import { CreateCategorySchema } from "./schema"
@@ -174,15 +175,15 @@ const Root = () => {
                   {t("categories.icon.label")}
                 </Form.Label>
                 <Form.Control data-testid="category-create-form-icon-control">
-                  <CategoryIconInput
-                    value={value ?? null}
-                    onChange={onChange}
-                    hasError={!!form.formState.errors.icon}
-                  />
+                  <div className="flex flex-col gap-y-2">
+                    <CategoryIconInput
+                      value={value ?? null}
+                      onChange={onChange}
+                      hasError={!!form.formState.errors.icon}
+                    />
+                    <CategoryIconTip />
+                  </div>
                 </Form.Control>
-                <Form.Hint data-testid="category-create-form-icon-hint">
-                  {t("categories.icon.hint")}
-                </Form.Hint>
                 <Form.ErrorMessage data-testid="category-create-form-icon-error" />
               </Form.Item>
             )

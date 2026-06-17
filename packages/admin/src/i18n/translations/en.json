@@ -925,10 +925,20 @@
       "label": "Media",
       "thumbnail": "Thumbnail",
       "banner": "Banner",
-      "empty": "No media added yet.",
+      "galleryLabel": "Gallery",
+      "editHint": "Add media to the category to showcase it on the storefront.",
+      "deleteWarning": "You are about to delete this image. This action cannot be undone.",
+      "empty": {
+        "header": "No media yet",
+        "description": "Add media to showcase it on the storefront."
+      },
       "upload": {
         "title": "Upload images",
         "hint": "Drag and drop images here or click to upload."
+      },
+      "tooltips": {
+        "thumbnail": "Shown as the category thumbnail on the homepage.",
+        "banner": "Shown as the category banner in the category listing."
       },
       "actions": {
         "setThumbnail": "Make thumbnail",
@@ -944,10 +954,17 @@
     },
     "icon": {
       "label": "Icon",
-      "empty": "No icon added yet.",
-      "hint": "This icon will appear near the category label on the storefront.",
+      "empty": {
+        "header": "No icon yet",
+        "description": "Add icon to showcase it near the category label on the storefront."
+      },
+      "tip": {
+        "label": "Tip:",
+        "text": "This icon will appear near the category label on the storefront."
+      },
       "upload": {
-        "title": "Upload icon"
+        "title": "Upload file",
+        "hint": "Drag and drop file here or click to upload."
       },
       "edit": {
         "header": "Edit Icon",

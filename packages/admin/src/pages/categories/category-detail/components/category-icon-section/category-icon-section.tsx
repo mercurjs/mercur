@@ -50,9 +50,19 @@ export const CategoryIconSection = ({
             />
           </div>
         ) : (
-          <Text size="small" className="text-ui-fg-subtle">
-            {t("categories.icon.empty")}
-          </Text>
+          <div className="flex flex-col items-center justify-center gap-y-1 py-8">
+            <Text
+              size="small"
+              leading="compact"
+              weight="plus"
+              className="text-ui-fg-subtle"
+            >
+              {t("categories.icon.empty.header")}
+            </Text>
+            <Text size="small" className="text-ui-fg-muted">
+              {t("categories.icon.empty.description")}
+            </Text>
+          </div>
         )}
       </div>
     </Container>

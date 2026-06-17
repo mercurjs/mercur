@@ -12,6 +12,7 @@ import { KeyboundForm } from "../../../components/utilities/keybound-form"
 import { useProductCategory, useUpdateProductCategory } from "../../../hooks/api/categories"
 import {
   CategoryIconInput,
+  CategoryIconTip,
   CategoryWithImages,
   getCategoryIcon,
   uploadCategoryImages,
@@ -66,13 +67,15 @@ const EditCategoryIconForm = ({ category }: EditCategoryIconFormProps) => {
                 <Form.Item>
                   <Form.Label optional>{t("categories.icon.label")}</Form.Label>
                   <Form.Control>
-                    <CategoryIconInput
-                      value={value ?? null}
-                      onChange={onChange}
-                      hasError={!!form.formState.errors.icon}
-                    />
+                    <div className="flex flex-col gap-y-2">
+                      <CategoryIconInput
+                        value={value ?? null}
+                        onChange={onChange}
+                        hasError={!!form.formState.errors.icon}
+                      />
+                      <CategoryIconTip />
+                    </div>
                   </Form.Control>
-                  <Form.Hint>{t("categories.icon.hint")}</Form.Hint>
                   <Form.ErrorMessage />
                 </Form.Item>
               )

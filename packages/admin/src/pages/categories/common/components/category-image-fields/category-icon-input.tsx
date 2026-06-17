@@ -72,6 +72,7 @@ export const CategoryIconInput = ({
     <div className="flex flex-col gap-y-2" data-testid="category-icon-input">
       <FileUpload
         label={t("categories.icon.upload.title")}
+        hint={t("categories.icon.upload.hint")}
         multiple={false}
         formats={CATEGORY_IMAGE_FORMATS}
         hasError={hasError}

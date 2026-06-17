@@ -267,9 +267,9 @@ export function getRouteMap({
                               import("./pages/categories/category-edit"),
                           },
                           {
-                            path: "media/edit",
+                            path: "media",
                             lazy: () =>
-                              import("./pages/categories/category-media-edit"),
+                              import("./pages/categories/category-media"),
                           },
                           {
                             path: "icon/edit",
