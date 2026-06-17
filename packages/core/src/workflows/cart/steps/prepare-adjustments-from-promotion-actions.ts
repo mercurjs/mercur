@@ -37,6 +37,7 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
                 shippingMethodAdjustmentsToCreate: [],
                 shippingMethodAdjustmentIdsToRemove: [],
                 computedPromotionCodes: [],
+                skippedPromoCodes: [],
             } as PrepareAdjustmentsFromPromotionActionsStepOutput)
         }
 
@@ -161,6 +162,7 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
             shippingMethodAdjustmentsToCreate,
             shippingMethodAdjustmentIdsToRemove,
             computedPromotionCodes,
+            skippedPromoCodes: [],
         } as PrepareAdjustmentsFromPromotionActionsStepOutput)
     }
 )

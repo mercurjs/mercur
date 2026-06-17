@@ -95,18 +95,17 @@ export const updateProductsWorkflow: ReturnWorkflow<
           ...update
         } = input.update
 
-        const refs = resolvedGroups[0]
-        const synthOptions: ProductOptionInput[] = [
-          ...refs.existing_variant.map((r) => ({
-            title: r.attribute_name,
-            values: r.value_names,
-          })),
-          ...refs.inline_variant.map((r) => ({
-            title: r.name,
-            values: r.values,
-          })),
-        ]
-        const options = synthOptions.length ? synthOptions : rawOptions
+        // Variant-axis attribute changes on an *existing* product are NOT
+        // forwarded as `options` to the stock update workflow. Since Medusa
+        // 2.16 (global product options) passing title-only options to a
+        // product update reconciles its whole option set and fails
+        // ("Cannot set field 'id' of Product product option to null") — and
+        // narrowing a value subset must instead go through the option↔
+        // product pivot. The attribute selection itself is persisted via
+        // `replaceProductAttributeValueLinksStep` below, which is the source
+        // of truth for `product.attributes`. Only caller-supplied raw
+        // `options` (and variants) are forwarded to the stock workflow.
+        const options = rawOptions
 
         const stockVariants = variants?.map((v) => {
           const {

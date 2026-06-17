@@ -210,21 +210,27 @@ const CreateProduct = z
     metadata: z.record(z.unknown()).optional(),
   })
   .strict()
-export const VendorCreateProduct = WithAdditionalData(CreateProduct, (schema) =>
-  schema.superRefine((data, ctx) => {
-    if (
-      data.status !== undefined &&
-      FeatureFlag.isFeatureEnabled(MercurFeatureFlags.PRODUCT_REQUEST) &&
-      data.status !== ProductStatus.DRAFT &&
-      data.status !== ProductStatus.PROPOSED
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["status"],
-        message: `When the product request flow is enabled, status must be one of: ${ProductStatus.DRAFT}, ${ProductStatus.PROPOSED}.`,
-      })
-    }
-  })
+export const VendorCreateProduct = WithAdditionalData(
+  CreateProduct,
+  (schema) =>
+    // `superRefine` returns a `ZodEffects`, but `WithAdditionalData`'s
+    // `modifyCallback` is typed (as of Medusa 2.16) to return a
+    // `ZodObject`. The wrapper only ever returns this value (it calls no
+    // `ZodObject`-only methods on it), so the cast is runtime-safe.
+    schema.superRefine((data, ctx) => {
+      if (
+        data.status !== undefined &&
+        FeatureFlag.isFeatureEnabled(MercurFeatureFlags.PRODUCT_REQUEST) &&
+        data.status !== ProductStatus.DRAFT &&
+        data.status !== ProductStatus.PROPOSED
+      ) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["status"],
+          message: `When the product request flow is enabled, status must be one of: ${ProductStatus.DRAFT}, ${ProductStatus.PROPOSED}.`,
+        })
+      }
+    }) as unknown as typeof schema
 )
 
 export type VendorUpdateProductType = z.infer<typeof UpdateProduct> &

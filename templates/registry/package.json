@@ -13,9 +13,9 @@
     "@mercurjs/cli": "*",
     "@types/node": "^22",
     "@types/unzipper": "^0.10.10",
-    "@medusajs/admin-sdk": "^2.13.4",
-    "@medusajs/cli": "^2.13.4",
-    "@medusajs/framework": "^2.13.4",
-    "@medusajs/medusa": "^2.13.4"
+    "@medusajs/admin-sdk": "^2.16.0-options-preview-20260605124754",
+    "@medusajs/cli": "^2.16.0-options-preview-20260605124754",
+    "@medusajs/framework": "^2.16.0-options-preview-20260605124754",
+    "@medusajs/medusa": "^2.16.0-options-preview-20260605124754"
   }
 }

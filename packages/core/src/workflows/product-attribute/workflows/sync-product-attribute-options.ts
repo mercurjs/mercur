@@ -4,9 +4,9 @@ import {
   when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { deleteProductOptionsWorkflow } from "@medusajs/medusa/core-flows"
 
 import {
+  detachAndDeleteProductOptionsStep,
   upsertProductOptionsForAxisStep,
   type UpsertProductOptionsForAxisInput,
 } from "../steps"
@@ -44,11 +44,9 @@ export const syncProductAttributeOptionsWorkflow = createWorkflow(
     )
 
     when({ input }, ({ input }) => !!input.delete_ids?.length).then(() => {
-      deleteProductOptionsWorkflow.runAsStep({
-        input: transform({ input }, ({ input }) => ({
-          ids: input.delete_ids ?? [],
-        })),
-      })
+      detachAndDeleteProductOptionsStep(
+        transform({ input }, ({ input }) => input.delete_ids ?? []),
+      )
     })
 
     return new WorkflowResponse(void 0)
