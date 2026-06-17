@@ -551,6 +551,16 @@ export function getRouteMap({
                               import("./pages/collections/collection-edit"),
                           },
                           {
+                            path: "media",
+                            lazy: () =>
+                              import("./pages/collections/collection-media"),
+                          },
+                          {
+                            path: "icon/edit",
+                            lazy: () =>
+                              import("./pages/collections/collection-icon-edit"),
+                          },
+                          {
                             path: "products",
                             lazy: () =>
                               import("./pages/collections/collection-add-products"),

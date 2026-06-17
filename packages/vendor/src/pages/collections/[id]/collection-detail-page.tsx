@@ -6,6 +6,8 @@ import { SingleColumnPage } from "@components/layout/pages";
 import { useCollection } from "@hooks/api/collections";
 
 import { CollectionGeneralSection } from "./_components/collection-general-section";
+import { CollectionIconSection } from "./_components/collection-icon-section";
+import { CollectionMediaSection } from "./_components/collection-media-section";
 import { CollectionProductSection } from "./_components/collection-product-section";
 
 import type { loader } from "./loader";
@@ -18,7 +20,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   });
 
   if (isLoading || !collection) {
-    return <SingleColumnPageSkeleton sections={2} />;
+    return <SingleColumnPageSkeleton sections={4} />;
   }
 
   if (isError) throw error;
@@ -30,6 +32,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <SingleColumnPage data={collection}>
           <CollectionGeneralSection collection={collection} />
+          <CollectionMediaSection collection={collection} />
+          <CollectionIconSection collection={collection} />
           <CollectionProductSection collection={collection} />
         </SingleColumnPage>
       )}
@@ -39,5 +43,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
 export const CollectionDetailPage = Object.assign(Root, {
   GeneralSection: CollectionGeneralSection,
+  MediaSection: CollectionMediaSection,
+  IconSection: CollectionIconSection,
   ProductSection: CollectionProductSection,
 });

@@ -39,8 +39,8 @@ export type Routes = {
                 request: typeof import("../../src/api/admin/claims/[id]/request/route");
             };
         };
-        collections: typeof import("@medusajs/medusa/api/admin/collections/route") & {
-            $id: typeof import("@medusajs/medusa/api/admin/collections/[id]/route") & {
+        collections: typeof import("../../src/api/admin/collections/route") & {
+            $id: typeof import("../../src/api/admin/collections/[id]/route") & {
                 products: typeof import("@medusajs/medusa/api/admin/collections/[id]/products/route");
             };
         };

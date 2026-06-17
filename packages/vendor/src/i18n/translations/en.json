@@ -925,6 +925,22 @@
         "successToast_one": "Product was successfully removed from the collection.",
         "successToast_other": "Products were successfully removed from the collection."
       }
+    },
+    "media": {
+      "label": "Media",
+      "thumbnail": "Thumbnail",
+      "banner": "Banner",
+      "empty": {
+        "header": "No media yet",
+        "description": "Media added by the marketplace operator will appear here."
+      }
+    },
+    "icon": {
+      "label": "Icon",
+      "empty": {
+        "header": "No icon yet",
+        "description": "An icon added by the marketplace operator will appear here."
+      }
     }
   },
   "categories": {
@@ -1676,8 +1692,8 @@
       "remainingQty": "{{count}} returnable",
       "noteHint": "Add an internal note for this exchange (visible only to your team).",
       "toast": {
-        "confirmedSuccessfully": "Exchange request confirmed.",
-        "canceledSuccessfully": "Exchange draft discarded."
+        "canceledSuccessfully": "Exchange canceled successfully",
+        "confirmedSuccessfully": "Exchange confirmed successfully"
       },
       "manage": "Manage Exchange",
       "confirm": "Confirm Exchange",
@@ -1703,10 +1719,6 @@
       },
       "tooltips": {
         "onlyReturnShippingOptions": "This list will consist of only return shipping options."
-      },
-      "toast": {
-        "canceledSuccessfully": "Exchange canceled successfully",
-        "confirmedSuccessfully": "Exchange confirmed successfully"
       },
       "panel": {
         "title": "Exchange initiated",

@@ -32,7 +32,6 @@ export const CollectionProductSection = ({
   const { products, count, isLoading, isError, error } = useProducts(
     {
       ...searchParams,
-      fields: "+thumbnail",
       collection_id: collection.id!,
     },
     { placeholderData: keepPreviousData },
