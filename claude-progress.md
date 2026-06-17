@@ -14,6 +14,49 @@
 
 ## Session Log
 
+### Session 35: 2026-06-17 -- SPEC-012 Collections media + icon (MER-155 admin, MER-153 vendor)
+
+**Goal.** Follow-up to SPEC-011: give product **collections** the same media
+gallery (thumbnail/banner) + single icon as categories, reusing the SPEC-011
+`media` module via a second module link. Phase 1 = admin (create/edit), Phase 2
+= vendor (read-only display).
+
+**Landed.**
+- Backend: `links/media-product-collection-link.ts`; collection workflows
+  (`set-collection-images` + create/update/delete wrappers around Medusa's
+  `*CollectionsWorkflow`); new `api/admin/collections/` routes
+  (validators `media[]`+`icon`, query-config `images.*`, GET/POST/DELETE calling
+  the wrapper workflows); `api/vendor/collections/query-config.ts` now requests
+  `images.*`.
+- **Key gotcha (resolved):** Medusa's `zodValidator` forces `.strict()`, so
+  core's collection body validator 400s on `media`/`icon`. Plugin middleware is
+  *merged* with core's (both run) — the fix is the existing
+  `disableMedusaMiddlewares` mechanism: added
+  `dist/api/admin/collections/middlewares.js` to its `OVERRIDES` list and
+  re-spread the non-overridden core sub-routes (`:id/products`, `/*`) in
+  `api/admin/collections/middlewares.ts` via `ORIGINAL_MIDDLEWARES`
+  (same pattern as products/categories/shipping-profiles).
+- Admin UI: `pages/collections/` scoped copy of the category media/icon UI —
+  shared `collection-image-fields`, create-form fields, detail Media/Icon
+  sections, full-screen gallery editor (`collection-media/`) + icon drawer
+  (`collection-icon-edit/`), routes registered, i18n.
+- Vendor UI: read-only `collection-media-section` / `collection-icon-section`
+  wired into the collection detail page; vendor i18n.
+
+**Verification.** `bun run build` 9/9. New HTTP test
+`integration-tests/http/collections/admin/collections-media.spec.ts` → 5 passed.
+`product-categories-media` regression → 5 passed. `bun run lint` no new errors
+in collections/media files. Pre-existing (NOT a regression):
+`collections/vendor/collections.spec.ts` 2 failures (`Cannot resolve alias path`
+in `vendor/products/route.ts:98`) — confirmed identical on clean canary with all
+changes stashed.
+
+**Spec.** `docs/specs/SPEC-012-collections-media.md` (status `passing`).
+
+**Open.** Two Linear issues (MER-155 admin, MER-153 vendor) implemented in one
+worktree; PR/branch strategy left to the user. Manual dashboard smoke test not
+run (no dev stack).
+
 ### Session 34: 2026-06-16 -- SPEC-011 Categories Admin Panel media + icon (MER-156)
 
 **Goal.** Categories admin is ~90% built; the one gap vs the B2C Figma /

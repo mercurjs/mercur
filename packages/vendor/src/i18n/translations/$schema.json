@@ -3797,6 +3797,72 @@
             "remove"
           ],
           "additionalProperties": false
+        },
+        "media": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "thumbnail": {
+              "type": "string"
+            },
+            "banner": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header",
+                "description"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "label",
+            "thumbnail",
+            "banner",
+            "empty"
+          ],
+          "additionalProperties": false
+        },
+        "icon": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header",
+                "description"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "label",
+            "empty"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -3811,7 +3877,9 @@
         "removeSingleProductWarning",
         "removeProductsWarning_one",
         "removeProductsWarning_other",
-        "products"
+        "products",
+        "media",
+        "icon"
       ],
       "additionalProperties": false
     },

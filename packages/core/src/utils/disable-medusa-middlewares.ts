@@ -27,6 +27,7 @@ const OVERRIDES: string[] = [
   "dist/api/admin/products/middlewares.js",
   "dist/api/admin/product-variants/middlewares.js",
   "dist/api/admin/product-categories/middlewares.js",
+  "dist/api/admin/collections/middlewares.js",
   "dist/api/admin/orders/middlewares.js",
   "dist/api/admin/shipping-options/middlewares.js",
   "dist/api/admin/shipping-profiles/middlewares.js",
