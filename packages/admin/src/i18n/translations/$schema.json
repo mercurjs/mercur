@@ -3915,9 +3915,25 @@
               },
               "required": ["header", "hint", "successToast"],
               "additionalProperties": false
+            },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                },
+                "hint": {
+                  "type": "string"
+                },
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": ["header", "hint", "successToast"],
+              "additionalProperties": false
             }
           },
-          "required": ["title", "fields", "create"],
+          "required": ["title", "fields", "create", "edit"],
           "additionalProperties": false
         }
       },

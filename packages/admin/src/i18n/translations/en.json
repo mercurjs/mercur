@@ -1098,6 +1098,11 @@
         "header": "Create Address",
         "hint": "Create a new address for the customer.",
         "successToast": "Address was successfully created."
+      },
+      "edit": {
+        "header": "Edit Address",
+        "hint": "Edit the customer's address.",
+        "successToast": "Address was successfully updated."
       }
     }
   },

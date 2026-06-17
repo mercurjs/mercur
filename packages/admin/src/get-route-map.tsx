@@ -671,6 +671,11 @@ export function getRouteMap({
                               import("./pages/customers/customer-create-address"),
                           },
                           {
+                            path: "edit-address/:address_id",
+                            lazy: () =>
+                              import("./pages/customers/customer-edit-address"),
+                          },
+                          {
                             path: "add-customer-groups",
                             lazy: () =>
                               import("./pages/customers/customers-add-customer-group"),
