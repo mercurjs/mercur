@@ -12,7 +12,7 @@ import { useOffer, useUpdateOffer } from "../../../../../../hooks/api/offers"
 import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../../common/constants"
 import { OfferDetail } from "../../../../common/types"
 
-const Schema = z.object({ sku: z.string().min(1).max(64) })
+const Schema = z.object({ sku: z.string().max(64).optional() })
 type Values = z.infer<typeof Schema>
 
 /**
@@ -30,8 +30,11 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
   const { mutateAsync, isPending } = useUpdateOffer(offer.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
+    // SKU is optional: leave the offer's SKU untouched when the field is blank
+    // rather than sending an empty string (the API rejects "" on update).
+    const sku = values.sku?.trim()
     await mutateAsync(
-      { sku: values.sku },
+      sku ? { sku } : {},
       {
         onSuccess: () => {
           toast.success(t("offers.edit.successToast"))
