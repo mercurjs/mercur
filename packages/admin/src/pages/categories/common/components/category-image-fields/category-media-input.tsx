@@ -1,31 +1,31 @@
 import {
   EllipsisHorizontal,
+  FeaturedBadge,
   InformationCircleSolid,
-  ListBullet,
   Photo,
   ThumbnailBadge,
   Trash,
   XMark,
-} from "@medusajs/icons"
-import { DropdownMenu, IconButton, Text, Tooltip, clx } from "@medusajs/ui"
-import { useTranslation } from "react-i18next"
+} from "@medusajs/icons";
+import { DropdownMenu, IconButton, Text, Tooltip, clx } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 
-import { FileType, FileUpload } from "@components/common/file-upload"
-import { formatFileSize } from "@lib/format-file-size"
-import { CATEGORY_IMAGE_FORMATS, CategoryMediaItem } from "./types"
+import { FileType, FileUpload } from "@components/common/file-upload";
+import { formatFileSize } from "@lib/format-file-size";
+import { CATEGORY_IMAGE_FORMATS, CategoryMediaItem } from "./types";
 
 type CategoryMediaInputProps = {
-  value: CategoryMediaItem[]
-  onChange: (next: CategoryMediaItem[]) => void
-  hasError?: boolean
-}
+  value: CategoryMediaItem[];
+  onChange: (next: CategoryMediaItem[]) => void;
+  hasError?: boolean;
+};
 
 export const CategoryMediaInput = ({
   value,
   onChange,
   hasError,
 }: CategoryMediaInputProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   const handleUploaded = (files: FileType[]) => {
     onChange([
@@ -37,27 +37,27 @@ export const CategoryMediaInput = ({
         is_banner: false,
         field_id: f.id,
       })),
-    ])
-  }
+    ]);
+  };
 
   // A flag (thumbnail/banner) is exclusive across the gallery: turning it
   // on for one image clears it from every other.
   const toggleRole = (
     index: number,
     role: "is_thumbnail" | "is_banner",
-    on: boolean
+    on: boolean,
   ) => {
     onChange(
       value.map((item, i) => ({
         ...item,
         [role]: i === index ? on : on ? false : item[role],
-      }))
-    )
-  }
+      })),
+    );
+  };
 
   const remove = (index: number) => {
-    onChange(value.filter((_, i) => i !== index))
-  }
+    onChange(value.filter((_, i) => i !== index));
+  };
 
   return (
     <div className="flex flex-col gap-y-2" data-testid="category-media-input">
@@ -100,7 +100,7 @@ export const CategoryMediaInput = ({
                       <ThumbnailBadge data-testid="category-media-input-item-thumbnail-badge" />
                     )}
                     {item.is_banner && (
-                      <ListBullet
+                      <FeaturedBadge
                         className="text-ui-fg-interactive"
                         data-testid="category-media-input-item-banner-badge"
                       />
@@ -144,16 +144,16 @@ export const CategoryMediaInput = ({
         </ul>
       )}
     </div>
-  )
-}
+  );
+};
 
 type CategoryMediaItemMenuProps = {
-  item: CategoryMediaItem
-  onToggleThumbnail: () => void
-  onToggleBanner: () => void
-  onDelete: () => void
-  testId?: string
-}
+  item: CategoryMediaItem;
+  onToggleThumbnail: () => void;
+  onToggleBanner: () => void;
+  onDelete: () => void;
+  testId?: string;
+};
 
 const CategoryMediaItemMenu = ({
   item,
@@ -162,7 +162,7 @@ const CategoryMediaItemMenu = ({
   onDelete,
   testId,
 }: CategoryMediaItemMenuProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   return (
     <DropdownMenu>
@@ -183,7 +183,7 @@ const CategoryMediaItemMenu = ({
           onClick={onToggleThumbnail}
         />
         <MenuItemWithTooltip
-          icon={<ListBullet />}
+          icon={<FeaturedBadge />}
           label={
             item.is_banner
               ? t("categories.media.actions.removeBanner")
@@ -202,8 +202,8 @@ const CategoryMediaItemMenu = ({
         </DropdownMenu.Item>
       </DropdownMenu.Content>
     </DropdownMenu>
-  )
-}
+  );
+};
 
 const MenuItemWithTooltip = ({
   icon,
@@ -211,16 +211,16 @@ const MenuItemWithTooltip = ({
   tooltip,
   onClick,
 }: {
-  icon: React.ReactNode
-  label: string
-  tooltip: string
-  onClick: () => void
+  icon: React.ReactNode;
+  label: string;
+  tooltip: string;
+  onClick: () => void;
 }) => {
   return (
     <DropdownMenu.Item
       className={clx(
         "[&_svg]:text-ui-fg-subtle flex items-center gap-x-2",
-        "justify-between"
+        "justify-between",
       )}
       onClick={onClick}
     >
@@ -232,5 +232,5 @@ const MenuItemWithTooltip = ({
         <InformationCircleSolid className="text-ui-fg-muted" />
       </Tooltip>
     </DropdownMenu.Item>
-  )
-}
+  );
+};

@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useState } from "react"
 
-import { ListBullet, ThumbnailBadge } from "@medusajs/icons"
+import { FeaturedBadge, ThumbnailBadge } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import {
   Button,
@@ -325,7 +325,7 @@ const RoleBadges = ({ media }: { media: MediaField }) => {
       )}
       {media.is_banner && (
         <Tooltip content={t("categories.media.banner")}>
-          <ListBullet className="text-ui-fg-interactive" />
+          <FeaturedBadge className="text-ui-fg-interactive" />
         </Tooltip>
       )}
     </div>

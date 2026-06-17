@@ -1,4 +1,4 @@
-import { ListBullet, PencilSquare, ThumbnailBadge } from "@medusajs/icons"
+import { FeaturedBadge, PencilSquare, ThumbnailBadge } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text, Tooltip } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -62,7 +62,7 @@ export const CategoryMediaSection = ({
                     )}
                     {image.is_banner && (
                       <Tooltip content={t("categories.media.banner")}>
-                        <ListBullet className="text-ui-fg-interactive" />
+                        <FeaturedBadge className="text-ui-fg-interactive" />
                       </Tooltip>
                     )}
                   </div>

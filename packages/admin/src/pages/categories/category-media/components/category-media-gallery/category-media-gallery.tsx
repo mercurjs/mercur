@@ -1,6 +1,6 @@
 import {
   ArrowDownTray,
-  ListBullet,
+  FeaturedBadge,
   ThumbnailBadge,
   Trash,
   TriangleLeftMini,
@@ -193,7 +193,7 @@ const Canvas = ({
             )}
             {media[curr].is_banner && (
               <Tooltip content={t("categories.media.banner")}>
-                <ListBullet className="text-ui-fg-interactive" />
+                <FeaturedBadge className="text-ui-fg-interactive" />
               </Tooltip>
             )}
           </div>
