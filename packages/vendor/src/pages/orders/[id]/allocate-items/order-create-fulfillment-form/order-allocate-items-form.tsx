@@ -12,17 +12,21 @@ import {
 } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { ordersQueryKeys } from "@hooks/api/orders"
-import { useCreateReservationItem } from "@hooks/api/reservations"
+import {
+  useCreateReservationItem,
+  useReservationItems,
+} from "@hooks/api/reservations"
 import { useStockLocations } from "@hooks/api/stock-locations"
 import { queryClient } from "@lib/query-client"
 import { getFulfillableQuantity } from "@lib/order-item"
+import { getReservationsLimitCount } from "@lib/orders"
 import { AllocateItemsSchema } from "./constants"
 import {
   OrderAllocateItemsItem,
   type OfferLinkRow,
   type OrderLineItemWithOffer,
 } from "./order-allocate-items-item"
-import { buildAllocationPayload } from "./utils"
+import { buildAllocationPayload, getAllocatableItems } from "./utils"
 import type { HttpTypes, OrderLineItemDTO } from "@medusajs/types"
 
 type OrderAllocateItemsFormProps = {
@@ -39,14 +43,21 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
   const { mutateAsync: allocateItems, isPending: isMutating } =
     useCreateReservationItem()
 
+  const { reservations } = useReservationItems(
+    {
+      line_item_id: order?.items?.map((i) => i.id),
+      limit: getReservationsLimitCount(order),
+    },
+    { enabled: Array.isArray(order?.items) }
+  )
+
   const itemsToAllocate = useMemo(
     () =>
-      (order.items as OrderLineItemWithOffer[]).filter(
-        (item) =>
-          !!item.offer?.inventory_item_link?.length &&
-          item?.quantity - (item.detail?.fulfilled_quantity ?? 0) > 0
+      getAllocatableItems(
+        order.items as OrderLineItemWithOffer[],
+        reservations ?? []
       ),
-    [order.items]
+    [order.items, reservations]
   )
 
   const filteredItems = useMemo(() => {
@@ -84,7 +95,24 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
         return
       }
 
-      const promises = result.items.map((item) =>
+      // Never re-reserve an item that is no longer allocatable (e.g. it picked
+      // up a reservation after the form's defaults were computed). Without this
+      // a stale prefilled quantity could create a duplicate reservation. (MER-187)
+      const allocatableIds = new Set(itemsToAllocate.map((i) => i.id))
+      const allocations = result.items.filter((item) =>
+        allocatableIds.has(item.line_item_id)
+      )
+
+      if (allocations.length === 0) {
+        form.setError("root.quantityNotAllocated", {
+          type: "manual",
+          message: t("orders.allocateItems.error.noItemsSelected"),
+        })
+
+        return
+      }
+
+      const promises = allocations.map((item) =>
         allocateItems({
           location_id: data.location_id,
           inventory_item_id: item.inventory_item_id,
