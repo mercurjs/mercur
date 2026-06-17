@@ -1,6 +1,6 @@
 import { Fragment, useCallback, useState } from "react"
 
-import { FeaturedBadge, ThumbnailBadge } from "@medusajs/icons"
+import { ThumbnailBadge } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import {
   Button,
@@ -46,6 +46,7 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateProductCategory } from "../../../../../hooks/api/categories"
 import {
   CATEGORY_IMAGE_FORMATS,
+  CategoryBannerBadge,
   CategoryWithImages,
   getCategoryGallery,
   uploadCategoryImages,
@@ -325,7 +326,7 @@ const RoleBadges = ({ media }: { media: MediaField }) => {
       )}
       {media.is_banner && (
         <Tooltip content={t("categories.media.banner")}>
-          <FeaturedBadge />
+          <CategoryBannerBadge />
         </Tooltip>
       )}
     </div>

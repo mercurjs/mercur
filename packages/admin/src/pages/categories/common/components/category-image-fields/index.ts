@@ -1,4 +1,5 @@
 export * from "./types"
+export * from "./category-banner-badge"
 export * from "./category-media-input"
 export * from "./category-icon-input"
 export * from "./category-icon-tip"

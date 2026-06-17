@@ -1,6 +1,5 @@
 import {
   ArrowDownTray,
-  FeaturedBadge,
   ThumbnailBadge,
   Trash,
   TriangleLeftMini,
@@ -16,6 +15,7 @@ import { RouteFocusModal } from "../../../../../components/modals"
 import { useUpdateProductCategory } from "../../../../../hooks/api/categories"
 import {
   CategoryApiImage,
+  CategoryBannerBadge,
   CategoryWithImages,
   getCategoryGallery,
 } from "../../../common/components/category-image-fields"
@@ -193,7 +193,7 @@ const Canvas = ({
             )}
             {media[curr].is_banner && (
               <Tooltip content={t("categories.media.banner")}>
-                <FeaturedBadge />
+                <CategoryBannerBadge />
               </Tooltip>
             )}
           </div>
