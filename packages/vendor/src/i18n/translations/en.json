@@ -1123,6 +1123,14 @@
       "description": "Update the offer's identity, shipping profile, or metadata.",
       "successToast": "Offer updated"
     },
+    "variant": {
+      "edit": {
+        "successToast": "Offer variant was successfully updated."
+      },
+      "shipping": {
+        "successToast": "Shipping configuration was successfully updated."
+      }
+    },
     "pricing": {
       "header": "Manage prices",
       "description": "Add, change, or remove prices on this offer's ladder.",
@@ -1197,6 +1205,7 @@
     },
     "validation": {
       "skuRequired": "SKU is required for rows with a stock location enabled or a non-zero price.",
+      "shippingProfileRequired": "Select a shipping profile to publish this row.",
       "duplicateSku": "Another row in this submission already uses this SKU.",
       "duplicatePriceRule": "Another price row already has this combination of currency, region, customer group, and quantity bounds.",
       "duplicateInventoryItem": "This inventory item is already attached.",
@@ -1752,7 +1761,6 @@
     },
     "fulfillment": {
       "cancelWarning": "You are about to cancel a fulfillment. This action cannot be undone.",
-      "cancelDisabledTooltip": "A shipped fulfillment can no longer be canceled.",
       "markAsDeliveredWarning": "You are about to mark fulfillment as delivered. This action cannot be undone.",
       "differentOptionSelected": "The selected shipping option is different from the one selected by the customer.",
       "disabledItemTooltip": "The location or shipping option you have selected don’t allow fulfillment of this item.",
@@ -1776,7 +1784,7 @@
       "markAsDelivered": "Mark as delivered",
       "itemsToFulfillDesc": "Choose items and quantities to fulfill",
       "locationDescription": "Choose which location you want to fulfill items from.",
-      "sendNotificationHint": "Notify customers about the created fulfillment.",
+      "sendNotificationHint": "Notify customer about fulfillment.",
       "methodDescription": "Choose a different shipping method from the one customer selected",
       "error": {
         "wrongQuantity": "Only one item is available for fulfillment",

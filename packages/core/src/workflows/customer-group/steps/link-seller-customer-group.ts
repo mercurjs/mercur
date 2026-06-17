@@ -13,12 +13,14 @@ export const linkSellerCustomerGroupStep = createStep(
   async (input: LinkSellerCustomerGroupStepInput, { container }) => {
     const remoteLink: Link = container.resolve(ContainerRegistrationKeys.LINK)
 
+    // Module order must match the `defineLink` order in
+    // `links/seller-customer-group-link.ts` (customer group first, then seller).
     const links = input.customer_group_ids.map((customerGroupId) => ({
-      [MercurModules.SELLER]: {
-        seller_id: input.seller_id,
-      },
       [Modules.CUSTOMER]: {
         customer_group_id: customerGroupId,
+      },
+      [MercurModules.SELLER]: {
+        seller_id: input.seller_id,
       },
     }))
 
@@ -37,11 +39,11 @@ export const linkSellerCustomerGroupStep = createStep(
     )
 
     const links = data.customer_group_ids.map((customerGroupId) => ({
-      [MercurModules.SELLER]: {
-        seller_id: data.seller_id,
-      },
       [Modules.CUSTOMER]: {
         customer_group_id: customerGroupId,
+      },
+      [MercurModules.SELLER]: {
+        seller_id: data.seller_id,
       },
     }))
 

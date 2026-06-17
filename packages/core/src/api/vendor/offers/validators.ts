@@ -72,7 +72,7 @@ export const VendorCreateOffer = z
   .object({
     sku: z.string().min(1),
     variant_id: z.string(),
-    shipping_profile_id: z.string(),
+    shipping_profile_id: z.string().min(1),
     inventory_items: z.array(VendorOfferInventoryItem).min(1),
     prices: z.array(VendorOfferPrice).min(1),
     ean: z.string().min(1).nullish(),
@@ -85,7 +85,7 @@ export type VendorUpdateOfferType = z.infer<typeof VendorUpdateOffer>
 export const VendorUpdateOffer = z
   .object({
     sku: z.string().min(1).optional(),
-    shipping_profile_id: z.string().optional(),
+    shipping_profile_id: z.string().min(1).optional(),
     metadata: z.record(z.string(), z.unknown()).nullish(),
     /**
      * Optional full price ladder. When set, the offer's PriceSet is rewritten
@@ -124,7 +124,7 @@ const VendorCreateOffersBatchItem = z
   .object({
     sku: z.string().min(1),
     variant_id: z.string(),
-    shipping_profile_id: z.string(),
+    shipping_profile_id: z.string().min(1),
     prices: z.array(VendorOfferPrice).min(1),
     inventory_items: z.array(VendorOfferInventoryItem).min(1),
     ean: z.string().min(1).nullish(),

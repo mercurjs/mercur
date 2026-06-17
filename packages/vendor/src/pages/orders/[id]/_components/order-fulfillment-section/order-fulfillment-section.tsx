@@ -361,9 +361,6 @@ const Fulfillment = ({
                     icon: <XCircle />,
                     onClick: handleCancel,
                     disabled: cancelDisabled,
-                    disabledTooltip: fulfillment.shipped_at
-                      ? t("orders.fulfillment.cancelDisabledTooltip")
-                      : undefined,
                   },
                 ],
               },

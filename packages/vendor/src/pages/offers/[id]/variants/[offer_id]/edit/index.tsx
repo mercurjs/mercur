@@ -37,7 +37,7 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
       sku ? { sku } : {},
       {
         onSuccess: () => {
-          toast.success(t("offers.edit.successToast"))
+          toast.success(t("offers.variant.edit.successToast"))
           handleSuccess()
         },
         onError: (error) => toast.error(error.message),

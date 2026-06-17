@@ -43,6 +43,16 @@ bun run test:integration:tests       # Run integration tests
 - ALWAYS use `bun` (never npm, yarn, or pnpm)
 - NEVER run `bun run test:integration:http` (runs all packages). Use `bun run test:integration:http -- <pattern>`
 
+## Testing a Worktree
+
+When the user asks to test a worktree (e.g. "test this worktree", "run this worktree", "spin up <worktree-name>"):
+
+1. Run `./scripts/dev-worktree.sh <worktree-name>` in the background (e.g. `./scripts/dev-worktree.sh spec013-cont`).
+2. Once the apps are up, return these URLs to the user:
+   - API: http://localhost:9000
+   - Admin: http://localhost:7000
+   - Vendor: http://localhost:7001
+
 ## Writing Code
 
 - NEVER use `any`.

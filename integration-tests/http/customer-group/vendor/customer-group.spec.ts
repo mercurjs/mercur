@@ -70,10 +70,10 @@ medusaIntegrationTestRunner({
             expect.objectContaining({ name: "VIP" })
           )
 
-          // The seller_customer_group link row exists
+          // The customer_group_seller link row exists
           const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
           const { data } = await query.graph({
-            entity: "seller_customer_group",
+            entity: "customer_group_seller",
             fields: ["seller_id", "customer_group_id"],
             filters: {
               seller_id: seller1.id,

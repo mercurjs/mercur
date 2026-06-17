@@ -4737,12 +4737,33 @@
                 "successToast"
               ],
               "additionalProperties": false
+            },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                },
+                "hint": {
+                  "type": "string"
+                },
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header",
+                "hint",
+                "successToast"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
             "title",
             "fields",
-            "create"
+            "create",
+            "edit"
           ],
           "additionalProperties": false
         }
@@ -13794,6 +13815,9 @@
         "note": {
           "type": "string"
         },
+        "owner": {
+          "type": "string"
+        },
         "automaticTaxes": {
           "type": "string"
         },
@@ -14202,6 +14226,7 @@
         "inventory",
         "optional",
         "note",
+        "owner",
         "automaticTaxes",
         "taxInclusivePricing",
         "currency",

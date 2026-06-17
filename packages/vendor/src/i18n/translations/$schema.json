@@ -4627,6 +4627,40 @@
           ],
           "additionalProperties": false
         },
+        "variant": {
+          "type": "object",
+          "properties": {
+            "edit": {
+              "type": "object",
+              "properties": {
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "successToast"
+              ],
+              "additionalProperties": false
+            },
+            "shipping": {
+              "type": "object",
+              "properties": {
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "successToast"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "edit",
+            "shipping"
+          ],
+          "additionalProperties": false
+        },
         "pricing": {
           "type": "object",
           "properties": {
@@ -4921,6 +4955,9 @@
             "skuRequired": {
               "type": "string"
             },
+            "shippingProfileRequired": {
+              "type": "string"
+            },
             "duplicateSku": {
               "type": "string"
             },
@@ -4942,6 +4979,7 @@
           },
           "required": [
             "skuRequired",
+            "shippingProfileRequired",
             "duplicateSku",
             "duplicatePriceRule",
             "duplicateInventoryItem",
@@ -4958,6 +4996,7 @@
         "create",
         "detail",
         "edit",
+        "variant",
         "pricing",
         "inventory",
         "delete",
@@ -6967,9 +7006,6 @@
             "cancelWarning": {
               "type": "string"
             },
-            "cancelDisabledTooltip": {
-              "type": "string"
-            },
             "markAsDeliveredWarning": {
               "type": "string"
             },
@@ -7176,7 +7212,6 @@
           },
           "required": [
             "cancelWarning",
-            "cancelDisabledTooltip",
             "markAsDeliveredWarning",
             "differentOptionSelected",
             "disabledItemTooltip",
