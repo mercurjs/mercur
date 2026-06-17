@@ -1,8 +1,11 @@
-import { createWorkflow } from "@medusajs/framework/workflows-sdk"
+import {
+  createWorkflow,
+  transform,
+} from "@medusajs/framework/workflows-sdk"
 import { updateProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 
-import type { CategoryMediaInput } from "../steps/set-category-images"
-import { setCategoryImagesStep } from "../steps/set-category-images"
+import type { CategoryMediaInput } from "./set-category-images"
+import { setCategoryImagesWorkflow } from "./set-category-images"
 
 export type UpdateProductCategoryWithImagesWorkflowInput = {
   id: string
@@ -31,10 +34,11 @@ export const updateProductCategoryWithImagesWorkflow = createWorkflow(
       } as any,
     })
 
-    setCategoryImagesStep({
+    const imagesInput = transform({ input }, ({ input }) => ({
       category_id: input.id,
       media: input.media,
       icon: input.icon,
-    })
+    }))
+    setCategoryImagesWorkflow.runAsStep({ input: imagesInput })
   }
 )

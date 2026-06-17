@@ -4,7 +4,7 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { deleteProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 
-import { setCategoryImagesStep } from "../steps/set-category-images"
+import { setCategoryImagesWorkflow } from "./set-category-images"
 
 export type DeleteProductCategoryWithImagesWorkflowInput = {
   id: string
@@ -20,10 +20,12 @@ export const deleteProductCategoryWithImagesWorkflowId =
 export const deleteProductCategoryWithImagesWorkflow = createWorkflow(
   deleteProductCategoryWithImagesWorkflowId,
   (input: DeleteProductCategoryWithImagesWorkflowInput) => {
-    const cleared = setCategoryImagesStep({
-      category_id: input.id,
-      media: [],
-      icon: null,
+    const cleared = setCategoryImagesWorkflow.runAsStep({
+      input: {
+        category_id: input.id,
+        media: [],
+        icon: null,
+      },
     })
 
     // Depend on `cleared` so image removal completes before the category is gone.

@@ -1,1 +1,2 @@
-export * from "./set-category-images"
+export * from "./create-images"
+export * from "./delete-images"

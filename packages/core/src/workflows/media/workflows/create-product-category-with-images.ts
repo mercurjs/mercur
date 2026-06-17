@@ -5,8 +5,8 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { createProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 
-import type { CategoryMediaInput } from "../steps/set-category-images"
-import { setCategoryImagesStep } from "../steps/set-category-images"
+import type { CategoryMediaInput } from "./set-category-images"
+import { setCategoryImagesWorkflow } from "./set-category-images"
 
 export type CreateProductCategoryWithImagesWorkflowInput = {
   /** Core create payload (name, handle, is_active, parent_category_id, …). */
@@ -36,11 +36,15 @@ export const createProductCategoryWithImagesWorkflow = createWorkflow(
 
     const categoryId = transform({ created }, ({ created }) => created[0].id)
 
-    setCategoryImagesStep({
-      category_id: categoryId,
-      media: input.media,
-      icon: input.icon,
-    })
+    const imagesInput = transform(
+      { categoryId, input },
+      ({ categoryId, input }) => ({
+        category_id: categoryId,
+        media: input.media,
+        icon: input.icon,
+      })
+    )
+    setCategoryImagesWorkflow.runAsStep({ input: imagesInput })
 
     return new WorkflowResponse(categoryId)
   }

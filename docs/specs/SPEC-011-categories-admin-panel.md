@@ -167,14 +167,18 @@ Proposed shape (names are a recommendation, finalize at implementation):
   `is_thumbnail: true`, **at most one** with `is_banner: true`, and **at
   most one** `type: "icon"` row. Setting a flag clears it from any other
   gallery row; uploading an icon replaces the existing icon row.
-- **Workflows/steps:** a `setCategoryImagesStep` (create/replace `Image`
-  rows + (re)link to the category, apply the invariants above), composed
-  into three **wrapper workflows** that the routes call as a single step —
-  `createProductCategoryWithImagesWorkflow`,
+- **Workflows/steps (small, Medusa-style — no monolithic step):**
+  `setCategoryImagesWorkflow` composes `useQueryGraphStep` (read existing) →
+  `createImagesStep` (new `Image` rows) → core `createRemoteLinkStep` (link
+  to category) → core `dismissRemoteLinkStep` + `deleteImagesStep`
+  (soft-delete, restore on compensation) for the replaced rows; invariants
+  applied in a `transform`. Three **wrapper workflows** wrap the Medusa core
+  category flow + `setCategoryImagesWorkflow.runAsStep` so each route is one
+  call — `createProductCategoryWithImagesWorkflow`,
   `updateProductCategoryWithImagesWorkflow`, and
-  `deleteProductCategoryWithImagesWorkflow` (wraps the Medusa core
-  category flow + the image step; delete sequences image cleanup before the
-  category delete). The routes never orchestrate two workflows themselves.
+  `deleteProductCategoryWithImagesWorkflow` (delete sequences image cleanup
+  before the category delete). The routes never orchestrate workflows
+  themselves.
 - **Validators:** extend create/update `product-categories` validators
   with optional:
 
@@ -373,13 +377,15 @@ Implemented 2026-06-16.
 - Link [media-product-category-link.ts](../../packages/core/src/links/media-product-category-link.ts)
   (category → image, `isList`). Auto-registered as
   `product_product_category_media_image` (confirmed in test boot log).
-- Step [set-category-images.ts](../../packages/core/src/workflows/media/steps/set-category-images.ts)
-  (full-replace + single thumbnail/banner/icon invariants + compensation),
-  composed into wrapper workflows
+- Small steps [create-images.ts](../../packages/core/src/workflows/media/steps/create-images.ts)
+  + [delete-images.ts](../../packages/core/src/workflows/media/steps/delete-images.ts)
+  (soft-delete/restore), composed in
+  [set-category-images.ts](../../packages/core/src/workflows/media/workflows/set-category-images.ts)
+  with core `useQueryGraphStep`/`createRemoteLinkStep`/`dismissRemoteLinkStep`,
+  wrapped by
   [create-product-category-with-images.ts](../../packages/core/src/workflows/media/workflows/create-product-category-with-images.ts),
   [update-…](../../packages/core/src/workflows/media/workflows/update-product-category-with-images.ts),
-  [delete-…](../../packages/core/src/workflows/media/workflows/delete-product-category-with-images.ts)
-  that wrap the Medusa core category flows.
+  [delete-…](../../packages/core/src/workflows/media/workflows/delete-product-category-with-images.ts).
 - Validators (`media[]` + `icon`) and query-config (`images.*`) in
   `packages/core/src/api/admin/product-categories/`. Routes call a single
   wrapper workflow each — create
