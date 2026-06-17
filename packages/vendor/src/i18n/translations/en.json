@@ -968,6 +968,22 @@
       "header": "Organize",
       "action": "Edit ranking"
     },
+    "media": {
+      "label": "Media",
+      "thumbnail": "Thumbnail",
+      "banner": "Banner",
+      "empty": {
+        "header": "No media yet",
+        "description": "Media added by the marketplace operator will appear here."
+      }
+    },
+    "icon": {
+      "label": "Icon",
+      "empty": {
+        "header": "No icon yet",
+        "description": "An icon added by the marketplace operator will appear here."
+      }
+    },
     "fields": {
       "visibility": {
         "label": "Visibility",
@@ -1105,7 +1121,6 @@
     },
     "delete": {
       "description": "You are about to delete offer {{sku}}. This cannot be undone.",
-      "descriptionByName": "You are about to delete the offer {{name}}. This action cannot be undone.",
       "successToast": "Offer was successfully deleted."
     },
     "bulkDelete": {

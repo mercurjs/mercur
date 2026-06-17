@@ -3980,6 +3980,72 @@
           ],
           "additionalProperties": false
         },
+        "media": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "thumbnail": {
+              "type": "string"
+            },
+            "banner": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header",
+                "description"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "label",
+            "thumbnail",
+            "banner",
+            "empty"
+          ],
+          "additionalProperties": false
+        },
+        "icon": {
+          "type": "object",
+          "properties": {
+            "label": {
+              "type": "string"
+            },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header",
+                "description"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "label",
+            "empty"
+          ],
+          "additionalProperties": false
+        },
         "fields": {
           "type": "object",
           "properties": {
@@ -4082,6 +4148,8 @@
         "delete",
         "products",
         "organize",
+        "media",
+        "icon",
         "fields"
       ],
       "additionalProperties": false
@@ -4545,16 +4613,12 @@
             "description": {
               "type": "string"
             },
-            "descriptionByName": {
-              "type": "string"
-            },
             "successToast": {
               "type": "string"
             }
           },
           "required": [
             "description",
-            "descriptionByName",
             "successToast"
           ],
           "additionalProperties": false

@@ -5,15 +5,20 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
-// import { StatusCell } from "@components/table/table-cells/common/status-cell';
+import { Thumbnail } from "@components/common/thumbnail"
+import { StatusCell } from "@components/table/table-cells/common/status-cell"
 import {
   TextCell,
   TextHeader,
 } from "@components/table/table-cells/common/text-cell"
 import {
+  CategoryWithImages,
+  getCategoryGallery,
+} from "../../common/components/category-image-fields"
+import {
   getCategoryPath,
-  // getIsActiveProps,
-  // getIsInternalProps,
+  getIsActiveProps,
+  getIsInternalProps,
 } from "../../common/utils"
 
 const columnHelper =
@@ -56,6 +61,14 @@ export const useCategoryTableColumns = () => {
             )
           }
 
+          const gallery = getCategoryGallery(
+            (row.original as CategoryWithImages).images
+          )
+          const thumbnailSrc =
+            gallery.find((image) => image.is_thumbnail)?.url ??
+            gallery[0]?.url ??
+            null
+
           return (
             <div className="flex size-full items-center gap-x-3 overflow-hidden">
               <div className="flex size-7 items-center justify-center">
@@ -81,6 +94,7 @@ export const useCategoryTableColumns = () => {
                   </IconButton>
                 ) : null}
               </div>
+              <Thumbnail src={thumbnailSrc} />
               <span className="truncate">{getValue()}</span>
             </div>
           )
@@ -92,38 +106,24 @@ export const useCategoryTableColumns = () => {
           return <TextCell text={`/${getValue()}`} />
         },
       }),
-      // columnHelper.accessor('is_active', {
-      //   header: () => (
-      //     <TextHeader text={t('fields.status')} />
-      //   ),
-      //   cell: ({ getValue }) => {
-      //     console.log('getValue', getValue());
-      //     // const { color, label } = getIsActiveProps(
-      //     //   getValue(),
-      //     //   t
-      //     // );
+      columnHelper.accessor("is_active", {
+        header: () => <TextHeader text={t("fields.status")} />,
+        cell: ({ getValue }) => {
+          const { color, label } = getIsActiveProps(getValue(), t)
 
-      //     return (
-      //       // <StatusCell color={color}>{label}</StatusCell>
-      //       <span>eee</span>
-      //     );
-      //   },
-      // }),
-      // columnHelper.accessor('is_internal', {
-      //   header: () => (
-      //     <TextHeader
-      //       text={t('categories.fields.visibility.label')}
-      //     />
-      //   ),
-      //   cell: ({ getValue }) => {
-      //     // const { color, label } = getIsInternalProps(
-      //     //   getValue(),
-      //     //   t
-      //     // );
+          return <StatusCell color={color}>{label}</StatusCell>
+        },
+      }),
+      columnHelper.accessor("is_internal", {
+        header: () => (
+          <TextHeader text={t("categories.fields.visibility.label")} />
+        ),
+        cell: ({ getValue }) => {
+          const { color, label } = getIsInternalProps(getValue(), t)
 
-      //     return <span>ddd</span>;
-      //   },
-      // }),
+          return <StatusCell color={color}>{label}</StatusCell>
+        },
+      }),
     ],
     [t]
   )
