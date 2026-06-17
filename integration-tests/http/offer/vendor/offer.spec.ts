@@ -338,6 +338,35 @@ medusaIntegrationTestRunner({
                     )
                 })
 
+                it("should update an offer without a sku (sku is optional) and keep the existing sku", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const created = await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: "UPD-NO-SKU",
+                            variant_id: deps.variant_id,
+                            shipping_profile_id: deps.shipping_profile_id,
+                            inventory_items: [{}],
+                            prices: [
+                                { amount: 1000, currency_code: "usd" },
+                            ],
+                        },
+                        seller1Headers
+                    )
+
+                    const offerId = created.data.offer.id
+
+                    const response = await api.post(
+                        `/vendor/offers/${offerId}`,
+                        { metadata: { note: "no sku in payload" } },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.offer.sku).toEqual("UPD-NO-SKU")
+                })
+
                 it("should add, update, and delete prices in one call (replace semantics)", async () => {
                     const deps = await seedSellerOfferDeps(seller1Headers)
 
