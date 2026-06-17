@@ -1749,7 +1749,6 @@
     },
     "fulfillment": {
       "cancelWarning": "You are about to cancel a fulfillment. This action cannot be undone.",
-      "cancelDisabledTooltip": "A shipped fulfillment can no longer be canceled.",
       "markAsDeliveredWarning": "You are about to mark fulfillment as delivered. This action cannot be undone.",
       "differentOptionSelected": "The selected shipping option is different from the one selected by the customer.",
       "disabledItemTooltip": "The location or shipping option you have selected don’t allow fulfillment of this item.",
