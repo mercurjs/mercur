@@ -1,6 +1,50 @@
 export type AllocationQuantityMap = Record<string, number | string>
 export type AllocationSelectedMap = Record<string, boolean>
 
+type AllocatableItem = {
+  id: string
+  quantity: number
+  detail?: { fulfilled_quantity?: number | null } | null
+  offer?: { inventory_item_link?: unknown[] | null } | null
+}
+
+type AllocatableReservation = { line_item_id?: string | null }
+
+/**
+ * Selects the order line items that can still be allocated.
+ *
+ * Mirrors `showAllocateButton` in the order summary: an item is allocatable
+ * only when it is inventory-managed (`offer.inventory_item_link`), still has
+ * unfulfilled quantity, and does **not** already have a reservation.
+ *
+ * Regression guard (MER-187): the form previously listed every unfulfilled
+ * inventory-managed item — including ones that were already allocated — and
+ * pre-selected them all. Submitting then created a *second* reservation for
+ * the already-allocated items. Because Mercur offers link inventory to the
+ * offer (not the variant), the order summary fetches reservations with a
+ * one-per-line-item limit, so the surplus duplicate reservations pushed the
+ * freshly-added item's reservation out of the response and its badge stayed
+ * "Not allocated" even though allocation reported success. Excluding
+ * already-reserved items keeps one reservation per line item.
+ */
+export function getAllocatableItems<T extends AllocatableItem>(
+  items: T[],
+  reservations: AllocatableReservation[]
+): T[] {
+  const reserved = new Set(
+    reservations
+      .map((r) => r.line_item_id)
+      .filter((id): id is string => !!id)
+  )
+
+  return items.filter(
+    (item) =>
+      !!item.offer?.inventory_item_link?.length &&
+      item.quantity - (item.detail?.fulfilled_quantity ?? 0) > 0 &&
+      !reserved.has(item.id)
+  )
+}
+
 export type AllocationLineInput = {
   line_item_id: string
   inventory_item_id: string
