@@ -81,7 +81,8 @@ export const CustomerGroupListDataTable = () => {
     useCustomerGroups(
       {
         ...searchParams,
-        fields: "id,name,created_at,updated_at,customers.id",
+        fields:
+          "id,name,created_at,updated_at,customers.id,seller.id,seller.name",
       },
       {
         placeholderData: keepPreviousData,
@@ -211,7 +212,13 @@ const CustomerGroupActions = ({
   )
 }
 
-const columnHelper = createColumnHelper<HttpTypes.AdminCustomerGroup>()
+// `seller` comes from the Mercur `customer_group_seller` link (requested via
+// `seller.id,seller.name`); it is not on Medusa's base customer-group type.
+type CustomerGroupRow = HttpTypes.AdminCustomerGroup & {
+  seller?: { id: string; name: string } | null
+}
+
+const columnHelper = createColumnHelper<CustomerGroupRow>()
 
 const useColumns = () => {
   const { t } = useTranslation()
@@ -227,6 +234,17 @@ const useColumns = () => {
         header: t("customers.domain"),
         cell: ({ row }) => {
           return <span>{row.original.customers?.length ?? 0}</span>
+        },
+      }),
+      columnHelper.display({
+        id: "owner",
+        header: t("fields.owner"),
+        cell: ({ row }) => {
+          return (
+            <span data-testid={`customer-group-owner-${row.original.id}`}>
+              {row.original.seller?.name ?? "-"}
+            </span>
+          )
         },
       }),
       columnHelper.accessor("created_at", {

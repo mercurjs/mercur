@@ -38,7 +38,7 @@ export const validateSellerCustomerGroup = async (
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: sellerCustomerGroups } = await query.graph({
-    entity: "seller_customer_group",
+    entity: "customer_group_seller",
     filters: {
       seller_id: sellerId,
       customer_group_id: ids,

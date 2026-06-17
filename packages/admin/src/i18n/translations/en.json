@@ -1149,6 +1149,11 @@
         "header": "Create Address",
         "hint": "Create a new address for the customer.",
         "successToast": "Address was successfully created."
+      },
+      "edit": {
+        "header": "Edit Address",
+        "hint": "Edit the customer's address.",
+        "successToast": "Address was successfully updated."
       }
     }
   },
@@ -3411,6 +3416,7 @@
     "refundAmount": "Refund amount",
     "name": "Name",
     "note": "Note",
+    "owner": "Owner",
     "optional": "Optional",
     "selectPlaceholder": "Select",
     "default": "Default",
