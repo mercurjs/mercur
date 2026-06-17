@@ -1,4 +1,4 @@
-import { ListBullet, PencilSquare, ThumbnailBadge } from "@medusajs/icons"
+import { FeaturedBadge, PencilSquare, ThumbnailBadge } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text, Tooltip } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -41,11 +41,11 @@ export const CategoryMediaSection = ({
       </div>
       <div className="px-6 py-4">
         {gallery.length > 0 ? (
-          <div className="grid grid-cols-[repeat(auto-fill,96px)] gap-4">
+          <div className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-4">
             {gallery.map((image) => (
               <div
                 key={image.id}
-                className="shadow-elevation-card-rest relative aspect-square size-24 overflow-hidden rounded-[8px]"
+                className="shadow-elevation-card-rest relative aspect-square size-full overflow-hidden rounded-[8px]"
                 data-testid={`category-media-section-item-${image.id}`}
               >
                 <img
@@ -54,7 +54,7 @@ export const CategoryMediaSection = ({
                   className="size-full object-cover object-center"
                 />
                 {(image.is_thumbnail || image.is_banner) && (
-                  <div className="absolute left-2 top-2 flex items-center gap-x-1 [&_svg]:text-ui-fg-interactive">
+                  <div className="absolute left-2 top-2 flex items-center gap-x-1">
                     {image.is_thumbnail && (
                       <Tooltip content={t("categories.media.thumbnail")}>
                         <ThumbnailBadge />
@@ -62,7 +62,7 @@ export const CategoryMediaSection = ({
                     )}
                     {image.is_banner && (
                       <Tooltip content={t("categories.media.banner")}>
-                        <ListBullet />
+                        <FeaturedBadge />
                       </Tooltip>
                     )}
                   </div>
