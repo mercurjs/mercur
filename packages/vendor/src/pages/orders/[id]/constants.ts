@@ -19,7 +19,6 @@ const DEFAULT_PROPERTIES = [
   "tax_total",
   "refundable_total",
   "order_change",
-  "commission_value",
 ]
 
 const DEFAULT_RELATIONS = [
@@ -32,7 +31,6 @@ const DEFAULT_RELATIONS = [
   "*items.variant.inventory_items.inventory",
   "+items.variant.inventory_items.required_quantity",
   "*items.variant.prices",
-  "*items.commission_lines",
   "*items.offer",
   "*items.offer.prices",
   "*items.offer.shipping_profile",

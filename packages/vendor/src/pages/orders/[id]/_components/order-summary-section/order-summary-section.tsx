@@ -684,14 +684,6 @@ const CostBreakdown = ({
   const [isTaxOpen, setIsTaxOpen] = useState(false)
   const [isShippingOpen, setIsShippingOpen] = useState(false)
 
-  const commissionTotal = useMemo(() => {
-    return order.items.reduce((acc, item) => {
-      const lines = (item as any).commission_lines as any[] | undefined
-      if (!lines) return acc
-      return acc + lines.reduce((sum: number, line: any) => sum + (line.amount ?? 0), 0)
-    }, 0)
-  }, [order.items])
-
   const discountCodes = useMemo(() => {
     const codes = new Set()
     order.items.forEach((item) =>
@@ -870,12 +862,6 @@ const CostBreakdown = ({
           </div>
         )}
       </>
-      {commissionTotal > 0 && (
-        <Cost
-          label={t("fields.commission")}
-          value={getLocaleAmount(commissionTotal, order.currency_code)}
-        />
-      )}
     </div>
   )
 }
