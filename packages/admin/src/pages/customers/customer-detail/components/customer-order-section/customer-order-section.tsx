@@ -1,5 +1,6 @@
 import { ArrowPath, TriangleRightMini } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
+import { OrderGroupDTO } from "@mercurjs/types"
 import { Container, Heading, IconButton, clx } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper } from "@tanstack/react-table"
@@ -54,14 +55,16 @@ const DEFAULT_FIELDS = [
   "*orders.seller",
 ].join(",")
 
-type OrderGroupRow = {
+// Flattened table row built from `OrderGroupDTO` (group rows) and their child
+// orders. `id` / `created_at` / `updated_at` come straight from the DTO;
+// `display_id` is rendered (`#G12` for groups, `#34` for orders) so it's a
+// string here rather than the numeric `OrderGroupDTO.display_id`, and the
+// store / status / total fields are pulled from the child order.
+type OrderGroupRow = Pick<OrderGroupDTO, "id" | "created_at" | "updated_at"> & {
   _type: "group" | "order"
-  id: string
   display_id: string
   order_ids: string
   store: string
-  created_at: Date
-  updated_at: Date
   payment_status: string | null
   fulfillment_status: string | null
   total: number | null
