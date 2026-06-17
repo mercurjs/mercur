@@ -209,7 +209,7 @@ export const EditCategoryMediaForm = ({
           </div>
         </RouteFocusModal.Header>
         <RouteFocusModal.Body className="flex flex-col overflow-hidden">
-          <div className="flex size-full flex-col-reverse lg:grid lg:grid-cols-[1fr_360px]">
+          <div className="flex size-full flex-col-reverse lg:grid lg:grid-cols-[1fr_560px]">
             <DndContext
               sensors={sensors}
               onDragEnd={handleDragEnd}

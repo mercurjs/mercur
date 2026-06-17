@@ -10,18 +10,16 @@ export const CategoryIconTip = () => {
 
   return (
     <div
-      className="bg-ui-bg-component shadow-elevation-card-rest rounded-lg px-3 py-2"
+      className="bg-ui-bg-component shadow-elevation-card-rest flex items-stretch gap-x-3 rounded-lg px-3 py-2"
       data-testid="category-icon-tip"
     >
-      <div className="flex items-center gap-x-2">
-        <div className="bg-ui-border-strong h-4 w-0.5 shrink-0 rounded-full" />
-        <Text size="small" className="text-ui-fg-subtle">
-          <span className="text-ui-fg-base font-medium">
-            {t("categories.icon.tip.label")}
-          </span>{" "}
-          {t("categories.icon.tip.text")}
-        </Text>
-      </div>
+      <div className="bg-ui-border-strong w-[3px] shrink-0 self-stretch rounded-full" />
+      <Text size="small" className="text-ui-fg-subtle">
+        <span className="text-ui-fg-base font-medium">
+          {t("categories.icon.tip.label")}
+        </span>{" "}
+        {t("categories.icon.tip.text")}
+      </Text>
     </div>
   )
 }

@@ -29,21 +29,6 @@ export const useCategoryTableColumns = () => {
 
   return useMemo(
     () => [
-      columnHelper.display({
-        id: "thumbnail",
-        header: "",
-        cell: ({ row }) => {
-          const gallery = getCategoryGallery(
-            (row.original as CategoryWithImages).images
-          )
-          const src =
-            gallery.find((image) => image.is_thumbnail)?.url ??
-            gallery[0]?.url ??
-            null
-
-          return <Thumbnail src={src} />
-        },
-      }),
       columnHelper.accessor("name", {
         header: () => <TextHeader text={t("fields.name")} />,
         cell: ({ getValue, row }) => {
@@ -76,6 +61,14 @@ export const useCategoryTableColumns = () => {
             )
           }
 
+          const gallery = getCategoryGallery(
+            (row.original as CategoryWithImages).images
+          )
+          const thumbnailSrc =
+            gallery.find((image) => image.is_thumbnail)?.url ??
+            gallery[0]?.url ??
+            null
+
           return (
             <div className="flex size-full items-center gap-x-3 overflow-hidden">
               <div className="flex size-7 items-center justify-center">
@@ -101,6 +94,7 @@ export const useCategoryTableColumns = () => {
                   </IconButton>
                 ) : null}
               </div>
+              <Thumbnail src={thumbnailSrc} />
               <span className="truncate">{getValue()}</span>
             </div>
           )
