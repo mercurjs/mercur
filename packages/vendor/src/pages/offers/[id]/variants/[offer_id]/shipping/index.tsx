@@ -35,7 +35,7 @@ const EditShippingForm = ({ offer }: { offer: OfferDetail }) => {
       { shipping_profile_id: values.shipping_profile_id },
       {
         onSuccess: () => {
-          toast.success(t("offers.edit.successToast"))
+          toast.success(t("offers.variant.shipping.successToast"))
           handleSuccess()
         },
         onError: (error) => toast.error(error.message),

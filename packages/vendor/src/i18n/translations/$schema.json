@@ -4559,6 +4559,40 @@
           ],
           "additionalProperties": false
         },
+        "variant": {
+          "type": "object",
+          "properties": {
+            "edit": {
+              "type": "object",
+              "properties": {
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "successToast"
+              ],
+              "additionalProperties": false
+            },
+            "shipping": {
+              "type": "object",
+              "properties": {
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "successToast"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "edit",
+            "shipping"
+          ],
+          "additionalProperties": false
+        },
         "pricing": {
           "type": "object",
           "properties": {
@@ -4890,6 +4924,7 @@
         "create",
         "detail",
         "edit",
+        "variant",
         "pricing",
         "inventory",
         "delete",

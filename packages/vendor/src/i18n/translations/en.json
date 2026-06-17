@@ -1107,6 +1107,14 @@
       "description": "Update the offer's identity, shipping profile, or metadata.",
       "successToast": "Offer updated"
     },
+    "variant": {
+      "edit": {
+        "successToast": "Offer variant was successfully updated."
+      },
+      "shipping": {
+        "successToast": "Shipping configuration was successfully updated."
+      }
+    },
     "pricing": {
       "header": "Manage prices",
       "description": "Add, change, or remove prices on this offer's ladder.",
