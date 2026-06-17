@@ -7,13 +7,35 @@ import { HttpTypes } from "@medusajs/types"
 
 import { Form } from "@components/common/form/index"
 import { Thumbnail } from "@components/common/thumbnail/index"
-import { useProductVariant } from "@hooks/api/products"
 import { getFulfillableQuantity } from "@lib/order-item"
 import { CreateFulfillmentSchema } from "./constants"
 import { InformationCircleSolid } from "@medusajs/icons"
 
+// In Mercur inventory is owned by the offer's inventory item link
+// (per-seller), exposing per-location stock levels. The create-fulfillment
+// row reads available / in-stock quantities from there — the same source the
+// allocate-items flow uses — rather than the product variant, which is not
+// inventory-scoped to the seller and returns no levels here.
+type OfferLocationLevel = {
+  location_id?: string
+  stocked_quantity?: number | null
+  available_quantity?: number | null
+}
+
+type OfferInventoryLink = {
+  inventory_item?: {
+    location_levels?: OfferLocationLevel[] | null
+  } | null
+}
+
+type OrderLineItemWithOffer = HttpTypes.AdminOrderLineItem & {
+  offer?: {
+    inventory_item_link?: OfferInventoryLink[] | null
+  } | null
+}
+
 type OrderEditItemProps = {
-  item: HttpTypes.AdminOrderLineItem
+  item: OrderLineItemWithOffer
   currencyCode: string
   locationId?: string
   onItemRemove: (itemId: string) => void
@@ -33,16 +55,7 @@ export function OrderCreateFulfillmentItem({
 }: OrderEditItemProps) {
   const { t } = useTranslation()
 
-  const { variant } = useProductVariant(
-    item.product_id!,
-    item.variant_id!,
-    {
-      fields: "*inventory,*inventory.location_levels",
-    },
-    {
-      enabled: !!item.variant,
-    }
-  )
+  const firstLink = item.offer?.inventory_item_link?.[0]
 
   // Items are fulfilled by default; deselecting via the checkbox excludes
   // the item from the payload. Undefined (never toggled) reads as selected.
@@ -53,18 +66,15 @@ export function OrderCreateFulfillmentItem({
     }) !== false
 
   const { availableQuantity, inStockQuantity, missingLevel } = useMemo(() => {
-    const inventory = (variant as any)?.inventory
-    const hasInventoryItem = Array.isArray(inventory) && inventory.length > 0
-
-    if (!hasInventoryItem || !locationId) {
+    if (!firstLink || !locationId) {
       return { missingLevel: false }
     }
 
-    const locationInventory = inventory[0]?.location_levels?.find(
-      (inv: any) => inv.location_id === locationId
+    const locationInventory = firstLink.inventory_item?.location_levels?.find(
+      (inv) => inv.location_id === locationId
     )
 
-    // The variant is inventory-managed but has no level at the chosen
+    // The item is inventory-managed but has no level at the chosen
     // location — it cannot be fulfilled from here. Surface this up so the
     // form can render an aggregate warning.
     if (!locationInventory) {
@@ -76,7 +86,7 @@ export function OrderCreateFulfillmentItem({
       inStockQuantity: locationInventory.stocked_quantity,
       missingLevel: false,
     }
-  }, [variant, locationId])
+  }, [firstLink, locationId])
 
   useEffect(() => {
     onInventoryStatusChange(item.id, missingLevel)
@@ -156,7 +166,7 @@ export function OrderCreateFulfillmentItem({
                       {t("orders.fulfillment.available")}
                     </span>
                     <span className="text-ui-fg-subtle">
-                      {availableQuantity || "N/A"}
+                      {availableQuantity ?? "N/A"}
                     </span>
                   </div>
 
@@ -168,8 +178,8 @@ export function OrderCreateFulfillmentItem({
                         {t("orders.fulfillment.inStock")}
                       </span>
                       <span className="text-ui-fg-subtle">
-                        {inStockQuantity || "N/A"}{" "}
-                        {inStockQuantity && (
+                        {inStockQuantity ?? "N/A"}{" "}
+                        {!!inStockQuantity && (
                           <span className="font-medium text-red-500">
                             -{form.getValues(`quantity.${item.id}`)}
                           </span>

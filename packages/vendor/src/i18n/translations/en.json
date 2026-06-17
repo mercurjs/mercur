@@ -1772,7 +1772,7 @@
       "markAsDelivered": "Mark as delivered",
       "itemsToFulfillDesc": "Choose items and quantities to fulfill",
       "locationDescription": "Choose which location you want to fulfill items from.",
-      "sendNotificationHint": "Notify customers about the created fulfillment.",
+      "sendNotificationHint": "Notify customer about fulfillment.",
       "methodDescription": "Choose a different shipping method from the one customer selected",
       "error": {
         "wrongQuantity": "Only one item is available for fulfillment",
