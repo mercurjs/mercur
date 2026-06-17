@@ -7,15 +7,19 @@ import { ActionMenu } from "../../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../../components/common/empty-table-content"
 
 type OfferShippingData = {
-  shipping_profile?: { name?: string | null; type?: string | null } | null
+  shipping_profile?: {
+    id?: string | null
+    name?: string | null
+    type?: string | null
+  } | null
 }
 
 /**
  * Sidebar "Shipping Configuration" card of the Offer Variant detail
  * (Figma `40016503:749900`). Mirrors the offer detail's "Associated
  * product" card structure/size: an `Edit` kebab in the header and a
- * Pattern-A card (icon + name/subtitle + chevron) linking to the edit
- * drawer.
+ * Pattern-A card (icon + name/subtitle + chevron) linking to the
+ * shipping profile detail page under Settings.
  */
 export const OfferVariantShippingSection = ({
   offer,
@@ -46,7 +50,7 @@ export const OfferVariantShippingSection = ({
       {profile?.name ? (
         <div className="txt-small flex flex-col gap-2 px-2 pb-2">
           <Link
-            to="shipping"
+            to={`/settings/shipping-profiles/${profile.id}`}
             className="outline-none focus-within:shadow-borders-interactive-with-focus rounded-md [&:hover>div]:bg-ui-bg-component-hover"
             data-testid="offer-variant-shipping-link"
           >
