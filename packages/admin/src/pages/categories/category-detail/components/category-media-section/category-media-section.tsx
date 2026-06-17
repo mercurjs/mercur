@@ -1,6 +1,6 @@
-import { PencilSquare } from "@medusajs/icons"
+import { ListBullet, PencilSquare, ThumbnailBadge } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { Badge, Container, Heading, Text } from "@medusajs/ui"
+import { Container, Heading, Text, Tooltip } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -41,11 +41,11 @@ export const CategoryMediaSection = ({
       </div>
       <div className="px-6 py-4">
         {gallery.length > 0 ? (
-          <div className="grid grid-cols-3 gap-4 md:grid-cols-4">
+          <div className="grid grid-cols-[repeat(auto-fill,96px)] gap-4">
             {gallery.map((image) => (
               <div
                 key={image.id}
-                className="shadow-elevation-card-rest relative aspect-square overflow-hidden rounded-lg"
+                className="shadow-elevation-card-rest relative aspect-square size-24 overflow-hidden rounded-[8px]"
                 data-testid={`category-media-section-item-${image.id}`}
               >
                 <img
@@ -54,16 +54,16 @@ export const CategoryMediaSection = ({
                   className="size-full object-cover object-center"
                 />
                 {(image.is_thumbnail || image.is_banner) && (
-                  <div className="absolute left-1 top-1 flex items-center gap-x-1">
+                  <div className="absolute left-2 top-2 flex items-center gap-x-1 [&_svg]:text-ui-fg-interactive">
                     {image.is_thumbnail && (
-                      <Badge size="2xsmall" color="green">
-                        {t("categories.media.thumbnail")}
-                      </Badge>
+                      <Tooltip content={t("categories.media.thumbnail")}>
+                        <ThumbnailBadge />
+                      </Tooltip>
                     )}
                     {image.is_banner && (
-                      <Badge size="2xsmall" color="blue">
-                        {t("categories.media.banner")}
-                      </Badge>
+                      <Tooltip content={t("categories.media.banner")}>
+                        <ListBullet />
+                      </Tooltip>
                     )}
                   </div>
                 )}

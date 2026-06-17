@@ -41,11 +41,11 @@ export const CategoryIconSection = ({
       </div>
       <div className="px-6 py-4">
         {icon ? (
-          <div className="bg-ui-bg-subtle shadow-elevation-card-rest relative aspect-square size-12 overflow-hidden rounded-[8px]">
+          <div className="bg-ui-bg-base border-ui-border-base shadow-elevation-card-rest relative aspect-square size-24 overflow-hidden rounded-[8px] border">
             <img
               src={icon.url}
               alt=""
-              className="size-full object-contain object-center p-1"
+              className="size-full object-contain object-center p-2"
               data-testid="category-icon-section-image"
             />
           </div>

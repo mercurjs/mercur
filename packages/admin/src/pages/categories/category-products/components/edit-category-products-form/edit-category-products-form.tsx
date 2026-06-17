@@ -189,7 +189,10 @@ const columnHelper = createColumnHelper<HttpTypes.AdminProduct>()
 
 const useColumns = () => {
   const { t } = useTranslation()
-  const base = useProductTableColumns()
+  // The shared product columns ship their own `select` column; drop it so the
+  // category-specific one below (with the "already in category" disabled state)
+  // is the only checkbox.
+  const base = useProductTableColumns().filter((c) => c.id !== "select")
 
   return useMemo(
     () => [
