@@ -11857,6 +11857,9 @@
         "note": {
           "type": "string"
         },
+        "owner": {
+          "type": "string"
+        },
         "automaticTaxes": {
           "type": "string"
         },
@@ -12265,6 +12268,7 @@
         "inventory",
         "optional",
         "note",
+        "owner",
         "automaticTaxes",
         "taxInclusivePricing",
         "currency",

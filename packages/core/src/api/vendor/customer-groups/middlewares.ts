@@ -27,7 +27,7 @@ const applySellerCustomerGroupLinkFilter = (
   req.filterableFields.seller_id = req.seller_context!.seller_id
 
   return maybeApplyLinkFilter({
-    entryPoint: "seller_customer_group",
+    entryPoint: "customer_group_seller",
     resourceId: "customer_group_id",
     filterableField: "seller_id",
   })(req, res, next)

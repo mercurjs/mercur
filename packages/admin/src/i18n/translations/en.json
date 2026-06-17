@@ -3360,6 +3360,7 @@
     "refundAmount": "Refund amount",
     "name": "Name",
     "note": "Note",
+    "owner": "Owner",
     "optional": "Optional",
     "selectPlaceholder": "Select",
     "default": "Default",

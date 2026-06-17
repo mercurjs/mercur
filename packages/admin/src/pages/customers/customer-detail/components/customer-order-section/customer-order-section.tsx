@@ -15,9 +15,18 @@ import { useDataTable } from "../../../../../hooks/use-data-table"
 
 const PREFIX = "cusord"
 const PAGE_SIZE = 10
-const DEFAULT_RELATIONS = "*customer,*items,*sales_channel"
+const DEFAULT_RELATIONS =
+  "*customer,*items,*sales_channel,order_group.id,order_group.display_id,seller.id,seller.name"
 const DEFAULT_FIELDS =
   "id,status,display_id,created_at,email,fulfillment_status,payment_status,total,currency_code"
+
+// `order_group` (the multi-vendor parent group) and `seller` (the owning store)
+// come from the Mercur `order_group_order` / `order_seller` links and are not on
+// Medusa's base order type.
+type AdminOrderWithGroup = HttpTypes.AdminOrder & {
+  order_group?: { id: string; display_id: number } | null
+  seller?: { id: string; name: string } | null
+}
 
 export const CustomerOrderSection = ({
   customer,
@@ -114,16 +123,41 @@ const CustomerOrderActions = ({ order }: { order: HttpTypes.AdminOrder }) => {
 const columnHelper = createColumnHelper<HttpTypes.AdminOrder>()
 
 const useColumns = () => {
+  const { t } = useTranslation()
   const base = useOrderTableColumns({ exclude: ["customer"] })
 
   return useMemo(
     () => [
+      columnHelper.display({
+        id: "order_group",
+        header: t("orders.fields.groupId"),
+        cell: ({ row }) => {
+          const orderGroup = (row.original as AdminOrderWithGroup).order_group
+          return (
+            <span data-testid={`customer-order-group-${row.original.id}`}>
+              {orderGroup?.display_id ? `#G${orderGroup.display_id}` : "-"}
+            </span>
+          )
+        },
+      }),
+      columnHelper.display({
+        id: "store",
+        header: t("fields.store"),
+        cell: ({ row }) => {
+          const seller = (row.original as AdminOrderWithGroup).seller
+          return (
+            <span data-testid={`customer-order-store-${row.original.id}`}>
+              {seller?.name ?? "-"}
+            </span>
+          )
+        },
+      }),
       ...base,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => <CustomerOrderActions order={row.original} />,
       }),
     ],
-    [base]
+    [base, t]
   )
 }

@@ -34,11 +34,11 @@ export const GET = async (
     )
   }
 
-  // A customer may belong to groups owned by several sellers; only expose the
-  // groups owned by the requesting seller (via the seller_customer_group link).
+  // Each customer group is owned by a single seller; only expose the groups
+  // owned by the requesting seller (via the customer_group_seller link).
   if (customer.groups?.length) {
     const { data: ownedLinks } = await query.graph({
-      entity: "seller_customer_group",
+      entity: "customer_group_seller",
       fields: ["customer_group_id"],
       filters: {
         seller_id: sellerId,

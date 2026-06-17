@@ -7,8 +7,15 @@ import { useNavigate } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useDeleteCustomerGroup } from "../../../../../hooks/api/customer-groups"
 
+// The owning seller is exposed through the Mercur `customer_group_seller` link
+// and requested via `+seller.id,+seller.name`; it is not part of Medusa's base
+// customer-group type.
+type CustomerGroupWithOwner = HttpTypes.AdminCustomerGroup & {
+  seller?: { id: string; name: string } | null
+}
+
 type CustomerGroupGeneralSectionProps = {
-  group: HttpTypes.AdminCustomerGroup
+  group: CustomerGroupWithOwner
 }
 
 export const CustomerGroupGeneralSection = ({
@@ -84,6 +91,14 @@ export const CustomerGroupGeneralSection = ({
         </Text>
         <Text size="small" leading="compact" data-testid="customer-group-general-section-customers-value">
           {group.customers?.length || "-"}
+        </Text>
+      </div>
+      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-group-general-section-owner-row">
+        <Text size="small" leading="compact" weight="plus" data-testid="customer-group-general-section-owner-label">
+          {t("fields.owner")}
+        </Text>
+        <Text size="small" leading="compact" data-testid="customer-group-general-section-owner-value">
+          {group.seller?.name || "-"}
         </Text>
       </div>
     </Container>
