@@ -121,6 +121,7 @@ const Root = () => {
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        defaultOrderBy="title"
         queryObject={raw}
         layout="fill"
         pagination
