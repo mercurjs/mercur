@@ -6,9 +6,8 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { createProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 import { AdminCreateProductCategoryType } from "./validators"
-import { setCategoryImagesWorkflow } from "../../../workflows/media/workflows/set-category-images"
+import { createProductCategoryWithImagesWorkflow } from "../../../workflows/media/workflows/create-product-category-with-images"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -44,19 +43,12 @@ export const POST = async (
     ...payload
   } = req.validatedBody
 
-  const { result } = await createProductCategoriesWorkflow(req.scope).run({
-    input: {
-      product_categories: [payload],
-    } as any,
+  const { result: createdId } = await createProductCategoryWithImagesWorkflow(
+    req.scope
+  ).run({
+    input: { product_category: payload, media, icon },
   })
 
-  const createdId = result[0].id
-
-  if (media !== undefined || icon !== undefined) {
-    await setCategoryImagesWorkflow(req.scope).run({
-      input: { category_id: createdId, media, icon },
-    })
-  }
   const {
     data: [product_category],
   } = await query.graph({

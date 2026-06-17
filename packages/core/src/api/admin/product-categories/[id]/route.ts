@@ -10,10 +10,9 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { deleteProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
-import { updateProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 import { AdminUpdateProductCategoryType } from "../validators"
-import { setCategoryImagesWorkflow } from "../../../../workflows/media/workflows/set-category-images"
+import { updateProductCategoryWithImagesWorkflow } from "../../../../workflows/media/workflows/update-product-category-with-images"
+import { deleteProductCategoryWithImagesWorkflow } from "../../../../workflows/media/workflows/delete-product-category-with-images"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -52,18 +51,9 @@ export const POST = async (
     ...update
   } = req.validatedBody
 
-  await updateProductCategoriesWorkflow(req.scope).run({
-    input: {
-      selector: { id: req.params.id },
-      update,
-    } as any,
+  await updateProductCategoryWithImagesWorkflow(req.scope).run({
+    input: { id: req.params.id, update, media, icon },
   })
-
-  if (media !== undefined || icon !== undefined) {
-    await setCategoryImagesWorkflow(req.scope).run({
-      input: { category_id: req.params.id, media, icon },
-    })
-  }
 
   const {
     data: [product_category],
@@ -87,13 +77,8 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminProductCategoryDeleteResponse>
 ) => {
-  // Remove the category's linked images so they don't dangle.
-  await setCategoryImagesWorkflow(req.scope).run({
-    input: { category_id: req.params.id, media: [], icon: null },
-  })
-
-  await deleteProductCategoriesWorkflow(req.scope).run({
-    input: [req.params.id] as any,
+  await deleteProductCategoryWithImagesWorkflow(req.scope).run({
+    input: { id: req.params.id },
   })
 
   res.status(200).json({
