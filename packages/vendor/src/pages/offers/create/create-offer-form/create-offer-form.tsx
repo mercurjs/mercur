@@ -172,24 +172,25 @@ export const CreateOfferForm = () => {
           message: t("offers.validation.skuRequired"),
         });
         hasValidationError = true;
-        continue;
-      }
-      if (sku) {
+      } else if (sku) {
         if (skuSeen.has(sku)) {
           form.setError(`variants.${i}.sku`, {
             type: "manual",
             message: t("offers.validation.duplicateSku"),
           });
           hasValidationError = true;
-          continue;
+        } else {
+          skuSeen.set(sku, i);
         }
-        skuSeen.set(sku, i);
       }
 
+      // Every publishable row needs a shipping profile; validate it
+      // independently of the SKU checks so a row missing both surfaces
+      // both errors instead of hiding the shipping requirement.
       if (!row.shipping_profile_id) {
         form.setError(`variants.${i}.shipping_profile_id`, {
           type: "manual",
-          message: t("offers.validation.skuRequired"),
+          message: t("offers.validation.shippingProfileRequired"),
         });
         hasValidationError = true;
       }
