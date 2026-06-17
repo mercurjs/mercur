@@ -1,5 +1,6 @@
 import {
   EllipsisHorizontal,
+  FeaturedBadge,
   InformationCircleSolid,
   Photo,
   ThumbnailBadge,
@@ -11,7 +12,6 @@ import { useTranslation } from "react-i18next"
 
 import { FileType, FileUpload } from "@components/common/file-upload"
 import { formatFileSize } from "@lib/format-file-size"
-import { CategoryBannerBadge } from "./category-banner-badge"
 import { CATEGORY_IMAGE_FORMATS, CategoryMediaItem } from "./types"
 
 type CategoryMediaInputProps = {
@@ -99,7 +99,9 @@ export const CategoryMediaInput = ({
                     {item.is_thumbnail && (
                       <ThumbnailBadge data-testid="category-media-input-item-thumbnail-badge" />
                     )}
-                    {item.is_banner && <CategoryBannerBadge />}
+                    {item.is_banner && (
+                      <FeaturedBadge data-testid="category-media-input-item-banner-badge" />
+                    )}
                     {item.file && (
                       <Text
                         size="xsmall"
@@ -178,7 +180,7 @@ const CategoryMediaItemMenu = ({
           onClick={onToggleThumbnail}
         />
         <MenuItemWithTooltip
-          icon={<CategoryBannerBadge />}
+          icon={<FeaturedBadge />}
           label={
             item.is_banner
               ? t("categories.media.actions.removeBanner")
