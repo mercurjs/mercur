@@ -1,33 +1,26 @@
-import {
-  Buildings,
-  Component,
-  CurrencyDollar,
-  PencilSquare,
-  Trash,
-} from "@medusajs/icons"
+import { Buildings, Component, CurrencyDollar, PencilSquare, Trash } from "@medusajs/icons"
 import {
   Badge,
   clx,
   Container,
-  createDataTableColumnHelper,
-  type DataTableAction,
   Heading,
   toast,
   Tooltip,
   usePrompt,
 } from "@medusajs/ui"
 import { OfferDTO } from "@mercurjs/types"
-import type { CellContext } from "@tanstack/react-table"
+import { createColumnHelper } from "@tanstack/react-table"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { Thumbnail } from "../../../../components/common/thumbnail"
-import { DataTable } from "../../../../components/data-table"
-import { useDataTableDateFilters } from "../../../../components/data-table/helpers/general/use-data-table-date-filters"
+import { _DataTable, Filter } from "../../../../components/table/data-table"
+import { DataTableOrderByKey } from "../../../../components/table/data-table/data-table-order-by"
+import { PlaceholderCell } from "../../../../components/table/table-cells/common/placeholder-cell"
 import { useBulkDeleteOffers } from "../../../../hooks/api/offers"
-import { useDate } from "../../../../hooks/use-date"
+import { useDataTable } from "../../../../hooks/use-data-table"
 import { useQueryParams } from "../../../../hooks/use-query-params"
 import { OfferProductVariant } from "../../common/types"
 
@@ -38,6 +31,7 @@ const PREFIX = "ov"
 type OfferWithInventory = OfferDTO & {
   inventory_item_link?: Array<{
     inventory_item?: {
+      id?: string | null
       location_levels?: Array<{
         location_id?: string | null
         stocked_quantity?: number | null
@@ -55,6 +49,11 @@ type OfferVariantRow = {
 }
 
 const skuOf = (row: OfferVariantRow) => row.offer.sku ?? row.variant.sku ?? ""
+
+/** First inventory item backing the offer — the "Go to inventory item" target. */
+const inventoryItemIdOf = (offer: OfferWithInventory) =>
+  offer.inventory_item_link?.find((link) => link.inventory_item?.id)?.inventory_item
+    ?.id ?? null
 
 const inventoryOf = (offer: OfferWithInventory) => {
   const links = offer.inventory_item_link ?? []
@@ -99,53 +98,55 @@ const matchesDateFilter = (
   return true
 }
 
-const columnHelper = createDataTableColumnHelper<OfferVariantRow>()
+const columnHelper = createColumnHelper<OfferVariantRow>()
 
 const useColumns = ({
   optionTitles,
   thumbnail,
-  getActions,
+  onEdit,
+  onDelete,
 }: {
   optionTitles: string[]
   thumbnail?: string | null
-  getActions: (
-    ctx: CellContext<OfferVariantRow, unknown>,
-  ) => DataTableAction<OfferVariantRow>[][]
+  onEdit: (offerId: string) => void
+  onDelete: (offerId: string, sku: string) => void
 }) => {
   const { t } = useTranslation()
-  const { getFullDate } = useDate()
 
   return useMemo(
     () => [
-      columnHelper.display({
-        id: "thumbnail",
-        header: "",
-        // Variant-level images aren't carried by the `withOffers` wrap, so
-        // every row falls back to the product thumbnail (Figma shows a
-        // thumbnail in the Title cell, `40016500:747487`).
-        cell: () => (
-          <div className="flex items-center">
-            <Thumbnail src={thumbnail ?? null} />
-          </div>
-        ),
-      }),
+      // Thumbnail lives inside the Title cell (Figma `40016500:747487`), so
+      // the "Title" header sits at the left edge rather than over an empty
+      // leading column.
       columnHelper.accessor((row) => row.variant.title ?? "", {
         id: "title",
         header: t("fields.title"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
-        sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
-        cell: ({ getValue }) =>
-          getValue() || <span className="text-ui-fg-muted">-</span>,
+        cell: ({ getValue }) => (
+          <div className="flex h-full w-full max-w-[250px] items-center gap-x-3 overflow-hidden">
+            <div className="w-fit flex-shrink-0">
+              <Thumbnail src={thumbnail ?? null} />
+            </div>
+            {getValue() ? (
+              <span title={getValue()} className="truncate">
+                {getValue()}
+              </span>
+            ) : (
+              <span className="text-ui-fg-muted">-</span>
+            )}
+          </div>
+        ),
       }),
       columnHelper.accessor((row) => skuOf(row), {
         id: "sku",
         header: t("fields.sku"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
-        sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
         cell: ({ getValue }) =>
-          getValue() || <span className="text-ui-fg-muted">-</span>,
+          getValue() ? (
+            <span title={getValue()} className="truncate">
+              {getValue()}
+            </span>
+          ) : (
+            <PlaceholderCell />
+          ),
       }),
       ...optionTitles.map((title) =>
         columnHelper.display({
@@ -158,7 +159,7 @@ const useColumns = ({
             return opt?.value ? (
               <Badge size="2xsmall">{opt.value}</Badge>
             ) : (
-              <span className="text-ui-fg-muted">-</span>
+              <PlaceholderCell />
             )
           },
         }),
@@ -171,7 +172,7 @@ const useColumns = ({
             row.original.offer,
           )
           if (!hasItems) {
-            return <span className="text-ui-fg-muted">-</span>
+            return <PlaceholderCell />
           }
           const text = t("products.variant.tableItem", {
             availableCount: available,
@@ -194,45 +195,52 @@ const useColumns = ({
           )
         },
       }),
-      columnHelper.accessor((row) => row.offer.created_at, {
-        id: "created_at",
-        header: t("fields.createdAt"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.dateAsc"),
-        sortDescLabel: t("filters.sorting.dateDesc"),
-        cell: ({ getValue }) => {
-          const date = getValue()
-          if (!date) {
-            return <span className="text-ui-fg-muted">-</span>
-          }
+      columnHelper.display({
+        id: "actions",
+        cell: ({ row }) => {
+          const inventoryItemId = inventoryItemIdOf(row.original.offer)
           return (
-            <Tooltip content={getFullDate({ date, includeTime: true })}>
-              <span>{getFullDate({ date })}</span>
-            </Tooltip>
+            <ActionMenu
+              groups={[
+                {
+                  actions: [
+                    {
+                      icon: <PencilSquare />,
+                      label: t("actions.edit"),
+                      onClick: () => onEdit(row.original.id),
+                    },
+                    inventoryItemId
+                      ? {
+                          icon: <Buildings />,
+                          label: t("offers.detail.goToInventoryItem"),
+                          to: `/inventory/${inventoryItemId}`,
+                        }
+                      : {
+                          icon: <Buildings />,
+                          label: t("offers.detail.goToInventoryItem"),
+                          onClick: () => {},
+                          disabled: true,
+                          disabledTooltip: t("offers.detail.noInventoryItems"),
+                        },
+                  ],
+                },
+                {
+                  actions: [
+                    {
+                      icon: <Trash />,
+                      label: t("actions.delete"),
+                      onClick: () =>
+                        onDelete(row.original.id, skuOf(row.original)),
+                    },
+                  ],
+                },
+              ]}
+            />
           )
         },
       }),
-      columnHelper.accessor((row) => row.offer.updated_at, {
-        id: "updated_at",
-        header: t("fields.updatedAt"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.dateAsc"),
-        sortDescLabel: t("filters.sorting.dateDesc"),
-        cell: ({ getValue }) => {
-          const date = getValue()
-          if (!date) {
-            return <span className="text-ui-fg-muted">-</span>
-          }
-          return (
-            <Tooltip content={getFullDate({ date, includeTime: true })}>
-              <span>{getFullDate({ date })}</span>
-            </Tooltip>
-          )
-        },
-      }),
-      columnHelper.action({ actions: getActions }),
     ],
-    [t, optionTitles, thumbnail, getActions, getFullDate],
+    [t, optionTitles, thumbnail, onEdit, onDelete],
   )
 }
 
@@ -354,6 +362,11 @@ export const OfferVariantsSection = ({
     [sortedRows, pageIndex],
   )
 
+  const handleEdit = useCallback(
+    (offerId: string) => navigate(`variants/${offerId}/edit`),
+    [navigate],
+  )
+
   const handleDelete = useCallback(
     async (offerId: string, sku: string) => {
       const confirmed = await prompt({
@@ -378,38 +391,47 @@ export const OfferVariantsSection = ({
     [prompt, bulkDelete, t],
   )
 
-  const getActions = useCallback(
-    (
-      ctx: CellContext<OfferVariantRow, unknown>,
-    ): DataTableAction<OfferVariantRow>[][] => {
-      const row = ctx.row.original
-      return [
-        [
-          {
-            icon: <PencilSquare />,
-            label: t("actions.edit"),
-            onClick: () => navigate(`variants/${row.id}/edit`),
-          },
-        ],
-        [
-          {
-            icon: <Trash />,
-            label: t("actions.delete"),
-            onClick: () => handleDelete(row.offer.id, skuOf(row)),
-          },
-        ],
-      ]
-    },
-    [navigate, handleDelete, t],
+  const columns = useColumns({
+    optionTitles,
+    thumbnail,
+    onEdit: handleEdit,
+    onDelete: handleDelete,
+  })
+
+  // Sort keys live in the order-by dropdown (Figma `40016489:640014`), not
+  // as visible Created/Updated columns; the keys are read back from the URL
+  // and applied in memory above.
+  const orderBy = useMemo(
+    () =>
+      [
+        { key: "title", label: t("fields.title") },
+        { key: "sku", label: t("fields.sku") },
+        { key: "created_at", label: t("fields.createdAt") },
+        { key: "updated_at", label: t("fields.updatedAt") },
+      ] as DataTableOrderByKey<OfferVariantRow>[],
+    [t],
   )
 
-  const columns = useColumns({ optionTitles, thumbnail, getActions })
-  const filters = useDataTableDateFilters()
+  const filters = useMemo<Filter[]>(
+    () => [
+      { key: "created_at", label: t("fields.createdAt"), type: "date" },
+      { key: "updated_at", label: t("fields.updatedAt"), type: "date" },
+    ],
+    [t],
+  )
+
+  const { table } = useDataTable({
+    data: pageRows,
+    columns,
+    count: sortedRows.length,
+    pageSize: PAGE_SIZE,
+    getRowId: (row) => row.id,
+    prefix: PREFIX,
+  })
 
   // No `divide-y` on the Container: this section draws its own header, so the
-  // DataTable renders only its filter bar, which already has a `border-t`. A
-  // Container divider would stack a second line between the header and the
-  // filter row; the filter bar owns that separator.
+  // _DataTable renders its own query/filter bar (with its leading divider) and
+  // table below. A Container divider would stack a second line under the header.
   return (
     <Container className="p-0" data-testid="offer-variants-section">
       <div className="flex items-center justify-between px-6 py-4">
@@ -435,24 +457,21 @@ export const OfferVariantsSection = ({
           />
         </div>
       </div>
-      <DataTable
-        data={pageRows}
+      <_DataTable
+        table={table}
         columns={columns}
-        filters={filters}
-        getRowId={(row) => row.id}
-        rowHref={(row) => `variants/${row.id}`}
-        rowCount={sortedRows.length}
+        count={sortedRows.length}
         pageSize={PAGE_SIZE}
         prefix={PREFIX}
-        emptyState={{
-          empty: {
-            heading: t("offers.empty.heading"),
-            description: t("offers.empty.description"),
-          },
-          filtered: {
-            heading: t("offers.filtered.heading"),
-            description: t("offers.filtered.description"),
-          },
+        pagination
+        search
+        orderBy={orderBy}
+        filters={filters}
+        queryObject={{ q, order, created_at, updated_at }}
+        navigateTo={(row) => `variants/${row.original.id}`}
+        noRecords={{
+          title: t("offers.empty.heading"),
+          message: t("offers.empty.description"),
         }}
       />
     </Container>
