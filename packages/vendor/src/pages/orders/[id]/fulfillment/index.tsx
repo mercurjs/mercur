@@ -15,7 +15,7 @@ export const Component = () => {
     // to look up a literal property `*items` / `+items` on Order and
     // 500. Use `<rel>.*` plus bare scalar names.
     fields:
-      "currency_code,items.*,items.variant.*,items.variant.product.shipping_profile.id,items.offer.shipping_profile_id,shipping_address.*,shipping_methods.shipping_option_id,no_notification",
+      "currency_code,items.*,items.variant.*,items.variant.product.shipping_profile.id,items.offer.shipping_profile_id,items.offer.inventory_item_link.*,items.offer.inventory_item_link.inventory_item.location_levels.*,shipping_address.*,shipping_methods.shipping_option_id,no_notification",
   })
 
   if (isError) {
