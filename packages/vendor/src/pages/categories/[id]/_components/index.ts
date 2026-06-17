@@ -1,3 +1,5 @@
 export * from "./category-general-section"
+export * from "./category-icon-section"
+export * from "./category-media-section"
 export * from "./category-organize-section"
 export * from "./category-product-section"
