@@ -3,6 +3,7 @@ export enum MercurModules {
     COMMISSION = "commission",
     PAYOUT = "payout",
     OFFER = "offer",
+    MEDIA = "media",
     PRODUCT_ATTRIBUTE = "product_attribute",
     PRODUCT_EDIT = "product_edit",
     CUSTOM_FIELDS = "custom_fields",

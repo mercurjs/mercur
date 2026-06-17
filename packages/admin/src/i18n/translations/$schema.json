@@ -3248,6 +3248,117 @@
           "required": ["header", "action"],
           "additionalProperties": false
         },
+        "media": {
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "thumbnail": { "type": "string" },
+            "banner": { "type": "string" },
+            "galleryLabel": { "type": "string" },
+            "editHint": { "type": "string" },
+            "deleteWarning": { "type": "string" },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "required": ["header", "description"],
+              "additionalProperties": false
+            },
+            "upload": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "hint": { "type": "string" }
+              },
+              "required": ["title", "hint"],
+              "additionalProperties": false
+            },
+            "tooltips": {
+              "type": "object",
+              "properties": {
+                "thumbnail": { "type": "string" },
+                "banner": { "type": "string" }
+              },
+              "required": ["thumbnail", "banner"],
+              "additionalProperties": false
+            },
+            "actions": {
+              "type": "object",
+              "properties": {
+                "setThumbnail": { "type": "string" },
+                "removeThumbnail": { "type": "string" },
+                "setBanner": { "type": "string" },
+                "removeBanner": { "type": "string" }
+              },
+              "required": [
+                "setThumbnail",
+                "removeThumbnail",
+                "setBanner",
+                "removeBanner"
+              ],
+              "additionalProperties": false
+            },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["label", "thumbnail", "banner", "galleryLabel", "editHint", "deleteWarning", "empty", "upload", "tooltips", "actions", "edit"],
+          "additionalProperties": false
+        },
+        "icon": {
+          "type": "object",
+          "properties": {
+            "label": { "type": "string" },
+            "empty": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" }
+              },
+              "required": ["header", "description"],
+              "additionalProperties": false
+            },
+            "tip": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string" },
+                "text": { "type": "string" }
+              },
+              "required": ["label", "text"],
+              "additionalProperties": false
+            },
+            "upload": {
+              "type": "object",
+              "properties": {
+                "title": { "type": "string" },
+                "hint": { "type": "string" }
+              },
+              "required": ["title", "hint"],
+              "additionalProperties": false
+            },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": { "type": "string" },
+                "description": { "type": "string" },
+                "successToast": { "type": "string" }
+              },
+              "required": ["header", "description", "successToast"],
+              "additionalProperties": false
+            }
+          },
+          "required": ["label", "empty", "tip", "upload", "edit"],
+          "additionalProperties": false
+        },
         "fields": {
           "type": "object",
           "properties": {
@@ -3329,6 +3440,8 @@
         "delete",
         "products",
         "organize",
+        "media",
+        "icon",
         "fields"
       ],
       "additionalProperties": false

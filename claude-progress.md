@@ -14,6 +14,55 @@
 
 ## Session Log
 
+### Session 34: 2026-06-16 -- SPEC-011 Categories Admin Panel media + icon (MER-156)
+
+**Goal.** Categories admin is ~90% built; the one gap vs the B2C Figma /
+Confluence spec is category **Media (gallery + thumbnail/banner) + Icon**.
+BASIC scope (no seller Requests). Spec:
+`docs/specs/SPEC-011-categories-admin-panel.md` (status `passing`).
+
+**Backend** (`packages/core`). New generic `media` module — `Image` model
+(table `media_image`, `type` nullable: null=gallery / "icon"=icon, plus
+`is_thumbnail`/`is_banner` flags, `rank`, `metadata`), service, migration
+`Migration20260616000000`. `MEDIA` added to `MercurModules`
+(`packages/types/src/modules.ts`). New link
+`links/media-product-category-link.ts` (direction category → image,
+`isList`; auto-registers as `product_product_category_media_image`) — kept
+entity-agnostic so product collections can reuse the same `Image` model via
+a second link later. New `workflows/media/` `setCategoryImagesWorkflow` +
+`setCategoryImagesStep`: full-replace of gallery and/or icon with the
+single-thumbnail / single-banner / single-icon invariants enforced in the
+step (not DB), plus create-then-delete ordering + compensation. Admin
+`product-categories` validators gained `media[]` + `icon`; query-config
+returns linked `images.*`; create/update/delete route handlers call the
+workflow (delete passes `{media:[], icon:null}` to drop orphans).
+
+**Frontend** (`packages/admin`). Shared
+`pages/categories/common/components/category-image-fields/` —
+`CategoryMediaInput` (dropzone + row `ActionMenu`: set/remove thumbnail,
+set/remove banner, delete), `CategoryIconInput` (single upload + storefront
+hint), `uploadCategoryImages` (uploads pending Files at submit), plus
+`getCategoryGallery`/`getCategoryIcon` helpers. Create wizard Details tab +
+schema extended (no new tab). Detail page gained `category-media-section`
+(+ thumbnail/banner badges) and `category-icon-section`; edit drawers
+`category-media-edit/` + `category-icon-edit/` registered at
+`categories/:id/media/edit` + `icon/edit`. i18n `categories.media.*` /
+`categories.icon.*` added to `en.json` + `$schema.json`.
+
+**Deviation.** `media/edit` is a `RouteDrawer` reusing `CategoryMediaInput`,
+not the full-screen `RouteFocusModal` gallery the Figma shows — same
+capability minus drag-reorder (rank = list order). Documented in spec Notes.
+
+**Verification.** `bun run test:integration:http -- product-categories-media`
+→ 5/5 pass (new admin spec covering create/GET/update-invariants/icon-clear/
+delete-orphan-cleanup). `bun run build` 9/9 green. oxlint clean on new files.
+Pre-existing: admin i18n vitest fails on unrelated `sellers.*` en.json↔schema
+desync (not touched here); `bun run lint` baseline-red repo-wide.
+
+**Not done:** manual admin-panel smoke (no dev stack in this env) — covered
+by integration tests. Deferred (in spec): collection media (2nd link),
+vendor-categories parity, category Requests.
+
 ### Session 33: 2026-06-16 -- SPEC-011 vendor Customers & Customer Groups (MER-147 / MER-148)
 
 **Goal.** Implement the vendor Customers + Customer Groups surfaces per the

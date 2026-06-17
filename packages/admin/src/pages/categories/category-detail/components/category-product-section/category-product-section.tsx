@@ -1,7 +1,6 @@
 import { ExclamationCircle, PlusMini } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import {
-  Checkbox,
   CommandBar,
   Container,
   Heading,
@@ -10,8 +9,8 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import { RowSelectionState, createColumnHelper } from "@tanstack/react-table";
-import { useMemo, useState } from "react";
+import { RowSelectionState } from "@tanstack/react-table";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "../../../../../components/common/action-menu";
@@ -48,7 +47,7 @@ export const CategoryProductSection = ({
     },
   );
 
-  const columns = useColumns();
+  const columns = useProductTableColumns();
   const filters = useProductTableFilters(["categories"]);
 
   const { table } = useDataTable({
@@ -168,43 +167,3 @@ export const CategoryProductSection = ({
   );
 };
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProduct>();
-
-const useColumns = () => {
-  const base = useProductTableColumns();
-
-  return useMemo(
-    () => [
-      columnHelper.display({
-        id: "select",
-        header: ({ table }) => {
-          return (
-            <Checkbox
-              checked={
-                table.getIsSomePageRowsSelected()
-                  ? "indeterminate"
-                  : table.getIsAllPageRowsSelected()
-              }
-              onCheckedChange={(value) =>
-                table.toggleAllPageRowsSelected(!!value)
-              }
-            />
-          );
-        },
-        cell: ({ row }) => {
-          return (
-            <Checkbox
-              checked={row.getIsSelected()}
-              onCheckedChange={(value) => row.toggleSelected(!!value)}
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            />
-          );
-        },
-      }),
-      ...base,
-    ],
-    [base],
-  );
-};

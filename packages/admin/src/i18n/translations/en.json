@@ -921,6 +921,57 @@
       "header": "Organize",
       "action": "Edit ranking"
     },
+    "media": {
+      "label": "Media",
+      "thumbnail": "Thumbnail",
+      "banner": "Banner",
+      "galleryLabel": "Gallery",
+      "editHint": "Add media to the category to showcase it on the storefront.",
+      "deleteWarning": "You are about to delete this image. This action cannot be undone.",
+      "empty": {
+        "header": "No media yet",
+        "description": "Add media to showcase it on the storefront."
+      },
+      "upload": {
+        "title": "Upload images",
+        "hint": "Drag and drop images here or click to upload."
+      },
+      "tooltips": {
+        "thumbnail": "Shown as the category thumbnail on the homepage.",
+        "banner": "Shown as the category banner in the category listing."
+      },
+      "actions": {
+        "setThumbnail": "Make thumbnail",
+        "removeThumbnail": "Remove thumbnail",
+        "setBanner": "Make banner",
+        "removeBanner": "Remove banner"
+      },
+      "edit": {
+        "header": "Edit Media",
+        "description": "Upload images and choose the thumbnail and banner shown on the storefront.",
+        "successToast": "Category media was successfully updated."
+      }
+    },
+    "icon": {
+      "label": "Icon",
+      "empty": {
+        "header": "No icon yet",
+        "description": "Add icon to showcase it near the category label on the storefront."
+      },
+      "tip": {
+        "label": "Tip:",
+        "text": "This icon will appear near the category label on the storefront."
+      },
+      "upload": {
+        "title": "Upload file",
+        "hint": "Drag and drop file here or click to upload."
+      },
+      "edit": {
+        "header": "Edit Icon",
+        "description": "Upload a single icon shown near the category label on the storefront.",
+        "successToast": "Category icon was successfully updated."
+      }
+    },
     "fields": {
       "visibility": {
         "label": "Visibility",

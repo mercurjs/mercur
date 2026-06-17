@@ -10,9 +10,9 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { deleteProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
-import { updateProductCategoriesWorkflow } from "@medusajs/medusa/core-flows"
 import { AdminUpdateProductCategoryType } from "../validators"
+import { updateProductCategoryWithImagesWorkflow } from "../../../../workflows/media/workflows/update-product-category-with-images"
+import { deleteProductCategoryWithImagesWorkflow } from "../../../../workflows/media/workflows/delete-product-category-with-images"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -44,13 +44,15 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { additional_data: _additional_data, ...update } = req.validatedBody
+  const {
+    additional_data: _additional_data,
+    media,
+    icon,
+    ...update
+  } = req.validatedBody
 
-  await updateProductCategoriesWorkflow(req.scope).run({
-    input: {
-      selector: { id: req.params.id },
-      update,
-    } as any,
+  await updateProductCategoryWithImagesWorkflow(req.scope).run({
+    input: { id: req.params.id, update, media, icon },
   })
 
   const {
@@ -75,8 +77,8 @@ export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminProductCategoryDeleteResponse>
 ) => {
-  await deleteProductCategoriesWorkflow(req.scope).run({
-    input: [req.params.id] as any,
+  await deleteProductCategoryWithImagesWorkflow(req.scope).run({
+    input: { id: req.params.id },
   })
 
   res.status(200).json({
