@@ -1,7 +1,7 @@
 import {
   EllipsisHorizontal,
-  FeaturedBadge,
   InformationCircleSolid,
+  ListBullet,
   Photo,
   ThumbnailBadge,
   Trash,
@@ -100,7 +100,10 @@ export const CategoryMediaInput = ({
                       <ThumbnailBadge data-testid="category-media-input-item-thumbnail-badge" />
                     )}
                     {item.is_banner && (
-                      <FeaturedBadge data-testid="category-media-input-item-banner-badge" />
+                      <ListBullet
+                        className="text-ui-fg-interactive"
+                        data-testid="category-media-input-item-banner-badge"
+                      />
                     )}
                     {item.file && (
                       <Text
@@ -180,7 +183,7 @@ const CategoryMediaItemMenu = ({
           onClick={onToggleThumbnail}
         />
         <MenuItemWithTooltip
-          icon={<FeaturedBadge />}
+          icon={<ListBullet />}
           label={
             item.is_banner
               ? t("categories.media.actions.removeBanner")
