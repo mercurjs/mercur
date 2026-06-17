@@ -236,6 +236,80 @@ medusaIntegrationTestRunner({
                     expect(r1.status).toEqual(201)
                     expect(r2.status).toEqual(201)
                 })
+
+                it("should reject create when shipping_profile_id is missing", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers`,
+                            {
+                                sku: "NO-SHIPPING-PROFILE",
+                                variant_id: deps.variant_id,
+                                inventory_items: [{}],
+                                prices: [
+                                    { amount: 2000, currency_code: "usd" },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+
+                it("should reject create when shipping_profile_id is an empty string", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers`,
+                            {
+                                sku: "EMPTY-SHIPPING-PROFILE",
+                                variant_id: deps.variant_id,
+                                shipping_profile_id: "",
+                                inventory_items: [{}],
+                                prices: [
+                                    { amount: 2000, currency_code: "usd" },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+            })
+
+            describe("POST /vendor/offers/batch", () => {
+                it("should reject the batch when any item has an empty shipping_profile_id", async () => {
+                    const deps = await seedSellerOfferDeps(seller1Headers)
+
+                    const response = await api
+                        .post(
+                            `/vendor/offers/batch`,
+                            {
+                                offers: [
+                                    {
+                                        sku: "BATCH-EMPTY-SHIPPING",
+                                        variant_id: deps.variant_id,
+                                        shipping_profile_id: "",
+                                        inventory_items: [{}],
+                                        prices: [
+                                            {
+                                                amount: 2000,
+                                                currency_code: "usd",
+                                            },
+                                        ],
+                                    },
+                                ],
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
             })
 
             describe("GET /vendor/offers", () => {

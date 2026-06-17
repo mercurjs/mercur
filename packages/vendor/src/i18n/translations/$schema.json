@@ -4853,6 +4853,9 @@
             "skuRequired": {
               "type": "string"
             },
+            "shippingProfileRequired": {
+              "type": "string"
+            },
             "duplicateSku": {
               "type": "string"
             },
@@ -4874,6 +4877,7 @@
           },
           "required": [
             "skuRequired",
+            "shippingProfileRequired",
             "duplicateSku",
             "duplicatePriceRule",
             "duplicateInventoryItem",
