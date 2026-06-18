@@ -45,7 +45,7 @@ export const POST = async (
   const sellerId = req.seller_context!.seller_id
   const productId = req.params.id
 
-  const { attribute_values: _av, ...variant } = req.validatedBody
+  const variant = req.validatedBody
 
   const { result } = await productEditUpdateVariantsWorkflow(req.scope).run({
     input: {

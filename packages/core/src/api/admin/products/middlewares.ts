@@ -10,15 +10,6 @@ import {
   adminProductVariantQueryConfig,
 } from "./query-config"
 import {
-  adminProductAttributeQueryConfig,
-} from "../product-attributes/query-config"
-import {
-  AdminGetProductAttributeParams,
-  AdminGetProductAttributesParams,
-  AdminUpdateProductAttribute,
-} from "../product-attributes/validators"
-import {
-  AdminAddProductAttribute,
   AdminBatchProductAttributes,
   AdminBatchProducts,
   AdminCreateProduct,

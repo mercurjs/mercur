@@ -93,9 +93,6 @@ const CreateProductVariant = z
     metadata: z.record(z.unknown()).optional(),
     /** Stock Medusa: maps option title -> chosen value name (e.g. `{ Color: "Blue" }`). */
     options: z.record(z.string()).optional(),
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
-      .optional(),
   })
   .strict()
 
@@ -122,9 +119,6 @@ const UpdateProductVariant = z
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
     options: z.record(z.string()).optional(),
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
-      .optional(),
   })
   .strict()
 
@@ -134,41 +128,6 @@ const AttributeTypeEnum = z.enum([
   "text",
   "toggle",
   "unit",
-])
-
-/**
- * UI-facing attribute reference. Two shapes:
- *
- *   1. **Existing reference** — `{ attribute_id, value_ids?, values? }`.
- *      `attribute_id` points at a pre-created ProductAttribute. Use
- *      `value_ids` for known ids, or `values` (names) for text/unit/toggle
- *      upsert.
- *
- *   2. **Inline custom** — `{ name, type, values, is_variant_axis? }`.
- *      Creates a new ProductAttribute scoped to the product being mutated.
- *      For variant axes the wrapper synthesizes the matching stock `options`
- *      entry; the new attribute is hidden from /vendor/product-attributes.
- */
-const ProductAttributeInput = z.union([
-  z
-    .object({
-      attribute_id: z.string(),
-      value_ids: z.array(z.string()).optional(),
-      values: z.array(z.string()).optional(),
-    })
-    .strict(),
-  z
-    .object({
-      name: z.string().min(1),
-      type: AttributeTypeEnum,
-      values: z.array(z.string()).optional(),
-      is_variant_axis: z.boolean().optional(),
-      is_filterable: z.boolean().optional(),
-      is_required: z.boolean().optional(),
-      description: z.string().nullish(),
-      metadata: z.record(z.unknown()).nullish(),
-    })
-    .strict(),
 ])
 
 /**
@@ -225,10 +184,7 @@ const CreateProduct = z
     options: z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))
       .optional(),
-    product_attributes: z.array(ProductAttributeInput).optional(),
-    variant_attributes: z.array(ProductAttributeInput).optional(),
     attributes: z.array(UnifiedProductAttributeInput).optional(),
-    attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
     variants: z.array(CreateProductVariant).optional(),
     weight: z.number().optional(),
     length: z.number().optional(),
@@ -284,9 +240,6 @@ const UpdateProduct = z
     options: z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))
       .optional(),
-    product_attributes: z.array(ProductAttributeInput).optional(),
-    variant_attributes: z.array(ProductAttributeInput).optional(),
-    attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
     variants: z.array(UpdateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -356,9 +309,6 @@ export const VendorAddProductVariant = z
     thumbnail: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
     options: z.record(z.string()).optional(),
-    attribute_values: z
-      .union([z.array(z.string()), z.record(z.union([z.string(), z.array(z.string())]))])
-      .optional(),
   })
   .strict()
 
@@ -399,105 +349,6 @@ export const VendorUpdateProductVariant = z
         remove: z.array(z.string()).optional(),
       })
       .optional(),
-    attribute_values: z
-      .union([z.array(z.string()), z.record(z.union([z.string(), z.array(z.string())]))])
-      .optional(),
-  })
-  .strict()
-
-export type VendorGetProductAttributesParamsType = z.infer<
-  typeof VendorGetProductAttributesParams
->
-export const VendorGetProductAttributesParams = createFindParams({
-  offset: 0,
-  limit: 50,
-})
-
-export type VendorGetProductAttributeParamsType = z.infer<
-  typeof VendorGetProductAttributeParams
->
-export const VendorGetProductAttributeParams = createSelectParams()
-
-/**
- * Two shapes share a single flat body (the middleware-friendly form);
- * the route branches on the presence of `attribute_id` vs `name`:
- *
- *   1. **Attach existing** — `{ attribute_id, attribute_value_ids? | values? }`.
- *   2. **Inline create** — `{ name, type, values?, is_variant_axis?, ... }`.
- *      Creates a product-scoped `ProductAttribute` (hidden from the
- *      global `/vendor/product-attributes` catalogue), materialises its
- *      values, and links them to the product.
- */
-export type VendorAddProductAttributeType = z.infer<
-  typeof VendorAddProductAttribute
->
-export const VendorAddProductAttribute = z
-  .object({
-    attribute_id: z.string().optional(),
-    attribute_value_ids: z.array(z.string()).optional(),
-    name: z.string().min(1).optional(),
-    type: AttributeTypeEnum.optional(),
-    is_variant_axis: z.boolean().optional(),
-    is_filterable: z.boolean().optional(),
-    is_required: z.boolean().optional(),
-    description: z.string().nullish(),
-    metadata: z.record(z.unknown()).nullish(),
-    values: z.array(z.string()).optional(),
-  })
-  .strict()
-  .refine(
-    (data) => Boolean(data.attribute_id) !== Boolean(data.name),
-    {
-      message:
-        "Provide either `attribute_id` (attach existing) or `name` (inline create), not both.",
-    },
-  )
-  .refine((data) => !data.name || !!data.type, {
-    message: "Inline-create branch requires `type`.",
-    path: ["type"],
-  })
-  .refine(
-    (data) => !data.attribute_id || data.type === undefined,
-    {
-      message: "`type` is only valid with the inline-create branch.",
-      path: ["type"],
-    },
-  )
-  // Inline-create select-type attributes carry their values as their
-  // entire identity — an empty `values` array would create an orphan
-  // attribute scope that the apply-actions dispatcher silently skips
-  // (it short-circuits on empty `attribute_value_ids`), leaving the
-  // product with a visible attribute and no linked values.
-  .refine(
-    (data) =>
-      !data.name ||
-      (data.type !== "single_select" && data.type !== "multi_select") ||
-      (data.values?.length ?? 0) > 0,
-    {
-      message:
-        "Inline-create with `single_select` or `multi_select` requires at least one entry in `values`.",
-      path: ["values"],
-    },
-  )
-
-/**
- * `PATCH /vendor/products/:id/attributes/:attribute_id` — atomic
- * value-set replacement for a product attribute. Stages `remove + add`
- * in a single product-change so the new value set replaces the old
- * one in one round-trip (the apply dispatcher processes removes first,
- * then adds — see `applyProductAttributeChangeActionsWorkflow`).
- *
- * Mirrors the existing-attribute branch of `VendorAddProductAttribute`:
- * caller may pass pre-resolved `attribute_value_ids` or names via
- * `values` (free-form values upsert; select-type misses error out).
- */
-export type VendorUpdateProductAttributeType = z.infer<
-  typeof VendorUpdateProductAttribute
->
-export const VendorUpdateProductAttribute = z
-  .object({
-    attribute_value_ids: z.array(z.string()).optional(),
-    values: z.array(z.string()).optional(),
   })
   .strict()
 

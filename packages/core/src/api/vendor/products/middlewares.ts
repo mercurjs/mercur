@@ -17,19 +17,15 @@ import {
   vendorProductVariantQueryConfig,
 } from "./query-config"
 import {
-  VendorAddProductAttribute,
   VendorAddProductVariant,
   VendorBatchProductAttributes,
   VendorCancelProductChange,
   VendorCreateProduct,
-  VendorGetProductAttributeParams,
-  VendorGetProductAttributesParams,
   VendorGetProductParams,
   VendorGetProductsParams,
   VendorGetProductVariantParams,
   VendorGetProductVariantsParams,
   VendorUpdateProduct,
-  VendorUpdateProductAttribute,
   VendorUpdateProductVariant,
 } from "./validators"
 

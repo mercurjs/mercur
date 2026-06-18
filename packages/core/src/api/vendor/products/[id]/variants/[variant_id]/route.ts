@@ -48,7 +48,7 @@ export const POST = async (
   const productId = req.params.id
   const variantId = req.params.variant_id
 
-  const { attribute_values: _av, ...update } = req.validatedBody
+  const update = req.validatedBody
 
   // `manage_inventory` is a marketplace invariant pinned to `false` at
   // variant creation (see `create-products` / variant create route); it

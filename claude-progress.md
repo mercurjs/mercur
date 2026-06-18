@@ -178,10 +178,21 @@ SPEC-014 tests green** (product-attribute/admin 15 + product HTTP 3 — inline
 create + free-form + axis mirror + batch + approval-queue apply all on the
 native-option model).
 
+**Legacy validator surface REMOVED (2026-06-18).** Dropped
+`variant_attributes`/`product_attributes`/`attribute_values` from vendor + admin
+CreateProduct/UpdateProduct and the nested + standalone variant validators;
+deleted the `ProductAttributeInput` unions and the dead
+`Vendor/AdminAddProductAttribute`, `*UpdateProductAttribute`,
+`*GetProductAttribute(s)Params` validators; trimmed the now-dead middleware
+imports; variant routes no longer destructure `attribute_values`. Admin
+CreateProduct gained the unified `attributes[]`. Build 9/9; HTTP attribute specs
+3/3 + product-attribute/admin 15/15 green. **The unified `attributes[]` is now
+the ONLY attribute input.**
+
 **Owed / next.**
-- Test-migration sweep: move legacy-shape tests (product-edit, order/offer specs
-  using `variant_attributes`/`product_attributes`) to `attributes[]`, then drop
-  the legacy validator fields.
+- Test-migration sweep: legacy-shape specs (product-edit, order/offer using
+  `variant_attributes`/`product_attributes`) now **400** (`.strict()`) — migrate
+  them to `attributes[]`. ("We'll figure out integration tests.")
 - enrichment removal (drop `enrichProductAttributes`) + restore images/type/tags
   properly (2.16 joiner) + store product query-config.
 - UI (admin + vendor panels); data migration (backfill mirrors, drop

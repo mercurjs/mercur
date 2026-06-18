@@ -94,10 +94,6 @@ const CreateProductVariant = z
     metadata: z.record(z.unknown()).nullish(),
     /** Stock Medusa: maps option title -> chosen value name (e.g. `{ Color: "Blue" }`). */
     options: z.record(z.string()).optional(),
-    // See CreateProductVariantDTO.attribute_values — resolved by the service.
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
-      .optional(),
   })
   .strict()
 
@@ -136,9 +132,6 @@ const UpdateProductVariant = z
       )
       .optional(),
     options: z.record(z.string()).optional(),
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
-      .optional(),
   })
   .strict()
 
@@ -153,34 +146,26 @@ const AttributeTypeEnum = z.enum([
 ])
 
 /**
- * UI-facing attribute reference. Two shapes:
- *
- *   1. **Existing reference** — `{ attribute_id, value_ids?, values? }`.
- *      `attribute_id` points at a pre-created ProductAttribute (global, or
- *      scoped to this product on a prior round-trip). Use `value_ids` for
- *      known ProductAttributeValue ids; or `values` (names) to upsert
- *      values on the attribute (only meaningful for text/unit/toggle).
- *
- *   2. **Inline custom** — `{ name, type, values, is_variant_axis? }`.
- *      Creates a new ProductAttribute scoped to the product being mutated.
- *      The wrapper persists it, links the chosen values, and (for variant
- *      axes) synthesizes the matching stock `options` entry.
- *
- * Discriminator: presence of `attribute_id` vs `name`.
+ * SPEC-014 unified attribute input for product create. Existing refs use
+ * `id` + `value_ids` (select) or `value` (text/unit/toggle); inline refs use
+ * `title` + `type`. Axis attributes attach the product to their native option;
+ * non-axis selections are linked as values.
  */
-const ProductAttributeInput = z.union([
+const AttributeScalar = z.union([z.string(), z.number(), z.boolean()])
+const UnifiedProductAttributeInput = z.union([
   z
     .object({
-      attribute_id: z.string(),
+      id: z.string(),
       value_ids: z.array(z.string()).optional(),
-      values: z.array(z.string()).optional(),
+      value: AttributeScalar.optional(),
     })
     .strict(),
   z
     .object({
-      name: z.string().min(1),
-      type: AttributeTypeEnum,
+      title: z.string().min(1),
+      type: AttributeTypeEnum.optional(),
       values: z.array(z.string()).optional(),
+      value: AttributeScalar.optional(),
       is_variant_axis: z.boolean().optional(),
       is_filterable: z.boolean().optional(),
       is_required: z.boolean().optional(),
@@ -257,11 +242,7 @@ const CreateProduct = z
     options: z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))
       .optional(),
-    variant_attributes: z.array(ProductAttributeInput).optional(),
-    product_attributes: z.array(ProductAttributeInput).optional(),
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
-      .optional(),
+    attributes: z.array(UnifiedProductAttributeInput).optional(),
     variants: z.array(CreateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -298,11 +279,6 @@ export const UpdateProduct = z
     tags: z.array(IdAssociation).optional(),
     options: z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))
-      .optional(),
-    variant_attributes: z.array(ProductAttributeInput).optional(),
-    product_attributes: z.array(ProductAttributeInput).optional(),
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
       .optional(),
     variants: z.array(UpdateProductVariant).optional(),
     weight: z.number().nullish(),
@@ -431,73 +407,6 @@ export const AdminBatchProductAttributes = z.object({
   update: z.array(BatchAttributeUpdate).optional(),
 })
 
-// --- Attach single product attribute ---
-//
-// Mirror of `VendorAddProductAttribute` for the admin surface. Used by
-// `POST /admin/products/:id/attributes`. Two shapes share a single
-// flat body (the middleware-friendly form); the route branches on the
-// presence of `attribute_id` vs `name`:
-//
-//   1. **Attach existing** — `{ attribute_id, attribute_value_ids? | values? }`.
-//      `attribute_value_ids` for select types; `values` (names) for
-//      text/unit/toggle types where the value is upserted by name.
-//
-//   2. **Inline create** — `{ name, type, values?, is_variant_axis?, ... }`.
-//      Creates a product-scoped `ProductAttribute` (hidden from the
-//      global `/admin/product-attributes` catalogue), materialises its
-//      values, and links them to the product. Mirrors the inline shape
-//      accepted inside the product create payload's `product_attributes`
-//      / `variant_attributes` arrays.
-
-export type AdminAddProductAttributeType = z.infer<
-  typeof AdminAddProductAttribute
->
-export const AdminAddProductAttribute = z
-  .object({
-    attribute_id: z.string().optional(),
-    attribute_value_ids: z.array(z.string()).optional(),
-    name: z.string().min(1).optional(),
-    type: AttributeTypeEnum.optional(),
-    is_variant_axis: z.boolean().optional(),
-    is_filterable: z.boolean().optional(),
-    is_required: z.boolean().optional(),
-    description: z.string().nullish(),
-    metadata: z.record(z.unknown()).nullish(),
-    values: z.array(z.string()).optional(),
-  })
-  .strict()
-  .refine(
-    (data) => Boolean(data.attribute_id) !== Boolean(data.name),
-    {
-      message:
-        "Provide either `attribute_id` (attach existing) or `name` (inline create), not both.",
-    },
-  )
-  .refine((data) => !data.name || !!data.type, {
-    message: "Inline-create branch requires `type`.",
-    path: ["type"],
-  })
-  .refine(
-    (data) => !data.attribute_id || data.type === undefined,
-    {
-      message: "`type` is only valid with the inline-create branch.",
-      path: ["type"],
-    },
-  )
-
-/**
- * `POST /admin/products/:id/attributes/:attribute_id` — atomic value-set
- * replacement for an attribute on a product. Admin goes direct against
- * `detachProductAttributeWorkflow` + `addProductAttributeWorkflow`
- * (no staging — operators don't go through the ProductChange flow that
- * sellers do), so the route handler chains both calls.
- */
-export type AdminUpdateProductAttributeType = z.infer<
-  typeof AdminUpdateProductAttribute
->
-export const AdminUpdateProductAttribute = z
-  .object({
-    attribute_value_ids: z.array(z.string()).optional(),
-    values: z.array(z.string()).optional(),
-  })
-  .strict()
+// SPEC-014: the per-attribute attach/update admin validators were removed —
+// attribute mutations go through `AdminBatchProductAttributes`
+// (`.../attributes/batch`).
