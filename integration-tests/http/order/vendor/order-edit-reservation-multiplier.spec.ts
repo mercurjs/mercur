@@ -62,6 +62,13 @@ medusaIntegrationTestRunner({
                 stocked: number
                 offerPrice: number
                 requiredQuantity?: number
+                // When set, the offer's inventory item gets a SECOND stock
+                // level at a different location, stocked with this many
+                // units. The primary location (`stocked`) is listed first so
+                // it is the inventory item's `location_levels[0]`. Used to
+                // prove confirm reserves where stock actually is, not at the
+                // first level (MER-211).
+                secondaryStocked?: number
             }) => {
                 const requiredQuantity = opts.requiredQuantity ?? 1
 
@@ -181,6 +188,39 @@ medusaIntegrationTestRunner({
                     headers
                 )
 
+                // Optional second stock location, linked to the same sales
+                // channel so checkout can reserve there.
+                let secondaryLocation: any = undefined
+                if (opts.secondaryStocked != null) {
+                    secondaryLocation = (
+                        await api.post(
+                            `/vendor/stock-locations`,
+                            { name: `Warehouse2${tag}` },
+                            headers
+                        )
+                    ).data.stock_location
+                    await api.post(
+                        `/vendor/stock-locations/${secondaryLocation.id}/sales-channels`,
+                        { add: [salesChannel.id] },
+                        headers
+                    )
+                }
+
+                const stockLevels = [
+                    {
+                        location_id: stockLocation.id,
+                        stocked_quantity: opts.stocked,
+                    },
+                    ...(secondaryLocation
+                        ? [
+                              {
+                                  location_id: secondaryLocation.id,
+                                  stocked_quantity: opts.secondaryStocked!,
+                              },
+                          ]
+                        : []),
+                ]
+
                 const offer = (
                     await api.post(
                         `/vendor/offers`,
@@ -192,12 +232,7 @@ medusaIntegrationTestRunner({
                                 {
                                     title: `Inv${tag}`,
                                     required_quantity: requiredQuantity,
-                                    stock_levels: [
-                                        {
-                                            location_id: stockLocation.id,
-                                            stocked_quantity: opts.stocked,
-                                        },
-                                    ],
+                                    stock_levels: stockLevels,
                                 },
                             ],
                             prices: [
@@ -218,8 +253,90 @@ medusaIntegrationTestRunner({
                     variant: product.variants[0],
                     offer,
                     stockLocation,
+                    secondaryLocation,
                     shippingProfile,
                 }
+            }
+
+            // Creates a second product + offer under an already-seeded
+            // seller, reusing its stock location + shipping profile, so an
+            // order edit can add an offer item belonging to the same seller.
+            const addOfferToSeller = async (opts: {
+                headers: any
+                stockLocationId: string
+                shippingProfileId: string
+                stocked: number
+                offerPrice: number
+                requiredQuantity?: number
+            }) => {
+                const requiredQuantity = opts.requiredQuantity ?? 1
+                const tag = `_extra_${Date.now()}_${++prerequisiteCounter}`
+
+                const product = (
+                    await api.post(
+                        `/vendor/products`,
+                        {
+                            status: "published",
+                            title: `Prod${tag}`,
+                            variant_attributes: [
+                                {
+                                    name: `Default${tag}`,
+                                    type: "multi_select",
+                                    values: ["Default"],
+                                    is_variant_axis: true,
+                                },
+                            ],
+                            variants: [
+                                {
+                                    title: "Default",
+                                    sku: `V${tag}`,
+                                    attribute_values: {
+                                        [`Default${tag}`]: "Default",
+                                    },
+                                },
+                            ],
+                        },
+                        opts.headers
+                    )
+                ).data.product
+
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product.id] },
+                    opts.headers
+                )
+
+                const offer = (
+                    await api.post(
+                        `/vendor/offers`,
+                        {
+                            sku: `OF${tag}`,
+                            variant_id: product.variants[0].id,
+                            shipping_profile_id: opts.shippingProfileId,
+                            inventory_items: [
+                                {
+                                    title: `Inv${tag}`,
+                                    required_quantity: requiredQuantity,
+                                    stock_levels: [
+                                        {
+                                            location_id: opts.stockLocationId,
+                                            stocked_quantity: opts.stocked,
+                                        },
+                                    ],
+                                },
+                            ],
+                            prices: [
+                                {
+                                    amount: opts.offerPrice,
+                                    currency_code: "usd",
+                                },
+                            ],
+                        },
+                        opts.headers
+                    )
+                ).data.offer
+
+                return { product, variant: product.variants[0], offer }
             }
 
             const completeCartCheckout = async (offerId: string) => {
@@ -437,6 +554,140 @@ medusaIntegrationTestRunner({
                 expect(reservations.length).toEqual(1)
                 // new ordered_quantity (2) × required_quantity (3) = 6
                 expect(Number(reservations[0].quantity)).toEqual(6)
+            })
+
+            // Reproduces MER-211: confirming an order edit that ADDS a new
+            // offer item (same seller, same stock location) must not fail
+            // with "Not enough stock available" when stock is sufficient.
+            it("adds a new offer item via order edit and confirms with a correct reservation", async () => {
+                const seed = await seedSellerOfferWithShipping({
+                    email: "edit-add-s1@test.com",
+                    name: "EditAddS1",
+                    stocked: 100,
+                    offerPrice: 2500,
+                    requiredQuantity: 1,
+                })
+
+                const order = await completeCartCheckout(seed.offer.id)
+                expect(order.items.length).toEqual(1)
+
+                // A second offer from the same seller, stocked at the same
+                // location, to be added to the existing order.
+                const extra = await addOfferToSeller({
+                    headers: seed.headers,
+                    stockLocationId: seed.stockLocation.id,
+                    shippingProfileId: seed.shippingProfile.id,
+                    stocked: 100,
+                    offerPrice: 2500,
+                    requiredQuantity: 1,
+                })
+
+                await api.post(
+                    `/vendor/order-edits`,
+                    { order_id: order.id },
+                    seed.headers
+                )
+
+                await api.post(
+                    `/vendor/order-edits/${order.id}/items`,
+                    { items: [{ offer_id: extra.offer.id, quantity: 1 }] },
+                    seed.headers
+                )
+
+                await api.post(
+                    `/vendor/order-edits/${order.id}/request`,
+                    {},
+                    seed.headers
+                )
+
+                // The crux of MER-211: confirm must succeed instead of
+                // 500-ing with "Not enough stock available".
+                const confirmResp = await api.post(
+                    `/vendor/order-edits/${order.id}/confirm`,
+                    {},
+                    seed.headers
+                )
+                expect(confirmResp.status).toEqual(200)
+
+                // The added line item should be present on the order.
+                const query = appContainer.resolve(
+                    ContainerRegistrationKeys.QUERY
+                )
+                const { data: refreshed } = await query.graph({
+                    entity: "order",
+                    fields: ["id", "items.id", "items.variant_id"],
+                    filters: { id: order.id },
+                })
+                expect((refreshed[0] as any).items.length).toEqual(2)
+            })
+
+            // Reproduces MER-211 directly: the offer's inventory item is
+            // stocked at a SECONDARY location while its first stock level
+            // (the primary location) is too small for the bumped quantity.
+            // The old adjustment step reserved blindly at the first level and
+            // failed with "Not enough stock available for item … at location
+            // …"; the fix reserves where stock actually is.
+            it("confirms a qty bump when the first stock level is short but another location has stock", async () => {
+                const seed = await seedSellerOfferWithShipping({
+                    email: "edit-loc-s1@test.com",
+                    name: "EditLocS1",
+                    // Primary location (location_levels[0]) holds just 1 unit —
+                    // enough to place qty 1 but NOT a later bump to 3.
+                    stocked: 1,
+                    // Secondary location holds plenty.
+                    secondaryStocked: 100,
+                    offerPrice: 2500,
+                    requiredQuantity: 1,
+                })
+                expect(seed.secondaryLocation).toBeTruthy()
+
+                const order = await completeCartCheckout(seed.offer.id)
+                const lineItemId = order.items[0].id
+
+                const inventoryService = appContainer.resolve(Modules.INVENTORY)
+                let reservations =
+                    await inventoryService.listReservationItems({
+                        line_item_id: lineItemId,
+                    })
+                expect(reservations.length).toEqual(1)
+                expect(Number(reservations[0].quantity)).toEqual(1)
+
+                // Bump qty 1 → 3. Total need (3) exceeds the primary
+                // location's stock (1), so the reservation must move to / stay
+                // at the location that can satisfy it.
+                await api.post(
+                    `/vendor/order-edits`,
+                    { order_id: order.id },
+                    seed.headers
+                )
+                await api.post(
+                    `/vendor/order-edits/${order.id}/items/item/${lineItemId}`,
+                    { quantity: 3 },
+                    seed.headers
+                )
+                await api.post(
+                    `/vendor/order-edits/${order.id}/request`,
+                    {},
+                    seed.headers
+                )
+
+                const confirmResp = await api.post(
+                    `/vendor/order-edits/${order.id}/confirm`,
+                    {},
+                    seed.headers
+                )
+                expect(confirmResp.status).toEqual(200)
+
+                reservations = await inventoryService.listReservationItems({
+                    line_item_id: lineItemId,
+                })
+                expect(reservations.length).toEqual(1)
+                expect(Number(reservations[0].quantity)).toEqual(3)
+                // The reservation must sit at a location that actually has the
+                // stock — never the short primary location.
+                expect(reservations[0].location_id).toEqual(
+                    seed.secondaryLocation.id
+                )
             })
         })
     },
