@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Heading, Input, Select, toast } from "@medusajs/ui";
+import { Button, Heading, RadioGroup, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -18,14 +18,26 @@ import { useStoreCurrencies } from "../common/hooks/use-store-currencies";
 import { CommissionRate } from "../common/types";
 import { buildValuesPayload, fixedValuesFromRate } from "../common/utils";
 
-const EditGlobalCommissionSchema = zod.object({
-  code: zod.string().min(1),
-  type: zod.enum(["percentage", "fixed"]),
-  value: zod.coerce.number().min(0),
-  fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
-  include_tax: zod.boolean(),
-  include_shipping: zod.boolean(),
-});
+const EditGlobalCommissionSchema = zod
+  .object({
+    type: zod.enum(["percentage", "fixed"]),
+    value: zod.coerce.number().optional(),
+    fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
+    include_tax: zod.boolean(),
+    include_shipping: zod.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.type === "percentage" &&
+      (data.value === undefined || Number.isNaN(data.value))
+    ) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        path: ["value"],
+        message: "Please enter a value.",
+      });
+    }
+  });
 
 const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
   const { t } = useTranslation();
@@ -35,7 +47,6 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
 
   const form = useForm<zod.infer<typeof EditGlobalCommissionSchema>>({
     defaultValues: {
-      code: rate.code,
       type: rate.type,
       value: rate.value,
       fixed_values: fixedValuesFromRate(rate),
@@ -50,7 +61,6 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
   const handleSubmit = form.handleSubmit(async (values) => {
     const isFixed = values.type === "fixed";
     const payload = {
-      code: values.code,
       type: values.type,
       value: isFixed ? 0 : values.value,
       ...(isFixed
@@ -64,7 +74,7 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
       onSuccess: () => {
         toast.success(
           t("commissions.global.edit.successToast", {
-            defaultValue: "Global commission updated",
+            defaultValue: "Global commission was successfully updated.",
           })
         );
         handleSuccess();
@@ -82,43 +92,42 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
           <div className="flex flex-col gap-y-4">
             <Form.Field
               control={form.control}
-              name="code"
-              render={({ field }) => (
-                <Form.Item>
-                  <Form.Label>{t("commissions.fields.code", "Code")}</Form.Label>
-                  <Form.Control>
-                    <Input autoComplete="off" {...field} />
-                  </Form.Control>
-                  <Form.ErrorMessage />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
               name="type"
-              render={({ field: { onChange, ref, ...field } }) => (
+              render={({ field: { onChange, ...rest } }) => (
                 <Form.Item>
                   <Form.Label>
                     {t("commissions.fields.type.label", "Type")}
                   </Form.Label>
                   <Form.Control>
-                    <Select
-                      {...field}
-                      onValueChange={onChange}
+                    <RadioGroup
                       dir={direction}
+                      onValueChange={onChange}
+                      {...rest}
+                      className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                      data-testid="global-commission-type-radio-group"
                     >
-                      <Select.Trigger ref={ref}>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="percentage">
-                          {t("commissions.fields.type.percentage", "Percentage")}
-                        </Select.Item>
-                        <Select.Item value="fixed">
-                          {t("commissions.fields.type.fixed", "Fixed")}
-                        </Select.Item>
-                      </Select.Content>
-                    </Select>
+                      <RadioGroup.ChoiceBox
+                        value="percentage"
+                        label={t(
+                          "commissions.fields.type.percentage",
+                          "Percentage"
+                        )}
+                        description={t(
+                          "commissions.fields.type.percentageHint",
+                          "Charge a percentage of the order total."
+                        )}
+                        data-testid="global-commission-type-option-percentage"
+                      />
+                      <RadioGroup.ChoiceBox
+                        value="fixed"
+                        label={t("commissions.fields.type.fixed", "Fixed")}
+                        description={t(
+                          "commissions.fields.type.fixedHint",
+                          "Charge a fixed amount per order."
+                        )}
+                        data-testid="global-commission-type-option-fixed"
+                      />
+                    </RadioGroup>
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>

@@ -14,6 +14,9 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  // The virtual `scope_type` filter (derived from each rate's rules) is
+  // resolved DB-side in CommissionModuleService.listAndCountCommissionRates,
+  // which query.graph delegates to — the route just forwards the filters.
   const { data: commission_rates, metadata } = await query.graph({
     entity: "commission_rate",
     fields: req.queryConfig.fields,
@@ -35,6 +38,8 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  // `code` is auto-generated in CommissionModuleService.createCommissionRates
+  // when omitted, so the body flows straight through.
   const { result } = await createCommissionRatesWorkflow(req.scope).run({
     input: [req.validatedBody],
   })

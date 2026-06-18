@@ -23,13 +23,12 @@ export const CreateCommissionRuleForm = () => {
   const form = useForm<CreateCommissionRuleSchemaType>({
     defaultValues: {
       title: "",
-      code: "",
       scopeType: "store",
       stores: [],
       productTypes: [],
       categories: [],
       commissionType: "percentage",
-      value: 0,
+      value: undefined,
       fixed_values: {},
       include_tax: false,
       include_shipping: false,
@@ -51,7 +50,6 @@ export const CreateCommissionRuleForm = () => {
     await mutateAsync(
       {
         name: values.title,
-        code: values.code,
         type: values.commissionType,
         value: isFixed ? 0 : values.value,
         ...(isFixed
@@ -66,7 +64,7 @@ export const CreateCommissionRuleForm = () => {
         onSuccess: ({ commission_rate }) => {
           toast.success(
             t("commissions.create.successToast", {
-              defaultValue: "Commission rule created",
+              defaultValue: "Commission rule was successfully created.",
             })
           );
           handleSuccess(`/settings/commissions/${commission_rate.id}`);

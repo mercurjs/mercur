@@ -161,7 +161,7 @@ export const getIsActiveProps = (isEnabled: boolean, t: TFunction) =>
         label: t("commissions.status.enabled", "Active"),
       }
     : {
-        color: "grey" as const,
+        color: "red" as const,
         label: t("commissions.status.disabled", "Inactive"),
       };
 

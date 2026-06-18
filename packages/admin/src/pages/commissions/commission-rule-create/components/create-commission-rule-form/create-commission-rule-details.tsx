@@ -1,4 +1,4 @@
-import { Heading, Input, Select } from "@medusajs/ui";
+import { Heading, Input, RadioGroup } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { Combobox } from "../../../../../components/inputs/combobox";
@@ -54,74 +54,93 @@ export const CreateCommissionRuleDetails = () => {
       <div className="flex w-full max-w-[720px] flex-col gap-y-8">
         <Heading>{t("commissions.create.details", "Details")}</Heading>
         <div className="flex flex-col gap-y-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <Form.Field
-            control={form.control}
-            name="title"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t("fields.title")}</Form.Label>
-                <Form.Control>
-                  <Input autoComplete="off" {...field} />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
-          />
-          <Form.Field
-            control={form.control}
-            name="code"
-            render={({ field }) => (
-              <Form.Item>
-                <Form.Label>{t("commissions.fields.code", "Code")}</Form.Label>
-                <Form.Control>
-                  <Input autoComplete="off" {...field} />
-                </Form.Control>
-                <Form.ErrorMessage />
-              </Form.Item>
-            )}
-          />
-        </div>
+        <Form.Field
+          control={form.control}
+          name="title"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t("fields.title")}</Form.Label>
+              <Form.Control>
+                <Input autoComplete="off" {...field} />
+              </Form.Control>
+              <Form.ErrorMessage />
+            </Form.Item>
+          )}
+        />
         <Form.Field
           control={form.control}
           name="scopeType"
-          render={({ field: { onChange, ref, ...field } }) => (
+          render={({ field: { onChange, ...rest } }) => (
             <Form.Item>
               <Form.Label>
                 {t("commissions.fields.scopeType.label", "Type")}
               </Form.Label>
               <Form.Control>
-                <Select {...field} onValueChange={onChange} dir={direction}>
-                  <Select.Trigger ref={ref}>
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Item value="store">
-                      {t("commissions.fields.scopeType.store", "Store")}
-                    </Select.Item>
-                    <Select.Item value="product_type">
-                      {t(
-                        "commissions.fields.scopeType.productType",
-                        "Product Type"
-                      )}
-                    </Select.Item>
-                    <Select.Item value="category">
-                      {t("commissions.fields.scopeType.category", "Category")}
-                    </Select.Item>
-                    <Select.Item value="store_product_type">
-                      {t(
-                        "commissions.fields.scopeType.storeProductType",
-                        "Store + Product Type"
-                      )}
-                    </Select.Item>
-                    <Select.Item value="store_category">
-                      {t(
-                        "commissions.fields.scopeType.storeCategory",
-                        "Store + Category"
-                      )}
-                    </Select.Item>
-                  </Select.Content>
-                </Select>
+                <RadioGroup
+                  dir={direction}
+                  onValueChange={onChange}
+                  {...rest}
+                  className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                  data-testid="commission-rule-scope-type-radio-group"
+                >
+                  <RadioGroup.ChoiceBox
+                    value="store"
+                    label={t("commissions.fields.scopeType.store", "Store")}
+                    description={t(
+                      "commissions.fields.scopeType.storeHint",
+                      "Apply to specific stores."
+                    )}
+                    data-testid="commission-rule-scope-type-option-store"
+                  />
+                  <RadioGroup.ChoiceBox
+                    value="product_type"
+                    label={t(
+                      "commissions.fields.scopeType.productType",
+                      "Product Type"
+                    )}
+                    description={t(
+                      "commissions.fields.scopeType.productTypeHint",
+                      "Apply to specific product types."
+                    )}
+                    data-testid="commission-rule-scope-type-option-product-type"
+                  />
+                  <RadioGroup.ChoiceBox
+                    value="category"
+                    label={t(
+                      "commissions.fields.scopeType.category",
+                      "Category"
+                    )}
+                    description={t(
+                      "commissions.fields.scopeType.categoryHint",
+                      "Apply to specific categories."
+                    )}
+                    data-testid="commission-rule-scope-type-option-category"
+                  />
+                  <RadioGroup.ChoiceBox
+                    value="store_product_type"
+                    label={t(
+                      "commissions.fields.scopeType.storeProductType",
+                      "Store + Product Type"
+                    )}
+                    description={t(
+                      "commissions.fields.scopeType.storeProductTypeHint",
+                      "Apply to product types within specific stores."
+                    )}
+                    data-testid="commission-rule-scope-type-option-store-product-type"
+                  />
+                  <RadioGroup.ChoiceBox
+                    value="store_category"
+                    label={t(
+                      "commissions.fields.scopeType.storeCategory",
+                      "Store + Category"
+                    )}
+                    description={t(
+                      "commissions.fields.scopeType.storeCategoryHint",
+                      "Apply to categories within specific stores."
+                    )}
+                    data-testid="commission-rule-scope-type-option-store-category"
+                  />
+                </RadioGroup>
               </Form.Control>
               <Form.ErrorMessage />
             </Form.Item>
@@ -206,6 +225,12 @@ CreateCommissionRuleDetails._tabMeta = defineTabMeta<CreateCommissionRuleSchemaT
   {
     id: "details",
     labelKey: "commissions.create.details",
-    validationFields: ["title", "code", "scopeType"],
+    validationFields: [
+      "title",
+      "scopeType",
+      "stores",
+      "productTypes",
+      "categories",
+    ],
   }
 );

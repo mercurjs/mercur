@@ -128,6 +128,72 @@ medusaIntegrationTestRunner({
             expect(rate.is_enabled).toEqual(false)
           })
         })
+
+        it("should filter commission rates by scope_type", async () => {
+          const storeRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Store Scoped Rate",
+              code: "SCOPE_STORE",
+              type: "percentage",
+              value: 5,
+              rules: [{ reference: "seller", reference_id: seller.id }],
+            },
+            adminHeaders
+          )
+
+          await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Product Type Scoped Rate",
+              code: "SCOPE_PRODUCT_TYPE",
+              type: "percentage",
+              value: 6,
+              rules: [
+                { reference: "product_type", reference_id: "ptyp_test123" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const comboRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Store Product Type Scoped Rate",
+              code: "SCOPE_STORE_PRODUCT_TYPE",
+              type: "percentage",
+              value: 7,
+              rules: [
+                { reference: "seller", reference_id: seller.id },
+                { reference: "product_type", reference_id: "ptyp_test456" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const storeOnly = await api.get(
+            `/admin/commission-rates?scope_type=store`,
+            adminHeaders
+          )
+
+          expect(storeOnly.status).toEqual(200)
+          const storeIds = storeOnly.data.commission_rates.map(
+            (r: any) => r.id
+          )
+          expect(storeIds).toContain(storeRate.data.commission_rate.id)
+          // The store + product_type combo must NOT match the plain "store" scope.
+          expect(storeIds).not.toContain(comboRate.data.commission_rate.id)
+
+          const combo = await api.get(
+            `/admin/commission-rates?scope_type=store_product_type`,
+            adminHeaders
+          )
+
+          expect(combo.status).toEqual(200)
+          const comboIds = combo.data.commission_rates.map((r: any) => r.id)
+          expect(comboIds).toContain(comboRate.data.commission_rate.id)
+          expect(comboIds).not.toContain(storeRate.data.commission_rate.id)
+        })
       })
 
       describe("POST /admin/commission-rates", () => {
@@ -564,7 +630,7 @@ medusaIntegrationTestRunner({
           expect(response.status).toEqual(400)
         })
 
-        it("should require code field", async () => {
+        it("should auto-generate a unique code when none is provided", async () => {
           const response = await api.post(
             `/admin/commission-rates`,
             {
@@ -573,9 +639,28 @@ medusaIntegrationTestRunner({
               value: 10,
             },
             adminHeaders
-          ).catch((e) => e.response)
+          )
 
-          expect(response.status).toEqual(400)
+          expect(response.status).toEqual(201)
+          expect(response.data.commission_rate.code).toEqual(
+            expect.stringMatching(/^no-code-rate-[a-z0-9]+$/)
+          )
+
+          // A second rate with the same name still gets a distinct code.
+          const second = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "No Code Rate",
+              type: "percentage",
+              value: 10,
+            },
+            adminHeaders
+          )
+
+          expect(second.status).toEqual(201)
+          expect(second.data.commission_rate.code).not.toEqual(
+            response.data.commission_rate.code
+          )
         })
 
         it("should require type field", async () => {

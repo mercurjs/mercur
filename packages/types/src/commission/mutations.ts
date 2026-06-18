@@ -23,7 +23,9 @@ export interface CreateCommissionRateValueDTO {
 // create/update at runtime (same mechanism the legacy `rules` relied on).
 export interface CreateCommissionRateDTO {
   name: string
-  code: string
+  // Optional: the commission module auto-generates a unique code from the
+  // name when one is not provided.
+  code?: string
   type: CommissionRateType
   value: number
   currency_code?: string | null

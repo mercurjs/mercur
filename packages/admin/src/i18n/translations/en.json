@@ -3857,15 +3857,20 @@
       "header": "Create Commission Rule",
       "details": "Details",
       "commission": "Commission",
-      "successToast": "Commission rule created"
+      "successToast": "Commission rule was successfully created."
     },
     "edit": {
       "header": "Edit Commission Rule",
-      "successToast": "Commission rule updated"
+      "successToast": "Commission rule was successfully updated."
+    },
+    "commissionEdit": {
+      "header": "Edit Commission",
+      "successToast": "Commission was successfully updated."
     },
     "delete": {
-      "description": "Are you sure you want to delete this commission rule?",
-      "successToast": "Commission rule deleted"
+      "title": "Delete commission rule",
+      "description": "You are about to delete commission rule {{name}}. This action cannot be undone.",
+      "successToast": "Commission rule was successfully deleted."
     },
     "fields": {
       "code": "Code",
@@ -3882,7 +3887,9 @@
       "type": {
         "label": "Type",
         "percentage": "Percentage",
-        "fixed": "Fixed"
+        "fixed": "Fixed",
+        "percentageHint": "Charge a percentage of the order total.",
+        "fixedHint": "Charge a fixed amount per order."
       },
       "scopeType": {
         "label": "Type",
@@ -3890,7 +3897,12 @@
         "productType": "Product Type",
         "category": "Category",
         "storeProductType": "Store + Product Type",
-        "storeCategory": "Store + Category"
+        "storeCategory": "Store + Category",
+        "storeHint": "Apply to specific stores.",
+        "productTypeHint": "Apply to specific product types.",
+        "categoryHint": "Apply to specific categories.",
+        "storeProductTypeHint": "Apply to product types within specific stores.",
+        "storeCategoryHint": "Apply to categories within specific stores."
       }
     },
     "global": {
@@ -3904,7 +3916,7 @@
       "notIncluded": "Not included in commission",
       "edit": {
         "header": "Edit Global Commission",
-        "successToast": "Global commission updated"
+        "successToast": "Global commission was successfully updated."
       }
     },
     "rules": {
@@ -3915,6 +3927,10 @@
         "type": "Type",
         "value": "Value",
         "status": "Status"
+      },
+      "empty": {
+        "heading": "No commission rules yet",
+        "description": "Create a commission rule to override the global commission for specific stores, product types, or categories."
       }
     },
     "status": {
