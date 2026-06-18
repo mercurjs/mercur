@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { HttpTypes } from "@medusajs/types";
 import { Button, Input, toast } from "@medusajs/ui";
+import i18n from "i18next";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
@@ -15,7 +16,9 @@ type EditCustomerGroupFormProps = {
 };
 
 export const EditCustomerGroupSchema = z.object({
-  name: z.string().min(1),
+  name: z
+    .string()
+    .min(1, { message: i18n.t("customerGroups.validation.nameRequired") }),
 });
 
 export const EditCustomerGroupForm = ({

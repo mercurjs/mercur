@@ -1248,6 +1248,7 @@
       "removeMany": "Are you sure you want to remove customer from following customer groups: {{groups}}?",
       "alreadyAddedTooltip": "The customer is already in this customer group.",
       "list": {
+        "noRecordsTitle": "No customer groups yet",
         "noRecordsMessage": "This customer doesn't belong to any group."
       },
       "add": {
@@ -1306,10 +1307,13 @@
   "customerGroups": {
     "domain": "Customer Groups",
     "subtitle": "Organize customers into groups. Groups can have different promotions and prices.",
+    "validation": {
+      "nameRequired": "Please enter a name."
+    },
     "list": {
       "empty": {
-        "heading": "No customer groups",
-        "description": "There are no customer groups to display."
+        "heading": "No customer groups yet",
+        "description": "Create customer groups to organize customers"
       },
       "filtered": {
         "heading": "No results",
@@ -1319,7 +1323,8 @@
     "create": {
       "header": "Create Customer Group",
       "hint": "Create a new customer group to segment your customers.",
-      "successToast": "Customer group {{name}} was successfully created."
+      "successToast": "Customer group {{name}} was successfully created.",
+      "alreadyExistsToast": "Customer group with name {{name}} already exists."
     },
     "edit": {
       "header": "Edit Customer Group",
@@ -1343,10 +1348,13 @@
         "title_one": "Remove customer",
         "title_other": "Remove customers",
         "description_one": "You are about to remove {{count}} customer from the customer group. This action cannot be undone.",
-        "description_other": "You are about to remove {{count}} customers from the customer group. This action cannot be undone."
+        "description_other": "You are about to remove {{count}} customers from the customer group. This action cannot be undone.",
+        "successToast_one": "Customer was successfully removed from the group.",
+        "successToast_other": "Customers were successfully removed from the group."
       },
       "list": {
-        "noRecordsMessage": "This group doesn't have customers."
+        "noRecordsTitle": "No customers yet",
+        "noRecordsMessage": "This group doesn't have any customers"
       }
     }
   },

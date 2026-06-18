@@ -1,4 +1,4 @@
-import { PencilSquare, Trash } from "@medusajs/icons";
+import { PencilSquare, Trash, UserGroup } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
@@ -89,6 +89,7 @@ export const CustomerGroupListDataTable = () => {
     useCustomerGroups(
       {
         ...searchParams,
+        order: searchParams.order || "name",
         fields: "id,name,created_at,updated_at,customers.id",
       },
       {
@@ -128,8 +129,15 @@ export const CustomerGroupListDataTable = () => {
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
+      defaultOrderBy="name"
       noRecords={{
-        message: t("customerGroups.list.empty.heading"),
+        icon: <UserGroup className="text-ui-fg-subtle" />,
+        title: t("customerGroups.list.empty.heading"),
+        message: t("customerGroups.list.empty.description"),
+        action: {
+          to: "/customer-groups/create",
+          label: t("actions.create"),
+        },
       }}
     />
   );

@@ -5141,10 +5141,14 @@
               "properties": {
                 "noRecordsMessage": {
                   "type": "string"
+                },
+                "noRecordsTitle": {
+                  "type": "string"
                 }
               },
               "required": [
-                "noRecordsMessage"
+                "noRecordsMessage",
+                "noRecordsTitle"
               ],
               "additionalProperties": false
             },
@@ -5390,6 +5394,18 @@
         "subtitle": {
           "type": "string"
         },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "nameRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "nameRequired"
+          ],
+          "additionalProperties": false
+        },
         "list": {
           "type": "object",
           "properties": {
@@ -5443,12 +5459,16 @@
             },
             "successToast": {
               "type": "string"
+            },
+            "alreadyExistsToast": {
+              "type": "string"
             }
           },
           "required": [
             "header",
             "hint",
-            "successToast"
+            "successToast",
+            "alreadyExistsToast"
           ],
           "additionalProperties": false
         },
@@ -5537,13 +5557,21 @@
                 },
                 "description_other": {
                   "type": "string"
+                },
+                "successToast_one": {
+                  "type": "string"
+                },
+                "successToast_other": {
+                  "type": "string"
                 }
               },
               "required": [
                 "title_one",
                 "title_other",
                 "description_one",
-                "description_other"
+                "description_other",
+                "successToast_one",
+                "successToast_other"
               ],
               "additionalProperties": false
             },
@@ -5552,10 +5580,14 @@
               "properties": {
                 "noRecordsMessage": {
                   "type": "string"
+                },
+                "noRecordsTitle": {
+                  "type": "string"
                 }
               },
               "required": [
-                "noRecordsMessage"
+                "noRecordsMessage",
+                "noRecordsTitle"
               ],
               "additionalProperties": false
             }

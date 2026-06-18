@@ -30,6 +30,8 @@ import { useCustomerGroupTableFilters } from "@hooks/table/filters/use-customer-
 import { useCustomerGroupTableQuery } from "@hooks/table/query/use-customer-group-table-query"
 import { useDataTable } from "@hooks/use-data-table"
 
+import { filterAndSortCustomerGroups } from "./utils"
+
 type CustomerGroupSectionProps = {
   customer: HttpTypes.AdminCustomer
 }
@@ -43,12 +45,19 @@ export const CustomerGroupSection = ({
   const prompt = usePrompt()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const { raw } = useCustomerGroupTableQuery({
+  const { searchParams, raw } = useCustomerGroupTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
 
-  const flatCustomerGroups = customer.groups ?? []
+  const flatCustomerGroups = useMemo(
+    () =>
+      filterAndSortCustomerGroups(customer.groups ?? [], {
+        q: searchParams.q,
+        order: searchParams.order,
+      }),
+    [customer.groups, searchParams.q, searchParams.order]
+  )
   const groupIds = flatCustomerGroups.map((g) => g.id)
 
   const { customer_groups: groupsWithCounts } = useCustomerGroups(
@@ -150,6 +159,7 @@ export const CustomerGroupSection = ({
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        defaultOrderBy="name"
         commands={[
           {
             action: handleRemove,
@@ -159,6 +169,7 @@ export const CustomerGroupSection = ({
         ]}
         queryObject={raw}
         noRecords={{
+          title: t("customers.groups.list.noRecordsTitle"),
           message: t("customers.groups.list.noRecordsMessage"),
         }}
       />
