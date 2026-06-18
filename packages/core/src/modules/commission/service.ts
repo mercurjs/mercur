@@ -33,6 +33,17 @@ import {
 type CommissionRateEntity = InferEntityType<typeof CommissionRate>
 type CommissionRuleEntity = InferEntityType<typeof CommissionRule>
 
+/** Build a unique, URL-safe code from a rate name. */
+const generateCommissionCode = (name: string): string => {
+  const slug = (name ?? "")
+    .toLowerCase()
+    .trim()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "")
+  const suffix = Math.random().toString(36).slice(2, 8)
+  return `${slug || "commission-rule"}-${suffix}`
+}
+
 class CommissionModuleService extends MedusaService({
   CommissionRate,
   CommissionRule,
@@ -383,6 +394,28 @@ class CommissionModuleService extends MedusaService({
       true
 
     return where
+  }
+
+  /**
+   * Auto-generate a unique `code` from the rate `name` when one is not
+   * provided, before delegating to the generated create. Accepts a single
+   * payload or an array and preserves the caller's shape.
+   */
+  @InjectManager()
+  // @ts-ignore
+  async createCommissionRates(
+    data: any,
+    @MedusaContext() sharedContext: Context = {}
+  ): Promise<any> {
+    const input = Array.isArray(data) ? data : [data]
+    const withCode = input.map((rate) => ({
+      ...rate,
+      code: rate.code ?? generateCommissionCode(rate.name),
+    }))
+
+    const result = await super.createCommissionRates(withCode, sharedContext)
+
+    return Array.isArray(data) ? result : result[0]
   }
 
   @InjectManager()

@@ -8,17 +8,6 @@ import { HttpTypes } from "@mercurjs/types"
 import { AdminCreateCommissionRateType } from "./validators"
 import { createCommissionRatesWorkflow } from "../../../workflows/commission"
 
-/** Build a unique, URL-safe code from a rate name. */
-const generateCommissionCode = (name: string): string => {
-  const slug = name
-    .toLowerCase()
-    .trim()
-    .replace(/[^a-z0-9]+/g, "-")
-    .replace(/^-+|-+$/g, "")
-  const suffix = Math.random().toString(36).slice(2, 8)
-  return `${slug || "commission-rule"}-${suffix}`
-}
-
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminCommissionRateListResponse>
@@ -49,11 +38,10 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const code =
-    req.validatedBody.code ?? generateCommissionCode(req.validatedBody.name)
-
+  // `code` is auto-generated in CommissionModuleService.createCommissionRates
+  // when omitted, so the body flows straight through.
   const { result } = await createCommissionRatesWorkflow(req.scope).run({
-    input: [{ ...req.validatedBody, code }],
+    input: [req.validatedBody],
   })
 
   const {
