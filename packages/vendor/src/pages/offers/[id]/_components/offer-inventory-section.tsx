@@ -1,4 +1,4 @@
-import { Buildings, Component } from "@medusajs/icons"
+import { Buildings } from "@medusajs/icons"
 import { Container, Heading, Text } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -162,8 +162,6 @@ export const OfferInventorySection = ({ offer }: Props) => {
     pageSize: PAGE_SIZE,
   })
 
-  const hasKit = inventoryItems.length > 1
-
   return (
     <Container
       className="divide-y p-0"
@@ -171,21 +169,6 @@ export const OfferInventorySection = ({ offer }: Props) => {
     >
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("offers.detail.inventoryItems")}</Heading>
-        <ActionMenu
-          groups={[
-            {
-              actions: [
-                {
-                  icon: hasKit ? <Component /> : <Buildings />,
-                  label: hasKit
-                    ? t("offers.detail.manageKit")
-                    : t("offers.actions.manage_inventory"),
-                  to: "inventory",
-                },
-              ],
-            },
-          ]}
-        />
       </div>
 
       {inventoryItems.length === 0 ? (
