@@ -7,6 +7,7 @@ import {
 import { HttpTypes as VendorHttpTypes } from "@mercurjs/types"
 
 import { refetchSalesChannel } from "../../helpers"
+import { ensureSellerOwnsProduct } from "../../../products/helpers"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<HttpTypes.AdminBatchLink>,
@@ -14,6 +15,17 @@ export const POST = async (
 ) => {
   const { id } = req.params
   const { add, remove } = req.validatedBody
+
+  // A seller may only link/unlink its own products. Without this guard a
+  // seller could attach a competitor's product to a sales channel — the
+  // ownership check returns 404 for any product the caller doesn't own.
+  const sellerId = req.seller_context!.seller_id
+  const productIds = [...(add ?? []), ...(remove ?? [])]
+  await Promise.all(
+    productIds.map((productId) =>
+      ensureSellerOwnsProduct(req.scope, sellerId, productId)
+    )
+  )
 
   await linkProductsToSalesChannelWorkflow(req.scope).run({
     input: {

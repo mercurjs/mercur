@@ -44,7 +44,7 @@ export const setCategoryImagesWorkflow = createWorkflow(
   (input: SetCategoryImagesWorkflowInput) => {
     const existing = useQueryGraphStep({
       entity: "product_category",
-      fields: ["id", "images.id", "images.type"],
+      fields: ["id", "media_images.id", "media_images.type"],
       filters: { id: input.category_id },
     })
 
@@ -95,14 +95,14 @@ export const setCategoryImagesWorkflow = createWorkflow(
       ({ created, input }) =>
         (created ?? []).map((image: { id: string }) => ({
           [Modules.PRODUCT]: { product_category_id: input.category_id },
-          [MercurModules.MEDIA]: { image_id: image.id },
+          [MercurModules.MEDIA]: { media_image_id: image.id },
         }))
     )
     createRemoteLinkStep(linksToCreate)
 
     const toRemoveIds = transform({ existing, input }, ({ existing, input }) => {
       const images: { id: string; type: string | null }[] =
-        existing.data?.[0]?.images ?? []
+        existing.data?.[0]?.media_images ?? []
       const ids: string[] = []
       if (input.media !== undefined) {
         ids.push(...images.filter((img) => !img.type).map((img) => img.id))
@@ -120,7 +120,7 @@ export const setCategoryImagesWorkflow = createWorkflow(
       ({ toRemoveIds, input }) =>
         toRemoveIds.map((image_id: string) => ({
           [Modules.PRODUCT]: { product_category_id: input.category_id },
-          [MercurModules.MEDIA]: { image_id },
+          [MercurModules.MEDIA]: { media_image_id: image_id },
         }))
     )
     dismissRemoteLinkStep(linksToDismiss)

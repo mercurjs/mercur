@@ -1,5 +1,4 @@
 import { createRemoteLinkStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
-import { getOrderDetailWorkflow } from "@medusajs/medusa/core-flows"
 import { WorkflowData, WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
 import { MathBN, MedusaError } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
@@ -15,26 +14,36 @@ export const createPayoutWorkflowId = "create-payout"
 export const createPayoutWorkflow = createWorkflow(
   createPayoutWorkflowId,
   function (input: WorkflowData<CreatePayoutWorkflowInput>) {
-    const order = getOrderDetailWorkflow.runAsStep({
-      input: {
-        order_id: input.order_id,
-        fields: [
-          'id',
-          'currency_code',
-          'total',
-          'seller.*',
-          'seller.payout_account.*',
-          'items.id',
-          'shipping_methods.id',
-        ],
-      }
-    })
+    // Read the order via the query graph rather than getOrderDetailWorkflow:
+    // the computed `total` only reflects the goods when the order item detail
+    // (quantity) is loaded, otherwise items contribute 0 and the payout
+    // collapses to (shipping − commission), which can go negative.
+    const orderQuery = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        'id',
+        'currency_code',
+        'total',
+        'seller.id',
+        'seller.payout_account.id',
+        'items.id',
+        'items.detail.quantity',
+        'items.raw_unit_price',
+        'shipping_methods.id',
+      ],
+      filters: { id: input.order_id },
+    }).config({ name: "fetch-order" })
+
+    const order = transform(
+      { orderQuery },
+      ({ orderQuery }) => orderQuery.data?.[0]
+    )
 
     const commissionFilters = transform({ order }, ({ order }) => ({
       $or: [
-        { item_id: (order.items ?? []).map((item: any) => item.id) },
+        { item_id: ((order as any)?.items ?? []).map((item: any) => item.id) },
         {
-          shipping_method_id: ((order as any).shipping_methods ?? []).map(
+          shipping_method_id: ((order as any)?.shipping_methods ?? []).map(
             (method: any) => method.id
           ),
         },
@@ -53,8 +62,18 @@ export const createPayoutWorkflow = createWorkflow(
     const payoutInput = transform(
       { order, commissionLines },
       ({ order, commissionLines }) => {
-        const payoutAccountId = (order as any).seller?.payout_account?.id
-        const sellerId = (order as any).seller?.id
+        if (!order) {
+          throw new MedusaError(
+            MedusaError.Types.NOT_FOUND,
+            `Order was not found`
+          )
+        }
+
+        const seller = Array.isArray((order as any).seller)
+          ? (order as any).seller[0]
+          : (order as any).seller
+        const payoutAccountId = seller?.payout_account?.id
+        const sellerId = seller?.id
 
         if (!payoutAccountId) {
           throw new MedusaError(

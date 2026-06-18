@@ -7,7 +7,6 @@ import {
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import {
   CommissionRateType,
-  CommissionRateTarget,
   MercurModules,
 } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
@@ -162,15 +161,20 @@ medusaIntegrationTestRunner({
           )
         ).data.offer
 
-        // Create 10% marketplace commission
-        await commissionService.createCommissionRates({
-          name: "Marketplace Commission",
-          code: "MARKETPLACE_10",
+        // Apply a 10% marketplace commission via the global default rate
+        // (the redesigned commission model has no per-rate `target`; the
+        // default rate applies to every item). `include_shipping: false`
+        // keeps the commission on the $100 item only, not the $10 shipping.
+        const [defaultRate] = await commissionService.listCommissionRates({
+          is_default: true,
+        })
+        await commissionService.updateCommissionRates({
+          id: defaultRate.id,
           type: CommissionRateType.PERCENTAGE,
-          target: CommissionRateTarget.ITEM,
           value: 10,
+          include_tax: false,
+          include_shipping: false,
           is_enabled: true,
-          priority: 0,
         })
       })
 
@@ -323,15 +327,22 @@ medusaIntegrationTestRunner({
         const getOrderFromGroup = async (orderGroupId: string) => {
           const { data: [orderGroup] } = await query.graph({
             entity: "order_group",
-            fields: [
-              "id",
-              "orders.*",
-              "orders.items.*",
-              "orders.items.commission_lines.*",
-            ],
+            fields: ["id", "orders.*", "orders.items.*"],
             filters: { id: orderGroupId },
           })
           return orderGroup.orders[0]
+        }
+
+        // The redesigned commission model dropped the order-item→commission
+        // link, so commission lines are read straight from the commission
+        // module by the item id (mirrors `getOrderCommissionLines`).
+        const getItemCommissionLines = async (itemId: string) => {
+          const { data } = await query.graph({
+            entity: "commission_line",
+            fields: ["id", "item_id", "amount", "code"],
+            filters: { item_id: itemId },
+          })
+          return data
         }
 
         const placeOrder = async (quantity: number) => {
@@ -352,10 +363,11 @@ medusaIntegrationTestRunner({
           expect(order).toBeDefined()
           expect(order.items).toHaveLength(1)
 
-          // Commission (10% of the $100 item) is recorded on the order item.
-          const commissionLine = order.items[0].commission_lines?.[0]
+          // Commission (10% of the $100 item) is recorded for the order item.
+          const commissionLines = await getItemCommissionLines(order.items[0].id)
+          const commissionLine = commissionLines[0]
           expect(commissionLine).toBeDefined()
-          expect(commissionLine.amount).toEqual(1000) // $10 in cents
+          expect(Number(commissionLine.amount)).toEqual(1000) // $10 in cents
 
           // Create the payout directly from the order.
           const payoutResult = await createPayoutWorkflow(appContainer).run({

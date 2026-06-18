@@ -23,7 +23,11 @@ export default async function seedDefaultCommissionRateLoader({
 
     await rateService.create({
       name: "Default",
-      code: "default",
+      // Must match the migration seed (`DEFAULT`) so the global rate's code
+      // is identical whether it was created by the migration (production) or
+      // this boot-time loader (test infra, which applies schema from models
+      // and skips migration data steps).
+      code: "DEFAULT",
       type: "percentage",
       value: 0,
       is_enabled: true,

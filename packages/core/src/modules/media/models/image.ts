@@ -14,10 +14,18 @@ import { model } from "@medusajs/framework/utils"
  *
  * Table is `media_image`, NOT `image`: Medusa's product module already
  * owns a table named `image` (its ProductImage) — reusing it would collide.
+ *
+ * Entity `name` is `MediaImage`, NOT `Image`: the remote-query link graph
+ * keys entities by this name globally. A generic `Image` entity collides
+ * with the product module's own image relation and silently shadows
+ * `product.images` in `query.graph` (it resolves to the empty media link
+ * instead of the product's `ProductImage` rows — MER, variant-media). The
+ * service property below stays `Image`, so the `image` linkable key,
+ * `field: "image"`, and the `category.images` field alias are unchanged.
  */
 const Image = model
   .define(
-    { tableName: "media_image", name: "Image" },
+    { tableName: "media_image", name: "MediaImage" },
     {
       id: model.id({ prefix: "medimg" }).primaryKey(),
       url: model.text(),

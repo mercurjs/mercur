@@ -5,6 +5,8 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
+import { remapCategoryMedia } from "../../utils"
+
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorProductCategoryListResponse>
@@ -19,7 +21,7 @@ export const GET = async (
   })
 
   res.json({
-    product_categories,
+    product_categories: remapCategoryMedia(product_categories),
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,

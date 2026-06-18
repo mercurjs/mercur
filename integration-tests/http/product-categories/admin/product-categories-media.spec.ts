@@ -161,7 +161,7 @@ medusaIntegrationTestRunner({
         expect(deleted.data.deleted).toEqual(true)
 
         const mediaService: any = appContainer.resolve("media")
-        const remaining = await mediaService.listImages({ id: imageIds })
+        const remaining = await mediaService.listMediaImages({ id: imageIds })
         expect(remaining).toHaveLength(0)
       })
     })

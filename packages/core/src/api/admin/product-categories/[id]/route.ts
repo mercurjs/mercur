@@ -13,6 +13,7 @@ import { HttpTypes } from "@mercurjs/types"
 import { AdminUpdateProductCategoryType } from "../validators"
 import { updateProductCategoryWithImagesWorkflow } from "../../../../workflows/media/workflows/update-product-category-with-images"
 import { deleteProductCategoryWithImagesWorkflow } from "../../../../workflows/media/workflows/delete-product-category-with-images"
+import { remapCategoryMedia } from "../../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -35,7 +36,7 @@ export const GET = async (
     )
   }
 
-  res.json({ product_category })
+  res.json({ product_category: remapCategoryMedia(product_category) })
 }
 
 export const POST = async (
@@ -70,7 +71,7 @@ export const POST = async (
     )
   }
 
-  res.json({ product_category })
+  res.json({ product_category: remapCategoryMedia(product_category) })
 }
 
 export const DELETE = async (

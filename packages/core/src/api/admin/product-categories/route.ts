@@ -8,6 +8,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import { AdminCreateProductCategoryType } from "./validators"
 import { createProductCategoryWithImagesWorkflow } from "../../../workflows/media/workflows/create-product-category-with-images"
+import { remapCategoryMedia } from "../../utils"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -23,7 +24,7 @@ export const GET = async (
   })
 
   res.json({
-    product_categories,
+    product_categories: remapCategoryMedia(product_categories),
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,
@@ -57,5 +58,5 @@ export const POST = async (
     filters: { id: createdId },
   })
 
-  res.status(200).json({ product_category })
+  res.status(200).json({ product_category: remapCategoryMedia(product_category) })
 }
