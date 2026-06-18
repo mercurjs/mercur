@@ -148,6 +148,11 @@ native options + attribute graph, type/tags/images excluded). Verified
 `attributes-batch-http.spec.ts` **1/1** (HTTP add/remove → 200, serialized).
 Full build 9/9. **18 SPEC-014 tests green.**
 
+**PR opened (2026-06-18):** mercurjs/mercur#1044 → `canary` — commit `388d140e`
+`feat(products)!: rebuild attributes on native global product options (SPEC-014)`
+(56 files). Covers J.1 upgrade → §H. §A (delete old web) intentionally NOT in
+this PR — gated on UI moving to `attributes[]`.
+
 **§H COMPLETE — admin + vendor on native-option model (2026-06-18).** Rewrote the
 confirm dispatcher `applyProductAttributeChangeActionsWorkflow` (new
 `applyAttributeChangeActionsStep`) to attach/detach mirror options + value links
