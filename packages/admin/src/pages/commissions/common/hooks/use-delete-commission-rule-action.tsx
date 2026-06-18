@@ -15,10 +15,10 @@ export const useDeleteCommissionRuleAction = (rule: {
 
   return async () => {
     const confirmed = await prompt({
-      title: t("general.areYouSure"),
+      title: t("commissions.delete.title", "Delete commission rule"),
       description: t("commissions.delete.description", {
         name: rule.name,
-        defaultValue: `Are you sure you want to delete the commission rule "${rule.name}"?`,
+        defaultValue: `You are about to delete commission rule ${rule.name}. This action cannot be undone.`,
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
@@ -32,7 +32,7 @@ export const useDeleteCommissionRuleAction = (rule: {
       onSuccess: () => {
         toast.success(
           t("commissions.delete.successToast", {
-            defaultValue: "Commission rule deleted",
+            defaultValue: "Commission rule was successfully deleted.",
           })
         );
         navigate("/settings/commissions");

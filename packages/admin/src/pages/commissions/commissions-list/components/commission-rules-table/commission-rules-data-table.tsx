@@ -1,5 +1,4 @@
 import { PencilSquare, Trash } from "@medusajs/icons";
-import { StatusBadge } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
@@ -11,6 +10,7 @@ import {
   TextHeader,
 } from "../../../../../components/table/table-cells/common/text-cell";
 import { _DataTable } from "../../../../../components/table/data-table";
+import { StatusCell } from "../../../../../components/table/table-cells/common/status-cell";
 import { useCommissionRules } from "../../../../../hooks/api/commissions";
 import { useDataTable } from "../../../../../hooks/use-data-table";
 import { useDeleteCommissionRuleAction } from "../../../common/hooks/use-delete-commission-rule-action";
@@ -50,7 +50,10 @@ export const CommissionRulesDataTable = () => {
     }
   );
 
-  const data = (commission_rates ?? []) as unknown as CommissionRate[];
+  const data = useMemo(
+    () => (commission_rates ?? []) as unknown as CommissionRate[],
+    [commission_rates]
+  );
 
   const allRules = useMemo(
     () => data.flatMap((rate) => rate.rules ?? []),
@@ -83,6 +86,13 @@ export const CommissionRulesDataTable = () => {
       queryObject={raw}
       filters={filters}
       navigateTo={(row) => `${row.original.id}`}
+      noRecords={{
+        title: t("commissions.rules.empty.heading", "No commission rules yet"),
+        message: t(
+          "commissions.rules.empty.description",
+          "Create a commission rule to override the global commission for specific stores, product types, or categories."
+        ),
+      }}
       pagination
       search
       orderBy={[
@@ -170,9 +180,7 @@ const useColumns = (names: Record<string, string>) => {
         ),
         cell: ({ getValue }) => {
           const props = getIsActiveProps(getValue(), t);
-          return (
-            <StatusBadge color={props.color}>{props.label}</StatusBadge>
-          );
+          return <StatusCell color={props.color}>{props.label}</StatusCell>;
         },
       }),
       columnHelper.display({

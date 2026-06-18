@@ -1,4 +1,4 @@
-import { Heading, Select } from "@medusajs/ui";
+import { Heading, RadioGroup } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../../components/common/form";
@@ -28,25 +28,41 @@ export const CreateCommissionRuleCommission = () => {
           <Form.Field
             control={form.control}
             name="commissionType"
-            render={({ field: { onChange, ref, ...field } }) => (
+            render={({ field: { onChange, ...rest } }) => (
               <Form.Item>
                 <Form.Label>
                   {t("commissions.fields.type.label", "Type")}
                 </Form.Label>
                 <Form.Control>
-                  <Select {...field} onValueChange={onChange} dir={direction}>
-                    <Select.Trigger ref={ref}>
-                      <Select.Value />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="percentage">
-                        {t("commissions.fields.type.percentage", "Percentage")}
-                      </Select.Item>
-                      <Select.Item value="fixed">
-                        {t("commissions.fields.type.fixed", "Fixed")}
-                      </Select.Item>
-                    </Select.Content>
-                  </Select>
+                  <RadioGroup
+                    dir={direction}
+                    onValueChange={onChange}
+                    {...rest}
+                    className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                    data-testid="commission-rule-commission-type-radio-group"
+                  >
+                    <RadioGroup.ChoiceBox
+                      value="percentage"
+                      label={t(
+                        "commissions.fields.type.percentage",
+                        "Percentage"
+                      )}
+                      description={t(
+                        "commissions.fields.type.percentageHint",
+                        "Charge a percentage of the order total."
+                      )}
+                      data-testid="commission-rule-commission-type-option-percentage"
+                    />
+                    <RadioGroup.ChoiceBox
+                      value="fixed"
+                      label={t("commissions.fields.type.fixed", "Fixed")}
+                      description={t(
+                        "commissions.fields.type.fixedHint",
+                        "Charge a fixed amount per order."
+                      )}
+                      data-testid="commission-rule-commission-type-option-fixed"
+                    />
+                  </RadioGroup>
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -90,5 +106,5 @@ CreateCommissionRuleCommission._tabMeta =
   defineTabMeta<CreateCommissionRuleSchemaType>({
     id: "commission",
     labelKey: "commissions.create.commission",
-    validationFields: ["commissionType"],
+    validationFields: ["commissionType", "value"],
   });

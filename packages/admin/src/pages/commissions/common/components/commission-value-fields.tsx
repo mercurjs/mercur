@@ -40,7 +40,7 @@ export const CommissionValueFields = <T extends FieldValues = FieldValues>({
               <PercentageInput
                 {...field}
                 value={value}
-                onValueChange={(_v, _n, values) => onChange(values?.float ?? 0)}
+                onValueChange={(_v, _n, values) => onChange(values?.float)}
               />
             </Form.Control>
             <Form.ErrorMessage />
