@@ -1,6 +1,13 @@
-import { Trash } from "@medusajs/icons";
+import { XCircle } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
-import { Button, Checkbox, Container, Heading, usePrompt } from "@medusajs/ui";
+import {
+  Button,
+  Checkbox,
+  Container,
+  Heading,
+  toast,
+  usePrompt,
+} from "@medusajs/ui";
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -31,6 +38,7 @@ export const CustomerGroupCustomerSection = ({
   const { searchParams, raw } = useCustomerTableQuery({ pageSize: PAGE_SIZE });
   const { customers, count, isLoading, isError, error } = useCustomers({
     ...searchParams,
+    order: searchParams.order || "email",
     groups: [group.id],
   });
 
@@ -81,6 +89,14 @@ export const CustomerGroupCustomerSection = ({
     await mutateAsync(keys, {
       onSuccess: () => {
         setRowSelection({});
+        toast.success(
+          t("customerGroups.customers.remove.successToast", {
+            count: keys.length,
+          }),
+        );
+      },
+      onError: (e) => {
+        toast.error(e.message);
       },
     });
   };
@@ -131,6 +147,7 @@ export const CustomerGroupCustomerSection = ({
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        defaultOrderBy="email"
         queryObject={raw}
         commands={[
           {
@@ -140,6 +157,7 @@ export const CustomerGroupCustomerSection = ({
           },
         ]}
         noRecords={{
+          title: t("customerGroups.customers.list.noRecordsTitle"),
           message: t("customerGroups.customers.list.noRecordsMessage"),
         }}
       />
@@ -175,7 +193,16 @@ const CustomerActions = ({
       return;
     }
 
-    await mutateAsync([customer.id]);
+    await mutateAsync([customer.id], {
+      onSuccess: () => {
+        toast.success(
+          t("customerGroups.customers.remove.successToast", { count: 1 }),
+        );
+      },
+      onError: (e) => {
+        toast.error(e.message);
+      },
+    });
   };
 
   return (
@@ -184,7 +211,7 @@ const CustomerActions = ({
         {
           actions: [
             {
-              icon: <Trash />,
+              icon: <XCircle />,
               label: t("actions.remove"),
               onClick: handleRemove,
             },

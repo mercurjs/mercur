@@ -42,7 +42,20 @@ export const CreateCustomerGroupForm = () => {
           handleSuccess(`/customer-groups/${customer_group.id}`);
         },
         onError: (error) => {
-          toast.error(error.message);
+          const message = error.message?.toLowerCase() ?? "";
+          const isDuplicate =
+            error.status === 409 ||
+            message.includes("already exist") ||
+            message.includes("duplicate") ||
+            message.includes("unique");
+
+          toast.error(
+            isDuplicate
+              ? t("customerGroups.create.alreadyExistsToast", {
+                  name: data.name,
+                })
+              : error.message,
+          );
         },
       },
     );

@@ -7,6 +7,7 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui"
+import { keepPreviousData } from "@tanstack/react-query"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { t } from "i18next"
 import { useMemo, useState } from "react"
@@ -44,44 +45,45 @@ export const CustomerGroupSection = ({
   const prompt = usePrompt()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const { raw } = useCustomerGroupTableQuery({
+  const { searchParams, raw } = useCustomerGroupTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
 
   const flatCustomerGroups = customer.groups ?? []
-  const groupIds = flatCustomerGroups.map((g) => g.id)
-
-  // The customer's groups are loaded as part of the customer payload, so
-  // search and sorting are applied client-side from the URL query params.
-  const displayedGroups = useMemo(() => {
-    const search = raw.q?.trim().toLowerCase()
-    let result = customer.groups ?? []
-
-    if (search) {
-      result = result.filter((g) => g.name?.toLowerCase().includes(search))
-    }
-
-    const order = raw.order || DEFAULT_ORDER
-    const desc = order.startsWith("-")
-    const key = order.replace("-", "") as "name" | "created_at" | "updated_at"
-
-    return [...result].sort((a, b) => {
-      const av = (a[key] ?? "") as string
-      const bv = (b[key] ?? "") as string
-      const cmp =
-        key === "name" ? av.localeCompare(bv) : av < bv ? -1 : av > bv ? 1 : 0
-      return desc ? -cmp : cmp
-    })
-  }, [customer.groups, raw.q, raw.order])
-
-  const { customer_groups: groupsWithCounts } = useCustomerGroups(
-    { id: groupIds, fields: "id,customers.id", limit: groupIds.length || 1 },
-    { enabled: groupIds.length > 0 }
+  const groupIds = useMemo(
+    () => flatCustomerGroups.map((g) => g.id),
+    [flatCustomerGroups]
   )
 
+  // Search and ordering are delegated to the backend: we scope the customer
+  // groups list to the groups this customer belongs to (`id`) and let the API
+  // apply `q`, `order` and pagination.
+  const {
+    customer_groups: customerGroups = [],
+    count = 0,
+    isLoading,
+    isError,
+    error,
+  } = useCustomerGroups(
+    {
+      ...searchParams,
+      id: groupIds,
+      order: searchParams.order || DEFAULT_ORDER,
+      fields: "id,name,created_at,updated_at,customers.id",
+    },
+    {
+      enabled: groupIds.length > 0,
+      placeholderData: keepPreviousData,
+    }
+  )
+
+  if (isError) {
+    throw error
+  }
+
   const customerCountByGroup: Record<string, number> = {}
-  for (const g of groupsWithCounts ?? []) {
+  for (const g of customerGroups) {
     customerCountByGroup[g.id] = g.customers?.length ?? 0
   }
 
@@ -92,9 +94,9 @@ export const CustomerGroupSection = ({
   const columns = useColumns(customer.id, customerCountByGroup)
 
   const { table } = useDataTable({
-    data: displayedGroups,
+    data: customerGroups,
     columns,
-    count: displayedGroups.length,
+    count,
     getRowId: (row) => row.id,
     enablePagination: true,
     enableRowSelection: true,
@@ -141,8 +143,8 @@ export const CustomerGroupSection = ({
                 })
           )
         },
-        onError: (error) => {
-          toast.error(error.message)
+        onError: (e) => {
+          toast.error(e.message)
         },
       }
     )
@@ -162,8 +164,8 @@ export const CustomerGroupSection = ({
         table={table}
         columns={columns}
         pageSize={PAGE_SIZE}
-        isLoading={false}
-        count={displayedGroups.length}
+        isLoading={isLoading}
+        count={count}
         prefix={PREFIX}
         navigateTo={(row) => `/customer-groups/${row.original.id}`}
         filters={filters}
