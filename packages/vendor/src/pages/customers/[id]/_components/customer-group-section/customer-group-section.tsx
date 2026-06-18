@@ -7,6 +7,7 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui"
+import { keepPreviousData } from "@tanstack/react-query"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { t } from "i18next"
 import { useMemo, useState } from "react"
@@ -30,8 +31,6 @@ import { useCustomerGroupTableFilters } from "@hooks/table/filters/use-customer-
 import { useCustomerGroupTableQuery } from "@hooks/table/query/use-customer-group-table-query"
 import { useDataTable } from "@hooks/use-data-table"
 
-import { filterAndSortCustomerGroups } from "./utils"
-
 type CustomerGroupSectionProps = {
   customer: HttpTypes.AdminCustomer
 }
@@ -50,23 +49,39 @@ export const CustomerGroupSection = ({
     prefix: PREFIX,
   })
 
-  const flatCustomerGroups = useMemo(
-    () =>
-      filterAndSortCustomerGroups(customer.groups ?? [], {
-        q: searchParams.q,
-        order: searchParams.order,
-      }),
-    [customer.groups, searchParams.q, searchParams.order]
+  const groupIds = useMemo(
+    () => (customer.groups ?? []).map((g) => g.id),
+    [customer.groups]
   )
-  const groupIds = flatCustomerGroups.map((g) => g.id)
 
-  const { customer_groups: groupsWithCounts } = useCustomerGroups(
-    { id: groupIds, fields: "id,customers.id", limit: groupIds.length || 1 },
-    { enabled: groupIds.length > 0 }
+  // Search and ordering are delegated to the backend: we scope the customer
+  // groups list to the groups this customer belongs to (`id`) and let the API
+  // apply `q`, `order` and pagination.
+  const {
+    customer_groups: customerGroups = [],
+    count = 0,
+    isLoading,
+    isError,
+    error,
+  } = useCustomerGroups(
+    {
+      ...searchParams,
+      id: groupIds,
+      order: searchParams.order || "name",
+      fields: "id,name,created_at,updated_at,customers.id",
+    },
+    {
+      enabled: groupIds.length > 0,
+      placeholderData: keepPreviousData,
+    }
   )
+
+  if (isError) {
+    throw error
+  }
 
   const customerCountByGroup: Record<string, number> = {}
-  for (const g of groupsWithCounts ?? []) {
+  for (const g of customerGroups) {
     customerCountByGroup[g.id] = g.customers?.length ?? 0
   }
 
@@ -77,9 +92,9 @@ export const CustomerGroupSection = ({
   const columns = useColumns(customer.id, customerCountByGroup)
 
   const { table } = useDataTable({
-    data: flatCustomerGroups ?? [],
+    data: customerGroups,
     columns,
-    count: flatCustomerGroups?.length ?? 0,
+    count,
     getRowId: (row) => row.id,
     enablePagination: true,
     enableRowSelection: true,
@@ -97,8 +112,8 @@ export const CustomerGroupSection = ({
     const res = await prompt({
       title: t("general.areYouSure"),
       description: t("customers.groups.removeMany", {
-        groups: flatCustomerGroups
-          ?.filter((g) => selectedIds.includes(g.id))
+        groups: customerGroups
+          .filter((g) => selectedIds.includes(g.id))
           .map((g) => g.name)
           .join(","),
       }),
@@ -110,9 +125,9 @@ export const CustomerGroupSection = ({
       return
     }
 
-    const customerGroupIds = flatCustomerGroups
-      ?.filter((g) => selectedIds.includes(g.id))
-      .map((g) => g.id) ?? []
+    const customerGroupIds = customerGroups
+      .filter((g) => selectedIds.includes(g.id))
+      .map((g) => g.id)
 
     await batchCustomerCustomerGroups(
       { remove: customerGroupIds, add: [] },
@@ -120,14 +135,14 @@ export const CustomerGroupSection = ({
         onSuccess: () => {
           toast.success(
             t("customers.groups.removed.success", {
-              groups: flatCustomerGroups
-                ?.filter((g) => selectedIds.includes(g.id))
+              groups: customerGroups
+                .filter((g) => selectedIds.includes(g.id))
                 .map((g) => g.name),
             })
           )
         },
-        onError: (error) => {
-          toast.error(error.message)
+        onError: (e) => {
+          toast.error(e.message)
         },
       }
     )
@@ -147,8 +162,8 @@ export const CustomerGroupSection = ({
         table={table}
         columns={columns}
         pageSize={PAGE_SIZE}
-        isLoading={false}
-        count={flatCustomerGroups?.length ?? 0}
+        isLoading={isLoading}
+        count={count}
         prefix={PREFIX}
         navigateTo={(row) => `/customer-groups/${row.original.id}`}
         filters={filters}
