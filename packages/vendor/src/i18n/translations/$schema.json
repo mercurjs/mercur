@@ -5142,22 +5142,19 @@
                 "noRecordsMessage": {
                   "type": "string"
                 },
-                "noRecordsTitle": {
+                "emptyTitle": {
                   "type": "string"
                 }
               },
               "required": [
-                "noRecordsMessage",
-                "noRecordsTitle"
+                "emptyTitle",
+                "noRecordsMessage"
               ],
               "additionalProperties": false
             },
             "add": {
               "type": "object",
               "properties": {
-                "success": {
-                  "type": "string"
-                },
                 "list": {
                   "type": "object",
                   "properties": {
@@ -5169,10 +5166,17 @@
                     "noRecordsMessage"
                   ],
                   "additionalProperties": false
+                },
+                "successOne": {
+                  "type": "string"
+                },
+                "successMany": {
+                  "type": "string"
                 }
               },
               "required": [
-                "success",
+                "successOne",
+                "successMany",
                 "list"
               ],
               "additionalProperties": false
@@ -5180,9 +5184,6 @@
             "removed": {
               "type": "object",
               "properties": {
-                "success": {
-                  "type": "string"
-                },
                 "list": {
                   "type": "object",
                   "properties": {
@@ -5194,10 +5195,17 @@
                     "noRecordsMessage"
                   ],
                   "additionalProperties": false
+                },
+                "successOne": {
+                  "type": "string"
+                },
+                "successMany": {
+                  "type": "string"
                 }
               },
               "required": [
-                "success",
+                "successOne",
+                "successMany",
                 "list"
               ],
               "additionalProperties": false
@@ -5360,12 +5368,20 @@
                 "successToast"
               ],
               "additionalProperties": false
+            },
+            "emptyTitle": {
+              "type": "string"
+            },
+            "emptyMessage": {
+              "type": "string"
             }
           },
           "required": [
             "title",
             "fields",
-            "create"
+            "create",
+            "emptyTitle",
+            "emptyMessage"
           ],
           "additionalProperties": false
         }

@@ -37,6 +37,7 @@ type CustomerGroupSectionProps = {
 
 const PAGE_SIZE = 10
 const PREFIX = "cusgr"
+const DEFAULT_ORDER = "-created_at"
 
 export const CustomerGroupSection = ({
   customer,
@@ -49,9 +50,10 @@ export const CustomerGroupSection = ({
     prefix: PREFIX,
   })
 
+  const flatCustomerGroups = customer.groups ?? []
   const groupIds = useMemo(
-    () => (customer.groups ?? []).map((g) => g.id),
-    [customer.groups]
+    () => flatCustomerGroups.map((g) => g.id),
+    [flatCustomerGroups]
   )
 
   // Search and ordering are delegated to the backend: we scope the customer
@@ -67,7 +69,7 @@ export const CustomerGroupSection = ({
     {
       ...searchParams,
       id: groupIds,
-      order: searchParams.order || "name",
+      order: searchParams.order || DEFAULT_ORDER,
       fields: "id,name,created_at,updated_at,customers.id",
     },
     {
@@ -108,15 +110,17 @@ export const CustomerGroupSection = ({
 
   const handleRemove = async () => {
     const selectedIds = Object.keys(rowSelection)
+    const selectedGroups = flatCustomerGroups.filter((g) =>
+      selectedIds.includes(g.id)
+    )
+    const names = selectedGroups.map((g) => g.name)
+    const isSingle = selectedGroups.length === 1
 
     const res = await prompt({
       title: t("general.areYouSure"),
-      description: t("customers.groups.removeMany", {
-        groups: customerGroups
-          .filter((g) => selectedIds.includes(g.id))
-          .map((g) => g.name)
-          .join(","),
-      }),
+      description: isSingle
+        ? t("customers.groups.remove", { name: names[0] })
+        : t("customers.groups.removeMany", { groups: names.join(", ") }),
       confirmText: t("actions.remove"),
       cancelText: t("actions.cancel"),
     })
@@ -125,20 +129,18 @@ export const CustomerGroupSection = ({
       return
     }
 
-    const customerGroupIds = customerGroups
-      .filter((g) => selectedIds.includes(g.id))
-      .map((g) => g.id)
+    const customerGroupIds = selectedGroups.map((g) => g.id)
 
     await batchCustomerCustomerGroups(
       { remove: customerGroupIds, add: [] },
       {
         onSuccess: () => {
           toast.success(
-            t("customers.groups.removed.success", {
-              groups: customerGroups
-                .filter((g) => selectedIds.includes(g.id))
-                .map((g) => g.name),
-            })
+            isSingle
+              ? t("customers.groups.removed.successOne", { groups: names[0] })
+              : t("customers.groups.removed.successMany", {
+                  groups: names.join(", "),
+                })
           )
         },
         onError: (e) => {
@@ -174,7 +176,7 @@ export const CustomerGroupSection = ({
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
-        defaultOrderBy="name"
+        defaultOrderBy={DEFAULT_ORDER}
         commands={[
           {
             action: handleRemove,
@@ -184,8 +186,9 @@ export const CustomerGroupSection = ({
         ]}
         queryObject={raw}
         noRecords={{
-          title: t("customers.groups.list.noRecordsTitle"),
+          title: t("customers.groups.list.emptyTitle"),
           message: t("customers.groups.list.noRecordsMessage"),
+          icon: null,
         }}
       />
     </Container>
@@ -219,6 +222,11 @@ const CustomerGroupRowActions = ({
     }
 
     await mutateAsync([customerId], {
+      onSuccess: () => {
+        toast.success(
+          t("customers.groups.removed.successOne", { groups: group.name })
+        )
+      },
       onError: (error) => {
         toast.error(error.message)
       },

@@ -1244,21 +1244,23 @@
     },
     "groups": {
       "label": "Customer groups",
-      "remove": "Are you sure you want to remove the customer from \"{{name}}\" customer group?",
-      "removeMany": "Are you sure you want to remove customer from following customer groups: {{groups}}?",
+      "remove": "You are about to remove customer from {{name}} group. This action cannot be undone.",
+      "removeMany": "You are about to remove customer from {{groups}} groups. This action cannot be undone.",
       "alreadyAddedTooltip": "The customer is already in this customer group.",
       "list": {
-        "noRecordsTitle": "No customer groups yet",
+        "emptyTitle": "No customer groups yet",
         "noRecordsMessage": "This customer doesn't belong to any group."
       },
       "add": {
-        "success": "Customer added to: {{groups}}.",
+        "successOne": "Customer was successfully added to {{groups}} group.",
+        "successMany": "Customer was successfully added to {{groups}} groups.",
         "list": {
           "noRecordsMessage": "Please create a customer group first."
         }
       },
       "removed": {
-        "success": "Customer removed from: {{groups}}.",
+        "successOne": "Customer was successfully removed from {{groups}} group.",
+        "successMany": "Customer was successfully removed from {{groups}} groups.",
         "list": {
           "noRecordsMessage": "Please create a customer group first."
         }
@@ -1284,6 +1286,8 @@
     "hasAccount": "Has account",
     "addresses": {
       "title": "Addresses",
+      "emptyTitle": "No addresses yet",
+      "emptyMessage": "This customer doesn't have any addresses",
       "fields": {
         "addressName": "Address name",
         "address1": "Address 1",
