@@ -1,4 +1,3 @@
-import { Modules } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
 import {
   createHook,
@@ -12,10 +11,12 @@ import {
   dismissRemoteLinkStep,
   emitEventStep,
 } from "@medusajs/medusa/core-flows"
-import { MercurModules } from "@mercurjs/types"
 
 import { ProductAttributeValueWorkflowEvents } from "../events"
-import { deleteProductAttributeValuesStep } from "../steps"
+import {
+  deleteProductAttributeValuesStep,
+  unmirrorDeletedAttributeValuesStep,
+} from "../steps"
 
 export type DeleteProductAttributeValuesWorkflowInput = {
   ids: string[]
@@ -53,18 +54,17 @@ export const deleteProductAttributeValuesWorkflow: ReturnWorkflow<
     // `validateProductAttributeValueNotMirroredStep`; dropped to avoid the
     // full-table scan it required.
 
-    const dismissLinks = transform({ input }, ({ input }) =>
-      input.ids.flatMap((id) => [
-        {
-          [MercurModules.PRODUCT_ATTRIBUTE]: {
-            product_attribute_value_id: id,
-          },
-          [Modules.PRODUCT]: {},
-        },
-      ]),
-    )
+    // SPEC-014 §F: delete the mirror option values first (while the links still
+    // resolve) and collect explicit dismiss defs for BOTH product-module links
+    // (product↔value selection + value→optionvalue mirror). A wildcard
+    // `[PRODUCT]: {}` can no longer disambiguate the two.
+    const prepared = unmirrorDeletedAttributeValuesStep({
+      value_ids: input.ids,
+    })
 
-    dismissRemoteLinkStep(dismissLinks).config({
+    dismissRemoteLinkStep(
+      transform({ prepared }, ({ prepared }) => prepared.dismiss_links),
+    ).config({
       name: "pa-dismiss-attribute-value-links",
     })
 

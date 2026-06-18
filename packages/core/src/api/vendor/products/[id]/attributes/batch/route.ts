@@ -22,20 +22,24 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
   const productId = req.params.id
-  const { create, delete: toDelete } = req.validatedBody
+  const { add, remove } = req.validatedBody
 
   await ensureSellerOwnsProduct(req.scope, sellerId, productId)
 
+  // Map the unified batch shape to attribute-level staging operations
+  // (removes first so a same-call remove+add replaces a value set). A
+  // toggle/text/unit `value` is staged as a `values` name; the staging
+  // workflow resolves it to a value id.
   const operations = [
-    ...(create ?? []).map((c) => ({
-      type: "add" as const,
-      attribute_id: c.attribute_id,
-      value_ids: "attribute_value_ids" in c ? c.attribute_value_ids : undefined,
-      values: "values" in c ? c.values : undefined,
-    })),
-    ...(toDelete ?? []).map((attribute_id) => ({
+    ...(remove ?? []).map((attribute_id) => ({
       type: "remove" as const,
       attribute_id,
+    })),
+    ...(add ?? []).map((a) => ({
+      type: "add" as const,
+      attribute_id: a.id,
+      value_ids: a.value_ids,
+      values: a.value !== undefined ? [String(a.value)] : undefined,
     })),
   ]
 

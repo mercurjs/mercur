@@ -7,7 +7,10 @@ import {
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import {
+  createRemoteLinkStep,
+  emitEventStep,
+} from "@medusajs/medusa/core-flows"
 import {
   ProductAttributeValueDTO,
   UpsertProductAttributeValueDTO,
@@ -15,6 +18,7 @@ import {
 
 import { ProductAttributeValueWorkflowEvents } from "../events"
 import {
+  syncAttributeValueMirrorsStep,
   upsertProductAttributeValuesStep,
   validateAttributeAcceptsValuesStep,
 } from "../steps"
@@ -61,6 +65,16 @@ export const upsertProductAttributeValuesWorkflow: ReturnWorkflow<
     )
 
     const values = upsertProductAttributeValuesStep(valueInputs)
+
+    // SPEC-014 §F: reconcile mirror option values (create new / rename drifted).
+    const valueMirror = syncAttributeValueMirrorsStep(
+      transform({ values }, ({ values }) => ({
+        value_ids: values.map((v) => v.id),
+      })),
+    )
+    createRemoteLinkStep(
+      transform({ valueMirror }, ({ valueMirror }) => valueMirror.links),
+    ).config({ name: "pa-upsert-value-mirror-links" })
 
     emitEventStep({
       eventName: ProductAttributeValueWorkflowEvents.UPDATED,

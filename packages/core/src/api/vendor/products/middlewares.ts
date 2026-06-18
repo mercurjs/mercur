@@ -221,31 +221,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     ],
   },
 
-  // --- /vendor/products/:id/attributes/:attribute_id ---
-  {
-    method: ["GET"],
-    matcher: "/vendor/products/:id/attributes/:attribute_id",
-    middlewares: [
-      validateAndTransformQuery(
-        VendorGetProductAttributeParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/vendor/products/:id/attributes/:attribute_id",
-    middlewares: [
-      validateAndTransformBody(VendorUpdateProductAttribute),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["DELETE"],
-    matcher: "/vendor/products/:id/attributes/:attribute_id",
-    middlewares: [],
-  },
+  // NOTE: SPEC-014 removed `/:id/attributes/:attribute_id` — the batch endpoint
+  // (`/:id/attributes/batch`) is the single attribute-mutation surface.
 ]

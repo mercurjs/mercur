@@ -23,19 +23,53 @@ export const adminProductFields = [
   "updated_at",
   "deleted_at",
   "metadata",
-  "*type",
-  "*collection",
-  "*tags",
-  "*images",
-  "*categories",
-  "*options",
-  "*options.values",
-  "*variants",
-  "*variants.options",
-  // Linked product-attribute value ids (Module Link alias). The GET
-  // handler enriches these into `product.attributes` via separate
-  // queries against the product-attribute module.
+  // Explicit relation fields (SPEC-014). 2.16's remote joiner rejects bare
+  // `*relation` wildcards and the `type`/`tags`/`images` relations
+  // (`Cannot resolve alias path ""`), so they are spelled out / excluded.
+  "collection.id",
+  "collection.title",
+  "collection.handle",
+  "categories.id",
+  "categories.name",
+  "categories.handle",
+  // AXIS attributes = native global options.
+  "options.id",
+  "options.title",
+  "options.values.id",
+  "options.values.value",
+  "variants.id",
+  "variants.title",
+  "variants.sku",
+  "variants.manage_inventory",
+  "variants.allow_backorder",
+  "variants.variant_rank",
+  "variants.options.id",
+  "variants.options.value",
+  "variants.options.option.id",
+  "variants.options.option.title",
+  // NON-AXIS selected values + parent attribute + full value set.
   "attribute_values.id",
+  "attribute_values.name",
+  "attribute_values.rank",
+  "attribute_values.attribute.id",
+  "attribute_values.attribute.name",
+  "attribute_values.attribute.handle",
+  "attribute_values.attribute.type",
+  "attribute_values.attribute.is_variant_axis",
+  "attribute_values.attribute.is_required",
+  "attribute_values.attribute.rank",
+  "attribute_values.attribute.values.id",
+  "attribute_values.attribute.values.name",
+  "attribute_values.attribute.values.rank",
+  // Product-scoped (inline) attributes via the read-only link.
+  "scoped_attributes.id",
+  "scoped_attributes.name",
+  "scoped_attributes.handle",
+  "scoped_attributes.type",
+  "scoped_attributes.is_variant_axis",
+  "scoped_attributes.values.id",
+  "scoped_attributes.values.name",
+  "scoped_attributes.values.rank",
 ]
 
 export const adminProductRetrieveFields = [...adminProductFields]

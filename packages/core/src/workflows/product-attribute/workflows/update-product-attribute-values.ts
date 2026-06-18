@@ -7,14 +7,20 @@ import {
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import {
+  createRemoteLinkStep,
+  emitEventStep,
+} from "@medusajs/medusa/core-flows"
 import {
   ProductAttributeValueDTO,
   UpdateProductAttributeValueDTO,
 } from "@mercurjs/types"
 
 import { ProductAttributeValueWorkflowEvents } from "../events"
-import { updateProductAttributeValuesStep } from "../steps"
+import {
+  syncAttributeValueMirrorsStep,
+  updateProductAttributeValuesStep,
+} from "../steps"
 
 export type UpdateProductAttributeValuesWorkflowInput = {
   selector: Record<string, unknown>
@@ -53,6 +59,16 @@ export const updateProductAttributeValuesWorkflow: ReturnWorkflow<
       selector: input.selector,
       update: input.update,
     })
+
+    // SPEC-014 §F: propagate value renames to the mirror option value.
+    const valueMirror = syncAttributeValueMirrorsStep(
+      transform({ values }, ({ values }) => ({
+        value_ids: values.map((v) => v.id),
+      })),
+    )
+    createRemoteLinkStep(
+      transform({ valueMirror }, ({ valueMirror }) => valueMirror.links),
+    ).config({ name: "pa-update-value-mirror-links" })
 
     emitEventStep({
       eventName: ProductAttributeValueWorkflowEvents.UPDATED,

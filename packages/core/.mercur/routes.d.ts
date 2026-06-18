@@ -257,7 +257,7 @@ export type Routes = {
                     };
                 };
                 attributes: typeof import("../../src/api/admin/products/[id]/attributes/route") & {
-                    $attributeId: typeof import("../../src/api/admin/products/[id]/attributes/[attribute_id]/route");
+                    $attributeId: typeof import("@mercurjs/core/api/admin/products/[id]/attributes/[attribute_id]/route");
                     batch: typeof import("../../src/api/admin/products/[id]/attributes/batch/route");
                 };
                 confirm: typeof import("../../src/api/admin/products/[id]/confirm/route");
@@ -698,7 +698,7 @@ export type Routes = {
         products: typeof import("../../src/api/vendor/products/route") & {
             $id: typeof import("../../src/api/vendor/products/[id]/route") & {
                 attributes: typeof import("../../src/api/vendor/products/[id]/attributes/route") & {
-                    $attributeId: typeof import("../../src/api/vendor/products/[id]/attributes/[attribute_id]/route");
+                    $attributeId: typeof import("@mercurjs/core/api/vendor/products/[id]/attributes/[attribute_id]/route");
                     batch: typeof import("../../src/api/vendor/products/[id]/attributes/batch/route");
                 };
                 cancel: typeof import("../../src/api/vendor/products/[id]/cancel/route");

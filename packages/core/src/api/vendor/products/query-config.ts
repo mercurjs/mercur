@@ -22,19 +22,56 @@ export const vendorProductFields = [
   "created_at",
   "updated_at",
   "metadata",
-  "*type",
-  "*collection",
-  "*tags",
-  "*images",
-  "*categories",
-  "*options",
-  "*options.values",
-  "*variants",
-  "*variants.options",
-  // Linked product-attribute value ids (Module Link alias). The GET
-  // handler enriches these into `product.attributes` via separate
-  // queries against the product-attribute module.
+  // Explicit relation fields. Medusa 2.16's remote joiner rejects bare
+  // `*relation` wildcards in the query-config defaults with
+  // "Cannot resolve alias path \"\"" (SPEC-014), so each relation is spelled
+  // out. This also surfaces native global product `options` directly.
+  "collection.id",
+  "collection.title",
+  "collection.handle",
+  "categories.id",
+  "categories.name",
+  "categories.handle",
+  // AXIS attributes = native global options (already grouped + valued).
+  "options.id",
+  "options.title",
+  "options.values.id",
+  "options.values.value",
+  "variants.id",
+  "variants.title",
+  "variants.sku",
+  "variants.manage_inventory",
+  "variants.allow_backorder",
+  "variants.variant_rank",
+  "variants.options.id",
+  "variants.options.value",
+  "variants.options.option.id",
+  "variants.options.option.title",
+  // NON-AXIS selected values, each carrying its parent attribute and the
+  // parent's full value set (SPEC-014 response shape — "selected vs available"
+  // is one hop up via `attribute_values[].attribute.values`).
   "attribute_values.id",
+  "attribute_values.name",
+  "attribute_values.rank",
+  "attribute_values.attribute.id",
+  "attribute_values.attribute.name",
+  "attribute_values.attribute.handle",
+  "attribute_values.attribute.type",
+  "attribute_values.attribute.is_variant_axis",
+  "attribute_values.attribute.is_required",
+  "attribute_values.attribute.rank",
+  "attribute_values.attribute.values.id",
+  "attribute_values.attribute.values.name",
+  "attribute_values.attribute.values.rank",
+  // Product-scoped (inline) attributes surfaced via the read-only link.
+  "scoped_attributes.id",
+  "scoped_attributes.name",
+  "scoped_attributes.handle",
+  "scoped_attributes.type",
+  "scoped_attributes.is_variant_axis",
+  "scoped_attributes.values.id",
+  "scoped_attributes.values.name",
+  "scoped_attributes.values.rank",
 ]
 
 export const vendorProductRetrieveFields = [...vendorProductFields]
@@ -77,7 +114,10 @@ export const vendorProductVariantFields = [
   "manage_inventory",
   "allow_backorder",
   "thumbnail",
-  "*options",
+  "options.id",
+  "options.value",
+  "options.option.id",
+  "options.option.title",
   "images.id",
   "images.url",
   "images.rank",

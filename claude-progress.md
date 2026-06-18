@@ -15,6 +15,175 @@
 
 ## Session Log
 
+### Session 36: 2026-06-18 -- SPEC-014 Global product options (Medusa preview upgrade + baseline)
+
+**Spec.** New canonical `docs/specs/SPEC-014-global-product-options-attributes.md`
+(`in_progress`, priority 1): rebuild Mercur attributes on Medusa's **native
+global product options** (`is_exclusive`, `product_product_option` M2M, per-product
+value subsets). Variant-axis attribute ⟺ global `ProductOption`; non-axis = value
+links only; only `multi_select` may be an axis. Clean-slate rebuild plan (delete
+the old attribute workflow web; **no** god-resolution step — resolution is a
+`useQueryGraphStep` over the mirror link graph + pure transforms). Toggle behavior
+**confirmed** by owner: two fixed values (`true`/`false`) seeded once at
+attribute-create, attach links the existing value, never creates.
+
+**Landed (worktree only, this is a worktree branch).**
+- **Medusa preview upgrade (PR step J.1).** All workspace `@medusajs/*`
+  deps/devDeps → `options-preview` dist-tag; peerDeps → `>=2.16.0-0`; root bun
+  `overrides` → exact `2.16.0-options-preview-20260605124754`
+  (`@medusajs/ui` → `4.1.16-options-preview-…`). `templates/*` left on 2.13.4
+  (out of workspace, end-user scaffolds). `bun install` clean; installed
+  `@medusajs/types` carries `is_exclusive`; product module ships
+  `product-product-option(-value)` models.
+- **2.16 compat fixes (3 type errors, the entire bump fallout):**
+  (1) `api/vendor/products/validators.ts` — framework moved its zod to **v4**;
+  `WithAdditionalData`'s modifyCallback must return `ZodObject` but `.superRefine`
+  yields `ZodEffects`; bridged with `as unknown as typeof CreateProduct` (runtime
+  schema still valid). Repo still imports `z` from `"zod"` (v3) elsewhere — only
+  this one spot surfaced; full v3→v4 alignment is a deferred follow-up.
+  (2) `workflows/cart/steps/prepare-adjustments-from-promotion-actions.ts` — 2.16
+  added required `skippedPromoCodes` to the step output; added `[]` on both
+  returns (parity; seller-mismatch skips not yet tracked).
+  (3) `workflows/product-attribute/steps/upsert-product-options-for-axis.ts` —
+  2.16 removed `ProductOption.product_id` (options are global). Rewrote against the
+  native API: read existing via `query.graph(product→options)`; missing →
+  `createProductOptions([{…, is_exclusive:true}])` + `addProductOptionToProduct`;
+  existing → append values via `upsertProductOptions`. This file is in SPEC-014's
+  deletion set but the create-option-and-attach logic transfers to §G.
+  **Discovered the exact 2.16 product↔option API the rebuild needs:**
+  `addProductOptionToProduct` / `removeProductOptionFromProduct` /
+  `updateProductOptionValuesOnProduct` (all take per-product `option_value_ids`
+  subsets).
+- **Toggle seeding (PR step J.2 start).** `create-product-attributes` workflow
+  now seeds `["true","false"]` (ranks 0/1) for any `type === TOGGLE`, ignoring
+  caller values. Exported `TOGGLE_VALUE_NAMES`.
+- **Mirror foundation (PR step J.2 cont., §B + §F-create).** Two 1:1 mirror
+  links with `mirror_*` aliases (dodging the same-module alias-shadow footgun):
+  `links/product-attribute-option-mirror-link.ts` (attribute→option) and
+  `links/product-attribute-value-option-value-mirror-link.ts` (value→optionvalue).
+  New `mirrorAxisAttributesToOptionsStep`
+  (`workflows/product-attribute/steps/mirror-axis-attributes-to-options.ts`):
+  for `multi_select`+axis attributes, creates the native shared `ProductOption`
+  (`is_exclusive:false`) + value mirrors and returns link defs; compensation
+  deletes created options. Wired into `create-product-attributes` (runs after
+  values; links persisted via `pa-create-axis-option-mirror-links`).
+
+**Verified.** Full `bun run build` green **9/9** packages on the 2.16 preview;
+`turbo build --filter=@mercurjs/core` green after toggle seeding AND after the
+mirror foundation. **Runtime-verified** (Postgres at /tmp:5432; integration
+runner migrates its own fresh DB on 2.16 — proves the new link migrations apply):
+`integration-tests/http/product-attribute/admin/mirror-foundation.spec.ts`
+**3/3 passing** (axis→shared-option mirror + graph-resolvable `mirror_*` links;
+non-axis no mirror; toggle seeds true/false). `apps/api` `.env` copied from main;
+a `medusa db:migrate` against the dev DB (`mercur-demo-4`) was kicked off and is
+slow on the big 2.13→2.16 jump (not required for tests — the runner uses its own
+DB).
+
+**§F COMPLETE + runtime-verified (2026-06-18).** Catalog mirror maintenance
+across all value workflows + axis flip-on/title-rename. New steps:
+`syncAttributeValueMirrorsStep`, `unmirrorDeletedAttributeValuesStep`
+(`mirror-attribute-values.ts`), `reconcileAxisAttributeMirrorStep`
+(`mirror-axis-attributes-to-options.ts`). Wired into create/upsert/update/delete
+value workflows + update-product-attributes. **Fixed a 2.16 regression**: the
+legacy wildcard `[PRODUCT]:{}` dismiss in delete-values no longer resolves under
+2.16 (exact `getLinkModule` keying + the new mirror link → ambiguous); replaced
+with explicit dismiss defs from the graph (`owning_products`,
+`mirror_option_value`). Axis flip-OFF teardown also implemented (explicit
+dismiss + option delete). Verified: `mirror-value-crud.spec.ts` **5/5** +
+`mirror-foundation.spec.ts` **3/3** = 8/8. **§F fully COMPLETE** — catalog ↔
+native-option mirror in sync across all attribute/value CRUD + axis flip
+on/off + toggle. Full `bun run build` green 9/9.
+
+**§D create wrapper — existing-attribute path landed + verified (2026-06-18).**
+`createProductsWorkflow` accepts unified `attributes[]` (additive; legacy fields
+still work). New `prepareCreateAttributesStep` resolves existing refs: axis →
+native mirror-option attach with per-product value subset; non-axis select →
+value links; toggle → seeded true/false value link. Verified
+`attributes-create.spec.ts` **1/1** (axis option attached + subset honored +
+variant resolves + non-axis values linked). 10/10 attribute tests green; build
+9/9. Vendor create/update validators now accept `attributes[]`
+(`UnifiedProductAttributeInput`) — §H partial; route forwards body so create
+runs. Owed in §D: inline-at-create (`title`) + free-form text/unit value creation.
+
+**BLOCKER (pre-existing 2.16 regression) — RESOLVED for vendor.** The vendor
+product HTTP surface was 500ing on the response `query.graph`
+(`Cannot resolve alias path ""`) for EVERY product. Root cause: the `type`,
+`tags`, `images` product relations break 2.16's remote joiner (matches the
+curated `-type,-tags,-images` list-view exclusion). Rewrote
+`api/vendor/products/query-config.ts` to explicit fields + the SPEC-014 response
+shape (native `options(.values)`, `attribute_values.attribute.values`,
+`scoped_attributes`) and excluded type/tags/images. Verified
+`attributes-create-http.spec.ts` **1/1**: `POST /vendor/products` with
+`attributes[]` → **201**, native option + subset + value links + variant
+resolution serialized. Vendor product HTTP surface unblocked on 2.16. Owed:
+restore images/type/tags via a proper fix; drop `enrichProductAttributes`; apply
+same query-config rewrite to admin + store product routes. See memory
+[[vendor-products-default-fields-500]].
+
+**§E REMOVED (decision, 2026-06-18): no update-wrapper attribute path.** Per the
+framework author, attribute edits on existing products go ONLY through the batch
+engine (§G). Reverted the brief `attributes[]` path on `updateProductsWorkflow`
+(deleted `replace-product-attributes.ts` + `attributes-update.spec.ts`, removed
+the update-validator `attributes` field). `updateProductsWorkflow` is back to
+core-field/seller responsibilities. `prepareCreateAttributesStep` stays (used by
+§D create). Build 9/9 green. **14 SPEC-014 tests green** (mirror-foundation 3,
+mirror-value-crud 5, product-attribute SPEC-008 4, attributes-create 1,
+attributes-create-http 1).
+
+**§G batch engine — landed + verified (2026-06-18).**
+`createAndLinkProductAttributesToProductWorkflow` + `applyProductAttributesBatchStep`
+(`{product_id, add?, remove?, update?}`, order remove→add→update). Axis →
+attach/detach native mirror option + value-subset (`addProductOptionToProduct` /
+`removeProductOptionFromProduct` / `updateProductOptionValuesOnProduct`);
+non-axis select → value links; toggle → resolve/swap. Verified
+`batch-engine.spec.ts` **2/2** (non-axis+toggle add/update/remove; axis option
+attach with subset). **16 SPEC-014 tests green; core build green.** Owed in §G:
+inline/exclusive/scoped + free-form text/unit (same tails as §D).
+
+**§H admin — landed + verified (2026-06-18).** Deleted `[attribute_id]` routes
+(admin + vendor) + middleware blocks; batch is the single mutation surface.
+Admin batch route → `createAndLinkProductAttributesToProductWorkflow`; validator
+`{add,remove,update}`. Admin product query-config rewritten (explicit fields,
+native options + attribute graph, type/tags/images excluded). Verified
+`attributes-batch-http.spec.ts` **1/1** (HTTP add/remove → 200, serialized).
+Full build 9/9. **18 SPEC-014 tests green.**
+
+**§H COMPLETE — admin + vendor on native-option model (2026-06-18).** Rewrote the
+confirm dispatcher `applyProductAttributeChangeActionsWorkflow` (new
+`applyAttributeChangeActionsStep`) to attach/detach mirror options + value links
+(dropped legacy sync-options/variant-attribute logic). Vendor batch route +
+validator → `{add,remove}` staged via approval queue. Verified
+`apply-change-actions.spec.ts` **1/1**. **19 SPEC-014 tests green; build 9/9.**
+
+**Owed / next (gated or out-of-band).**
+- §A delete old web (resolve-attribute-refs, materialize, sync-options,
+  add/detach/batch-product-attribute-values): **gated** — the non-batch admin
+  attribute route (`POST /admin/products/:id/attributes` → addProductAttribute)
+  and the legacy create/update product path (`variant_attributes`/
+  `product_attributes` → resolve-refs/materialize) still use them. Delete after
+  the UI moves to `attributes[]` and those routes migrate.
+- §D/§G tails: inline (`title`) + free-form text/unit value creation.
+- enrichment removal (drop `enrichProductAttributes`) + restore images/type/tags
+  properly (2.16 joiner) + store product query-config.
+- UI (admin + vendor panels); data migration (backfill mirrors, drop
+  `product_variant_attribute*`).
+- §C/§D/§E: new helpers (`toStockOptions`/`splitNonAxis`/`mirrorLinkDefs`/
+  `valueLinkDefs`) + rewrite create/update product wrappers to the unified
+  `attributes[]` input (native options). **Breaking**: validators (vendor+admin)
+  + UI normalize fns + tests change in lockstep.
+- §G: `createAndLinkProductAttributesToProductWorkflow` (add/remove/update).
+- §H: routes + validators + approval-queue rework (`product-edit-update-
+  attributes` / `apply-product-attribute-change-actions`), delete
+  `vendor/products/[id]/attributes/[attribute_id]`, codegen.
+- §A: delete the old web (resolve-attribute-refs, materialize, sync-options,
+  add/detach/batch attribute workflows, replace-value-links).
+- Enrichment removal across 7 route files + response-shape switch; UI (admin +
+  vendor); full attribute test rewrite; data migration to backfill mirrors and
+  drop `product_variant_attribute*`.
+- **Hard constraint**: no Postgres in the worktree → all migrations + integration
+  tests are runtime-owed and cannot be executed here; type-green (`bun run build`)
+  is the only guardrail available in this environment.
+
 ### Session 35: 2026-06-17 -- SPEC-012 Collections media + icon (MER-155 admin, MER-153 vendor)
 
 **Goal.** Follow-up to SPEC-011: give product **collections** the same media

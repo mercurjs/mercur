@@ -402,25 +402,33 @@ export const AdminBatchProducts = WithAdditionalData(BatchProducts)
 
 // --- Batch product attributes ---
 
-const BatchProductAttributeCreate = z.union([
-  // Select types — reference existing value IDs
-  z.object({
-    attribute_id: z.string(),
-    attribute_value_ids: z.array(z.string()).optional(),
-  }).strict(),
-  // Text/unit/toggle types — provide new value strings
-  z.object({
-    attribute_id: z.string(),
-    values: z.array(z.string()),
-  }).strict(),
-])
+// SPEC-014 §G batch shape: { add, remove, update } over
+// createAndLinkProductAttributesToProductWorkflow. Existing refs only
+// (inline `title` is owed).
+const BatchAttributeScalar = z.union([z.string(), z.number(), z.boolean()])
+const BatchAttributeAdd = z
+  .object({
+    id: z.string(),
+    value_ids: z.array(z.string()).optional(),
+    value: BatchAttributeScalar.optional(),
+  })
+  .strict()
+const BatchAttributeUpdate = z
+  .object({
+    id: z.string(),
+    add: z.array(z.string()).optional(),
+    remove: z.array(z.string()).optional(),
+    value: BatchAttributeScalar.optional(),
+  })
+  .strict()
 
 export type AdminBatchProductAttributesType = z.infer<
   typeof AdminBatchProductAttributes
 >
 export const AdminBatchProductAttributes = z.object({
-  create: z.array(BatchProductAttributeCreate).optional(),
-  delete: z.array(z.string()).optional(),
+  add: z.array(BatchAttributeAdd).optional(),
+  remove: z.array(z.string()).optional(),
+  update: z.array(BatchAttributeUpdate).optional(),
 })
 
 // --- Attach single product attribute ---

@@ -171,6 +171,36 @@ const ProductAttributeInput = z.union([
     .strict(),
 ])
 
+/**
+ * SPEC-014 unified attribute input for product create/update. Existing refs use
+ * `id` + `value_ids` (select) or `value` (text/unit/toggle); inline refs use
+ * `title` + `type`. Axis attributes attach the product to their native mirror
+ * option; non-axis selections are linked as values.
+ */
+const AttributeScalar = z.union([z.string(), z.number(), z.boolean()])
+const UnifiedProductAttributeInput = z.union([
+  z
+    .object({
+      id: z.string(),
+      value_ids: z.array(z.string()).optional(),
+      value: AttributeScalar.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      title: z.string().min(1),
+      type: AttributeTypeEnum.optional(),
+      values: z.array(z.string()).optional(),
+      value: AttributeScalar.optional(),
+      is_variant_axis: z.boolean().optional(),
+      is_filterable: z.boolean().optional(),
+      is_required: z.boolean().optional(),
+      description: z.string().nullish(),
+      metadata: z.record(z.unknown()).nullish(),
+    })
+    .strict(),
+])
+
 // --- Product create / update ---
 
 export type VendorCreateProductType = z.infer<typeof CreateProduct> &
@@ -197,6 +227,7 @@ const CreateProduct = z
       .optional(),
     product_attributes: z.array(ProductAttributeInput).optional(),
     variant_attributes: z.array(ProductAttributeInput).optional(),
+    attributes: z.array(UnifiedProductAttributeInput).optional(),
     attribute_values: z.record(z.union([z.string(), z.array(z.string())])).optional(),
     variants: z.array(CreateProductVariant).optional(),
     weight: z.number().optional(),
@@ -211,6 +242,10 @@ const CreateProduct = z
   })
   .strict()
 export const VendorCreateProduct = WithAdditionalData(CreateProduct, (schema) =>
+  // `WithAdditionalData`'s modifyCallback is typed to return a `ZodObject`
+  // (Medusa 2.16 moved its framework zod to v4); `.superRefine` yields a
+  // `ZodEffects`. The schema object is still a valid validator at runtime
+  // (it exposes `.parse`), so bridge the v3/v4 instance mismatch here.
   schema.superRefine((data, ctx) => {
     if (
       data.status !== undefined &&
@@ -224,7 +259,7 @@ export const VendorCreateProduct = WithAdditionalData(CreateProduct, (schema) =>
         message: `When the product request flow is enabled, status must be one of: ${ProductStatus.DRAFT}, ${ProductStatus.PROPOSED}.`,
       })
     }
-  })
+  }) as unknown as typeof CreateProduct
 )
 
 export type VendorUpdateProductType = z.infer<typeof UpdateProduct> &
@@ -475,27 +510,25 @@ export const VendorCancelProductChange = z
   })
   .strict()
 
-const VendorBatchProductAttributeCreate = z.union([
-  z
-    .object({
-      attribute_id: z.string(),
-      attribute_value_ids: z.array(z.string()).optional(),
-    })
-    .strict(),
-  z
-    .object({
-      attribute_id: z.string(),
-      values: z.array(z.string()),
-    })
-    .strict(),
-])
+// SPEC-014 §H batch shape, staged through the approval queue for vendors.
+// Staging is attribute-level (add/remove); a value-set change is expressed as
+// `remove` + `add` in the same call (the confirm dispatcher processes removes
+// before adds, so re-adding the same attribute replaces its value set).
+// Existing refs only (inline `title` owed).
+const VendorBatchAttributeAdd = z
+  .object({
+    id: z.string(),
+    value_ids: z.array(z.string()).optional(),
+    value: z.union([z.string(), z.number(), z.boolean()]).optional(),
+  })
+  .strict()
 
 export type VendorBatchProductAttributesType = z.infer<
   typeof VendorBatchProductAttributes
 >
 export const VendorBatchProductAttributes = z
   .object({
-    create: z.array(VendorBatchProductAttributeCreate).optional(),
-    delete: z.array(z.string()).optional(),
+    add: z.array(VendorBatchAttributeAdd).optional(),
+    remove: z.array(z.string()).optional(),
   })
   .strict()

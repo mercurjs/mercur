@@ -27,8 +27,10 @@ import { recordProductAuditChangeWorkflow } from "../../product-edit/workflows/r
 import {
   associateSellersWithProductStep,
   buildInlinePlan,
+  prepareCreateAttributesStep,
   resolveAttributeRefsStep,
   type AttributeRef,
+  type ProductAttributeRefInput,
 } from "../steps"
 import { ProductWorkflowEvents } from "../events"
 
@@ -41,6 +43,13 @@ export type CreateProductWorkflowInput = Omit<
 > & {
   variant_attributes?: AttributeRef[]
   product_attributes?: AttributeRef[]
+  /**
+   * SPEC-014 unified attribute input. When present, axis attributes attach the
+   * product to their native mirror option and non-axis selections are linked as
+   * values; the legacy `variant_attributes`/`product_attributes` synthesis is
+   * skipped for that product.
+   */
+  attributes?: ProductAttributeRefInput[]
   seller_ids?: string[]
   options?: ProductOptionInput[]
   variants?: Array<
@@ -162,18 +171,65 @@ export const createProductsWorkflow: ReturnWorkflow<
 
     const resolved = resolveAttributeRefsStep({ groups: input.products })
 
+    // SPEC-014 unified `attributes[]` path: resolve existing refs to native
+    // option attachments + non-axis value links (no-op for products that still
+    // use the legacy `variant_attributes`/`product_attributes` fields).
+    const preparedAttrs = prepareCreateAttributesStep({
+      products: input.products,
+    })
+
     const stockProducts = transform(
-      { input, resolved },
-      ({ input, resolved }) =>
+      { input, resolved, preparedAttrs },
+      ({ input, resolved, preparedAttrs }) =>
         input.products.map((p, idx) => {
           const {
             seller_ids: _s,
             variant_attributes: _va,
             product_attributes: _pa,
+            attributes: _attrs,
             options: rawOptions,
             variants,
             ...rest
           } = p
+
+          // SPEC-014 new path: options come from the prepared mirror
+          // attachments; variants carry native `options` maps already.
+          if (p.attributes?.length) {
+            const prep = preparedAttrs[idx]
+            const newVariants = (variants ?? []).map((v) => {
+              const { attribute_values: _av, options: vopts, ...vrest } = v
+              return {
+                ...vrest,
+                manage_inventory: false,
+                ...(vopts ? { options: vopts } : {}),
+              }
+            })
+            if (!prep.options.length) {
+              const defaultOptionMap = {
+                [DEFAULT_OPTION_TITLE]: DEFAULT_OPTION_VALUE,
+              }
+              return {
+                ...rest,
+                options: [
+                  { title: DEFAULT_OPTION_TITLE, values: [DEFAULT_OPTION_VALUE] },
+                ],
+                variants: newVariants.length
+                  ? newVariants.map((v) => ({ ...v, options: defaultOptionMap }))
+                  : [
+                      {
+                        title: "Default variant",
+                        manage_inventory: false,
+                        options: defaultOptionMap,
+                      },
+                    ],
+              }
+            }
+            return {
+              ...rest,
+              options: prep.options,
+              ...(newVariants.length ? { variants: newVariants } : {}),
+            }
+          }
 
           // Build synthetic options from variant-axis attribute refs.
           // Refs without any chosen values cannot anchor a stock option —
@@ -344,6 +400,33 @@ export const createProductsWorkflow: ReturnWorkflow<
 
     createRemoteLinkStep(attributeValueLinkDefs).config({
       name: "mercur-create-products-attribute-value-links",
+    })
+
+    // SPEC-014 new path: link non-axis selected values (select / toggle) to the
+    // created product via `product_attribute_value_link`.
+    const newPathValueLinkDefs = transform(
+      { input, preparedAttrs, createdProducts },
+      ({ input, preparedAttrs, createdProducts }) => {
+        const defs: LinkDefinition[] = []
+        input.products.forEach((p, idx) => {
+          if (!p.attributes?.length) return
+          const product_id = createdProducts[idx]?.id as string
+          if (!product_id) return
+          for (const value_id of preparedAttrs[idx].non_axis_value_ids) {
+            defs.push({
+              [Modules.PRODUCT]: { product_id },
+              [MercurModules.PRODUCT_ATTRIBUTE]: {
+                product_attribute_value_id: value_id,
+              },
+            })
+          }
+        })
+        return defs
+      },
+    )
+
+    createRemoteLinkStep(newPathValueLinkDefs).config({
+      name: "mercur-create-products-new-attribute-value-links",
     })
 
     // Audit-trail ProductChange per created product. The change is
