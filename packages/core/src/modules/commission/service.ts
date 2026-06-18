@@ -1,6 +1,7 @@
 import {
   Context,
   DAL,
+  FindConfig,
   InferEntityType,
   ModulesSdkTypes,
 } from "@medusajs/framework/types"
@@ -11,6 +12,7 @@ import {
   MedusaContext,
   MedusaService,
 } from "@medusajs/framework/utils"
+import { raw } from "@medusajs/framework/mikro-orm/postgresql"
 
 import {
   CommissionCalculationContext,
@@ -303,6 +305,112 @@ class CommissionModuleService extends MedusaService({
     )
 
     return await this.baseRepository_.serialize<CommissionLineDTO[]>(result)
+  }
+
+  /**
+   * Build a DB-side predicate for the virtual `scope_type` filter (rule
+   * scope: "store", "product_type", "category", "store_product_type",
+   * "store_category"). Scope type is derived from the set of rule
+   * `reference`s rather than stored, so each option maps to an
+   * EXISTS / NOT EXISTS combination on `commission_rule` that mirrors the
+   * admin-side `deriveScopeType`. Multiple selected scopes are OR-ed.
+   */
+  private buildScopeTypeWhere_(
+    scopeTypes: string[]
+  ): ((alias: string) => string) | null {
+    const valid = scopeTypes.filter((scope) =>
+      [
+        "store",
+        "product_type",
+        "category",
+        "store_product_type",
+        "store_category",
+      ].includes(scope)
+    )
+
+    if (!valid.length) {
+      return null
+    }
+
+    return (alias: string) => {
+      const has = (reference: string) =>
+        `EXISTS (SELECT 1 FROM commission_rule cr WHERE cr.commission_rate_id = ${alias}.id AND cr.deleted_at IS NULL AND cr.reference = '${reference}')`
+      const missing = (reference: string) => `NOT ${has(reference)}`
+
+      const conditionFor = (scope: string): string => {
+        switch (scope) {
+          case "store":
+            return `${has("seller")} AND ${missing("product_type")} AND ${missing("product_category")}`
+          case "product_type":
+            return `${has("product_type")} AND ${missing("seller")} AND ${missing("product_category")}`
+          case "category":
+            return `${has("product_category")} AND ${missing("seller")} AND ${missing("product_type")}`
+          case "store_product_type":
+            return `${has("seller")} AND ${has("product_type")}`
+          case "store_category":
+            return `${has("seller")} AND ${has("product_category")} AND ${missing("product_type")}`
+          default:
+            return "1 = 0"
+        }
+      }
+
+      return valid.map((scope) => `(${conditionFor(scope)})`).join(" OR ")
+    }
+  }
+
+  /**
+   * Strip the virtual `scope_type` key and rewrite it into a `raw()`
+   * correlated-subquery predicate so the filtering happens in the database,
+   * not in the route handler.
+   */
+  private applyScopeTypeFilter_(
+    filters: Record<string, unknown> = {}
+  ): Record<string, unknown> {
+    const { scope_type, ...rest } = filters ?? {}
+
+    if (scope_type === undefined || scope_type === null) {
+      return { ...rest }
+    }
+
+    const scopeTypes = (
+      Array.isArray(scope_type) ? scope_type : [scope_type]
+    ) as string[]
+    const predicate = this.buildScopeTypeWhere_(scopeTypes)
+    const where: Record<string, unknown> = { ...rest }
+
+    // No recognised scope type → match nothing rather than ignore the filter.
+    where[raw((alias: string) => (predicate ? predicate(alias) : "1 = 0"))] =
+      true
+
+    return where
+  }
+
+  @InjectManager()
+  // @ts-ignore
+  async listCommissionRates(
+    filters: any = {},
+    config: FindConfig<any> = {},
+    @MedusaContext() sharedContext: Context = {}
+  ) {
+    return await super.listCommissionRates(
+      this.applyScopeTypeFilter_(filters),
+      config,
+      sharedContext
+    )
+  }
+
+  @InjectManager()
+  // @ts-ignore
+  async listAndCountCommissionRates(
+    filters: any = {},
+    config: FindConfig<any> = {},
+    @MedusaContext() sharedContext: Context = {}
+  ) {
+    return await super.listAndCountCommissionRates(
+      this.applyScopeTypeFilter_(filters),
+      config,
+      sharedContext
+    )
   }
 }
 

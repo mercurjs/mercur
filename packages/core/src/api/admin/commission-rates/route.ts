@@ -8,24 +8,6 @@ import { HttpTypes } from "@mercurjs/types"
 import { AdminCreateCommissionRateType } from "./validators"
 import { createCommissionRatesWorkflow } from "../../../workflows/commission"
 
-/**
- * Derive a rule's scope type from the set of `reference`s on its rules.
- * Mirrors the admin-side `deriveScopeType` (scope type is not stored).
- */
-const deriveScopeType = (references: string[]): string | null => {
-  const refs = new Set(references)
-  const hasSeller = refs.has("seller")
-  const hasType = refs.has("product_type")
-  const hasCategory = refs.has("product_category")
-
-  if (hasSeller && hasType) return "store_product_type"
-  if (hasSeller && hasCategory) return "store_category"
-  if (hasSeller) return "store"
-  if (hasType) return "product_type"
-  if (hasCategory) return "category"
-  return null
-}
-
 /** Build a unique, URL-safe code from a rate name. */
 const generateCommissionCode = (name: string): string => {
   const slug = name
@@ -43,47 +25,13 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // `scope_type` is a virtual filter derived from each rate's rules; resolve
-  // it to a concrete set of rate ids before running the paginated query.
-  const { scope_type, ...filters } = req.filterableFields as Record<
-    string,
-    unknown
-  > & { scope_type?: string | string[] }
-
-  let scopedIds: string[] | undefined
-  if (scope_type) {
-    const scopeTypes = Array.isArray(scope_type) ? scope_type : [scope_type]
-
-    const { data: allRates } = await query.graph({
-      entity: "commission_rate",
-      fields: ["id", "rules.reference"],
-      filters,
-    })
-
-    scopedIds = allRates
-      .filter((rate: { rules?: { reference: string }[] }) => {
-        const derived = deriveScopeType(
-          (rate.rules ?? []).map((rule) => rule.reference)
-        )
-        return derived !== null && scopeTypes.includes(derived)
-      })
-      .map((rate: { id: string }) => rate.id)
-
-    if (scopedIds.length === 0) {
-      res.json({
-        commission_rates: [],
-        count: 0,
-        offset: req.queryConfig.pagination?.skip ?? 0,
-        limit: req.queryConfig.pagination?.take ?? 0,
-      })
-      return
-    }
-  }
-
+  // The virtual `scope_type` filter (derived from each rate's rules) is
+  // resolved DB-side in CommissionModuleService.listAndCountCommissionRates,
+  // which query.graph delegates to — the route just forwards the filters.
   const { data: commission_rates, metadata } = await query.graph({
     entity: "commission_rate",
     fields: req.queryConfig.fields,
-    filters: scopedIds ? { ...filters, id: scopedIds } : filters,
+    filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
 
