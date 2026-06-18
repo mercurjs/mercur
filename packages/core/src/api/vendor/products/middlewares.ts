@@ -185,28 +185,8 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [],
   },
 
-  // --- /vendor/products/:id/attributes ---
-  {
-    method: ["GET"],
-    matcher: "/vendor/products/:id/attributes",
-    middlewares: [
-      validateAndTransformQuery(
-        VendorGetProductAttributesParams,
-        vendorProductQueryConfig.list
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/vendor/products/:id/attributes",
-    middlewares: [
-      validateAndTransformBody(VendorAddProductAttribute),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
-  },
+  // SPEC-014: non-batch GET/POST `/:id/attributes` removed — attributes are
+  // read from the product response; mutations go through `.../attributes/batch`.
 
   // --- /vendor/products/:id/attributes/batch ---
   {

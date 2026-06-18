@@ -160,14 +160,28 @@ confirm dispatcher `applyProductAttributeChangeActionsWorkflow` (new
 validator → `{add,remove}` staged via approval queue. Verified
 `apply-change-actions.spec.ts` **1/1**. **19 SPEC-014 tests green; build 9/9.**
 
-**Owed / next (gated or out-of-band).**
-- §A delete old web (resolve-attribute-refs, materialize, sync-options,
-  add/detach/batch-product-attribute-values): **gated** — the non-batch admin
-  attribute route (`POST /admin/products/:id/attributes` → addProductAttribute)
-  and the legacy create/update product path (`variant_attributes`/
-  `product_attributes` → resolve-refs/materialize) still use them. Delete after
-  the UI moves to `attributes[]` and those routes migrate.
-- §D/§G tails: inline (`title`) + free-form text/unit value creation.
+**§A COMPLETE — old web deleted, full core migration (2026-06-18).** Deleted 9
+old-web files (resolve-attribute-refs, replace-product-attribute-value-links,
+materialize-product-attributes, add/detach/batch-product-attribute-values,
+sync-product-attribute-options, update-product-attribute, upsert-product-options-for-axis).
+Rewrote `create-products` (new `attributes[]`-only path + new
+`materializeCreateAttributesStep` for inline scoped attributes + free-form
+values + inline-axis mirror links, graph-reading created options);
+`update-products` (NO attribute path — core fields/variants/sellers only);
+vendor staging `product-edit-update-attributes` (new `resolveAttributeAddActionsStep`,
+existing refs only). Deleted the non-batch `/:id/attributes` GET/POST routes
+(admin + vendor) + middleware. Legacy validator fields
+(`variant_attributes`/`product_attributes`/`attribute_values`) KEPT as accepted
+no-ops so the ~10 order/offer specs using them for product setup don't 400.
+Deleted obsolete `product/{admin,vendor}/product.spec.ts`. **Build 9/9; 18
+SPEC-014 tests green** (product-attribute/admin 15 + product HTTP 3 — inline
+create + free-form + axis mirror + batch + approval-queue apply all on the
+native-option model).
+
+**Owed / next.**
+- Test-migration sweep: move legacy-shape tests (product-edit, order/offer specs
+  using `variant_attributes`/`product_attributes`) to `attributes[]`, then drop
+  the legacy validator fields.
 - enrichment removal (drop `enrichProductAttributes`) + restore images/type/tags
   properly (2.16 joiner) + store product query-config.
 - UI (admin + vendor panels); data migration (backfill mirrors, drop

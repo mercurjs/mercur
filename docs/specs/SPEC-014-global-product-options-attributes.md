@@ -703,6 +703,37 @@ populate the two mirror links, then drop `product_variant_attribute` and
   vendor batch is `{add,remove}` only (no granular `update` — by design, value
   changes = remove+add through staging).
 
+### 2026-06-18 — §A old web DELETED + full core migration
+
+Deleted the legacy attribute web (9 files): `resolve-attribute-refs`,
+`replace-product-attribute-value-links` (product/steps);
+`materialize-product-attributes`, `add-product-attribute`,
+`detach-product-attribute`, `batch-product-attribute-values`,
+`sync-product-attribute-options`, `update-product-attribute`,
+`upsert-product-options-for-axis` (product-attribute). Migrated all callers:
+
+- `create-products` — new `attributes[]`-only path. New
+  `materializeCreateAttributesStep` creates inline product-scoped attributes
+  (+ values), creates free-form text/unit values, mirror-links an inline axis to
+  its stock-created exclusive option, and links non-axis values (graph-reads the
+  created options to wire inline-axis mirrors).
+- `update-products` — **no attribute path** (core fields / variants / sellers).
+- `product-edit-update-attributes` (vendor staging) — new
+  `resolveAttributeAddActionsStep` (existing refs: value_ids + name resolution +
+  free-form create); confirm dispatcher already on the native-option model (§H).
+- Deleted the non-batch `/:id/attributes` GET/POST routes + middleware (admin +
+  vendor) — the batch endpoint is the sole mutation surface.
+- Legacy validator fields (`variant_attributes`/`product_attributes`/
+  `attribute_values`) KEPT as accepted no-ops so the ~10 order/offer specs that
+  use them for product setup don't 400; migrating those tests to `attributes[]`
+  + removing the fields is the remaining test-sweep.
+
+**Runtime-verified:** `bun run build` 9/9; **18 SPEC-014 tests green**
+(product-attribute/admin 15 + product create/batch HTTP 3) — inline create +
+free-form + axis mirror attach/detach + batch add/remove/update + approval-queue
+apply, all on native global options. Deleted obsolete
+`product/{admin,vendor}/product.spec.ts`.
+
 ### 2026-06-18 — §E REMOVED (decision: batch-engine-only for edits)
 
 Decision (framework author, 2026-06-18): **the update-products wrapper does NOT

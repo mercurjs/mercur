@@ -198,27 +198,9 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
-  {
-    method: ["GET"],
-    matcher: "/admin/products/:id/attributes",
-    middlewares: [
-      validateAndTransformQuery(
-        AdminGetProductAttributesParams,
-        adminProductAttributeQueryConfig.list
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/admin/products/:id/attributes",
-    middlewares: [
-      validateAndTransformBody(AdminAddProductAttribute),
-      validateAndTransformQuery(
-        AdminGetProductParams,
-        adminProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  // NOTE: SPEC-014 removed `/:id/attributes/:attribute_id` — the batch endpoint
-  // (`/:id/attributes/batch`) is the single attribute-mutation surface.
+  // NOTE: SPEC-014 — the only product-attribute mutation surface is
+  // `/:id/attributes/batch`. The non-batch GET/POST `/:id/attributes` and the
+  // per-attribute `/:id/attributes/:attribute_id` routes were removed; product
+  // attributes are read from the product response (native options +
+  // attribute_values + scoped_attributes).
 ]

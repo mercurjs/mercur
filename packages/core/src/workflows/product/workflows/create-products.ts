@@ -15,6 +15,7 @@ import {
   createProductsWorkflow as stockCreateProductsWorkflow,
   createRemoteLinkStep,
   emitEventStep,
+  useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import {
   CreateProductDTO,
@@ -22,14 +23,12 @@ import {
   ProductChangeActionType,
 } from "@mercurjs/types"
 
-import { materializeProductAttributesWorkflow } from "../../product-attribute/workflows/materialize-product-attributes"
 import { recordProductAuditChangeWorkflow } from "../../product-edit/workflows/record-product-audit-change"
 import {
   associateSellersWithProductStep,
-  buildInlinePlan,
+  materializeCreateAttributesStep,
   prepareCreateAttributesStep,
-  resolveAttributeRefsStep,
-  type AttributeRef,
+  type MaterializeCreateAttributesItem,
   type ProductAttributeRefInput,
 } from "../steps"
 import { ProductWorkflowEvents } from "../events"
@@ -41,13 +40,11 @@ export type CreateProductWorkflowInput = Omit<
   CreateProductDTO,
   "variant_attributes" | "product_attributes" | "variants"
 > & {
-  variant_attributes?: AttributeRef[]
-  product_attributes?: AttributeRef[]
   /**
-   * SPEC-014 unified attribute input. When present, axis attributes attach the
-   * product to their native mirror option and non-axis selections are linked as
-   * values; the legacy `variant_attributes`/`product_attributes` synthesis is
-   * skipped for that product.
+   * SPEC-014 unified attribute input. Axis attributes attach the product to a
+   * native (mirror or inline-exclusive) product option; non-axis selections
+   * are linked as values; inline (`title`) refs create product-scoped
+   * attributes. Variants carry the native `options` name-map.
    */
   attributes?: ProductAttributeRefInput[]
   seller_ids?: string[]
@@ -55,7 +52,6 @@ export type CreateProductWorkflowInput = Omit<
   variants?: Array<
     Record<string, unknown> & {
       options?: Record<string, string>
-      attribute_values?: Record<string, string | string[]> | string[]
     }
   >
 }
@@ -76,86 +72,14 @@ const DEFAULT_OPTION_TITLE = "Default option"
 const DEFAULT_OPTION_VALUE = "Default option value"
 
 /**
- * Ensures every option value referenced by a variant exists on the
- * corresponding product option.
+ * Marketplace wrapper over stock `createProductsWorkflow` (SPEC-014).
  *
- * Product `options` are synthesised from `variant_attributes` (value
- * ids → value names), but a variant's `options` map carries value
- * *names* the UI generated from the raw selection. When a selected
- * value can't be resolved to an id — e.g. a user-entered custom value
- * on an existing attribute, which the value-id resolution drops — the
- * synthesised option ends up missing that value while a variant still
- * references it. Stock variant creation then rejects the product with
- * "Option value X does not exist for option Y" (MER-127).
- *
- * Unioning the variant-referenced names back into the options keeps the
- * product self-consistent so creation succeeds. Existing option titles
- * are augmented in place; a title referenced only by a variant is
- * appended (preserving first-seen order) so the same error can't slip
- * through a different way.
- */
-export const unionVariantOptionValues = (
-  options: ProductOptionInput[],
-  variants: Array<{ options?: Record<string, string> }>,
-): ProductOptionInput[] => {
-  const valuesByTitle = new Map<string, Set<string>>()
-  const order: string[] = []
-
-  const ensureTitle = (title: string) => {
-    if (!valuesByTitle.has(title)) {
-      valuesByTitle.set(title, new Set())
-      order.push(title)
-    }
-    return valuesByTitle.get(title)!
-  }
-
-  for (const option of options) {
-    const set = ensureTitle(option.title)
-    for (const value of option.values) set.add(value)
-  }
-
-  for (const variant of variants) {
-    const variantOptions = variant.options
-    if (!variantOptions) continue
-    for (const [title, value] of Object.entries(variantOptions)) {
-      if (value === undefined || value === null || value === "") continue
-      ensureTitle(title).add(value)
-    }
-  }
-
-  return order.map((title) => ({
-    title,
-    values: Array.from(valuesByTitle.get(title)!),
-  }))
-}
-
-/**
- * Marketplace wrapper over stock `createProductsWorkflow`.
- *
- * On top of stock it:
- *   1. Resolves `variant_attributes` / `product_attributes` (existing
- *      attribute lookups, value name ↔ id resolution) via
- *      `resolveAttributeRefsStep`.
- *   2. Synthesizes stock `options[]` from variant-axis attributes (both
- *      existing and inline) — UI doesn't have to emit a parallel
- *      `options` field.
- *   3. Renames `variants[].attribute_values` (the Mercur extension —
- *      `{Size: "S"}` name map) to `variants[].options` so stock variant
- *      generation works unchanged.
- *   4. Strips marketplace-only fields before delegating to stock.
- *   5. Pins every variant's `manage_inventory` to `false` (marketplace
- *      invariant — vendor variants never participate in inventory
- *      bookkeeping).
- *   6. Synthesizes a default option + variant for simple products so
- *      stock's variant validator does not throw.
- *   7. After stock returns, materialises inline-custom attributes via
- *      `createProductAttributesStep` + their values via
- *      `createProductAttributeValuesStep` (both scoped to the created
- *      product through the `product_id` FK).
- *   8. Writes `product_attribute_value_link` rows for every chosen
- *      value (existing + inline) using stock `createRemoteLinkStep`,
- *      so the edit form can pre-select them.
- *   9. Writes `product_seller` link rows for the requested seller_ids.
+ * Resolves the unified `attributes[]` into native product options (existing
+ * mirror options referenced by id + value subset; inline axes as exclusive
+ * options) and non-axis value links. Variants carry native `options` maps. A
+ * default option/variant is synthesised for simple products so stock's variant
+ * validator passes. After stock returns it materialises inline product-scoped
+ * attributes + free-form values and writes their links + the seller links.
  */
 export const createProductsWorkflow: ReturnWorkflow<
   CreateProductsWorkflowInput,
@@ -169,117 +93,38 @@ export const createProductsWorkflow: ReturnWorkflow<
       products: input.products,
     })
 
-    const resolved = resolveAttributeRefsStep({ groups: input.products })
-
-    // SPEC-014 unified `attributes[]` path: resolve existing refs to native
-    // option attachments + non-axis value links (no-op for products that still
-    // use the legacy `variant_attributes`/`product_attributes` fields).
     const preparedAttrs = prepareCreateAttributesStep({
       products: input.products,
     })
 
     const stockProducts = transform(
-      { input, resolved, preparedAttrs },
-      ({ input, resolved, preparedAttrs }) =>
+      { input, preparedAttrs },
+      ({ input, preparedAttrs }) =>
         input.products.map((p, idx) => {
           const {
             seller_ids: _s,
-            variant_attributes: _va,
-            product_attributes: _pa,
             attributes: _attrs,
             options: rawOptions,
             variants,
             ...rest
           } = p
 
-          // SPEC-014 new path: options come from the prepared mirror
-          // attachments; variants carry native `options` maps already.
-          if (p.attributes?.length) {
-            const prep = preparedAttrs[idx]
-            const newVariants = (variants ?? []).map((v) => {
-              const { attribute_values: _av, options: vopts, ...vrest } = v
-              return {
-                ...vrest,
-                manage_inventory: false,
-                ...(vopts ? { options: vopts } : {}),
-              }
-            })
-            if (!prep.options.length) {
-              const defaultOptionMap = {
-                [DEFAULT_OPTION_TITLE]: DEFAULT_OPTION_VALUE,
-              }
-              return {
-                ...rest,
-                options: [
-                  { title: DEFAULT_OPTION_TITLE, values: [DEFAULT_OPTION_VALUE] },
-                ],
-                variants: newVariants.length
-                  ? newVariants.map((v) => ({ ...v, options: defaultOptionMap }))
-                  : [
-                      {
-                        title: "Default variant",
-                        manage_inventory: false,
-                        options: defaultOptionMap,
-                      },
-                    ],
-              }
-            }
-            return {
-              ...rest,
-              options: prep.options,
-              ...(newVariants.length ? { variants: newVariants } : {}),
-            }
-          }
+          const prep = preparedAttrs[idx]
+          const options = prep.options.length
+            ? prep.options
+            : (rawOptions ?? [])
 
-          // Build synthetic options from variant-axis attribute refs.
-          // Refs without any chosen values cannot anchor a stock option —
-          // emitting them would create an axis the default variant has no
-          // value for ("Product options are not provided for: [X].").
-          const refs = resolved[idx]
-          const synthOptions: ProductOptionInput[] = [
-            ...refs.existing_variant
-              .filter((r) => r.value_names.length)
-              .map((r) => ({
-                title: r.attribute_name,
-                values: r.value_names,
-              })),
-            ...refs.inline_variant
-              .filter((r) => r.values.length)
-              .map((r) => ({
-                title: r.name,
-                values: r.values,
-              })),
-          ]
-          const options = synthOptions.length ? synthOptions : (rawOptions ?? [])
-
-          // Rename variants[].attribute_values → variants[].options if it
-          // came in as a name-map. Array-of-ids form is left alone (stock
-          // ignores it; the variant-attribute link layer is not in scope).
           const stockVariants = (variants ?? []).map((v) => {
-            const { attribute_values, options: vopts, ...vrest } = v
-            const mapped =
-              vopts ??
-              (attribute_values && !Array.isArray(attribute_values)
-                ? Object.fromEntries(
-                    Object.entries(attribute_values).map(([k, val]) => [
-                      k,
-                      Array.isArray(val) ? val[0] : val,
-                    ]),
-                  )
-                : undefined)
+            const { options: vopts, ...vrest } = v
             return {
               ...vrest,
               manage_inventory: false,
-              ...(mapped ? { options: mapped } : {}),
+              ...(vopts ? { options: vopts } : {}),
             }
           })
 
-          // No variant axes were derived from the wrapper inputs. Stock
-          // Medusa still requires every product to carry at least one
-          // option, so we synthesise a `Default option`. Any variants the
-          // caller sent (e.g. the dashboard's pre-filled default variant
-          // with a user-supplied SKU) are kept and pinned to that option;
-          // a fully empty payload gets a default variant too.
+          // Stock requires at least one option per product — synthesise a
+          // default option (+ default variant) when no axis was provided.
           if (!options.length) {
             const defaultOptionMap = {
               [DEFAULT_OPTION_TITLE]: DEFAULT_OPTION_VALUE,
@@ -303,7 +148,7 @@ export const createProductsWorkflow: ReturnWorkflow<
 
           return {
             ...rest,
-            options: unionVariantOptionValues(options, stockVariants),
+            options,
             ...(stockVariants.length ? { variants: stockVariants } : {}),
           }
         }),
@@ -316,22 +161,68 @@ export const createProductsWorkflow: ReturnWorkflow<
       },
     })
 
-    const inlinePlan = transform(
-      { resolved, createdProducts },
-      ({ resolved, createdProducts }) =>
-        buildInlinePlan(resolved, (idx) => createdProducts[idx]?.id as string | undefined),
-    )
-
-    const materialized = materializeProductAttributesWorkflow.runAsStep({
-      input: transform({ inlinePlan }, ({ inlinePlan }) => ({
-        plan: inlinePlan,
+    // Read back created product options (id + value ids) so inline axis
+    // attributes can mirror-link to their exclusive option.
+    const { data: productsWithOptions } = useQueryGraphStep({
+      entity: "product",
+      fields: [
+        "id",
+        "options.id",
+        "options.title",
+        "options.values.id",
+        "options.values.value",
+      ],
+      filters: transform({ createdProducts }, ({ createdProducts }) => ({
+        id: createdProducts.map((p) => p.id),
       })),
-    })
+    }).config({ name: "mercur-create-products-load-options" })
 
-    const createdInlineValues = transform(
-      { materialized },
-      ({ materialized }) => materialized.inline_values,
+    const materializeItems = transform(
+      { input, preparedAttrs, createdProducts, productsWithOptions },
+      ({ input, preparedAttrs, createdProducts, productsWithOptions }) => {
+        const optionsByProduct = new Map<
+          string,
+          MaterializeCreateAttributesItem["product_options"]
+        >()
+        for (const prod of productsWithOptions ?? []) {
+          optionsByProduct.set(
+            (prod as { id: string }).id,
+            ((prod as { options?: unknown[] }).options ?? []).map((o) => {
+              const opt = o as {
+                id: string
+                title: string
+                values?: Array<{ id: string; value: string }>
+              }
+              return {
+                id: opt.id,
+                title: opt.title,
+                values: (opt.values ?? []).map((v) => ({
+                  id: v.id,
+                  value: v.value,
+                })),
+              }
+            }),
+          )
+        }
+
+        const items: MaterializeCreateAttributesItem[] = []
+        input.products.forEach((p, idx) => {
+          const product_id = createdProducts[idx]?.id as string
+          if (!product_id) return
+          const prep = preparedAttrs[idx]
+          if (!prep.inline.length && !prep.free_form.length) return
+          items.push({
+            product_id,
+            product_options: optionsByProduct.get(product_id) ?? [],
+            inline: prep.inline,
+            free_form: prep.free_form,
+          })
+        })
+        return { items }
+      },
     )
+
+    const materialized = materializeCreateAttributesStep(materializeItems)
 
     const sellerProductLinks = transform(
       { input, createdProducts },
@@ -353,63 +244,12 @@ export const createProductsWorkflow: ReturnWorkflow<
       name: "mercur-create-products-associate-sellers",
     })
 
-    const attributeValueLinkDefs = transform(
-      { createdProducts, resolved, inlinePlan, createdInlineValues },
-      ({ createdProducts, resolved, inlinePlan, createdInlineValues }) => {
-        const defs: LinkDefinition[] = []
-
-        const pushLink = (
-          product_id: string,
-          product_attribute_value_id: string,
-        ) => {
-          defs.push({
-            [Modules.PRODUCT]: { product_id },
-            [MercurModules.PRODUCT_ATTRIBUTE]: {
-              product_attribute_value_id,
-            },
-          })
-        }
-
-        // Existing-attribute refs already carry resolved value ids.
-        createdProducts.forEach((p, idx) => {
-          const product_id = p.id as string
-          if (!product_id) return
-          const r = resolved[idx]
-          for (const ref of r.existing_variant)
-            for (const vid of ref.value_ids) pushLink(product_id, vid)
-          for (const ref of r.existing_product)
-            for (const vid of ref.value_ids) pushLink(product_id, vid)
-        })
-
-        // Inline values come back as a flat array; slice by the plan's
-        // declared value counts to pair them with the right product.
-        let valueCursor = 0
-        for (const entry of inlinePlan) {
-          const count = entry._value_names.length
-          const slice = createdInlineValues.slice(
-            valueCursor,
-            valueCursor + count,
-          )
-          valueCursor += count
-          for (const v of slice) pushLink(entry.product_id, v.id as string)
-        }
-
-        return defs
-      },
-    )
-
-    createRemoteLinkStep(attributeValueLinkDefs).config({
-      name: "mercur-create-products-attribute-value-links",
-    })
-
-    // SPEC-014 new path: link non-axis selected values (select / toggle) to the
-    // created product via `product_attribute_value_link`.
-    const newPathValueLinkDefs = transform(
+    // Non-axis existing-value links (select / toggle).
+    const valueLinkDefs = transform(
       { input, preparedAttrs, createdProducts },
       ({ input, preparedAttrs, createdProducts }) => {
         const defs: LinkDefinition[] = []
         input.products.forEach((p, idx) => {
-          if (!p.attributes?.length) return
           const product_id = createdProducts[idx]?.id as string
           if (!product_id) return
           for (const value_id of preparedAttrs[idx].non_axis_value_ids) {
@@ -425,16 +265,16 @@ export const createProductsWorkflow: ReturnWorkflow<
       },
     )
 
-    createRemoteLinkStep(newPathValueLinkDefs).config({
-      name: "mercur-create-products-new-attribute-value-links",
+    createRemoteLinkStep(valueLinkDefs).config({
+      name: "mercur-create-products-value-links",
     })
 
-    // Audit-trail ProductChange per created product. The change is
-    // born CONFIRMED via `recordProductAuditChangeWorkflow` —
-    // creation never lands in the approval queue (admin
-    // publish/reject/request-changes flows open their own audit
-    // changes). A `STATUS_CHANGE` action records the initial status
-    // so the history is self-describing.
+    // Inline/free-form links returned by the materialization step.
+    createRemoteLinkStep(
+      transform({ materialized }, ({ materialized }) => materialized.links),
+    ).config({ name: "mercur-create-products-materialized-links" })
+
+    // Audit-trail ProductChange per created product (born CONFIRMED).
     recordProductAuditChangeWorkflow.runAsStep({
       input: transform(
         { createdProducts, input },
