@@ -72,6 +72,7 @@ When the user asks to test a worktree (e.g. "test this worktree", "run this work
 - DO NOT COMMIT unless the user explicitly asks
 - Conventional Commits: `feat(scope):`, `fix(scope):`, `docs:`, `chore:`. Use `!` for breaking changes (e.g. `feat(auth)!:`)
 - PRs target `canary`
+- NEVER mention AI coding assistants (Claude, Claude Code, Codex, Copilot, Cursor, etc.) in commit messages, PR titles, or PR descriptions. No `Co-Authored-By: Claude` trailers, no "Generated with Claude Code" footers, no "🤖" markers. Commits and PRs must read as human-authored.
 
 ## Startup Workflow
 
