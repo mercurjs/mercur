@@ -475,6 +475,63 @@ medusaIntegrationTestRunner({
         expect(toggleGrouped.all_values).toEqual([])
         // axis still produces the native option.
         expect(await optionAttached(productId, "Required Attribute")).toBe(true)
+        // ...and no placeholder "Default option" was seeded — the axis option is
+        // the product's only option, so variant edits aren't inflated by a dead
+        // default (SPEC-014).
+        expect(await optionAttached(productId, "Default option")).toBe(false)
+      })
+
+      it("create: no Default option when product has an axis; seeded otherwise", async () => {
+        // Axis product (existing axis ref) → axis option is the only option.
+        const axis = await createAttr({
+          name: "Axis Attr",
+          type: "multi_select",
+          is_variant_axis: true,
+          values: ["A", "B"],
+        })
+        const axisRes = await api.post(
+          "/admin/products",
+          {
+            title: "Axis Create Product",
+            status: "published",
+            attributes: [{ id: axis.id, value_ids: [axis.byName.get("A")!] }],
+          },
+          adminHeaders,
+        )
+        expect([200, 201]).toContain(axisRes.status)
+        const axisProductId = axisRes.data.product.id
+        expect(await optionAttached(axisProductId, "Axis Attr")).toBe(true)
+        expect(await optionAttached(axisProductId, "Default option")).toBe(false)
+
+        // Inline axis → also no default option.
+        const inlineRes = await api.post(
+          "/admin/products",
+          {
+            title: "Inline Axis Create Product",
+            status: "published",
+            attributes: [
+              { title: "Size", values: ["S", "M"], is_variant_axis: true },
+            ],
+          },
+          adminHeaders,
+        )
+        expect([200, 201]).toContain(inlineRes.status)
+        const inlineProductId = inlineRes.data.product.id
+        expect(await optionAttached(inlineProductId, "Size")).toBe(true)
+        expect(await optionAttached(inlineProductId, "Default option")).toBe(
+          false,
+        )
+
+        // No axis (bare product) → the placeholder default option is still
+        // seeded so the product has at least one option.
+        const bareRes = await api.post(
+          "/admin/products",
+          { title: "Bare Create Product", status: "published" },
+          adminHeaders,
+        )
+        expect([200, 201]).toContain(bareRes.status)
+        const bareProductId = bareRes.data.product.id
+        expect(await optionAttached(bareProductId, "Default option")).toBe(true)
       })
 
       it("create: variants bind to axis options by value name", async () => {

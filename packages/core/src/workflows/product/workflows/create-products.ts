@@ -14,6 +14,7 @@ import {
   createProductsWorkflow as stockCreateProductsWorkflow,
   createProductVariantsWorkflow,
   emitEventStep,
+  removeProductOptionsFromProductStep,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import {
@@ -78,13 +79,25 @@ export const createProductsWorkflow: ReturnWorkflow<
       filters: { id: referencedAttrIds },
     }).config({ name: "mercur-create-products-axis-attrs" })
 
-    // Per-product: does it carry at least one variant axis? Stock create allows
-    // zero options, so an axis product needs NO placeholder — the axis options
-    // attached next become its options. A lingering "Default option" would
-    // otherwise inflate every variant's required option set and break later
-    // variant edits (SPEC-014). Only non-axis products get the placeholder so
-    // their variants (and the product) still have an option to bind to.
-    const createPlan = transform(
+    // Stock create hard-requires ≥1 option, so every product is seeded with a
+    // placeholder "Default option". For axis products that placeholder is
+    // dropped again below — once the real axis options are attached it is dead
+    // weight that would inflate every variant's required option set and break
+    // later variant edits (SPEC-014). Non-axis products keep it so their
+    // variants (and the product) still have an option to bind to.
+    const stockProducts = transform({ input }, ({ input }) =>
+      input.products.map((p) => {
+        const { attributes: _attributes, variants: _variants, ...rest } = p
+        return {
+          ...rest,
+          options: [{ title: "Default option", values: ["Default value"] }],
+        }
+      }),
+    )
+
+    // Per-product flag: does it carry at least one variant axis? (Inline axes
+    // are self-describing; existing refs are resolved via `referencedAttrs`.)
+    const hasAxisByIndex = transform(
       { input, referencedAttrs },
       ({ input, referencedAttrs }) => {
         const axisIds = new Set<string>(
@@ -100,33 +113,19 @@ export const createProductsWorkflow: ReturnWorkflow<
             .map((a) => a.id),
         )
 
-        const hasAxis = (attributes?: ProductAttributeBatchAdd[]) =>
-          (attributes ?? []).some((r) =>
+        return input.products.map((p) =>
+          (p.attributes ?? []).some((r) =>
             "id" in r
               ? axisIds.has(r.id)
               : (r as { is_variant_axis?: boolean }).is_variant_axis === true,
-          )
-
-        const hasAxisByIndex = input.products.map((p) => hasAxis(p.attributes))
-        const stockProducts = input.products.map((p, i) => {
-          const { attributes: _attributes, variants: _variants, ...rest } = p
-          return hasAxisByIndex[i]
-            ? { ...rest }
-            : {
-                ...rest,
-                options: [
-                  { title: "Default option", values: ["Default value"] },
-                ],
-              }
-        })
-
-        return { stockProducts, hasAxisByIndex }
+          ),
+        )
       },
     )
 
     const createdProducts = stockCreateProductsWorkflow.runAsStep({
       input: {
-        products: createPlan.stockProducts as ProductTypes.CreateProductDTO[],
+        products: stockProducts as ProductTypes.CreateProductDTO[],
         additional_data: input.additional_data,
       },
     })
@@ -152,11 +151,46 @@ export const createProductsWorkflow: ReturnWorkflow<
       }),
     )
 
+    // Drop the seeded "Default option" from axis products now that their real
+    // axis options are attached, BEFORE variants are created — so the default
+    // never has a variant bound to it and the product's only options are its
+    // axes. `createdProducts` carries the freshly-created option (the default is
+    // the only option at create time), so its id is read straight off the
+    // result without an extra query.
+    const defaultOptionRemovals = transform(
+      { hasAxisByIndex, createdProducts },
+      ({ hasAxisByIndex, createdProducts }) => {
+        const pairs: { product_id: string; product_option_id: string }[] = []
+        ;(
+          createdProducts as {
+            id: string
+            options?: { id: string; title: string }[]
+          }[]
+        ).forEach((p, i) => {
+          if (!hasAxisByIndex[i]) {
+            return
+          }
+          const def = (p.options ?? []).find(
+            (o) => o.title === "Default option",
+          )
+          if (def) {
+            pairs.push({ product_id: p.id, product_option_id: def.id })
+          }
+        })
+        return pairs
+      },
+    )
+
+    when(
+      { defaultOptionRemovals },
+      ({ defaultOptionRemovals }) => defaultOptionRemovals.length > 0,
+    ).then(() => removeProductOptionsFromProductStep(defaultOptionRemovals))
+
     // Now that options exist on each product, create the variants — their
     // `options` name-map binds to the freshly attached option values.
     const productVariants = transform(
-      { input, createdProducts, createPlan },
-      ({ input, createdProducts, createPlan }) =>
+      { input, createdProducts, hasAxisByIndex },
+      ({ input, createdProducts, hasAxisByIndex }) =>
         input.products.flatMap((p, idx) => {
           const product_id = createdProducts[idx]?.id as string
           const formOptions = (v: unknown) =>
@@ -167,7 +201,7 @@ export const createProductsWorkflow: ReturnWorkflow<
             // Axis products bind variants purely to their axis options. Non-axis
             // products carry the seeded "Default option", so each variant must
             // cover it.
-            options: createPlan.hasAxisByIndex[idx]
+            options: hasAxisByIndex[idx]
               ? formOptions(v)
               : { "Default option": "Default value", ...formOptions(v) },
           }))
