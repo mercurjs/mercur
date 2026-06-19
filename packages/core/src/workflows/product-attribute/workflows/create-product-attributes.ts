@@ -141,10 +141,10 @@ export const createProductAttributesWorkflow: ReturnWorkflow<
         input.attributes.forEach((attr, idx) => {
           for (const category_id of attr.category_ids ?? []) {
             links.push({
-              [Modules.PRODUCT]: { product_category_id: category_id },
               [MercurModules.PRODUCT_ATTRIBUTE]: {
                 product_attribute_id: attributes[idx].id,
               },
+              [Modules.PRODUCT]: { product_category_id: category_id },
             })
           }
         })

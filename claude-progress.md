@@ -15,6 +15,33 @@
 
 ## Session Log
 
+### Session 38: 2026-06-19 -- SPEC-014 happy-path attribute-linking test coverage
+
+**Scope.** Expanded the HTTP integration suites with down-to-earth full-matrix
+coverage: feed every attribute kind, assert 200/202, assert it links, assert the
+GET product endpoint surfaces the links. No error/validation hunting (per user).
+
+**Landed:**
+- `integration-tests/http/product/admin/product.spec.ts` (+5 passing, +1 skip):
+  full 6-form batch `add` in one call (shared axis `is_exclusive:false` vs inline
+  axis `is_exclusive:true` + scoped attr; single-select/text/inline-unit/toggle
+  value links); GET surfaces `product_attribute_values` (with parent `attribute`)
+  + `scoped_attributes`; inline scoped text value upsert; inline non-axis scoped
+  delete; GET of a product created via unified `attributes[]`.
+- `integration-tests/http/product/vendor/product.spec.ts` (+2 passing): same
+  full-matrix `add` over the staged surface (202 → auto-confirm → GET) and GET of
+  a vendor-created product with `attributes[]` + variant binding.
+- New `it.skip`s for HTTP-blocked engine paths (shared-axis subset edit, exclusive
+  option value mutation, shared-axis unlink, inline/exclusive-axis remove) — all on
+  the 2.16 `product.options` populate bug; engine-verified in `batch-engine.spec.ts`.
+
+**Verified:** `bun run test:integration:http -- http/product/admin/product.spec`
+→ 14 passed / 4 skipped; `…/vendor/product.spec` → 9 passed.
+
+**Found (owed):** vendor batch route still STAGES (202) — the spec's 2026-06-19
+"vendor = direct apply (200)" note is not in `…/vendor/products/[id]/attributes/batch/route.ts`.
+Tests assert the actual 202 behavior; route↔spec reconciliation is owed.
+
 ### Session 37: 2026-06-19 -- SPEC-014 §J.6 dashboard UI migration to `attributes[]` + batch endpoint
 
 **Scope.** Migrated the admin + vendor product/attribute UI off the removed legacy

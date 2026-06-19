@@ -5,7 +5,13 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
-type AttributeWithCategories = { id: string; categories?: { id: string }[] }
+type CategoryRef = { id?: string | null }
+type AttributeWithCategories = {
+  id: string
+  // The remote joiner may return a single object instead of an array when an
+  // attribute has exactly one category link, so accept both shapes.
+  categories?: CategoryRef | CategoryRef[] | null
+}
 
 /**
  * Replacement for `maybeApplyLinkFilter` on the product-attribute ↔
@@ -53,12 +59,19 @@ export const filterAttributesByCategoryLinkOrGlobal = async (
   const anyLinkedIds: string[] = []
 
   for (const attribute of attributes as AttributeWithCategories[]) {
-    const categoryLinks = attribute.categories ?? []
+    const raw = attribute.categories
+    const categoryLinks: CategoryRef[] = Array.isArray(raw)
+      ? raw
+      : raw
+        ? [raw]
+        : []
     if (categoryLinks.length === 0) {
       continue
     }
     anyLinkedIds.push(attribute.id)
-    if (categoryLinks.some((c) => c?.id != null && categoryIdSet.has(c.id))) {
+    if (
+      categoryLinks.some((c) => c?.id != null && categoryIdSet.has(c.id))
+    ) {
       linkedToCategoryIds.push(attribute.id)
     }
   }

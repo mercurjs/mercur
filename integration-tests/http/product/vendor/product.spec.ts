@@ -136,6 +136,19 @@ medusaIntegrationTestRunner({
         (await api.get(`/vendor/products/${productId}`, sellerHeaders)).data
           .product
 
+      const optionIsExclusive = async (title: string) => {
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data } = await query.graph({
+          entity: "product_option",
+          fields: ["title", "is_exclusive"],
+          filters: { title },
+        })
+        return data[0]?.is_exclusive
+      }
+
+      const scopedAttr = (product: any, name: string) =>
+        (product.scoped_attributes ?? []).find((a: any) => a.name === name)
+
       const listChanges = async (productId: string) => {
         const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
         const { data } = await query.graph({
@@ -390,6 +403,110 @@ medusaIntegrationTestRunner({
           filters: { product_id: productId },
         })
         expect(data.some((v: any) => v.title === "default variant")).toBe(true)
+      })
+
+      // --- SPEC-014 full attribute-kind matrix (happy path) over the staged
+      // vendor surface (202 → auto-confirm → GET shows the applied links) ---
+
+      it("add: full attribute matrix → 202 auto-confirm, every kind linked", async () => {
+        const multi = await createAttr({
+          name: "Multi Select",
+          type: "multi_select" as AttributeType,
+          is_variant_axis: true,
+          values: ["Value 1", "Value 2"],
+        })
+        const single = await createAttr({
+          name: "Single Select",
+          type: "single_select" as AttributeType,
+          values: ["Cotton", "Wool"],
+        })
+        const text = await createAttr({
+          name: "Free Text",
+          type: "text" as AttributeType,
+        })
+        const toggle = await createAttr({
+          name: "Flag",
+          type: "toggle" as AttributeType,
+        })
+        const productId = await createOwnedProduct()
+
+        const res = await batch(productId, {
+          add: [
+            { id: multi.id, value_ids: [multi.byName.get("Value 1")!] },
+            { id: single.id, value_ids: [single.byName.get("Cotton")!] },
+            { title: "Size", values: ["S", "M", "L", "XL"], is_variant_axis: true },
+            { id: text.id, value: "free text" },
+            { title: "Weight", type: "unit", value: "10kg", is_variant_axis: false },
+            { id: toggle.id, value: true },
+          ],
+        })
+        expect(res.status).toEqual(202)
+
+        // Applied inline by auto-confirm — re-read the product to assert links.
+        const product = await getProduct(productId)
+        expect(valueNames(product)).toEqual(
+          expect.arrayContaining(["10kg", "Cotton", "free text", "true"]),
+        )
+        // existing axis → shared option; inline axis → exclusive option + scoped.
+        expect(await optionAttached(productId, "Multi Select")).toBe(true)
+        expect(await optionIsExclusive("Multi Select")).toBe(false)
+        expect(await optionAttached(productId, "Size")).toBe(true)
+        expect(await optionIsExclusive("Size")).toBe(true)
+        expect(scopedAttr(product, "Size")).toBeTruthy()
+        expect(scopedAttr(product, "Weight")).toBeTruthy()
+      })
+
+      it("GET created product surfaces all linked attribute kinds", async () => {
+        const multi = await createAttr({
+          name: "Multi Select",
+          type: "multi_select" as AttributeType,
+          is_variant_axis: true,
+          values: ["Value 1", "Value 2"],
+        })
+        const single = await createAttr({
+          name: "Single Select",
+          type: "single_select" as AttributeType,
+          values: ["A", "B"],
+        })
+        const toggle = await createAttr({
+          name: "Flag",
+          type: "toggle" as AttributeType,
+        })
+
+        const created = await api.post(
+          "/vendor/products",
+          {
+            title: "Vendor Created Product",
+            status: "proposed",
+            attributes: [
+              { id: multi.id, value_ids: [multi.byName.get("Value 1")!] },
+              { id: single.id, value_ids: [single.byName.get("A")!] },
+              { title: "Size", values: ["S", "M"], is_variant_axis: true },
+              { title: "Weight", type: "unit", value: "10kg" },
+              { id: toggle.id, value: true },
+            ],
+            variants: [
+              {
+                title: "default variant",
+                options: { Size: "S", "Multi Select": "Value 1" },
+              },
+            ],
+          },
+          sellerHeaders,
+        )
+        expect([200, 201]).toContain(created.status)
+        const productId = created.data.product.id
+
+        const product = await getProduct(productId)
+        expect(valueNames(product)).toEqual(
+          expect.arrayContaining(["10kg", "A", "true"]),
+        )
+        const scopedNames = (product.scoped_attributes ?? []).map(
+          (a: any) => a.name,
+        )
+        expect(scopedNames).toEqual(expect.arrayContaining(["Size", "Weight"]))
+        expect(await optionAttached(productId, "Multi Select")).toBe(true)
+        expect(await optionAttached(productId, "Size")).toBe(true)
       })
     })
   },

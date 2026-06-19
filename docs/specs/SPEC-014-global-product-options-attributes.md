@@ -887,6 +887,40 @@ the removed legacy `variant_attributes` + `variants[].attribute_values` shape an
 now 400 against the `.strict()` validator — migrate those helpers to `attributes[]`
 + `variants[].options`. This is the §A "remaining test-sweep", not part of the UI work.
 
+### 2026-06-19 — happy-path attribute-linking coverage expanded
+
+Added down-to-earth, full-matrix linking cases to the HTTP suites (every
+attribute kind in one call → 200/202 → linked → GET surfaces it):
+
+- **Admin** (`integration-tests/http/product/admin/product.spec.ts`): full 6-form
+  batch `add` in one call asserting each kind links (shared axis option
+  `is_exclusive:false` vs inline axis `is_exclusive:true` + scoped attr; single-select
+  / text / inline-unit / toggle value links); GET surfaces `product_attribute_values`
+  (with parent `attribute`) + `scoped_attributes`; inline scoped **text value upsert**
+  via `update`; inline **non-axis** scoped delete via `remove`; and GET of a product
+  created with the unified `attributes[]` matrix.
+- **Vendor** (`…/vendor/product.spec.ts`): the same full-matrix `add` over the staged
+  surface (202 → auto-confirm → GET shows applied links) and GET of a vendor-created
+  product with `attributes[]` + variant binding.
+- **Newly skipped (HTTP-blocked, engine-verified in `batch-engine.spec.ts`):**
+  shared-axis value-subset add/remove, exclusive option value mutation, shared-axis
+  global unlink, and inline/exclusive-axis **remove** (deleting an option still
+  associated with the product throws "Cannot delete product options that are
+  associated with products"; detaching first needs the populate-broken
+  `removeProductOptionValuesOnProductStep`). All gated on the 2.16 `product.options`
+  populate bug (memory `product-options-populate-broken-216`).
+
+**Runtime-verified (2026-06-19):** `bun run test:integration:http -- http/product/admin/product.spec`
+**14 passed / 4 skipped**; `…/vendor/product.spec` **9 passed**. No new TypeScript
+errors in the added ranges (the `AttributeType` literal-vs-enum warnings are
+pre-existing in the original `createAttr` helpers).
+
+> **Spec/code mismatch noted:** the vendor batch route still **stages a
+> `ProductChange` (202)** via `productEditUpdateAttributesWorkflow` — the
+> 2026-06-19 "vendor = direct apply (200)" Evidence/Notes entries are NOT reflected
+> in `api/vendor/products/[id]/attributes/batch/route.ts`. These tests assert the
+> actual 202 + auto-confirm behavior. Reconciling route ↔ spec is owed.
+
 ## Notes / open questions
 
 - **Medusa preview upgrade — DONE (2026-06-18).** All workspace `@medusajs/*`

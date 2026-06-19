@@ -11,8 +11,11 @@ export const PRODUCT_VARIANT_IDS_KEY = "product_variant_ids"
  *     which is not a relation on `product`). The enricher reads
  *     `product_attribute_values.attribute(.values)` to build the unified
  *     `product.attributes[]` array (selected `values` + full `all_values`).
- *   - `options` — native variant-axis product options (incl. `is_exclusive`
- *     and their values) so axis attributes can be read off `product.options`.
+ *
+ * NOTE: native `options` is intentionally NOT requested — on the 2.16
+ * options-preview build the product → options populate crashes the remote
+ * joiner ("Cannot resolve alias path \"variants\"" / `expandDotPaths`). Axis
+ * options + `is_exclusive` must be read from the `product_option` side.
  */
 export const PRODUCT_DETAIL_FIELDS = [
   "*variants.images",
@@ -28,9 +31,6 @@ export const PRODUCT_DETAIL_FIELDS = [
   "+product_attribute_values.*",
   "+product_attribute_values.attribute.*",
   "+product_attribute_values.attribute.values.*",
-  "+options.*",
-  "+options.is_exclusive",
-  "+options.values.*",
 ].join(",")
 
 export const PRODUCT_DETAIL_QUERY = { fields: PRODUCT_DETAIL_FIELDS } as const
