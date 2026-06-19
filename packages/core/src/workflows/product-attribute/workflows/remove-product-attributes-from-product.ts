@@ -91,9 +91,9 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
 
         const linkedValues = (productQuery.data?.product_attribute_values ??
           []) as {
-          id: string
-          attribute?: { id: string }
-        }[]
+            id: string
+            attribute?: { id: string }
+          }[]
         const dismissLinks: LinkDefinition[] = linkedValues
           .filter((v) => v.attribute && nonAxisIds.has(v.attribute.id))
           .map((v) => ({

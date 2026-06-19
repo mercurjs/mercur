@@ -15,6 +15,39 @@
 
 ## Session Log
 
+### Session 37: 2026-06-19 -- SPEC-014 §J.6 dashboard UI migration to `attributes[]` + batch endpoint
+
+**Scope.** Migrated the admin + vendor product/attribute UI off the removed legacy
+contract onto the SPEC-014 surface (unified `attributes[]` create input + the single
+`POST /{admin,vendor}/products/:id/attributes/batch` endpoint).
+
+**Landed (symmetric admin + vendor):**
+- Hooks (`packages/{admin,vendor}/src/hooks/api/products.tsx`): one
+  `useBatchProductAttributes(productId)` typed with `ProductAttributeBatchInput`,
+  returning `{ product }`; kept a thin `useRemove*` wrapper (batch `remove`); deleted
+  the hooks that called removed routes (`useProductScopedAttributes`/
+  `useAddAttributeToProduct`/`useUpdateAttributeOnProduct` admin;
+  `useAddProductAttribute`/`useUpdateProductAttribute` vendor).
+- Create wizard (`…/product-create/utils.ts`): `normalizeFormAttributes` emits a single
+  `attributes: ProductAttributeBatchAdd[]` (existing refs by `id`+`value_ids`/`value`;
+  custom rows inline by `title`; toggle→boolean) replacing the three legacy buckets.
+- Detail-page flows: add-existing → `{ add }`; create-custom → inline `{ add }`; edit →
+  axis `update{add,remove}` diff / non-axis select `remove+add` / text·unit·toggle
+  `update{value}`; delete via the kept wrapper. Re-ran codegen.
+
+**Verified:** `bun run build` 9/9; oxlint clean on touched files;
+`http/product/{admin,vendor}/product.spec.ts` pass. UI is dashboard-only (not run by
+HTTP suites) so build + contract suites are the gate.
+
+**Owed (out of scope — backend test-sweep):** `http/product/store/product.spec.ts`
+(+ order/offer specs) build fixtures via `POST /vendor/products` with the removed
+legacy `variant_attributes`/`variants[].attribute_values` shape → 400 on the strict
+validator; migrate those helpers to `attributes[]`+`variants[].options`.
+
+**Note:** observed concurrent git activity on the branch during the session (a
+checkout/reset/commit `5a541489` not initiated here) that briefly reverted the working
+tree mid-session; the UI edits are intact and committed at branch HEAD.
+
 ### Session 36: 2026-06-18 -- SPEC-014 Global product options (Medusa preview upgrade + baseline)
 
 **Spec.** New canonical `docs/specs/SPEC-014-global-product-options-attributes.md`

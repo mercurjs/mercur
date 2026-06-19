@@ -843,6 +843,50 @@ scoped attr, inline non-axis), vendor direct-apply + ownership 404, GET enrichme
 and product **create** with the unified `attributes[]` input incl. variants binding
 to axis options by value name.
 
+### 2026-06-19 — §J.6 dashboard UI migrated to the unified `attributes[]` + batch endpoint
+
+Migrated the admin and vendor product/attribute UI off the removed legacy
+contract (per-attribute routes + `variant_attributes`/`product_attributes`/
+`attribute_values`) onto the SPEC-014 surface. Symmetric across both packages:
+
+- **Hooks** (`packages/{admin,vendor}/src/hooks/api/products.tsx`): collapsed the
+  attribute mutations onto one `useBatchProductAttributes(productId)` typed with
+  `ProductAttributeBatchInput` (`@mercurjs/types`), returning `{ product }`; kept
+  a thin `useRemove*` wrapper (batch `remove`). Deleted the dead hooks that called
+  the removed routes (`useProductScopedAttributes`/`useAddAttributeToProduct`/
+  `useUpdateAttributeOnProduct` on admin; `useAddProductAttribute`/
+  `useUpdateProductAttribute` on vendor).
+- **Create wizard** (`…/product-create/utils.ts`, both): `normalizeFormAttributes`
+  now emits a single `attributes: ProductAttributeBatchAdd[]` (existing refs by
+  `id` + `value_ids`/`value`; custom rows inline by `title`; toggle → boolean
+  scalar) instead of the three legacy buckets. Variant `options` name-map untouched.
+- **Detail-page flows** (both): add-existing → `{ add }`; create-custom → inline
+  `{ add: [{ title, type, values | value, is_variant_axis }] }`; edit → axis
+  `update{add,remove}` value-id diff, non-axis select `remove+add`, text/unit/toggle
+  `update{value}`; delete unchanged (uses the kept wrapper). The edit form reads
+  `is_variant_axis` off the enriched `product.attributes` entry to branch.
+- Re-ran `@mercurjs/cli codegen`; `attributes.batch` is the sole attribute accessor.
+
+**Runtime-verified (2026-06-19):** `bun run build` **9/9 green**; oxlint clean on
+all touched files; `integration-tests/http/product/{admin,vendor}/product.spec.ts`
+**pass** (the create + batch contract the UI now targets). UI mutation/display
+logic is dashboard-only (not exercised by HTTP suites), so build + the
+contract suites are the gate.
+
+**Fix — dashboard product GET 400 (`attribute_values` alias):** the admin/vendor
+`PRODUCT_DETAIL_FIELDS` constants (`packages/admin/src/pages/products/constants.ts`,
+`packages/vendor/src/pages/products/common/constants.ts`) still requested the pre-migration
+`*attribute_values` / `+attribute_values.*` relation, which 400s on 2.16
+("Product does not have property 'attribute_values'"). Renamed to the real pivot alias
+`product_attribute_values` (+ `.attribute(.values)` and `scoped_attributes.values`),
+matching the server query-configs and the `enrichProductAttributes` reader. `bun run build` 9/9.
+
+**Owed (out of scope, backend test-sweep):** `http/product/store/product.spec.ts`
+(and the order/offer specs) still build fixtures via `POST /vendor/products` with
+the removed legacy `variant_attributes` + `variants[].attribute_values` shape and
+now 400 against the `.strict()` validator — migrate those helpers to `attributes[]`
++ `variants[].options`. This is the §A "remaining test-sweep", not part of the UI work.
+
 ## Notes / open questions
 
 - **Medusa preview upgrade — DONE (2026-06-18).** All workspace `@medusajs/*`

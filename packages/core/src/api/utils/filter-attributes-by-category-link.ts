@@ -5,14 +5,17 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
+type AttributeWithCategories = { id: string; categories?: { id: string }[] }
+
 /**
- * Replacement for `maybeApplyLinkFilter` on the
- * `category_owning_attribute` link. When a category filter is present,
- * the default helper restricts the result to attribute IDs linked to
- * that category, which silently drops "global" attributes (those that
- * have no category link at all). Marketplace operators and vendors
- * expect a category-scoped attribute list to also surface global
- * attributes, so this middleware composes:
+ * Replacement for `maybeApplyLinkFilter` on the product-attribute ↔
+ * category link (`product-attribute-category-link`, surfaced on the
+ * attribute as the `categories` relation). When a category filter is
+ * present, the default helper restricts the result to attribute IDs
+ * linked to that category, which silently drops "global" attributes
+ * (those that have no category link at all). Marketplace operators and
+ * vendors expect a category-scoped attribute list to also surface
+ * global attributes, so this middleware composes:
  *
  *   id IN (attribute IDs linked to the requested category)
  *   OR
@@ -40,22 +43,25 @@ export const filterAttributesByCategoryLinkOrGlobal = async (
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: linkedToCategory } = await query.graph({
-    entity: "category_owning_attribute",
-    fields: ["product_attribute_id"],
-    filters: { product_category_id: categoryIds },
+  const { data: attributes } = await query.graph({
+    entity: "product_attribute",
+    fields: ["id", "categories.id"],
   })
-  const linkedToCategoryIds = Array.from(
-    new Set(linkedToCategory.map((l: any) => l.product_attribute_id))
-  )
 
-  const { data: anyLinked } = await query.graph({
-    entity: "category_owning_attribute",
-    fields: ["product_attribute_id"],
-  })
-  const anyLinkedIds = Array.from(
-    new Set(anyLinked.map((l: any) => l.product_attribute_id))
-  )
+  const categoryIdSet = new Set(categoryIds)
+  const linkedToCategoryIds: string[] = []
+  const anyLinkedIds: string[] = []
+
+  for (const attribute of attributes as AttributeWithCategories[]) {
+    const categoryLinks = attribute.categories ?? []
+    if (categoryLinks.length === 0) {
+      continue
+    }
+    anyLinkedIds.push(attribute.id)
+    if (categoryLinks.some((c) => c?.id != null && categoryIdSet.has(c.id))) {
+      linkedToCategoryIds.push(attribute.id)
+    }
+  }
 
   const orClause = [
     { id: linkedToCategoryIds },

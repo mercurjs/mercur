@@ -107,8 +107,6 @@ export const adminProductVariantFields = [
   "manage_inventory",
   "allow_backorder",
   "*options",
-  "*attribute_values",
-  "*attribute_values.attribute",
 ]
 
 export const adminProductVariantQueryConfig = {
