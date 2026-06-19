@@ -66,6 +66,7 @@ export interface ProductAttributeValueDTO {
   rank: number
   is_active: boolean
   metadata: Record<string, unknown> | null
+  product_option_value_id: string | null
   attribute?: ProductAttributeDTO
   attribute_id?: string
   variants?: ProductVariantDTO[]
@@ -95,6 +96,7 @@ export interface ProductAttributeDTO {
    * still populates the column until step 5 retires it.
    */
   product_id?: string | null
+  product_option_id: string | null
   metadata: Record<string, unknown> | null
   values?: ProductAttributeValueDTO[]
   /**

@@ -13,6 +13,7 @@ export interface CreateProductAttributeValueDTO {
   name: string
   rank?: number
   is_active?: boolean
+  product_option_value_id?: string | null
   metadata?: Record<string, unknown> | null
 }
 
@@ -21,6 +22,7 @@ export interface UpdateProductAttributeValueDTO {
   name?: string
   rank?: number
   is_active?: boolean
+  product_option_value_id?: string | null
   metadata?: Record<string, unknown> | null
 }
 
@@ -43,6 +45,7 @@ export interface CreateProductAttributeDTO {
   is_active?: boolean
   created_by?: string | null
   product_id?: string | null
+  product_option_id?: string | null
   metadata?: Record<string, unknown> | null
   values?: CreateProductAttributeValueDTO[]
 }
@@ -57,6 +60,7 @@ export interface UpdateProductAttributeDTO {
   is_variant_axis?: boolean
   rank?: number
   is_active?: boolean
+  product_option_id?: string | null
   metadata?: Record<string, unknown> | null
 }
 

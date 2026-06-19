@@ -1,5 +1,9 @@
 import { Modules } from "@medusajs/framework/utils"
-import { AdditionalData, LinkDefinition } from "@medusajs/framework/types"
+import {
+  AdditionalData,
+  LinkDefinition,
+  ProductTypes,
+} from "@medusajs/framework/types"
 import {
   createHook,
   createWorkflow,
@@ -9,11 +13,14 @@ import {
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import {
+  createProductOptionsStep,
   createRemoteLinkStep,
   emitEventStep,
 } from "@medusajs/medusa/core-flows"
 import {
+  AttributeType,
   CreateProductAttributeDTO,
+  CreateProductAttributeValueDTO,
   MercurModules,
   ProductAttributeDTO,
 } from "@mercurjs/types"
@@ -22,6 +29,7 @@ import {
 import { ProductAttributeWorkflowEvents } from "../events"
 import {
   createProductAttributesStep,
+  createProductAttributeValuesStep,
 } from "../steps"
 
 export type CreateProductAttributesWorkflowInput = {
@@ -53,16 +61,78 @@ export const createProductAttributesWorkflow: ReturnWorkflow<
   function (input: CreateProductAttributesWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    const attributesToCreate = transform({ input }, ({ input }) =>
-      input.attributes.map((attr) => {
-        const { category_ids: _category_ids, values: _values, ...rest } = attr
-        return rest
-      }),
+    // Variant-axis multi-select attributes mirror a native, shared (global)
+    // ProductOption. Create those options first so the attribute rows can
+    // store the resulting `product_option_id` inline.
+    const optionsPlan = transform({ input }, ({ input }) => {
+      const optionsToCreate: ProductTypes.CreateProductOptionDTO[] = []
+      const attrIdxToOptionIdx: Record<number, number> = {}
+      input.attributes.forEach((attr, idx) => {
+        if (attr.type === AttributeType.MULTI_SELECT && attr.is_variant_axis) {
+          attrIdxToOptionIdx[idx] = optionsToCreate.length
+          optionsToCreate.push({
+            title: attr.name,
+            is_exclusive: false,
+            values: (attr.values ?? []).map((v) => v.name),
+          })
+        }
+      })
+      return { optionsToCreate, attrIdxToOptionIdx }
+    })
+
+    const sharedOptions = createProductOptionsStep(optionsPlan.optionsToCreate)
+
+    const attributesToCreate = transform(
+      { input, optionsPlan, sharedOptions },
+      ({ input, optionsPlan, sharedOptions }) =>
+        input.attributes.map((attr, idx) => {
+          const { category_ids: _category_ids, values: _values, ...rest } = attr
+          const optionIdx = optionsPlan.attrIdxToOptionIdx[idx]
+          if (optionIdx === undefined) {
+            return rest
+          }
+          return { ...rest, product_option_id: sharedOptions[optionIdx].id }
+        }),
     )
 
     const attributes = createProductAttributesStep(attributesToCreate)
 
-    // todo: values
+    // Create the attribute values. For variant-axis multi-select attributes the
+    // shared option was created above with the same value names, so mirror each
+    // value onto its `product_option_value_id` (same logic as the standalone
+    // create-product-attribute-values workflow).
+    const valueInputs = transform(
+      { input, attributes, optionsPlan, sharedOptions },
+      ({ input, attributes, optionsPlan, sharedOptions }) => {
+        const valuesToCreate: (CreateProductAttributeValueDTO & {
+          attribute_id: string
+        })[] = []
+
+        input.attributes.forEach((attr, idx) => {
+          const optionIdx = optionsPlan.attrIdxToOptionIdx[idx]
+          const idByValue = new Map<string, string>(
+            optionIdx === undefined
+              ? []
+              : (sharedOptions[optionIdx].values ?? []).map((ov) => [
+                  ov.value,
+                  ov.id,
+                ]),
+          )
+
+          for (const value of attr.values ?? []) {
+            valuesToCreate.push({
+              ...value,
+              attribute_id: attributes[idx].id,
+              product_option_value_id: idByValue.get(value.name) ?? null,
+            })
+          }
+        })
+
+        return valuesToCreate
+      },
+    )
+
+    createProductAttributeValuesStep(valueInputs)
 
     const categoryLinks = transform(
       { input, attributes },

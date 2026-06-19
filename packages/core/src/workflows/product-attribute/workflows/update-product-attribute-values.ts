@@ -3,14 +3,18 @@ import {
   createHook,
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import {
   emitEventStep,
+  updateProductOptionsStep,
+  useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import {
+  AttributeType,
   ProductAttributeValueDTO,
   UpdateProductAttributeValueDTO,
 } from "@mercurjs/types"
@@ -58,7 +62,58 @@ export const updateProductAttributeValuesWorkflow: ReturnWorkflow<
       update: input.update,
     })
 
-    // todo
+    // Re-read the owning attribute(s) so we can re-sync the mirrored shared
+    // ProductOption's value set after a rename. Only variant-axis multi-select
+    // attributes mirror an option.
+    const attributeFilter = transform({ values }, ({ values }) => ({
+      ids: Array.from(new Set(values.map((v) => v.attribute_id))),
+    }))
+
+    const attributeQuery = useQueryGraphStep({
+      entity: "product_attribute",
+      filters: { id: attributeFilter.ids },
+      fields: [
+        "id",
+        "type",
+        "is_variant_axis",
+        "product_option_id",
+        "values.name",
+      ],
+    })
+
+    const optionValuesSync = transform(
+      { attributeQuery },
+      ({ attributeQuery }) => {
+        const attributes = attributeQuery.data ?? []
+        const mirrored = attributes.filter(
+          (a: {
+            type: AttributeType
+            is_variant_axis: boolean
+            product_option_id: string | null
+          }) =>
+            a.type === AttributeType.MULTI_SELECT &&
+            !!a.is_variant_axis &&
+            !!a.product_option_id,
+        )
+        // The update applies one set of changes; sync only when a single
+        // mirrored option is involved.
+        const target = mirrored.length === 1 ? mirrored[0] : undefined
+        return {
+          should: !!target,
+          stepInput: {
+            selector: { id: target?.product_option_id ?? "" },
+            update: {
+              values: (target?.values ?? []).map(
+                (v: { name: string }) => v.name,
+              ),
+            },
+          },
+        }
+      },
+    )
+
+    when({ optionValuesSync }, ({ optionValuesSync }) => optionValuesSync.should)
+      .then(() => updateProductOptionsStep(optionValuesSync.stepInput))
 
     emitEventStep({
       eventName: ProductAttributeValueWorkflowEvents.UPDATED,

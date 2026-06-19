@@ -3,12 +3,14 @@ import {
   createHook,
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import {
   emitEventStep,
+  updateProductOptionsStep,
 } from "@medusajs/medusa/core-flows"
 import {
   ProductAttributeDTO,
@@ -52,6 +54,28 @@ export const updateProductAttributesWorkflow: ReturnWorkflow<
       selector: input.selector,
       update: input.update,
     })
+
+    // A variant-axis multi-select attribute mirrors a shared ProductOption.
+    // Renaming the attribute propagates to the option's title. (The attribute
+    // `type` is immutable after creation, so the mirror relationship is fixed.)
+    const optionTitleSync = transform(
+      { input, attributes },
+      ({ input, attributes }) => {
+        const optionIds = attributes
+          .filter((a) => !!a.product_option_id)
+          .map((a) => a.product_option_id as string)
+        return {
+          should: input.update.name !== undefined && optionIds.length > 0,
+          stepInput: {
+            selector: { id: optionIds },
+            update: { title: input.update.name },
+          },
+        }
+      },
+    )
+
+    when({ optionTitleSync }, ({ optionTitleSync }) => optionTitleSync.should)
+      .then(() => updateProductOptionsStep(optionTitleSync.stepInput))
 
     emitEventStep({
       eventName: ProductAttributeWorkflowEvents.UPDATED,

@@ -3,11 +3,16 @@ import {
   createHook,
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import {
+  deleteProductOptionsStep,
+  emitEventStep,
+  useQueryGraphStep,
+} from "@medusajs/medusa/core-flows"
 
 import { ProductAttributeWorkflowEvents } from "../events"
 import { deleteProductAttributesStep } from "../steps"
@@ -40,7 +45,29 @@ export const deleteProductAttributesWorkflow: ReturnWorkflow<
   function (input: DeleteProductAttributesWorkflowInput) {
     const validate = createHook("validate", { input })
 
+    // Capture the mirrored shared (global) ProductOption ids before deleting
+    // the attributes. Variant-axis multi-select attributes own a native option
+    // (via `product_option_id`) that must be torn down alongside the attribute.
+    const attributesQuery = useQueryGraphStep({
+      entity: "product_attribute",
+      filters: { id: input.ids },
+      fields: ["id", "product_option_id"],
+    })
+
     deleteProductAttributesStep(input.ids)
+
+    const optionIdsToDelete = transform(
+      { attributesQuery },
+      ({ attributesQuery }) =>
+        (attributesQuery.data ?? [])
+          .map((a: { product_option_id: string | null }) => a.product_option_id)
+          .filter((id: string | null): id is string => !!id),
+    )
+
+    when(
+      { optionIdsToDelete },
+      ({ optionIdsToDelete }) => optionIdsToDelete.length > 0,
+    ).then(() => deleteProductOptionsStep(optionIdsToDelete))
 
     emitEventStep({
       eventName: ProductAttributeWorkflowEvents.DELETED,
