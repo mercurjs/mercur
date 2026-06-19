@@ -30,13 +30,7 @@ export type DeleteProductAttributesWorkflowHooks = [
 
 export const deleteProductAttributesWorkflowId = "delete-product-attributes"
 
-/**
- * Soft-deletes attributes. Link rows in `product_attribute_value_link`,
- * `product_variant_attribute`, etc. are intentionally NOT dismissed here
- * — they reference values, not the attribute itself, and Mercur's
- * read-side query filters out soft-deleted attributes via
- * `deleted_at IS NULL` on the attribute join.
- */
+
 export const deleteProductAttributesWorkflow: ReturnWorkflow<
   DeleteProductAttributesWorkflowInput,
   void,

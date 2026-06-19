@@ -3,19 +3,21 @@ import ProductModule from "@medusajs/medusa/product"
 
 import ProductAttributeModule from "../modules/product-attribute"
 
+/**
+ * Product ↔ ProductAttributeValue pivot link.
+ */
 export default defineLink(
   {
-    linkable: ProductModule.linkable.product,
+    linkable: ProductModule.linkable.product.id,
     isList: true,
   },
   {
-    linkable: ProductAttributeModule.linkable.productAttribute,
-    field: "variant_attribute",
+    linkable: ProductAttributeModule.linkable.productAttributeValue.id,
     isList: true,
   },
   {
     database: {
-      table: "product_variant_attribute",
+      table: "product_attribute_value_link",
     },
   }
 )

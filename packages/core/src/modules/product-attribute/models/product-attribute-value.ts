@@ -10,6 +10,7 @@ const ProductAttributeValue = model
     rank: model.number().default(0),
     is_active: model.boolean().default(true),
     metadata: model.json().nullable(),
+    product_option_value_id: model.text().nullable(),
 
     attribute: model.belongsTo(() => ProductAttribute, {
       mappedBy: "values",

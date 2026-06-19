@@ -8,7 +8,6 @@ import {
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import {
-  createRemoteLinkStep,
   emitEventStep,
 } from "@medusajs/medusa/core-flows"
 import {
@@ -18,7 +17,6 @@ import {
 
 import { ProductAttributeValueWorkflowEvents } from "../events"
 import {
-  syncAttributeValueMirrorsStep,
   updateProductAttributeValuesStep,
 } from "../steps"
 
@@ -60,15 +58,7 @@ export const updateProductAttributeValuesWorkflow: ReturnWorkflow<
       update: input.update,
     })
 
-    // SPEC-014 §F: propagate value renames to the mirror option value.
-    const valueMirror = syncAttributeValueMirrorsStep(
-      transform({ values }, ({ values }) => ({
-        value_ids: values.map((v) => v.id),
-      })),
-    )
-    createRemoteLinkStep(
-      transform({ valueMirror }, ({ valueMirror }) => valueMirror.links),
-    ).config({ name: "pa-update-value-mirror-links" })
+    // todo
 
     emitEventStep({
       eventName: ProductAttributeValueWorkflowEvents.UPDATED,

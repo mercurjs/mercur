@@ -8,8 +8,6 @@ import {
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import {
-  createRemoteLinkStep,
-  dismissRemoteLinkStep,
   emitEventStep,
 } from "@medusajs/medusa/core-flows"
 import {
@@ -19,7 +17,6 @@ import {
 
 import { ProductAttributeWorkflowEvents } from "../events"
 import {
-  reconcileAxisAttributeMirrorStep,
   updateProductAttributesStep,
 } from "../steps"
 
@@ -55,20 +52,6 @@ export const updateProductAttributesWorkflow: ReturnWorkflow<
       selector: input.selector,
       update: input.update,
     })
-
-    // SPEC-014 §F: reconcile the option mirror (axis flip-on / title rename).
-    const axisMirror = reconcileAxisAttributeMirrorStep(
-      transform({ attributes }, ({ attributes }) => ({
-        attribute_ids: attributes.map((a) => a.id),
-      })),
-    )
-    createRemoteLinkStep(
-      transform({ axisMirror }, ({ axisMirror }) => axisMirror.links),
-    ).config({ name: "pa-update-axis-option-mirror-links" })
-
-    dismissRemoteLinkStep(
-      transform({ axisMirror }, ({ axisMirror }) => axisMirror.dismiss_links),
-    ).config({ name: "pa-update-axis-option-mirror-dismiss" })
 
     emitEventStep({
       eventName: ProductAttributeWorkflowEvents.UPDATED,
