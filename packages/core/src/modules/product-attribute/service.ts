@@ -5,6 +5,7 @@ import {
   MedusaService,
   toHandle,
 } from "@medusajs/framework/utils"
+import { AttributeType } from "@mercurjs/types"
 
 import { joinerConfig } from "./joiner-config"
 import { ProductAttribute, ProductAttributeValue } from "./models"
@@ -36,6 +37,21 @@ class ProductAttributeModuleService extends MedusaService({
 
     // @ts-ignore
     const result = await super.createProductAttributes(input, sharedContext)
+
+    // Toggle attributes are boolean: seed them with `true` / `false` values so
+    // callers never have to create the two options manually.
+    const created = Array.isArray(result) ? result : [result]
+    const toggleValues = created
+      .filter((attribute) => attribute.type === AttributeType.TOGGLE)
+      .flatMap((attribute) => [
+        { attribute_id: attribute.id, name: "true", rank: 0 },
+        { attribute_id: attribute.id, name: "false", rank: 1 },
+      ])
+
+    if (toggleValues.length) {
+      await this.createProductAttributeValues(toggleValues, sharedContext)
+    }
+
     return (Array.isArray(data) ? result : result[0]) as any
   }
 

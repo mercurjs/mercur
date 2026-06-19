@@ -10,8 +10,7 @@ import {
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
-import { deleteProductsWorkflow } from "@medusajs/medusa/core-flows"
-import { updateProductsWorkflow } from "../../../../workflows/product/workflows/update-products"
+import { deleteProductsWorkflow, updateProductsWorkflow } from "@medusajs/medusa/core-flows"
 import {
   enrichProductAttributes,
   wrapProductVariantsWithOffers,
@@ -76,7 +75,7 @@ export const POST = async (
       selector: { id: req.params.id },
       update: update as Record<string, unknown>,
       additional_data,
-    } as any,
+    },
   })
 
   const {
