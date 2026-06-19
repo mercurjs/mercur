@@ -5,42 +5,19 @@ import {
   transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import { AdditionalData, ProductTypes } from "@medusajs/framework/types"
+import { AdditionalData, ProductTypes, UpdateProductDTO } from "@medusajs/framework/types"
 import {
   emitEventStep,
   updateProductsWorkflow as stockUpdateProductsWorkflow,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import { UpdateProductDTO } from "@mercurjs/types"
 
 import { associateSellersWithProductStep } from "../steps"
 
-type ProductOptionInput = { title: string; values: string[] }
-
-/**
- * SPEC-014: the update wrapper does NOT handle attributes — attribute edits go
- * exclusively through the batch engine
- * (`createAndLinkProductAttributesToProductWorkflow`). This wrapper only updates
- * core product fields + variants and re-associates sellers; variant
- * `manage_inventory` is pinned to `false` (marketplace invariant).
- */
-export type UpdateProductWorkflowUpdate = Omit<
-  UpdateProductDTO,
-  "variant_attributes" | "product_attributes" | "variants"
-> & {
-  seller_ids?: string[]
-  options?: ProductOptionInput[]
-  variants?: Array<
-    Record<string, unknown> & {
-      options?: Record<string, string>
-      manage_inventory?: boolean
-    }
-  >
-}
 
 export type UpdateProductsWorkflowInput = {
   selector: Record<string, unknown>
-  update: UpdateProductWorkflowUpdate
+  update: UpdateProductDTO
 } & AdditionalData
 
 export const updateProductsWorkflowId = "mercur-update-products"
