@@ -80,65 +80,56 @@ medusaIntegrationTestRunner({
 
         await applyProductAttributeChangeActionsWorkflow(appContainer).run({
           input: {
-            add_actions: [
-              {
-                product_id: productId,
-                attribute_id: color.id,
-                attribute_value_ids: [color.byName.get("Red")!],
-              },
-              {
-                product_id: productId,
-                attribute_id: material.id,
-                attribute_value_ids: [material.byName.get("Cotton")!],
-              },
+            product_id: productId,
+            add: [
+              { id: color.id, value_ids: [color.byName.get("Red")!] },
+              { id: material.id, value_ids: [material.byName.get("Cotton")!] },
             ],
-            remove_actions: [],
+            remove: [],
+            update: [],
           },
         })
 
-        let { data } = await query.graph({
-          entity: "product",
-          fields: [
-            "id",
-            "options.title",
-            "options.values.value",
-            "attribute_values.name",
-          ],
-          filters: { id: productId },
-        })
-        let product = data[0]
-        const colorOption = (product.options ?? []).find(
-          (o: { title: string }) => o.title === "Color",
-        )
-        expect(colorOption).toBeTruthy()
-        expect(
-          (colorOption.values ?? []).map((v: { value: string }) => v.value),
-        ).toContain("Red")
-        expect(
-          (product.attribute_values ?? []).map((v: { name: string }) => v.name),
-        ).toContain("Cotton")
+        // Axis attachment is read from the ProductOption side (the
+        // `product.options` populate is broken on the 2.16 preview build).
+        const optionAttached = async (title: string) => {
+          const { data } = await query.graph({
+            entity: "product_option",
+            fields: ["id", "title", "products.id"],
+            filters: { title },
+          })
+          return (data ?? []).some(
+            (o: { title: string; products?: { id: string }[] }) =>
+              o.title === title &&
+              (o.products ?? []).some((p) => p.id === productId),
+          )
+        }
+        const valueNames = async () => {
+          const { data } = await query.graph({
+            entity: "product",
+            fields: ["id", "product_attribute_values.name"],
+            filters: { id: productId },
+          })
+          return ((data[0].product_attribute_values ?? []) as {
+            name: string
+          }[]).map((v) => v.name)
+        }
+
+        // axis mirror option attached, non-axis value linked
+        expect(await optionAttached("Color")).toBe(true)
+        expect(await valueNames()).toContain("Cotton")
 
         // remove the axis attribute -> mirror option detached
         await applyProductAttributeChangeActionsWorkflow(appContainer).run({
           input: {
-            add_actions: [],
-            remove_actions: [
-              { product_id: productId, attribute_id: color.id },
-            ],
+            product_id: productId,
+            add: [],
+            remove: [color.id],
+            update: [],
           },
         })
 
-        ;({ data } = await query.graph({
-          entity: "product",
-          fields: ["id", "options.title"],
-          filters: { id: productId },
-        }))
-        product = data[0]
-        expect(
-          (product.options ?? []).find(
-            (o: { title: string }) => o.title === "Color",
-          ),
-        ).toBeFalsy()
+        expect(await optionAttached("Color")).toBe(false)
       })
     })
   },

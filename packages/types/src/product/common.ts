@@ -47,6 +47,7 @@ export enum ProductChangeActionType {
   VARIANT_REMOVE = "VARIANT_REMOVE",
   ATTRIBUTE_ADD = "ATTRIBUTE_ADD",
   ATTRIBUTE_REMOVE = "ATTRIBUTE_REMOVE",
+  ATTRIBUTE_UPDATE = "ATTRIBUTE_UPDATE",
   PRODUCT_DELETE = "PRODUCT_DELETE",
   /**
    * Operator asked the vendor to revise a submission. Auto-applied

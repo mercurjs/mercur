@@ -3,16 +3,22 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HttpTypes, ProductAttributeBatchInput } from "@mercurjs/types"
+import { ProductAttributeBatchInput, ProductChangeDTO } from "@mercurjs/types"
 
-import { createAndLinkProductAttributesToProductWorkflow } from "../../../../../../workflows/product-attribute"
-import { productAttributeBatchResponseFields } from "../../../../../utils"
+import { productEditUpdateAttributesWorkflow } from "../../../../../../workflows/product-edit/workflows/product-edit-update-attributes"
 import { ensureSellerOwnsProduct } from "../../../helpers"
 
-
+/**
+ * Stages the attribute batch (`add` / `remove` / `update`) as
+ * `ATTRIBUTE_*` actions on a fresh `ProductChange` via
+ * `productEditUpdateAttributesWorkflow`, mirroring the variant staging
+ * route. Auto-confirm applies the batch inline when the
+ * `PRODUCT_REQUEST` feature flag is disabled; otherwise the change is
+ * left PENDING for admin approval. Returns `202 { product_change }`.
+ */
 export const POST = async (
   req: AuthenticatedMedusaRequest<ProductAttributeBatchInput>,
-  res: MedusaResponse<HttpTypes.AdminProductResponse>,
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>,
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
@@ -20,20 +26,19 @@ export const POST = async (
 
   await ensureSellerOwnsProduct(req.scope, sellerId, productId)
 
-  const { add, remove, update } =
-    req.validatedBody
+  const { add, remove, update } = req.validatedBody
 
-  await createAndLinkProductAttributesToProductWorkflow(req.scope).run({
-    input: { product_id: productId, add, remove, update },
+  const { result } = await productEditUpdateAttributesWorkflow(req.scope).run({
+    input: { product_id: productId, created_by: sellerId, add, remove, update },
   })
 
   const {
-    data: [product],
+    data: [product_change],
   } = await query.graph({
-    entity: "product",
-    fields: productAttributeBatchResponseFields,
-    filters: { id: productId },
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
   })
 
-  res.status(200).json({ product })
+  res.status(202).json({ product_change: product_change ?? result })
 }

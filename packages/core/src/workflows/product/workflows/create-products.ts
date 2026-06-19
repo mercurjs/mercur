@@ -51,11 +51,15 @@ export const createProductsWorkflow: ReturnWorkflow<
     // Axis attributes become native options that the engine attaches AFTER the
     // product exists, and variants bind to those options by name. So create the
     // products bare (no attributes, no variants), attach attributes, then create
-    // the variants.
+    // the variants. Stock product create requires at least one option, so seed a
+    // default one — axis attributes add the real options afterwards.
     const stockProducts = transform({ input }, ({ input }) =>
       input.products.map((p) => {
         const { attributes: _attributes, variants: _variants, ...rest } = p
-        return rest
+        return {
+          ...rest,
+          options: [{ title: "Default option", values: ["Default value"] }],
+        }
       }),
     )
 
@@ -94,7 +98,16 @@ export const createProductsWorkflow: ReturnWorkflow<
       ({ input, createdProducts }) =>
         input.products.flatMap((p, idx) => {
           const product_id = createdProducts[idx]?.id as string
-          return (p.variants ?? []).map((v) => ({ ...v, product_id }))
+          return (p.variants ?? []).map((v) => ({
+            ...v,
+            product_id,
+            // Every product carries the seeded default option, so each variant
+            // must cover it alongside the axis-attribute option values.
+            options: {
+              "Default option": "Default value",
+              ...((v as { options?: Record<string, string> }).options ?? {}),
+            },
+          }))
         }),
     )
 

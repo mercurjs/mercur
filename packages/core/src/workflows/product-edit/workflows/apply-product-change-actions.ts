@@ -13,7 +13,11 @@ import {
   updateProductVariantsWorkflow,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import { ProductChangeActionType } from "@mercurjs/types"
+import {
+  ProductAttributeBatchAdd,
+  ProductAttributeBatchUpdate,
+  ProductChangeActionType,
+} from "@mercurjs/types"
 
 import {
   applyVariantImageLinksStep,
@@ -32,12 +36,19 @@ type BucketedActions = {
   variantUpdates: Array<Record<string, unknown> & { id: string }>
   variantImageLinks: VariantImageLinks[]
   variantDeletes: string[]
-  attributeAdds: Array<{
+  /**
+   * A single reconstructed `ProductAttributeBatchInput` for the change's
+   * product, folded from the `ATTRIBUTE_*` actions. A `ProductChange` is
+   * per-product and `confirmProductChangeWorkflow` runs per-change, so all
+   * attribute actions in one apply share the same `product_id`. `null` when the
+   * change carries no attribute actions.
+   */
+  attributeBatch: {
     product_id: string
-    attribute_id: string
-    attribute_value_ids: string[]
-  }>
-  attributeRemoves: Array<{ product_id: string; attribute_id: string }>
+    add: ProductAttributeBatchAdd[]
+    remove: string[]
+    update: ProductAttributeBatchUpdate[]
+  } | null
   productsToDelete: string[]
   pendingActionIds: string[]
 }
@@ -62,19 +73,21 @@ export const applyProductChangeActionsWorkflowId =
  *   2. Variant deletes — frees up SKU / title uniqueness before adds.
  *   3. Variant creates.
  *   4. Variant updates — see a stable variant set.
- *   5. Attribute add/remove + option sync — delegated to
- *      `applyProductAttributeChangeActionsWorkflow`. Removes run
- *      before adds inside that workflow so a single change can re-link
- *      the same attribute with a different value set.
+ *   5. Attribute add/remove/update — folded into a single per-product
+ *      `ProductAttributeBatchInput` and delegated to
+ *      `applyProductAttributeChangeActionsWorkflow`, which re-runs the
+ *      SPEC-014 batch engine (apply order remove → add → update) so a
+ *      single change can re-link the same attribute with a different
+ *      value set.
  *   6. Product deletes — last so any audit-trail updates above write
  *      through before the row is soft-deleted.
  *   7. Mark action rows applied.
  *
- * `ATTRIBUTE_ADD` actions are expected to carry pre-resolved
- * `attribute_value_ids` in their `details` JSON. The find-or-create
- * branch lives upstream — workflows that stage an `ATTRIBUTE_ADD` call
- * `upsertProductAttributeValuesWorkflow` first to resolve names into
- * IDs before persisting the action.
+ * `ATTRIBUTE_*` actions carry the raw batch op verbatim in their
+ * `details` JSON (`{ attribute }` / `{ attribute_id }` / `{ update }`),
+ * staged by `productEditUpdateAttributesWorkflow`. The batch engine
+ * resolves inline-create / find-or-create at confirm time, so no
+ * upstream value-id resolution is required.
  */
 export const applyProductChangeActionsWorkflow: ReturnWorkflow<
   ApplyProductChangeActionsWorkflowInput,
@@ -103,8 +116,16 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
       const variantUpdates: Array<Record<string, unknown> & { id: string }> = []
       const variantImageLinks: VariantImageLinks[] = []
       const variantDeletes: string[] = []
-      const attributeAdds: BucketedActions["attributeAdds"] = []
-      const attributeRemoves: BucketedActions["attributeRemoves"] = []
+      let attributeBatch: BucketedActions["attributeBatch"] = null
+      const ensureAttributeBatch = (productId: string) => {
+        attributeBatch ??= {
+          product_id: productId,
+          add: [],
+          remove: [],
+          update: [],
+        }
+        return attributeBatch
+      }
       const productsToDelete = new Set<string>()
       const pendingActionIds: string[] = []
 
@@ -177,26 +198,26 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
             break
           }
           case ProductChangeActionType.ATTRIBUTE_ADD: {
-            const { attribute_id, attribute_value_ids } = details as {
-              attribute_id?: string
-              attribute_value_ids?: string[]
-            }
-            if (!attribute_id || !attribute_value_ids?.length) break
-            attributeAdds.push({
-              product_id: productId,
-              attribute_id,
-              attribute_value_ids,
-            })
+            const attribute = (
+              details as { attribute?: ProductAttributeBatchAdd }
+            ).attribute
+            if (!attribute) break
+            ensureAttributeBatch(productId).add.push(attribute)
             break
           }
           case ProductChangeActionType.ATTRIBUTE_REMOVE: {
             const attributeId = (details as { attribute_id?: string })
               .attribute_id
             if (!attributeId) break
-            attributeRemoves.push({
-              product_id: productId,
-              attribute_id: attributeId,
-            })
+            ensureAttributeBatch(productId).remove.push(attributeId)
+            break
+          }
+          case ProductChangeActionType.ATTRIBUTE_UPDATE: {
+            const update = (
+              details as { update?: ProductAttributeBatchUpdate }
+            ).update
+            if (!update) break
+            ensureAttributeBatch(productId).update.push(update)
             break
           }
           case ProductChangeActionType.PRODUCT_DELETE: {
@@ -214,8 +235,7 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         variantUpdates,
         variantImageLinks,
         variantDeletes,
-        attributeAdds,
-        attributeRemoves,
+        attributeBatch,
         productsToDelete: Array.from(productsToDelete),
         pendingActionIds,
       }
@@ -278,8 +298,10 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
 
     applyProductAttributeChangeActionsWorkflow.runAsStep({
       input: transform({ buckets }, ({ buckets }) => ({
-        add_actions: buckets.attributeAdds,
-        remove_actions: buckets.attributeRemoves,
+        product_id: buckets.attributeBatch?.product_id ?? "",
+        add: buckets.attributeBatch?.add ?? [],
+        remove: buckets.attributeBatch?.remove ?? [],
+        update: buckets.attributeBatch?.update ?? [],
       })),
     })
 

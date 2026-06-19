@@ -3,7 +3,11 @@ import {
   InferClientInput,
   InferClientOutput,
 } from "@mercurjs/client";
-import { ProductChangeDTO } from "@mercurjs/types";
+import {
+  HttpTypes,
+  ProductAttributeBatchInput,
+  ProductChangeDTO,
+} from "@mercurjs/types";
 import {
   InfiniteData,
   QueryKey,
@@ -440,106 +444,27 @@ export const useDeleteVariantLazy = (
   });
 };
 
-// --- Product attribute mutations (all stage a ProductChange) ---
+// --- Product attribute mutations (SPEC-014: the batch endpoint is the single
+//     attribute-mutation surface and applies directly — admin and vendor are
+//     symmetric; the seller owns the product so edits take effect immediately) ---
+
+/** The batch body minus `product_id` (sourced from the path). */
+export type ProductAttributeBatchPayload = Omit<
+  ProductAttributeBatchInput,
+  "product_id"
+>;
 
 /**
- * Stages an `ATTRIBUTE_ADD` action via `productEditAddAttributeWorkflow`.
- * Body must reference an existing attribute by id; `attribute_value_ids`
- * picks pre-existing values, `values` upserts by name.
- */
-export const useAddProductAttribute = (
-  productId: string,
-  options?: UseMutationOptions<
-    ProductChangeResponse,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.vendor.products.$id.attributes.mutate>,
-      "$id"
-    >
-  >
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.products.$id.attributes.mutate({
-        $id: productId,
-        ...payload,
-      }) as Promise<ProductChangeResponse>,
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: productChangeQueryKeys.detail(productId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: productAttributesQueryKeys.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      });
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-/**
- * Stages `ATTRIBUTE_REMOVE + ATTRIBUTE_ADD` for the same attribute on
- * one product-change so the value set replaces atomically. Used by the
- * single-attribute edit drawer.
- */
-export const useUpdateProductAttribute = (
-  productId: string,
-  attributeId: string,
-  options?: UseMutationOptions<
-    ProductChangeResponse,
-    ClientError,
-    Omit<
-      InferClientInput<typeof sdk.vendor.products.$id.attributes.$attributeId.mutate>,
-      "$id" | "$attributeId"
-    >
-  >
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.products.$id.attributes.$attributeId.mutate({
-        $id: productId,
-        $attributeId: attributeId,
-        ...payload,
-      }) as Promise<ProductChangeResponse>,
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: productChangeQueryKeys.detail(productId),
-      });
-      queryClient.invalidateQueries({
-        queryKey: productAttributesQueryKeys.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      });
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-/**
- * Stages a batch of `ATTRIBUTE_ADD` / `ATTRIBUTE_REMOVE` operations
- * via `productEditUpdateAttributesWorkflow`. Mirrors admin's
- * `useBatchProductAttributes` so the "add multiple attributes" wizard
- * stages one `ProductChange` for the whole batch instead of looping
- * per-attribute and producing N change records.
+ * Applies `add` / `remove` / `update` against
+ * `POST /vendor/products/:id/attributes/batch` (order remove → add → update on
+ * the server). Returns the refreshed `{ product }`.
  */
 export const useBatchProductAttributes = (
   productId: string,
   options?: UseMutationOptions<
-    ProductChangeResponse,
+    HttpTypes.VendorProductResponse,
     ClientError,
-    {
-      create?: {
-        attribute_id: string
-        attribute_value_ids?: string[]
-        values?: string[]
-      }[]
-      delete?: string[]
-    }
+    ProductAttributeBatchPayload
   >
 ) => {
   return useMutation({
@@ -547,11 +472,8 @@ export const useBatchProductAttributes = (
       sdk.vendor.products.$id.attributes.batch.mutate({
         $id: productId,
         ...payload,
-      }) as Promise<ProductChangeResponse>,
+      }) as Promise<HttpTypes.VendorProductResponse>,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: productChangeQueryKeys.detail(productId),
-      });
       queryClient.invalidateQueries({
         queryKey: productAttributesQueryKeys.lists(),
       });
@@ -565,24 +487,24 @@ export const useBatchProductAttributes = (
 };
 
 /**
- * Stages an `ATTRIBUTE_REMOVE` action via
- * `productEditRemoveAttributeWorkflow`.
+ * Convenience wrapper to detach a single attribute (batch `remove`).
  */
 export const useRemoveProductAttribute = (
   productId: string,
   attributeId: string,
-  options?: UseMutationOptions<ProductChangeResponse, ClientError, void>
+  options?: UseMutationOptions<
+    HttpTypes.VendorProductResponse,
+    ClientError,
+    void
+  >
 ) => {
   return useMutation({
     mutationFn: () =>
-      sdk.vendor.products.$id.attributes.$attributeId.delete({
+      sdk.vendor.products.$id.attributes.batch.mutate({
         $id: productId,
-        $attributeId: attributeId,
-      }) as Promise<ProductChangeResponse>,
+        remove: [attributeId],
+      }) as Promise<HttpTypes.VendorProductResponse>,
     onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: productChangeQueryKeys.detail(productId),
-      });
       queryClient.invalidateQueries({
         queryKey: productAttributesQueryKeys.lists(),
       });

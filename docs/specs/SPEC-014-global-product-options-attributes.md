@@ -4,7 +4,7 @@ canonical: true
 priority: 1
 area: products/attributes
 created: 2026-06-18
-last_updated: 2026-06-18
+last_updated: 2026-06-19
 ---
 
 # SPEC-014 Attributes on Native Global Product Options
@@ -451,11 +451,16 @@ axis attribute already has a graph-readable mirror by the time C runs.
 
 ### G. New `createAndLinkProductAttributesToProductWorkflow` (batch engine)
 
+> **Implemented 2026-06-19 as a thin orchestrator over three sub-workflows**
+> (`add`/`remove`/`update`ProductAttributes…ToProduct), `when().then(runAsStep)`,
+> order **remove → add → update** — see the 2026-06-19 Evidence entry. Input is the
+> typed `ProductAttributeBatchInput` DTO (`@mercurjs/types`).
+
 `packages/core/src/workflows/product-attribute/workflows/create-and-link-product-attributes.ts`.
 Input `{ product_id, add?, remove?, update? }`; order **remove → add → update**.
 Built from the SAME blocks (graph read + pure helpers + stock option/link steps
-+ catalog value steps) — it is the single post-create / approval-confirm apply
-engine. Per-branch behavior:
++ catalog value steps) — it is the single post-create / apply engine. Per-branch
+behavior:
 - **remove**: axis global → dismiss product↔option; axis inline/exclusive →
   `deleteProductOptionsWorkflow` + `deleteProductAttributesWorkflow`; non-axis →
   dismiss value links (+ delete scoped attr).
@@ -469,10 +474,12 @@ engine. Per-branch behavior:
 ### H. Routes, validators, approval queue, codegen
 
 - Delete `[attribute_id]` route (+ admin twin) + middleware entries.
-- `.../attributes/batch` (vendor + admin) → the batch engine. Admin direct
-  (200, `{ product }`); vendor stages a `ProductChange` (202) — rewrite
-  `product-edit-update-attributes` to emit add/remove/update actions and
-  `apply-product-attribute-change-actions` to call the batch engine on confirm.
+- `.../attributes/batch` (vendor + admin) → the batch engine. **Both apply
+  directly (200, `{ product }`)** as of 2026-06-19 — the earlier "vendor stages a
+  `ProductChange` (202)" plan is superseded (see 2026-06-19 Evidence). The
+  approval-queue path (`product-edit-update-attributes` /
+  `apply-product-attribute-change-actions`) is dormant/stubbed; reworking it onto
+  the engine for a real vendor approval queue is owed.
 - Validators: unified `attributes[]` on create/update;
   `is_variant_axis ⇒ multi_select` refine; batch `add/remove/update` schema.
 - `mercurjs codegen` to regenerate the typed route map.
@@ -745,6 +752,97 @@ through the batch engine (`createAndLinkProductAttributesToProductWorkflow`,
 The "§E update wrapper" section of the plan is superseded: there is no §E; its
 behaviour is folded into §G.
 
+### 2026-06-19 — §G batch engine rebuilt (split sub-workflows) + full add/remove/update
+
+The batch engine was a hook-only stub at HEAD (the §G work above was reverted by
+the intervening "delete legacy attribute web" refactor). Rebuilt it as a thin
+orchestrator over **three reusable sub-workflows**, structurally mirroring
+Medusa's `setProductProductOptionsWorkflow` (normalize → `when().then(runAsStep)`,
+order **remove → add → update**):
+
+- `add-product-attributes-to-product.ts` (`addProductAttributesToProductWorkflow`)
+- `remove-product-attributes-from-product.ts` (`removeProductAttributesFromProductWorkflow`)
+- `update-product-attributes-on-product.ts` (`updateProductAttributesOnProductWorkflow`)
+- `create-and-link-product-attributes.ts` (`createAndLinkProductAttributesToProductWorkflow`) — orchestrator.
+
+Each sub-workflow does its own graph read + pure transforms + aggregated batched
+steps (the no-loop constraint: same-shaped ops collapse into a single step call,
+each `when`-guarded). Coverage per branch:
+- **add**: existing axis → `addProductOptionsToProductStep` (subset = mapped
+  `value_ids`); non-axis select → `createRemoteLinkStep` value links; text/unit →
+  `createProductAttributeValuesStep` then link; toggle → link the seeded
+  `true`/`false` value; inline axis → `createProductOptionsStep(is_exclusive:true)`
+  + scoped attr + value mirror; inline non-axis → scoped attr + values + links.
+- **remove**: shared axis → `removeProductOptionsFromProductStep`; exclusive/scoped
+  → `deleteProductAttributesWorkflow` (cascades values + exclusive option);
+  non-axis → `dismissRemoteLinkStep` value links.
+- **update**: shared axis → `updateProductOptionValuesOnProductStep`; exclusive
+  axis (single target) → catalog value create/delete workflows; text/unit →
+  create-new + swap link; toggle → swap `true`↔`false` link.
+
+**Typed DTOs (mirror Medusa's option-input convention):** `ProductAttributeBatchAdd`,
+`ProductAttributeBatchUpdate`, `ProductAttributeBatchInput` in
+`packages/types/src/product/mutations.ts` — the single source of truth for the
+workflow input and the admin/vendor batch validators.
+
+### 2026-06-19 — §H vendor batch is now DIRECT APPLY (not staged)
+
+Decision (framework author, 2026-06-19): **the vendor batch endpoint applies
+directly via the engine (HTTP 200), exactly like admin** — the seller owns the
+product, so edits take effect immediately. `…/vendor/products/[id]/attributes/batch`
+now calls `createAndLinkProductAttributesToProductWorkflow` and returns
+`{ product }`; `VendorBatchProductAttributes` was widened to mirror the admin
+validator (inline `title` add + `update[]` with `{ value }`). This supersedes the
+2026-06-18 "vendor stages a ProductChange (202)" decision. The approval-queue path
+(`productEditUpdateAttributesWorkflow` / `applyProductAttributeChangeActionsWorkflow`)
+is left **compiling-but-dormant** (stubbed, with TODOs) — no attribute edits route
+through it. Reworking it onto the engine for a genuine vendor approval queue is
+owed future work.
+
+### 2026-06-19 — create wrapper: `attributes[]`-only, default-option seeding
+
+- **`CreateProductDTO` no longer accepts native `options`** — it is
+  `Omit<UpstreamCreateProductDTO, "options"> & { attributes?: ProductAttributeBatchAdd[] }`.
+  Options come exclusively from axis attributes.
+- **`createProductsWorkflow` (`mercur-create-products`) seeds a default option.**
+  Stock product create requires ≥1 option, but axis options are attached after the
+  product exists, so the wrapper injects a `"Default option"` at stock-create time
+  and injects its value into every variant's `options` name-map. Callers create
+  with just `{ title, status, attributes?, variants? }`; `variants[].options` is the
+  native name-map (attribute title → value name) and binds to the axis options the
+  engine attaches before variant creation.
+
+### 2026-06-19 — missing migration + GET enrichment + response-shape fixes
+
+- **Missing migration added** (`Migration20260601000002`): the mirror FK columns
+  `product_attribute.product_option_id` and
+  `product_attribute_value.product_option_value_id` were declared on the models but
+  never migrated — a fresh DB lacked them (caught by the new HTTP tests).
+- **GET enrichment wired:** `enrichProductAttributes(scope, products)` (in
+  `api/utils/format-product-attributes.ts`) groups the link graph into
+  `product.attributes`; re-created the export the GET/POST product routes import.
+- **Alias correction:** the Product↔ProductAttributeValue pivot link surfaces on
+  the product as **`product_attribute_values`** (NOT `attribute_values`). Fixed in
+  the enrichment util, the admin/vendor product query-configs, and the batch
+  sub-workflows' product reads. (Using `attribute_values` throws
+  "Entity 'Product' does not have property 'attribute_values'".)
+- **`product.options` populate is broken on the 2.16 options-preview build**
+  (MikroORM `expandDotPaths` "Cannot read properties of undefined (reading 'kind')"),
+  so the product query-configs OMIT `options(.values)` / `variants.options`; axis
+  options must be read from the `product_option` side. This same bug breaks Medusa's
+  own `remove/updateProductOptionValuesOnProductStep` internally (they read
+  `product.options.values` for compensation), so **shared-axis value-subset update
+  and axis unlink are verified at the engine level but blocked over HTTP read-back**
+  until the populate bug is resolved.
+
+**Runtime-verified (2026-06-19):** `bun run build` **9/9**; new HTTP suites
+`integration-tests/http/product/{admin,vendor}/product.spec.ts` **13/13 green** —
+batch add/remove/update across every attribute form (existing axis subset attach,
+single-select / text / unit / toggle value links, inline axis → exclusive option +
+scoped attr, inline non-axis), vendor direct-apply + ownership 404, GET enrichment,
+and product **create** with the unified `attributes[]` input incl. variants binding
+to axis options by value name.
+
 ## Notes / open questions
 
 - **Medusa preview upgrade — DONE (2026-06-18).** All workspace `@medusajs/*`
@@ -771,3 +869,20 @@ behaviour is folded into §G.
 - This is a breaking API change (`attributes[]` replaces
   `variant_attributes[]`/`product_attributes[]`; `[attribute_id]` route
   removed). Storefront/clients and generated SDK route map regenerate.
+- **Vendor batch is DIRECT APPLY (2026-06-19), not staged.** The earlier
+  "vendor stages a ProductChange (202)" notes are superseded — both admin and
+  vendor apply through the engine and return `{ product }` (200). The approval
+  queue is dormant/stubbed; reworking it onto the engine is owed.
+- **OPEN — `product.options` populate broken on 2.16 options-preview**
+  (MikroORM 6.6.12 `expandDotPaths` crash). Blocks: product GET returning native
+  `options`; reading the per-product axis value subset back over HTTP; Medusa's
+  `remove/updateProductOptionValuesOnProductStep` (compensation reads
+  `options.values`) → shared-axis subset update + axis unlink are engine-verified
+  but not HTTP-read-verifiable. Workaround in place: query-configs omit `options`;
+  read axis options from the `product_option` side. Likely a MikroORM/preview
+  version-pin fix. See memory `product-options-populate-broken-216`.
+- **OPEN — cross-module 2-hop `product_attribute_values.attribute.values`**
+  resolves empty (remote-joiner chained-populate limit), so the enriched
+  `all_values` (parent attribute's full value set) is unavailable in the product
+  response; "selected" values still resolve. Store query-config remains single-hop
+  for the same reason.

@@ -9,7 +9,7 @@ import { AttributeValueInput } from "../../../../../components/inputs/attribute-
 import { Form } from "../../../../../components/common/form";
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals";
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
-import { useUpdateAttributeOnProduct } from "../../../../../hooks/api/products";
+import { useBatchProductAttributes } from "../../../../../hooks/api/products";
 
 type AttributeValue = { id: string; name: string };
 
@@ -23,6 +23,7 @@ type EditAttributeFormProps = {
     id: string;
     name: string;
     type: AttributeType | string;
+    is_variant_axis?: boolean;
     values?: AttributeValue[];
     all_values?: AttributeValue[];
   };
@@ -61,23 +62,48 @@ export const EditAttributeForm = ({
     resolver: zodResolver(schema),
   });
 
-  const { mutateAsync, isPending } = useUpdateAttributeOnProduct(
-    productId,
-    attribute.id,
-  );
+  const { mutateAsync, isPending } = useBatchProductAttributes(productId);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const vals = Array.isArray(data.values)
       ? data.values
       : [data.values].filter((s) => s.trim().length > 0);
 
-    const payload = hasPresetValues
-      ? {
-          attribute_value_ids: (attribute.all_values ?? [])
-            .filter((v) => vals.includes(v.name))
-            .map((v) => v.id),
-        }
-      : { values: vals };
+    let payload: Parameters<typeof mutateAsync>[0];
+
+    if (hasPresetValues) {
+      // Map the chosen value names to ids over the attribute's full value set.
+      const selectedIds = (attribute.all_values ?? [])
+        .filter((v) => vals.includes(v.name))
+        .map((v) => v.id);
+
+      if (attribute.is_variant_axis) {
+        // Shared axis: adjust the per-product value subset (add/remove diff).
+        const currentIds = (attribute.values ?? []).map((v) => v.id);
+        const add = selectedIds.filter((id) => !currentIds.includes(id));
+        const remove = currentIds.filter((id) => !selectedIds.includes(id));
+        payload = { update: [{ id: attribute.id, add, remove }] };
+      } else {
+        // Non-axis select: replace the value links (remove → add in one call).
+        payload = {
+          remove: [attribute.id],
+          add: [{ id: attribute.id, value_ids: selectedIds }],
+        };
+      }
+    } else {
+      // Text / unit / toggle: a single free-form scalar.
+      payload = {
+        update: [
+          {
+            id: attribute.id,
+            value:
+              attribute.type === AttributeType.TOGGLE
+                ? vals[0] === "true"
+                : vals[0],
+          },
+        ],
+      };
+    }
 
     await mutateAsync(payload, {
       onSuccess: () => handleSuccess(),

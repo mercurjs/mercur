@@ -55,10 +55,8 @@ export const stageProductChangeWorkflowId = "stage-product-change"
  *
  * **Validation ordering** — callers must run
  * `validateNoPendingProductChangeStep` themselves BEFORE invoking
- * this workflow. Some callers (e.g. `productEditUpdateAttributesWorkflow`)
- * materialise product-scoped attribute records between validation and
- * staging, so validation cannot be bundled here without risking
- * orphan attribute rows on a failed pending check.
+ * this workflow, so the pending-change guard fails fast (and before any
+ * caller-side side effects) rather than after a change row is created.
  */
 export const stageProductChangeWorkflow = createWorkflow(
   stageProductChangeWorkflowId,

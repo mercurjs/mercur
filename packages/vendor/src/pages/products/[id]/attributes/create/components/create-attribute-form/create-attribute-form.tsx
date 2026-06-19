@@ -17,7 +17,8 @@ import { ChipInput } from "@components/inputs/chip-input"
 import { Form } from "@components/common/form"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
-import { useAddProductAttribute } from "@hooks/api/products"
+import { AttributeType } from "@mercurjs/types"
+import { useBatchProductAttributes } from "@hooks/api/products"
 
 const normalizeValues = (raw: string | string[]): string[] =>
   (Array.isArray(raw)
@@ -77,15 +78,21 @@ export const CreateAttributeForm = ({
   const useForVariants = form.watch("use_for_variants")
 
   const { mutateAsync: createAttribute, isPending } =
-    useAddProductAttribute(productId)
+    useBatchProductAttributes(productId)
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await createAttribute(
       {
-        name: data.title,
-        type: data.use_for_variants ? "multi_select" : "text",
-        is_variant_axis: data.use_for_variants,
-        values: normalizeValues(data.values),
+        add: [
+          {
+            title: data.title,
+            type: data.use_for_variants
+              ? AttributeType.MULTI_SELECT
+              : AttributeType.TEXT,
+            is_variant_axis: data.use_for_variants,
+            values: normalizeValues(data.values),
+          },
+        ],
       },
       {
         onSuccess: () => {

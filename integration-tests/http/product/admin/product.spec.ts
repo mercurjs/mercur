@@ -77,16 +77,7 @@ medusaIntegrationTestRunner({
       const createProduct = async () => {
         const { result } = await createProductsWorkflow(appContainer).run({
           input: {
-            products: [
-              {
-                title: "Batch Product",
-                status: "published",
-                options: [{ title: "Default", values: ["Default"] }],
-                variants: [
-                  { title: "Default", options: { Default: "Default" } },
-                ],
-              },
-            ],
+            products: [{ title: "Batch Product", status: "published" }],
           },
         })
         return (result as { id: string }[])[0].id
@@ -291,6 +282,110 @@ medusaIntegrationTestRunner({
         // selected value is grouped under its parent attribute.
         expect(grouped.values.map((v: any) => v.name)).toEqual(["Cotton"])
         expect(grouped.type).toBe("single_select")
+      })
+
+      // --- POST /admin/products with the unified attributes[] input ---
+
+      it("create: product with every attribute form", async () => {
+        const multi = await createAttr({
+          name: "Multi Select",
+          type: "multi_select",
+          is_variant_axis: true,
+          values: ["Value 1", "Value 2"],
+        })
+        const single = await createAttr({
+          name: "Single Select",
+          type: "single_select",
+          values: ["A", "B"],
+        })
+        const text = await createAttr({ name: "Free Text", type: "text" })
+        const toggle = await createAttr({ name: "Flag", type: "toggle" })
+
+        const res = await api.post(
+          "/admin/products",
+          {
+            title: "Created Product",
+            status: "published",
+            attributes: [
+              { id: multi.id, value_ids: [multi.byName.get("Value 1")!] },
+              { id: single.id, value_ids: [single.byName.get("A")!] },
+              { title: "Size", values: ["S", "M", "L", "XL"], is_variant_axis: true },
+              { id: text.id, value: "free text" },
+              { title: "Weight", type: "unit", value: "10kg", is_variant_axis: false },
+              { id: toggle.id, value: true },
+            ],
+          },
+          adminHeaders,
+        )
+
+        expect([200, 201]).toContain(res.status)
+        const productId = res.data.product.id
+
+        // non-axis selections (single-select, text, inline unit, toggle) →
+        // value links.
+        expect(valueNames(res.data.product)).toEqual(
+          expect.arrayContaining(["10kg", "A", "free text", "true"]),
+        )
+        // inline attributes → product-scoped.
+        const scopedNames = (res.data.product.scoped_attributes ?? []).map(
+          (a: any) => a.name,
+        )
+        expect(scopedNames).toEqual(expect.arrayContaining(["Size", "Weight"]))
+        // axis attributes (existing + inline) → native options attached.
+        expect(await optionAttached(productId, "Multi Select")).toBe(true)
+        expect(await optionAttached(productId, "Size")).toBe(true)
+      })
+
+      it("create: variants bind to axis options by value name", async () => {
+        const multi = await createAttr({
+          name: "Multi Select",
+          type: "multi_select",
+          is_variant_axis: true,
+          values: ["Value 1", "Value 2"],
+        })
+
+        const res = await api.post(
+          "/admin/products",
+          {
+            title: "Variant Product",
+            status: "published",
+            attributes: [
+              {
+                id: multi.id,
+                value_ids: [
+                  multi.byName.get("Value 1")!,
+                  multi.byName.get("Value 2")!,
+                ],
+              },
+              { title: "Size", values: ["S", "M"], is_variant_axis: true },
+            ],
+            variants: [
+              {
+                title: "default variant",
+                // options keyed by axis attribute title → value NAME.
+                options: { Size: "S", "Multi Select": "Value 1" },
+              },
+            ],
+          },
+          adminHeaders,
+        )
+
+        expect([200, 201]).toContain(res.status)
+        const productId = res.data.product.id
+
+        expect(await optionAttached(productId, "Multi Select")).toBe(true)
+        expect(await optionAttached(productId, "Size")).toBe(true)
+
+        // the variant was created and bound to the axis option values.
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data } = await query.graph({
+          entity: "product_variant",
+          fields: ["id", "title"],
+          filters: { product_id: productId },
+        })
+        expect(
+          data.some((v: any) => v.title === "default variant"),
+        ).toBe(true)
       })
     })
   },

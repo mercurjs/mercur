@@ -1,18 +1,25 @@
 import {
   createWorkflow,
+  transform,
+  when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
+import {
+  ProductAttributeBatchAdd,
+  ProductAttributeBatchUpdate,
+} from "@mercurjs/types"
+
+import { createAndLinkProductAttributesToProductWorkflow } from "../../product-attribute"
 
 export type ApplyProductAttributeChangeActionsWorkflowInput = {
-  add_actions: Array<{
-    product_id: string
-    attribute_id: string
-    attribute_value_ids: string[]
-  }>
-  remove_actions: Array<{
-    product_id: string
-    attribute_id: string
-  }>
+  /** The product whose attribute selection is being reconciled. */
+  product_id: string
+  /** Attributes to attach. See {@link ProductAttributeBatchAdd}. */
+  add: ProductAttributeBatchAdd[]
+  /** The ids of the attributes to detach from the product. */
+  remove: string[]
+  /** The attribute selections to mutate. See {@link ProductAttributeBatchUpdate}. */
+  update: ProductAttributeBatchUpdate[]
 }
 
 export const applyProductAttributeChangeActionsWorkflowId =
@@ -20,19 +27,34 @@ export const applyProductAttributeChangeActionsWorkflowId =
 
 /**
  * SPEC-014 §H: confirm-time dispatcher for `ATTRIBUTE_ADD` / `ATTRIBUTE_REMOVE`
- * actions. Rebuilt on the native-option model — axis attributes attach/detach
- * their native mirror option (via {@link applyAttributeChangeActionsStep}) and
- * non-axis selections are value-linked. Removes run before adds so a single
- * change can re-link the same attribute with a different value set.
+ * / `ATTRIBUTE_UPDATE` actions. The caller
+ * (`applyProductChangeActionsWorkflow`) reconstructs a single
+ * `ProductAttributeBatchInput` per product from the pending actions' `details`;
+ * this workflow re-runs the SPEC-014 batch engine
+ * (`createAndLinkProductAttributesToProductWorkflow`) verbatim, which already
+ * applies in the safe order **remove → add → update**. Guarded so a change with
+ * no attribute actions is a no-op.
  */
 export const applyProductAttributeChangeActionsWorkflow = createWorkflow(
   applyProductAttributeChangeActionsWorkflowId,
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  function (_input: ApplyProductAttributeChangeActionsWorkflowInput) {
-    // TODO(approval-queue): re-implement on the native-option batch engine
-    // (createAndLinkProductAttributesToProductWorkflow), grouping actions per
-    // product. Dormant — admin + vendor apply attribute edits directly via the
-    // batch endpoint, so no pending ATTRIBUTE_ADD/REMOVE actions reach here.
+  function (input: ApplyProductAttributeChangeActionsWorkflowInput) {
+    when(
+      { input },
+      ({ input }) =>
+        (input.add?.length ?? 0) > 0 ||
+        (input.remove?.length ?? 0) > 0 ||
+        (input.update?.length ?? 0) > 0,
+    ).then(() => {
+      createAndLinkProductAttributesToProductWorkflow.runAsStep({
+        input: transform({ input }, ({ input }) => ({
+          product_id: input.product_id,
+          add: input.add,
+          remove: input.remove,
+          update: input.update,
+        })),
+      })
+    })
+
     return new WorkflowResponse(void 0)
   },
 )
