@@ -77,21 +77,13 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
 
           dismissAttrIds.add(a.id)
 
-          // Any axis attribute (global or scoped) owns a native product option
-          // whose product↔option pivot must be detached before the option can be
-          // torn down. `removeProductOptionsFromProductStep` runs ahead of the
-          // attribute delete below, so the option is no longer "associated with
-          // products" by the time `deleteProductOptionsStep` fires.
-          if (isAxis) {
+          if (isAxis && !isScoped) {
             optionPairs.push({
               product_option_id: a.product_option_id as string,
               product_id,
             })
-          }
-
-          if (isScoped) {
-            // Scoped axis or scoped non-axis: delete the attribute entirely
-            // (and, for a scoped axis, its now-detached native option).
+          } else if (isScoped) {
+            // exclusive axis or scoped non-axis: delete the attribute entirely.
             scopedAttrIds.push(a.id)
           }
         }

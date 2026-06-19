@@ -142,6 +142,73 @@ medusaIntegrationTestRunner({
         expect(await remainingValueNames(productId)).toEqual(["M", "S", "XL"])
         expect(await optionValues("Size")).toEqual(["M", "S", "XL"])
       })
+
+      // Read the scoped attribute's current name by id.
+      const attributeName = async (id: string) => {
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data } = await query.graph({
+          entity: "product_attribute",
+          fields: ["id", "name"],
+          filters: { id },
+        })
+        return (data?.[0] as { name?: string } | undefined)?.name
+      }
+
+      it("renames an exclusive (product-scoped) axis + syncs the mirror option title", async () => {
+        const productId = await createProduct()
+        await addProductAttributesToProductWorkflow(appContainer).run({
+          input: {
+            product_id: productId,
+            add: [
+              { title: "Size", values: ["S", "M"], is_variant_axis: true },
+            ],
+          },
+        })
+
+        const size = await scopedSizeAttr(productId)
+
+        await updateProductAttributesOnProductWorkflow(appContainer).run({
+          input: {
+            product_id: productId,
+            // The edit form sends rename + value mutation in one update entry.
+            update: [{ id: size.id, title: "Sizing", add: [{ value: "L" }] }],
+          },
+        })
+
+        // Attribute renamed, mirror option title follows, value still added.
+        expect(await attributeName(size.id)).toEqual("Sizing")
+        expect(await optionValues("Sizing")).toEqual(["L", "M", "S"])
+      })
+
+      it("renames a product-scoped non-axis (text) attribute and swaps its value", async () => {
+        const productId = await createProduct()
+        await addProductAttributesToProductWorkflow(appContainer).run({
+          input: {
+            product_id: productId,
+            add: [{ title: "Care", type: "text", value: "Hand wash" }],
+          },
+        })
+
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data } = await query.graph({
+          entity: "product_attribute",
+          fields: ["id", "name"],
+          filters: { product_id: productId },
+        })
+        const care = (data ?? []).find(
+          (a: { name: string }) => a.name === "Care",
+        ) as { id: string }
+        expect(care?.id).toBeTruthy()
+
+        await updateProductAttributesOnProductWorkflow(appContainer).run({
+          input: {
+            product_id: productId,
+            update: [{ id: care.id, title: "Care Instructions", value: "Machine wash" }],
+          },
+        })
+
+        expect(await attributeName(care.id)).toEqual("Care Instructions")
+      })
     })
   },
 })

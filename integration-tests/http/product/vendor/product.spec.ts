@@ -218,6 +218,32 @@ medusaIntegrationTestRunner({
         expect(scoped).toBeTruthy()
       })
 
+      it("update: rename a scoped axis attribute via the staged batch (202 + auto-confirm)", async () => {
+        const productId = await createOwnedProduct()
+        const added = await batch(productId, {
+          add: [{ title: "Size", values: ["S", "M"], is_variant_axis: true }],
+        })
+        expect(added.status).toEqual(202)
+        const sizeId = scopedAttr(await getProduct(productId), "Size").id
+
+        // The vendor edit form sends rename + value add in one update entry; the
+        // `title` rides verbatim through the ProductChange action to the engine.
+        const res = await batch(productId, {
+          update: [{ id: sizeId, title: "Sizing", add: [{ value: "L" }] }],
+        })
+
+        expect(res.status).toEqual(202)
+        const product = await getProduct(productId)
+        const renamed = scopedAttr(product, "Sizing")
+        expect(renamed).toBeTruthy()
+        expect(scopedAttr(product, "Size")).toBeFalsy()
+        expect((renamed.values ?? []).map((v: any) => v.name).sort()).toEqual([
+          "L",
+          "M",
+          "S",
+        ])
+      })
+
       it("rejects batch on a product the seller does not own", async () => {
         // product owned by nobody (no seller link)
         const { result } = await createProductsWorkflow(appContainer).run({

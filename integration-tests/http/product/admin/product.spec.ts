@@ -627,6 +627,81 @@ medusaIntegrationTestRunner({
         expect(names).not.toContain("wash cold")
       })
 
+      // The grouped `product.attributes` flags product-scoped (inline)
+      // attributes via `is_scoped` so the dashboard edit form can offer the
+      // create-style inputs (editable title) only for them.
+      it("GET: scoped attributes carry is_scoped:true (catalog ones false)", async () => {
+        const productId = await createProduct()
+        const single = await createAttr({
+          name: "Material",
+          type: "single_select",
+          values: ["Cotton", "Wool"],
+        })
+        const cottonId = single.byName.get("Cotton")!
+        await batch(productId, {
+          add: [
+            { title: "Care", type: "text", value: "wash cold" },
+            { id: single.id, value_ids: [cottonId] },
+          ],
+        })
+
+        const res = await api.get(
+          `/admin/products/${productId}`,
+          adminHeaders,
+        )
+        const attrs = res.data.product.attributes ?? []
+        const care = attrs.find((a: any) => a.name === "Care")
+        const material = attrs.find((a: any) => a.name === "Material")
+        expect(care?.is_scoped).toBe(true)
+        expect(material?.is_scoped).toBe(false)
+      })
+
+      it("update: rename a scoped text attribute (200)", async () => {
+        const productId = await createProduct()
+        const added = await batch(productId, {
+          add: [{ title: "Care", type: "text", value: "wash cold" }],
+        })
+        const careId = scopedAttr(added.data.product, "Care").id
+
+        const res = await batch(productId, {
+          update: [{ id: careId, title: "Care Instructions", value: "wash warm" }],
+        })
+
+        expect(res.status).toEqual(200)
+        expect(scopedAttr(res.data.product, "Care Instructions")).toBeTruthy()
+        expect(scopedAttr(res.data.product, "Care")).toBeFalsy()
+        expect(valueNames(res.data.product)).toContain("wash warm")
+      })
+
+      it("update: rename a scoped axis attribute + add a value (200)", async () => {
+        const productId = await createProduct()
+        const added = await batch(productId, {
+          add: [{ title: "Size", values: ["S", "M"], is_variant_axis: true }],
+        })
+        const sizeId = scopedAttr(added.data.product, "Size").id
+
+        const res = await batch(productId, {
+          update: [{ id: sizeId, title: "Sizing", add: [{ value: "L" }] }],
+        })
+
+        expect(res.status).toEqual(200)
+        const renamed = scopedAttr(res.data.product, "Sizing")
+        expect(renamed).toBeTruthy()
+        expect((renamed.values ?? []).map((v: any) => v.name).sort()).toEqual([
+          "L",
+          "M",
+          "S",
+        ])
+        // mirror option title follows the rename.
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data } = await query.graph({
+          entity: "product_option",
+          fields: ["title"],
+          filters: { title: "Sizing" },
+        })
+        expect(data.length).toBe(1)
+      })
+
       it("remove: inline non-axis scoped attribute delete drops scoped attr + value (200)", async () => {
         const productId = await createProduct()
         const added = await batch(productId, {
