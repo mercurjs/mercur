@@ -42,6 +42,7 @@ export function wrapProductWithProductAttributes(products: any[]): void {
     const attrsById = new Map<string, WrappedProductAttributeDTO>()
 
     // 1. Non-axis selected values via the product_attribute_value_link pivot.
+    //    The product-side graph alias for this link is `product_attribute_values`.
     const linkedValues: ProductAttributeValueDTO[] =
       product.product_attribute_values ?? []
 
@@ -102,4 +103,19 @@ export function wrapProductWithProductAttributes(products: any[]): void {
       (a, b) => (a.rank ?? 0) - (b.rank ?? 0),
     )
   }
+}
+
+/**
+ * Async-signature wrapper used by the product GET/POST routes. The
+ * admin/vendor query-config already fetches the full attribute graph
+ * (`attribute_values.attribute.values`, `scoped_attributes`), so this just
+ * groups it into `product.attributes` in memory — no extra queries. The
+ * `scope` argument is accepted for call-site symmetry and future store
+ * enrichment (whose query-config is single-hop) but is currently unused.
+ */
+export async function enrichProductAttributes(
+  _scope: unknown,
+  products: any[],
+): Promise<void> {
+  wrapProductWithProductAttributes(products)
 }

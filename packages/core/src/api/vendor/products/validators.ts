@@ -361,16 +361,63 @@ export const VendorCancelProductChange = z
   })
   .strict()
 
-// SPEC-014 §H batch shape, staged through the approval queue for vendors.
-// Staging is attribute-level (add/remove); a value-set change is expressed as
-// `remove` + `add` in the same call (the confirm dispatcher processes removes
-// before adds, so re-adding the same attribute replaces its value set).
-// Existing refs only (inline `title` owed).
-const VendorBatchAttributeAdd = z
+// SPEC-014 §G batch shape, applied directly (vendor applies edits in place via
+// createAndLinkProductAttributesToProductWorkflow). Runtime mirror of the
+// `ProductAttributeBatch*` DTOs in @mercurjs/types — same shape as the admin
+// batch validator. `add` accepts an existing ref (`id`) or an inline
+// product-scoped attribute (`title`); `update` adjusts an attribute's selection.
+const VendorBatchAttributeScalar = z.union([
+  z.string(),
+  z.number(),
+  z.boolean(),
+])
+const VendorBatchAttributeAdd = z.union([
+  z
+    .object({
+      id: z.string(),
+      value_ids: z.array(z.string()).optional(),
+      value: VendorBatchAttributeScalar.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      title: z.string().min(1),
+      type: AttributeTypeEnum.optional(),
+      values: z.array(z.string()).optional(),
+      value: VendorBatchAttributeScalar.optional(),
+      is_variant_axis: z.boolean().optional(),
+      is_filterable: z.boolean().optional(),
+      is_required: z.boolean().optional(),
+      description: z.string().nullish(),
+      metadata: z.record(z.unknown()).nullish(),
+    })
+    .strict()
+    .refine(
+      (v) => !v.is_variant_axis || (v.type ?? "multi_select") === "multi_select",
+      {
+        message: "is_variant_axis is only allowed on multi_select attributes",
+        path: ["is_variant_axis"],
+      },
+    )
+    .refine(
+      (v) =>
+        v.is_variant_axis ||
+        v.type !== undefined ||
+        typeof v.value === "boolean",
+      {
+        message: "inline non-axis attributes require an explicit type",
+        path: ["type"],
+      },
+    ),
+])
+const VendorBatchAttributeUpdate = z
   .object({
     id: z.string(),
-    value_ids: z.array(z.string()).optional(),
-    value: z.union([z.string(), z.number(), z.boolean()]).optional(),
+    add: z
+      .array(z.union([z.string(), z.object({ value: z.string() }).strict()]))
+      .optional(),
+    remove: z.array(z.string()).optional(),
+    value: VendorBatchAttributeScalar.optional(),
   })
   .strict()
 
@@ -381,5 +428,6 @@ export const VendorBatchProductAttributes = z
   .object({
     add: z.array(VendorBatchAttributeAdd).optional(),
     remove: z.array(z.string()).optional(),
+    update: z.array(VendorBatchAttributeUpdate).optional(),
   })
   .strict()

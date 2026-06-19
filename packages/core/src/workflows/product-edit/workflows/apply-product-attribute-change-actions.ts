@@ -1,14 +1,7 @@
 import {
   createWorkflow,
-  transform,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
-import {
-  createRemoteLinkStep,
-  dismissRemoteLinkStep,
-} from "@medusajs/medusa/core-flows"
-
-import { applyAttributeChangeActionsStep } from "../../product-attribute/steps"
 
 export type ApplyProductAttributeChangeActionsWorkflowInput = {
   add_actions: Array<{
@@ -34,20 +27,12 @@ export const applyProductAttributeChangeActionsWorkflowId =
  */
 export const applyProductAttributeChangeActionsWorkflow = createWorkflow(
   applyProductAttributeChangeActionsWorkflowId,
-  function (input: ApplyProductAttributeChangeActionsWorkflowInput) {
-    const applied = applyAttributeChangeActionsStep({
-      add_actions: input.add_actions,
-      remove_actions: input.remove_actions,
-    })
-
-    dismissRemoteLinkStep(
-      transform({ applied }, ({ applied }) => applied.dismiss_value_links),
-    ).config({ name: "pa-apply-change-dismiss-value-links" })
-
-    createRemoteLinkStep(
-      transform({ applied }, ({ applied }) => applied.create_value_links),
-    ).config({ name: "pa-apply-change-create-value-links" })
-
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  function (_input: ApplyProductAttributeChangeActionsWorkflowInput) {
+    // TODO(approval-queue): re-implement on the native-option batch engine
+    // (createAndLinkProductAttributesToProductWorkflow), grouping actions per
+    // product. Dormant — admin + vendor apply attribute edits directly via the
+    // batch endpoint, so no pending ATTRIBUTE_ADD/REMOVE actions reach here.
     return new WorkflowResponse(void 0)
   },
 )

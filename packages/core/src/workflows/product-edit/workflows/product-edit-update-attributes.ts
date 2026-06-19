@@ -6,6 +6,7 @@ import {
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import {
+  CreateProductChangeActionDTO,
   ProductChangeDTO,
 } from "@mercurjs/types"
 
@@ -33,13 +34,14 @@ export const productEditUpdateAttributesWorkflow: ReturnWorkflow<
       })),
     )
 
-    // todo: actions
-
+    // TODO(approval-queue): emit ATTRIBUTE_ADD/REMOVE actions from the batch
+    // input. Dormant — admin + vendor apply attribute edits directly via the
+    // batch endpoint (createAndLinkProductAttributesToProductWorkflow).
     const change = stageProductChangeWorkflow.runAsStep({
-      input: transform({ input, actions }, ({ input, actions }) => ({
+      input: transform({ input }, ({ input }) => ({
         product_id: input.product_id,
         created_by: input.created_by,
-        actions,
+        actions: [] as CreateProductChangeActionDTO[],
       })),
     })
 

@@ -43,7 +43,10 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
     const productQuery = useQueryGraphStep({
       entity: "product",
       filters: { id: input.product_id },
-      fields: ["attribute_values.id", "attribute_values.attribute.id"],
+      fields: [
+        "product_attribute_values.id",
+        "product_attribute_values.attribute.id",
+      ],
       options: { isList: false },
     }).config({ name: "rm-pa-product" })
 
@@ -86,7 +89,8 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
           }
         }
 
-        const linkedValues = (productQuery.data?.attribute_values ?? []) as {
+        const linkedValues = (productQuery.data?.product_attribute_values ??
+          []) as {
           id: string
           attribute?: { id: string }
         }[]

@@ -178,7 +178,14 @@ export type ProductAttributeBatchInput = {
 // --- Product (Mercur overrides status + adds marketplace fields) ---
 
 export type CreateProductDTO = UpstreamCreateProductDTO & {
-
+  /**
+   * Unified product attribute input resolved by the Mercur create-products
+   * wrapper into native options / value links. Each entry is one of the
+   * {@link ProductAttributeBatchAdd} forms. Variant-axis `multi_select`
+   * attributes become native (shared or exclusive) `ProductOption`s that
+   * variants bind to via their `options` name-map.
+   */
+  attributes?: ProductAttributeBatchAdd[]
 }
 
 // --- ProductChange (Mercur-only) ---

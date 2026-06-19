@@ -3,6 +3,7 @@ import {
   createWorkflow,
   type ReturnWorkflow,
   transform,
+  when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import {
@@ -11,6 +12,7 @@ import {
 } from "@medusajs/framework/types"
 import {
   createProductsWorkflow as stockCreateProductsWorkflow,
+  createProductVariantsWorkflow,
   emitEventStep,
 } from "@medusajs/medusa/core-flows"
 import {
@@ -18,6 +20,7 @@ import {
   ProductChangeActionType,
 } from "@mercurjs/types"
 
+import { addProductAttributesToProductWorkflow } from "../../product-attribute/workflows/add-product-attributes-to-product"
 import { recordProductAuditChangeWorkflow } from "../../product-edit/workflows/record-product-audit-change"
 import {
   associateSellersWithProductStep,
@@ -45,12 +48,68 @@ export const createProductsWorkflow: ReturnWorkflow<
       products: input.products,
     })
 
+    // Axis attributes become native options that the engine attaches AFTER the
+    // product exists, and variants bind to those options by name. So create the
+    // products bare (no attributes, no variants), attach attributes, then create
+    // the variants.
+    const stockProducts = transform({ input }, ({ input }) =>
+      input.products.map((p) => {
+        const { attributes: _attributes, variants: _variants, ...rest } = p
+        return rest
+      }),
+    )
+
     const createdProducts = stockCreateProductsWorkflow.runAsStep({
       input: {
-        products: input.products,
+        products: stockProducts as ProductTypes.CreateProductDTO[],
         additional_data: input.additional_data,
       },
     })
+
+    // Attach every product's attributes in one batched engine run.
+    const attributeItems = transform(
+      { input, createdProducts },
+      ({ input, createdProducts }) =>
+        input.products
+          .map((p, idx) => ({
+            product_id: createdProducts[idx]?.id as string,
+            add: p.attributes ?? [],
+          }))
+          .filter((item) => item.product_id && item.add.length > 0),
+    )
+
+    when(
+      { attributeItems },
+      ({ attributeItems }) => attributeItems.length > 0,
+    ).then(() =>
+      addProductAttributesToProductWorkflow.runAsStep({
+        input: attributeItems,
+      }),
+    )
+
+    // Now that options exist on each product, create the variants — their
+    // `options` name-map binds to the freshly attached option values.
+    const productVariants = transform(
+      { input, createdProducts },
+      ({ input, createdProducts }) =>
+        input.products.flatMap((p, idx) => {
+          const product_id = createdProducts[idx]?.id as string
+          return (p.variants ?? []).map((v) => ({ ...v, product_id }))
+        }),
+    )
+
+    when(
+      { productVariants },
+      ({ productVariants }) => productVariants.length > 0,
+    ).then(() =>
+      createProductVariantsWorkflow.runAsStep({
+        input: {
+          product_variants:
+            productVariants as ProductTypes.CreateProductVariantDTO[],
+          additional_data: input.additional_data,
+        },
+      }),
+    )
 
     const sellerProductLinks = transform(
       { input, createdProducts },

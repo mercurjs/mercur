@@ -3,9 +3,10 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
+import { HttpTypes, ProductAttributeBatchInput } from "@mercurjs/types"
 
 import { createAndLinkProductAttributesToProductWorkflow } from "../../../../../../workflows/product-attribute"
+import { productAttributeBatchResponseFields } from "../../../../../utils"
 import { AdminBatchProductAttributesType } from "../../../validators"
 
 /**
@@ -19,7 +20,8 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id
 
-  const { add, remove, update } = req.validatedBody
+  const { add, remove, update } =
+    req.validatedBody as ProductAttributeBatchInput
 
   await createAndLinkProductAttributesToProductWorkflow(req.scope).run({
     input: { product_id: productId, add, remove, update },
@@ -29,7 +31,7 @@ export const POST = async (
     data: [product],
   } = await query.graph({
     entity: "product",
-    fields: req.queryConfig.fields,
+    fields: productAttributeBatchResponseFields,
     filters: { id: productId },
   })
 

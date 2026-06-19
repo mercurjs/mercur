@@ -8,7 +8,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import {
   createProductsWorkflow,
-  type CreateProductWorkflowInput,
+  type CreateProductsWorkflowInput,
 } from "../../../workflows/product/workflows/create-products"
 import {
   enrichProductAttributes,
@@ -78,14 +78,14 @@ export const POST = async (
 
   const { additional_data, ...payload } = req.validatedBody
 
+  const productInput = {
+    ...payload,
+    status: payload.status ?? ProductStatus.PROPOSED,
+  } as unknown as CreateProductsWorkflowInput["products"][number]
+
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
-      products: [
-        {
-          ...payload,
-          status: payload.status ?? ProductStatus.PROPOSED,
-        } as CreateProductWorkflowInput,
-      ],
+      products: [productInput],
       seller_ids: [sellerId],
       additional_data,
     },
