@@ -379,20 +379,56 @@ export const AdminBatchProducts = WithAdditionalData(BatchProducts)
 // --- Batch product attributes ---
 
 // SPEC-014 §G batch shape: { add, remove, update } over
-// createAndLinkProductAttributesToProductWorkflow. Existing refs only
-// (inline `title` is owed).
+// createAndLinkProductAttributesToProductWorkflow. Runtime mirror of the
+// `ProductAttributeBatch*` DTOs in @mercurjs/types.
 const BatchAttributeScalar = z.union([z.string(), z.number(), z.boolean()])
-const BatchAttributeAdd = z
-  .object({
-    id: z.string(),
-    value_ids: z.array(z.string()).optional(),
-    value: BatchAttributeScalar.optional(),
-  })
-  .strict()
+// `add` accepts either an existing-attribute ref (`id`) or an inline
+// product-scoped attribute (`title`). Inline non-axis requires `type` unless it
+// is inferable (`is_variant_axis` ⇒ multi_select, boolean `value` ⇒ toggle).
+const BatchAttributeAdd = z.union([
+  z
+    .object({
+      id: z.string(),
+      value_ids: z.array(z.string()).optional(),
+      value: BatchAttributeScalar.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      title: z.string().min(1),
+      type: AttributeTypeEnum.optional(),
+      values: z.array(z.string()).optional(),
+      value: BatchAttributeScalar.optional(),
+      is_variant_axis: z.boolean().optional(),
+      is_filterable: z.boolean().optional(),
+      is_required: z.boolean().optional(),
+      description: z.string().nullish(),
+      metadata: z.record(z.unknown()).nullish(),
+    })
+    .strict()
+    .refine((v) => !v.is_variant_axis || (v.type ?? "multi_select") === "multi_select", {
+      message: "is_variant_axis is only allowed on multi_select attributes",
+      path: ["is_variant_axis"],
+    })
+    .refine(
+      (v) =>
+        v.is_variant_axis ||
+        v.type !== undefined ||
+        typeof v.value === "boolean",
+      {
+        message: "inline non-axis attributes require an explicit type",
+        path: ["type"],
+      },
+    ),
+])
+// `add` accepts existing value ids (shared axis subset) or new value objects
+// `{ value }` (exclusive axis), mirroring `ProductOptionProductValueUpdate.add`.
 const BatchAttributeUpdate = z
   .object({
     id: z.string(),
-    add: z.array(z.string()).optional(),
+    add: z
+      .array(z.union([z.string(), z.object({ value: z.string() }).strict()]))
+      .optional(),
     remove: z.array(z.string()).optional(),
     value: BatchAttributeScalar.optional(),
   })

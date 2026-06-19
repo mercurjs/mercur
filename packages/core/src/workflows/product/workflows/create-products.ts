@@ -33,7 +33,6 @@ export type CreateProductsWorkflowInput = {
 
 export const createProductsWorkflowId = "mercur-create-products"
 
-
 export const createProductsWorkflow: ReturnWorkflow<
   CreateProductsWorkflowInput,
   ProductTypes.ProductDTO[],

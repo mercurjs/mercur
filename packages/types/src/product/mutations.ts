@@ -1,10 +1,7 @@
 import type {
   CreateProductDTO as UpstreamCreateProductDTO,
-  UpdateProductDTO as UpstreamUpdateProductDTO,
-  CreateProductVariantDTO as UpstreamCreateProductVariantDTO,
 } from "@medusajs/types"
 import { AttributeType, ProductChangeStatus } from "./common"
-import { ProductStatus } from "./status"
 
 // --- ProductAttributeValue (Mercur-only) ---
 
@@ -64,138 +61,124 @@ export interface UpdateProductAttributeDTO {
   metadata?: Record<string, unknown> | null
 }
 
-/**
- * Inline input for product attributes. Each entry is either:
- *
- * 1. A global attribute reference: `{ attribute_id, value_ids?: [...] }`
- *    Links an existing ProductAttribute. Use `value_ids` for known IDs,
- *    or `values` (names) to upsert values on the attribute.
- *
- * 2. An inline custom attribute: `{ name, type, values: ["Red", "Blue"] }`
- *    Creates a new ProductAttribute with `product_id` set (scoped to product).
- */
-export type ProductAttributeInputDTO =
-  | {
-      attribute_id: string
-      value_ids?: string[]
-      values?: string[]
-    }
-  | {
-      name: string
-      type: AttributeType
-      values?: string[]
-      is_variant_axis?: boolean
-      is_filterable?: boolean
-      is_required?: boolean
-      description?: string | null
-      metadata?: Record<string, unknown> | null
-    }
-
 // --- Batch attribute attach/detach/update on a product (SPEC-014 §G) ---
 //
 // Mirrors Medusa's global-option input convention (`ProductOptionProductPair`,
-// `ProductOptionProductValueUpdate`): documented ref DTOs that drive the
+// `ProductOptionProductValueUpdate`, `LinkProductOptionsToProductWorkflowInput`):
+// documented ref DTOs that drive the
 // `createAndLinkProductAttributesToProductWorkflow` engine.
 
 /**
- * A reference to attach an attribute to a product in a batch operation. Either
- * an existing attribute (`id`) or an inline product-scoped attribute (`title`).
+ * A single attribute to attach to a product. You can pass one of the
+ * following forms:
+ *
+ * 1. **Existing select / axis attribute** — `{ id, value_ids }`. Links the
+ *    referenced `ProductAttributeValue`s to the product. For a variant-axis
+ *    `multi_select` attribute the `value_ids` are the per-product subset of the
+ *    mirror `ProductOption`'s values; for a non-axis select they are plain
+ *    value links.
+ * 2. **Existing text / unit / toggle attribute** — `{ id, value }`. `text` and
+ *    `unit` create a new value named `String(value)` and link it; `toggle`
+ *    links the existing seeded `"true"` / `"false"` value matching the boolean
+ *    (toggle values are never created here).
+ * 3. **Inline axis attribute** — `{ title, values, is_variant_axis: true }`.
+ *    Creates an exclusive `ProductOption(is_exclusive: true)` on the product, a
+ *    product-scoped `ProductAttribute` (`product_id` set), and the value mirror.
+ * 4. **Inline non-axis attribute** — `{ title, type, value | values }`. Creates
+ *    a product-scoped attribute plus its value(s) and links them. `type` is
+ *    required unless it is inferable (`is_variant_axis` ⇒ `multi_select`,
+ *    boolean `value` ⇒ `toggle`).
  */
 export type ProductAttributeBatchAdd =
   | {
-      /** Existing attribute id. */
-      id: string
-      /** Selected value ids (select types / axis subset). */
-      value_ids?: string[]
-      /** Free-form scalar for text / unit / toggle attributes. */
-      value?: string | number | boolean
-    }
+    /** The id of an existing attribute to attach. */
+    id: string
+    /**
+     * The ids of the attribute values to associate with the product
+     * (select types) or the per-product subset of a variant axis.
+     */
+    value_ids?: string[]
+    /** A free-form scalar for `text` / `unit` / `toggle` attributes. */
+    value?: string | number | boolean
+  }
   | {
-      /** Inline attribute name (creates a product-scoped attribute). */
-      title: string
-      /** Attribute type; inferred for axis/toggle when omitted. */
-      type?: AttributeType
-      /** Value names (axis / multi). */
-      values?: string[]
-      /** Free-form scalar for text / unit / toggle. */
-      value?: string | number | boolean
-      is_variant_axis?: boolean
-      is_filterable?: boolean
-      is_required?: boolean
-      description?: string | null
-      metadata?: Record<string, unknown> | null
-    }
+    /** The name of the inline attribute to create (product-scoped). */
+    title: string
+    /**
+     * The attribute type. Inferred when omitted: `is_variant_axis` ⇒
+     * `multi_select`, a boolean `value` ⇒ `toggle`, otherwise `text`.
+     */
+    type?: AttributeType
+    /** The value names to create (axis / multi-value attributes). */
+    values?: string[]
+    /** A single free-form scalar for `text` / `unit` attributes. */
+    value?: string | number | boolean
+    /** Whether this inline attribute is a variant axis (`multi_select` only). */
+    is_variant_axis?: boolean
+    is_filterable?: boolean
+    is_required?: boolean
+    description?: string | null
+    metadata?: Record<string, unknown> | null
+  }
 
 /**
- * The details to update an attribute's linked values on a product.
+ * The details to update one attribute's selection on a product. The meaning of
+ * `add` / `remove` / `value` depends on the attribute's type:
+ *
+ * - **Shared axis** (`multi_select` + `is_variant_axis`, global): `add` /
+ *   `remove` are attribute `value_ids` adjusting the per-product value subset of
+ *   the mirror option.
+ * - **Exclusive / inline axis** (product-scoped): `add` carries new value
+ *   objects `{ value }` to create on the exclusive option; `remove` carries the
+ *   `product_option_value` ids to drop. The option mirror is kept in sync.
+ * - **text / unit / toggle**: `value` is the new scalar — `text`/`unit` create a
+ *   new value and swap the product link; `toggle` swaps the linked
+ *   `true`/`false` value.
  */
 export type ProductAttributeBatchUpdate = {
-  /** Existing attribute id. */
+  /** The id of the existing attribute to update. */
   id: string
   /**
-   * Value ids to add (shared axis subset) or new option-value names to create
-   * (exclusive/inline axis), mirroring `ProductOptionProductValueUpdate.add`.
+   * The attribute value ids to add (shared axis subset) or new value objects
+   * `{ value }` to create (exclusive axis), mirroring
+   * `ProductOptionProductValueUpdate.add`.
    */
   add?: (string | { value: string })[]
-  /** Value ids / product option value ids to drop. */
+  /**
+   * The attribute value ids (shared axis) or product option value ids
+   * (exclusive axis) to remove.
+   */
   remove?: string[]
-  /** New free-form scalar for text / unit / toggle attributes. */
+  /** The new free-form scalar for `text` / `unit` / `toggle` attributes. */
   value?: string | number | boolean
 }
 
 /**
- * Input for the attribute batch attach/detach/update engine.
+ * Input for the attribute batch attach/detach/update engine
+ * (`createAndLinkProductAttributesToProductWorkflow`). Applied in the order
+ * **remove → add → update** so a same-call remove + re-add of one attribute
+ * resolves correctly.
  */
 export type ProductAttributeBatchInput = {
+  /** The id of the product whose attributes are being managed. */
   product_id: string
+  /** The attributes to attach to the product. See {@link ProductAttributeBatchAdd}. */
   add?: ProductAttributeBatchAdd[]
-  /** Attribute ids to detach / delete. */
+  /**
+   * The ids of the attributes to detach from the product. Shared axis →
+   * unlink the mirror option; exclusive/scoped → delete the attribute (and its
+   * exclusive option); non-axis → drop the value links.
+   */
   remove?: string[]
+  /** The attribute selections to mutate. See {@link ProductAttributeBatchUpdate}. */
   update?: ProductAttributeBatchUpdate[]
 }
 
-// --- ProductVariant (Mercur extends with attribute_values) ---
-
-/**
- * `attribute_values` accepts either:
- * - An array of `ProductAttributeValue` IDs (already resolved).
- * - A map of attribute key (attribute `handle` or `name`) to value name(s),
- *   resolved to IDs by the service against the parent product's variant
- *   attributes.
- *
- * @example `["pattrval_red", "pattrval_small"]`
- * @example `{ Color: "Red", Size: ["S", "M"] }`
- */
-type VariantAttributeValuesInput = string[] | Record<string, string | string[]>
-
-export type CreateProductVariantDTO = UpstreamCreateProductVariantDTO & {
-  attribute_values?: VariantAttributeValuesInput
-}
 
 // --- Product (Mercur overrides status + adds marketplace fields) ---
 
-export type CreateProductDTO = Omit<UpstreamCreateProductDTO, "status"> & {
-  status?: ProductStatus
-  variants?: CreateProductVariantDTO[]
-  /**
-   * Product variant attributes. Each entry is either:
-   * - A global attribute reference: `{ attribute_id, value_ids: ["pattrval_..."] }`
-   * - An inline custom attribute: `{ name, type, values: ["Red", "Blue"] }`
-   */
-  variant_attributes?: ProductAttributeInputDTO[]
-  /**
-   * Non-variant product-level attributes. Same format as variant_attributes.
-   * Creates product-scoped attributes and links their values to the product.
-   */
-  product_attributes?: ProductAttributeInputDTO[]
-}
+export type CreateProductDTO = UpstreamCreateProductDTO & {
 
-export type UpdateProductDTO = Omit<UpstreamUpdateProductDTO, "status"> & {
-  status?: ProductStatus
-  /** See {@link CreateProductDTO.variant_attributes}. */
-  variant_attributes?: ProductAttributeInputDTO[]
-  /** See {@link CreateProductDTO.product_attributes}. */
-  product_attributes?: ProductAttributeInputDTO[]
 }
 
 // --- ProductChange (Mercur-only) ---
