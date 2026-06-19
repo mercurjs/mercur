@@ -921,6 +921,87 @@ pre-existing in the original `createAttr` helpers).
 > in `api/vendor/products/[id]/attributes/batch/route.ts`. These tests assert the
 > actual 202 + auto-confirm behavior. Reconciling route ↔ spec is owed.
 
+### 2026-06-19 — FIX: variant-axis attributes now linked into the value pivot
+
+**Bug:** a variant-axis (`multi_select`, `is_variant_axis: true`) attribute was
+**missing** from the product response (`product.attributes` /
+`product_attribute_values`) after create/attach — only non-axis attributes
+(toggle, text, single-select) surfaced — even though the axis correctly
+produced native options + variants. Reported via POST `/admin/products` with an
+axis + toggle + text `attributes[]` body: the axis attribute never appeared.
+
+**Root cause:** `format-product-attributes.ts` reads the selected axis subset
+from the `product_attribute_value_link` pivot (the deliberate workaround for the
+broken `product.options` populate — see the OPEN note below). But the
+attribute-linking workflows never wrote pivot rows for axis values: the read
+path expected them in the pivot; the write path put them only on the native
+option. Two sides out of sync.
+
+**Decision (owner: framework author, 2026-06-19):** make the
+`product_attribute_value_link` pivot the consistent source of truth for axis
+selections across **all three** attribute workflows, so the formatter renders
+axis selections and UI edits never desync. The native option remains the
+variant source of truth; the pivot row is a redundant-but-intentional mirror
+until the `product.options` populate bug is fixed (then axis reads can move back
+to native options and these pivot writes can be dropped).
+
+**Changes** (all under
+`packages/core/src/workflows/product-attribute/workflows/`):
+
+- `add-product-attributes-to-product.ts` — inline-axis values now link to the
+  product (`linkProductId = product_id`, was `null`); existing-axis
+  `value_ids` are linked too (dropped the `!isAxis` guard on the value-link
+  branch).
+- `remove-product-attributes-from-product.ts` — dismiss the pivot links for
+  **every** removed attribute (axis included), not just non-axis.
+- `update-product-attributes-on-product.ts` — shared-axis subset add/remove now
+  also create/dismiss the matching pivot links alongside
+  `updateProductOptionValuesOnProductStep`; newly added exclusive-axis values
+  are linked to the product (removed ones cascade via value delete).
+
+**Tests:**
+
+- Admin (`http/product/admin/product.spec.ts`): updated the now-correct
+  axis-in-pivot expectations (`add: existing axis subset`,
+  `add: inline axis`); added regression test
+  **`create: variant-axis attribute surfaces in product.attributes`** (the
+  exact repro — axis + toggle + text → axis appears in grouped
+  `product.attributes` with its selected values).
+- Vendor (`http/product/vendor/product.spec.ts`): updated the
+  `add: axis attach + toggle …` expectations to keep the axis value linked
+  through the subsequent toggle update/remove.
+- Engine (`product-attribute/admin/apply-change-actions.spec.ts`): strengthened
+  the add-then-remove test to assert the axis value (`Red`) is present in the
+  pivot after add and gone after axis remove (the non-axis `Cotton` link stays)
+  — this is the engine-level coverage for the remove-path pivot cleanup, since
+  shared-axis remove/update remain HTTP-blocked by the populate bug.
+
+### 2026-06-19 — FIX: `all_values` backfilled for global select attributes
+
+**Bug (follow-up):** with axis attributes now surfacing, a **global** (non
+product-scoped) select attribute came back with `all_values: []` — only its
+**selected** `values` were present, so the edit form had no full catalog to
+render the dropdown ("Required Attribute" showed Select 1 + Select 2 but not
+the available Select 3). Product-scoped attributes were fine (their full set
+comes via the `scoped_attributes.values` populate).
+
+**Root cause:** the second OPEN item below — `product_attribute_values.attribute.values`
+is a cross-link 2-hop chained populate that the remote joiner resolves empty,
+so the query-config can't carry a global attribute's full value set.
+
+**Fix:** `enrichProductAttributes` now does one batched in-module read
+(`product_attribute → values`, the single-hop the workflows already use) and
+backfills `all_values` for any grouped entry that came back empty. **Restricted
+to select types** (`single_select` / `multi_select`): `text`/`unit` are
+free-form (their `values` accumulate every product's entered value — not a
+pickable catalog) and `toggle` is a boolean switch, so those are never queried
+or backfilled. The enricher's `scope` argument (previously unused) now carries
+the container for this read.
+
+**Tests:** the regression test asserts the global axis attribute's `all_values`
+is the full set (Select 1/2/3) while `values` is the selected subset (1/2), and
+that the `text` + `toggle` entries keep `all_values: []` (no pollution).
+
 ## Notes / open questions
 
 - **Medusa preview upgrade — DONE (2026-06-18).** All workspace `@medusajs/*`

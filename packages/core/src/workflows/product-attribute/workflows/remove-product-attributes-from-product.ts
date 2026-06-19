@@ -57,7 +57,10 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
         const optionPairs: { product_option_id: string; product_id: string }[] =
           []
         const scopedAttrIds: string[] = []
-        const nonAxisIds = new Set<string>()
+        // Every attribute being removed: dismiss its product↔value pivot links,
+        // axis included. The formatter reads the selected axis subset from the
+        // pivot, so axis links must be cleaned up alongside non-axis ones.
+        const dismissAttrIds = new Set<string>()
 
         for (const a of (attributesQuery.data ?? []) as {
           id: string
@@ -72,20 +75,24 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
             !!a.product_option_id
           const isScoped = !!a.product_id
 
-          if (isAxis && !isScoped) {
+          dismissAttrIds.add(a.id)
+
+          // Any axis attribute (global or scoped) owns a native product option
+          // whose product↔option pivot must be detached before the option can be
+          // torn down. `removeProductOptionsFromProductStep` runs ahead of the
+          // attribute delete below, so the option is no longer "associated with
+          // products" by the time `deleteProductOptionsStep` fires.
+          if (isAxis) {
             optionPairs.push({
               product_option_id: a.product_option_id as string,
               product_id,
             })
-          } else if (isScoped) {
-            // exclusive axis or scoped non-axis: delete the attribute entirely.
+          }
+
+          if (isScoped) {
+            // Scoped axis or scoped non-axis: delete the attribute entirely
+            // (and, for a scoped axis, its now-detached native option).
             scopedAttrIds.push(a.id)
-            if (!isAxis) {
-              nonAxisIds.add(a.id)
-            }
-          } else {
-            // global non-axis: value links only.
-            nonAxisIds.add(a.id)
           }
         }
 
@@ -95,7 +102,7 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
             attribute?: { id: string }
           }[]
         const dismissLinks: LinkDefinition[] = linkedValues
-          .filter((v) => v.attribute && nonAxisIds.has(v.attribute.id))
+          .filter((v) => v.attribute && dismissAttrIds.has(v.attribute.id))
           .map((v) => ({
             [Modules.PRODUCT]: { product_id },
             [MercurModules.PRODUCT_ATTRIBUTE]: {

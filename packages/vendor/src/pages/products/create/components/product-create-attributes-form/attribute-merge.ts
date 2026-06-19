@@ -9,6 +9,7 @@ export type RequiredAttributeInput = {
   name: string
   type?: string
   is_variant_axis?: boolean
+  values?: { id: string; name: string }[]
 }
 
 // Mirrors `AttributeType.MULTI_SELECT` from `@mercurjs/types`. Inlined (like
@@ -24,6 +25,8 @@ const buildRequiredEntry = (attr: RequiredAttributeInput): AttributeEntry => ({
   is_required: true,
   use_for_variants: !!attr.is_variant_axis,
   type: attr.type,
+  available_values:
+    attr.values?.map((v) => ({ id: v.id, name: v.name })) ?? [],
 })
 
 /**

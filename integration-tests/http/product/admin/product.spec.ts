@@ -170,8 +170,10 @@ medusaIntegrationTestRunner({
         })
 
         expect(res.status).toEqual(200)
-        // non-axis select + toggle → value links (axis value is NOT a link).
-        expect(valueNames(res.data.product)).toEqual(["Cotton", "true"])
+        // non-axis select + toggle → value links, AND the selected axis subset
+        // is linked into the pivot too so the formatter can surface the axis
+        // "selected of available" (native options populate is broken on 2.16).
+        expect(valueNames(res.data.product)).toEqual(["Cotton", "Red", "true"])
         // axis → native mirror option attached to the product.
         expect(await optionAttached(productId, "Color")).toBe(true)
       })
@@ -202,9 +204,10 @@ medusaIntegrationTestRunner({
         })
 
         expect(res.status).toEqual(200)
-        // axis values are NOT value-links: they live on the native option, so
-        // product.product_attribute_values stays empty (that link is non-axis only).
-        expect(valueNames(res.data.product)).toEqual([])
+        // inline-axis values live on the native exclusive option AND are linked
+        // into the product_attribute_value pivot (every exclusive value is
+        // selected) so the formatter can surface the axis selection.
+        expect(valueNames(res.data.product)).toEqual(["L", "M", "S"])
         // inline → product-scoped attribute surfaced.
         const scoped = (res.data.product.scoped_attributes ?? []).find(
           (a: any) => a.name === "Size",
@@ -380,6 +383,98 @@ medusaIntegrationTestRunner({
         // axis attributes (existing + inline) → native options attached.
         expect(await optionAttached(productId, "Multi Select")).toBe(true)
         expect(await optionAttached(productId, "Size")).toBe(true)
+      })
+
+      // Regression: a variant-axis (multi_select) attribute used to be absent
+      // from product.attributes / product_attribute_values because its selected
+      // values were never linked into the pivot — only the toggle/text showed up
+      // (the reported bug). The axis selection must now surface alongside them.
+      it("create: variant-axis attribute surfaces in product.attributes", async () => {
+        const axis = await createAttr({
+          name: "Required Attribute",
+          type: "multi_select",
+          is_variant_axis: true,
+          values: ["Select 1", "Select 2", "Select 3"],
+        })
+        const toggle = await createAttr({ name: "Toggle", type: "toggle" })
+        const freeText = await createAttr({
+          name: "Free Text Attribute",
+          type: "text",
+        })
+
+        const res = await api.post(
+          "/admin/products",
+          {
+            title: "testmodal",
+            status: "published",
+            attributes: [
+              {
+                id: axis.id,
+                value_ids: [
+                  axis.byName.get("Select 1")!,
+                  axis.byName.get("Select 2")!,
+                ],
+              },
+              { id: toggle.id, value: true },
+              { id: freeText.id, value: "free test" },
+            ],
+            variants: [
+              { title: "Select 1", options: { "Required Attribute": "Select 1" } },
+              { title: "Select 2", options: { "Required Attribute": "Select 2" } },
+            ],
+          },
+          adminHeaders,
+        )
+
+        expect([200, 201]).toContain(res.status)
+        const productId = res.data.product.id
+
+        // The axis selected subset is linked into the pivot (the fix).
+        expect(valueNames(res.data.product)).toEqual(
+          expect.arrayContaining(["Select 1", "Select 2", "free test", "true"]),
+        )
+
+        // The grouped product.attributes view (GET) includes the axis attribute
+        // with exactly its selected values — the missing-attribute regression.
+        const product = await getProduct(productId)
+        const grouped = (product.attributes ?? []).find(
+          (a: any) => a.name === "Required Attribute",
+        )
+        expect(grouped).toBeTruthy()
+        expect(grouped.is_variant_axis).toBe(true)
+        expect(grouped.values.map((v: any) => v.name).sort()).toEqual([
+          "Select 1",
+          "Select 2",
+        ])
+        // all_values exposes the full catalog value set (selected + available)
+        // so the edit form can render the dropdown — backfilled for global
+        // attributes whose 2-hop populate resolves empty.
+        expect(grouped.all_values.map((v: any) => v.name).sort()).toEqual([
+          "Select 1",
+          "Select 2",
+          "Select 3",
+        ])
+        // ...and the non-axis attributes are still present.
+        const names = (product.attributes ?? []).map((a: any) => a.name)
+        expect(names).toEqual(
+          expect.arrayContaining([
+            "Required Attribute",
+            "Toggle",
+            "Free Text Attribute",
+          ]),
+        )
+        // Free-form (text) and toggle attributes must NOT be backfilled with an
+        // all_values catalog — their values are not a pickable set.
+        const freeTextGrouped = (product.attributes ?? []).find(
+          (a: any) => a.name === "Free Text Attribute",
+        )
+        expect(freeTextGrouped.all_values).toEqual([])
+        const toggleGrouped = (product.attributes ?? []).find(
+          (a: any) => a.name === "Toggle",
+        )
+        expect(toggleGrouped.all_values).toEqual([])
+        // axis still produces the native option.
+        expect(await optionAttached(productId, "Required Attribute")).toBe(true)
       })
 
       it("create: variants bind to axis options by value name", async () => {

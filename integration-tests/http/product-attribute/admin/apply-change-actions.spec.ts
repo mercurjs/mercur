@@ -115,11 +115,15 @@ medusaIntegrationTestRunner({
           }[]).map((v) => v.name)
         }
 
-        // axis mirror option attached, non-axis value linked
+        // axis mirror option attached, non-axis value linked, AND the selected
+        // axis value is linked into the pivot too (so the formatter can surface
+        // the axis "selected of available").
         expect(await optionAttached("Color")).toBe(true)
         expect(await valueNames()).toContain("Cotton")
+        expect(await valueNames()).toContain("Red")
 
-        // remove the axis attribute -> mirror option detached
+        // remove the axis attribute -> mirror option detached AND its pivot
+        // value link dismissed (Red gone, the non-axis Cotton link stays).
         await applyProductAttributeChangeActionsWorkflow(appContainer).run({
           input: {
             product_id: productId,
@@ -130,6 +134,8 @@ medusaIntegrationTestRunner({
         })
 
         expect(await optionAttached("Color")).toBe(false)
+        expect(await valueNames()).not.toContain("Red")
+        expect(await valueNames()).toContain("Cotton")
       })
     })
   },

@@ -82,10 +82,14 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       options: { isList: false },
     }).config({ name: "upd-pa-product" })
 
-    // 1. Shared-axis: adjust the per-product option value subset.
-    const subsetUpdates = transform(
+    // 1. Shared-axis: adjust the per-product option value subset, and keep the
+    //    product_attribute_value_link pivot in sync (the formatter reads the
+    //    selected axis subset from the pivot — native options populate is broken
+    //    on 2.16). Added value_ids → create pivot links; removed → dismiss.
+    const subsetPlan = transform(
       { input, attributesQuery },
       ({ input, attributesQuery }) => {
+        const product_id = input.product_id
         const attrsById = new Map(
           ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
             a.id,
@@ -93,6 +97,8 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
           ]),
         )
         const updates: ProductTypes.ProductOptionProductValueUpdate[] = []
+        const addLinks: LinkDefinition[] = []
+        const dismissLinks: LinkDefinition[] = []
         for (const ref of input.update) {
           const attr = attrsById.get(ref.id)
           if (!attr || !isAxis(attr) || attr.product_id) {
@@ -101,30 +107,69 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
           const optvalByValueId = new Map(
             (attr.values ?? []).map((v) => [v.id, v.product_option_value_id]),
           )
-          const add = (ref.add ?? [])
-            .filter((a): a is string => typeof a === "string")
+          const addValueIds = (ref.add ?? []).filter(
+            (a): a is string => typeof a === "string",
+          )
+          const removeValueIds = (ref.remove ?? []).filter(
+            (id): id is string => typeof id === "string",
+          )
+          const add = addValueIds
             .map((vid) => optvalByValueId.get(vid))
             .filter((id): id is string => !!id)
-          const remove = (ref.remove ?? [])
+          const remove = removeValueIds
             .map((vid) => optvalByValueId.get(vid))
             .filter((id): id is string => !!id)
           if (add.length || remove.length) {
             updates.push({
-              product_id: input.product_id,
+              product_id,
               product_option_id: attr.product_option_id as string,
               add,
               remove,
             })
           }
+          for (const vid of addValueIds) {
+            addLinks.push({
+              [Modules.PRODUCT]: { product_id },
+              [MercurModules.PRODUCT_ATTRIBUTE]: {
+                product_attribute_value_id: vid,
+              },
+            })
+          }
+          for (const vid of removeValueIds) {
+            dismissLinks.push({
+              [Modules.PRODUCT]: { product_id },
+              [MercurModules.PRODUCT_ATTRIBUTE]: {
+                product_attribute_value_id: vid,
+              },
+            })
+          }
         }
-        return updates
+        return { updates, addLinks, dismissLinks }
       },
     )
 
     when(
-      { subsetUpdates },
-      ({ subsetUpdates }) => subsetUpdates.length > 0,
-    ).then(() => updateProductOptionValuesOnProductStep(subsetUpdates))
+      { subsetPlan },
+      ({ subsetPlan }) => subsetPlan.updates.length > 0,
+    ).then(() => updateProductOptionValuesOnProductStep(subsetPlan.updates))
+
+    when(
+      { subsetPlan },
+      ({ subsetPlan }) => subsetPlan.dismissLinks.length > 0,
+    ).then(() =>
+      dismissRemoteLinkStep(subsetPlan.dismissLinks).config({
+        name: "upd-pa-axis-dismiss-links",
+      }),
+    )
+
+    when(
+      { subsetPlan },
+      ({ subsetPlan }) => subsetPlan.addLinks.length > 0,
+    ).then(() =>
+      createRemoteLinkStep(subsetPlan.addLinks).config({
+        name: "upd-pa-axis-add-links",
+      }),
+    )
 
     // 2. text/unit/toggle scalar swap.
     const swapPlan = transform(
@@ -297,7 +342,7 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       }),
     )
 
-    when(
+    const createdExclusiveValues = when(
       { exclusivePlan },
       ({ exclusivePlan }) => exclusivePlan.shouldAdd,
     ).then(() =>
@@ -306,6 +351,30 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
           attribute_id: exclusivePlan.attribute_id,
           values: exclusivePlan.addValues,
         },
+      }),
+    )
+
+    // Link newly added exclusive-axis values to the product. Every value of an
+    // exclusive (product-scoped) option is selected, so the pivot must carry
+    // them for the formatter. Removed exclusive values are deleted above, which
+    // cascades their pivot link.
+    const exclusiveAddLinks = transform(
+      { input, createdExclusiveValues },
+      ({ input, createdExclusiveValues }) =>
+        ((createdExclusiveValues ?? []) as { id: string }[]).map((v) => ({
+          [Modules.PRODUCT]: { product_id: input.product_id },
+          [MercurModules.PRODUCT_ATTRIBUTE]: {
+            product_attribute_value_id: v.id,
+          },
+        })),
+    )
+
+    when(
+      { exclusiveAddLinks },
+      ({ exclusiveAddLinks }) => exclusiveAddLinks.length > 0,
+    ).then(() =>
+      createRemoteLinkStep(exclusiveAddLinks).config({
+        name: "upd-pa-exclusive-add-links",
       }),
     )
 

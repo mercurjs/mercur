@@ -192,7 +192,12 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
                     attribute_id: attributeId,
                     product_option_value_id: ov.id,
                   })
-                  linkProductId.push(null)
+                  // Link inline-axis values to the product too: the formatter
+                  // reads the selected axis subset from the
+                  // product_attribute_value_link pivot (native options populate
+                  // is broken on 2.16). Every value of an exclusive inline
+                  // option is selected.
+                  linkProductId.push(it.product_id)
                 }
               } else {
                 const names =
@@ -313,10 +318,6 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
             if (!attr) {
               continue
             }
-            const isAxis =
-              attr.type === AttributeType.MULTI_SELECT &&
-              !!attr.is_variant_axis &&
-              !!attr.product_option_id
 
             if (attr.type === AttributeType.TOGGLE && ref.value !== undefined) {
               const seeded = (attr.values ?? []).find(
@@ -330,7 +331,12 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
                   },
                 })
               }
-            } else if (!isAxis) {
+            } else {
+              // Existing select value_ids — non-axis AND axis. Axis values are
+              // linked into the pivot too so the formatter can render the
+              // selected-of-available subset (native options populate is broken
+              // on 2.16). Text/unit refs carry no value_ids, so this is a no-op
+              // for them; toggle is handled above.
               for (const vid of ref.value_ids ?? []) {
                 links.push({
                   [Modules.PRODUCT]: { product_id: it.product_id },

@@ -184,21 +184,22 @@ medusaIntegrationTestRunner({
         })
         expect(added.status).toEqual(202)
         expect(added.data.product_change.product_id).toBe(productId)
-        // Applied inline by auto-confirm.
-        expect(await optionAttached(productId, "Color")).toBe(true)
-        expect(valueNames(await getProduct(productId))).toEqual(["true"])
+        // Applied inline by auto-confirm. The selected axis value (Red) is
+        // linked into the pivot alongside the toggle so the formatter can
+        // surface the axis selection (native options populate is broken on 2.16).
+        expect(valueNames(await getProduct(productId))).toEqual(["Red", "true"])
 
-        // toggle swap true → false (non-axis).
+        // toggle swap true → false (non-axis); the axis link is untouched.
         const updated = await batch(productId, {
           update: [{ id: waterproof.id, value: false }],
         })
         expect(updated.status).toEqual(202)
-        expect(valueNames(await getProduct(productId))).toEqual(["false"])
+        expect(valueNames(await getProduct(productId))).toEqual(["Red", "false"])
 
-        // remove the toggle value link.
+        // remove the toggle value link; the axis link remains.
         const removed = await batch(productId, { remove: [waterproof.id] })
         expect(removed.status).toEqual(202)
-        expect(valueNames(await getProduct(productId))).toEqual([])
+        expect(valueNames(await getProduct(productId))).toEqual(["Red"])
       })
 
       it("add: inline axis → exclusive option + scoped attribute", async () => {

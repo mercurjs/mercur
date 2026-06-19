@@ -485,6 +485,9 @@ const RequiredAttributes = () => {
         is_custom: false,
         is_required: true,
         use_for_variants: attr.is_variant_axis,
+        type: attr.type,
+        available_values:
+          attr.values?.map((v) => ({ id: v.id, name: v.name })) ?? [],
       }
     })
 
