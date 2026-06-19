@@ -113,6 +113,29 @@ export interface ProductAttributeDTO {
   deleted_at: string | Date | null
 }
 
+/**
+ * A product attribute grouped for a single product by
+ * `wrapProductWithProductAttributes`: the parent attribute's full value set
+ * (`all_values`) plus the values actually selected on that product (`values`).
+ */
+export interface WrappedProductAttributeValueDTO {
+  id: string
+  name: string
+  rank?: number
+}
+
+export interface WrappedProductAttributeDTO {
+  id: string
+  name?: string
+  handle?: string | null
+  type?: AttributeType
+  is_variant_axis?: boolean
+  is_required?: boolean
+  rank?: number
+  all_values: WrappedProductAttributeValueDTO[]
+  values: WrappedProductAttributeValueDTO[]
+}
+
 export interface ProductChangeActionDTO {
   id: string
   product_id: string

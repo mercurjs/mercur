@@ -91,6 +91,69 @@ export type ProductAttributeInputDTO =
       metadata?: Record<string, unknown> | null
     }
 
+// --- Batch attribute attach/detach/update on a product (SPEC-014 §G) ---
+//
+// Mirrors Medusa's global-option input convention (`ProductOptionProductPair`,
+// `ProductOptionProductValueUpdate`): documented ref DTOs that drive the
+// `createAndLinkProductAttributesToProductWorkflow` engine.
+
+/**
+ * A reference to attach an attribute to a product in a batch operation. Either
+ * an existing attribute (`id`) or an inline product-scoped attribute (`title`).
+ */
+export type ProductAttributeBatchAdd =
+  | {
+      /** Existing attribute id. */
+      id: string
+      /** Selected value ids (select types / axis subset). */
+      value_ids?: string[]
+      /** Free-form scalar for text / unit / toggle attributes. */
+      value?: string | number | boolean
+    }
+  | {
+      /** Inline attribute name (creates a product-scoped attribute). */
+      title: string
+      /** Attribute type; inferred for axis/toggle when omitted. */
+      type?: AttributeType
+      /** Value names (axis / multi). */
+      values?: string[]
+      /** Free-form scalar for text / unit / toggle. */
+      value?: string | number | boolean
+      is_variant_axis?: boolean
+      is_filterable?: boolean
+      is_required?: boolean
+      description?: string | null
+      metadata?: Record<string, unknown> | null
+    }
+
+/**
+ * The details to update an attribute's linked values on a product.
+ */
+export type ProductAttributeBatchUpdate = {
+  /** Existing attribute id. */
+  id: string
+  /**
+   * Value ids to add (shared axis subset) or new option-value names to create
+   * (exclusive/inline axis), mirroring `ProductOptionProductValueUpdate.add`.
+   */
+  add?: (string | { value: string })[]
+  /** Value ids / product option value ids to drop. */
+  remove?: string[]
+  /** New free-form scalar for text / unit / toggle attributes. */
+  value?: string | number | boolean
+}
+
+/**
+ * Input for the attribute batch attach/detach/update engine.
+ */
+export type ProductAttributeBatchInput = {
+  product_id: string
+  add?: ProductAttributeBatchAdd[]
+  /** Attribute ids to detach / delete. */
+  remove?: string[]
+  update?: ProductAttributeBatchUpdate[]
+}
+
 // --- ProductVariant (Mercur extends with attribute_values) ---
 
 /**

@@ -39,6 +39,8 @@ export {
   type ProductCategoryDTO,
   type ProductAttributeDTO,
   type ProductAttributeValueDTO,
+  type WrappedProductAttributeDTO,
+  type WrappedProductAttributeValueDTO,
   type ProductChangeDTO,
   type ProductChangeActionDTO,
   type CreateProductDTO,
@@ -50,6 +52,9 @@ export {
   type UpdateProductAttributeValueDTO,
   type UpsertProductAttributeValueDTO,
   type ProductAttributeInputDTO,
+  type ProductAttributeBatchAdd,
+  type ProductAttributeBatchUpdate,
+  type ProductAttributeBatchInput,
   type CreateProductChangeDTO,
   type CreateProductChangeActionDTO,
 } from "./product"
