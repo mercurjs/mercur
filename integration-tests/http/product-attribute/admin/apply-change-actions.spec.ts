@@ -3,9 +3,11 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 
 import {
+  addProductAttributesToProductWorkflow,
   applyProductAttributeChangeActionsWorkflow,
   createProductAttributesWorkflow,
   createProductsWorkflow,
+  removeProductAttributesFromProductWorkflow,
 } from "@mercurjs/core/workflows"
 
 jest.setTimeout(60000)
@@ -136,6 +138,64 @@ medusaIntegrationTestRunner({
         expect(await optionAttached("Color")).toBe(false)
         expect(await valueNames()).not.toContain("Red")
         expect(await valueNames()).toContain("Cotton")
+      })
+
+      // Regression: a product-scoped inline axis attribute owns an exclusive
+      // native option whose product↔option pivot must be detached before the
+      // option can be torn down. Previously the remove path deleted the
+      // attribute (and its option) directly, so Medusa rejected with "Cannot
+      // delete product options that are associated with products."
+      it("removes a scoped inline axis attribute and its native option", async () => {
+        const { result } = await createProductsWorkflow(appContainer).run({
+          input: { products: [{ title: "Scoped Axis Product", status: "published" }] },
+        })
+        const productId = (result as { id: string }[])[0].id
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+
+        await addProductAttributesToProductWorkflow(appContainer).run({
+          input: {
+            product_id: productId,
+            add: [
+              {
+                title: "Size",
+                is_variant_axis: true,
+                values: ["S", "M"],
+              },
+            ],
+          },
+        })
+
+        // The inline axis create made a product-scoped attribute backed by a
+        // native option. Grab both ids to assert teardown.
+        const { data: scopedAttrs } = await query.graph({
+          entity: "product_attribute",
+          fields: ["id", "name", "product_option_id"],
+          filters: { product_id: productId },
+        })
+        const sizeAttr = (scopedAttrs ?? []).find(
+          (a: { name: string }) => a.name === "Size",
+        ) as { id: string; product_option_id: string } | undefined
+        expect(sizeAttr).toBeDefined()
+        expect(sizeAttr!.product_option_id).toBeTruthy()
+
+        // This previously threw the "associated with products" INVALID_DATA error.
+        await removeProductAttributesFromProductWorkflow(appContainer).run({
+          input: { product_id: productId, remove: [sizeAttr!.id] },
+        })
+
+        const { data: remainingAttrs } = await query.graph({
+          entity: "product_attribute",
+          fields: ["id"],
+          filters: { id: sizeAttr!.id },
+        })
+        expect(remainingAttrs ?? []).toHaveLength(0)
+
+        const { data: remainingOptions } = await query.graph({
+          entity: "product_option",
+          fields: ["id"],
+          filters: { id: sizeAttr!.product_option_id },
+        })
+        expect(remainingOptions ?? []).toHaveLength(0)
       })
     })
   },

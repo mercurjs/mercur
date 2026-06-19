@@ -139,6 +139,12 @@ export type ProductAttributeBatchUpdate = {
   /** The id of the existing attribute to update. */
   id: string
   /**
+   * A new name for the attribute. Only honoured for product-scoped (inline)
+   * attributes — renaming propagates to the mirror `ProductOption`'s title for
+   * axis attributes. Ignored for shared/global catalog attributes.
+   */
+  title?: string
+  /**
    * The attribute value ids to add (shared axis subset) or new value objects
    * `{ value }` to create (exclusive axis), mirroring
    * `ProductOptionProductValueUpdate.add`.

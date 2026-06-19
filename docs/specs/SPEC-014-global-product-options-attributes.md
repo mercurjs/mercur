@@ -1040,8 +1040,11 @@ that the `text` + `toggle` entries keep `all_values: []` (no pollution).
   but not HTTP-read-verifiable. Workaround in place: query-configs omit `options`;
   read axis options from the `product_option` side. Likely a MikroORM/preview
   version-pin fix. See memory `product-options-populate-broken-216`.
-- **OPEN — cross-module 2-hop `product_attribute_values.attribute.values`**
-  resolves empty (remote-joiner chained-populate limit), so the enriched
-  `all_values` (parent attribute's full value set) is unavailable in the product
-  response; "selected" values still resolve. Store query-config remains single-hop
-  for the same reason.
+- **PARTIALLY RESOLVED — cross-module 2-hop `product_attribute_values.attribute.values`**
+  resolves empty (remote-joiner chained-populate limit), so the query-config
+  cannot carry a global attribute's full value set; "selected" values still
+  resolve. **Worked around (2026-06-19):** `enrichProductAttributes` backfills
+  `all_values` for global **select** attributes with one batched in-module
+  `product_attribute → values` read (text/unit/toggle are skipped — not pickable
+  catalogs). Store query-config remains single-hop; store enrichment does not yet
+  backfill (admin/vendor routes do).

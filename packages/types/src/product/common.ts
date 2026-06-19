@@ -133,6 +133,13 @@ export interface WrappedProductAttributeDTO {
   is_variant_axis?: boolean
   is_required?: boolean
   rank?: number
+  /**
+   * `true` when this is a product-scoped (inline) attribute — one created on
+   * this product rather than a shared catalog attribute. Surfaced from the
+   * read-only `scoped_attributes` link so the dashboard edit form can offer the
+   * create-style inputs (editable title, free-form values) for it.
+   */
+  is_scoped?: boolean
   all_values: WrappedProductAttributeValueDTO[]
   values: WrappedProductAttributeValueDTO[]
 }

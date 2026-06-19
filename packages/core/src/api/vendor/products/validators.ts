@@ -413,6 +413,9 @@ const VendorBatchAttributeAdd = z.union([
 const VendorBatchAttributeUpdate = z
   .object({
     id: z.string(),
+    // Rename a product-scoped (inline) attribute; ignored for shared catalog
+    // attributes by the workflow.
+    title: z.string().optional(),
     add: z
       .array(z.union([z.string(), z.object({ value: z.string() }).strict()]))
       .optional(),

@@ -24,9 +24,13 @@ import {
   ProductAttributeDTO,
 } from "@mercurjs/types"
 
-import { createProductAttributeValuesStep } from "../steps"
+import {
+  createProductAttributeValuesStep,
+  detachProductOptionValuesFromProductStep,
+} from "../steps"
 import { createProductAttributeValuesWorkflow } from "./create-product-attribute-values"
 import { deleteProductAttributeValuesWorkflow } from "./delete-product-attribute-values"
+import { updateProductAttributesWorkflow } from "./update-product-attributes"
 
 export type UpdateProductAttributesOnProductWorkflowInput = {
   product_id: string
@@ -309,28 +313,59 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
             shouldAdd: false,
             shouldRemove: false,
             attribute_id: "",
+            product_option_id: "",
             addValues: [] as CreateProductAttributeValueDTO[],
             removeIds: [] as string[],
+            removeOptvalIds: [] as string[],
           }
         }
         const attr = attrsById.get(target.id) as ProductAttributeDTO
         const addValues = (target.add ?? [])
           .filter((a): a is { value: string } => typeof a !== "string")
           .map((a) => ({ name: a.value }))
-        const valueIdByOptval = new Map(
-          (attr.values ?? []).map((v) => [v.product_option_value_id, v.id]),
+        // `target.remove` carries attribute value ids (same shape as the
+        // shared-axis branch above). Pass them straight through, validated to
+        // belong to the target attribute, into the delete value workflow.
+        const valueById = new Map((attr.values ?? []).map((v) => [v.id, v]))
+        const removeIds = (target.remove ?? []).filter((id) =>
+          valueById.has(id),
         )
-        const removeIds = (target.remove ?? [])
-          .map((o) => valueIdByOptval.get(o))
+        // The mirrored option values to detach from the product first, so the
+        // option re-sync inside the delete workflow can drop them (Medusa won't
+        // delete option values still associated with a product).
+        const removeOptvalIds = removeIds
+          .map((id) => valueById.get(id)?.product_option_value_id)
           .filter((id): id is string => !!id)
         return {
           shouldAdd: addValues.length > 0,
           shouldRemove: removeIds.length > 0,
           attribute_id: target.id,
+          product_option_id: attr.product_option_id as string,
           addValues,
           removeIds,
+          removeOptvalIds,
         }
       },
+    )
+
+    // Detach the per-product option-value association first, then delete the
+    // attribute values (whose workflow re-syncs the mirrored option, now that
+    // the values are no longer associated with the product). The delete input
+    // is derived from the detach result so the two run in order.
+    const detached = when(
+      { exclusivePlan },
+      ({ exclusivePlan }) => exclusivePlan.shouldRemove,
+    ).then(() =>
+      detachProductOptionValuesFromProductStep({
+        product_id: input.product_id,
+        product_option_id: exclusivePlan.product_option_id,
+        value_ids: exclusivePlan.removeOptvalIds,
+      }),
+    )
+
+    const removeValueInput = transform(
+      { exclusivePlan, detached },
+      ({ exclusivePlan }) => ({ ids: exclusivePlan.removeIds }),
     )
 
     when(
@@ -338,7 +373,30 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       ({ exclusivePlan }) => exclusivePlan.shouldRemove,
     ).then(() =>
       deleteProductAttributeValuesWorkflow.runAsStep({
-        input: { ids: exclusivePlan.removeIds },
+        input: removeValueInput,
+      }),
+    )
+
+    // Dismiss the product↔value pivot links for the removed exclusive values.
+    // Deleting the value does not cascade the Mercur pivot link, so the
+    // formatter would otherwise surface a dangling (null) selected value.
+    const exclusiveDismissLinks = transform(
+      { input, exclusivePlan },
+      ({ input, exclusivePlan }) =>
+        exclusivePlan.removeIds.map((vid) => ({
+          [Modules.PRODUCT]: { product_id: input.product_id },
+          [MercurModules.PRODUCT_ATTRIBUTE]: {
+            product_attribute_value_id: vid,
+          },
+        })),
+    )
+
+    when(
+      { exclusiveDismissLinks },
+      ({ exclusiveDismissLinks }) => exclusiveDismissLinks.length > 0,
+    ).then(() =>
+      dismissRemoteLinkStep(exclusiveDismissLinks).config({
+        name: "upd-pa-exclusive-dismiss-links",
       }),
     )
 
@@ -356,8 +414,8 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
 
     // Link newly added exclusive-axis values to the product. Every value of an
     // exclusive (product-scoped) option is selected, so the pivot must carry
-    // them for the formatter. Removed exclusive values are deleted above, which
-    // cascades their pivot link.
+    // them for the formatter. Removed exclusive values have their pivot link
+    // dismissed above.
     const exclusiveAddLinks = transform(
       { input, createdExclusiveValues },
       ({ input, createdExclusiveValues }) =>
@@ -375,6 +433,47 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
     ).then(() =>
       createRemoteLinkStep(exclusiveAddLinks).config({
         name: "upd-pa-exclusive-add-links",
+      }),
+    )
+
+    // 4. Rename: only product-scoped (inline) attributes may be renamed here —
+    //    a shared/global catalog attribute is not owned by this product. The
+    //    catalog `updateProductAttributesWorkflow` also propagates the new name
+    //    to the mirror `ProductOption` title for axis attributes. Restricted to
+    //    a single target (the edit form renames one attribute at a time), so
+    //    distinct names never collide on a single selector update.
+    const renamePlan = transform(
+      { input, attributesQuery },
+      ({ input, attributesQuery }) => {
+        const attrsById = new Map(
+          ((attributesQuery.data ?? []) as ProductAttributeDTO[]).map((a) => [
+            a.id,
+            a,
+          ]),
+        )
+        const renames = input.update.filter((ref) => {
+          const attr = attrsById.get(ref.id)
+          return (
+            ref.title !== undefined &&
+            ref.title.trim().length > 0 &&
+            !!attr?.product_id
+          )
+        })
+        const target = renames.length === 1 ? renames[0] : undefined
+        return {
+          should: !!target,
+          id: target?.id ?? "",
+          name: target?.title ?? "",
+        }
+      },
+    )
+
+    when({ renamePlan }, ({ renamePlan }) => renamePlan.should).then(() =>
+      updateProductAttributesWorkflow.runAsStep({
+        input: {
+          selector: { id: renamePlan.id },
+          update: { name: renamePlan.name },
+        },
       }),
     )
 

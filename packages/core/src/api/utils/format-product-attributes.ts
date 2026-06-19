@@ -75,6 +75,7 @@ export function wrapProductWithProductAttributes(products: any[]): void {
         is_variant_axis: !!scoped.is_variant_axis,
         is_required: !!scoped.is_required,
         rank: scoped.rank,
+        is_scoped: true,
         all_values: (scoped.values ?? []).map(toValue),
         values: [],
       })
@@ -101,6 +102,7 @@ export function wrapProductWithProductAttributes(products: any[]): void {
           is_variant_axis: !!attribute?.is_variant_axis,
           is_required: !!attribute?.is_required,
           rank: attribute?.rank,
+          is_scoped: false,
           all_values: (attribute?.values ?? []).map(toValue),
           values: [],
         }

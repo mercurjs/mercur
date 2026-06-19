@@ -655,6 +655,48 @@ medusaIntegrationTestRunner({
       // coverage lives in product-attribute/admin/batch-engine.spec.ts. Re-enable
       // when the populate bug is fixed (memory: product-options-populate-broken-216).
       it.skip("update: shared-axis value subset add/remove", async () => {})
+
+      // The exclusive (product-scoped) axis value delete now works over HTTP:
+      // the option-value association is detached via the product service before
+      // the option re-sync, sidestepping the broken `*OnProductStep` populate.
+      // This is the user-reported reproduction (batch `update[].remove` on a
+      // scoped axis was a silent no-op).
+      it("update: exclusive option value remove drops the scoped value (200)", async () => {
+        const productId = await createProduct()
+        const added = await batch(productId, {
+          add: [
+            { title: "Size", values: ["S", "M", "L"], is_variant_axis: true },
+          ],
+        })
+        const scoped = scopedAttr(added.data.product, "Size")
+        const sValueId = (scoped.values ?? []).find(
+          (v: any) => v.name === "S",
+        ).id
+
+        const res = await batch(productId, {
+          update: [{ id: scoped.id, remove: [sValueId] }],
+        })
+
+        expect(res.status).toEqual(200)
+        // value gone from both the scoped attribute and the selected pivot.
+        const updatedScoped = scopedAttr(res.data.product, "Size")
+        expect((updatedScoped.values ?? []).map((v: any) => v.name).sort()).toEqual(
+          ["L", "M"],
+        )
+        expect(valueNames(res.data.product)).not.toContain("S")
+        // mirrored exclusive option value set re-synced to the remainder.
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data } = await query.graph({
+          entity: "product_option",
+          fields: ["title", "values.value"],
+          filters: { title: "Size" },
+        })
+        expect((data[0].values ?? []).map((v: any) => v.value).sort()).toEqual([
+          "L",
+          "M",
+        ])
+      })
+
       it.skip("update: exclusive option value mutation (add XXL / remove S,M,L)", async () => {})
       it.skip("remove: shared-axis global unlinks product↔option", async () => {})
       it.skip("remove: inline/exclusive scoped axis delete (option still associated)", async () => {})
