@@ -801,7 +801,7 @@
       "name": "meilisearch",
       "description": "Opt-in Meilisearch search block for multi-vendor marketplaces with real-time seller-aware indexing, seller lifecycle sync, and injection-safe smart filtering.",
       "dependencies": [
-        "meilisearch"
+        "meilisearch@^0.47.0"
       ],
       "registryDependencies": [],
       "docs": "## Prerequisites\n\nInstall and run a Meilisearch instance:\n\n```bash\ndocker run -d -p 7700:7700 getmeili/meilisearch\n```\n\n## Environment Variables\n\nAdd to your `.env` file:\n\n```env\nMEILISEARCH_HOST=http://localhost:7700\nMEILISEARCH_API_KEY=your_master_key_here\n```\n\n## Module Configuration\n\nAdd to your `medusa-config.ts`:\n\n```ts\nexport default defineConfig({\n  modules: [\n    {\n      resolve: './modules/meilisearch',\n      options: {\n        host: process.env.MEILISEARCH_HOST,\n        apiKey: process.env.MEILISEARCH_API_KEY,\n      },\n    },\n  ],\n})\n```\n\n## Middlewares\n\nAdd to your `api/middlewares.ts`:\n\n```ts\nimport { defineMiddlewares } from \"@medusajs/medusa\";\nimport { allMeilisearchMiddlewares } from \"./meilisearch/api/middlewares\";\n\nexport default defineMiddlewares({\n  routes: [...allMeilisearchMiddlewares],\n});\n```\n\n## Initial Sync\n\nAfter starting the server, trigger a full re-index:\n\n```bash\ncurl -X POST http://localhost:9000/admin/meilisearch/sync \\\n  -H \"Authorization: Bearer YOUR_ADMIN_TOKEN\"\n```\n\n## Search\n\n```bash\ncurl -X POST http://localhost:9000/store/meilisearch/products \\\n  -H \"Content-Type: application/json\" \\\n  -H \"x-publishable-api-key: YOUR_KEY\" \\\n  -d '{\"query\": \"shoes\", \"filters\": {\"price_min\": 50, \"price_max\": 200}}'\n```",

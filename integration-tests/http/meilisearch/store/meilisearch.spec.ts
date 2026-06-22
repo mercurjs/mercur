@@ -147,7 +147,7 @@ medusaIntegrationTestRunner({
           expect(response.data.totalHits).toBe(0)
         })
 
-        it("passes seller.status = 'active' filter to meilisearch (FR-003)", async () => {
+        it("passes seller.status = 'open' filter to meilisearch (FR-003)", async () => {
           mockSearchFn.mockResolvedValueOnce({
             hits: [],
             totalHits: 0,
@@ -165,7 +165,7 @@ medusaIntegrationTestRunner({
           )
 
           const searchOptions = mockSearchFn.mock.calls[0][1]
-          expect(searchOptions.filter).toContain('seller.status = "active"')
+          expect(searchOptions.filter).toContain('seller.status = "open"')
         })
 
         it("includes category filter when provided", async () => {

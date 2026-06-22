@@ -98,21 +98,33 @@ modules: [
 
 ### Step 3: Register Middlewares
 
-Open your `src/api/middlewares.ts` and add the meilisearch store middlewares:
+Medusa only auto-discovers middlewares from `src/api/middlewares.ts`, and that
+file **must** default-export `defineMiddlewares(...)`. The block ships its routes
+at `src/meilisearch/api/middlewares.ts`, which exports both:
+
+- `allMeilisearchMiddlewares` — the route array, for merging into your own file
+- a `default defineMiddlewares(...)` — usable directly if you have no other
+  middlewares (re-export it from `src/api/middlewares.ts`)
+
+Wire it into your project's `src/api/middlewares.ts`. If the file does not exist
+yet, create it; if it does, merge the routes in — do **not** overwrite it:
 
 ```typescript
 import { defineMiddlewares } from "@medusajs/medusa"
-import { meilisearchStoreMiddlewares } from './store/meilisearch/products/search/middlewares'
+import { allMeilisearchMiddlewares } from './meilisearch/api/middlewares'
 
 export default defineMiddlewares({
   routes: [
     // ... existing routes
-    ...meilisearchStoreMiddlewares,
+    ...allMeilisearchMiddlewares,
   ],
 })
 ```
 
-> **Warning:** The CLI may prompt you to replace your existing `middlewares.ts` file during installation. If you already have middleware routes defined, **do not replace it**. Instead, manually merge the meilisearch middlewares into your existing `defineMiddlewares` call as shown above. Replacing the file removes the `defineMiddlewares` default export, which causes `req.validatedBody` to be `undefined` at runtime.
+> **Warning:** If `src/api/middlewares.ts` ends up exporting a plain array (or
+> loses its `defineMiddlewares` default export), the search route's Zod
+> validation never registers and the handler crashes on `req.validatedBody`
+> being `undefined`.
 
 ### Step 4: Set Environment Variables
 
@@ -190,7 +202,7 @@ Search products. Requires `x-publishable-api-key` header.
       "status": "published",
       "variants": [...],
       "categories": [...],
-      "seller": { "id": "slr_1", "name": "ACME", "handle": "acme", "status": "active" }
+      "seller": { "id": "slr_1", "name": "ACME", "handle": "acme", "status": "open" }
     }
   ],
   "totalHits": 42,
@@ -202,7 +214,7 @@ Search products. Requires `x-publishable-api-key` header.
 }
 ```
 
-**Important:** The `seller.status = "active"` filter is always enforced server-side (FR-003). Suspended seller products never appear in results regardless of what filters the client sends.
+**Important:** The `seller.status = "open"` filter is always enforced server-side (FR-003). Only products from open (visible) sellers ever appear — suspended, terminated, or pending sellers' products are filtered out regardless of what filters the client sends.
 
 **Pagination:** Meilisearch uses 1-based page numbering. Page 1 is the first page of results.
 
