@@ -52,8 +52,8 @@ export const CustomerGroupSection = ({
 
   const flatCustomerGroups = customer.groups ?? []
   const groupIds = useMemo(
-    () => flatCustomerGroups.map((g) => g.id),
-    [flatCustomerGroups]
+    () => (customer.groups ?? []).map((g) => g.id),
+    [customer.groups]
   )
 
   // Search and ordering are delegated to the backend: we scope the customer

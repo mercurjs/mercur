@@ -30,7 +30,6 @@ medusaIntegrationTestRunner({
       let product: any
       let offer: any
       let shippingOption: any
-      let payoutAccount: any
 
       beforeAll(async () => {
         appContainer = getContainer()
@@ -48,14 +47,13 @@ medusaIntegrationTestRunner({
         sellerHeaders = sellerResult.headers
 
         // Create payout account for seller
-        const payoutAccountResult = await createPayoutAccountWorkflow(appContainer).run({
+        await createPayoutAccountWorkflow(appContainer).run({
           input: {
             seller_id: seller.id,
             data: {},
             context: {},
           },
         })
-        payoutAccount = payoutAccountResult.result
 
         const apiKey = await generatePublishableKey(appContainer)
         storeHeaders = generateStoreHeaders({ publishableKey: apiKey })
