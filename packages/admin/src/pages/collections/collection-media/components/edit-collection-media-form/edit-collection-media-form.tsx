@@ -81,7 +81,7 @@ export const EditCollectionMediaForm = ({
 
   const form = useForm<EditCollectionMediaSchemaType>({
     defaultValues: {
-      media: getCollectionGallery(collection.images).map((image) => ({
+      media: getCollectionGallery(collection.media_images).map((image) => ({
         id: image.id,
         url: image.url,
         file: null,

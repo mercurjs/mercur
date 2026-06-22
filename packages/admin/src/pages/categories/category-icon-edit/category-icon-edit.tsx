@@ -31,7 +31,7 @@ const EditCategoryIconForm = ({ category }: EditCategoryIconFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const existingIcon = getCategoryIcon(category.images)
+  const existingIcon = getCategoryIcon(category.media_images)
 
   const form = useForm<z.infer<typeof EditCategoryIconSchema>>({
     defaultValues: {

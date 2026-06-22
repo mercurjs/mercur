@@ -81,7 +81,7 @@ export const EditCategoryMediaForm = ({
 
   const form = useForm<EditCategoryMediaSchemaType>({
     defaultValues: {
-      media: getCategoryGallery(category.images).map((image) => ({
+      media: getCategoryGallery(category.media_images).map((image) => ({
         id: image.id,
         url: image.url,
         file: null,

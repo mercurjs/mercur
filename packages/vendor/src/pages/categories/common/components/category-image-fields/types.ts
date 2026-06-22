@@ -9,7 +9,7 @@ export type CategoryApiImage = {
 }
 
 export type CategoryWithImages = {
-  images?: CategoryApiImage[] | null
+  media_images?: CategoryApiImage[] | null
 }
 
 /** Gallery images (type = null), ordered by rank. */

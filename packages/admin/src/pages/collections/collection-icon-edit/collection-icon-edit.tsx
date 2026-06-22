@@ -40,7 +40,7 @@ const EditCollectionIconForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const existingIcon = getCollectionIcon(collection.images)
+  const existingIcon = getCollectionIcon(collection.media_images)
 
   const form = useForm<z.infer<typeof EditCollectionIconSchema>>({
     defaultValues: {

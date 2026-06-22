@@ -24,7 +24,7 @@ export const createImagesStep = createStep(
     }
 
     const service = container.resolve<MediaModuleService>(MercurModules.MEDIA)
-    const created = await service.createImages(input)
+    const created = await service.createMediaImages(input)
 
     return new StepResponse(
       created,
@@ -37,6 +37,6 @@ export const createImagesStep = createStep(
     }
 
     const service = container.resolve<MediaModuleService>(MercurModules.MEDIA)
-    await service.deleteImages(createdIds)
+    await service.deleteMediaImages(createdIds)
   }
 )
