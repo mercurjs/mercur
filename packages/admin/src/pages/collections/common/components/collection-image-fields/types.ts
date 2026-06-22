@@ -31,7 +31,7 @@ export type CollectionApiImage = {
 }
 
 export type CollectionWithImages = {
-  images?: CollectionApiImage[] | null
+  media_images?: CollectionApiImage[] | null
 }
 
 /** Gallery images (type = null), ordered by rank. */

@@ -18,7 +18,7 @@ export const CategoryIconSection = ({
 }: CategoryIconSectionProps) => {
   const { t } = useTranslation()
 
-  const icon = getCategoryIcon(category.images)
+  const icon = getCategoryIcon(category.media_images)
 
   return (
     <Container className="divide-y p-0" data-testid="category-icon-section">

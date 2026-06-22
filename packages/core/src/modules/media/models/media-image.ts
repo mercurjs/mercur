@@ -12,12 +12,16 @@ import { model } from "@medusajs/framework/utils"
  * `setCategoryImages` workflow, not by DB constraints (they span the link
  * table).
  *
- * Table is `media_image`, NOT `image`: Medusa's product module already
- * owns a table named `image` (its ProductImage) — reusing it would collide.
+ * Table is `media_image`, NOT `image`, AND the model name is `MediaImage`,
+ * NOT `Image`: Medusa's product module already owns both a table named
+ * `image` and a model named `Image` (its ProductImage). Reusing either name
+ * collides in the joiner's entity map, so the `media_images` link alias
+ * resolves ambiguously and every product `query.graph` throws
+ * `Cannot resolve alias path "" that matches entity Product`.
  */
-const Image = model
+const MediaImage = model
   .define(
-    { tableName: "media_image", name: "Image" },
+    { tableName: "media_image", name: "MediaImage" },
     {
       id: model.id({ prefix: "medimg" }).primaryKey(),
       url: model.text(),
@@ -36,4 +40,4 @@ const Image = model
     },
   ])
 
-export default Image
+export default MediaImage

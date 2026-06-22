@@ -62,7 +62,7 @@ export const useCategoryTableColumns = () => {
           }
 
           const gallery = getCategoryGallery(
-            (row.original as CategoryWithImages).images
+            (row.original as CategoryWithImages).media_images
           )
           const thumbnailSrc =
             gallery.find((image) => image.is_thumbnail)?.url ??

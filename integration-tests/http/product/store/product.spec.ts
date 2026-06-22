@@ -93,20 +93,6 @@ medusaIntegrationTestRunner({
                     {
                         title: "Test Product",
                         status: "published",
-                        variant_attributes: [
-                            {
-                                name: "Size",
-                                type: "multi_select",
-                                is_variant_axis: true,
-                                values: ["M"],
-                            },
-                        ],
-                        variants: [
-                            {
-                                title: "M",
-                                attribute_values: { Size: "M" },
-                            },
-                        ],
                         ...overrides,
                     },
                     headers
@@ -248,14 +234,17 @@ medusaIntegrationTestRunner({
 
                     const inCategory = await createProduct(
                         approvedSellerHeaders,
-                        {
-                            title: "In Category",
-                            categories: [{ id: category.id }],
-                        }
+                        { title: "In Category" }
                     )
                     const outOfCategory = await createProduct(
                         approvedSellerHeaders,
                         { title: "Out Of Category" }
+                    )
+
+                    await api.post(
+                        `/vendor/product-categories/${category.id}/products`,
+                        { add: [inCategory.id] },
+                        approvedSellerHeaders
                     )
 
                     const response = await api.get(
@@ -280,8 +269,13 @@ medusaIntegrationTestRunner({
 
                     const product = await createProduct(approvedSellerHeaders, {
                         title: "Hidden Category Product",
-                        categories: [{ id: inactiveCategory.id }],
                     })
+
+                    await api.post(
+                        `/vendor/product-categories/${inactiveCategory.id}/products`,
+                        { add: [product.id] },
+                        approvedSellerHeaders
+                    )
 
                     const response = await api.get(
                         `/store/products?category_id=${inactiveCategory.id}`,
