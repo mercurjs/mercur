@@ -281,6 +281,52 @@ medusaIntegrationTestRunner({
                     ).toEqual(2000)
                 })
 
+                it("prices offers on different products in a single calculatePrices call", async () => {
+                    const seedA = await seedSellerOffer({
+                        email: "batch-a@test.com",
+                        name: "BatchA",
+                        stocked: 10,
+                        offerPrice: 1000,
+                    })
+                    const seedB = await seedSellerOffer({
+                        email: "batch-b@test.com",
+                        name: "BatchB",
+                        stocked: 10,
+                        offerPrice: 2000,
+                    })
+
+                    const pricingModule = appContainer.resolve(
+                        Modules.PRICING
+                    ) as any
+                    const spy = jest.spyOn(pricingModule, "calculatePrices")
+                    spy.mockClear()
+
+                    const response = await api.get(
+                        `/store/offers?id[]=${seedA.offer.id}&id[]=${seedB.offer.id}&fields=+calculated_price&region_id=${region.id}`,
+                        storeHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.offers).toHaveLength(2)
+                    expect(spy).toHaveBeenCalledTimes(1)
+                    const arg = spy.mock.calls[0][0] as { id: string[] }
+                    expect(arg.id).toHaveLength(2)
+
+                    const byId = new Map<string, any>(
+                        response.data.offers.map((o: any) => [o.id, o])
+                    )
+                    expect(
+                        byId.get(seedA.offer.id).calculated_price
+                            .calculated_amount
+                    ).toEqual(1000)
+                    expect(
+                        byId.get(seedB.offer.id).calculated_price
+                            .calculated_amount
+                    ).toEqual(2000)
+
+                    spy.mockRestore()
+                })
+
                 it("excludes offers from sellers that are not open", async () => {
                     const seed = await seedSellerOffer({
                         email: "pending@test.com",

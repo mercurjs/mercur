@@ -12,7 +12,7 @@ import {
   TaxableItemDTO,
   TaxCalculationContext,
 } from "@medusajs/framework/types"
-import { calculateAmountsWithTax } from "@medusajs/framework/utils"
+import { calculateAmountsWithTax, promiseAll } from "@medusajs/framework/utils"
 import { transformAndValidateSalesChannelIds } from "@medusajs/medusa/api/utils/middlewares/index"
 
 type OfferLocationLevel = {
@@ -54,28 +54,84 @@ export const wrapOffersWithCalculatedPrices = async (
   }
 
   const pricingModule = req.scope.resolve(Modules.PRICING)
+  const baseContext = req.pricingContext as Record<string, unknown>
 
-  await Promise.all(
-    offers.map(async (offer) => {
-      const priceSetId = offer.product_variant?.price_set?.id
-      if (!priceSetId) {
-        return
+  const byPriceSet = new Map<string, EnrichableOffer[]>()
+  for (const offer of offers) {
+    const priceSetId = offer.product_variant?.price_set?.id
+    if (!priceSetId) {
+      continue
+    }
+    const group = byPriceSet.get(priceSetId)
+    if (group) {
+      group.push(offer)
+    } else {
+      byPriceSet.set(priceSetId, [offer])
+    }
+  }
+
+  if (!byPriceSet.size) {
+    return
+  }
+
+  const singletons: { priceSetId: string; offer: EnrichableOffer }[] = []
+  const siblings: { priceSetId: string; offer: EnrichableOffer }[] = []
+  for (const [priceSetId, group] of byPriceSet) {
+    if (group.length === 1) {
+      singletons.push({ priceSetId, offer: group[0] })
+    } else {
+      for (const offer of group) {
+        siblings.push({ priceSetId, offer })
       }
+    }
+  }
 
-      const [calculated] = await pricingModule.calculatePrices(
-        { id: [priceSetId] },
-        {
-          context: {
-            ...(req.pricingContext as Record<string, string | number>),
-            offer_id: offer.id,
-          },
+  const tasks: Promise<void>[] = []
+
+  if (singletons.length) {
+    tasks.push(
+      (async () => {
+        const context: Record<string, unknown> = {
+          ...baseContext,
+          offer_id: singletons.map((s) => s.offer.id),
         }
-      )
+        const calculated = await pricingModule.calculatePrices(
+          { id: singletons.map((s) => s.priceSetId) },
+          { context: context as Record<string, string | number> }
+        )
 
-      offer.calculated_price =
-        (calculated as unknown as Record<string, unknown>) ?? null
-    })
-  )
+        const byPriceSetId = new Map(
+          calculated.map((c) => [
+            c.id,
+            c as unknown as Record<string, unknown>,
+          ])
+        )
+        for (const { priceSetId, offer } of singletons) {
+          offer.calculated_price = byPriceSetId.get(priceSetId) ?? null
+        }
+      })()
+    )
+  }
+
+  for (const { priceSetId, offer } of siblings) {
+    tasks.push(
+      (async () => {
+        const context: Record<string, unknown> = {
+          ...baseContext,
+          offer_id: offer.id,
+        }
+        const [calculated] = await pricingModule.calculatePrices(
+          { id: [priceSetId] },
+          { context: context as Record<string, string | number> }
+        )
+
+        offer.calculated_price =
+          (calculated as unknown as Record<string, unknown>) ?? null
+      })()
+    )
+  }
+
+  await promiseAll(tasks)
 }
 
 export const wrapOffersWithTaxPrices = async (
