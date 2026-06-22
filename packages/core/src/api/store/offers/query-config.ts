@@ -1,15 +1,3 @@
-/**
- * Public, store-facing projection of an offer. A subset of
- * `defaultVendorOfferFields` (no `created_by`), plus the variant's
- * `price_set.id` (needed to resolve `calculated_price`) and the offer's
- * inventory-item link location levels (needed to resolve
- * `inventory_quantity` per sales channel).
- *
- * `calculated_price` and `inventory_quantity` are NOT graph fields — they
- * are computed post-query by the wrap helpers in `./helpers`. Consumers opt
- * in by requesting them via `?fields=...`; the route strips them before the
- * graph read.
- */
 export const defaultStoreOfferFields = [
   "id",
   "seller_id",

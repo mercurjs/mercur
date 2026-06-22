@@ -5,13 +5,6 @@ import {
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
 
-/**
- * Pricing/tax context fields, mirroring Medusa's
- * `store/product-variants` validators. They drive `req.pricingContext` /
- * `req.taxContext` (via the reused Medusa pricing middlewares) and are
- * stripped before the offer graph read — the `offer` entity has none of
- * these columns.
- */
 const StoreOfferContextFields = z.object({
   region_id: z.string().optional(),
   country_code: z.string().optional(),

@@ -2,11 +2,6 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import type { MedusaContainer } from "@medusajs/framework/types"
 import { SellerStatus } from "@mercurjs/types"
 
-/**
- * Resolve the ids of sellers that are currently visible to the storefront:
- * status `OPEN` and not inside an active closure window. Shared by the store
- * product and offer surfaces so both apply the exact same visibility rule.
- */
 export const resolveVisibleSellerIds = async (
   scope: MedusaContainer
 ): Promise<string[]> => {

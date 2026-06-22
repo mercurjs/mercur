@@ -15,18 +15,6 @@ import {
 import { calculateAmountsWithTax } from "@medusajs/framework/utils"
 import { transformAndValidateSalesChannelIds } from "@medusajs/medusa/api/utils/middlewares/index"
 
-/**
- * Post-query enrichers for the store Offer surface. Mirrors Medusa's
- * `store/product-variants/helpers.ts` (`wrapVariantsWithTaxPrices`) and
- * `utils/middlewares/products/variant-inventory-quantity.ts`
- * (`wrapVariantsWithInventoryQuantityForSalesChannel`).
- *
- * Offers can't reuse those directly: an offer doesn't own a price set (it
- * shares the variant's, discriminated by an `offer_id` price rule) and its
- * inventory links to the offer, not the variant. So each helper recomputes
- * the offer-shaped equivalent.
- */
-
 type OfferLocationLevel = {
   location_id: string
   stocked_quantity: number
@@ -57,12 +45,6 @@ type StoreRequestWithContext = MedusaStoreRequest<unknown> & {
   }
 }
 
-/**
- * Attach `offer.calculated_price` using the request's pricing context.
- * Offers share the variant's price set, so the `offer_id` must be added to
- * the context per offer — that means one `calculatePrices` call per offer
- * (page-bounded; candidate for batching later).
- */
 export const wrapOffersWithCalculatedPrices = async (
   req: StoreRequestWithContext,
   offers: EnrichableOffer[]
@@ -96,11 +78,6 @@ export const wrapOffersWithCalculatedPrices = async (
   )
 }
 
-/**
- * Fill the tax-inclusive / tax-exclusive amounts on each offer's
- * `calculated_price`. Direct mirror of `wrapVariantsWithTaxPrices`, keyed on
- * the offer id and using `offer.product_id` for the tax item.
- */
 export const wrapOffersWithTaxPrices = async (
   req: StoreRequestWithContext,
   offers: EnrichableOffer[]
@@ -178,15 +155,6 @@ export const wrapOffersWithTaxPrices = async (
   })
 }
 
-/**
- * Resolve `inventory_quantity` + `in_stock` per offer, scoped to the
- * publishable key's sales channel. Mirrors
- * `wrapVariantsWithInventoryQuantityForSalesChannel`'s channel resolution but
- * computes availability off the offer's own inventory-item link(s):
- * `floor(stocked / required_quantity)`, taking the min across a bundle's
- * items, summing only location levels whose stock location is linked to the
- * channel.
- */
 export const wrapOffersWithInventoryQuantityForSalesChannel = async (
   req: MedusaStoreRequest<unknown>,
   offers: EnrichableOffer[]
@@ -250,12 +218,6 @@ export const wrapOffersWithInventoryQuantityForSalesChannel = async (
   }
 }
 
-/**
- * Strip the computed `calculated_price` / `inventory_quantity` field paths
- * from a query field list (they are not graph fields on `offer`), returning
- * the cleaned list plus which enrichers were requested. Mirrors how
- * `store/product-variants` strips `inventory_quantity` before the graph read.
- */
 export const splitComputedOfferFields = (fields: string[]) => {
   const withCalculatedPrice = fields.some(
     (f) => f === "calculated_price" || f.startsWith("calculated_price.")

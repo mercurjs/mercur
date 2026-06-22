@@ -19,11 +19,6 @@ import { storeOfferQueryConfig } from "./query-config"
 import { StoreGetOfferParams, StoreGetOffersParams } from "./validators"
 import { resolveVisibleSellerIds } from "../../utils/sellers"
 
-/**
- * Constrain the offer query to offers owned by sellers currently visible to
- * the storefront (status OPEN, not closed). `offer.seller_id` is a column, so
- * we filter it directly — no link translation needed.
- */
 async function applyVisibleSellerIdsFilter(
   req: MedusaRequest,
   _res: MedusaResponse,
@@ -34,12 +29,6 @@ async function applyVisibleSellerIdsFilter(
   next()
 }
 
-/**
- * Restrict offers to those on PUBLISHED products. `query.graph` can't filter
- * offers by the cross-module `product` link relation (only select it), so we
- * resolve the published product ids and constrain the offer's `product_id`
- * column directly — intersecting with any incoming `product_id` filter.
- */
 async function applyPublishedProductFilter(
   req: MedusaRequest,
   _res: MedusaResponse,
@@ -76,7 +65,6 @@ const offerMiddlewares = [
     allowUnauthenticated: true,
   }),
   applyVisibleSellerIdsFilter,
-  // Only surface offers on published products.
   applyPublishedProductFilter,
   ...pricingMiddlewares,
   clearFiltersByKey(["region_id", "country_code", "province", "cart_id"]),
