@@ -1,5 +1,6 @@
 import {
   applyDefaultFilters,
+  authenticate,
   maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaRequest,
@@ -8,6 +9,11 @@ import {
 } from "@medusajs/framework/http"
 import { isPresent } from "@medusajs/framework/utils"
 import { validateAndTransformQuery } from "@medusajs/framework"
+import {
+  normalizeDataForContext,
+  setPricingContext,
+  setTaxContext,
+} from "@medusajs/medusa/api/utils/middlewares/index"
 
 import { storeProductQueryConfig } from "./query-config"
 import {
@@ -56,6 +62,21 @@ async function applyVisibleSellerIdsFilter(
   next()
 }
 
+/**
+ * Resolve the pricing/tax context consumed by the offer-price wrap. Reuses
+ * Medusa's product-pricing middlewares so the gate matches vanilla
+ * `/store/products`: prices compute only when the client requests
+ * `variants.calculated_price` or passes `region_id`.
+ */
+const pricingMiddlewares = [
+  authenticate("customer", ["session", "bearer"], {
+    allowUnauthenticated: true,
+  }),
+  normalizeDataForContext({ priceFieldPaths: ["variants.calculated_price"] }),
+  setPricingContext({ priceFieldPaths: ["variants.calculated_price"] }),
+  setTaxContext({ priceFieldPaths: ["variants.calculated_price"] }),
+]
+
 export const storeProductsMiddlewares: MiddlewareRoute[] = [
   {
     method: ["GET"],
@@ -72,6 +93,7 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
         resourceId: "product_id",
         filterableField: "seller_id",
       }),
+      ...pricingMiddlewares,
     ],
   },
   {
@@ -89,6 +111,7 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
         resourceId: "product_id",
         filterableField: "seller_id",
       }),
+      ...pricingMiddlewares,
     ],
   },
 ]
