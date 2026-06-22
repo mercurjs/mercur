@@ -49,16 +49,16 @@ function makeRequest(body: Record<string, any> = {}, products: any[] = []) {
   return { req, res, mockSearch, mockGraph }
 }
 
-// ─── FR-003: seller.status = "active" is always enforced ─────────────────────
+// ─── FR-003: seller.status = "open" is always enforced ───────────────────────
 
 describe('POST /store/meilisearch/products/search — filter enforcement', () => {
-  it('always sends seller.status = "active" in the filter string (FR-003)', async () => {
+  it('always sends seller.status = "open" in the filter string (FR-003)', async () => {
     const { req, res, mockSearch } = makeRequest({ query: 'shoes' })
 
     await POST(req, res as any)
 
     const searchOptions = mockSearch.mock.calls[0][1] as Record<string, unknown>
-    expect(searchOptions.filter).toContain('seller.status = "active"')
+    expect(searchOptions.filter).toContain('seller.status = "open"')
   })
 
   it('cannot be bypassed even when no other filters are provided', async () => {
@@ -67,7 +67,7 @@ describe('POST /store/meilisearch/products/search — filter enforcement', () =>
     await POST(req, res as any)
 
     const filter = mockSearch.mock.calls[0][1].filter as string
-    expect(filter).toBe('seller.status = "active"')
+    expect(filter).toBe('seller.status = "open"')
   })
 
   it('appends category filter after the mandatory seller filter', async () => {
@@ -78,7 +78,7 @@ describe('POST /store/meilisearch/products/search — filter enforcement', () =>
     await POST(req, res as any)
 
     const filter = mockSearch.mock.calls[0][1].filter as string
-    expect(filter).toMatch(/^seller\.status = "active"/)
+    expect(filter).toMatch(/^seller\.status = "open"/)
     expect(filter).toContain('categories.id IN ["cat_1", "cat_2"]')
   })
 
