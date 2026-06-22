@@ -1,6 +1,6 @@
 // DO NOT ADD THIS TO registry.json - internal use only for type checking in the mercur monorepo
 import { createClient, InferClient } from "@mercurjs/client"
-import { Routes } from '../../../../.mercur/_generated'
+import { Routes } from '../../../../.mercur'
 
 declare const __BACKEND_URL__: string
 

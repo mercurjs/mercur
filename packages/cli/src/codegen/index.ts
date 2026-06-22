@@ -12,7 +12,7 @@ export { normalizeApiPath, normalizePathSep } from "./path";
 export { DIST_DIR, ROUTE_FILE_PATTERN } from "./constants";
 
 function generateImportPath(filePath: string): string {
-    return `../../src/api/${filePath.replace(/\.ts$/, "")}`;
+    return `../src/api/${filePath.replace(/\.ts$/, "")}`;
 }
 
 /**
@@ -140,7 +140,7 @@ export async function writeRouteTypes(rootDir: string) {
 }
 
 export async function writeRegistryRouteTypes(rootDir: string, routeFilePaths: string[]) {
-    const entryFilePath = path.join(rootDir, DIST_DIR, "index.ts");
+    const entryFilePath = path.join(rootDir, DIST_DIR, "index.d.ts");
     const entryDir = path.dirname(entryFilePath);
 
     await ensureDir(entryDir);
@@ -155,7 +155,7 @@ export async function writeRegistryRouteTypes(rootDir: string, routeFilePaths: s
     });
 
     const registryImportPath = (filePath: string) =>
-        `../../src/${filePath.replace(/\.ts$/, "")}`;
+        `../src/${filePath.replace(/\.ts$/, "")}`;
 
     const routeTypes = generateRouteTypesFile(allRoutes, registryImportPath);
 

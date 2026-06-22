@@ -1,6 +1,6 @@
 // DO NOT ADD THIS TO registry.json its only meant for internal use
 import { createClient, InferClient } from "@mercurjs/client"
-import { Routes } from '../../../../.mercur/_generated'
+import { Routes } from '../../../../.mercur'
 
 declare const __BACKEND_URL__: string
 
