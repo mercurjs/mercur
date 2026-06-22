@@ -17,6 +17,33 @@ function isRouteFile(file: string): boolean {
 
 const UI_MODULE_KEYS = ["admin_ui", "vendor_ui"];
 
+// `@medusajs/dashboard` declares `virtual:medusa/*` imports that are resolved
+// upstream by `@medusajs/admin-vite-plugin`. Mercur replaces those modules at
+// bundle time, so the runtime never actually loads them — but esbuild's
+// dependency scanner still walks `@medusajs/dashboard/dist/app.mjs` and fails
+// on the unresolved specifiers. Stubbing them keeps the scan happy.
+const MEDUSA_VIRTUAL_MODULES = [
+    "virtual:medusa/displays",
+    "virtual:medusa/forms",
+    "virtual:medusa/i18n",
+    "virtual:medusa/menu-items",
+    "virtual:medusa/routes",
+    "virtual:medusa/widgets",
+    "virtual:medusa/links",
+];
+
+function isMedusaVirtualModule(id: string): boolean {
+    return MEDUSA_VIRTUAL_MODULES.includes(id);
+}
+
+function resolveMedusaVirtualModule(id: string): string {
+    return "\0" + id;
+}
+
+function isResolvedMedusaVirtualModule(id: string): boolean {
+    return id.startsWith("\0virtual:medusa/");
+}
+
 function findNodeModulesRoot(configDir: string): string {
     // Walk up from configDir to find the nearest node_modules
     let dir = configDir;
@@ -236,6 +263,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                         "virtual:mercur/components",
                         "virtual:mercur/menu-items",
                         "virtual:mercur/i18n",
+                        ...MEDUSA_VIRTUAL_MODULES,
                     ],
                     include: [
                         "react",
@@ -259,9 +287,15 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
             if (isVirtualModule(id)) {
                 return resolveVirtualModule(id);
             }
+            if (isMedusaVirtualModule(id)) {
+                return resolveMedusaVirtualModule(id);
+            }
             return null;
         },
         load(id) {
+            if (isResolvedMedusaVirtualModule(id)) {
+                return "export default {}";
+            }
             return loadVirtualModule({ cwd: root, id, mercurConfig: config });
         },
         configureServer(server) {
