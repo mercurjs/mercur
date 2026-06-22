@@ -1,11 +1,12 @@
 import {
+  applyDefaultFilters,
   maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, isPresent } from "@medusajs/framework/utils"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
 import { storeProductQueryConfig } from "./query-config"
@@ -15,15 +16,27 @@ import {
 } from "./validators"
 import { SellerStatus, ProductStatus } from "@mercurjs/types"
 
-const applyProductFilters = (
-  req: MedusaRequest,
-  _res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  req.filterableFields = req.filterableFields ?? {}
-  req.filterableFields.status = ProductStatus.PUBLISHED
-  next()
-}
+/**
+ * Apply the store-facing defaults that vanilla Medusa applies on its own
+ * `/store/products` route. Besides forcing the `published` status, this
+ * translates the Medusa-standard `category_id` query param into the
+ * `categories` relation filter. The `Product` entity has no `category_id`
+ * column, so passing it straight to `query.graph` raises
+ * `Trying to query by not existing property Product.category_id` (#974).
+ */
+const applyProductFilters = applyDefaultFilters({
+  status: ProductStatus.PUBLISHED,
+  categories: (filters: Record<string, unknown>) => {
+    const categoryIds = filters.category_id
+    delete filters.category_id
+
+    if (!isPresent(categoryIds)) {
+      return
+    }
+
+    return { id: categoryIds, is_internal: false, is_active: true }
+  },
+})
 
 /**
  * Resolve sellers that are currently OPEN and not within an active
