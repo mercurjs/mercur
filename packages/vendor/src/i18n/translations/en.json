@@ -280,8 +280,8 @@
         "extensions": "Extensions"
       },
       "main": {
-        "store": "Seller",
-        "storeSettings": "Seller settings"
+        "store": "Store",
+        "storeSettings": "Store settings"
       },
       "settings": {
         "header": "Settings",
@@ -432,7 +432,7 @@
     "availableIn": "Available in <0>{{x}}</0> of <1>{{y}}</1> sales channels"
   },
   "seller": {
-    "domain": "Seller"
+    "domain": "Store"
   },
   "products": {
     "domain": "Products",
@@ -443,12 +443,15 @@
       "error": "Failed to delete products."
     },
     "list": {
-      "noRecordsMessage": "Create your first product to start selling."
+      "noRecordsTitle": "No products yet",
+      "noRecordsMessage": "Create products to start selling on the marketplace"
     },
     "edit": {
       "header": "Edit Product",
       "description": "Edit the product details.",
       "successToast": "Product {{title}} was successfully updated.",
+      "requestSuccessToast": "Product update was successfully requested. Once confirmed by the Admin, changes will appear on the storefront.",
+      "duplicateRequestErrorToast": "You already have an active request. You can only have one at a time.",
       "attributes": {
         "addAttribute": "Add Attribute",
         "editHeader": "Edit Attribute",
@@ -466,6 +469,17 @@
         "description": "Attributes used for informational purposes"
       }
     },
+    "edits": {
+      "panel": {
+        "title": "Product update request",
+        "deleteRequested": "Product deletion is pending approval.",
+        "cancelTitle": "Cancel update request",
+        "cancelDescription": "Are you sure you want to cancel this product update request? This action cannot be undone."
+      },
+      "toast": {
+        "canceledSuccessfully": "Product update request was successfully canceled."
+      }
+    },
     "create": {
       "title": "Create Product",
       "description": "Create a new product.",
@@ -474,7 +488,6 @@
         "details": "Details",
         "organize": "Organize",
         "variants": "Variants",
-        "inventory": "Inventory kits",
         "attributes": "Attributes"
       },
       "defaults": {
@@ -487,15 +500,14 @@
         "options": "Please create at least one option.",
         "uniqueSku": "SKU must be unique across variants",
         "primaryCategoryRequired": "Primary category is required",
+        "categoryRequired": "Please select a category",
         "titleRequired": "Title is required",
         "handleInvalidFormat": "Handle must contain only lowercase letters, numbers, and hyphens",
-        "handleMustContainLetter": "Handle must contain at least one letter"
-      },
-      "inventory": {
-        "heading": "Inventory kits",
-        "label": "Add inventory items to the variant's inventory kit.",
-        "itemPlaceholder": "Select inventory item",
-        "quantityPlaceholder": "How many of these are needed for the kit?"
+        "handleMustContainLetter": "Handle must contain at least one letter",
+        "requiredAttribute": "This attribute is required.",
+        "requiredAttributeSelect": "This attribute is required by the marketplace. Please select value.",
+        "requiredAttributeEnter": "This attribute is required by the marketplace. Please enter value.",
+        "requiredAttributeMultiSelect": "This attribute is required by the marketplace. Please select at least one value."
       },
       "variants": {
         "header": "Variants",
@@ -509,9 +521,12 @@
           "placeholder": "Small, Medium, Large"
         },
         "productVariants": {
-          "searchPlaceholder": "Search variants...",
+          "searchPlaceholder": "Search",
           "media": "Media",
-          "tip": "Only variants with prices and stock will be visible to customers."
+          "tip": "Only variants with prices and stock will be visible to customers.",
+          "label": "Product variants",
+          "hint": "This ranking will affect the variants display order.",
+          "alert": "Add values to your variant attributes to generate variants."
         },
         "productOptions": {
           "label": "Product options",
@@ -519,8 +534,9 @@
         }
       },
       "successToast": "Product {{title}} was successfully created.",
+      "requestSuccessToast": "Product was successfully requested. You can now create offers for this product. Once the product is approved by the admin, your offers will appear on the storefront. Only offers with stock levels and prices set will be visible.",
       "attributes": {
-        "description": "Add attributes to your product. Select from admin-defined attributes or create your own.",
+        "description": "Manage attributes and variations for your product, e.g. color, size, brand etc. Select from attributes defined by the Marketplace or create your own.",
         "requiredHeading": "Required Attributes",
         "requiredDescription": "These attributes are required for products in this category.",
         "buttonLabel": "Attribute",
@@ -528,6 +544,27 @@
         "learnMore": {
           "label": "Learn more about attributes",
           "content": "Attributes help customers find and filter your products. Admin-defined attributes appear in search results."
+        },
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for variants",
+        "useForVariantsDescription": "If checked, we will create variants with this attribute. You can define them in the next step. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values",
+        "enterValuePlaceholder": "Enter value",
+        "selectValuePlaceholder": "Select value",
+        "requiredTooltip": "This attribute is required by the Marketplace and can't be deselected.",
+        "noAttributesTitle": "No product attributes yet",
+        "noAttributesDescription": "There are no attributes defined by the Marketplace.",
+        "errors": {
+          "titleRequired": "Please enter a title",
+          "valuesRequired": "Please enter at least one value"
         }
       }
     },
@@ -587,12 +624,20 @@
       }
     },
     "attributes": "Attributes",
+    "attributeVariantsDescription": "Attributes used for variations",
+    "attributeProductInformation": "Product Information",
+    "attributeProductInformationDescription": "Attributes used for informational purposes",
+    "attributeRequiredByMarketplace": "This attribute is required by the Marketplace",
+    "attributeRequiredDeleteDisabledTooltip": "Required attributes cannot be removed.",
+    "addAttribute": "Add Attribute",
+    "deleteAttributeWarning": "Are you sure you want to delete the attribute \"{{title}}\"? This action cannot be undone.",
     "attributesSection": {
       "removeWarning": "You are about to remove this attribute from the product. This action cannot be undone."
     },
     "editAttributes": "Edit Attributes",
+    "editAttribute": "Edit Attribute",
+    "editAttributeHint": "Update the values selected for this attribute on the product.",
     "editOptions": "Edit Options",
-    "editPrices": "Edit prices",
     "media": {
       "label": "Media",
       "editHint": "Add media to the product to showcase it in your storefront.",
@@ -648,6 +693,7 @@
       "draft": "Draft",
       "published": "Published",
       "proposed": "Proposed",
+      "requires_action": "Requires Action",
       "rejected": "Rejected"
     },
     "columns": {
@@ -776,51 +822,27 @@
       },
       "primaryCategory": {
         "label": "Primary Category",
-        "tooltip": "The primary category defines which attributes are available for this product. Attributes are created by the Admin when setting up the marketplace."
+        "tooltip": "Category could define attributes that apply to this product. Attributes are created by the Admin when setting up the marketplace."
       }
     },
     "variant": {
+      "validation": {
+        "titleRequired": "Please enter a title",
+        "optionRequired": "Please select a value"
+      },
       "edit": {
         "header": "Edit Variant",
-        "success": "Product variant edited successfully"
+        "success": "Product variant edited successfully",
+        "attributesTooltip": "These are default values used to describe the item. They are not defined by Marketplace."
       },
       "create": {
         "header": "Variant details"
       },
       "deleteWarning": "Are you sure you want to delete this variant?",
-      "pricesPagination": "1 - {{current}} of {{total}} prices",
       "tableItemAvailable": "{{availableCount}} available",
       "tableItem_one": "{{availableCount}} available at {{locationCount}} location",
       "tableItem_other": "{{availableCount}} available at {{locationCount}} locations",
-      "inventory": {
-        "notManaged": "Not managed",
-        "manageItems": "Manage inventory items",
-        "notManagedDesc": "Inventory is not managed for this variant. Turn on ‘Manage Inventory’ to track the variant's inventory.",
-        "manageKit": "Manage inventory kit",
-        "navigateToItem": "Go to inventory item",
-        "actions": {
-          "inventoryItems": "Go to inventory item",
-          "inventoryKit": "Show inventory items"
-        },
-        "inventoryKit": "Inventory Kit",
-        "inventoryKitHint": "Does this variant consist of several inventory items?",
-        "validation": {
-          "itemId": "Please select inventory item.",
-          "quantity": "Quantity is required. Please input a positive number."
-        },
-        "header": "Stock & Inventory",
-        "editItemDetails": "Edit item details",
-        "manageInventoryLabel": "Manage inventory",
-        "manageInventoryHint": "When enabled, we'll change the inventory quantity for you when orders and returns are created.",
-        "allowBackordersLabel": "Allow backorders",
-        "allowBackordersHint": "When enabled, customers can purchase the variant even if there's no available quantity.",
-        "toast": {
-          "levelsBatch": "Inventory levels updated.",
-          "update": "Inventory item updated successfully.",
-          "updateLevel": "Inventory level updated successfully.",
-          "itemsManageSuccess": "Inventory items successfully updated."
-        }
-      }
+      "inventory": {}
     },
     "options": {
       "header": "Options",
@@ -847,21 +869,12 @@
         }
       }
     },
-    "stock": {
-      "heading": "Manage product stock levels and locations",
-      "description": "Update the stocked inventory levels for all of the product's variants.",
-      "loading": "Hang on this may take a moment...",
-      "tooltips": {
-        "alreadyManaged": "This inventory item is already editable under {{title}}.",
-        "alreadyManagedWithSku": "This inventory item is already editable under {{title}} ({{sku}})."
-      }
-    },
     "shippingProfile": {
       "header": "Shipping configuration",
       "edit": {
         "header": "Shipping Configuration",
         "toasts": {
-          "success": "Successfully updated the shipping profile for {{title}}."
+          "success": "Shipping configuration was successfully updated."
         }
       },
       "create": {
@@ -912,6 +925,22 @@
         "successToast_one": "Product was successfully removed from the collection.",
         "successToast_other": "Products were successfully removed from the collection."
       }
+    },
+    "media": {
+      "label": "Media",
+      "thumbnail": "Thumbnail",
+      "banner": "Banner",
+      "empty": {
+        "header": "No media yet",
+        "description": "Media added by the marketplace operator will appear here."
+      }
+    },
+    "icon": {
+      "label": "Icon",
+      "empty": {
+        "header": "No icon yet",
+        "description": "An icon added by the marketplace operator will appear here."
+      }
     }
   },
   "categories": {
@@ -954,6 +983,22 @@
     "organize": {
       "header": "Organize",
       "action": "Edit ranking"
+    },
+    "media": {
+      "label": "Media",
+      "thumbnail": "Thumbnail",
+      "banner": "Banner",
+      "empty": {
+        "header": "No media yet",
+        "description": "Media added by the marketplace operator will appear here."
+      }
+    },
+    "icon": {
+      "label": "Icon",
+      "empty": {
+        "header": "No icon yet",
+        "description": "An icon added by the marketplace operator will appear here."
+      }
     },
     "fields": {
       "visibility": {
@@ -1045,6 +1090,130 @@
       "successToast": "Inventory levels updated successfully."
     }
   },
+  "offers": {
+    "domain": "Offers",
+    "subtitle": "Manage your catalog listings",
+    "create": {
+      "header": "Create offer",
+      "successToast": "Offer was successfully published. Only offers with stock levels and prices set will be visible on the storefront.",
+      "publish": "Publish",
+      "tipLabel": "Tip:",
+      "tip": "Select all relevant products that match your inventory, then easily create offers for them by simply adding your stock levels and prices.",
+      "addPrice": "Add price",
+      "addInventoryItem": "Add inventory item",
+      "stockLevelsWarning": "Offers created, but some stock levels could not be saved: {{message}}",
+      "tabs": {
+        "catalogue": "Products",
+        "stockLevelsAndPrices": "Stock Levels & Prices"
+      }
+    },
+    "detail": {
+      "offerLabel": "Offer",
+      "productVariant": "Product Variant",
+      "offerVariant": "Offer Variant",
+      "associatedProduct": "Associated product",
+      "shippingConfiguration": "Shipping Configuration",
+      "inventoryItems": "Inventory items",
+      "manageKit": "Manage inventory kit",
+      "noInventoryItems": "No inventory items attached. Open the inventory drawer to attach one.",
+      "goToInventoryItem": "Go to inventory item"
+    },
+    "edit": {
+      "header": "Edit offer",
+      "description": "Update the offer's identity, shipping profile, or metadata.",
+      "successToast": "Offer updated"
+    },
+    "variant": {
+      "edit": {
+        "successToast": "Offer variant was successfully updated."
+      },
+      "shipping": {
+        "successToast": "Shipping configuration was successfully updated."
+      }
+    },
+    "pricing": {
+      "header": "Manage prices",
+      "description": "Add, change, or remove prices on this offer's ladder.",
+      "successToast": "Prices were successfully updated.",
+      "empty": "No prices configured"
+    },
+    "inventory": {
+      "header": "Manage inventory items",
+      "description": "Attach, detach, or change the required quantity per item.",
+      "successToast": "Stock levels were successfully updated.",
+      "empty": "No inventory items attached"
+    },
+    "delete": {
+      "description": "You are about to delete offer {{sku}}. This cannot be undone.",
+      "successToast": "Offer was successfully deleted."
+    },
+    "bulkDelete": {
+      "description_one": "You are about to delete {{count}} offer. This cannot be undone.",
+      "description_other": "You are about to delete {{count}} offers. This cannot be undone.",
+      "successToast_one": "Deleted {{count}} offer",
+      "successToast_other": "Deleted {{count}} offers",
+      "partialToast": "Deleted {{succeeded}} of {{total}} offers; {{failed}} failed"
+    },
+    "actions": {
+      "create": "Create",
+      "manage_prices": "Manage prices",
+      "manage_inventory": "Manage inventory",
+      "edit_prices": "Edit prices",
+      "edit_stock_levels": "Edit stock levels",
+      "bulkDelete": "Delete selected"
+    },
+    "fields": {
+      "sku": "SKU",
+      "variant": "Master variant",
+      "shippingProfile": "Shipping Profile",
+      "ean": "EAN",
+      "upc": "UPC",
+      "requiredQuantity": "Required quantity",
+      "stockStatus": "Stock status",
+      "category": "Category",
+      "collection": "Collection",
+      "variants": "Variants",
+      "status": "Status",
+      "offer": "Offer",
+      "minQuantity": "Min qty",
+      "maxQuantity": "Max qty",
+      "stockLocation": "Stock Location {{name}}",
+      "priceCurrency": "Price {{code}}",
+      "notEnabled": "Not enabled",
+      "enabled": "Enabled",
+      "variantsCount_one": "{{count}} variant",
+      "variantsCount_other": "{{count}} variants"
+    },
+    "status": {
+      "published": "Published",
+      "draft": "Draft",
+      "proposed": "Proposed",
+      "rejected": "Rejected"
+    },
+    "stockStatus": {
+      "in_stock": "In stock",
+      "low_stock": "Low stock",
+      "out_of_stock": "Out of stock"
+    },
+    "empty": {
+      "heading": "No offers yet",
+      "description": "Create offers to start selling on the marketplace"
+    },
+    "filtered": {
+      "heading": "No matching offers",
+      "description": "Adjust filters or search terms."
+    },
+    "validation": {
+      "skuRequired": "SKU is required for rows with a stock location enabled or a non-zero price.",
+      "shippingProfileRequired": "Select a shipping profile to publish this row.",
+      "duplicateSku": "Another row in this submission already uses this SKU.",
+      "duplicatePriceRule": "Another price row already has this combination of currency, region, customer group, and quantity bounds.",
+      "duplicateInventoryItem": "This inventory item is already attached.",
+      "selectAtLeastOneVariant": "Select at least one variant to continue.",
+      "noPublishableRows": "Add a SKU, enable a stock location, or set a price to publish.",
+      "duplicateBatchEntry": "An inventory item can only appear in one bucket (create, update, or delete)."
+    }
+  },
   "giftCards": {
     "domain": "Gift Cards",
     "editGiftCard": "Edit Gift Card",
@@ -1075,20 +1244,23 @@
     },
     "groups": {
       "label": "Customer groups",
-      "remove": "Are you sure you want to remove the customer from \"{{name}}\" customer group?",
-      "removeMany": "Are you sure you want to remove customer from following customer groups: {{groups}}?",
+      "remove": "You are about to remove customer from {{name}} group. This action cannot be undone.",
+      "removeMany": "You are about to remove customer from {{groups}} groups. This action cannot be undone.",
       "alreadyAddedTooltip": "The customer is already in this customer group.",
       "list": {
+        "emptyTitle": "No customer groups yet",
         "noRecordsMessage": "This customer doesn't belong to any group."
       },
       "add": {
-        "success": "Customer added to: {{groups}}.",
+        "successOne": "Customer was successfully added to {{groups}} group.",
+        "successMany": "Customer was successfully added to {{groups}} groups.",
         "list": {
           "noRecordsMessage": "Please create a customer group first."
         }
       },
       "removed": {
-        "success": "Customer removed from: {{groups}}.",
+        "successOne": "Customer was successfully removed from {{groups}} group.",
+        "successMany": "Customer was successfully removed from {{groups}} groups.",
         "list": {
           "noRecordsMessage": "Please create a customer group first."
         }
@@ -1114,6 +1286,8 @@
     "hasAccount": "Has account",
     "addresses": {
       "title": "Addresses",
+      "emptyTitle": "No addresses yet",
+      "emptyMessage": "This customer doesn't have any addresses",
       "fields": {
         "addressName": "Address name",
         "address1": "Address 1",
@@ -1137,10 +1311,13 @@
   "customerGroups": {
     "domain": "Customer Groups",
     "subtitle": "Organize customers into groups. Groups can have different promotions and prices.",
+    "validation": {
+      "nameRequired": "Please enter a name."
+    },
     "list": {
       "empty": {
-        "heading": "No customer groups",
-        "description": "There are no customer groups to display."
+        "heading": "No customer groups yet",
+        "description": "Create customer groups to organize customers"
       },
       "filtered": {
         "heading": "No results",
@@ -1150,7 +1327,8 @@
     "create": {
       "header": "Create Customer Group",
       "hint": "Create a new customer group to segment your customers.",
-      "successToast": "Customer group {{name}} was successfully created."
+      "successToast": "Customer group {{name}} was successfully created.",
+      "alreadyExistsToast": "Customer group with name {{name}} already exists."
     },
     "edit": {
       "header": "Edit Customer Group",
@@ -1174,10 +1352,13 @@
         "title_one": "Remove customer",
         "title_other": "Remove customers",
         "description_one": "You are about to remove {{count}} customer from the customer group. This action cannot be undone.",
-        "description_other": "You are about to remove {{count}} customers from the customer group. This action cannot be undone."
+        "description_other": "You are about to remove {{count}} customers from the customer group. This action cannot be undone.",
+        "successToast_one": "Customer was successfully removed from the group.",
+        "successToast_other": "Customers were successfully removed from the group."
       },
       "list": {
-        "noRecordsMessage": "This group doesn't have customers."
+        "noRecordsTitle": "No customers yet",
+        "noRecordsMessage": "This group doesn't have any customers"
       }
     }
   },
@@ -1211,6 +1392,18 @@
     "claim": "Claim",
     "exchange": "Exchange",
     "return": "Return",
+    "filters": {
+      "request": {
+        "label": "Request",
+        "edit": "Edit",
+        "return": "Return",
+        "exchange": "Exchange",
+        "claim": "Claim"
+      }
+    },
+    "actions": {
+      "cancelDisabledFulfilled": "Cannot cancel an order that has fulfilled items."
+    },
     "cancelWarning": "You are about to cancel the order {{id}}. This action cannot be undone.",
     "orderCanceled": "Order canceled successfully",
     "onDateFromSalesChannel": "{{date}} from {{salesChannel}}",
@@ -1296,23 +1489,31 @@
       "createRefundWrongQuantity": "Quantity should be a number between 1 and {{number}}",
       "refundAmount": "Refund {{ amount }}",
       "paymentLink": "Copy payment link for {{ amount }}",
-      "selectPaymentToRefund": "Select payment to refund"
+      "copyPaymentLink": "Copy payment link for {{ amount }}",
+      "copyLinkSuccess": "Payment link copied to clipboard",
+      "copyLinkError": "Failed to copy payment link",
+      "copyLinkMissing": "No payment link available for this order",
+      "markAsPaidSuccess": "Payment collection marked as paid",
+      "selectPaymentToRefund": "Select payment to refund",
+      "outstandingAmount": "Outstanding amount"
     },
     "edits": {
       "title": "Edit order",
-      "confirm": "Confirm Edit",
+      "confirm": "Confirm",
       "confirmText": "You are about to confirm an Order Edit. This action cannot be undone.",
-      "cancel": "Cancel Edit",
+      "cancel": "Cancel",
       "currentItems": "Current items",
       "currentItemsDescription": "Adjust item quantity or remove.",
       "addItemsDescription": "You can add new items to the order.",
       "addItems": "Add items",
       "amountPaid": "Amount paid",
       "newTotal": "New total",
-      "differenceDue": "Difference due",
+      "differenceDue": "Estimated difference",
       "create": "Edit Order",
       "currentTotal": "Current total",
       "noteHint": "Add an internal note for the edit",
+      "sendNotification": "Send notification",
+      "sendNotificationHint": "Notify customer about edit.",
       "cancelSuccessToast": "Order edit canceled",
       "createSuccessToast": "Order edit request created",
       "activeChangeError": "There is already active order change on the order (return, claim, exchange etc.). Please finish or cancel the change before editing the order.",
@@ -1322,11 +1523,13 @@
       },
       "toast": {
         "canceledSuccessfully": "Order edit cancelled",
-        "confirmedSuccessfully": "Order edit confirmed"
+        "confirmedSuccessfully": "Order edit confirmed",
+        "requestSent": "Edit request sent to customer"
       },
       "validation": {
         "quantityLowerThanFulfillment": "Cannot set quantity to be less then or equal to fulfilled quantity"
-      }
+      },
+      "removeBlockedFulfilledOrReturned": "Cannot remove items that were fulfilled or returned."
     },
     "edit": {
       "email": {
@@ -1344,6 +1547,10 @@
     },
     "returns": {
       "create": "Create Return",
+      "policyHint": "Returns are accepted within {{days}} days of delivery.",
+      "outOfPolicy": "Returns are accepted within {{days}} days of delivery.",
+      "restockPreview": "Receiving {{quantity}} × {{offerSku}} → +{{delta}} to {{inventoryItem}} at {{location}}",
+      "noItemsSelected": "Select at least one item to return.",
       "confirm": "Confirm Return",
       "confirmText": "You are about to confirm a Return. This action cannot be undone.",
       "inbound": "Inbound",
@@ -1414,6 +1621,34 @@
     },
     "claims": {
       "create": "Create Claim",
+      "title": "Create Claim",
+      "description": "Choose claim type and select items the customer wants to claim.",
+      "policyHint": "Claims are accepted within {{days}} days of delivery.",
+      "outOfPolicy": "Claims are accepted within {{days}} days of delivery.",
+      "location": "Location",
+      "locationHint": "Stock location where the returned items will be received.",
+      "inboundShipping": "Return shipping (optional)",
+      "inboundShippingHint": "Shipping method the customer will use to return the items.",
+      "typeLabel": "Claim type",
+      "typeRefund": "Refund — no replacement shipment",
+      "typeReplace": "Replace — ship replacement items",
+      "typeLockedAfterStart": "Claim type is locked once a draft is started. Cancel and reopen to switch.",
+      "claimItems": "Items to claim",
+      "noClaimableItems": "No claimable items on this order.",
+      "outboundItems": "Items to send",
+      "noOutboundItems": "No replacement items added yet.",
+      "addOutboundItems": "Add items",
+      "addOutboundItemsDescription": "Pick variants to send as replacements for the claimed items.",
+      "remainingQty": "{{count}} claimable",
+      "reasonPlaceholder": "Choose a reason",
+      "itemNotePlaceholder": "Add a note (optional)",
+      "reasons": {
+        "missing_item": "Missing item",
+        "wrong_item": "Wrong item",
+        "production_failure": "Production failure",
+        "other": "Other"
+      },
+      "noteHint": "Add an internal note for this claim (visible only to your team).",
       "confirm": "Confirm Claim",
       "confirmText": "You are about to confirm a Claim. This action cannot be undone.",
       "manage": "Manage Claim",
@@ -1447,6 +1682,31 @@
     },
     "exchanges": {
       "create": "Create Exchange",
+      "title": "Create Exchange",
+      "description": "Select returnable items and confirm to create an exchange request.",
+      "policyHint": "Exchanges are accepted within {{days}} days of delivery.",
+      "outOfPolicy": "Exchanges are accepted within {{days}} days of delivery.",
+      "inboundItems": "Items to return",
+      "noReturnableItems": "No returnable items on this order.",
+      "outboundItems": "Items to send",
+      "noOutboundItems": "No replacement items added yet.",
+      "addOutboundItems": "Add items",
+      "addOutboundItemsDescription": "Pick variants to send as replacements for the returned items.",
+      "location": "Return location",
+      "locationHint": "Choose which location you want the returned items to ship to.",
+      "locationPlaceholder": "Choose a location",
+      "inboundShipping": "Return shipping (Optional)",
+      "inboundShippingHint": "Choose which method to use for the inbound shipment.",
+      "inboundShippingPlaceholder": "Choose a shipping option",
+      "inboundShippingLockedPlaceholder": "Pick a location first",
+      "reasonPlaceholder": "Choose a reason",
+      "itemNotePlaceholder": "Add a note (optional)",
+      "remainingQty": "{{count}} returnable",
+      "noteHint": "Add an internal note for this exchange (visible only to your team).",
+      "toast": {
+        "canceledSuccessfully": "Exchange canceled successfully",
+        "confirmedSuccessfully": "Exchange confirmed successfully"
+      },
       "manage": "Manage Exchange",
       "confirm": "Confirm Exchange",
       "confirmText": "You are about to confirm an Exchange. This action cannot be undone.",
@@ -1472,10 +1732,6 @@
       "tooltips": {
         "onlyReturnShippingOptions": "This list will consist of only return shipping options."
       },
-      "toast": {
-        "canceledSuccessfully": "Exchange canceled successfully",
-        "confirmedSuccessfully": "Exchange confirmed successfully"
-      },
       "panel": {
         "title": "Exchange initiated",
         "description": "There is an open exchange request to be completed"
@@ -1488,9 +1744,9 @@
     "allocateItems": {
       "action": "Allocate items",
       "title": "Allocate order items",
-      "locationDescription": "Choose which location you want to allocate from.",
+      "locationDescription": "Choose which location you want to allocate items from",
       "itemsToAllocate": "Items to allocate",
-      "itemsToAllocateDesc": "Select the number of items you wish to allocate",
+      "itemsToAllocateDesc": "Choose items and quantities to allocate",
       "search": "Search items",
       "consistsOf": "Consists of {{num}}x inventory items",
       "requires": "Requires {{num}} per variant",
@@ -1499,11 +1755,12 @@
         "error": "Failed to allocate following items: {{items}}"
       },
       "error": {
-        "quantityNotAllocated": "There are unallocated items."
+        "quantityNotAllocated": "There are unallocated items.",
+        "noItemsSelected": "Select at least one item to allocate."
       }
     },
     "shipment": {
-      "title": "Mark fulfillment shipped",
+      "title": "Mark Fulfillment as Shipped",
       "trackingNumber": "Tracking number",
       "trackingUrl": "Tracking URL",
       "labelUrl": "Label URL",
@@ -1511,14 +1768,18 @@
       "addTrackingUrl": "Add tracking URL",
       "trackingUrlPlaceholder": "https://www.dhl.com/shipment/1234567890",
       "sendNotification": "Send notification",
-      "sendNotificationHint": "Notify the customer about this shipment.",
+      "sendNotificationHint": "Notify the customer about shipment",
       "toastCreated": "Shipment created successfully."
     },
     "fulfillment": {
       "cancelWarning": "You are about to cancel a fulfillment. This action cannot be undone.",
       "markAsDeliveredWarning": "You are about to mark fulfillment as delivered. This action cannot be undone.",
       "differentOptionSelected": "The selected shipping option is different from the one selected by the customer.",
-      "disabledItemTooltip": "The shipping option you have selected don’t allow fulfillment of this item",
+      "disabledItemTooltip": "The location or shipping option you have selected don’t allow fulfillment of this item.",
+      "noInventoryLevel": {
+        "title": "No inventory level",
+        "description": "The selected location does not have an inventory level for the selected items. To proceed with fulfillment, create an inventory level for selected location."
+      },
       "unfulfilledItems": "Unfulfilled Items",
       "statusLabel": "Fulfillment status",
       "statusTitle": "Fulfillment Status",
@@ -1535,7 +1796,7 @@
       "markAsDelivered": "Mark as delivered",
       "itemsToFulfillDesc": "Choose items and quantities to fulfill",
       "locationDescription": "Choose which location you want to fulfill items from.",
-      "sendNotificationHint": "Notify customers about the created fulfillment.",
+      "sendNotificationHint": "Notify customer about fulfillment.",
       "methodDescription": "Choose a different shipping method from the one customer selected",
       "error": {
         "wrongQuantity": "Only one item is available for fulfillment",
@@ -1667,7 +1928,7 @@
       }
     },
     "fields": {
-      "displayId": "Display ID",
+      "displayId": "Order ID",
       "refundableAmount": "Refundable amount",
       "returnableQuantity": "Returnable quantity"
     }
@@ -2675,7 +2936,7 @@
       }
     },
     "deleteUserWarning": "You are about to delete the user {{name}}. This action cannot be undone.",
-    "deleteUserSuccess": "User {{name}} deleted successfully",
+    "deleteUserSuccess": "User {{name}} was successfully removed.",
     "invite": "Invite",
     "inviteForm": {
       "validation": {
@@ -2724,13 +2985,13 @@
     }
   },
   "store": {
-    "domain": "Seller",
-    "manageYourStoresDetails": "Manage your seller's details",
-    "editStore": "Edit seller",
+    "domain": "Store",
+    "manageYourStoresDetails": "Manage your store's details",
+    "editStore": "Edit store",
     "handleTooltip": "The handle becomes the URL slug for your store. Leave empty to auto-generate from the name.",
     "validation": {
       "nameRequired": "Please enter a name",
-      "nameTooLong": "Name must be at most 100 characters",
+      "emailRequired": "Please enter an email",
       "emailInvalid": "Please enter a valid email"
     },
     "profileCompletion": {
@@ -2786,7 +3047,14 @@
     "logo": "Logo",
     "banner": "Banner",
     "edit": {
-      "header": "Edit Store"
+      "websiteHint": "Must include protocol (e.g. https://)",
+      "mediaHeading": "Media",
+      "mediaTipLabel": "Tip:",
+      "mediaTipBody": "This media will be visible on the storefront.",
+      "uploadLogoLabel": "Upload logo",
+      "uploadLogoHint": "Drag and drop your logo here or click to upload.",
+      "uploadBannerLabel": "Upload banner",
+      "uploadBannerHint": "Drag and drop your banner here or click to upload."
     },
     "editCompany": {
       "header": "Edit Company"
@@ -2803,7 +3071,7 @@
       "edit": {
         "header": "Edit Address",
         "description": "Update the address for your store.",
-        "successToast": "Address updated"
+        "successToast": "Address was successfully updated."
       },
       "validation": {
         "nameRequired": "Please enter a name",
@@ -2819,7 +3087,7 @@
       "edit": {
         "header": "Edit Payment Details",
         "description": "Update the payment details for your store.",
-        "successToast": "Payment details updated"
+        "successToast": "Payment details was successfully updated."
       },
       "fields": {
         "countryCode": "Country",
@@ -2846,7 +3114,7 @@
       "edit": {
         "header": "Edit Company Details",
         "description": "Update the company details for your store.",
-        "successToast": "Company details updated"
+        "successToast": "Company details was successfully updated."
       },
       "fields": {
         "corporateName": "Company",
@@ -2872,7 +3140,10 @@
       "create": {
         "header": "Create Time Off",
         "description": "Schedule a time off period for your store.",
-        "successToast": "Time off saved"
+        "successToast": "Time off was successfully created."
+      },
+      "edit": {
+        "successToast": "Time off was successfully updated."
       },
       "fields": {
         "firstDay": "First day",
@@ -2884,20 +3155,7 @@
         "title": "Delete time off",
         "description": "Are you sure you want to remove this time off period?"
       },
-      "deleteSuccess": "Time off removed"
-    },
-    "subscription": {
-      "header": "Subscription",
-      "noPlan": "No subscription plan",
-      "noPlanMessage": "Your store does not have an active subscription plan.",
-      "monthlyAmount": "Monthly amount",
-      "freeMonths": "Free months",
-      "freePeriod": "Free period",
-      "requiresOrders": "Requires orders",
-      "month": "month"
-    },
-    "edit": {
-      "websiteHint": "Must include protocol (e.g. https://)"
+      "deleteSuccess": "Time off was successfully deleted."
     },
     "toast": {
       "update": "Store successfully updated",
@@ -3240,7 +3498,7 @@
     "hint": "Log in to your vendor account.",
     "submit": "Log in",
     "sessionExpired": "Session expired",
-    "notSellerYet": "Not a seller yet? <0>Create an account</0>",
+    "notSellerYet": "Don't have a store yet? <0>Create an account</0>",
     "validation": {
       "emailRequired": "Please enter an email",
       "emailInvalid": "Please enter a valid email",
@@ -3297,8 +3555,8 @@
       "addressTitle": "Address",
       "addressSubtitle": "Your business address",
       "professionalTitle": "Business details",
-      "professionalSubtitle": "Professional seller information",
-      "isProfessional": "Professional seller",
+      "professionalSubtitle": "Professional store information",
+      "isProfessional": "Professional store",
       "isProfessionalDescription": "Register as a business entity",
       "corporateName": "Company",
       "registrationNumber": "Registration number",
@@ -3307,7 +3565,7 @@
     },
     "submitted": {
       "title": "Application submitted!",
-      "description": "Your seller account has been created and is pending approval. We'll notify you at {{email}} once your store is reviewed.",
+      "description": "Your store account has been created and is pending approval. We'll notify you at {{email}} once your store is reviewed.",
       "hint": "In the meantime, you can select your store and complete your setup.",
       "action": "Continue to dashboard"
     },
@@ -3344,7 +3602,7 @@
       },
       "company": {
         "title": "Enter your company details",
-        "subtitle": "Professional seller information",
+        "subtitle": "Professional store information",
         "corporateName": "Company",
         "registrationNumber": "Registration number",
         "taxId": "Tax ID"
@@ -3553,6 +3811,7 @@
     "inStock": "In stock",
     "added": "Added",
     "removed": "Removed",
+    "updated": "Updated",
     "from": "From",
     "to": "To",
     "beaware": "Be aware",
@@ -3569,6 +3828,7 @@
     "default": "Default",
     "lastName": "Last Name",
     "firstName": "First Name",
+    "images": "Media",
     "title": "Title",
     "customTitle": "Custom title",
     "manageInventory": "Manage inventory",
@@ -3584,6 +3844,8 @@
     "newPassword": "New Password",
     "repeatNewPassword": "Repeat New Password",
     "categories": "Categories",
+    "type_id": "Type",
+    "collection_id": "Collection",
     "shippingMethod": "Shipping method",
     "configurations": "Configurations",
     "enabledInStore": "Enabled in store",
@@ -3727,7 +3989,26 @@
     "draft": "Draft",
     "values": "Values",
     "premium": "Premium",
-    "professional": "Professional"
+    "professional": "Professional",
+    "is_giftcard": "Gift card",
+    "origin_country": "Country of origin",
+    "hs_code": "HS code",
+    "mid_code": "MID code",
+    "external_id": "External ID",
+    "is_restricted": "Restricted",
+    "tag_ids": "Tags",
+    "category_ids": "Categories",
+    "allow_backorder": "Allow backorder",
+    "manage_inventory": "Manage inventory",
+    "variant_rank": "Variant rank",
+    "attribute_values": "Attribute values",
+    "isbn": "ISBN",
+    "asin": "ASIN",
+    "gtin": "GTIN",
+    "inventory_quantity": "Inventory quantity",
+    "requires_shipping": "Requires shipping",
+    "variant_attributes": "Variant attributes",
+    "product_attributes": "Product attributes"
   },
   "dateTime": {
     "years_one": "Year",
@@ -3769,6 +4050,24 @@
     "login": {
       "authenticationFailed": "Authentication failed",
       "cloud": "Log in with Mercur"
+    }
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
     }
   }
 }

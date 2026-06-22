@@ -10,7 +10,7 @@ import { useEffect, useRef } from "react";
 
 import { Form } from "../../../../../../components/common/form";
 import { Combobox } from "../../../../../../components/inputs/combobox";
-import { useStore } from "../../../../../../hooks/api";
+import { useCurrentSeller } from "../../../../../../hooks/api/sellers";
 import { useComboboxData } from "../../../../../../hooks/use-combobox-data";
 import { sdk } from "../../../../../../lib/client";
 
@@ -29,14 +29,14 @@ type RuleValueFormFieldType = {
   applicationMethodTargetType: ApplicationMethodTargetTypeValues | undefined;
 };
 
-const buildFilters = (attribute?: string, store?: HttpTypes.AdminStore) => {
-  if (!attribute || !store) {
+const buildFilters = (attribute?: string, currencyCode?: string) => {
+  if (!attribute || !currencyCode) {
     return {};
   }
 
   if (attribute === "currency_code") {
     return {
-      value: store.supported_currencies?.map((c) => c.currency_code),
+      value: [currencyCode],
     };
   }
 
@@ -60,7 +60,7 @@ export const RuleValueFormField = ({
     (attr) => attr.value === fieldRule.attribute,
   );
 
-  const { store, isLoading: isStoreLoading } = useStore();
+  const { currency_code, isPending: isSellerLoading } = useCurrentSeller();
 
   const comboboxData = useComboboxData({
     queryFn: async (params) => {
@@ -71,7 +71,7 @@ export const RuleValueFormField = ({
           $ruleType: ruleType,
           $ruleAttributeId: attribute?.id,
           ...params,
-          ...buildFilters(attribute?.id, store!),
+          ...buildFilters(attribute?.id, currency_code),
           application_method_target_type:
             applicationMethodTargetType as ApplicationMethodTargetTypeValues,
         },
@@ -80,7 +80,7 @@ export const RuleValueFormField = ({
     enabled:
       !!attribute?.id &&
       ["select", "multiselect"].includes(attribute.field_type) &&
-      !isStoreLoading,
+      !isSellerLoading,
     getOptions: (data) => data.values,
     queryKey: ["rule-value-options", ruleType, attribute?.id],
   });

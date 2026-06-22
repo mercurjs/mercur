@@ -1,5 +1,3 @@
-import { defaultAdminProductVariantFields } from "@medusajs/medusa/api/admin/product-variants/query-config"
-
 export const vendorProductFields = [
   "id",
   "title",
@@ -26,38 +24,74 @@ export const vendorProductFields = [
   "metadata",
   "*type",
   "*collection",
-  "*options",
-  "*options.values",
   "*tags",
   "*images",
-  "*variants",
-  "*variants.prices",
-  "*variants.options",
-  "*variants.inventory_items",
   "*categories",
-  "*attribute_values",
-  "*attribute_values.attribute",
+  "*options",
+  "*options.values",
+  "*variants",
+  "*variants.options",
+  // Linked product-attribute value ids (Module Link alias). The GET
+  // handler enriches these into `product.attributes` via separate
+  // queries against the product-attribute module.
+  "attribute_values.id",
 ]
+
+export const vendorProductRetrieveFields = [...vendorProductFields]
 
 export const vendorProductQueryConfig = {
   list: {
     defaults: vendorProductFields,
+    defaultLimit: 50,
     isList: true,
   },
   retrieve: {
-    defaults: vendorProductFields,
+    defaults: vendorProductRetrieveFields,
     isList: false,
   },
 }
 
+export const vendorProductVariantFields = [
+  "id",
+  "title",
+  "sku",
+  "ean",
+  "upc",
+  "isbn",
+  "asin",
+  "gtin",
+  "barcode",
+  "hs_code",
+  "mid_code",
+  "variant_rank",
+  "weight",
+  "length",
+  "height",
+  "width",
+  "origin_country",
+  "material",
+  "metadata",
+  "created_at",
+  "updated_at",
+  "product_id",
+  "manage_inventory",
+  "allow_backorder",
+  "thumbnail",
+  "*options",
+  "images.id",
+  "images.url",
+  "images.rank",
+  "images.variants.id",
+]
+
 export const vendorProductVariantQueryConfig = {
   list: {
-    defaults: defaultAdminProductVariantFields,
-    isList: true,
+    defaults: vendorProductVariantFields,
     defaultLimit: 50,
+    isList: true,
   },
   retrieve: {
-    defaults: defaultAdminProductVariantFields,
+    defaults: vendorProductVariantFields,
     isList: false,
   },
 }

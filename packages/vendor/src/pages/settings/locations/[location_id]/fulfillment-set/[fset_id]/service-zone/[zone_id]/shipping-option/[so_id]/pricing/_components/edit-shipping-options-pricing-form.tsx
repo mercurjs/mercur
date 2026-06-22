@@ -16,8 +16,8 @@ import {
 } from "@components/modals/index"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { usePricePreferences } from "@hooks/api/price-preferences"
+import { useCurrentSeller } from "@hooks/api/sellers"
 import { useUpdateShippingOptions } from "@hooks/api/shipping-options"
-import { useStore } from "@hooks/api/store"
 import { castNumber } from "@lib/cast-number"
 import { ConditionalPriceForm } from "@pages/settings/locations/_common/components/conditional-price-form"
 import { ShippingOptionPriceProvider } from "@pages/settings/locations/_common/components/shipping-option-price-provider"
@@ -91,15 +91,15 @@ export function EditShippingOptionsPricingForm({
   const { mutateAsync, isPending } = useUpdateShippingOptions(shippingOption.id)
 
   const {
-    store,
-    isLoading: isStoreLoading,
-    isError: isStoreError,
-    error: storeError,
-  } = useStore()
+    currency_code,
+    isPending: isSellerLoading,
+    isError: isSellerError,
+    error: sellerError,
+  } = useCurrentSeller()
 
   const currencies = useMemo(
-    () => store?.supported_currencies?.map((c) => c.currency_code) || [],
-    [store]
+    () => (currency_code ? [currency_code] : []),
+    [currency_code]
   )
 
   const { price_preferences: pricePreferences } = usePricePreferences({})
@@ -207,10 +207,10 @@ export function EditShippingOptionsPricingForm({
     )
   })
 
-  const isLoading = isStoreLoading || !currencies
+  const isLoading = isSellerLoading || currencies.length === 0
 
-  if (isStoreError) {
-    throw storeError
+  if (isSellerError) {
+    throw sellerError
   }
 
   return (

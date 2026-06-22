@@ -1,3 +1,4 @@
+import { HttpTypes } from "@medusajs/types"
 import { Children, ReactNode } from "react"
 import { useParams } from "react-router-dom"
 import { RouteFocusModal } from "../../../components/modals"
@@ -10,8 +11,6 @@ import {
 } from "./components/create-product-variant-form"
 import { CreateProductVariantSchema } from "./components/create-product-variant-form/constants"
 import DetailsTab from "./components/create-product-variant-form/details-tab"
-import PricingTab from "./components/create-product-variant-form/pricing-tab"
-import InventoryKitTab from "./components/create-product-variant-form/inventory-kit-tab"
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
@@ -28,7 +27,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
         Children.count(children) > 0 ? (
           children
         ) : (
-          <CreateProductVariantForm product={product} />
+          <CreateProductVariantForm product={product as unknown as HttpTypes.AdminProduct} />
         )
       )}
     </RouteFocusModal>
@@ -38,8 +37,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
 export const ProductCreateVariantPage = Object.assign(Root, {
   Form: CreateProductVariantForm,
   DetailsTab,
-  PricingTab,
-  InventoryKitTab,
   Tab: TabbedForm.Tab,
 })
 

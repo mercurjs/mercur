@@ -414,19 +414,13 @@
       "tabs": {
         "details": "Detail",
         "organize": "Atur",
-        "variants": "Varian",
-        "inventory": "Kit inventaris"
+        "variants": "Varian"
       },
       "errors": {
         "variants": "Pilih setidaknya satu varian.",
         "options": "Buat setidaknya satu opsi.",
-        "uniqueSku": "SKU harus unik."
-      },
-      "inventory": {
-        "heading": "Kit inventaris",
-        "label": "Tambah item inventaris ke kit inventaris varian.",
-        "itemPlaceholder": "Pilih item inventaris",
-        "quantityPlaceholder": "Berapa banyak dari ini yang dibutuhkan untuk kit?"
+        "uniqueSku": "SKU harus unik.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Varian",
@@ -449,7 +443,21 @@
           "hint": "Definisikan opsi untuk produk, misal: warna, ukuran, dll."
         }
       },
-      "successToast": "Produk {{title}} berhasil dibuat."
+      "successToast": "Produk {{title}} berhasil dibuat.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Ekspor Daftar Produk",
@@ -503,7 +511,6 @@
     "attributes": "Atribut",
     "editAttributes": "Edit Atribut",
     "editOptions": "Edit Opsi",
-    "editPrices": "Edit harga",
     "media": {
       "label": "Media",
       "editHint": "Tambah media ke produk untuk menampilkannya di etalase Anda.",
@@ -536,6 +543,7 @@
       "draft": "Draf",
       "published": "Dipublikasikan",
       "proposed": "Diusulkan",
+      "requires_action": "Changes required",
       "rejected": "Ditolak"
     },
     "fields": {
@@ -629,27 +637,18 @@
         "header": "Detail varian"
       },
       "deleteWarning": "Anda yakin ingin menghapus varian ini?",
-      "pricesPagination": "1 - {{current}} dari {{total}} harga",
       "tableItemAvailable": "{{availableCount}} tersedia",
       "tableItem_one": "{{availableCount}} tersedia di {{locationCount}} lokasi",
       "tableItem_other": "{{availableCount}} tersedia di {{locationCount}} lokasi",
       "inventory": {
         "notManaged": "Tidak dikelola",
-        "manageItems": "Kelola item inventaris",
-        "notManagedDesc": "Inventaris tidak dikelola untuk varian ini. Aktifkan 'Kelola Inventaris' untuk melacak inventaris varian.",
-        "manageKit": "Kelola kit inventaris",
         "navigateToItem": "Pergi ke item inventaris",
-        "actions": {
-          "inventoryItems": "Pergi ke item inventaris",
-          "inventoryKit": "Tampilkan item inventaris"
-        },
         "inventoryKit": "Kit Inventaris",
         "inventoryKitHint": "Apakah varian ini terdiri dari beberapa item inventaris?",
         "validation": {
           "itemId": "Pilih item inventaris.",
           "quantity": "Kuantitas wajib diisi. Masukkan angka positif."
         },
-        "header": "Stok & Inventaris",
         "editItemDetails": "Edit detail item",
         "manageInventoryLabel": "Kelola inventaris",
         "manageInventoryHint": "Jika diaktifkan, kami akan mengubah kuantitas inventaris untuk Anda saat pesanan dan pengembalian dibuat.",
@@ -682,15 +681,6 @@
         "toasts": {
           "success": "Berhasil memperbarui organisasi {{title}}."
         }
-      }
-    },
-    "stock": {
-      "heading": "Kelola tingkat stok dan lokasi produk",
-      "description": "Perbarui tingkat inventaris stok untuk semua varian produk.",
-      "loading": "Tunggu sebentar, ini mungkin memakan waktu...",
-      "tooltips": {
-        "alreadyManaged": "Item inventaris ini sudah dapat diedit di bawah {{title}}.",
-        "alreadyManagedWithSku": "Item inventaris ini sudah dapat diedit di bawah {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {
@@ -3001,7 +2991,8 @@
     "startDate": "Tanggal mulai",
     "endDate": "Tanggal akhir",
     "draft": "Draf",
-    "values": "Nilai"
+    "values": "Nilai",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Tahun",
@@ -3018,5 +3009,23 @@
     "minutes_other": "Menit",
     "seconds_one": "Detik",
     "seconds_other": "Detik"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

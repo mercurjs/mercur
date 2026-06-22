@@ -19,8 +19,10 @@ import { useUpdateProduct } from "../../../../../hooks/api/products"
 
 export const ProductMediaSection = ({
   product,
+  readOnly = false,
 }: {
   product: HttpTypes.AdminProduct;
+  readOnly?: boolean;
 }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
@@ -85,20 +87,22 @@ export const ProductMediaSection = ({
     <Container className="divide-y p-0" data-testid="product-media-section">
       <div className="flex items-center justify-between px-6 py-4" data-testid="product-media-header">
         <Heading level="h2" data-testid="product-media-title">{t("products.media.label")}</Heading>
-        <ActionMenu
-          groups={[
-            {
-              actions: [
-                {
-                  label: t("actions.edit"),
-                  to: "media?view=edit",
-                  icon: <PencilSquare />,
-                },
-              ],
-            },
-          ]}
-          data-testid="product-media-action-menu"
-        />
+        {!readOnly && (
+          <ActionMenu
+            groups={[
+              {
+                actions: [
+                  {
+                    label: t("actions.edit"),
+                    to: "media?view=edit",
+                    icon: <PencilSquare />,
+                  },
+                ],
+              },
+            ]}
+            data-testid="product-media-action-menu"
+          />
+        )}
       </div>
       {media.length > 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-4 px-6 py-4" data-testid="product-media-grid">
@@ -107,25 +111,33 @@ export const ProductMediaSection = ({
 
             return (
               <div
-                className="shadow-elevation-card-rest hover:shadow-elevation-card-hover transition-fg group relative aspect-square size-full cursor-pointer overflow-hidden rounded-[8px]"
+                className={clx(
+                  "shadow-elevation-card-rest transition-fg group relative aspect-square size-full overflow-hidden rounded-[8px]",
+                  {
+                    "hover:shadow-elevation-card-hover cursor-pointer":
+                      !readOnly,
+                  }
+                )}
                 key={i.id}
                 data-testid={`product-media-item-${i.id}`}
               >
-                <div
-                  className={clx(
-                    "transition-fg invisible absolute right-2 top-2 opacity-0 group-hover:visible group-hover:opacity-100",
-                    {
-                      "visible opacity-100": isSelected,
-                    }
-                  )}
-                  data-testid={`product-media-checkbox-container-${i.id}`}
-                >
-                  <Checkbox
-                    checked={selection[i.id] || false}
-                    onCheckedChange={() => handleCheckedChange(i.id)}
-                    data-testid={`product-media-checkbox-${i.id}`}
-                  />
-                </div>
+                {!readOnly && (
+                  <div
+                    className={clx(
+                      "transition-fg invisible absolute right-2 top-2 opacity-0 group-hover:visible group-hover:opacity-100",
+                      {
+                        "visible opacity-100": isSelected,
+                      }
+                    )}
+                    data-testid={`product-media-checkbox-container-${i.id}`}
+                  >
+                    <Checkbox
+                      checked={selection[i.id] || false}
+                      onCheckedChange={() => handleCheckedChange(i.id)}
+                      data-testid={`product-media-checkbox-${i.id}`}
+                    />
+                  </div>
+                )}
                 {i.isThumbnail && (
                   <div className="absolute left-2 top-2" data-testid={`product-media-thumbnail-badge-${i.id}`}>
                     <Tooltip content={t("fields.thumbnail")}>
@@ -133,14 +145,23 @@ export const ProductMediaSection = ({
                     </Tooltip>
                   </div>
                 )}
-                <Link to={`media`} state={{ curr: index }} data-testid={`product-media-link-${i.id}`}>
+                {readOnly ? (
                   <img
                     src={i.url}
                     alt={product.title}
                     className="size-full object-cover"
                     data-testid={`product-media-image-${i.id}`}
                   />
-                </Link>
+                ) : (
+                  <Link to={`media`} state={{ curr: index }} data-testid={`product-media-link-${i.id}`}>
+                    <img
+                      src={i.url}
+                      alt={product.title}
+                      className="size-full object-cover"
+                      data-testid={`product-media-image-${i.id}`}
+                    />
+                  </Link>
+                )}
               </div>
             )
           })}
@@ -161,29 +182,33 @@ export const ProductMediaSection = ({
               {t("products.media.emptyState.description")}
             </Text>
           </div>
-          <Button size="small" variant="secondary" asChild data-testid="product-media-empty-state-button">
-            <Link to="media?view=edit" data-testid="product-media-empty-state-link">
-              {t("products.media.emptyState.action")}
-            </Link>
-          </Button>
+          {!readOnly && (
+            <Button size="small" variant="secondary" asChild data-testid="product-media-empty-state-button">
+              <Link to="media?view=edit" data-testid="product-media-empty-state-link">
+                {t("products.media.emptyState.action")}
+              </Link>
+            </Button>
+          )}
         </div>
       )}
-      <CommandBar open={!!Object.keys(selection).length} data-testid="product-media-command-bar">
-        <CommandBar.Bar data-testid="product-media-command-bar-bar">
-          <CommandBar.Value data-testid="product-media-command-bar-value">
-            {t("general.countSelected", {
-              count: Object.keys(selection).length,
-            })}
-          </CommandBar.Value>
-          <CommandBar.Seperator data-testid="product-media-command-bar-separator" />
-          <CommandBar.Command
-            action={handleDelete}
-            label={t("actions.delete")}
-            shortcut="d"
-            data-testid="product-media-command-bar-delete"
-          />
-        </CommandBar.Bar>
-      </CommandBar>
+      {!readOnly && (
+        <CommandBar open={!!Object.keys(selection).length} data-testid="product-media-command-bar">
+          <CommandBar.Bar data-testid="product-media-command-bar-bar">
+            <CommandBar.Value data-testid="product-media-command-bar-value">
+              {t("general.countSelected", {
+                count: Object.keys(selection).length,
+              })}
+            </CommandBar.Value>
+            <CommandBar.Seperator data-testid="product-media-command-bar-separator" />
+            <CommandBar.Command
+              action={handleDelete}
+              label={t("actions.delete")}
+              shortcut="d"
+              data-testid="product-media-command-bar-delete"
+            />
+          </CommandBar.Bar>
+        </CommandBar>
+      )}
     </Container>
   )
 }

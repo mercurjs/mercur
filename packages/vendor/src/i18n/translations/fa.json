@@ -412,19 +412,13 @@
       "tabs": {
         "details": "جزئیات",
         "organize": "سازماندهی",
-        "variants": "متغیرها",
-        "inventory": "کیت‌های موجودی"
+        "variants": "متغیرها"
       },
       "errors": {
         "variants": "لطفاً حداقل یک متغیر را انتخاب کنید.",
         "options": "لطفاً حداقل یک گزینه ایجاد کنید.",
-        "uniqueSku": "SKU باید منحصر به فرد باشد."
-      },
-      "inventory": {
-        "heading": "کیت‌های موجودی",
-        "label": "آیتم‌های موجودی را به کیت موجودی متغیر اضافه کنید.",
-        "itemPlaceholder": "آیتم موجودی را انتخاب کنید",
-        "quantityPlaceholder": "چند عدد از این آیتم برای کیت نیاز است؟"
+        "uniqueSku": "SKU باید منحصر به فرد باشد.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "متغیرها",
@@ -447,7 +441,21 @@
           "hint": "گزینه‌های محصول مانند رنگ، اندازه و غیره را تعریف کنید."
         }
       },
-      "successToast": "محصول {{title}} با موفقیت ایجاد شد."
+      "successToast": "محصول {{title}} با موفقیت ایجاد شد.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "خروجی گرفتن لیست محصولات",
@@ -501,7 +509,6 @@
     "attributes": "ویژگی‌ها",
     "editAttributes": "ویرایش ویژگی‌ها",
     "editOptions": "ویرایش گزینه‌ها",
-    "editPrices": "ویرایش قیمت‌ها",
     "media": {
       "label": "رسانه‌ها",
       "editHint": "رسانه‌ها را به محصول اضافه کنید تا در فروشگاه شما نمایش داده شود.",
@@ -534,6 +541,7 @@
       "draft": "پیش‌نویس",
       "published": "منتشر شده",
       "proposed": "پیشنهادی",
+      "requires_action": "Changes required",
       "rejected": "رد شده"
     },
     "fields": {
@@ -623,27 +631,18 @@
         "header": "جزئیات متغیر"
       },
       "deleteWarning": "آیا مطمئن هستید که می‌خواهید این متغیر را حذف کنید؟",
-      "pricesPagination": "1 - {{current}} از {{total}} قیمت‌",
       "tableItemAvailable": "{{availableCount}} موجود",
       "tableItem_one": "{{availableCount}} موجود در {{locationCount}} مکان",
       "tableItem_other": "{{availableCount}} موجود در {{locationCount}} مکان‌",
       "inventory": {
         "notManaged": "مدیریت نمی‌شود",
-        "manageItems": "مدیریت اقلام موجودی",
-        "notManagedDesc": "برای این متغیر موجودی مدیریت نمی‌شود. برای پیگیری موجودی، گزینه 'مدیریت موجودی' را فعال کنید.",
-        "manageKit": "مدیریت کیت موجودی",
         "navigateToItem": "برو به آیتم موجودی",
-        "actions": {
-          "inventoryItems": "برو به آیتم موجودی",
-          "inventoryKit": "نمایش اقلام موجودی"
-        },
         "inventoryKit": "کیت موجودی",
         "inventoryKitHint": "آیا این متغیر از چندین آیتم موجودی تشکیل شده است؟",
         "validation": {
           "itemId": "لطفاً یک آیتم موجودی انتخاب کنید.",
           "quantity": "مقدار مورد نیاز است. لطفاً یک عدد مثبت وارد کنید."
         },
-        "header": "موجودی و انبار",
         "editItemDetails": "ویرایش جزئیات آیتم",
         "manageInventoryLabel": "مدیریت موجودی",
         "manageInventoryHint": "هنگامی که فعال شود، زمانی که سفارشات و بازگشت‌ها ایجاد شوند مقدار موجودی برای شما به روز می‌شود.",
@@ -676,15 +675,6 @@
         "toasts": {
           "success": "سازمان {{title}} با موفقیت به روز شد."
         }
-      }
-    },
-    "stock": {
-      "heading": "مدیریت میزان موجودی و مکان‌ها",
-      "description": "مقدار موجودی برای تمامی متغیرهای محصول را به روز کنید.",
-      "loading": "لطفاً منتظر بمانید، ممکن است کمی زمان ببرد...",
-      "tooltips": {
-        "alreadyManaged": "این آیتم موجودی تحت عنوان {{title}} در حال ویرایش است.",
-        "alreadyManagedWithSku": "این آیتم موجودی تحت عنوان {{title}} ({{sku}}) در حال ویرایش است."
       }
     },
     "toasts": {
@@ -2916,7 +2906,8 @@
     "startDate": "تاریخ شروع",
     "endDate": "تاریخ پایان",
     "draft": "پیش‌نویس",
-    "values": "مقادیر"
+    "values": "مقادیر",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "سال",
@@ -2933,5 +2924,23 @@
     "minutes_other": "دقیقه",
     "seconds_one": "ثانیه",
     "seconds_other": "ثانیه"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

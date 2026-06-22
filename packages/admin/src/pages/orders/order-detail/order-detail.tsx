@@ -9,6 +9,7 @@ import { ActiveOrderExchangeSection } from "./components/active-order-exchange-s
 import { ActiveOrderReturnSection } from "./components/active-order-return-section";
 import { OrderActiveEditSection } from "./components/order-active-edit-section";
 import { OrderActivitySection } from "./components/order-activity-section";
+import { OrderCommissionSection } from "./components/order-commission-section";
 import { OrderCustomerSection } from "./components/order-customer-section";
 import { OrderFulfillmentSection } from "./components/order-fulfillment-section";
 import { OrderGeneralSection } from "./components/order-general-section";
@@ -90,6 +91,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
         <ActiveOrderReturnSection orderPreview={orderPreview!} />
         <OrderGeneralSection order={order} />
         <OrderSummarySection order={order} />
+        <OrderCommissionSection order={order} />
         <OrderPaymentSection order={order} />
         <OrderFulfillmentSection order={order} />
       </TwoColumnPage.Main>

@@ -1,4 +1,8 @@
-import { CustomerDTO, PaginatedResponse } from "@medusajs/types"
+import {
+  CustomerDTO,
+  CustomerGroupDTO,
+  PaginatedResponse,
+} from "@medusajs/types"
 
 export interface VendorCustomerResponse {
   /**
@@ -13,3 +17,32 @@ export type VendorCustomerListResponse = PaginatedResponse<{
    */
   customers: CustomerDTO[]
 }>
+
+export interface VendorCustomerGroupResponse {
+  /**
+   * The customer group's details.
+   */
+  customer_group: CustomerGroupDTO
+}
+
+export type VendorCustomerGroupListResponse = PaginatedResponse<{
+  /**
+   * The list of customer groups.
+   */
+  customer_groups: CustomerGroupDTO[]
+}>
+
+export interface VendorCustomerGroupDeleteResponse {
+  /**
+   * The ID of the deleted customer group.
+   */
+  id: string
+  /**
+   * The type of the deleted object.
+   */
+  object: "customer_group"
+  /**
+   * Whether the customer group was deleted.
+   */
+  deleted: boolean
+}

@@ -28,7 +28,23 @@ All packages are published under the `@mercurjs` scope on npm.
 "version": "2.X.Y"
 ```
 
-2. Commit and tag:
+2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template so newly scaffolded projects pin to the matching release:
+
+   - `templates/basic/package.json` — `@mercurjs/dashboard-sdk`, `@mercurjs/dashboard-shared`, `@mercurjs/client`
+   - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
+   - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
+   - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
+
+3. Refresh the lockfile so workspace versions match `package.json`:
+
+```bash
+bun install
+```
+
+   Commit the updated `bun.lock` together with the version bumps — CI runs
+   `bun install --frozen-lockfile` and will fail otherwise.
+
+4. Commit and tag:
 
 ```bash
 git add -A
@@ -37,7 +53,7 @@ git tag v2.X.Y
 git push origin main --tags
 ```
 
-3. The GitHub Action (`.github/workflows/release.yml`) triggers automatically and:
+5. The GitHub Action (`.github/workflows/release.yml`) triggers automatically and:
    - Generates a GitHub Release with changelog via `changelogithub`
    - Builds all packages with `bun run build` (Turborepo)
    - Publishes every non-private package to npm with `--tag latest`
@@ -52,7 +68,23 @@ git push origin main --tags
 
 Where `Z` is the next incremental number (0, 1, 2, ...).
 
-2. Commit and tag:
+2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template to the same `2.X.Y-canary.Z` value:
+
+   - `templates/basic/package.json` — `@mercurjs/dashboard-sdk`, `@mercurjs/dashboard-shared`, `@mercurjs/client`
+   - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
+   - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
+   - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
+
+3. Refresh the lockfile so workspace versions match `package.json`:
+
+```bash
+bun install
+```
+
+   Commit the updated `bun.lock` together with the version bumps — CI runs
+   `bun install --frozen-lockfile` and will fail otherwise.
+
+4. Commit and tag:
 
 ```bash
 git add -A
@@ -61,7 +93,7 @@ git tag v2.X.Y-canary.Z
 git push origin canary --tags
 ```
 
-3. The GitHub Action detects `canary` in the tag name and publishes with `--tag canary`.
+5. The GitHub Action detects `canary` in the tag name and publishes with `--tag canary`.
 
 ## Installing Packages
 

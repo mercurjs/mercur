@@ -30,6 +30,18 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
 
   const { mutateAsync: cancelOrder } = useCancelOrder(order.id)
 
+  const hasAnyFulfilledItem = order.items?.some(
+    // @ts-ignore — detail.fulfilled_quantity is exposed via Mercur query-config
+    (i) => (i.detail?.fulfilled_quantity ?? 0) > 0
+  )
+
+  const cancelDisabled = !!order.canceled_at || !!hasAnyFulfilledItem
+  const cancelDisabledTooltip = order.canceled_at
+    ? undefined
+    : hasAnyFulfilledItem
+      ? t("orders.actions.cancelDisabledFulfilled")
+      : undefined
+
   const handleCancel = async () => {
     const res = await prompt({
       title: t("general.areYouSure"),
@@ -81,7 +93,8 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
                 {
                   label: t("actions.cancel"),
                   onClick: handleCancel,
-                  disabled: !!order.canceled_at,
+                  disabled: cancelDisabled,
+                  disabledTooltip: cancelDisabledTooltip,
                   icon: <XCircle />,
                 },
               ],

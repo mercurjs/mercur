@@ -11,7 +11,7 @@ export const ProductListTitle = () => {
 export const ProductListCreateButton = () => {
   const { t } = useTranslation();
   return (
-    <Button size="small" variant="primary" asChild>
+    <Button size="small" variant="secondary" asChild>
       <Link to="create">{t("actions.create")}</Link>
     </Button>
   );

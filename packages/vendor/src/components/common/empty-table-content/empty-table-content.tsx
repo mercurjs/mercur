@@ -40,7 +40,7 @@ type ActionProps = {
   }
 }
 
-type NoRecordsProps = {
+export type NoRecordsProps = {
   title?: string
   message?: string
   className?: string

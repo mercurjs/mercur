@@ -9,8 +9,6 @@ import {
   DateCell,
   DateHeader,
 } from "../../../components/table/table-cells/common/date-cell"
-import { countries } from "../../../lib/data/countries"
-import { CountryCell } from "../../../components/table/table-cells/order/country-cell"
 import {
   CustomerCell,
   CustomerHeader,
@@ -27,10 +25,6 @@ import {
   PaymentStatusCell,
   PaymentStatusHeader,
 } from "../../../components/table/table-cells/order/payment-status-cell"
-import {
-  SalesChannelCell,
-  SalesChannelHeader,
-} from "../../../components/table/table-cells/order/sales-channel-cell"
 import {
   TotalCell,
   TotalHeader,
@@ -72,14 +66,6 @@ export const useOrderTableColumns = (props: UseOrderTableColumnsProps) => {
           return <CustomerCell customer={customer} />
         },
       }),
-      columnHelper.accessor("sales_channel", {
-        header: () => <SalesChannelHeader />,
-        cell: ({ getValue }) => {
-          const channel = getValue()
-
-          return <SalesChannelCell channel={channel} />
-        },
-      }),
       columnHelper.accessor("payment_status", {
         header: () => <PaymentStatusHeader />,
         cell: ({ getValue }) => {
@@ -117,15 +103,6 @@ export const useOrderTableColumns = (props: UseOrderTableColumnsProps) => {
                 }
               />
             )
-        },
-      }),
-      columnHelper.display({
-        id: "actions",
-        cell: ({ row }) => {
-          const countryCode = row.original.shipping_address?.country_code
-          const country = countries.find((c) => c.iso_2 === countryCode)
-
-          return <CountryCell country={country} />
         },
       }),
     ],

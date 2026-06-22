@@ -44,7 +44,7 @@ const initialTabState: TabState = {
 
 type PriceListCreateFormProps = {
   regions: HttpTypes.AdminRegion[]
-  currencies: HttpTypes.AdminStoreCurrency[]
+  currencies: string[]
   pricePreferences: HttpTypes.AdminPricePreference[]
 }
 

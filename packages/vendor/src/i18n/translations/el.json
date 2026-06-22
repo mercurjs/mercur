@@ -412,19 +412,13 @@
       "tabs": {
         "details": "Λεπτομέρειες",
         "organize": "Οργάνωση",
-        "variants": "Παραλλαγές",
-        "inventory": "Κιτ αποθέματος"
+        "variants": "Παραλλαγές"
       },
       "errors": {
         "variants": "Επιλέξτε τουλάχιστον μία παραλλαγή.",
         "options": "Δημιουργήστε τουλάχιστον μία επιλογή.",
-        "uniqueSku": "Το SKU πρέπει να είναι μοναδικό."
-      },
-      "inventory": {
-        "heading": "Κιτ αποθέματος",
-        "label": "Προσθέστε αντικείμενα αποθέματος στο κιτ αποθέματος της παραλλαγής.",
-        "itemPlaceholder": "Επιλέξτε αντικείμενο αποθέματος",
-        "quantityPlaceholder": "Πόσα από αυτά χρειάζονται για το κιτ;"
+        "uniqueSku": "Το SKU πρέπει να είναι μοναδικό.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Παραλλαγές",
@@ -447,7 +441,21 @@
           "hint": "Ορίστε τις επιλογές για το προϊόν, π.χ. χρώμα, μέγεθος κ.λπ."
         }
       },
-      "successToast": "Το προϊόν {{title}} δημιουργήθηκε με επιτυχία."
+      "successToast": "Το προϊόν {{title}} δημιουργήθηκε με επιτυχία.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Εξαγωγή λίστας προϊόντων",
@@ -501,7 +509,6 @@
     "attributes": "Χαρακτηριστικά",
     "editAttributes": "Επεξεργασία χαρακτηριστικών",
     "editOptions": "Επεξεργασία επιλογών",
-    "editPrices": "Επεξεργασία τιμών",
     "media": {
       "label": "Μέσα",
       "editHint": "Προσθέστε μέσα στο προϊόν για να το παρουσιάσετε στο κατάστημά σας.",
@@ -534,6 +541,7 @@
       "draft": "Πρόχειρο",
       "published": "Δημοσιευμένο",
       "proposed": "Προτεινόμενο",
+      "requires_action": "Changes required",
       "rejected": "Απορριφθέν"
     },
     "fields": {
@@ -627,27 +635,18 @@
         "header": "Λεπτομέρειες παραλλαγής"
       },
       "deleteWarning": "Είστε σίγουροι ότι θέλετε να διαγράψετε αυτήν την παραλλαγή;",
-      "pricesPagination": "1 - {{current}} από {{total}} τιμές",
       "tableItemAvailable": "{{availableCount}} διαθέσιμα",
       "tableItem_one": "{{availableCount}} διαθέσιμα σε {{locationCount}} τοποθεσία",
       "tableItem_other": "{{availableCount}} διαθέσιμα σε {{locationCount}} τοποθεσίες",
       "inventory": {
         "notManaged": "Δεν διαχειρίζεται",
-        "manageItems": "Διαχείριση αντικειμένων αποθέματος",
-        "notManagedDesc": "Το απόθεμα δεν διαχειρίζεται για αυτήν την παραλλαγή. Ενεργοποιήστε τη 'Διαχείριση αποθέματος' για να παρακολουθείτε το απόθεμα της παραλλαγής.",
-        "manageKit": "Διαχείριση κιτ αποθέματος",
         "navigateToItem": "Μετάβαση στο αντικείμενο αποθέματος",
-        "actions": {
-          "inventoryItems": "Μετάβαση στο αντικείμενο αποθέματος",
-          "inventoryKit": "Εμφάνιση αντικειμένων αποθέματος"
-        },
         "inventoryKit": "Κιτ αποθέματος",
         "inventoryKitHint": "Αποτελείται αυτή η παραλλαγή από πολλά αντικείμενα αποθέματος;",
         "validation": {
           "itemId": "Επιλέξτε αντικείμενο αποθέματος.",
           "quantity": "Απαιτείται ποσότητα. Εισαγάγετε έναν θετικό αριθμό."
         },
-        "header": "Απόθεμα & Διαχείριση",
         "editItemDetails": "Επεξεργασία λεπτομερειών αντικειμένου",
         "manageInventoryLabel": "Διαχείριση αποθέματος",
         "manageInventoryHint": "Όταν είναι ενεργοποιημένη, θα αλλάξουμε την ποσότητα αποθέματος για εσάς όταν δημιουργούνται παραγγελίες και επιστροφές.",
@@ -680,15 +679,6 @@
         "toasts": {
           "success": "Ενημερώθηκε με επιτυχία η οργάνωση του {{title}}."
         }
-      }
-    },
-    "stock": {
-      "heading": "Διαχείριση επιπέδων και τοποθεσιών αποθέματος προϊόντων",
-      "description": "Ενημέρωση των επιπέδων αποθεμάτων για όλες τις παραλλαγές του προϊόντος.",
-      "loading": "Περιμένετε, αυτό μπορεί να πάρει λίγο χρόνο...",
-      "tooltips": {
-        "alreadyManaged": "Αυτό το στοιχείο αποθέματος είναι ήδη επεξεργάσιμο στο {{title}}.",
-        "alreadyManagedWithSku": "Αυτό το στοιχείο αποθέματος είναι ήδη επεξεργάσιμο στο {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {
@@ -2940,7 +2930,8 @@
     "startDate": "Ημερομηνία έναρξης",
     "endDate": "Ημερομηνία λήξης",
     "draft": "Πρόχειρο",
-    "values": "Τιμές"
+    "values": "Τιμές",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Έτος",
@@ -2957,5 +2948,23 @@
     "minutes_other": "Λεπτά",
     "seconds_one": "Δευτερόλεπτο",
     "seconds_other": "Δευτερόλεπτα"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

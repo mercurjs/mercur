@@ -9,8 +9,11 @@ export const Component = () => {
   const { id } = useParams()
 
   const { order, isLoading, isError, error } = useOrder(id!, {
+    // `*foo,*foo.bar` or `+foo.bar.baz` makes Medusa's query parser try
+    // to look up a literal property `*items` / `+items` on Order and
+    // 500. Use `<rel>.*` plus bare scalar names.
     fields:
-      "currency_code,*items,*items.variant,+items.variant.product.title,*items.variant.inventory,*items.variant.inventory.location_levels,*items.variant.inventory_items,*shipping_address",
+      "currency_code,items.*,items.variant.*,items.variant.product.title,items.offer.*,items.offer.inventory_item_link.*,items.offer.inventory_item_link.required_quantity,items.offer.inventory_item_link.inventory_item.*,items.offer.inventory_item_link.inventory_item.location_levels.*,shipping_address.*",
   })
 
   if (isError) {

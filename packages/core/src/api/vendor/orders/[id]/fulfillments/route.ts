@@ -2,9 +2,9 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { createOrderFulfillmentWorkflow } from "@medusajs/medusa/core-flows"
 import { HttpTypes } from "@mercurjs/types"
 
+import { createOrderFulfillmentWorkflow } from "../../../../../workflows/order/workflows/create-order-fulfillment"
 import { validateSellerOrder } from "../../helpers"
 import { VendorCreateFulfillmentType } from "../../validators"
 

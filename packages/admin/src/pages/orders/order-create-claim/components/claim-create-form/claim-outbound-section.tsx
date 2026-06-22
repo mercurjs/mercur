@@ -2,10 +2,9 @@ import {
   AdminClaim,
   AdminOrder,
   AdminOrderPreview,
-  InventoryLevelDTO,
 } from "@medusajs/types"
-import { Alert, Button, Heading, Text, toast } from "@medusajs/ui"
-import { useEffect, useMemo, useState } from "react"
+import { Button, Heading, toast } from "@medusajs/ui"
+import { useEffect, useMemo } from "react"
 import { useFieldArray, UseFormReturn } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -24,9 +23,9 @@ import {
   useRemoveClaimOutboundItem,
   useUpdateClaimOutboundItems,
 } from "../../../../../hooks/api/claims"
-import { sdk } from "../../../../../lib/client"
 import { OutboundShippingPlaceholder } from "../../../common/placeholders"
 import { AddClaimOutboundItemsTable } from "../add-claim-outbound-items-table"
+import type { ClaimOfferPickerSelection } from "../add-claim-outbound-items-table/add-claim-outbound-items-table"
 import { ClaimOutboundItem } from "./claim-outbound-item"
 import { ItemPlaceholder } from "./item-placeholder"
 import { CreateClaimSchemaType } from "./schema"
@@ -40,7 +39,7 @@ type ClaimOutboundSectionProps = {
   form: UseFormReturn<CreateClaimSchemaType>
 }
 
-let itemsToAdd: string[] = []
+let itemsToAdd: ClaimOfferPickerSelection[] = []
 let itemsToRemove: string[] = []
 
 export const ClaimOutboundSection = ({
@@ -52,9 +51,6 @@ export const ClaimOutboundSection = ({
   const { t } = useTranslation()
 
   const { setIsOpen } = useStackedModal()
-  const [inventoryMap, setInventoryMap] = useState<
-    Record<string, InventoryLevelDTO[]>
-  >({})
 
   /**
    * HOOKS
@@ -102,11 +98,6 @@ export const ClaimOutboundSection = ({
           )
       ),
     [preview.items, claim.id]
-  )
-
-  const variantItemMap = useMemo(
-    () => new Map(order?.items?.map((i) => [i.variant_id, i])),
-    [order.items]
   )
 
   const {
@@ -164,16 +155,16 @@ export const ClaimOutboundSection = ({
 	update
 ])
 
-  const locationId = form.watch("location_id")
   const showOutboundItemsPlaceholder = !outboundItems.length
 
   const onItemsSelected = async () => {
     if (itemsToAdd.length) {
       await addOutboundItem(
         {
-          items: itemsToAdd.map((variantId) => ({
+          items: itemsToAdd.map(({ variantId, offerId }) => ({
             variant_id: variantId,
             quantity: 1,
+            metadata: { offer_id: offerId },
           })),
         },
         {
@@ -238,68 +229,6 @@ export const ClaimOutboundSection = ({
     }
   }
 
-  const showLevelsWarning = useMemo(() => {
-    if (!locationId) {
-      return false
-    }
-
-    const allItemsHaveLocation = outboundItems
-      .map((i) => {
-        const item = variantItemMap.get(i.variant_id)
-        if (!item?.variant_id || !item?.variant) {
-          return true
-        }
-
-        if (!item.variant?.manage_inventory) {
-          return true
-        }
-
-        return inventoryMap[item.variant_id]?.find(
-          (l) => l.location_id === locationId
-        )
-      })
-      .every(Boolean)
-
-    return !allItemsHaveLocation
-  }, [
-	outboundItems,
-	inventoryMap,
-	locationId,
-	variantItemMap
-])
-
-  useEffect(() => {
-    // TODO: Ensure inventory validation occurs correctly
-    const getInventoryMap = async () => {
-      const ret: Record<string, InventoryLevelDTO[]> = {}
-
-      if (!outboundItems.length) {
-        return ret
-      }
-
-      const variantIds = outboundItems
-        .map((item) => item?.variant_id)
-        .filter(Boolean)
-
-      const variants = (
-        await sdk.admin.productVariants.query({
-          id: variantIds,
-          fields: "*inventory.location_levels",
-        })
-      ).variants
-
-      variants.forEach((variant) => {
-        ret[variant.id] = variant.inventory?.[0]?.location_levels || []
-      })
-
-      return ret
-    }
-
-    getInventoryMap().then((map) => {
-      setInventoryMap(map)
-    })
-  }, [outboundItems])
-
   return (
     <div>
       <div className="mt-8 flex items-center justify-between">
@@ -315,16 +244,29 @@ export const ClaimOutboundSection = ({
             <StackedFocusModal.Header />
 
             <AddClaimOutboundItemsTable
-              selectedItems={outboundItems.map((i) => i.variant_id)}
+              // Picker keys on offer id; hydrate from each outbound item's
+              // stored offer_id metadata (or fallback to its variant id if the
+              // item pre-dates the offer-link wiring).
+              selectedItems={outboundItems
+                .map(
+                  (i) =>
+                    (typeof i.metadata?.offer_id === "string"
+                      ? i.metadata.offer_id
+                      : null) ?? i.variant_id
+                )
+                .filter((v): v is string => !!v)}
               currencyCode={order.currency_code}
               onSelectionChange={(finalSelection) => {
-                const alreadySelected = outboundItems.map((i) => i.variant_id)
+                const alreadyVariantIds = outboundItems
+                  .map((i) => i.variant_id)
+                  .filter((v): v is string => !!v)
 
                 itemsToAdd = finalSelection.filter(
-                  (selection) => !alreadySelected.includes(selection)
+                  ({ variantId }) => !alreadyVariantIds.includes(variantId)
                 )
-                itemsToRemove = alreadySelected.filter(
-                  (selection) => !finalSelection.includes(selection)
+                const finalVariantIds = finalSelection.map((s) => s.variantId)
+                itemsToRemove = alreadyVariantIds.filter(
+                  (variantId) => !finalVariantIds.includes(variantId)
                 )
               }}
             />
@@ -440,16 +382,6 @@ export const ClaimOutboundSection = ({
         </div>
       )}
 
-      {showLevelsWarning && (
-        <Alert variant="warning" dismissible className="mt-4 p-5">
-          <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">
-            {t("orders.returns.noInventoryLevel")}
-          </div>
-          <Text className="text-ui-fg-subtle txt-small leading-normal">
-            {t("orders.returns.noInventoryLevelDesc")}
-          </Text>
-        </Alert>
-      )}
     </div>
   )
 }

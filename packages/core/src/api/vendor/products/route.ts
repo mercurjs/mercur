@@ -1,11 +1,19 @@
-import { createProductsWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys, ProductStatus } from "@medusajs/framework/utils"
+import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
+import {
+  createProductsWorkflow,
+  type CreateProductWorkflowInput,
+} from "../../../workflows/product/workflows/create-products"
+import {
+  enrichProductAttributes,
+  wrapProductVariantsWithOffers,
+} from "../../utils"
 import { VendorCreateProductType, VendorGetProductsParamsType } from "./validators"
 
 export const GET = async (
@@ -14,12 +22,35 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  // Offers are a per-seller overlay on the shared Offer ↔ Variant link;
+  // strip the requested `variants.offers.*` fields before the graph read
+  // and re-attach the active seller's offers afterwards so a competitor's
+  // offers on a master variant never leak (Medusa's strip-then-wrap flow).
+  const withOffers = req.queryConfig.fields.some((field) =>
+    field.includes("variants.offers")
+  )
+  if (withOffers) {
+    req.queryConfig.fields = req.queryConfig.fields.filter(
+      (field) => !field.includes("variants.offers")
+    )
+  }
+
   const { data: products, metadata } = await query.graph({
     entity: "product",
     fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
+
+  await enrichProductAttributes(req.scope, products as any[])
+
+  if (withOffers) {
+    await wrapProductVariantsWithOffers(
+      req.scope,
+      products as Parameters<typeof wrapProductVariantsWithOffers>[1],
+      req.seller_context!.seller_id
+    )
+  }
 
   res.json({
     products,
@@ -29,33 +60,48 @@ export const GET = async (
   })
 }
 
+/**
+ * Vendor product submission. The Mercur wrapper around stock
+ * `createProductsWorkflow` records a single immediately-confirmed
+ * `ProductChange` per created product with a `STATUS_CHANGE` action
+ * pinned to the initial status — that's the audit trail for the
+ * submission. The actual publish-approval lifecycle lives on
+ * `/admin/products/:id/{confirm,reject,request-changes}`, which open
+ * their own confirmed audit changes against the same product.
+ */
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorCreateProductType>,
+  req: AuthenticatedMedusaRequest<VendorCreateProductType & AdditionalData>,
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
-  const { additional_data, ...productData } = req.validatedBody
+  const sellerId = req.seller_context!.seller_id
 
-  const {
-    result: [createdProduct],
-  } = await createProductsWorkflow(req.scope).run({
+  const { additional_data, ...payload } = req.validatedBody
+
+  const { result } = await createProductsWorkflow(req.scope).run({
     input: {
-      products: [productData],
-      additional_data: {
-        ...additional_data,
-        seller_id: sellerId,
-      },
+      products: [
+        {
+          ...payload,
+          status: payload.status ?? ProductStatus.PROPOSED,
+        } as CreateProductWorkflowInput,
+      ],
+      seller_ids: [sellerId],
+      additional_data,
     },
   })
+
+  const createdId = (result as { id: string }[])[0].id
 
   const {
     data: [product],
   } = await query.graph({
     entity: "product",
     fields: req.queryConfig.fields,
-    filters: { id: createdProduct.id },
+    filters: { id: createdId },
   })
+
+  await enrichProductAttributes(req.scope, [product])
 
   res.status(201).json({ product })
 }

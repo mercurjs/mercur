@@ -44,7 +44,7 @@ export const useOrderGroupTableFilters = () => {
     if (sellers?.length) {
       filters.push({
         key: "seller_id",
-        label: "Seller",
+        label: "Store",
         type: "select",
         multiple: true,
         searchable: true,
@@ -79,6 +79,19 @@ export const useOrderGroupTableFilters = () => {
         { label: "Completed", value: "completed" },
         { label: "Canceled", value: "canceled" },
         { label: "Requires action", value: "requires_action" },
+      ],
+    })
+
+    filters.push({
+      key: "request",
+      label: t("orders.filters.request.label"),
+      type: "select",
+      multiple: true,
+      options: [
+        { label: t("orders.filters.request.edit"), value: "edit" },
+        { label: t("orders.filters.request.return"), value: "return" },
+        { label: t("orders.filters.request.exchange"), value: "exchange" },
+        { label: t("orders.filters.request.claim"), value: "claim" },
       ],
     })
 

@@ -1,49 +1,25 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, ProgressStatus, ProgressTabs, toast } from "@medusajs/ui"
-import { useEffect, useMemo, useState } from "react"
-import { useFieldArray, useForm, useWatch } from "react-hook-form"
+import { Button, Heading, Input, toast } from "@medusajs/ui"
+import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
-import { AdminCreateProductVariantPrice } from "@medusajs/types"
-import { ExtendedAdminProduct } from "@custom-types/products"
-import {
-  RouteDrawer,
-  RouteFocusModal,
-  useRouteModal,
-} from "@components/modals"
+import { HttpTypes } from "@medusajs/types"
+import { AttributeType, ProductDTO } from "@mercurjs/types"
+
+import { Form } from "@components/common/form"
+import { AttributeValueInput } from "@components/inputs/attribute-value-input"
+import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
-import { useRegions } from "@hooks/api"
 import { useCreateProductVariant } from "@hooks/api/products"
-import { castNumber } from "@lib/cast-number"
-import { partialFormValidation } from "@lib/validation"
-import {
-  CreateProductVariantSchema,
-  CreateVariantDetailsFields,
-  CreateVariantDetailsSchema,
-  CreateVariantPriceFields,
-  CreateVariantPriceSchema,
-} from "./constants"
-import DetailsTab from "./details-tab"
-import InventoryKitTab from "./inventory-kit-tab"
-import PricingTab from "./pricing-tab"
+import { CreateProductVariantSchema } from "./constants"
 
-enum Tab {
-  DETAIL = "detail",
-  PRICE = "price",
-  INVENTORY = "inventory",
-}
-
-type TabState = Record<Tab, ProgressStatus>
-
-const initialTabState: TabState = {
-  [Tab.DETAIL]: "in-progress",
-  [Tab.PRICE]: "not-started",
-  [Tab.INVENTORY]: "not-started",
-}
+export type CreateProductVariantSchemaType = z.infer<
+  typeof CreateProductVariantSchema
+>
 
 type CreateProductVariantFormProps = {
-  product: ExtendedAdminProduct
+  product: HttpTypes.AdminProduct
 }
 
 export const CreateProductVariantForm = ({
@@ -52,197 +28,53 @@ export const CreateProductVariantForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const [tab, setTab] = useState<Tab.DETAIL | Tab.PRICE | Tab.INVENTORY>(
-    Tab.DETAIL
-  )
-  const [tabState, setTabState] = useState<TabState>(initialTabState)
+  const variantAttributes =
+    (
+      product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">
+    ).attributes?.filter((a) => a.is_variant_axis) ?? []
 
-  const form = useForm<z.infer<typeof CreateProductVariantSchema>>({
+  // Seed every variant-axis option with an empty value so the required
+  // validation fires for untouched selects (an empty record would pass).
+  const defaultOptions = variantAttributes.reduce<Record<string, string>>(
+    (acc, attribute) => {
+      acc[attribute.handle ?? attribute.id] = ""
+      return acc
+    },
+    {}
+  )
+
+  const form = useForm<CreateProductVariantSchemaType>({
     defaultValues: {
-      sku: "",
       title: "",
-      manage_inventory: false,
-      allow_backorder: false,
-      inventory_kit: false,
-      options: {},
+      sku: "",
+      options: defaultOptions,
     },
     resolver: zodResolver(CreateProductVariantSchema),
   })
 
   const { mutateAsync, isPending } = useCreateProductVariant(product.id)
 
-  const { regions } = useRegions({ limit: 9999 })
+  const handleSubmit = form.handleSubmit(async (data) => {
+    const { title, options } = data
 
-  const regionsCurrencyMap = useMemo(() => {
-    if (!regions?.length) {
-      return {}
-    }
-
-    return regions.reduce(
-      (acc, reg) => {
-        acc[reg.id] = reg.currency_code
+    // Form keys variant fields by `handle ?? id`; backend keys options
+    // by option title (= attribute name). Remap before submitting.
+    const cleanedOptions = variantAttributes.reduce<Record<string, string>>(
+      (acc, attr) => {
+        const fieldKey = attr.handle ?? attr.id
+        const v = options?.[fieldKey]
+        if (v && attr.name) acc[attr.name] = v
         return acc
       },
-      {} as Record<string, string>
+      {}
     )
-  }, [regions])
-
-  const isManageInventoryEnabled = useWatch({
-    control: form.control,
-    name: "manage_inventory",
-  })
-
-  const isInventoryKitEnabled = useWatch({
-    control: form.control,
-    name: "inventory_kit",
-  })
-
-  const inventoryField = useFieldArray({
-    control: form.control,
-    name: `inventory`,
-  })
-
-  const inventoryTabEnabled = isManageInventoryEnabled && isInventoryKitEnabled
-
-  const tabOrder = useMemo(() => {
-    if (inventoryTabEnabled) {
-      return [Tab.DETAIL, Tab.PRICE, Tab.INVENTORY] as const
-    }
-
-    return [Tab.DETAIL, Tab.PRICE, Tab.INVENTORY] as const
-  }, [inventoryTabEnabled])
-
-  useEffect(() => {
-    if (isInventoryKitEnabled && inventoryField.fields.length === 0) {
-      inventoryField.append({
-        inventory_item_id: "",
-        required_quantity: undefined,
-      })
-    }
-  }, [
-	isInventoryKitEnabled,
-	inventoryField.fields.length,
-	inventoryField
-])
-
-  const handleChangeTab = (update: Tab.DETAIL | Tab.PRICE | Tab.INVENTORY) => {
-    if (tab === update) {
-      return
-    }
-
-    if (tabOrder.indexOf(update) < tabOrder.indexOf(tab)) {
-      const isCurrentTabDirty = false // isTabDirty(tab) TODO
-
-      setTabState((prev) => ({
-        ...prev,
-        [tab]: isCurrentTabDirty ? prev[tab] : "not-started",
-        [update]: "in-progress",
-      }))
-
-      setTab(update)
-      return
-    }
-
-    // get the tabs from the current tab to the update tab including the current tab
-    const tabs = tabOrder.slice(0, tabOrder.indexOf(update))
-
-    // validate all the tabs from the current tab to the update tab if it fails on any of tabs then set that tab as current tab
-    for (const tab of tabs) {
-      if (tab === Tab.DETAIL) {
-        if (
-          !partialFormValidation<z.infer<typeof CreateProductVariantSchema>>(
-            form,
-            CreateVariantDetailsFields,
-            CreateVariantDetailsSchema
-          )
-        ) {
-          setTabState((prev) => ({
-            ...prev,
-            [tab]: "in-progress",
-          }))
-          setTab(tab)
-          return
-        }
-
-        setTabState((prev) => ({
-          ...prev,
-          [tab]: "completed",
-        }))
-      } else if (tab === Tab.PRICE) {
-        if (
-          !partialFormValidation<z.infer<typeof CreateProductVariantSchema>>(
-            form,
-            CreateVariantPriceFields,
-            CreateVariantPriceSchema
-          )
-        ) {
-          setTabState((prev) => ({
-            ...prev,
-            [tab]: "in-progress",
-          }))
-          setTab(tab)
-
-          return
-        }
-
-        setTabState((prev) => ({
-          ...prev,
-          [tab]: "completed",
-        }))
-      }
-    }
-
-    setTabState((prev) => ({
-      ...prev,
-      [tab]: "completed",
-      [update]: "in-progress",
-    }))
-    setTab(update)
-  }
-
-  const handleNextTab = (tab: Tab.DETAIL | Tab.PRICE | Tab.INVENTORY) => {
-    if (tabOrder.indexOf(tab) + 1 >= tabOrder.length) {
-      return
-    }
-
-    const nextTab = tabOrder[tabOrder.indexOf(tab) + 1]
-    handleChangeTab(nextTab)
-  }
-
-  const handleSubmit = form.handleSubmit(async (data) => {
-    const { sku, title } = data
 
     await mutateAsync(
       {
         title,
-        sku: sku || undefined,
-        allow_backorder: false,
-        manage_inventory: true,
-        options: data.options,
-        prices: Object.entries(data.prices ?? {})
-          .map(([currencyOrRegion, value]) => {
-            if (value === "" || value === undefined) {
-              return undefined
-            }
-
-            const amount = castNumber(value)
-
-            if (currencyOrRegion.startsWith("reg_")) {
-              return {
-                rules: { region_id: currencyOrRegion },
-                currency_code: regionsCurrencyMap[currencyOrRegion],
-                amount,
-              } as AdminCreateProductVariantPrice
-            } else {
-              return {
-                currency_code: currencyOrRegion,
-                amount,
-              } as AdminCreateProductVariantPrice
-            }
-          })
-          .filter(
-            (price) => !!price
-          ),
+        options: Object.keys(cleanedOptions).length
+          ? cleanedOptions
+          : undefined,
       },
       {
         onSuccess: () => {
@@ -257,127 +89,115 @@ export const CreateProductVariantForm = ({
 
   return (
     <RouteFocusModal.Form form={form}>
-      <ProgressTabs
-        value={tab}
-        onValueChange={(tab) => handleChangeTab(tab as Tab)}
-        className="flex h-full flex-col overflow-hidden"
-      >
-        <KeyboundForm
-          onSubmit={handleSubmit}
-          className="flex h-full flex-col overflow-hidden"
-        >
-          <RouteFocusModal.Header>
-            <div className="flex w-full items-center justify-between gap-x-4">
-              <div className="-my-2 w-full max-w-[600px] border-l">
-                <ProgressTabs.List className="grid w-full grid-cols-3">
-                  <ProgressTabs.Trigger
-                    status={tabState.detail}
-                    value={Tab.DETAIL}
-                  >
-                    {t("priceLists.create.tabs.details")}
-                  </ProgressTabs.Trigger>
-                  <ProgressTabs.Trigger
-                    status={tabState.price}
-                    value={Tab.PRICE}
-                  >
-                    {t("priceLists.create.tabs.prices")}
-                  </ProgressTabs.Trigger>
-                  {!!inventoryTabEnabled && (
-                    <ProgressTabs.Trigger
-                      status={tabState.inventory}
-                      value={Tab.INVENTORY}
-                    >
-                      {t("products.create.tabs.inventory")}
-                    </ProgressTabs.Trigger>
-                  )}
-                </ProgressTabs.List>
-              </div>
-            </div>
-          </RouteFocusModal.Header>
-          <RouteFocusModal.Body className="size-full overflow-hidden">
-            <ProgressTabs.Content
-              className="size-full overflow-y-auto"
-              value={Tab.DETAIL}
-            >
-              <DetailsTab form={form} product={product} />
-            </ProgressTabs.Content>
-            <ProgressTabs.Content
-              className="size-full overflow-y-auto"
-              value={Tab.PRICE}
-            >
-              <PricingTab form={form} />
-            </ProgressTabs.Content>
-            {!!inventoryTabEnabled && (
-              <ProgressTabs.Content
-                className="size-full overflow-hidden"
-                value={Tab.INVENTORY}
-              >
-                <InventoryKitTab form={form} />
-              </ProgressTabs.Content>
-            )}
-          </RouteFocusModal.Body>
-          <RouteFocusModal.Footer>
-            <div className="flex items-center justify-end gap-x-2">
-              <RouteDrawer.Close asChild>
-                <Button variant="secondary" size="small">
-                  {t("actions.cancel")}
-                </Button>
-              </RouteDrawer.Close>
-              <PrimaryButton
-                tab={tab}
-                next={handleNextTab}
-                isLoading={isPending}
-                inventoryTabEnabled={!!inventoryTabEnabled}
+      <KeyboundForm onSubmit={handleSubmit} className="flex h-full flex-col">
+        <RouteFocusModal.Header>
+          <RouteFocusModal.Title asChild>
+            <span className="sr-only">
+              {t("products.variant.create.header")}
+            </span>
+          </RouteFocusModal.Title>
+          <RouteFocusModal.Description className="sr-only">
+            {t("products.variant.create.header")}
+          </RouteFocusModal.Description>
+        </RouteFocusModal.Header>
+
+        <RouteFocusModal.Body className="flex flex-1 flex-col items-center overflow-y-auto">
+          <div className="flex w-full max-w-[720px] flex-col gap-y-8 px-8 py-16">
+            <Heading level="h1">{t("products.variant.create.header")}</Heading>
+
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <Form.Field
+                control={form.control}
+                name="title"
+                render={({ field }) => {
+                  return (
+                    <Form.Item>
+                      <Form.Label>{t("fields.title")}</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          data-testid="create-variant-title-input"
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )
+                }}
               />
+
+              <Form.Field
+                control={form.control}
+                name="sku"
+                render={({ field }) => {
+                  return (
+                    <Form.Item>
+                      <Form.Label optional>{t("fields.sku")}</Form.Label>
+                      <Form.Control>
+                        <Input
+                          {...field}
+                          data-testid="create-variant-sku-input"
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage />
+                    </Form.Item>
+                  )
+                }}
+              />
+
+              {variantAttributes.map((attribute) => {
+                const fieldKey = attribute.handle ?? attribute.id
+                return (
+                  <Form.Field
+                    key={attribute.id}
+                    control={form.control}
+                    name={`options.${fieldKey}`}
+                    render={({ field: { value, onChange } }) => {
+                      return (
+                        <Form.Item>
+                          <Form.Label>{attribute.name}</Form.Label>
+                          <Form.Control>
+                            <AttributeValueInput
+                              type={AttributeType.SINGLE_SELECT}
+                              value={typeof value === "string" ? value : ""}
+                              onChange={onChange}
+                              availableValues={(attribute.values ?? []).map(
+                                (v) => ({
+                                  id: v.id,
+                                  name: v.name,
+                                })
+                              )}
+                            />
+                          </Form.Control>
+                          <Form.ErrorMessage />
+                        </Form.Item>
+                      )
+                    }}
+                  />
+                )
+              })}
             </div>
-          </RouteFocusModal.Footer>
-        </KeyboundForm>
-      </ProgressTabs>
+          </div>
+        </RouteFocusModal.Body>
+
+        <RouteFocusModal.Footer>
+          <div className="flex items-center justify-end gap-x-2">
+            <RouteFocusModal.Close asChild>
+              <Button variant="secondary" size="small">
+                {t("actions.cancel")}
+              </Button>
+            </RouteFocusModal.Close>
+            <Button
+              type="submit"
+              variant="primary"
+              size="small"
+              isLoading={isPending}
+              data-testid="create-variant-submit-button"
+            >
+              {t("actions.save")}
+            </Button>
+          </div>
+        </RouteFocusModal.Footer>
+      </KeyboundForm>
     </RouteFocusModal.Form>
-  )
-}
-
-type PrimaryButtonProps = {
-  tab: Tab
-  next: (tab: Tab) => void
-  isLoading?: boolean
-  inventoryTabEnabled: boolean
-}
-
-const PrimaryButton = ({
-  tab,
-  next,
-  isLoading,
-  inventoryTabEnabled,
-}: PrimaryButtonProps) => {
-  const { t } = useTranslation()
-
-  if (
-    (inventoryTabEnabled && tab === Tab.INVENTORY) ||
-    (!inventoryTabEnabled && tab === Tab.PRICE)
-  ) {
-    return (
-      <Button
-        key="submit-button"
-        type="submit"
-        variant="primary"
-        size="small"
-        isLoading={isLoading}
-      >
-        {t("actions.save")}
-      </Button>
-    )
-  }
-
-  return (
-    <Button
-      key="next-button"
-      type="button"
-      variant="primary"
-      size="small"
-      onClick={() => next(tab)}
-    >
-      {t("actions.continue")}
-    </Button>
   )
 }

@@ -401,19 +401,13 @@
       "tabs": {
         "details": "Деталі",
         "organize": "Організувати",
-        "variants": "Варіанти",
-        "inventory": "Комплекти на складі"
+        "variants": "Варіанти"
       },
       "errors": {
         "variants": "Будь ласка, виберіть хоча б один варіант.",
         "options": "Будь ласка, створіть хоча б одну опцію.",
-        "uniqueSku": "SKU має бути унікальним."
-      },
-      "inventory": {
-        "heading": "Комплекти на складі",
-        "label": "Додайте елементи складу до комплекту інвентарю варіанту.",
-        "itemPlaceholder": "Виберіть елемент складу",
-        "quantityPlaceholder": "Скільки з цих елементів потрібно для комплекту?"
+        "uniqueSku": "SKU має бути унікальним.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Варіанти",
@@ -436,7 +430,21 @@
           "hint": "Визначте опції для продукту, наприклад, колір, розмір тощо."
         }
       },
-      "successToast": "Продукт {{title}} успішно створено."
+      "successToast": "Продукт {{title}} успішно створено.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Експорт списку продуктів",
@@ -490,7 +498,6 @@
     "attributes": "Атрибути",
     "editAttributes": "Редагувати атрибути",
     "editOptions": "Редагувати опції",
-    "editPrices": "Редагувати ціни",
     "media": {
       "label": "Медіа",
       "editHint": "Додайте медіа до продукту, щоб продемонструвати його у вашому магазині.",
@@ -523,6 +530,7 @@
       "draft": "Чернетка",
       "published": "Опубліковано",
       "proposed": "Запропоновано",
+      "requires_action": "Changes required",
       "rejected": "Відхилено"
     },
     "fields": {
@@ -612,27 +620,18 @@
         "header": "Деталі варіанту"
       },
       "deleteWarning": "Ви впевнені, що хочете видалити цей варіант?",
-      "pricesPagination": "1 - {{current}} із {{total}} цін",
       "tableItemAvailable": "{{availableCount}} доступно",
       "tableItem_one": "{{availableCount}} доступно на {{locationCount}} локації",
       "tableItem_other": "{{availableCount}} доступно на {{locationCount}} локаціях",
       "inventory": {
         "notManaged": "Не керується",
-        "manageItems": "Керувати товарами на складі",
-        "notManagedDesc": "Запаси для цього варіанту не керуються. Увімкніть 'Керування запасами', щоб відслідковувати запаси варіанту.",
-        "manageKit": "Керувати комплектом запасів",
         "navigateToItem": "Перейти до товару на складі",
-        "actions": {
-          "inventoryItems": "Перейти до товару на складі",
-          "inventoryKit": "Показати товари на складі"
-        },
         "inventoryKit": "Комплект запасів",
         "inventoryKitHint": "Цей варіант складається з кількох товарів на складі?",
         "validation": {
           "itemId": "Будь ласка, виберіть товар на складі.",
           "quantity": "Кількість обов'язкова. Введіть позитивне число."
         },
-        "header": "Запаси та інвентар",
         "editItemDetails": "Редагувати деталі товару",
         "manageInventoryLabel": "Керувати запасами",
         "manageInventoryHint": "Коли увімкнено, ми будемо змінювати кількість товару при створенні замовлень та повернень.",
@@ -2840,7 +2839,8 @@
     "startDate": "Дата початку",
     "endDate": "Дата закінчення",
     "draft": "Чернетка",
-    "values": "Значення"
+    "values": "Значення",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Рік",
@@ -2857,5 +2857,23 @@
     "minutes_other": "Хвилини",
     "seconds_one": "Секунда",
     "seconds_other": "Секунди"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

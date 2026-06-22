@@ -17,7 +17,6 @@ The product has three audiences:
 - Seller profile with name, slug, description, address, professional details, payment details, and metadata.
 - Seller team members and role-based invitations (`invite-seller`, `accept-member-invite`).
 - Public seller storefronts exposed through the Store API.
-- Subscription plans with per-seller pricing overrides.
 
 ### Commission Management
 - Configurable commission rules and rates (flat, percentage, per-category, default).
@@ -134,9 +133,9 @@ The product has three audiences:
 | Admin Panel    (port 7000)        ─ Admin API  (/admin/*)     |
 +---------------------------------------------------------------+
 |                  Mercur Core Plugin (@mercurjs/core)          |
-|  Modules: Seller · Commission · Payout · Subscription ·       |
-|           Attribute · Vendor Product Attribute · Custom       |
-|           Fields · Admin UI · Vendor UI · Codegen             |
+|  Modules: Seller · Commission · Payout · Attribute ·          |
+|           Vendor Product Attribute · Custom Fields ·          |
+|           Admin UI · Vendor UI · Codegen                      |
 +---------------------------------------------------------------+
 |                    Medusa Framework (core commerce)           |
 |   Products · Pricing · Cart · Orders · Promotions · Payments  |

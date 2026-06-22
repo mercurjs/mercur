@@ -22,7 +22,7 @@ import {
 
 type PriceListPricesAddFormProps = {
   priceList: HttpTypes.AdminPriceList;
-  currencies: HttpTypes.AdminStoreCurrency[];
+  currencies: string[];
   regions: HttpTypes.AdminRegion[];
   pricePreferences: HttpTypes.AdminPricePreference[];
 };

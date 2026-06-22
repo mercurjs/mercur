@@ -351,7 +351,6 @@ medusaIntegrationTestRunner({
                                 {
                                     title: "Default Variant",
                                     options: { Default: "Default" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
                                 },
                             ],
                         },
@@ -426,7 +425,6 @@ medusaIntegrationTestRunner({
                                 {
                                     title: "Default Variant",
                                     options: { Default: "Default" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
                                 },
                             ],
                         },

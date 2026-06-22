@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/core",
-  "version": "2.1.6",
+  "version": "2.2.0-canary.24",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -18,7 +18,7 @@
       "default": "./.medusa/server/src/with-mercur.js"
     },
     "./_generated": {
-      "types": "./.mercur/_generated/index.ts"
+      "types": "./.mercur/routes.d.ts"
     },
     "./package.json": "./package.json",
     "./workflows": "./.medusa/server/src/workflows/index.js",
@@ -47,7 +47,7 @@
     "medusa-v2"
   ],
   "scripts": {
-    "build": "bunx @mercurjs/cli@2.0.2 codegen && rm -rf .medusa && tsc --declaration --outDir .medusa/server",
+    "build": "bunx @mercurjs/cli codegen && rm -rf .medusa && tsc --declaration --outDir .medusa/server",
     "dev": "medusa plugin:develop",
     "prepublishOnly": "tsc --declaration --outDir .medusa/server"
   },
@@ -93,5 +93,9 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "dependencies": {
+    "pkg-dir": "4",
+    "resolve-cwd": "^3.0.0"
   }
 }

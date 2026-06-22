@@ -1,31 +1,35 @@
-import { MedusaContainer } from "@medusajs/framework"
 import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
+import type { MedusaContainer } from "@medusajs/framework/types"
 
-export const validateSellerProduct = async (
+/**
+ * Throws `NOT_FOUND` (rather than `NOT_ALLOWED`) when the seller does
+ * not own the product. The product is technically queryable for them
+ * if `status = published`, but mutations require ownership; the 404
+ * shape avoids leaking the difference.
+ */
+export const ensureSellerOwnsProduct = async (
   scope: MedusaContainer,
   sellerId: string,
   productId: string
-) => {
+): Promise<void> => {
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const {
-    data: [sellerProduct],
-  } = await query.graph({
+  const { data } = await query.graph({
     entity: "product_seller",
+    fields: ["product_id"],
     filters: {
       seller_id: sellerId,
       product_id: productId,
     },
-    fields: ["seller_id", "product_id"],
   })
 
-  if (!sellerProduct) {
+  if (!data?.length) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
-      `Product with id: ${productId} was not found`
+      `Product with id ${productId} was not found`
     )
   }
 }

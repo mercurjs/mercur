@@ -48,7 +48,7 @@ export const CustomerGroupSection = ({
     useCustomerGroups(
       {
         ...searchParams,
-        fields: "+customers.id",
+        fields: "+customers.id,+seller.id,+seller.name",
         customers: { id: customer.id },
       },
       {
@@ -217,6 +217,12 @@ const CustomerGroupRowActions = ({
   )
 }
 
+// `seller` comes from the Mercur `customer_group_seller` link (requested via
+// `+seller.id,+seller.name`); it is not on Medusa's base customer-group type.
+type CustomerGroupWithOwner = HttpTypes.AdminCustomerGroup & {
+  seller?: { id: string; name: string } | null
+}
+
 const columnHelper = createColumnHelper<HttpTypes.AdminCustomerGroup>()
 
 const useColumns = (customerId: string) => {
@@ -253,6 +259,18 @@ const useColumns = (customerId: string) => {
         },
       }),
       ...columns,
+      columnHelper.display({
+        id: "owner",
+        header: t("fields.owner"),
+        cell: ({ row }) => {
+          const seller = (row.original as CustomerGroupWithOwner).seller
+          return (
+            <span data-testid={`customer-group-section-owner-${row.original.id}`}>
+              {seller?.name ?? "-"}
+            </span>
+          )
+        },
+      }),
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => (

@@ -18,6 +18,7 @@ import {
 } from "@medusajs/framework/utils"
 
 interface PrepareItemLineItemInput {
+    id?: string
     title?: string
     subtitle?: string
     thumbnail?: string
@@ -172,7 +173,7 @@ export function prepareLineItemData(data: PrepareLineItemDataInput) {
         compare_at_unit_price: compareAtUnitPrice,
         is_tax_inclusive: !!isTaxInclusive,
 
-        metadata: item?.metadata ?? {},
+        metadata: item?.metadata ?? null,
     }
 
     if (isCustomPrice) {

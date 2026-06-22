@@ -37,7 +37,7 @@ export const ReturnBody = ({
     await cancelReturnRequest()
   }
 
-  const numberOfItems = orderReturn.items.reduce((acc, item) => {
+  const numberOfItems = (orderReturn.items ?? []).reduce((acc, item) => {
     return acc + (isReceived ? item.received_quantity : item.quantity) // TODO: revisit when we add dismissed quantity on ReturnItem
   }, 0)
 

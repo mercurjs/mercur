@@ -14,6 +14,7 @@ import {
 } from "../../../../../components/modals";
 import { useAddOrderEditItems } from "../../../../../hooks/api/order-edits";
 import { AddOrderEditItemsTable } from "../add-order-edit-items-table";
+import type { OfferPickerSelection } from "../add-order-edit-items-table/add-order-edit-items-table";
 import { OrderEditItem } from "./order-edit-item";
 
 type ExchangeInboundSectionProps = {
@@ -21,7 +22,7 @@ type ExchangeInboundSectionProps = {
   preview: AdminOrderPreview;
 };
 
-let addedVariants: string[] = [];
+let addedSelections: OfferPickerSelection[] = [];
 
 export const OrderEditItemsSection = ({
   order,
@@ -37,9 +38,10 @@ export const OrderEditItemsSection = ({
   const onItemsSelected = async () => {
     await addItems(
       {
-        items: addedVariants.map((i) => ({
-          variant_id: i,
+        items: addedSelections.map(({ variantId, offerId }) => ({
+          variant_id: variantId,
           quantity: 1,
+          metadata: { offer_id: offerId },
         })),
       },
       {
@@ -104,7 +106,7 @@ export const OrderEditItemsSection = ({
               <AddOrderEditItemsTable
                 currencyCode={order.currency_code}
                 onSelectionChange={(finalSelection) => {
-                  addedVariants = finalSelection;
+                  addedSelections = finalSelection;
                 }}
               />
 

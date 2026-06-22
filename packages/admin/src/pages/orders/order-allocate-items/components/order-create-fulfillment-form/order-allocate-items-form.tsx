@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
-import { AdminOrder, InventoryItemDTO, OrderLineItemDTO } from "@medusajs/types"
+import { AdminOrder } from "@medusajs/types"
 import { Alert, Button, Heading, Input, Select, toast } from "@medusajs/ui"
 import { useForm, useWatch } from "react-hook-form"
 
@@ -17,13 +17,44 @@ import { ordersQueryKeys } from "../../../../../hooks/api/orders"
 import { useCreateReservationItem } from "../../../../../hooks/api/reservations"
 import { useStockLocations } from "../../../../../hooks/api/stock-locations"
 import { queryClient } from "../../../../../lib/query-client"
-import { AllocateItemsSchema } from "./constants"
-import { OrderAllocateItemsItem } from "./order-allocate-items-item"
-import { checkInventoryKit } from "./utils"
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+import { AllocateItemsSchema } from "./constants"
+import {
+  OrderAllocateItemsItem,
+  type OfferLinkRow,
+  type OrderLineItemWithOffer,
+} from "./order-allocate-items-item"
 
 type OrderAllocateItemsFormProps = {
   order: AdminOrder
+}
+
+const resolveInventoryItemId = (link: OfferLinkRow): string | null =>
+  link.inventory_item?.id ?? link.inventory_item_id ?? null
+
+function defaultAllocations(items: OrderLineItemWithOffer[]) {
+  const ret: Record<string, string | number> = {}
+
+  items.forEach((item) => {
+    const links = item.offer?.inventory_item_link ?? []
+    const hasInventoryKit = links.length > 1
+    const firstInventoryItemId = resolveInventoryItemId(links[0] ?? {})
+
+    ret[
+      hasInventoryKit
+        ? `${item.id}-`
+        : `${item.id}-${firstInventoryItemId ?? ""}`
+    ] = ""
+
+    if (hasInventoryKit) {
+      links.forEach((link) => {
+        const id = resolveInventoryItemId(link)
+        if (id) ret[`${item.id}-${id}`] = ""
+      })
+    }
+  })
+
+  return ret
 }
 
 export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
@@ -38,11 +69,10 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
 
   const itemsToAllocate = useMemo(
     () =>
-      order.items.filter(
+      (order.items as OrderLineItemWithOffer[]).filter(
         (item) =>
-          item.variant?.manage_inventory &&
-          item.variant?.inventory.length &&
-          item.quantity - item.detail.fulfilled_quantity > 0
+          !!item.offer?.inventory_item_link?.length &&
+          item?.quantity - (item.detail?.fulfilled_quantity ?? 0) > 0
       ),
     [order.items]
   )
@@ -55,9 +85,6 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
     )
   }, [itemsToAllocate, filterTerm])
 
-  // TODO - empty state UI
-  // const noItemsToAllocate = !itemsToAllocate.length
-
   const form = useForm<zod.infer<typeof AllocateItemsSchema>>({
     defaultValues: {
       location_id: "",
@@ -66,7 +93,13 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
     resolver: zodResolver(AllocateItemsSchema),
   })
 
-  const { stock_locations = [] } = useStockLocations()
+  // Mercur seller link — not part of Medusa's AdminOrder type; included via
+  // order-detail/constants.ts DEFAULT_FIELDS (`*seller`). See
+  // `packages/core/src/links/order-seller-link.ts`.
+  const sellerId = (order as { seller?: { id?: string } | null }).seller?.id
+  const { stock_locations = [] } = useStockLocations(
+    sellerId ? { seller_id: sellerId } : undefined
+  )
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
@@ -86,9 +119,9 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
       const promises = payload.map(([itemId, inventoryId, quantity]) =>
         allocateItems({
           location_id: data.location_id,
-          inventory_item_id: inventoryId as string,
-          line_item_id: itemId as string,
-          quantity: Number(quantity),
+          inventory_item_id: String(inventoryId),
+          line_item_id: String(itemId),
+          quantity: typeof quantity === "string" ? Number(quantity) : quantity,
         })
           .then(() => ({ success: true, inventory_item_id: inventoryId }))
           .catch(() => ({ success: false, inventory_item_id: inventoryId }))
@@ -99,7 +132,6 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
        */
       const results = await Promise.all(promises)
 
-      // invalidate order details so we get new item.variant.inventory items
       await queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
       })
@@ -121,66 +153,71 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
       }
     } catch (e) {
       toast.error(t("general.error"), {
-        description: e.message,
+        description: e instanceof Error ? e.message : "An unknown error occurred",
         dismissLabel: t("actions.close"),
       })
     }
   })
 
   const onQuantityChange = (
-    inventoryItem: InventoryItemDTO,
-    lineItem: OrderLineItemDTO,
+    link: OfferLinkRow,
+    lineItem: OrderLineItemWithOffer,
     hasInventoryKit: boolean,
     value: number | null,
     isRoot?: boolean
   ) => {
     let shouldDisableSubmit = false
 
+    const inventoryItemId = resolveInventoryItemId(link)
+
     const key =
       isRoot && hasInventoryKit
         ? `quantity.${lineItem.id}-`
-        : `quantity.${lineItem.id}-${inventoryItem.id}`
+        : `quantity.${lineItem.id}-${inventoryItemId ?? ""}`
 
-    form.setValue(key, value)
+    form.setValue(key as `quantity.${string}`, value ?? "")
 
-    if (value) {
-      const location = inventoryItem.location_levels.find(
-        (l) => l.location_id === selectedLocationId
-      )
-      if (location) {
-        if (location.available_quantity < value) {
-          shouldDisableSubmit = true
-        }
+    const levels = link.inventory_item?.location_levels
+    if (value && levels) {
+      const location = levels.find((l) => l.location_id === selectedLocationId)
+      if (location && (location.available_quantity ?? 0) < value) {
+        shouldDisableSubmit = true
       }
     }
 
     if (hasInventoryKit && !isRoot) {
-      // changed subitem in the kit -> we need to set parent to "-"
-      form.resetField(`quantity.${lineItem.id}-`, { defaultValue: "" })
+      form.resetField(`quantity.${lineItem.id}-` as `quantity.${string}`, {
+        defaultValue: "",
+      })
     }
 
     if (hasInventoryKit && isRoot) {
-      // changed root -> we need to set items to parent quantity x required_quantity
-
       const item = itemsToAllocate.find((i) => i.id === lineItem.id)
 
-      item.variant?.inventory_items.forEach((ii, ind) => {
+      if (!item || !item.offer?.inventory_item_link) return
+
+      item.offer.inventory_item_link.forEach((childLink) => {
         const num = value || 0
-        const inventory = item.variant?.inventory[ind]
+        const childInventoryItemId = resolveInventoryItemId(childLink)
+        if (!childInventoryItemId) return
+
+        const required = childLink.required_quantity ?? 1
 
         form.setValue(
-          `quantity.${lineItem.id}-${inventory.id}`,
-          num * ii.required_quantity
+          `quantity.${lineItem.id}-${childInventoryItemId}` as `quantity.${string}`,
+          num * required
         )
 
-        if (value) {
-          const location = inventory?.location_levels.find(
+        const childLevels = childLink.inventory_item?.location_levels
+        if (value && childLevels) {
+          const location = childLevels.find(
             (l) => l.location_id === selectedLocationId
           )
-          if (location) {
-            if (location.available_quantity < value) {
-              shouldDisableSubmit = true
-            }
+          if (
+            location &&
+            (location.available_quantity ?? 0) < num * required
+          ) {
+            shouldDisableSubmit = true
           }
         }
       })
@@ -199,11 +236,7 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
     if (selectedLocationId) {
       form.setValue("quantity", defaultAllocations(itemsToAllocate))
     }
-  }, [
-	selectedLocationId,
-	itemsToAllocate,
-	form
-])
+  }, [selectedLocationId, itemsToAllocate, form])
 
   const allocationError =
     form.formState.errors?.root?.quantityNotAllocated?.message
@@ -215,11 +248,16 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
         className="flex h-full flex-col overflow-hidden"
       >
         <RouteFocusModal.Header data-testid="order-allocate-items-header" />
-        <RouteFocusModal.Body className="flex h-full w-full flex-col items-center divide-y overflow-y-auto" data-testid="order-allocate-items-body">
+        <RouteFocusModal.Body
+          className="flex h-full w-full flex-col items-center divide-y overflow-y-auto"
+          data-testid="order-allocate-items-body"
+        >
           <div className="flex size-full flex-col items-center overflow-auto p-16">
             <div className="flex w-full max-w-[736px] flex-col justify-center px-2 pb-2">
               <div className="flex flex-col gap-8 divide-y divide-dashed">
-                <Heading data-testid="order-allocate-items-heading">{t("orders.allocateItems.title")}</Heading>
+                <Heading data-testid="order-allocate-items-heading">
+                  {t("orders.allocateItems.title")}
+                </Heading>
                 <div className="flex-1 divide-y divide-dashed pt-8">
                   <Form.Field
                     control={form.control}
@@ -229,7 +267,9 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
                         <Form.Item data-testid="order-allocate-items-location-item">
                           <div className="flex items-center gap-3">
                             <div className="flex-1">
-                              <Form.Label data-testid="order-allocate-items-location-label">{t("fields.location")}</Form.Label>
+                              <Form.Label data-testid="order-allocate-items-location-label">
+                                {t("fields.location")}
+                              </Form.Label>
                               <Form.Hint data-testid="order-allocate-items-location-hint">
                                 {t("orders.allocateItems.locationDescription")}
                               </Form.Hint>
@@ -251,7 +291,11 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
                                   </Select.Trigger>
                                   <Select.Content data-testid="order-allocate-items-location-content">
                                     {stock_locations.map((l) => (
-                                      <Select.Item key={l.id} value={l.id} data-testid={`order-allocate-items-location-option-${l.id}`}>
+                                      <Select.Item
+                                        key={l.id}
+                                        value={l.id}
+                                        data-testid={`order-allocate-items-location-option-${l.id}`}
+                                      >
                                         {l.name}
                                       </Select.Item>
                                     ))}
@@ -266,7 +310,10 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
                     }}
                   />
 
-                  <Form.Item className="mt-8 pt-8" data-testid="order-allocate-items-items-item">
+                  <Form.Item
+                    className="mt-8 pt-8"
+                    data-testid="order-allocate-items-items-item"
+                  >
                     <div className="flex flex-row items-center">
                       <div className="flex-1">
                         <Form.Label data-testid="order-allocate-items-items-label">
@@ -314,7 +361,11 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
         <RouteFocusModal.Footer data-testid="order-allocate-items-footer">
           <div className="flex items-center justify-end gap-x-2">
             <RouteFocusModal.Close asChild>
-              <Button size="small" variant="secondary" data-testid="order-allocate-items-cancel-button">
+              <Button
+                size="small"
+                variant="secondary"
+                data-testid="order-allocate-items-cancel-button"
+              >
                 {t("actions.cancel")}
               </Button>
             </RouteFocusModal.Close>
@@ -332,26 +383,4 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
       </KeyboundForm>
     </RouteFocusModal.Form>
   )
-}
-
-function defaultAllocations(items: OrderLineItemDTO) {
-  const ret = {}
-
-  items.forEach((item) => {
-    const hasInventoryKit = checkInventoryKit(item)
-
-    ret[
-      hasInventoryKit
-        ? `${item.id}-`
-        : `${item.id}-${item.variant?.inventory[0].id}`
-    ] = ""
-
-    if (hasInventoryKit) {
-      item.variant?.inventory.forEach((i) => {
-        ret[`${item.id}-${i.id}`] = ""
-      })
-    }
-  })
-
-  return ret
 }

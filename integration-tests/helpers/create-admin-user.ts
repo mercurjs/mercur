@@ -53,6 +53,23 @@ export const createAdminUser = async (
         },
     })
 
+    // `withMercur()` enables the `rbac` feature flag, so any Medusa core
+    // route declaring `policies` (e.g. `/admin/order-edits/*`) calls
+    // `checkPermissions` which 403s when `app_metadata.roles` is empty.
+    // Always seed a wildcard role for the test admin user so every admin
+    // endpoint — Mercur-owned or Medusa-core — is reachable.
+    const rbac: any = appContainer.resolve("rbac")
+    const policy = await rbac.createRbacPolicies({
+        key: `wildcard_${Date.now()}_${Math.floor(Math.random() * 1e6)}`,
+        resource: "*",
+        operation: "*",
+    })
+    const role = await rbac.createRbacRoles({ name: "Test Super Admin" })
+    await rbac.createRbacRolePolicies({
+        role_id: role.id,
+        policy_id: policy.id,
+    })
+
     const config = container.resolve(ContainerRegistrationKeys.CONFIG_MODULE)
     const { projectConfig } = config
     const { jwtSecret, jwtOptions } = projectConfig.http
@@ -61,6 +78,7 @@ export const createAdminUser = async (
             actor_id: user.id,
             actor_type: "user",
             auth_identity_id: authIdentity.id,
+            app_metadata: { roles: [role.id] },
         },
         jwtSecret,
         {

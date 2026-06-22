@@ -1,4 +1,3 @@
-import { confirmReturnReceiveWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -6,6 +5,7 @@ import {
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
+import { confirmReturnReceiveWorkflow } from "../../../../../../workflows/order/workflows/confirm-return-receive"
 import { validateSellerReturn } from "../../../helpers"
 import { VendorPostReturnsConfirmRequestReqType } from "../../../validators"
 

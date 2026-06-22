@@ -21,7 +21,7 @@ type PriceListPricesEditFormProps = {
   priceList: HttpTypes.AdminPriceList;
   products: HttpTypes.AdminProduct[];
   regions: HttpTypes.AdminRegion[];
-  currencies: HttpTypes.AdminStoreCurrency[];
+  currencies: string[];
   pricePreferences: HttpTypes.AdminPricePreference[];
 };
 

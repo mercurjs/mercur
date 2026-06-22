@@ -1,5 +1,6 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import {
+    IProductModuleService,
     ISalesChannelModuleService,
     MedusaContainer,
 } from "@medusajs/framework/types"
@@ -24,9 +25,11 @@ medusaIntegrationTestRunner({
             let approvedSellerHeaders: any
             let suspendedSeller: any
             let suspendedSellerHeaders: any
+            let productModuleService: IProductModuleService
 
             beforeAll(async () => {
                 appContainer = getContainer()
+                productModuleService = appContainer.resolve(Modules.PRODUCT)
             })
 
             beforeEach(async () => {
@@ -90,17 +93,6 @@ medusaIntegrationTestRunner({
                     {
                         title: "Test Product",
                         status: "published",
-                        options: [{ title: "Size", values: ["M"] }],
-                        variants: [
-                            {
-                                title: "M",
-                                options: { Size: "M" },
-                                prices: [
-                                    { currency_code: "usd", amount: 1000 },
-                                ],
-                            },
-                        ],
-                        sales_channels: [{ id: salesChannel.id }],
                         ...overrides,
                     },
                     headers
@@ -226,6 +218,75 @@ medusaIntegrationTestRunner({
                     expect(response.data.products[0].id).toEqual(productA.id)
                 })
 
+                // Regression for https://github.com/mercurjs/mercur/issues/974
+                // `category_id` is a Medusa-standard store filter param but is
+                // not a column on `Product`; the override route used to forward
+                // it straight to `query.graph`, raising
+                // `Trying to query by not existing property Product.category_id`.
+                it("should filter products by category_id", async () => {
+                    const [category] =
+                        await productModuleService.createProductCategories([
+                            {
+                                name: "Filterable Category",
+                                is_active: true,
+                            },
+                        ])
+
+                    const inCategory = await createProduct(
+                        approvedSellerHeaders,
+                        { title: "In Category" }
+                    )
+                    const outOfCategory = await createProduct(
+                        approvedSellerHeaders,
+                        { title: "Out Of Category" }
+                    )
+
+                    await api.post(
+                        `/vendor/product-categories/${category.id}/products`,
+                        { add: [inCategory.id] },
+                        approvedSellerHeaders
+                    )
+
+                    const response = await api.get(
+                        `/store/products?category_id=${category.id}`,
+                        storeHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const ids = response.data.products.map((p: any) => p.id)
+                    expect(ids).toContain(inCategory.id)
+                    expect(ids).not.toContain(outOfCategory.id)
+                })
+
+                it("should not return products from an inactive category", async () => {
+                    const [inactiveCategory] =
+                        await productModuleService.createProductCategories([
+                            {
+                                name: "Inactive Category",
+                                is_active: false,
+                            },
+                        ])
+
+                    const product = await createProduct(approvedSellerHeaders, {
+                        title: "Hidden Category Product",
+                    })
+
+                    await api.post(
+                        `/vendor/product-categories/${inactiveCategory.id}/products`,
+                        { add: [product.id] },
+                        approvedSellerHeaders
+                    )
+
+                    const response = await api.get(
+                        `/store/products?category_id=${inactiveCategory.id}`,
+                        storeHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const ids = response.data.products.map((p: any) => p.id)
+                    expect(ids).not.toContain(product.id)
+                })
+
                 it("should support limit and offset", async () => {
                     await createProduct(approvedSellerHeaders, {
                         title: "Product 1",
@@ -274,6 +335,30 @@ medusaIntegrationTestRunner({
                     expect(response.data.product.title).toEqual(
                         "Single Product"
                     )
+                })
+
+                it("surfaces linked attributes on product.attributes", async () => {
+                    const product = await createProduct(approvedSellerHeaders, {
+                        title: "Product with attribute",
+                    })
+
+                    const response = await api.get(
+                        `/store/products/${product.id}`,
+                        storeHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    // The inline-custom `Size` axis added by `createProduct`
+                    // should round-trip through the storefront response.
+                    const attrs = response.data.product.attributes
+                    expect(Array.isArray(attrs)).toBe(true)
+                    const sizeAttr = attrs.find(
+                        (a: any) => a.name === "Size"
+                    )
+                    expect(sizeAttr).toBeDefined()
+                    expect(
+                        sizeAttr.values.map((v: any) => v.name)
+                    ).toEqual(["M"])
                 })
 
                 it("should return 404 for a non-existent product", async () => {

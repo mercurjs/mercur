@@ -1,0 +1,223 @@
+import { MercurFeatureFlags } from "@mercurjs/types"
+import { Button, toast } from "@medusajs/ui"
+import { ReactNode, useEffect, useMemo, Children } from "react"
+import { useForm, useWatch, DeepPartial } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+import { z } from "zod"
+import { zodResolver } from "@hookform/resolvers/zod"
+
+import { RouteFocusModal, useRouteModal } from "@components/modals"
+import { TabbedForm } from "@components/tabbed-form/tabbed-form"
+import { useCreateProduct, useFeatureFlags } from "@hooks/api"
+import { uploadFilesQuery } from "@lib/client"
+
+import { PRODUCT_CREATE_FORM_DEFAULTS, ProductCreateSchema } from "../../constants"
+import { ProductCreateSchemaType } from "../../types"
+import {
+  generateVariantsFromAttributes,
+  normalizeProductFormValues,
+} from "../../utils"
+import { ProductCreateAttributesForm } from "../product-create-attributes-form"
+import { ProductCreateDetailsForm } from "../product-create-details-form"
+import { ProductCreateOrganizeForm } from "../product-create-organize-form"
+import { ProductCreateVariantsForm } from "../product-create-variants-form"
+
+type ProductCreateFormProps = {
+  children?: ReactNode
+  schema?: z.ZodType<ProductCreateSchemaType>
+  defaultValues?: DeepPartial<ProductCreateSchemaType>
+}
+
+type UploadedFile = { id?: string; url: string }
+
+export const ProductCreateForm = ({
+  children,
+  schema,
+  defaultValues: extraDefaults,
+}: ProductCreateFormProps) => {
+  const { t } = useTranslation()
+  const { handleSuccess } = useRouteModal()
+  const form = useForm<ProductCreateSchemaType>({
+    defaultValues: {
+      ...PRODUCT_CREATE_FORM_DEFAULTS,
+      ...extraDefaults,
+    } as ProductCreateSchemaType,
+    resolver: zodResolver(schema ?? ProductCreateSchema),
+  })
+
+  const { mutateAsync, isPending } = useCreateProduct()
+
+  const { feature_flags } = useFeatureFlags()
+  const productRequestEnabled =
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
+
+  const watchedAttributes = useWatch({
+    control: form.control,
+    name: "attributes",
+  })
+
+  // Generate variants from variant-axis attributes
+  useEffect(() => {
+    const currentVariants = form.getValues("variants") ?? []
+    const newVariants = generateVariantsFromAttributes(
+      watchedAttributes ?? [],
+      currentVariants
+    )
+
+    if (
+      JSON.stringify(newVariants.map((v) => v.options)) !==
+      JSON.stringify(currentVariants.map((v) => v.options))
+    ) {
+      form.setValue("variants", newVariants)
+    }
+  }, [watchedAttributes, form])
+
+  const submitProduct = async (
+    values: ProductCreateSchemaType,
+    isDraftSubmission: boolean
+  ) => {
+    const media = values.media || []
+    const payload = { ...values, media: undefined }
+
+    let uploadedMedia: (UploadedFile & { isThumbnail: boolean })[] = []
+    try {
+      const filesToUpload = media
+        .map((m, i) => ({ file: m.file, isThumbnail: m.isThumbnail, index: i }))
+        .filter((m) => !!m.file)
+
+      if (filesToUpload.length) {
+        const result = await uploadFilesQuery(
+          filesToUpload.map(({ file }) => ({ file }))
+        )
+        const uploadedFiles: UploadedFile[] = result?.files ?? []
+        uploadedMedia = uploadedFiles.map((file, i) => ({
+          ...file,
+          isThumbnail: filesToUpload[i].isThumbnail,
+        }))
+      }
+    } catch (error) {
+      if (error instanceof Error) {
+        toast.error(error.message)
+      }
+    }
+
+    const submittedStatus = isDraftSubmission
+      ? "draft"
+      : productRequestEnabled
+        ? "proposed"
+        : "published"
+
+    await mutateAsync(
+      normalizeProductFormValues({
+        ...payload,
+        media: uploadedMedia,
+        status: submittedStatus as any,
+      }) as any,
+      {
+        onSuccess: (data: any) => {
+          if (submittedStatus === "proposed") {
+            toast.success(t("products.create.requestSuccessToast"))
+          } else {
+            toast.success(
+              t("products.create.successToast", {
+                title: data.product.title,
+              })
+            )
+          }
+
+          handleSuccess(`../${data.product.id}`)
+        },
+        onError: (error: any) => {
+          toast.error(error.message)
+        },
+      }
+    )
+  }
+
+  const handleSubmit = form.handleSubmit(async (values) => {
+    await submitProduct(values, false)
+  })
+
+  const handleSaveAsDraft = async () => {
+    // Drafts only require a title; bypass the full schema so users can save
+    // incomplete products without filling category, attributes, etc.
+    const titleValid = await form.trigger("title")
+    if (!titleValid) {
+      return
+    }
+    await submitProduct(form.getValues(), true)
+  }
+
+  const defaultTabs = useMemo(
+    () => [
+      <ProductCreateDetailsForm key="details" />,
+      <ProductCreateOrganizeForm key="organize" />,
+      <ProductCreateAttributesForm key="attributes" />,
+      <ProductCreateVariantsForm key="variants" />,
+    ],
+    []
+  )
+
+  const hasCustomChildren = Children.count(children) > 0
+
+  return (
+    <TabbedForm
+      form={form}
+      onSubmit={handleSubmit}
+      isLoading={isPending}
+      footer={({ isLastTab, onNext, isLoading }) => (
+        <div
+          className="flex items-center justify-end gap-x-2"
+          data-testid="product-create-form-footer-actions"
+        >
+          <RouteFocusModal.Close asChild>
+            <Button
+              variant="secondary"
+              size="small"
+              data-testid="product-create-form-cancel-button"
+            >
+              {t("actions.cancel")}
+            </Button>
+          </RouteFocusModal.Close>
+          <Button
+            variant="secondary"
+            size="small"
+            type="button"
+            onClick={handleSaveAsDraft}
+            isLoading={isLoading}
+            className="whitespace-nowrap"
+            data-testid="product-create-form-save-draft-button"
+          >
+            {t("actions.saveAsDraft")}
+          </Button>
+          {isLastTab ? (
+            <Button
+              data-name="publish-button"
+              key="submit-button"
+              type="submit"
+              variant="primary"
+              size="small"
+              isLoading={isLoading}
+              data-testid="product-create-form-publish-button"
+            >
+              {t("actions.publish")}
+            </Button>
+          ) : (
+            <Button
+              key="next-button"
+              type="button"
+              variant="primary"
+              size="small"
+              onClick={() => onNext()}
+              data-testid="product-create-form-continue-button"
+            >
+              {t("actions.continue")}
+            </Button>
+          )}
+        </div>
+      )}
+    >
+      {hasCustomChildren ? children : defaultTabs}
+    </TabbedForm>
+  )
+}

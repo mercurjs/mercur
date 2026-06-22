@@ -3,12 +3,12 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
-import { createLinkBody } from "@medusajs/medusa/api/utils/validators"
 
-import * as QueryConfig from "./query-config"
+import { vendorProductCategoryQueryConfig } from "./query-config"
 import {
+  VendorBatchLinkProductsToCategory,
   VendorGetProductCategoriesParams,
-  VendorGetProductCategoryParams,
+  VendorProductCategoryParams,
 } from "./validators"
 
 export const vendorProductCategoriesMiddlewares: MiddlewareRoute[] = [
@@ -18,7 +18,7 @@ export const vendorProductCategoriesMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformQuery(
         VendorGetProductCategoriesParams,
-        QueryConfig.listTransformQueryConfig
+        vendorProductCategoryQueryConfig.list
       ),
     ],
   },
@@ -27,8 +27,8 @@ export const vendorProductCategoriesMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/product-categories/:id",
     middlewares: [
       validateAndTransformQuery(
-        VendorGetProductCategoryParams,
-        QueryConfig.retrieveTransformQueryConfig
+        VendorProductCategoryParams,
+        vendorProductCategoryQueryConfig.retrieve
       ),
     ],
   },
@@ -36,10 +36,10 @@ export const vendorProductCategoriesMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/product-categories/:id/products",
     middlewares: [
-      validateAndTransformBody(createLinkBody()),
+      validateAndTransformBody(VendorBatchLinkProductsToCategory),
       validateAndTransformQuery(
-        VendorGetProductCategoryParams,
-        QueryConfig.retrieveTransformQueryConfig
+        VendorProductCategoryParams,
+        vendorProductCategoryQueryConfig.retrieve
       ),
     ],
   },

@@ -1,12 +1,12 @@
-import { Component, PencilSquare, Trash } from "@medusajs/icons";
+import { PencilSquare, Trash } from "@medusajs/icons";
 import { Badge, Container, Heading, usePrompt } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
-import { HttpTypes } from "@medusajs/types";
-import { ActionMenu } from "../../../../../components/common/action-menu";
-import { SectionRow } from "../../../../../components/common/section";
-import { useDeleteVariant } from "../../../../../hooks/api/products";
+import { HttpTypes } from "@medusajs/types"
+import { ActionMenu } from "../../../../../components/common/action-menu"
+import { SectionRow } from "../../../../../components/common/section"
+import { useDeleteVariant } from "../../../../../hooks/api/products"
 
 export function VariantGeneralSection({
   variant,
@@ -16,8 +16,6 @@ export function VariantGeneralSection({
   const { t } = useTranslation();
   const prompt = usePrompt();
   const navigate = useNavigate();
-
-  const hasInventoryKit = (variant.inventory_items?.length ?? 0) > 1;
 
   const { mutateAsync } = useDeleteVariant(variant.product_id!, variant.id);
 
@@ -48,11 +46,6 @@ export function VariantGeneralSection({
         <div>
           <div className="flex items-center gap-2">
             <Heading>{variant.title}</Heading>
-            {hasInventoryKit && (
-              <span className="text-ui-fg-muted font-normal">
-                <Component />
-              </span>
-            )}
           </div>
           <span className="text-ui-fg-subtle txt-small mt-2">
             {t("labels.productVariant")}
@@ -85,13 +78,21 @@ export function VariantGeneralSection({
       </div>
 
       <SectionRow title={t("fields.sku")} value={variant.sku} />
-      {variant.options?.map((o) => (
-        <SectionRow
-          key={o.id}
-          title={o.option?.title!}
-          value={<Badge size="2xsmall">{o.value}</Badge>}
-        />
-      ))}
+      {(variant.options ?? []).map((opt) => {
+        const title = opt.option?.title
+        if (!title || !opt.value) return null
+        return (
+          <SectionRow
+            key={opt.id}
+            title={title}
+            value={
+              <div className="flex flex-wrap items-center gap-1">
+                <Badge size="2xsmall">{opt.value}</Badge>
+              </div>
+            }
+          />
+        )
+      })}
     </Container>
   );
 }

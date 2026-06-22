@@ -23,7 +23,7 @@ export const usePriceListGridColumns = ({
   regions: _regions = [],
   pricePreferences = [],
 }: {
-  currencies?: HttpTypes.AdminStoreCurrency[]
+  currencies?: string[]
   regions?: HttpTypes.AdminRegion[]
   pricePreferences?: HttpTypes.AdminPricePreference[]
 }) => {
@@ -63,7 +63,7 @@ export const usePriceListGridColumns = ({
         ExtendedAdminProduct | ExtendedAdminProductVariant,
         PricingCreateSchemaType
       >({
-        currencies: currencies.map((c) => c.currency_code),
+        currencies,
         pricePreferences,
         isReadyOnly: (context) => {
           const entity = context.row.original

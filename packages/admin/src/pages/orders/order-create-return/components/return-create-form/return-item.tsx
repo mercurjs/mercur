@@ -11,6 +11,10 @@ import { Form } from "../../../../../components/common/form"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { Combobox } from "../../../../../components/inputs/combobox"
 import { useReturnReasons } from "../../../../../hooks/api/return-reasons"
+import {
+  getOfferRestockPreview,
+  type LineItemShape,
+} from "../../../../../lib/inventory-preview"
 
 type OrderEditItemProps = {
   item: AdminOrderLineItem
@@ -22,6 +26,15 @@ type OrderEditItemProps = {
   onUpdate: (payload: HttpTypes.AdminUpdateReturnItems) => void
 
   form: UseFormReturn<any>
+
+  /**
+   * Stock location chosen for this return. When set, the row renders the
+   * offer-aware restock preview matching the math the backend runs on
+   * receive (see `getOfferRestockPreview`).
+   */
+  locationId?: string
+  /** Display label for the chosen location — surfaced in the preview row. */
+  locationName?: string
 }
 
 function ReturnItem({
@@ -32,6 +45,8 @@ function ReturnItem({
   onRemove,
   onUpdate,
   index,
+  locationId,
+  locationName,
 }: OrderEditItemProps) {
   const { t } = useTranslation()
 
@@ -41,6 +56,19 @@ function ReturnItem({
 
   const showReturnReason = typeof formItem.reason_id === "string"
   const showNote = typeof formItem.note === "string"
+
+  // Offer-aware restock preview — mirrors the math
+  // `mercur-confirm-return-receive` runs server-side so the operator sees
+  // exactly how stock will move before confirming. No-op when the item
+  // carries no offer link (legacy / pre-port orders).
+  const restockRows = locationId
+    ? getOfferRestockPreview(
+        item as unknown as LineItemShape,
+        formItem?.quantity ?? 0
+      )
+    : []
+  const offerSku =
+    (item as unknown as LineItemShape).offer?.sku ?? item.variant_sku ?? null
 
   return (
     <div className="bg-ui-bg-subtle shadow-elevation-card-rest my-2 rounded-xl ">
@@ -131,6 +159,27 @@ function ReturnItem({
           />
         </div>
       </div>
+
+      {restockRows.length > 0 && (
+        <div className="bg-ui-bg-subtle flex flex-col gap-y-1 rounded-md px-3 py-2">
+          {restockRows.map((row) => (
+            <Text
+              key={row.inventoryItemId}
+              size="xsmall"
+              className="text-ui-fg-subtle"
+              data-testid={`return-item-${item.id}-restock-${row.inventoryItemId}`}
+            >
+              {t("orders.returns.restockPreview", {
+                quantity: formItem?.quantity ?? 0,
+                offerSku: offerSku ?? "—",
+                delta: row.delta,
+                inventoryItem: row.inventoryItemLabel,
+                location: locationName ?? "—",
+              })}
+            </Text>
+          ))}
+        </div>
+      )}
       <>
         {/*REASON*/}
         {showReturnReason && (

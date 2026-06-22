@@ -1,0 +1,110 @@
+import { Heading, RadioGroup } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
+
+import { Form } from "../../../../../components/common/form";
+import { SwitchBox } from "../../../../../components/common/switch-box";
+import {
+  defineTabMeta,
+  useTabbedForm,
+} from "../../../../../components/tabbed-form";
+import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
+import { CommissionValueFields } from "../../../common/components/commission-value-fields";
+import { useStoreCurrencies } from "../../../common/hooks/use-store-currencies";
+import { CreateCommissionRuleSchemaType } from "./schema";
+
+export const CreateCommissionRuleCommission = () => {
+  const { t } = useTranslation();
+  const form = useTabbedForm<CreateCommissionRuleSchemaType>();
+  const direction = useDocumentDirection();
+  const { currencies } = useStoreCurrencies();
+
+  const commissionType = form.watch("commissionType");
+
+  return (
+    <div className="flex flex-col items-center p-16">
+      <div className="flex w-full max-w-[720px] flex-col gap-y-8">
+        <Heading>{t("commissions.create.commission", "Commission")}</Heading>
+        <div className="flex flex-col gap-y-4">
+          <Form.Field
+            control={form.control}
+            name="commissionType"
+            render={({ field: { onChange, ...rest } }) => (
+              <Form.Item>
+                <Form.Label>
+                  {t("commissions.fields.type.label", "Type")}
+                </Form.Label>
+                <Form.Control>
+                  <RadioGroup
+                    dir={direction}
+                    onValueChange={onChange}
+                    {...rest}
+                    className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                    data-testid="commission-rule-commission-type-radio-group"
+                  >
+                    <RadioGroup.ChoiceBox
+                      value="percentage"
+                      label={t(
+                        "commissions.fields.type.percentage",
+                        "Percentage"
+                      )}
+                      description={t(
+                        "commissions.fields.type.percentageHint",
+                        "Charge a percentage of the order total."
+                      )}
+                      data-testid="commission-rule-commission-type-option-percentage"
+                    />
+                    <RadioGroup.ChoiceBox
+                      value="fixed"
+                      label={t("commissions.fields.type.fixed", "Fixed")}
+                      description={t(
+                        "commissions.fields.type.fixedHint",
+                        "Charge a fixed amount per order."
+                      )}
+                      data-testid="commission-rule-commission-type-option-fixed"
+                    />
+                  </RadioGroup>
+                </Form.Control>
+                <Form.ErrorMessage />
+              </Form.Item>
+            )}
+          />
+          <CommissionValueFields
+            control={form.control}
+            type={commissionType}
+            currencies={currencies}
+          />
+        </div>
+        <div className="flex flex-col gap-y-4">
+          <SwitchBox
+            control={form.control}
+            name="include_tax"
+            label={t("commissions.fields.taxIncluded", "Tax included")}
+            description={t(
+              "commissions.fields.taxIncludedHint",
+              "If checked, commission is calculated based on the total amount including tax. If unchecked, tax is excluded and goes entirely to the store."
+            )}
+          />
+          <SwitchBox
+            control={form.control}
+            name="include_shipping"
+            label={t(
+              "commissions.fields.shippingIncluded",
+              "Shipping included"
+            )}
+            description={t(
+              "commissions.fields.shippingIncludedHint",
+              "If checked, commission is calculated based on the total amount including shipping. If unchecked, shipping fees go entirely to the store."
+            )}
+          />
+        </div>
+      </div>
+    </div>
+  );
+};
+
+CreateCommissionRuleCommission._tabMeta =
+  defineTabMeta<CreateCommissionRuleSchemaType>({
+    id: "commission",
+    labelKey: "commissions.create.commission",
+    validationFields: ["commissionType", "value"],
+  });

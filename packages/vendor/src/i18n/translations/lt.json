@@ -414,19 +414,13 @@
       "tabs": {
         "details": "Aprašymas",
         "organize": "Skirstymas",
-        "variants": "Variantai",
-        "inventory": "Atsargų rinkiniai"
+        "variants": "Variantai"
       },
       "errors": {
         "variants": "Pasirinkite bent vieną variantą.",
         "options": "Sukurkite bent vieną pasirinkimą.",
-        "uniqueSku": "SKU turi būti unikalus."
-      },
-      "inventory": {
-        "heading": "Atsargų rinkiniai",
-        "label": "Pridėti atsargas prie varianto atsargų rinkinio.",
-        "itemPlaceholder": "Pasirinkite atsargą",
-        "quantityPlaceholder": "Koks kiekis reikalingas rinkiniui?"
+        "uniqueSku": "SKU turi būti unikalus.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Variantai",
@@ -449,7 +443,21 @@
           "hint": "Apibrėžkite prekės parinktis, pvz. spalva, dydis ir kt."
         }
       },
-      "successToast": "Prekė {{title}} sėkmingai sukurta."
+      "successToast": "Prekė {{title}} sėkmingai sukurta.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Esportuoti prekių sąrašą",
@@ -503,7 +511,6 @@
     "attributes": "Požymiai",
     "editAttributes": "Keisi požymius",
     "editOptions": "Keisti pasirinkimus",
-    "editPrices": "Keisti kainas",
     "media": {
       "label": "Nuotraukos",
       "editHint": "Pridėkite prekės nuotraukas, kad pateikti jas parduotuvėje.",
@@ -536,6 +543,7 @@
       "draft": "Juodraštis",
       "published": "Publikuojama",
       "proposed": "Pasiūlyta",
+      "requires_action": "Changes required",
       "rejected": "Atmesta"
     },
     "fields": {
@@ -629,27 +637,18 @@
         "header": "Prekės variantas"
       },
       "deleteWarning": "Tikrai norite pašalinti šį variantą?",
-      "pricesPagination": "1 - {{current}} iš {{total}} kainų",
       "tableItemAvailable": "{{availableCount}} laisva",
       "tableItem_one": "{{availableCount}} laisva {{locationCount}} vietoje",
       "tableItem_other": "{{availableCount}} laisvų {{locationCount}} vietose",
       "inventory": {
         "notManaged": "Nevaldomos",
-        "manageItems": "Tvarkyti atsargas",
-        "notManagedDesc": "Šio varianto atsargos netvarkomos. Įjunkite „Tvarkyti atsargas“, kad galėtumėte sekti varianto atsargas.",
-        "manageKit": "Tvarkyti atsargų rinkinį",
         "navigateToItem": "Eiti į atsargas",
-        "actions": {
-          "inventoryItems": "Eiti į atsargas",
-          "inventoryKit": "Rodyti atsargas"
-        },
         "inventoryKit": "Atsargų rinkinys",
         "inventoryKitHint": "Ar šis variantas susideda iš kelių atargų?",
         "validation": {
           "itemId": "Pasirinkite atsargas",
           "quantity": "Kiekis privalomas. Įveskite teigiamą skaičių."
         },
-        "header": "Atsargos ir likučiai",
         "editItemDetails": "Keisti",
         "manageInventoryLabel": "Tvarkyti atsargas",
         "manageInventoryHint": "Kai įjungta, mes pakeisime atargų likučius kai užsakymai ar grąžinimai sukuriami.",
@@ -682,15 +681,6 @@
         "toasts": {
           "success": "{{title}} išdėstymas sėkmingai pakeistas."
         }
-      }
-    },
-    "stock": {
-      "heading": "Tvarkykite atsargų likučius ir vietas",
-      "description": "Pakeiskite atsargų likučius visiems prekės variantams.",
-      "loading": "Palaukite, gali šiek tiek užtrukti...",
-      "tooltips": {
-        "alreadyManaged": "Šios atsargos jau yar redaguojamos prie {{title}}.",
-        "alreadyManagedWithSku": "Šios atsargos jau yar redaguojamos prie {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {
@@ -2991,7 +2981,8 @@
     "startDate": "Pradžios data",
     "endDate": "Pabaigos data",
     "draft": "Juodraštis",
-    "values": "Reikšmės"
+    "values": "Reikšmės",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Metai",
@@ -3008,5 +2999,23 @@
     "minutes_other": "Minutės",
     "seconds_one": "Sekundė",
     "seconds_other": "Sekundės"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

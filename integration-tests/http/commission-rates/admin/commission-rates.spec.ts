@@ -23,17 +23,14 @@ medusaIntegrationTestRunner({
 
       describe("GET /admin/commission-rates", () => {
         it("should list commission rates", async () => {
-          // Create a commission rate first
           await api.post(
             `/admin/commission-rates`,
             {
               name: "Test Rate",
               code: "TEST_RATE",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: true,
-              priority: 0,
             },
             adminHeaders
           )
@@ -56,7 +53,6 @@ medusaIntegrationTestRunner({
               name: "Filter Test Rate",
               code: "FILTER_TEST",
               type: "percentage",
-              target: "item",
               value: 15,
               is_enabled: true,
             },
@@ -80,7 +76,6 @@ medusaIntegrationTestRunner({
               name: "Fixed Rate",
               code: "FIXED_TYPE_TEST",
               type: "fixed",
-              target: "item",
               value: 500,
               is_enabled: true,
             },
@@ -99,30 +94,15 @@ medusaIntegrationTestRunner({
           })
         })
 
-        it("should filter commission rates by target", async () => {
-          await api.post(
-            `/admin/commission-rates`,
-            {
-              name: "Shipping Rate",
-              code: "SHIPPING_TARGET_TEST",
-              type: "percentage",
-              target: "shipping",
-              value: 5,
-              is_enabled: true,
-            },
-            adminHeaders
-          )
-
+        it("should expose and filter by the seeded default rate", async () => {
           const response = await api.get(
-            `/admin/commission-rates?target=shipping`,
+            `/admin/commission-rates?is_default=true`,
             adminHeaders
           )
 
           expect(response.status).toEqual(200)
-          expect(response.data.commission_rates.length).toBeGreaterThanOrEqual(1)
-          response.data.commission_rates.forEach((rate: any) => {
-            expect(rate.target).toEqual("shipping")
-          })
+          expect(response.data.commission_rates.length).toEqual(1)
+          expect(response.data.commission_rates[0].is_default).toBe(true)
         })
 
         it("should filter commission rates by is_enabled", async () => {
@@ -132,7 +112,6 @@ medusaIntegrationTestRunner({
               name: "Disabled Rate",
               code: "DISABLED_TEST",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: false,
             },
@@ -149,6 +128,72 @@ medusaIntegrationTestRunner({
             expect(rate.is_enabled).toEqual(false)
           })
         })
+
+        it("should filter commission rates by scope_type", async () => {
+          const storeRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Store Scoped Rate",
+              code: "SCOPE_STORE",
+              type: "percentage",
+              value: 5,
+              rules: [{ reference: "seller", reference_id: seller.id }],
+            },
+            adminHeaders
+          )
+
+          await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Product Type Scoped Rate",
+              code: "SCOPE_PRODUCT_TYPE",
+              type: "percentage",
+              value: 6,
+              rules: [
+                { reference: "product_type", reference_id: "ptyp_test123" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const comboRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Store Product Type Scoped Rate",
+              code: "SCOPE_STORE_PRODUCT_TYPE",
+              type: "percentage",
+              value: 7,
+              rules: [
+                { reference: "seller", reference_id: seller.id },
+                { reference: "product_type", reference_id: "ptyp_test456" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const storeOnly = await api.get(
+            `/admin/commission-rates?scope_type=store`,
+            adminHeaders
+          )
+
+          expect(storeOnly.status).toEqual(200)
+          const storeIds = storeOnly.data.commission_rates.map(
+            (r: any) => r.id
+          )
+          expect(storeIds).toContain(storeRate.data.commission_rate.id)
+          // The store + product_type combo must NOT match the plain "store" scope.
+          expect(storeIds).not.toContain(comboRate.data.commission_rate.id)
+
+          const combo = await api.get(
+            `/admin/commission-rates?scope_type=store_product_type`,
+            adminHeaders
+          )
+
+          expect(combo.status).toEqual(200)
+          const comboIds = combo.data.commission_rates.map((r: any) => r.id)
+          expect(comboIds).toContain(comboRate.data.commission_rate.id)
+          expect(comboIds).not.toContain(storeRate.data.commission_rate.id)
+        })
       })
 
       describe("POST /admin/commission-rates", () => {
@@ -159,10 +204,8 @@ medusaIntegrationTestRunner({
               name: "Standard Commission",
               code: "STANDARD_PCT",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: true,
-              priority: 0,
             },
             adminHeaders
           )
@@ -173,24 +216,24 @@ medusaIntegrationTestRunner({
               name: "Standard Commission",
               code: "STANDARD_PCT",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: true,
-              priority: 0,
             })
           )
         })
 
-        it("should create a fixed commission rate", async () => {
+        it("should create a fixed commission rate with per-currency values", async () => {
           const response = await api.post(
             `/admin/commission-rates`,
             {
               name: "Fixed Commission",
               code: "FIXED_RATE",
               type: "fixed",
-              target: "item",
-              value: 500,
-              currency_code: "usd",
+              value: 0,
+              values: [
+                { currency_code: "usd", amount: 500 },
+                { currency_code: "eur", amount: 450 },
+              ],
               is_enabled: true,
             },
             adminHeaders
@@ -202,48 +245,26 @@ medusaIntegrationTestRunner({
               name: "Fixed Commission",
               code: "FIXED_RATE",
               type: "fixed",
-              value: 500,
-              currency_code: "usd",
             })
           )
-        })
 
-        it("should create a commission rate with min_amount", async () => {
-          const response = await api.post(
-            `/admin/commission-rates`,
-            {
-              name: "Rate With Minimum",
-              code: "MIN_AMOUNT_RATE",
-              type: "percentage",
-              target: "item",
-              value: 5,
-              min_amount: 100,
-              is_enabled: true,
-            },
+          const detail = await api.get(
+            `/admin/commission-rates/${response.data.commission_rate.id}?fields=*values`,
             adminHeaders
           )
-
-          expect(response.status).toEqual(201)
-          expect(response.data.commission_rate).toEqual(
-            expect.objectContaining({
-              name: "Rate With Minimum",
-              code: "MIN_AMOUNT_RATE",
-              value: 5,
-              min_amount: 100,
-            })
-          )
+          expect(detail.data.commission_rate.values).toHaveLength(2)
         })
 
-        it("should create a commission rate with include_tax enabled", async () => {
+        it("should create a commission rate with include_tax + include_shipping", async () => {
           const response = await api.post(
             `/admin/commission-rates`,
             {
-              name: "Tax Inclusive Rate",
-              code: "TAX_INCLUSIVE",
+              name: "Tax And Shipping Rate",
+              code: "TAX_SHIP_INCL",
               type: "percentage",
-              target: "item",
               value: 10,
               include_tax: true,
+              include_shipping: true,
               is_enabled: true,
             },
             adminHeaders
@@ -252,34 +273,9 @@ medusaIntegrationTestRunner({
           expect(response.status).toEqual(201)
           expect(response.data.commission_rate).toEqual(
             expect.objectContaining({
-              name: "Tax Inclusive Rate",
-              code: "TAX_INCLUSIVE",
+              code: "TAX_SHIP_INCL",
               include_tax: true,
-            })
-          )
-        })
-
-        it("should create a shipping commission rate", async () => {
-          const response = await api.post(
-            `/admin/commission-rates`,
-            {
-              name: "Shipping Commission",
-              code: "SHIPPING_COMM",
-              type: "percentage",
-              target: "shipping",
-              value: 15,
-              is_enabled: true,
-            },
-            adminHeaders
-          )
-
-          expect(response.status).toEqual(201)
-          expect(response.data.commission_rate).toEqual(
-            expect.objectContaining({
-              name: "Shipping Commission",
-              code: "SHIPPING_COMM",
-              target: "shipping",
-              value: 15,
+              include_shipping: true,
             })
           )
         })
@@ -291,10 +287,8 @@ medusaIntegrationTestRunner({
               name: "Seller Specific Rate",
               code: "SELLER_RATE",
               type: "percentage",
-              target: "item",
               value: 8,
               is_enabled: true,
-              priority: 10,
               rules: [
                 {
                   reference: "seller",
@@ -311,7 +305,6 @@ medusaIntegrationTestRunner({
               name: "Seller Specific Rate",
               code: "SELLER_RATE",
               value: 8,
-              priority: 10,
             })
           )
         })
@@ -325,7 +318,6 @@ medusaIntegrationTestRunner({
               name: "Get Test Rate",
               code: "GET_TEST",
               type: "percentage",
-              target: "item",
               value: 12,
               is_enabled: true,
             },
@@ -369,7 +361,6 @@ medusaIntegrationTestRunner({
               name: "Update Test Rate",
               code: "UPDATE_TEST",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: true,
             },
@@ -397,14 +388,13 @@ medusaIntegrationTestRunner({
           )
         })
 
-        it("should update commission rate type", async () => {
+        it("should update the include_shipping flag", async () => {
           const createResponse = await api.post(
             `/admin/commission-rates`,
             {
-              name: "Type Change Rate",
-              code: "TYPE_CHANGE",
+              name: "Shipping Toggle Rate",
+              code: "SHIP_TOGGLE",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: true,
             },
@@ -416,21 +406,13 @@ medusaIntegrationTestRunner({
           const response = await api.post(
             `/admin/commission-rates/${rateId}`,
             {
-              type: "fixed",
-              value: 500,
-              currency_code: "usd",
+              include_shipping: true,
             },
             adminHeaders
           )
 
           expect(response.status).toEqual(200)
-          expect(response.data.commission_rate).toEqual(
-            expect.objectContaining({
-              type: "fixed",
-              value: 500,
-              currency_code: "usd",
-            })
-          )
+          expect(response.data.commission_rate.include_shipping).toEqual(true)
         })
 
         it("should disable a commission rate", async () => {
@@ -440,7 +422,6 @@ medusaIntegrationTestRunner({
               name: "Disable Test Rate",
               code: "DISABLE_TEST",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: true,
             },
@@ -460,46 +441,16 @@ medusaIntegrationTestRunner({
           expect(response.status).toEqual(200)
           expect(response.data.commission_rate.is_enabled).toEqual(false)
         })
-
-        it("should update commission rate priority", async () => {
-          const createResponse = await api.post(
-            `/admin/commission-rates`,
-            {
-              name: "Priority Test Rate",
-              code: "PRIORITY_TEST",
-              type: "percentage",
-              target: "item",
-              value: 10,
-              is_enabled: true,
-              priority: 0,
-            },
-            adminHeaders
-          )
-
-          const rateId = createResponse.data.commission_rate.id
-
-          const response = await api.post(
-            `/admin/commission-rates/${rateId}`,
-            {
-              priority: 100,
-            },
-            adminHeaders
-          )
-
-          expect(response.status).toEqual(200)
-          expect(response.data.commission_rate.priority).toEqual(100)
-        })
       })
 
       describe("DELETE /admin/commission-rates/:id", () => {
-        it("should delete a commission rate", async () => {
+        it("should delete a non-default commission rate", async () => {
           const createResponse = await api.post(
             `/admin/commission-rates`,
             {
               name: "Delete Test Rate",
               code: "DELETE_TEST",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: true,
             },
@@ -520,13 +471,36 @@ medusaIntegrationTestRunner({
             deleted: true,
           })
 
-          // Verify it's deleted
           const getResponse = await api.get(
             `/admin/commission-rates/${rateId}`,
             adminHeaders
           ).catch((e) => e.response)
 
           expect(getResponse.status).toEqual(404)
+        })
+
+        it("should reject deleting the default commission rate", async () => {
+          const listResponse = await api.get(
+            `/admin/commission-rates?is_default=true`,
+            adminHeaders
+          )
+          const defaultRate = listResponse.data.commission_rates[0]
+          expect(defaultRate).toBeDefined()
+
+          const deleteResponse = await api.delete(
+            `/admin/commission-rates/${defaultRate.id}`,
+            adminHeaders
+          ).catch((e) => e.response)
+
+          expect(deleteResponse.status).toBeGreaterThanOrEqual(400)
+
+          // The default rate must still be present.
+          const stillThere = await api.get(
+            `/admin/commission-rates/${defaultRate.id}`,
+            adminHeaders
+          )
+          expect(stillThere.status).toEqual(200)
+          expect(stillThere.data.commission_rate.is_default).toBe(true)
         })
       })
 
@@ -538,7 +512,6 @@ medusaIntegrationTestRunner({
               name: "Rules Test Rate",
               code: "RULES_TEST",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: true,
             },
@@ -571,106 +544,7 @@ medusaIntegrationTestRunner({
           )
         })
 
-        it("should update rules of a commission rate", async () => {
-          const createResponse = await api.post(
-            `/admin/commission-rates`,
-            {
-              name: "Update Rules Rate",
-              code: "UPDATE_RULES",
-              type: "percentage",
-              target: "item",
-              value: 10,
-              is_enabled: true,
-              rules: [
-                {
-                  reference: "seller",
-                  reference_id: seller.id,
-                },
-              ],
-            },
-            adminHeaders
-          )
-
-          const rateId = createResponse.data.commission_rate.id
-
-          // Get the rate to find the rule ID
-          const getResponse = await api.get(
-            `/admin/commission-rates/${rateId}?fields=*rules`,
-            adminHeaders
-          )
-
-          const ruleId = getResponse.data.commission_rate.rules[0].id
-
-          // Create another seller to update the rule reference
-          const seller2Result = await createSellerUser(appContainer, {
-            email: "seller2@test.com",
-            name: "Test Seller 2",
-          })
-
-          const response = await api.post(
-            `/admin/commission-rates/${rateId}/rules`,
-            {
-              update: [
-                {
-                  id: ruleId,
-                  reference_id: seller2Result.seller.id,
-                },
-              ],
-            },
-            adminHeaders
-          )
-
-          expect(response.status).toEqual(200)
-          expect(response.data.updated).toBeDefined()
-          expect(response.data.updated.length).toEqual(1)
-        })
-
-        it("should delete rules from a commission rate", async () => {
-          const createResponse = await api.post(
-            `/admin/commission-rates`,
-            {
-              name: "Delete Rules Rate",
-              code: "DELETE_RULES",
-              type: "percentage",
-              target: "item",
-              value: 10,
-              is_enabled: true,
-              rules: [
-                {
-                  reference: "seller",
-                  reference_id: seller.id,
-                },
-              ],
-            },
-            adminHeaders
-          )
-
-          const rateId = createResponse.data.commission_rate.id
-
-          // Get the rate to find the rule ID
-          const getResponse = await api.get(
-            `/admin/commission-rates/${rateId}?fields=*rules`,
-            adminHeaders
-          )
-
-          const ruleId = getResponse.data.commission_rate.rules[0].id
-
-          const response = await api.post(
-            `/admin/commission-rates/${rateId}/rules`,
-            {
-              delete: [ruleId],
-            },
-            adminHeaders
-          )
-
-          expect(response.status).toEqual(200)
-          expect(response.data.deleted).toBeDefined()
-          expect(response.data.deleted.length).toEqual(1)
-          expect(response.data.deleted[0]).toEqual(ruleId)
-        })
-
         it("should batch create, update, and delete rules", async () => {
-          // Create a rate with two rules
           const seller2Result = await createSellerUser(appContainer, {
             email: "seller3@test.com",
             name: "Test Seller 3",
@@ -682,7 +556,6 @@ medusaIntegrationTestRunner({
               name: "Batch Rules Rate",
               code: "BATCH_RULES",
               type: "percentage",
-              target: "item",
               value: 10,
               is_enabled: true,
               rules: [
@@ -701,7 +574,6 @@ medusaIntegrationTestRunner({
 
           const rateId = createResponse.data.commission_rate.id
 
-          // Get the rate to find the rule IDs
           const getResponse = await api.get(
             `/admin/commission-rates/${rateId}?fields=*rules`,
             adminHeaders
@@ -711,7 +583,6 @@ medusaIntegrationTestRunner({
           const ruleToUpdate = rules[0]
           const ruleToDelete = rules[1]
 
-          // Create a third seller for new rule
           const seller3Result = await createSellerUser(appContainer, {
             email: "seller4@test.com",
             name: "Test Seller 4",
@@ -751,7 +622,6 @@ medusaIntegrationTestRunner({
             {
               code: "NO_NAME",
               type: "percentage",
-              target: "item",
               value: 10,
             },
             adminHeaders
@@ -760,19 +630,37 @@ medusaIntegrationTestRunner({
           expect(response.status).toEqual(400)
         })
 
-        it("should require code field", async () => {
+        it("should auto-generate a unique code when none is provided", async () => {
           const response = await api.post(
             `/admin/commission-rates`,
             {
               name: "No Code Rate",
               type: "percentage",
-              target: "item",
               value: 10,
             },
             adminHeaders
-          ).catch((e) => e.response)
+          )
 
-          expect(response.status).toEqual(400)
+          expect(response.status).toEqual(201)
+          expect(response.data.commission_rate.code).toEqual(
+            expect.stringMatching(/^no-code-rate-[a-z0-9]+$/)
+          )
+
+          // A second rate with the same name still gets a distinct code.
+          const second = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "No Code Rate",
+              type: "percentage",
+              value: 10,
+            },
+            adminHeaders
+          )
+
+          expect(second.status).toEqual(201)
+          expect(second.data.commission_rate.code).not.toEqual(
+            response.data.commission_rate.code
+          )
         })
 
         it("should require type field", async () => {
@@ -781,7 +669,6 @@ medusaIntegrationTestRunner({
             {
               name: "No Type Rate",
               code: "NO_TYPE",
-              target: "item",
               value: 10,
             },
             adminHeaders
@@ -797,7 +684,6 @@ medusaIntegrationTestRunner({
               name: "No Value Rate",
               code: "NO_VALUE",
               type: "percentage",
-              target: "item",
             },
             adminHeaders
           ).catch((e) => e.response)
@@ -812,23 +698,6 @@ medusaIntegrationTestRunner({
               name: "Invalid Type Rate",
               code: "INVALID_TYPE",
               type: "invalid",
-              target: "item",
-              value: 10,
-            },
-            adminHeaders
-          ).catch((e) => e.response)
-
-          expect(response.status).toEqual(400)
-        })
-
-        it("should reject invalid target", async () => {
-          const response = await api.post(
-            `/admin/commission-rates`,
-            {
-              name: "Invalid Target Rate",
-              code: "INVALID_TARGET",
-              type: "percentage",
-              target: "invalid",
               value: 10,
             },
             adminHeaders

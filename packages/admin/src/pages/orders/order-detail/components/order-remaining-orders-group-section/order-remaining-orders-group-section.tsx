@@ -109,7 +109,7 @@ const useColumns = () => {
       }),
       columnHelper.display({
         id: "seller",
-        header: () => <TextHeader text="Seller" />,
+        header: () => <TextHeader text="Store" />,
         cell: ({ row }) => {
           const seller = (row.original as any).seller
           return <TextCell text={seller?.name ?? "-"} />

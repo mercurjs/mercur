@@ -6,7 +6,6 @@ import {
     ContainerRegistrationKeys,
     Modules,
 } from "@medusajs/framework/utils"
-import jwt from "jsonwebtoken"
 import Scrypt from "scrypt-kdf"
 import { createSellerAccountWorkflow } from "@mercurjs/core/workflows"
 
@@ -23,7 +22,10 @@ export const createSellerUser = async (
 
     const authModule: IAuthModuleService = container.resolve(Modules.AUTH)
 
-    const hashConfig = { logN: 15, r: 8, p: 1 }
+    // Low scrypt work factor: this is throwaway test data, and the helper runs
+    // on every seller-creating spec. scrypt-kdf embeds the params in the hash,
+    // so emailpass login still verifies against the cheaper cost factor.
+    const hashConfig = { logN: 4, r: 8, p: 1 }
     const passwordHash = await Scrypt.kdf("somepassword", hashConfig)
 
     const authIdentity = await authModule.createAuthIdentities({
@@ -63,7 +65,7 @@ export const createSellerUser = async (
     const config = container.resolve(ContainerRegistrationKeys.CONFIG_MODULE)
     const { projectConfig } = config
     const { jwtSecret, jwtOptions } = projectConfig.http
-    const token = jwt.sign(
+    const token = (await import("jsonwebtoken")).default.sign(
         {
             actor_id: member.id,
             actor_type: "member",

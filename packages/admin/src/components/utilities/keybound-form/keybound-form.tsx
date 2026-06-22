@@ -30,6 +30,7 @@ export const KeyboundForm = React.forwardRef<
   }
 
   return (
+    // oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions
     <form
       {...rest}
       onSubmit={handleSubmit}

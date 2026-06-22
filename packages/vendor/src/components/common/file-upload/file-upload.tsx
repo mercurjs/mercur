@@ -141,6 +141,7 @@ export const FileUpload = ({
         </div>
         <input
           hidden
+          aria-label="File upload"
           ref={inputRef}
           onChange={handleFileChange}
           type="file"
@@ -187,6 +188,7 @@ export const FileUpload = ({
       </button>
       <input
         hidden
+        aria-label="File upload"
         ref={inputRef}
         onChange={handleFileChange}
         type="file"

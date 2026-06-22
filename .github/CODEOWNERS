@@ -1,0 +1,5 @@
+# Default owner for everything in the repo.
+# Auto-assigns @vholik as reviewer on incoming PRs so they don't go stale.
+# NOTE: do NOT enable "require review from Code Owners" in branch rulesets —
+# with a 1-2 dev team it would block authors from merging their own PRs.
+* @vholik

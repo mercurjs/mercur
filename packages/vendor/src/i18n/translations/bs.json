@@ -414,19 +414,13 @@
       "tabs": {
         "details": "Detalji",
         "organize": "Organizujte",
-        "variants": "Varijante",
-        "inventory": "Kits inventara"
+        "variants": "Varijante"
       },
       "errors": {
         "variants": "Molimo odaberite barem jednu varijantu.",
         "options": "Molimo kreirajte barem jednu opciju.",
-        "uniqueSku": "SKU mora biti jedinstven."
-      },
-      "inventory": {
-        "heading": "Kits inventara",
-        "label": "Dodajte inventarne stavke u kit inventara varijante.",
-        "itemPlaceholder": "Odaberite inventarnu stavku",
-        "quantityPlaceholder": "Koliko vam je ovih potrebnih za kit?"
+        "uniqueSku": "SKU mora biti jedinstven.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Varijante",
@@ -449,7 +443,21 @@
           "hint": "Definišite opcije za proizvod, npr. boja, veličina, itd."
         }
       },
-      "successToast": "Proizvod {{title}} je uspješno kreiran."
+      "successToast": "Proizvod {{title}} je uspješno kreiran.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Izvoz liste proizvoda",
@@ -503,7 +511,6 @@
     "attributes": "Atributi",
     "editAttributes": "Izmjena atributa",
     "editOptions": "Izmjena opcija",
-    "editPrices": "Izmjena cijena",
     "media": {
       "label": "Mediji",
       "editHint": "Dodajte medije u proizvod kako biste ga prikazali u vašoj prodavnici.",
@@ -536,6 +543,7 @@
       "draft": "Nacrt",
       "published": "Objavljeno",
       "proposed": "Predloženo",
+      "requires_action": "Changes required",
       "rejected": "Odbijeno"
     },
     "fields": {
@@ -629,27 +637,18 @@
         "header": "Detalji varijante"
       },
       "deleteWarning": "Jeste li sigurni da želite izbrisati ovu varijantu?",
-      "pricesPagination": "1 - {{current}} od {{total}} cijena",
       "tableItemAvailable": "{{availableCount}} dostupno",
       "tableItem_one": "{{availableCount}} dostupno na {{locationCount}} lokaciji",
       "tableItem_other": "{{availableCount}} dostupno na {{locationCount}} lokacija",
       "inventory": {
         "notManaged": "Nije upravljano",
-        "manageItems": "Upravljaj stavkama inventara",
-        "notManagedDesc": "Inventar nije upravljan za ovu varijantu. Uključite ‘Upravljanje inventarom’ da pratite inventar ove varijante.",
-        "manageKit": "Upravljaj inventarnim kompletom",
         "navigateToItem": "Idi na stavku inventara",
-        "actions": {
-          "inventoryItems": "Idi na stavku inventara",
-          "inventoryKit": "Prikaži stavke inventara"
-        },
         "inventoryKit": "Inventarni komplet",
         "inventoryKitHint": "Da li ova varijanta sadrži više stavki inventara?",
         "validation": {
           "itemId": "Molimo odaberite stavku inventara.",
           "quantity": "Količina je obavezna. Unesite pozitivan broj."
         },
-        "header": "Zalihe i Inventar",
         "editItemDetails": "Uredi detalje stavke",
         "manageInventoryLabel": "Upravljaj inventarom",
         "manageInventoryHint": "Kada je omogućeno, mijenjat ćemo količinu inventara kada se kreiraju narudžbe i povrati.",
@@ -682,15 +681,6 @@
         "toasts": {
           "success": "Organizacija {{title}} je uspješno ažurirana."
         }
-      }
-    },
-    "stock": {
-      "heading": "Upravljanje zalihama proizvoda i lokacijama",
-      "description": "Ažurirajte nivoe zaliha za sve varijante proizvoda.",
-      "loading": "Sačekajte, ovo može potrajati...",
-      "tooltips": {
-        "alreadyManaged": "Ova stavka inventara je već uređiva pod {{title}}.",
-        "alreadyManagedWithSku": "Ova stavka inventara je već uređiva pod {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {
@@ -2999,7 +2989,8 @@
     "startDate": "Datum početka",
     "endDate": "Datum završetka",
     "draft": "Skica",
-    "values": "Vrijednosti"
+    "values": "Vrijednosti",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Godina",
@@ -3016,5 +3007,23 @@
     "minutes_other": "Minute",
     "seconds_one": "Sekunda",
     "seconds_other": "Sekunde"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

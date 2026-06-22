@@ -41,7 +41,7 @@ export const OrderPaymentSection = ({ order }: OrderPaymentSectionProps) => {
 
   return (
     <Container
-      className="divide-y divide-dashed p-0"
+      className="divide-y p-0"
       data-testid="order-payment-section"
     >
       <Header order={order} />
@@ -206,7 +206,7 @@ const Payment = ({
 
   return (
     <div
-      className="divide-y divide-dashed"
+      className="divide-y"
       data-testid={`order-payment-${payment.id}`}
     >
       <div
@@ -340,7 +340,7 @@ const CreditLine = ({
   ) : null;
 
   return (
-    <div className="divide-y divide-dashed">
+    <div className="divide-y">
       <div className="grid grid-cols-[1fr_1fr_20px] items-center gap-x-4 px-6 py-4 text-ui-fg-subtle sm:grid-cols-[1fr_1fr_1fr_20px]">
         <div className="w-full min-w-[60px] overflow-hidden">
           <Text
@@ -421,7 +421,7 @@ const PaymentBreakdown = ({
 
   return (
     <div
-      className="flex flex-col divide-y divide-dashed"
+      className="flex flex-col divide-y"
       data-testid="order-payment-breakdown"
     >
       {entries.map(({ type, event }) => {

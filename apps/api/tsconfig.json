@@ -1,4 +1,5 @@
 {
+  "extends": "./.mercur/tsconfig.augment.json",
   "compilerOptions": {
     "target": "ES2021",
     "esModuleInterop": true,

@@ -3,9 +3,16 @@ import {
   createWorkflow,
   transform,
   WorkflowResponse,
+  type Hook,
+  type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import { emitEventStep } from "@medusajs/medusa/core-flows"
-import { CreateSellerDTO, SellerRole, SellerStatus } from "@mercurjs/types"
+import {
+  CreateSellerDTO,
+  SellerDTO,
+  SellerRole,
+  SellerStatus,
+} from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
 import { createSellersStep } from "../steps"
@@ -14,13 +21,33 @@ import { createMemberInvitesWorkflow } from "./create-member-invites"
 
 export const createSellersWorkflowId = "create-sellers"
 
-type CreateSellersWorkflowInput = {
+export type CreateSellersWorkflowInput = {
   sellers: (CreateSellerDTO & { member: { email: string } })[]
 } & AdditionalData
 
-export const createSellersWorkflow: ReturnType<typeof createWorkflow> = createWorkflow(
+export type CreateSellersWorkflowHooks = [
+  Hook<"validate", { input: CreateSellersWorkflowInput }, unknown>,
+  Hook<
+    "sellersCreated",
+    {
+      sellers: SellerDTO[]
+      additional_data: Record<string, unknown> | undefined
+    },
+    unknown
+  >,
+]
+
+export const createSellersWorkflow: ReturnWorkflow<
+  CreateSellersWorkflowInput,
+  SellerDTO[],
+  CreateSellersWorkflowHooks
+> = createWorkflow(
   createSellersWorkflowId,
   function (input: CreateSellersWorkflowInput) {
+    const validate = createHook("validate", {
+      input,
+    })
+
     const sellers = createSellersStep(
       transform(input, ({ sellers }) =>
         sellers.map(({ member: _member, ...seller }) => ({
@@ -57,6 +84,6 @@ export const createSellersWorkflow: ReturnType<typeof createWorkflow> = createWo
       data: eventData,
     })
 
-    return new WorkflowResponse(sellers, { hooks: [sellersCreated] })
+    return new WorkflowResponse(sellers, { hooks: [validate, sellersCreated] })
   }
 )

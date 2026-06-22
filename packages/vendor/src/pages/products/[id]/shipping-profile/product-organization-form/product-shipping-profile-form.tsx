@@ -63,12 +63,8 @@ export const ProductShippingProfileForm = ({
           data.shipping_profile_id === "" ? null : data.shipping_profile_id,
       } as any,
       {
-        onSuccess: ({ product }) => {
-          toast.success(
-            t("products.shippingProfile.edit.toasts.success", {
-              title: product.title,
-            })
-          )
+        onSuccess: () => {
+          toast.success(t("products.shippingProfile.edit.toasts.success"))
           handleSuccess()
         },
         onError: (error) => {

@@ -100,6 +100,34 @@ export const completeCartFields = [
     "items.*",
     "items.tax_lines.*",
     "items.adjustments.*",
+    // variant + product fields are required by prepareLineItemData so
+    // each created order line item carries variant_id, product_id, and
+    // the correct requires_shipping flag derived from
+    // variant.product.shipping_profile / variant.inventory_items
+    "items.variant.id",
+    "items.variant.sku",
+    "items.variant.barcode",
+    "items.variant.title",
+    "items.variant.weight",
+    "items.variant.length",
+    "items.variant.height",
+    "items.variant.width",
+    "items.variant.material",
+    "items.variant.thumbnail",
+    "items.variant.product.id",
+    "items.variant.product.title",
+    "items.variant.product.subtitle",
+    "items.variant.product.description",
+    "items.variant.product.handle",
+    "items.variant.product.thumbnail",
+    "items.variant.product.is_giftcard",
+    "items.variant.product.discountable",
+    "items.variant.product.type.id",
+    "items.variant.product.type.value",
+    "items.variant.product.collection.id",
+    "items.variant.product.collection.title",
+    "items.variant.product.shipping_profile.id",
+    "items.variant.inventory_items.inventory.requires_shipping",
     "customer.id",
     "customer.email",
     "shipping_methods.*",
@@ -113,25 +141,15 @@ export const completeCartFields = [
     "payment_collection.payment_sessions.*",
     "promotions.id",
     'promotions.seller.id',
-    "items.variant.id",
-    "items.variant.product.id",
-    "items.variant.product.seller.id",
-    "items.variant.product.is_giftcard",
-    "items.variant.product.shipping_profile.id",
-    "items.variant.manage_inventory",
-    "items.variant.allow_backorder",
-    "items.variant.inventory_items.inventory_item_id",
-    "items.variant.inventory_items.required_quantity",
-    "items.variant.inventory_items.inventory.requires_shipping",
-    "items.variant.inventory_items.inventory.location_levels.stocked_quantity",
-    "items.variant.inventory_items.inventory.location_levels.reserved_quantity",
-    "items.variant.inventory_items.inventory.location_levels.raw_stocked_quantity",
-    "items.variant.inventory_items.inventory.location_levels.raw_reserved_quantity",
-    "items.variant.inventory_items.inventory.location_levels.location_id",
-    "items.variant.inventory_items.inventory.location_levels.stock_locations.id",
-    "items.variant.inventory_items.inventory.location_levels.stock_locations.name",
-    "items.variant.inventory_items.inventory.location_levels.stock_locations.sales_channels.id",
-    "items.variant.inventory_items.inventory.location_levels.stock_locations.sales_channels.name",
+    "items.offer.id",
+    "items.offer.seller_id",
+    "items.offer.shipping_profile_id",
+    // NOTE: per-offer inventory data (linked InventoryItem +
+    // location_levels) is intentionally NOT pulled in via
+    // completeCartFields. It is fetched in a dedicated
+    // `fetch-offers-for-reservation` step from the same workflow,
+    // which keeps the cart-query populate tree shallow and avoids
+    // the writable offer ↔ inventory_item link's pivot edge cases.
 ]
 
 export const cartFieldsForPricingContext = [

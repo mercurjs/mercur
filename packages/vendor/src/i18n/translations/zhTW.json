@@ -417,19 +417,13 @@
       "tabs": {
         "details": "詳情",
         "organize": "整理",
-        "variants": "變體",
-        "inventory": "庫存套件"
+        "variants": "變體"
       },
       "errors": {
         "variants": "請至少選擇一個變體。",
         "options": "請至少建立一個選項。",
-        "uniqueSku": "SKU 必須是唯一的。"
-      },
-      "inventory": {
-        "heading": "庫存套件",
-        "label": "將庫存項目加入變體的庫存套件。",
-        "itemPlaceholder": "選擇庫存項目",
-        "quantityPlaceholder": "此套件需要多少個？"
+        "uniqueSku": "SKU 必須是唯一的。",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "變體",
@@ -452,7 +446,21 @@
           "hint": "定義商品的選項，例如顏色、尺寸等。"
         }
       },
-      "successToast": "商品 {{title}} 已成功建立。"
+      "successToast": "商品 {{title}} 已成功建立。",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "匯出商品清單",
@@ -506,7 +514,6 @@
     "attributes": "屬性",
     "editAttributes": "編輯屬性",
     "editOptions": "編輯選項",
-    "editPrices": "編輯價格",
     "media": {
       "label": "媒體",
       "editHint": "新增媒體到商品以在店面中展示。",
@@ -558,6 +565,7 @@
       "draft": "草稿",
       "published": "已發佈",
       "proposed": "待審核",
+      "requires_action": "Changes required",
       "rejected": "已拒絕"
     },
     "columns": {
@@ -663,27 +671,18 @@
         "header": "變體詳細資訊"
       },
       "deleteWarning": "您確定要刪除此變體嗎？",
-      "pricesPagination": "1 - {{current}} / {{total}} 個價格",
       "tableItemAvailable": "可用 {{availableCount}} 個",
       "tableItem_one": "{{availableCount}} 個可用,於 {{locationCount}} 個地點",
       "tableItem_other": "{{availableCount}} 個可用,於 {{locationCount}} 個地點",
       "inventory": {
         "notManaged": "未管理",
-        "manageItems": "管理庫存項目",
-        "notManagedDesc": "此變體未啟用庫存管理。開啟『管理庫存』即可追蹤此變體的庫存。",
-        "manageKit": "管理庫存套件",
         "navigateToItem": "前往庫存項目",
-        "actions": {
-          "inventoryItems": "前往庫存項目",
-          "inventoryKit": "顯示庫存項目"
-        },
         "inventoryKit": "庫存套件",
         "inventoryKitHint": "此變體是否由多個庫存項目組成？",
         "validation": {
           "itemId": "請選擇庫存項目。",
           "quantity": "數量必填。請輸入正整數。"
         },
-        "header": "庫存與存貨",
         "editItemDetails": "編輯項目詳細資料",
         "manageInventoryLabel": "管理庫存",
         "manageInventoryHint": "啟用後，建立訂單與退貨時將自動調整庫存數量。",
@@ -716,15 +715,6 @@
         "toasts": {
           "success": "已成功更新 {{title}} 的整理方式。"
         }
-      }
-    },
-    "stock": {
-      "heading": "管理商品庫存等級和地點",
-      "description": "更新商品所有變體的庫存等級。",
-      "loading": "請稍候，這可能需要一些時間...",
-      "tooltips": {
-        "alreadyManaged": "此庫存項目已可在 {{title}} 下編輯。",
-        "alreadyManagedWithSku": "此庫存項目已可在 {{title}} ({{sku}}) 下編輯。"
       }
     },
     "shippingProfile": {
@@ -3209,7 +3199,8 @@
     "startDate": "開始日期",
     "endDate": "結束日期",
     "draft": "草稿",
-    "values": "值"
+    "values": "值",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "年",
@@ -3245,6 +3236,24 @@
         "confirmText": "更新",
         "cancelText": "取消"
       }
+    }
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
     }
   }
 }

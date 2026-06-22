@@ -29,3 +29,9 @@ We consider security research conducted in good faith to be authorized. We will 
 ### Supported Versions
 
 Security fixes are applied to the latest release. We do not backport fixes to older versions unless the vulnerability is critical and the version is widely deployed.
+
+| Version | Supported          |
+| ------- | ------------------ |
+| 2.x     | :white_check_mark: |
+| 1.x     | :x:                |
+| < 1.0   | :x:                |

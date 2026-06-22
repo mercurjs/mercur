@@ -417,19 +417,13 @@
       "tabs": {
         "details": "Detalhes",
         "organize": "Organizar",
-        "variants": "Variantes",
-        "inventory": "Kits de stock"
+        "variants": "Variantes"
       },
       "errors": {
         "variants": "Seleciona pelo menos uma variante.",
         "options": "Cria pelo menos uma opção.",
-        "uniqueSku": "O SKU deve ser único."
-      },
-      "inventory": {
-        "heading": "Kits de stock",
-        "label": "Adiciona itens de stock ao kit de stock da variante.",
-        "itemPlaceholder": "Selecionar item de stock",
-        "quantityPlaceholder": "Quantos destes são necessários para o kit?"
+        "uniqueSku": "O SKU deve ser único.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Variantes",
@@ -452,7 +446,21 @@
           "hint": "Define as opções do produto, por ex., cor, tamanho, etc."
         }
       },
-      "successToast": "O produto {{title}} foi criado com sucesso."
+      "successToast": "O produto {{title}} foi criado com sucesso.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Exportar lista de produtos",
@@ -506,7 +514,6 @@
     "attributes": "Atributos",
     "editAttributes": "Editar atributos",
     "editOptions": "Editar opções",
-    "editPrices": "Editar preços",
     "media": {
       "label": "Multimédia",
       "editHint": "Adiciona multimédia ao produto para o destacar na loja.",
@@ -557,6 +564,7 @@
       "draft": "Rascunho",
       "published": "Publicado",
       "proposed": "Proposto",
+      "requires_action": "Changes required",
       "rejected": "Rejeitado"
     },
     "columns": {
@@ -662,27 +670,18 @@
         "header": "Detalhes da variante"
       },
       "deleteWarning": "Tens a certeza que queres eliminar esta variante?",
-      "pricesPagination": "1 - {{current}} de {{total}} preços",
       "tableItemAvailable": "{{availableCount}} disponível(is)",
       "tableItem_one": "{{availableCount}} disponível em {{locationCount}} localização",
       "tableItem_other": "{{availableCount}} disponível em {{locationCount}} localizações",
       "inventory": {
         "notManaged": "Não gerido",
-        "manageItems": "Gerir itens de stock",
-        "notManagedDesc": "O stock não é gerido para esta variante. Ativa 'Gerir stock' para acompanhar o stock da variante.",
-        "manageKit": "Gerir kit de stock",
         "navigateToItem": "Ir para item de stock",
-        "actions": {
-          "inventoryItems": "Ir para item de stock",
-          "inventoryKit": "Mostrar itens de stock"
-        },
         "inventoryKit": "Kit de stock",
         "inventoryKitHint": "Esta variante é composta por vários itens de stock?",
         "validation": {
           "itemId": "Seleciona um item de stock.",
           "quantity": "A quantidade é obrigatória. Introduz um número positivo."
         },
-        "header": "Stock e Inventário",
         "editItemDetails": "Editar detalhes do item",
         "manageInventoryLabel": "Gerir stock",
         "manageInventoryHint": "Quando ativo, alteramos a quantidade de stock quando encomendas e devoluções são criadas.",
@@ -715,15 +714,6 @@
         "toasts": {
           "success": "Organização de {{title}} atualizada com sucesso."
         }
-      }
-    },
-    "stock": {
-      "heading": "Gerir níveis de stock e localizações do produto",
-      "description": "Atualiza os níveis de stock para todas as variantes do produto.",
-      "loading": "Aguarda, isto pode demorar um momento...",
-      "tooltips": {
-        "alreadyManaged": "Este item de stock já é editável em {{title}}.",
-        "alreadyManagedWithSku": "Este item de stock já é editável em {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {
@@ -3180,7 +3170,8 @@
     "startDate": "Data de início",
     "endDate": "Data de fim",
     "draft": "Rascunho",
-    "values": "Valores"
+    "values": "Valores",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Ano",
@@ -3216,6 +3207,24 @@
         "confirmText": "Atualizar",
         "cancelText": "Cancelar"
       }
+    }
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
     }
   }
 }

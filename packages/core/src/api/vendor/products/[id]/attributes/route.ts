@@ -6,180 +6,102 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { createProductOptionsWorkflow } from "@medusajs/medusa/core-flows"
+import { AttributeType, HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 
-import { AttributeSource, AttributeUIComponent } from "@mercurjs/types"
-
-import { createAndLinkAttributeValuesWorkflow } from "../../../../../workflows/product-attribute/workflows/create-and-link-attribute-values"
-import { findOrCreateVendorAttribute } from "../../../../../workflows/product-attribute/utils/find-or-create-vendor-attribute"
+import { productEditUpdateAttributesWorkflow } from "../../../../../workflows/product-edit/workflows/product-edit-update-attributes"
 import { VendorAddProductAttributeType } from "../../validators"
-import { transformProductWithInformationalAttributes } from "../../utils/transform-product-attributes"
-import { getProductAttributeValues } from "./utils"
 
-export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorAddProductAttributeType>,
-  res: MedusaResponse
+export const GET = async (
+  req: AuthenticatedMedusaRequest,
+  res: MedusaResponse<HttpTypes.VendorProductAttributeListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const { id: product_id } = req.params
-  const { attribute_id, name, values, use_for_variations, ui_component } =
-    req.validatedBody
-
-  const sellerId =  req.seller_context!.seller_id
-
-  if (!attribute_id && !name) {
-    throw new MedusaError(
-      MedusaError.Types.INVALID_DATA,
-      "Either attribute_id or name must be provided"
-    )
-  }
-
-  if (use_for_variations) {
-    const optionTitle =
-      name ?? (await getAttributeName(query, attribute_id!))
-
-    await createProductOptionsWorkflow(req.scope).run({
-      input: {
-        product_options: [
-          {
-            product_id,
-            title: optionTitle,
-            values,
-          },
-        ],
-      },
-    })
-  } else {
-    let resolvedAttributeId: string
-
-    if (attribute_id) {
-      const {
-        data: [attribute],
-      } = await query.graph({
-        entity: "attribute",
-        fields: ["id", "source", "possible_values.value"],
-        filters: { id: attribute_id },
-      })
-
-      if (!attribute) {
-        throw new MedusaError(
-          MedusaError.Types.NOT_FOUND,
-          `Attribute with id '${attribute_id}' not found`
-        )
-      }
-
-      resolvedAttributeId = attribute.id
-
-      const existingValues = await getProductAttributeValues(
-        req.scope,
-        product_id,
-        resolvedAttributeId
-      )
-      if (existingValues.length > 0) {
-        throw new MedusaError(
-          MedusaError.Types.INVALID_DATA,
-          "Attribute already assigned to this product. Use UPDATE endpoint to modify values."
-        )
-      }
-
-      const allowedValues = new Set(
-        attribute.possible_values?.map(
-          (pv: { value: string }) => pv.value
-        ) ?? []
-      )
-
-      const valuesWithSource = values.map((value) => {
-        const isFromPossibleValues =
-          allowedValues.size === 0 || allowedValues.has(value)
-
-        const source = isFromPossibleValues
-          ? AttributeSource.ADMIN
-          : AttributeSource.VENDOR
-
-        return { value, source }
-      })
-
-      await createAndLinkAttributeValuesWorkflow(req.scope).run({
-        input: {
-          product_id,
-          attribute_id: resolvedAttributeId,
-          seller_id: sellerId,
-          values: valuesWithSource,
-        },
-      })
-    } else {
-      const vendorAttribute = await findOrCreateVendorAttribute(
-        req.scope,
-        {
-          sellerId,
-          name: name!,
-          ui_component:
-            (ui_component as AttributeUIComponent) ??
-            AttributeUIComponent.TEXTAREA,
-        }
-      )
-
-      resolvedAttributeId = vendorAttribute.id
-
-      const existingValues = await getProductAttributeValues(
-        req.scope,
-        product_id,
-        resolvedAttributeId
-      )
-      if (existingValues.length > 0) {
-        throw new MedusaError(
-          MedusaError.Types.INVALID_DATA,
-          "Attribute already assigned to this product. Use UPDATE endpoint to modify values."
-        )
-      }
-
-      await createAndLinkAttributeValuesWorkflow(req.scope).run({
-        input: {
-          product_id,
-          attribute_id: resolvedAttributeId,
-          seller_id: sellerId,
-          values: values.map((value) => ({
-            value,
-            source: AttributeSource.VENDOR as AttributeSource,
-          })),
-        },
-      })
-    }
-  }
+  const productId = req.params.id
 
   const {
     data: [product],
   } = await query.graph({
     entity: "product",
-    fields: req.queryConfig.fields,
-    filters: { id: product_id },
+    fields: ["id", "attribute_values.attribute.id", "attribute_values.attribute.name"],
+    filters: { id: productId },
   })
 
-  const transformedProduct = transformProductWithInformationalAttributes(
-    product as any
-  )
-
-  res.status(201).json({ product: transformedProduct })
-}
-
-async function getAttributeName(
-  query: any,
-  attributeId: string
-): Promise<string> {
-  const {
-    data: [attribute],
-  } = await query.graph({
-    entity: "attribute",
-    fields: ["name"],
-    filters: { id: attributeId },
-  })
-
-  if (!attribute) {
+  if (!product) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
-      `Attribute with id '${attributeId}' not found`
+      `Product with id ${productId} was not found`
     )
   }
 
-  return attribute.name
+  const attributesById = new Map<string, any>()
+  for (const v of (product as any).attribute_values ?? []) {
+    if (!v.attribute) continue
+    if (!attributesById.has(v.attribute.id)) {
+      attributesById.set(v.attribute.id, v.attribute)
+    }
+  }
+  const product_attributes = Array.from(attributesById.values())
+
+  res.json({
+    product_attributes,
+    count: product_attributes.length,
+    offset: 0,
+    limit: product_attributes.length,
+  } as any)
+}
+
+/**
+ * Stages an `ATTRIBUTE_ADD` action. Supports both branches the
+ * validator allows: attach-existing (`attribute_id` + `value_ids` /
+ * `values`) and inline-create (`name` + `type` + `values`). The
+ * staging workflow resolves names → ids and creates inline
+ * `ProductAttribute` rows up-front so the action carries pre-resolved
+ * `attribute_value_ids` (the apply-actions contract).
+ */
+export const POST = async (
+  req: AuthenticatedMedusaRequest<VendorAddProductAttributeType>,
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>
+) => {
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const sellerId = req.seller_context!.seller_id
+  const productId = req.params.id
+  const body = req.validatedBody
+
+  const op =
+    body.attribute_id !== undefined
+      ? ({
+        type: "add" as const,
+        attribute_id: body.attribute_id,
+        value_ids: body.attribute_value_ids,
+        values: body.values,
+      })
+      : ({
+        type: "add" as const,
+        name: body.name!,
+        attribute_type: body.type as AttributeType,
+        values: body.values ?? [],
+        is_variant_axis: body.is_variant_axis,
+        is_filterable: body.is_filterable,
+        is_required: body.is_required,
+        description: body.description ?? null,
+        metadata: body.metadata ?? null,
+      })
+
+  const { result } = await productEditUpdateAttributesWorkflow(req.scope).run({
+    input: {
+      product_id: productId,
+      created_by: sellerId,
+      operations: [op],
+    },
+  })
+
+  const {
+    data: [product_change],
+  } = await query.graph({
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
+  })
+
+  res.status(202).json({ product_change: product_change ?? result })
 }

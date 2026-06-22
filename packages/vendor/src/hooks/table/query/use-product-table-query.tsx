@@ -1,14 +1,14 @@
-import { HttpTypes } from "@medusajs/types"
-import { useQueryParams } from "../../use-query-params"
+import { HttpTypes } from "@medusajs/types";
+import { useQueryParams } from "../../use-query-params";
 
 type UseProductTableQueryProps = {
-  prefix?: string
-  pageSize?: number
-}
+  prefix?: string;
+  pageSize?: number;
+};
 
 const DEFAULT_FIELDS =
   // TODO: Remove exclusion once we avoid including unnecessary relations by default in the query config
-  "id,title,handle,status,*collection,*sales_channels,variants.id,thumbnail,-type,-options,-tags,-images,-variants"
+  "id,title,handle,status,*collection,categories.id,categories.name,variants.id,thumbnail,-type,-tags,-images,-variants";
 
 export const useProductTableQuery = ({
   prefix,
@@ -30,8 +30,8 @@ export const useProductTableQuery = ({
       "status",
       "id",
     ],
-    prefix
-  )
+    prefix,
+  );
 
   const {
     offset,
@@ -46,7 +46,7 @@ export const useProductTableQuery = ({
     status,
     order,
     q,
-  } = queryObject
+  } = queryObject;
 
   const searchParams: HttpTypes.AdminProductListParams = {
     limit: pageSize,
@@ -57,16 +57,16 @@ export const useProductTableQuery = ({
     category_id: category_id?.split(","),
     collection_id: collection_id?.split(","),
     is_giftcard: is_giftcard ? is_giftcard === "true" : undefined,
-    order: order,
+    order: order || "title",
     tag_id: tag_id ? tag_id.split(",") : undefined,
     type_id: type_id?.split(","),
     status: status?.split(",") as HttpTypes.AdminProductStatus[],
     q,
     fields: DEFAULT_FIELDS,
-  }
+  };
 
   return {
     searchParams,
     raw: queryObject,
-  }
-}
+  };
+};

@@ -12,15 +12,25 @@ import {
 } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { ordersQueryKeys } from "@hooks/api/orders"
-import { useCreateReservationItem } from "@hooks/api/reservations"
+import {
+  useCreateReservationItem,
+  useReservationItems,
+} from "@hooks/api/reservations"
 import { useStockLocations } from "@hooks/api/stock-locations"
 import { queryClient } from "@lib/query-client"
+import { getFulfillableQuantity } from "@lib/order-item"
+import { getReservationsLimitCount } from "@lib/orders"
 import { AllocateItemsSchema } from "./constants"
-import { OrderAllocateItemsItem } from "./order-allocate-items-item"
-import { ExtendedAdminOrder, ExtendedAdminOrderLineItemWithInventory, ExtendedAdminProductVariantInventory } from "@custom-types/order"
+import {
+  OrderAllocateItemsItem,
+  type OfferLinkRow,
+  type OrderLineItemWithOffer,
+} from "./order-allocate-items-item"
+import { buildAllocationPayload, getAllocatableItems } from "./utils"
+import type { HttpTypes, OrderLineItemDTO } from "@medusajs/types"
 
 type OrderAllocateItemsFormProps = {
-  order: ExtendedAdminOrder
+  order: HttpTypes.AdminOrder
 }
 
 export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
@@ -33,15 +43,21 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
   const { mutateAsync: allocateItems, isPending: isMutating } =
     useCreateReservationItem()
 
+  const { reservations } = useReservationItems(
+    {
+      line_item_id: order?.items?.map((i) => i.id),
+      limit: getReservationsLimitCount(order),
+    },
+    { enabled: Array.isArray(order?.items) }
+  )
+
   const itemsToAllocate = useMemo(
     () =>
-      order.items.filter(
-        (item) =>
-          item.variant?.manage_inventory &&
-          !!item.variant.inventory?.length &&
-          item?.quantity - item.detail?.fulfilled_quantity > 0
+      getAllocatableItems(
+        order.items as OrderLineItemWithOffer[],
+        reservations ?? []
       ),
-    [order.items]
+    [order.items, reservations]
   )
 
   const filteredItems = useMemo(() => {
@@ -52,12 +68,11 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
     )
   }, [itemsToAllocate, filterTerm])
 
-  // TODO - empty state UI
-
   const form = useForm<zod.infer<typeof AllocateItemsSchema>>({
     defaultValues: {
       location_id: "",
       quantity: defaultAllocations(itemsToAllocate),
+      selected: defaultSelected(itemsToAllocate),
     },
     resolver: zodResolver(AllocateItemsSchema),
   })
@@ -66,25 +81,43 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
 
   const handleSubmit = form.handleSubmit(async (data) => {
     try {
-      const payload = Object.entries(data.quantity)
-        .filter(([key]) => !key.endsWith("-"))
-        .map(([key, quantity]) => [...key.split("-"), quantity])
+      const result = buildAllocationPayload(data.quantity, data.selected)
 
-      if (payload.some((d) => d[2] === "")) {
+      if (!result.ok) {
         form.setError("root.quantityNotAllocated", {
           type: "manual",
-          message: t("orders.allocateItems.error.quantityNotAllocated"),
+          message:
+            result.reason === "no-items"
+              ? t("orders.allocateItems.error.noItemsSelected")
+              : t("orders.allocateItems.error.quantityNotAllocated"),
         })
 
         return
       }
 
-      const promises = payload.map(([itemId, inventoryId, quantity]) =>
+      // Never re-reserve an item that is no longer allocatable (e.g. it picked
+      // up a reservation after the form's defaults were computed). Without this
+      // a stale prefilled quantity could create a duplicate reservation. (MER-187)
+      const allocatableIds = new Set(itemsToAllocate.map((i) => i.id))
+      const allocations = result.items.filter((item) =>
+        allocatableIds.has(item.line_item_id)
+      )
+
+      if (allocations.length === 0) {
+        form.setError("root.quantityNotAllocated", {
+          type: "manual",
+          message: t("orders.allocateItems.error.noItemsSelected"),
+        })
+
+        return
+      }
+
+      const promises = allocations.map((item) =>
         allocateItems({
           location_id: data.location_id,
-          inventory_item_id: String(inventoryId),
-          line_item_id: String(itemId),
-          quantity: typeof quantity === 'string' ? Number(quantity) : quantity,
+          inventory_item_id: item.inventory_item_id,
+          line_item_id: item.line_item_id,
+          quantity: item.quantity,
         })
       )
 
@@ -93,7 +126,6 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
        */
       await Promise.all(promises)
 
-      // invalidate order details so we get new item.variant.inventory items
       await queryClient.invalidateQueries({
         queryKey: ordersQueryKeys.details(),
       })
@@ -110,64 +142,65 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
     }
   })
 
+  const onToggleSelected = (itemId: string, checked: boolean) => {
+    form.setValue(`selected.${itemId}` as `selected.${string}`, checked)
+    form.clearErrors("root.quantityNotAllocated")
+  }
+
   const onQuantityChange = (
-    inventoryItem: ExtendedAdminProductVariantInventory,
-    lineItem: ExtendedAdminOrderLineItemWithInventory,
+    link: OfferLinkRow,
+    lineItem: OrderLineItemWithOffer,
     hasInventoryKit: boolean,
     value: number | null,
     isRoot?: boolean
   ) => {
     let shouldDisableSubmit = false
 
+    const inventoryItemId = resolveInventoryItemId(link)
+
     const key =
       isRoot && hasInventoryKit
         ? `quantity.${lineItem.id}-`
-        : `quantity.${lineItem.id}-${inventoryItem.id}`
+        : `quantity.${lineItem.id}-${inventoryItemId ?? ""}`
 
     form.setValue(key as `quantity.${string}`, value ?? "")
 
-    if (value && inventoryItem.location_levels) {
-      const location = inventoryItem.location_levels.find(
-        (l) => l.location_id === selectedLocationId
-      )
-      if (location) {
-        if (location.available_quantity < value) {
-          shouldDisableSubmit = true
-        }
+    const levels = link.inventory_item?.location_levels
+    if (value && levels) {
+      const location = levels.find((l) => l.location_id === selectedLocationId)
+      if (location && (location.available_quantity ?? 0) < value) {
+        shouldDisableSubmit = true
       }
     }
 
     if (hasInventoryKit && !isRoot) {
-      // changed subitem in the kit -> we need to set parent to "-"
       form.resetField(`quantity.${lineItem.id}-` as `quantity.${string}`, { defaultValue: "" })
     }
 
     if (hasInventoryKit && isRoot) {
-      // changed root -> we need to set items to parent quantity x required_quantity
-
       const item = itemsToAllocate.find((i) => i.id === lineItem.id)
 
-      if (!item || !item.variant) return
+      if (!item || !item.offer?.inventory_item_link) return
 
-      item.variant.inventory_items?.forEach((ii, ind) => {
+      item.offer.inventory_item_link.forEach((childLink) => {
         const num = value || 0
-        const inventory = item.variant?.inventory?.[ind]
+        const childInventoryItemId = resolveInventoryItemId(childLink)
+        if (!childInventoryItemId) return
 
-        if (!inventory) return
+        const required = childLink.required_quantity ?? 1
 
         form.setValue(
-          `quantity.${lineItem.id}-${inventory.id}` as `quantity.${string}`,
-          num * ii.required_quantity
+          `quantity.${lineItem.id}-${childInventoryItemId}` as `quantity.${string}`,
+          num * required
         )
 
-        if (value && inventory.location_levels) {
-          const location = inventory.location_levels.find(
+        const childLevels = childLink.inventory_item?.location_levels
+        if (value && childLevels) {
+          const location = childLevels.find(
             (l) => l.location_id === selectedLocationId
           )
-          if (location) {
-            if (location.available_quantity < value) {
-              shouldDisableSubmit = true
-            }
+          if (location && (location.available_quantity ?? 0) < num * required) {
+            shouldDisableSubmit = true
           }
         }
       })
@@ -184,7 +217,10 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
 
   useEffect(() => {
     if (selectedLocationId) {
-      form.setValue("quantity", defaultAllocations(itemsToAllocate))
+      form.setValue(
+        "quantity",
+        defaultAllocations(itemsToAllocate, selectedLocationId)
+      )
     }
   }, [
 	selectedLocationId,
@@ -274,7 +310,7 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
                       </Alert>
                     )}
 
-                    <div className="flex flex-col gap-y-1">
+                    <div className="flex flex-col gap-y-2">
                       {filteredItems.map((item) => (
                         <OrderAllocateItemsItem
                           key={item.id}
@@ -282,6 +318,7 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
                           item={item}
                           locationId={selectedLocationId}
                           onQuantityChange={onQuantityChange}
+                          onToggleSelected={onToggleSelected}
                         />
                       ))}
                     </div>
@@ -313,24 +350,77 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
   )
 }
 
-function defaultAllocations(items: ExtendedAdminOrderLineItemWithInventory[]) {
+const resolveInventoryItemId = (link: OfferLinkRow): string | null =>
+  link.inventory_item?.id ?? link.inventory_item_id ?? null
+
+// Clamp a desired quantity to what is actually available at the chosen
+// location so the prefill never proposes more than can be reserved. Until a
+// location is picked there is nothing to clamp against, so the raw value is
+// returned.
+const clampToAvailable = (
+  desired: number,
+  link: OfferLinkRow,
+  locationId?: string
+): number => {
+  if (!locationId) {
+    return desired
+  }
+
+  const level = link.inventory_item?.location_levels?.find(
+    (l) => l.location_id === locationId
+  )
+  const available = level?.available_quantity ?? Number.MAX_SAFE_INTEGER
+
+  return Math.max(0, Math.min(desired, available))
+}
+
+// Prefill each allocatable row with its outstanding (fulfillable) quantity so
+// the default state is a valid, one-click allocation. Kit roots keep the
+// trailing-dash aggregator key (UI only); child rows are scaled by the kit's
+// required quantity.
+function defaultAllocations(
+  items: OrderLineItemWithOffer[],
+  locationId?: string
+) {
   const ret: Record<string, string | number> = {}
 
   items.forEach((item) => {
-    const hasInventoryKit = (item.variant?.inventory_items?.length || 0) > 1
+    const links = item.offer?.inventory_item_link ?? []
+    const hasInventoryKit = links.length > 1
+    const firstLink = links[0]
+    const firstInventoryItemId = resolveInventoryItemId(firstLink ?? {})
+    const fulfillable = getFulfillableQuantity(
+      item as unknown as OrderLineItemDTO
+    )
 
-    ret[
-      hasInventoryKit
-        ? `${item.id}-`
-        : `${item.id}-${item.variant?.inventory?.[0]?.id || ''}`
-    ] = ""
-
-    if (hasInventoryKit && item.variant?.inventory) {
-      item.variant.inventory.forEach((i) => {
-        ret[`${item.id}-${i.id}`] = ""
+    if (hasInventoryKit) {
+      ret[`${item.id}-`] = fulfillable
+      links.forEach((link) => {
+        const id = resolveInventoryItemId(link)
+        if (!id) return
+        const required = link.required_quantity ?? 1
+        ret[`${item.id}-${id}`] = clampToAvailable(
+          fulfillable * required,
+          link,
+          locationId
+        )
       })
+    } else {
+      ret[`${item.id}-${firstInventoryItemId ?? ""}`] = clampToAvailable(
+        fulfillable,
+        firstLink ?? {},
+        locationId
+      )
     }
   })
 
+  return ret
+}
+
+function defaultSelected(items: OrderLineItemWithOffer[]) {
+  const ret: Record<string, boolean> = {}
+  items.forEach((item) => {
+    ret[item.id] = true
+  })
   return ret
 }

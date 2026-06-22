@@ -2,8 +2,13 @@ import {
   createHook,
   createWorkflow,
   WorkflowResponse,
+  type Hook,
+  type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { UpdateProfessionalDetailsDTO } from "@mercurjs/types"
+import {
+  ProfessionalDetailsDTO,
+  UpdateProfessionalDetailsDTO,
+} from "@mercurjs/types"
 import { AdditionalData } from "@medusajs/framework/types"
 
 import { updateSellerProfessionalDetailsStep } from "../steps/update-seller-professional-details"
@@ -11,12 +16,27 @@ import { updateSellerProfessionalDetailsStep } from "../steps/update-seller-prof
 export const updateSellerProfessionalDetailsWorkflowId =
   "update-seller-professional-details"
 
-type UpdateSellerProfessionalDetailsWorkflowInput = {
+export type UpdateSellerProfessionalDetailsWorkflowInput = {
   seller_id: string
   data: UpdateProfessionalDetailsDTO
 } & AdditionalData
 
-export const updateSellerProfessionalDetailsWorkflow: ReturnType<typeof createWorkflow> = createWorkflow(
+export type UpdateSellerProfessionalDetailsWorkflowHooks = [
+  Hook<
+    "professionalDetailsUpdated",
+    {
+      professional_details: ProfessionalDetailsDTO
+      additional_data: Record<string, unknown> | undefined
+    },
+    unknown
+  >,
+]
+
+export const updateSellerProfessionalDetailsWorkflow: ReturnWorkflow<
+  UpdateSellerProfessionalDetailsWorkflowInput,
+  ProfessionalDetailsDTO,
+  UpdateSellerProfessionalDetailsWorkflowHooks
+> = createWorkflow(
   updateSellerProfessionalDetailsWorkflowId,
   function (input: UpdateSellerProfessionalDetailsWorkflowInput) {
     const professionalDetails = updateSellerProfessionalDetailsStep(input)
