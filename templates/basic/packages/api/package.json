@@ -42,8 +42,8 @@
     "@mercurjs/cli": "2.2.0-canary.22"
   },
   "devDependencies": {
-    "@acme/admin": "workspace:*",
-    "@acme/vendor": "workspace:*",
+    "@acme/admin": "*",
+    "@acme/vendor": "*",
     "@medusajs/test-utils": "2.13.4",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",
