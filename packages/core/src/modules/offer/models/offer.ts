@@ -5,6 +5,7 @@ const Offer = model
     id: model.id({ prefix: "offer" }).primaryKey(),
     seller_id: model.text(),
     variant_id: model.text(),
+    product_id: model.text(),
     shipping_profile_id: model.text(),
     sku: model.text().searchable(),
     ean: model.text().searchable().nullable(),
@@ -22,6 +23,11 @@ const Offer = model
     {
       name: "IDX_offer_variant_id",
       on: ["variant_id"],
+      where: "deleted_at IS NULL",
+    },
+    {
+      name: "IDX_offer_product_id",
+      on: ["product_id"],
       where: "deleted_at IS NULL",
     },
     {

@@ -79,6 +79,7 @@ export interface CreateOfferDTO {
 export interface CreateOfferRowDTO {
   seller_id: string
   variant_id: string
+  product_id: string
   shipping_profile_id: string
   sku: string
   ean: string | null

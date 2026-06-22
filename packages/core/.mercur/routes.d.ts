@@ -578,6 +578,9 @@ export type Routes = {
         sellers: typeof import("../../src/api/store/sellers/route") & {
             $id: typeof import("../../src/api/store/sellers/[id]/route");
         };
+        offers: typeof import("../../src/api/store/offers/route") & {
+            $id: typeof import("../../src/api/store/offers/[id]/route");
+        };
     };
     hooks: {
         payout: typeof import("../../src/api/hooks/payout/route");

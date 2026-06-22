@@ -6,7 +6,7 @@ import {
   MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, isPresent } from "@medusajs/framework/utils"
+import { isPresent } from "@medusajs/framework/utils"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
 import { storeProductQueryConfig } from "./query-config"
@@ -14,7 +14,8 @@ import {
   StoreGetProductParams,
   StoreGetProductsParams,
 } from "./validators"
-import { SellerStatus, ProductStatus } from "@mercurjs/types"
+import { ProductStatus } from "@mercurjs/types"
+import { resolveVisibleSellerIds } from "../../utils/sellers"
 
 /**
  * Apply the store-facing defaults that vanilla Medusa applies on its own
@@ -49,25 +50,8 @@ async function applyVisibleSellerIdsFilter(
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const now = new Date()
-
-  const { data: visibleSellers } = await query.graph({
-    entity: "seller",
-    fields: ["id"],
-    filters: {
-      status: SellerStatus.OPEN,
-      $and: [
-        { $or: [{ closed_from: null }, { closed_from: { $gt: now } }] },
-        { $or: [{ closed_to: null }, { closed_to: { $lt: now } }] },
-      ],
-    },
-  })
-
   req.filterableFields ??= {}
-  req.filterableFields.seller_id = visibleSellers.map(
-    (s: { id: string }) => s.id
-  )
+  req.filterableFields.seller_id = await resolveVisibleSellerIds(req.scope)
 
   next()
 }
