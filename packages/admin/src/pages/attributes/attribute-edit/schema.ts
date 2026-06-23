@@ -11,7 +11,7 @@ export const ATTRIBUTE_TYPE_OPTIONS = [
 
 export const CreateAttributeSchema = z
   .object({
-    name: z.string().min(1),
+    name: z.string().min(1, { message: "Please enter a title" }),
     description: z.string().max(250).optional(),
     handle: z.string().optional(),
     is_filterable: z.boolean().default(false),
