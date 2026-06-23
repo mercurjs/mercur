@@ -117,7 +117,7 @@ export const CustomerGroupSection = ({
     const isSingle = selectedGroups.length === 1
 
     const res = await prompt({
-      title: t("general.areYouSure"),
+      title: t("customers.groups.removeTitle"),
       description: isSingle
         ? t("customers.groups.remove", { name: names[0] })
         : t("customers.groups.removeMany", { groups: names.join(", ") }),
@@ -209,7 +209,7 @@ const CustomerGroupRowActions = ({
 
   const onRemove = async () => {
     const res = await prompt({
-      title: t("general.areYouSure"),
+      title: t("customers.groups.removeTitle"),
       description: t("customers.groups.remove", {
         name: group.name,
       }),
