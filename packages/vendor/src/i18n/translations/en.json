@@ -1204,7 +1204,7 @@
       "description": "Adjust filters or search terms."
     },
     "validation": {
-      "skuRequired": "SKU is required for rows with a stock location enabled or a non-zero price.",
+      "skuRequired": "SKU is required to publish this row.",
       "shippingProfileRequired": "Select a shipping profile to publish this row.",
       "duplicateSku": "Another row in this submission already uses this SKU.",
       "duplicatePriceRule": "Another price row already has this combination of currency, region, customer group, and quantity bounds.",
