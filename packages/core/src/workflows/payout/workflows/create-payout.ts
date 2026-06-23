@@ -1,5 +1,4 @@
 import { createRemoteLinkStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
-import { getOrderDetailWorkflow } from "@medusajs/medusa/core-flows"
 import { WorkflowData, WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
 import { MathBN, MedusaError } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
@@ -15,20 +14,22 @@ export const createPayoutWorkflowId = "create-payout"
 export const createPayoutWorkflow = createWorkflow(
   createPayoutWorkflowId,
   function (input: WorkflowData<CreatePayoutWorkflowInput>) {
-    const order = getOrderDetailWorkflow.runAsStep({
-      input: {
-        order_id: input.order_id,
-        fields: [
-          'id',
-          'currency_code',
-          'total',
-          'seller.*',
-          'seller.payout_account.*',
-          'items.id',
-          'shipping_methods.id',
-        ],
-      }
-    })
+    const { data: orders } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        'id',
+        'currency_code',
+        'total',
+        'seller.*',
+        'seller.payout_account.*',
+        'items.*',
+        'shipping_methods.*',
+      ],
+      filters: { id: input.order_id },
+      options: { throwIfKeyNotFound: true },
+    }).config({ name: "fetch-order" })
+
+    const order = transform({ orders }, ({ orders }) => orders[0])
 
     const commissionFilters = transform({ order }, ({ order }) => ({
       $or: [

@@ -340,6 +340,20 @@ medusaIntegrationTestRunner({
                 it("surfaces linked attributes on product.attributes", async () => {
                     const product = await createProduct(approvedSellerHeaders, {
                         title: "Product with attribute",
+                        variant_attributes: [
+                            {
+                                name: "Size",
+                                type: "multi_select",
+                                is_variant_axis: true,
+                                values: ["M"],
+                            },
+                        ],
+                        variants: [
+                            {
+                                title: "M",
+                                attribute_values: { Size: "M" },
+                            },
+                        ],
                     })
 
                     const response = await api.get(
@@ -348,8 +362,6 @@ medusaIntegrationTestRunner({
                     )
 
                     expect(response.status).toEqual(200)
-                    // The inline-custom `Size` axis added by `createProduct`
-                    // should round-trip through the storefront response.
                     const attrs = response.data.product.attributes
                     expect(Array.isArray(attrs)).toBe(true)
                     const sizeAttr = attrs.find(
