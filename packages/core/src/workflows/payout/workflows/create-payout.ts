@@ -14,35 +14,25 @@ export const createPayoutWorkflowId = "create-payout"
 export const createPayoutWorkflow = createWorkflow(
   createPayoutWorkflowId,
   function (input: WorkflowData<CreatePayoutWorkflowInput>) {
-    // Co-selecting `items` makes the order module recompute `total` from the
-    // (amount-less) line items and return 0, so fetch totals on their own.
-    const { data: orderTotals } = useQueryGraphStep({
-      entity: "order",
-      fields: ['id', 'currency_code', 'total'],
-      filters: { id: input.order_id },
-      options: { throwIfKeyNotFound: true },
-    }).config({ name: "fetch-order-total" })
-
-    const { data: orderRelations } = useQueryGraphStep({
+    // `total` is recomputed from the selected line items, so pull full
+    // `items.*` / `shipping_methods.*` rows — selecting only their ids yields
+    // a wrong total.
+    const { data: orders } = useQueryGraphStep({
       entity: "order",
       fields: [
         'id',
+        'currency_code',
+        'total',
         'seller.*',
         'seller.payout_account.*',
-        'items.id',
-        'shipping_methods.id',
+        'items.*',
+        'shipping_methods.*',
       ],
       filters: { id: input.order_id },
-    }).config({ name: "fetch-order-relations" })
+      options: { throwIfKeyNotFound: true },
+    }).config({ name: "fetch-order" })
 
-    const order = transform(
-      { orderTotals, orderRelations },
-      ({ orderTotals, orderRelations }) => ({
-        ...orderRelations[0],
-        total: orderTotals[0]?.total,
-        currency_code: orderTotals[0]?.currency_code,
-      })
-    )
+    const order = transform({ orders }, ({ orders }) => orders[0])
 
     const commissionFilters = transform({ order }, ({ order }) => ({
       $or: [
