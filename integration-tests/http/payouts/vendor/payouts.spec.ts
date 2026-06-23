@@ -7,7 +7,6 @@ import {
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import {
   CommissionRateType,
-  CommissionRateTarget,
   MercurModules,
 } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
@@ -160,15 +159,17 @@ medusaIntegrationTestRunner({
           )
         ).data.offer
 
-        // Create 10% marketplace commission
-        await commissionService.createCommissionRates({
-          name: "Marketplace Commission",
-          code: "MARKETPLACE_10",
+        // Set the marketplace-wide (default) commission to 10%. The default
+        // rate is the Global Commission applied to every item that no more
+        // specific rate matches.
+        const [defaultRate] = await commissionService.listCommissionRates({
+          is_default: true,
+        })
+        await commissionService.updateCommissionRates({
+          id: defaultRate.id,
           type: CommissionRateType.PERCENTAGE,
-          target: CommissionRateTarget.ITEM,
           value: 10,
           is_enabled: true,
-          priority: 0,
         })
       })
 
@@ -321,15 +322,39 @@ medusaIntegrationTestRunner({
         const getOrderFromGroup = async (orderGroupId: string) => {
           const { data: [orderGroup] } = await query.graph({
             entity: "order_group",
-            fields: [
-              "id",
-              "orders.*",
-              "orders.items.*",
-              "orders.items.commission_lines.*",
-            ],
+            fields: ["id", "orders.*", "orders.items.*"],
             filters: { id: orderGroupId },
           })
-          return orderGroup.orders[0]
+          const order = orderGroup.orders[0]
+
+          // commission_line has no module link to order items (item_id is a
+          // plain column), so it can't be co-resolved through the graph.
+          // Read it directly and attach by item id — mirroring
+          // getOrderCommissionLines in the core API utils.
+          const itemIds = (order.items ?? [])
+            .map((item: any) => item.id)
+            .filter(Boolean)
+          if (itemIds.length) {
+            const { data: commissionLines } = await query.graph({
+              entity: "commission_line",
+              fields: [
+                "id",
+                "item_id",
+                "shipping_method_id",
+                "code",
+                "rate",
+                "amount",
+              ],
+              filters: { item_id: itemIds },
+            })
+            for (const item of order.items) {
+              item.commission_lines = commissionLines.filter(
+                (line: any) => line.item_id === item.id
+              )
+            }
+          }
+
+          return order
         }
 
         const placeOrder = async (quantity: number) => {

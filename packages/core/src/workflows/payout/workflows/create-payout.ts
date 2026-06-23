@@ -1,5 +1,4 @@
 import { createRemoteLinkStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
-import { getOrderDetailWorkflow } from "@medusajs/medusa/core-flows"
 import { WorkflowData, WorkflowResponse, createWorkflow, transform } from "@medusajs/framework/workflows-sdk"
 import { MathBN, MedusaError } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
@@ -15,20 +14,41 @@ export const createPayoutWorkflowId = "create-payout"
 export const createPayoutWorkflow = createWorkflow(
   createPayoutWorkflowId,
   function (input: WorkflowData<CreatePayoutWorkflowInput>) {
-    const order = getOrderDetailWorkflow.runAsStep({
-      input: {
-        order_id: input.order_id,
-        fields: [
-          'id',
-          'currency_code',
-          'total',
-          'seller.*',
-          'seller.payout_account.*',
-          'items.id',
-          'shipping_methods.id',
-        ],
-      }
-    })
+    // Read the order's persisted total WITHOUT pulling line items in the same
+    // query: when `items` are co-selected the order module recomputes `total`
+    // from those rows (which here carry only `id`, no amounts) and returns 0.
+    // Selecting only order-level fields yields the already-computed summary
+    // total.
+    const { data: orderTotals } = useQueryGraphStep({
+      entity: "order",
+      fields: ['id', 'currency_code', 'total'],
+      filters: { id: input.order_id },
+      options: { throwIfKeyNotFound: true },
+    }).config({ name: "fetch-order-total" })
+
+    // The order's line-item + shipping ids (for commission lookup) and the
+    // seller's payout account — fetched separately so they don't perturb the
+    // total computation above.
+    const { data: orderRelations } = useQueryGraphStep({
+      entity: "order",
+      fields: [
+        'id',
+        'seller.*',
+        'seller.payout_account.*',
+        'items.id',
+        'shipping_methods.id',
+      ],
+      filters: { id: input.order_id },
+    }).config({ name: "fetch-order-relations" })
+
+    const order = transform(
+      { orderTotals, orderRelations },
+      ({ orderTotals, orderRelations }) => ({
+        ...orderRelations[0],
+        total: orderTotals[0]?.total,
+        currency_code: orderTotals[0]?.currency_code,
+      })
+    )
 
     const commissionFilters = transform({ order }, ({ order }) => ({
       $or: [
