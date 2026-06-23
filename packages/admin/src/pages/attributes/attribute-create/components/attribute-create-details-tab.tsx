@@ -1,4 +1,5 @@
 import { Heading, Input, Textarea } from "@medusajs/ui";
+import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../components/common/form";
@@ -22,7 +23,7 @@ type AttributeCreateFormValues = {
 const Root = () => {
   const { t } = useTranslation();
   const form = useTabbedForm<AttributeCreateFormValues>();
-  const isGlobal = form.watch("is_global");
+  const isGlobal = useWatch({ control: form.control, name: "is_global" });
 
   return (
     <div

@@ -1,3 +1,4 @@
+import { TFunction } from "i18next"
 import { z } from "zod"
 import { AttributeType } from "@mercurjs/types"
 
@@ -9,9 +10,10 @@ export const ATTRIBUTE_TYPE_OPTIONS = [
   AttributeType.TEXT,
 ] as const
 
-export const CreateAttributeSchema = z
+export const createAttributeSchema = (t: TFunction) =>
+  z
   .object({
-    name: z.string().min(1, { message: "Please enter a title" }),
+    name: z.string().min(1, { message: t("attributes.create.titleRequired") }),
     description: z.string().max(250).optional(),
     handle: z.string().optional(),
     is_filterable: z.boolean().default(false),

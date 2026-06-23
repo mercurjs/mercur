@@ -9,11 +9,13 @@ import { AttributeType } from "@mercurjs/types";
 import { RouteFocusModal, useRouteModal } from "../../../../components/modals";
 import { TabbedForm } from "../../../../components/tabbed-form/tabbed-form";
 import { useCreateProductAttribute } from "../../../../hooks/api";
-import { CreateAttributeSchema } from "../../attribute-edit/schema";
+import { createAttributeSchema } from "../../attribute-edit/schema";
 import { AttributeCreateDetailsTab } from "./attribute-create-details-tab";
 import { AttributeCreateTypeTab } from "./attribute-create-type-tab";
 
-type CreateAttributeFormValues = z.infer<typeof CreateAttributeSchema>;
+type CreateAttributeFormValues = z.infer<
+  ReturnType<typeof createAttributeSchema>
+>;
 
 type AttributeCreateFormProps = {
   children?: ReactNode;
@@ -22,6 +24,8 @@ type AttributeCreateFormProps = {
 export const AttributeCreateForm = ({ children }: AttributeCreateFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
+
+  const schema = useMemo(() => createAttributeSchema(t), [t]);
 
   const form = useForm<CreateAttributeFormValues>({
     defaultValues: {
@@ -37,7 +41,7 @@ export const AttributeCreateForm = ({ children }: AttributeCreateFormProps) => {
       category_ids: [],
       metadata: {},
     },
-    resolver: zodResolver(CreateAttributeSchema),
+    resolver: zodResolver(schema),
   });
 
   const { mutateAsync, isPending } = useCreateProductAttribute();
