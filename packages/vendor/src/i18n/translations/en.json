@@ -1312,7 +1312,7 @@
     "domain": "Customer Groups",
     "subtitle": "Organize customers into groups. Groups can have different promotions and prices.",
     "validation": {
-      "nameRequired": "Please enter a name."
+      "nameRequired": "Please enter a name"
     },
     "list": {
       "empty": {
