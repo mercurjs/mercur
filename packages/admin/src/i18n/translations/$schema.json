@@ -14800,6 +14800,9 @@
             "value": {
               "type": "string"
             },
+            "status": {
+              "type": "string"
+            },
             "enabled": {
               "type": "string"
             },
@@ -14911,6 +14914,7 @@
           "required": [
             "code",
             "value",
+            "status",
             "enabled",
             "enabledHint",
             "stores",

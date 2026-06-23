@@ -52,7 +52,7 @@ export const CreateCommissionRuleDetails = () => {
   return (
     <div className="flex flex-col items-center p-16">
       <div className="flex w-full max-w-[720px] flex-col gap-y-8">
-        <Heading>{t("commissions.create.details", "Details")}</Heading>
+        <Heading>{t("commissions.create.details")}</Heading>
         <div className="flex flex-col gap-y-4">
         <Form.Field
           control={form.control}
@@ -73,7 +73,7 @@ export const CreateCommissionRuleDetails = () => {
           render={({ field: { onChange, ref, ...field } }) => (
             <Form.Item>
               <Form.Label>
-                {t("commissions.fields.scopeType.label", "Type")}
+                {t("commissions.fields.scopeType.label")}
               </Form.Label>
               <Form.Control>
                 <Select {...field} onValueChange={onChange} dir={direction}>
@@ -85,31 +85,19 @@ export const CreateCommissionRuleDetails = () => {
                   </Select.Trigger>
                   <Select.Content>
                     <Select.Item value="store">
-                      {t("commissions.fields.scopeType.store", "Store")}
+                      {t("commissions.fields.scopeType.store")}
                     </Select.Item>
                     <Select.Item value="product_type">
-                      {t(
-                        "commissions.fields.scopeType.productType",
-                        "Product Type"
-                      )}
+                      {t("commissions.fields.scopeType.productType")}
                     </Select.Item>
                     <Select.Item value="category">
-                      {t(
-                        "commissions.fields.scopeType.category",
-                        "Category"
-                      )}
+                      {t("commissions.fields.scopeType.category")}
                     </Select.Item>
                     <Select.Item value="store_product_type">
-                      {t(
-                        "commissions.fields.scopeType.storeProductType",
-                        "Store + Product Type"
-                      )}
+                      {t("commissions.fields.scopeType.storeProductType")}
                     </Select.Item>
                     <Select.Item value="store_category">
-                      {t(
-                        "commissions.fields.scopeType.storeCategory",
-                        "Store + Category"
-                      )}
+                      {t("commissions.fields.scopeType.storeCategory")}
                     </Select.Item>
                   </Select.Content>
                 </Select>
@@ -125,7 +113,7 @@ export const CreateCommissionRuleDetails = () => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  {t("commissions.fields.stores", "Stores")}
+                  {t("commissions.fields.stores")}
                 </Form.Label>
                 <Form.Control>
                   <Combobox
@@ -148,7 +136,7 @@ export const CreateCommissionRuleDetails = () => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  {t("commissions.fields.productTypes", "Product Types")}
+                  {t("commissions.fields.productTypes")}
                 </Form.Label>
                 <Form.Control>
                   <Combobox
@@ -171,7 +159,7 @@ export const CreateCommissionRuleDetails = () => {
             render={({ field }) => (
               <Form.Item>
                 <Form.Label>
-                  {t("commissions.fields.categories", "Categories")}
+                  {t("commissions.fields.categories")}
                 </Form.Label>
                 <Form.Control>
                   <Combobox

@@ -15,49 +15,40 @@ export const useCommissionRulesFilters = (): Filter[] => {
     () => [
       {
         key: "scope_type",
-        label: t("commissions.fields.scopeType.label", "Type"),
+        label: t("commissions.fields.scopeType.label"),
         type: "select",
         multiple: true,
         options: [
           {
-            label: t("commissions.fields.scopeType.store", "Store"),
+            label: t("commissions.fields.scopeType.store"),
             value: "store",
           },
           {
-            label: t(
-              "commissions.fields.scopeType.productType",
-              "Product Type"
-            ),
+            label: t("commissions.fields.scopeType.productType"),
             value: "product_type",
           },
           {
-            label: t("commissions.fields.scopeType.category", "Category"),
+            label: t("commissions.fields.scopeType.category"),
             value: "category",
           },
           {
-            label: t(
-              "commissions.fields.scopeType.storeProductType",
-              "Store + Product Type"
-            ),
+            label: t("commissions.fields.scopeType.storeProductType"),
             value: "store_product_type",
           },
           {
-            label: t(
-              "commissions.fields.scopeType.storeCategory",
-              "Store + Category"
-            ),
+            label: t("commissions.fields.scopeType.storeCategory"),
             value: "store_category",
           },
         ],
       },
       {
         key: "is_enabled",
-        label: t("commissions.fields.status", "Status"),
+        label: t("commissions.fields.status"),
         type: "select",
         options: [
-          { label: t("commissions.status.enabled", "Active"), value: "true" },
+          { label: t("commissions.status.enabled"), value: "true" },
           {
-            label: t("commissions.status.disabled", "Inactive"),
+            label: t("commissions.status.disabled"),
             value: "false",
           },
         ],

@@ -86,7 +86,7 @@ const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
               render={({ field: { onChange, ref, ...field } }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t("commissions.fields.type.label", "Type")}
+                    {t("commissions.fields.type.label")}
                   </Form.Label>
                   <Form.Control>
                     <Select {...field} onValueChange={onChange} dir={direction}>
@@ -98,13 +98,10 @@ const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
                       </Select.Trigger>
                       <Select.Content>
                         <Select.Item value="percentage">
-                          {t(
-                            "commissions.fields.type.percentage",
-                            "Percentage"
-                          )}
+                          {t("commissions.fields.type.percentage")}
                         </Select.Item>
                         <Select.Item value="fixed">
-                          {t("commissions.fields.type.fixed", "Fixed")}
+                          {t("commissions.fields.type.fixed")}
                         </Select.Item>
                       </Select.Content>
                     </Select>
@@ -121,23 +118,14 @@ const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
             <SwitchBox
               control={form.control}
               name="include_tax"
-              label={t("commissions.fields.taxIncluded", "Tax included")}
-              description={t(
-                "commissions.fields.taxIncludedHint",
-                "If checked, commission is calculated on the total including tax."
-              )}
+              label={t("commissions.fields.taxIncluded")}
+              description={t("commissions.fields.taxIncludedHint")}
             />
             <SwitchBox
               control={form.control}
               name="include_shipping"
-              label={t(
-                "commissions.fields.shippingIncluded",
-                "Shipping included"
-              )}
-              description={t(
-                "commissions.fields.shippingIncludedHint",
-                "If checked, commission is calculated on the total including shipping."
-              )}
+              label={t("commissions.fields.shippingIncluded")}
+              description={t("commissions.fields.shippingIncludedHint")}
             />
           </div>
         </RouteDrawer.Body>
@@ -187,11 +175,11 @@ export const CommissionRuleCommissionEdit = () => {
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>
-            {t("commissions.commissionEdit.header", "Edit Commission")}
+            {t("commissions.commissionEdit.header")}
           </Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
-          {t("commissions.commissionEdit.header", "Edit Commission")}
+          {t("commissions.commissionEdit.header")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
       {ready && <EditCommissionForm rule={commission_rate} />}

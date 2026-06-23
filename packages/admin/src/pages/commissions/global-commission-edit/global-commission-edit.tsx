@@ -98,7 +98,7 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t("commissions.fields.code", "Code")}</Form.Label>
+                  <Form.Label>{t("commissions.fields.code")}</Form.Label>
                   <Form.Control>
                     <Input
                       autoComplete="off"
@@ -116,7 +116,7 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
               render={({ field: { onChange, ref, ...field } }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t("commissions.fields.type.label", "Type")}
+                    {t("commissions.fields.type.label")}
                   </Form.Label>
                   <Form.Control>
                     <Select {...field} onValueChange={onChange} dir={direction}>
@@ -128,13 +128,10 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
                       </Select.Trigger>
                       <Select.Content>
                         <Select.Item value="percentage">
-                          {t(
-                            "commissions.fields.type.percentage",
-                            "Percentage"
-                          )}
+                          {t("commissions.fields.type.percentage")}
                         </Select.Item>
                         <Select.Item value="fixed">
-                          {t("commissions.fields.type.fixed", "Fixed")}
+                          {t("commissions.fields.type.fixed")}
                         </Select.Item>
                       </Select.Content>
                     </Select>
@@ -151,23 +148,14 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
             <SwitchBox
               control={form.control}
               name="include_tax"
-              label={t("commissions.fields.taxIncluded", "Tax included")}
-              description={t(
-                "commissions.fields.taxIncludedHint",
-                "If checked, commission is calculated on the total including tax. If unchecked, tax is excluded and goes entirely to the store."
-              )}
+              label={t("commissions.fields.taxIncluded")}
+              description={t("commissions.fields.taxIncludedHint")}
             />
             <SwitchBox
               control={form.control}
               name="include_shipping"
-              label={t(
-                "commissions.fields.shippingIncluded",
-                "Shipping included"
-              )}
-              description={t(
-                "commissions.fields.shippingIncludedHint",
-                "If checked, commission is calculated on the total including shipping. If unchecked, shipping fees go entirely to the store."
-              )}
+              label={t("commissions.fields.shippingIncluded")}
+              description={t("commissions.fields.shippingIncludedHint")}
             />
           </div>
         </RouteDrawer.Body>
@@ -205,11 +193,11 @@ export const GlobalCommissionEdit = () => {
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>
-            {t("commissions.global.edit.header", "Edit Global Commission")}
+            {t("commissions.global.edit.header")}
           </Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
-          {t("commissions.global.edit.header", "Edit Global Commission")}
+          {t("commissions.global.edit.header")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
       {ready && <EditGlobalCommissionForm rate={rate} />}
