@@ -236,8 +236,6 @@ medusaIntegrationTestRunner({
             adminHeaders
           )
 
-          // Comma-joined form (regression: previously emitted invalid SQL
-          // `... OR ... = true` / `1 = 0 = true` and returned 500).
           const comma = await api.get(
             `/admin/commission-rates?scope_type=store,category`,
             adminHeaders
@@ -251,7 +249,6 @@ medusaIntegrationTestRunner({
             productTypeRate.data.commission_rate.id
           )
 
-          // Array form (what the typed client serialises a multi-select to).
           const array = await api.get(
             `/admin/commission-rates?scope_type[0]=store&scope_type[1]=category`,
             adminHeaders

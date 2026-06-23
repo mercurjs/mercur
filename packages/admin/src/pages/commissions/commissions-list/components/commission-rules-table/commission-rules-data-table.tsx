@@ -88,15 +88,9 @@ export const CommissionRulesDataTable = () => {
       navigateTo={(row) => `${row.original.id}`}
       noRecords={{
         title: t("commissions.rules.empty.heading", "No commission rules yet"),
-        // Render the description preserving its line break so it reads on two
-        // lines ("…global commission for" / "specific stores, product types,
-        // or categories."), matching the empty-state design.
         message: (
           <span className="block whitespace-pre-line text-center">
-            {t(
-              "commissions.rules.empty.description",
-              "Create a commission rule to override the global commission for\nspecific stores, product types, or categories."
-            )}
+            {t("commissions.rules.empty.description")}
           </span>
         ),
       }}
