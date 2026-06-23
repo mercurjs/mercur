@@ -20,7 +20,10 @@ jobs:
   build:
     name: Build (typecheck gate)
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    # Headroom for the cold-cache case: when the lockfile changes, the
+    # node_modules cache misses and a full `bun install` (~19 min) runs before
+    # the build. On the common path the cache hits and this job is a few minutes.
+    timeout-minutes: 30
 
     steps:
       - name: Checkout
@@ -54,7 +57,28 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-turbo-
 
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          # Bun's (default, isolated) linker materialises a ~7k-symlink store
+          # under node_modules/.bun; rebuilding it from the tarball cache costs
+          # ~19 min in CI. This gate job runs first (the shards `needs: build`),
+          # so on a cold lockfile it pays that cost once and saves the tree here;
+          # every shard then restores it under the same key and skips install.
+          # No restore-keys: a fuzzy hit from a different lockfile would leave
+          # node_modules out of sync and we skip install on a hit.
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            packages/providers/*/node_modules
+            integration-tests/node_modules
+            e2e-tests/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('bun.lock', 'bun.lockb') }}
+
       - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: bun install --frozen-lockfile
 
       - name: Build packages
@@ -152,7 +176,24 @@ jobs:
             ${{ runner.os }}-turbo-${{ github.sha }}
             ${{ runner.os }}-turbo-
 
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          # Restores the materialised node_modules saved by the `build` gate
+          # (same lockfile-keyed entry), so each shard skips the ~19-min install
+          # rather than rebuilding bun's symlink store four more times.
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            packages/providers/*/node_modules
+            integration-tests/node_modules
+            e2e-tests/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('bun.lock', 'bun.lockb') }}
+
       - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
         run: bun install --frozen-lockfile
 
       - name: Build packages
