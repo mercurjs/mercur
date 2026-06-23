@@ -6,7 +6,7 @@ import {
   RowSelectionState,
   createColumnHelper,
 } from "@tanstack/react-table"
-import { useEffect, useMemo, useState } from "react"
+import { useMemo, useState } from "react"
 import { useFormContext } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
@@ -62,10 +62,19 @@ const Root = () => {
     useState<RowSelectionState>(initialSelection)
 
   const updater: OnChangeFn<RowSelectionState> = (fn) => {
-    const state = typeof fn === "function" ? fn(rowSelection) : fn
-    setRowSelection(state)
-    const ids = Object.keys(state)
-    form.setValue("selected_product_ids", ids, {
+    const next = typeof fn === "function" ? fn(rowSelection) : fn
+    const nextIds = Object.keys(next)
+    const currentIds = Object.keys(rowSelection)
+    const unchanged =
+      nextIds.length === currentIds.length &&
+      nextIds.every((id) => rowSelection[id])
+
+    if (unchanged) {
+      return
+    }
+
+    setRowSelection(next)
+    form.setValue("selected_product_ids", nextIds, {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
@@ -95,10 +104,6 @@ const Root = () => {
       updater,
     },
   })
-
-  useEffect(() => {
-    void form.trigger("selected_product_ids")
-  }, [rowSelection, form])
 
   if (isError) {
     throw error
