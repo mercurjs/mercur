@@ -15,7 +15,9 @@ export const adminProductAttributeFields = [
   "created_at",
   "updated_at",
   "*values",
-  "*categories",
+  "categories.id",
+  "categories.name",
+  "categories.handle",
 ]
 
 export const adminProductAttributeQueryConfig = {
