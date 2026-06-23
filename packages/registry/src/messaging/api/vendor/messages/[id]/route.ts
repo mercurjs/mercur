@@ -70,7 +70,7 @@ export const GET = async (
     // Only include orders that belong to this seller
     buyer_orders = (orders ?? [])
       .filter((o: any) => o.seller?.id === sellerId)
-      .map(({ seller, ...rest }: any) => rest)
+      .map(({ seller: _seller, ...rest }: any) => rest)
   } catch {
     // Continue without enrichment
   }

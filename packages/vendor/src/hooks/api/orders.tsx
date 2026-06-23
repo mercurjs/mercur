@@ -7,6 +7,7 @@ import {
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
+  UseQueryResult,
 } from "@tanstack/react-query";
 import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
@@ -327,7 +328,9 @@ export const useOrderCommissionLines = (
     >,
     "queryFn" | "queryKey"
   >
-) => {
+): Omit<UseQueryResult<OrderCommissionLinesResponse, ClientError>, "data"> & {
+  commission_lines: OrderCommissionLine[];
+} => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
       sdk.vendor.orders.$id.commissionLines.query({ $id: id }),

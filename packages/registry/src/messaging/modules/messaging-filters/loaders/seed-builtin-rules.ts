@@ -32,7 +32,7 @@ export default async function seedBuiltinRules({
 
   for (const rule of BUILTIN_RULES) {
     try {
-      const [existing, count] = await service.listAndCount({
+      const [, count] = await service.listAndCount({
         pattern: rule.pattern,
         is_builtin: true,
       } as any, { take: 1 })
