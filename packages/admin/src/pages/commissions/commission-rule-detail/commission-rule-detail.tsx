@@ -62,10 +62,6 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
         </div>
       </div>
       <SectionRow
-        title={t("commissions.fields.code", "Code")}
-        value={rule.code}
-      />
-      <SectionRow
         title={t("commissions.rules.columns.type", "Type")}
         value={getScopeTypeLabel(rule.rules, t)}
       />

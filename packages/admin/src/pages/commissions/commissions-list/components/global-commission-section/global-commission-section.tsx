@@ -10,7 +10,6 @@ import { CommissionRate } from "../../../common/types";
 import { formatCommissionValue } from "../../../common/utils";
 
 const GLOBAL_COMMISSION_ROWS = [
-  { key: "code", fallback: "Code" },
   { key: "type", fallback: "Type" },
   { key: "value", fallback: "Value" },
   { key: "tax", fallback: "Tax" },
@@ -56,10 +55,6 @@ export const GlobalCommissionSection = () => {
           ))
         : (
           <>
-            <SectionRow
-              title={t("commissions.global.code", "Code")}
-              value={rate.code}
-            />
             <SectionRow
               title={t("commissions.global.type", "Type")}
               value={

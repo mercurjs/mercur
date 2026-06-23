@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Heading, RadioGroup, toast } from "@medusajs/ui";
+import { Button, Heading, Input, Select, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -20,6 +20,7 @@ import { buildValuesPayload, fixedValuesFromRate } from "../common/utils";
 
 const EditGlobalCommissionSchema = zod
   .object({
+    code: zod.string().min(1),
     type: zod.enum(["percentage", "fixed"]),
     value: zod.coerce.number().optional(),
     fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
@@ -47,6 +48,7 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
 
   const form = useForm<zod.infer<typeof EditGlobalCommissionSchema>>({
     defaultValues: {
+      code: rate.code,
       type: rate.type,
       value: rate.value,
       fixed_values: fixedValuesFromRate(rate),
@@ -61,6 +63,7 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
   const handleSubmit = form.handleSubmit(async (values) => {
     const isFixed = values.type === "fixed";
     const payload = {
+      code: values.code,
       type: values.type,
       value: isFixed ? 0 : values.value,
       ...(isFixed
@@ -92,42 +95,49 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
           <div className="flex flex-col gap-y-4">
             <Form.Field
               control={form.control}
+              name="code"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t("commissions.fields.code", "Code")}</Form.Label>
+                  <Form.Control>
+                    <Input
+                      autoComplete="off"
+                      data-testid="global-commission-code-input"
+                      {...field}
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+            <Form.Field
+              control={form.control}
               name="type"
-              render={({ field: { onChange, ...rest } }) => (
+              render={({ field: { onChange, ref, ...field } }) => (
                 <Form.Item>
                   <Form.Label>
                     {t("commissions.fields.type.label", "Type")}
                   </Form.Label>
                   <Form.Control>
-                    <RadioGroup
-                      dir={direction}
-                      onValueChange={onChange}
-                      {...rest}
-                      className="grid grid-cols-1 gap-4 md:grid-cols-2"
-                      data-testid="global-commission-type-radio-group"
-                    >
-                      <RadioGroup.ChoiceBox
-                        value="percentage"
-                        label={t(
-                          "commissions.fields.type.percentage",
-                          "Percentage"
-                        )}
-                        description={t(
-                          "commissions.fields.type.percentageHint",
-                          "Charge a percentage of the order total."
-                        )}
-                        data-testid="global-commission-type-option-percentage"
-                      />
-                      <RadioGroup.ChoiceBox
-                        value="fixed"
-                        label={t("commissions.fields.type.fixed", "Fixed")}
-                        description={t(
-                          "commissions.fields.type.fixedHint",
-                          "Charge a fixed amount per order."
-                        )}
-                        data-testid="global-commission-type-option-fixed"
-                      />
-                    </RadioGroup>
+                    <Select {...field} onValueChange={onChange} dir={direction}>
+                      <Select.Trigger
+                        ref={ref}
+                        data-testid="global-commission-type-select"
+                      >
+                        <Select.Value />
+                      </Select.Trigger>
+                      <Select.Content>
+                        <Select.Item value="percentage">
+                          {t(
+                            "commissions.fields.type.percentage",
+                            "Percentage"
+                          )}
+                        </Select.Item>
+                        <Select.Item value="fixed">
+                          {t("commissions.fields.type.fixed", "Fixed")}
+                        </Select.Item>
+                      </Select.Content>
+                    </Select>
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
