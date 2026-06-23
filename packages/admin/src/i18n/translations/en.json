@@ -3877,6 +3877,7 @@
     "fields": {
       "code": "Code",
       "value": "Value",
+      "status": "Status",
       "enabled": "Enabled",
       "enabledHint": "Enable or disable this commission rule.",
       "stores": "Stores",

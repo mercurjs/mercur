@@ -1,4 +1,4 @@
-import { Heading, RadioGroup } from "@medusajs/ui";
+import { Heading, Select } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../../components/common/form";
@@ -23,46 +23,33 @@ export const CreateCommissionRuleCommission = () => {
   return (
     <div className="flex flex-col items-center p-16">
       <div className="flex w-full max-w-[720px] flex-col gap-y-8">
-        <Heading>{t("commissions.create.commission", "Commission")}</Heading>
+        <Heading>{t("commissions.create.commission")}</Heading>
         <div className="flex flex-col gap-y-4">
           <Form.Field
             control={form.control}
             name="commissionType"
-            render={({ field: { onChange, ...rest } }) => (
+            render={({ field: { onChange, ref, ...field } }) => (
               <Form.Item>
                 <Form.Label>
-                  {t("commissions.fields.type.label", "Type")}
+                  {t("commissions.fields.type.label")}
                 </Form.Label>
                 <Form.Control>
-                  <RadioGroup
-                    dir={direction}
-                    onValueChange={onChange}
-                    {...rest}
-                    className="grid grid-cols-1 gap-4 md:grid-cols-2"
-                    data-testid="commission-rule-commission-type-radio-group"
-                  >
-                    <RadioGroup.ChoiceBox
-                      value="percentage"
-                      label={t(
-                        "commissions.fields.type.percentage",
-                        "Percentage"
-                      )}
-                      description={t(
-                        "commissions.fields.type.percentageHint",
-                        "Charge a percentage of the order total."
-                      )}
-                      data-testid="commission-rule-commission-type-option-percentage"
-                    />
-                    <RadioGroup.ChoiceBox
-                      value="fixed"
-                      label={t("commissions.fields.type.fixed", "Fixed")}
-                      description={t(
-                        "commissions.fields.type.fixedHint",
-                        "Charge a fixed amount per order."
-                      )}
-                      data-testid="commission-rule-commission-type-option-fixed"
-                    />
-                  </RadioGroup>
+                  <Select {...field} onValueChange={onChange} dir={direction}>
+                    <Select.Trigger
+                      ref={ref}
+                      data-testid="commission-rule-commission-type-select"
+                    >
+                      <Select.Value />
+                    </Select.Trigger>
+                    <Select.Content>
+                      <Select.Item value="percentage">
+                        {t("commissions.fields.type.percentage")}
+                      </Select.Item>
+                      <Select.Item value="fixed">
+                        {t("commissions.fields.type.fixed")}
+                      </Select.Item>
+                    </Select.Content>
+                  </Select>
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
@@ -78,23 +65,14 @@ export const CreateCommissionRuleCommission = () => {
           <SwitchBox
             control={form.control}
             name="include_tax"
-            label={t("commissions.fields.taxIncluded", "Tax included")}
-            description={t(
-              "commissions.fields.taxIncludedHint",
-              "If checked, commission is calculated based on the total amount including tax. If unchecked, tax is excluded and goes entirely to the store."
-            )}
+            label={t("commissions.fields.taxIncluded")}
+            description={t("commissions.fields.taxIncludedHint")}
           />
           <SwitchBox
             control={form.control}
             name="include_shipping"
-            label={t(
-              "commissions.fields.shippingIncluded",
-              "Shipping included"
-            )}
-            description={t(
-              "commissions.fields.shippingIncludedHint",
-              "If checked, commission is calculated based on the total amount including shipping. If unchecked, shipping fees go entirely to the store."
-            )}
+            label={t("commissions.fields.shippingIncluded")}
+            description={t("commissions.fields.shippingIncludedHint")}
           />
         </div>
       </div>

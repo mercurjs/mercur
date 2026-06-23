@@ -11,12 +11,12 @@ const Root = ({ children }: { children?: ReactNode }) => {
     <RouteFocusModal>
       <RouteFocusModal.Title asChild>
         <span className="sr-only">
-          {t("commissions.create.header", "Create Commission Rule")}
+          {t("commissions.create.header")}
         </span>
       </RouteFocusModal.Title>
       <RouteFocusModal.Description asChild>
         <span className="sr-only">
-          {t("commissions.create.header", "Create Commission Rule")}
+          {t("commissions.create.header")}
         </span>
       </RouteFocusModal.Description>
       {Children.count(children) > 0 ? children : <CreateCommissionRuleForm />}

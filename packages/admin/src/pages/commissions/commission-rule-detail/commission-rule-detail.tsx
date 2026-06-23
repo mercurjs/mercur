@@ -62,16 +62,12 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
         </div>
       </div>
       <SectionRow
-        title={t("commissions.fields.code", "Code")}
-        value={rule.code}
-      />
-      <SectionRow
-        title={t("commissions.rules.columns.type", "Type")}
+        title={t("commissions.rules.columns.type")}
         value={getScopeTypeLabel(rule.rules, t)}
       />
       {stores.length > 0 && (
         <SectionRow
-          title={t("commissions.fields.stores", "Stores")}
+          title={t("commissions.fields.stores")}
           value={getScopeSummary(
             (rule.rules ?? []).filter((r) => r.reference === "seller"),
             names
@@ -80,7 +76,7 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
       )}
       {productTypes.length > 0 && (
         <SectionRow
-          title={t("commissions.fields.productTypes", "Product Types")}
+          title={t("commissions.fields.productTypes")}
           value={getScopeSummary(
             (rule.rules ?? []).filter((r) => r.reference === "product_type"),
             names
@@ -89,7 +85,7 @@ const ScopeSection = ({ rule }: { rule: CommissionRate }) => {
       )}
       {categories.length > 0 && (
         <SectionRow
-          title={t("commissions.fields.categories", "Categories")}
+          title={t("commissions.fields.categories")}
           value={getScopeSummary(
             (rule.rules ?? []).filter(
               (r) => r.reference === "product_category"
@@ -108,7 +104,7 @@ const CommissionSection = ({ rule }: { rule: CommissionRate }) => {
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>{t("commissions.create.commission", "Commission")}</Heading>
+        <Heading>{t("commissions.create.commission")}</Heading>
         <ActionMenu
           groups={[
             {
@@ -124,31 +120,31 @@ const CommissionSection = ({ rule }: { rule: CommissionRate }) => {
         />
       </div>
       <SectionRow
-        title={t("commissions.fields.type.label", "Type")}
+        title={t("commissions.fields.type.label")}
         value={
           rule.type === "percentage"
-            ? t("commissions.fields.type.percentage", "Percentage")
-            : t("commissions.fields.type.fixed", "Fixed")
+            ? t("commissions.fields.type.percentage")
+            : t("commissions.fields.type.fixed")
         }
       />
       <SectionRow
-        title={t("commissions.global.value", "Value")}
+        title={t("commissions.global.value")}
         value={formatCommissionValue(rule)}
       />
       <SectionRow
-        title={t("commissions.global.tax", "Tax")}
+        title={t("commissions.global.tax")}
         value={
           rule.include_tax
-            ? t("commissions.global.included", "Included in commission")
-            : t("commissions.global.notIncluded", "Not included")
+            ? t("commissions.global.included")
+            : t("commissions.global.notIncluded")
         }
       />
       <SectionRow
-        title={t("commissions.global.shipping", "Shipping")}
+        title={t("commissions.global.shipping")}
         value={
           rule.include_shipping
-            ? t("commissions.global.included", "Included in commission")
-            : t("commissions.global.notIncluded", "Not included")
+            ? t("commissions.global.included")
+            : t("commissions.global.notIncluded")
         }
       />
     </Container>

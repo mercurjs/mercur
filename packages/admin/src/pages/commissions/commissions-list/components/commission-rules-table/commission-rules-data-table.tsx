@@ -87,13 +87,13 @@ export const CommissionRulesDataTable = () => {
       filters={filters}
       navigateTo={(row) => `${row.original.id}`}
       noRecords={{
-        title: t("commissions.rules.empty.heading", "No commission rules yet"),
+        title: t("commissions.rules.empty.heading"),
         message: t("commissions.rules.empty.description"),
       }}
       pagination
       search
       orderBy={[
-        { key: "name", label: t("commissions.rules.columns.rule", "Rule") },
+        { key: "name", label: t("commissions.rules.columns.rule") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
@@ -140,14 +140,14 @@ const useColumns = (names: Record<string, string>) => {
     () => [
       columnHelper.accessor("name", {
         header: () => (
-          <TextHeader text={t("commissions.rules.columns.rule", "Rule")} />
+          <TextHeader text={t("commissions.rules.columns.rule")} />
         ),
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
       columnHelper.display({
         id: "type",
         header: () => (
-          <TextHeader text={t("commissions.rules.columns.type", "Type")} />
+          <TextHeader text={t("commissions.rules.columns.type")} />
         ),
         cell: ({ row }) => (
           <TextCell text={getScopeTypeLabel(row.original.rules, t)} />
@@ -156,7 +156,7 @@ const useColumns = (names: Record<string, string>) => {
       columnHelper.display({
         id: "scope",
         header: () => (
-          <TextHeader text={t("commissions.rules.columns.scope", "Scope")} />
+          <TextHeader text={t("commissions.rules.columns.scope")} />
         ),
         cell: ({ row }) => (
           <TextCell text={getScopeSummary(row.original.rules, names)} />
@@ -165,7 +165,7 @@ const useColumns = (names: Record<string, string>) => {
       columnHelper.display({
         id: "value",
         header: () => (
-          <TextHeader text={t("commissions.rules.columns.value", "Value")} />
+          <TextHeader text={t("commissions.rules.columns.value")} />
         ),
         cell: ({ row }) => (
           <TextCell text={formatCommissionValue(row.original)} />
@@ -173,7 +173,7 @@ const useColumns = (names: Record<string, string>) => {
       }),
       columnHelper.accessor("is_enabled", {
         header: () => (
-          <TextHeader text={t("commissions.rules.columns.status", "Status")} />
+          <TextHeader text={t("commissions.rules.columns.status")} />
         ),
         cell: ({ getValue }) => {
           const props = getIsActiveProps(getValue(), t);

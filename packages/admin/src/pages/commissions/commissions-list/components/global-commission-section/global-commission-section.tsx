@@ -10,7 +10,6 @@ import { CommissionRate } from "../../../common/types";
 import { formatCommissionValue } from "../../../common/utils";
 
 const GLOBAL_COMMISSION_ROWS = [
-  { key: "code", fallback: "Code" },
   { key: "type", fallback: "Type" },
   { key: "value", fallback: "Value" },
   { key: "tax", fallback: "Tax" },
@@ -31,7 +30,7 @@ export const GlobalCommissionSection = () => {
   return (
     <Container className="divide-y p-0" data-testid="global-commission-section">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>{t("commissions.global.title", "Global Commission")}</Heading>
+        <Heading>{t("commissions.global.title")}</Heading>
         <ActionMenu
           groups={[
             {
@@ -57,35 +56,31 @@ export const GlobalCommissionSection = () => {
         : (
           <>
             <SectionRow
-              title={t("commissions.global.code", "Code")}
-              value={rate.code}
-            />
-            <SectionRow
-              title={t("commissions.global.type", "Type")}
+              title={t("commissions.global.type")}
               value={
                 rate.type === "percentage"
-                  ? t("commissions.fields.type.percentage", "Percentage")
-                  : t("commissions.fields.type.fixed", "Fixed")
+                  ? t("commissions.fields.type.percentage")
+                  : t("commissions.fields.type.fixed")
               }
             />
             <SectionRow
-              title={t("commissions.global.value", "Value")}
+              title={t("commissions.global.value")}
               value={formatCommissionValue(rate)}
             />
             <SectionRow
-              title={t("commissions.global.tax", "Tax")}
+              title={t("commissions.global.tax")}
               value={
                 rate.include_tax
-                  ? t("commissions.global.included", "Included in commission")
-                  : t("commissions.global.notIncluded", "Not included")
+                  ? t("commissions.global.included")
+                  : t("commissions.global.notIncluded")
               }
             />
             <SectionRow
-              title={t("commissions.global.shipping", "Shipping")}
+              title={t("commissions.global.shipping")}
               value={
                 rate.include_shipping
-                  ? t("commissions.global.included", "Included in commission")
-                  : t("commissions.global.notIncluded", "Not included")
+                  ? t("commissions.global.included")
+                  : t("commissions.global.notIncluded")
               }
             />
           </>
