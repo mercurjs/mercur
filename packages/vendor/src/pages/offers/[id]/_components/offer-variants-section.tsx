@@ -329,11 +329,11 @@ export const OfferVariantsSection = ({
   }, [allRows, q, created_at, updated_at])
 
   const sortedRows = useMemo(() => {
-    if (!order) {
-      return filteredRows
-    }
-    const desc = order.startsWith("-")
-    const key = desc ? order.slice(1) : order
+    // Default to ascending Title when no explicit sort is set (Figma
+    // `40016489:640014`), matching the order-by dropdown's default key.
+    const activeOrder = order || "title"
+    const desc = activeOrder.startsWith("-")
+    const key = desc ? activeOrder.slice(1) : activeOrder
 
     const valueOf = (row: OfferVariantRow): string => {
       switch (key) {
@@ -429,11 +429,11 @@ export const OfferVariantsSection = ({
     prefix: PREFIX,
   })
 
-  // No `divide-y` on the Container: this section draws its own header, so the
-  // _DataTable renders its own query/filter bar (with its leading divider) and
-  // table below. A Container divider would stack a second line under the header.
+  // `divide-y` draws the divider under the Variants heading (Figma
+  // `40016491:701157`), matching the offers list table. The _DataTable keeps
+  // its own internal divider between the query/filter bar and the rows.
   return (
-    <Container className="p-0" data-testid="offer-variants-section">
+    <Container className="divide-y p-0" data-testid="offer-variants-section">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("offers.fields.variants")}</Heading>
         <div className="flex items-center gap-x-4">
@@ -466,6 +466,7 @@ export const OfferVariantsSection = ({
         pagination
         search
         orderBy={orderBy}
+        defaultOrderBy="title"
         filters={filters}
         queryObject={{ q, order, created_at, updated_at }}
         navigateTo={(row) => `variants/${row.original.id}`}
