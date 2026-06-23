@@ -42,7 +42,7 @@ type ActionProps = {
 
 export type NoRecordsProps = {
   title?: string
-  message?: string
+  message?: React.ReactNode
   className?: string
   buttonVariant?: string
   icon?: React.ReactNode

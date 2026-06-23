@@ -365,7 +365,13 @@ class CommissionModuleService extends MedusaService({
         }
       }
 
-      return valid.map((scope) => `(${conditionFor(scope)})`).join(" OR ")
+      // Wrap each scope condition AND the OR-combination in parentheses so the
+      // fragment is a single, self-contained boolean expression. MikroORM
+      // serialises a raw filter key as `(<fragment>) = true`, which is only
+      // valid SQL when <fragment> is parenthesised — otherwise a multi-scope
+      // value emits `(a) OR (b) = true` (wrong precedence) and an empty/invalid
+      // value emits `1 = 0 = true` (a syntax error → 500).
+      return `(${valid.map((scope) => `(${conditionFor(scope)})`).join(" OR ")})`
     }
   }
 
@@ -383,14 +389,22 @@ class CommissionModuleService extends MedusaService({
       return { ...rest }
     }
 
+    // The admin "Type" filter is a multi-select. Depending on how the value is
+    // serialised it can arrive as an array (`["store", "category"]`) or as a
+    // single comma-joined string (`"store,category"`); normalise both into a
+    // flat list of trimmed scope tokens so either form filters correctly
+    // instead of being treated as one unknown scope.
     const scopeTypes = (
       Array.isArray(scope_type) ? scope_type : [scope_type]
-    ) as string[]
+    )
+      .flatMap((value) => String(value).split(","))
+      .map((value) => value.trim())
+      .filter(Boolean)
     const predicate = this.buildScopeTypeWhere_(scopeTypes)
     const where: Record<string, unknown> = { ...rest }
 
     // No recognised scope type → match nothing rather than ignore the filter.
-    where[raw((alias: string) => (predicate ? predicate(alias) : "1 = 0"))] =
+    where[raw((alias: string) => (predicate ? predicate(alias) : "(1 = 0)"))] =
       true
 
     return where
