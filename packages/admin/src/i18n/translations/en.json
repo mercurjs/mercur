@@ -3118,7 +3118,7 @@
       },
       "titleRequired": "Please enter a title",
       "possibleValuesRequired": "Please add at least one value",
-      "categoriesRequired": "Please select at least one category, or enable the global attribute switch.",
+      "categoriesRequired": "Please select at least one category",
       "successToast": "Attribute \"{{name}}\" was successfully created."
     },
     "edit": {
