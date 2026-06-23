@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Heading, RadioGroup, toast } from "@medusajs/ui"
+import { Button, Heading, Select, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
@@ -10,19 +10,16 @@ import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
 import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
 import { useShippingProfiles } from "../../../../../../hooks/api/shipping-profiles"
 import { useOffer, useUpdateOffer } from "../../../../../../hooks/api/offers"
+import { useDocumentDirection } from "../../../../../../hooks/use-document-direction"
 import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../../common/constants"
 import { OfferDetail } from "../../../../common/types"
 
 const Schema = z.object({ shipping_profile_id: z.string().min(1) })
 type Values = z.infer<typeof Schema>
 
-/**
- * Edit Shipping Configuration drawer — a single shipping-profile choice.
- * Only one profile can be selected, so the options are rendered as radio
- * buttons rather than a checkmark select.
- */
 const EditShippingForm = ({ offer }: { offer: OfferDetail }) => {
   const { t } = useTranslation()
+  const direction = useDocumentDirection()
   const { handleSuccess } = useRouteModal()
   const { shipping_profiles } = useShippingProfiles({ limit: 1000 })
 
@@ -56,24 +53,27 @@ const EditShippingForm = ({ offer }: { offer: OfferDetail }) => {
           <Form.Field
             control={form.control}
             name="shipping_profile_id"
-            render={({ field: { ref: _r, onChange, ...f } }) => (
+            render={({ field: { ref, onChange, ...f } }) => (
               <Form.Item>
                 <Form.Label>{t("offers.fields.shippingProfile")}</Form.Label>
                 <Form.Control>
-                  <RadioGroup
-                    {...f}
-                    onValueChange={onChange}
-                    className="flex flex-col gap-3"
-                  >
-                    {(shipping_profiles ?? []).map((p) => (
-                      <RadioGroup.ChoiceBox
-                        key={p.id}
-                        value={p.id}
-                        label={p.name ?? ""}
-                        description={p.type ?? ""}
+                  <Select {...f} onValueChange={onChange} dir={direction}>
+                    <Select.Trigger
+                      ref={ref}
+                      data-testid="offer-variant-shipping-select"
+                    >
+                      <Select.Value
+                        placeholder={t("offers.fields.shippingProfile")}
                       />
-                    ))}
-                  </RadioGroup>
+                    </Select.Trigger>
+                    <Select.Content>
+                      {(shipping_profiles ?? []).map((p) => (
+                        <Select.Item key={p.id} value={p.id}>
+                          {p.name ?? ""}
+                        </Select.Item>
+                      ))}
+                    </Select.Content>
+                  </Select>
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
