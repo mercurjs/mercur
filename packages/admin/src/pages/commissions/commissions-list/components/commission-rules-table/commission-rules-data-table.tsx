@@ -88,11 +88,7 @@ export const CommissionRulesDataTable = () => {
       navigateTo={(row) => `${row.original.id}`}
       noRecords={{
         title: t("commissions.rules.empty.heading", "No commission rules yet"),
-        message: (
-          <span className="block whitespace-pre-line text-center">
-            {t("commissions.rules.empty.description")}
-          </span>
-        ),
+        message: t("commissions.rules.empty.description"),
       }}
       pagination
       search
