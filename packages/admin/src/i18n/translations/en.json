@@ -3461,6 +3461,8 @@
     "selectValues": "Select Values"
   },
   "fields": {
+    "yes": "Yes",
+    "no": "No",
     "amount": "Amount",
     "reference": "Reference",
     "reference_id": "Reference ID",

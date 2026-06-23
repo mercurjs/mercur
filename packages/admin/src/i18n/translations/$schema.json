@@ -13596,6 +13596,12 @@
     "fields": {
       "type": "object",
       "properties": {
+        "yes": {
+          "type": "string"
+        },
+        "no": {
+          "type": "string"
+        },
         "amount": {
           "type": "string"
         },
