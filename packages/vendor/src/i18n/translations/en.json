@@ -1244,6 +1244,7 @@
     },
     "groups": {
       "label": "Customer groups",
+      "removeTitle": "Remove customer",
       "remove": "You are about to remove customer from {{name}} group. This action cannot be undone.",
       "removeMany": "You are about to remove customer from {{groups}} groups. This action cannot be undone.",
       "alreadyAddedTooltip": "The customer is already in this customer group.",

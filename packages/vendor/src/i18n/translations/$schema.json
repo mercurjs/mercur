@@ -5127,6 +5127,9 @@
             "label": {
               "type": "string"
             },
+            "removeTitle": {
+              "type": "string"
+            },
             "remove": {
               "type": "string"
             },
@@ -5213,6 +5216,7 @@
           },
           "required": [
             "label",
+            "removeTitle",
             "remove",
             "removeMany",
             "alreadyAddedTooltip",
