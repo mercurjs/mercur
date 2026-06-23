@@ -3116,7 +3116,6 @@
         "details": "Details",
         "type": "Type"
       },
-      "fillNameWarning": "Please fill in at least the name field before proceeding to Type configuration.",
       "titleRequired": "Please enter a title",
       "possibleValuesRequired": "Please add at least one value",
       "categoriesRequired": "Please select at least one category, or enable the global attribute switch.",
