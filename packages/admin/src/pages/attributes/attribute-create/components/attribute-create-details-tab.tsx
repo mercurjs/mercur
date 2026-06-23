@@ -158,7 +158,7 @@ const Root = () => {
 Root._tabMeta = defineTabMeta<AttributeCreateFormValues>({
   id: "details",
   labelKey: "attributes.create.tabs.details",
-  validationFields: ["name"],
+  validationFields: ["name", "category_ids"],
 });
 
 export const AttributeCreateDetailsTab = Root;

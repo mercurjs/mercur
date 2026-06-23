@@ -57,7 +57,7 @@ export const createAttributeSchema = (t: TFunction) =>
     if (!data.is_global && (data.category_ids ?? []).length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "attributes.create.categoriesRequired",
+        message: t("attributes.create.categoriesRequired"),
         path: ["category_ids"],
       })
     }
