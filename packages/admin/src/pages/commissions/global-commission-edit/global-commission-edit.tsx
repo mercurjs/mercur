@@ -1,14 +1,14 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Heading, Input, Select, toast } from "@medusajs/ui";
+import { Button, Heading, Input, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 
 import { Form } from "../../../components/common/form";
 import { SwitchBox } from "../../../components/common/switch-box";
+import { Combobox } from "../../../components/inputs/combobox";
 import { RouteDrawer, useRouteModal } from "../../../components/modals";
 import { KeyboundForm } from "../../../components/utilities/keybound-form";
-import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import {
   useDefaultCommission,
   useUpdateCommissionRule,
@@ -43,8 +43,12 @@ const EditGlobalCommissionSchema = zod
 const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
-  const direction = useDocumentDirection();
   const { currencies } = useStoreCurrencies();
+
+  const typeOptions = [
+    { value: "percentage", label: t("commissions.fields.type.percentage") },
+    { value: "fixed", label: t("commissions.fields.type.fixed") },
+  ];
 
   const form = useForm<zod.infer<typeof EditGlobalCommissionSchema>>({
     defaultValues: {
@@ -113,28 +117,18 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
             <Form.Field
               control={form.control}
               name="type"
-              render={({ field: { onChange, ref, ...field } }) => (
+              render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
                     {t("commissions.fields.type.label")}
                   </Form.Label>
                   <Form.Control>
-                    <Select {...field} onValueChange={onChange} dir={direction}>
-                      <Select.Trigger
-                        ref={ref}
-                        data-testid="global-commission-type-select"
-                      >
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="percentage">
-                          {t("commissions.fields.type.percentage")}
-                        </Select.Item>
-                        <Select.Item value="fixed">
-                          {t("commissions.fields.type.fixed")}
-                        </Select.Item>
-                      </Select.Content>
-                    </Select>
+                    <Combobox
+                      {...field}
+                      options={typeOptions}
+                      forceHideInput
+                      data-testid="global-commission-type-select"
+                    />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>

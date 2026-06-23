@@ -1,4 +1,4 @@
-import { Heading, Input, Select } from "@medusajs/ui";
+import { Heading, Input } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { Combobox } from "../../../../../components/inputs/combobox";
@@ -7,17 +7,32 @@ import { defineTabMeta } from "../../../../../components/tabbed-form";
 import { useTabbedForm } from "../../../../../components/tabbed-form";
 import { useComboboxData } from "../../../../../hooks/use-combobox-data";
 import { sdk } from "../../../../../lib/client";
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
 import { SCOPE_TYPE_DIMENSIONS } from "../../../common/types";
 import { CreateCommissionRuleSchemaType } from "./schema";
 
 export const CreateCommissionRuleDetails = () => {
   const { t } = useTranslation();
   const form = useTabbedForm<CreateCommissionRuleSchemaType>();
-  const direction = useDocumentDirection();
 
   const scopeType = form.watch("scopeType");
   const dimensions = SCOPE_TYPE_DIMENSIONS[scopeType];
+
+  const scopeTypeOptions = [
+    { value: "store", label: t("commissions.fields.scopeType.store") },
+    {
+      value: "product_type",
+      label: t("commissions.fields.scopeType.productType"),
+    },
+    { value: "category", label: t("commissions.fields.scopeType.category") },
+    {
+      value: "store_product_type",
+      label: t("commissions.fields.scopeType.storeProductType"),
+    },
+    {
+      value: "store_category",
+      label: t("commissions.fields.scopeType.storeCategory"),
+    },
+  ];
 
   const stores = useComboboxData({
     queryKey: ["commission_stores"],
@@ -70,37 +85,18 @@ export const CreateCommissionRuleDetails = () => {
         <Form.Field
           control={form.control}
           name="scopeType"
-          render={({ field: { onChange, ref, ...field } }) => (
+          render={({ field }) => (
             <Form.Item>
               <Form.Label>
                 {t("commissions.fields.scopeType.label")}
               </Form.Label>
               <Form.Control>
-                <Select {...field} onValueChange={onChange} dir={direction}>
-                  <Select.Trigger
-                    ref={ref}
-                    data-testid="commission-rule-scope-type-select"
-                  >
-                    <Select.Value />
-                  </Select.Trigger>
-                  <Select.Content>
-                    <Select.Item value="store">
-                      {t("commissions.fields.scopeType.store")}
-                    </Select.Item>
-                    <Select.Item value="product_type">
-                      {t("commissions.fields.scopeType.productType")}
-                    </Select.Item>
-                    <Select.Item value="category">
-                      {t("commissions.fields.scopeType.category")}
-                    </Select.Item>
-                    <Select.Item value="store_product_type">
-                      {t("commissions.fields.scopeType.storeProductType")}
-                    </Select.Item>
-                    <Select.Item value="store_category">
-                      {t("commissions.fields.scopeType.storeCategory")}
-                    </Select.Item>
-                  </Select.Content>
-                </Select>
+                <Combobox
+                  {...field}
+                  options={scopeTypeOptions}
+                  forceHideInput
+                  data-testid="commission-rule-scope-type-select"
+                />
               </Form.Control>
               <Form.ErrorMessage />
             </Form.Item>

@@ -1,13 +1,13 @@
-import { Heading, Select } from "@medusajs/ui";
+import { Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../../components/common/form";
 import { SwitchBox } from "../../../../../components/common/switch-box";
+import { Combobox } from "../../../../../components/inputs/combobox";
 import {
   defineTabMeta,
   useTabbedForm,
 } from "../../../../../components/tabbed-form";
-import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
 import { CommissionValueFields } from "../../../common/components/commission-value-fields";
 import { useStoreCurrencies } from "../../../common/hooks/use-store-currencies";
 import { CreateCommissionRuleSchemaType } from "./schema";
@@ -15,10 +15,14 @@ import { CreateCommissionRuleSchemaType } from "./schema";
 export const CreateCommissionRuleCommission = () => {
   const { t } = useTranslation();
   const form = useTabbedForm<CreateCommissionRuleSchemaType>();
-  const direction = useDocumentDirection();
   const { currencies } = useStoreCurrencies();
 
   const commissionType = form.watch("commissionType");
+
+  const typeOptions = [
+    { value: "percentage", label: t("commissions.fields.type.percentage") },
+    { value: "fixed", label: t("commissions.fields.type.fixed") },
+  ];
 
   return (
     <div className="flex flex-col items-center p-16">
@@ -28,28 +32,18 @@ export const CreateCommissionRuleCommission = () => {
           <Form.Field
             control={form.control}
             name="commissionType"
-            render={({ field: { onChange, ref, ...field } }) => (
+            render={({ field }) => (
               <Form.Item>
                 <Form.Label>
                   {t("commissions.fields.type.label")}
                 </Form.Label>
                 <Form.Control>
-                  <Select {...field} onValueChange={onChange} dir={direction}>
-                    <Select.Trigger
-                      ref={ref}
-                      data-testid="commission-rule-commission-type-select"
-                    >
-                      <Select.Value />
-                    </Select.Trigger>
-                    <Select.Content>
-                      <Select.Item value="percentage">
-                        {t("commissions.fields.type.percentage")}
-                      </Select.Item>
-                      <Select.Item value="fixed">
-                        {t("commissions.fields.type.fixed")}
-                      </Select.Item>
-                    </Select.Content>
-                  </Select>
+                  <Combobox
+                    {...field}
+                    options={typeOptions}
+                    forceHideInput
+                    data-testid="commission-rule-commission-type-select"
+                  />
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
