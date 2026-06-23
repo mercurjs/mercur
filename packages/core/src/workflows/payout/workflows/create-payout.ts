@@ -14,9 +14,6 @@ export const createPayoutWorkflowId = "create-payout"
 export const createPayoutWorkflow = createWorkflow(
   createPayoutWorkflowId,
   function (input: WorkflowData<CreatePayoutWorkflowInput>) {
-    // `total` is recomputed from the selected line items, so pull full
-    // `items.*` / `shipping_methods.*` rows — selecting only their ids yields
-    // a wrong total.
     const { data: orders } = useQueryGraphStep({
       entity: "order",
       fields: [

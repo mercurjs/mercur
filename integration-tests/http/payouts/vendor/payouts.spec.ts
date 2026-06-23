@@ -159,7 +159,6 @@ medusaIntegrationTestRunner({
           )
         ).data.offer
 
-        // Set the marketplace-wide default commission to 10%.
         const [defaultRate] = await commissionService.listCommissionRates({
           is_default: true,
         })
@@ -325,8 +324,6 @@ medusaIntegrationTestRunner({
           })
           const order = orderGroup.orders[0]
 
-          // commission_line has no module link to order items, so read it
-          // directly and attach by item id.
           const itemIds = (order.items ?? [])
             .map((item: any) => item.id)
             .filter(Boolean)

@@ -362,8 +362,6 @@ medusaIntegrationTestRunner({
                     )
 
                     expect(response.status).toEqual(200)
-                    // The inline-custom `Size` axis added in this test
-                    // should round-trip through the storefront response.
                     const attrs = response.data.product.attributes
                     expect(Array.isArray(attrs)).toBe(true)
                     const sizeAttr = attrs.find(
