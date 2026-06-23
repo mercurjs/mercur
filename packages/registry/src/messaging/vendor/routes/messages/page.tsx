@@ -42,6 +42,8 @@ const ConversationRow = ({
 
   return (
     <button
+      type="button"
+      aria-label="Open conversation"
       onClick={onClick}
       className={clx(
         "flex w-full items-center gap-3 px-6 py-3 text-left transition-colors hover:bg-ui-bg-base-hover",
@@ -95,7 +97,7 @@ const ConversationRow = ({
 const VendorMessagesPage = () => {
   useMessagingSSE()
   const navigate = useNavigate()
-  const { conversations, next_cursor, isLoading, isError, error } =
+  const { conversations, isLoading, isError, error } =
     useVendorConversations({ limit: 50 })
 
   useMessagingLayout()

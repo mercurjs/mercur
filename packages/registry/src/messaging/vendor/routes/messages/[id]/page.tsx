@@ -168,6 +168,7 @@ const VendorConversationDetailPage = () => {
     if (conversation && conversation.unread_count_seller > 0) {
       markRead.mutate()
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [conversation?.id, conversation?.unread_count_seller])
 
   // Scroll to bottom when messages change

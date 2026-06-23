@@ -1,6 +1,6 @@
 import { InjectManager, MedusaContext, MedusaService } from "@medusajs/framework/utils"
 import { Context } from "@medusajs/framework/types"
-import { EntityManager, type Knex } from "@medusajs/framework/mikro-orm/knex"
+import { EntityManager } from "@medusajs/framework/mikro-orm/knex"
 
 import { Conversation } from "./models/conversation"
 import { Message } from "./models/message"

@@ -2,7 +2,7 @@ import { createStep, StepResponse } from "@medusajs/framework/workflows-sdk"
 
 import { MESSAGING_REDIS_MODULE } from "../../../modules/messaging-redis"
 import type MessagingRedisModuleService from "../../../modules/messaging-redis/service"
-import { invalidateRuleset, recompileFilters } from "../../../modules/messaging-filters/loaders/compile-filters"
+import { recompileFilters } from "../../../modules/messaging-filters/loaders/compile-filters"
 
 export const invalidateFilterCacheStep = createStep(
   "invalidate-filter-cache",
