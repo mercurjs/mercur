@@ -1,3 +1,4 @@
+import { TFunction } from "i18next"
 import { z } from "zod"
 import { AttributeType } from "@mercurjs/types"
 
@@ -9,9 +10,10 @@ export const ATTRIBUTE_TYPE_OPTIONS = [
   AttributeType.TEXT,
 ] as const
 
-export const CreateAttributeSchema = z
+export const createAttributeSchema = (t: TFunction) =>
+  z
   .object({
-    name: z.string().min(1),
+    name: z.string().min(1, { message: t("attributes.create.titleRequired") }),
     description: z.string().max(250).optional(),
     handle: z.string().optional(),
     is_filterable: z.boolean().default(false),
@@ -55,7 +57,7 @@ export const CreateAttributeSchema = z
     if (!data.is_global && (data.category_ids ?? []).length === 0) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "attributes.create.categoriesRequired",
+        message: t("attributes.create.categoriesRequired"),
         path: ["category_ids"],
       })
     }
