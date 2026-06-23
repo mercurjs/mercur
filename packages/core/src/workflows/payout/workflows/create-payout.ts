@@ -14,11 +14,8 @@ export const createPayoutWorkflowId = "create-payout"
 export const createPayoutWorkflow = createWorkflow(
   createPayoutWorkflowId,
   function (input: WorkflowData<CreatePayoutWorkflowInput>) {
-    // Read the order's persisted total WITHOUT pulling line items in the same
-    // query: when `items` are co-selected the order module recomputes `total`
-    // from those rows (which here carry only `id`, no amounts) and returns 0.
-    // Selecting only order-level fields yields the already-computed summary
-    // total.
+    // Co-selecting `items` makes the order module recompute `total` from the
+    // (amount-less) line items and return 0, so fetch totals on their own.
     const { data: orderTotals } = useQueryGraphStep({
       entity: "order",
       fields: ['id', 'currency_code', 'total'],
@@ -26,9 +23,6 @@ export const createPayoutWorkflow = createWorkflow(
       options: { throwIfKeyNotFound: true },
     }).config({ name: "fetch-order-total" })
 
-    // The order's line-item + shipping ids (for commission lookup) and the
-    // seller's payout account — fetched separately so they don't perturb the
-    // total computation above.
     const { data: orderRelations } = useQueryGraphStep({
       entity: "order",
       fields: [
