@@ -1043,11 +1043,16 @@ export function getRouteMap({
                 path: "/products/:product_id/variants/:variant_id",
                 errorElement: <ErrorBoundary />,
                 lazy: async () => {
-                  const { loader } =
+                  const { loader, Breadcrumb } =
                     await import("./pages/product-variants/product-variant-detail");
                   return {
                     Component: Outlet,
                     loader,
+                    handle: {
+                      breadcrumb: (match: UIMatch<any>) => (
+                        <Breadcrumb {...match} />
+                      ),
+                    },
                   };
                 },
                 children: [
