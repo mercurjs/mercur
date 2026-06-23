@@ -17,10 +17,6 @@ import { OfferDetail } from "../../../../common/types"
 const Schema = z.object({ shipping_profile_id: z.string().min(1) })
 type Values = z.infer<typeof Schema>
 
-/**
- * Edit Shipping Configuration drawer — a single shipping-profile choice
- * rendered as a Select dropdown (Figma `40016693:124647`).
- */
 const EditShippingForm = ({ offer }: { offer: OfferDetail }) => {
   const { t } = useTranslation()
   const direction = useDocumentDirection()

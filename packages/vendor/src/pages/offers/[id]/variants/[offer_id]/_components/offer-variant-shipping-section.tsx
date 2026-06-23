@@ -14,13 +14,6 @@ type OfferShippingData = {
   } | null
 }
 
-/**
- * Sidebar "Shipping Configuration" card of the Offer Variant detail
- * (Figma `40016503:749900`). Mirrors the offer detail's "Associated
- * product" card structure/size: an `Edit` kebab in the header and a
- * Pattern-A card (icon + name/subtitle + chevron) linking to the
- * shipping profile detail page under Settings.
- */
 export const OfferVariantShippingSection = ({
   offer,
 }: {
