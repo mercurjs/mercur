@@ -194,6 +194,74 @@ medusaIntegrationTestRunner({
           expect(comboIds).toContain(comboRate.data.commission_rate.id)
           expect(comboIds).not.toContain(storeRate.data.commission_rate.id)
         })
+
+        it("should filter by multiple scope_type values (comma-joined and array)", async () => {
+          const storeRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Multi Store Rate",
+              code: "MULTI_STORE",
+              type: "percentage",
+              value: 5,
+              rules: [{ reference: "seller", reference_id: seller.id }],
+            },
+            adminHeaders
+          )
+
+          const categoryRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Multi Category Rate",
+              code: "MULTI_CATEGORY",
+              type: "percentage",
+              value: 6,
+              rules: [
+                { reference: "product_category", reference_id: "pcat_multi" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const productTypeRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Multi Product Type Rate",
+              code: "MULTI_PRODUCT_TYPE",
+              type: "percentage",
+              value: 7,
+              rules: [
+                { reference: "product_type", reference_id: "ptyp_multi" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const comma = await api.get(
+            `/admin/commission-rates?scope_type=store,category`,
+            adminHeaders
+          )
+
+          expect(comma.status).toEqual(200)
+          const commaIds = comma.data.commission_rates.map((r: any) => r.id)
+          expect(commaIds).toContain(storeRate.data.commission_rate.id)
+          expect(commaIds).toContain(categoryRate.data.commission_rate.id)
+          expect(commaIds).not.toContain(
+            productTypeRate.data.commission_rate.id
+          )
+
+          const array = await api.get(
+            `/admin/commission-rates?scope_type[0]=store&scope_type[1]=category`,
+            adminHeaders
+          )
+
+          expect(array.status).toEqual(200)
+          const arrayIds = array.data.commission_rates.map((r: any) => r.id)
+          expect(arrayIds).toContain(storeRate.data.commission_rate.id)
+          expect(arrayIds).toContain(categoryRate.data.commission_rate.id)
+          expect(arrayIds).not.toContain(
+            productTypeRate.data.commission_rate.id
+          )
+        })
       })
 
       describe("POST /admin/commission-rates", () => {

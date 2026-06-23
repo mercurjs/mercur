@@ -365,7 +365,7 @@ class CommissionModuleService extends MedusaService({
         }
       }
 
-      return valid.map((scope) => `(${conditionFor(scope)})`).join(" OR ")
+      return `(${valid.map((scope) => `(${conditionFor(scope)})`).join(" OR ")})`
     }
   }
 
@@ -385,12 +385,15 @@ class CommissionModuleService extends MedusaService({
 
     const scopeTypes = (
       Array.isArray(scope_type) ? scope_type : [scope_type]
-    ) as string[]
+    )
+      .flatMap((value) => String(value).split(","))
+      .map((value) => value.trim())
+      .filter(Boolean)
     const predicate = this.buildScopeTypeWhere_(scopeTypes)
     const where: Record<string, unknown> = { ...rest }
 
     // No recognised scope type → match nothing rather than ignore the filter.
-    where[raw((alias: string) => (predicate ? predicate(alias) : "1 = 0"))] =
+    where[raw((alias: string) => (predicate ? predicate(alias) : "(1 = 0)"))] =
       true
 
     return where

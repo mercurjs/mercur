@@ -3932,7 +3932,7 @@
       },
       "empty": {
         "heading": "No commission rules yet",
-        "description": "Create a commission rule to override the global commission for specific stores, product types, or categories."
+        "description": "Create a commission rule to override the global commission for\nspecific stores, product types, or categories."
       }
     },
     "status": {
