@@ -3067,7 +3067,7 @@
         "type": "Typ"
       },
       "fillNameWarning": "Wypełnij przynajmniej pole nazwy przed przejściem do konfiguracji typu.",
-      "possibleValuesRequired": "Dla tego typu wymagana jest co najmniej jedna możliwa wartość",
+      "possibleValuesRequired": "Dodaj co najmniej jedną wartość",
       "successToast": "Atrybut \"{{name}}\" został pomyślnie utworzony."
     },
     "edit": {
