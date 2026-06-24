@@ -50,6 +50,9 @@ const AttributeActions = ({
     }
 
     await mutateAsync(undefined, {
+      onSuccess: () => {
+        toast.success(t("products.edit.requestSuccessToast"));
+      },
       onError: (error) => {
         toast.error(error.message);
       },

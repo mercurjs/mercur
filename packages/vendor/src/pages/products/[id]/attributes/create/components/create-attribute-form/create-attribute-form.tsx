@@ -90,6 +90,7 @@ export const CreateAttributeForm = ({
       {
         onSuccess: () => {
           handleSuccess()
+          toast.success(t("products.edit.requestSuccessToast"))
         },
         onError: (error) => {
           toast.error(error.message)

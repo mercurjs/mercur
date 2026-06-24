@@ -832,7 +832,7 @@
       },
       "edit": {
         "header": "Edit Variant",
-        "success": "Product variant edited successfully",
+        "success": "Product update was successfully requested. Once confirmed by the Admin, changes will appear on the storefront.",
         "attributesTooltip": "These are default values used to describe the item. They are not defined by Marketplace."
       },
       "create": {

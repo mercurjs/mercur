@@ -237,6 +237,7 @@ const Content = ({ productId }: { productId: string }) => {
       {
         onSuccess: () => {
           handleSuccess()
+          toast.success(t("products.edit.requestSuccessToast"))
         },
         onError: (err) => {
           toast.error(err.message)

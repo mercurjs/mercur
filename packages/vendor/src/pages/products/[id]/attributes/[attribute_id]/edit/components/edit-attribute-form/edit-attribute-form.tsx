@@ -80,7 +80,10 @@ export const EditAttributeForm = ({
       : { values: vals }
 
     await mutateAsync(payload, {
-      onSuccess: () => handleSuccess(),
+      onSuccess: () => {
+        handleSuccess()
+        toast.success(t("products.edit.requestSuccessToast"))
+      },
       onError: (error) => toast.error(error.message),
     })
   })
