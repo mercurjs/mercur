@@ -1842,6 +1842,18 @@
             "attributes": {
               "type": "object",
               "properties": {
+                "createSuccessToast": {
+                  "type": "string"
+                },
+                "addSuccessToast": {
+                  "type": "string"
+                },
+                "updateSuccessToast": {
+                  "type": "string"
+                },
+                "deleteSuccessToast": {
+                  "type": "string"
+                },
                 "addAttribute": {
                   "type": "string"
                 },
@@ -1874,6 +1886,10 @@
                 }
               },
               "required": [
+                "createSuccessToast",
+                "addSuccessToast",
+                "updateSuccessToast",
+                "deleteSuccessToast",
                 "addAttribute",
                 "editHeader",
                 "required",
@@ -3392,10 +3408,14 @@
               "properties": {
                 "header": {
                   "type": "string"
+                },
+                "successToast": {
+                  "type": "string"
                 }
               },
               "required": [
-                "header"
+                "header",
+                "successToast"
               ],
               "additionalProperties": false
             },
