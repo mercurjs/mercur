@@ -157,7 +157,7 @@ export const useCreateProduct = (
 
 /**
  * Stages an `UPDATE` action on the product via
- * `productEditUpdateFieldsWorkflow`. Returns the created `ProductChange`;
+ * `productEditUpdateProductWorkflow`. Returns the created `ProductChange`;
  * the product itself is mutated only after operator confirms.
  */
 export const useUpdateProduct = (
@@ -489,7 +489,7 @@ export const useBatchProductAttributes = (
 /**
  * Convenience wrapper to detach a single attribute (batch `remove`).
  */
-export const useRemoveProductAttribute = (
+export const useRemoveAttributeFromProduct = (
   productId: string,
   attributeId: string,
   options?: UseMutationOptions<

@@ -481,7 +481,11 @@ const RequiredAttributes = () => {
         attribute_id: attr.id,
         title: attr.name,
         values:
-          attr.type === AttributeType.MULTI_SELECT ? ([] as string[]) : "",
+          attr.type === AttributeType.MULTI_SELECT
+            ? ([] as string[])
+            : attr.type === AttributeType.TOGGLE
+              ? "false"
+              : "",
         is_custom: false,
         is_required: true,
         use_for_variants: attr.is_variant_axis,

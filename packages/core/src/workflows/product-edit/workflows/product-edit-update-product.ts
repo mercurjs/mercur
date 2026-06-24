@@ -1,4 +1,5 @@
 import { AdditionalData } from "@medusajs/framework/types"
+import { deepEqualObj } from "@medusajs/framework/utils"
 import {
   createWorkflow,
   transform,
@@ -15,7 +16,7 @@ import {
 import { validateNoPendingProductChangeStep } from "../steps"
 import { stageProductChangeWorkflow } from "./stage-product-change"
 
-export type ProductEditUpdateFieldsWorkflowInput = {
+export type ProductEditUpdateProductWorkflowInput = {
   product_id: string
   created_by?: string
   update: Record<string, unknown>
@@ -46,15 +47,15 @@ const DIFFABLE_FIELDS = [
   "metadata",
 ] as const
 
-export const productEditUpdateFieldsWorkflowId = "product-edit-update-fields"
+export const productEditUpdateProductWorkflowId = "product-edit-update-product"
 
-export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
-  ProductEditUpdateFieldsWorkflowInput,
+export const productEditUpdateProductWorkflow: ReturnWorkflow<
+  ProductEditUpdateProductWorkflowInput,
   ProductChangeDTO,
   []
 > = createWorkflow(
-  productEditUpdateFieldsWorkflowId,
-  function (input: ProductEditUpdateFieldsWorkflowInput) {
+  productEditUpdateProductWorkflowId,
+  function (input: ProductEditUpdateProductWorkflowInput) {
     validateNoPendingProductChangeStep(
       transform({ input }, ({ input }) => ({
         product_ids: [input.product_id],
@@ -98,6 +99,8 @@ export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
         const current = (currentProducts?.[0] ?? {}) as Record<string, unknown>
         const proposed = input.update ?? {}
 
+        // Unwrap relation/image arrays to sorted scalar ids/urls so order-insensitive,
+        // shape-insensitive values can be compared with deepEqualObj.
         const normalize = (value: unknown): unknown => {
           if (Array.isArray(value)) {
             return value
@@ -116,7 +119,7 @@ export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
         }
 
         const isEqual = (a: unknown, b: unknown): boolean =>
-          JSON.stringify(normalize(a)) === JSON.stringify(normalize(b))
+          deepEqualObj(normalize(a), normalize(b))
 
         const acts: Array<
           Omit<CreateProductChangeActionDTO, "product_change_id">

@@ -1,9 +1,9 @@
 import { MedusaService } from "@medusajs/framework/utils"
 
-import { Image } from "./models"
+import { MediaImage } from "./models"
 
 class MediaModuleService extends MedusaService({
-  Image,
-}) {}
+  MediaImage,
+}) { }
 
 export default MediaModuleService

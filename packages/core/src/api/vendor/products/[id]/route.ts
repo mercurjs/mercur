@@ -10,7 +10,7 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 
 import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
-import { productEditUpdateFieldsWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-update-fields"
+import { productEditUpdateProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-update-product"
 import {
   enrichProductAttributes,
   wrapProductVariantsWithOffers,
@@ -69,7 +69,7 @@ export const POST = async (
 
   const { additional_data: _ad, ...update } = req.validatedBody
 
-  const { result } = await productEditUpdateFieldsWorkflow(req.scope).run({
+  const { result } = await productEditUpdateProductWorkflow(req.scope).run({
     input: {
       product_id: req.params.id,
       created_by: sellerId,

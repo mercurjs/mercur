@@ -23,7 +23,11 @@ import { useTranslation } from "react-i18next";
 import { Thumbnail } from "@components/common/thumbnail";
 import { useCollection } from "@hooks/api/collections";
 import { useProductCategory } from "@hooks/api/categories";
-import { useCancelProductEdit, useProductChange } from "@hooks/api/products";
+import {
+  useCancelProductEdit,
+  useProductChange,
+  useProductVariants,
+} from "@hooks/api/products";
 import {
   productAttributesQueryKeys,
   useProductAttribute,
@@ -41,7 +45,6 @@ type VariantInfo = {
 
 type ProductForActiveEdit = {
   id: string;
-  variants?: (VariantInfo | null)[] | null;
 };
 
 type ProductActiveEditSectionProps = {
@@ -438,19 +441,26 @@ export const ProductActiveEditSection = ({
 
   const productId = product.id;
 
-  // The product-detail query carries variant identity (title · sku · images),
-  // so the request block resolves it inline — no extra per-variant fetch.
-  const variantsById = useMemo(() => {
-    const map = new Map<string, VariantInfo>();
-    for (const variant of product.variants ?? []) {
-      if (variant?.id) map.set(variant.id, variant);
-    }
-    return map;
-  }, [product.variants]);
-
   const { product_change, isError } = useProductChange(productId, {
     retry: false,
   });
+
+  // Variant identity (title · sku · images) for the request block is read from
+  // the variants endpoint — the product-detail query omits `variants` because
+  // populating it crashes the 2.16 options-preview remote joiner.
+  const { variants } = useProductVariants(
+    productId,
+    { fields: "id,title,sku,images.id,images.url,images.rank", limit: 200 },
+    { enabled: !!product_change },
+  );
+
+  const variantsById = useMemo(() => {
+    const map = new Map<string, VariantInfo>();
+    for (const variant of (variants ?? []) as VariantInfo[]) {
+      if (variant?.id) map.set(variant.id, variant);
+    }
+    return map;
+  }, [variants]);
 
   const { mutateAsync: cancelEdit, isPending: isCanceling } =
     useCancelProductEdit(productId);

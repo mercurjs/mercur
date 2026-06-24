@@ -15,7 +15,7 @@ import MediaModule from "../modules/media"
 export default defineLink(
   ProductModule.linkable.productCollection,
   {
-    linkable: MediaModule.linkable.image,
+    linkable: MediaModule.linkable.mediaImage,
     isList: true,
   }
 )

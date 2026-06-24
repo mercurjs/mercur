@@ -15,9 +15,9 @@ import { model } from "@medusajs/framework/utils"
  * Table is `media_image`, NOT `image`: Medusa's product module already
  * owns a table named `image` (its ProductImage) — reusing it would collide.
  */
-const Image = model
+const MediaImage = model
   .define(
-    { tableName: "media_image", name: "Image" },
+    { tableName: "media_image", name: "MediaImage" },
     {
       id: model.id({ prefix: "medimg" }).primaryKey(),
       url: model.text(),
@@ -36,4 +36,4 @@ const Image = model
     },
   ])
 
-export default Image
+export default MediaImage

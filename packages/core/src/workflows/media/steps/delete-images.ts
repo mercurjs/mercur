@@ -15,7 +15,7 @@ export const deleteImagesStep = createStep(
     }
 
     const service = container.resolve<MediaModuleService>(MercurModules.MEDIA)
-    await service.softDeleteImages(ids)
+    await service.softDeleteMediaImages(ids)
 
     return new StepResponse(void 0, ids)
   },
@@ -25,6 +25,6 @@ export const deleteImagesStep = createStep(
     }
 
     const service = container.resolve<MediaModuleService>(MercurModules.MEDIA)
-    await service.restoreImages(prevIds)
+    await service.restoreMediaImages(prevIds)
   }
 )
