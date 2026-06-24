@@ -46,7 +46,7 @@ const isAxis = (attr?: ProductAttributeDTO) =>
   !!attr?.product_option_id
 
 /**
- * Mutates a product's attribute selections (SPEC-014 §G update branch):
+ * Mutates a product's attribute selections:
  * - shared axis  → adjust the per-product option value subset.
  * - exclusive axis (single target) → mutate the exclusive option's own values
  *   via the catalog value workflows (which keep the option mirror in sync).

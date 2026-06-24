@@ -1,6 +1,12 @@
-import type { Context, ModuleJoinerConfig } from "@medusajs/framework/types"
+import type {
+  Context,
+  FindConfig,
+  ModuleJoinerConfig,
+} from "@medusajs/framework/types"
 import {
+  InjectManager,
   InjectTransactionManager,
+  MedusaContext,
   MedusaError,
   MedusaService,
   toHandle,
@@ -25,9 +31,6 @@ class ProductAttributeModuleService extends MedusaService({
     sharedContext?: Context,
   ): Promise<T extends any[] ? any[] : any> {
     const input = (Array.isArray(data) ? data : [data]).map((attribute) => {
-      // Only global (non product-scoped) attributes get a handle. Product-scoped
-      // attributes (`product_id` set) live inline on a single product and never
-      // surface in the global catalogue, so they don't need a unique handle.
       if (!attribute.handle && !attribute.product_id && attribute.name) {
         attribute.handle = toHandle(attribute.name)
       }
@@ -38,8 +41,6 @@ class ProductAttributeModuleService extends MedusaService({
     // @ts-ignore
     const result = await super.createProductAttributes(input, sharedContext)
 
-    // Toggle attributes are boolean: seed them with `true` / `false` values so
-    // callers never have to create the two options manually.
     const created = Array.isArray(result) ? result : [result]
     const toggleValues = created
       .filter((attribute) => attribute.type === AttributeType.TOGGLE)
@@ -63,9 +64,6 @@ class ProductAttributeModuleService extends MedusaService({
   ): Promise<T extends any[] ? any[] : any> {
     const updates = Array.isArray(data) ? data : [data]
 
-    // The `type` of an existing attribute is immutable — changing it would
-    // invalidate already-stored values and any mirrored native option. Reject
-    // updates that attempt to change it for an attribute whose id we know.
     const idsWithType = updates
       .filter((u) => u.id && u.type !== undefined)
       .map((u) => u.id as string)
@@ -98,57 +96,150 @@ class ProductAttributeModuleService extends MedusaService({
     return super.updateProductAttributes(data, sharedContext) as any
   }
 
-  // Values only make sense on select attributes (single/multi). For any other
-  // type (toggle, unit, text) we never expose the `values` relation, even when
-  // a caller populates it — strip it so consumers get a consistent shape.
-  private stripNonSelectValues<T extends { type?: string; values?: any }>(
-    attribute: T,
-  ): T {
-    const selectTypes = new Set<string>([
-      AttributeType.SINGLE_SELECT,
-      AttributeType.MULTI_SELECT,
-    ])
+  private static readonly SELECT_TYPES = new Set<string>([
+    AttributeType.SINGLE_SELECT,
+    AttributeType.MULTI_SELECT,
+  ])
 
-    if (
-      attribute &&
-      attribute.values !== undefined &&
-      (!attribute.type || !selectTypes.has(attribute.type))
-    ) {
-      attribute.values = []
+  private wantsValues(config?: FindConfig<any>): boolean {
+    const relations = config?.relations ?? []
+    if (relations.some((r) => r === "values" || r.startsWith("values."))) {
+      return true
+    }
+    const select = (config?.select as string[] | undefined) ?? []
+    return select.some((s) => s === "values" || s.startsWith("values."))
+  }
+
+  private stripValuesFromConfig(
+    config?: FindConfig<any>,
+  ): FindConfig<any> | undefined {
+    if (!config) {
+      return config
     }
 
-    return attribute
+    const next: FindConfig<any> = { ...config }
+
+    if (Array.isArray(next.relations)) {
+      next.relations = next.relations.filter(
+        (r) => r !== "values" && !r.startsWith("values."),
+      )
+    }
+
+    if (Array.isArray(next.select)) {
+      next.select = Array.from(
+        new Set([
+          ...(next.select as string[]).filter(
+            (s) => s !== "values" && !s.startsWith("values."),
+          ),
+          "id",
+          "type",
+        ]),
+      )
+    }
+
+    return next
   }
 
+  private deriveValueConfig(config?: FindConfig<any>): FindConfig<any> {
+    const relations = (config?.relations ?? [])
+      .filter((r) => r.startsWith("values."))
+      .map((r) => r.slice("values.".length))
+    const selectPaths = ((config?.select as string[] | undefined) ?? [])
+      .filter((s) => s.startsWith("values."))
+      .map((s) => s.slice("values.".length))
+
+    const valueConfig: FindConfig<any> = {}
+    if (relations.length) {
+      valueConfig.relations = relations
+    }
+    if (selectPaths.length) {
+      valueConfig.select = Array.from(new Set([...selectPaths, "attribute_id"]))
+    }
+
+    return valueConfig
+  }
+
+  private async attachValues(
+    attributes: any[],
+    config?: FindConfig<any>,
+    sharedContext?: Context,
+  ): Promise<void> {
+    const selectAttributes = attributes.filter((a) =>
+      ProductAttributeModuleService.SELECT_TYPES.has(a.type),
+    )
+
+    for (const attribute of attributes) {
+      if (!ProductAttributeModuleService.SELECT_TYPES.has(attribute.type)) {
+        attribute.values = []
+      }
+    }
+
+    if (!selectAttributes.length) {
+      return
+    }
+
+    const values = await this.listProductAttributeValues(
+      { attribute_id: selectAttributes.map((a) => a.id) },
+      this.deriveValueConfig(config),
+      sharedContext,
+    )
+
+    const valuesByAttribute = new Map<string, any[]>()
+    for (const value of values) {
+      const list = valuesByAttribute.get(value.attribute_id) ?? []
+      list.push(value)
+      valuesByAttribute.set(value.attribute_id, list)
+    }
+
+    for (const attribute of selectAttributes) {
+      attribute.values = valuesByAttribute.get(attribute.id) ?? []
+    }
+  }
+
+  @InjectManager()
   // @ts-ignore
   async listProductAttributes(
-    ...args: Parameters<
-      MedusaService<{
-        ProductAttribute: typeof ProductAttribute
-        ProductAttributeValue: typeof ProductAttributeValue
-      }>["listProductAttributes"]
-    >
-  ): Promise<any> {
+    filters?: any,
+    config?: FindConfig<any>,
+    @MedusaContext() sharedContext?: Context,
+  ): Promise<any[]> {
+    const wantsValues = this.wantsValues(config)
+
     // @ts-ignore
-    const result = await super.listProductAttributes(...args)
-    return result.map((attribute: any) => this.stripNonSelectValues(attribute))
+    const attributes = await super.listProductAttributes(
+      filters,
+      this.stripValuesFromConfig(config),
+      sharedContext,
+    )
+
+    if (wantsValues && attributes.length) {
+      await this.attachValues(attributes, config, sharedContext)
+    }
+
+    return attributes
   }
 
+  @InjectManager()
   // @ts-ignore
   async listAndCountProductAttributes(
-    ...args: Parameters<
-      MedusaService<{
-        ProductAttribute: typeof ProductAttribute
-        ProductAttributeValue: typeof ProductAttributeValue
-      }>["listAndCountProductAttributes"]
-    >
-  ): Promise<any> {
+    filters?: any,
+    config?: FindConfig<any>,
+    @MedusaContext() sharedContext?: Context,
+  ): Promise<[any[], number]> {
+    const wantsValues = this.wantsValues(config)
+
     // @ts-ignore
-    const [result, count] = await super.listAndCountProductAttributes(...args)
-    return [
-      result.map((attribute: any) => this.stripNonSelectValues(attribute)),
-      count,
-    ]
+    const [attributes, count] = await super.listAndCountProductAttributes(
+      filters,
+      this.stripValuesFromConfig(config),
+      sharedContext,
+    )
+
+    if (wantsValues && attributes.length) {
+      await this.attachValues(attributes, config, sharedContext)
+    }
+
+    return [attributes, count]
   }
 
   @InjectTransactionManager()
@@ -159,10 +250,6 @@ class ProductAttributeModuleService extends MedusaService({
   ): Promise<T extends any[] ? any[] : any> {
     const values = Array.isArray(data) ? data : [data]
 
-    // A value's handle is only generated when its owning attribute is global
-    // (non product-scoped) AND a select type (single/multi). Non-select types
-    // (toggle, unit, text) don't expose selectable options, so their values
-    // never need a handle. Resolve the relevant attributes once.
     const attributeIds = Array.from(
       new Set(values.map((v) => v.attribute_id).filter(Boolean)),
     )

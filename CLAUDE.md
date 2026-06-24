@@ -56,6 +56,10 @@ When the user asks to test a worktree (e.g. "test this worktree", "run this work
 ## Writing Code
 
 - NEVER use `any`.
+- Do NOT generate AI-like comments. Avoid narrating what the code does,
+  explaining the obvious, or leaving tutorial-style commentary. Only add a
+  comment when it captures genuinely non-obvious intent (a workaround, a gotcha,
+  a "why" that the code can't express). Code must read as human-authored.
 
 ## Testing
 
