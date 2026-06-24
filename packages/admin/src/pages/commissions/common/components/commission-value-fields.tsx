@@ -68,7 +68,9 @@ export const CommissionValueFields = <T extends FieldValues = FieldValues>({
                     min={0}
                     code={code}
                     symbol={getCurrencySymbol(code)}
-                    onValueChange={(val) => onChange(val ? parseFloat(val) : 0)}
+                    onValueChange={(val) =>
+                    onChange(val ? parseFloat(val) : undefined)
+                  }
                     {...field}
                     value={value ?? ""}
                   />

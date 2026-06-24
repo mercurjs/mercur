@@ -3859,15 +3859,7 @@
       "header": "Create Commission Rule",
       "details": "Details",
       "commission": "Commission",
-      "successToast": "Commission rule was successfully created.",
-      "validation": {
-        "titleRequired": "Please enter a title",
-        "codeRequired": "Please enter a code",
-        "storesRequired": "Please select at least one store",
-        "productTypesRequired": "Please select at least one product type",
-        "categoriesRequired": "Please select at least one category",
-        "valueRequired": "Please enter a value."
-      }
+      "successToast": "Commission rule was successfully created."
     },
     "edit": {
       "header": "Edit Commission Rule",
@@ -3947,6 +3939,14 @@
     "status": {
       "enabled": "Active",
       "disabled": "Inactive"
+    },
+    "validation": {
+      "titleRequired": "Please enter a title",
+      "codeRequired": "Please enter a code",
+      "value": "Please enter a value",
+      "storesRequired": "Please select at least one store",
+      "productTypesRequired": "Please select at least one product type",
+      "categoriesRequired": "Please select at least one category"
     }
   },
   "commissionRates": {
