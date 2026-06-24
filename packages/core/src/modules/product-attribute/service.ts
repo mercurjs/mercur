@@ -98,6 +98,59 @@ class ProductAttributeModuleService extends MedusaService({
     return super.updateProductAttributes(data, sharedContext) as any
   }
 
+  // Values only make sense on select attributes (single/multi). For any other
+  // type (toggle, unit, text) we never expose the `values` relation, even when
+  // a caller populates it — strip it so consumers get a consistent shape.
+  private stripNonSelectValues<T extends { type?: string; values?: any }>(
+    attribute: T,
+  ): T {
+    const selectTypes = new Set<string>([
+      AttributeType.SINGLE_SELECT,
+      AttributeType.MULTI_SELECT,
+    ])
+
+    if (
+      attribute &&
+      attribute.values !== undefined &&
+      (!attribute.type || !selectTypes.has(attribute.type))
+    ) {
+      attribute.values = []
+    }
+
+    return attribute
+  }
+
+  // @ts-ignore
+  async listProductAttributes(
+    ...args: Parameters<
+      MedusaService<{
+        ProductAttribute: typeof ProductAttribute
+        ProductAttributeValue: typeof ProductAttributeValue
+      }>["listProductAttributes"]
+    >
+  ): Promise<any> {
+    // @ts-ignore
+    const result = await super.listProductAttributes(...args)
+    return result.map((attribute: any) => this.stripNonSelectValues(attribute))
+  }
+
+  // @ts-ignore
+  async listAndCountProductAttributes(
+    ...args: Parameters<
+      MedusaService<{
+        ProductAttribute: typeof ProductAttribute
+        ProductAttributeValue: typeof ProductAttributeValue
+      }>["listAndCountProductAttributes"]
+    >
+  ): Promise<any> {
+    // @ts-ignore
+    const [result, count] = await super.listAndCountProductAttributes(...args)
+    return [
+      result.map((attribute: any) => this.stripNonSelectValues(attribute)),
+      count,
+    ]
+  }
+
   @InjectTransactionManager()
   // @ts-ignore
   async createProductAttributeValues<T extends any | any[]>(
@@ -107,24 +160,33 @@ class ProductAttributeModuleService extends MedusaService({
     const values = Array.isArray(data) ? data : [data]
 
     // A value's handle is only generated when its owning attribute is global
-    // (non product-scoped). Resolve the relevant attributes' `product_id` once.
+    // (non product-scoped) AND a select type (single/multi). Non-select types
+    // (toggle, unit, text) don't expose selectable options, so their values
+    // never need a handle. Resolve the relevant attributes once.
     const attributeIds = Array.from(
       new Set(values.map((v) => v.attribute_id).filter(Boolean)),
     )
     const attributes = attributeIds.length
       ? await this.listProductAttributes(
           { id: attributeIds },
-          { select: ["id", "product_id"] },
+          { select: ["id", "product_id", "type"] },
           sharedContext,
         )
       : []
-    const productScopedById = new Map<string, boolean>(
-      attributes.map((a) => [a.id, !!a.product_id]),
+    const attributeById = new Map<string, { product_id?: string; type: string }>(
+      attributes.map((a) => [a.id, a]),
     )
 
+    const selectTypes = new Set<string>([
+      AttributeType.SINGLE_SELECT,
+      AttributeType.MULTI_SELECT,
+    ])
+
     const input = values.map((value) => {
-      const isProductScoped = productScopedById.get(value.attribute_id) ?? false
-      if (!value.handle && !isProductScoped && value.name) {
+      const attribute = attributeById.get(value.attribute_id)
+      const isProductScoped = !!attribute?.product_id
+      const isSelectType = !!attribute && selectTypes.has(attribute.type)
+      if (!value.handle && !isProductScoped && isSelectType && value.name) {
         value.handle = toHandle(value.name)
       }
 

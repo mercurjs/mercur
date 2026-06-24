@@ -13,6 +13,7 @@ import {
 } from "@medusajs/medusa/core-flows"
 import { AttributeType, MercurModules } from "@mercurjs/types"
 
+import { validateProductAttributesNotRequiredStep } from "../steps"
 import { deleteProductAttributesWorkflow } from "./delete-product-attributes"
 
 export type RemoveProductAttributesFromProductWorkflowInput = {
@@ -32,12 +33,24 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
       filters: { id: input.remove },
       fields: [
         "id",
+        "name",
         "type",
+        "is_required",
         "is_variant_axis",
         "product_id",
         "product_option_id",
       ],
     }).config({ name: "rm-pa-attributes" })
+
+    validateProductAttributesNotRequiredStep(
+      transform({ attributesQuery }, ({ attributesQuery }) =>
+        ((attributesQuery.data ?? [])).map((a) => ({
+          id: a.id,
+          name: a.name,
+          is_required: !!a.is_required,
+        })),
+      ),
+    )
 
     // Currently-linked non-axis values on this product (to dismiss).
     const productQuery = useQueryGraphStep({

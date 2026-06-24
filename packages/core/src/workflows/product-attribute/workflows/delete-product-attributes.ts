@@ -15,7 +15,10 @@ import {
 } from "@medusajs/medusa/core-flows"
 
 import { ProductAttributeWorkflowEvents } from "../events"
-import { deleteProductAttributesStep } from "../steps"
+import {
+  deleteProductAttributesStep,
+  validateProductAttributesNotLinkedStep,
+} from "../steps"
 
 export type DeleteProductAttributesWorkflowInput = {
   ids: string[]
@@ -44,6 +47,8 @@ export const deleteProductAttributesWorkflow: ReturnWorkflow<
   deleteProductAttributesWorkflowId,
   function (input: DeleteProductAttributesWorkflowInput) {
     const validate = createHook("validate", { input })
+
+    validateProductAttributesNotLinkedStep(input.ids)
 
     // Capture the mirrored shared (global) ProductOption ids before deleting
     // the attributes. Variant-axis multi-select attributes own a native option
