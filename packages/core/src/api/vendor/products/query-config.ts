@@ -22,10 +22,9 @@ export const vendorProductFields = [
   "created_at",
   "updated_at",
   "metadata",
-  // Explicit relation fields. Medusa 2.16's remote joiner rejects bare
-  // `*relation` wildcards in the query-config defaults with
-  // "Cannot resolve alias path \"\"" (SPEC-014), so each relation is spelled
-  // out. This also surfaces native global product `options` directly.
+  // Medusa 2.16's remote joiner rejects bare `*relation` wildcards in the
+  // query-config defaults with "Cannot resolve alias path \"\"", so each
+  // relation is spelled out.
   "collection.id",
   "collection.title",
   "collection.handle",
@@ -41,9 +40,6 @@ export const vendorProductFields = [
   "variants.manage_inventory",
   "variants.allow_backorder",
   "variants.variant_rank",
-  // NON-AXIS selected values, each carrying its parent attribute and the
-  // parent's full value set (SPEC-014 response shape — "selected vs available"
-  // is one hop up via `product_attribute_values[].attribute.values`).
   "product_attribute_values.id",
   "product_attribute_values.name",
   "product_attribute_values.rank",
@@ -57,7 +53,6 @@ export const vendorProductFields = [
   "product_attribute_values.attribute.values.id",
   "product_attribute_values.attribute.values.name",
   "product_attribute_values.attribute.values.rank",
-  // Product-scoped (inline) attributes surfaced via the read-only link.
   "scoped_attributes.id",
   "scoped_attributes.name",
   "scoped_attributes.handle",

@@ -14,18 +14,6 @@ import {
   requiredOfferFieldsForInventoryConfirmation,
 } from "../../offer/utils"
 
-/**
- * Stock availability pre-check. Fires before any cart mutation on
- * `addToCartWorkflow` and `updateLineItemInCartWorkflow`. Throws
- * `MedusaError.Codes.INSUFFICIENT_INVENTORY` if any linked
- * `InventoryItem` cannot cover `quantity * required_quantity` across
- * the cart's sales-channel-visible stock locations.
- *
- * Read-only: does NOT reserve. Reservations live in
- * `beforeRefreshingPaymentCollection` where line items exist and have
- * IDs.
- */
-
 addToCartWorkflow.hooks.validate(async ({ input, cart }, { container }) => {
   const items = input.items ?? []
   if (!items.length) {

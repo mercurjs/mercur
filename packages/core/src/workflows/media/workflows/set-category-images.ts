@@ -22,23 +22,12 @@ export type CategoryMediaInput = {
 
 export type SetCategoryImagesWorkflowInput = {
   category_id: string
-  /** Replace the gallery (type = null) when provided. */
   media?: CategoryMediaInput[]
-  /** Replace the icon (type = "icon") when the key is present; null clears it. */
   icon?: string | null
 }
 
 export const setCategoryImagesWorkflowId = "mercur-set-category-images"
 
-/**
- * Replaces a category's media gallery and/or icon, composed from small steps:
- * read existing → create new `Image` rows → link them → unlink + delete the
- * replaced ones. Each step self-compensates.
- *
- * Invariants (applied in the transform): at most one gallery thumbnail, one
- * gallery banner, one icon per category. An image may be both thumbnail and
- * banner.
- */
 export const setCategoryImagesWorkflow = createWorkflow(
   setCategoryImagesWorkflowId,
   (input: SetCategoryImagesWorkflowInput) => {

@@ -12,12 +12,6 @@ type ValidateNoPendingProductChangeStepInput = {
   product_ids: string[]
 }
 
-/**
- * Enforces "one pending change per product". Filters the
- * `product_change` entity by `product_id` (denormalised column on the
- * change row) and `status = PENDING`. Throws if any input product
- * already has a pending change.
- */
 export const validateNoPendingProductChangeStep = createStep(
   validateNoPendingProductChangeStepId,
   async (

@@ -36,13 +36,6 @@ type BucketedActions = {
   variantUpdates: Array<Record<string, unknown> & { id: string }>
   variantImageLinks: VariantImageLinks[]
   variantDeletes: string[]
-  /**
-   * A single reconstructed `ProductAttributeBatchInput` for the change's
-   * product, folded from the `ATTRIBUTE_*` actions. A `ProductChange` is
-   * per-product and `confirmProductChangeWorkflow` runs per-change, so all
-   * attribute actions in one apply share the same `product_id`. `null` when the
-   * change carries no attribute actions.
-   */
   attributeBatch: {
     product_id: string
     add: ProductAttributeBatchAdd[]
@@ -56,39 +49,6 @@ type BucketedActions = {
 export const applyProductChangeActionsWorkflowId =
   "apply-product-change-actions"
 
-/**
- * Cross-module dispatcher for a confirmed `ProductChange`'s pending
- * actions. Replaces the legacy `ProductModuleService.applyProductChangeActions_`
- * by composing stock Medusa product workflows (update/create/delete
- * variants, update/delete products) with the attribute apply workflow
- * (`applyProductAttributeChangeActionsWorkflow`).
- *
- * Pattern-match `medusa/.../order/workflows/apply-order-change.ts`:
- * load pending rows, bucket by action type, dispatch in dependency
- * order, then mark `applied = true`.
- *
- * Ordering mirrors the legacy implementation:
- *   1. Top-level field updates (STATUS_CHANGE / UPDATE) — collapsed by
- *      product so each product hits `updateProductsWorkflow` once.
- *   2. Variant deletes — frees up SKU / title uniqueness before adds.
- *   3. Variant creates.
- *   4. Variant updates — see a stable variant set.
- *   5. Attribute add/remove/update — folded into a single per-product
- *      `ProductAttributeBatchInput` and delegated to
- *      `applyProductAttributeChangeActionsWorkflow`, which re-runs the
- *      SPEC-014 batch engine (apply order remove → add → update) so a
- *      single change can re-link the same attribute with a different
- *      value set.
- *   6. Product deletes — last so any audit-trail updates above write
- *      through before the row is soft-deleted.
- *   7. Mark action rows applied.
- *
- * `ATTRIBUTE_*` actions carry the raw batch op verbatim in their
- * `details` JSON (`{ attribute }` / `{ attribute_id }` / `{ update }`),
- * staged by `productEditUpdateAttributesWorkflow`. The batch engine
- * resolves inline-create / find-or-create at confirm time, so no
- * upstream value-id resolution is required.
- */
 export const applyProductChangeActionsWorkflow: ReturnWorkflow<
   ApplyProductChangeActionsWorkflowInput,
   void,
@@ -175,10 +135,6 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
               !Object.keys(fields as object).length
             )
               break
-            // `images` is a variant↔image relation, not a scalar column,
-            // so split it out of the variant update (which goes through
-            // `updateProductVariantsWorkflow`) and apply the link changes
-            // separately via `applyVariantImageLinksStep`.
             const { images, ...scalarFields } = fields as {
               images?: { add?: string[]; remove?: string[] }
             } & Record<string, unknown>
@@ -281,9 +237,6 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
       },
     )
 
-    // Variant media: link/unlink product↔variant images after the
-    // variants themselves are stable. Runs last among variant work so the
-    // target variants are guaranteed to exist.
     when(
       { buckets },
       ({ buckets }) => buckets.variantImageLinks.length > 0,

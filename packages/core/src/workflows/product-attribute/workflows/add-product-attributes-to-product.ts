@@ -31,23 +31,10 @@ import {
 } from "../steps"
 
 export type AddProductAttributesToProductWorkflowInput = {
-  /** The id of the product to attach attributes to. */
   product_id: string
-  /**
-   * The attributes to attach. Each entry is one of the
-   * {@link ProductAttributeBatchAdd} forms: an existing select/axis ref
-   * (`{ id, value_ids }`), an existing text/unit/toggle ref (`{ id, value }`),
-   * an inline axis (`{ title, values, is_variant_axis: true }`), or an inline
-   * non-axis (`{ title, type, value | values }`).
-   */
   add: ProductAttributeBatchAdd[]
 } & AdditionalData
 
-/**
- * Accepts a single product's attribute batch or many at once. The batched form
- * lets `createProductsWorkflow` attach attributes for every created product in
- * one run.
- */
 export type AddProductAttributesToProductWorkflowInputOrList =
   | AddProductAttributesToProductWorkflowInput
   | AddProductAttributesToProductWorkflowInput[]
@@ -64,7 +51,6 @@ const key = (itemIdx: number, addIdx: number) => `${itemIdx}:${addIdx}`
 export const addProductAttributesToProductWorkflow = createWorkflow(
   addProductAttributesToProductWorkflowId,
   function (input: AddProductAttributesToProductWorkflowInputOrList) {
-    // Normalize to a list so every transform iterates products uniformly.
     const items = transform({ input }, ({ input }) =>
       Array.isArray(input) ? input : [input],
     )
@@ -158,8 +144,6 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
 
     const inlineAttrs = createProductAttributesStep(attrsPlan.inlineAttrs)
 
-    // `linkProductId[i]` is the product to link the created row to, or null for
-    // axis values (which live on the option only).
     const valuePlan = transform(
       { items, attributesQuery, optionsPlan, inlineOptions, attrsPlan },
       ({ items, attributesQuery, optionsPlan, inlineOptions, attrsPlan }) => {
@@ -187,11 +171,9 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
                     attribute_id: attributeId,
                     product_option_value_id: ov.id,
                   })
-                  // Link inline-axis values to the product too: the formatter
-                  // reads the selected axis subset from the
+                  // The formatter reads the selected axis subset from the
                   // product_attribute_value_link pivot (native options populate
-                  // is broken on 2.16). Every value of an exclusive inline
-                  // option is selected.
+                  // is broken on 2.16), so inline-axis values are linked too.
                   linkProductId.push(it.product_id)
                 }
               } else {
@@ -206,7 +188,6 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
               return
             }
 
-            // Existing text/unit: create a value from the free-form scalar.
             const attr = attrsById.get(ref.id)
             if (
               attr &&
@@ -324,11 +305,9 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
                 })
               }
             } else {
-              // Existing select value_ids — non-axis AND axis. Axis values are
-              // linked into the pivot too so the formatter can render the
-              // selected-of-available subset (native options populate is broken
-              // on 2.16). Text/unit refs carry no value_ids, so this is a no-op
-              // for them; toggle is handled above.
+              // Axis values are linked into the pivot too so the formatter can
+              // render the selected-of-available subset (native options populate
+              // is broken on 2.16).
               for (const vid of ref.value_ids ?? []) {
                 links.push({
                   [Modules.PRODUCT]: { product_id: it.product_id },

@@ -11,12 +11,6 @@ import { ProductStatus } from "@mercurjs/types"
 import { vendorProductVariantsQueryConfig } from "./query-config"
 import { VendorGetProductVariantsParams } from "./validators"
 
-/**
- * Vendors see variants that belong to either a published master-catalog
- * product or one of their own products in any state. Variants on another
- * vendor's unpublished products (draft / proposed / requires_action /
- * rejected) stay hidden.
- */
 const applySellerProductVariantFilter = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,

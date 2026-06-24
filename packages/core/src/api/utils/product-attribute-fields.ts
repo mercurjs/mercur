@@ -1,15 +1,11 @@
 /**
- * Curated, crash-safe field set for the attribute batch endpoints' product
- * response. Limited to the attribute-relevant relations (native axis options +
- * non-axis value links + scoped attributes); it deliberately omits
- * variants/categories/collection, whose nested product-module populate paths
- * trip MikroORM's `expandDotPaths` on the 2.16 options-preview build.
+ * Omits variants/categories/collection, whose nested product-module populate
+ * paths trip MikroORM's `expandDotPaths` on the 2.16 options-preview build.
  */
 export const productAttributeBatchResponseFields = [
   "id",
   "title",
   "status",
-  // NON-AXIS selected values + parent attribute + full value set.
   "product_attribute_values.id",
   "product_attribute_values.name",
   "product_attribute_values.rank",
@@ -23,7 +19,6 @@ export const productAttributeBatchResponseFields = [
   "product_attribute_values.attribute.values.id",
   "product_attribute_values.attribute.values.name",
   "product_attribute_values.attribute.values.rank",
-  // Product-scoped (inline) attributes via the read-only link.
   "scoped_attributes.id",
   "scoped_attributes.name",
   "scoped_attributes.handle",

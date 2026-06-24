@@ -30,10 +30,6 @@ const AdminGetProductsParamsFields = z.object({
   ean: z.string().optional(),
   upc: z.string().optional(),
   barcode: z.string().optional(),
-  // Offers-list pseudo-filter: scope products to those carrying at least
-  // one offer. Consumed (and removed) by `applyOfferedProductsFilter`
-  // before the product graph read. When paired with `seller_id` on the
-  // Offers surface, the seller scope is reinterpreted as the offer's store.
   has_offer: booleanString().optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
@@ -88,7 +84,6 @@ const CreateProductVariant = z
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
-    /** Stock Medusa: maps option title -> chosen value name (e.g. `{ Color: "Blue" }`). */
     options: z.record(z.string()).optional(),
   })
   .strict()
@@ -139,12 +134,6 @@ const AttributeTypeEnum = z.enum([
   "unit",
 ])
 
-/**
- * SPEC-014 unified attribute input for product create. Existing refs use
- * `id` + `value_ids` (select) or `value` (text/unit/toggle); inline refs use
- * `title` + `type`. Axis attributes attach the product to their native option;
- * non-axis selections are linked as values.
- */
 const AttributeScalar = z.union([z.string(), z.number(), z.boolean()])
 const UnifiedProductAttributeInput = z.union([
   z
@@ -226,7 +215,6 @@ const CreateProduct = z
     seller_ids: z.array(z.string()).optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    /** Stock Medusa product options: drives variant generation. */
     options: z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))
       .optional(),
@@ -356,13 +344,7 @@ export type AdminBatchProductsType = z.infer<typeof BatchProducts> &
   AdditionalData
 export const AdminBatchProducts = WithAdditionalData(BatchProducts)
 
-// SPEC-014 §G batch shape: { add, remove, update } over
-// createAndLinkProductAttributesToProductWorkflow. Runtime mirror of the
-// `ProductAttributeBatch*` DTOs in @mercurjs/types.
 const BatchAttributeScalar = z.union([z.string(), z.number(), z.boolean()])
-// `add` accepts either an existing-attribute ref (`id`) or an inline
-// product-scoped attribute (`title`). Inline non-axis requires `type` unless it
-// is inferable (`is_variant_axis` ⇒ multi_select, boolean `value` ⇒ toggle).
 const BatchAttributeAdd = z.union([
   z
     .object({
@@ -399,13 +381,9 @@ const BatchAttributeAdd = z.union([
       },
     ),
 ])
-// `add` accepts existing value ids (shared axis subset) or new value objects
-// `{ value }` (exclusive axis), mirroring `ProductOptionProductValueUpdate.add`.
 const BatchAttributeUpdate = z
   .object({
     id: z.string(),
-    // Rename a product-scoped (inline) attribute; ignored for shared catalog
-    // attributes by the workflow.
     title: z.string().optional(),
     add: z
       .array(z.union([z.string(), z.object({ value: z.string() }).strict()]))
@@ -423,7 +401,3 @@ export const AdminBatchProductAttributes = z.object({
   remove: z.array(z.string()).optional(),
   update: z.array(BatchAttributeUpdate).optional(),
 })
-
-// SPEC-014: the per-attribute attach/update admin validators were removed —
-// attribute mutations go through `AdminBatchProductAttributes`
-// (`.../attributes/batch`).

@@ -23,9 +23,9 @@ export const adminProductFields = [
   "updated_at",
   "deleted_at",
   "metadata",
-  // Explicit relation fields (SPEC-014). 2.16's remote joiner rejects bare
-  // `*relation` wildcards and the `type`/`tags`/`images` relations
-  // (`Cannot resolve alias path ""`), so they are spelled out / excluded.
+  // 2.16's remote joiner rejects bare `*relation` wildcards and the
+  // `type`/`tags`/`images` relations (`Cannot resolve alias path ""`), so they
+  // are spelled out / excluded.
   "collection.id",
   "collection.title",
   "collection.handle",
@@ -42,7 +42,6 @@ export const adminProductFields = [
   "variants.manage_inventory",
   "variants.allow_backorder",
   "variants.variant_rank",
-  // NON-AXIS selected values + parent attribute + full value set.
   "product_attribute_values.id",
   "product_attribute_values.name",
   "product_attribute_values.rank",
@@ -56,7 +55,6 @@ export const adminProductFields = [
   "product_attribute_values.attribute.values.id",
   "product_attribute_values.attribute.values.name",
   "product_attribute_values.attribute.values.rank",
-  // Product-scoped (inline) attributes via the read-only link.
   "scoped_attributes.id",
   "scoped_attributes.name",
   "scoped_attributes.handle",

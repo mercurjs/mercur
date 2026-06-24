@@ -21,11 +21,6 @@ export type ProductEditUpdateFieldsWorkflowInput = {
   update: Record<string, unknown>
 } & AdditionalData
 
-/**
- * Fields the diff considers — anything outside this list is ignored.
- * Variant and attribute mutations have dedicated workflows that emit
- * `VARIANT_*` / `ATTRIBUTE_*` actions instead of an opaque UPDATE.
- */
 const DIFFABLE_FIELDS = [
   "title",
   "subtitle",
@@ -53,20 +48,6 @@ const DIFFABLE_FIELDS = [
 
 export const productEditUpdateFieldsWorkflowId = "product-edit-update-fields"
 
-/**
- * Vendor "edit product fields" orchestrator. Diffs the proposed
- * payload against the current product, stages one
- * `ProductChangeAction` per changed field (`STATUS_CHANGE` for
- * `status`, `UPDATE { field, value }` for everything else) via
- * `stageProductChangeWorkflow`. The shared building block runs the
- * auto-confirm conditional so the change is applied inline when the
- * marketplace has the `PRODUCT_REQUEST` flag disabled.
- *
- * The dispatcher (`applyProductChangeActionsWorkflow`) collapses all
- * UPDATE actions for the same product into a single
- * `updateProductsWorkflow` call, so emitting field-granular actions
- * still costs one core workflow run.
- */
 export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
   ProductEditUpdateFieldsWorkflowInput,
   ProductChangeDTO,

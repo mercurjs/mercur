@@ -55,9 +55,6 @@ export const updateProductAttributesWorkflow: ReturnWorkflow<
       update: input.update,
     })
 
-    // A variant-axis multi-select attribute mirrors a shared ProductOption.
-    // Renaming the attribute propagates to the option's title. (The attribute
-    // `type` is immutable after creation, so the mirror relationship is fixed.)
     const optionTitleSync = transform(
       { input, attributes },
       ({ input, attributes }) => {

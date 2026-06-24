@@ -32,10 +32,6 @@ const VendorGetProductsParamsFields = z.object({
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
   deleted_at: createOperatorMap().optional(),
-  // Pseudo-filter consumed by the shared `applyOfferedProductsFilter`:
-  // when true, scopes the list to products the active seller has an offer
-  // on (the Offers list). Stripped from `filterableFields` before the
-  // product graph read.
   has_offer: booleanString().optional(),
 })
 
@@ -87,7 +83,6 @@ const CreateProductVariant = z
     origin_country: z.string().optional(),
     material: z.string().optional(),
     metadata: z.record(z.unknown()).optional(),
-    /** Stock Medusa: maps option title -> chosen value name (e.g. `{ Color: "Blue" }`). */
     options: z.record(z.string()).optional(),
   })
   .strict()
@@ -126,12 +121,6 @@ const AttributeTypeEnum = z.enum([
   "unit",
 ])
 
-/**
- * SPEC-014 unified attribute input for product create/update. Existing refs use
- * `id` + `value_ids` (select) or `value` (text/unit/toggle); inline refs use
- * `title` + `type`. Axis attributes attach the product to their native mirror
- * option; non-axis selections are linked as values.
- */
 const AttributeScalar = z.union([z.string(), z.number(), z.boolean()])
 const UnifiedProductAttributeInput = z.union([
   z
@@ -174,7 +163,6 @@ const CreateProduct = z
     collection_id: z.string().optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    /** Stock Medusa product options: drives variant generation. */
     options: z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))
       .optional(),
@@ -247,12 +235,6 @@ const UpdateProduct = z
   })
   .strict()
 export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
-
-//
-// All of the following endpoints route through `product-edit-*` workflows
-// rather than mutating the product directly. Each one opens a pending
-// `ProductChange` and adds an action to it; the change has to be confirmed
-// by the operator before the mutation hits the product.
 
 const VendorGetProductVariantsParamsFields = z.object({
   q: z.string().optional(),
@@ -332,10 +314,6 @@ export const VendorUpdateProductVariant = z
     manage_inventory: z.boolean().optional(),
     metadata: z.record(z.unknown()).nullish(),
     options: z.record(z.string()).optional(),
-    // Variant-scoped media. Variant images are existing product images
-    // linked through the product↔variant junction; the vendor manages
-    // that link set by image id (selection only — uploading happens on
-    // the product media page), mirroring Medusa's batch add/remove.
     images: z
       .object({
         add: z.array(z.string()).optional(),
@@ -354,11 +332,6 @@ export const VendorCancelProductChange = z
   })
   .strict()
 
-// SPEC-014 §G batch shape, applied directly (vendor applies edits in place via
-// createAndLinkProductAttributesToProductWorkflow). Runtime mirror of the
-// `ProductAttributeBatch*` DTOs in @mercurjs/types — same shape as the admin
-// batch validator. `add` accepts an existing ref (`id`) or an inline
-// product-scoped attribute (`title`); `update` adjusts an attribute's selection.
 const VendorBatchAttributeScalar = z.union([
   z.string(),
   z.number(),
@@ -406,8 +379,6 @@ const VendorBatchAttributeAdd = z.union([
 const VendorBatchAttributeUpdate = z
   .object({
     id: z.string(),
-    // Rename a product-scoped (inline) attribute; ignored for shared catalog
-    // attributes by the workflow.
     title: z.string().optional(),
     add: z
       .array(z.union([z.string(), z.object({ value: z.string() }).strict()]))

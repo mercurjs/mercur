@@ -1,6 +1,3 @@
-// Mirrors admin's `query-config.ts` — same default field set so the
-// generated SDK route map (which types vendor.reservations against
-// admin's route module) sees the same shape coming back.
 const defaultVendorInventoryItemFields = [
   "id",
   "sku",

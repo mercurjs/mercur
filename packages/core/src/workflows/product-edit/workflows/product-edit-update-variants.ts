@@ -45,24 +45,8 @@ export type ProductEditUpdateVariantsWorkflowInput = {
 export const productEditUpdateVariantsWorkflowId =
   "product-edit-update-variants"
 
-/**
- * Variant fields that are not vendor-editable and must never be staged
- * as part of a `VARIANT_UPDATE`. `manage_inventory` is a marketplace
- * invariant pinned to `false` at variant creation — surfacing it in the
- * request block (as a phantom `Off → On` row) was the core of MER-168.
- */
 const NON_EDITABLE_VARIANT_FIELDS = new Set(["manage_inventory"])
 
-/**
- * Vendor "edit product variants" orchestrator. Translates each
- * `operations[]` entry into a `VARIANT_ADD` / `VARIANT_UPDATE` /
- * `VARIANT_REMOVE` action on a fresh `ProductChange` via
- * `stageProductChangeWorkflow`. Reusing this single workflow for all
- * three verbs keeps `/vendor/products/:id/variants[...]` routes thin
- * and lets `applyProductChangeActionsWorkflow` do its dependency-
- * ordered dispatch (deletes before creates before updates) without
- * the route having to know about it.
- */
 export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
   ProductEditUpdateVariantsWorkflowInput,
   ProductChangeDTO,
@@ -76,10 +60,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
       })),
     )
 
-    // Load current variants for the product so `VARIANT_UPDATE`
-    // actions can carry `previous_fields` alongside the proposed
-    // `fields`. The diff panel uses this for the strikethrough
-    // before/after render.
     const variantIdsToLoad = transform({ input }, ({ input }) =>
       Array.from(
         new Set(
@@ -120,9 +100,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
         "material",
         "variant_rank",
         "metadata",
-        // Loaded so an unchanged `options` payload is diffed away rather
-        // than re-staged on every edit (MER-168). `options` arrives as a
-        // `{ [option_title]: value }` map; rebuild the same shape from these.
         "options.value",
         "options.option.title",
       ],
@@ -146,9 +123,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
           currentVariantsById.set(v.id, v)
         }
 
-        // Mirror the product-level field diff (`product-edit-update-fields`):
-        // normalize relation/array shapes to ids/urls before comparing so an
-        // unchanged value never produces a spurious change row.
         const normalize = (value: unknown): unknown => {
           if (Array.isArray(value)) {
             return value
@@ -169,9 +143,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
         const isEqual = (a: unknown, b: unknown): boolean =>
           JSON.stringify(normalize(a)) === JSON.stringify(normalize(b))
 
-        // Reduce a value to a stable `{ option_title: value }` map for
-        // comparison. The proposed payload is already that shape; the
-        // current variant carries `options: [{ value, option: { title } }]`.
         const toOptionsMap = (value: unknown): Record<string, string> => {
           const out: Record<string, string> = {}
           if (Array.isArray(value)) {
@@ -194,7 +165,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
           return out
         }
 
-        // Order-independent equality for the options map.
         const optionsEqual = (
           a: Record<string, string>,
           b: Record<string, string>,
@@ -224,16 +194,8 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
               for (const [field, proposedValue] of Object.entries(
                 op.fields ?? {},
               )) {
-                // Never stage fields the vendor can't edit (e.g.
-                // `manage_inventory`).
                 if (NON_EDITABLE_VARIANT_FIELDS.has(field)) continue
 
-                // `options` is a relation update (option-title → value
-                // pairs). Diff it against the variant's current options so an
-                // unchanged map (the form always re-submits it) never surfaces
-                // as a phantom change row (MER-168). Forward the proposed map
-                // verbatim when it actually differs so the apply step can
-                // re-pair variant options.
                 if (field === "options") {
                   if (proposedValue === undefined) continue
                   const currentOptions = toOptionsMap(current.options)
@@ -244,10 +206,6 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
                   continue
                 }
 
-                // `images` is a relation (variant↔image links), not a
-                // scalar column we load for diffing. Forward it untouched
-                // so the apply step can reconcile the links; it carries no
-                // meaningful previous value and stays out of the preview.
                 if (field === "images") {
                   if (proposedValue !== undefined) {
                     changedFields.images = proposedValue
@@ -255,14 +213,12 @@ export const productEditUpdateVariantsWorkflow: ReturnWorkflow<
                   continue
                 }
 
-                // Skip fields that did not actually change.
                 if (isEqual(current[field], proposedValue)) continue
 
                 changedFields[field] = proposedValue
                 previousFields[field] = current[field] ?? null
               }
 
-              // Nothing editable changed — don't stage an empty action.
               if (!Object.keys(changedFields).length) break
 
               acts.push({

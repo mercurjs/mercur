@@ -24,17 +24,6 @@ type AdminAddItemsBody = {
   }>
 }
 
-/**
- * Mercur override of Medusa's `POST /admin/order-edits/:id/items`.
- *
- * The Medusa-shipped validator requires `variant_id`. To support
- * offer-aware admin flows without disabling that validator, the admin UI
- * passes the offer id in `metadata.offer_id`. This route pulls that key
- * out, resolves the offer's price in the order's currency, overrides
- * `unit_price`, and retains `metadata.offer_id` so the existing
- * `link-order-line-items-to-offers` subscriber persists the link on
- * confirm.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminAddItemsBody>,
   res: MedusaResponse<HttpTypes.AdminOrderEditPreviewResponse>

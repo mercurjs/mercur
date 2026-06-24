@@ -24,13 +24,6 @@ type RejectProductWorkflowInput = {
   actor_id?: string
 }
 
-/**
- * Admin-side "reject a vendor submission". Same audit-trail shape as
- * `confirmProductsWorkflow`, ending in `status: rejected`. The
- * operator's optional `message` is mirrored onto the change's
- * `external_note` so the seller sees it on their product detail
- * panel.
- */
 export const rejectProductWorkflow = createWorkflow(
   rejectProductWorkflowId,
   function (input: RejectProductWorkflowInput) {

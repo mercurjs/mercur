@@ -13,22 +13,6 @@ type AttributeWithCategories = {
   categories?: CategoryRef | CategoryRef[] | null
 }
 
-/**
- * Replacement for `maybeApplyLinkFilter` on the product-attribute ↔
- * category link (`product-attribute-category-link`, surfaced on the
- * attribute as the `categories` relation). When a category filter is
- * present, the default helper restricts the result to attribute IDs
- * linked to that category, which silently drops "global" attributes
- * (those that have no category link at all). Marketplace operators and
- * vendors expect a category-scoped attribute list to also surface
- * global attributes, so this middleware composes:
- *
- *   id IN (attribute IDs linked to the requested category)
- *   OR
- *   id NOT IN (any attribute that has at least one category link)
- *
- * The second clause is what brings global attributes back in.
- */
 export const filterAttributesByCategoryLinkOrGlobal = async (
   req: MedusaRequest,
   _: MedusaResponse,

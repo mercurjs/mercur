@@ -222,9 +222,6 @@ export const createOffersWorkflow: ReturnWorkflow<
       { input, offers, addedPrices },
       ({ input, offers, addedPrices }) => {
         const links: LinkDefinition[] = []
-        // The addedPrices entries are aligned with offers that contributed
-        // prices (skipping offers with no prices). We walk in input order
-        // to preserve the index alignment.
         let cursor = 0
         input.offers.forEach((offer, idx) => {
           if (!offer.prices?.length) {

@@ -12,18 +12,6 @@ import {
 import { resolveOfferItems } from "../../../orders/resolve-offer-items"
 import { VendorPostOrderEditsAddItemsReqType } from "../../validators"
 
-/**
- * `POST /vendor/order-edits/:id/items` — mirrors
- * `POST /admin/order-edits/:id/items`. Adds new items to the
- * draft edit on the seller-owned order.
- *
- * Mercur extension: items can be provided as `{ offer_id, quantity }` and the
- * server resolves the offer to its `variant_id + unit_price` for the
- * underlying workflow. The originating offer is stashed in
- * `metadata.offer_id` so the `order-edit-confirmed` subscriber can
- * persist the `order_line_item ↔ offer` link once the new line items are
- * created at confirm time.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorPostOrderEditsAddItemsReqType>,
   res: MedusaResponse<HttpTypes.AdminOrderEditPreviewResponse>

@@ -31,13 +31,9 @@ export const defaultStoreProductFields = [
   "*variants.options",
   "*options",
   "*options.values",
-  // Linked product-attribute value ids — the GET handler enriches
-  // these into `product.attributes` via separate queries against the
-  // product-attribute module. The product-side alias for the
-  // `product_attribute_value_link` pivot is `product_attribute_values`
-  // (SPEC-014 — NOT `attribute_values`). Cross-module chained populate
-  // (e.g. `*product_attribute_values.attribute.values`) crashes
-  // MikroORM's `expandDotPaths`, so we keep the joiner request single-hop.
+  // Cross-module chained populate (e.g.
+  // `*product_attribute_values.attribute.values`) crashes MikroORM's
+  // `expandDotPaths`, so we keep the joiner request single-hop.
   "product_attribute_values.id",
 ]
 

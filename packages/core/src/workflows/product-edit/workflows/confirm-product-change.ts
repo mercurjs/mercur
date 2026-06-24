@@ -40,17 +40,6 @@ export type ConfirmProductChangeWorkflowHooks = [
 
 export const confirmProductChangeWorkflowId = "confirm-product-change"
 
-/**
- * Mirrors `confirm-order-edit-request.ts`:
- * 1. `useQueryGraphStep` (load change),
- * 2. `confirmProductChangeValidationStep` (status guard),
- * 3. `confirmProductChangesStep` (mutation),
- * 4. `applyProductChangeActionsWorkflow.runAsStep` — dispatches the
- *    confirmed change's pending actions into stock product workflows
- *    and Module-Link writes (replaces the legacy
- *    `ProductModuleService.applyProductChangeActions_`).
- * 5. `emitEventStep` → `createHook("productChangeConfirmed", …)`.
- */
 export const confirmProductChangeWorkflow: ReturnWorkflow<
   ConfirmProductChangeWorkflowInput,
   void,

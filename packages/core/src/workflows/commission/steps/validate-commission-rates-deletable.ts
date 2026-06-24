@@ -7,9 +7,6 @@ import CommissionModuleService from "../../../modules/commission/service"
 export const validateCommissionRatesDeletableStepId =
   "validate-commission-rates-deletable-step"
 
-/**
- * Rejects deletion of the Global Commission (the `is_default` rate).
- */
 export const validateCommissionRatesDeletableStep = createStep(
   validateCommissionRatesDeletableStepId,
   async (ids: string[], { container }) => {

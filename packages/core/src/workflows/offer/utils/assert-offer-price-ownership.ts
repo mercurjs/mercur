@@ -6,17 +6,6 @@ export type AssertOfferPriceOwnershipInput = {
   owned_price_ids: Iterable<string>
 }
 
-/**
- * Write-isolation guard for the shared-PriceSet model. Throws
- * `MedusaError.Types.NOT_ALLOWED` if any caller-supplied `price.id` does
- * not belong to the offer named by `offer_id` (per the `offer ↔ price`
- * list-link pivot). Returns void on success.
- *
- * The shared `PriceSet` keeps every vendor's offer prices on the same
- * row table, so application-level guards are the access boundary — there
- * is no FK that would refuse a foreign id. Every pricing write workflow
- * MUST call this before dispatching to the pricing module.
- */
 export const assertOfferPriceOwnership = ({
   offer_id,
   price_ids,

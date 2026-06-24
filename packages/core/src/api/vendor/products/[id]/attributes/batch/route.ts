@@ -8,14 +8,6 @@ import { ProductAttributeBatchInput, ProductChangeDTO } from "@mercurjs/types"
 import { productEditUpdateAttributesWorkflow } from "../../../../../../workflows/product-edit/workflows/product-edit-update-attributes"
 import { ensureSellerOwnsProduct } from "../../../helpers"
 
-/**
- * Stages the attribute batch (`add` / `remove` / `update`) as
- * `ATTRIBUTE_*` actions on a fresh `ProductChange` via
- * `productEditUpdateAttributesWorkflow`, mirroring the variant staging
- * route. Auto-confirm applies the batch inline when the
- * `PRODUCT_REQUEST` feature flag is disabled; otherwise the change is
- * left PENDING for admin approval. Returns `202 { product_change }`.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<ProductAttributeBatchInput>,
   res: MedusaResponse<{ product_change: ProductChangeDTO }>,

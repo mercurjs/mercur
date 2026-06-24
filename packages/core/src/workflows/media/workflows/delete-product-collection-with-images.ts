@@ -13,11 +13,6 @@ export type DeleteProductCollectionWithImagesWorkflowInput = {
 export const deleteProductCollectionWithImagesWorkflowId =
   "mercur-delete-product-collection-with-images"
 
-/**
- * Removes a collection's linked images, then deletes the collection. The
- * delete is sequenced after image cleanup (via a data dependency) so no links
- * dangle.
- */
 export const deleteProductCollectionWithImagesWorkflow = createWorkflow(
   deleteProductCollectionWithImagesWorkflowId,
   (input: DeleteProductCollectionWithImagesWorkflowInput) => {
@@ -29,7 +24,6 @@ export const deleteProductCollectionWithImagesWorkflow = createWorkflow(
       },
     })
 
-    // Depend on `cleared` so image removal completes before the collection is gone.
     const deleteInput = transform({ input, cleared }, ({ input }) => ({
       ids: [input.id],
     }))

@@ -137,9 +137,6 @@ export const getLastFulfillmentStatus = (order: OrderDetailDTO) => {
   }
 
   for (const fulfillmentCollection of order.fulfillments) {
-    // Note: The order of the statusMap keys is important as we break
-    // the loop when we have found a match. The match should be prioritized
-    // based on order of precedence of statuses
     for (const key in statusMap) {
       if (fulfillmentCollection[key]) {
         fulfillmentStatus[statusMap[key]] += 1
@@ -152,9 +149,6 @@ export const getLastFulfillmentStatus = (order: OrderDetailDTO) => {
   const totalFulfillmentsExceptCanceled =
     totalFulfillments - fulfillmentStatus[FulfillmentStatus.CANCELED]
 
-  // Whenever there are any unfulfilled items in the order, it should be
-  // considered partially_[STATUS] where status is picked up from the hierarchy
-  // of statuses
   const hasUnfulfilledItems =
     (order.items || [])?.filter(
       (i) =>

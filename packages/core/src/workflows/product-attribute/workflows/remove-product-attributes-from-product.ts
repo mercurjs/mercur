@@ -18,7 +18,6 @@ import { deleteProductAttributesWorkflow } from "./delete-product-attributes"
 
 export type RemoveProductAttributesFromProductWorkflowInput = {
   product_id: string
-  /** Attribute ids to detach from the product. */
   remove: string[]
 } & AdditionalData
 
@@ -52,7 +51,6 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
       ),
     )
 
-    // Currently-linked non-axis values on this product (to dismiss).
     const productQuery = useQueryGraphStep({
       entity: "product",
       filters: { id: input.product_id },
@@ -70,9 +68,8 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
         const optionPairs: { product_option_id: string; product_id: string }[] =
           []
         const scopedAttrIds: string[] = []
-        // Every attribute being removed: dismiss its product↔value pivot links,
-        // axis included. The formatter reads the selected axis subset from the
-        // pivot, so axis links must be cleaned up alongside non-axis ones.
+        // The formatter reads the selected axis subset from the pivot, so axis
+        // links must be cleaned up alongside non-axis ones.
         const dismissAttrIds = new Set<string>()
 
         for (const a of (attributesQuery.data ?? []) as {
@@ -96,7 +93,6 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
               product_id,
             })
           } else if (isScoped) {
-            // exclusive axis or scoped non-axis: delete the attribute entirely.
             scopedAttrIds.push(a.id)
           }
         }

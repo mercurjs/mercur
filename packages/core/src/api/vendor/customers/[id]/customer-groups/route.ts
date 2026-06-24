@@ -22,7 +22,6 @@ export const POST = async (
   const add = req.validatedBody.add ?? []
   const remove = req.validatedBody.remove ?? []
 
-  // Ensure every targeted group is owned by the seller before mutating.
   await validateSellerCustomerGroup(req.scope, sellerId, [...add, ...remove])
 
   await linkCustomerGroupsToCustomerWorkflow(req.scope).run({

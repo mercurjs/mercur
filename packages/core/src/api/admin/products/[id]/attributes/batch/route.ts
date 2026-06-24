@@ -9,10 +9,6 @@ import { createAndLinkProductAttributesToProductWorkflow } from "../../../../../
 import { productAttributeBatchResponseFields } from "../../../../../utils"
 import { AdminBatchProductAttributesType } from "../../../validators"
 
-/**
- * SPEC-014 §G: the single attribute-mutation endpoint for admin. Applies
- * add/remove/update directly via the batch engine.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminBatchProductAttributesType>,
   res: MedusaResponse<HttpTypes.AdminProductResponse>,

@@ -1,7 +1,3 @@
-// Port of admin's `/admin/reservations` route to the vendor surface.
-// Seller scoping is applied in `middlewares.ts` by joining through the
-// `inventory_item_seller` link so a vendor only sees reservations on
-// inventory items they own.
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,

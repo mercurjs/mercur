@@ -13,12 +13,6 @@ import {
   AdminUpdateCollection,
 } from "./validators"
 
-// Mercur replaces the base `/admin/collections` and `/admin/collections/:id`
-// routes (to attach media + icon), but leaves the rest of Medusa's collection
-// routes — `/admin/collections/:id/products` (product linking) and the
-// `/admin/collections/*` sub-resource query validation — intact. Those core
-// middlewares were emptied by `disableMedusaMiddlewares`, so re-spread the
-// captured originals for the matchers we are NOT overriding.
 const OVERRIDDEN_MATCHERS = new Set(["/admin/collections", "/admin/collections/:id"])
 
 const capturedBase = (ORIGINAL_MIDDLEWARES[

@@ -6,11 +6,6 @@ import type ProductChangeModuleService from "../../../modules/product-edit/servi
 export const createProductChangeActionsStepId =
   "pc-create-product-change-actions"
 
-/**
- * Batch sibling of `addProductChangeActionStep`. Persists a full
- * `ProductChangeAction` set in one round-trip — used by the vendor
- * "edit" orchestrators that compute many actions per submission.
- */
 export const createProductChangeActionsStep = createStep(
   createProductChangeActionsStepId,
   async (data: CreateProductChangeActionDTO[], { container }) => {

@@ -23,18 +23,6 @@ export type ProductEditDeleteProductWorkflowInput = {
 export const productEditDeleteProductWorkflowId =
   "product-edit-delete-product"
 
-/**
- * Vendor "delete product" orchestrator. Stages a `PRODUCT_DELETE`
- * action on a fresh `ProductChange` via `stageProductChangeWorkflow`,
- * which dispatches through `autoConfirmProductChangeWorkflow` —
- * either leaves it pending for admin approval (flag on) or applies it
- * inline (flag off).
- *
- * **Drafts skip the queue.** A `draft` product was never submitted for
- * review, so there is nothing for an operator to approve. The staged
- * change is force-confirmed inline (via `auto_confirm`) regardless of
- * the `PRODUCT_REQUEST` flag, so the seller can delete it immediately.
- */
 export const productEditDeleteProductWorkflow: ReturnWorkflow<
   ProductEditDeleteProductWorkflowInput,
   ProductChangeDTO,

@@ -12,31 +12,6 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { confirmExchangeRequestWorkflow as baseConfirmExchangeRequestWorkflow } from "@medusajs/medusa/core-flows"
 
-/**
- * Mercur wrapper around Medusa's `confirmExchangeRequestWorkflow`.
- *
- * Background. In Mercur, inventory ownership lives on the **offer**, not on
- * the variant. The `offer ↔ inventory_item` join carries a
- * `required_quantity` column (default `1`) that lets a single offer sale
- * consume N units of a linked inventory item (think bundles / multi-SKU
- * kits). Medusa's `confirmExchangeRequestWorkflow` calls `reserveInventoryStep`
- * keyed by the variant's inventory item with `quantity × 1`, so any outbound
- * exchange item whose offer has `required_quantity > 1` is under-reserved,
- * and a bundle offer (`inventory_item_link.length > 1`) only reserves the
- * variant's primary inventory item.
- *
- * This wrapper runs Medusa's confirm workflow as a step (so all of Medusa's
- * logic — return creation, change confirmation, payment-collection sync,
- * exchange shipping fulfilment, the `order.exchange_created` event — runs
- * unchanged), then walks the reservations Medusa just created and either:
- *  - Updates the single existing reservation's quantity (single-link case
- *    with `required_quantity > 1`), or
- *  - Deletes Medusa's variant-keyed reservation set and creates one new
- *    reservation per `inventory_item_link` row (bundle case).
- *
- * Called from `packages/core/src/api/vendor/exchanges/[id]/request/route.ts`.
- */
-
 type OfferLinkRow = {
   required_quantity?: number | null
   inventory_item_id?: string | null
@@ -166,8 +141,6 @@ const adjustExchangeReservationsForOffersStep = createStep(
         continue
       }
 
-      // Bundle case (links.length > 1): delete Medusa's variant-keyed
-      // reservation(s) and create one per offer inventory_item_link.
       const existingReservations =
         await inventoryService.listReservationItems({
           line_item_id: lineItemId,
@@ -184,7 +157,6 @@ const adjustExchangeReservationsForOffersStep = createStep(
         continue
       }
 
-      // Stash existing reservations for compensation (re-create on rollback).
       for (const r of existingReservations) {
         compensation.push({
           type: "create",
@@ -211,7 +183,6 @@ const adjustExchangeReservationsForOffersStep = createStep(
       const created = await inventoryService.createReservationItems(
         newReservations
       )
-      // Stash created ids for compensation (delete on rollback).
       for (const r of created) {
         compensation.push({ type: "delete", id: r.id })
       }

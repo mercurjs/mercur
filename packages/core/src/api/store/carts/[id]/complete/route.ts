@@ -19,9 +19,6 @@ export const POST = async (
 
     const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-    // When an error occurs on the workflow, it's potentially to do with cart validations, payments
-    // or inventory checks. Return the cart here along with errors for the consumer to take more action
-    // and fix them
     if (errors?.[0]) {
         const error = errors[0].error
         const statusOKErrors: string[] = [

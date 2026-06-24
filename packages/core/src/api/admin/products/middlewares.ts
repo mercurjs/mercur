@@ -171,9 +171,6 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
     ],
   },
 
-  // POST endpoints return the parent product, so they use the product
-  // retrieve query config. GET list returns product attributes, so it
-  // uses the attribute list config.
   {
     method: ["POST"],
     matcher: "/admin/products/:id/attributes/batch",
@@ -185,9 +182,4 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
-  // NOTE: SPEC-014 — the only product-attribute mutation surface is
-  // `/:id/attributes/batch`. The non-batch GET/POST `/:id/attributes` and the
-  // per-attribute `/:id/attributes/:attribute_id` routes were removed; product
-  // attributes are read from the product response (native options +
-  // attribute_values + scoped_attributes).
 ]

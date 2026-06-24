@@ -29,11 +29,6 @@ const pickPrev = (
   internal_note: (a.internal_note as string | null) ?? null,
 })
 
-/**
- * Pattern-match
- * `medusa/packages/core/core-flows/src/order/steps/update-order-change-actions.ts:21-60`:
- * list-before, update, revert updates with before-state.
- */
 export const updateProductChangeActionsStep = createStep(
   updateProductChangeActionsStepId,
   async (input: UpdateProductChangeActionsStepInput, { container }) => {

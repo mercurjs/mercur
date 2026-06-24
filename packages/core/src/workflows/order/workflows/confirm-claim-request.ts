@@ -12,17 +12,6 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { confirmClaimRequestWorkflow as baseConfirmClaimRequestWorkflow } from "@medusajs/medusa/core-flows"
 
-/**
- * Mercur wrapper around Medusa's `confirmClaimRequestWorkflow`. Mirror of
- * `mercur-confirm-exchange-request` — see that file's header for the offer
- * inventory model + scope decisions. Handles both the single-link
- * `required_quantity > 1` case (update reservation qty) and the bundle case
- * (`inventory_item_link.length > 1` — delete Medusa's variant-keyed
- * reservation, create one per offer link).
- *
- * Called from `packages/core/src/api/vendor/claims/[id]/request/route.ts`.
- */
-
 type OfferLinkRow = {
   required_quantity?: number | null
   inventory_item_id?: string | null
@@ -152,8 +141,6 @@ const adjustClaimReservationsForOffersStep = createStep(
         continue
       }
 
-      // Bundle case (links.length > 1): delete Medusa's variant-keyed
-      // reservation(s) and create one per offer inventory_item_link.
       const existingReservations =
         await inventoryService.listReservationItems({
           line_item_id: lineItemId,

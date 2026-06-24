@@ -15,9 +15,6 @@ export const POST = async (
 ) => {
   const { id } = req.params
 
-  // Mercur wrapper: runs Medusa's `confirmClaimRequestWorkflow` then adjusts
-  // outbound reservations through `offer.inventory_item_link[]
-  // .required_quantity` so bundle-style offers don't under-reserve.
   const { result } = await confirmClaimRequestWorkflow(req.scope).run({
     input: {
       claim_id: id,

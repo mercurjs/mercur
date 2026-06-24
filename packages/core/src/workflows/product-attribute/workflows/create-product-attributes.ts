@@ -61,9 +61,6 @@ export const createProductAttributesWorkflow: ReturnWorkflow<
   function (input: CreateProductAttributesWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    // Variant-axis multi-select attributes mirror a native, shared (global)
-    // ProductOption. Create those options first so the attribute rows can
-    // store the resulting `product_option_id` inline.
     const optionsPlan = transform({ input }, ({ input }) => {
       const optionsToCreate: ProductTypes.CreateProductOptionDTO[] = []
       const attrIdxToOptionIdx: Record<number, number> = {}
@@ -97,10 +94,6 @@ export const createProductAttributesWorkflow: ReturnWorkflow<
 
     const attributes = createProductAttributesStep(attributesToCreate)
 
-    // Create the attribute values. For variant-axis multi-select attributes the
-    // shared option was created above with the same value names, so mirror each
-    // value onto its `product_option_value_id` (same logic as the standalone
-    // create-product-attribute-values workflow).
     const valueInputs = transform(
       { input, attributes, optionsPlan, sharedOptions },
       ({ input, attributes, optionsPlan, sharedOptions }) => {

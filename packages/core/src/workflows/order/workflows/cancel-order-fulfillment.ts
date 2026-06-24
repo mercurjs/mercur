@@ -54,7 +54,6 @@ type LineItemOfferRow = {
   } | null
 }
 
-// Plain-object map keyed by line_item_id → inventory_item_id → link.
 // Map values do not survive the workflow runtime's JSON serialization
 // between transform steps.
 function buildOfferInventoryByLineItem(

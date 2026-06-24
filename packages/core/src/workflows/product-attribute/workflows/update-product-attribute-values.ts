@@ -62,9 +62,6 @@ export const updateProductAttributeValuesWorkflow: ReturnWorkflow<
       update: input.update,
     })
 
-    // Re-read the owning attribute(s) so we can re-sync the mirrored shared
-    // ProductOption's value set after a rename. Only variant-axis multi-select
-    // attributes mirror an option.
     const attributeFilter = transform({ values }, ({ values }) => ({
       ids: Array.from(new Set(values.map((v) => v.attribute_id))),
     }))
@@ -95,8 +92,6 @@ export const updateProductAttributeValuesWorkflow: ReturnWorkflow<
             !!a.is_variant_axis &&
             !!a.product_option_id,
         )
-        // The update applies one set of changes; sync only when a single
-        // mirrored option is involved.
         const target = mirrored.length === 1 ? mirrored[0] : undefined
         return {
           should: !!target,

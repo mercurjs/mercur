@@ -7,12 +7,6 @@ import {
 
 import { VendorPostOrderEditsUpdateItemQuantityReqType } from "../../../../validators"
 
-/**
- * `POST /vendor/order-edits/:id/items/item/:item_id` — mirrors
- * `POST /admin/order-edits/:id/items/item/:item_id`. Updates the
- * quantity (and optional price overrides) on an existing line item
- * inside the order-edit draft.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorPostOrderEditsUpdateItemQuantityReqType>,
   res: MedusaResponse<HttpTypes.AdminOrderEditPreviewResponse>

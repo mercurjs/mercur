@@ -13,10 +13,6 @@ type UpsertCommissionLinesStepInput = {
 
 export const upsertCommissionLinesStepId = "upsert-commission-lines"
 
-/**
- * Idempotent refresh: `upsertCommissionLines` replaces lines keyed on their
- * item/shipping anchor, so re-running never accumulates duplicates.
- */
 export const upsertCommissionLinesStep = createStep(
   upsertCommissionLinesStepId,
   async (

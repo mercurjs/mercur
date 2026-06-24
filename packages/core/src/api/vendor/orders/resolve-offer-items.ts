@@ -4,24 +4,6 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
-/**
- * Shared resolver used by the "add items to order" routes (order-edits,
- * exchange outbound, claim outbound) on both vendor and admin so an
- * `offer_id` choice flows through to the underlying Medusa workflows as a
- * concrete `variant_id + unit_price + shipping_profile_id`, and so the
- * resulting line item can later be linked back to the originating offer via
- * the `offer_id` metadata key.
- *
- * The `order_line_item ↔ offer` link itself is created by the
- * `link-order-line-items-to-offers` subscriber once the edit / exchange /
- * claim is confirmed (the new line item only gets a real id at confirm
- * time).
- *
- * When `sellerId` is provided (vendor surface) the offer must belong to
- * that seller. When omitted (admin surface — admin can act on any seller's
- * order), seller ownership is not enforced here; admin routes derive and
- * validate the seller separately from the order's `order_seller` link.
- */
 export type AddItemInput = {
   variant_id?: string
   offer_id?: string

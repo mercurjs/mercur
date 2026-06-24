@@ -46,14 +46,6 @@ const isAxis = (attr?: ProductAttributeDTO) =>
   !!attr?.is_variant_axis &&
   !!attr?.product_option_id
 
-/**
- * Mutates a product's attribute selections:
- * - shared axis  → adjust the per-product option value subset.
- * - exclusive axis (single target) → mutate the exclusive option's own values
- *   via the catalog value workflows (which keep the option mirror in sync).
- * - text/unit → create the new value + swap the product link.
- * - toggle → swap the linked true/false value.
- */
 export const updateProductAttributesOnProductWorkflow = createWorkflow(
   updateProductAttributesOnProductWorkflowId,
   function (input: UpdateProductAttributesOnProductWorkflowInput) {
@@ -76,7 +68,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       ],
     }).config({ name: "upd-pa-attributes" })
 
-    // Currently-linked non-axis values (for text/unit/toggle swap dismissal).
     const productQuery = useQueryGraphStep({
       entity: "product",
       filters: { id: input.product_id },
@@ -87,10 +78,9 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       options: { isList: false },
     }).config({ name: "upd-pa-product" })
 
-    // 1. Shared-axis: adjust the per-product option value subset, and keep the
-    //    product_attribute_value_link pivot in sync (the formatter reads the
-    //    selected axis subset from the pivot — native options populate is broken
-    //    on 2.16). Added value_ids → create pivot links; removed → dismiss.
+    // The formatter reads the selected axis subset from the pivot (native
+    // options populate is broken on 2.16), so the product_attribute_value_link
+    // pivot must be kept in sync with the option value subset.
     const subsetPlan = transform(
       { input, attributesQuery },
       ({ input, attributesQuery }) => {
@@ -218,10 +208,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
             attr.type === AttributeType.TEXT ||
             attr.type === AttributeType.UNIT
           ) {
-            // Free-form text/unit values are owned 1:1 by this product. If the
-            // product already has a linked value, rename it in place instead of
-            // creating a new row (which would orphan the old value). Only the
-            // first time it's set (no linked value yet) do we create + link.
             const linkedValueIds = linkedByAttr.get(ref.id) ?? []
             if (linkedValueIds.length > 0) {
               for (const vid of linkedValueIds) {
@@ -266,7 +252,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       swapPlan.newValueRows,
     )
 
-    // Rename existing text/unit values in place (no new row, link stays).
     when(
       { swapPlan },
       ({ swapPlan }) => swapPlan.updateValueRows.length > 0,
@@ -303,9 +288,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       createRemoteLinkStep(swapLinks).config({ name: "upd-pa-value-links" }),
     )
 
-    // 3. Exclusive axis (single target): mutate the option's own values via the
-    //    catalog value workflows (which keep the mirror in sync). Restricted to a
-    //    single mirrored option, matching the value-workflow precedent.
     const exclusivePlan = transform(
       { input, attributesQuery },
       ({ input, attributesQuery }) => {
@@ -335,16 +317,12 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
         const addValues = (target.add ?? [])
           .filter((a): a is { value: string } => typeof a !== "string")
           .map((a) => ({ name: a.value }))
-        // `target.remove` carries attribute value ids (same shape as the
-        // shared-axis branch above). Pass them straight through, validated to
-        // belong to the target attribute, into the delete value workflow.
         const valueById = new Map((attr.values ?? []).map((v) => [v.id, v]))
         const removeIds = (target.remove ?? []).filter((id) =>
           valueById.has(id),
         )
-        // The mirrored option values to detach from the product first, so the
-        // option re-sync inside the delete workflow can drop them (Medusa won't
-        // delete option values still associated with a product).
+        // Medusa won't delete option values still associated with a product, so
+        // these mirrored option values must be detached first.
         const removeOptvalIds = removeIds
           .map((id) => valueById.get(id)?.product_option_value_id)
           .filter((id): id is string => !!id)
@@ -360,10 +338,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       },
     )
 
-    // Detach the per-product option-value association first, then delete the
-    // attribute values (whose workflow re-syncs the mirrored option, now that
-    // the values are no longer associated with the product). The delete input
-    // is derived from the detach result so the two run in order.
     const detached = when(
       { exclusivePlan },
       ({ exclusivePlan }) => exclusivePlan.shouldRemove,
@@ -389,9 +363,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       }),
     )
 
-    // Dismiss the product↔value pivot links for the removed exclusive values.
-    // Deleting the value does not cascade the Mercur pivot link, so the
-    // formatter would otherwise surface a dangling (null) selected value.
     const exclusiveDismissLinks = transform(
       { input, exclusivePlan },
       ({ input, exclusivePlan }) =>
@@ -424,10 +395,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       }),
     )
 
-    // Link newly added exclusive-axis values to the product. Every value of an
-    // exclusive (product-scoped) option is selected, so the pivot must carry
-    // them for the formatter. Removed exclusive values have their pivot link
-    // dismissed above.
     const exclusiveAddLinks = transform(
       { input, createdExclusiveValues },
       ({ input, createdExclusiveValues }) =>
@@ -448,12 +415,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       }),
     )
 
-    // 4. Rename: only product-scoped (inline) attributes may be renamed here —
-    //    a shared/global catalog attribute is not owned by this product. The
-    //    catalog `updateProductAttributesWorkflow` also propagates the new name
-    //    to the mirror `ProductOption` title for axis attributes. Restricted to
-    //    a single target (the edit form renames one attribute at a time), so
-    //    distinct names never collide on a single selector update.
     const renamePlan = transform(
       { input, attributesQuery },
       ({ input, attributesQuery }) => {

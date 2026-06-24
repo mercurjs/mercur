@@ -12,12 +12,6 @@ import {
 import { resolveOfferItems } from "../../../../orders/resolve-offer-items"
 import { VendorPostExchangesAddItemsReqType } from "../../../validators"
 
-/**
- * `POST /vendor/exchanges/:id/outbound/items` — adds replacement items to the
- * exchange's outbound side. Mercur extension: accepts `{ offer_id, quantity }`
- * and resolves to `variant_id + unit_price`; offer id stashed in metadata for
- * the confirm subscriber to link.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorPostExchangesAddItemsReqType>,
   res: MedusaResponse<{

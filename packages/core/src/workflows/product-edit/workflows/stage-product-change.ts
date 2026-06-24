@@ -19,45 +19,17 @@ import { autoConfirmProductChangeWorkflow } from "./auto-confirm-product-change"
 
 export type StageProductChangeWorkflowInput = {
   product_id: string
-  /**
-   * Seller / system that created the staged change. Persisted on
-   * `ProductChange.created_by` and forwarded as `confirmed_by` when
-   * `autoConfirmProductChangeWorkflow` inline-applies the change
-   * (PRODUCT_REQUEST=false).
-   */
   created_by?: string
-  /**
-   * Actions to attach. `product_change_id` is stamped inside the
-   * workflow; pass `applied: false` (or omit — the dispatcher sets it
-   * to `true` after it runs).
-   */
   actions: Array<
     Omit<CreateProductChangeActionDTO, "product_change_id">
   >
   internal_note?: string
   external_note?: string
-  /**
-   * Force inline confirmation regardless of the `PRODUCT_REQUEST`
-   * feature flag. Forwarded to `autoConfirmProductChangeWorkflow`.
-   * Used by `productEditDeleteProductWorkflow` for `draft` products.
-   */
   auto_confirm?: boolean
 }
 
 export const stageProductChangeWorkflowId = "stage-product-change"
 
-/**
- * Building block for vendor "edit" orchestrators. Creates one
- * `ProductChange { status: PENDING }`, attaches the caller-computed
- * `ProductChangeAction[]`, emits `product-change.created`, and
- * dispatches via `autoConfirmProductChangeWorkflow` (inline-applies
- * when `PRODUCT_REQUEST` is off, leaves pending otherwise).
- *
- * **Validation ordering** — callers must run
- * `validateNoPendingProductChangeStep` themselves BEFORE invoking
- * this workflow, so the pending-change guard fails fast (and before any
- * caller-side side effects) rather than after a change row is created.
- */
 export const stageProductChangeWorkflow = createWorkflow(
   stageProductChangeWorkflowId,
   function (input: StageProductChangeWorkflowInput) {

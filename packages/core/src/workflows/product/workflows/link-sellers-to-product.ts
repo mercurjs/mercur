@@ -7,16 +7,9 @@ import {
 import { associateSellersWithProductStep } from "../steps/associate-sellers-with-product"
 import { detachSellersFromProductStep } from "../steps/detach-sellers-from-product"
 
-/**
- * Manages which sellers are authorized to sell a product
- * (via the `product_seller_authorization` link table).
- */
 export type LinkSellersToProductWorkflowInput = {
-  /** The product id. */
   id: string
-  /** Seller ids to authorize for the product. */
   add?: string[]
-  /** Seller ids to revoke authorization from. */
   remove?: string[]
 }
 

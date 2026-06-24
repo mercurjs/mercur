@@ -30,13 +30,6 @@ export const GET = async (
   })
 }
 
-/**
- * Stages a `VARIANT_ADD` action on a fresh `ProductChange`. Auto-
- * confirm applies it inline when the `PRODUCT_REQUEST` feature flag
- * is disabled (the variant is created in the same request via
- * `createProductVariantsWorkflow` invoked by
- * `applyProductChangeActionsWorkflow`).
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorAddProductVariantType>,
   res: MedusaResponse<{ product_change: ProductChangeDTO }>

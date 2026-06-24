@@ -22,24 +22,12 @@ export type CollectionMediaInput = {
 
 export type SetCollectionImagesWorkflowInput = {
   collection_id: string
-  /** Replace the gallery (type = null) when provided. */
   media?: CollectionMediaInput[]
-  /** Replace the icon (type = "icon") when the key is present; null clears it. */
   icon?: string | null
 }
 
 export const setCollectionImagesWorkflowId = "mercur-set-collection-images"
 
-/**
- * Replaces a collection's media gallery and/or icon, composed from the same
- * small media steps used by categories: read existing → create new `Image`
- * rows → link them → unlink + delete the replaced ones. Each step
- * self-compensates.
- *
- * Invariants (applied in the transform): at most one gallery thumbnail, one
- * gallery banner, one icon per collection. An image may be both thumbnail and
- * banner.
- */
 export const setCollectionImagesWorkflow = createWorkflow(
   setCollectionImagesWorkflowId,
   (input: SetCollectionImagesWorkflowInput) => {

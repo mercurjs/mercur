@@ -5,12 +5,6 @@ import {
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
 
-// Mirrors admin's `AdminGetReservationParams` /
-// `AdminGetReservationsParams` / `AdminCreateReservation` /
-// `AdminUpdateReservation` shapes one-for-one. Vendor scopes through
-// the `inventory_item_seller` link in middlewares — the validator
-// surface is the same.
-
 export type VendorGetReservationParamsType = z.infer<
   typeof VendorGetReservationParams
 >

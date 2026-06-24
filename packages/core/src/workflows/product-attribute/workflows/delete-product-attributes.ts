@@ -50,9 +50,6 @@ export const deleteProductAttributesWorkflow: ReturnWorkflow<
 
     validateProductAttributesNotLinkedStep(input.ids)
 
-    // Capture the mirrored shared (global) ProductOption ids before deleting
-    // the attributes. Variant-axis multi-select attributes own a native option
-    // (via `product_option_id`) that must be torn down alongside the attribute.
     const attributesQuery = useQueryGraphStep({
       entity: "product_attribute",
       filters: { id: input.ids },

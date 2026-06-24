@@ -25,12 +25,6 @@ const applyProductFilters = (
   next()
 }
 
-/**
- * Resolve sellers that are currently OPEN and not within an active
- * closure window, then expose their IDs as `seller_id` so the link
- * filter below can translate it into a product-id constraint via the
- * `product_seller` join entity.
- */
 async function applyVisibleSellerIdsFilter(
   req: MedusaRequest,
   _res: MedusaResponse,

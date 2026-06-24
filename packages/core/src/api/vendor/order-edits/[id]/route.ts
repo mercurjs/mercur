@@ -5,13 +5,6 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 
-/**
- * `DELETE /vendor/order-edits/:id` — mirrors
- * `DELETE /admin/order-edits/:id`
- * (medusa/packages/medusa/src/api/admin/order-edits/[id]/route.ts).
- * Cancels a draft edit. Seller-scope enforced upstream by
- * `assertSellerOwnsOrderInParam`.
- */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminOrderEditDeleteResponse>

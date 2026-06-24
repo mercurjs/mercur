@@ -25,11 +25,7 @@ type UpsertStepInput = (UpsertProductAttributeValueDTO & {
   attribute_id: string
 })[]
 
-/**
- * Upserts attribute values (create rows without `id`, update rows with `id`).
- * Catalog CRUD — the mirror option is kept in sync for value create/delete by
- * the dedicated value workflows; rename-in-place mirror sync is a known gap.
- */
+// Known gap: rename-in-place does not re-sync the mirrored option.
 const upsertProductAttributeValuesStep = createStep(
   upsertProductAttributeValuesStepId,
   async (data: UpsertStepInput, { container }) => {

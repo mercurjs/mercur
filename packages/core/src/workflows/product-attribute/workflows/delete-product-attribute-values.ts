@@ -52,9 +52,6 @@ export const deleteProductAttributeValuesWorkflow: ReturnWorkflow<
   function (input: DeleteProductAttributeValuesWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    // Capture the owning attribute ids before deletion so we can re-sync the
-    // mirrored shared ProductOption's value set afterwards (the deleted values
-    // are gone from the attribute by then).
     const valuesQuery = useQueryGraphStep({
       entity: "product_attribute_value",
       filters: { id: input.ids },
@@ -73,9 +70,6 @@ export const deleteProductAttributeValuesWorkflow: ReturnWorkflow<
       ),
     }))
 
-    // Re-read the owning attribute(s) and re-sync the mirrored shared
-    // ProductOption to whatever values remain. Only variant-axis multi-select
-    // attributes mirror an option.
     const attributeQuery = useQueryGraphStep({
       entity: "product_attribute",
       filters: { id: attributeFilter.ids },
@@ -102,8 +96,6 @@ export const deleteProductAttributeValuesWorkflow: ReturnWorkflow<
             !!a.is_variant_axis &&
             !!a.product_option_id,
         )
-        // A delete batch only re-syncs when a single mirrored option is
-        // involved (the routes delete one value at a time).
         const target = mirrored.length === 1 ? mirrored[0] : undefined
         return {
           should: !!target,

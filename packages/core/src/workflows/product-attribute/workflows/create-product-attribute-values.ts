@@ -57,8 +57,6 @@ export const createProductAttributeValuesWorkflow: ReturnWorkflow<
   function (input: CreateProductAttributeValuesWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    // Resolve the owning attribute to decide whether its values mirror a
-    // native shared ProductOption (variant-axis multi-select only).
     const attributeQuery = useQueryGraphStep({
       entity: "product_attribute",
       filters: { id: input.attribute_id },
@@ -73,8 +71,6 @@ export const createProductAttributeValuesWorkflow: ReturnWorkflow<
       options: { isList: false },
     })
 
-    // Append the new value names to the shared option's value set and read
-    // back the resulting option values (id + value) for mirroring.
     const mirroredOption = when(
       { attributeQuery },
       ({ attributeQuery }) => {

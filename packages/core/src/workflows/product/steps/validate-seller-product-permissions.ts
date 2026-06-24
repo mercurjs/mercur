@@ -21,8 +21,6 @@ export const validateSellerProductPermissionsStep = createStep(
   ) => {
     const query = container.resolve<Query>(ContainerRegistrationKeys.QUERY)
 
-    // Category restriction (blacklist): if a category-seller link exists for
-    // (category_id, seller_id), the seller is BLOCKED from that category.
     if (category_ids && category_ids.length > 0) {
       const uniqueCategoryIds = [...new Set(category_ids)]
 

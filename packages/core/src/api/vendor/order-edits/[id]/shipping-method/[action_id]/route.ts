@@ -10,11 +10,6 @@ import {
 
 import { VendorPostOrderEditsShippingActionReqType } from "../../../validators"
 
-/**
- * `POST /vendor/order-edits/:id/shipping-method/:action_id` — mirrors
- * `POST /admin/order-edits/:id/shipping-method/:action_id`. Updates
- * an existing add-shipping-method action.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorPostOrderEditsShippingActionReqType>,
   res: MedusaResponse<HttpTypes.AdminOrderEditPreviewResponse>
@@ -36,10 +31,6 @@ export const POST = async (
   })
 }
 
-/**
- * `DELETE /vendor/order-edits/:id/shipping-method/:action_id` —
- * removes the shipping-method action from the draft.
- */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminOrderEditPreviewResponse>

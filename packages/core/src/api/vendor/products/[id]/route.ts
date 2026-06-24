@@ -23,10 +23,6 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Strip-then-wrap: the product-shaped offer detail requests
-  // `variants.offers.*`; re-attach the active seller's offers after the
-  // graph read so only the caller's offers surface (see
-  // `wrapProductVariantsWithOffers`).
   const withOffers = req.queryConfig.fields.some((field) =>
     field.includes("variants.offers")
   )
@@ -64,15 +60,6 @@ export const GET = async (
   res.json({ product })
 }
 
-/**
- * Stages a vendor product edit as a pending `ProductChange`. Each
- * changed field becomes a `ProductChangeAction` (`STATUS_CHANGE` for
- * status, `UPDATE { field, value }` otherwise). When the
- * `PRODUCT_REQUEST` feature flag is disabled the staged change is
- * confirmed inline and applied to the underlying product before the
- * response returns. Returns 202 with `{ product_change }` so the
- * vendor UI can show pending state regardless of flag.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorUpdateProductType & AdditionalData>,
   res: MedusaResponse<{ product_change: ProductChangeDTO }>
@@ -101,11 +88,6 @@ export const POST = async (
   res.status(202).json({ product_change: product_change ?? result })
 }
 
-/**
- * Stages a vendor-initiated delete as a `PRODUCT_DELETE` action on a
- * fresh `ProductChange`. Auto-confirm applies it inline when the
- * `PRODUCT_REQUEST` feature flag is disabled.
- */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<{ product_change: ProductChangeDTO }>

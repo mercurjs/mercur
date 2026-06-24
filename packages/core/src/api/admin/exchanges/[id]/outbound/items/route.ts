@@ -23,14 +23,6 @@ type AdminAddItemsBody = {
   }>
 }
 
-/**
- * Mercur override of Medusa's `POST /admin/exchanges/:id/outbound/items`.
- * Mirrors the order-edits items override: keep the strict variant_id
- * payload, smuggle the offer id via `metadata.offer_id`, resolve the
- * offer's price in the order's currency, and let the existing
- * `link-order-line-items-to-offers` subscriber attach the offer link on
- * `order.exchange_created`.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminAddItemsBody>,
   res: MedusaResponse<HttpTypes.AdminExchangePreviewResponse>

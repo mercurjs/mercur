@@ -58,9 +58,6 @@ export const applyRequestFilter = async (
   const filterableFields = req.filterableFields ?? {}
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Scope request lookups to the seller's orders when the caller also filters
-  // by seller — otherwise we scan every open order_change/return/exchange/claim
-  // row in the marketplace before narrowing.
   const sellerId = req.query.seller_id as string | string[] | undefined
   let sellerOrderIds: string[] | undefined
   if (sellerId) {
@@ -136,7 +133,6 @@ export const applyRequestFilter = async (
     return respondEmpty(req, res)
   }
 
-  // Resolve those orders back to their owning order_group via the link table.
   const { data: links } = await query.graph({
     entity: "order_group_order",
     fields: ["order_group_id"],
@@ -168,11 +164,9 @@ export const applyRequestFilter = async (
     filterableFields.id = matchingOrderGroupIds
   }
 
-  // The raw `request` query param landed on `filterableFields` via the
-  // validator; the underlying order_group query doesn't recognise it.
-  // Strip it now that the filter has been turned into an `id` lookup —
-  // otherwise Medusa's QueryGraph silently filters on an unknown field and
-  // returns nothing.
+  // Medusa's QueryGraph silently filters on an unknown field and returns
+  // nothing, so strip the raw `request` param now that the filter has been
+  // turned into an `id` lookup.
   delete filterableFields.request
 
   req.filterableFields = filterableFields

@@ -23,9 +23,6 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Strip-then-wrap: the product-shaped offer detail requests
-  // `variants.offers.*`; re-attach every seller's offers after the graph
-  // read so the admin detail can render per-variant offers + their Store.
   const withOffers = req.queryConfig.fields.some((field) =>
     field.includes("variants.offers")
   )

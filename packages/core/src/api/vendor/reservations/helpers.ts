@@ -4,9 +4,6 @@ import {
   remoteQueryObjectFromString,
 } from "@medusajs/framework/utils"
 
-// Mirrors admin's `refetchReservation` — re-queries the just-created /
-// just-updated reservation by id so the response shape matches what the
-// caller asked for via `fields=`.
 export const refetchReservation = async (
   reservationId: string,
   scope: MedusaContainer,

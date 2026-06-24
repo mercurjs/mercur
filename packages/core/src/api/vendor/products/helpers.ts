@@ -4,12 +4,6 @@ import {
 } from "@medusajs/framework/utils"
 import type { MedusaContainer } from "@medusajs/framework/types"
 
-/**
- * Throws `NOT_FOUND` (rather than `NOT_ALLOWED`) when the seller does
- * not own the product. The product is technically queryable for them
- * if `status = published`, but mutations require ownership; the 404
- * shape avoids leaking the difference.
- */
 export const ensureSellerOwnsProduct = async (
   scope: MedusaContainer,
   sellerId: string,

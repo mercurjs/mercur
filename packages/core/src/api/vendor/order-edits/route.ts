@@ -7,12 +7,6 @@ import {
 
 import { VendorPostOrderEditsReqType } from "./validators"
 
-/**
- * `POST /vendor/order-edits` — mirrors `POST /admin/order-edits`
- * (medusa/packages/medusa/src/api/admin/order-edits/route.ts). Begins
- * a new order edit draft on the seller-owned parent order.
- * Seller-scope is enforced by `assertSellerOwnsOrder` middleware.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorPostOrderEditsReqType>,
   res: MedusaResponse<HttpTypes.AdminOrderEditResponse>

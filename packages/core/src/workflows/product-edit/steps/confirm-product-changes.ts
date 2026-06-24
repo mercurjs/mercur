@@ -32,12 +32,6 @@ const pickPrev = (
   external_note: (c.external_note as string | null) ?? null,
 })
 
-/**
- * Pattern-match `medusa/packages/core/core-flows/src/order/steps/confirm-order-changes.ts:26-62`:
- * capture before-state, transition to CONFIRMED, revert restores the
- * captured fields. Does **not** apply action side-effects — that's the
- * deferred `applyProductChangeActionsWorkflow`'s job.
- */
 export const confirmProductChangesStep = createStep(
   confirmProductChangesStepId,
   async (input: ConfirmProductChangesStepInput, { container }) => {

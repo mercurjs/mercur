@@ -52,12 +52,6 @@ export const createProductsWorkflow: ReturnWorkflow<
       products: input.products,
     })
 
-    // Variant-axis attributes become native options that the engine attaches
-    // AFTER the product exists, and variants bind to those options by name. So
-    // create the products bare (no attributes, no variants), attach attributes,
-    // then create the variants. Resolve which referenced existing attributes are
-    // axes (inline axes are self-describing) so we can decide per-product whether
-    // a placeholder option is needed.
     const referencedAttrIds = transform({ input }, ({ input }) =>
       Array.from(
         new Set(
@@ -79,12 +73,7 @@ export const createProductsWorkflow: ReturnWorkflow<
       filters: { id: referencedAttrIds },
     }).config({ name: "mercur-create-products-axis-attrs" })
 
-    // Stock create hard-requires ≥1 option, so every product is seeded with a
-    // placeholder "Default option". For axis products that placeholder is
-    // dropped again below — once the real axis options are attached it is dead
-    // weight that would inflate every variant's required option set and break
-    // later variant edits (SPEC-014). Non-axis products keep it so their
-    // variants (and the product) still have an option to bind to.
+    // Stock create hard-requires ≥1 option.
     const stockProducts = transform({ input }, ({ input }) =>
       input.products.map((p) => {
         const { attributes: _attributes, variants: _variants, ...rest } = p
@@ -95,8 +84,6 @@ export const createProductsWorkflow: ReturnWorkflow<
       }),
     )
 
-    // Per-product flag: does it carry at least one variant axis? (Inline axes
-    // are self-describing; existing refs are resolved via `referencedAttrs`.)
     const hasAxisByIndex = transform(
       { input, referencedAttrs },
       ({ input, referencedAttrs }) => {
@@ -150,12 +137,6 @@ export const createProductsWorkflow: ReturnWorkflow<
       }),
     )
 
-    // Drop the seeded "Default option" from axis products now that their real
-    // axis options are attached, BEFORE variants are created — so the default
-    // never has a variant bound to it and the product's only options are its
-    // axes. `createdProducts` carries the freshly-created option (the default is
-    // the only option at create time), so its id is read straight off the
-    // result without an extra query.
     const defaultOptionRemovals = transform(
       { hasAxisByIndex, createdProducts },
       ({ hasAxisByIndex, createdProducts }) => {
@@ -185,8 +166,6 @@ export const createProductsWorkflow: ReturnWorkflow<
       ({ defaultOptionRemovals }) => defaultOptionRemovals.length > 0,
     ).then(() => removeProductOptionsFromProductStep(defaultOptionRemovals))
 
-    // Now that options exist on each product, create the variants — their
-    // `options` name-map binds to the freshly attached option values.
     const productVariants = transform(
       { input, createdProducts, hasAxisByIndex },
       ({ input, createdProducts, hasAxisByIndex }) =>
@@ -197,9 +176,6 @@ export const createProductsWorkflow: ReturnWorkflow<
           return (p.variants ?? []).map((v) => ({
             ...v,
             product_id,
-            // Axis products bind variants purely to their axis options. Non-axis
-            // products carry the seeded "Default option", so each variant must
-            // cover it.
             options: hasAxisByIndex[idx]
               ? formOptions(v)
               : { "Default option": "Default value", ...formOptions(v) },
@@ -238,7 +214,6 @@ export const createProductsWorkflow: ReturnWorkflow<
       name: "mercur-create-products-associate-sellers",
     })
 
-    // Audit-trail ProductChange per created product (born CONFIRMED).
     recordProductAuditChangeWorkflow.runAsStep({
       input: transform(
         { createdProducts, input },

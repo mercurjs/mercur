@@ -5,13 +5,6 @@ import {
   MedusaResponse,
 } from "@medusajs/framework/http"
 
-/**
- * `POST /vendor/order-edits/:id/request` — mirrors
- * `POST /admin/order-edits/:id/request`. Flips a draft edit to
- * `requested`. `requested_by` is stamped with the seller's id (the
- * vendor equivalent of admin's `actor_id` — see
- * `packages/core/src/api/vendor/returns/[id]/request/route.ts`).
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminOrderEditPreviewResponse>

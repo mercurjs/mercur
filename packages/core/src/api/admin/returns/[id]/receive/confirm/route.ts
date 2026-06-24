@@ -7,12 +7,6 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import { confirmReturnReceiveWorkflow } from "../../../../../../workflows/order/workflows/confirm-return-receive"
 
-/**
- * Mercur override of Medusa's `POST /admin/returns/:id/receive/confirm`.
- * Calls Mercur's `confirmReturnReceiveWorkflow` so the offer-aware
- * `inventory_item_link.required_quantity` restock math fires for bundle
- * offers. The response shape is unchanged so admin UI continues working.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminReturnPreviewResponse>

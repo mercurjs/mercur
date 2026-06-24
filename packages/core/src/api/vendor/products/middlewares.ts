@@ -29,13 +29,6 @@ import {
   VendorUpdateProductVariant,
 } from "./validators"
 
-/**
- * Vendors see the union of the master catalog (any product with
- * `status = published`) and their own products in any state. Other
- * vendors' non-published products (draft / proposed / requires_action
- * / rejected) stay hidden so unreleased proposals from a competing
- * seller never leak into this list.
- */
 const applySellerProductLinkFilter = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,
@@ -176,9 +169,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [],
   },
 
-  // SPEC-014: non-batch GET/POST `/:id/attributes` removed — attributes are
-  // read from the product response; mutations go through `.../attributes/batch`.
-
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/attributes/batch",
@@ -190,7 +180,4 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
-
-  // NOTE: SPEC-014 removed `/:id/attributes/:attribute_id` — the batch endpoint
-  // (`/:id/attributes/batch`) is the single attribute-mutation surface.
 ]
