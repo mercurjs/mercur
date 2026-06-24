@@ -15059,6 +15059,34 @@
             "disabled"
           ],
           "additionalProperties": false
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "titleRequired": {
+              "type": "string"
+            },
+            "value": {
+              "type": "string"
+            },
+            "storesRequired": {
+              "type": "string"
+            },
+            "productTypesRequired": {
+              "type": "string"
+            },
+            "categoriesRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "titleRequired",
+            "value",
+            "storesRequired",
+            "productTypesRequired",
+            "categoriesRequired"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -15069,7 +15097,8 @@
         "fields",
         "global",
         "rules",
-        "status"
+        "status",
+        "validation"
       ],
       "additionalProperties": false
     },

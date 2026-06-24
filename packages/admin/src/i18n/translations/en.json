@@ -3939,6 +3939,13 @@
     "status": {
       "enabled": "Active",
       "disabled": "Inactive"
+    },
+    "validation": {
+      "titleRequired": "Please enter a title",
+      "value": "Please enter a value",
+      "storesRequired": "Please select at least one store",
+      "productTypesRequired": "Please select at least one product type",
+      "categoriesRequired": "Please select at least one category"
     }
   },
   "commissionRates": {
