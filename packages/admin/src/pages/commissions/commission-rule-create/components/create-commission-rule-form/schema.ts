@@ -5,6 +5,7 @@ import { SCOPE_TYPE_DIMENSIONS } from "../../../common/types";
 export const CreateCommissionRuleSchema = zod
   .object({
     title: zod.string().min(1, "Please enter a title"),
+    code: zod.string().optional(),
     scopeType: zod.enum([
       "store",
       "product_type",
