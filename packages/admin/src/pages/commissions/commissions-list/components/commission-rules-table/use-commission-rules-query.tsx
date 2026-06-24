@@ -16,10 +16,10 @@ export const useCommissionRulesQuery = ({
   pageSize = 20,
 }: UseCommissionRulesQueryProps = {}) => {
   const queryObject = useQueryParams(
-    ["offset", "q", "order", "is_enabled", "type"],
+    ["offset", "q", "order", "is_enabled", "scope_type"],
     prefix
   );
-  const { offset, q, order, is_enabled, type } = queryObject;
+  const { offset, q, order, is_enabled, scope_type } = queryObject;
 
   const searchParams = {
     limit: pageSize,
@@ -27,7 +27,7 @@ export const useCommissionRulesQuery = ({
     order: order || undefined,
     q: q || undefined,
     is_enabled: is_enabled ? is_enabled === "true" : undefined,
-    type: type ? type.split(",") : undefined,
+    scope_type: scope_type ? scope_type.split(",") : undefined,
   };
 
   return { searchParams, raw: queryObject };

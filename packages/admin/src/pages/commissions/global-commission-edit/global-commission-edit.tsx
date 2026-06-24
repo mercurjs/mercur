@@ -1,14 +1,15 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Heading, Input, Select, toast } from "@medusajs/ui";
+import { Button, Heading, Input, toast } from "@medusajs/ui";
+import i18n from "i18next";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 
 import { Form } from "../../../components/common/form";
 import { SwitchBox } from "../../../components/common/switch-box";
+import { Combobox } from "../../../components/inputs/combobox";
 import { RouteDrawer, useRouteModal } from "../../../components/modals";
 import { KeyboundForm } from "../../../components/utilities/keybound-form";
-import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import {
   useDefaultCommission,
   useUpdateCommissionRule,
@@ -18,20 +19,39 @@ import { useStoreCurrencies } from "../common/hooks/use-store-currencies";
 import { CommissionRate } from "../common/types";
 import { buildValuesPayload, fixedValuesFromRate } from "../common/utils";
 
-const EditGlobalCommissionSchema = zod.object({
-  code: zod.string().min(1),
-  type: zod.enum(["percentage", "fixed"]),
-  value: zod.coerce.number().min(0),
-  fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
-  include_tax: zod.boolean(),
-  include_shipping: zod.boolean(),
-});
+const EditGlobalCommissionSchema = zod
+  .object({
+    code: zod
+      .string()
+      .min(1, { message: i18n.t("commissions.validation.codeRequired") }),
+    type: zod.enum(["percentage", "fixed"]),
+    value: zod.coerce.number().optional(),
+    fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
+    include_tax: zod.boolean(),
+    include_shipping: zod.boolean(),
+  })
+  .superRefine((data, ctx) => {
+    if (
+      data.type === "percentage" &&
+      (data.value === undefined || Number.isNaN(data.value))
+    ) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        path: ["value"],
+        message: i18n.t("commissions.validation.valueRequired"),
+      });
+    }
+  });
 
 const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
-  const direction = useDocumentDirection();
   const { currencies } = useStoreCurrencies();
+
+  const typeOptions = [
+    { value: "percentage", label: t("commissions.fields.type.percentage") },
+    { value: "fixed", label: t("commissions.fields.type.fixed") },
+  ];
 
   const form = useForm<zod.infer<typeof EditGlobalCommissionSchema>>({
     defaultValues: {
@@ -64,7 +84,7 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
       onSuccess: () => {
         toast.success(
           t("commissions.global.edit.successToast", {
-            defaultValue: "Global commission updated",
+            defaultValue: "Global commission was successfully updated.",
           })
         );
         handleSuccess();
@@ -85,9 +105,13 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t("commissions.fields.code", "Code")}</Form.Label>
+                  <Form.Label>{t("commissions.fields.code")}</Form.Label>
                   <Form.Control>
-                    <Input autoComplete="off" {...field} />
+                    <Input
+                      autoComplete="off"
+                      data-testid="global-commission-code-input"
+                      {...field}
+                    />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -96,29 +120,18 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
             <Form.Field
               control={form.control}
               name="type"
-              render={({ field: { onChange, ref, ...field } }) => (
+              render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t("commissions.fields.type.label", "Type")}
+                    {t("commissions.fields.type.label")}
                   </Form.Label>
                   <Form.Control>
-                    <Select
+                    <Combobox
                       {...field}
-                      onValueChange={onChange}
-                      dir={direction}
-                    >
-                      <Select.Trigger ref={ref}>
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="percentage">
-                          {t("commissions.fields.type.percentage", "Percentage")}
-                        </Select.Item>
-                        <Select.Item value="fixed">
-                          {t("commissions.fields.type.fixed", "Fixed")}
-                        </Select.Item>
-                      </Select.Content>
-                    </Select>
+                      options={typeOptions}
+                      forceHideInput
+                      data-testid="global-commission-type-select"
+                    />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -132,23 +145,14 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
             <SwitchBox
               control={form.control}
               name="include_tax"
-              label={t("commissions.fields.taxIncluded", "Tax included")}
-              description={t(
-                "commissions.fields.taxIncludedHint",
-                "If checked, commission is calculated on the total including tax. If unchecked, tax is excluded and goes entirely to the store."
-              )}
+              label={t("commissions.fields.taxIncluded")}
+              description={t("commissions.fields.taxIncludedHint")}
             />
             <SwitchBox
               control={form.control}
               name="include_shipping"
-              label={t(
-                "commissions.fields.shippingIncluded",
-                "Shipping included"
-              )}
-              description={t(
-                "commissions.fields.shippingIncludedHint",
-                "If checked, commission is calculated on the total including shipping. If unchecked, shipping fees go entirely to the store."
-              )}
+              label={t("commissions.fields.shippingIncluded")}
+              description={t("commissions.fields.shippingIncludedHint")}
             />
           </div>
         </RouteDrawer.Body>
@@ -186,11 +190,11 @@ export const GlobalCommissionEdit = () => {
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>
-            {t("commissions.global.edit.header", "Edit Global Commission")}
+            {t("commissions.global.edit.header")}
           </Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
-          {t("commissions.global.edit.header", "Edit Global Commission")}
+          {t("commissions.global.edit.header")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
       {ready && <EditGlobalCommissionForm rate={rate} />}

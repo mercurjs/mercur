@@ -7,7 +7,6 @@ import {
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import {
   CommissionRateType,
-  CommissionRateTarget,
   MercurModules,
 } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
@@ -30,7 +29,6 @@ medusaIntegrationTestRunner({
       let product: any
       let offer: any
       let shippingOption: any
-      let payoutAccount: any
 
       beforeAll(async () => {
         appContainer = getContainer()
@@ -48,14 +46,13 @@ medusaIntegrationTestRunner({
         sellerHeaders = sellerResult.headers
 
         // Create payout account for seller
-        const payoutAccountResult = await createPayoutAccountWorkflow(appContainer).run({
+        await createPayoutAccountWorkflow(appContainer).run({
           input: {
             seller_id: seller.id,
             data: {},
             context: {},
           },
         })
-        payoutAccount = payoutAccountResult.result
 
         const apiKey = await generatePublishableKey(appContainer)
         storeHeaders = generateStoreHeaders({ publishableKey: apiKey })
@@ -162,15 +159,14 @@ medusaIntegrationTestRunner({
           )
         ).data.offer
 
-        // Create 10% marketplace commission
-        await commissionService.createCommissionRates({
-          name: "Marketplace Commission",
-          code: "MARKETPLACE_10",
+        const [defaultRate] = await commissionService.listCommissionRates({
+          is_default: true,
+        })
+        await commissionService.updateCommissionRates({
+          id: defaultRate.id,
           type: CommissionRateType.PERCENTAGE,
-          target: CommissionRateTarget.ITEM,
           value: 10,
           is_enabled: true,
-          priority: 0,
         })
       })
 
@@ -323,15 +319,35 @@ medusaIntegrationTestRunner({
         const getOrderFromGroup = async (orderGroupId: string) => {
           const { data: [orderGroup] } = await query.graph({
             entity: "order_group",
-            fields: [
-              "id",
-              "orders.*",
-              "orders.items.*",
-              "orders.items.commission_lines.*",
-            ],
+            fields: ["id", "orders.*", "orders.items.*"],
             filters: { id: orderGroupId },
           })
-          return orderGroup.orders[0]
+          const order = orderGroup.orders[0]
+
+          const itemIds = (order.items ?? [])
+            .map((item: any) => item.id)
+            .filter(Boolean)
+          if (itemIds.length) {
+            const { data: commissionLines } = await query.graph({
+              entity: "commission_line",
+              fields: [
+                "id",
+                "item_id",
+                "shipping_method_id",
+                "code",
+                "rate",
+                "amount",
+              ],
+              filters: { item_id: itemIds },
+            })
+            for (const item of order.items) {
+              item.commission_lines = commissionLines.filter(
+                (line: any) => line.item_id === item.id
+              )
+            }
+          }
+
+          return order
         }
 
         const placeOrder = async (quantity: number) => {

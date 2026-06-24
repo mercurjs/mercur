@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, toast } from "@medusajs/ui";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -15,9 +15,7 @@ import { CreateOfferStockLevelsAndPricesTab } from "./create-offer-stock-levels-
 import {
   CreateOfferFormValues,
   CreateOfferSchema,
-  isVariantRowPublishable,
   OfferVariantRow,
-  variantRowRequiresSku,
 } from "./schema";
 
 const DEFAULTS: CreateOfferFormValues = {
@@ -140,7 +138,11 @@ export const CreateOfferForm = () => {
         });
       }
     }
-    form.setValue("variants", next, { shouldDirty: false });
+
+    const prev = form.getValues("variants") ?? [];
+    if (JSON.stringify(prev) !== JSON.stringify(next)) {
+      form.setValue("variants", next, { shouldDirty: false });
+    }
   }, [
     selectedProductIdsKey,
     fetchedProducts,
@@ -152,10 +154,7 @@ export const CreateOfferForm = () => {
   const handleSubmit = form.handleSubmit(async (values) => {
     const variants = values.variants ?? [];
 
-    const publishable = variants.filter((v) => isVariantRowPublishable(v));
-
-    if (publishable.length === 0) {
-      toast.error(t("offers.validation.noPublishableRows"));
+    if (variants.length === 0) {
       return;
     }
 
@@ -163,30 +162,24 @@ export const CreateOfferForm = () => {
     const skuSeen = new Map<string, number>();
     for (let i = 0; i < variants.length; i++) {
       const row = variants[i];
-      if (!isVariantRowPublishable(row)) continue;
 
       const sku = (row.sku ?? "").trim();
-      if (variantRowRequiresSku(row) && !sku) {
+      if (!sku) {
         form.setError(`variants.${i}.sku`, {
           type: "manual",
           message: t("offers.validation.skuRequired"),
         });
         hasValidationError = true;
-      } else if (sku) {
-        if (skuSeen.has(sku)) {
-          form.setError(`variants.${i}.sku`, {
-            type: "manual",
-            message: t("offers.validation.duplicateSku"),
-          });
-          hasValidationError = true;
-        } else {
-          skuSeen.set(sku, i);
-        }
+      } else if (skuSeen.has(sku)) {
+        form.setError(`variants.${i}.sku`, {
+          type: "manual",
+          message: t("offers.validation.duplicateSku"),
+        });
+        hasValidationError = true;
+      } else {
+        skuSeen.set(sku, i);
       }
 
-      // Every publishable row needs a shipping profile; validate it
-      // independently of the SKU checks so a row missing both surfaces
-      // both errors instead of hiding the shipping requirement.
       if (!row.shipping_profile_id) {
         form.setError(`variants.${i}.shipping_profile_id`, {
           type: "manual",
@@ -200,15 +193,14 @@ export const CreateOfferForm = () => {
 
     setIsSubmitting(true);
 
-    const publishableRows: { row: OfferVariantRow; index: number; sku: string }[] = [];
-    for (let i = 0; i < variants.length; i++) {
-      const row = variants[i];
-      if (!isVariantRowPublishable(row)) continue;
-      const sku = (row.sku ?? "").trim() || row.variant_sku || row.variant_id;
-      publishableRows.push({ row, index: i, sku });
-    }
+    const rows: { row: OfferVariantRow; index: number; sku: string }[] =
+      variants.map((row, index) => ({
+        row,
+        index,
+        sku: (row.sku ?? "").trim(),
+      }));
 
-    const payloadOffers = publishableRows.map(({ row, sku }) => {
+    const payloadOffers = rows.map(({ row, sku }) => {
       const prices: { amount: number; currency_code: string }[] = [];
       if (currency_code) {
         prices.push({
@@ -248,7 +240,7 @@ export const CreateOfferForm = () => {
       handleSuccess("/offers");
     } catch (err) {
       const message = err instanceof Error ? err.message : "Unknown error";
-      const attributed = attachErrorToRow(message, publishableRows, form);
+      const attributed = attachErrorToRow(message, rows, form);
       if (!attributed) {
         toast.error(message);
       }
@@ -256,6 +248,14 @@ export const CreateOfferForm = () => {
       setIsSubmitting(false);
     }
   });
+
+  const tabs = useMemo(
+    () => [
+      <CreateOfferCatalogueTab key="catalogue" />,
+      <CreateOfferStockLevelsAndPricesTab key="stockLevelsAndPrices" />,
+    ],
+    [],
+  );
 
   return (
     <TabbedForm
@@ -295,8 +295,7 @@ export const CreateOfferForm = () => {
         </div>
       )}
     >
-      <CreateOfferCatalogueTab />
-      <CreateOfferStockLevelsAndPricesTab />
+      {tabs}
     </TabbedForm>
   );
 };

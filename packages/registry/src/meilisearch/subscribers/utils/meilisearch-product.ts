@@ -84,21 +84,25 @@ export async function findAndTransformMeilisearchProducts(
       'options.*',
       'options.values.*',
       'images.*',
-      'seller.id',
-      'seller.handle',
-      'seller.name',
-      'seller.status',
+      'sellers.id',
+      'sellers.handle',
+      'sellers.name',
+      'sellers.status',
     ],
     filters: ids.length
       ? { id: ids, status: 'published' }
       : { status: 'published' },
   })
 
-  const transformed = products.map((product: any) => ({
-    ...product,
-    options: flattenProductOptions(product.options),
-    variants: (product.variants ?? []).map(flattenVariantOptions),
-  }))
+  const transformed = products.map((product: any) => {
+    const { sellers, ...rest } = product
+    return {
+      ...rest,
+      options: flattenProductOptions(product.options),
+      variants: (product.variants ?? []).map(flattenVariantOptions),
+      seller: Array.isArray(sellers) ? (sellers[0] ?? null) : (sellers ?? null),
+    }
+  })
 
   return z.array(MeilisearchProductValidator).parse(transformed)
 }

@@ -7,7 +7,11 @@ import {
   MedusaError,
 } from "@medusajs/framework/utils"
 
-import { enrichProductAttributes } from "../../../utils"
+import {
+  enrichProductAttributes,
+  wrapProductVariantsWithOfferPrice,
+} from "../../../utils"
+import { splitComputedVariantFields } from "../helpers"
 
 export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -19,6 +23,13 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
       `Product with id ${req.params.id} was not found`,
     )
   }
+
+  // `variants.calculated_price` / `variants.offer_id` are computed from the
+  // cheapest offer post-query, not graph columns — strip them before the read.
+  const { fields, withCalculatedPrice } = splitComputedVariantFields(
+    req.queryConfig.fields
+  )
+  req.queryConfig.fields = fields
 
   // region_id / currency_code are consumed by setPricingContext only —
   // the Product entity has neither column, so passing them through
@@ -45,6 +56,10 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
   }
 
   await enrichProductAttributes(req.scope, [product])
+
+  if (withCalculatedPrice) {
+    await wrapProductVariantsWithOfferPrice(req, [product] as any[])
+  }
 
   res.json({ product })
 }

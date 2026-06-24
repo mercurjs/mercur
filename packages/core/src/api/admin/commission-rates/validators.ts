@@ -24,6 +24,10 @@ export const AdminGetCommissionRatesParams = createFindParams({
     id: z.union([z.string(), z.array(z.string())]).optional(),
     code: z.union([z.string(), z.array(z.string())]).optional(),
     type: z.union([z.string(), z.array(z.string())]).optional(),
+    // Virtual filter: the rule scope ("store", "product_type", "category",
+    // "store_product_type", "store_category"). Derived from each rate's
+    // linked rules in the route, not a stored column.
+    scope_type: z.union([z.string(), z.array(z.string())]).optional(),
     is_enabled: booleanString().optional(),
     is_default: booleanString().optional(),
     created_at: createOperatorMap().optional(),
@@ -46,7 +50,7 @@ export type AdminCreateCommissionRateType = z.infer<
 >
 export const AdminCreateCommissionRate = z.object({
   name: z.string(),
-  code: z.string(),
+  code: z.string().min(1),
   type: z.nativeEnum(CommissionRateType),
   value: z.number(),
   currency_code: z.string().nullish(),

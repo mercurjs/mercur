@@ -27,7 +27,6 @@ import { OfferProductVariant } from "../../common/types"
 const PAGE_SIZE = 10
 const PREFIX = "ov"
 
-/** The wrap attaches per-location stock under the offer's inventory link. */
 type OfferWithInventory = OfferDTO & {
   inventory_item_link?: Array<{
     inventory_item?: {
@@ -40,9 +39,7 @@ type OfferWithInventory = OfferDTO & {
   }> | null
 }
 
-/** One row per offer, carrying its parent variant for the shared columns. */
 type OfferVariantRow = {
-  /** The offer id — also the table row id, so `row.id` resolves it. */
   id: string
   variant: OfferProductVariant
   offer: OfferWithInventory
@@ -50,7 +47,6 @@ type OfferVariantRow = {
 
 const skuOf = (row: OfferVariantRow) => row.offer.sku ?? row.variant.sku ?? ""
 
-/** First inventory item backing the offer — the "Go to inventory item" target. */
 const inventoryItemIdOf = (offer: OfferWithInventory) =>
   offer.inventory_item_link?.find((link) => link.inventory_item?.id)?.inventory_item
     ?.id ?? null
@@ -69,15 +65,12 @@ const inventoryOf = (offer: OfferWithInventory) => {
   }
   return {
     hasItems: links.length > 0,
-    // More than one backing inventory item ⇒ the offer is an inventory
-    // kit; the table marks it with a Component glyph (Figma `40016500:749885`).
     isKit: links.length > 1,
     available,
     locationCount: locations.size,
   }
 }
 
-/** Matches an ISO date against a `{ $gte, $lte }` filter value. */
 const matchesDateFilter = (
   value: string | Date | null | undefined,
   filter: { $gte?: string; $lte?: string },
@@ -115,9 +108,6 @@ const useColumns = ({
 
   return useMemo(
     () => [
-      // Thumbnail lives inside the Title cell (Figma `40016500:747487`), so
-      // the "Title" header sits at the left edge rather than over an empty
-      // leading column.
       columnHelper.accessor((row) => row.variant.title ?? "", {
         id: "title",
         header: t("fields.title"),
@@ -244,17 +234,6 @@ const useColumns = ({
   )
 }
 
-/**
- * Variants table of the product-shaped offer detail (Figma
- * `40016489:640014` / `40016500:747473`). Mirrors the product detail's
- * variants table — search, sort (Title / SKU / Created / Updated), and
- * Created/Updated date filters — but is offer-scoped: one row per offer,
- * navigating to the offer-keyed variant detail `variants/:offer_id`.
- *
- * Reads come from the wrapped product graph (client-side), so search /
- * sort / filter / pagination are applied in memory against the offer
- * rows rather than re-fetched.
- */
 export const OfferVariantsSection = ({
   variants,
   thumbnail,
@@ -329,11 +308,9 @@ export const OfferVariantsSection = ({
   }, [allRows, q, created_at, updated_at])
 
   const sortedRows = useMemo(() => {
-    if (!order) {
-      return filteredRows
-    }
-    const desc = order.startsWith("-")
-    const key = desc ? order.slice(1) : order
+    const activeOrder = order || "title"
+    const desc = activeOrder.startsWith("-")
+    const key = desc ? activeOrder.slice(1) : activeOrder
 
     const valueOf = (row: OfferVariantRow): string => {
       switch (key) {
@@ -398,9 +375,6 @@ export const OfferVariantsSection = ({
     onDelete: handleDelete,
   })
 
-  // Sort keys live in the order-by dropdown (Figma `40016489:640014`), not
-  // as visible Created/Updated columns; the keys are read back from the URL
-  // and applied in memory above.
   const orderBy = useMemo(
     () =>
       [
@@ -429,11 +403,8 @@ export const OfferVariantsSection = ({
     prefix: PREFIX,
   })
 
-  // No `divide-y` on the Container: this section draws its own header, so the
-  // _DataTable renders its own query/filter bar (with its leading divider) and
-  // table below. A Container divider would stack a second line under the header.
   return (
-    <Container className="p-0" data-testid="offer-variants-section">
+    <Container className="divide-y p-0" data-testid="offer-variants-section">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("offers.fields.variants")}</Heading>
         <div className="flex items-center gap-x-4">
@@ -466,6 +437,7 @@ export const OfferVariantsSection = ({
         pagination
         search
         orderBy={orderBy}
+        defaultOrderBy="title"
         filters={filters}
         queryObject={{ q, order, created_at, updated_at }}
         navigateTo={(row) => `variants/${row.original.id}`}

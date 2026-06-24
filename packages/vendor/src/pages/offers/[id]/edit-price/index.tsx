@@ -160,6 +160,7 @@ const EditPriceGrid = ({
         className="flex h-full flex-col overflow-hidden"
         data-testid="offer-edit-price-form"
       >
+        <RouteFocusModal.Header />
         <RouteFocusModal.Body className="flex-1 overflow-hidden p-0">
           <DataGrid
             columns={columns}

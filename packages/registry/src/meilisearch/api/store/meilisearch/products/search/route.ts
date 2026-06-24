@@ -23,8 +23,7 @@ export const POST = async (
     customer_group_id,
   } = req.validatedBody
 
-  // Build filter string server-side — seller.status = "active" is always enforced (FR-003)
-  const filterParts: string[] = ['seller.status = "active"']
+  const filterParts: string[] = ['seller.status = "open"']
 
   if (filters?.categories?.length) {
     const ids = filters.categories.map((c) => `"${c}"`).join(', ')
@@ -93,7 +92,7 @@ export const POST = async (
       'collection.*',
       'type.*',
       'tags.*',
-      'seller.*',
+      'sellers.*',
     ],
     filters: { id: productIds },
     ...(Object.keys(contextParams).length > 0 && { context: contextParams }),

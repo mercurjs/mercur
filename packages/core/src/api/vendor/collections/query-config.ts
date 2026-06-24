@@ -5,12 +5,12 @@ export const defaultVendorCollectionFields = [
   "created_at",
   "updated_at",
   "metadata",
-  "images.id",
-  "images.url",
-  "images.type",
-  "images.is_thumbnail",
-  "images.is_banner",
-  "images.rank",
+  "media_images.id",
+  "media_images.url",
+  "media_images.type",
+  "media_images.is_thumbnail",
+  "media_images.is_banner",
+  "media_images.rank",
 ]
 
 export const retrieveTransformQueryConfig = {

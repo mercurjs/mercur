@@ -7,6 +7,7 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui"
+import { keepPreviousData } from "@tanstack/react-query"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { t } from "i18next"
 import { useMemo, useState } from "react"
@@ -36,6 +37,7 @@ type CustomerGroupSectionProps = {
 
 const PAGE_SIZE = 10
 const PREFIX = "cusgr"
+const DEFAULT_ORDER = "-created_at"
 
 export const CustomerGroupSection = ({
   customer,
@@ -43,21 +45,45 @@ export const CustomerGroupSection = ({
   const prompt = usePrompt()
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
-  const { raw } = useCustomerGroupTableQuery({
+  const { searchParams, raw } = useCustomerGroupTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
 
   const flatCustomerGroups = customer.groups ?? []
-  const groupIds = flatCustomerGroups.map((g) => g.id)
-
-  const { customer_groups: groupsWithCounts } = useCustomerGroups(
-    { id: groupIds, fields: "id,customers.id", limit: groupIds.length || 1 },
-    { enabled: groupIds.length > 0 }
+  const groupIds = useMemo(
+    () => (customer.groups ?? []).map((g) => g.id),
+    [customer.groups]
   )
 
+  // Search and ordering are delegated to the backend: we scope the customer
+  // groups list to the groups this customer belongs to (`id`) and let the API
+  // apply `q`, `order` and pagination.
+  const {
+    customer_groups: customerGroups = [],
+    count = 0,
+    isLoading,
+    isError,
+    error,
+  } = useCustomerGroups(
+    {
+      ...searchParams,
+      id: groupIds,
+      order: searchParams.order || DEFAULT_ORDER,
+      fields: "id,name,created_at,updated_at,customers.id",
+    },
+    {
+      enabled: groupIds.length > 0,
+      placeholderData: keepPreviousData,
+    }
+  )
+
+  if (isError) {
+    throw error
+  }
+
   const customerCountByGroup: Record<string, number> = {}
-  for (const g of groupsWithCounts ?? []) {
+  for (const g of customerGroups) {
     customerCountByGroup[g.id] = g.customers?.length ?? 0
   }
 
@@ -68,9 +94,9 @@ export const CustomerGroupSection = ({
   const columns = useColumns(customer.id, customerCountByGroup)
 
   const { table } = useDataTable({
-    data: flatCustomerGroups ?? [],
+    data: customerGroups,
     columns,
-    count: flatCustomerGroups?.length ?? 0,
+    count,
     getRowId: (row) => row.id,
     enablePagination: true,
     enableRowSelection: true,
@@ -84,15 +110,17 @@ export const CustomerGroupSection = ({
 
   const handleRemove = async () => {
     const selectedIds = Object.keys(rowSelection)
+    const selectedGroups = flatCustomerGroups.filter((g) =>
+      selectedIds.includes(g.id)
+    )
+    const names = selectedGroups.map((g) => g.name)
+    const isSingle = selectedGroups.length === 1
 
     const res = await prompt({
-      title: t("general.areYouSure"),
-      description: t("customers.groups.removeMany", {
-        groups: flatCustomerGroups
-          ?.filter((g) => selectedIds.includes(g.id))
-          .map((g) => g.name)
-          .join(","),
-      }),
+      title: t("customers.groups.removeTitle"),
+      description: isSingle
+        ? t("customers.groups.remove", { name: names[0] })
+        : t("customers.groups.removeMany", { groups: names.join(", ") }),
       confirmText: t("actions.remove"),
       cancelText: t("actions.cancel"),
     })
@@ -101,24 +129,22 @@ export const CustomerGroupSection = ({
       return
     }
 
-    const customerGroupIds = flatCustomerGroups
-      ?.filter((g) => selectedIds.includes(g.id))
-      .map((g) => g.id) ?? []
+    const customerGroupIds = selectedGroups.map((g) => g.id)
 
     await batchCustomerCustomerGroups(
       { remove: customerGroupIds, add: [] },
       {
         onSuccess: () => {
           toast.success(
-            t("customers.groups.removed.success", {
-              groups: flatCustomerGroups
-                ?.filter((g) => selectedIds.includes(g.id))
-                .map((g) => g.name),
-            })
+            isSingle
+              ? t("customers.groups.removed.successOne", { groups: names[0] })
+              : t("customers.groups.removed.successMany", {
+                  groups: names.join(", "),
+                })
           )
         },
-        onError: (error) => {
-          toast.error(error.message)
+        onError: (e) => {
+          toast.error(e.message)
         },
       }
     )
@@ -138,8 +164,8 @@ export const CustomerGroupSection = ({
         table={table}
         columns={columns}
         pageSize={PAGE_SIZE}
-        isLoading={false}
-        count={flatCustomerGroups?.length ?? 0}
+        isLoading={isLoading}
+        count={count}
         prefix={PREFIX}
         navigateTo={(row) => `/customer-groups/${row.original.id}`}
         filters={filters}
@@ -150,6 +176,7 @@ export const CustomerGroupSection = ({
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        defaultOrderBy={DEFAULT_ORDER}
         commands={[
           {
             action: handleRemove,
@@ -159,7 +186,9 @@ export const CustomerGroupSection = ({
         ]}
         queryObject={raw}
         noRecords={{
+          title: t("customers.groups.list.emptyTitle"),
           message: t("customers.groups.list.noRecordsMessage"),
+          icon: null,
         }}
       />
     </Container>
@@ -180,7 +209,7 @@ const CustomerGroupRowActions = ({
 
   const onRemove = async () => {
     const res = await prompt({
-      title: t("general.areYouSure"),
+      title: t("customers.groups.removeTitle"),
       description: t("customers.groups.remove", {
         name: group.name,
       }),
@@ -193,6 +222,11 @@ const CustomerGroupRowActions = ({
     }
 
     await mutateAsync([customerId], {
+      onSuccess: () => {
+        toast.success(
+          t("customers.groups.removed.successOne", { groups: group.name })
+        )
+      },
       onError: (error) => {
         toast.error(error.message)
       },

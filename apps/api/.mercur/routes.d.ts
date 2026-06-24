@@ -480,7 +480,7 @@ export type Routes = {
                 unterminate: typeof import("@mercurjs/core/api/admin/sellers/[id]/unterminate/route");
             };
         };
-        custom: typeof import("../../src/api/admin/custom/route");
+        custom: typeof import("../src/api/admin/custom/route");
     };
     auth: {
         $actorType: {
@@ -578,7 +578,7 @@ export type Routes = {
         sellers: typeof import("@mercurjs/core/api/store/sellers/route") & {
             $id: typeof import("@mercurjs/core/api/store/sellers/[id]/route");
         };
-        custom: typeof import("../../src/api/store/custom/route");
+        custom: typeof import("../src/api/store/custom/route");
     };
     hooks: {
         payout: typeof import("@mercurjs/core/api/hooks/payout/route");

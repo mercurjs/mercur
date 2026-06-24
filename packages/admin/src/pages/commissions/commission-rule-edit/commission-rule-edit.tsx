@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input, Select, toast } from "@medusajs/ui";
+import i18n from "i18next";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -28,7 +29,9 @@ import {
 const EditCommissionRuleSchema = zod.object({
   status: zod.enum(["active", "inactive"]),
   name: zod.string().min(1),
-  code: zod.string().min(1),
+  code: zod
+    .string()
+    .min(1, { message: i18n.t("commissions.validation.codeRequired") }),
   scopeType: zod.enum([
     "store",
     "product_type",
@@ -123,7 +126,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
 
       toast.success(
         t("commissions.edit.successToast", {
-          defaultValue: "Commission rule updated",
+          defaultValue: "Commission rule was successfully updated.",
         })
       );
       handleSuccess();
@@ -143,7 +146,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
               render={({ field: { onChange, ref, ...field } }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t("commissions.fields.status", "Status")}
+                    {t("commissions.fields.status")}
                   </Form.Label>
                   <Form.Control>
                     <Select {...field} onValueChange={onChange} dir={direction}>
@@ -155,10 +158,10 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                       </Select.Trigger>
                       <Select.Content>
                         <Select.Item value="active">
-                          {t("commissions.status.enabled", "Active")}
+                          {t("commissions.status.enabled")}
                         </Select.Item>
                         <Select.Item value="inactive">
-                          {t("commissions.status.disabled", "Inactive")}
+                          {t("commissions.status.disabled")}
                         </Select.Item>
                       </Select.Content>
                     </Select>
@@ -189,7 +192,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
               name="code"
               render={({ field }) => (
                 <Form.Item>
-                  <Form.Label>{t("commissions.fields.code", "Code")}</Form.Label>
+                  <Form.Label>{t("commissions.fields.code")}</Form.Label>
                   <Form.Control>
                     <Input
                       autoComplete="off"
@@ -207,7 +210,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
               render={({ field: { onChange, ref, ...field } }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t("commissions.fields.scopeType.label", "Type")}
+                    {t("commissions.fields.scopeType.label")}
                   </Form.Label>
                   <Form.Control>
                     <Select {...field} onValueChange={onChange} dir={direction}>
@@ -219,31 +222,19 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                       </Select.Trigger>
                       <Select.Content>
                         <Select.Item value="store">
-                          {t("commissions.fields.scopeType.store", "Store")}
+                          {t("commissions.fields.scopeType.store")}
                         </Select.Item>
                         <Select.Item value="product_type">
-                          {t(
-                            "commissions.fields.scopeType.productType",
-                            "Product Type"
-                          )}
+                          {t("commissions.fields.scopeType.productType")}
                         </Select.Item>
                         <Select.Item value="category">
-                          {t(
-                            "commissions.fields.scopeType.category",
-                            "Category"
-                          )}
+                          {t("commissions.fields.scopeType.category")}
                         </Select.Item>
                         <Select.Item value="store_product_type">
-                          {t(
-                            "commissions.fields.scopeType.storeProductType",
-                            "Store + Product Type"
-                          )}
+                          {t("commissions.fields.scopeType.storeProductType")}
                         </Select.Item>
                         <Select.Item value="store_category">
-                          {t(
-                            "commissions.fields.scopeType.storeCategory",
-                            "Store + Category"
-                          )}
+                          {t("commissions.fields.scopeType.storeCategory")}
                         </Select.Item>
                       </Select.Content>
                     </Select>
@@ -259,7 +250,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t("commissions.fields.stores", "Stores")}
+                      {t("commissions.fields.stores")}
                     </Form.Label>
                     <Form.Control>
                       <Combobox
@@ -282,7 +273,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t("commissions.fields.productTypes", "Product Types")}
+                      {t("commissions.fields.productTypes")}
                     </Form.Label>
                     <Form.Control>
                       <Combobox
@@ -305,7 +296,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
                 render={({ field }) => (
                   <Form.Item>
                     <Form.Label>
-                      {t("commissions.fields.categories", "Categories")}
+                      {t("commissions.fields.categories")}
                     </Form.Label>
                     <Form.Control>
                       <Combobox
@@ -369,11 +360,11 @@ export const CommissionRuleEdit = () => {
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>
-            {t("commissions.edit.header", "Edit Commission Rule")}
+            {t("commissions.edit.header")}
           </Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
-          {t("commissions.edit.header", "Edit Commission Rule")}
+          {t("commissions.edit.header")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
       {ready && <EditCommissionRuleForm rule={commission_rate} />}

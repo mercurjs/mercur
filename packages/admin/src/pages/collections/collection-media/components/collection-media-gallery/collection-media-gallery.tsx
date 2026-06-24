@@ -34,7 +34,7 @@ export const CollectionMediaGallery = ({
   const prompt = usePrompt()
   const { mutateAsync, isPending } = useUpdateCollection(collection.id)
 
-  const media = getCollectionGallery(collection.images)
+  const media = getCollectionGallery(collection.media_images)
 
   const next = useCallback(() => {
     if (isPending) {

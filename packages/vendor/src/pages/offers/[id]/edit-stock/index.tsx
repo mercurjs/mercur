@@ -225,6 +225,7 @@ const EditStockGrid = ({
         className="flex h-full flex-col overflow-hidden"
         data-testid="offer-edit-stock-form"
       >
+        <RouteFocusModal.Header />
         <RouteFocusModal.Body className="flex-1 overflow-hidden p-0">
           <DataGrid
             columns={columns}

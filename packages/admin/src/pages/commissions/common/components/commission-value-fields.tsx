@@ -35,12 +35,12 @@ export const CommissionValueFields = <T extends FieldValues = FieldValues>({
         name={"value" as never}
         render={({ field: { value, onChange, ...field } }) => (
           <Form.Item>
-            <Form.Label>{t("commissions.fields.value", "Value")}</Form.Label>
+            <Form.Label>{t("commissions.fields.value")}</Form.Label>
             <Form.Control>
               <PercentageInput
                 {...field}
                 value={value}
-                onValueChange={(_v, _n, values) => onChange(values?.float ?? 0)}
+                onValueChange={(_v, _n, values) => onChange(values?.float)}
               />
             </Form.Control>
             <Form.ErrorMessage />
@@ -53,7 +53,7 @@ export const CommissionValueFields = <T extends FieldValues = FieldValues>({
   return (
     <div className="flex flex-col gap-y-2">
       <Label size="small" weight="plus">
-        {t("commissions.fields.value", "Value")}
+        {t("commissions.fields.value")}
       </Label>
       <div className="flex flex-col gap-y-2">
         {currencies.map((code) => (
@@ -68,7 +68,9 @@ export const CommissionValueFields = <T extends FieldValues = FieldValues>({
                     min={0}
                     code={code}
                     symbol={getCurrencySymbol(code)}
-                    onValueChange={(val) => onChange(val ? parseFloat(val) : 0)}
+                    onValueChange={(val) =>
+                    onChange(val ? parseFloat(val) : undefined)
+                  }
                     {...field}
                     value={value ?? ""}
                   />

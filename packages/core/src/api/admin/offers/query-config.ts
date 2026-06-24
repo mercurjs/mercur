@@ -2,6 +2,7 @@ export const defaultAdminOfferFields = [
   "id",
   "seller_id",
   "variant_id",
+  "product_id",
   "shipping_profile_id",
   "sku",
   "ean",

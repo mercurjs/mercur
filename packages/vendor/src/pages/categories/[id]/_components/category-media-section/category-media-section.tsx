@@ -17,7 +17,7 @@ export const CategoryMediaSection = ({
 }: CategoryMediaSectionProps) => {
   const { t } = useTranslation()
 
-  const gallery = getCategoryGallery(category.images)
+  const gallery = getCategoryGallery(category.media_images)
 
   return (
     <Container className="divide-y p-0" data-testid="category-media-section">

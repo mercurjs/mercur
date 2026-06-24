@@ -54,6 +54,7 @@ medusaIntegrationTestRunner({
 
                 return {
                     variant_id: variant.id,
+                    product_id: product.data.product.id,
                     shipping_profile_id:
                         shippingProfile.data.shipping_profile.id,
                     ean,
@@ -100,6 +101,7 @@ medusaIntegrationTestRunner({
                         expect.objectContaining({
                             sku: "SELLER1-SKU-001",
                             variant_id: deps.variant_id,
+                            product_id: deps.product_id,
                             shipping_profile_id: deps.shipping_profile_id,
                             ean: deps.ean,
                             upc: deps.upc,

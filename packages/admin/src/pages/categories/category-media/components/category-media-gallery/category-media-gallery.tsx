@@ -34,7 +34,7 @@ export const CategoryMediaGallery = ({
   const prompt = usePrompt()
   const { mutateAsync, isPending } = useUpdateProductCategory(category.id)
 
-  const media = getCategoryGallery(category.images)
+  const media = getCategoryGallery(category.media_images)
 
   const next = useCallback(() => {
     if (isPending) {
