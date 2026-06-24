@@ -8,15 +8,16 @@ type ProductVariantDetailBreadcrumbProps =
 export const ProductVariantDetailBreadcrumb = (
   props: ProductVariantDetailBreadcrumbProps
 ) => {
-  const { product_id, variant_id } = props.params || {}
+  const { id, product_id, variant_id } = props.params || {}
+  const productId = id || product_id
 
   const { variant } = useProductVariant(
-    product_id!,
+    productId!,
     variant_id!,
     {},
     {
       initialData: props.data,
-      enabled: Boolean(product_id) && Boolean(variant_id),
+      enabled: Boolean(productId) && Boolean(variant_id),
     }
   )
   if (!variant) {
