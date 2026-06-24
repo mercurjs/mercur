@@ -2,30 +2,30 @@ import { useCallback, useMemo } from "react";
 
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
-import { ProductDTO } from "@mercurjs/types";
+import { ProductDTO, ProductVariantDTO } from "@mercurjs/types";
 import {
   Badge,
   Button,
   Container,
-  createDataTableColumnHelper,
-  DataTableAction,
   Heading,
   toast,
   Tooltip,
   usePrompt,
 } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import { CellContext } from "@tanstack/react-table";
+import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 
-import { DataTable } from "../../../../../components/data-table";
-import { useDataTableDateColumns } from "../../../../../components/data-table/helpers/general/use-data-table-date-columns";
-import { useDataTableDateFilters } from "../../../../../components/data-table/helpers/general/use-data-table-date-filters";
+import { ActionMenu } from "../../../../../components/common/action-menu";
+import { Thumbnail } from "../../../../../components/common/thumbnail";
+import { _DataTable, Filter } from "../../../../../components/table/data-table";
+import { DataTableOrderByKey } from "../../../../../components/table/data-table/data-table-order-by";
 import {
   useDeleteVariantLazy,
   useProductVariants,
 } from "../../../../../hooks/api/products";
+import { useDataTable } from "../../../../../hooks/use-data-table";
 import { useQueryParams } from "../../../../../hooks/use-query-params";
 
 const PAGE_SIZE = 10;
@@ -43,10 +43,7 @@ export const ProductVariantSection = ({
     PREFIX,
   );
 
-  const columns = useColumns(product);
-  const filters = useFilters();
-
-  const { variants, count, isPending, isError, error } = useProductVariants(
+  const { variants, count, isLoading, isError, error } = useProductVariants(
     product.id,
     {
       q,
@@ -55,25 +52,32 @@ export const ProductVariantSection = ({
       limit: PAGE_SIZE,
       created_at: created_at ? JSON.parse(created_at) : undefined,
       updated_at: updated_at ? JSON.parse(updated_at) : undefined,
-      fields:
-        "title,sku,created_at,updated_at,*options,*options.option",
+      fields: "title,sku,created_at,updated_at,*options,*options.option",
     },
     {
       placeholderData: keepPreviousData,
     },
   );
 
+  const columns = useColumns(product);
+  const filters = useFilters();
+  const orderBy = useOrderBy();
+
+  const { table } = useDataTable({
+    data: variants ?? [],
+    columns,
+    count,
+    pageSize: PAGE_SIZE,
+    getRowId: (row) => row.id,
+    prefix: PREFIX,
+  });
+
   if (isError) {
     throw error;
   }
 
-  // No `divide-y` on the Container: this section draws its own header, so the
-  // DataTable renders only its filter bar, which already has a `border-t`. A
-  // Container divider would stack a second line between the header and the
-  // filter row (the doubled divider reported in MER-129); the filter bar owns
-  // that separator.
   return (
-    <Container className="p-0" data-testid="product-variant-section">
+    <Container className="divide-y p-0" data-testid="product-variant-section">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("products.variants.header")}</Heading>
         <Button
@@ -85,35 +89,30 @@ export const ProductVariantSection = ({
           <Link to="variants/create">{t("actions.create")}</Link>
         </Button>
       </div>
-      <div data-testid="product-variants-table-container">
-        <DataTable
-          data={variants}
-          columns={columns}
-          filters={filters}
-          rowCount={count}
-          getRowId={(row) => row.id}
-          rowHref={(row) => `/products/${product.id}/variants/${row.id}`}
-          pageSize={PAGE_SIZE}
-          isLoading={isPending}
-          emptyState={{
-            empty: {
-              heading: t("products.variants.empty.heading"),
-              description: t("products.variants.empty.description"),
-            },
-            filtered: {
-              heading: t("products.variants.filtered.heading"),
-              description: t("products.variants.filtered.description"),
-            },
-          }}
-          prefix={PREFIX}
-        />
-      </div>
+      <_DataTable
+        table={table}
+        columns={columns}
+        count={count}
+        pageSize={PAGE_SIZE}
+        filters={filters}
+        search
+        pagination
+        isLoading={isLoading}
+        orderBy={orderBy}
+        defaultOrderBy="title"
+        prefix={PREFIX}
+        queryObject={{ q, order, created_at, updated_at }}
+        navigateTo={(row) => `variants/${row.original.id}`}
+        noRecords={{
+          title: t("products.variants.empty.heading"),
+          message: t("products.variants.empty.description"),
+        }}
+      />
     </Container>
   );
 };
 
-const columnHelper =
-  createDataTableColumnHelper<HttpTypes.AdminProductVariant>();
+const columnHelper = createColumnHelper<ProductVariantDTO>();
 
 const useColumns = (product: HttpTypes.AdminProduct) => {
   const { t } = useTranslation();
@@ -131,8 +130,6 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
     }
     return filtered;
   }, [searchParams]);
-
-  const dateColumns = useDataTableDateColumns<HttpTypes.AdminProductVariant>();
 
   const handleDelete = useCallback(
     async (id: string, title: string) => {
@@ -209,74 +206,99 @@ const useColumns = (product: HttpTypes.AdminProduct) => {
     });
   }, [product]);
 
-  const getActions = useCallback(
-    (_ctx: CellContext<HttpTypes.AdminProductVariant, unknown>) => {
-      const variant = _ctx.row.original as HttpTypes.AdminProductVariant;
-
-      const mainActions: DataTableAction<HttpTypes.AdminProductVariant>[] = [
-        {
-          icon: <PencilSquare />,
-          label: t("actions.edit"),
-          onClick: (row) => {
-            navigate(
-              `edit-variant?variant_id=${row.row.original.id}&${tableSearchParams.toString()}`,
-              {
-                state: {
-                  restore_params: tableSearchParams.toString(),
-                },
-              },
-            );
-          },
-        },
-      ];
-
-      const secondaryActions: DataTableAction<HttpTypes.AdminProductVariant>[] =
-        [
-          {
-            icon: <Trash />,
-            label: t("actions.delete"),
-            onClick: () => handleDelete(variant.id, variant.title!),
-          },
-        ];
-
-      return [mainActions, secondaryActions];
-    },
-    [handleDelete, navigate, t, tableSearchParams],
-  );
-
-  return useMemo(() => {
-    return [
+  return useMemo(
+    () => [
       columnHelper.accessor("title", {
+        id: "title",
         header: t("fields.title"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
-        sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
-      }),
-      columnHelper.accessor("sku", {
-        header: t("fields.sku"),
         cell: ({ getValue }) => {
           const value = getValue();
-          return value ? (
-            value
-          ) : (
-            <span className="text-ui-fg-muted">-</span>
+          return (
+            <div className="flex h-full w-full max-w-[250px] items-center gap-x-3 overflow-hidden">
+              <div className="w-fit flex-shrink-0">
+                <Thumbnail src={product.thumbnail} />
+              </div>
+              {value ? (
+                <span title={value} className="truncate">
+                  {value}
+                </span>
+              ) : (
+                <span className="text-ui-fg-muted">-</span>
+              )}
+            </div>
           );
         },
       }),
-      ...attributeColumns,
-      ...dateColumns,
-      columnHelper.action({
-        actions: getActions,
+      columnHelper.accessor("sku", {
+        id: "sku",
+        header: t("fields.sku"),
+        cell: ({ getValue }) => {
+          const value = getValue();
+          return value ? value : <span className="text-ui-fg-muted">-</span>;
+        },
       }),
-    ];
-  }, [t, attributeColumns, dateColumns, getActions]);
+      ...attributeColumns,
+      columnHelper.display({
+        id: "actions",
+        cell: ({ row }) => (
+          <ActionMenu
+            groups={[
+              {
+                actions: [
+                  {
+                    icon: <PencilSquare />,
+                    label: t("actions.edit"),
+                    onClick: () =>
+                      navigate(
+                        `edit-variant?variant_id=${row.original.id}&${tableSearchParams.toString()}`,
+                        {
+                          state: {
+                            restore_params: tableSearchParams.toString(),
+                          },
+                        },
+                      ),
+                  },
+                ],
+              },
+              {
+                actions: [
+                  {
+                    icon: <Trash />,
+                    label: t("actions.delete"),
+                    onClick: () =>
+                      handleDelete(row.original.id, row.original.title ?? ""),
+                  },
+                ],
+              },
+            ]}
+          />
+        ),
+      }),
+    ],
+    [t, attributeColumns, navigate, handleDelete, tableSearchParams, product],
+  );
 };
 
-const useFilters = () => {
-  const dateFilters = useDataTableDateFilters();
+const useFilters = (): Filter[] => {
+  const { t } = useTranslation();
 
-  return useMemo(() => {
-    return [...dateFilters];
-  }, [dateFilters]);
+  return useMemo(
+    () => [
+      { key: "created_at", label: t("fields.createdAt"), type: "date" },
+      { key: "updated_at", label: t("fields.updatedAt"), type: "date" },
+    ],
+    [t],
+  );
 };
 
+const useOrderBy = (): DataTableOrderByKey<ProductVariantDTO>[] => {
+  const { t } = useTranslation();
+
+  return useMemo(
+    () => [
+      { key: "title", label: t("fields.title") },
+      { key: "sku", label: t("fields.sku") },
+    ],
+    [t],
+  );
+};
