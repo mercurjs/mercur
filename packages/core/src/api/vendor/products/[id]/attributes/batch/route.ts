@@ -6,7 +6,6 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { ProductAttributeBatchInput, ProductChangeDTO } from "@mercurjs/types"
 
 import { productEditUpdateAttributesWorkflow } from "../../../../../../workflows/product-edit/workflows/product-edit-update-attributes"
-import { ensureSellerOwnsProduct } from "../../../helpers"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<ProductAttributeBatchInput>,
@@ -15,8 +14,6 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
   const productId = req.params.id
-
-  await ensureSellerOwnsProduct(req.scope, sellerId, productId)
 
   const { add, remove, update } = req.validatedBody
 

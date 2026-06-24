@@ -429,9 +429,9 @@ medusaIntegrationTestRunner({
               {
                 status: "published",
                 title,
-                variant_attributes: [
+                attributes: [
                   {
-                    name: `Color${tag}`,
+                    title: `Color${tag}`,
                     type: "multi_select",
                     values: ["Red", "Blue"],
                     is_variant_axis: true,
@@ -441,7 +441,7 @@ medusaIntegrationTestRunner({
                   {
                     title: "Red Variant",
                     sku: `OPT-${tag}`,
-                    attribute_values: { [`Color${tag}`]: "Red" },
+                    options: { [`Color${tag}`]: "Red" },
                   },
                 ],
               },

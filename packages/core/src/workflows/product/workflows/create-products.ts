@@ -174,6 +174,7 @@ export const createProductsWorkflow: ReturnWorkflow<
           const formOptions = (v: unknown) =>
             (v as { options?: Record<string, string> }).options ?? {}
           return (p.variants ?? []).map((v) => ({
+            manage_inventory: false,
             ...v,
             product_id,
             options: hasAxisByIndex[idx]

@@ -31,10 +31,10 @@ export const defaultStoreProductFields = [
   "*variants.options",
   "*options",
   "*options.values",
-  // Cross-module chained populate (e.g.
-  // `*product_attribute_values.attribute.values`) crashes MikroORM's
-  // `expandDotPaths`, so we keep the joiner request single-hop.
   "product_attribute_values.id",
+  "product_attribute_values.name",
+  "product_attribute_values.rank",
+  "product_attribute_values.attribute_id",
 ]
 
 export const storeProductQueryConfig = {

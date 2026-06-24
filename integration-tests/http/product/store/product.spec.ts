@@ -340,18 +340,11 @@ medusaIntegrationTestRunner({
                 it("surfaces linked attributes on product.attributes", async () => {
                     const product = await createProduct(approvedSellerHeaders, {
                         title: "Product with attribute",
-                        variant_attributes: [
+                        attributes: [
                             {
-                                name: "Size",
+                                title: "Size",
                                 type: "multi_select",
-                                is_variant_axis: true,
                                 values: ["M"],
-                            },
-                        ],
-                        variants: [
-                            {
-                                title: "M",
-                                attribute_values: { Size: "M" },
                             },
                         ],
                     })

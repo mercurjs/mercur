@@ -7,8 +7,12 @@ import type { MedusaContainer } from "@medusajs/framework/types"
 export const ensureSellerOwnsProduct = async (
   scope: MedusaContainer,
   sellerId: string,
-  productId: string
+  productIds: string[]
 ): Promise<void> => {
+  if (!productIds.length) {
+    return
+  }
+
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data } = await query.graph({
@@ -16,14 +20,17 @@ export const ensureSellerOwnsProduct = async (
     fields: ["product_id"],
     filters: {
       seller_id: sellerId,
-      product_id: productId,
+      product_id: productIds,
     },
   })
 
-  if (!data?.length) {
+  const ownedProductIds = new Set(data.map(({ product_id }) => product_id))
+  const missingProductId = productIds.find((id) => !ownedProductIds.has(id))
+
+  if (missingProductId) {
     throw new MedusaError(
       MedusaError.Types.NOT_FOUND,
-      `Product with id ${productId} was not found`
+      `Product with id ${missingProductId} was not found`
     )
   }
 }
