@@ -1,11 +1,16 @@
+import i18n from "i18next";
 import * as zod from "zod";
 
 import { SCOPE_TYPE_DIMENSIONS } from "../../../common/types";
 
 export const CreateCommissionRuleSchema = zod
   .object({
-    title: zod.string().min(1, "Please enter a title"),
-    code: zod.string().optional(),
+    title: zod
+      .string()
+      .min(1, { message: i18n.t("commissions.create.validation.titleRequired") }),
+    code: zod
+      .string()
+      .min(1, { message: i18n.t("commissions.create.validation.codeRequired") }),
     scopeType: zod.enum([
       "store",
       "product_type",
@@ -29,14 +34,14 @@ export const CreateCommissionRuleSchema = zod
       ctx.addIssue({
         code: zod.ZodIssueCode.custom,
         path: ["stores"],
-        message: "Please select at least one store",
+        message: i18n.t("commissions.create.validation.storesRequired"),
       });
     }
     if (dimensions.includes("product_type") && data.productTypes.length === 0) {
       ctx.addIssue({
         code: zod.ZodIssueCode.custom,
         path: ["productTypes"],
-        message: "Please select at least one product type",
+        message: i18n.t("commissions.create.validation.productTypesRequired"),
       });
     }
     if (
@@ -46,7 +51,7 @@ export const CreateCommissionRuleSchema = zod
       ctx.addIssue({
         code: zod.ZodIssueCode.custom,
         path: ["categories"],
-        message: "Please select at least one category",
+        message: i18n.t("commissions.create.validation.categoriesRequired"),
       });
     }
     if (
@@ -56,7 +61,7 @@ export const CreateCommissionRuleSchema = zod
       ctx.addIssue({
         code: zod.ZodIssueCode.custom,
         path: ["value"],
-        message: "Please enter a value.",
+        message: i18n.t("commissions.create.validation.valueRequired"),
       });
     }
   });

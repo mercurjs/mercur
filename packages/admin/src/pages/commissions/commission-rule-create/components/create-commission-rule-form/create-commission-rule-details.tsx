@@ -87,7 +87,7 @@ export const CreateCommissionRuleDetails = () => {
           name="code"
           render={({ field }) => (
             <Form.Item>
-              <Form.Label optional>{t("commissions.fields.code")}</Form.Label>
+              <Form.Label>{t("commissions.fields.code")}</Form.Label>
               <Form.Control>
                 <Input
                   autoComplete="off"
@@ -206,6 +206,7 @@ CreateCommissionRuleDetails._tabMeta = defineTabMeta<CreateCommissionRuleSchemaT
     labelKey: "commissions.create.details",
     validationFields: [
       "title",
+      "code",
       "scopeType",
       "stores",
       "productTypes",

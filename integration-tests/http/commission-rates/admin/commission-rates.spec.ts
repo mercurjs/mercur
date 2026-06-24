@@ -698,7 +698,7 @@ medusaIntegrationTestRunner({
           expect(response.status).toEqual(400)
         })
 
-        it("should auto-generate a unique code when none is provided", async () => {
+        it("should require code field", async () => {
           const response = await api.post(
             `/admin/commission-rates`,
             {
@@ -707,28 +707,9 @@ medusaIntegrationTestRunner({
               value: 10,
             },
             adminHeaders
-          )
+          ).catch((e) => e.response)
 
-          expect(response.status).toEqual(201)
-          expect(response.data.commission_rate.code).toEqual(
-            expect.stringMatching(/^no-code-rate-[a-z0-9]+$/)
-          )
-
-          // A second rate with the same name still gets a distinct code.
-          const second = await api.post(
-            `/admin/commission-rates`,
-            {
-              name: "No Code Rate",
-              type: "percentage",
-              value: 10,
-            },
-            adminHeaders
-          )
-
-          expect(second.status).toEqual(201)
-          expect(second.data.commission_rate.code).not.toEqual(
-            response.data.commission_rate.code
-          )
+          expect(response.status).toEqual(400)
         })
 
         it("should require type field", async () => {

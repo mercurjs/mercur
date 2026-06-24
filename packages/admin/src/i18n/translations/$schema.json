@@ -14729,13 +14729,46 @@
             },
             "successToast": {
               "type": "string"
+            },
+            "validation": {
+              "type": "object",
+              "properties": {
+                "titleRequired": {
+                  "type": "string"
+                },
+                "codeRequired": {
+                  "type": "string"
+                },
+                "storesRequired": {
+                  "type": "string"
+                },
+                "productTypesRequired": {
+                  "type": "string"
+                },
+                "categoriesRequired": {
+                  "type": "string"
+                },
+                "valueRequired": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "titleRequired",
+                "codeRequired",
+                "storesRequired",
+                "productTypesRequired",
+                "categoriesRequired",
+                "valueRequired"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
             "header",
             "details",
             "commission",
-            "successToast"
+            "successToast",
+            "validation"
           ],
           "additionalProperties": false
         },

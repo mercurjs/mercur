@@ -51,7 +51,7 @@ export const CreateCommissionRuleForm = () => {
     await mutateAsync(
       {
         name: values.title,
-        ...(values.code ? { code: values.code } : {}),
+        code: values.code,
         type: values.commissionType,
         value: isFixed ? 0 : values.value,
         ...(isFixed
