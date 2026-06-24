@@ -3874,6 +3874,10 @@
       "description": "You are about to delete commission rule {{name}}. This action cannot be undone.",
       "successToast": "Commission rule was successfully deleted."
     },
+    "validation": {
+      "codeRequired": "Please enter a code",
+      "valueRequired": "Please enter a value."
+    },
     "fields": {
       "code": "Code",
       "value": "Value",

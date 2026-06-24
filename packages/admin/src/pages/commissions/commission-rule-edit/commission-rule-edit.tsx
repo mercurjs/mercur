@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input, Select, toast } from "@medusajs/ui";
+import i18n from "i18next";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -28,7 +29,9 @@ import {
 const EditCommissionRuleSchema = zod.object({
   status: zod.enum(["active", "inactive"]),
   name: zod.string().min(1),
-  code: zod.string().min(1, "Please enter a code"),
+  code: zod
+    .string()
+    .min(1, { message: i18n.t("commissions.validation.codeRequired") }),
   scopeType: zod.enum([
     "store",
     "product_type",
