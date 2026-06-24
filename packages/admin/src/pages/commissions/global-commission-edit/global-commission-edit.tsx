@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input, toast } from "@medusajs/ui";
+import i18n from "i18next";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
@@ -20,7 +21,9 @@ import { buildValuesPayload, fixedValuesFromRate } from "../common/utils";
 
 const EditGlobalCommissionSchema = zod
   .object({
-    code: zod.string().min(1),
+    code: zod
+      .string()
+      .min(1, { message: i18n.t("commissions.validation.codeRequired") }),
     type: zod.enum(["percentage", "fixed"]),
     value: zod.coerce.number().optional(),
     fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
@@ -35,7 +38,7 @@ const EditGlobalCommissionSchema = zod
       ctx.addIssue({
         code: zod.ZodIssueCode.custom,
         path: ["value"],
-        message: "Please enter a value.",
+        message: i18n.t("commissions.validation.valueRequired"),
       });
     }
   });
