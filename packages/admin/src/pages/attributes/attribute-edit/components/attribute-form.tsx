@@ -15,7 +15,7 @@ import { SwitchBox } from "../../../../components/common/switch-box"
 import { HandleInput } from "../../../../components/inputs/handle-input"
 import {
   ATTRIBUTE_TYPE_OPTIONS,
-  CreateAttributeSchema,
+  createAttributeSchema,
   UpdateAttributeSchema,
 } from "../schema"
 import type {
@@ -64,7 +64,7 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
 
     const form = useForm<CreateAttributeFormValues | UpdateAttributeFormValues>({
       resolver: zodResolver(
-        mode === "create" ? CreateAttributeSchema : UpdateAttributeSchema
+        mode === "create" ? createAttributeSchema(t) : UpdateAttributeSchema
       ),
       defaultValues: {
         name: initialData?.name ?? "",

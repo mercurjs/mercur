@@ -1,4 +1,5 @@
-import { Heading, Input, Text, Textarea } from "@medusajs/ui";
+import { Heading, Input, Textarea } from "@medusajs/ui";
+import { useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../components/common/form";
@@ -22,7 +23,7 @@ type AttributeCreateFormValues = {
 const Root = () => {
   const { t } = useTranslation();
   const form = useTabbedForm<AttributeCreateFormValues>();
-  const isGlobal = form.watch("is_global");
+  const isGlobal = useWatch({ control: form.control, name: "is_global" });
 
   return (
     <div
@@ -31,10 +32,7 @@ const Root = () => {
     >
       <div className="flex w-full max-w-[720px] flex-col gap-y-8">
         <div>
-          <Heading level="h2">{t("attributes.create.header")}</Heading>
-          <Text size="small" className="text-ui-fg-subtle mt-1">
-            {t("attributes.create.subtitle")}
-          </Text>
+          <Heading level="h2">{t("attributes.create.tabs.details")}</Heading>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -43,7 +41,7 @@ const Root = () => {
             name="name"
             render={({ field }) => (
               <Form.Item>
-                <Form.Label>{t("attributes.fields.name")}</Form.Label>
+                <Form.Label>{t("fields.title")}</Form.Label>
                 <Form.Control>
                   <Input {...field} data-testid="attribute-create-name-input" />
                 </Form.Control>
@@ -160,7 +158,7 @@ const Root = () => {
 Root._tabMeta = defineTabMeta<AttributeCreateFormValues>({
   id: "details",
   labelKey: "attributes.create.tabs.details",
-  validationFields: ["name"],
+  validationFields: ["name", "category_ids"],
 });
 
 export const AttributeCreateDetailsTab = Root;

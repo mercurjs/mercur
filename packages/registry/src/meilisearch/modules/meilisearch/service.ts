@@ -89,12 +89,21 @@ class MeilisearchModuleService {
     options: Record<string, unknown>
   ): Promise<MeilisearchSearchResult> {
     const result = await this.productIndex_.search(query, options)
+
+    const pagination = result as Partial<{
+      totalHits: number
+      page: number
+      totalPages: number
+      hitsPerPage: number
+      estimatedTotalHits: number
+    }>
+
     return {
       hits: (result.hits ?? []) as Array<{ id: string }>,
-      totalHits: result.totalHits ?? result.estimatedTotalHits ?? 0,
-      page: result.page ?? 0,
-      totalPages: result.totalPages ?? 0,
-      hitsPerPage: result.hitsPerPage ?? 0,
+      totalHits: pagination.totalHits ?? pagination.estimatedTotalHits ?? 0,
+      page: pagination.page ?? 0,
+      totalPages: pagination.totalPages ?? 0,
+      hitsPerPage: pagination.hitsPerPage ?? 0,
       processingTimeMs: result.processingTimeMs,
       query: result.query,
       facetDistribution: result.facetDistribution,

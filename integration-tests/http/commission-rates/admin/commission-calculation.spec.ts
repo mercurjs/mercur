@@ -165,7 +165,7 @@ medusaIntegrationTestRunner({
           shipping_methods: [],
         })
         expect(onlyStore[0]).toEqual(
-          expect.objectContaining({ code: "DEFAULT", amount: 5 })
+          expect.objectContaining({ code: "default", amount: 5 })
         )
       })
 

@@ -17,7 +17,7 @@ export const CollectionMediaSection = ({
 }: CollectionMediaSectionProps) => {
   const { t } = useTranslation()
 
-  const gallery = getCollectionGallery(collection.images)
+  const gallery = getCollectionGallery(collection.media_images)
 
   return (
     <Container className="divide-y p-0" data-testid="collection-media-section">

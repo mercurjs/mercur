@@ -167,7 +167,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -227,7 +227,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -286,7 +286,7 @@
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -303,7 +303,7 @@
     },
     "packages/core": {
       "name": "@mercurjs/core",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "dependencies": {
         "pkg-dir": "4",
         "resolve-cwd": "^3.0.0",
@@ -351,7 +351,7 @@
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "dependencies": {
         "@babel/parser": "7.25.6",
         "@babel/traverse": "7.25.6",
@@ -368,7 +368,7 @@
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -422,13 +422,13 @@
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "dependencies": {
         "stripe": "^15.5.0",
       },
       "devDependencies": {
         "@medusajs/framework": "options-preview",
-        "@mercurjs/types": "2.2.0-canary.21",
+        "@mercurjs/types": "2.2.0-canary.22",
         "tsup": "^8.5.0",
       },
       "peerDependencies": {
@@ -437,7 +437,7 @@
     },
     "packages/registry": {
       "name": "@mercurjs/registry",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "dependencies": {
         "@hookform/resolvers": "3.4.2",
         "@medusajs/core-flows": "options-preview",
@@ -480,7 +480,7 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "dependencies": {
         "@medusajs/types": "options-preview",
       },
@@ -490,7 +490,7 @@
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.2.0-canary.21",
+      "version": "2.2.0-canary.29",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -3528,6 +3528,8 @@
     "@mercurjs/integration-tests/@types/node": ["@types/node@20.19.41", "", { "dependencies": { "undici-types": "~6.21.0" } }, "sha512-ECymXOukMnOoVkC2bb1Vc/w/836DXncOg5m8Xj1RH7xSHZJWNYY6Zh7EH477vcnD5egKNNfy2RpNOmuChhFPgQ=="],
 
     "@mercurjs/integration-tests/jest": ["jest@30.4.2", "", { "dependencies": { "@jest/core": "30.4.2", "@jest/types": "30.4.1", "import-local": "^3.2.0", "jest-cli": "30.4.2" }, "peerDependencies": { "node-notifier": "^8.0.1 || ^9.0.0 || ^10.0.0" }, "optionalPeers": ["node-notifier"], "bin": "./bin/jest.js" }, "sha512-Yi1jqNC/Oq0N4hBgNH/YvBpP1P57QqundgytzYqy3yqAa7NZPNjSoi4SGbRAXDMdBzNE6xBCi5U7RgfrvMEUVQ=="],
+
+    "@mercurjs/payout-stripe-connect/@mercurjs/types": ["@mercurjs/types@2.2.0-canary.22", "", { "dependencies": { "@medusajs/types": "2.13.4" } }, "sha512-IRP7GH7xpXQIm4hAlhCakez5K+Ju+0MNScKcq+JmGzOpJBhilgSGCfb5wKFDE4DhH6iTcmrF1nlsSfA45D9zaQ=="],
 
     "@mercurjs/registry/@mercurjs/cli": ["@mercurjs/cli@2.2.0-canary.2", "", { "dependencies": { "@antfu/ni": "^27.0.1", "@medusajs/admin-bundler": "2.13.4", "@medusajs/admin-shared": "2.13.4", "@medusajs/admin-vite-plugin": "2.13.4", "@medusajs/dashboard": "2.13.4", "@medusajs/framework": "2.13.4", "@mercurjs/dashboard-sdk": "2.2.0-canary.2", "@types/cross-spawn": "^6.0.6", "@vitejs/plugin-react": "^4.2.1", "autoprefixer": "^10.4.19", "commander": "^14.0.2", "compression": "^1.8.0", "cosmiconfig": "^9.0.0", "cross-spawn": "^7.0.6", "deepmerge": "^4.3.1", "diff": "^8.0.2", "execa": "^9.6.0", "express": "^4.21.0", "fast-glob": "^3.3.3", "fs-extra": "^11.3.2", "get-port": "^5.1.1", "glob": "11.1.0", "kleur": "^4.1.5", "open": "^11.0.0", "ora": "^9.0.0", "outdent": "^0.8.0", "pg": "^8.17.1", "pkg-dir": "^9.0.0", "postcss": "^8.4.38", "prompts": "^2.4.2", "resolve-cwd": "^3.0.0", "tailwindcss": "^3.4.3", "tar": "^7.5.2", "terminal-link": "^5.0.0", "ts-morph": "^27.0.2", "tsconfig-paths": "^4.2.0", "typescript": "5.9.3", "validate-npm-package-name": "^7.0.2", "vite": "^5.4.21", "wait-on": "^9.0.3", "zod": "3.25.76" }, "bin": { "mercurjs": "dist/index.js" } }, "sha512-uPl3mHEOxHH//xpeDbKWNW0Yj8E7MzkyaIeeRPd+4uZO/nJND69+vfvtqq0qhORlG8FBD7LnorABkZOqlK9EfA=="],
 

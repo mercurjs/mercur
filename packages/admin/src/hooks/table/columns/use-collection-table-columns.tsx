@@ -20,7 +20,7 @@ export const useCollectionTableColumns = () => {
         header: t("fields.title"),
         cell: ({ getValue, row }) => {
           const gallery = getCollectionGallery(
-            (row.original as CollectionWithImages).images
+            (row.original as CollectionWithImages).media_images
           )
           const thumbnailSrc =
             gallery.find((image) => image.is_thumbnail)?.url ??

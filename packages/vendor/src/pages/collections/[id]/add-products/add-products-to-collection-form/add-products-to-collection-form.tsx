@@ -93,7 +93,6 @@ export const AddProductsToCollectionForm = ({
 
   const { products, count, isLoading, isError, error } = useProducts(
     {
-      fields: "*variants,*sales_channels",
       ...searchParams,
     },
     {

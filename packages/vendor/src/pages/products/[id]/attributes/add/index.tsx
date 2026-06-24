@@ -1,4 +1,3 @@
-// Route: /products/:id/attributes/add
 import { XMarkMini } from "@medusajs/icons"
 import {
   Badge,
@@ -93,28 +92,23 @@ const Content = ({ productId }: { productId: string }) => {
   const [rowSelection, setRowSelection] =
     useState<DataTableRowSelectionState>({})
 
-  // Parent route loader prefetches the product with PRODUCT_DETAIL_QUERY, so this hits the React Query cache.
-  const { product } = useProduct(productId, PRODUCT_DETAIL_QUERY)
-  const categoryId = (product as any)?.categories?.[0]?.id as string | undefined
-
   const { searchParams } = useAttributeTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-  const attributesQuery = useMemo(
-    () => ({ ...searchParams, category_id: categoryId || undefined }),
-    [searchParams, categoryId]
-  )
   const { product_attributes, count, isLoading, isError, error } =
-    useProductAttributes(attributesQuery, {
+    useProductAttributes(searchParams, {
       placeholderData: keepPreviousData,
     })
+
+  const { product } = useProduct(productId, PRODUCT_DETAIL_QUERY)
 
   const assignedIds = useMemo(
     () =>
       new Set(
-        ((product as { attributes?: ProductAttributeDTO[] })?.attributes ?? [])
-          .map((a) => a.id)
+        ((product as any)?.attributes ?? []).map(
+          (a: ProductAttributeDTO) => a.id
+        )
       ),
     [product]
   )
@@ -168,15 +162,20 @@ const Content = ({ productId }: { productId: string }) => {
     if (!selectedIds.length) return
 
     const attrs = selectedIds
-      .map((id) => product_attributes?.find((a: any) => a.id === id))
+      .map((id) =>
+        product_attributes?.find((a: ProductAttributeDTO) => a.id === id)
+      )
       .filter(Boolean)
-      .map((attr: any) => ({
+      .map((attr) => ({
         attribute_id: attr!.id,
         name: attr!.name,
         type: attr!.type,
         is_variant_axis: attr!.is_variant_axis,
         available_values:
-          attr!.values?.map((v: any) => ({ id: v.id, name: v.name })) ?? [],
+          attr!.values?.map((v: { id: string; name: string }) => ({
+            id: v.id,
+            name: v.name,
+          })) ?? [],
         values:
           attr!.type === AttributeType.MULTI_SELECT
             ? ([] as string[])

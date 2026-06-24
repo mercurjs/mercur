@@ -7,10 +7,13 @@ import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
 import { createProductAttributesWorkflow } from "../../../workflows/product-attribute/workflows/create-product-attributes"
-import { AdminCreateProductAttributeType } from "./validators"
+import {
+  AdminCreateProductAttributeType,
+  AdminGetProductAttributesParamsType,
+} from "./validators"
 
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<AdminGetProductAttributesParamsType>,
   res: MedusaResponse<HttpTypes.AdminProductAttributeListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)

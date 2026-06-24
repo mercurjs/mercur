@@ -123,12 +123,14 @@ const baseProduct = {
     },
   ],
   variants: [baseVariant],
-  seller: {
-    id: 'sel_1',
-    handle: 'acme-store',
-    name: 'ACME',
-    status: 'active',
-  },
+  sellers: [
+    {
+      id: 'sel_1',
+      handle: 'acme-store',
+      name: 'ACME',
+      status: 'open',
+    },
+  ],
 }
 
 describe('findAndTransformMeilisearchProducts', () => {
@@ -147,7 +149,7 @@ describe('findAndTransformMeilisearchProducts', () => {
 
     const callArgs = container._graph.mock.calls[0][0]
     expect(callArgs.fields).toEqual(
-      expect.arrayContaining(['seller.id', 'seller.handle', 'seller.name', 'seller.status'])
+      expect.arrayContaining(['sellers.id', 'sellers.handle', 'sellers.name', 'sellers.status'])
     )
   })
 
@@ -160,7 +162,32 @@ describe('findAndTransformMeilisearchProducts', () => {
     const doc = result[0]!
     expect(doc.id).toBe('prod_1')
     expect(doc.title).toBe('Running Shoes')
-    expect(doc.seller).toMatchObject({ id: 'sel_1', handle: 'acme-store', status: 'active' })
+    expect(doc.seller).toMatchObject({ id: 'sel_1', handle: 'acme-store', status: 'open' })
+  })
+
+  it('flattens the sellers array (many-to-many link) to a single seller object', async () => {
+    const container = makeContainer([
+      {
+        ...baseProduct,
+        sellers: [
+          { id: 'sel_1', handle: 'acme-store', name: 'ACME', status: 'open' },
+        ],
+      },
+    ]) as any
+
+    const result = await findAndTransformMeilisearchProducts(container, ['prod_1'])
+
+    const doc = result[0]!
+    expect(Array.isArray(doc.seller)).toBe(false)
+    expect(doc.seller).toMatchObject({ id: 'sel_1', status: 'open' })
+  })
+
+  it('sets seller to null when the sellers array is empty', async () => {
+    const container = makeContainer([{ ...baseProduct, sellers: [] }]) as any
+
+    const result = await findAndTransformMeilisearchProducts(container, ['prod_1'])
+
+    expect(result[0]!.seller).toBeNull()
   })
 
   it('flattens options into key/value records', async () => {

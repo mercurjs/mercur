@@ -41,7 +41,7 @@ medusaIntegrationTestRunner({
 
         expect(response.status).toEqual(200)
 
-        const images = response.data.product_category.images
+        const images = response.data.product_category.media_images
         expect(images).toBeDefined()
 
         const galleryImages = gallery(images)
@@ -73,7 +73,7 @@ medusaIntegrationTestRunner({
         )
 
         expect(response.status).toEqual(200)
-        const images = response.data.product_category.images
+        const images = response.data.product_category.media_images
         expect(gallery(images)).toHaveLength(1)
         expect(icon(images)).toBeDefined()
       })
@@ -104,7 +104,7 @@ medusaIntegrationTestRunner({
         )
 
         expect(updated.status).toEqual(200)
-        const images = updated.data.product_category.images
+        const images = updated.data.product_category.media_images
         const galleryImages = gallery(images)
 
         expect(galleryImages).toHaveLength(2)
@@ -136,7 +136,7 @@ medusaIntegrationTestRunner({
           adminHeaders
         )
 
-        const images = updated.data.product_category.images
+        const images = updated.data.product_category.media_images
         expect(icon(images)).toBeUndefined()
         expect(gallery(images)).toHaveLength(1)
       })
@@ -148,7 +148,7 @@ medusaIntegrationTestRunner({
           adminHeaders
         )
         const id = created.data.product_category.id
-        const imageIds = created.data.product_category.images.map(
+        const imageIds = created.data.product_category.media_images.map(
           (img: any) => img.id
         )
         expect(imageIds.length).toEqual(2)
@@ -161,7 +161,7 @@ medusaIntegrationTestRunner({
         expect(deleted.data.deleted).toEqual(true)
 
         const mediaService: any = appContainer.resolve("media")
-        const remaining = await mediaService.listImages({ id: imageIds })
+        const remaining = await mediaService.listMediaImages({ id: imageIds })
         expect(remaining).toHaveLength(0)
       })
     })

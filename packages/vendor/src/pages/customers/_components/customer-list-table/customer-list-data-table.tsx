@@ -20,16 +20,10 @@ export const CustomerListDataTable = () => {
 
   const { customers, count, isLoading, isError, error } = useCustomers(
     {
-      offset: searchParams.offset,
-      limit: searchParams.limit,
+      ...searchParams,
     },
     {
       placeholderData: keepPreviousData,
-    },
-    {
-      has_account: searchParams.has_account,
-      order: searchParams.order,
-      q: searchParams.q,
     },
   );
 
@@ -76,6 +70,7 @@ export const CustomerListDataTable = () => {
           label: t("fields.updatedAt"),
         },
       ]}
+      defaultOrderBy="-created_at"
       isLoading={isLoading}
       navigateTo={(row) => row.original.id}
       queryObject={raw}

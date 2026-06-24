@@ -1,57 +1,75 @@
 import {
+  applyDefaultFilters,
+  authenticate,
   maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { isPresent } from "@medusajs/framework/utils"
 import { validateAndTransformQuery } from "@medusajs/framework"
+import {
+  normalizeDataForContext,
+  setPricingContext,
+  setTaxContext,
+} from "@medusajs/medusa/api/utils/middlewares/index"
 
 import { storeProductQueryConfig } from "./query-config"
 import {
   StoreGetProductParams,
   StoreGetProductsParams,
 } from "./validators"
-import { SellerStatus, ProductStatus } from "@mercurjs/types"
+import { ProductStatus } from "@mercurjs/types"
+import { resolveVisibleSellerIds } from "../../utils/sellers"
 
-const applyProductFilters = (
-  req: MedusaRequest,
-  _res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  req.filterableFields = req.filterableFields ?? {}
-  req.filterableFields.status = ProductStatus.PUBLISHED
-  next()
-}
+/**
+ * Apply the store-facing defaults that vanilla Medusa applies on its own
+ * `/store/products` route. Besides forcing the `published` status, this
+ * translates the Medusa-standard `category_id` query param into the
+ * `categories` relation filter. The `Product` entity has no `category_id`
+ * column, so passing it straight to `query.graph` raises
+ * `Trying to query by not existing property Product.category_id` (#974).
+ */
+const applyProductFilters = applyDefaultFilters({
+  status: ProductStatus.PUBLISHED,
+  categories: (filters: Record<string, unknown>) => {
+    const categoryIds = filters.category_id
+    delete filters.category_id
+
+    if (!isPresent(categoryIds)) {
+      return
+    }
+
+    return { id: categoryIds, is_internal: false, is_active: true }
+  },
+})
 
 async function applyVisibleSellerIdsFilter(
   req: MedusaRequest,
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const now = new Date()
-
-  const { data: visibleSellers } = await query.graph({
-    entity: "seller",
-    fields: ["id"],
-    filters: {
-      status: SellerStatus.OPEN,
-      $and: [
-        { $or: [{ closed_from: null }, { closed_from: { $gt: now } }] },
-        { $or: [{ closed_to: null }, { closed_to: { $lt: now } }] },
-      ],
-    },
-  })
-
   req.filterableFields ??= {}
-  req.filterableFields.seller_id = visibleSellers.map(
-    (s: { id: string }) => s.id
-  )
+  req.filterableFields.seller_id = await resolveVisibleSellerIds(req.scope)
 
   next()
 }
+
+/**
+ * Resolve the pricing/tax context consumed by the offer-price wrap. Reuses
+ * Medusa's product-pricing middlewares so the gate matches vanilla
+ * `/store/products`: prices compute only when the client requests
+ * `variants.calculated_price` or passes `region_id`.
+ */
+const pricingMiddlewares = [
+  authenticate("customer", ["session", "bearer"], {
+    allowUnauthenticated: true,
+  }),
+  normalizeDataForContext({ priceFieldPaths: ["variants.calculated_price"] }),
+  setPricingContext({ priceFieldPaths: ["variants.calculated_price"] }),
+  setTaxContext({ priceFieldPaths: ["variants.calculated_price"] }),
+]
 
 export const storeProductsMiddlewares: MiddlewareRoute[] = [
   {
@@ -69,6 +87,7 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
         resourceId: "product_id",
         filterableField: "seller_id",
       }),
+      ...pricingMiddlewares,
     ],
   },
   {
@@ -86,6 +105,7 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
         resourceId: "product_id",
         filterableField: "seller_id",
       }),
+      ...pricingMiddlewares,
     ],
   },
 ]

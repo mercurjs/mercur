@@ -16,7 +16,7 @@ export const CollectionIconSection = ({
 }: CollectionIconSectionProps) => {
   const { t } = useTranslation()
 
-  const icon = getCollectionIcon(collection.images)
+  const icon = getCollectionIcon(collection.media_images)
 
   return (
     <Container className="divide-y p-0" data-testid="collection-icon-section">

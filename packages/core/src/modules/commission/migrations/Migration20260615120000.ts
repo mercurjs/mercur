@@ -27,7 +27,7 @@ export class Migration20260615120000 extends Migration {
     this.addSql(`CREATE INDEX IF NOT EXISTS "IDX_commission_line_shipping_method_id" ON "commission_line" ("shipping_method_id") WHERE deleted_at IS NULL;`);
 
     // seed exactly one default (Global Commission) rate
-    this.addSql(`insert into "commission_rate" ("id", "is_enabled", "is_default", "currency_code", "name", "code", "type", "value", "raw_value", "include_tax", "include_shipping", "created_at", "updated_at") select 'comrate_default', true, true, null, 'Default', 'DEFAULT', 'percentage', 0, '{"value":"0"}'::jsonb, false, false, now(), now() where not exists (select 1 from "commission_rate" where "is_default" = true and "deleted_at" is null);`);
+    this.addSql(`insert into "commission_rate" ("id", "is_enabled", "is_default", "currency_code", "name", "code", "type", "value", "raw_value", "include_tax", "include_shipping", "created_at", "updated_at") select 'comrate_default', true, true, null, 'Default', 'default', 'percentage', 0, '{"value":"0"}'::jsonb, false, false, now(), now() where not exists (select 1 from "commission_rate" where "is_default" = true and "deleted_at" is null);`);
   }
 
   override async down(): Promise<void> {

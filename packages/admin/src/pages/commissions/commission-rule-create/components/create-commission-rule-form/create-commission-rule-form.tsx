@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "@medusajs/ui";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
@@ -11,7 +12,7 @@ import { buildRulesFromScope, buildValuesPayload } from "../../../common/utils";
 import { CreateCommissionRuleCommission } from "./create-commission-rule-commission";
 import { CreateCommissionRuleDetails } from "./create-commission-rule-details";
 import {
-  CreateCommissionRuleSchema,
+  createCommissionRuleSchema,
   CreateCommissionRuleSchemaType,
 } from "./schema";
 
@@ -19,6 +20,11 @@ export const CreateCommissionRuleForm = () => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const { currencies } = useStoreCurrencies();
+
+  const resolver = useMemo(
+    () => zodResolver(createCommissionRuleSchema(currencies)),
+    [currencies]
+  );
 
   const form = useForm<CreateCommissionRuleSchemaType>({
     defaultValues: {
@@ -29,12 +35,12 @@ export const CreateCommissionRuleForm = () => {
       productTypes: [],
       categories: [],
       commissionType: "percentage",
-      value: 0,
+      value: undefined,
       fixed_values: {},
       include_tax: false,
       include_shipping: false,
     },
-    resolver: zodResolver(CreateCommissionRuleSchema),
+    resolver,
   });
 
   const { mutateAsync, isPending } = useCreateCommissionRule();
@@ -66,7 +72,7 @@ export const CreateCommissionRuleForm = () => {
         onSuccess: ({ commission_rate }) => {
           toast.success(
             t("commissions.create.successToast", {
-              defaultValue: "Commission rule created",
+              defaultValue: "Commission rule was successfully created.",
             })
           );
           handleSuccess(`/settings/commissions/${commission_rate.id}`);

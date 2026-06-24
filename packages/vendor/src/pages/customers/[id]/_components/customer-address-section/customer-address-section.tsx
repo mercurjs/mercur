@@ -44,8 +44,8 @@ export const CustomerAddressSection = ({
           <NoRecords
             className="flex h-full flex-col overflow-hidden p-6"
             icon={null}
-            title={t("general.noRecordsTitle")}
-            message={t("general.noRecordsMessage")}
+            title={t("customers.addresses.emptyTitle")}
+            message={t("customers.addresses.emptyMessage")}
           />
         </div>
       ) : (

@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Heading, Select, toast } from "@medusajs/ui";
+import { Button, Heading, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -7,9 +7,9 @@ import * as zod from "zod";
 
 import { Form } from "../../../components/common/form";
 import { SwitchBox } from "../../../components/common/switch-box";
+import { Combobox } from "../../../components/inputs/combobox";
 import { RouteDrawer, useRouteModal } from "../../../components/modals";
 import { KeyboundForm } from "../../../components/utilities/keybound-form";
-import { useDocumentDirection } from "../../../hooks/use-document-direction";
 import {
   useCommissionRule,
   useUpdateCommissionRule,
@@ -30,8 +30,12 @@ const EditCommissionSchema = zod.object({
 const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
-  const direction = useDocumentDirection();
   const { currencies } = useStoreCurrencies();
+
+  const typeOptions = [
+    { value: "percentage", label: t("commissions.fields.type.percentage") },
+    { value: "fixed", label: t("commissions.fields.type.fixed") },
+  ];
 
   const form = useForm<zod.infer<typeof EditCommissionSchema>>({
     defaultValues: {
@@ -63,7 +67,7 @@ const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
         onSuccess: () => {
           toast.success(
             t("commissions.commissionEdit.successToast", {
-              defaultValue: "Commission updated",
+              defaultValue: "Commission was successfully updated.",
             })
           );
           handleSuccess();
@@ -83,31 +87,18 @@ const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
             <Form.Field
               control={form.control}
               name="type"
-              render={({ field: { onChange, ref, ...field } }) => (
+              render={({ field }) => (
                 <Form.Item>
                   <Form.Label>
-                    {t("commissions.fields.type.label", "Type")}
+                    {t("commissions.fields.type.label")}
                   </Form.Label>
                   <Form.Control>
-                    <Select {...field} onValueChange={onChange} dir={direction}>
-                      <Select.Trigger
-                        ref={ref}
-                        data-testid="commission-edit-type-select"
-                      >
-                        <Select.Value />
-                      </Select.Trigger>
-                      <Select.Content>
-                        <Select.Item value="percentage">
-                          {t(
-                            "commissions.fields.type.percentage",
-                            "Percentage"
-                          )}
-                        </Select.Item>
-                        <Select.Item value="fixed">
-                          {t("commissions.fields.type.fixed", "Fixed")}
-                        </Select.Item>
-                      </Select.Content>
-                    </Select>
+                    <Combobox
+                      {...field}
+                      options={typeOptions}
+                      forceHideInput
+                      data-testid="commission-edit-type-select"
+                    />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
@@ -121,23 +112,14 @@ const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
             <SwitchBox
               control={form.control}
               name="include_tax"
-              label={t("commissions.fields.taxIncluded", "Tax included")}
-              description={t(
-                "commissions.fields.taxIncludedHint",
-                "If checked, commission is calculated on the total including tax."
-              )}
+              label={t("commissions.fields.taxIncluded")}
+              description={t("commissions.fields.taxIncludedHint")}
             />
             <SwitchBox
               control={form.control}
               name="include_shipping"
-              label={t(
-                "commissions.fields.shippingIncluded",
-                "Shipping included"
-              )}
-              description={t(
-                "commissions.fields.shippingIncludedHint",
-                "If checked, commission is calculated on the total including shipping."
-              )}
+              label={t("commissions.fields.shippingIncluded")}
+              description={t("commissions.fields.shippingIncludedHint")}
             />
           </div>
         </RouteDrawer.Body>
@@ -187,11 +169,11 @@ export const CommissionRuleCommissionEdit = () => {
       <RouteDrawer.Header>
         <RouteDrawer.Title asChild>
           <Heading>
-            {t("commissions.commissionEdit.header", "Edit Commission")}
+            {t("commissions.commissionEdit.header")}
           </Heading>
         </RouteDrawer.Title>
         <RouteDrawer.Description className="sr-only">
-          {t("commissions.commissionEdit.header", "Edit Commission")}
+          {t("commissions.commissionEdit.header")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
       {ready && <EditCommissionForm rule={commission_rate} />}

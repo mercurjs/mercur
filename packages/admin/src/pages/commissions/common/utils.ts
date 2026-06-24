@@ -158,11 +158,11 @@ export const getIsActiveProps = (isEnabled: boolean, t: TFunction) =>
   isEnabled
     ? {
         color: "green" as const,
-        label: t("commissions.status.enabled", "Active"),
+        label: t("commissions.status.enabled"),
       }
     : {
-        color: "grey" as const,
-        label: t("commissions.status.disabled", "Inactive"),
+        color: "red" as const,
+        label: t("commissions.status.disabled"),
       };
 
 /** Form `fixed_values` map → the API `values[]` payload (one per currency). */

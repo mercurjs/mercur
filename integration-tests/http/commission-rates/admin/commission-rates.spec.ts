@@ -128,6 +128,140 @@ medusaIntegrationTestRunner({
             expect(rate.is_enabled).toEqual(false)
           })
         })
+
+        it("should filter commission rates by scope_type", async () => {
+          const storeRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Store Scoped Rate",
+              code: "SCOPE_STORE",
+              type: "percentage",
+              value: 5,
+              rules: [{ reference: "seller", reference_id: seller.id }],
+            },
+            adminHeaders
+          )
+
+          await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Product Type Scoped Rate",
+              code: "SCOPE_PRODUCT_TYPE",
+              type: "percentage",
+              value: 6,
+              rules: [
+                { reference: "product_type", reference_id: "ptyp_test123" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const comboRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Store Product Type Scoped Rate",
+              code: "SCOPE_STORE_PRODUCT_TYPE",
+              type: "percentage",
+              value: 7,
+              rules: [
+                { reference: "seller", reference_id: seller.id },
+                { reference: "product_type", reference_id: "ptyp_test456" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const storeOnly = await api.get(
+            `/admin/commission-rates?scope_type=store`,
+            adminHeaders
+          )
+
+          expect(storeOnly.status).toEqual(200)
+          const storeIds = storeOnly.data.commission_rates.map(
+            (r: any) => r.id
+          )
+          expect(storeIds).toContain(storeRate.data.commission_rate.id)
+          // The store + product_type combo must NOT match the plain "store" scope.
+          expect(storeIds).not.toContain(comboRate.data.commission_rate.id)
+
+          const combo = await api.get(
+            `/admin/commission-rates?scope_type=store_product_type`,
+            adminHeaders
+          )
+
+          expect(combo.status).toEqual(200)
+          const comboIds = combo.data.commission_rates.map((r: any) => r.id)
+          expect(comboIds).toContain(comboRate.data.commission_rate.id)
+          expect(comboIds).not.toContain(storeRate.data.commission_rate.id)
+        })
+
+        it("should filter by multiple scope_type values (comma-joined and array)", async () => {
+          const storeRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Multi Store Rate",
+              code: "MULTI_STORE",
+              type: "percentage",
+              value: 5,
+              rules: [{ reference: "seller", reference_id: seller.id }],
+            },
+            adminHeaders
+          )
+
+          const categoryRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Multi Category Rate",
+              code: "MULTI_CATEGORY",
+              type: "percentage",
+              value: 6,
+              rules: [
+                { reference: "product_category", reference_id: "pcat_multi" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const productTypeRate = await api.post(
+            `/admin/commission-rates`,
+            {
+              name: "Multi Product Type Rate",
+              code: "MULTI_PRODUCT_TYPE",
+              type: "percentage",
+              value: 7,
+              rules: [
+                { reference: "product_type", reference_id: "ptyp_multi" },
+              ],
+            },
+            adminHeaders
+          )
+
+          const comma = await api.get(
+            `/admin/commission-rates?scope_type=store,category`,
+            adminHeaders
+          )
+
+          expect(comma.status).toEqual(200)
+          const commaIds = comma.data.commission_rates.map((r: any) => r.id)
+          expect(commaIds).toContain(storeRate.data.commission_rate.id)
+          expect(commaIds).toContain(categoryRate.data.commission_rate.id)
+          expect(commaIds).not.toContain(
+            productTypeRate.data.commission_rate.id
+          )
+
+          const array = await api.get(
+            `/admin/commission-rates?scope_type[0]=store&scope_type[1]=category`,
+            adminHeaders
+          )
+
+          expect(array.status).toEqual(200)
+          const arrayIds = array.data.commission_rates.map((r: any) => r.id)
+          expect(arrayIds).toContain(storeRate.data.commission_rate.id)
+          expect(arrayIds).toContain(categoryRate.data.commission_rate.id)
+          expect(arrayIds).not.toContain(
+            productTypeRate.data.commission_rate.id
+          )
+        })
       })
 
       describe("POST /admin/commission-rates", () => {

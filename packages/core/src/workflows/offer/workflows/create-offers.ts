@@ -117,7 +117,7 @@ export const createOffersWorkflow: ReturnWorkflow<
 
     const { data: variants } = useQueryGraphStep({
       entity: "product_variant",
-      fields: ["id", "ean", "upc", "price_set.id"],
+      fields: ["id", "ean", "upc", "price_set.id", "product.id"],
       filters: { id: variantIds },
     }).config({ name: "get-variants" })
 
@@ -139,6 +139,7 @@ export const createOffersWorkflow: ReturnWorkflow<
           return {
             seller_id: offer.seller_id,
             variant_id: offer.variant_id,
+            product_id: variant.product?.id,
             shipping_profile_id: offer.shipping_profile_id,
             sku: offer.sku,
             ean: offer.ean ?? variant.ean ?? null,
