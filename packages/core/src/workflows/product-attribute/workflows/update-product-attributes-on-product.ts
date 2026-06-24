@@ -27,6 +27,7 @@ import {
 import {
   createProductAttributeValuesStep,
   detachProductOptionValuesFromProductStep,
+  updateProductAttributeValuesStep,
 } from "../steps"
 import { createProductAttributeValuesWorkflow } from "./create-product-attribute-values"
 import { deleteProductAttributeValuesWorkflow } from "./delete-product-attribute-values"
@@ -201,6 +202,7 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
         const newValueRows: (CreateProductAttributeValueDTO & {
           attribute_id: string
         })[] = []
+        const updateValueRows: { id: string; name: string }[] = []
         const toggleLinks: LinkDefinition[] = []
         const dismissLinks: LinkDefinition[] = []
 
@@ -216,16 +218,19 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
             attr.type === AttributeType.TEXT ||
             attr.type === AttributeType.UNIT
           ) {
-            newValueRows.push({
-              name: String(ref.value),
-              attribute_id: ref.id,
-            })
-            for (const vid of linkedByAttr.get(ref.id) ?? []) {
-              dismissLinks.push({
-                [Modules.PRODUCT]: { product_id },
-                [MercurModules.PRODUCT_ATTRIBUTE]: {
-                  product_attribute_value_id: vid,
-                },
+            // Free-form text/unit values are owned 1:1 by this product. If the
+            // product already has a linked value, rename it in place instead of
+            // creating a new row (which would orphan the old value). Only the
+            // first time it's set (no linked value yet) do we create + link.
+            const linkedValueIds = linkedByAttr.get(ref.id) ?? []
+            if (linkedValueIds.length > 0) {
+              for (const vid of linkedValueIds) {
+                updateValueRows.push({ id: vid, name: String(ref.value) })
+              }
+            } else {
+              newValueRows.push({
+                name: String(ref.value),
+                attribute_id: ref.id,
               })
             }
           } else if (attr.type === AttributeType.TOGGLE) {
@@ -253,12 +258,20 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
           }
         }
 
-        return { newValueRows, toggleLinks, dismissLinks }
+        return { newValueRows, updateValueRows, toggleLinks, dismissLinks }
       },
     )
 
     const createdSwapValues = createProductAttributeValuesStep(
       swapPlan.newValueRows,
+    )
+
+    // Rename existing text/unit values in place (no new row, link stays).
+    when(
+      { swapPlan },
+      ({ swapPlan }) => swapPlan.updateValueRows.length > 0,
+    ).then(() =>
+      updateProductAttributeValuesStep({ values: swapPlan.updateValueRows }),
     )
 
     const swapLinks = transform(
