@@ -3874,10 +3874,6 @@
       "description": "You are about to delete commission rule {{name}}. This action cannot be undone.",
       "successToast": "Commission rule was successfully deleted."
     },
-    "validation": {
-      "codeRequired": "Please enter a code",
-      "valueRequired": "Please enter a value."
-    },
     "fields": {
       "code": "Code",
       "value": "Value",
@@ -3946,6 +3942,7 @@
     },
     "validation": {
       "titleRequired": "Please enter a title",
+      "codeRequired": "Please enter a code",
       "value": "Please enter a value",
       "storesRequired": "Please select at least one store",
       "productTypesRequired": "Please select at least one product type",

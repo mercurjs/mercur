@@ -50,8 +50,7 @@ export type AdminCreateCommissionRateType = z.infer<
 >
 export const AdminCreateCommissionRate = z.object({
   name: z.string(),
-  // Optional: when omitted, the route generates a unique code from the name.
-  code: z.string().optional(),
+  code: z.string().min(1),
   type: z.nativeEnum(CommissionRateType),
   value: z.number(),
   currency_code: z.string().nullish(),

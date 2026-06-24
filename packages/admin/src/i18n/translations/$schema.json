@@ -14791,22 +14791,6 @@
           ],
           "additionalProperties": false
         },
-        "validation": {
-          "type": "object",
-          "properties": {
-            "codeRequired": {
-              "type": "string"
-            },
-            "valueRequired": {
-              "type": "string"
-            }
-          },
-          "required": [
-            "codeRequired",
-            "valueRequired"
-          ],
-          "additionalProperties": false
-        },
         "fields": {
           "type": "object",
           "properties": {
@@ -15082,6 +15066,9 @@
             "titleRequired": {
               "type": "string"
             },
+            "codeRequired": {
+              "type": "string"
+            },
             "value": {
               "type": "string"
             },
@@ -15097,6 +15084,7 @@
           },
           "required": [
             "titleRequired",
+            "codeRequired",
             "value",
             "storesRequired",
             "productTypesRequired",

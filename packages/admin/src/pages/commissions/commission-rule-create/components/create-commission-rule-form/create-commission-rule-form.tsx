@@ -29,6 +29,7 @@ export const CreateCommissionRuleForm = () => {
   const form = useForm<CreateCommissionRuleSchemaType>({
     defaultValues: {
       title: "",
+      code: "",
       scopeType: "store",
       stores: [],
       productTypes: [],
@@ -56,6 +57,7 @@ export const CreateCommissionRuleForm = () => {
     await mutateAsync(
       {
         name: values.title,
+        code: values.code,
         type: values.commissionType,
         value: isFixed ? 0 : values.value,
         ...(isFixed

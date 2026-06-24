@@ -7,6 +7,9 @@ const baseCommissionRuleSchema = zod.object({
   title: zod
     .string()
     .min(1, { message: i18n.t("commissions.validation.titleRequired") }),
+  code: zod
+    .string()
+    .min(1, { message: i18n.t("commissions.validation.codeRequired") }),
   scopeType: zod.enum([
     "store",
     "product_type",

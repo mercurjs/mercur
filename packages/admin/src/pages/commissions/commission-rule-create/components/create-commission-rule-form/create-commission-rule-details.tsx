@@ -84,6 +84,23 @@ export const CreateCommissionRuleDetails = () => {
         />
         <Form.Field
           control={form.control}
+          name="code"
+          render={({ field }) => (
+            <Form.Item>
+              <Form.Label>{t("commissions.fields.code")}</Form.Label>
+              <Form.Control>
+                <Input
+                  autoComplete="off"
+                  data-testid="commission-rule-code-input"
+                  {...field}
+                />
+              </Form.Control>
+              <Form.ErrorMessage />
+            </Form.Item>
+          )}
+        />
+        <Form.Field
+          control={form.control}
           name="scopeType"
           render={({ field }) => (
             <Form.Item>
@@ -113,11 +130,13 @@ export const CreateCommissionRuleDetails = () => {
                 </Form.Label>
                 <Form.Control>
                   <Combobox
+                    {...field}
+                    value={field.value ?? []}
                     options={stores.options}
-                    fetchNextPage={stores.fetchNextPage}
                     searchValue={stores.searchValue}
                     onSearchValueChange={stores.onSearchValueChange}
-                    {...field}
+                    fetchNextPage={stores.fetchNextPage}
+                    data-testid="commission-rule-stores-input"
                   />
                 </Form.Control>
                 <Form.ErrorMessage />
@@ -136,11 +155,13 @@ export const CreateCommissionRuleDetails = () => {
                 </Form.Label>
                 <Form.Control>
                   <Combobox
+                    {...field}
+                    value={field.value ?? []}
                     options={productTypes.options}
-                    fetchNextPage={productTypes.fetchNextPage}
                     searchValue={productTypes.searchValue}
                     onSearchValueChange={productTypes.onSearchValueChange}
-                    {...field}
+                    fetchNextPage={productTypes.fetchNextPage}
+                    data-testid="commission-rule-product-types-input"
                   />
                 </Form.Control>
                 <Form.ErrorMessage />
@@ -159,11 +180,13 @@ export const CreateCommissionRuleDetails = () => {
                 </Form.Label>
                 <Form.Control>
                   <Combobox
+                    {...field}
+                    value={field.value ?? []}
                     options={categories.options}
-                    fetchNextPage={categories.fetchNextPage}
                     searchValue={categories.searchValue}
                     onSearchValueChange={categories.onSearchValueChange}
-                    {...field}
+                    fetchNextPage={categories.fetchNextPage}
+                    data-testid="commission-rule-categories-input"
                   />
                 </Form.Control>
                 <Form.ErrorMessage />
@@ -183,6 +206,7 @@ CreateCommissionRuleDetails._tabMeta = defineTabMeta<CreateCommissionRuleSchemaT
     labelKey: "commissions.create.details",
     validationFields: [
       "title",
+      "code",
       "scopeType",
       "stores",
       "productTypes",

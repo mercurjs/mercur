@@ -38,8 +38,6 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // `code` is auto-generated in CommissionModuleService.createCommissionRates
-  // when omitted, so the body flows straight through.
   const { result } = await createCommissionRatesWorkflow(req.scope).run({
     input: [req.validatedBody],
   })
