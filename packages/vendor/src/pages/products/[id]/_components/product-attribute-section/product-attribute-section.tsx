@@ -19,7 +19,12 @@ import {
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "@components/common/action-menu";
-import { ProductAttributeDTO, ProductDTO } from "@mercurjs/types";
+import {
+  MercurFeatureFlags,
+  ProductAttributeDTO,
+  ProductDTO,
+} from "@mercurjs/types";
+import { useFeatureFlags } from "@hooks/api";
 import { useRemoveProductAttribute } from "@hooks/api/products";
 
 type ProductWithAttributes = Pick<ProductDTO, "id" | "attributes">;
@@ -33,6 +38,9 @@ const AttributeActions = ({
 }) => {
   const { t } = useTranslation();
   const prompt = usePrompt();
+  const { feature_flags } = useFeatureFlags();
+  const isProductRequestEnabled =
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST];
   const { mutateAsync } = useRemoveProductAttribute(productId, attribute.id);
 
   const handleDelete = async () => {
@@ -50,6 +58,13 @@ const AttributeActions = ({
     }
 
     await mutateAsync(undefined, {
+      onSuccess: () => {
+        toast.success(
+          isProductRequestEnabled
+            ? t("products.edit.requestSuccessToast")
+            : t("products.edit.attributes.deleteSuccessToast"),
+        );
+      },
       onError: (error) => {
         toast.error(error.message);
       },

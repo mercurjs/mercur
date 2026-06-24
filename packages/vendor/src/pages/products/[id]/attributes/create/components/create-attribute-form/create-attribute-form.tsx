@@ -13,10 +13,13 @@ import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
+import { MercurFeatureFlags } from "@mercurjs/types"
+
 import { ChipInput } from "@components/inputs/chip-input"
 import { Form } from "@components/common/form"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useFeatureFlags } from "@hooks/api"
 import { useAddProductAttribute } from "@hooks/api/products"
 
 const normalizeValues = (raw: string | string[]): string[] =>
@@ -54,6 +57,10 @@ export const CreateAttributeForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
+  const { feature_flags } = useFeatureFlags()
+  const isProductRequestEnabled =
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
+
   const schema = useMemo(
     () =>
       buildSchema({
@@ -90,6 +97,11 @@ export const CreateAttributeForm = ({
       {
         onSuccess: () => {
           handleSuccess()
+          toast.success(
+            isProductRequestEnabled
+              ? t("products.edit.requestSuccessToast")
+              : t("products.edit.attributes.createSuccessToast")
+          )
         },
         onError: (error) => {
           toast.error(error.message)
