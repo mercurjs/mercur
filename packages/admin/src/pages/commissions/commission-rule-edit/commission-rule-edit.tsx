@@ -28,7 +28,7 @@ import {
 const EditCommissionRuleSchema = zod.object({
   status: zod.enum(["active", "inactive"]),
   name: zod.string().min(1),
-  code: zod.string().min(1),
+  code: zod.string().min(1, "Please enter a code"),
   scopeType: zod.enum([
     "store",
     "product_type",

@@ -20,7 +20,7 @@ import { buildValuesPayload, fixedValuesFromRate } from "../common/utils";
 
 const EditGlobalCommissionSchema = zod
   .object({
-    code: zod.string().min(1),
+    code: zod.string().min(1, "Please enter a code"),
     type: zod.enum(["percentage", "fixed"]),
     value: zod.coerce.number().optional(),
     fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
