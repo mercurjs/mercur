@@ -183,7 +183,6 @@ export const prepareOfferInventoryInput = (
         requiredByPivot.get(`${offer.id}:${inventoryItemId}`) ?? 1
       const required = MathBN.mult(requiredQuantity, item.quantity)
 
-      // 1. Full availability locations
       const fullLocations: string[] = []
       for (const [locId, qty] of itemAvail) {
         if (MathBN.gte(qty, required)) {
@@ -191,10 +190,8 @@ export const prepareOfferInventoryInput = (
         }
       }
 
-      // 2. Locations with any level for this item
       const anyLocationsArr = Array.from(itemAny)
 
-      // 3. Channel-allowed locations
       const channelLocationsArr = Array.from(channelLocations)
 
       const dedup = new Set<string>([

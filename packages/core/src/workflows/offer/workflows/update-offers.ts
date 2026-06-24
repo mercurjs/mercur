@@ -63,7 +63,6 @@ export const updateOffersWorkflow: ReturnWorkflow<
   function (input: UpdateOffersWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    // 1. Strip nested data; only offer-row fields go to updateOffersStep.
     const rowUpdates = transform(input, ({ offers }) =>
       offers.map((o) => ({
         id: o.id,
@@ -73,17 +72,14 @@ export const updateOffersWorkflow: ReturnWorkflow<
       })),
     )
 
-    // 2. Bulk-update offer rows.
     const offers = updateOffersStep(rowUpdates)
 
-    // 3. Filter offers whose prices changed.
     const offersWithPriceUpdates = transform({ input }, ({ input }) =>
       input.offers
         .filter((o) => Array.isArray(o.prices))
         .map((o) => o.id),
     )
 
-    // 4. Bulk-load `offer.prices` and `variant.price_set.id` via the link.
     const { data: offerRows } = useQueryGraphStep({
       entity: "offer",
       fields: [
@@ -101,7 +97,6 @@ export const updateOffersWorkflow: ReturnWorkflow<
       filters: { id: offersWithPriceUpdates },
     }).config({ name: "get-offer-prices" })
 
-    // 5–6. assertOfferPriceOwnership + compute (toAdd, toUpdate, toRemove).
     const pricingDiff = transform(
       { input, offerRows },
       ({ input, offerRows }) => {
@@ -218,17 +213,14 @@ export const updateOffersWorkflow: ReturnWorkflow<
       ({ pricingDiff }) => ({ price_sets: pricingDiff.price_sets }),
     )
 
-    // 7. Bulk-upsert prices (existing get updated, new get inserted).
     const upsertedPriceSets = updatePriceSetsStep(priceSetsPayload)
 
-    // 8. Bulk-remove obsolete Price rows.
     const toRemoveIds = transform(
       { pricingDiff },
       ({ pricingDiff }) => pricingDiff.toRemoveIds,
     )
     removeOfferPricesStep(toRemoveIds)
 
-    // 9. Sync the link pivot: dismiss removed; create new.
     const removedLinks = transform(
       { pricingDiff },
       ({ pricingDiff }) => pricingDiff.removedLinks,

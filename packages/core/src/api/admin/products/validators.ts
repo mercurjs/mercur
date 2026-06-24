@@ -15,8 +15,6 @@ import { isPresent } from "@medusajs/framework/utils"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
-// --- List / retrieve query params ---
-
 const AdminGetProductsParamsFields = z.object({
   q: z.string().optional(),
   id: z.union([z.string(), z.array(z.string())]).optional(),
@@ -67,8 +65,6 @@ export const AdminGetProductsParams = createFindParams({
 
 export type AdminGetProductParamsType = z.infer<typeof AdminGetProductParams>
 export const AdminGetProductParams = createSelectParams()
-
-// --- Create / update product ---
 
 const IdAssociation = z.object({ id: z.string() })
 
@@ -135,8 +131,6 @@ const UpdateProductVariant = z
   })
   .strict()
 
-// --- Attribute input validators ---
-
 const AttributeTypeEnum = z.enum([
   "single_select",
   "multi_select",
@@ -175,8 +169,6 @@ const UnifiedProductAttributeInput = z.union([
     .strict(),
 ])
 
-// --- Variant query params ---
-
 export type AdminGetProductVariantParamsType = z.infer<
   typeof AdminGetProductVariantParams
 >
@@ -201,8 +193,6 @@ export const AdminGetProductVariantsParams = createFindParams({
   .merge(AdminGetProductVariantsParamsFields)
   .merge(applyAndAndOrOperators(AdminGetProductVariantsParamsFields))
 
-// --- Variant create / update ---
-
 export type AdminCreateProductVariantType = z.infer<
   typeof CreateProductVariant
 > &
@@ -216,8 +206,6 @@ export type AdminUpdateProductVariantType = z.infer<
   AdditionalData
 export const AdminUpdateProductVariant =
   WithAdditionalData(UpdateProductVariant)
-
-// --- Product create / update ---
 
 export type AdminCreateProductType = z.infer<typeof CreateProduct> &
   AdditionalData
@@ -294,8 +282,6 @@ export const UpdateProduct = z
   .strict()
 export const AdminUpdateProduct = WithAdditionalData(UpdateProduct)
 
-// --- Action endpoints ---
-
 export type AdminConfirmProductType = z.infer<typeof AdminConfirmProduct>
 export const AdminConfirmProduct = z
   .object({
@@ -315,8 +301,6 @@ export const AdminRequestProductChanges = z.object({
   message: z.string().optional(),
 })
 
-// --- Batch product variants ---
-
 const BatchVariantCreateItem = CreateProductVariant
 const BatchVariantUpdateItem = UpdateProductVariant.extend({
   id: z.string(),
@@ -330,8 +314,6 @@ const BatchProductVariants = z.object({
 
 export type AdminBatchProductVariantsType = z.infer<typeof BatchProductVariants>
 export const AdminBatchProductVariants = BatchProductVariants
-
-// --- Batch variant ↔ inventory-item links ---
 
 const BatchVariantInventoryCreate = z
   .object({
@@ -361,8 +343,6 @@ export type AdminBatchVariantInventoryItemsType = z.infer<
 >
 export const AdminBatchVariantInventoryItems = BatchVariantInventoryItems
 
-// --- Batch products ---
-
 const BatchProductsUpdateItem = UpdateProduct.extend({
   id: z.string(),
 })
@@ -375,8 +355,6 @@ const BatchProducts = z.object({
 export type AdminBatchProductsType = z.infer<typeof BatchProducts> &
   AdditionalData
 export const AdminBatchProducts = WithAdditionalData(BatchProducts)
-
-// --- Batch product attributes ---
 
 // SPEC-014 §G batch shape: { add, remove, update } over
 // createAndLinkProductAttributesToProductWorkflow. Runtime mirror of the

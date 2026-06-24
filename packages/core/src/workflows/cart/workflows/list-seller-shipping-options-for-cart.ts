@@ -287,7 +287,6 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
             locale: cart.locale,
         })
 
-        // Group shipping options by seller
         const sellerShippingOptionsMap = transform(
             { translatedShippingOptions },
             ({ translatedShippingOptions }) => {

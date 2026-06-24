@@ -112,7 +112,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             cart: cartData.data,
         })
 
-        // If order ID does not exist, we are completing the cart for the first time
         const createdOrderGroup = when("create-order-group", { orderGroupId }, ({ orderGroupId }) => {
             return !orderGroupId
         }).then(() => {
@@ -521,14 +520,12 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         [MercurModules.SELLER]: { seller_id: sellerId },
                     })))
 
-                    // Link order group to orders
                     links.push(...createdOrders.map((order) => ({
                         [MercurModules.SELLER]: { order_group_id: createdOrderGroup.id },
                         [Modules.ORDER]: { order_id: order.id },
                     })))
 
                     if (cart.customer?.id) {
-                        // Create seller-customer links for new relationships
                         const existingSellerIds = new Set(
                             (existingSellerCustomerLinks?.data ?? []).map((link) => link.seller_id)
                         )
@@ -576,7 +573,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 input,
             })
 
-            // Authorize payment session
             const payment = authorizePaymentSessionStep({
                 id: paymentSessions![0].id,
             })

@@ -14,8 +14,6 @@ import { AdditionalData } from "@medusajs/framework/types"
 
 const typeEnum = z.nativeEnum(AttributeType)
 
-// --- Attribute query params ---
-
 export type AdminGetProductAttributeParamsType = z.infer<
   typeof AdminGetProductAttributeParams
 >
@@ -45,8 +43,6 @@ export const AdminGetProductAttributesParams = createFindParams({
 })
   .merge(AdminProductAttributesParamsFields)
   .merge(applyAndAndOrOperators(AdminProductAttributesParamsFields))
-
-// --- Attribute create / update ---
 
 const CreateProductAttributeValueInline = z.object({
   name: z.string(),
@@ -97,8 +93,6 @@ const UpdateProductAttribute = z.object({
 export const AdminUpdateProductAttribute =
   WithAdditionalData(UpdateProductAttribute)
 
-// --- Attribute value query params ---
-
 export type AdminGetProductAttributeValueParamsType = z.infer<
   typeof AdminGetProductAttributeValueParams
 >
@@ -118,8 +112,6 @@ export const AdminGetProductAttributeValuesParams = createFindParams({
   offset: 0,
   limit: 100,
 }).merge(AdminProductAttributeValuesParamsFields)
-
-// --- Attribute value create / update ---
 
 export type AdminCreateProductAttributeValueType = z.infer<
   typeof CreateProductAttributeValue
@@ -150,8 +142,6 @@ const UpdateProductAttributeValue = z.object({
 export const AdminUpdateProductAttributeValue = WithAdditionalData(
   UpdateProductAttributeValue
 )
-
-// --- Attribute value upsert ---
 
 const UpsertProductAttributeValueItem = z.union([
   z.object({

@@ -51,7 +51,6 @@ export const POST = async (
         return
     }
 
-    // Fetch the order group with orders
     const { data: orderGroups } = await query.graph({
         entity: "order_group",
         fields: req.queryConfig.fields,

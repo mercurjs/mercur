@@ -69,7 +69,6 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
       Array.isArray(input) ? input : [input],
     )
 
-    // Resolve every referenced existing attribute (type/axis + value mirrors).
     const attributesQuery = useQueryGraphStep({
       entity: "product_attribute",
       filters: {
@@ -90,7 +89,6 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
       ],
     }).config({ name: "add-pa-attributes" })
 
-    // 1. Create the exclusive native options for every inline axis ref.
     const optionsPlan = transform({ items }, ({ items }) => {
       const inlineAxisOptions: ProductTypes.CreateProductOptionDTO[] = []
       const optionIdxByKey: Record<string, number> = {}
@@ -111,7 +109,6 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
 
     const inlineOptions = createProductOptionsStep(optionsPlan.inlineAxisOptions)
 
-    // 2. Create the product-scoped attributes for all inline refs.
     const attrsPlan = transform(
       { items, optionsPlan, inlineOptions },
       ({ items, optionsPlan, inlineOptions }) => {
@@ -161,10 +158,8 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
 
     const inlineAttrs = createProductAttributesStep(attrsPlan.inlineAttrs)
 
-    // 3. Create the attribute values (inline axis mirrors / inline non-axis /
-    //    existing text-unit free-form). `linkProductId[i]` is the product to
-    //    link the created row to, or null for axis values (which live on the
-    //    option only).
+    // `linkProductId[i]` is the product to link the created row to, or null for
+    // axis values (which live on the option only).
     const valuePlan = transform(
       { items, attributesQuery, optionsPlan, inlineOptions, attrsPlan },
       ({ items, attributesQuery, optionsPlan, inlineOptions, attrsPlan }) => {
@@ -231,7 +226,6 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
 
     const createdValues = createProductAttributeValuesStep(valuePlan.rows)
 
-    // 4. Attach native options (existing axis subset + inline axis full set).
     const optionPairs = transform(
       { items, attributesQuery, optionsPlan, inlineOptions },
       ({ items, attributesQuery, optionsPlan, inlineOptions }) => {
@@ -284,8 +278,6 @@ export const addProductAttributesToProductWorkflow = createWorkflow(
       addProductOptionsToProductStep(optionPairs),
     )
 
-    // 5. Build all product↔value links: created values (with their product) +
-    //    existing select value_ids + existing toggle resolved value.
     const valueLinks = transform(
       { items, attributesQuery, valuePlan, createdValues },
       ({ items, attributesQuery, valuePlan, createdValues }) => {

@@ -175,7 +175,6 @@ export const updateProductAttributesOnProductWorkflow = createWorkflow(
       }),
     )
 
-    // 2. text/unit/toggle scalar swap.
     const swapPlan = transform(
       { input, attributesQuery, productQuery },
       ({ input, attributesQuery, productQuery }) => {

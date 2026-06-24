@@ -21,7 +21,6 @@ import {
 } from "./validators"
 
 export const vendorSellersMiddlewares: MiddlewareRoute[] = [
-  // POST /vendor/sellers/select — select seller for session
   {
     method: ["POST"],
     matcher: "/vendor/sellers/select",
@@ -29,7 +28,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorSelectSeller),
     ],
   },
-  // GET /vendor/sellers/me — get current seller
   {
     method: ["GET"],
     matcher: "/vendor/sellers/me",
@@ -40,7 +38,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
-  // POST /vendor/sellers/me — update current seller
   {
     method: ["POST"],
     matcher: "/vendor/sellers/me",
@@ -52,7 +49,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
-  // POST /vendor/sellers — create seller
   {
     method: ["POST"],
     matcher: "/vendor/sellers",
@@ -60,7 +56,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       validateAndTransformBody(VendorCreateSellerAccount),
     ],
   },
-  // GET /vendor/sellers — list member's sellers (store switcher)
   {
     method: ["GET"],
     matcher: "/vendor/sellers",
@@ -71,7 +66,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
-  // GET /vendor/sellers/:id — get seller detail
   {
     method: ["GET"],
     matcher: "/vendor/sellers/:id",
@@ -88,7 +82,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // POST /vendor/sellers/:id — update seller
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id",
@@ -106,7 +99,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // POST /vendor/sellers/:id/address — upsert seller address
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/address",
@@ -124,7 +116,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // POST /vendor/sellers/:id/payment-details — upsert seller payment details
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/payment-details",
@@ -142,7 +133,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // POST /vendor/sellers/:id/professional-details — upsert seller professional details
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/professional-details",
@@ -160,7 +150,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // DELETE /vendor/sellers/:id/professional-details — remove professional status
   {
     method: ["DELETE"],
     matcher: "/vendor/sellers/:id/professional-details",
@@ -177,7 +166,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // GET /vendor/sellers/:id/members/me — get current member
   {
     method: ["GET"],
     matcher: "/vendor/sellers/:id/members/me",
@@ -194,7 +182,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // GET /vendor/sellers/:id/members/invites — list pending invites
   {
     method: ["GET"],
     matcher: "/vendor/sellers/:id/members/invites",
@@ -211,7 +198,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // GET /vendor/sellers/:id/members — list members
   {
     method: ["GET"],
     matcher: "/vendor/sellers/:id/members",
@@ -232,7 +218,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // POST /vendor/sellers/:id/members — invite member
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/members",
@@ -246,7 +231,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // POST /vendor/sellers/:id/members/:member_id — update member role
   {
     method: ["POST"],
     matcher: "/vendor/sellers/:id/members/:member_id",
@@ -260,7 +244,6 @@ export const vendorSellersMiddlewares: MiddlewareRoute[] = [
       },
     ],
   },
-  // DELETE /vendor/sellers/:id/members/:member_id — remove member
   {
     method: ["DELETE"],
     matcher: "/vendor/sellers/:id/members/:member_id",

@@ -70,7 +70,6 @@ const applySellerProductLinkFilter = async (
 }
 
 export const vendorProductsMiddlewares: MiddlewareRoute[] = [
-  // --- /vendor/products ---
   {
     method: ["GET"],
     matcher: "/vendor/products",
@@ -95,7 +94,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     ],
   },
 
-  // --- /vendor/products/:id ---
   {
     method: ["GET"],
     matcher: "/vendor/products/:id",
@@ -123,14 +121,12 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [],
   },
 
-  // --- /vendor/products/:id/cancel ---
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/cancel",
     middlewares: [validateAndTransformBody(VendorCancelProductChange)],
   },
 
-  // --- /vendor/products/:id/variants ---
   {
     method: ["GET"],
     matcher: "/vendor/products/:id/variants",
@@ -153,7 +149,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     ],
   },
 
-  // --- /vendor/products/:id/variants/:variant_id ---
   {
     method: ["GET"],
     matcher: "/vendor/products/:id/variants/:variant_id",
@@ -184,7 +179,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
   // SPEC-014: non-batch GET/POST `/:id/attributes` removed — attributes are
   // read from the product response; mutations go through `.../attributes/batch`.
 
-  // --- /vendor/products/:id/attributes/batch ---
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/attributes/batch",

@@ -122,8 +122,6 @@ const adjustExchangeReservationsForOffersStep = createStep(
         continue
       }
 
-      // Normalize links: drop entries missing an inventory_item_id; default
-      // required_quantity to 1.
       const normalizedLinks = links
         .map((link) => ({
           inventory_item_id:
@@ -139,7 +137,6 @@ const adjustExchangeReservationsForOffersStep = createStep(
         continue
       }
 
-      // Single-link case: keep Medusa's reservation, update its quantity.
       if (normalizedLinks.length === 1) {
         const link = normalizedLinks[0]
         if (link.required_quantity === 1) {

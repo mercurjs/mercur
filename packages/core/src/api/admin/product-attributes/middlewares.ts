@@ -43,7 +43,6 @@ const renameCategoryIdFilter = (
 }
 
 export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
-  // --- /admin/product-attributes ---
   {
     method: ["GET"],
     matcher: "/admin/product-attributes",
@@ -95,7 +94,6 @@ export const adminProductAttributesMiddlewares: MiddlewareRoute[] = [
     middlewares: [],
   },
 
-  // --- /admin/product-attributes/:id/values ---
   {
     method: ["POST"],
     matcher: "/admin/product-attributes/:id/values",

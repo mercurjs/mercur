@@ -15,8 +15,6 @@ import { FeatureFlag, isPresent } from "@medusajs/framework/utils"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
-// --- List / retrieve query params ---
-
 const VendorGetProductsParamsFields = z.object({
   q: z.string().optional(),
   id: z.union([z.string(), z.array(z.string())]).optional(),
@@ -66,8 +64,6 @@ export const VendorGetProductsParams = createFindParams({
 
 export type VendorGetProductParamsType = z.infer<typeof VendorGetProductParams>
 export const VendorGetProductParams = createSelectParams()
-
-// --- Create / update product ---
 
 const IdAssociation = z.object({ id: z.string() })
 
@@ -159,8 +155,6 @@ const UnifiedProductAttributeInput = z.union([
     })
     .strict(),
 ])
-
-// --- Product create / update ---
 
 export type VendorCreateProductType = z.infer<typeof CreateProduct> &
   AdditionalData
@@ -254,7 +248,6 @@ const UpdateProduct = z
   .strict()
 export const VendorUpdateProduct = WithAdditionalData(UpdateProduct)
 
-// --- Product change request payloads ---
 //
 // All of the following endpoints route through `product-edit-*` workflows
 // rather than mutating the product directly. Each one opens a pending

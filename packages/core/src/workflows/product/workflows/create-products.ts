@@ -130,7 +130,6 @@ export const createProductsWorkflow: ReturnWorkflow<
       },
     })
 
-    // Attach every product's attributes in one batched engine run.
     const attributeItems = transform(
       { input, createdProducts },
       ({ input, createdProducts }) =>

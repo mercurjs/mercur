@@ -26,7 +26,6 @@ import {
 } from "./validators"
 
 export const adminProductsMiddlewares: MiddlewareRoute[] = [
-  // --- CRUD ---
   {
     method: ["GET"],
     matcher: "/admin/products",
@@ -119,7 +118,6 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
       ),
     ],
   },
-  // --- Variant sub-resource ---
   {
     method: ["GET"],
     matcher: "/admin/products/:id/variants",
@@ -173,8 +171,6 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
     ],
   },
 
-  // --- Attribute sub-resource ---
-  //
   // POST endpoints return the parent product, so they use the product
   // retrieve query config. GET list returns product attributes, so it
   // uses the attribute list config.
