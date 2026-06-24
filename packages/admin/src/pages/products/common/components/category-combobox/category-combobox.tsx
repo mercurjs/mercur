@@ -1,6 +1,6 @@
 import {
   ArrowUturnLeft,
-  EllipseMiniSolid,
+  CheckMini,
   TriangleRightMini,
   TrianglesMini,
   XMarkMini,
@@ -399,7 +399,7 @@ export const CategoryCombobox = forwardRef<
                   tabIndex={-1}
                 >
                   <div className="flex size-5 items-center justify-center">
-                    {isSelected(value, option.value) && <EllipseMiniSolid />}
+                    {isSelected(value, option.value) && <CheckMini />}
                   </div>
                   <Text
                     as="span"
