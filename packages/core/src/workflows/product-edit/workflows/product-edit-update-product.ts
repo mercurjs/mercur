@@ -100,7 +100,8 @@ export const productEditUpdateProductWorkflow: ReturnWorkflow<
         const proposed = input.update ?? {}
 
         // Unwrap relation/image arrays to sorted scalar ids/urls so order-insensitive,
-        // shape-insensitive values can be compared with deepEqualObj.
+        // shape-insensitive values can be compared with deepEqualObj. Empty strings
+        // collapse to null so clearing a text field reads as equal to an unset one.
         const normalize = (value: unknown): unknown => {
           if (Array.isArray(value)) {
             return value
@@ -115,7 +116,7 @@ export const productEditUpdateProductWorkflow: ReturnWorkflow<
               })
               .sort()
           }
-          return value ?? null
+          return value === "" ? null : (value ?? null)
         }
 
         const isEqual = (a: unknown, b: unknown): boolean =>

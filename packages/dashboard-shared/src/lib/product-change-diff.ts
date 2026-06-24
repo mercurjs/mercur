@@ -177,9 +177,18 @@ const formatAttributeValues = (value: unknown): string | null => {
   return null
 }
 
-export const formatFieldValue = (value: unknown, field?: string): string => {
+export type BooleanLabels = { true: string; false: string }
+
+export const formatFieldValue = (
+  value: unknown,
+  field?: string,
+  booleanLabels?: BooleanLabels
+): string => {
   if (value === null || value === undefined || value === "") return "-"
-  if (typeof value === "boolean") return value ? "True" : "False"
+  if (typeof value === "boolean") {
+    const labels = booleanLabels ?? { true: "Yes", false: "No" }
+    return value ? labels.true : labels.false
+  }
   if (typeof value === "string") return value
   if (typeof value === "number") return String(value)
   if (field === "attribute_values" || field === "options") {

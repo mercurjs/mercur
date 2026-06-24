@@ -4,7 +4,6 @@ import {
   InferClientOutput,
 } from "@mercurjs/client";
 import {
-  HttpTypes,
   ProductAttributeBatchInput,
   ProductChangeDTO,
 } from "@mercurjs/types";
@@ -35,7 +34,6 @@ export const productChangeQueryKeys = queryKeysFactory(
   PRODUCT_CHANGE_QUERY_KEY
 );
 
-// All vendor staging endpoints reply 202 with this envelope.
 type ProductChangeResponse = { product_change: ProductChangeDTO };
 
 // --- Product queries ---
@@ -108,11 +106,6 @@ export const useInfiniteProducts = (
   });
 };
 
-/**
- * Reads the active pending `ProductChange` for a product via the `preview`
- * endpoint. Returns 404 when none exists — pair with `enabled` or `useQuery`
- * retry config to control polling.
- */
 export const useProductChange = (
   productId: string,
   options?: Omit<
@@ -132,7 +125,7 @@ export const useProductChange = (
   return { ...data, ...rest };
 };
 
-// --- Product mutations (all stage a ProductChange) ---
+// --- Product mutations ---
 
 export const useCreateProduct = (
   options?: UseMutationOptions<
@@ -155,11 +148,6 @@ export const useCreateProduct = (
   });
 };
 
-/**
- * Stages an `UPDATE` action on the product via
- * `productEditUpdateProductWorkflow`. Returns the created `ProductChange`;
- * the product itself is mutated only after operator confirms.
- */
 export const useUpdateProduct = (
   id: string,
   options?: UseMutationOptions<
@@ -188,11 +176,6 @@ export const useUpdateProduct = (
   });
 };
 
-/**
- * Stages a `PRODUCT_DELETE` action via `productEditDeleteProductWorkflow`.
- * Returns the created `ProductChange`; the product is soft-deleted only
- * after operator confirms.
- */
 export const useDeleteProduct = (
   id: string,
   options?: UseMutationOptions<ProductChangeResponse, ClientError, void>
@@ -217,11 +200,6 @@ export const useDeleteProduct = (
   });
 };
 
-/**
- * Cancels the active pending `ProductChange` for a product via
- * `cancelProductEditWorkflow`. Used by the seller to abandon a staged edit
- * before the operator reviews it. Pass `internal_note` to record why.
- */
 export const useCancelProductEdit = (
   id: string,
   options?: UseMutationOptions<
@@ -304,11 +282,8 @@ export const useProductVariants = (
   return { ...data, ...rest };
 };
 
-// --- Variant mutations (all stage a ProductChange) ---
+// --- Variant mutations ---
 
-/**
- * Stages a `VARIANT_ADD` action via `productEditAddVariantWorkflow`.
- */
 export const useCreateProductVariant = (
   productId: string,
   options?: UseMutationOptions<
@@ -339,9 +314,6 @@ export const useCreateProductVariant = (
   });
 };
 
-/**
- * Stages a `VARIANT_UPDATE` action via `productEditUpdateVariantWorkflow`.
- */
 export const useUpdateProductVariant = (
   productId: string,
   variantId: string,
@@ -380,9 +352,6 @@ export const useUpdateProductVariant = (
   });
 };
 
-/**
- * Stages a `VARIANT_REMOVE` action via `productEditRemoveVariantWorkflow`.
- */
 export const useDeleteVariant = (
   productId: string,
   variantId: string,
@@ -408,11 +377,6 @@ export const useDeleteVariant = (
   });
 };
 
-/**
- * Same as {@link useDeleteVariant}, but the variant id is supplied at call
- * time. Useful for row-level delete buttons in tables where the variant id
- * isn't known when the hook is registered.
- */
 export const useDeleteVariantLazy = (
   productId: string,
   options?: UseMutationOptions<
@@ -444,25 +408,17 @@ export const useDeleteVariantLazy = (
   });
 };
 
-// --- Product attribute mutations (SPEC-014: the batch endpoint is the single
-//     attribute-mutation surface and applies directly — admin and vendor are
-//     symmetric; the seller owns the product so edits take effect immediately) ---
+// --- Product attribute mutations ---
 
-/** The batch body minus `product_id` (sourced from the path). */
 export type ProductAttributeBatchPayload = Omit<
   ProductAttributeBatchInput,
   "product_id"
 >;
 
-/**
- * Applies `add` / `remove` / `update` against
- * `POST /vendor/products/:id/attributes/batch` (order remove → add → update on
- * the server). Returns the refreshed `{ product }`.
- */
 export const useBatchProductAttributes = (
   productId: string,
   options?: UseMutationOptions<
-    HttpTypes.VendorProductResponse,
+    ProductChangeResponse,
     ClientError,
     ProductAttributeBatchPayload
   >
@@ -472,13 +428,16 @@ export const useBatchProductAttributes = (
       sdk.vendor.products.$id.attributes.batch.mutate({
         $id: productId,
         ...payload,
-      }) as Promise<HttpTypes.VendorProductResponse>,
+      }) as Promise<ProductChangeResponse>,
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productAttributesQueryKeys.lists(),
       });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productChangeQueryKeys.detail(productId),
       });
       options?.onSuccess?.(data, variables, context);
     },
@@ -486,30 +445,26 @@ export const useBatchProductAttributes = (
   });
 };
 
-/**
- * Convenience wrapper to detach a single attribute (batch `remove`).
- */
 export const useRemoveAttributeFromProduct = (
   productId: string,
   attributeId: string,
-  options?: UseMutationOptions<
-    HttpTypes.VendorProductResponse,
-    ClientError,
-    void
-  >
+  options?: UseMutationOptions<ProductChangeResponse, ClientError, void>
 ) => {
   return useMutation({
     mutationFn: () =>
       sdk.vendor.products.$id.attributes.batch.mutate({
         $id: productId,
         remove: [attributeId],
-      }) as Promise<HttpTypes.VendorProductResponse>,
+      }) as Promise<ProductChangeResponse>,
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: productAttributesQueryKeys.lists(),
       });
       queryClient.invalidateQueries({
         queryKey: productsQueryKeys.detail(productId),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productChangeQueryKeys.detail(productId),
       });
       options?.onSuccess?.(data, variables, context);
     },
