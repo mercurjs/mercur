@@ -181,6 +181,49 @@ export function getRouteMap({
                           },
                         ],
                       },
+                      {
+                        path: "variants/:variant_id",
+                        lazy: async () => {
+                          const { loader, Breadcrumb } =
+                            await import(
+                              "./pages/product-variants/product-variant-detail"
+                            )
+                          return {
+                            Component: Outlet,
+                            loader,
+                            handle: {
+                              breadcrumb: (match: UIMatch<any>) => (
+                                <Breadcrumb {...match} />
+                              ),
+                            },
+                          }
+                        },
+                        children: [
+                          {
+                            path: "",
+                            lazy: () =>
+                              import(
+                                "./pages/product-variants/product-variant-detail"
+                              ),
+                            children: [
+                              {
+                                path: "edit",
+                                lazy: () =>
+                                  import(
+                                    "./pages/product-variants/product-variant-edit"
+                                  ),
+                              },
+                              {
+                                path: "media",
+                                lazy: () =>
+                                  import(
+                                    "./pages/product-variants/product-variant-detail/media"
+                                  ),
+                              },
+                            ],
+                          },
+                        ],
+                      },
                     ],
                   },
                 ],
@@ -1037,46 +1080,6 @@ export function getRouteMap({
               //   path: "/reservations",
               //   ...
               // },
-
-              // PRODUCT VARIANTS (standalone routes)
-              {
-                path: "/products/:product_id/variants/:variant_id",
-                errorElement: <ErrorBoundary />,
-                lazy: async () => {
-                  const { loader, Breadcrumb } =
-                    await import("./pages/product-variants/product-variant-detail");
-                  return {
-                    Component: Outlet,
-                    loader,
-                    handle: {
-                      breadcrumb: (match: UIMatch<any>) => (
-                        <Breadcrumb {...match} />
-                      ),
-                    },
-                  };
-                },
-                children: [
-                  {
-                    path: "",
-                    lazy: () =>
-                      import("./pages/product-variants/product-variant-detail"),
-                    children: [
-                      {
-                        path: "edit",
-                        lazy: () =>
-                          import("./pages/product-variants/product-variant-edit"),
-                      },
-                      {
-                        path: "media",
-                        lazy: () =>
-                          import(
-                            "./pages/product-variants/product-variant-detail/media"
-                          ),
-                      },
-                    ],
-                  },
-                ],
-              },
             ],
             customMainRoutes,
           ),
