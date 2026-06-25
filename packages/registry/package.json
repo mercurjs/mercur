@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/registry",
-  "version": "2.2.0-canary.31",
+  "version": "2.2.0-canary.32",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,18 +12,18 @@
   "dependencies": {
     "@medusajs/framework": "options-preview",
     "@medusajs/medusa": "options-preview",
-    "@mercurjs/dashboard-shared": "workspace:*",
-    "@mercurjs/dashboard-sdk": "workspace:*",
+    "@mercurjs/dashboard-shared": "2.2.0-canary.32",
+    "@mercurjs/dashboard-sdk": "2.2.0-canary.32",
     "@medusajs/ui": "options-preview",
     "@medusajs/icons": "options-preview",
     "@tanstack/react-query": "5.64.2",
     "react-i18next": "13.5.0",
     "react-router-dom": "6.30.3",
     "@tanstack/react-table": "8.20.5",
-    "@mercurjs/client": "workspace:*",
+    "@mercurjs/client": "2.2.0-canary.32",
     "zod": "3.25.76",
-    "@mercurjs/core": "workspace:*",
-    "@mercurjs/vendor": "workspace:*",
+    "@mercurjs/core": "2.2.0-canary.32",
+    "@mercurjs/vendor": "2.2.0-canary.32",
     "@medusajs/core-flows": "options-preview",
     "react-hook-form": "7.49.1",
     "@hookform/resolvers": "3.4.2",
@@ -34,8 +34,8 @@
     "@talkjs/react": "^0.1.11"
   },
   "devDependencies": {
-    "@mercurjs/types": "workspace:*",
-    "@mercurjs/cli": "workspace:*",
+    "@mercurjs/types": "2.2.0-canary.32",
+    "@mercurjs/cli": "2.2.0-canary.32",
     "@types/react": "^18.2.66",
     "@types/react-dom": "^18.2.22",
     "@types/node": "^22",

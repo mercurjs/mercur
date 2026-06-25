@@ -18,6 +18,23 @@ All packages are published under the `@mercurjs` scope on npm.
 
 `@mercurjs/registry` is private and not published.
 
+## Internal Dependencies
+
+Published packages depend on each other (e.g. `@mercurjs/admin` → `@mercurjs/client`).
+These cross-dependencies **must be pinned to the exact release version** in each
+package's `package.json` — never `workspace:*`.
+
+`npm publish` (used by the release workflow) does not resolve the `workspace:`
+protocol the way bun/pnpm/yarn do, so a `workspace:*` specifier is published
+verbatim and every yarn/npm consumer then fails with `Workspace not found`.
+Pinning the exact version makes the tarballs install correctly under any package
+manager while still linking to the local workspace during development (the local
+package satisfies the exact version).
+
+When bumping the release version, bump these internal specifiers to the same
+value. Only the dev-only, never-published workspaces (the repo-root
+`package.json` and `apps/*`) may keep `workspace:*`.
+
 ## How to Release
 
 ### Stable Release
@@ -27,6 +44,9 @@ All packages are published under the `@mercurjs` scope on npm.
 ```
 "version": "2.X.Y"
 ```
+
+   Also bump every internal `@mercurjs/*` cross-dependency in `packages/*` and
+   `packages/providers/*` to the same `2.X.Y` (see [Internal Dependencies](#internal-dependencies)).
 
 2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template so newly scaffolded projects pin to the matching release:
 
@@ -67,6 +87,9 @@ git push origin main --tags
 ```
 
 Where `Z` is the next incremental number (0, 1, 2, ...).
+
+   Also bump every internal `@mercurjs/*` cross-dependency in `packages/*` and
+   `packages/providers/*` to the same `2.X.Y-canary.Z` (see [Internal Dependencies](#internal-dependencies)).
 
 2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template to the same `2.X.Y-canary.Z` value:
 
