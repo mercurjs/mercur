@@ -34,8 +34,8 @@ import { ProductWorkflowEvents } from "../events"
 
 
 export type CreateProductsWorkflowInput = {
-  products: CreateProductDTO[]
-  seller_ids?: string[]
+  products: (CreateProductDTO & { seller_ids?: string[] })[]
+  created_by: string
 } & AdditionalData
 
 export const createProductsWorkflowId = "mercur-create-products"
@@ -76,7 +76,12 @@ export const createProductsWorkflow: ReturnWorkflow<
     // Stock create hard-requires ≥1 option.
     const stockProducts = transform({ input }, ({ input }) =>
       input.products.map((p) => {
-        const { attributes: _attributes, variants: _variants, ...rest } = p
+        const {
+          attributes: _attributes,
+          variants: _variants,
+          seller_ids: _seller_ids,
+          ...rest
+        } = p
         return {
           ...rest,
           options: [{ title: "Default option", values: ["Default value"] }],
@@ -203,7 +208,7 @@ export const createProductsWorkflow: ReturnWorkflow<
         const links: { product_id: string; seller_id: string }[] = []
         input.products.forEach((p, idx) => {
           const product_id = createdProducts[idx]?.id
-          for (const seller_id of input.seller_ids ?? []) {
+          for (const seller_id of p.seller_ids ?? []) {
             links.push({ product_id, seller_id })
           }
         })
@@ -219,13 +224,13 @@ export const createProductsWorkflow: ReturnWorkflow<
       input: transform(
         { createdProducts, input },
         ({ createdProducts, input }) => ({
-          actor_id: input.seller_ids?.[0],
+          actor_id: input.created_by,
           changes: createdProducts.map((product) => ({
             product_id: product.id as string,
             actions: [
               {
                 product_id: product.id as string,
-                action: ProductChangeActionType.STATUS_CHANGE,
+                action: ProductChangeActionType.PRODUCT_ADD,
                 details: { status: product.status as string },
               },
             ],

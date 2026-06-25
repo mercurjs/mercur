@@ -95,8 +95,14 @@ medusaIntegrationTestRunner({
       const createOwnedProduct = async () => {
         const { result } = await createProductsWorkflow(appContainer).run({
           input: {
-            products: [{ title: "Vendor Product", status: "published" }],
-            seller_ids: [seller.id],
+            products: [
+              {
+                title: "Vendor Product",
+                status: "published",
+                seller_ids: [seller.id],
+              },
+            ],
+            created_by: seller.id,
           },
         })
         return (result as { id: string }[])[0].id
@@ -176,21 +182,23 @@ medusaIntegrationTestRunner({
         ])
       })
 
-      it("rejects batch on a product the seller does not own", async () => {
-        // product owned by nobody (no seller link)
+      it("allows any seller to request changes on a master product it did not create", async () => {
+        // master product created by a different actor — every seller can
+        // still request a change through the product-edit pipeline.
         const { result } = await createProductsWorkflow(appContainer).run({
           input: {
             products: [{ title: "Foreign", status: "published" }],
+            created_by: "foreign-actor",
           },
         })
         const foreignId = (result as { id: string }[])[0].id
         const attr = await createAttr({ name: "Material", type: "text" })
 
-        const err = await batch(foreignId, {
+        const res = await batch(foreignId, {
           add: [{ id: attr.id, value: "x" }],
-        }).catch((e) => e)
+        })
 
-        expect(err.response.status).toEqual(404)
+        expect(res.status).toEqual(202)
       })
 
       // --- request flow: ProductChange staging via the batch endpoint ---
@@ -274,6 +282,78 @@ medusaIntegrationTestRunner({
         expect(err.response.status).toBeGreaterThanOrEqual(400)
       })
 
+    })
+
+    describe("Vendor - product list scoping", () => {
+      let appContainer: MedusaContainer
+      let sellerA: any
+      let headersA: any
+      let headersB: any
+
+      beforeAll(() => {
+        appContainer = getContainer()
+      })
+
+      beforeEach(async () => {
+        const a = await createSellerUser(appContainer, {
+          email: "scope-a@test.com",
+          name: "Scope A Store",
+        })
+        sellerA = a.seller
+        headersA = a.headers
+        const b = await createSellerUser(appContainer, {
+          email: "scope-b@test.com",
+          name: "Scope B Store",
+        })
+        headersB = b.headers
+      })
+
+      const createProduct = async (
+        title: string,
+        status: string,
+        createdBy: string,
+        sellerIds?: string[]
+      ) => {
+        const { result } = await createProductsWorkflow(appContainer).run({
+          input: {
+            products: [{ title, status, seller_ids: sellerIds } as any],
+            created_by: createdBy,
+          },
+        })
+        return (result as { id: string }[])[0].id
+      }
+
+      it("scopes the vendor list to the seller's own proposed products plus published", async () => {
+        const proposedByA = await createProduct("A Proposed", "proposed", sellerA.id)
+        const published = await createProduct("Global Published", "published", "other-actor")
+
+        const listAsA = await api.get("/vendor/products?limit=100", headersA)
+        const idsA = listAsA.data.products.map((p: { id: string }) => p.id)
+        expect(idsA).toEqual(expect.arrayContaining([proposedByA, published]))
+
+        const listAsB = await api.get("/vendor/products?limit=100", headersB)
+        const idsB = listAsB.data.products.map((p: { id: string }) => p.id)
+        expect(idsB).toContain(published)
+        expect(idsB).not.toContain(proposedByA)
+      })
+
+      it("hides a restricted published product from sellers it is not assigned to", async () => {
+        // Published, but restricted (product_seller) to seller A only.
+        const restrictedToA = await createProduct(
+          "Restricted To A",
+          "published",
+          "other-actor",
+          [sellerA.id]
+        )
+
+        const listAsA = await api.get("/vendor/products?limit=100", headersA)
+        const idsA = listAsA.data.products.map((p: { id: string }) => p.id)
+        expect(idsA).toContain(restrictedToA)
+
+        const listAsB = await api.get("/vendor/products?limit=100", headersB)
+        const idsB = listAsB.data.products.map((p: { id: string }) => p.id)
+        expect(idsB).not.toContain(restrictedToA)
+      })
     })
   },
 })

@@ -78,6 +78,7 @@ medusaIntegrationTestRunner({
         const { result } = await createProductsWorkflow(appContainer).run({
           input: {
             products: [{ title: "Batch Product", status: "published" }],
+            created_by: "admin_user",
           },
         })
         return (result as { id: string }[])[0].id

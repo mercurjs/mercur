@@ -61,6 +61,7 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const sellerId = req.seller_context!.seller_id
 
   const { additional_data, ...payload } = req.validatedBody
 
@@ -72,6 +73,7 @@ export const POST = async (
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
       products: [productInput],
+      created_by: sellerId,
       additional_data,
     },
   })

@@ -65,6 +65,7 @@ export const POST = async (
       products: [{
         ...productData,
       }],
+      created_by: req.auth_context.actor_id,
       additional_data,
     } as any,
   })
