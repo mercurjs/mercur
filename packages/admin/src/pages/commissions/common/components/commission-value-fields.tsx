@@ -3,7 +3,7 @@ import { Control, FieldValues } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 
 import { Form } from "../../../../components/common/form";
-import { PercentageInput } from "../../../../components/inputs/percentage-input";
+import { DeprecatedPercentageInput } from "../../../../components/inputs/percentage-input";
 import { getCurrencySymbol } from "../../../../lib/data/currencies";
 
 type CommissionValueFieldsProps = {
@@ -37,10 +37,16 @@ export const CommissionValueFields = <T extends FieldValues = FieldValues>({
           <Form.Item>
             <Form.Label>{t("commissions.fields.value")}</Form.Label>
             <Form.Control>
-              <PercentageInput
+              <DeprecatedPercentageInput
+                min={0}
+                max={100}
                 {...field}
-                value={value}
-                onValueChange={(_v, _n, values) => onChange(values?.float)}
+                value={value ?? ""}
+                onChange={(e) =>
+                  onChange(
+                    e.target.value === "" ? null : parseFloat(e.target.value)
+                  )
+                }
               />
             </Form.Control>
             <Form.ErrorMessage />
