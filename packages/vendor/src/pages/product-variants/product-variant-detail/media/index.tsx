@@ -1,4 +1,4 @@
-// Route: /products/:product_id/variants/:variant_id/media
+// Route: /products/:id/variants/:variant_id/media
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
@@ -10,10 +10,11 @@ import { EditVariantMediaForm } from "./edit-variant-media-form"
 
 export const Component = () => {
   const { t } = useTranslation()
-  const { product_id, variant_id } = useParams()
+  const { id, product_id, variant_id } = useParams()
+  const productId = id || product_id
 
   const { variant, isLoading, isError, error } = useProductVariant(
-    product_id!,
+    productId!,
     variant_id!,
     { fields: VARIANT_DETAIL_FIELDS }
   )

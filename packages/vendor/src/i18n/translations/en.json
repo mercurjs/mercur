@@ -453,6 +453,10 @@
       "requestSuccessToast": "Product update was successfully requested. Once confirmed by the Admin, changes will appear on the storefront.",
       "duplicateRequestErrorToast": "You already have an active request. You can only have one at a time.",
       "attributes": {
+        "createSuccessToast": "Attribute was successfully created.",
+        "addSuccessToast": "Attributes were successfully added.",
+        "updateSuccessToast": "Attribute was successfully updated.",
+        "deleteSuccessToast": "Attribute was successfully deleted.",
         "addAttribute": "Add Attribute",
         "editHeader": "Edit Attribute",
         "required": "Required attribute",
@@ -834,11 +838,12 @@
       },
       "edit": {
         "header": "Edit Variant",
-        "success": "Product variant edited successfully",
+        "success": "Variant was successfully updated.",
         "attributesTooltip": "These are default values used to describe the item. They are not defined by Marketplace."
       },
       "create": {
-        "header": "Variant details"
+        "header": "Variant details",
+        "successToast": "Variant was successfully created."
       },
       "deleteWarning": "Are you sure you want to delete this variant?",
       "tableItemAvailable": "{{availableCount}} available",

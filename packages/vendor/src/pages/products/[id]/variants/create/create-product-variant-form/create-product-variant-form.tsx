@@ -5,12 +5,13 @@ import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
-import { AttributeType, ProductDTO } from "@mercurjs/types"
+import { AttributeType, MercurFeatureFlags, ProductDTO } from "@mercurjs/types"
 
 import { Form } from "@components/common/form"
 import { AttributeValueInput } from "@components/inputs/attribute-value-input"
 import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useFeatureFlags } from "@hooks/api"
 import { useCreateProductVariant } from "@hooks/api/products"
 import { CreateProductVariantSchema } from "./constants"
 
@@ -27,6 +28,10 @@ export const CreateProductVariantForm = ({
 }: CreateProductVariantFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
+
+  const { feature_flags } = useFeatureFlags()
+  const isProductRequestEnabled =
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
 
   const variantAttributes =
     (
@@ -79,6 +84,11 @@ export const CreateProductVariantForm = ({
       {
         onSuccess: () => {
           handleSuccess()
+          toast.success(
+            isProductRequestEnabled
+              ? t("products.edit.requestSuccessToast")
+              : t("products.variant.create.successToast")
+          )
         },
         onError: (error) => {
           toast.error(error.message)

@@ -3,6 +3,14 @@ import * as zod from "zod";
 
 import { SCOPE_TYPE_DIMENSIONS } from "../../../common/types";
 
+const optionalAmount = zod.preprocess((val) => {
+  if (val === "" || val === null || val === undefined) {
+    return undefined;
+  }
+  const parsed = typeof val === "number" ? val : Number(val);
+  return Number.isNaN(parsed) ? undefined : parsed;
+}, zod.number().optional());
+
 const baseCommissionRuleSchema = zod.object({
   title: zod
     .string()
@@ -21,8 +29,8 @@ const baseCommissionRuleSchema = zod.object({
   productTypes: zod.array(zod.string()),
   categories: zod.array(zod.string()),
   commissionType: zod.enum(["percentage", "fixed"]),
-  value: zod.coerce.number().optional(),
-  fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
+  value: optionalAmount,
+  fixed_values: zod.record(zod.string(), optionalAmount).optional(),
   include_tax: zod.boolean(),
   include_shipping: zod.boolean(),
 });

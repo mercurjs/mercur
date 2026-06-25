@@ -25,7 +25,7 @@ const variantDetailQuery = (productId: string, variantId: string) => ({
 export const variantLoader = async ({
   params,
 }: LoaderFunctionArgs): Promise<any> => {
-  const productId = params.product_id
+  const productId = params.id || params.product_id
   const variantId = params.variant_id
 
   const query = variantDetailQuery(productId!, variantId!)

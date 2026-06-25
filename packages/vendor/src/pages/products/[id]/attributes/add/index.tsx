@@ -14,6 +14,7 @@ import {
 } from "@medusajs/ui"
 import {
   AttributeType,
+  MercurFeatureFlags,
   ProductAttributeBatchAdd,
   ProductAttributeDTO,
 } from "@mercurjs/types"
@@ -31,6 +32,7 @@ import { Form } from "@components/common/form"
 import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useProductAttributes } from "@hooks/api/product-attributes"
+import { useFeatureFlags } from "@hooks/api"
 import { useBatchProductAttributes, useProduct } from "@hooks/api/products"
 import { useAttributeTableQuery } from "@hooks/table/query/use-attribute-table-query"
 import { useAttributeTableFilters } from "@hooks/table/filters/use-attribute-table-filters"
@@ -87,6 +89,10 @@ export const Component = () => {
 const Content = ({ productId }: { productId: string }) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
+
+  const { feature_flags } = useFeatureFlags()
+  const isProductRequestEnabled =
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
 
   const [step, setStep] = useState<"select" | "values">("select")
   const [rowSelection, setRowSelection] =
@@ -240,6 +246,11 @@ const Content = ({ productId }: { productId: string }) => {
       {
         onSuccess: () => {
           handleSuccess()
+          toast.success(
+            isProductRequestEnabled
+              ? t("products.edit.requestSuccessToast")
+              : t("products.edit.attributes.addSuccessToast")
+          )
         },
         onError: (err) => {
           toast.error(err.message)

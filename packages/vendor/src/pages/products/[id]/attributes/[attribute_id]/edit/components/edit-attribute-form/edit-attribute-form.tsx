@@ -9,7 +9,7 @@ import {
   Textarea,
   toast,
 } from "@medusajs/ui"
-import { AttributeType } from "@mercurjs/types"
+import { AttributeType, MercurFeatureFlags } from "@mercurjs/types"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -19,6 +19,7 @@ import { ChipInput } from "@components/inputs/chip-input"
 import { Form } from "@components/common/form"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useFeatureFlags } from "@hooks/api"
 import { useBatchProductAttributes } from "@hooks/api/products"
 
 type AttributeValue = { id: string; name: string }
@@ -290,6 +291,10 @@ const EditCatalogAttributeForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
+  const { feature_flags } = useFeatureFlags()
+  const isProductRequestEnabled =
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
+
   const hasPresetValues =
     attribute.type === AttributeType.SINGLE_SELECT ||
     attribute.type === AttributeType.MULTI_SELECT
@@ -360,7 +365,14 @@ const EditCatalogAttributeForm = ({
     }
 
     await mutateAsync(payload, {
-      onSuccess: () => handleSuccess(),
+      onSuccess: () => {
+        handleSuccess()
+        toast.success(
+          isProductRequestEnabled
+            ? t("products.edit.requestSuccessToast")
+            : t("products.edit.attributes.updateSuccessToast"),
+        )
+      },
       onError: (error) => toast.error(error.message),
     })
   })

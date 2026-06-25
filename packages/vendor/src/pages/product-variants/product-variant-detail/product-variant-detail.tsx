@@ -14,9 +14,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
     ReturnType<typeof variantLoader>
   >
 
-  const { product_id, variant_id } = useParams()
+  const { id, product_id, variant_id } = useParams()
+  const productId = id || product_id
   const { variant, isLoading, isError, error } = useProductVariant(
-    product_id!,
+    productId!,
     variant_id!,
     { fields: VARIANT_DETAIL_FIELDS },
     {
