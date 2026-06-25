@@ -144,6 +144,8 @@ export const CategoryProductSection = ({
         isLoading={isLoading}
         queryObject={raw}
         noRecords={{
+          icon: null,
+          title: t("categories.products.list.noRecordsTitle"),
           message: t("categories.products.list.noRecordsMessage"),
         }}
       />

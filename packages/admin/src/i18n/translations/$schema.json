@@ -3759,11 +3759,15 @@
             "list": {
               "type": "object",
               "properties": {
+                "noRecordsTitle": {
+                  "type": "string"
+                },
                 "noRecordsMessage": {
                   "type": "string"
                 }
               },
               "required": [
+                "noRecordsTitle",
                 "noRecordsMessage"
               ],
               "additionalProperties": false

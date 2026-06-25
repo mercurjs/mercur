@@ -74,6 +74,7 @@ export const EditCategoryProductsForm = ({
   const { searchParams, raw } = useProductTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
+    defaultOrder: "title",
   })
 
   const {
@@ -87,7 +88,7 @@ export const EditCategoryProductsForm = ({
   })
 
   const columns = useColumns()
-  const filters = useProductTableFilters(["categories"])
+  const filters = useProductTableFilters()
 
   const { table } = useDataTable({
     data,
