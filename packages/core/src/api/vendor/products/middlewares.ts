@@ -31,6 +31,7 @@ import {
   VendorUpdateProduct,
   VendorUpdateProductVariant,
 } from "./validators"
+import { promiseAll } from "@medusajs/framework/utils"
 
 const applySellerProductLinkFilter = async (
   req: AuthenticatedMedusaRequest,
@@ -39,7 +40,7 @@ const applySellerProductLinkFilter = async (
 ) => {
   const sellerId = req.seller_context!.seller_id
 
-  const [ownProductIds, restrictedFromSellerIds] = await Promise.all([
+  const [ownProductIds, restrictedFromSellerIds] = await promiseAll([
     getSellerOwnedProductIds(req.scope, sellerId),
     getProductIdsRestrictedFromSeller(req.scope, sellerId),
   ])
