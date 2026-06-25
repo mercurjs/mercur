@@ -469,6 +469,7 @@
         "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
         "tip": "Tip",
         "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "editVariantAxisTip": "You will be able to create variants using this attribute.",
         "warning": "Warning",
         "editWarning": "Changes to this attribute may affect existing product variants or details. Review your variants and product details after saving.",
         "errors": {

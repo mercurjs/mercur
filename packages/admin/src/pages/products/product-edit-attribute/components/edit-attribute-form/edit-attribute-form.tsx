@@ -1,5 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, Hint, Input, Label, Switch, Text, Textarea, toast } from "@medusajs/ui";
+import {
+  Button,
+  Hint,
+  InlineTip,
+  Input,
+  Label,
+  Switch,
+  toast,
+} from "@medusajs/ui";
 import { AttributeType } from "@mercurjs/types";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -18,6 +26,8 @@ type EditAttributeAttribute = {
   id: string;
   name: string;
   type: AttributeType | string;
+  description?: string;
+  is_required?: boolean;
   is_variant_axis?: boolean;
   is_scoped?: boolean;
   values?: AttributeValue[];
@@ -29,19 +39,41 @@ type EditAttributeFormProps = {
   attribute: EditAttributeAttribute;
 };
 
+const isVariantAxis = (attribute: EditAttributeAttribute) =>
+  attribute.type === AttributeType.MULTI_SELECT || !!attribute.is_variant_axis;
+
 export const EditAttributeForm = ({
   productId,
   attribute,
 }: EditAttributeFormProps) => {
-  // A product-scoped (inline) attribute is owned by this product, so it gets
-  // the same authoring affordances as the create form: editable title and
-  // free-form values (chips for variant axes, a textarea for text). Shared
-  // catalog attributes keep the value-selection form (pick from the catalog).
   if (attribute.is_scoped) {
     return <EditScopedAttributeForm productId={productId} attribute={attribute} />;
   }
 
   return <EditCatalogAttributeForm productId={productId} attribute={attribute} />;
+};
+
+const AttributeWarning = () => {
+  const { t } = useTranslation();
+
+  return (
+    <InlineTip
+      variant="warning"
+      label={t("products.create.attributes.warning")}
+    >
+      {t("products.create.attributes.editWarning")}
+    </InlineTip>
+  );
+};
+
+const VariantAxisTip = () => {
+  const { t } = useTranslation();
+
+  return (
+    <InlineTip label={t("products.create.attributes.tip")}>
+      {t("products.create.attributes.editVariantAxisTip")}
+    </InlineTip>
+  );
 };
 
 type ScopedFormValues = {
@@ -56,7 +88,7 @@ const EditScopedAttributeForm = ({
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
-  const isAxis = attribute.type === AttributeType.MULTI_SELECT;
+  const isAxis = isVariantAxis(attribute);
   const currentValues = attribute.values ?? attribute.all_values ?? [];
 
   const schema = zod.object({
@@ -91,8 +123,6 @@ const EditScopedAttributeForm = ({
     let payload: Parameters<typeof mutateAsync>[0];
 
     if (isAxis) {
-      // Diff the chip names against the existing value rows: new names become
-      // `add: [{ value }]`, dropped value rows become `remove: [value_id]`.
       const newNames = (Array.isArray(data.values) ? data.values : [])
         .map((v) => v.trim())
         .filter(Boolean);
@@ -107,7 +137,6 @@ const EditScopedAttributeForm = ({
         update: [{ id: attribute.id, title, add, remove }],
       };
     } else {
-      // Free-form text/unit: a single scalar swap (plus optional rename).
       const value = Array.isArray(data.values)
         ? data.values[0] ?? ""
         : data.values;
@@ -192,23 +221,13 @@ const EditScopedAttributeForm = ({
                             )}
                           />
                         ) : (
-                          <Textarea
-                            aria-invalid={
-                              fieldState.invalid ? "true" : undefined
-                            }
-                            className={
-                              fieldState.invalid
-                                ? "bg-ui-bg-field-component shadow-borders-error focus:shadow-borders-error"
-                                : "bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
-                            }
-                            value={
-                              Array.isArray(value) ? value.join(", ") : value ?? ""
-                            }
-                            onChange={(e) => onChange(e.target.value)}
+                          <AttributeValueInput
+                            type={attribute.type}
+                            value={value}
+                            onChange={onChange}
                             placeholder={t(
                               "products.create.attributes.valuePlaceholder",
                             )}
-                            data-testid="edit-attribute-values-input"
                           />
                         )}
                       </Form.Control>
@@ -217,9 +236,6 @@ const EditScopedAttributeForm = ({
                   )}
                 />
                 <div />
-                {/* Use-for-variants reflects the attribute's axis nature; it is
-                    read-only here because flipping it would create/drop the
-                    backing variant option and re-key existing variants. */}
                 <div className="flex items-start gap-x-3 py-1.5">
                   <Switch
                     className="shrink-0 rtl:rotate-180"
@@ -237,15 +253,8 @@ const EditScopedAttributeForm = ({
                 </div>
               </div>
             </div>
-            <div className="bg-ui-bg-component shadow-elevation-card-rest flex items-center gap-x-3 rounded-lg px-3 py-2.5">
-              <div className="bg-ui-tag-orange-icon h-full min-h-[24px] w-1 shrink-0 rounded-full" />
-              <Text size="small" className="text-ui-fg-subtle">
-                <span className="text-ui-fg-base txt-compact-small-plus">
-                  {t("products.create.attributes.warning")}:{" "}
-                </span>
-                {t("products.create.attributes.editWarning")}
-              </Text>
-            </div>
+            {isAxis && <VariantAxisTip />}
+            <AttributeWarning />
           </div>
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
@@ -281,9 +290,17 @@ const EditCatalogAttributeForm = ({
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
+  const isAxis = isVariantAxis(attribute);
+
   const hasPresetValues =
     attribute.type === AttributeType.SINGLE_SELECT ||
     attribute.type === AttributeType.MULTI_SELECT;
+
+  const labelTooltip =
+    attribute.description ||
+    (attribute.is_required
+      ? t("products.attributeRequiredByMarketplace")
+      : undefined);
 
   const initialValues = (() => {
     const selected = attribute.values ?? [];
@@ -317,26 +334,22 @@ const EditCatalogAttributeForm = ({
     let payload: Parameters<typeof mutateAsync>[0];
 
     if (hasPresetValues) {
-      // Map the chosen value names to ids over the attribute's full value set.
       const selectedIds = (attribute.all_values ?? [])
         .filter((v) => vals.includes(v.name))
         .map((v) => v.id);
 
       if (attribute.is_variant_axis) {
-        // Shared axis: adjust the per-product value subset (add/remove diff).
         const currentIds = (attribute.values ?? []).map((v) => v.id);
         const add = selectedIds.filter((id) => !currentIds.includes(id));
         const remove = currentIds.filter((id) => !selectedIds.includes(id));
         payload = { update: [{ id: attribute.id, add, remove }] };
       } else {
-        // Non-axis select: replace the value links (remove → add in one call).
         payload = {
           remove: [attribute.id],
           add: [{ id: attribute.id, value_ids: selectedIds }],
         };
       }
     } else {
-      // Text / unit / toggle: a single free-form scalar.
       payload = {
         update: [
           {
@@ -361,51 +374,28 @@ const EditCatalogAttributeForm = ({
       <KeyboundForm onSubmit={handleSubmit} className="flex h-full flex-col">
         <RouteDrawer.Body>
           <div className="flex flex-col gap-y-4">
-            <div className="bg-ui-bg-component shadow-elevation-card-rest rounded-xl p-1.5">
-              <div className="grid grid-cols-[min-content,1fr] items-center gap-1.5">
-                <div className="flex items-center px-2 py-1.5">
-                  <Label
-                    size="xsmall"
-                    weight="plus"
-                    className="text-ui-fg-subtle"
-                  >
-                    {t("fields.title")}
-                  </Label>
-                </div>
-                <Input
-                  className="bg-ui-bg-field-component"
-                  value={attribute.name}
-                  disabled
-                  data-testid="edit-attribute-title-input"
-                />
-                <div className="flex items-center px-2 py-1.5">
-                  <Label
-                    size="xsmall"
-                    weight="plus"
-                    className="text-ui-fg-subtle"
-                  >
-                    {t("fields.values")}
-                  </Label>
-                </div>
-                <Form.Field
-                  control={form.control}
-                  name="values"
-                  render={({ field: { onChange, value } }) => (
-                    <Form.Item>
-                      <Form.Control>
-                        <AttributeValueInput
-                          type={attribute.type}
-                          value={value}
-                          onChange={onChange}
-                          availableValues={attribute.all_values ?? []}
-                        />
-                      </Form.Control>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  )}
-                />
-              </div>
-            </div>
+            <Form.Field
+              control={form.control}
+              name="values"
+              render={({ field: { onChange, value } }) => (
+                <Form.Item>
+                  <Form.Label tooltip={labelTooltip}>
+                    {attribute.name}
+                  </Form.Label>
+                  <Form.Control>
+                    <AttributeValueInput
+                      type={attribute.type}
+                      value={value}
+                      onChange={onChange}
+                      availableValues={attribute.all_values ?? []}
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                  {isAxis && <VariantAxisTip />}
+                </Form.Item>
+              )}
+            />
+            <AttributeWarning />
           </div>
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
