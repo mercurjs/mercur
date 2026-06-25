@@ -267,6 +267,20 @@ yarn build >/tmp/mercur-build.log 2>&1 || { tail -n 40 /tmp/mercur-build.log; ex
 PROD_DIR="$DEPLOY_DIR/packages/api/.medusa/server"
 log "Preparing prod dir at $PROD_DIR"
 cp "$DEPLOY_DIR/packages/api/.env" "$PROD_DIR/.env"
+
+# Point the local file provider at the public origin. Without this it
+# defaults to http://localhost:9000/static and every uploaded image
+# (category thumbnails, product media) renders broken in the dashboards
+# served from $MERCUR_BACKEND_URL. nginx serves the static upload dir
+# under /dist, so files resolve at $MERCUR_BACKEND_URL/dist/<key>.
+FILE_BACKEND_URL="${MERCUR_BACKEND_URL%/}/dist"
+if grep -q '^FILE_BACKEND_URL=' "$PROD_DIR/.env"; then
+  sed -i "s#^FILE_BACKEND_URL=.*#FILE_BACKEND_URL=${FILE_BACKEND_URL}#" "$PROD_DIR/.env"
+else
+  printf '\nFILE_BACKEND_URL=%s\n' "$FILE_BACKEND_URL" >> "$PROD_DIR/.env"
+fi
+log "Set FILE_BACKEND_URL=$FILE_BACKEND_URL"
+
 touch "$PROD_DIR/yarn.lock"
 [ -f "$PROD_DIR/.yarnrc.yml" ] || echo "nodeLinker: node-modules" > "$PROD_DIR/.yarnrc.yml"
 

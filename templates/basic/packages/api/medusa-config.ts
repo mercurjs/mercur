@@ -46,5 +46,22 @@ module.exports = withMercur({
         path: '/seller',
       }
     },
+    {
+      resolve: '@medusajs/medusa/file',
+      options: {
+        providers: [
+          {
+            resolve: '@medusajs/medusa/file-local',
+            id: 'local',
+            options: {
+              // The local provider bakes this into every uploaded file URL.
+              // It must be the publicly reachable origin in production, or
+              // images resolve to localhost and render broken.
+              backend_url: process.env.FILE_BACKEND_URL || 'http://localhost:9000/static',
+            },
+          },
+        ],
+      },
+    },
   ],
 })
