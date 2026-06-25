@@ -46,10 +46,6 @@ export const EditAttributeForm = ({
   productId,
   attribute,
 }: EditAttributeFormProps) => {
-  // A product-scoped (inline) attribute is owned by this product, so it gets
-  // the same authoring affordances as the create form: editable title and
-  // free-form values (chips for variant axes, a textarea for text). Shared
-  // catalog attributes keep the value-selection form (pick from the catalog).
   if (attribute.is_scoped) {
     return <EditScopedAttributeForm productId={productId} attribute={attribute} />;
   }
@@ -127,8 +123,6 @@ const EditScopedAttributeForm = ({
     let payload: Parameters<typeof mutateAsync>[0];
 
     if (isAxis) {
-      // Diff the chip names against the existing value rows: new names become
-      // `add: [{ value }]`, dropped value rows become `remove: [value_id]`.
       const newNames = (Array.isArray(data.values) ? data.values : [])
         .map((v) => v.trim())
         .filter(Boolean);
@@ -143,7 +137,6 @@ const EditScopedAttributeForm = ({
         update: [{ id: attribute.id, title, add, remove }],
       };
     } else {
-      // Free-form text/unit: a single scalar swap (plus optional rename).
       const value = Array.isArray(data.values)
         ? data.values[0] ?? ""
         : data.values;
@@ -243,9 +236,6 @@ const EditScopedAttributeForm = ({
                   )}
                 />
                 <div />
-                {/* Use-for-variants reflects the attribute's axis nature; it is
-                    read-only here because flipping it would create/drop the
-                    backing variant option and re-key existing variants. */}
                 <div className="flex items-start gap-x-3 py-1.5">
                   <Switch
                     className="shrink-0 rtl:rotate-180"
@@ -306,9 +296,6 @@ const EditCatalogAttributeForm = ({
     attribute.type === AttributeType.SINGLE_SELECT ||
     attribute.type === AttributeType.MULTI_SELECT;
 
-  // The info icon next to the attribute name carries the same context shown in
-  // the product attributes list: the attribute's own description, falling back
-  // to the marketplace-required note for required attributes.
   const labelTooltip =
     attribute.description ||
     (attribute.is_required
@@ -347,26 +334,22 @@ const EditCatalogAttributeForm = ({
     let payload: Parameters<typeof mutateAsync>[0];
 
     if (hasPresetValues) {
-      // Map the chosen value names to ids over the attribute's full value set.
       const selectedIds = (attribute.all_values ?? [])
         .filter((v) => vals.includes(v.name))
         .map((v) => v.id);
 
       if (attribute.is_variant_axis) {
-        // Shared axis: adjust the per-product value subset (add/remove diff).
         const currentIds = (attribute.values ?? []).map((v) => v.id);
         const add = selectedIds.filter((id) => !currentIds.includes(id));
         const remove = currentIds.filter((id) => !selectedIds.includes(id));
         payload = { update: [{ id: attribute.id, add, remove }] };
       } else {
-        // Non-axis select: replace the value links (remove → add in one call).
         payload = {
           remove: [attribute.id],
           add: [{ id: attribute.id, value_ids: selectedIds }],
         };
       }
     } else {
-      // Text / unit / toggle: a single free-form scalar.
       payload = {
         update: [
           {
