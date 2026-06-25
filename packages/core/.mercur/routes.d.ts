@@ -264,6 +264,7 @@ export type Routes = {
                 preview: typeof import("../src/api/admin/products/[id]/preview/route");
                 reject: typeof import("../src/api/admin/products/[id]/reject/route");
                 requestChanges: typeof import("../src/api/admin/products/[id]/request-changes/route");
+                sellers: typeof import("../src/api/admin/products/[id]/sellers/route");
             };
             batch: typeof import("@mercurjs/core/api/admin/products/batch/route");
             export: typeof import("@medusajs/medusa/api/admin/products/export/route");

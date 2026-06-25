@@ -41,7 +41,10 @@ export const normalizeProductFormValues = (
     collection_id: values.collection_id || undefined,
     categories: values.category_id ? [{ id: values.category_id }] : undefined,
     type_id: values.type_id || undefined,
-    seller_ids: values.seller_ids?.length ? values.seller_ids : undefined,
+    seller_ids:
+      !values.globally_available && values.seller_ids?.length
+        ? values.seller_ids
+        : undefined,
     handle: values.handle?.trim(),
     origin_country: values.origin_country || undefined,
     material: values.material || undefined,

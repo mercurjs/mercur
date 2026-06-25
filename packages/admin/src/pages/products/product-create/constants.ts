@@ -41,6 +41,7 @@ export const ProductCreateSchema = z
     handle: z.string().optional(),
     description: z.string().optional(),
     discountable: z.boolean(),
+    globally_available: z.boolean(),
     type_id: z.string().optional(),
     collection_id: z.string().optional(),
     category_id: z.string().min(1),
@@ -71,6 +72,14 @@ export const ProductCreateSchema = z
     media: z.array(MediaSchema).optional(),
   })
   .superRefine((data, ctx) => {
+    if (!data.globally_available && !data.seller_ids?.length) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["seller_ids"],
+        message: i18n.t("products.create.errors.requiredStore"),
+      })
+    }
+
     // Validate required attributes have values
     data.attributes?.forEach((attr, index) => {
       if (!attr.is_required) return
@@ -121,6 +130,7 @@ export const PRODUCT_CREATE_FORM_DEFAULTS: Partial<
   z.infer<typeof ProductCreateSchema>
 > = {
   discountable: true,
+  globally_available: true,
   seller_ids: [],
   tags: [],
   variants: decorateVariantsWithDefaultValues([

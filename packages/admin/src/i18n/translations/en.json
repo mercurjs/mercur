@@ -444,7 +444,8 @@
         "variants": "Please select at least one variant.",
         "options": "Please create at least one option.",
         "uniqueSku": "SKU must be unique.",
-        "requiredAttribute": "This attribute is required."
+        "requiredAttribute": "This attribute is required.",
+        "requiredStore": "Please select at least one store."
       },
       "inventory": {
         "heading": "Inventory kits",
@@ -707,8 +708,11 @@
         "label": "Collection"
       },
       "stores": {
-        "label": "Restricted to stores",
-        "hint": "Leave empty to make this product available in all stores. Select stores to restrict it to only those."
+        "label": "Stores"
+      },
+      "globally_available": {
+        "label": "Globally available",
+        "hint": "When unchecked, only the selected stores will be able to offer this product"
       },
       "categories": {
         "label": "Categories"

@@ -19,10 +19,6 @@ import {
   ProductStatusHeader,
 } from "../../../components/table/table-cells/product/product-status-cell"
 import {
-  SellerCell,
-  SellerHeader,
-} from "../../../components/table/table-cells/product/seller-cell"
-import {
   VariantCell,
   VariantHeader,
 } from "../../../components/table/table-cells/product/variant-cell"
@@ -64,15 +60,6 @@ export const useProductTableColumns = () => {
           <ProductCell
             product={row.original}
             data-testid={`products-table-cell-${row.id}-product-value`}
-          />
-        ),
-      }),
-      columnHelper.accessor("sellers", {
-        header: () => <SellerHeader />,
-        cell: ({ row }) => (
-          <SellerCell
-            sellers={row.original.sellers}
-            data-testid={`products-table-cell-${row.id}-store-value`}
           />
         ),
       }),

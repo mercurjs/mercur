@@ -4,6 +4,8 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 
+import { createLinkBody } from "@medusajs/medusa/api/utils/validators"
+
 import { applyOfferedProductsFilter } from "../../utils"
 import {
   adminProductQueryConfig,
@@ -181,5 +183,11 @@ export const adminProductsMiddlewares: MiddlewareRoute[] = [
         adminProductQueryConfig.retrieve
       ),
     ],
+  },
+
+  {
+    method: ["POST"],
+    matcher: "/admin/products/:id/sellers",
+    middlewares: [validateAndTransformBody(createLinkBody())],
   },
 ]

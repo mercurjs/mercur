@@ -7,7 +7,7 @@ type UseProductTableQueryProps = {
 };
 
 const DEFAULT_FIELDS =
-  "id,title,handle,status,*collection,*categories,variants.id,thumbnail,*sellers";
+  "id,title,handle,status,*collection,*categories,variants.id,thumbnail";
 
 export const useProductTableQuery = ({
   prefix,

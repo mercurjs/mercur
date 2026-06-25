@@ -54,17 +54,11 @@ export const ProductCreateOrganizationSection = () => {
       })),
   })
 
+  const isGloballyAvailable = form.watch("globally_available")
+
   return (
     <div id="organize" className="flex flex-col gap-y-8" data-testid="product-create-organize-section">
       <Heading data-testid="product-create-organize-section-heading">{t("products.organization.header")}</Heading>
-      <SwitchBox
-        control={form.control}
-        name="discountable"
-        label={t("products.fields.discountable.label")}
-        description={t("products.fields.discountable.hint")}
-        optional
-        data-testid="product-create-organize-section-discountable-switch"
-      />
       <div className="grid grid-cols-1 gap-4 md:grid-cols-2" data-testid="product-create-organize-section-category-collection">
         <Form.Field
           control={form.control}
@@ -161,14 +155,30 @@ export const ProductCreateOrganizationSection = () => {
           }}
         />
       </div>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2" data-testid="product-create-organize-section-stores">
+      <SwitchBox
+        control={form.control}
+        name="discountable"
+        label={t("products.fields.discountable.label")}
+        description={t("products.fields.discountable.hint")}
+        optional
+        data-testid="product-create-organize-section-discountable-switch"
+      />
+      <SwitchBox
+        control={form.control}
+        name="globally_available"
+        label={t("products.fields.globally_available.label")}
+        description={t("products.fields.globally_available.hint")}
+        optional
+        data-testid="product-create-organize-section-globally-available-switch"
+      />
+      {!isGloballyAvailable && (
         <Form.Field
           control={form.control}
           name="seller_ids"
           render={({ field }) => {
             return (
               <Form.Item data-testid="product-create-organize-section-stores-item">
-                <Form.Label optional data-testid="product-create-organize-section-stores-label">
+                <Form.Label data-testid="product-create-organize-section-stores-label">
                   {t("products.fields.stores.label")}
                 </Form.Label>
                 <Form.Control data-testid="product-create-organize-section-stores-control">
@@ -182,15 +192,12 @@ export const ProductCreateOrganizationSection = () => {
                     data-testid="product-create-organize-section-stores-input"
                   />
                 </Form.Control>
-                <Form.Hint data-testid="product-create-organize-section-stores-hint">
-                  {t("products.fields.stores.hint")}
-                </Form.Hint>
                 <Form.ErrorMessage />
               </Form.Item>
             )
           }}
         />
-      </div>
+      )}
     </div>
   )
 }

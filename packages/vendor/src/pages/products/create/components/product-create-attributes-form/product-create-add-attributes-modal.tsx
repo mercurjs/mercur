@@ -289,7 +289,8 @@ const useColumns = () => {
         id: "values",
         header: t("attributes.fields.values"),
         cell: ({ row }) => {
-          const values = row.original.values ?? []
+          const values =
+            row.original.type === "toggle" ? [] : row.original.values ?? []
           if (!values.length) {
             return <span className="text-ui-fg-muted">-</span>
           }
