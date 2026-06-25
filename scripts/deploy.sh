@@ -218,6 +218,14 @@ log "Cleaning yarn cache"
 rm -rf "$DEPLOY_DIR/.yarn/cache" "$DEPLOY_DIR/.yarn/install-state.gz"
 yarn cache clean --all >/tmp/mercur-yarn-cache.log 2>&1 || true
 
+# Drop the already-extracted @mercurjs/* packages from node_modules. rsync
+# preserves node_modules across deploys, and canary re-publishes the same
+# version number, so yarn sees the version already present and never replaces
+# the stale extracted copy — the server keeps running old code. Cleaning the
+# yarn cache alone isn't enough; the extracted node_modules tree must go too.
+log "Removing stale @mercurjs/* from node_modules"
+rm -rf "$DEPLOY_DIR"/node_modules/@mercurjs/*
+
 log "yarn install (workspace)"
 yarn install >/tmp/mercur-yarn.log 2>&1 || { tail -n 40 /tmp/mercur-yarn.log; exit 1; }
 
@@ -235,6 +243,9 @@ cd "$PROD_DIR"
 log "Cleaning yarn cache (prod)"
 rm -rf "$PROD_DIR/.yarn/cache" "$PROD_DIR/.yarn/install-state.gz"
 yarn cache clean --all >/tmp/mercur-yarn-cache-prod.log 2>&1 || true
+
+log "Removing stale @mercurjs/* from node_modules (prod)"
+rm -rf "$PROD_DIR"/node_modules/@mercurjs/*
 
 log "yarn install (prod)"
 yarn install >/tmp/mercur-yarn-prod.log 2>&1 || { tail -n 40 /tmp/mercur-yarn-prod.log; exit 1; }
