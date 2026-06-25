@@ -395,7 +395,7 @@ const EditCatalogAttributeForm = ({
               control={form.control}
               name="values"
               render={({ field: { onChange, value } }) => (
-                <Form.Item className="flex flex-col gap-y-2">
+                <Form.Item>
                   <Form.Label tooltip={labelTooltip}>
                     {attribute.name}
                   </Form.Label>
