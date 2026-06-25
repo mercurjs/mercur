@@ -10,7 +10,10 @@ import {
 } from "@medusajs/framework/utils"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
-import { createVendorProduct } from "../../../helpers/create-product"
+import {
+    createVendorProduct,
+    assignProductsToSeller,
+} from "../../../helpers/create-product"
 import {
     generatePublishableKey,
     generateStoreHeaders,
@@ -76,6 +79,12 @@ medusaIntegrationTestRunner({
                         `/vendor/sales-channels/${salesChannel.id}/products`,
                         { add: [product.id] },
                         headers
+                    )
+
+                    await assignProductsToSeller(
+                        appContainer,
+                        result.seller.id as string,
+                        [product.id]
                     )
 
                     productId = product.id

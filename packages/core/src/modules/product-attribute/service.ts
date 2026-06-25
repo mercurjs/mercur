@@ -96,9 +96,10 @@ class ProductAttributeModuleService extends MedusaService({
     return super.updateProductAttributes(data, sharedContext) as any
   }
 
-  private static readonly SELECT_TYPES = new Set<string>([
+  private static readonly VALUE_TYPES = new Set<string>([
     AttributeType.SINGLE_SELECT,
     AttributeType.MULTI_SELECT,
+    AttributeType.TOGGLE,
   ])
 
   private wantsValues(config?: FindConfig<any>): boolean {
@@ -164,22 +165,22 @@ class ProductAttributeModuleService extends MedusaService({
     config?: FindConfig<any>,
     sharedContext?: Context,
   ): Promise<void> {
-    const selectAttributes = attributes.filter((a) =>
-      ProductAttributeModuleService.SELECT_TYPES.has(a.type),
+    const valueAttributes = attributes.filter((a) =>
+      ProductAttributeModuleService.VALUE_TYPES.has(a.type),
     )
 
     for (const attribute of attributes) {
-      if (!ProductAttributeModuleService.SELECT_TYPES.has(attribute.type)) {
+      if (!ProductAttributeModuleService.VALUE_TYPES.has(attribute.type)) {
         attribute.values = []
       }
     }
 
-    if (!selectAttributes.length) {
+    if (!valueAttributes.length) {
       return
     }
 
     const values = await this.listProductAttributeValues(
-      { attribute_id: selectAttributes.map((a) => a.id) },
+      { attribute_id: valueAttributes.map((a) => a.id) },
       this.deriveValueConfig(config),
       sharedContext,
     )
@@ -191,7 +192,7 @@ class ProductAttributeModuleService extends MedusaService({
       valuesByAttribute.set(value.attribute_id, list)
     }
 
-    for (const attribute of selectAttributes) {
+    for (const attribute of valueAttributes) {
       attribute.values = valuesByAttribute.get(attribute.id) ?? []
     }
   }
@@ -255,10 +256,10 @@ class ProductAttributeModuleService extends MedusaService({
     )
     const attributes = attributeIds.length
       ? await this.listProductAttributes(
-          { id: attributeIds },
-          { select: ["id", "product_id", "type"] },
-          sharedContext,
-        )
+        { id: attributeIds },
+        { select: ["id", "product_id", "type"] },
+        sharedContext,
+      )
       : []
     const attributeById = new Map<string, { product_id?: string; type: string }>(
       attributes.map((a) => [a.id, a]),
