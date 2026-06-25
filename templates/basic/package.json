@@ -59,7 +59,8 @@
     "@medusajs/medusa": "2.16.0-options-preview-20260605124754",
     "@medusajs/test-utils": "2.16.0-options-preview-20260605124754",
     "@medusajs/types": "2.16.0-options-preview-20260605124754",
-    "@medusajs/ui": "4.1.16-options-preview-20260605124754"
+    "@medusajs/ui": "4.1.16-options-preview-20260605124754",
+    "zod": "3.25.76"
   },
   "workspaces": [
     "packages/*",
