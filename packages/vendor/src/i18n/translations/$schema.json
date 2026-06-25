@@ -2259,6 +2259,15 @@
                 "variantAxisTip": {
                   "type": "string"
                 },
+                "editVariantAxisTip": {
+                  "type": "string"
+                },
+                "warning": {
+                  "type": "string"
+                },
+                "editWarning": {
+                  "type": "string"
+                },
                 "titlePlaceholder": {
                   "type": "string"
                 },
@@ -2298,6 +2307,9 @@
                 "useForVariants",
                 "useForVariantsDescription",
                 "variantAxisTip",
+                "editVariantAxisTip",
+                "warning",
+                "editWarning",
                 "titlePlaceholder",
                 "valuePlaceholder",
                 "enterValuePlaceholder",
