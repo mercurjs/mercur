@@ -18,9 +18,6 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Hide product-scoped (inline-custom) attributes from the global
-  // catalogue. They live on a specific product via `product_id` and
-  // surface only on that product's attribute endpoints.
   const { data: product_attributes, metadata } = await query.graph({
     entity: "product_attribute",
     fields: req.queryConfig.fields,

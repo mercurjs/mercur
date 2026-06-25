@@ -13,10 +13,6 @@ type ConfirmProductChangeValidationStepInput = {
   expected_ids: string[]
 }
 
-/**
- * Composite of "row exists" + "status is PENDING". The "row not stale"
- * check (concurrent confirm guard) is left to the database transaction.
- */
 export const confirmProductChangeValidationStep = createStep(
   confirmProductChangeValidationStepId,
   async ({

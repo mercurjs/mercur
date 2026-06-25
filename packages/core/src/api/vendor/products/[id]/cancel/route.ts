@@ -10,12 +10,6 @@ import { ProductChangeDTO, ProductChangeStatus } from "@mercurjs/types"
 
 import { cancelProductChangeWorkflow } from "../../../../../workflows/product-edit/workflows/cancel-product-change"
 
-/**
- * Vendor-side cancel of the seller's own pending `ProductChange`.
- * Resolves the active change via `(product_id, created_by, status: pending)`
- * — vendors can only cancel changes they authored. Marks the change
- * `CANCELED`; no underlying product mutation happens.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<{ product_change: ProductChangeDTO }>

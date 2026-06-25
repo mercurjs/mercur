@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { AttributeType, ProductAttributeBatchAdd } from "@mercurjs/types"
 import { ProductCreateSchemaType } from "./types"
 
 export const normalizeProductFormValues = (
@@ -11,8 +12,20 @@ export const normalizeProductFormValues = (
     ?.filter((media) => !media.isThumbnail)
     .map((media) => ({ url: media.url }))
 
-  const { variantAttributes, productAttributes, attributeValues } =
-    normalizeFormAttributes(values.attributes ?? [])
+  const hasAxis = (values.attributes ?? []).some(
+    (a) => a.use_for_variants && toValueArray(a.values).length > 0
+  )
+
+  const attributes = normalizeFormAttributes(values.attributes ?? [])
+
+  if (!hasAxis) {
+    attributes.push({
+      title: "Default Option",
+      type: AttributeType.MULTI_SELECT,
+      values: ["Default"],
+      is_variant_axis: true,
+    })
+  }
 
   return {
     is_giftcard: false,
@@ -38,23 +51,17 @@ export const normalizeProductFormValues = (
     length: values.length ? parseFloat(values.length) : undefined,
     height: values.height ? parseFloat(values.height) : undefined,
     weight: values.weight ? parseFloat(values.weight) : undefined,
-    variant_attributes: variantAttributes.length
-      ? variantAttributes
-      : undefined,
-    product_attributes: productAttributes.length
-      ? productAttributes
-      : undefined,
-    attribute_values: Object.keys(attributeValues).length
-      ? attributeValues
-      : undefined,
+    attributes: attributes.length ? attributes : undefined,
     variants: normalizeVariants(
       values.variants.filter((variant) => variant.should_create),
+      hasAxis,
     ),
   } as any
 }
 
 export const normalizeVariants = (
   variants: ProductCreateSchemaType["variants"],
+  hasAxis: boolean,
 ): any[] => {
   return variants.map((variant) => {
     const opts = variant.options
@@ -62,122 +69,86 @@ export const normalizeVariants = (
 
     return {
       title: variant.title || (hasOpts ? Object.values(opts).join(" / ") : "Default variant"),
-      options: hasOpts ? opts : undefined,
+      options: hasOpts ? opts : hasAxis ? undefined : { "Default Option": "Default" },
       sku: variant.sku || undefined,
       variant_rank: variant.variant_rank,
     }
   })
 }
 
+const toValueArray = (values: string | string[] | undefined): string[] =>
+  Array.isArray(values) ? values.filter(Boolean) : values ? [values] : []
+
+/**
+ * SPEC-014: collapse the form's attribute rows into the unified
+ * `attributes[]` create input (`ProductAttributeBatchAdd`). Axis vs. non-axis
+ * is derived from `use_for_variants`; existing refs go in by `id`, custom rows
+ * by `title` (inline product-scoped). Select types pass `value_ids` (resolved
+ * by name), text/unit/toggle pass a single `value` scalar.
+ */
 const normalizeFormAttributes = (
   attributes: NonNullable<ProductCreateSchemaType["attributes"]>
-) => {
-  const variantAttributes: any[] = []
-  const productAttributes: any[] = []
-  const attributeValues: Record<string, string | string[]> = {}
+): ProductAttributeBatchAdd[] => {
+  const result: ProductAttributeBatchAdd[] = []
 
   for (const attr of attributes) {
-    if (attr.use_for_variants) {
-      // Variant axis attribute. A variant axis without any chosen values
-      // is meaningless: stock Medusa will synthesise an option with no
-      // values and then reject the default variant for not providing one.
-      // Skip the ref entirely in that case so the product falls through
-      // to the no-axes path.
-      if (attr.attribute_id) {
-        const valueNames = Array.isArray(attr.values)
-          ? attr.values
-          : attr.values
-            ? [attr.values]
-            : []
+    const vals = toValueArray(attr.values)
+    const type = attr.type as string | undefined
+    const isSelect = type === "single_select" || type === "multi_select"
+
+    if (attr.attribute_id) {
+      // Existing catalog attribute referenced by id.
+      if (isSelect || attr.use_for_variants) {
+        // Select / axis: resolve chosen value names to ids.
         const nameToId = new Map(
           (attr.available_values ?? []).map((v) => [v.name, v.id])
         )
-        const valueIds = valueNames
+        const valueIds = vals
           .map((name) => nameToId.get(name))
           .filter(Boolean) as string[]
 
+        // A variant axis without chosen values is meaningless (stock Medusa
+        // would synthesise a valueless option and reject the default variant),
+        // so skip the ref entirely and let the product fall through.
         if (!valueIds.length) continue
 
-        variantAttributes.push({
-          attribute_id: attr.attribute_id,
-          value_ids: valueIds,
+        result.push({ id: attr.attribute_id, value_ids: valueIds })
+      } else {
+        // Text / unit / toggle: a single free-form scalar.
+        if (!vals.length || !vals[0]) continue
+        result.push({
+          id: attr.attribute_id,
+          value: type === "toggle" ? vals[0] === "true" : vals[0],
         })
-      } else if (attr.is_custom && attr.title) {
-        const vals = Array.isArray(attr.values)
-          ? attr.values
-          : attr.values
-            ? [attr.values]
-            : []
+      }
+    } else if (attr.is_custom && attr.title) {
+      // Inline (product-scoped) attribute created from a custom row.
+      if (!vals.length) continue
 
-        if (!vals.length) continue
-
-        variantAttributes.push({
-          name: attr.title,
-          type: attr.type ?? "multi_select",
+      if (attr.use_for_variants) {
+        result.push({
+          title: attr.title,
+          type: (type as AttributeType) ?? AttributeType.MULTI_SELECT,
           values: vals,
           is_variant_axis: true,
         })
-      }
-    } else {
-      // Non-variant descriptive attribute
-      const key = attr.title
-      if (!key) continue
-
-      if (attr.is_custom) {
-        // Custom non-variant attr — create via product_attributes
-        const vals = Array.isArray(attr.values)
-          ? attr.values
-          : attr.values
-            ? [attr.values]
-            : []
-        if (vals.length) {
-          productAttributes.push({
-            name: attr.title,
-            type: attr.type ?? "text",
-            values: vals,
-            is_variant_axis: false,
-          })
-        }
-      } else if (attr.attribute_id) {
-        // Existing non-variant attr
-        const vals = Array.isArray(attr.values)
-          ? attr.values
-          : attr.values
-            ? [attr.values]
-            : []
-        if (!vals.length || vals.every((v) => !v)) continue
-
-        const type = attr.type as string | undefined
-        const hasPresetValues =
-          type === "single_select" || type === "multi_select"
-
-        if (hasPresetValues) {
-          // Select types — resolve by name via attribute_values
-          const nameToId = new Map(
-            (attr.available_values ?? []).map((v) => [v.name, v.id])
-          )
-          const valueIds = vals
-            .map((name) => nameToId.get(name))
-            .filter(Boolean) as string[]
-
-          if (valueIds.length) {
-            productAttributes.push({
-              attribute_id: attr.attribute_id,
-              value_ids: valueIds,
-            })
-          }
-        } else {
-          // Text/unit/toggle — upsert values by name via product_attributes
-          productAttributes.push({
-            attribute_id: attr.attribute_id,
-            values: vals,
-          })
-        }
+      } else if (isSelect) {
+        result.push({
+          title: attr.title,
+          type: type as AttributeType,
+          values: vals,
+        })
+      } else {
+        result.push({
+          title: attr.title,
+          type: (type as AttributeType) ?? AttributeType.TEXT,
+          value: type === "toggle" ? vals[0] === "true" : vals[0],
+        })
       }
     }
   }
 
-  return { variantAttributes, productAttributes, attributeValues }
+  return result
 }
 
 export const decorateVariantsWithDefaultValues = (

@@ -67,19 +67,19 @@ const AttributeActions = ({
             },
           ],
         },
-        {
-          actions: [
-            {
-              label: t("actions.delete"),
-              onClick: handleDelete,
-              icon: <Trash />,
-              disabled: attribute.is_required,
-              disabledTooltip: attribute.is_required
-                ? t("products.attributeRequiredDeleteDisabledTooltip")
-                : undefined,
-            },
-          ],
-        },
+        ...(attribute.is_required
+          ? []
+          : [
+              {
+                actions: [
+                  {
+                    label: t("actions.delete"),
+                    onClick: handleDelete,
+                    icon: <Trash />,
+                  },
+                ],
+              },
+            ]),
       ]}
     />
   );
@@ -172,7 +172,13 @@ const AttributeGroup = ({
                         leading="compact"
                         className="text-ui-fg-subtle"
                       >
-                        {values.join(", ") || "-"}
+                        {attr.type === "toggle"
+                          ? values
+                              .map((val) =>
+                                val === "true" ? t("general.yes") : t("general.no")
+                              )
+                              .join(", ") || "-"
+                          : values.join(", ") || "-"}
                       </Text>
                     )}
                   </div>

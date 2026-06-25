@@ -10,11 +10,6 @@ import {
 
 import { VendorPostOrderEditsItemsActionReqType } from "../../../validators"
 
-/**
- * `POST /vendor/order-edits/:id/items/:action_id` — mirrors
- * `POST /admin/order-edits/:id/items/:action_id`. Updates an
- * existing add-item action on the draft.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorPostOrderEditsItemsActionReqType>,
   res: MedusaResponse<HttpTypes.AdminOrderEditPreviewResponse>
@@ -34,10 +29,6 @@ export const POST = async (
   })
 }
 
-/**
- * `DELETE /vendor/order-edits/:id/items/:action_id` — removes the
- * add-item action from the draft.
- */
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminOrderEditPreviewResponse>

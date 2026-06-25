@@ -10,13 +10,6 @@ import {
 import { cancelProductChangeWorkflow } from "../../../../../workflows/product-edit/workflows/cancel-product-change"
 import { AdminCancelProductChangeType } from "../../validators"
 
-/**
- * Admin-side cancel of a pending `ProductChange`. Mirrors Medusa's
- * `POST /admin/order-edits/:id` DELETE / cancel-begin-order-edit pattern.
- * Marks the change `CANCELED` (no actions are applied to the product). An
- * optional `internal_note` in the body is persisted onto
- * `ProductChange.internal_note`.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminCancelProductChangeType>,
   res: MedusaResponse

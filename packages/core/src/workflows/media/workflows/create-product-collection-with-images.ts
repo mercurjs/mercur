@@ -9,22 +9,14 @@ import type { CollectionMediaInput } from "./set-collection-images"
 import { setCollectionImagesWorkflow } from "./set-collection-images"
 
 export type CreateProductCollectionWithImagesWorkflowInput = {
-  /** Core create payload (title, handle, metadata, …). */
   collection: Record<string, unknown>
-  /** Gallery images to set (optional). */
   media?: CollectionMediaInput[]
-  /** Icon image URL to set, or null (optional). */
   icon?: string | null
 }
 
 export const createProductCollectionWithImagesWorkflowId =
   "mercur-create-product-collection-with-images"
 
-/**
- * Wraps Medusa's `createCollectionsWorkflow` and attaches the collection's
- * media gallery + icon in a single workflow, so the route is one call.
- * Returns the created collection id.
- */
 export const createProductCollectionWithImagesWorkflow = createWorkflow(
   createProductCollectionWithImagesWorkflowId,
   (input: CreateProductCollectionWithImagesWorkflowInput) => {

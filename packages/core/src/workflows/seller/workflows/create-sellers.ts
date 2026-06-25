@@ -52,7 +52,6 @@ export const createSellersWorkflow: ReturnWorkflow<
       transform(input, ({ sellers }) =>
         sellers.map(({ member: _member, ...seller }) => ({
           ...seller,
-          // Admin-created sellers start as pending approval, same as
           status: seller.status ?? SellerStatus.PENDING_APPROVAL,
         }))
       )

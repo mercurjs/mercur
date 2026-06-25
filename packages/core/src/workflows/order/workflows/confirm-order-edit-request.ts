@@ -12,26 +12,6 @@ import {
 } from "@medusajs/framework/workflows-sdk"
 import { confirmOrderEditRequestWorkflow as baseConfirmOrderEditRequestWorkflow } from "@medusajs/medusa/core-flows"
 
-/**
- * Mercur wrapper around Medusa's `confirmOrderEditRequestWorkflow`.
- *
- * Mercur pins `variant.manage_inventory = false` on every product
- * variant (see `update-products.ts`), so Medusa's
- * `prepareConfirmInventoryInput` skips every cart item and
- * `reserveInventoryStep` runs as a no-op inside Medusa's confirm. That
- * means newly added items in an order edit get **no reservation at
- * all** from the base workflow, and existing items with their qty
- * bumped still hold the old reservation Medusa just deleted.
- *
- * This wrapper runs Medusa's confirm workflow as a step (so order-
- * change application, payment-collection sync, and the
- * `order-edit.confirmed` event all fire normally), then re-syncs the
- * per-line reservation set from the offer side. For every order item
- * with an `offer.inventory_item_link`, it computes the target
- * reservation set and replaces the existing one. Items without an
- * offer link are left alone.
- */
-
 type OfferLinkRow = {
   required_quantity?: number | null
   inventory_item_id?: string | null

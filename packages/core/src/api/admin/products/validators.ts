@@ -15,8 +15,6 @@ import { isPresent } from "@medusajs/framework/utils"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
-// --- List / retrieve query params ---
-
 const AdminGetProductsParamsFields = z.object({
   q: z.string().optional(),
   id: z.union([z.string(), z.array(z.string())]).optional(),
@@ -32,10 +30,6 @@ const AdminGetProductsParamsFields = z.object({
   ean: z.string().optional(),
   upc: z.string().optional(),
   barcode: z.string().optional(),
-  // Offers-list pseudo-filter: scope products to those carrying at least
-  // one offer. Consumed (and removed) by `applyOfferedProductsFilter`
-  // before the product graph read. When paired with `seller_id` on the
-  // Offers surface, the seller scope is reinterpreted as the offer's store.
   has_offer: booleanString().optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
@@ -68,8 +62,6 @@ export const AdminGetProductsParams = createFindParams({
 export type AdminGetProductParamsType = z.infer<typeof AdminGetProductParams>
 export const AdminGetProductParams = createSelectParams()
 
-// --- Create / update product ---
-
 const IdAssociation = z.object({ id: z.string() })
 
 const CreateProductVariant = z
@@ -92,12 +84,7 @@ const CreateProductVariant = z
     origin_country: z.string().nullish(),
     material: z.string().nullish(),
     metadata: z.record(z.unknown()).nullish(),
-    /** Stock Medusa: maps option title -> chosen value name (e.g. `{ Color: "Blue" }`). */
     options: z.record(z.string()).optional(),
-    // See CreateProductVariantDTO.attribute_values — resolved by the service.
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
-      .optional(),
   })
   .strict()
 
@@ -136,13 +123,8 @@ const UpdateProductVariant = z
       )
       .optional(),
     options: z.record(z.string()).optional(),
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
-      .optional(),
   })
   .strict()
-
-// --- Attribute input validators ---
 
 const AttributeTypeEnum = z.enum([
   "single_select",
@@ -152,35 +134,21 @@ const AttributeTypeEnum = z.enum([
   "unit",
 ])
 
-/**
- * UI-facing attribute reference. Two shapes:
- *
- *   1. **Existing reference** — `{ attribute_id, value_ids?, values? }`.
- *      `attribute_id` points at a pre-created ProductAttribute (global, or
- *      scoped to this product on a prior round-trip). Use `value_ids` for
- *      known ProductAttributeValue ids; or `values` (names) to upsert
- *      values on the attribute (only meaningful for text/unit/toggle).
- *
- *   2. **Inline custom** — `{ name, type, values, is_variant_axis? }`.
- *      Creates a new ProductAttribute scoped to the product being mutated.
- *      The wrapper persists it, links the chosen values, and (for variant
- *      axes) synthesizes the matching stock `options` entry.
- *
- * Discriminator: presence of `attribute_id` vs `name`.
- */
-const ProductAttributeInput = z.union([
+const AttributeScalar = z.union([z.string(), z.number(), z.boolean()])
+const UnifiedProductAttributeInput = z.union([
   z
     .object({
-      attribute_id: z.string(),
+      id: z.string(),
       value_ids: z.array(z.string()).optional(),
-      values: z.array(z.string()).optional(),
+      value: AttributeScalar.optional(),
     })
     .strict(),
   z
     .object({
-      name: z.string().min(1),
-      type: AttributeTypeEnum,
+      title: z.string().min(1),
+      type: AttributeTypeEnum.optional(),
       values: z.array(z.string()).optional(),
+      value: AttributeScalar.optional(),
       is_variant_axis: z.boolean().optional(),
       is_filterable: z.boolean().optional(),
       is_required: z.boolean().optional(),
@@ -189,8 +157,6 @@ const ProductAttributeInput = z.union([
     })
     .strict(),
 ])
-
-// --- Variant query params ---
 
 export type AdminGetProductVariantParamsType = z.infer<
   typeof AdminGetProductVariantParams
@@ -216,8 +182,6 @@ export const AdminGetProductVariantsParams = createFindParams({
   .merge(AdminGetProductVariantsParamsFields)
   .merge(applyAndAndOrOperators(AdminGetProductVariantsParamsFields))
 
-// --- Variant create / update ---
-
 export type AdminCreateProductVariantType = z.infer<
   typeof CreateProductVariant
 > &
@@ -231,8 +195,6 @@ export type AdminUpdateProductVariantType = z.infer<
   AdditionalData
 export const AdminUpdateProductVariant =
   WithAdditionalData(UpdateProductVariant)
-
-// --- Product create / update ---
 
 export type AdminCreateProductType = z.infer<typeof CreateProduct> &
   AdditionalData
@@ -253,15 +215,10 @@ const CreateProduct = z
     seller_ids: z.array(z.string()).optional(),
     categories: z.array(IdAssociation).optional(),
     tags: z.array(IdAssociation).optional(),
-    /** Stock Medusa product options: drives variant generation. */
     options: z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))
       .optional(),
-    variant_attributes: z.array(ProductAttributeInput).optional(),
-    product_attributes: z.array(ProductAttributeInput).optional(),
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
-      .optional(),
+    attributes: z.array(UnifiedProductAttributeInput).optional(),
     variants: z.array(CreateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -299,11 +256,6 @@ export const UpdateProduct = z
     options: z
       .array(z.object({ title: z.string(), values: z.array(z.string()) }))
       .optional(),
-    variant_attributes: z.array(ProductAttributeInput).optional(),
-    product_attributes: z.array(ProductAttributeInput).optional(),
-    attribute_values: z
-      .record(z.union([z.string(), z.array(z.string())]))
-      .optional(),
     variants: z.array(UpdateProductVariant).optional(),
     weight: z.number().nullish(),
     length: z.number().nullish(),
@@ -317,8 +269,6 @@ export const UpdateProduct = z
   })
   .strict()
 export const AdminUpdateProduct = WithAdditionalData(UpdateProduct)
-
-// --- Action endpoints ---
 
 export type AdminConfirmProductType = z.infer<typeof AdminConfirmProduct>
 export const AdminConfirmProduct = z
@@ -339,8 +289,6 @@ export const AdminRequestProductChanges = z.object({
   message: z.string().optional(),
 })
 
-// --- Batch product variants ---
-
 const BatchVariantCreateItem = CreateProductVariant
 const BatchVariantUpdateItem = UpdateProductVariant.extend({
   id: z.string(),
@@ -354,8 +302,6 @@ const BatchProductVariants = z.object({
 
 export type AdminBatchProductVariantsType = z.infer<typeof BatchProductVariants>
 export const AdminBatchProductVariants = BatchProductVariants
-
-// --- Batch variant ↔ inventory-item links ---
 
 const BatchVariantInventoryCreate = z
   .object({
@@ -385,8 +331,6 @@ export type AdminBatchVariantInventoryItemsType = z.infer<
 >
 export const AdminBatchVariantInventoryItems = BatchVariantInventoryItems
 
-// --- Batch products ---
-
 const BatchProductsUpdateItem = UpdateProduct.extend({
   id: z.string(),
 })
@@ -400,96 +344,60 @@ export type AdminBatchProductsType = z.infer<typeof BatchProducts> &
   AdditionalData
 export const AdminBatchProducts = WithAdditionalData(BatchProducts)
 
-// --- Batch product attributes ---
-
-const BatchProductAttributeCreate = z.union([
-  // Select types — reference existing value IDs
-  z.object({
-    attribute_id: z.string(),
-    attribute_value_ids: z.array(z.string()).optional(),
-  }).strict(),
-  // Text/unit/toggle types — provide new value strings
-  z.object({
-    attribute_id: z.string(),
-    values: z.array(z.string()),
-  }).strict(),
+const BatchAttributeScalar = z.union([z.string(), z.number(), z.boolean()])
+const BatchAttributeAdd = z.union([
+  z
+    .object({
+      id: z.string(),
+      value_ids: z.array(z.string()).optional(),
+      value: BatchAttributeScalar.optional(),
+    })
+    .strict(),
+  z
+    .object({
+      title: z.string().min(1),
+      type: AttributeTypeEnum.optional(),
+      values: z.array(z.string()).optional(),
+      value: BatchAttributeScalar.optional(),
+      is_variant_axis: z.boolean().optional(),
+      is_filterable: z.boolean().optional(),
+      is_required: z.boolean().optional(),
+      description: z.string().nullish(),
+      metadata: z.record(z.unknown()).nullish(),
+    })
+    .strict()
+    .refine((v) => !v.is_variant_axis || (v.type ?? "multi_select") === "multi_select", {
+      message: "is_variant_axis is only allowed on multi_select attributes",
+      path: ["is_variant_axis"],
+    })
+    .refine(
+      (v) =>
+        v.is_variant_axis ||
+        v.type !== undefined ||
+        typeof v.value === "boolean",
+      {
+        message: "inline non-axis attributes require an explicit type",
+        path: ["type"],
+      },
+    ),
 ])
+const BatchAttributeUpdate = z
+  .object({
+    id: z.string(),
+    title: z.string().optional(),
+    add: z
+      .array(z.union([z.string(), z.object({ value: z.string() }).strict()]))
+      .optional(),
+    remove: z.array(z.string()).optional(),
+    value: BatchAttributeScalar.optional(),
+  })
+  .strict()
 
 export type AdminBatchProductAttributesType = z.infer<
   typeof AdminBatchProductAttributes
 >
 export const AdminBatchProductAttributes = z.object({
-  create: z.array(BatchProductAttributeCreate).optional(),
-  delete: z.array(z.string()).optional(),
+  add: z.array(BatchAttributeAdd).optional(),
+  remove: z.array(z.string()).optional(),
+  update: z.array(BatchAttributeUpdate).optional(),
 })
-
-// --- Attach single product attribute ---
-//
-// Mirror of `VendorAddProductAttribute` for the admin surface. Used by
-// `POST /admin/products/:id/attributes`. Two shapes share a single
-// flat body (the middleware-friendly form); the route branches on the
-// presence of `attribute_id` vs `name`:
-//
-//   1. **Attach existing** — `{ attribute_id, attribute_value_ids? | values? }`.
-//      `attribute_value_ids` for select types; `values` (names) for
-//      text/unit/toggle types where the value is upserted by name.
-//
-//   2. **Inline create** — `{ name, type, values?, is_variant_axis?, ... }`.
-//      Creates a product-scoped `ProductAttribute` (hidden from the
-//      global `/admin/product-attributes` catalogue), materialises its
-//      values, and links them to the product. Mirrors the inline shape
-//      accepted inside the product create payload's `product_attributes`
-//      / `variant_attributes` arrays.
-
-export type AdminAddProductAttributeType = z.infer<
-  typeof AdminAddProductAttribute
->
-export const AdminAddProductAttribute = z
-  .object({
-    attribute_id: z.string().optional(),
-    attribute_value_ids: z.array(z.string()).optional(),
-    name: z.string().min(1).optional(),
-    type: AttributeTypeEnum.optional(),
-    is_variant_axis: z.boolean().optional(),
-    is_filterable: z.boolean().optional(),
-    is_required: z.boolean().optional(),
-    description: z.string().nullish(),
-    metadata: z.record(z.unknown()).nullish(),
-    values: z.array(z.string()).optional(),
-  })
-  .strict()
-  .refine(
-    (data) => Boolean(data.attribute_id) !== Boolean(data.name),
-    {
-      message:
-        "Provide either `attribute_id` (attach existing) or `name` (inline create), not both.",
-    },
-  )
-  .refine((data) => !data.name || !!data.type, {
-    message: "Inline-create branch requires `type`.",
-    path: ["type"],
-  })
-  .refine(
-    (data) => !data.attribute_id || data.type === undefined,
-    {
-      message: "`type` is only valid with the inline-create branch.",
-      path: ["type"],
-    },
-  )
-
-/**
- * `POST /admin/products/:id/attributes/:attribute_id` — atomic value-set
- * replacement for an attribute on a product. Admin goes direct against
- * `detachProductAttributeWorkflow` + `addProductAttributeWorkflow`
- * (no staging — operators don't go through the ProductChange flow that
- * sellers do), so the route handler chains both calls.
- */
-export type AdminUpdateProductAttributeType = z.infer<
-  typeof AdminUpdateProductAttribute
->
-export const AdminUpdateProductAttribute = z
-  .object({
-    attribute_value_ids: z.array(z.string()).optional(),
-    values: z.array(z.string()).optional(),
-  })
-  .strict()

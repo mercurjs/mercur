@@ -1,0 +1,31 @@
+/**
+ * Omits variants/categories/collection, whose nested product-module populate
+ * paths trip MikroORM's `expandDotPaths` on the 2.16 options-preview build.
+ */
+export const productAttributeBatchResponseFields = [
+  "id",
+  "title",
+  "status",
+  "product_attribute_values.id",
+  "product_attribute_values.name",
+  "product_attribute_values.rank",
+  "product_attribute_values.attribute.id",
+  "product_attribute_values.attribute.name",
+  "product_attribute_values.attribute.handle",
+  "product_attribute_values.attribute.type",
+  "product_attribute_values.attribute.is_variant_axis",
+  "product_attribute_values.attribute.is_required",
+  "product_attribute_values.attribute.rank",
+  "product_attribute_values.attribute.values.id",
+  "product_attribute_values.attribute.values.name",
+  "product_attribute_values.attribute.values.rank",
+  "scoped_attributes.id",
+  "scoped_attributes.name",
+  "scoped_attributes.handle",
+  "scoped_attributes.type",
+  "scoped_attributes.is_variant_axis",
+  "scoped_attributes.product_option_id",
+  "scoped_attributes.values.id",
+  "scoped_attributes.values.name",
+  "scoped_attributes.values.rank",
+]

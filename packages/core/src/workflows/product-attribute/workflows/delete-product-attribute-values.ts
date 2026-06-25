@@ -1,21 +1,24 @@
-import { Modules } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
 import {
   createHook,
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import {
-  dismissRemoteLinkStep,
   emitEventStep,
+  updateProductOptionsStep,
+  useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import { MercurModules } from "@mercurjs/types"
+import { AttributeType } from "@mercurjs/types"
 
 import { ProductAttributeValueWorkflowEvents } from "../events"
-import { deleteProductAttributeValuesStep } from "../steps"
+import {
+  deleteProductAttributeValuesStep,
+} from "../steps"
 
 export type DeleteProductAttributeValuesWorkflowInput = {
   ids: string[]
@@ -49,26 +52,69 @@ export const deleteProductAttributeValuesWorkflow: ReturnWorkflow<
   function (input: DeleteProductAttributeValuesWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    // NOTE: mirror-link validation gap — previously enforced via
-    // `validateProductAttributeValueNotMirroredStep`; dropped to avoid the
-    // full-table scan it required.
-
-    const dismissLinks = transform({ input }, ({ input }) =>
-      input.ids.flatMap((id) => [
-        {
-          [MercurModules.PRODUCT_ATTRIBUTE]: {
-            product_attribute_value_id: id,
-          },
-          [Modules.PRODUCT]: {},
-        },
-      ]),
-    )
-
-    dismissRemoteLinkStep(dismissLinks).config({
-      name: "pa-dismiss-attribute-value-links",
-    })
+    const valuesQuery = useQueryGraphStep({
+      entity: "product_attribute_value",
+      filters: { id: input.ids },
+      fields: ["id", "attribute_id"],
+    }).config({ name: "pa-values-to-delete" })
 
     deleteProductAttributeValuesStep(input.ids)
+
+    const attributeFilter = transform({ valuesQuery }, ({ valuesQuery }) => ({
+      ids: Array.from(
+        new Set(
+          (valuesQuery.data ?? []).map(
+            (v: { attribute_id: string }) => v.attribute_id,
+          ),
+        ),
+      ),
+    }))
+
+    const attributeQuery = useQueryGraphStep({
+      entity: "product_attribute",
+      filters: { id: attributeFilter.ids },
+      fields: [
+        "id",
+        "type",
+        "is_variant_axis",
+        "product_option_id",
+        "values.name",
+      ],
+    }).config({ name: "pa-deleted-values-attributes" })
+
+    const optionValuesSync = transform(
+      { attributeQuery },
+      ({ attributeQuery }) => {
+        const attributes = attributeQuery.data ?? []
+        const mirrored = attributes.filter(
+          (a: {
+            type: AttributeType
+            is_variant_axis: boolean
+            product_option_id: string | null
+          }) =>
+            a.type === AttributeType.MULTI_SELECT &&
+            !!a.is_variant_axis &&
+            !!a.product_option_id,
+        )
+        const target = mirrored.length === 1 ? mirrored[0] : undefined
+        return {
+          should: !!target,
+          stepInput: {
+            selector: { id: target?.product_option_id ?? "" },
+            update: {
+              values: (target?.values ?? []).map(
+                (v: { name: string }) => v.name,
+              ),
+            },
+          },
+        }
+      },
+    )
+
+    when(
+      { optionValuesSync },
+      ({ optionValuesSync }) => optionValuesSync.should,
+    ).then(() => updateProductOptionsStep(optionValuesSync.stepInput))
 
     emitEventStep({
       eventName: ProductAttributeValueWorkflowEvents.DELETED,

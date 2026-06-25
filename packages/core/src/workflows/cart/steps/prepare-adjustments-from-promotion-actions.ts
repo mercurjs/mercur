@@ -37,6 +37,7 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
                 shippingMethodAdjustmentsToCreate: [],
                 shippingMethodAdjustmentIdsToRemove: [],
                 computedPromotionCodes: [],
+                skippedPromoCodes: [],
             } as PrepareAdjustmentsFromPromotionActionsStepOutput)
         }
 
@@ -102,8 +103,6 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
                         const promotionSellerId = promotion.seller?.id
                         const itemSellerId = lineItem.variant?.product?.seller?.id
 
-                        // If promotion has no seller, add adjustment for all items
-                        // If promotion has a seller, only add if it matches the item's seller
                         if (!promotionSellerId || promotionSellerId === itemSellerId) {
                             lineItemAdjustmentsToCreate.push({
                                 code: action.code,
@@ -130,8 +129,6 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
                         const promotionSellerId = shippingPromotion.seller?.id
                         const shippingMethodSellerId = shippingOption?.seller?.id
 
-                        // If promotion has no seller, add adjustment for all shipping methods
-                        // If promotion has a seller, only add if it matches the shipping method's seller
                         if (!promotionSellerId || promotionSellerId === shippingMethodSellerId) {
                             shippingMethodAdjustmentsToCreate.push({
                                 code: action.code,
@@ -161,6 +158,7 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
             shippingMethodAdjustmentsToCreate,
             shippingMethodAdjustmentIdsToRemove,
             computedPromotionCodes,
+            skippedPromoCodes: [],
         } as PrepareAdjustmentsFromPromotionActionsStepOutput)
     }
 )

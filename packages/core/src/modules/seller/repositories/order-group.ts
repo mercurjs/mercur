@@ -74,7 +74,6 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
     const params: any[] = []
     const whereClauses: string[] = ["og.deleted_at IS NULL"]
 
-    // Filter by id
     if (filters.id) {
       const ids = Array.isArray(filters.id) ? filters.id : [filters.id]
       const placeholders = ids.map(() => "?").join(",")
@@ -82,7 +81,6 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
       params.push(...ids)
     }
 
-    // Filter by customer_id
     if (filters.customer_id) {
       const customerIds = Array.isArray(filters.customer_id)
         ? filters.customer_id
@@ -92,7 +90,6 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
       params.push(...customerIds)
     }
 
-    // Filter by seller_id (via join)
     if (filters.seller_id) {
       const sellerIds = Array.isArray(filters.seller_id)
         ? filters.seller_id
@@ -102,7 +99,6 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
       params.push(...sellerIds)
     }
 
-    // Filter by status (order.status)
     if (filters.status) {
       const statuses = Array.isArray(filters.status)
         ? filters.status
@@ -112,7 +108,6 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
       params.push(...statuses)
     }
 
-    // Filter by sales_channel_id
     if (filters.sales_channel_id) {
       const salesChannelIds = Array.isArray(filters.sales_channel_id)
         ? filters.sales_channel_id
@@ -122,24 +117,20 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
       params.push(...salesChannelIds)
     }
 
-    // Filter by created_at
     if (filters.created_at) {
       this.parseFilterValue("og.created_at", filters.created_at, whereClauses, params)
     }
 
-    // Filter by updated_at
     if (filters.updated_at) {
       this.parseFilterValue("og.updated_at", filters.updated_at, whereClauses, params)
     }
 
-    // Search by q (ILIKE on id and customer_id)
     if (filters.q) {
       whereClauses.push("(og.id ILIKE ? OR og.customer_id ILIKE ?)")
       const searchPattern = `%${filters.q}%`
       params.push(searchPattern, searchPattern)
     }
 
-    // Build ORDER BY clause
     const orderByClauses: string[] = []
     if (orderBy.created_at) {
       orderByClauses.push(`og.created_at ${orderBy.created_at}`)
@@ -179,7 +170,6 @@ export class OrderGroupRepository extends DALUtils.mikroOrmBaseRepositoryFactory
 
     const paginationParams: any[] = []
 
-    // Add pagination
     if (findOptions_.options.take) {
       query += " LIMIT ?"
       paginationParams.push(findOptions_.options.take)

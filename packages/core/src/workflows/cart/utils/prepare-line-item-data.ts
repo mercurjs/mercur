@@ -133,8 +133,6 @@ export function prepareLineItemData(data: PrepareLineItemDataInput) {
         (inventoryItem) => !!inventoryItem.inventory.requires_shipping
     )
 
-    // Note: If any of the items require shipping or product has a shipping profile set,
-    // we enable fulfillment unless explicitly set to not require shipping by the item in the request
     const requiresShipping = isDefined(item?.requires_shipping)
         ? item.requires_shipping
         : hasShippingProfile || someInventoryRequiresShipping

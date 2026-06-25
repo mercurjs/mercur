@@ -17,16 +17,9 @@ const COMMISSION_LINE_FIELDS = [
 ]
 
 /**
- * Returns an order's commission lines — both item-anchored and
- * shipping-anchored — by reading the `commission_line` entity directly.
- *
  * The order→commission links resolve for items but not shipping methods
  * (and the two cannot be co-resolved in one graph query), so commission is
  * always read from the commission module by the order's item + shipping ids.
- *
- * When `sellerId` is provided (vendor surface) the order's ownership is
- * verified through the order↔seller link; a non-owned / missing order yields
- * `found: false`.
  */
 export const getOrderCommissionLines = async (
   scope: MedusaContainer,

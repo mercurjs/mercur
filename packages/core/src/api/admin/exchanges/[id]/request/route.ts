@@ -30,12 +30,6 @@ const RETURN_FIELDS = [
   "items.reason.*",
 ]
 
-/**
- * Mercur override of Medusa's `POST /admin/exchanges/:id/request`.
- * Calls Mercur's `confirmExchangeRequestWorkflow` so outbound reservations
- * are adjusted through `offer.inventory_item_link[].required_quantity` —
- * bundle-style offers don't under-reserve on the admin path either.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminExchangeRequestResponse>

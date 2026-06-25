@@ -66,16 +66,6 @@ export type OfferConfirmInventoryItem = {
   location_ids: string[]
 }
 
-/**
- * Mercur replacement for Medusa's `prepareConfirmInventoryInput`. Resolves
- * each cart line by its linked offer (via `item.offer.id`) and fans out
- * one entry per (line, linked inventory_item) pair. Output is the same
- * shape Medusa's `confirmInventoryStep` / `reserveInventoryStep` expect.
- *
- * `allow_backorder` is always `false` — the offer module does not expose
- * a backorder flag and the variant-level field has been dropped on
- * Mercur's product schema.
- */
 export const prepareOfferInventoryInput = (
   data: PrepareOfferInventoryInputData,
 ): { items: OfferConfirmInventoryItem[] } => {
@@ -85,18 +75,13 @@ export const prepareOfferInventoryInput = (
     return { items: [] }
   }
 
-  // (offer_id) → offer
   const offerById = new Map<string, OfferInventoryShape>(
     offers.map((o) => [o.id, o]),
   )
 
-  // (offer_id, inventory_item_id, location_id) → availability
   const availability = new Map<string, Map<string, Map<string, BigNumber>>>()
-  // channel-allowed locations across all offers in the batch
   const channelLocations = new Set<string>()
-  // every (offer_id, inventory_item_id) → set of location_ids with any level
   const anyLocations = new Map<string, Set<string>>()
-  // (offer_id, inventory_item_id) → required_quantity from the pivot row
   const requiredByPivot = new Map<string, number>()
 
   for (const offer of offers) {
@@ -183,7 +168,6 @@ export const prepareOfferInventoryInput = (
         requiredByPivot.get(`${offer.id}:${inventoryItemId}`) ?? 1
       const required = MathBN.mult(requiredQuantity, item.quantity)
 
-      // 1. Full availability locations
       const fullLocations: string[] = []
       for (const [locId, qty] of itemAvail) {
         if (MathBN.gte(qty, required)) {
@@ -191,10 +175,8 @@ export const prepareOfferInventoryInput = (
         }
       }
 
-      // 2. Locations with any level for this item
       const anyLocationsArr = Array.from(itemAny)
 
-      // 3. Channel-allowed locations
       const channelLocationsArr = Array.from(channelLocations)
 
       const dedup = new Set<string>([

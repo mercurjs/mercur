@@ -1,4 +1,4 @@
-import { EllipseMiniSolid, XMarkMini } from "@medusajs/icons";
+import { XMarkMini } from "@medusajs/icons"
 import {
   Button,
   Heading,
@@ -11,46 +11,40 @@ import {
   Switch,
   Text,
   Textarea,
-  clx,
-} from "@medusajs/ui";
-import { AttributeType, ProductAttributeDTO } from "@mercurjs/types";
-import { Select as RadixSelect } from "radix-ui";
-import { ComponentPropsWithoutRef, forwardRef, useEffect } from "react";
+} from "@medusajs/ui"
+import { AttributeType, ProductAttributeDTO } from "@mercurjs/types"
+import { useEffect } from "react"
 import {
   Controller,
   FieldArrayWithId,
   UseFieldArrayRemove,
   useFieldArray,
-} from "react-hook-form";
-import { useTranslation } from "react-i18next";
+} from "react-hook-form"
+import { useTranslation } from "react-i18next"
 
-import { Form } from "@components/common/form";
-import { ChipInput } from "@components/inputs/chip-input";
-import { Combobox } from "@components/inputs/combobox";
-import { StackedFocusModal, useStackedModal } from "@components/modals";
-import { useTabbedForm } from "@components/tabbed-form/tabbed-form";
-import { defineTabMeta } from "@components/tabbed-form/types";
-import { useProductAttributes } from "@hooks/api";
+import { Form } from "@components/common/form"
+import { ChipInput } from "@components/inputs/chip-input"
+import { Combobox } from "@components/inputs/combobox"
+import { StackedFocusModal, useStackedModal } from "@components/modals"
+import { useTabbedForm } from "@components/tabbed-form/tabbed-form"
+import { defineTabMeta } from "@components/tabbed-form/types"
+import { useProductAttributes } from "@hooks/api"
 
-import { ProductCreateSchemaType } from "../../types";
-import {
-  mergeRequiredAttributes,
-  RequiredAttributeInput,
-} from "./attribute-merge";
+import { ProductCreateSchemaType } from "../../types"
 import {
   ADD_ATTRIBUTES_MODAL_ID,
   ProductCreateAddAttributesModal,
-} from "./product-create-add-attributes-modal";
+} from "./product-create-add-attributes-modal"
 
 const Root = () => {
-  const { t } = useTranslation();
-  const form = useTabbedForm<ProductCreateSchemaType>();
-  const { setIsOpen } = useStackedModal();
+  const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
+  const { setIsOpen } = useStackedModal()
 
   const { fields, append, remove } = useFieldArray({
     control: form.control,
     name: "attributes",
-  });
+  })
 
   const handleCreateNew = () => {
     append({
@@ -59,12 +53,12 @@ const Root = () => {
       values: [],
       is_custom: true,
       use_for_variants: false,
-    });
-  };
+    })
+  }
 
   const handleAddExisting = () => {
-    setIsOpen(ADD_ATTRIBUTES_MODAL_ID, true);
-  };
+    setIsOpen(ADD_ATTRIBUTES_MODAL_ID, true)
+  }
 
   return (
     <div
@@ -77,7 +71,9 @@ const Root = () => {
 
       <div className="flex w-full max-w-[720px] flex-col gap-y-8">
         <div>
-          <Heading level="h2">{t("products.create.attributes.header")}</Heading>
+          <Heading level="h2">
+            {t("products.create.attributes.header")}
+          </Heading>
           <Text
             size="small"
             className="text-ui-fg-subtle mt-1 whitespace-pre-line"
@@ -92,6 +88,7 @@ const Root = () => {
             variant="secondary"
             size="small"
             onClick={handleAddExisting}
+            data-testid="product-create-attributes-add-existing"
           >
             {t("products.create.attributes.addExisting")}
           </Button>
@@ -100,6 +97,7 @@ const Root = () => {
             variant="secondary"
             size="small"
             onClick={handleCreateNew}
+            data-testid="product-create-attributes-create-new"
           >
             {t("products.create.attributes.createNew")}
           </Button>
@@ -110,17 +108,21 @@ const Root = () => {
         )}
 
         {fields.some((f) => f.is_custom) && (
-          <ul className="flex flex-col gap-y-4">
+          <ul
+            className="flex flex-col gap-y-4"
+            data-testid="product-create-attributes-list"
+          >
             {fields.map((field, index) => {
-              if (!field.is_custom) return null;
+              if (!field.is_custom) return null
               const useForVariants = form.watch(
-                `attributes.${index}.use_for_variants`,
-              );
+                `attributes.${index}.use_for_variants`
+              )
 
               return (
                 <li
                   key={field.id}
                   className="bg-ui-bg-component shadow-elevation-card-rest grid grid-cols-[1fr_28px] items-start gap-1.5 rounded-xl p-1.5"
+                  data-testid={`product-create-attribute-row-${index}`}
                 >
                   <div className="grid grid-cols-[min-content,1fr] items-center gap-1.5">
                     <div className="flex items-center px-2 py-1.5">
@@ -135,10 +137,13 @@ const Root = () => {
                     </div>
                     <Input
                       className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
-                      {...form.register(`attributes.${index}.title` as const)}
-                      placeholder={t(
-                        "products.create.attributes.titlePlaceholder",
+                      {...form.register(
+                        `attributes.${index}.title` as const
                       )}
+                      placeholder={t(
+                        "products.create.attributes.titlePlaceholder"
+                      )}
+                      data-testid={`product-create-attribute-title-${index}`}
                     />
                     <div className="flex items-center px-2 py-1.5">
                       <Label
@@ -161,8 +166,9 @@ const Root = () => {
                             value={Array.isArray(value) ? value : []}
                             onChange={onChange}
                             placeholder={t(
-                              "products.create.attributes.valuePlaceholder",
+                              "products.create.attributes.valuePlaceholder"
                             )}
+                            data-testid={`product-create-attribute-values-${index}`}
                           />
                         ) : (
                           <Textarea
@@ -170,13 +176,14 @@ const Root = () => {
                             className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
                             value={
                               Array.isArray(value)
-                                ? (value[0] ?? "")
-                                : (value ?? "")
+                                ? value[0] ?? ""
+                                : value ?? ""
                             }
                             onChange={(e) => onChange(e.target.value)}
                             placeholder={t(
-                              "products.create.attributes.valuePlaceholder",
+                              "products.create.attributes.valuePlaceholder"
                             )}
+                            data-testid={`product-create-attribute-values-${index}`}
                           />
                         )
                       }
@@ -185,9 +192,14 @@ const Root = () => {
                     <Form.Field
                       control={form.control}
                       name={`attributes.${index}.use_for_variants`}
-                      render={({ field: { value, onChange, ref } }) => (
+                      render={({
+                        field: { value, onChange, ref },
+                      }) => (
                         <Form.Item>
-                          <div className="flex items-start gap-x-3 py-1.5">
+                          <div
+                            className="flex items-start gap-x-3 py-1.5"
+                            data-testid={`product-create-attribute-use-for-variants-${index}`}
+                          >
                             <Form.Control>
                               <Switch
                                 ref={ref}
@@ -198,11 +210,13 @@ const Root = () => {
                             </Form.Control>
                             <div className="flex flex-col">
                               <Label size="xsmall" weight="plus">
-                                {t("products.create.attributes.useForVariants")}
+                                {t(
+                                  "products.create.attributes.useForVariants"
+                                )}
                               </Label>
                               <Hint className="!txt-small">
                                 {t(
-                                  "products.create.attributes.useForVariantsDescription",
+                                  "products.create.attributes.useForVariantsDescription"
                                 )}
                               </Hint>
                             </div>
@@ -217,11 +231,12 @@ const Root = () => {
                     variant="transparent"
                     className="text-ui-fg-muted"
                     onClick={() => remove(index)}
+                    data-testid={`product-create-attribute-remove-${index}`}
                   >
                     <XMarkMini />
                   </IconButton>
                 </li>
-              );
+              )
             })}
           </ul>
         )}
@@ -229,38 +244,42 @@ const Root = () => {
         <RequiredAttributes />
       </div>
     </div>
-  );
-};
+  )
+}
 
 const SelectedAttributes = ({
   fields,
   remove,
 }: {
-  fields: FieldArrayWithId<ProductCreateSchemaType, "attributes", "id">[];
-  remove: UseFieldArrayRemove;
+  fields: FieldArrayWithId<ProductCreateSchemaType, "attributes", "id">[]
+  remove: UseFieldArrayRemove
 }) => {
-  const { t } = useTranslation();
-  const form = useTabbedForm<ProductCreateSchemaType>();
+  const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
 
   const entries = fields
     .map((field, index) => ({ field, index }))
     .filter(
       ({ field }) =>
-        !field.is_custom && !field.is_required && !!field.attribute_id,
-    );
+        !field.is_custom && !field.is_required && !!field.attribute_id
+    )
 
-  if (!entries.length) return null;
+  if (!entries.length) return null
 
   return (
-    <ul className="flex flex-col gap-y-4">
+    <ul
+      className="flex flex-col gap-y-4"
+      data-testid="product-create-selected-attributes-list"
+    >
       {entries.map(({ field, index }) => {
-        const attrType = field.type as AttributeType | undefined;
-        const availableValues = field.available_values ?? [];
+        const attrType = field.type as AttributeType | undefined
+        const availableValues = field.available_values ?? []
 
         return (
           <li
             key={field.id}
             className="bg-ui-bg-component shadow-elevation-card-rest grid grid-cols-[1fr_28px] items-start gap-1.5 rounded-xl p-1.5"
+            data-testid={`product-create-selected-attribute-row-${index}`}
           >
             <div className="grid grid-cols-[min-content,1fr] items-center gap-1.5">
               <div className="flex items-center px-2 py-1.5">
@@ -276,6 +295,7 @@ const SelectedAttributes = ({
                 value={field.title}
                 disabled
                 className="bg-ui-bg-field-component"
+                data-testid={`product-create-selected-attribute-title-${index}`}
               />
               <div className="flex items-center px-2 py-1.5">
                 <Label
@@ -300,7 +320,9 @@ const SelectedAttributes = ({
                         value: v.name,
                         label: v.name,
                       }))}
-                      placeholder={t("products.create.attributes.selectValues")}
+                      placeholder={t(
+                        "products.create.attributes.selectValues"
+                      )}
                     />
                   )}
                 />
@@ -311,15 +333,13 @@ const SelectedAttributes = ({
                   render={({ field: { onChange, value, ref, ...rest } }) => (
                     <Select
                       {...rest}
-                      value={
-                        typeof value === "string" ? value : (value?.[0] ?? "")
-                      }
+                      value={typeof value === "string" ? value : value?.[0] ?? ""}
                       onValueChange={onChange}
                     >
                       <Select.Trigger ref={ref}>
                         <Select.Value
                           placeholder={t(
-                            "products.create.attributes.selectValues",
+                            "products.create.attributes.selectValues"
                           )}
                         />
                       </Select.Trigger>
@@ -342,11 +362,13 @@ const SelectedAttributes = ({
                       {...rest}
                       className="bg-ui-bg-field-component hover:bg-ui-bg-field-component-hover"
                       value={
-                        typeof value === "string" ? value : (value?.[0] ?? "")
+                        typeof value === "string"
+                          ? value
+                          : value?.[0] ?? ""
                       }
                       onChange={(e) => onChange(e.target.value)}
                       placeholder={t(
-                        "products.create.attributes.valuePlaceholder",
+                        "products.create.attributes.valuePlaceholder"
                       )}
                     />
                   )}
@@ -358,15 +380,13 @@ const SelectedAttributes = ({
                   render={({ field: { onChange, value, ...rest } }) => (
                     <Select
                       {...rest}
-                      value={
-                        typeof value === "string" ? value : (value?.[0] ?? "")
-                      }
+                      value={typeof value === "string" ? value : value?.[0] ?? ""}
                       onValueChange={onChange}
                     >
                       <Select.Trigger>
                         <Select.Value
                           placeholder={t(
-                            "products.create.attributes.selectValues",
+                            "products.create.attributes.selectValues"
                           )}
                         />
                       </Select.Trigger>
@@ -389,11 +409,13 @@ const SelectedAttributes = ({
                     <Input
                       {...rest}
                       value={
-                        typeof value === "string" ? value : (value?.[0] ?? "")
+                        typeof value === "string"
+                          ? value
+                          : value?.[0] ?? ""
                       }
                       onChange={(e) => onChange(e.target.value)}
                       placeholder={t(
-                        "products.create.attributes.valuePlaceholder",
+                        "products.create.attributes.valuePlaceholder"
                       )}
                     />
                   )}
@@ -402,7 +424,7 @@ const SelectedAttributes = ({
               {field.use_for_variants && (
                 <>
                   <div />
-                  <VariantAxisTip className="border-none" />
+                  <VariantAxisTip />
                 </>
               )}
             </div>
@@ -412,62 +434,88 @@ const SelectedAttributes = ({
               variant="transparent"
               className="text-ui-fg-muted"
               onClick={() => remove(index)}
+              data-testid={`product-create-selected-attribute-remove-${index}`}
             >
               <XMarkMini />
             </IconButton>
           </li>
-        );
+        )
       })}
     </ul>
-  );
-};
+  )
+}
 
 const RequiredAttributes = () => {
-  const { t } = useTranslation();
-  const form = useTabbedForm<ProductCreateSchemaType>();
-  const categoryId = form.watch("category_id");
+  const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
+  const categoryId = form.watch("category_id")
 
   const { product_attributes } = useProductAttributes(
     {
       category_id: categoryId,
       is_required: true,
     },
-    { enabled: !!categoryId },
-  );
+    { enabled: !!categoryId }
+  )
 
-  const attributes = form.watch("attributes") || [];
+  const attributes = form.watch("attributes") || []
 
   useEffect(() => {
-    if (!product_attributes) return;
+    if (!product_attributes) return
 
-    const currentAttributes = form.getValues("attributes") || [];
+    const currentAttributes = form.getValues("attributes") || []
+    const requiredIds = new Set(
+      product_attributes.map((a: ProductAttributeDTO) => a.id)
+    )
 
-    // MER-183: merge required attributes WITHOUT reordering the array.
-    // `mergeRequiredAttributes` keeps existing entries in place (so the live
-    // values stay index-aligned with the `useFieldArray` snapshot) and returns
-    // the same reference when nothing changed — so a refetch (e.g. on window
-    // focus) no longer rewrites/remounts the rows and wipes their values.
-    const nextAttributes = mergeRequiredAttributes(
-      currentAttributes,
-      product_attributes as RequiredAttributeInput[],
-    );
+    // Keep all non-required attributes (custom + modal-added) untouched
+    const otherAttributes = currentAttributes.filter(
+      (a) => a.is_custom || !requiredIds.has(a.attribute_id ?? "")
+    )
 
-    if (nextAttributes !== currentAttributes) {
-      form.setValue("attributes", nextAttributes);
-    }
-  }, [product_attributes, form]);
+    // Merge required attributes — preserve existing values if already in form
+    const requiredAttributes = product_attributes.map(
+      (attr: ProductAttributeDTO) => {
+      const existing = currentAttributes.find(
+        (a) => a.attribute_id === attr.id
+      )
+      if (existing) return existing
 
-  if (!categoryId || !product_attributes?.length) return null;
+      return {
+        attribute_id: attr.id,
+        title: attr.name,
+        values:
+          attr.type === AttributeType.MULTI_SELECT
+            ? ([] as string[])
+            : attr.type === AttributeType.TOGGLE
+              ? "false"
+              : "",
+        is_custom: false,
+        is_required: true,
+        use_for_variants: attr.is_variant_axis,
+        type: attr.type,
+        available_values:
+          attr.values?.map((v) => ({ id: v.id, name: v.name })) ?? [],
+      }
+    })
+
+    form.setValue("attributes", [...otherAttributes, ...requiredAttributes])
+  }, [product_attributes, form])
+
+  if (!categoryId || !product_attributes?.length) return null
 
   const requiredEntries = attributes
     .map((attr, index) => ({ attr, index }))
-    .filter(({ attr }) => !attr.is_custom);
+    .filter(({ attr }) => !attr.is_custom)
 
   return (
     <>
       <div className="border-ui-border-base border-t border-dashed" />
 
-      <div className="flex flex-col gap-y-6">
+      <div
+        className="flex flex-col gap-y-6"
+        data-testid="product-create-attributes-required"
+      >
         <div>
           <Text size="small" weight="plus" leading="compact">
             {t("products.create.attributes.requiredAttributes")}
@@ -479,9 +527,9 @@ const RequiredAttributes = () => {
 
         {requiredEntries.map(({ attr, index }) => {
           const apiAttr = product_attributes.find(
-            (a: any) => a.id === attr.attribute_id,
-          );
-          if (!apiAttr) return null;
+            (a: ProductAttributeDTO) => a.id === attr.attribute_id
+          )
+          if (!apiAttr) return null
 
           return (
             <RequiredAttributeField
@@ -489,50 +537,22 @@ const RequiredAttributes = () => {
               attribute={apiAttr}
               index={index}
             />
-          );
+          )
         })}
       </div>
     </>
-  );
-};
-
-const RadioSelectItem = forwardRef<
-  HTMLDivElement,
-  ComponentPropsWithoutRef<typeof RadixSelect.Item>
->(({ className, children, ...props }, ref) => (
-  <RadixSelect.Item
-    ref={ref}
-    className={clx(
-      "bg-ui-bg-component txt-compact-small grid cursor-pointer grid-cols-[15px_1fr] items-center gap-x-2 rounded-[4px] px-2 py-1.5 outline-none transition-colors",
-      "focus-visible:bg-ui-bg-component-hover",
-      "active:bg-ui-bg-component-pressed",
-      "data-[state=checked]:txt-compact-small-plus",
-      "disabled:text-ui-fg-disabled",
-      className,
-    )}
-    {...props}
-  >
-    <span className="flex h-[15px] w-[15px] items-center justify-center">
-      <RadixSelect.ItemIndicator className="flex items-center justify-center">
-        <EllipseMiniSolid />
-      </RadixSelect.ItemIndicator>
-    </span>
-    <RadixSelect.ItemText className="flex-1 truncate">
-      {children}
-    </RadixSelect.ItemText>
-  </RadixSelect.Item>
-));
-RadioSelectItem.displayName = "RadioSelectItem";
+  )
+}
 
 const RequiredAttributeField = ({
   attribute,
   index,
 }: {
-  attribute: ProductAttributeDTO;
-  index: number;
+  attribute: ProductAttributeDTO
+  index: number
 }) => {
-  const { t } = useTranslation();
-  const form = useTabbedForm<ProductCreateSchemaType>();
+  const { t } = useTranslation()
+  const form = useTabbedForm<ProductCreateSchemaType>()
 
   return (
     <Form.Field
@@ -540,27 +560,29 @@ const RequiredAttributeField = ({
       name={`attributes.${index}.values`}
       render={({ field: { onChange, value, ref, ...field } }) => (
         <Form.Item>
-          <Form.Label>{attribute.name}</Form.Label>
+          <Form.Label>
+            {attribute.name}
+          </Form.Label>
 
           <Form.Control>
             {attribute.type === AttributeType.SINGLE_SELECT ? (
               <Select
                 {...field}
-                value={typeof value === "string" ? value : (value?.[0] ?? "")}
+                value={typeof value === "string" ? value : value?.[0] ?? ""}
                 onValueChange={onChange}
               >
                 <Select.Trigger ref={ref}>
                   <Select.Value
                     placeholder={t(
-                      "products.create.attributes.selectValuePlaceholder",
+                      "products.create.attributes.valuePlaceholder"
                     )}
                   />
                 </Select.Trigger>
                 <Select.Content>
                   {attribute.values?.map((v) => (
-                    <RadioSelectItem key={v.id} value={v.name}>
+                    <Select.Item key={v.id} value={v.name}>
                       {v.name}
-                    </RadioSelectItem>
+                    </Select.Item>
                   ))}
                 </Select.Content>
               </Select>
@@ -576,48 +598,35 @@ const RequiredAttributeField = ({
                     label: v.name,
                   })) ?? []
                 }
-                placeholder={t("products.create.attributes.selectValues")}
+                placeholder={t(
+                  "products.create.attributes.selectValues"
+                )}
               />
             ) : attribute.type === AttributeType.TEXT ? (
-              <Textarea
+              <Input
                 {...field}
                 ref={ref}
-                value={typeof value === "string" ? value : (value?.[0] ?? "")}
+                value={typeof value === "string" ? value : value?.[0] ?? ""}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={t(
-                  "products.create.attributes.enterValuePlaceholder",
+                  "products.create.attributes.valuePlaceholder"
                 )}
               />
             ) : attribute.type === AttributeType.TOGGLE ? (
-              <Select
+              <Switch
                 {...field}
-                value={typeof value === "string" ? value : (value?.[0] ?? "")}
-                onValueChange={onChange}
-              >
-                <Select.Trigger ref={ref}>
-                  <Select.Value
-                    placeholder={t(
-                      "products.create.attributes.selectValuePlaceholder",
-                    )}
-                  />
-                </Select.Trigger>
-                <Select.Content>
-                  <RadioSelectItem value="true">
-                    {t("filters.radio.yes")}
-                  </RadioSelectItem>
-                  <RadioSelectItem value="false">
-                    {t("filters.radio.no")}
-                  </RadioSelectItem>
-                </Select.Content>
-              </Select>
+                className="rtl:rotate-180"
+                checked={value === "true" || (value as unknown) === true}
+                onCheckedChange={(checked) => onChange(String(checked))}
+              />
             ) : (
               <Input
                 {...field}
                 ref={ref}
-                value={typeof value === "string" ? value : (value?.[0] ?? "")}
+                value={typeof value === "string" ? value : value?.[0] ?? ""}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={t(
-                  "products.create.attributes.enterValuePlaceholder",
+                  "products.create.attributes.valuePlaceholder"
                 )}
               />
             )}
@@ -628,26 +637,23 @@ const RequiredAttributeField = ({
         </Form.Item>
       )}
     />
-  );
-};
+  )
+}
 
-const VariantAxisTip = ({ className }: { className?: string }) => {
-  const { t } = useTranslation();
+const VariantAxisTip = () => {
+  const { t } = useTranslation()
 
   return (
-    <InlineTip
-      label={t("products.create.attributes.tip")}
-      className={className}
-    >
+    <InlineTip label={t("products.create.attributes.tip")}>
       {t("products.create.attributes.variantAxisTip")}
     </InlineTip>
-  );
-};
+  )
+}
 
 Root._tabMeta = defineTabMeta<ProductCreateSchemaType>({
   id: "attributes",
   labelKey: "products.create.tabs.attributes",
   validationFields: ["attributes"],
-});
+})
 
-export const ProductCreateAttributesForm = Root;
+export const ProductCreateAttributesForm = Root

@@ -13,9 +13,6 @@ export type CreateImageInput = {
 
 export const createImagesStepId = "create-media-images"
 
-/**
- * Creates `Image` rows in the media module. Compensation deletes them.
- */
 export const createImagesStep = createStep(
   createImagesStepId,
   async (input: CreateImageInput[], { container }) => {

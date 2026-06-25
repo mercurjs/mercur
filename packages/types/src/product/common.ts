@@ -47,6 +47,8 @@ export enum ProductChangeActionType {
   VARIANT_REMOVE = "VARIANT_REMOVE",
   ATTRIBUTE_ADD = "ATTRIBUTE_ADD",
   ATTRIBUTE_REMOVE = "ATTRIBUTE_REMOVE",
+  ATTRIBUTE_UPDATE = "ATTRIBUTE_UPDATE",
+  PRODUCT_ADD = "PRODUCT_ADD",
   PRODUCT_DELETE = "PRODUCT_DELETE",
   /**
    * Operator asked the vendor to revise a submission. Auto-applied
@@ -66,6 +68,7 @@ export interface ProductAttributeValueDTO {
   rank: number
   is_active: boolean
   metadata: Record<string, unknown> | null
+  product_option_value_id: string | null
   attribute?: ProductAttributeDTO
   attribute_id?: string
   variants?: ProductVariantDTO[]
@@ -95,6 +98,7 @@ export interface ProductAttributeDTO {
    * still populates the column until step 5 retires it.
    */
   product_id?: string | null
+  product_option_id: string | null
   metadata: Record<string, unknown> | null
   values?: ProductAttributeValueDTO[]
   /**
@@ -109,6 +113,36 @@ export interface ProductAttributeDTO {
   created_at: string | Date
   updated_at: string | Date
   deleted_at: string | Date | null
+}
+
+/**
+ * A product attribute grouped for a single product by
+ * `wrapProductWithProductAttributes`: the parent attribute's full value set
+ * (`all_values`) plus the values actually selected on that product (`values`).
+ */
+export interface WrappedProductAttributeValueDTO {
+  id: string
+  name: string
+  rank?: number
+}
+
+export interface WrappedProductAttributeDTO {
+  id: string
+  name?: string
+  handle?: string | null
+  type?: AttributeType
+  is_variant_axis?: boolean
+  is_required?: boolean
+  rank?: number
+  /**
+   * `true` when this is a product-scoped (inline) attribute — one created on
+   * this product rather than a shared catalog attribute. Surfaced from the
+   * read-only `scoped_attributes` link so the dashboard edit form can offer the
+   * create-style inputs (editable title, free-form values) for it.
+   */
+  is_scoped?: boolean
+  all_values: WrappedProductAttributeValueDTO[]
+  values: WrappedProductAttributeValueDTO[]
 }
 
 export interface ProductChangeActionDTO {

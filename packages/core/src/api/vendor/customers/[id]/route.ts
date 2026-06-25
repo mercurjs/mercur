@@ -34,8 +34,6 @@ export const GET = async (
     )
   }
 
-  // Each customer group is owned by a single seller; only expose the groups
-  // owned by the requesting seller (via the customer_group_seller link).
   if (customer.groups?.length) {
     const { data: ownedLinks } = await query.graph({
       entity: "customer_group_seller",

@@ -17,8 +17,6 @@ const capturedBase = (ORIGINAL_MIDDLEWARES[
   "dist/api/admin/customer-groups/middlewares.js"
 ] ?? []) as MiddlewareRoute[]
 
-// Re-spread every base middleware except the list GET, which we replace below
-// so we can allow `seller_id` and translate it into a link filter.
 const baseWithoutListGet = capturedBase.filter((route) => {
   if (route.matcher !== LIST_MATCHER) {
     return true
@@ -31,9 +29,6 @@ const baseWithoutListGet = capturedBase.filter((route) => {
   return !methods.includes("GET")
 })
 
-// Customer groups are owned through the `customer_group_seller` link, so a
-// `seller_id` filter can't hit the customer_group table directly — rewrite it
-// into an `id IN (...)` filter sourced from the link.
 const maybeApplyCustomerGroupSellerFilter = (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse,

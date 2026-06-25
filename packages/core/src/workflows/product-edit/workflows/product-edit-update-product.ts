@@ -1,4 +1,5 @@
 import { AdditionalData } from "@medusajs/framework/types"
+import { deepEqualObj } from "@medusajs/framework/utils"
 import {
   createWorkflow,
   transform,
@@ -15,17 +16,12 @@ import {
 import { validateNoPendingProductChangeStep } from "../steps"
 import { stageProductChangeWorkflow } from "./stage-product-change"
 
-export type ProductEditUpdateFieldsWorkflowInput = {
+export type ProductEditUpdateProductWorkflowInput = {
   product_id: string
   created_by?: string
   update: Record<string, unknown>
 } & AdditionalData
 
-/**
- * Fields the diff considers — anything outside this list is ignored.
- * Variant and attribute mutations have dedicated workflows that emit
- * `VARIANT_*` / `ATTRIBUTE_*` actions instead of an opaque UPDATE.
- */
 const DIFFABLE_FIELDS = [
   "title",
   "subtitle",
@@ -51,29 +47,15 @@ const DIFFABLE_FIELDS = [
   "metadata",
 ] as const
 
-export const productEditUpdateFieldsWorkflowId = "product-edit-update-fields"
+export const productEditUpdateProductWorkflowId = "product-edit-update-product"
 
-/**
- * Vendor "edit product fields" orchestrator. Diffs the proposed
- * payload against the current product, stages one
- * `ProductChangeAction` per changed field (`STATUS_CHANGE` for
- * `status`, `UPDATE { field, value }` for everything else) via
- * `stageProductChangeWorkflow`. The shared building block runs the
- * auto-confirm conditional so the change is applied inline when the
- * marketplace has the `PRODUCT_REQUEST` flag disabled.
- *
- * The dispatcher (`applyProductChangeActionsWorkflow`) collapses all
- * UPDATE actions for the same product into a single
- * `updateProductsWorkflow` call, so emitting field-granular actions
- * still costs one core workflow run.
- */
-export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
-  ProductEditUpdateFieldsWorkflowInput,
+export const productEditUpdateProductWorkflow: ReturnWorkflow<
+  ProductEditUpdateProductWorkflowInput,
   ProductChangeDTO,
   []
 > = createWorkflow(
-  productEditUpdateFieldsWorkflowId,
-  function (input: ProductEditUpdateFieldsWorkflowInput) {
+  productEditUpdateProductWorkflowId,
+  function (input: ProductEditUpdateProductWorkflowInput) {
     validateNoPendingProductChangeStep(
       transform({ input }, ({ input }) => ({
         product_ids: [input.product_id],
@@ -117,6 +99,9 @@ export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
         const current = (currentProducts?.[0] ?? {}) as Record<string, unknown>
         const proposed = input.update ?? {}
 
+        // Unwrap relation/image arrays to sorted scalar ids/urls so order-insensitive,
+        // shape-insensitive values can be compared with deepEqualObj. Empty strings
+        // collapse to null so clearing a text field reads as equal to an unset one.
         const normalize = (value: unknown): unknown => {
           if (Array.isArray(value)) {
             return value
@@ -131,11 +116,11 @@ export const productEditUpdateFieldsWorkflow: ReturnWorkflow<
               })
               .sort()
           }
-          return value ?? null
+          return value === "" ? null : (value ?? null)
         }
 
         const isEqual = (a: unknown, b: unknown): boolean =>
-          JSON.stringify(normalize(a)) === JSON.stringify(normalize(b))
+          deepEqualObj(normalize(a), normalize(b))
 
         const acts: Array<
           Omit<CreateProductChangeActionDTO, "product_change_id">

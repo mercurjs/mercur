@@ -7,11 +7,6 @@ import {
 
 import { VendorPostOrderEditsShippingReqType } from "../../validators"
 
-/**
- * `POST /vendor/order-edits/:id/shipping-method` — mirrors
- * `POST /admin/order-edits/:id/shipping-method`. Adds a shipping
- * method to the draft edit.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorPostOrderEditsShippingReqType>,
   res: MedusaResponse<HttpTypes.AdminOrderEditPreviewResponse>

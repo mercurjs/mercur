@@ -81,7 +81,7 @@ medusaIntegrationTestRunner({
         }>
       }
 
-      it("records a confirmed audit change with STATUS_CHANGE → proposed on vendor create", async () => {
+      it("records a confirmed audit change with PRODUCT_ADD → proposed on vendor create", async () => {
         const productId = await createVendorProduct("Pending Approval")
 
         // Product is left in `proposed` — no auto-publish.
@@ -94,12 +94,12 @@ medusaIntegrationTestRunner({
         const changes = await listChanges(productId)
         expect(changes).toHaveLength(1)
         expect(changes[0].status).toBe(ProductChangeStatus.CONFIRMED)
-        const statusAction = changes[0].actions.find(
-          (a) => a.action === "STATUS_CHANGE",
+        const createAction = changes[0].actions.find(
+          (a) => a.action === "PRODUCT_ADD",
         )
-        expect(statusAction).toBeDefined()
-        expect(statusAction!.details.status).toBe("proposed")
-        expect(statusAction!.applied).toBe(true)
+        expect(createAction).toBeDefined()
+        expect(createAction!.details.status).toBe("proposed")
+        expect(createAction!.applied).toBe(true)
       })
 
       it("admin confirm publishes the product and stamps a STATUS_CHANGE → published audit change", async () => {

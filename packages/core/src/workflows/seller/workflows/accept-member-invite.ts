@@ -59,7 +59,6 @@ export const acceptMemberInviteWorkflow = createWorkflow(
           seller_id: invite.seller_id,
           member_id: member.id,
           role_id: invite.role_id,
-          // First accepted member on a seller without an owner becomes the owner.
           is_owner: !ownerCheck.hasOwner,
         }]
       )

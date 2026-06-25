@@ -19,10 +19,6 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Offers overlay the shared Offer ↔ Variant link; strip the requested
-  // `variants.offers.*` fields before the graph read and re-attach every
-  // seller's offers afterwards so the admin (platform-wide) Offers list /
-  // detail can render the per-variant offers + their Store.
   const withOffers = req.queryConfig.fields.some((field) =>
     field.includes("variants.offers")
   )
@@ -69,6 +65,7 @@ export const POST = async (
       products: [{
         ...productData,
       }],
+      created_by: req.auth_context.actor_id,
       additional_data,
     } as any,
   })

@@ -16,10 +16,6 @@ import { splitComputedVariantFields } from "../helpers"
 export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // `applyVisibleSellerIdsFilter` + `maybeApplyLinkFilter` resolves the
-  // visible product set onto `req.filterableFields.id`. The URL id must be
-  // a member of that set; otherwise the seller-visibility constraint is
-  // bypassed and a suspended/closed seller's product would leak through.
   const visibleIds = (req.filterableFields as { id?: unknown }).id
   if (Array.isArray(visibleIds) && !visibleIds.includes(req.params.id)) {
     throw new MedusaError(

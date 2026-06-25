@@ -20,6 +20,7 @@ const ProductAttribute = model
     // from a single product's edit/create form, not visible in the global
     // /product-attributes catalogue). Null = global attribute.
     product_id: model.text().nullable(),
+    product_option_id: model.text().nullable(),
     metadata: model.json().nullable(),
 
     values: model.hasMany(() => ProductAttributeValue, {

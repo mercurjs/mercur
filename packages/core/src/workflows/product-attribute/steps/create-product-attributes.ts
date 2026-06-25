@@ -5,16 +5,8 @@ import type ProductAttributeModuleService from "../../../modules/product-attribu
 
 export const createProductAttributesStepId = "pa-create-product-attributes"
 
-/**
- * Scalar create input. Excludes `values` because the new module's
- * MedusaService treats `values` as a relation id-array — values are
- * written separately through `createProductAttributeValues`.
- *
- * `product_id` IS kept: it scopes the attribute to a single product so
- * inline-custom attributes (created from the product create form) are
- * hidden from the global /product-attributes catalogue. `null` =
- * global attribute.
- */
+// Excludes `values`: MedusaService treats it as a relation id-array, so values
+// are written separately through `createProductAttributeValues`.
 export type CreateProductAttributesStepInput = Omit<
   CreateProductAttributeDTO,
   "values"

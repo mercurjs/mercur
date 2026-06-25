@@ -16,10 +16,6 @@ import {
   VendorPostOrderEditsUpdateItemQuantityReq,
 } from "./validators"
 
-/**
- * Seller-scope guard for `POST /vendor/order-edits`. Body carries
- * `order_id`; we assert the authenticated seller owns it.
- */
 const assertSellerOwnsOrderInBody = async (
   req: AuthenticatedMedusaRequest<{ order_id: string }>,
   _res: MedusaResponse,
@@ -31,14 +27,6 @@ const assertSellerOwnsOrderInBody = async (
   return next()
 }
 
-/**
- * Seller-scope guard for `:id`-keyed routes. Per Medusa admin's
- * convention (mirrored from `/admin/order-edits/:id/*`) `:id` is the
- * **order_id** — the workflows (`cancelBeginOrderEditWorkflow`,
- * `requestOrderEditRequestWorkflow`, `confirmOrderEditRequestWorkflow`)
- * all take `order_id` as input, not an order_change id. So we just
- * defer to the canonical seller-scope check on the order.
- */
 const assertSellerOwnsOrderInParam = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,

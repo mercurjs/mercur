@@ -444,7 +444,8 @@
         "variants": "Please select at least one variant.",
         "options": "Please create at least one option.",
         "uniqueSku": "SKU must be unique.",
-        "requiredAttribute": "This attribute is required."
+        "requiredAttribute": "This attribute is required.",
+        "requiredStore": "Please select at least one store."
       },
       "inventory": {
         "heading": "Inventory kits",
@@ -468,6 +469,8 @@
         "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
         "tip": "Tip",
         "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "warning": "Warning",
+        "editWarning": "Changes to this attribute may affect existing product variants or details. Review your variants and product details after saving.",
         "errors": {
           "titleRequired": "Please enter a title",
           "valuesRequired": "Please enter at least one value"
@@ -706,6 +709,10 @@
       },
       "stores": {
         "label": "Stores"
+      },
+      "globally_available": {
+        "label": "Globally available",
+        "hint": "When unchecked, only the selected stores will be able to offer this product"
       },
       "categories": {
         "label": "Categories"

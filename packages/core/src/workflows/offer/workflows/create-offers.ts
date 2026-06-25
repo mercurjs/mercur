@@ -55,7 +55,6 @@ export const createOffersWorkflow: ReturnWorkflow<
   function (input: CreateOffersWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    // 1. Validate inventory_items presence + collect inline items to create.
     const inventoryItemsToCreate = transform({ input }, ({ input }) => {
       const items: Array<{
         sku?: string
@@ -93,7 +92,6 @@ export const createOffersWorkflow: ReturnWorkflow<
       ({ inventoryItemsToCreate }) => inventoryItemsToCreate.items,
     )
 
-    // 2. Bulk-create inline inventory items (one workflow call).
     const createdInventoryItems = createInventoryItemsWorkflow.runAsStep({
       input: { items: itemsForCreation },
     })
@@ -113,7 +111,6 @@ export const createOffersWorkflow: ReturnWorkflow<
       inventory_item_ids: createdInventoryItemIds,
     })
 
-    // 3. Resolve variants and validate existence.
     const variantIds = transform({ input }, ({ input }) =>
       Array.from(new Set(input.offers.map((o) => o.variant_id))),
     )
@@ -124,7 +121,6 @@ export const createOffersWorkflow: ReturnWorkflow<
       filters: { id: variantIds },
     }).config({ name: "get-variants" })
 
-    // 4. Bulk-strip nested data + validate variants exist.
     const stripped = transform(
       { input, variants, variantIds },
       ({ input, variants, variantIds }) => {
@@ -155,16 +151,12 @@ export const createOffersWorkflow: ReturnWorkflow<
       },
     )
 
-    // 5. Lazy-create PriceSets for marketplace-virgin variants.
     const variantPriceSetMap = ensureVariantPriceSetsStep({
       variant_ids: variantIds,
     })
 
-    // 6. Bulk-create offer rows (without nested data).
     const offers = createOffersStep(stripped)
 
-    // 7. Resolve `offer.inventory_items[]` from the per-offer span using
-    //    the created InventoryItem IDs.
     const offerInventoryLinks = transform(
       { input, offers, inventoryItemsToCreate, createdInventoryItems },
       ({ input, offers, inventoryItemsToCreate, createdInventoryItems }) => {
@@ -191,7 +183,6 @@ export const createOffersWorkflow: ReturnWorkflow<
       name: "create-offer-inventory-links",
     })
 
-    // 8. Bulk-stamp `offer_id` PriceRule and build the addPrices payload.
     const addPricesInput = transform(
       { input, offers, variantPriceSetMap },
       ({ input, offers, variantPriceSetMap }) => {
@@ -228,14 +219,10 @@ export const createOffersWorkflow: ReturnWorkflow<
 
     const addedPrices = addOfferPricesStep(addPricesInput)
 
-    // 9. Bulk-create Offer ↔ Price link rows.
     const offerPriceLinks = transform(
       { input, offers, addedPrices },
       ({ input, offers, addedPrices }) => {
         const links: LinkDefinition[] = []
-        // The addedPrices entries are aligned with offers that contributed
-        // prices (skipping offers with no prices). We walk in input order
-        // to preserve the index alignment.
         let cursor = 0
         input.offers.forEach((offer, idx) => {
           if (!offer.prices?.length) {

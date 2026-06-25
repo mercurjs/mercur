@@ -8,14 +8,6 @@ type ValidateProductsStatusStepInput = {
 
 export const validateProductsStatusStepId = "validate-products-status"
 
-/**
- * Guard that all input products are in one of the expected statuses.
- * Used by the publish-approval workflows (`confirmProductsWorkflow`,
- * `rejectProductWorkflow`, `requestProductChangeWorkflow`) which all
- * require `proposed` as the only eligible state. Existence is
- * presumed validated upstream by `useQueryGraphStep` with
- * `throwIfKeyNotFound: true`.
- */
 export const validateProductsStatusStep = createStep(
   validateProductsStatusStepId,
   async ({ products, expected_status }: ValidateProductsStatusStepInput) => {

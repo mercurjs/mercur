@@ -60,9 +60,6 @@ export const POST = async (
 
   const memberId = req.auth_context.actor_id || undefined
 
-  // An already-registered member (creating an additional store) is resolved
-  // from the auth context; an unregistered token must supply member_email so
-  // a new member can be provisioned as the store owner.
   if (!memberId && !member_email) {
     throw new MedusaError(
       MedusaError.Types.INVALID_DATA,

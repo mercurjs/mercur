@@ -1,5 +1,3 @@
-// Always ensure that cartFieldsForPricingContext is present in cartFieldsForRefreshSteps
-// Always ensure that cartFieldsForCalculateShippingOptionsPrices is present in cartFieldsForRefreshSteps
 export const cartFieldsForRefreshSteps = [
     "id",
     "email",
@@ -100,10 +98,6 @@ export const completeCartFields = [
     "items.*",
     "items.tax_lines.*",
     "items.adjustments.*",
-    // variant + product fields are required by prepareLineItemData so
-    // each created order line item carries variant_id, product_id, and
-    // the correct requires_shipping flag derived from
-    // variant.product.shipping_profile / variant.inventory_items
     "items.variant.id",
     "items.variant.sku",
     "items.variant.barcode",
@@ -144,12 +138,6 @@ export const completeCartFields = [
     "items.offer.id",
     "items.offer.seller_id",
     "items.offer.shipping_profile_id",
-    // NOTE: per-offer inventory data (linked InventoryItem +
-    // location_levels) is intentionally NOT pulled in via
-    // completeCartFields. It is fetched in a dedicated
-    // `fetch-offers-for-reservation` step from the same workflow,
-    // which keeps the cart-query populate tree shallow and avoids
-    // the writable offer ↔ inventory_item link's pivot edge cases.
 ]
 
 export const cartFieldsForPricingContext = [

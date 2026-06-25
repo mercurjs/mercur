@@ -559,6 +559,8 @@
         "useForVariants": "Use for variants",
         "useForVariantsDescription": "If checked, we will create variants with this attribute. You can define them in the next step. If not, the attribute will be used for informational purposes only.",
         "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "warning": "Warning",
+        "editWarning": "Changes to this attribute may affect existing product variants or details. Review your variants and product details after saving.",
         "titlePlaceholder": "e.g. Color",
         "valuePlaceholder": "Enter values",
         "enterValuePlaceholder": "Enter value",

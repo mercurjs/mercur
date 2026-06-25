@@ -23,19 +23,46 @@ export const adminProductFields = [
   "updated_at",
   "deleted_at",
   "metadata",
-  "*type",
-  "*collection",
-  "*tags",
-  "*images",
-  "*categories",
-  "*options",
-  "*options.values",
-  "*variants",
-  "*variants.options",
-  // Linked product-attribute value ids (Module Link alias). The GET
-  // handler enriches these into `product.attributes` via separate
-  // queries against the product-attribute module.
-  "attribute_values.id",
+  // 2.16's remote joiner rejects bare `*relation` wildcards and the
+  // `type`/`tags`/`images` relations (`Cannot resolve alias path ""`), so they
+  // are spelled out / excluded.
+  "collection.id",
+  "collection.title",
+  "collection.handle",
+  "categories.id",
+  "categories.name",
+  "categories.handle",
+  // NOTE: native `options(.values)` and `variants.options` are intentionally
+  // omitted — `product.options` populate crashes MikroORM `expandDotPaths` on
+  // the 2.16 options-preview build. Axis options must be read from the
+  // `product_option` side until that infra bug is resolved.
+  "variants.id",
+  "variants.title",
+  "variants.sku",
+  "variants.manage_inventory",
+  "variants.allow_backorder",
+  "variants.variant_rank",
+  "product_attribute_values.id",
+  "product_attribute_values.name",
+  "product_attribute_values.rank",
+  "product_attribute_values.attribute.id",
+  "product_attribute_values.attribute.name",
+  "product_attribute_values.attribute.handle",
+  "product_attribute_values.attribute.type",
+  "product_attribute_values.attribute.is_variant_axis",
+  "product_attribute_values.attribute.is_required",
+  "product_attribute_values.attribute.rank",
+  "product_attribute_values.attribute.values.id",
+  "product_attribute_values.attribute.values.name",
+  "product_attribute_values.attribute.values.rank",
+  "scoped_attributes.id",
+  "scoped_attributes.name",
+  "scoped_attributes.handle",
+  "scoped_attributes.type",
+  "scoped_attributes.is_variant_axis",
+  "scoped_attributes.values.id",
+  "scoped_attributes.values.name",
+  "scoped_attributes.values.rank",
 ]
 
 export const adminProductRetrieveFields = [...adminProductFields]
@@ -78,8 +105,6 @@ export const adminProductVariantFields = [
   "manage_inventory",
   "allow_backorder",
   "*options",
-  "*attribute_values",
-  "*attribute_values.attribute",
 ]
 
 export const adminProductVariantQueryConfig = {

@@ -4,32 +4,22 @@ import ProductModule from "@medusajs/medusa/product"
 import ProductAttributeModule from "../modules/product-attribute"
 
 /**
- * ProductCategory ↔ ProductAttribute pivot link.
+ * ProductAttribute → ProductCategory pivot link.
  *
- * `defineLink` derives the on-service field-alias from
- * `pluralize(aliasB)`. Without an explicit alias, the linkable's
- * intrinsic field (`productAttribute`) pluralises to
- * `product_attributes` on the category side and the link-service
- * composition collides with the productAttribute service's
- * auto-registered aliases. We rename both sides so that:
- *   - `productCategory.categories` is NOT the property added here
- *     (irrelevant for category service);
- *   - `productAttribute.categories` IS the property added (queried by
- *     `/vendor/product-attributes` `*categories` field).
+ * Direction: the ProductAttribute is the owner — an attribute declares which
+ * categories it applies to. Surfaced on the attribute as the `categories`
+ * relation (explicit alias). The pivot table keeps both FK columns
+ * (`product_attribute_id`, `product_category_id`), so the direction flip is a
+ * pure relabel — no schema/migration change.
  */
 export default defineLink(
   {
-    linkable: {
-      ...ProductModule.linkable.productCategory.id,
-      alias: "category",
-    },
+    linkable: ProductAttributeModule.linkable.productAttribute.id,
     isList: true,
   },
   {
-    linkable: {
-      ...ProductAttributeModule.linkable.productAttribute.id,
-      alias: "owning_attribute",
-    },
+    ...ProductModule.linkable.productCategory.id,
+    alias: "categories",
     isList: true,
   },
   {

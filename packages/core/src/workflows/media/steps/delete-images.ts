@@ -7,9 +7,6 @@ export type DeleteImagesStepInput = string[]
 
 export const deleteImagesStepId = "delete-media-images"
 
-/**
- * Soft-deletes `Image` rows in the media module. Compensation restores them.
- */
 export const deleteImagesStep = createStep(
   deleteImagesStepId,
   async (ids: DeleteImagesStepInput, { container }) => {

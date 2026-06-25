@@ -1,4 +1,3 @@
-// Route: /products/:id/attributes/add
 import { XMarkMini } from "@medusajs/icons"
 import {
   Badge,
@@ -14,9 +13,10 @@ import {
   toast,
 } from "@medusajs/ui"
 import {
-  ProductAttributeDTO,
   AttributeType,
   MercurFeatureFlags,
+  ProductAttributeBatchAdd,
+  ProductAttributeDTO,
 } from "@mercurjs/types"
 import { useEffect, useMemo, useState } from "react"
 import { useFieldArray, useForm } from "react-hook-form"
@@ -98,28 +98,23 @@ const Content = ({ productId }: { productId: string }) => {
   const [rowSelection, setRowSelection] =
     useState<DataTableRowSelectionState>({})
 
-  // Parent route loader prefetches the product with PRODUCT_DETAIL_QUERY, so this hits the React Query cache.
-  const { product } = useProduct(productId, PRODUCT_DETAIL_QUERY)
-  const categoryId = (product as any)?.categories?.[0]?.id as string | undefined
-
   const { searchParams } = useAttributeTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-  const attributesQuery = useMemo(
-    () => ({ ...searchParams, category_id: categoryId || undefined }),
-    [searchParams, categoryId]
-  )
   const { product_attributes, count, isLoading, isError, error } =
-    useProductAttributes(attributesQuery, {
+    useProductAttributes(searchParams, {
       placeholderData: keepPreviousData,
     })
+
+  const { product } = useProduct(productId, PRODUCT_DETAIL_QUERY)
 
   const assignedIds = useMemo(
     () =>
       new Set(
-        ((product as { attributes?: ProductAttributeDTO[] })?.attributes ?? [])
-          .map((a) => a.id)
+        ((product as any)?.attributes ?? []).map(
+          (a: ProductAttributeDTO) => a.id
+        )
       ),
     [product]
   )
@@ -173,15 +168,20 @@ const Content = ({ productId }: { productId: string }) => {
     if (!selectedIds.length) return
 
     const attrs = selectedIds
-      .map((id) => product_attributes?.find((a: any) => a.id === id))
+      .map((id) =>
+        product_attributes?.find((a: ProductAttributeDTO) => a.id === id)
+      )
       .filter(Boolean)
-      .map((attr: any) => ({
+      .map((attr) => ({
         attribute_id: attr!.id,
         name: attr!.name,
         type: attr!.type,
         is_variant_axis: attr!.is_variant_axis,
         available_values:
-          attr!.values?.map((v: any) => ({ id: v.id, name: v.name })) ?? [],
+          attr!.values?.map((v: { id: string; name: string }) => ({
+            id: v.id,
+            name: v.name,
+          })) ?? [],
         values:
           attr!.type === AttributeType.MULTI_SELECT
             ? ([] as string[])
@@ -206,11 +206,7 @@ const Content = ({ productId }: { productId: string }) => {
   }
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const create: {
-      attribute_id: string
-      attribute_value_ids?: string[]
-      values?: string[]
-    }[] = []
+    const add: ProductAttributeBatchAdd[] = []
 
     for (const attr of data.attributes) {
       const vals = Array.isArray(attr.values)
@@ -229,20 +225,24 @@ const Content = ({ productId }: { productId: string }) => {
         const valueIds = vals
           .map((name) => nameToId.get(name))
           .filter(Boolean) as string[]
-        create.push({
-          attribute_id: attr.attribute_id,
-          attribute_value_ids: valueIds.length ? valueIds : undefined,
-        })
+        if (!valueIds.length) continue
+        add.push({ id: attr.attribute_id, value_ids: valueIds })
       } else {
-        create.push({
-          attribute_id: attr.attribute_id,
-          values: vals.length ? vals : undefined,
+        if (!vals.length || !vals[0]) continue
+        add.push({
+          id: attr.attribute_id,
+          value: attr.type === "toggle" ? vals[0] === "true" : vals[0],
         })
       }
     }
 
+    if (!add.length) {
+      handleSuccess()
+      return
+    }
+
     await mutateAsync(
-      { create },
+      { add },
       {
         onSuccess: () => {
           handleSuccess()
@@ -453,7 +453,8 @@ const useColumns = () => {
         id: "values",
         header: t("attributes.fields.values"),
         cell: ({ row }) => {
-          const values = row.original.values ?? []
+          const values =
+            row.original.type === "toggle" ? [] : row.original.values ?? []
           if (!values.length) {
             return <span className="text-ui-fg-muted">-</span>
           }

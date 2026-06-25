@@ -23,20 +23,6 @@ type RequestProductChangeWorkflowInput = {
   actor_id?: string
 }
 
-/**
- * Admin-side "ask the vendor to revise the submission". Deliberately
- * side-effect-free on the product itself — the status stays where it
- * is. All this workflow does:
- *
- *   1. Validate the product is eligible (still in the publish-approval
- *      window).
- *   2. Record a confirmed `ProductChange` audit row carrying one
- *      pre-applied `CHANGE_REQUESTED` action (via
- *      `recordProductAuditChangeWorkflow`). The operator's optional
- *      `message` lands on `external_note` so the seller sees it.
- *   3. Emit `product.change-requested` so a notification handler can
- *      ship an email.
- */
 export const requestProductChangeWorkflow = createWorkflow(
   requestProductChangeWorkflowId,
   function (input: RequestProductChangeWorkflowInput) {

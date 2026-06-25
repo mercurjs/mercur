@@ -81,8 +81,7 @@ function buildReservationsMap(reservations: ReservationItemDTO[]) {
   return map
 }
 
-// Returns a plain-object map keyed by line_item_id → inventory_item_id →
-// link. Returning Map objects from a workflow `transform()` does not
+// Returning Map objects from a workflow `transform()` does not
 // survive the workflow runtime's JSON serialization between steps —
 // downstream resolvers would receive `{}` and crash on `.get(...)`.
 function buildOfferInventoryByLineItem(

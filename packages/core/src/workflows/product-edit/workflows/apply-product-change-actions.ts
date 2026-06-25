@@ -13,7 +13,11 @@ import {
   updateProductVariantsWorkflow,
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
-import { ProductChangeActionType } from "@mercurjs/types"
+import {
+  ProductAttributeBatchAdd,
+  ProductAttributeBatchUpdate,
+  ProductChangeActionType,
+} from "@mercurjs/types"
 
 import {
   applyVariantImageLinksStep,
@@ -32,12 +36,12 @@ type BucketedActions = {
   variantUpdates: Array<Record<string, unknown> & { id: string }>
   variantImageLinks: VariantImageLinks[]
   variantDeletes: string[]
-  attributeAdds: Array<{
+  attributeBatch: {
     product_id: string
-    attribute_id: string
-    attribute_value_ids: string[]
-  }>
-  attributeRemoves: Array<{ product_id: string; attribute_id: string }>
+    add: ProductAttributeBatchAdd[]
+    remove: string[]
+    update: ProductAttributeBatchUpdate[]
+  } | null
   productsToDelete: string[]
   pendingActionIds: string[]
 }
@@ -45,37 +49,6 @@ type BucketedActions = {
 export const applyProductChangeActionsWorkflowId =
   "apply-product-change-actions"
 
-/**
- * Cross-module dispatcher for a confirmed `ProductChange`'s pending
- * actions. Replaces the legacy `ProductModuleService.applyProductChangeActions_`
- * by composing stock Medusa product workflows (update/create/delete
- * variants, update/delete products) with the attribute apply workflow
- * (`applyProductAttributeChangeActionsWorkflow`).
- *
- * Pattern-match `medusa/.../order/workflows/apply-order-change.ts`:
- * load pending rows, bucket by action type, dispatch in dependency
- * order, then mark `applied = true`.
- *
- * Ordering mirrors the legacy implementation:
- *   1. Top-level field updates (STATUS_CHANGE / UPDATE) — collapsed by
- *      product so each product hits `updateProductsWorkflow` once.
- *   2. Variant deletes — frees up SKU / title uniqueness before adds.
- *   3. Variant creates.
- *   4. Variant updates — see a stable variant set.
- *   5. Attribute add/remove + option sync — delegated to
- *      `applyProductAttributeChangeActionsWorkflow`. Removes run
- *      before adds inside that workflow so a single change can re-link
- *      the same attribute with a different value set.
- *   6. Product deletes — last so any audit-trail updates above write
- *      through before the row is soft-deleted.
- *   7. Mark action rows applied.
- *
- * `ATTRIBUTE_ADD` actions are expected to carry pre-resolved
- * `attribute_value_ids` in their `details` JSON. The find-or-create
- * branch lives upstream — workflows that stage an `ATTRIBUTE_ADD` call
- * `upsertProductAttributeValuesWorkflow` first to resolve names into
- * IDs before persisting the action.
- */
 export const applyProductChangeActionsWorkflow: ReturnWorkflow<
   ApplyProductChangeActionsWorkflowInput,
   void,
@@ -103,8 +76,16 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
       const variantUpdates: Array<Record<string, unknown> & { id: string }> = []
       const variantImageLinks: VariantImageLinks[] = []
       const variantDeletes: string[] = []
-      const attributeAdds: BucketedActions["attributeAdds"] = []
-      const attributeRemoves: BucketedActions["attributeRemoves"] = []
+      let attributeBatch: BucketedActions["attributeBatch"] = null
+      const ensureAttributeBatch = (productId: string) => {
+        attributeBatch ??= {
+          product_id: productId,
+          add: [],
+          remove: [],
+          update: [],
+        }
+        return attributeBatch
+      }
       const productsToDelete = new Set<string>()
       const pendingActionIds: string[] = []
 
@@ -154,10 +135,6 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
               !Object.keys(fields as object).length
             )
               break
-            // `images` is a variant↔image relation, not a scalar column,
-            // so split it out of the variant update (which goes through
-            // `updateProductVariantsWorkflow`) and apply the link changes
-            // separately via `applyVariantImageLinksStep`.
             const { images, ...scalarFields } = fields as {
               images?: { add?: string[]; remove?: string[] }
             } & Record<string, unknown>
@@ -177,26 +154,26 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
             break
           }
           case ProductChangeActionType.ATTRIBUTE_ADD: {
-            const { attribute_id, attribute_value_ids } = details as {
-              attribute_id?: string
-              attribute_value_ids?: string[]
-            }
-            if (!attribute_id || !attribute_value_ids?.length) break
-            attributeAdds.push({
-              product_id: productId,
-              attribute_id,
-              attribute_value_ids,
-            })
+            const attribute = (
+              details as { attribute?: ProductAttributeBatchAdd }
+            ).attribute
+            if (!attribute) break
+            ensureAttributeBatch(productId).add.push(attribute)
             break
           }
           case ProductChangeActionType.ATTRIBUTE_REMOVE: {
             const attributeId = (details as { attribute_id?: string })
               .attribute_id
             if (!attributeId) break
-            attributeRemoves.push({
-              product_id: productId,
-              attribute_id: attributeId,
-            })
+            ensureAttributeBatch(productId).remove.push(attributeId)
+            break
+          }
+          case ProductChangeActionType.ATTRIBUTE_UPDATE: {
+            const update = (
+              details as { update?: ProductAttributeBatchUpdate }
+            ).update
+            if (!update) break
+            ensureAttributeBatch(productId).update.push(update)
             break
           }
           case ProductChangeActionType.PRODUCT_DELETE: {
@@ -214,8 +191,7 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
         variantUpdates,
         variantImageLinks,
         variantDeletes,
-        attributeAdds,
-        attributeRemoves,
+        attributeBatch,
         productsToDelete: Array.from(productsToDelete),
         pendingActionIds,
       }
@@ -261,9 +237,6 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
       },
     )
 
-    // Variant media: link/unlink product↔variant images after the
-    // variants themselves are stable. Runs last among variant work so the
-    // target variants are guaranteed to exist.
     when(
       { buckets },
       ({ buckets }) => buckets.variantImageLinks.length > 0,
@@ -278,8 +251,10 @@ export const applyProductChangeActionsWorkflow: ReturnWorkflow<
 
     applyProductAttributeChangeActionsWorkflow.runAsStep({
       input: transform({ buckets }, ({ buckets }) => ({
-        add_actions: buckets.attributeAdds,
-        remove_actions: buckets.attributeRemoves,
+        product_id: buckets.attributeBatch?.product_id ?? "",
+        add: buckets.attributeBatch?.add ?? [],
+        remove: buckets.attributeBatch?.remove ?? [],
+        update: buckets.attributeBatch?.update ?? [],
       })),
     })
 

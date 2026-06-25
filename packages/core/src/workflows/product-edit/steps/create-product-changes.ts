@@ -9,12 +9,6 @@ import type ProductChangeModuleService from "../../../modules/product-edit/servi
 
 export const createProductChangesStepId = "pc-create-product-changes"
 
-/**
- * Scalar create input. `product_id` is a real column on the
- * `ProductChange` model (read-only link to `Product`), so it gets
- * inserted directly with each change row. `status` is narrowed to the
- * enum.
- */
 export type CreateProductChangesStepInput = Array<
   Omit<CreateProductChangeDTO, "status"> & {
     status?: ProductChangeStatus

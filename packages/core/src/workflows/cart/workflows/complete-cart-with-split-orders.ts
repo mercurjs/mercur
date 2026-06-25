@@ -112,7 +112,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
             cart: cartData.data,
         })
 
-        // If order ID does not exist, we are completing the cart for the first time
         const createdOrderGroup = when("create-order-group", { orderGroupId }, ({ orderGroupId }) => {
             return !orderGroupId
         }).then(() => {
@@ -166,8 +165,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
                 const sellerOrdersMap: Record<string, string> = {}
                 const ordersToCreate: (CreateOrderDTO & { id: string })[] = []
-                // positional offer ids per order; zipped with createdOrders[*].items
-                // after createOrdersStep to build order_line_item_id → offer_id pairs
                 const offerIdsByOrderId: Record<string, (string | null)[]> = {}
 
                 Array.from(cartSellerIds).map((sellerId) => {
@@ -178,16 +175,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     const sellerCartShippingMethods = (cart.shipping_methods ?? []).filter((sm) => sellerShippingOptions.some((so) => so.id === sm.shipping_option_id))
 
                     const allItems = sellerCartItems.map((item) => {
-                        // In Mercur the shipping profile lives on the offer
-                        // (per-seller), not on the product. Force
-                        // requires_shipping=true whenever the line carries
-                        // an offer with a shipping_profile_id, otherwise
-                        // every order line ends up with
-                        // requires_shipping=false and the vendor
-                        // fulfillment UI hides the matching shipping
-                        // option. Also surface the profile onto
-                        // variant.product so downstream code that reads
-                        // product.shipping_profile sees it.
                         const offerShippingProfileId = (
                             item as { offer?: { shipping_profile_id?: string } | null }
                         ).offer?.shipping_profile_id
@@ -345,13 +332,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 createOrdersStep(ordersToCreate)
             )
 
-            // Pair each created order line with its source cart line's offer
-            // by zipping createdOrders[*].items with the positional offer-id
-            // list we collected during ordersToCreate construction. The order
-            // module preserves input item order within each created order,
-            // and each per-seller order is built from exactly one filtered
-            // cart-items slice, so position is sufficient — no metadata
-            // carrier is needed.
             const orderLineOfferPairs = transform(
                 { createdOrders, offerIdsByOrderId },
                 ({ createdOrders, offerIdsByOrderId }) => {
@@ -521,14 +501,12 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                         [MercurModules.SELLER]: { seller_id: sellerId },
                     })))
 
-                    // Link order group to orders
                     links.push(...createdOrders.map((order) => ({
                         [MercurModules.SELLER]: { order_group_id: createdOrderGroup.id },
                         [Modules.ORDER]: { order_id: order.id },
                     })))
 
                     if (cart.customer?.id) {
-                        // Create seller-customer links for new relationships
                         const existingSellerIds = new Set(
                             (existingSellerCustomerLinks?.data ?? []).map((link) => link.seller_id)
                         )
@@ -576,7 +554,6 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 input,
             })
 
-            // Authorize payment session
             const payment = authorizePaymentSessionStep({
                 id: paymentSessions![0].id,
             })

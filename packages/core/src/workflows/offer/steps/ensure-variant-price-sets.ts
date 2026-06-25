@@ -10,15 +10,6 @@ export type EnsureVariantPriceSetsInput = {
 
 export type EnsureVariantPriceSetsOutput = Record<string, string>
 
-/**
- * Resolves `variant_id → price_set_id` for every requested variant. If a
- * variant has no `price_set` link yet, creates an empty `PriceSet` and
- * registers the `variant ↔ price_set` link in the same call.
- *
- * Compensation deletes any PriceSet rows that were materialised inside
- * this step so the workflow can roll back without leaking marketplace-virgin
- * PriceSets.
- */
 export const ensureVariantPriceSetsStepId = "ensure-variant-price-sets"
 
 export const ensureVariantPriceSetsStep = createStep(

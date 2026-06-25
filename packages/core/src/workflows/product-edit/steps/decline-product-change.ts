@@ -19,11 +19,6 @@ type PrevChangeScalar = {
   declined_reason: string | null
 }
 
-/**
- * Pattern-match `medusa/packages/core/core-flows/src/order/steps/decline-order-change.ts:17-44`:
- * capture before-state, transition to DECLINED, revert restores the
- * captured fields.
- */
 export const declineProductChangeStep = createStep(
   declineProductChangeStepId,
   async (input: DeclineProductChangeStepInput, { container }) => {

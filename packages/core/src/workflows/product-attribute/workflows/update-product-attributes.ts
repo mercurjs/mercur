@@ -3,18 +3,24 @@ import {
   createHook,
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import {
+  emitEventStep,
+  updateProductOptionsStep,
+} from "@medusajs/medusa/core-flows"
 import {
   ProductAttributeDTO,
   UpdateProductAttributeDTO,
 } from "@mercurjs/types"
 
 import { ProductAttributeWorkflowEvents } from "../events"
-import { updateProductAttributesStep } from "../steps"
+import {
+  updateProductAttributesStep,
+} from "../steps"
 
 export type UpdateProductAttributesWorkflowInput = {
   selector: Record<string, unknown>
@@ -48,6 +54,25 @@ export const updateProductAttributesWorkflow: ReturnWorkflow<
       selector: input.selector,
       update: input.update,
     })
+
+    const optionTitleSync = transform(
+      { input, attributes },
+      ({ input, attributes }) => {
+        const optionIds = attributes
+          .filter((a) => !!a.product_option_id)
+          .map((a) => a.product_option_id as string)
+        return {
+          should: input.update.name !== undefined && optionIds.length > 0,
+          stepInput: {
+            selector: { id: optionIds },
+            update: { title: input.update.name },
+          },
+        }
+      },
+    )
+
+    when({ optionTitleSync }, ({ optionTitleSync }) => optionTitleSync.should)
+      .then(() => updateProductOptionsStep(optionTitleSync.stepInput))
 
     emitEventStep({
       eventName: ProductAttributeWorkflowEvents.UPDATED,

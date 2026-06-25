@@ -7,16 +7,9 @@ import {
 import { associateSellersWithProductCategoryStep } from "../steps/associate-sellers-with-product-category"
 import { detachSellersFromProductCategoryStep } from "../steps/detach-sellers-from-product-category"
 
-/**
- * Manages which sellers are restricted from a product category
- * (blacklist model — a link means the seller is BLOCKED from that category).
- */
 export type LinkSellersToProductCategoryWorkflowInput = {
-  /** The category id. */
   id: string
-  /** Seller ids to block from the category. */
   add?: string[]
-  /** Seller ids to unblock from the category. */
   remove?: string[]
 }
 

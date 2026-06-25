@@ -87,10 +87,6 @@ export const VendorUpdateOffer = z
     sku: z.string().min(1).optional(),
     shipping_profile_id: z.string().min(1).optional(),
     metadata: z.record(z.string(), z.unknown()).nullish(),
-    /**
-     * Optional full price ladder. When set, the offer's PriceSet is rewritten
-     * with this exact list (mirrors Medusa's `updateProductVariantsWorkflow`).
-     */
     prices: z.array(VendorOfferUpsertPrice).optional(),
   })
   .strict()

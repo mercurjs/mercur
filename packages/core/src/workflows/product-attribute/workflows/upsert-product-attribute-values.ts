@@ -1,84 +1,63 @@
 import { AdditionalData } from "@medusajs/framework/types"
 import {
-  createHook,
+  createStep,
   createWorkflow,
+  StepResponse,
   transform,
   WorkflowResponse,
-  type Hook,
-  type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
 import {
+  MercurModules,
   ProductAttributeValueDTO,
   UpsertProductAttributeValueDTO,
 } from "@mercurjs/types"
 
-import { ProductAttributeValueWorkflowEvents } from "../events"
-import {
-  upsertProductAttributeValuesStep,
-  validateAttributeAcceptsValuesStep,
-} from "../steps"
+import type ProductAttributeModuleService from "../../../modules/product-attribute/service"
 
 export type UpsertProductAttributeValuesWorkflowInput = {
   attribute_id: string
   values: UpsertProductAttributeValueDTO[]
 } & AdditionalData
 
-export type UpsertProductAttributeValuesWorkflowHooks = [
-  Hook<
-    "validate",
-    { input: UpsertProductAttributeValuesWorkflowInput },
-    unknown
-  >,
-  Hook<
-    "productAttributeValuesUpserted",
-    {
-      values: ProductAttributeValueDTO[]
-      additional_data: Record<string, unknown> | undefined
-    },
-    unknown
-  >,
-]
+const upsertProductAttributeValuesStepId = "pa-upsert-product-attribute-values"
+
+type UpsertStepInput = (UpsertProductAttributeValueDTO & {
+  attribute_id: string
+})[]
+
+// Known gap: rename-in-place does not re-sync the mirrored option.
+const upsertProductAttributeValuesStep = createStep(
+  upsertProductAttributeValuesStepId,
+  async (data: UpsertStepInput, { container }) => {
+    const service = container.resolve<ProductAttributeModuleService>(
+      MercurModules.PRODUCT_ATTRIBUTE,
+    )
+    const toCreate = data.filter((v) => !v.id)
+    const toUpdate = data.filter((v) => !!v.id)
+
+    const created = toCreate.length
+      ? await service.createProductAttributeValues(toCreate)
+      : []
+    const updated = toUpdate.length
+      ? await service.updateProductAttributeValues(toUpdate)
+      : []
+
+    return new StepResponse([...created, ...updated])
+  },
+)
 
 export const upsertProductAttributeValuesWorkflowId =
   "upsert-product-attribute-values"
 
-export const upsertProductAttributeValuesWorkflow: ReturnWorkflow<
-  UpsertProductAttributeValuesWorkflowInput,
-  ProductAttributeValueDTO[],
-  UpsertProductAttributeValuesWorkflowHooks
-> = createWorkflow(
+export const upsertProductAttributeValuesWorkflow = createWorkflow(
   upsertProductAttributeValuesWorkflowId,
   function (input: UpsertProductAttributeValuesWorkflowInput) {
-    const validate = createHook("validate", { input })
-
-    validateAttributeAcceptsValuesStep({ attribute_id: input.attribute_id })
-
-    const valueInputs = transform({ input }, ({ input }) =>
-      input.values.map((v) =>
-        v.id ? v : { ...v, attribute_id: input.attribute_id },
-      ),
+    const rows = transform({ input }, ({ input }) =>
+      input.values.map((v) => ({ ...v, attribute_id: input.attribute_id })),
     )
 
-    const values = upsertProductAttributeValuesStep(valueInputs)
+    const values = upsertProductAttributeValuesStep(rows)
 
-    emitEventStep({
-      eventName: ProductAttributeValueWorkflowEvents.UPDATED,
-      data: transform({ values }, ({ values }) =>
-        values.map((v) => ({ id: v.id })),
-      ),
-    })
-
-    const productAttributeValuesUpserted = createHook(
-      "productAttributeValuesUpserted",
-      {
-        values,
-        additional_data: input.additional_data,
-      },
-    )
-
-    return new WorkflowResponse(values as ProductAttributeValueDTO[], {
-      hooks: [validate, productAttributeValuesUpserted],
-    })
+    return new WorkflowResponse(values as ProductAttributeValueDTO[])
   },
 )

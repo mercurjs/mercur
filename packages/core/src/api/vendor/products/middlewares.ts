@@ -8,55 +8,42 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { ProductStatus } from "@mercurjs/types"
 
 import { applyOfferedProductsFilter } from "../../utils"
+import {
+  getProductIdsRestrictedFromSeller,
+  getSellerOwnedProductIds,
+} from "./helpers"
 import {
   vendorProductQueryConfig,
   vendorProductVariantQueryConfig,
 } from "./query-config"
 import {
-  VendorAddProductAttribute,
   VendorAddProductVariant,
   VendorBatchProductAttributes,
   VendorCancelProductChange,
   VendorCreateProduct,
-  VendorGetProductAttributeParams,
-  VendorGetProductAttributesParams,
   VendorGetProductParams,
   VendorGetProductsParams,
   VendorGetProductVariantParams,
   VendorGetProductVariantsParams,
   VendorUpdateProduct,
-  VendorUpdateProductAttribute,
   VendorUpdateProductVariant,
 } from "./validators"
+import { promiseAll } from "@medusajs/framework/utils"
 
-/**
- * Vendors see the union of the master catalog (any product with
- * `status = published`) and their own products in any state. Other
- * vendors' non-published products (draft / proposed / requires_action
- * / rejected) stay hidden so unreleased proposals from a competing
- * seller never leak into this list.
- */
 const applySellerProductLinkFilter = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
   const sellerId = req.seller_context!.seller_id
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: links } = await query.graph({
-    entity: "product_seller",
-    fields: ["product_id"],
-    filters: { seller_id: sellerId },
-  })
-
-  const sellerProductIds = links
-    .map((link: { product_id: string | null }) => link.product_id)
-    .filter((id: string | null): id is string => Boolean(id))
+  const [ownProductIds, restrictedFromSellerIds] = await promiseAll([
+    getSellerOwnedProductIds(req.scope, sellerId),
+    getProductIdsRestrictedFromSeller(req.scope, sellerId),
+  ])
 
   req.filterableFields ??= {}
   const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
@@ -64,8 +51,11 @@ const applySellerProductLinkFilter = async (
     ...existingAnd,
     {
       $or: [
-        { status: ProductStatus.PUBLISHED },
-        { id: sellerProductIds },
+        { id: ownProductIds },
+        {
+          status: ProductStatus.PUBLISHED,
+          id: { $nin: restrictedFromSellerIds },
+        },
       ],
     },
   ]
@@ -74,7 +64,6 @@ const applySellerProductLinkFilter = async (
 }
 
 export const vendorProductsMiddlewares: MiddlewareRoute[] = [
-  // --- /vendor/products ---
   {
     method: ["GET"],
     matcher: "/vendor/products",
@@ -99,7 +88,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     ],
   },
 
-  // --- /vendor/products/:id ---
   {
     method: ["GET"],
     matcher: "/vendor/products/:id",
@@ -127,14 +115,12 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [],
   },
 
-  // --- /vendor/products/:id/cancel ---
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/cancel",
     middlewares: [validateAndTransformBody(VendorCancelProductChange)],
   },
 
-  // --- /vendor/products/:id/variants ---
   {
     method: ["GET"],
     matcher: "/vendor/products/:id/variants",
@@ -157,7 +143,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     ],
   },
 
-  // --- /vendor/products/:id/variants/:variant_id ---
   {
     method: ["GET"],
     matcher: "/vendor/products/:id/variants/:variant_id",
@@ -185,30 +170,6 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
     middlewares: [],
   },
 
-  // --- /vendor/products/:id/attributes ---
-  {
-    method: ["GET"],
-    matcher: "/vendor/products/:id/attributes",
-    middlewares: [
-      validateAndTransformQuery(
-        VendorGetProductAttributesParams,
-        vendorProductQueryConfig.list
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/vendor/products/:id/attributes",
-    middlewares: [
-      validateAndTransformBody(VendorAddProductAttribute),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
-  },
-
-  // --- /vendor/products/:id/attributes/batch ---
   {
     method: ["POST"],
     matcher: "/vendor/products/:id/attributes/batch",
@@ -219,33 +180,5 @@ export const vendorProductsMiddlewares: MiddlewareRoute[] = [
         vendorProductQueryConfig.retrieve
       ),
     ],
-  },
-
-  // --- /vendor/products/:id/attributes/:attribute_id ---
-  {
-    method: ["GET"],
-    matcher: "/vendor/products/:id/attributes/:attribute_id",
-    middlewares: [
-      validateAndTransformQuery(
-        VendorGetProductAttributeParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/vendor/products/:id/attributes/:attribute_id",
-    middlewares: [
-      validateAndTransformBody(VendorUpdateProductAttribute),
-      validateAndTransformQuery(
-        VendorGetProductParams,
-        vendorProductQueryConfig.retrieve
-      ),
-    ],
-  },
-  {
-    method: ["DELETE"],
-    matcher: "/vendor/products/:id/attributes/:attribute_id",
-    middlewares: [],
   },
 ]

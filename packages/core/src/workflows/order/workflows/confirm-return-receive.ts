@@ -183,9 +183,6 @@ export type ConfirmReceiveReturnRequestWorkflowInput = {
 
 export const confirmReturnReceiveWorkflowId = "mercur-confirm-return-receive"
 
-// Same-id replacement for Medusa's confirmReturnReceiveWorkflow. Mercur
-// resolves restock quantities by the order line's linked offer (not by
-// variant), since marketplace inventory ownership lives on the offer.
 export const confirmReturnReceiveWorkflow = createWorkflow(
   confirmReturnReceiveWorkflowId,
   function (
@@ -353,12 +350,6 @@ export const confirmReturnReceiveWorkflow = createWorkflow(
       { orderReturn, returnedQuantityByOffer },
       prepareInventoryUpdate,
     )
-
-    // Mercur skips Medusa's confirmReceiveReturnValidationStep — the
-    // validations it owns (cancel guards, order-change-active guards) are
-    // covered by the upstream callers; the inline `prepareInventoryUpdate`
-    // throws when the return's location has no stock for any offer-linked
-    // inventory item.
 
     parallelize(
       updateReturnsStep([updateReturn]),

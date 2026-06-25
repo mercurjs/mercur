@@ -8,7 +8,6 @@ import {
   Textarea,
   toast,
 } from "@medusajs/ui"
-import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -19,33 +18,15 @@ import { ChipInput } from "@components/inputs/chip-input"
 import { Form } from "@components/common/form"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
+import { AttributeType } from "@mercurjs/types"
 import { useFeatureFlags } from "@hooks/api"
-import { useAddProductAttribute } from "@hooks/api/products"
+import { useBatchProductAttributes } from "@hooks/api/products"
 
-const normalizeValues = (raw: string | string[]): string[] =>
-  (Array.isArray(raw)
-    ? raw
-    : raw.split(",")
-  )
-    .map((v) => v.trim())
-    .filter(Boolean)
-
-const buildSchema = (messages: { title: string; values: string }) =>
-  zod
-    .object({
-      title: zod.string().min(1, { message: messages.title }),
-      values: zod.union([zod.string(), zod.array(zod.string())]),
-      use_for_variants: zod.boolean(),
-    })
-    .superRefine((data, ctx) => {
-      if (normalizeValues(data.values).length === 0) {
-        ctx.addIssue({
-          code: zod.ZodIssueCode.custom,
-          path: ["values"],
-          message: messages.values,
-        })
-      }
-    })
+type CreateAttributeFormValues = {
+  title: string
+  values: string | string[]
+  use_for_variants: boolean
+}
 
 type CreateAttributeFormProps = {
   productId: string
@@ -61,18 +42,21 @@ export const CreateAttributeForm = ({
   const isProductRequestEnabled =
     !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
 
-  const schema = useMemo(
-    () =>
-      buildSchema({
-        title: t("products.create.attributes.errors.titleRequired"),
-        values: t("products.create.attributes.errors.valuesRequired"),
-      }),
-    [t]
-  )
+  const schema = zod.object({
+    title: zod
+      .string()
+      .trim()
+      .min(1, { message: t("products.create.attributes.errors.titleRequired") }),
+    values: zod
+      .union([zod.string(), zod.array(zod.string())])
+      .refine(
+        (v) => (Array.isArray(v) ? v.length > 0 : v.trim().length > 0),
+        { message: t("products.create.attributes.errors.valuesRequired") }
+      ),
+    use_for_variants: zod.boolean(),
+  })
 
-  type FormValues = zod.infer<typeof schema>
-
-  const form = useForm<FormValues>({
+  const form = useForm<CreateAttributeFormValues>({
     defaultValues: {
       title: "",
       values: "",
@@ -84,15 +68,28 @@ export const CreateAttributeForm = ({
   const useForVariants = form.watch("use_for_variants")
 
   const { mutateAsync: createAttribute, isPending } =
-    useAddProductAttribute(productId)
+    useBatchProductAttributes(productId)
 
   const handleSubmit = form.handleSubmit(async (data) => {
+    const values = Array.isArray(data.values)
+      ? data.values
+      : data.values
+          .split(",")
+          .map((v) => v.trim())
+          .filter(Boolean)
+
     await createAttribute(
       {
-        name: data.title,
-        type: data.use_for_variants ? "multi_select" : "text",
-        is_variant_axis: data.use_for_variants,
-        values: normalizeValues(data.values),
+        add: [
+          {
+            title: data.title,
+            type: data.use_for_variants
+              ? AttributeType.MULTI_SELECT
+              : AttributeType.TEXT,
+            is_variant_axis: data.use_for_variants,
+            values,
+          },
+        ],
       },
       {
         onSuccess: () => {
@@ -162,12 +159,11 @@ export const CreateAttributeForm = ({
                 <Form.Field
                   control={form.control}
                   name="values"
-                  render={({ field: { onChange, value, ...field }, fieldState }) => (
+                  render={({ field: { onChange, value }, fieldState }) => (
                     <Form.Item>
                       <Form.Control>
                         {useForVariants ? (
                           <ChipInput
-                            {...field}
                             variant="contrast"
                             value={Array.isArray(value) ? value : []}
                             onChange={onChange}
@@ -185,7 +181,6 @@ export const CreateAttributeForm = ({
                           />
                         ) : (
                           <Textarea
-                            {...field}
                             aria-invalid={
                               fieldState.invalid ? "true" : undefined
                             }
@@ -228,7 +223,7 @@ export const CreateAttributeForm = ({
                             onCheckedChange={(checked) => {
                               fieldOnChange(checked)
                               form.setValue("values", checked ? [] : "", {
-                                shouldValidate: form.formState.isSubmitted,
+                                shouldValidate: false,
                               })
                             }}
                           />

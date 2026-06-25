@@ -12,7 +12,11 @@ import {
   Text,
   toast,
 } from "@medusajs/ui";
-import { ProductAttributeDTO, AttributeType } from "@mercurjs/types";
+import {
+  AttributeType,
+  ProductAttributeBatchAdd,
+  ProductAttributeDTO,
+} from "@mercurjs/types";
 import { useEffect, useMemo, useState } from "react";
 import { useFieldArray, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -195,11 +199,7 @@ const Content = ({ productId }: { productId: string }) => {
   };
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const batchCreate: {
-      attribute_id: string;
-      attribute_value_ids?: string[];
-      values?: string[];
-    }[] = [];
+    const add: ProductAttributeBatchAdd[] = [];
 
     for (const attr of data.attributes) {
       const vals = Array.isArray(attr.values)
@@ -218,20 +218,24 @@ const Content = ({ productId }: { productId: string }) => {
         const valueIds = vals
           .map((name) => nameToId.get(name))
           .filter(Boolean) as string[];
-        batchCreate.push({
-          attribute_id: attr.attribute_id,
-          attribute_value_ids: valueIds.length ? valueIds : undefined,
-        });
+        if (!valueIds.length) continue;
+        add.push({ id: attr.attribute_id, value_ids: valueIds });
       } else {
-        batchCreate.push({
-          attribute_id: attr.attribute_id,
-          values: vals.length ? vals : undefined,
+        if (!vals.length || !vals[0]) continue;
+        add.push({
+          id: attr.attribute_id,
+          value: attr.type === "toggle" ? vals[0] === "true" : vals[0],
         });
       }
     }
 
+    if (!add.length) {
+      handleSuccess();
+      return;
+    }
+
     await mutateAsync(
-      { create: batchCreate },
+      { add },
       {
         onSuccess: () => {
           handleSuccess();
@@ -441,7 +445,10 @@ const useColumns = () => {
         id: "values",
         header: t("attributes.fields.values"),
         cell: ({ row }) => {
-          const values = row.original.values ?? [];
+          const values =
+            row.original.type === "toggle"
+              ? []
+              : row.original.values ?? [];
           if (!values.length) {
             return <span className="text-ui-fg-muted">-</span>;
           }

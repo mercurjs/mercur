@@ -25,17 +25,6 @@ import { removeOfferPricesStep, updateOffersStep } from "../steps"
 import { assertOfferPriceOwnership } from "../utils"
 import { OfferWorkflowEvents } from "../../events"
 
-/**
- * Setting `prices` on an entry rewrites the offer's slice of the shared
- * variant `PriceSet` with replace semantics (mirroring Medusa's
- * `updateProductVariantsWorkflow`): rows with `id` are updated, rows
- * without `id` are added, and any existing offer-owned price absent from
- * the array is removed. Omit the field to leave prices untouched.
- *
- * `assertOfferPriceOwnership` rejects any incoming `price.id` that does
- * not belong to the offer per the writable `offer ↔ price` list-link —
- * cross-vendor writes are surfaced as `MedusaError.Types.NOT_ALLOWED`.
- */
 export type UpdateOffersWorkflowInput = {
   offers: UpdateOfferDTO[]
 } & AdditionalData
@@ -63,7 +52,6 @@ export const updateOffersWorkflow: ReturnWorkflow<
   function (input: UpdateOffersWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    // 1. Strip nested data; only offer-row fields go to updateOffersStep.
     const rowUpdates = transform(input, ({ offers }) =>
       offers.map((o) => ({
         id: o.id,
@@ -73,17 +61,14 @@ export const updateOffersWorkflow: ReturnWorkflow<
       })),
     )
 
-    // 2. Bulk-update offer rows.
     const offers = updateOffersStep(rowUpdates)
 
-    // 3. Filter offers whose prices changed.
     const offersWithPriceUpdates = transform({ input }, ({ input }) =>
       input.offers
         .filter((o) => Array.isArray(o.prices))
         .map((o) => o.id),
     )
 
-    // 4. Bulk-load `offer.prices` and `variant.price_set.id` via the link.
     const { data: offerRows } = useQueryGraphStep({
       entity: "offer",
       fields: [
@@ -101,7 +86,6 @@ export const updateOffersWorkflow: ReturnWorkflow<
       filters: { id: offersWithPriceUpdates },
     }).config({ name: "get-offer-prices" })
 
-    // 5–6. assertOfferPriceOwnership + compute (toAdd, toUpdate, toRemove).
     const pricingDiff = transform(
       { input, offerRows },
       ({ input, offerRows }) => {
@@ -218,17 +202,14 @@ export const updateOffersWorkflow: ReturnWorkflow<
       ({ pricingDiff }) => ({ price_sets: pricingDiff.price_sets }),
     )
 
-    // 7. Bulk-upsert prices (existing get updated, new get inserted).
     const upsertedPriceSets = updatePriceSetsStep(priceSetsPayload)
 
-    // 8. Bulk-remove obsolete Price rows.
     const toRemoveIds = transform(
       { pricingDiff },
       ({ pricingDiff }) => pricingDiff.toRemoveIds,
     )
     removeOfferPricesStep(toRemoveIds)
 
-    // 9. Sync the link pivot: dismiss removed; create new.
     const removedLinks = transform(
       { pricingDiff },
       ({ pricingDiff }) => pricingDiff.removedLinks,
@@ -248,10 +229,6 @@ export const updateOffersWorkflow: ReturnWorkflow<
         )
         const links: LinkDefinition[] = []
 
-        // For each owner that contributed new rows, find the matching
-        // PriceSet in the upsert response and reconcile its prices'
-        // rule values against the owner's offer_id to identify the
-        // newly inserted rows.
         for (const owner of pricingDiff.newPriceOwners) {
           const set = priceSetById.get(owner.priceSetId)
           if (!set) continue
@@ -265,15 +242,6 @@ export const updateOffersWorkflow: ReturnWorkflow<
             )
           })
 
-          // Newly created rows are those without a pre-existing link in
-          // the offer's prior `prices` list — but we don't have that
-          // here. Instead, since updatePriceSetsStep replace-semantics
-          // means the returned `prices` are exactly the offer's new set,
-          // any price for this offer that doesn't already have an
-          // offer-price link row is new. The list-link itself is the
-          // source of truth: we'll create one link per matched Price
-          // and rely on `createLinksWorkflow`'s idempotent
-          // create-or-skip behavior to no-op on already-linked rows.
           for (const price of matchingPrices) {
             links.push({
               [MercurModules.OFFER]: { offer_id: owner.offer_id },

@@ -1,12 +1,5 @@
 import { z } from "zod"
 
-/**
- * 1:1 ports of the admin validators at
- * `medusa/packages/medusa/src/api/admin/order-edits/validators.ts`.
- * Kept identical so the typed-client route map shares input shapes
- * with `/admin/order-edits`.
- */
-
 export type VendorPostOrderEditsReqType = z.infer<
   typeof VendorPostOrderEditsReq
 >

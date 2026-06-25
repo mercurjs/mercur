@@ -44,7 +44,6 @@ export const VendorGetProductAttributesParams = createFindParams({
   .merge(VendorProductAttributesParamsFields)
   .merge(applyAndAndOrOperators(VendorProductAttributesParamsFields))
 
-// Create / Update
 export type VendorCreateProductAttributeType = z.infer<
   typeof CreateProductAttribute
 > &
@@ -83,7 +82,6 @@ const UpdateProductAttribute = z.object({
 export const VendorUpdateProductAttribute =
   WithAdditionalData(UpdateProductAttribute)
 
-// Value validators
 export type VendorCreateProductAttributeValueType = z.infer<
   typeof CreateProductAttributeValue
 > &

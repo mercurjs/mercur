@@ -42,9 +42,6 @@ export const applyRequestFilter = async (
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Scope every lookup to orders the calling seller owns. Otherwise we
-  // scan every open order_change/return/exchange/claim row in the
-  // marketplace and only filter by seller after the join.
   const { data: sellerLinks } = await query.graph({
     entity: "order_seller",
     fields: ["order_id"],

@@ -2,6 +2,7 @@ import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(50000)
 
@@ -18,33 +19,12 @@ medusaIntegrationTestRunner({
                 const tag = `t${idx}${Date.now()}`
                 const ean = `${tag}`.padEnd(13, "0").slice(0, 13)
                 const upc = `${tag}`.padEnd(12, "0").slice(0, 12)
-                const product = await api.post(
-                    `/vendor/products`,
-                    {
-                        title: `Test Product ${tag}`,
-                        variant_attributes: [
-                            {
-                                name: `Default ${tag}`,
-                                type: "multi_select",
-                                values: ["Default"],
-                                is_variant_axis: true,
-                            },
-                        ],
-                        variants: [
-                            {
-                                title: "Default",
-                                attribute_values: {
-                                    [`Default ${tag}`]: "Default",
-                                },
-                                ean,
-                                upc,
-                            },
-                        ],
-                    },
-                    headers
-                )
+                const product = await createVendorProduct(api, headers, {
+                    title: `Test Product ${tag}`,
+                    variants: [{ title: "Default", ean, upc }],
+                })
 
-                const variant = product.data.product.variants[0]
+                const variant = product.variants[0]
 
                 const shippingProfile = await api.post(
                     `/vendor/shipping-profiles`,
@@ -54,7 +34,7 @@ medusaIntegrationTestRunner({
 
                 return {
                     variant_id: variant.id,
-                    product_id: product.data.product.id,
+                    product_id: product.id,
                     shipping_profile_id:
                         shippingProfile.data.shipping_profile.id,
                     ean,

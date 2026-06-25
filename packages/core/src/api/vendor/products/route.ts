@@ -8,7 +8,7 @@ import { HttpTypes } from "@mercurjs/types"
 
 import {
   createProductsWorkflow,
-  type CreateProductWorkflowInput,
+  type CreateProductsWorkflowInput,
 } from "../../../workflows/product/workflows/create-products"
 import {
   enrichProductAttributes,
@@ -22,10 +22,6 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  // Offers are a per-seller overlay on the shared Offer ↔ Variant link;
-  // strip the requested `variants.offers.*` fields before the graph read
-  // and re-attach the active seller's offers afterwards so a competitor's
-  // offers on a master variant never leak (Medusa's strip-then-wrap flow).
   const withOffers = req.queryConfig.fields.some((field) =>
     field.includes("variants.offers")
   )
@@ -60,15 +56,6 @@ export const GET = async (
   })
 }
 
-/**
- * Vendor product submission. The Mercur wrapper around stock
- * `createProductsWorkflow` records a single immediately-confirmed
- * `ProductChange` per created product with a `STATUS_CHANGE` action
- * pinned to the initial status — that's the audit trail for the
- * submission. The actual publish-approval lifecycle lives on
- * `/admin/products/:id/{confirm,reject,request-changes}`, which open
- * their own confirmed audit changes against the same product.
- */
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorCreateProductType & AdditionalData>,
   res: MedusaResponse<HttpTypes.VendorProductResponse>
@@ -78,15 +65,15 @@ export const POST = async (
 
   const { additional_data, ...payload } = req.validatedBody
 
+  const productInput = {
+    ...payload,
+    status: payload.status ?? ProductStatus.PROPOSED,
+  } as unknown as CreateProductsWorkflowInput["products"][number]
+
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
-      products: [
-        {
-          ...payload,
-          status: payload.status ?? ProductStatus.PROPOSED,
-        } as CreateProductWorkflowInput,
-      ],
-      seller_ids: [sellerId],
+      products: [productInput],
+      created_by: sellerId,
       additional_data,
     },
   })

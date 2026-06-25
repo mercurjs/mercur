@@ -149,7 +149,9 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
 
     await mutateAsync(
       {
-        images: withUpdatedUrls.map((file) => ({ url: file.url, id: file.id })),
+        images: withUpdatedUrls.map((file) =>
+          file.file ? { url: file.url } : { url: file.url, id: file.id },
+        ),
         thumbnail: thumbnail || null,
       },
       {

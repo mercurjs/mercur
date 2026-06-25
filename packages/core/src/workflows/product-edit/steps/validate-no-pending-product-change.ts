@@ -12,12 +12,6 @@ type ValidateNoPendingProductChangeStepInput = {
   product_ids: string[]
 }
 
-/**
- * Enforces "one pending change per product". Filters the
- * `product_change` entity by `product_id` (denormalised column on the
- * change row) and `status = PENDING`. Throws if any input product
- * already has a pending change.
- */
 export const validateNoPendingProductChangeStep = createStep(
   validateNoPendingProductChangeStepId,
   async (
@@ -54,7 +48,7 @@ export const validateNoPendingProductChangeStep = createStep(
     if (conflicts.size) {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
-        `Product(s) [${[...conflicts].join(", ")}] already have a pending product change. Resolve it before opening a new one.`,
+        `Product(s) [${[...conflicts].join(", ")}] already have a pending product change.`,
       )
     }
 

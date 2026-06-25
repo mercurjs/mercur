@@ -1,5 +1,9 @@
 import { ClientError, InferClientInput, InferClientOutput } from "@mercurjs/client";
-import { HttpTypes, ProductChangeDTO } from "@mercurjs/types";
+import {
+  HttpTypes,
+  ProductAttributeBatchInput,
+  ProductChangeDTO,
+} from "@mercurjs/types";
 import {
   QueryKey,
   useMutation,
@@ -103,6 +107,31 @@ export const useUpdateProduct = (
   return useMutation({
     mutationFn: (payload) =>
       sdk.admin.products.$id.mutate({ $id: id, ...payload }),
+    onSuccess: async (data, variables, context) => {
+      await queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.lists(),
+      });
+      await queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(id),
+      });
+
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+export const useLinkProductSellers = (
+  id: string,
+  options?: UseMutationOptions<
+    InferClientOutput<typeof sdk.admin.products.$id.sellers.mutate>,
+    ClientError,
+    { add?: string[]; remove?: string[] }
+  >,
+) => {
+  return useMutation({
+    mutationFn: (payload) =>
+      sdk.admin.products.$id.sellers.mutate({ $id: id, ...payload }),
     onSuccess: async (data, variables, context) => {
       await queryClient.invalidateQueries({
         queryKey: productsQueryKeys.lists(),
@@ -448,127 +477,31 @@ export const useDeleteVariantLazy = (
   });
 };
 
-// --- Product attribute sub-resource ---
+// --- Product attribute sub-resource (SPEC-014: the batch endpoint is the
+//     single attribute-mutation surface; add/edit/delete all go through it) ---
 
 const PRODUCT_ATTRIBUTES_QUERY_KEY = "product_product_attributes" as const;
 export const scopedProductAttributesQueryKeys = queryKeysFactory(
   PRODUCT_ATTRIBUTES_QUERY_KEY,
 );
 
-export const useProductScopedAttributes = (
-  productId: string,
-  query?: Record<string, any>,
-  options?: Omit<
-    UseQueryOptions<any, ClientError, any, QueryKey>,
-    "queryFn" | "queryKey"
-  >,
-) => {
-  const { data, ...rest } = useQuery({
-    queryFn: () =>
-      sdk.admin.products.$id.attributes.query({ $id: productId, ...query }),
-    queryKey: scopedProductAttributesQueryKeys.list({ productId, ...query }),
-    ...options,
-  });
+/** The batch body minus `product_id` (sourced from the path). */
+export type ProductAttributeBatchPayload = Omit<
+  ProductAttributeBatchInput,
+  "product_id"
+>;
 
-  return { ...data, ...rest };
-};
-
-export const useAddAttributeToProduct = (
-  productId: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminProductAttributeResponse,
-    ClientError,
-    Record<string, any>
-  >,
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.products.$id.attributes.mutate({ $id: productId, ...payload }),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: scopedProductAttributesQueryKeys.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      });
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-export const useUpdateAttributeOnProduct = (
-  productId: string,
-  attributeId: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminProductAttributeResponse,
-    ClientError,
-    Record<string, any>
-  >,
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.admin.products.$id.attributes.$attributeId.mutate({
-        $id: productId,
-        $attributeId: attributeId,
-        ...payload,
-      }),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: scopedProductAttributesQueryKeys.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      });
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-export const useRemoveAttributeFromProduct = (
-  productId: string,
-  attributeId: string,
-  options?: UseMutationOptions<
-    HttpTypes.AdminProductAttributeDeleteResponse,
-    ClientError,
-    void
-  >,
-) => {
-  return useMutation({
-    mutationFn: () =>
-      sdk.admin.products.$id.attributes.$attributeId.delete({
-        $id: productId,
-        $attributeId: attributeId,
-      }),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({
-        queryKey: scopedProductAttributesQueryKeys.lists(),
-      });
-      queryClient.invalidateQueries({
-        queryKey: productsQueryKeys.detail(productId),
-      });
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};
-
-// --- Attribute batch mutations ---
-
+/**
+ * SPEC-014 §G: applies `add` / `remove` / `update` against
+ * `POST /admin/products/:id/attributes/batch` (order remove → add → update on
+ * the server). Returns the refreshed `{ product }`.
+ */
 export const useBatchProductAttributes = (
   productId: string,
   options?: UseMutationOptions<
-    any,
+    HttpTypes.AdminProductResponse,
     ClientError,
-    {
-      create?: {
-        attribute_id: string;
-        attribute_value_ids?: string[];
-        values?: string[];
-      }[];
-      delete?: string[];
-    }
+    ProductAttributeBatchPayload
   >,
 ) => {
   return useMutation({
@@ -576,7 +509,34 @@ export const useBatchProductAttributes = (
       sdk.admin.products.$id.attributes.batch.mutate({
         $id: productId,
         ...payload,
-      }),
+      }) as Promise<HttpTypes.AdminProductResponse>,
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({
+        queryKey: scopedProductAttributesQueryKeys.lists(),
+      });
+      queryClient.invalidateQueries({
+        queryKey: productsQueryKeys.detail(productId),
+      });
+      options?.onSuccess?.(data, variables, context);
+    },
+    ...options,
+  });
+};
+
+/**
+ * Convenience wrapper to detach a single attribute (batch `remove`).
+ */
+export const useRemoveAttributeFromProduct = (
+  productId: string,
+  attributeId: string,
+  options?: UseMutationOptions<HttpTypes.AdminProductResponse, ClientError, void>,
+) => {
+  return useMutation({
+    mutationFn: () =>
+      sdk.admin.products.$id.attributes.batch.mutate({
+        $id: productId,
+        remove: [attributeId],
+      }) as Promise<HttpTypes.AdminProductResponse>,
     onSuccess: (data, variables, context) => {
       queryClient.invalidateQueries({
         queryKey: scopedProductAttributesQueryKeys.lists(),

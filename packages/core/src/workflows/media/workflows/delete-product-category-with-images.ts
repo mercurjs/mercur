@@ -13,10 +13,6 @@ export type DeleteProductCategoryWithImagesWorkflowInput = {
 export const deleteProductCategoryWithImagesWorkflowId =
   "mercur-delete-product-category-with-images"
 
-/**
- * Removes a category's linked images, then deletes the category. The delete
- * is sequenced after image cleanup (via a data dependency) so no links dangle.
- */
 export const deleteProductCategoryWithImagesWorkflow = createWorkflow(
   deleteProductCategoryWithImagesWorkflowId,
   (input: DeleteProductCategoryWithImagesWorkflowInput) => {
@@ -28,7 +24,6 @@ export const deleteProductCategoryWithImagesWorkflow = createWorkflow(
       },
     })
 
-    // Depend on `cleared` so image removal completes before the category is gone.
     const ids = transform({ input, cleared }, ({ input }) => [input.id])
 
     deleteProductCategoriesWorkflow.runAsStep({

@@ -1,4 +1,3 @@
-// Port of admin's `/admin/reservations/[id]` route to the vendor surface.
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,

@@ -17,13 +17,6 @@ import type {
   TaxCalculationContext,
 } from "@medusajs/framework/types"
 
-/**
- * Field set pulled for each offer attached by
- * `wrapProductVariantsWithOffers`. Carries the offer identity + seller +
- * shipping profile + price ladder + inventory-item links (with per-location
- * stock). `seller.*` lets the admin (platform-wide) Store column resolve;
- * it is harmless for the seller-scoped vendor reads.
- */
 const OFFER_WRAP_FIELDS = [
   "id",
   "seller_id",
@@ -60,18 +53,8 @@ type WrappableProduct = { variants?: WrappableVariant[] | null }
 type OfferRow = { variant_id: string }
 
 /**
- * Attaches offers under each variant of the given products, in place
- * (`variant.offers = [...]`). The `offer ↔ variant` link is shared across
- * sellers, so a raw graph traversal would surface every seller's offers on
- * a master variant — this fetches them with one bounded query over the
- * page's variant ids and keys them onto the matching variants. Mirrors
- * Medusa's `wrapProductsWithTaxPrices` post-query enrichment pattern.
- *
- * Pass `sellerId` to scope the attach to a single seller (the vendor
- * Offers surface, where a competitor's offers must never leak). Omit it
- * for the platform-wide admin surface, which attaches **every** seller's
- * offers (each carrying `offer.seller`). Variants with no offer get
- * `offers: []`.
+ * The `offer ↔ variant` link is shared across sellers, so a raw graph
+ * traversal would surface every seller's offers on a master variant.
  */
 export const wrapProductVariantsWithOffers = async (
   scope: MedusaContainer,
@@ -118,23 +101,6 @@ type OfferAwareRequest = AuthenticatedMedusaRequest & {
   seller_context?: { seller_id?: string }
 }
 
-/**
- * Scopes a product list to products carrying at least one offer, when
- * `?has_offer=true`. Shared by the vendor and admin Offers lists, which
- * back their product-grained rows with the product endpoint:
- *
- * - **Vendor** — `req.seller_context.seller_id` is always set, so the scope
- *   is the active seller's offered products (a competitor's offered product
- *   never appears).
- * - **Admin** — no seller context; the optional `seller_id` query param is
- *   the Offers **Store** filter (consumed here so it scopes the offer's
- *   store, not product ownership). Absent it, the scope is every offered
- *   product across the marketplace.
- *
- * Either way it resolves the offered variant ids and constrains the product
- * query to products carrying one of them. The `has_offer` pseudo-filter is
- * consumed and removed so it never reaches the product graph read.
- */
 export const applyOfferedProductsFilter = async (
   req: OfferAwareRequest,
   _res: MedusaResponse,
@@ -148,8 +114,6 @@ export const applyOfferedProductsFilter = async (
     return next()
   }
 
-  // Vendor: the active seller. Admin: the optional store filter (consumed
-  // here so `seller_id` scopes the offer's store, not product ownership).
   const contextSellerId = req.seller_context?.seller_id
   const sellerId =
     contextSellerId ?? (req.filterableFields.seller_id as string | string[] | undefined)
@@ -176,7 +140,6 @@ export const applyOfferedProductsFilter = async (
   const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
   req.filterableFields.$and = [
     ...existingAnd,
-    // No offers → match nothing (empty list) rather than the whole catalogue.
     { variants: { id: variantIds.length ? variantIds : ["__none__"] } },
   ]
 

@@ -13,9 +13,6 @@ type RegisterUsageStepInput = {
   registrationContext: CampaignBudgetUsageContext
 }
 
-/**
- * This step registers usage for a promotion.
- */
 export const registerUsageStep = createStep(
   registerUsageStepId,
   async (data: RegisterUsageStepInput, { container }) => {

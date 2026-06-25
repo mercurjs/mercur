@@ -9,6 +9,7 @@ import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
+import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(120000)
 
@@ -97,31 +98,11 @@ medusaIntegrationTestRunner({
                 })
 
                 // Create product for seller 1
-                const product1Response = await api.post(
-                    `/vendor/products`,
-                    {
-                        status: 'published',
-                        title: "Seller 1 Product",
-                        description: "Product from seller 1",
-                        variant_attributes: [
-                            {
-                                name: "Size",
-                                type: "multi_select",
-                                is_variant_axis: true,
-                                values: ["S", "M"],
-                            },
-                        ],
-                        variants: [
-                            {
-                                title: "Small",
-                                sku: "SELLER1-S",
-                                attribute_values: { Size: "S" },
-                            },
-                        ],
-                    },
-                    seller1Headers
-                )
-                product1 = product1Response.data.product
+                product1 = await createVendorProduct(api, seller1Headers, {
+                    title: "Seller 1 Product",
+                    sku: "SELLER1-S",
+                    variantTitle: "Small",
+                })
                 await api.post(
                     `/vendor/sales-channels/${salesChannel.id}/products`,
                     { add: [product1.id] },
@@ -129,31 +110,11 @@ medusaIntegrationTestRunner({
                 )
 
                 // Create product for seller 2
-                const product2Response = await api.post(
-                    `/vendor/products`,
-                    {
-                        status: 'published',
-                        title: "Seller 2 Product",
-                        description: "Product from seller 2",
-                        variant_attributes: [
-                            {
-                                name: "Color",
-                                type: "multi_select",
-                                is_variant_axis: true,
-                                values: ["Red", "Blue"],
-                            },
-                        ],
-                        variants: [
-                            {
-                                title: "Red",
-                                sku: "SELLER2-RED",
-                                attribute_values: { Color: "Red" },
-                            },
-                        ],
-                    },
-                    seller2Headers
-                )
-                product2 = product2Response.data.product
+                product2 = await createVendorProduct(api, seller2Headers, {
+                    title: "Seller 2 Product",
+                    sku: "SELLER2-RED",
+                    variantTitle: "Red",
+                })
                 await api.post(
                     `/vendor/sales-channels/${salesChannel.id}/products`,
                     { add: [product2.id] },

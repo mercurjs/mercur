@@ -3,12 +3,18 @@ import {
   createHook,
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
 import {
+  emitEventStep,
+  updateProductOptionsStep,
+  useQueryGraphStep,
+} from "@medusajs/medusa/core-flows"
+import {
+  AttributeType,
   CreateProductAttributeValueDTO,
   ProductAttributeValueDTO,
 } from "@mercurjs/types"
@@ -16,7 +22,6 @@ import {
 import { ProductAttributeValueWorkflowEvents } from "../events"
 import {
   createProductAttributeValuesStep,
-  validateAttributeAcceptsValuesStep,
 } from "../steps"
 
 export type CreateProductAttributeValuesWorkflowInput = {
@@ -52,10 +57,65 @@ export const createProductAttributeValuesWorkflow: ReturnWorkflow<
   function (input: CreateProductAttributeValuesWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    validateAttributeAcceptsValuesStep({ attribute_id: input.attribute_id })
+    const attributeQuery = useQueryGraphStep({
+      entity: "product_attribute",
+      filters: { id: input.attribute_id },
+      fields: [
+        "id",
+        "name",
+        "type",
+        "is_variant_axis",
+        "product_option_id",
+        "values.name",
+      ],
+      options: { isList: false },
+    })
 
-    const valueInputs = transform({ input }, ({ input }) =>
-      input.values.map((v) => ({ ...v, attribute_id: input.attribute_id })),
+    const mirroredOption = when(
+      { attributeQuery },
+      ({ attributeQuery }) => {
+        const attribute = attributeQuery.data
+        return (
+          attribute?.type === AttributeType.MULTI_SELECT &&
+          !!attribute?.is_variant_axis &&
+          !!attribute?.product_option_id
+        )
+      },
+    ).then(() => {
+      const optionUpdate = transform(
+        { attributeQuery, input },
+        ({ attributeQuery, input }) => {
+          const attribute = attributeQuery.data
+          const existing = (attribute.values ?? []).map(
+            (v: { name: string }) => v.name,
+          )
+          const incoming = input.values.map((v) => v.name)
+          return {
+            selector: { id: attribute.product_option_id },
+            update: { values: Array.from(new Set([...existing, ...incoming])) },
+          }
+        },
+      )
+
+      return updateProductOptionsStep(optionUpdate)
+    })
+
+    const valueInputs = transform(
+      { input, mirroredOption },
+      ({ input, mirroredOption }) => {
+        const option = mirroredOption?.[0]
+        const idByValue = new Map<string, string>(
+          (option?.values ?? []).map((ov: { id: string; value: string }) => [
+            ov.value,
+            ov.id,
+          ]),
+        )
+        return input.values.map((v) => ({
+          ...v,
+          attribute_id: input.attribute_id,
+          product_option_value_id: idByValue.get(v.name) ?? null,
+        }))
+      },
     )
 
     const values = createProductAttributeValuesStep(valueInputs)

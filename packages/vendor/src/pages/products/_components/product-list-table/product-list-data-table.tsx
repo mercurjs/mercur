@@ -69,7 +69,7 @@ export const ProductListDataTable = () => {
           label: t("fields.updatedAt"),
         },
       ]}
-      defaultOrderBy="title"
+      defaultOrderBy="-created_at"
       noRecords={{
         icon: <Tag className="text-ui-fg-subtle" />,
         title: t("products.list.noRecordsTitle"),

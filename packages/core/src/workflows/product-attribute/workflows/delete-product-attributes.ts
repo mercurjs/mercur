@@ -3,14 +3,22 @@ import {
   createHook,
   createWorkflow,
   transform,
+  when,
   WorkflowResponse,
   type Hook,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import {
+  deleteProductOptionsStep,
+  emitEventStep,
+  useQueryGraphStep,
+} from "@medusajs/medusa/core-flows"
 
 import { ProductAttributeWorkflowEvents } from "../events"
-import { deleteProductAttributesStep } from "../steps"
+import {
+  deleteProductAttributesStep,
+  validateProductAttributesNotLinkedStep,
+} from "../steps"
 
 export type DeleteProductAttributesWorkflowInput = {
   ids: string[]
@@ -30,13 +38,7 @@ export type DeleteProductAttributesWorkflowHooks = [
 
 export const deleteProductAttributesWorkflowId = "delete-product-attributes"
 
-/**
- * Soft-deletes attributes. Link rows in `product_attribute_value_link`,
- * `product_variant_attribute`, etc. are intentionally NOT dismissed here
- * — they reference values, not the attribute itself, and Mercur's
- * read-side query filters out soft-deleted attributes via
- * `deleted_at IS NULL` on the attribute join.
- */
+
 export const deleteProductAttributesWorkflow: ReturnWorkflow<
   DeleteProductAttributesWorkflowInput,
   void,
@@ -46,7 +48,28 @@ export const deleteProductAttributesWorkflow: ReturnWorkflow<
   function (input: DeleteProductAttributesWorkflowInput) {
     const validate = createHook("validate", { input })
 
+    validateProductAttributesNotLinkedStep(input.ids)
+
+    const attributesQuery = useQueryGraphStep({
+      entity: "product_attribute",
+      filters: { id: input.ids },
+      fields: ["id", "product_option_id"],
+    })
+
     deleteProductAttributesStep(input.ids)
+
+    const optionIdsToDelete = transform(
+      { attributesQuery },
+      ({ attributesQuery }) =>
+        (attributesQuery.data ?? [])
+          .map((a: { product_option_id: string | null }) => a.product_option_id)
+          .filter((id: string | null): id is string => !!id),
+    )
+
+    when(
+      { optionIdsToDelete },
+      ({ optionIdsToDelete }) => optionIdsToDelete.length > 0,
+    ).then(() => deleteProductOptionsStep(optionIdsToDelete))
 
     emitEventStep({
       eventName: ProductAttributeWorkflowEvents.DELETED,
