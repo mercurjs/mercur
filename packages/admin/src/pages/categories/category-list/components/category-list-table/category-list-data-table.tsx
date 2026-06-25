@@ -19,7 +19,7 @@ export const CategoryListDataTable = () => {
   const { raw, searchParams } = useCategoryTableQuery({ pageSize: PAGE_SIZE })
 
   const imageFields =
-    "images.id,images.url,images.type,images.is_thumbnail,images.is_banner"
+    "media_images.id,media_images.url,media_images.type,media_images.is_thumbnail,media_images.is_banner"
 
   const query = raw.q
     ? {
