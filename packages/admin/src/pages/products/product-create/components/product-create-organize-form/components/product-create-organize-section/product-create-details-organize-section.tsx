@@ -1,4 +1,5 @@
 import { Heading } from "@medusajs/ui"
+import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "../../../../../../../components/common/form"
@@ -54,7 +55,10 @@ export const ProductCreateOrganizationSection = () => {
       })),
   })
 
-  const isGloballyAvailable = form.watch("globally_available")
+  const isGloballyAvailable = useWatch({
+    control: form.control,
+    name: "globally_available",
+  })
 
   return (
     <div id="organize" className="flex flex-col gap-y-8" data-testid="product-create-organize-section">
