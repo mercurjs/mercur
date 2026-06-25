@@ -73,7 +73,7 @@ export const POST = async (
   const { result } = await createProductsWorkflow(req.scope).run({
     input: {
       products: [productInput],
-      seller_ids: [sellerId],
+      created_by: sellerId,
       additional_data,
     },
   })

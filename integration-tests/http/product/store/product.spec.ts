@@ -5,6 +5,7 @@ import {
     MedusaContainer,
 } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { MercurModules } from "@mercurjs/types"
 import {
     adminHeaders,
     createAdminUser,
@@ -84,6 +85,10 @@ medusaIntegrationTestRunner({
                 )
             })
 
+            // Products are master records: creation no longer links a seller.
+            // A product only appears in the store when it is assigned to a
+            // seller via the `product_seller` restriction link, so the test
+            // assigns each created product to the seller whose headers made it.
             const createProduct = async (
                 headers: any,
                 overrides: Record<string, any> = {}
@@ -97,7 +102,21 @@ medusaIntegrationTestRunner({
                     },
                     headers
                 )
-                return response.data.product
+                const product = response.data.product
+
+                const seller =
+                    headers === suspendedSellerHeaders
+                        ? suspendedSeller
+                        : approvedSeller
+                const link = appContainer.resolve(
+                    ContainerRegistrationKeys.LINK
+                )
+                await link.create({
+                    [Modules.PRODUCT]: { product_id: product.id },
+                    [MercurModules.SELLER]: { seller_id: seller.id },
+                })
+
+                return product
             }
 
             describe("GET /store/products", () => {
@@ -340,18 +359,11 @@ medusaIntegrationTestRunner({
                 it("surfaces linked attributes on product.attributes", async () => {
                     const product = await createProduct(approvedSellerHeaders, {
                         title: "Product with attribute",
-                        variant_attributes: [
+                        attributes: [
                             {
-                                name: "Size",
+                                title: "Size",
                                 type: "multi_select",
-                                is_variant_axis: true,
                                 values: ["M"],
-                            },
-                        ],
-                        variants: [
-                            {
-                                title: "M",
-                                attribute_values: { Size: "M" },
                             },
                         ],
                     })

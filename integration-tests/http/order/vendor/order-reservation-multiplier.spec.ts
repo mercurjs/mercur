@@ -8,6 +8,7 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
+import { createVendorProduct } from "../../../helpers/create-product"
 import {
     generatePublishableKey,
     generateStoreHeaders,
@@ -158,33 +159,10 @@ medusaIntegrationTestRunner({
                     )
                 ).data.shipping_option
 
-                const product = (
-                    await api.post(
-                        `/vendor/products`,
-                        {
-                            status: "published",
-                            title: `Prod${tag}`,
-                            variant_attributes: [
-                                {
-                                    name: `Default${tag}`,
-                                    type: "multi_select",
-                                    values: ["Default"],
-                                    is_variant_axis: true,
-                                },
-                            ],
-                            variants: [
-                                {
-                                    title: "Default",
-                                    sku: `V${tag}`,
-                                    attribute_values: {
-                                        [`Default${tag}`]: "Default",
-                                    },
-                                },
-                            ],
-                        },
-                        headers
-                    )
-                ).data.product
+                const product = await createVendorProduct(api, headers, {
+                    title: `Prod${tag}`,
+                    sku: `V${tag}`,
+                })
 
                 await api.post(
                     `/vendor/sales-channels/${salesChannel.id}/products`,
@@ -482,33 +460,14 @@ medusaIntegrationTestRunner({
                     // re-seed inside `standardSeed`'s seller scope instead
                     // by posting a second offer under those headers.
                     const multTag = `MultB_${Date.now()}_${++prerequisiteCounter}`
-                    const multProduct = (
-                        await api.post(
-                            `/vendor/products`,
-                            {
-                                status: "published",
-                                title: `Prod${multTag}`,
-                                variant_attributes: [
-                                    {
-                                        name: `Default${multTag}`,
-                                        type: "multi_select",
-                                        values: ["Default"],
-                                        is_variant_axis: true,
-                                    },
-                                ],
-                                variants: [
-                                    {
-                                        title: "Default",
-                                        sku: `V${multTag}`,
-                                        attribute_values: {
-                                            [`Default${multTag}`]: "Default",
-                                        },
-                                    },
-                                ],
-                            },
-                            standardSeed.headers
-                        )
-                    ).data.product
+                    const multProduct = await createVendorProduct(
+                        api,
+                        standardSeed.headers,
+                        {
+                            title: `Prod${multTag}`,
+                            sku: `V${multTag}`,
+                        }
+                    )
                     await api.post(
                         `/vendor/sales-channels/${salesChannel.id}/products`,
                         { add: [multProduct.id] },

@@ -11,6 +11,7 @@ import {
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
+import { createVendorProduct } from "../../../helpers/create-product"
 import {
     generatePublishableKey,
     generateStoreHeaders,
@@ -131,33 +132,10 @@ medusaIntegrationTestRunner({
                     headers
                 )
 
-                const product = (
-                    await api.post(
-                        `/vendor/products`,
-                        {
-                            status: "published",
-                            title: `Prod${uniqueSuffix}`,
-                            variant_attributes: [
-                                {
-                                    name: `Default${uniqueSuffix}`,
-                                    type: "multi_select",
-                                    values: ["Default"],
-                                    is_variant_axis: true,
-                                },
-                            ],
-                            variants: [
-                                {
-                                    title: "Default",
-                                    sku: `V${uniqueSuffix}`,
-                                    attribute_values: {
-                                        [`Default${uniqueSuffix}`]: "Default",
-                                    },
-                                },
-                            ],
-                        },
-                        headers
-                    )
-                ).data.product
+                const product = await createVendorProduct(api, headers, {
+                    title: `Prod${uniqueSuffix}`,
+                    sku: `V${uniqueSuffix}`,
+                })
 
                 await api.post(
                     `/vendor/sales-channels/${salesChannel.id}/products`,

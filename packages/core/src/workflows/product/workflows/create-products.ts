@@ -34,8 +34,8 @@ import { ProductWorkflowEvents } from "../events"
 
 
 export type CreateProductsWorkflowInput = {
-  products: CreateProductDTO[]
-  seller_ids?: string[]
+  products: (CreateProductDTO & { seller_ids?: string[] })[]
+  created_by: string
 } & AdditionalData
 
 export const createProductsWorkflowId = "mercur-create-products"
@@ -73,13 +73,22 @@ export const createProductsWorkflow: ReturnWorkflow<
       filters: { id: referencedAttrIds },
     }).config({ name: "mercur-create-products-axis-attrs" })
 
-    // Stock create hard-requires ≥1 option.
+    // Stock create hard-requires ≥1 option, but a product's real axis option is
+    // only attached after the row exists. So every product is born with this
+    // internal placeholder, which `defaultOptionRemovals` strips once a real
+    // option is present (axis products) and which is kept for genuinely
+    // axis-less products.
     const stockProducts = transform({ input }, ({ input }) =>
       input.products.map((p) => {
-        const { attributes: _attributes, variants: _variants, ...rest } = p
+        const {
+          attributes: _attributes,
+          variants: _variants,
+          seller_ids: _seller_ids,
+          ...rest
+        } = p
         return {
           ...rest,
-          options: [{ title: "Default option", values: ["Default value"] }],
+          options: [{ title: "__default__", values: ["__default__"] }],
         }
       }),
     )
@@ -151,7 +160,7 @@ export const createProductsWorkflow: ReturnWorkflow<
             return
           }
           const def = (p.options ?? []).find(
-            (o) => o.title === "Default option",
+            (o) => o.title === "__default__",
           )
           if (def) {
             pairs.push({ product_id: p.id, product_option_id: def.id })
@@ -174,11 +183,12 @@ export const createProductsWorkflow: ReturnWorkflow<
           const formOptions = (v: unknown) =>
             (v as { options?: Record<string, string> }).options ?? {}
           return (p.variants ?? []).map((v) => ({
+            manage_inventory: false,
             ...v,
             product_id,
             options: hasAxisByIndex[idx]
               ? formOptions(v)
-              : { "Default option": "Default value", ...formOptions(v) },
+              : { __default__: "__default__", ...formOptions(v) },
           }))
         }),
     )
@@ -202,7 +212,7 @@ export const createProductsWorkflow: ReturnWorkflow<
         const links: { product_id: string; seller_id: string }[] = []
         input.products.forEach((p, idx) => {
           const product_id = createdProducts[idx]?.id
-          for (const seller_id of input.seller_ids ?? []) {
+          for (const seller_id of p.seller_ids ?? []) {
             links.push({ product_id, seller_id })
           }
         })
@@ -218,13 +228,13 @@ export const createProductsWorkflow: ReturnWorkflow<
       input: transform(
         { createdProducts, input },
         ({ createdProducts, input }) => ({
-          actor_id: input.seller_ids?.[0],
+          actor_id: input.created_by,
           changes: createdProducts.map((product) => ({
             product_id: product.id as string,
             actions: [
               {
                 product_id: product.id as string,
-                action: ProductChangeActionType.STATUS_CHANGE,
+                action: ProductChangeActionType.PRODUCT_ADD,
                 details: { status: product.status as string },
               },
             ],

@@ -10,6 +10,7 @@ import {
 } from "@medusajs/framework/utils"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createVendorProduct } from "../../../helpers/create-product"
 import {
     generatePublishableKey,
     generateStoreHeaders,
@@ -87,33 +88,10 @@ medusaIntegrationTestRunner({
                 let productId = opts.productId
                 let variantId = opts.variantId
                 if (!productId || !variantId) {
-                    const product = (
-                        await api.post(
-                            `/vendor/products`,
-                            {
-                                status: "published",
-                                title: `${opts.name} Product ${tag}`,
-                                variant_attributes: [
-                                    {
-                                        name: `Default ${tag}`,
-                                        type: "multi_select",
-                                        values: ["Default"],
-                                        is_variant_axis: true,
-                                    },
-                                ],
-                                variants: [
-                                    {
-                                        title: "Default",
-                                        sku: `${opts.email}-V-SKU-${tag}`,
-                                        attribute_values: {
-                                            [`Default ${tag}`]: "Default",
-                                        },
-                                    },
-                                ],
-                            },
-                            headers
-                        )
-                    ).data.product
+                    const product = await createVendorProduct(api, headers, {
+                        title: `${opts.name} Product ${tag}`,
+                        sku: `${opts.email}-V-SKU-${tag}`,
+                    })
 
                     await api.post(
                         `/vendor/sales-channels/${salesChannel.id}/products`,

@@ -707,7 +707,8 @@
         "label": "Collection"
       },
       "stores": {
-        "label": "Stores"
+        "label": "Restricted to stores",
+        "hint": "Leave empty to make this product available in all stores. Select stores to restrict it to only those."
       },
       "categories": {
         "label": "Categories"

@@ -5,9 +5,12 @@ import {
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { ProductStatus } from "@mercurjs/types"
 
+import {
+  getProductIdsRestrictedFromSeller,
+  getSellerOwnedProductIds,
+} from "../products/helpers"
 import { vendorProductVariantsQueryConfig } from "./query-config"
 import { VendorGetProductVariantsParams } from "./validators"
 
@@ -17,17 +20,11 @@ const applySellerProductVariantFilter = async (
   next: MedusaNextFunction
 ) => {
   const sellerId = req.seller_context!.seller_id
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { data: links } = await query.graph({
-    entity: "product_seller",
-    fields: ["product_id"],
-    filters: { seller_id: sellerId },
-  })
-
-  const sellerProductIds = links
-    .map((link: { product_id: string | null }) => link.product_id)
-    .filter((id: string | null): id is string => Boolean(id))
+  const [ownProductIds, restrictedFromSellerIds] = await Promise.all([
+    getSellerOwnedProductIds(req.scope, sellerId),
+    getProductIdsRestrictedFromSeller(req.scope, sellerId),
+  ])
 
   req.filterableFields ??= {}
   const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
@@ -35,8 +32,11 @@ const applySellerProductVariantFilter = async (
     ...existingAnd,
     {
       $or: [
-        { product: { status: ProductStatus.PUBLISHED } },
-        { product_id: sellerProductIds },
+        { product_id: ownProductIds },
+        {
+          product: { status: ProductStatus.PUBLISHED },
+          product_id: { $nin: restrictedFromSellerIds },
+        },
       ],
     },
   ]

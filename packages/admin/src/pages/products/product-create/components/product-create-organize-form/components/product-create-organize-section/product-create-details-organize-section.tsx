@@ -182,6 +182,9 @@ export const ProductCreateOrganizationSection = () => {
                     data-testid="product-create-organize-section-stores-input"
                   />
                 </Form.Control>
+                <Form.Hint data-testid="product-create-organize-section-stores-hint">
+                  {t("products.fields.stores.hint")}
+                </Form.Hint>
                 <Form.ErrorMessage />
               </Form.Item>
             )

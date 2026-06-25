@@ -36,11 +36,7 @@ export const POST = async (
   }
 
   const productIds = [...(add ?? []), ...(remove ?? [])]
-  await Promise.all(
-    productIds.map((productId) =>
-      ensureSellerOwnsProduct(req.scope, sellerId, productId)
-    )
-  )
+  await ensureSellerOwnsProduct(req.scope, sellerId, productIds)
 
   await batchLinkProductsToCategoryWorkflow(req.scope).run({
     input: {

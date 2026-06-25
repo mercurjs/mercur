@@ -8,6 +8,7 @@ import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
+import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(120000)
 
@@ -85,24 +86,10 @@ medusaIntegrationTestRunner({
                 // Create product for seller 1. Pricing + inventory live on the
                 // offer (see SPEC-002); link the product to the sales channel
                 // separately.
-                const product1Response = await api.post(
-                    `/vendor/products`,
-                    {
-                        status: 'published',
-                        title: "Returns Product 1",
-                        description: "Product from seller 1 for returns",
-                        options: [{ title: "Size", values: ["S", "M"] }],
-                        variants: [
-                            {
-                                title: "Small",
-                                sku: "RET-SELLER1-S",
-                                options: { Size: "S" },
-                            },
-                        ],
-                    },
-                    seller1Headers
-                )
-                product1 = product1Response.data.product
+                product1 = await createVendorProduct(api, seller1Headers, {
+                    title: "Returns Product 1",
+                    sku: "RET-SELLER1-S",
+                })
                 await api.post(
                     `/vendor/sales-channels/${salesChannel.id}/products`,
                     { add: [product1.id] },
@@ -110,24 +97,10 @@ medusaIntegrationTestRunner({
                 )
 
                 // Create product for seller 2
-                const product2Response = await api.post(
-                    `/vendor/products`,
-                    {
-                        status: 'published',
-                        title: "Returns Product 2",
-                        description: "Product from seller 2 for returns",
-                        options: [{ title: "Color", values: ["Red"] }],
-                        variants: [
-                            {
-                                title: "Red",
-                                sku: "RET-SELLER2-RED",
-                                options: { Color: "Red" },
-                            },
-                        ],
-                    },
-                    seller2Headers
-                )
-                product2 = product2Response.data.product
+                product2 = await createVendorProduct(api, seller2Headers, {
+                    title: "Returns Product 2",
+                    sku: "RET-SELLER2-RED",
+                })
                 await api.post(
                     `/vendor/sales-channels/${salesChannel.id}/products`,
                     { add: [product2.id] },
