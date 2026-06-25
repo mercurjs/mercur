@@ -1,9 +1,37 @@
+import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import type { MedusaContainer } from "@medusajs/framework/types"
+import { MercurModules } from "@mercurjs/types"
+
 type ApiClient = {
   post: (
     path: string,
     body: Record<string, unknown>,
     headers: unknown
   ) => Promise<{ data: { product: VendorProduct } }>
+}
+
+/**
+ * Master products are not auto-linked to their creating seller. Selling/visibility
+ * eligibility lives on the `product_seller` restriction link, so tests that need a
+ * product to be "assigned" to a seller (store visibility, category / sales-channel
+ * ownership checks) must create that link explicitly.
+ */
+export const assignProductsToSeller = async (
+  container: MedusaContainer,
+  sellerId: string,
+  productIds: string[]
+): Promise<void> => {
+  if (!productIds.length) {
+    return
+  }
+
+  const link = container.resolve(ContainerRegistrationKeys.LINK)
+  await link.create(
+    productIds.map((product_id) => ({
+      [Modules.PRODUCT]: { product_id },
+      [MercurModules.SELLER]: { seller_id: sellerId },
+    }))
+  )
 }
 
 type VendorProduct = {

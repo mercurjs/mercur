@@ -131,7 +131,7 @@ querying `product_change_action` where
 | Vendor | `GET /vendor/products`, `GET /vendor/product-variants` | own-created OR (published AND not restricted to other sellers) (rule 5) |
 | Vendor | `POST /vendor/products` | creates master product, `status=PROPOSED`, `created_by=seller`; no `product_seller` row |
 | Vendor | `POST /vendor/products/:id` (update), `/variants*`, `/attributes/batch` | request flow, **no ownership gate** (rule 2) |
-| Vendor | sales-channel / category `:id/products` | `ensureSellerOwnsProduct(s)` against `product_seller` (eligibility) |
+| Vendor | sales-channel / category `:id/products` | `ensureSellerOwnsProduct(s)`: product must be **assigned** (`product_seller`) **or created** by the seller |
 | Admin | `POST /admin/products` | `created_by = req.auth_context.actor_id`; per-product `seller_ids` set the eligibility allowlist |
 | Store | `GET /store/products[/:id]` | filtered by `product_seller.seller_id` of visible sellers |
 
@@ -174,6 +174,18 @@ type CreateProductsWorkflowInput = {
 - Run: `bun run test:integration:http -- product/vendor/product` → 7/7 passing
   (2026-06-25).
 
+Integration suites updated for the master-products model and passing (2026-06-25):
+- `product/vendor/product` 7/7, `product-categories/vendor` 10/10,
+  `sales-channels/vendor` 9/9, `returns/vendor` 18/18, `payouts/vendor` 3/3,
+  `customer/vendor` 8/8, `price-lists/vendor` 15/15,
+  `order/vendor/order-edit` 12/12, `product-edit/admin/product-publish-approval`
+  5/5.
+- `product/store/product` 13/14 (the one failure, `surfaces linked attributes`,
+  is the pre-existing attribute-surfacing issue, not master-products).
+- New shared helper `integration-tests/helpers/create-product.ts ::
+  assignProductsToSeller` creates the `product_seller` link where a test needs a
+  product assigned to a seller (store visibility).
+
 ## Notes / open items
 
 - **Store visibility of vendor-created products.** Because creation no longer
@@ -183,7 +195,13 @@ type CreateProductsWorkflowInput = {
   publish/approval time, or move store scoping onto the offer model. Tracked
   separately; `integration-tests/http/product/store/product.spec.ts` currently
   reflects the old behavior.
-- `ensureSellerOwnsProduct` / `ensureSellerOwnsProducts` still validate against
-  `product_seller` (eligibility) for the sales-channel and category assignment
-  routes. They are intentionally **not** wired to the creator-attribution
-  signal.
+- `ensureSellerOwnsProduct` / `ensureSellerOwnsProducts` (sales-channel and
+  category assignment routes) accept a product the seller is **assigned** to via
+  `product_seller` **or** **created** (`getSellerOwnedProductIds`). A seller can
+  organize products it created or is eligible for; it cannot organize another
+  seller's private product.
+- **Store visibility** is unchanged: `GET /store/products` lists products linked
+  to visible sellers via `product_seller`. A vendor-created product therefore
+  only appears in the storefront once it is assigned to a seller
+  (`product_seller`); integration tests assign it explicitly via the
+  `assignProductsToSeller` helper.

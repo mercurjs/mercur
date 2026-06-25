@@ -73,7 +73,11 @@ export const createProductsWorkflow: ReturnWorkflow<
       filters: { id: referencedAttrIds },
     }).config({ name: "mercur-create-products-axis-attrs" })
 
-    // Stock create hard-requires ≥1 option.
+    // Stock create hard-requires ≥1 option, but a product's real axis option is
+    // only attached after the row exists. So every product is born with this
+    // internal placeholder, which `defaultOptionRemovals` strips once a real
+    // option is present (axis products) and which is kept for genuinely
+    // axis-less products.
     const stockProducts = transform({ input }, ({ input }) =>
       input.products.map((p) => {
         const {
@@ -84,7 +88,7 @@ export const createProductsWorkflow: ReturnWorkflow<
         } = p
         return {
           ...rest,
-          options: [{ title: "Default option", values: ["Default value"] }],
+          options: [{ title: "__default__", values: ["__default__"] }],
         }
       }),
     )
@@ -156,7 +160,7 @@ export const createProductsWorkflow: ReturnWorkflow<
             return
           }
           const def = (p.options ?? []).find(
-            (o) => o.title === "Default option",
+            (o) => o.title === "__default__",
           )
           if (def) {
             pairs.push({ product_id: p.id, product_option_id: def.id })
@@ -184,7 +188,7 @@ export const createProductsWorkflow: ReturnWorkflow<
             product_id,
             options: hasAxisByIndex[idx]
               ? formOptions(v)
-              : { "Default option": "Default value", ...formOptions(v) },
+              : { __default__: "__default__", ...formOptions(v) },
           }))
         }),
     )

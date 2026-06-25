@@ -12,7 +12,20 @@ export const normalizeProductFormValues = (
     ?.filter((media) => !media.isThumbnail)
     .map((media) => ({ url: media.url }))
 
+  const hasAxis = (values.attributes ?? []).some(
+    (a) => a.use_for_variants && toValueArray(a.values).length > 0
+  )
+
   const attributes = normalizeFormAttributes(values.attributes ?? [])
+
+  if (!hasAxis) {
+    attributes.push({
+      title: "Default Option",
+      type: AttributeType.MULTI_SELECT,
+      values: ["Default"],
+      is_variant_axis: true,
+    })
+  }
 
   return {
     is_giftcard: false,
@@ -41,12 +54,14 @@ export const normalizeProductFormValues = (
     attributes: attributes.length ? attributes : undefined,
     variants: normalizeVariants(
       values.variants.filter((variant) => variant.should_create),
+      hasAxis,
     ),
   } as any
 }
 
 export const normalizeVariants = (
   variants: ProductCreateSchemaType["variants"],
+  hasAxis: boolean,
 ): any[] => {
   return variants.map((variant) => {
     const opts = variant.options
@@ -54,7 +69,7 @@ export const normalizeVariants = (
 
     return {
       title: variant.title || (hasOpts ? Object.values(opts).join(" / ") : "Default variant"),
-      options: hasOpts ? opts : undefined,
+      options: hasOpts ? opts : hasAxis ? undefined : { "Default Option": "Default" },
       sku: variant.sku || undefined,
       variant_rank: variant.variant_rank,
     }

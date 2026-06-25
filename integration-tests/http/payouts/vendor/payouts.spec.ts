@@ -11,6 +11,7 @@ import {
 } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
+import { createVendorProduct } from "../../../helpers/create-product"
 import { createPayoutAccountWorkflow, createPayoutWorkflow } from '@mercurjs/core/workflows'
 
 jest.setTimeout(120000)
@@ -80,24 +81,10 @@ medusaIntegrationTestRunner({
 
         // Create product with variant. Pricing + inventory live on the offer
         // (see SPEC-002); the product is linked to the sales channel separately.
-        const productResponse = await api.post(
-          `/vendor/products`,
-          {
-            status: "published",
-            title: "Payout Test Product",
-            description: "A test product for payout testing",
-            options: [{ title: "Size", values: ["S"] }],
-            variants: [
-              {
-                title: "Small",
-                sku: "PAYOUT-TEST-S",
-                options: { Size: "S" },
-              },
-            ],
-          },
-          sellerHeaders
-        )
-        product = productResponse.data.product
+        product = await createVendorProduct(api, sellerHeaders, {
+          title: "Payout Test Product",
+          sku: "PAYOUT-TEST-S",
+        })
         await api.post(
           `/vendor/sales-channels/${salesChannel.id}/products`,
           { add: [product.id] },

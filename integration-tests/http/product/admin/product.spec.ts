@@ -476,13 +476,13 @@ medusaIntegrationTestRunner({
         expect(toggleGrouped.all_values).toEqual([])
         // axis still produces the native option.
         expect(await optionAttached(productId, "Required Attribute")).toBe(true)
-        // ...and no placeholder "Default option" was seeded — the axis option is
-        // the product's only option, so variant edits aren't inflated by a dead
-        // default (SPEC-014).
-        expect(await optionAttached(productId, "Default option")).toBe(false)
+        // ...and no internal "__default__" placeholder was left behind — the axis
+        // option is the product's only option, so variant edits aren't inflated by
+        // a dead default (SPEC-014).
+        expect(await optionAttached(productId, "__default__")).toBe(false)
       })
 
-      it("create: no Default option when product has an axis; seeded otherwise", async () => {
+      it("create: no __default__ placeholder when product has an axis; seeded otherwise", async () => {
         // Axis product (existing axis ref) → axis option is the only option.
         const axis = await createAttr({
           name: "Axis Attr",
@@ -502,9 +502,9 @@ medusaIntegrationTestRunner({
         expect([200, 201]).toContain(axisRes.status)
         const axisProductId = axisRes.data.product.id
         expect(await optionAttached(axisProductId, "Axis Attr")).toBe(true)
-        expect(await optionAttached(axisProductId, "Default option")).toBe(false)
+        expect(await optionAttached(axisProductId, "__default__")).toBe(false)
 
-        // Inline axis → also no default option.
+        // Inline axis → also no __default__ placeholder.
         const inlineRes = await api.post(
           "/admin/products",
           {
@@ -519,12 +519,12 @@ medusaIntegrationTestRunner({
         expect([200, 201]).toContain(inlineRes.status)
         const inlineProductId = inlineRes.data.product.id
         expect(await optionAttached(inlineProductId, "Size")).toBe(true)
-        expect(await optionAttached(inlineProductId, "Default option")).toBe(
+        expect(await optionAttached(inlineProductId, "__default__")).toBe(
           false,
         )
 
-        // No axis (bare product) → the placeholder default option is still
-        // seeded so the product has at least one option.
+        // No axis (bare product, no UI synthetic axis) → the internal
+        // "__default__" placeholder is kept so the product has at least one option.
         const bareRes = await api.post(
           "/admin/products",
           { title: "Bare Create Product", status: "published" },
@@ -532,7 +532,40 @@ medusaIntegrationTestRunner({
         )
         expect([200, 201]).toContain(bareRes.status)
         const bareProductId = bareRes.data.product.id
-        expect(await optionAttached(bareProductId, "Default option")).toBe(true)
+        expect(await optionAttached(bareProductId, "__default__")).toBe(true)
+      })
+
+      it("create: no-axis product seeds a Default Option axis (UI contract)", async () => {
+        // What the create form now submits when the user defines no variant axis:
+        // a synthetic inline "Default Option" axis + a variant bound to it.
+        const res = await api.post(
+          "/admin/products",
+          {
+            title: "Simple Product",
+            status: "published",
+            attributes: [
+              { title: "Default Option", values: ["Default"], is_variant_axis: true },
+            ],
+            variants: [
+              { title: "Default variant", options: { "Default Option": "Default" } },
+            ],
+          },
+          adminHeaders,
+        )
+        expect([200, 201]).toContain(res.status)
+        const productId = res.data.product.id
+
+        expect(await optionAttached(productId, "Default Option")).toBe(true)
+        // the transient scaffolding is gone once the real option exists.
+        expect(await optionAttached(productId, "__default__")).toBe(false)
+
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const { data } = await query.graph({
+          entity: "product_variant",
+          fields: ["title"],
+          filters: { product_id: productId },
+        })
+        expect(data.some((v: any) => v.title === "Default variant")).toBe(true)
       })
 
       it("create: variants bind to axis options by value name", async () => {

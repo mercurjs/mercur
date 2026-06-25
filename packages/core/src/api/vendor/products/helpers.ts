@@ -69,6 +69,8 @@ export const ensureSellerOwnsProduct = async (
 
   const query = scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  // A seller may manage a product it is assigned to (product_seller eligibility)
+  // OR a product it created (master-product authoring).
   const { data } = await query.graph({
     entity: "product_seller",
     fields: ["product_id"],
@@ -78,7 +80,12 @@ export const ensureSellerOwnsProduct = async (
     },
   })
 
-  const ownedProductIds = new Set(data.map(({ product_id }) => product_id))
+  const ownedProductIds = new Set<string | null>(
+    data.map(({ product_id }) => product_id)
+  )
+  for (const id of await getSellerOwnedProductIds(scope, sellerId)) {
+    ownedProductIds.add(id)
+  }
   const missingProductId = productIds.find((id) => !ownedProductIds.has(id))
 
   if (missingProductId) {
