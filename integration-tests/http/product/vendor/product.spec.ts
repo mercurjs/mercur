@@ -355,5 +355,60 @@ medusaIntegrationTestRunner({
         expect(idsB).not.toContain(restrictedToA)
       })
     })
+
+    // MER-246: creating a product with several images persisted only one in the
+    // UI. The images survive the create workflow, but the vendor detail query
+    // omits the relation from its server defaults, so the bare `*images` the
+    // panel requested resolved against nothing and returned no images — leaving
+    // only the scalar `thumbnail`. The panel now spells the relation out
+    // (`images.id,images.url,images.rank`); this guards that contract.
+    describe("Vendor - product images", () => {
+      let appContainer: MedusaContainer
+      let sellerHeaders: any
+
+      beforeAll(() => {
+        appContainer = getContainer()
+      })
+
+      beforeEach(async () => {
+        const res = await createSellerUser(appContainer, {
+          email: "vendor-images@test.com",
+          name: "Vendor Images Store",
+        })
+        sellerHeaders = res.headers
+      })
+
+      it("returns every image on the detail query, not just the thumbnail", async () => {
+        const images = [
+          { url: "https://example.com/mer-246-1.png" },
+          { url: "https://example.com/mer-246-2.png" },
+          { url: "https://example.com/mer-246-3.png" },
+        ]
+
+        const created = await api.post(
+          "/vendor/products",
+          {
+            status: "published",
+            title: "Multi Image Product",
+            images,
+            thumbnail: images[0].url,
+            variants: [{ title: "Default" }],
+          },
+          sellerHeaders
+        )
+        const productId = created.data.product.id
+
+        const res = await api.get(
+          `/vendor/products/${productId}?fields=images.id,images.url,images.rank`,
+          sellerHeaders
+        )
+
+        const returned: { url: string }[] = res.data.product.images ?? []
+        expect(returned).toHaveLength(images.length)
+        expect(returned.map((i) => i.url).sort()).toEqual(
+          images.map((i) => i.url).sort()
+        )
+      })
+    })
   },
 })
