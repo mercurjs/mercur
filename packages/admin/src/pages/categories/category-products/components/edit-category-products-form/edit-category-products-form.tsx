@@ -74,6 +74,7 @@ export const EditCategoryProductsForm = ({
   const { searchParams, raw } = useProductTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
+    defaultOrder: "title",
   })
 
   const {
@@ -84,7 +85,6 @@ export const EditCategoryProductsForm = ({
     error,
   } = useProducts({
     ...searchParams,
-    order: raw.order ?? "title",
   })
 
   const columns = useColumns()
@@ -164,6 +164,7 @@ export const EditCategoryProductsForm = ({
               { key: "created_at", label: t("fields.createdAt") },
               { key: "updated_at", label: t("fields.updatedAt") },
             ]}
+            defaultOrderBy="title"
             prefix={PREFIX}
             isLoading={isPending}
             layout="fill"
