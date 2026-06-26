@@ -338,7 +338,7 @@ const SelectedAttributes = ({
                       <Select.Trigger ref={ref}>
                         <Select.Value
                           placeholder={t(
-                            "products.create.attributes.selectValues"
+                            "products.create.attributes.selectValuePlaceholder"
                           )}
                         />
                       </Select.Trigger>
@@ -367,7 +367,7 @@ const SelectedAttributes = ({
                       }
                       onChange={(e) => onChange(e.target.value)}
                       placeholder={t(
-                        "products.create.attributes.valuePlaceholder"
+                        "products.create.attributes.enterValuePlaceholder"
                       )}
                     />
                   )}
@@ -385,7 +385,7 @@ const SelectedAttributes = ({
                       <Select.Trigger>
                         <Select.Value
                           placeholder={t(
-                            "products.create.attributes.selectValues"
+                            "products.create.attributes.selectValuePlaceholder"
                           )}
                         />
                       </Select.Trigger>
@@ -414,7 +414,7 @@ const SelectedAttributes = ({
                       }
                       onChange={(e) => onChange(e.target.value)}
                       placeholder={t(
-                        "products.create.attributes.valuePlaceholder"
+                        "products.create.attributes.enterValuePlaceholder"
                       )}
                     />
                   )}
@@ -423,7 +423,7 @@ const SelectedAttributes = ({
               {field.use_for_variants && (
                 <>
                   <div />
-                  <VariantAxisTip />
+                  <VariantAxisTip className="border-none" />
                 </>
               )}
             </div>
@@ -570,7 +570,7 @@ const RequiredAttributeField = ({
                 <Select.Trigger ref={ref}>
                   <Select.Value
                     placeholder={t(
-                      "products.create.attributes.valuePlaceholder"
+                      "products.create.attributes.selectValuePlaceholder"
                     )}
                   />
                 </Select.Trigger>
@@ -605,7 +605,7 @@ const RequiredAttributeField = ({
                 value={typeof value === "string" ? value : value?.[0] ?? ""}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={t(
-                  "products.create.attributes.valuePlaceholder"
+                  "products.create.attributes.enterValuePlaceholder"
                 )}
               />
             ) : attribute.type === AttributeType.TOGGLE ? (
@@ -622,7 +622,7 @@ const RequiredAttributeField = ({
                 value={typeof value === "string" ? value : value?.[0] ?? ""}
                 onChange={(e) => onChange(e.target.value)}
                 placeholder={t(
-                  "products.create.attributes.valuePlaceholder"
+                  "products.create.attributes.enterValuePlaceholder"
                 )}
               />
             )}
@@ -636,11 +636,11 @@ const RequiredAttributeField = ({
   )
 }
 
-const VariantAxisTip = () => {
+const VariantAxisTip = ({ className }: { className?: string }) => {
   const { t } = useTranslation()
 
   return (
-    <InlineTip label={t("products.create.attributes.tip")}>
+    <InlineTip className={className} label={t("products.create.attributes.tip")}>
       {t("products.create.attributes.variantAxisTip")}
     </InlineTip>
   )
