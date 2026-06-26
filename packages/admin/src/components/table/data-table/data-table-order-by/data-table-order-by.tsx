@@ -14,7 +14,6 @@ export type DataTableOrderByKey<TData> = {
 type DataTableOrderByProps<TData> = {
   keys: DataTableOrderByKey<TData>[]
   prefix?: string
-  defaultOrderBy?: string
 }
 
 enum SortDirection {
@@ -27,17 +26,12 @@ type SortState = {
   dir: SortDirection
 }
 
-const initState = (
-  params: URLSearchParams,
-  prefix?: string,
-  defaultOrderBy?: string
-): SortState => {
+const initState = (params: URLSearchParams, prefix?: string): SortState => {
   const param = prefix ? `${prefix}_order` : "order"
   const sortParam = params.get(param)
 
   if (!sortParam) {
     return {
-      key: defaultOrderBy,
       dir: SortDirection.ASC,
     }
   }
@@ -54,13 +48,12 @@ const initState = (
 export const DataTableOrderBy = <TData,>({
   keys,
   prefix,
-  defaultOrderBy,
 }: DataTableOrderByProps<TData>) => {
   const [searchParams, setSearchParams] = useSearchParams()
   const [state, setState] = useState<{
     key?: string
     dir: SortDirection
-  }>(initState(searchParams, prefix, defaultOrderBy))
+  }>(initState(searchParams, prefix))
   const param = prefix ? `${prefix}_order` : "order"
   const { t } = useTranslation()
   const direction = useDocumentDirection()
