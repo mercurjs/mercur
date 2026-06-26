@@ -977,6 +977,7 @@
         "successToast_other": "Removed {{count}} products from the category."
       },
       "list": {
+        "noRecordsTitle": "No products yet",
         "noRecordsMessage": "There are no products in the category."
       }
     },
