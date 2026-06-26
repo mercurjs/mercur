@@ -4529,6 +4529,9 @@
             "label": {
               "type": "string"
             },
+            "removeTitle": {
+              "type": "string"
+            },
             "remove": {
               "type": "string"
             },
@@ -4541,11 +4544,15 @@
             "list": {
               "type": "object",
               "properties": {
+                "emptyTitle": {
+                  "type": "string"
+                },
                 "noRecordsMessage": {
                   "type": "string"
                 }
               },
               "required": [
+                "emptyTitle",
                 "noRecordsMessage"
               ],
               "additionalProperties": false
@@ -4553,7 +4560,10 @@
             "add": {
               "type": "object",
               "properties": {
-                "success": {
+                "successOne": {
+                  "type": "string"
+                },
+                "successMany": {
                   "type": "string"
                 },
                 "list": {
@@ -4570,7 +4580,8 @@
                 }
               },
               "required": [
-                "success",
+                "successOne",
+                "successMany",
                 "list"
               ],
               "additionalProperties": false
@@ -4578,7 +4589,10 @@
             "removed": {
               "type": "object",
               "properties": {
-                "success": {
+                "successOne": {
+                  "type": "string"
+                },
+                "successMany": {
                   "type": "string"
                 },
                 "list": {
@@ -4595,7 +4609,8 @@
                 }
               },
               "required": [
-                "success",
+                "successOne",
+                "successMany",
                 "list"
               ],
               "additionalProperties": false
@@ -4603,6 +4618,7 @@
           },
           "required": [
             "label",
+            "removeTitle",
             "remove",
             "removeMany",
             "alreadyAddedTooltip",
@@ -4685,6 +4701,12 @@
           "type": "object",
           "properties": {
             "title": {
+              "type": "string"
+            },
+            "emptyTitle": {
+              "type": "string"
+            },
+            "emptyMessage": {
               "type": "string"
             },
             "fields": {
@@ -4782,6 +4804,8 @@
           },
           "required": [
             "title",
+            "emptyTitle",
+            "emptyMessage",
             "fields",
             "create",
             "edit"

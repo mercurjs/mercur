@@ -110,6 +110,7 @@ export const CustomerListDataTable = () => {
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
+      defaultOrder="-created_at"
       isLoading={isLoading}
       navigateTo={(row) => row.original.id}
       search

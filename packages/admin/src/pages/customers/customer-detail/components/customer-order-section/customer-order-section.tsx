@@ -28,6 +28,7 @@ import {
 import { useOrderGroups } from "../../../../../hooks/api/order-groups"
 import { useOrderTableQuery } from "../../../../../hooks/table/query/use-order-table-query"
 import { useDataTable } from "../../../../../hooks/use-data-table"
+import { useOrderGroupTableFilters } from "../../../../orders/order-list/components/order-list-table/use-order-table-filters"
 import { getStylizedAmount } from "../../../../../lib/money-amount-helpers"
 
 const PREFIX = "cusord"
@@ -141,6 +142,10 @@ export const CustomerOrderSection = ({
     [order_groups, t]
   )
 
+  // Orders are already scoped to this customer, so the customer filter is dropped.
+  const filters = useOrderGroupTableFilters().filter(
+    (f) => f.key !== "customer_id"
+  )
   const columns = useColumns()
 
   const { table } = useDataTable({
@@ -174,11 +179,13 @@ export const CustomerOrderSection = ({
         count={count}
         isLoading={isLoading}
         pageSize={PAGE_SIZE}
+        filters={filters}
         orderBy={[
           { key: "display_id", label: t("orders.fields.displayId") },
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        defaultOrder="-display_id"
         search={true}
         queryObject={raw}
         prefix={PREFIX}

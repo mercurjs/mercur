@@ -31,7 +31,7 @@ export const useCustomerTableQuery = ({
     offset: offset ? Number(offset) : 0,
     groups: groups?.split(","),
     has_account: has_account ? has_account === "true" : undefined,
-    order,
+    order: order ? order : "-created_at",
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     q,

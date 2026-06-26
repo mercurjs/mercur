@@ -30,6 +30,7 @@ import { useDataTable } from "../../../../../hooks/use-data-table"
 
 const PAGE_SIZE = 10
 const PREFIX = "cusgr"
+const DEFAULT_ORDER = "-created_at"
 
 export const CustomerGroupSection = ({
   customer,
@@ -48,6 +49,7 @@ export const CustomerGroupSection = ({
     useCustomerGroups(
       {
         ...searchParams,
+        order: searchParams.order || DEFAULT_ORDER,
         fields: "+customers.id,+seller.id,+seller.name",
         customers: { id: customer.id },
       },
@@ -79,15 +81,16 @@ export const CustomerGroupSection = ({
 
   const handleRemove = async () => {
     const customerGroupIds = Object.keys(rowSelection)
+    const selectedGroups =
+      customer_groups?.filter((g) => customerGroupIds.includes(g.id)) ?? []
+    const names = selectedGroups.map((g) => g.name)
+    const isSingle = selectedGroups.length === 1
 
     const res = await prompt({
-      title: t("general.areYouSure"),
-      description: t("customers.groups.removeMany", {
-        groups: customer_groups
-          ?.filter((g) => customerGroupIds.includes(g.id))
-          .map((g) => g.name)
-          .join(","),
-      }),
+      title: t("customers.groups.removeTitle"),
+      description: isSingle
+        ? t("customers.groups.remove", { name: names[0] })
+        : t("customers.groups.removeMany", { groups: names.join(", ") }),
       confirmText: t("actions.remove"),
       cancelText: t("actions.cancel"),
     })
@@ -101,11 +104,11 @@ export const CustomerGroupSection = ({
       {
         onSuccess: () => {
           toast.success(
-            t("customers.groups.removed.success", {
-              groups: customer_groups!
-                .filter((cg) => customerGroupIds.includes(cg.id))
-                .map((cg) => cg?.name),
-            })
+            isSingle
+              ? t("customers.groups.removed.successOne", { groups: names[0] })
+              : t("customers.groups.removed.successMany", {
+                  groups: names.join(", "),
+                })
           )
         },
         onError: (error) => {
@@ -145,6 +148,7 @@ export const CustomerGroupSection = ({
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        defaultOrder={DEFAULT_ORDER}
         commands={[
           {
             action: handleRemove,
@@ -154,7 +158,9 @@ export const CustomerGroupSection = ({
         ]}
         queryObject={raw}
         noRecords={{
+          title: t("customers.groups.list.emptyTitle"),
           message: t("customers.groups.list.noRecordsMessage"),
+          icon: null,
         }}
       />
     </Container>
@@ -175,7 +181,7 @@ const CustomerGroupRowActions = ({
 
   const onRemove = async () => {
     const res = await prompt({
-      title: t("general.areYouSure"),
+      title: t("customers.groups.removeTitle"),
       description: t("customers.groups.remove", {
         name: group.name,
       }),
@@ -188,6 +194,11 @@ const CustomerGroupRowActions = ({
     }
 
     await mutateAsync([customerId], {
+      onSuccess: () => {
+        toast.success(
+          t("customers.groups.removed.successOne", { groups: group.name })
+        )
+      },
       onError: (error) => {
         toast.error(error.message)
       },
