@@ -557,7 +557,7 @@
         "selectValues": "Select values",
         "tip": "Tip",
         "useForVariants": "Use for variants",
-        "useForVariantsDescription": "If checked, we will create variants with this attribute. You can define them in the next step. If not, the attribute will be used for informational purposes only.",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
         "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
         "editVariantAxisTip": "You will be able to create variants using this attribute.",
         "warning": "Warning",
@@ -631,7 +631,8 @@
       }
     },
     "attributes": "Attributes",
-    "attributeVariantsDescription": "Attributes used for variations",
+    "attributeVariations": "Variations",
+    "attributeVariantsDescription": "Attributes used for variants",
     "attributeProductInformation": "Product Information",
     "attributeProductInformationDescription": "Attributes used for informational purposes",
     "attributeRequiredByMarketplace": "This attribute is required by the Marketplace",

@@ -1,15 +1,8 @@
 import i18n from "i18next";
 import * as zod from "zod";
 
+import { addCommissionValueIssues, optionalAmount } from "../../../common/schema";
 import { SCOPE_TYPE_DIMENSIONS } from "../../../common/types";
-
-const optionalAmount = zod.preprocess((val) => {
-  if (val === "" || val === null || val === undefined) {
-    return undefined;
-  }
-  const parsed = typeof val === "number" ? val : Number(val);
-  return Number.isNaN(parsed) ? undefined : parsed;
-}, zod.number().optional());
 
 const baseCommissionRuleSchema = zod.object({
   title: zod
@@ -64,26 +57,12 @@ export const createCommissionRuleSchema = (currencies: string[] = []) =>
       });
     }
 
-    if (data.commissionType === "percentage") {
-      if (data.value === undefined || Number.isNaN(data.value)) {
-        ctx.addIssue({
-          code: zod.ZodIssueCode.custom,
-          path: ["value"],
-          message: i18n.t("commissions.validation.value"),
-        });
-      }
-    } else {
-      currencies.forEach((code) => {
-        const amount = data.fixed_values?.[code];
-        if (amount === undefined || Number.isNaN(amount)) {
-          ctx.addIssue({
-            code: zod.ZodIssueCode.custom,
-            path: ["fixed_values", code],
-            message: i18n.t("commissions.validation.value"),
-          });
-        }
-      });
-    }
+    addCommissionValueIssues(ctx, {
+      type: data.commissionType,
+      value: data.value,
+      fixedValues: data.fixed_values,
+      currencies,
+    });
   });
 
 export type CreateCommissionRuleSchemaType = zod.infer<
