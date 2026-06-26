@@ -3636,6 +3636,21 @@
         "subtitle": {
           "type": "string"
         },
+        "handleTooltip": {
+          "type": "string"
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "titleRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "titleRequired"
+          ],
+          "additionalProperties": false
+        },
         "create": {
           "type": "object",
           "properties": {
@@ -4102,6 +4117,8 @@
       "required": [
         "domain",
         "subtitle",
+        "handleTooltip",
+        "validation",
         "create",
         "edit",
         "delete",
