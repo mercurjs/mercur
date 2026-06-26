@@ -1,6 +1,8 @@
 import { ExclamationCircle, PlusMini } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
+import { ProductDTO } from "@mercurjs/types";
 import {
+  Checkbox,
   CommandBar,
   Container,
   Heading,
@@ -9,8 +11,8 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import { RowSelectionState } from "@tanstack/react-table";
-import { useState } from "react";
+import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 import { ActionMenu } from "../../../../../components/common/action-menu";
@@ -47,7 +49,7 @@ export const CategoryProductSection = ({
     },
   );
 
-  const columns = useProductTableColumns();
+  const columns = useColumns();
   const filters = useProductTableFilters(["categories"]);
 
   const { table } = useDataTable({
@@ -167,5 +169,42 @@ export const CategoryProductSection = ({
         </CommandBar.Bar>
       </CommandBar>
     </Container>
+  );
+};
+
+const columnHelper = createColumnHelper<ProductDTO>();
+
+const useColumns = () => {
+  const base = useProductTableColumns();
+
+  return useMemo(
+    () => [
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsSomePageRowsSelected()
+                ? "indeterminate"
+                : table.getIsAllPageRowsSelected()
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            data-testid="products-table-header-select-checkbox"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            onClick={(e) => e.stopPropagation()}
+            data-testid={`products-table-cell-${row.id}-select-checkbox`}
+          />
+        ),
+      }),
+      ...base,
+    ],
+    [base],
   );
 };
