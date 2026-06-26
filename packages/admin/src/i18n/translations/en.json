@@ -463,6 +463,8 @@
         "values": "Values",
         "selectValues": "Select values",
         "valuePlaceholder": "Enter values",
+        "enterValuePlaceholder": "Enter value",
+        "selectValuePlaceholder": "Select value",
         "requiredAttributes": "Required attributes",
         "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
         "useForVariants": "Use for Variations",
