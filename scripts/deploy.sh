@@ -286,8 +286,11 @@ cp "$DEPLOY_DIR/packages/api/.env" "$PROD_DIR/.env"
 # Point the local file provider at the public origin. Without this it
 # defaults to http://localhost:9000/static and every uploaded image
 # (category thumbnails, product media) renders broken in the dashboards
-# served from $MERCUR_BACKEND_URL. nginx serves the static upload dir
-# under /dist, so files resolve at $MERCUR_BACKEND_URL/dist/<key>.
+# served from $MERCUR_BACKEND_URL. Medusa serves the upload dir natively
+# at /static; Caddy (the reverse proxy on the host) maps /dist/* onto that
+# /static/* route, so files resolve at $MERCUR_BACKEND_URL/dist/<key>.
+# That Caddy `handle_path /dist/*` rewrite is required for these URLs to
+# resolve — it is maintained in /etc/caddy/Caddyfile on the host, not here.
 FILE_BACKEND_URL="${MERCUR_BACKEND_URL%/}/dist"
 if grep -q '^FILE_BACKEND_URL=' "$PROD_DIR/.env"; then
   sed -i "s#^FILE_BACKEND_URL=.*#FILE_BACKEND_URL=${FILE_BACKEND_URL}#" "$PROD_DIR/.env"
