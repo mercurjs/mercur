@@ -44,7 +44,7 @@ export const AttributeValueInput = ({
         >
           <Select.Trigger>
             <Select.Value
-              placeholder={t("products.create.attributes.selectValues")}
+              placeholder={t("products.create.attributes.selectValuePlaceholder")}
             />
           </Select.Trigger>
           <Select.Content>
@@ -65,7 +65,7 @@ export const AttributeValueInput = ({
         >
           <Select.Trigger>
             <Select.Value
-              placeholder={t("products.create.attributes.selectValues")}
+              placeholder={t("products.create.attributes.selectValuePlaceholder")}
             />
           </Select.Trigger>
           <Select.Content>

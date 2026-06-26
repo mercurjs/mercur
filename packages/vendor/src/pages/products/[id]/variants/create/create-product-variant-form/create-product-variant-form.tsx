@@ -60,7 +60,7 @@ export const CreateProductVariantForm = ({
   const { mutateAsync, isPending } = useCreateProductVariant(product.id)
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const { title, options } = data
+    const { title, sku, options } = data
 
     // Form keys variant fields by `handle ?? id`; backend keys options
     // by option title (= attribute name). Remap before submitting.
@@ -77,6 +77,7 @@ export const CreateProductVariantForm = ({
     await mutateAsync(
       {
         title,
+        sku: sku || undefined,
         options: Object.keys(cleanedOptions).length
           ? cleanedOptions
           : undefined,
