@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, toast } from "@medusajs/ui";
+import { useMemo } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
@@ -16,16 +17,29 @@ import {
 } from "../../../hooks/api/commissions";
 import { CommissionValueFields } from "../common/components/commission-value-fields";
 import { useStoreCurrencies } from "../common/hooks/use-store-currencies";
+import { addCommissionValueIssues, optionalAmount } from "../common/schema";
 import { CommissionRate } from "../common/types";
 import { buildValuesPayload, fixedValuesFromRate } from "../common/utils";
 
 const EditCommissionSchema = zod.object({
   type: zod.enum(["percentage", "fixed"]),
-  value: zod.coerce.number().min(0),
-  fixed_values: zod.record(zod.string(), zod.coerce.number()).optional(),
+  value: optionalAmount,
+  fixed_values: zod.record(zod.string(), optionalAmount).optional(),
   include_tax: zod.boolean(),
   include_shipping: zod.boolean(),
 });
+
+type EditCommissionSchemaType = zod.infer<typeof EditCommissionSchema>;
+
+const createEditCommissionSchema = (currencies: string[]) =>
+  EditCommissionSchema.superRefine((data, ctx) => {
+    addCommissionValueIssues(ctx, {
+      type: data.type,
+      value: data.value,
+      fixedValues: data.fixed_values,
+      currencies,
+    });
+  });
 
 const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
   const { t } = useTranslation();
@@ -37,7 +51,12 @@ const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
     { value: "fixed", label: t("commissions.fields.type.fixed") },
   ];
 
-  const form = useForm<zod.infer<typeof EditCommissionSchema>>({
+  const resolver = useMemo(
+    () => zodResolver(createEditCommissionSchema(currencies)),
+    [currencies]
+  );
+
+  const form = useForm<EditCommissionSchemaType>({
     defaultValues: {
       type: rule.type,
       value: rule.value,
@@ -45,7 +64,7 @@ const EditCommissionForm = ({ rule }: { rule: CommissionRate }) => {
       include_tax: rule.include_tax,
       include_shipping: rule.include_shipping,
     },
-    resolver: zodResolver(EditCommissionSchema),
+    resolver,
   });
 
   const { mutateAsync, isPending } = useUpdateCommissionRule(rule.id);
