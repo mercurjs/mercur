@@ -2,6 +2,8 @@ import {
   EllipsisHorizontal,
   InformationCircleSolid,
   Photo,
+  QueueList,
+  StackPerspective,
   ThumbnailBadge,
   Trash,
   XMark,
@@ -174,7 +176,7 @@ const CollectionMediaItemMenu = ({
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
         <MenuItemWithTooltip
-          icon={<ThumbnailBadge />}
+          icon={<StackPerspective />}
           label={
             item.is_thumbnail
               ? t("collections.media.actions.removeThumbnail")
@@ -184,7 +186,7 @@ const CollectionMediaItemMenu = ({
           onClick={onToggleThumbnail}
         />
         <MenuItemWithTooltip
-          icon={<ListBadge />}
+          icon={<QueueList />}
           label={
             item.is_banner
               ? t("collections.media.actions.removeBanner")
