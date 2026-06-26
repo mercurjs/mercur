@@ -1,5 +1,12 @@
 import { PencilSquare, Trash } from "@medusajs/icons";
-import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui";
+import {
+  Button,
+  Checkbox,
+  Container,
+  Heading,
+  toast,
+  usePrompt,
+} from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
 import { ReactNode, useMemo, useState, Children } from "react";
@@ -295,6 +302,30 @@ const useColumns = () => {
 
   const columns = useMemo(
     () => [
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsSomePageRowsSelected()
+                ? "indeterminate"
+                : table.getIsAllPageRowsSelected()
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            data-testid="products-table-header-select-checkbox"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            onClick={(e) => e.stopPropagation()}
+            data-testid={`products-table-cell-${row.id}-select-checkbox`}
+          />
+        ),
+      }),
       ...base,
       columnHelper.display({
         id: "actions",

@@ -198,9 +198,7 @@ const columnHelper = createColumnHelper<HttpTypes.AdminProduct>()
 
 const useColumns = () => {
   const { t } = useTranslation()
-  const base = useProductTableColumns().filter(
-    (column) => column.id !== "select"
-  )
+  const base = useProductTableColumns()
 
   return useMemo(
     () => [
