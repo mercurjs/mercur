@@ -88,7 +88,10 @@ const Root = () => {
       className="flex size-full flex-col divide-y overflow-hidden"
       data-testid="product-create-variants-form"
     >
-      <div data-testid="product-create-variants-form-datagrid">
+      <div
+        className="min-h-0 flex-1 overflow-hidden"
+        data-testid="product-create-variants-form-datagrid"
+      >
         <DataGrid
           columns={columns}
           data={filteredVariantData}
