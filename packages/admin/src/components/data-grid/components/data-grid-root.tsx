@@ -908,7 +908,14 @@ const DataGridHeader = ({
           )}
         </div>
       )}
-      {headerContent}
+      {headerContent && (
+        <div
+          className="flex items-center"
+          onFocusCapture={() => onHeaderInteractionChange(true)}
+        >
+          {headerContent}
+        </div>
+      )}
       <div className="ml-auto flex items-center gap-x-2">
         {errorCount > 0 && (
           <Button
