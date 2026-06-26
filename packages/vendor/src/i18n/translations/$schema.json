@@ -2566,6 +2566,9 @@
         "attributes": {
           "type": "string"
         },
+        "attributeVariations": {
+          "type": "string"
+        },
         "attributeVariantsDescription": {
           "type": "string"
         },
@@ -3711,6 +3714,7 @@
         "deleteWarning",
         "variants",
         "attributes",
+        "attributeVariations",
         "attributeVariantsDescription",
         "attributeProductInformation",
         "attributeProductInformationDescription",

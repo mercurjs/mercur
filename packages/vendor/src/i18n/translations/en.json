@@ -631,7 +631,8 @@
       }
     },
     "attributes": "Attributes",
-    "attributeVariantsDescription": "Attributes used for variations",
+    "attributeVariations": "Variations",
+    "attributeVariantsDescription": "Attributes used for variants",
     "attributeProductInformation": "Product Information",
     "attributeProductInformationDescription": "Attributes used for informational purposes",
     "attributeRequiredByMarketplace": "This attribute is required by the Marketplace",
