@@ -942,6 +942,10 @@
   "categories": {
     "domain": "Categories",
     "subtitle": "Organize products into categories, and manage those categories' ranking and hierarchy.",
+    "handleTooltip": "The handle is used to reference the category on the storefront. If not specified, the handle will be generated from the category title.",
+    "validation": {
+      "titleRequired": "Please enter a title"
+    },
     "create": {
       "header": "Create Category",
       "hint": "Create a new category to organize your products.",
@@ -973,6 +977,7 @@
         "successToast_other": "Removed {{count}} products from the category."
       },
       "list": {
+        "noRecordsTitle": "No products yet",
         "noRecordsMessage": "There are no products in the category."
       }
     },

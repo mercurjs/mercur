@@ -36,10 +36,10 @@
     "@medusajs/admin-shared": "2.16.0-options-preview-20260605124754",
     "@medusajs/medusa": "2.16.0-options-preview-20260605124754",
     "@medusajs/draft-order": "2.16.0-options-preview-20260605124754",
-    "@mercurjs/core": "2.2.0-canary.34",
-    "@mercurjs/types": "2.2.0-canary.34",
+    "@mercurjs/core": "2.2.0-canary.35",
+    "@mercurjs/types": "2.2.0-canary.35",
     "http-proxy-middleware": "^3.0.3",
-    "@mercurjs/cli": "2.2.0-canary.34"
+    "@mercurjs/cli": "2.2.0-canary.35"
   },
   "devDependencies": {
     "@acme/admin": "*",

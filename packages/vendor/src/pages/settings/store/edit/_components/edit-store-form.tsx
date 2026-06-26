@@ -20,7 +20,7 @@ import { Form } from "@components/common/form";
 import { HandleInput } from "@components/inputs/handle-input";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
-import { uploadFilesQuery } from "@lib/client";
+import { sdk } from "@lib/client";
 import { currencies } from "@lib/data/currencies";
 import { MediaSchema } from "@pages/products/create/constants";
 import { HttpTypes } from "@mercurjs/types";
@@ -131,14 +131,18 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
 
     try {
       if (newLogoFile) {
-        const uploaded = await uploadFilesQuery([newLogoFile]);
+        const uploaded = await sdk.vendor.uploads.mutate({
+          files: [newLogoFile.file],
+        });
         logoUrl = uploaded.files?.[0]?.url || null;
       } else if (values.media?.length) {
         logoUrl = values.media[0].url;
       }
 
       if (newBannerFile) {
-        const uploaded = await uploadFilesQuery([newBannerFile]);
+        const uploaded = await sdk.vendor.uploads.mutate({
+          files: [newBannerFile.file],
+        });
         bannerUrl = uploaded.files?.[0]?.url || null;
       } else if (values.bannerMedia?.length) {
         bannerUrl = values.bannerMedia[0].url;

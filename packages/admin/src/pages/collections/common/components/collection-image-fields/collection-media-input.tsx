@@ -1,12 +1,12 @@
 import {
   EllipsisHorizontal,
-  FeaturedBadge,
   InformationCircleSolid,
   Photo,
   ThumbnailBadge,
   Trash,
   XMark,
 } from "@medusajs/icons";
+import { ListBadge } from "@mercurjs/dashboard-shared";
 import { DropdownMenu, IconButton, Text, Tooltip, clx } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
@@ -97,13 +97,14 @@ export const CollectionMediaInput = ({
                   </Text>
                   <div className="text-ui-fg-subtle flex items-center gap-x-1">
                     {item.is_thumbnail && (
-                      <ThumbnailBadge data-testid="collection-media-input-item-thumbnail-badge" />
+                      <Tooltip content={t("collections.media.thumbnail")}>
+                        <ThumbnailBadge data-testid="collection-media-input-item-thumbnail-badge" />
+                      </Tooltip>
                     )}
                     {item.is_banner && (
-                      <FeaturedBadge
-                        className="text-ui-fg-interactive"
-                        data-testid="collection-media-input-item-banner-badge"
-                      />
+                      <Tooltip content={t("collections.media.banner")}>
+                        <ListBadge data-testid="collection-media-input-item-banner-badge" />
+                      </Tooltip>
                     )}
                     {item.file && (
                       <Text
@@ -183,7 +184,7 @@ const CollectionMediaItemMenu = ({
           onClick={onToggleThumbnail}
         />
         <MenuItemWithTooltip
-          icon={<FeaturedBadge />}
+          icon={<ListBadge />}
           label={
             item.is_banner
               ? t("collections.media.actions.removeBanner")

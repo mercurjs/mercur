@@ -87,7 +87,7 @@ export const EditCategoryProductsForm = ({
   })
 
   const columns = useColumns()
-  const filters = useProductTableFilters(["categories"])
+  const filters = useProductTableFilters()
 
   const { table } = useDataTable({
     data,

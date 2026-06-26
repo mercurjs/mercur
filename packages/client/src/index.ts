@@ -27,6 +27,43 @@ export class ClientError extends Error {
     }
 }
 
+const isFileLike = (value: unknown): value is Blob =>
+    typeof Blob !== "undefined" && value instanceof Blob;
+
+const payloadHasFiles = (payload: Record<string, any>): boolean =>
+    Object.values(payload).some(
+        (value) =>
+            isFileLike(value) || (Array.isArray(value) && value.some(isFileLike))
+    );
+
+const toFormData = (payload: Record<string, any>): FormData => {
+    const formData = new FormData();
+
+    for (const [key, value] of Object.entries(payload)) {
+        if (value === undefined || value === null) {
+            continue;
+        }
+
+        const append = (item: unknown) => {
+            if (isFileLike(item)) {
+                formData.append(key, item);
+            } else if (typeof item === "object") {
+                formData.append(key, JSON.stringify(item));
+            } else {
+                formData.append(key, String(item));
+            }
+        };
+
+        if (Array.isArray(value)) {
+            value.forEach(append);
+        } else {
+            append(value);
+        }
+    }
+
+    return formData;
+};
+
 export function createClient(options: ClientOptions) {
     const { baseUrl, fetchOptions: defaultFetchOptions } = options;
 
@@ -58,12 +95,16 @@ export function createClient(options: ClientOptions) {
         const fullPath = `${base.pathname.replace(/\/$/, "")}/${urlPath.replace(/^\//, "")}`;
         const url = new URL(fullPath, base.origin);
 
-        const isFormData = inputFetchOptions?.body instanceof FormData;
+        const hasExplicitFormData = inputFetchOptions?.body instanceof FormData;
+        const hasFilePayload = method !== "GET" && payloadHasFiles(rest);
+        const isMultipart = hasExplicitFormData || hasFilePayload;
 
         let body: string | FormData | undefined;
 
-        if (isFormData) {
+        if (hasExplicitFormData) {
             body = inputFetchOptions!.body as FormData;
+        } else if (hasFilePayload) {
+            body = toFormData(rest);
         } else if (method === "GET" && Object.keys(rest).length > 0) {
             url.search = qs.stringify(rest, { skipNulls: true });
         } else if (method !== "GET" && Object.keys(rest).length > 0) {
@@ -74,7 +115,7 @@ export function createClient(options: ClientOptions) {
             Accept: "application/json",
         };
 
-        if (!isFormData) {
+        if (!isMultipart) {
             defaultHeaders["Content-Type"] = "application/json";
         }
 

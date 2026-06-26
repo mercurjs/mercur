@@ -49,7 +49,7 @@ const Root = () => {
             render={({ field }) => {
               return (
                 <Form.Item data-testid="category-create-form-handle-item">
-                  <Form.Label optional tooltip={t("collections.handleTooltip")} data-testid="category-create-form-handle-label">
+                  <Form.Label optional tooltip={t("categories.handleTooltip")} data-testid="category-create-form-handle-label">
                     {t("fields.handle")}
                   </Form.Label>
                   <Form.Control data-testid="category-create-form-handle-control">

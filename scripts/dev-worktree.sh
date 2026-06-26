@@ -69,7 +69,7 @@ if [ ! -d node_modules ]; then
 fi
 
 echo "→ Building packages"
-bun run build
+bun run build --force
 
 echo "→ Running medusa db:migrate"
 (cd apps/api && bunx medusa db:migrate)

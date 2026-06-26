@@ -1,4 +1,4 @@
-import { uploadFilesQuery } from "@lib/client"
+import { sdk } from "@lib/client"
 import { CategoryIconItem, CategoryMediaItem } from "./types"
 
 export type CategoryImagesPayload = {
@@ -32,7 +32,9 @@ export const uploadCategoryImages = async ({
       media.map(async (item, index) => {
         let url = item.url
         if (item.file) {
-          const uploaded = await uploadFilesQuery([{ file: item.file }])
+          const uploaded = await sdk.admin.uploads.mutate({
+            files: [item.file],
+          })
           url = uploaded.files?.[0]?.url ?? url
         }
         return {
@@ -49,7 +51,7 @@ export const uploadCategoryImages = async ({
     if (!icon) {
       payload.icon = null
     } else if (icon.file) {
-      const uploaded = await uploadFilesQuery([{ file: icon.file }])
+      const uploaded = await sdk.admin.uploads.mutate({ files: [icon.file] })
       payload.icon = uploaded.files?.[0]?.url ?? icon.url
     } else {
       payload.icon = icon.url

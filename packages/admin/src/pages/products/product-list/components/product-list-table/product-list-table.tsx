@@ -155,6 +155,7 @@ export const ProductListDataTable = () => {
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        defaultOrder={searchParams.order}
         commands={[
           {
             action: async (rowSelection) => {

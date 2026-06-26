@@ -9,7 +9,7 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { RouteFocusModal, useRouteModal } from "@components/modals"
 import { TabbedForm } from "@components/tabbed-form/tabbed-form"
 import { useCreateProduct, useFeatureFlags } from "@hooks/api"
-import { uploadFilesQuery } from "@lib/client"
+import { sdk } from "@lib/client"
 
 import { PRODUCT_CREATE_FORM_DEFAULTS, ProductCreateSchema } from "../../constants"
 import { ProductCreateSchemaType } from "../../types"
@@ -86,9 +86,9 @@ export const ProductCreateForm = ({
         .filter((m) => !!m.file)
 
       if (filesToUpload.length) {
-        const result = await uploadFilesQuery(
-          filesToUpload.map(({ file }) => ({ file }))
-        )
+        const result = await sdk.vendor.uploads.mutate({
+          files: filesToUpload.map(({ file }) => file),
+        })
         const uploadedFiles: UploadedFile[] = result?.files ?? []
         uploadedMedia = uploadedFiles.map((file, i) => ({
           ...file,

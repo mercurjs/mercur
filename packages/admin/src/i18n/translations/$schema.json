@@ -3636,6 +3636,21 @@
         "subtitle": {
           "type": "string"
         },
+        "handleTooltip": {
+          "type": "string"
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "titleRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "titleRequired"
+          ],
+          "additionalProperties": false
+        },
         "create": {
           "type": "object",
           "properties": {
@@ -3759,11 +3774,15 @@
             "list": {
               "type": "object",
               "properties": {
+                "noRecordsTitle": {
+                  "type": "string"
+                },
                 "noRecordsMessage": {
                   "type": "string"
                 }
               },
               "required": [
+                "noRecordsTitle",
                 "noRecordsMessage"
               ],
               "additionalProperties": false
@@ -4102,6 +4121,8 @@
       "required": [
         "domain",
         "subtitle",
+        "handleTooltip",
+        "validation",
         "create",
         "edit",
         "delete",

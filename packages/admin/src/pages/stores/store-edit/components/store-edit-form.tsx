@@ -21,7 +21,6 @@ import { SwitchBox } from "@components/common/switch-box";
 import { HandleInput } from "@components/inputs/handle-input";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
-import { uploadFilesQuery } from "@lib/client";
 import { MediaSchema } from "@pages/products/product-create/constants";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
@@ -140,14 +139,18 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
 
     try {
       if (newLogoFile) {
-        const uploaded = await uploadFilesQuery([newLogoFile]);
+        const uploaded = await sdk.admin.uploads.mutate({
+          files: [newLogoFile.file],
+        });
         logoUrl = uploaded.files?.[0]?.url || null;
       } else if (values.media?.length) {
         logoUrl = values.media[0].url;
       }
 
       if (newBannerFile) {
-        const uploaded = await uploadFilesQuery([newBannerFile]);
+        const uploaded = await sdk.admin.uploads.mutate({
+          files: [newBannerFile.file],
+        });
         bannerUrl = uploaded.files?.[0]?.url || null;
       } else if (values.bannerMedia?.length) {
         bannerUrl = values.bannerMedia[0].url;
