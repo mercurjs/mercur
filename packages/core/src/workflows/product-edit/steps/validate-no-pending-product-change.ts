@@ -48,7 +48,7 @@ export const validateNoPendingProductChangeStep = createStep(
     if (conflicts.size) {
       throw new MedusaError(
         MedusaError.Types.NOT_ALLOWED,
-        `Product(s) [${[...conflicts].join(", ")}] already have a pending product change.`,
+        `There is already an active update request for this product. Only one request can be active at a time.`,
       )
     }
 

@@ -187,6 +187,9 @@ medusaIntegrationTestRunner({
             .catch((e) => e.response)
 
           expect(res.status).toBeGreaterThanOrEqual(400)
+          expect(res.data.message).toBe(
+            "There is already an active update request for this product. Only one request can be active at a time.",
+          )
         })
       })
 
