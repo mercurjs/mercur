@@ -70,8 +70,8 @@ export const CustomerAddressSection = ({
               "flex h-full flex-col overflow-hidden border-t p-6": true,
             })}
             icon={null}
-            title={t("general.noRecordsTitle")}
-            message={t("general.noRecordsMessage")}
+            title={t("customers.addresses.emptyTitle")}
+            message={t("customers.addresses.emptyMessage")}
           />
         </div>
       )}
