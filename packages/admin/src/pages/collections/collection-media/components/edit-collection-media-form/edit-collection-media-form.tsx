@@ -1,6 +1,7 @@
 import { Fragment, useCallback, useState } from "react"
 
-import { FeaturedBadge, ThumbnailBadge } from "@medusajs/icons"
+import { ThumbnailBadge } from "@medusajs/icons"
+import { ListBadge } from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import {
   Button,
@@ -325,7 +326,7 @@ const RoleBadges = ({ media }: { media: MediaField }) => {
       )}
       {media.is_banner && (
         <Tooltip content={t("collections.media.banner")}>
-          <FeaturedBadge className="text-ui-fg-interactive" />
+          <ListBadge className="text-ui-fg-interactive" />
         </Tooltip>
       )}
     </div>

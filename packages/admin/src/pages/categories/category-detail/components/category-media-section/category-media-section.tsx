@@ -1,4 +1,5 @@
-import { FeaturedBadge, PencilSquare, ThumbnailBadge } from "@medusajs/icons"
+import { PencilSquare, ThumbnailBadge } from "@medusajs/icons"
+import { ListBadge } from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text, Tooltip } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -62,7 +63,7 @@ export const CategoryMediaSection = ({
                     )}
                     {image.is_banner && (
                       <Tooltip content={t("categories.media.banner")}>
-                        <FeaturedBadge className="text-ui-fg-interactive" />
+                        <ListBadge className="text-ui-fg-interactive" />
                       </Tooltip>
                     )}
                   </div>

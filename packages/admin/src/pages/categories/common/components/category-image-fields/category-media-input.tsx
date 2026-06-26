@@ -1,12 +1,12 @@
 import {
   EllipsisHorizontal,
-  FeaturedBadge,
   InformationCircleSolid,
   Photo,
   ThumbnailBadge,
   Trash,
   XMark,
 } from "@medusajs/icons";
+import { ListBadge } from "@mercurjs/dashboard-shared";
 import { DropdownMenu, IconButton, Text, Tooltip, clx } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
@@ -100,7 +100,7 @@ export const CategoryMediaInput = ({
                       <ThumbnailBadge data-testid="category-media-input-item-thumbnail-badge" />
                     )}
                     {item.is_banner && (
-                      <FeaturedBadge
+                      <ListBadge
                         className="text-ui-fg-interactive"
                         data-testid="category-media-input-item-banner-badge"
                       />
@@ -183,7 +183,7 @@ const CategoryMediaItemMenu = ({
           onClick={onToggleThumbnail}
         />
         <MenuItemWithTooltip
-          icon={<FeaturedBadge />}
+          icon={<ListBadge />}
           label={
             item.is_banner
               ? t("categories.media.actions.removeBanner")
