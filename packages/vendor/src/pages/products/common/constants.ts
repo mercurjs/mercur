@@ -20,10 +20,18 @@ export const PRODUCT_VARIANT_IDS_KEY = "product_variant_ids"
  * `/vendor/products/:id/variants` endpoint instead (variant section + the
  * active edit-request block). Axis options + `is_exclusive` are read from the
  * `product_option` side.
+ *
+ * `images` is spelled out field-by-field rather than as a bare `*images`
+ * wildcard: the vendor product query-config omits it from the server defaults
+ * (the 2.16 remote joiner rejects bare `*relation` wildcards there), so a
+ * client-side `*images` resolves against nothing and silently returns no
+ * images — leaving only the scalar `thumbnail` on the product (MER-246).
  */
 export const PRODUCT_DETAIL_FIELDS = [
   "-variants",
-  "*images",
+  "images.id",
+  "images.url",
+  "images.rank",
   "*categories",
   "+additional_data",
   "*scoped_attributes",
