@@ -44,7 +44,7 @@ import {
 } from "../../../../../components/modals";
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
 import { useUpdateProduct } from "../../../../../hooks/api/products";
-import { uploadFilesQuery } from "../../../../../lib/client";
+import { sdk } from "../../../../../lib/client";
 import { UploadMediaFormItem } from "../../../common/components/upload-media-form-item";
 import {
   EditProductMediaSchema,
@@ -118,15 +118,15 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
     let uploaded: HttpTypes.AdminFile[] = [];
 
     if (filesToUpload.length) {
-      const { files: uploads } = await uploadFilesQuery(filesToUpload).catch(
-        () => {
+      const { files: uploads } = await sdk.admin.uploads
+        .mutate({ files: filesToUpload.map((m) => m.file) })
+        .catch(() => {
           form.setError("media", {
             type: "invalid_file",
             message: t("products.media.failedToUpload"),
           });
           return { files: [] };
-        },
-      );
+        });
       uploaded = uploads;
     }
 
