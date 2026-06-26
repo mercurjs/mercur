@@ -1,13 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import {
-  Button,
-  Hint,
-  InlineTip,
-  Input,
-  Label,
-  Switch,
-  toast,
-} from "@medusajs/ui"
+import { Button, InlineTip, Input, Label, toast } from "@medusajs/ui"
 import { AttributeType, MercurFeatureFlags } from "@mercurjs/types"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -236,22 +228,6 @@ const EditScopedAttributeForm = ({
                     </Form.Item>
                   )}
                 />
-                <div />
-                <div className="flex items-start gap-x-3 py-1.5">
-                  <Switch
-                    className="shrink-0 rtl:rotate-180"
-                    checked={isAxis}
-                    disabled
-                  />
-                  <div className="flex flex-col">
-                    <Label size="xsmall" weight="plus">
-                      {t("products.create.attributes.useForVariants")}
-                    </Label>
-                    <Hint className="!txt-small">
-                      {t("products.create.attributes.useForVariantsDescription")}
-                    </Hint>
-                  </div>
-                </div>
               </div>
             </div>
             {isAxis && <VariantAxisTip />}
