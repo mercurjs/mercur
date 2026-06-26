@@ -20,3 +20,15 @@ export const PRODUCT_DETAIL_FIELDS = [
 
 export const PRODUCT_DETAIL_QUERY = { fields: PRODUCT_DETAIL_FIELDS } as const
 
+// The product media gallery and editor only need the image relation on top of
+// the route's base fields. `images` is added with `+` because the query-config
+// server defaults omit it; a bare `*images` wildcard returns nothing on the 2.16
+// joiner, so the subfields are spelled out.
+export const PRODUCT_MEDIA_FIELDS = [
+  "+images.id",
+  "+images.url",
+  "+images.rank",
+].join(",")
+
+export const PRODUCT_MEDIA_QUERY = { fields: PRODUCT_MEDIA_FIELDS } as const
+
