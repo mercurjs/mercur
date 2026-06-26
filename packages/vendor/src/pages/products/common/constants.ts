@@ -20,11 +20,3 @@ export const PRODUCT_DETAIL_FIELDS = [
 
 export const PRODUCT_DETAIL_QUERY = { fields: PRODUCT_DETAIL_FIELDS } as const
 
-export const PRODUCT_MEDIA_FIELDS = [
-  "+images.id",
-  "+images.url",
-  "+images.rank",
-].join(",")
-
-export const PRODUCT_MEDIA_QUERY = { fields: PRODUCT_MEDIA_FIELDS } as const
-

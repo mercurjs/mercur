@@ -3,17 +3,13 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { RouteFocusModal } from "@components/modals"
 import { useProduct } from "@hooks/api/products"
-import { PRODUCT_MEDIA_QUERY } from "../../common/constants"
 import { ProductMediaView } from "./product-media-view"
 
 export const Component = () => {
   const { t } = useTranslation()
   const { id } = useParams()
 
-  const { product, isLoading, isError, error } = useProduct(
-    id!,
-    PRODUCT_MEDIA_QUERY,
-  )
+  const { product, isLoading, isError, error } = useProduct(id!)
 
   const ready = !isLoading && product
 

@@ -22,6 +22,9 @@ export const vendorProductFields = [
   "created_at",
   "updated_at",
   "metadata",
+  "images.id",
+  "images.url",
+  "images.rank",
   // Medusa 2.16's remote joiner rejects bare `*relation` wildcards in the
   // query-config defaults with "Cannot resolve alias path \"\"", so each
   // relation is spelled out.
