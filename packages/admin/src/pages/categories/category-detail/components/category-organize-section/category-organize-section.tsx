@@ -181,7 +181,7 @@ const ChildrenDisplay = ({
     error,
   } = useProductCategory(category.id, {
     include_descendants_tree: true,
-    fields: "id,name,category_children",
+    fields: "id,name,*category_children",
   })
 
   const chips = useMemo(() => getCategoryChildren(withChildren), [withChildren])

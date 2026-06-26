@@ -30,6 +30,7 @@ export const _DataTable = <TData,>({
   count = 0,
   search = false,
   orderBy,
+  defaultOrder,
   filters,
   prefix,
   queryObject = {},
@@ -77,6 +78,7 @@ export const _DataTable = <TData,>({
       <MemoizedDataTableQuery
         search={search}
         orderBy={orderBy}
+        defaultOrder={defaultOrder}
         filters={filters}
         prefix={prefix}
       />

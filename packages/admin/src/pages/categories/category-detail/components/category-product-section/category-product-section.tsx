@@ -129,26 +129,27 @@ export const CategoryProductSection = ({
           </Text>
         </div>
       ) : (
-      <_DataTable
-        table={table}
-        filters={filters}
-        columns={columns}
-        orderBy={[
-          { key: "title", label: t("fields.title") },
-          { key: "created_at", label: t("fields.createdAt") },
-          { key: "updated_at", label: t("fields.updatedAt") },
-        ]}
-        pageSize={PAGE_SIZE}
-        count={count}
-        navigateTo={(row) => `/products/${row.id}`}
-        isLoading={isLoading}
-        queryObject={raw}
-        noRecords={{
-          icon: null,
-          title: t("categories.products.list.noRecordsTitle"),
-          message: t("categories.products.list.noRecordsMessage"),
-        }}
-      />
+        <_DataTable
+          table={table}
+          filters={filters}
+          columns={columns}
+          orderBy={[
+            { key: "title", label: t("fields.title") },
+            { key: "created_at", label: t("fields.createdAt") },
+            { key: "updated_at", label: t("fields.updatedAt") },
+          ]}
+          defaultOrder={searchParams.order}
+          pageSize={PAGE_SIZE}
+          count={count}
+          navigateTo={(row) => `/products/${row.id}`}
+          isLoading={isLoading}
+          queryObject={raw}
+          noRecords={{
+            icon: null,
+            title: t("categories.products.list.noRecordsTitle"),
+            message: t("categories.products.list.noRecordsMessage"),
+          }}
+        />
       )}
       <CommandBar open={!!Object.keys(selection).length}>
         <CommandBar.Bar>
@@ -168,4 +169,3 @@ export const CategoryProductSection = ({
     </Container>
   );
 };
-
