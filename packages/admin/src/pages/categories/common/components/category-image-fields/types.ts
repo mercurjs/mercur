@@ -20,7 +20,7 @@ export const CATEGORY_IMAGE_FORMATS = [
   "image/svg+xml",
 ]
 
-/** Shape of a category image as returned by the admin API (linked `images`). */
+/** Shape of a category image as returned by the admin API (linked `media_images`). */
 export type CategoryApiImage = {
   id: string
   url: string

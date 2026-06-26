@@ -207,6 +207,18 @@ def tarball(name, ver):
     base = name.split("/", 1)[1]
     return f"https://registry.npmjs.org/{name}/-/{base}-{ver}.tgz"
 
+# Mirror the bun workspace's single-zod pin into a yarn `resolution`. The repo
+# collapses every zod to one version via npm `overrides`; yarn 4 ignores
+# `overrides` and reads `resolutions`, so without this Medusa 2.16's transitive
+# zod@^4 installs alongside the pinned v3 and the two instances clash
+# ("Cannot read properties of undefined (reading '_zod')" on schema parse).
+zod_pin = None
+try:
+    with open(f"{SOURCE_DIR}/package.json") as f:
+        zod_pin = (json.load(f).get("overrides") or {}).get("zod")
+except Exception:
+    pass
+
 # Enumerate every published @mercurjs/* package name from the source tree.
 mercur_names = set()
 for path in glob.glob(f"{SOURCE_DIR}/packages/*/package.json") + glob.glob(f"{SOURCE_DIR}/packages/providers/*/package.json"):
@@ -236,6 +248,9 @@ for path in ["package.json"] + glob.glob("packages/*/package.json") + glob.glob(
             if resolutions.get(key) != url:
                 resolutions[key] = url
                 changed = True
+        if zod_pin and resolutions.get("zod") != zod_pin:
+            resolutions["zod"] = zod_pin
+            changed = True
         if resolutions:
             data["resolutions"] = resolutions
     if changed:
@@ -267,6 +282,20 @@ yarn build >/tmp/mercur-build.log 2>&1 || { tail -n 40 /tmp/mercur-build.log; ex
 PROD_DIR="$DEPLOY_DIR/packages/api/.medusa/server"
 log "Preparing prod dir at $PROD_DIR"
 cp "$DEPLOY_DIR/packages/api/.env" "$PROD_DIR/.env"
+
+# Point the local file provider at the public origin. Without this it
+# defaults to http://localhost:9000/static and every uploaded image
+# (category thumbnails, product media) renders broken in the dashboards
+# served from $MERCUR_BACKEND_URL. nginx serves the static upload dir
+# under /dist, so files resolve at $MERCUR_BACKEND_URL/dist/<key>.
+FILE_BACKEND_URL="${MERCUR_BACKEND_URL%/}/dist"
+if grep -q '^FILE_BACKEND_URL=' "$PROD_DIR/.env"; then
+  sed -i "s#^FILE_BACKEND_URL=.*#FILE_BACKEND_URL=${FILE_BACKEND_URL}#" "$PROD_DIR/.env"
+else
+  printf '\nFILE_BACKEND_URL=%s\n' "$FILE_BACKEND_URL" >> "$PROD_DIR/.env"
+fi
+log "Set FILE_BACKEND_URL=$FILE_BACKEND_URL"
+
 touch "$PROD_DIR/yarn.lock"
 [ -f "$PROD_DIR/.yarnrc.yml" ] || echo "nodeLinker: node-modules" > "$PROD_DIR/.yarnrc.yml"
 

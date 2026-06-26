@@ -12,11 +12,11 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zod": "3.25.76",
-    "@medusajs/icons": "2.13.4",
-    "@medusajs/ui": "4.1.1",
-    "@mercurjs/dashboard-sdk": "2.2.0-canary.33",
-    "@mercurjs/dashboard-shared": "2.2.0-canary.33",
-    "@mercurjs/client": "2.2.0-canary.33",
+    "@medusajs/icons": "2.16.0-options-preview-20260605124754",
+    "@medusajs/ui": "4.1.16-options-preview-20260605124754",
+    "@mercurjs/dashboard-sdk": "2.2.0-canary.34",
+    "@mercurjs/dashboard-shared": "2.2.0-canary.34",
+    "@mercurjs/client": "2.2.0-canary.34",
     "react-i18next": "13.5.0",
     "@tanstack/react-query": "5.64.2",
     "react-router-dom": "6.30.3",
@@ -46,6 +46,21 @@
   },
   "engines": {
     "node": ">=20"
+  },
+  "resolutions": {
+    "@medusajs/admin-sdk": "2.16.0-options-preview-20260605124754",
+    "@medusajs/admin-shared": "2.16.0-options-preview-20260605124754",
+    "@medusajs/cli": "2.16.0-options-preview-20260605124754",
+    "@medusajs/core-flows": "2.16.0-options-preview-20260605124754",
+    "@medusajs/dashboard": "2.16.0-options-preview-20260605124754",
+    "@medusajs/draft-order": "2.16.0-options-preview-20260605124754",
+    "@medusajs/framework": "2.16.0-options-preview-20260605124754",
+    "@medusajs/icons": "2.16.0-options-preview-20260605124754",
+    "@medusajs/medusa": "2.16.0-options-preview-20260605124754",
+    "@medusajs/test-utils": "2.16.0-options-preview-20260605124754",
+    "@medusajs/types": "2.16.0-options-preview-20260605124754",
+    "@medusajs/ui": "4.1.16-options-preview-20260605124754",
+    "zod": "3.25.76"
   },
   "workspaces": [
     "packages/*",
