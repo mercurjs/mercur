@@ -424,7 +424,7 @@ const SelectedAttributes = ({
               {field.use_for_variants && (
                 <>
                   <div />
-                  <VariantAxisTip />
+                  <VariantAxisTip className="border-none" />
                 </>
               )}
             </div>
@@ -640,14 +640,11 @@ const RequiredAttributeField = ({
   )
 }
 
-const VariantAxisTip = () => {
+const VariantAxisTip = ({ className }: { className?: string }) => {
   const { t } = useTranslation()
 
   return (
-    <InlineTip
-      className="border-none"
-      label={t("products.create.attributes.tip")}
-    >
+    <InlineTip className={className} label={t("products.create.attributes.tip")}>
       {t("products.create.attributes.variantAxisTip")}
     </InlineTip>
   )
