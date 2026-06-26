@@ -1,11 +1,11 @@
 import {
   ArrowDownTray,
-  FeaturedBadge,
   ThumbnailBadge,
   Trash,
   TriangleLeftMini,
   TriangleRightMini,
 } from "@medusajs/icons"
+import { ListBadge } from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import { Button, IconButton, Text, Tooltip, clx, usePrompt } from "@medusajs/ui"
 import { useCallback, useEffect, useState } from "react"
@@ -193,7 +193,7 @@ const Canvas = ({
             )}
             {media[curr].is_banner && (
               <Tooltip content={t("categories.media.banner")}>
-                <FeaturedBadge className="text-ui-fg-interactive" />
+                <ListBadge />
               </Tooltip>
             )}
           </div>

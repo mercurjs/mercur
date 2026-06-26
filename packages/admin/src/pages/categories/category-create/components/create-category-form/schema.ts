@@ -1,3 +1,4 @@
+import i18n from "i18next"
 import { z } from "zod"
 
 export const CategoryMediaSchema = z.object({
@@ -14,7 +15,7 @@ export const CategoryIconSchema = z.object({
 })
 
 export const CreateCategoryDetailsSchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, { message: i18n.t("categories.validation.titleRequired") }),
   description: z.string().optional(),
   handle: z.string().optional(),
   status: z.enum(["active", "inactive"]),
