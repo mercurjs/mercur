@@ -38,7 +38,7 @@ import {
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useFeatureFlags } from "@hooks/api"
 import { useUpdateProduct } from "@hooks/api/products"
-import { uploadFilesQuery } from "@lib/client"
+import { sdk } from "@lib/client"
 import { UploadMediaFormItem } from "../../../common/components/upload-media-form-item"
 import {
   EditProductMediaSchema,
@@ -116,8 +116,8 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
     let uploaded: HttpTypes.AdminFile[] = []
 
     if (filesToUpload.length) {
-      const { files } = await uploadFilesQuery(filesToUpload)
-        // .then((res) => res.json())
+      const { files } = await sdk.vendor.uploads
+        .mutate({ files: filesToUpload.map((m) => m.file) })
         .catch(() => {
           form.setError("media", {
             type: "invalid_file",

@@ -77,15 +77,3 @@ export const fetchQuery = async (
 
   return response.json()
 }
-
-export const uploadFilesQuery = async (files: any[]) => {
-  const formData = new FormData()
-
-  for (const { file } of files) {
-    formData.append("files", file)
-  }
-
-  return sdk.admin.uploads.mutate({
-    fetchOptions: { body: formData },
-  })
-}
