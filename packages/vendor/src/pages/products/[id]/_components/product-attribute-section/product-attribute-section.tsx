@@ -1,5 +1,4 @@
 import {
-  ListBullet,
   Plus,
   Trash,
   Swatch,
@@ -236,12 +235,12 @@ export const ProductAttributeSection = ({
                 {
                   label: t("products.create.attributes.addExisting"),
                   to: "attributes/add",
-                  icon: <ListBullet />,
+                  icon: <Plus />,
                 },
                 {
                   label: t("products.create.attributes.createNew"),
                   to: "attributes/create",
-                  icon: <Plus />,
+                  icon: <PencilSquare />,
                 },
               ],
             },
@@ -252,7 +251,7 @@ export const ProductAttributeSection = ({
       {variantAttributes.length > 0 && (
         <AttributeGroup
           icon={<Swatch />}
-          title={t("products.create.tabs.variants")}
+          title={t("products.attributeVariations")}
           description={t("products.attributeVariantsDescription")}
           attributes={variantAttributes}
           productId={product.id}
