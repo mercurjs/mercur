@@ -601,9 +601,7 @@ export const ProductChangePanel = ({
 
   const fieldLabel = (field: string): string => {
     if (field === "categories") {
-      return t("fields.secondary_categories", {
-        defaultValue: "Secondary categories",
-      });
+      return t("fields.category", { defaultValue: "Category" });
     }
     return t(`fields.${field}`, { defaultValue: humanizeFieldName(field) });
   };
