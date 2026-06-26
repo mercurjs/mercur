@@ -61,10 +61,6 @@ export const REFERENCE_FIELDS: ReferenceField[] = [
   "tags",
 ]
 
-// Organization fields must render in a fixed order in the request panel
-// (Category, Collection, Tags, Type) regardless of the order the staged actions
-// were created in. Fields not listed here keep their original position and sort
-// before the organization block.
 const PRODUCT_FIELD_ORDER: Record<string, number> = {
   categories: 1,
   collection_id: 2,
