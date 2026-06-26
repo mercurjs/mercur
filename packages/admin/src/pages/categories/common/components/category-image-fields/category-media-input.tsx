@@ -97,13 +97,14 @@ export const CategoryMediaInput = ({
                   </Text>
                   <div className="text-ui-fg-subtle flex items-center gap-x-1">
                     {item.is_thumbnail && (
-                      <ThumbnailBadge data-testid="category-media-input-item-thumbnail-badge" />
+                      <Tooltip content={t("categories.media.thumbnail")}>
+                        <ThumbnailBadge data-testid="category-media-input-item-thumbnail-badge" />
+                      </Tooltip>
                     )}
                     {item.is_banner && (
-                      <ListBadge
-                        className="text-ui-fg-interactive"
-                        data-testid="category-media-input-item-banner-badge"
-                      />
+                      <Tooltip content={t("categories.media.banner")}>
+                        <ListBadge data-testid="category-media-input-item-banner-badge" />
+                      </Tooltip>
                     )}
                     {item.file && (
                       <Text

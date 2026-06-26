@@ -326,7 +326,7 @@ const RoleBadges = ({ media }: { media: MediaField }) => {
       )}
       {media.is_banner && (
         <Tooltip content={t("categories.media.banner")}>
-          <ListBadge className="text-ui-fg-interactive" />
+          <ListBadge />
         </Tooltip>
       )}
     </div>

@@ -48,7 +48,7 @@ export const CollectionMediaSection = ({
                     )}
                     {image.is_banner && (
                       <Tooltip content={t("collections.media.banner")}>
-                        <ListBadge className="text-ui-fg-interactive" />
+                        <ListBadge />
                       </Tooltip>
                     )}
                   </div>

@@ -97,13 +97,14 @@ export const CollectionMediaInput = ({
                   </Text>
                   <div className="text-ui-fg-subtle flex items-center gap-x-1">
                     {item.is_thumbnail && (
-                      <ThumbnailBadge data-testid="collection-media-input-item-thumbnail-badge" />
+                      <Tooltip content={t("collections.media.thumbnail")}>
+                        <ThumbnailBadge data-testid="collection-media-input-item-thumbnail-badge" />
+                      </Tooltip>
                     )}
                     {item.is_banner && (
-                      <ListBadge
-                        className="text-ui-fg-interactive"
-                        data-testid="collection-media-input-item-banner-badge"
-                      />
+                      <Tooltip content={t("collections.media.banner")}>
+                        <ListBadge data-testid="collection-media-input-item-banner-badge" />
+                      </Tooltip>
                     )}
                     {item.file && (
                       <Text

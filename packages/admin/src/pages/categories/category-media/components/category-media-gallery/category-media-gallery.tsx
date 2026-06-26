@@ -193,7 +193,7 @@ const Canvas = ({
             )}
             {media[curr].is_banner && (
               <Tooltip content={t("categories.media.banner")}>
-                <ListBadge className="text-ui-fg-interactive" />
+                <ListBadge />
               </Tooltip>
             )}
           </div>
