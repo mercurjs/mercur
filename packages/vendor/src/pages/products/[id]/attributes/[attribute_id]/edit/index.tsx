@@ -1,5 +1,5 @@
 // Route: /products/:id/attributes/:attribute_id/edit
-import { Heading, Text } from "@medusajs/ui";
+import { Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
@@ -33,10 +33,8 @@ export const Component = () => {
         <RouteDrawer.Title asChild>
           <Heading>{t("products.editAttribute")}</Heading>
         </RouteDrawer.Title>
-        <RouteDrawer.Description asChild>
-          <Text size="small" className="text-ui-fg-subtle">
-            {t("products.editAttributeHint")}
-          </Text>
+        <RouteDrawer.Description className="sr-only">
+          {t("products.editAttributeHint")}
         </RouteDrawer.Description>
       </RouteDrawer.Header>
       {ready && (
