@@ -17,6 +17,6 @@
  * options + `is_exclusive` must be read from the `product_option` side.
  */
 export const PRODUCT_DETAIL_FIELDS =
-  "*categories,*sellers,-variants,*scoped_attributes,*scoped_attributes.values,*product_attribute_values,*product_attribute_values.attribute,*product_attribute_values.attribute.values"
+  "*images,*categories,*sellers,-variants,*scoped_attributes,*scoped_attributes.values,*product_attribute_values,*product_attribute_values.attribute,*product_attribute_values.attribute.values"
 
 export const PRODUCT_DETAIL_QUERY = { fields: PRODUCT_DETAIL_FIELDS } as const
