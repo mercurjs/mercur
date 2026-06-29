@@ -100,6 +100,50 @@ const AttributeActions = ({
   )
 }
 
+const AttributeValue = ({
+  attribute,
+}: {
+  attribute: ProductAttributeDTO
+}) => {
+  const { t } = useTranslation()
+  const values = attribute.values?.map((v) => v.name) ?? []
+
+  if (["single_select", "multi_select"].includes(attribute.type)) {
+    return (
+      <div className="flex flex-wrap gap-1">
+        {values.map((val) => (
+          <Badge
+            key={val}
+            size="2xsmall"
+            className="flex min-w-[20px] items-center justify-center"
+          >
+            {val}
+          </Badge>
+        ))}
+      </div>
+    )
+  }
+
+  const textValue =
+    attribute.type === "toggle"
+      ? values
+          .map((val) => (val === "true" ? t("general.yes") : t("general.no")))
+          .join(", ") || "-"
+      : values.join(", ") || "-"
+
+  return (
+    <Tooltip content={textValue}>
+      <Text
+        size="small"
+        leading="compact"
+        className="line-clamp-3 min-w-0 break-words text-ui-fg-subtle"
+      >
+        {textValue}
+      </Text>
+    </Tooltip>
+  )
+}
+
 const AttributeGroup = ({
   icon,
   title,
@@ -138,8 +182,6 @@ const AttributeGroup = ({
       <div className="flex flex-col gap-y-0">
         <div className="overflow-hidden rounded-xl border border-ui-border-base">
           {attributes.map((attr, index) => {
-            const values = attr.values?.map((v) => v.name) ?? []
-
             return (
               <div
                 key={attr.id}
@@ -170,44 +212,7 @@ const AttributeGroup = ({
                     )}
                   </div>
 
-                  <div className="flex flex-wrap gap-1">
-                    {["single_select", "multi_select"].includes(attr.type) ? (
-                      values.map((val) => (
-                        <Badge
-                          key={val}
-                          size="2xsmall"
-                          className="flex min-w-[20px] items-center justify-center"
-                        >
-                          {val}
-                        </Badge>
-                      ))
-                    ) : (
-                      (() => {
-                        const textValue =
-                          attr.type === "toggle"
-                            ? values
-                                .map((val) =>
-                                  val === "true"
-                                    ? t("general.yes")
-                                    : t("general.no")
-                                )
-                                .join(", ") || "-"
-                            : values.join(", ") || "-"
-
-                        return (
-                          <Tooltip content={textValue}>
-                            <Text
-                              size="small"
-                              leading="compact"
-                              className="line-clamp-3 min-w-0 break-words text-ui-fg-subtle"
-                            >
-                              {textValue}
-                            </Text>
-                          </Tooltip>
-                        )
-                      })()
-                    )}
-                  </div>
+                  <AttributeValue attribute={attr} />
 
                   <AttributeActions productId={productId} attribute={attr} />
                 </div>
