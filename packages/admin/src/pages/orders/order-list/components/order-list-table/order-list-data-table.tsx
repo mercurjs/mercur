@@ -152,6 +152,11 @@ export const OrderListDataTable = () => {
       navigateTo={(row) =>
         row.original._type === "order" ? `/orders/${row.original.id}` : ""
       }
+      onRowClick={(row) => {
+        if (row.getCanExpand()) {
+          row.toggleExpanded();
+        }
+      }}
       count={count}
       search
       filters={filters}
