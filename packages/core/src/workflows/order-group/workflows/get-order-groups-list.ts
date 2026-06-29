@@ -21,7 +21,6 @@ export type GetOrderGroupsListWorkflowInput = {
     take?: number
     order?: Record<string, string>
   }
-  // Trims each returned group's child orders to this seller.
   sellerId?: string | string[]
 }
 

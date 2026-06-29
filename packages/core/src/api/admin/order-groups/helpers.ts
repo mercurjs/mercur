@@ -18,9 +18,6 @@ const respondEmpty = (req: AuthenticatedMedusaRequest, res: MedusaResponse) => {
   })
 }
 
-// `order_group` has no seller relation, so `seller_id` can't be filtered
-// directly — resolve it through the order_seller/order_group_order links into an
-// `id` lookup. QueryGraph silently matches nothing on the unknown field.
 export const applyOrderGroupSellerFilter = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse,

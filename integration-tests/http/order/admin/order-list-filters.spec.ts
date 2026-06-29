@@ -18,9 +18,6 @@ import {
 
 jest.setTimeout(120000)
 
-// `/admin/order-groups` Store (seller) filtering: group narrowing +
-// child-order trimming to the selected seller.
-
 const approveSeller = async (
     container: MedusaContainer,
     sellerId: string
