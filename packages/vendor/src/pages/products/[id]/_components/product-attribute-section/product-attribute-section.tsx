@@ -151,16 +151,9 @@ const AttributeGroup = ({
               >
                 <div className="grid grid-cols-[1fr_1fr_28px] items-center gap-4 px-4 py-3 bg-ui-bg-component">
                   <div className="flex items-center gap-x-2 text-ui-fg-subtle">
-                    <Tooltip content={attr.name}>
-                      <Text
-                        size="small"
-                        weight="plus"
-                        leading="compact"
-                        className="line-clamp-3 min-w-0 break-words"
-                      >
-                        {attr.name}
-                      </Text>
-                    </Tooltip>
+                    <Text size="small" weight="plus" leading="compact">
+                      {attr.name}
+                    </Text>
                     {attr.description && (
                       <Tooltip content={attr.description}>
                         <span className="text-ui-fg-muted flex items-center">
@@ -189,19 +182,30 @@ const AttributeGroup = ({
                         </Badge>
                       ))
                     ) : (
-                      <Text
-                        size="small"
-                        leading="compact"
-                        className="text-ui-fg-subtle"
-                      >
-                        {attr.type === "toggle"
-                          ? values
-                              .map((val) =>
-                                val === "true" ? t("general.yes") : t("general.no")
-                              )
-                              .join(", ") || "-"
-                          : values.join(", ") || "-"}
-                      </Text>
+                      (() => {
+                        const textValue =
+                          attr.type === "toggle"
+                            ? values
+                                .map((val) =>
+                                  val === "true"
+                                    ? t("general.yes")
+                                    : t("general.no")
+                                )
+                                .join(", ") || "-"
+                            : values.join(", ") || "-"
+
+                        return (
+                          <Tooltip content={textValue}>
+                            <Text
+                              size="small"
+                              leading="compact"
+                              className="line-clamp-3 min-w-0 break-words text-ui-fg-subtle"
+                            >
+                              {textValue}
+                            </Text>
+                          </Tooltip>
+                        )
+                      })()
                     )}
                   </div>
 
