@@ -1715,6 +1715,9 @@
                 "uniqueSku": {
                   "type": "string"
                 },
+                "requiredAttribute": {
+                  "type": "string"
+                },
                 "requiredAttributeSelect": {
                   "type": "string"
                 },
@@ -1724,7 +1727,13 @@
                 "requiredAttributeMultiSelect": {
                   "type": "string"
                 },
+                "requiredStore": {
+                  "type": "string"
+                },
                 "requiredTitle": {
+                  "type": "string"
+                },
+                "requiredCategory": {
                   "type": "string"
                 }
               },
@@ -1732,10 +1741,13 @@
                 "variants",
                 "options",
                 "uniqueSku",
+                "requiredAttribute",
                 "requiredAttributeSelect",
                 "requiredAttributeEnter",
                 "requiredAttributeMultiSelect",
-                "requiredTitle"
+                "requiredStore",
+                "requiredTitle",
+                "requiredCategory"
               ],
               "additionalProperties": false
             },

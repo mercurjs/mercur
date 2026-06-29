@@ -46,7 +46,7 @@ export const ProductCreateSchema = z
     globally_available: z.boolean(),
     type_id: z.string().optional(),
     collection_id: z.string().optional(),
-    category_id: z.string().min(1),
+    category_id: z.string().min(1, i18n.t("products.create.errors.requiredCategory")),
     seller_ids: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
     origin_country: z.string().optional(),
