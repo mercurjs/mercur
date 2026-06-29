@@ -151,9 +151,16 @@ const AttributeGroup = ({
               >
                 <div className="grid grid-cols-[1fr_1fr_28px] items-center gap-4 px-4 py-3 bg-ui-bg-component">
                   <div className="flex items-center gap-x-2 text-ui-fg-subtle">
-                    <Text size="small" weight="plus" leading="compact">
-                      {attr.name}
-                    </Text>
+                    <Tooltip content={attr.name}>
+                      <Text
+                        size="small"
+                        weight="plus"
+                        leading="compact"
+                        className="line-clamp-3 min-w-0 break-words"
+                      >
+                        {attr.name}
+                      </Text>
+                    </Tooltip>
                     {attr.description && (
                       <Tooltip content={attr.description}>
                         <span className="text-ui-fg-muted flex items-center">
