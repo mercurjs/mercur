@@ -83,9 +83,7 @@ const Root = () => {
       autoComplete="off"
       value={search}
       onChange={(event) => setSearch(event.target.value)}
-      placeholder={t(
-        "products.create.variants.productVariants.searchPlaceholder",
-      )}
+      placeholder={t("general.search")}
       data-testid="product-create-variants-search-input"
     />
   );

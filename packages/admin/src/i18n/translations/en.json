@@ -490,7 +490,6 @@
           "placeholder": "Small, Medium, Large"
         },
         "productVariants": {
-          "searchPlaceholder": "Search",
           "label": "Product variants",
           "hint": "This ranking will affect the variants' display order.",
           "alert": "Add values to your variant attributes to generate variants.",
