@@ -16,52 +16,11 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
-import { useEffect, useRef, useState } from "react";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { ProductAttributeDTO, ProductDTO } from "@mercurjs/types";
 import { useRemoveAttributeFromProduct } from "../../../../../hooks/api/products";
 
 type ProductWithAttributes = Pick<ProductDTO, "id" | "attributes">;
-
-const AttributeValue = ({ value }: { value: string }) => {
-  const ref = useRef<HTMLParagraphElement>(null);
-  const [isTruncated, setIsTruncated] = useState(false);
-
-  useEffect(() => {
-    const el = ref.current;
-    if (!el) {
-      return;
-    }
-
-    const checkTruncation = () => {
-      setIsTruncated(el.scrollHeight > el.clientHeight);
-    };
-
-    checkTruncation();
-
-    const observer = new ResizeObserver(checkTruncation);
-    observer.observe(el);
-
-    return () => observer.disconnect();
-  }, [value]);
-
-  const text = (
-    <Text
-      ref={ref}
-      size="small"
-      leading="compact"
-      className="line-clamp-3 min-w-0 text-ui-fg-subtle"
-    >
-      {value}
-    </Text>
-  );
-
-  if (!isTruncated) {
-    return text;
-  }
-
-  return <Tooltip content={value}>{text}</Tooltip>;
-};
 
 const AttributeActions = ({
   productId,
@@ -207,19 +166,19 @@ const AttributeGroup = ({
                         </Badge>
                       ))
                     ) : (
-                      <AttributeValue
-                        value={
-                          attr.type === "toggle"
-                            ? values
-                                .map((val) =>
-                                  val === "true"
-                                    ? t("general.yes")
-                                    : t("general.no")
-                                )
-                                .join(", ") || "-"
-                            : values.join(", ") || "-"
-                        }
-                      />
+                      <Text
+                        size="small"
+                        leading="compact"
+                        className="text-ui-fg-subtle"
+                      >
+                        {attr.type === "toggle"
+                          ? values
+                              .map((val) =>
+                                val === "true" ? t("general.yes") : t("general.no")
+                              )
+                              .join(", ") || "-"
+                          : values.join(", ") || "-"}
+                      </Text>
                     )}
                   </div>
 
