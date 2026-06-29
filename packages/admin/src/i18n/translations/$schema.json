@@ -1715,7 +1715,16 @@
                 "uniqueSku": {
                   "type": "string"
                 },
+                "requiredAttribute": {
+                  "type": "string"
+                },
+                "requiredStore": {
+                  "type": "string"
+                },
                 "requiredTitle": {
+                  "type": "string"
+                },
+                "requiredCategory": {
                   "type": "string"
                 }
               },
@@ -1723,7 +1732,10 @@
                 "variants",
                 "options",
                 "uniqueSku",
-                "requiredTitle"
+                "requiredAttribute",
+                "requiredStore",
+                "requiredTitle",
+                "requiredCategory"
               ],
               "additionalProperties": false
             },
