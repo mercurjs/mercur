@@ -1718,6 +1718,15 @@
                 "requiredAttribute": {
                   "type": "string"
                 },
+                "requiredAttributeSelect": {
+                  "type": "string"
+                },
+                "requiredAttributeEnter": {
+                  "type": "string"
+                },
+                "requiredAttributeMultiSelect": {
+                  "type": "string"
+                },
                 "requiredStore": {
                   "type": "string"
                 },
@@ -1733,6 +1742,9 @@
                 "options",
                 "uniqueSku",
                 "requiredAttribute",
+                "requiredAttributeSelect",
+                "requiredAttributeEnter",
+                "requiredAttributeMultiSelect",
                 "requiredStore",
                 "requiredTitle",
                 "requiredCategory"

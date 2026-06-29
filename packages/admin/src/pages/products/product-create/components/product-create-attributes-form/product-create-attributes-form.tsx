@@ -1,6 +1,7 @@
 import { XMarkMini } from "@medusajs/icons"
 import {
   Button,
+  clx,
   Heading,
   Hint,
   IconButton,
@@ -640,7 +641,10 @@ const VariantAxisTip = ({ className }: { className?: string }) => {
   const { t } = useTranslation()
 
   return (
-    <InlineTip className={className} label={t("products.create.attributes.tip")}>
+    <InlineTip
+      className={clx("border-none", className)}
+      label={t("products.create.attributes.tip")}
+    >
       {t("products.create.attributes.variantAxisTip")}
     </InlineTip>
   )
