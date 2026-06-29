@@ -13,7 +13,7 @@
     <br />
     <a href="https://docs.mercurjs.com">Docs</a>
     &middot;
-    <a href="./CONTRIBUTING.md">Contributing</a>
+    <a href="https://discord.gg/hnZBzc4NJU">Discord</a>
   </p>
 </p>
 
