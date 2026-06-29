@@ -89,10 +89,19 @@ export const ProductCreateSchema = z
         (Array.isArray(attr.values) && attr.values.length === 0)
 
       if (isEmpty) {
+        let messageKey = "products.create.errors.requiredAttribute"
+        if (attr.type === "single_select" || attr.type === "toggle") {
+          messageKey = "products.create.errors.requiredAttributeSelect"
+        } else if (attr.type === "multi_select") {
+          messageKey = "products.create.errors.requiredAttributeMultiSelect"
+        } else if (attr.type === "text" || attr.type === "unit") {
+          messageKey = "products.create.errors.requiredAttributeEnter"
+        }
+
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: [`attributes.${index}.values`],
-          message: i18n.t("products.create.errors.requiredAttribute"),
+          message: i18n.t(messageKey),
         })
       }
     })

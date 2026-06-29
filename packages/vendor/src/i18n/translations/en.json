@@ -540,7 +540,7 @@
       "successToast": "Product {{title}} was successfully created.",
       "requestSuccessToast": "Product was successfully requested. You can now create offers for this product. Once the product is approved by the admin, your offers will appear on the storefront. Only offers with stock levels and prices set will be visible.",
       "attributes": {
-        "description": "Manage attributes and variations for your product, e.g. color, size, brand etc. Select from attributes defined by the Marketplace or create your own.",
+        "description": "Manage attributes and variations for your product, e.g. color, size, brand etc. Select from attributes defined by the marketplace or create your own.",
         "requiredHeading": "Required Attributes",
         "requiredDescription": "These attributes are required for products in this category.",
         "buttonLabel": "Attribute",
@@ -553,7 +553,7 @@
         "addExisting": "Add existing",
         "createNew": "Create new",
         "requiredAttributes": "Required attributes",
-        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "requiredAttributesHint": "These attributes are required by the marketplace. Select them before proceeding.",
         "selectValues": "Select values",
         "tip": "Tip",
         "useForVariants": "Use for variants",

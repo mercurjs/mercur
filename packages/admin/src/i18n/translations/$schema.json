@@ -1714,12 +1714,24 @@
                 },
                 "uniqueSku": {
                   "type": "string"
+                },
+                "requiredAttributeSelect": {
+                  "type": "string"
+                },
+                "requiredAttributeEnter": {
+                  "type": "string"
+                },
+                "requiredAttributeMultiSelect": {
+                  "type": "string"
                 }
               },
               "required": [
                 "variants",
                 "options",
-                "uniqueSku"
+                "uniqueSku",
+                "requiredAttributeSelect",
+                "requiredAttributeEnter",
+                "requiredAttributeMultiSelect"
               ],
               "additionalProperties": false
             },
