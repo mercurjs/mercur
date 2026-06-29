@@ -37,7 +37,6 @@ import {
 
 import { ActionMenu } from "@components/common/action-menu"
 import { useOrderPreview } from "../../../../../hooks/api/orders"
-import { useMarkPaymentCollectionAsPaid } from "../../../../../hooks/api/payment-collections"
 import { useReservationItems } from "../../../../../hooks/api/reservations"
 import { useReturns } from "../../../../../hooks/api/returns"
 import {
@@ -936,11 +935,6 @@ const OutstandingActions = ({ order }: { order: HttpTypes.AdminOrder }) => {
     order.status !== "canceled" &&
     !!unpaidCollection
 
-  const markAsPaid = useMarkPaymentCollectionAsPaid(
-    order.id,
-    unpaidCollection?.id ?? ""
-  )
-
   if (!isOutstanding || !unpaidCollection) {
     return null
   }
@@ -952,11 +946,11 @@ const OutstandingActions = ({ order }: { order: HttpTypes.AdminOrder }) => {
         | undefined
     )?.url ?? null
 
+  if (!paymentLink) {
+    return null
+  }
+
   const handleCopyLink = async () => {
-    if (!paymentLink) {
-      toast.error(t("orders.payment.copyLinkMissing"))
-      return
-    }
     try {
       await navigator.clipboard.writeText(paymentLink)
       toast.success(t("orders.payment.copyLinkSuccess"))
@@ -965,33 +959,12 @@ const OutstandingActions = ({ order }: { order: HttpTypes.AdminOrder }) => {
     }
   }
 
-  const handleMarkAsPaid = () => {
-    markAsPaid.mutate(
-      { order_id: order.id },
-      {
-        onSuccess: () => toast.success(t("orders.payment.markAsPaidSuccess")),
-        onError: (e) => toast.error(e.message),
-      }
-    )
-  }
-
   return (
     <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
-      {paymentLink && (
-        <Button size="small" variant="secondary" onClick={handleCopyLink}>
-          {t("orders.payment.copyPaymentLink", {
-            amount: getStylizedAmount(pendingDifference, order.currency_code),
-          })}
-        </Button>
-      )}
-
-      <Button
-        size="small"
-        variant="secondary"
-        onClick={handleMarkAsPaid}
-        isLoading={markAsPaid.isPending}
-      >
-        {t("orders.payment.markAsPaid")}
+      <Button size="small" variant="secondary" onClick={handleCopyLink}>
+        {t("orders.payment.copyPaymentLink", {
+          amount: getStylizedAmount(pendingDifference, order.currency_code),
+        })}
       </Button>
     </div>
   )
