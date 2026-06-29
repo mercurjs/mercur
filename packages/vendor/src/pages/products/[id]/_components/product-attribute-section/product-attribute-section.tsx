@@ -132,7 +132,7 @@ const AttributeValue = ({
       : values.join(", ") || "-"
 
   return (
-    <Tooltip content={textValue}>
+    <Tooltip content={<span className="break-all">{textValue}</span>}>
       <Text
         size="small"
         leading="compact"
