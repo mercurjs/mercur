@@ -28,7 +28,9 @@ import {
 
 const EditCommissionRuleSchema = zod.object({
   status: zod.enum(["active", "inactive"]),
-  name: zod.string().min(1),
+  name: zod
+    .string()
+    .min(1, { message: i18n.t("commissions.validation.titleRequired") }),
   code: zod
     .string()
     .min(1, { message: i18n.t("commissions.validation.codeRequired") }),
@@ -42,6 +44,30 @@ const EditCommissionRuleSchema = zod.object({
   stores: zod.array(zod.string()),
   productTypes: zod.array(zod.string()),
   categories: zod.array(zod.string()),
+}).superRefine((data, ctx) => {
+  const dimensions = SCOPE_TYPE_DIMENSIONS[data.scopeType];
+
+  if (dimensions.includes("seller") && data.stores.length === 0) {
+    ctx.addIssue({
+      code: zod.ZodIssueCode.custom,
+      path: ["stores"],
+      message: i18n.t("commissions.validation.storesRequired"),
+    });
+  }
+  if (dimensions.includes("product_type") && data.productTypes.length === 0) {
+    ctx.addIssue({
+      code: zod.ZodIssueCode.custom,
+      path: ["productTypes"],
+      message: i18n.t("commissions.validation.productTypesRequired"),
+    });
+  }
+  if (dimensions.includes("product_category") && data.categories.length === 0) {
+    ctx.addIssue({
+      code: zod.ZodIssueCode.custom,
+      path: ["categories"],
+      message: i18n.t("commissions.validation.categoriesRequired"),
+    });
+  }
 });
 
 type EditCommissionRuleSchemaType = zod.infer<typeof EditCommissionRuleSchema>;
