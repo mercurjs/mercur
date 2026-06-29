@@ -448,7 +448,8 @@
         "requiredAttributeSelect": "This attribute is required by the marketplace. Please select value.",
         "requiredAttributeEnter": "This attribute is required by the marketplace. Please enter value.",
         "requiredAttributeMultiSelect": "This attribute is required by the marketplace. Please select at least one value.",
-        "requiredStore": "Please select at least one store."
+        "requiredStore": "Please select at least one store.",
+        "requiredTitle": "Please enter a title"
       },
       "inventory": {
         "heading": "Inventory kits",

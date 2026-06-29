@@ -36,7 +36,9 @@ export type ProductCreateVariantSchema = z.infer<
 
 export const ProductCreateSchema = z
   .object({
-    title: z.string().min(1),
+    title: z.string().min(1, {
+      message: i18n.t("products.create.errors.requiredTitle"),
+    }),
     subtitle: z.string().optional(),
     handle: z.string().optional(),
     description: z.string().optional(),

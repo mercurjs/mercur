@@ -61,6 +61,23 @@ export const REFERENCE_FIELDS: ReferenceField[] = [
   "tags",
 ]
 
+const PRODUCT_FIELD_ORDER: Record<string, number> = {
+  categories: 1,
+  collection_id: 2,
+  tags: 3,
+  type_id: 4,
+}
+
+const sortProductFieldDiffs = (diffs: FieldDiff[]): FieldDiff[] =>
+  diffs
+    .map((diff, index) => ({ diff, index }))
+    .sort((a, b) => {
+      const weightA = PRODUCT_FIELD_ORDER[a.diff.field] ?? 0
+      const weightB = PRODUCT_FIELD_ORDER[b.diff.field] ?? 0
+      return weightA !== weightB ? weightA - weightB : a.index - b.index
+    })
+    .map(({ diff }) => diff)
+
 export const isReferenceField = (field: string): field is ReferenceField =>
   (REFERENCE_FIELDS as string[]).includes(field)
 
@@ -377,7 +394,7 @@ export const buildProductChangeView = (
   )
 
   return {
-    productUpdated,
+    productUpdated: sortProductFieldDiffs(productUpdated),
     productMedia,
     attributes,
     variantsAdded,
