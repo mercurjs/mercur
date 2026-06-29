@@ -10,7 +10,6 @@ import {
   validateAndTransformQuery,
 } from "@medusajs/framework"
 
-import { applyRequestFilter } from "./apply-request-filter"
 import {
   vendorOrderChangesQueryConfig,
   vendorOrderQueryConfig,
@@ -47,7 +46,6 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
         vendorOrderQueryConfig.list
       ),
       applySellerLinkFilter,
-      applyRequestFilter,
     ],
   },
   {

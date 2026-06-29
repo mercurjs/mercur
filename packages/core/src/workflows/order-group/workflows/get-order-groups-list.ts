@@ -21,6 +21,7 @@ export type GetOrderGroupsListWorkflowInput = {
     take?: number
     order?: Record<string, string>
   }
+  sellerId?: string | string[]
 }
 
 export const getOrderGroupsListWorkflowId = "get-order-groups-list"
@@ -30,11 +31,12 @@ export const getOrderGroupsListWorkflow = createWorkflow(
   (
     input: WorkflowData<GetOrderGroupsListWorkflowInput>
   ) => {
-    const fields = transform(input, ({ fields }) => {
+    const fields = transform(input, ({ fields, sellerId }) => {
       return deduplicate([
         ...fields,
         "id",
         "orders.id",
+        ...(sellerId ? ["orders.seller.id"] : []),
         "orders.status",
         "orders.version",
         "orders.currency_code",
@@ -72,8 +74,22 @@ export const getOrderGroupsListWorkflow = createWorkflow(
           f.includes("fulfillments")
         )
 
+        const sellerIds = input.sellerId
+          ? new Set(
+              Array.isArray(input.sellerId)
+                ? input.sellerId
+                : [input.sellerId]
+            )
+          : undefined
+
         for (const group of orderGroups) {
           if (!group.orders) continue
+
+          if (sellerIds) {
+            group.orders = group.orders.filter((order: any) =>
+              order.seller?.id ? sellerIds.has(order.seller.id) : false
+            )
+          }
 
           for (const order of group.orders) {
             const order_ = order as OrderDetailDTO

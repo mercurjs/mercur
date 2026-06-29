@@ -176,6 +176,11 @@ export const CustomerOrderSection = ({
         navigateTo={(row) =>
           row.original._type === "order" ? `/orders/${row.original.id}` : ""
         }
+        onRowClick={(row) => {
+          if (row.getCanExpand()) {
+            row.toggleExpanded()
+          }
+        }}
         count={count}
         isLoading={isLoading}
         pageSize={PAGE_SIZE}
