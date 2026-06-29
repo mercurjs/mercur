@@ -1312,15 +1312,6 @@
     "claim": "Claim",
     "exchange": "Exchange",
     "return": "Return",
-    "filters": {
-      "request": {
-        "label": "Request",
-        "edit": "Edit",
-        "return": "Return",
-        "exchange": "Exchange",
-        "claim": "Claim"
-      }
-    },
     "actions": {
       "cancelDisabledFulfilled": "Cannot cancel an order that has fulfilled items."
     },

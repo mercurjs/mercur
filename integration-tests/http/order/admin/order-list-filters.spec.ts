@@ -19,19 +19,15 @@ import {
 jest.setTimeout(120000)
 
 /**
- * Admin mirror of `vendor/order-list-filters.spec.ts`.
+ * `/admin/order-groups` Store (seller) filtering.
  *
- * The admin `applyRequestFilter` middleware lives on
- * `/admin/order-groups` (moved from `/admin/orders` in this slice). It
- * accepts `request=edit|return|exchange|claim` (multi-select via comma
- * or repeated query param), finds the matching open
- * `order_change`/`return`/`order_exchange`/`order_claim` rows, joins
- * back to their owning `order_group` via `order_group_order`, and
- * filters the list accordingly.
- *
- * Optional `seller_id` query narrows the lookup to a single seller's
- * orders before the join, so unrelated marketplace activity doesn't
- * widen the result.
+ * `order_group` has no seller relation — sellers link to `order`
+ * (`order_seller`) and groups link to `order` (`order_group_order`).
+ * The `applySellerFilter` middleware resolves a `seller_id` query to the
+ * seller's orders, maps those to their owning groups, and turns the
+ * request into an `id` lookup. The list workflow then trims each
+ * returned group's child orders down to that seller, so a multi-seller
+ * group only shows the selected store's orders.
  */
 
 const approveSeller = async (
@@ -47,7 +43,7 @@ const approveSeller = async (
 
 medusaIntegrationTestRunner({
     testSuite: ({ getContainer, api, dbConnection }) => {
-        describe("Admin - Order Group request filter", () => {
+        describe("Admin - Order Group store filter", () => {
             let appContainer: MedusaContainer
             let seller1Seed: any
             let seller2Seed: any
@@ -288,6 +284,92 @@ medusaIntegrationTestRunner({
                 }
             }
 
+            // Single cart spanning multiple sellers' offers — completion splits
+            // it into one child order per seller under a single order group.
+            const completeMultiSellerCheckout = async (offerIds: string[]) => {
+                const cart = (
+                    await api.post(
+                        `/store/carts`,
+                        {
+                            region_id: region.id,
+                            sales_channel_id: salesChannel.id,
+                            currency_code: "usd",
+                        },
+                        storeHeaders
+                    )
+                ).data.cart
+
+                for (const offerId of offerIds) {
+                    await api.post(
+                        `/store/carts/${cart.id}/line-items`,
+                        { offer_id: offerId, quantity: 1 },
+                        storeHeaders
+                    )
+                }
+
+                await api.post(
+                    `/store/carts/${cart.id}`,
+                    {
+                        email: "buyer@test.com",
+                        shipping_address: {
+                            first_name: "Buyer",
+                            last_name: "Test",
+                            address_1: "123 Main St",
+                            city: "New York",
+                            country_code: "us",
+                            postal_code: "10001",
+                        },
+                        billing_address: {
+                            first_name: "Buyer",
+                            last_name: "Test",
+                            address_1: "123 Main St",
+                            city: "New York",
+                            country_code: "us",
+                            postal_code: "10001",
+                        },
+                    },
+                    storeHeaders
+                )
+
+                const shippingOptionsResp = await api.get(
+                    `/store/shipping-options?cart_id=${cart.id}`,
+                    storeHeaders
+                )
+                const allOptions = Object.values(
+                    shippingOptionsResp.data.shipping_options as Record<
+                        string,
+                        any[]
+                    >
+                ).flat()
+                for (const opt of allOptions) {
+                    await api.post(
+                        `/store/carts/${cart.id}/shipping-methods`,
+                        { option_id: opt.id },
+                        storeHeaders
+                    )
+                }
+
+                const paymentCollection = (
+                    await api.post(
+                        `/store/payment-collections`,
+                        { cart_id: cart.id },
+                        storeHeaders
+                    )
+                ).data.payment_collection
+                await api.post(
+                    `/store/payment-collections/${paymentCollection.id}/payment-sessions`,
+                    { provider_id: "pp_system_default" },
+                    storeHeaders
+                )
+
+                const completeResp = await api.post(
+                    `/store/carts/${cart.id}/complete`,
+                    {},
+                    storeHeaders
+                )
+                return { orderGroupId: completeResp.data.order_group.id }
+            }
+
             beforeAll(async () => {
                 appContainer = getContainer()
             })
@@ -351,117 +433,81 @@ medusaIntegrationTestRunner({
                 })
             })
 
-            describe("GET /admin/order-groups?request=...", () => {
-                it("returns empty list when request=edit and no open edit exists", async () => {
-                    await completeCartCheckout(seller1Seed.offer.id)
-
-                    const response = await api.get(
-                        `/admin/order-groups?request=edit`,
-                        adminHeaders
-                    )
-
-                    expect(response.status).toEqual(200)
-                    expect(response.data.order_groups.length).toEqual(0)
-                })
-
-                it("returns the order group when request=edit and an order edit is pending", async () => {
-                    const { orderGroupId, order } =
-                        await completeCartCheckout(seller1Seed.offer.id)
-
-                    // Admin begins an order edit so the filter has something to match on.
-                    await api.post(
-                        `/admin/order-edits`,
-                        { order_id: order.id },
-                        adminHeaders
-                    )
-
-                    const response = await api.get(
-                        `/admin/order-groups?request=edit`,
-                        adminHeaders
-                    )
-
-                    expect(response.status).toEqual(200)
-                    expect(
-                        response.data.order_groups.some(
-                            (g: any) => g.id === orderGroupId
-                        )
-                    ).toBe(true)
-                })
-
-                it("accepts comma-separated and repeated query forms for request", async () => {
-                    const { orderGroupId, order } =
-                        await completeCartCheckout(seller1Seed.offer.id)
-                    await api.post(
-                        `/admin/order-edits`,
-                        { order_id: order.id },
-                        adminHeaders
-                    )
-
-                    const commaResp = await api.get(
-                        `/admin/order-groups?request=edit,return`,
-                        adminHeaders
-                    )
-                    const arrayResp = await api.get(
-                        `/admin/order-groups?request=edit&request=return`,
-                        adminHeaders
-                    )
-
-                    expect(commaResp.status).toEqual(200)
-                    expect(arrayResp.status).toEqual(200)
-                    expect(
-                        commaResp.data.order_groups.some(
-                            (g: any) => g.id === orderGroupId
-                        )
-                    ).toBe(true)
-                    expect(
-                        arrayResp.data.order_groups.some(
-                            (g: any) => g.id === orderGroupId
-                        )
-                    ).toBe(true)
-                })
-
-                it("ignores unknown request values silently (parseRequestParam filters)", async () => {
-                    // Unlike vendor's stricter zod-enum validator, the admin
-                    // middleware calls `parseRequestParam` which drops
-                    // unrecognized values rather than 400-ing. If every value
-                    // is dropped, the filter no-ops and the unfiltered list
-                    // is returned.
-                    await completeCartCheckout(seller1Seed.offer.id)
-
-                    const response = await api.get(
-                        `/admin/order-groups?request=invalid`,
-                        adminHeaders
-                    )
-
-                    expect(response.status).toEqual(200)
-                    expect(response.data.order_groups.length).toBeGreaterThan(0)
-                })
-
-                it("narrows the lookup when both request and seller_id are passed", async () => {
-                    const { order: orderA } = await completeCartCheckout(
+            describe("GET /admin/order-groups?seller_id=...", () => {
+                it("returns only the selected seller's groups", async () => {
+                    const { orderGroupId: groupA } = await completeCartCheckout(
                         seller1Seed.offer.id
                     )
-                    const { orderGroupId: orderGroupBId } =
-                        await completeCartCheckout(seller2Seed.offer.id)
-
-                    // Open an edit on seller1's order. Filtering by
-                    // seller_id=seller2 should NOT surface seller1's group.
-                    await api.post(
-                        `/admin/order-edits`,
-                        { order_id: orderA.id },
-                        adminHeaders
+                    const { orderGroupId: groupB } = await completeCartCheckout(
+                        seller2Seed.offer.id
                     )
 
                     const response = await api.get(
-                        `/admin/order-groups?request=edit&seller_id=${seller2Seed.sellerId}`,
+                        `/admin/order-groups?seller_id=${seller1Seed.sellerId}`,
                         adminHeaders
                     )
 
                     expect(response.status).toEqual(200)
-                    // No open edit exists on seller2's order → seller-scoped
-                    // result is empty.
+                    const ids = response.data.order_groups.map((g: any) => g.id)
+                    expect(ids).toContain(groupA)
+                    expect(ids).not.toContain(groupB)
+                })
+
+                it("trims child orders to the selected seller within a multi-seller group", async () => {
+                    const { orderGroupId } = await completeMultiSellerCheckout([
+                        seller1Seed.offer.id,
+                        seller2Seed.offer.id,
+                    ])
+
+                    const response = await api.get(
+                        `/admin/order-groups?seller_id=${seller1Seed.sellerId}`,
+                        adminHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const group = response.data.order_groups.find(
+                        (g: any) => g.id === orderGroupId
+                    )
+                    // The group spans both sellers, but only seller1's child
+                    // order should remain after trimming.
+                    expect(group).toBeDefined()
+                    expect(group.orders.length).toEqual(1)
+                    expect(
+                        group.orders.every(
+                            (o: any) => o.seller?.id === seller1Seed.sellerId
+                        )
+                    ).toBe(true)
+                })
+
+                it("returns an empty list for an unknown seller", async () => {
+                    await completeCartCheckout(seller1Seed.offer.id)
+
+                    const response = await api.get(
+                        `/admin/order-groups?seller_id=seller_does_not_exist`,
+                        adminHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
                     expect(response.data.order_groups.length).toEqual(0)
-                    void orderGroupBId
+                })
+
+                it("returns all groups when no seller filter is applied", async () => {
+                    const { orderGroupId: groupA } = await completeCartCheckout(
+                        seller1Seed.offer.id
+                    )
+                    const { orderGroupId: groupB } = await completeCartCheckout(
+                        seller2Seed.offer.id
+                    )
+
+                    const response = await api.get(
+                        `/admin/order-groups`,
+                        adminHeaders
+                    )
+
+                    expect(response.status).toEqual(200)
+                    const ids = response.data.order_groups.map((g: any) => g.id)
+                    expect(ids).toContain(groupA)
+                    expect(ids).toContain(groupB)
                 })
             })
         })

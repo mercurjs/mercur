@@ -3,7 +3,7 @@ import {
 } from "@medusajs/framework"
 import { MiddlewareRoute } from "@medusajs/medusa"
 
-import { applyRequestFilter } from "./apply-request-filter"
+import { applySellerFilter } from "./apply-seller-filter"
 import { adminOrderGroupQueryConfig } from "./query-config"
 import {
   AdminGetOrderGroupParams,
@@ -19,7 +19,7 @@ export const adminOrderGroupsMiddlewares: MiddlewareRoute[] = [
         AdminGetOrderGroupsParams,
         adminOrderGroupQueryConfig.list
       ),
-      applyRequestFilter,
+      applySellerFilter,
     ],
   },
   {

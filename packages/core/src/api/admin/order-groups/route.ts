@@ -19,6 +19,10 @@ export const GET = async (
         take: req.queryConfig.pagination?.take,
         order: req.queryConfig.pagination?.order as Record<string, string>,
       },
+      // `applySellerFilter` strips `seller_id` from `filterableFields` (the
+      // group query has no such field) — read it from the raw query so the
+      // workflow can trim child orders to the selected seller.
+      sellerId: req.query.seller_id as string | string[] | undefined,
     },
   })
 
