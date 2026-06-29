@@ -6028,9 +6028,6 @@
             "refund": {
               "type": "string"
             },
-            "markAsPaid": {
-              "type": "string"
-            },
             "statusLabel": {
               "type": "string"
             },
@@ -6091,12 +6088,6 @@
             "capturePaymentSuccess": {
               "type": "string"
             },
-            "markAsPaidPayment": {
-              "type": "string"
-            },
-            "markAsPaidPaymentSuccess": {
-              "type": "string"
-            },
             "createRefund": {
               "type": "string"
             },
@@ -6129,14 +6120,11 @@
             "capture",
             "capture_short",
             "refund",
-            "markAsPaid",
             "statusLabel",
             "statusTitle",
             "status",
             "capturePayment",
             "capturePaymentSuccess",
-            "markAsPaidPayment",
-            "markAsPaidPaymentSuccess",
             "createRefund",
             "refundPaymentSuccess",
             "createRefundWrongQuantity",
