@@ -23,7 +23,7 @@ import { useRemoveAttributeFromProduct } from "../../../../../hooks/api/products
 
 type ProductWithAttributes = Pick<ProductDTO, "id" | "attributes">;
 
-const AttributeName = ({ name }: { name: string }) => {
+const AttributeValue = ({ value }: { value: string }) => {
   const ref = useRef<HTMLParagraphElement>(null);
   const [isTruncated, setIsTruncated] = useState(false);
 
@@ -43,17 +43,16 @@ const AttributeName = ({ name }: { name: string }) => {
     observer.observe(el);
 
     return () => observer.disconnect();
-  }, [name]);
+  }, [value]);
 
   const text = (
     <Text
       ref={ref}
       size="small"
-      weight="plus"
       leading="compact"
-      className="line-clamp-3 min-w-0"
+      className="line-clamp-3 min-w-0 text-ui-fg-subtle"
     >
-      {name}
+      {value}
     </Text>
   );
 
@@ -61,7 +60,7 @@ const AttributeName = ({ name }: { name: string }) => {
     return text;
   }
 
-  return <Tooltip content={name}>{text}</Tooltip>;
+  return <Tooltip content={value}>{text}</Tooltip>;
 };
 
 const AttributeActions = ({
@@ -177,7 +176,9 @@ const AttributeGroup = ({
               >
                 <div className="grid grid-cols-[1fr_1fr_28px] items-center gap-4 px-4 py-3 bg-ui-bg-component">
                   <div className="flex items-center gap-x-2 text-ui-fg-subtle">
-                    <AttributeName name={attr.name} />
+                    <Text size="small" weight="plus" leading="compact">
+                      {attr.name}
+                    </Text>
                     {attr.description && (
                       <Tooltip content={attr.description}>
                         <span className="text-ui-fg-muted flex items-center">
@@ -206,19 +207,19 @@ const AttributeGroup = ({
                         </Badge>
                       ))
                     ) : (
-                      <Text
-                        size="small"
-                        leading="compact"
-                        className="text-ui-fg-subtle"
-                      >
-                        {attr.type === "toggle"
-                          ? values
-                              .map((val) =>
-                                val === "true" ? t("general.yes") : t("general.no")
-                              )
-                              .join(", ") || "-"
-                          : values.join(", ") || "-"}
-                      </Text>
+                      <AttributeValue
+                        value={
+                          attr.type === "toggle"
+                            ? values
+                                .map((val) =>
+                                  val === "true"
+                                    ? t("general.yes")
+                                    : t("general.no")
+                                )
+                                .join(", ") || "-"
+                            : values.join(", ") || "-"
+                        }
+                      />
                     )}
                   </div>
 
