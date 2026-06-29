@@ -135,4 +135,46 @@ describe("buildProductChangeView", () => {
     expect(view.attributes).toHaveLength(0)
     expect(view.deleteRequested).toBe(false)
   })
+
+  test("orders organization fields as category, collection, tags, type", () => {
+    const update = (field: string) =>
+      act(ProductChangeActionType.UPDATE, {
+        field,
+        previous_value: null,
+        value: "x",
+      })
+    const view = buildProductChangeView([
+      update("type_id"),
+      update("tags"),
+      update("collection_id"),
+      update("categories"),
+    ])
+    expect(view.productUpdated.map((d) => d.field)).toEqual([
+      "categories",
+      "collection_id",
+      "tags",
+      "type_id",
+    ])
+  })
+
+  test("keeps non-organization fields ahead of the organization block in order", () => {
+    const update = (field: string) =>
+      act(ProductChangeActionType.UPDATE, {
+        field,
+        previous_value: "old",
+        value: "new",
+      })
+    const view = buildProductChangeView([
+      update("type_id"),
+      update("title"),
+      update("categories"),
+      update("subtitle"),
+    ])
+    expect(view.productUpdated.map((d) => d.field)).toEqual([
+      "title",
+      "subtitle",
+      "categories",
+      "type_id",
+    ])
+  })
 })
