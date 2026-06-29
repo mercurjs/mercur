@@ -159,22 +159,24 @@ export const ProductCreateOrganizationSection = () => {
           }}
         />
       </div>
-      <SwitchBox
-        control={form.control}
-        name="discountable"
-        label={t("products.fields.discountable.label")}
-        description={t("products.fields.discountable.hint")}
-        optional
-        data-testid="product-create-organize-section-discountable-switch"
-      />
-      <SwitchBox
-        control={form.control}
-        name="globally_available"
-        label={t("products.fields.globally_available.label")}
-        description={t("products.fields.globally_available.hint")}
-        optional
-        data-testid="product-create-organize-section-globally-available-switch"
-      />
+      <div className="flex flex-col gap-y-4">
+        <SwitchBox
+          control={form.control}
+          name="discountable"
+          label={t("products.fields.discountable.label")}
+          description={t("products.fields.discountable.hint")}
+          optional
+          data-testid="product-create-organize-section-discountable-switch"
+        />
+        <SwitchBox
+          control={form.control}
+          name="globally_available"
+          label={t("products.fields.globally_available.label")}
+          description={t("products.fields.globally_available.hint")}
+          optional
+          data-testid="product-create-organize-section-globally-available-switch"
+        />
+      </div>
       {!isGloballyAvailable && (
         <Form.Field
           control={form.control}

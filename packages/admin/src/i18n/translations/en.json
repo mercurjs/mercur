@@ -445,8 +445,9 @@
         "options": "Please create at least one option.",
         "uniqueSku": "SKU must be unique.",
         "requiredAttribute": "This attribute is required.",
-        "requiredStore": "Please select at least one store.",
-        "requiredTitle": "Please enter a title"
+        "requiredStore": "Please select at least one store",
+        "requiredTitle": "Please enter a title",
+        "requiredCategory": "Please select a category"
       },
       "inventory": {
         "heading": "Inventory kits",
