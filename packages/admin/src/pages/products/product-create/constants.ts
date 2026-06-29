@@ -36,7 +36,9 @@ export type ProductCreateVariantSchema = z.infer<
 
 export const ProductCreateSchema = z
   .object({
-    title: z.string().min(1),
+    title: z.string().min(1, {
+      message: i18n.t("products.create.errors.requiredTitle"),
+    }),
     subtitle: z.string().optional(),
     handle: z.string().optional(),
     description: z.string().optional(),
@@ -44,7 +46,7 @@ export const ProductCreateSchema = z
     globally_available: z.boolean(),
     type_id: z.string().optional(),
     collection_id: z.string().optional(),
-    category_id: z.string().min(1),
+    category_id: z.string().min(1, i18n.t("products.create.errors.requiredCategory")),
     seller_ids: z.array(z.string()).optional(),
     tags: z.array(z.string()).optional(),
     origin_country: z.string().optional(),
@@ -89,10 +91,19 @@ export const ProductCreateSchema = z
         (Array.isArray(attr.values) && attr.values.length === 0)
 
       if (isEmpty) {
+        let messageKey = "products.create.errors.requiredAttribute"
+        if (attr.type === "single_select" || attr.type === "toggle") {
+          messageKey = "products.create.errors.requiredAttributeSelect"
+        } else if (attr.type === "multi_select") {
+          messageKey = "products.create.errors.requiredAttributeMultiSelect"
+        } else if (attr.type === "text" || attr.type === "unit") {
+          messageKey = "products.create.errors.requiredAttributeEnter"
+        }
+
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           path: [`attributes.${index}.values`],
-          message: i18n.t("products.create.errors.requiredAttribute"),
+          message: i18n.t(messageKey),
         })
       }
     })

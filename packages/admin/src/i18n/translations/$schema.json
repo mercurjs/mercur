@@ -1714,12 +1714,40 @@
                 },
                 "uniqueSku": {
                   "type": "string"
+                },
+                "requiredAttribute": {
+                  "type": "string"
+                },
+                "requiredAttributeSelect": {
+                  "type": "string"
+                },
+                "requiredAttributeEnter": {
+                  "type": "string"
+                },
+                "requiredAttributeMultiSelect": {
+                  "type": "string"
+                },
+                "requiredStore": {
+                  "type": "string"
+                },
+                "requiredTitle": {
+                  "type": "string"
+                },
+                "requiredCategory": {
+                  "type": "string"
                 }
               },
               "required": [
                 "variants",
                 "options",
-                "uniqueSku"
+                "uniqueSku",
+                "requiredAttribute",
+                "requiredAttributeSelect",
+                "requiredAttributeEnter",
+                "requiredAttributeMultiSelect",
+                "requiredStore",
+                "requiredTitle",
+                "requiredCategory"
               ],
               "additionalProperties": false
             },

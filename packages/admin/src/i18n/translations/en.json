@@ -445,7 +445,12 @@
         "options": "Please create at least one option.",
         "uniqueSku": "SKU must be unique.",
         "requiredAttribute": "This attribute is required.",
-        "requiredStore": "Please select at least one store."
+        "requiredAttributeSelect": "This attribute is required by the marketplace. Please select value.",
+        "requiredAttributeEnter": "This attribute is required by the marketplace. Please enter value.",
+        "requiredAttributeMultiSelect": "This attribute is required by the marketplace. Please select at least one value.",
+        "requiredStore": "Please select at least one store",
+        "requiredTitle": "Please enter a title",
+        "requiredCategory": "Please select a category"
       },
       "inventory": {
         "heading": "Inventory kits",
@@ -455,7 +460,7 @@
       },
       "attributes": {
         "header": "Attributes",
-        "description": "Manage attributes and variations for your product, e.g. color, size, brand etc.\nSelect from attributes defined by the Marketplace or create your own.",
+        "description": "Manage attributes and variations for your product, e.g. color, size, brand etc.\nSelect from attributes defined by the marketplace or create your own.",
         "addExisting": "Add existing",
         "createNew": "Create new",
         "title": "Title",
@@ -466,7 +471,7 @@
         "enterValuePlaceholder": "Enter value",
         "selectValuePlaceholder": "Select value",
         "requiredAttributes": "Required attributes",
-        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "requiredAttributesHint": "These attributes are required by the marketplace. Select them before proceeding.",
         "useForVariants": "Use for Variations",
         "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
         "tip": "Tip",
