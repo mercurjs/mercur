@@ -1,4 +1,4 @@
-import { DocumentText, XCircle } from "@medusajs/icons"
+import { Buildings, XCircle } from "@medusajs/icons"
 import { AdminOrderLineItem } from "@medusajs/types"
 import {
   Button,
@@ -183,7 +183,7 @@ const UnfulfilledItemDisplay = ({
                 actions: [
                   {
                     label: t("orders.fulfillment.fulfillItems"),
-                    icon: <DocumentText />,
+                    icon: <Buildings />,
                     to: `/orders/${order.id}/fulfillment?requires_shipping=${requiresShipping}`,
                   },
                 ],
