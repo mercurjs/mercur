@@ -40,6 +40,7 @@ export const _DataTable = <TData,>({
   noHeader = false,
   layout = "fit",
   noRecords: noRecordsProps = {},
+  toolbarActions,
 }: DataTableProps<TData>) => {
   if (isLoading) {
     return (
@@ -82,6 +83,7 @@ export const _DataTable = <TData,>({
         defaultOrder={defaultOrder}
         filters={filters}
         prefix={prefix}
+        toolbarActions={toolbarActions}
       />
       <DataTableRoot
         table={table}

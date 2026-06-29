@@ -1,3 +1,5 @@
+import { ReactNode } from "react"
+
 import { Filter } from ".."
 import { DataTableFilter } from "../data-table-filter"
 import { DataTableOrderBy, DataTableOrderByKey } from "../data-table-order-by"
@@ -9,6 +11,7 @@ export interface DataTableQueryProps<TData> {
   defaultOrder?: string
   filters?: Filter[]
   prefix?: string
+  toolbarActions?: ReactNode
 }
 
 export const DataTableQuery = <TData,>({
@@ -17,9 +20,10 @@ export const DataTableQuery = <TData,>({
   defaultOrder,
   filters,
   prefix,
+  toolbarActions,
 }: DataTableQueryProps<TData>) => {
   return (
-    (search || orderBy || filters || prefix) && (
+    (search || orderBy || filters || prefix || toolbarActions) && (
       <div className="flex items-start justify-between gap-x-4 px-6 py-4">
         <div className="w-full max-w-[60%]">
           {filters && filters.length > 0 && (
@@ -40,6 +44,7 @@ export const DataTableQuery = <TData,>({
               defaultOrder={defaultOrder}
             />
           )}
+          {toolbarActions}
         </div>
       </div>
     )
