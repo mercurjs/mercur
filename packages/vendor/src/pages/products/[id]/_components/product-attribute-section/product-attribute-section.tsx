@@ -149,7 +149,7 @@ const AttributeGroup = ({
                     : ""
                 }
               >
-                <div className="grid grid-cols-[1fr_1fr_28px] items-center gap-4 px-4 py-3 bg-ui-bg-component">
+                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_28px] items-center gap-4 px-4 py-3 bg-ui-bg-component">
                   <div className="flex items-center gap-x-2 text-ui-fg-subtle">
                     <Text size="small" weight="plus" leading="compact">
                       {attr.name}
