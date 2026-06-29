@@ -16,11 +16,53 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
+import { useEffect, useRef, useState } from "react";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { ProductAttributeDTO, ProductDTO } from "@mercurjs/types";
 import { useRemoveAttributeFromProduct } from "../../../../../hooks/api/products";
 
 type ProductWithAttributes = Pick<ProductDTO, "id" | "attributes">;
+
+const AttributeName = ({ name }: { name: string }) => {
+  const ref = useRef<HTMLParagraphElement>(null);
+  const [isTruncated, setIsTruncated] = useState(false);
+
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) {
+      return;
+    }
+
+    const checkTruncation = () => {
+      setIsTruncated(el.scrollHeight > el.clientHeight);
+    };
+
+    checkTruncation();
+
+    const observer = new ResizeObserver(checkTruncation);
+    observer.observe(el);
+
+    return () => observer.disconnect();
+  }, [name]);
+
+  const text = (
+    <Text
+      ref={ref}
+      size="small"
+      weight="plus"
+      leading="compact"
+      className="line-clamp-3 min-w-0"
+    >
+      {name}
+    </Text>
+  );
+
+  if (!isTruncated) {
+    return text;
+  }
+
+  return <Tooltip content={name}>{text}</Tooltip>;
+};
 
 const AttributeActions = ({
   productId,
@@ -135,9 +177,7 @@ const AttributeGroup = ({
               >
                 <div className="grid grid-cols-[1fr_1fr_28px] items-center gap-4 px-4 py-3 bg-ui-bg-component">
                   <div className="flex items-center gap-x-2 text-ui-fg-subtle">
-                    <Text size="small" weight="plus" leading="compact">
-                      {attr.name}
-                    </Text>
+                    <AttributeName name={attr.name} />
                     {attr.description && (
                       <Tooltip content={attr.description}>
                         <span className="text-ui-fg-muted flex items-center">
