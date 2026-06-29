@@ -21,7 +21,6 @@ export const OrderExpandCollapseButton = ({
     >
       <IconButton
         size="small"
-        variant="transparent"
         type="button"
         onClick={() => table.toggleAllRowsExpanded()}
         data-testid="orders-expand-collapse-all"

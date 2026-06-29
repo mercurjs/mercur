@@ -70,19 +70,6 @@ export const useOrderGroupTableFilters = () => {
     }
 
     filters.push({
-      key: "status",
-      label: t("fields.status"),
-      type: "select",
-      multiple: true,
-      options: [
-        { label: "Pending", value: "pending" },
-        { label: "Completed", value: "completed" },
-        { label: "Canceled", value: "canceled" },
-        { label: "Requires action", value: "requires_action" },
-      ],
-    })
-
-    filters.push({
       key: "request",
       label: t("orders.filters.request.label"),
       type: "select",
