@@ -18,17 +18,8 @@ import {
 
 jest.setTimeout(120000)
 
-/**
- * `/admin/order-groups` Store (seller) filtering.
- *
- * `order_group` has no seller relation — sellers link to `order`
- * (`order_seller`) and groups link to `order` (`order_group_order`).
- * The `applySellerFilter` middleware resolves a `seller_id` query to the
- * seller's orders, maps those to their owning groups, and turns the
- * request into an `id` lookup. The list workflow then trims each
- * returned group's child orders down to that seller, so a multi-seller
- * group only shows the selected store's orders.
- */
+// `/admin/order-groups` Store (seller) filtering: group narrowing +
+// child-order trimming to the selected seller.
 
 const approveSeller = async (
     container: MedusaContainer,
@@ -284,8 +275,6 @@ medusaIntegrationTestRunner({
                 }
             }
 
-            // Single cart spanning multiple sellers' offers — completion splits
-            // it into one child order per seller under a single order group.
             const completeMultiSellerCheckout = async (offerIds: string[]) => {
                 const cart = (
                     await api.post(
@@ -468,8 +457,6 @@ medusaIntegrationTestRunner({
                     const group = response.data.order_groups.find(
                         (g: any) => g.id === orderGroupId
                     )
-                    // The group spans both sellers, but only seller1's child
-                    // order should remain after trimming.
                     expect(group).toBeDefined()
                     expect(group.orders.length).toEqual(1)
                     expect(

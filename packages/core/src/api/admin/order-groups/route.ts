@@ -10,19 +10,21 @@ export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.AdminOrderGroupListResponse>
 ) => {
+  // `seller_id` was turned into an `id` lookup by `applyOrderGroupSellerFilter`;
+  // keep it out of the group query (the entity has no such field) and pass it on
+  // for the workflow's child-order trimming.
+  const { seller_id: sellerId, ...filterableFields } = req.filterableFields
+
   const { result } = await getOrderGroupsListWorkflow(req.scope).run({
     input: {
       fields: req.queryConfig.fields ?? [],
       variables: {
-        ...req.filterableFields,
+        ...filterableFields,
         skip: req.queryConfig.pagination?.skip,
         take: req.queryConfig.pagination?.take,
         order: req.queryConfig.pagination?.order as Record<string, string>,
       },
-      // `applySellerFilter` strips `seller_id` from `filterableFields` (the
-      // group query has no such field) — read it from the raw query so the
-      // workflow can trim child orders to the selected seller.
-      sellerId: req.query.seller_id as string | string[] | undefined,
+      sellerId: sellerId as string | string[] | undefined,
     },
   })
 

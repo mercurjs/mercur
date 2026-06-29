@@ -18,23 +18,20 @@ const respondEmpty = (req: AuthenticatedMedusaRequest, res: MedusaResponse) => {
   })
 }
 
-// `order_group` has no seller relation — sellers link to `order` (order_seller)
-// and groups link to `order` (order_group_order). Resolve the seller's orders,
-// map them to their owning groups, and turn the request into an `id` lookup so
-// the group query never sees the unknown `seller_id` field (which QueryGraph
-// would silently filter to nothing). Child orders are trimmed to the seller in
-// the list workflow.
-export const applySellerFilter = async (
+// `order_group` has no seller relation, so `seller_id` can't be filtered
+// directly — resolve it through the order_seller/order_group_order links into an
+// `id` lookup. QueryGraph silently matches nothing on the unknown field.
+export const applyOrderGroupSellerFilter = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  const sellerId = req.query.seller_id as string | string[] | undefined
+  const filterableFields = req.filterableFields ?? {}
+  const sellerId = filterableFields.seller_id as string | string[] | undefined
   if (!sellerId) {
     return next()
   }
 
-  const filterableFields = req.filterableFields ?? {}
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: sellerLinks } = await query.graph({
@@ -73,7 +70,6 @@ export const applySellerFilter = async (
     filterableFields.id = matchingOrderGroupIds
   }
 
-  delete filterableFields.seller_id
   req.filterableFields = filterableFields
 
   return next()

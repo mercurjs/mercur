@@ -21,9 +21,7 @@ export type GetOrderGroupsListWorkflowInput = {
     take?: number
     order?: Record<string, string>
   }
-  // When set, each group's child orders are trimmed to this seller. The owning
-  // groups are already narrowed by the `applySellerFilter` middleware, so every
-  // returned group keeps at least one order and the count stays correct.
+  // Trims each returned group's child orders to this seller.
   sellerId?: string | string[]
 }
 
