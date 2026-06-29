@@ -1714,12 +1714,16 @@
                 },
                 "uniqueSku": {
                   "type": "string"
+                },
+                "requiredTitle": {
+                  "type": "string"
                 }
               },
               "required": [
                 "variants",
                 "options",
-                "uniqueSku"
+                "uniqueSku",
+                "requiredTitle"
               ],
               "additionalProperties": false
             },
