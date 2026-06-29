@@ -5233,10 +5233,18 @@
           "properties": {
             "noRecordsMessage": {
               "type": "string"
+            },
+            "expandAll": {
+              "type": "string"
+            },
+            "collapseAll": {
+              "type": "string"
             }
           },
           "required": [
-            "noRecordsMessage"
+            "noRecordsMessage",
+            "expandAll",
+            "collapseAll"
           ],
           "additionalProperties": false
         },
