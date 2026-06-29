@@ -1312,15 +1312,6 @@
     "claim": "Claim",
     "exchange": "Exchange",
     "return": "Return",
-    "filters": {
-      "request": {
-        "label": "Request",
-        "edit": "Edit",
-        "return": "Return",
-        "exchange": "Exchange",
-        "claim": "Claim"
-      }
-    },
     "actions": {
       "cancelDisabledFulfilled": "Cannot cancel an order that has fulfilled items."
     },
@@ -1328,7 +1319,9 @@
     "orderCanceled": "Order canceled successfully",
     "onDateFromSalesChannel": "{{date}} from {{salesChannel}}",
     "list": {
-      "noRecordsMessage": "Your orders will show up here."
+      "noRecordsMessage": "Your orders will show up here.",
+      "expandAll": "Expand all rows",
+      "collapseAll": "Collapse all rows"
     },
     "status": {
       "not_paid": "Not paid",
@@ -1770,14 +1763,14 @@
       }
     },
     "fields": {
-      "displayId": "Display ID",
+      "displayId": "Order ID",
       "refundableAmount": "Refundable amount",
       "returnableQuantity": "Returnable quantity",
       "groupId": "Group ID",
-      "orderIds": "Order IDs",
-      "vendor": "Vendor",
-      "vendorsCount_one": "{{count}} vendor",
-      "vendorsCount_other": "{{count}} vendors"
+      "orderIds": "Order ID",
+      "vendor": "Store",
+      "vendorsCount_one": "{{count}} store",
+      "vendorsCount_other": "{{count}} stores"
     }
   },
   "payouts": {

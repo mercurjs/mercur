@@ -5783,43 +5783,6 @@
         "return": {
           "type": "string"
         },
-        "filters": {
-          "type": "object",
-          "properties": {
-            "request": {
-              "type": "object",
-              "properties": {
-                "label": {
-                  "type": "string"
-                },
-                "edit": {
-                  "type": "string"
-                },
-                "return": {
-                  "type": "string"
-                },
-                "exchange": {
-                  "type": "string"
-                },
-                "claim": {
-                  "type": "string"
-                }
-              },
-              "required": [
-                "label",
-                "edit",
-                "return",
-                "exchange",
-                "claim"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "request"
-          ],
-          "additionalProperties": false
-        },
         "actions": {
           "type": "object",
           "properties": {
@@ -6065,9 +6028,6 @@
             "refund": {
               "type": "string"
             },
-            "markAsPaid": {
-              "type": "string"
-            },
             "statusLabel": {
               "type": "string"
             },
@@ -6128,12 +6088,6 @@
             "capturePaymentSuccess": {
               "type": "string"
             },
-            "markAsPaidPayment": {
-              "type": "string"
-            },
-            "markAsPaidPaymentSuccess": {
-              "type": "string"
-            },
             "createRefund": {
               "type": "string"
             },
@@ -6166,14 +6120,11 @@
             "capture",
             "capture_short",
             "refund",
-            "markAsPaid",
             "statusLabel",
             "statusTitle",
             "status",
             "capturePayment",
             "capturePaymentSuccess",
-            "markAsPaidPayment",
-            "markAsPaidPaymentSuccess",
             "createRefund",
             "refundPaymentSuccess",
             "createRefundWrongQuantity",
@@ -7754,7 +7705,6 @@
         "claim",
         "exchange",
         "return",
-        "filters",
         "actions",
         "cancelWarning",
         "orderCanceled",

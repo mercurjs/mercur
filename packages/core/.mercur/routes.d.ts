@@ -872,11 +872,6 @@ export type Routes = {
                 };
             };
         };
-        paymentCollections: {
-            $id: {
-                markAsPaid: typeof import("../src/api/vendor/payment-collections/[id]/mark-as-paid/route");
-            };
-        };
         reservations: typeof import("../src/api/vendor/reservations/route") & {
             $id: typeof import("../src/api/vendor/reservations/[id]/route");
         };

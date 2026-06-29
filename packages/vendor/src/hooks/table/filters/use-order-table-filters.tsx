@@ -12,21 +12,6 @@ export const useOrderTableFilters = (): Filter[] => {
   return useMemo(() => {
     const filters: Filter[] = [];
 
-    const requestFilter: Filter = {
-      key: "request",
-      label: t("orders.filters.request.label"),
-      type: "select",
-      multiple: true,
-      options: [
-        { label: t("orders.filters.request.edit"), value: "edit" },
-        { label: t("orders.filters.request.return"), value: "return" },
-        { label: t("orders.filters.request.exchange"), value: "exchange" },
-        { label: t("orders.filters.request.claim"), value: "claim" },
-      ],
-    };
-
-    filters.push(requestFilter);
-
     const dateFilters: Filter[] = [
       { label: t("fields.createdAt"), key: "created_at" },
       { label: t("fields.updatedAt"), key: "updated_at" },
