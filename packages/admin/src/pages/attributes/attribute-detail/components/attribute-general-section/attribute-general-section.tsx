@@ -58,6 +58,8 @@ export const AttributeGeneralSection = ({
   const typeLabelKey = ATTRIBUTE_TYPE_LABELS[attribute.type]
   const typeLabel = typeLabelKey ? t(typeLabelKey) : attribute.type
 
+  const isGlobal = !(attribute.categories && attribute.categories.length > 0)
+
   return (
     <Container
       className="divide-y p-0"
@@ -127,6 +129,12 @@ export const AttributeGeneralSection = ({
           attribute.is_required ? t("fields.yes") : t("fields.no")
         }
         data-testid="attribute-general-section-required"
+      />
+
+      <SectionRow
+        title={t("attributes.fields.global")}
+        value={isGlobal ? t("fields.yes") : t("fields.no")}
+        data-testid="attribute-general-section-global"
       />
 
       <SectionRow
