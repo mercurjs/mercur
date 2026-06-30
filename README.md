@@ -42,6 +42,8 @@
 
 ## What is Mercur
 
+<img width="100%" alt="demo-screen" src="https://github.com/user-attachments/assets/c305b67e-38a9-4e5d-a24a-89d77830a014" />
+
 **Mercur** is an open-source, headless platform for building multi-vendor marketplaces. Add vendor onboarding, multi-vendor catalogs, offers, commissions, and automated payouts on top of a commerce core you can change at its foundation. Run B2C, B2B, and hybrid marketplaces without choosing between a profit-draining SaaS platform and a build from scratch.
 
 - **Own your marketplace, no fees**: Self-host on your own infrastructure with full source access. No percentage of GMV, no per-transaction cut, no vendor lock-in — your data, your customers, and your roadmap stay yours.
