@@ -41,9 +41,8 @@ type OfferWithInventory = OfferDTO & {
   }> | null
 }
 
-/** One row per offer, carrying its parent variant for the shared columns. */
 type OfferVariantRow = {
-  /** The offer id — also the table row id, so `row.id` resolves it. */
+  // the offer id is also the table row id, so `row.id` resolves it
   id: string
   variant: OfferProductVariant
   offer: OfferWithInventory
@@ -230,16 +229,6 @@ const useColumns = ({
   )
 }
 
-/**
- * Variants table of the product-shaped admin offer detail. One row per
- * offer across the product's offered variants (scoped to a single store
- * via `?seller_id=`). Admin is read-only, so the row kebab carries only
- * Delete; the row navigates to the read-only Offer Variant detail
- * `variants/:offer_id`.
- *
- * Reads come from the wrapped product graph (client-side), so search /
- * sort / date-filter / pagination are applied in memory.
- */
 export const OfferVariantsSection = ({
   variants,
   thumbnail,

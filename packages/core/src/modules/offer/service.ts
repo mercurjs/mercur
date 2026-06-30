@@ -56,11 +56,6 @@ class OfferModuleService extends MedusaService({
     return this.listGroupedOffersBySeller_(filters, config, sharedContext)
   }
 
-  /**
-   * Collapses offers to one row per `(product_id, seller_id)` in SQL
-   * (`DISTINCT ON`), paginating over the groups and reporting the group count.
-   * Returns the same `OfferDTO` shape as the ungrouped path — just fewer rows.
-   */
   private async listGroupedOffersBySeller_(
     filters: OfferFilters,
     config: FindConfig<OfferDTO>,

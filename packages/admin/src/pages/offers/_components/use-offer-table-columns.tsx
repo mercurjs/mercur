@@ -21,8 +21,11 @@ import { OfferActions } from "./offer-actions"
 
 const columnHelper = createColumnHelper<OfferDTO>()
 
-export const useOfferTableColumns = () => {
+export const useOfferTableColumns = (options?: {
+  hideStoreAction?: boolean
+}) => {
   const { t } = useTranslation()
+  const hideStoreAction = options?.hideStoreAction ?? false
 
   return useMemo(
     () => [
@@ -60,19 +63,23 @@ export const useOfferTableColumns = () => {
           />
         ),
       }),
-      columnHelper.display({
-        id: "store",
-        header: t("offers.fields.store"),
-        cell: ({ row }) => {
-          const name = row.original.seller?.name
-          if (!name) return <PlaceholderCell />
-          return (
-            <Text size="small" leading="compact" className="truncate">
-              {name}
-            </Text>
-          )
-        },
-      }),
+      ...(hideStoreAction
+        ? []
+        : [
+            columnHelper.display({
+              id: "store",
+              header: t("offers.fields.store"),
+              cell: ({ row }) => {
+                const name = row.original.seller?.name
+                if (!name) return <PlaceholderCell />
+                return (
+                  <Text size="small" leading="compact" className="truncate">
+                    {name}
+                  </Text>
+                )
+              },
+            }),
+          ]),
       columnHelper.display({
         id: "categories",
         header: () => <CategoryHeader />,
@@ -111,12 +118,12 @@ export const useOfferTableColumns = () => {
             product={{
               id: row.original.product_id,
               offerIds: [row.original.id],
-              sellerId: row.original.seller_id ?? null,
+              sellerId: hideStoreAction ? null : row.original.seller_id ?? null,
             }}
           />
         ),
       }),
     ],
-    [t],
+    [t, hideStoreAction],
   )
 }

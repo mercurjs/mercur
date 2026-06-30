@@ -1,5 +1,5 @@
 import { Tag } from "@medusajs/icons";
-import { Container, Heading, toast, usePrompt } from "@medusajs/ui";
+import { Container, Heading } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { RowSelectionState } from "@tanstack/react-table";
 import { useState } from "react";
@@ -7,9 +7,10 @@ import { useTranslation } from "react-i18next";
 import { OfferDTO } from "@mercurjs/types";
 
 import { _DataTable } from "../../../../components/table/data-table";
-import { useBulkDeleteOffers, useOffers } from "../../../../hooks/api/offers";
+import { useOffers } from "../../../../hooks/api/offers";
 import { useDataTable } from "../../../../hooks/use-data-table";
 import { useOfferTableColumns } from "../../../offers/_components/use-offer-table-columns";
+import { useOfferTableCommands } from "../../../offers/_components/use-offer-table-commands";
 import { useOfferTableFilters } from "../../../offers/_components/use-offer-table-filters";
 import { useOfferTableQuery } from "../../../offers/_components/use-offer-table-query";
 
@@ -22,7 +23,6 @@ type StoreOffersSectionProps = {
 
 export const StoreOffersSection = ({ sellerId }: StoreOffersSectionProps) => {
   const { t } = useTranslation();
-  const prompt = usePrompt();
 
   const [selection, setSelection] = useState<RowSelectionState>({});
 
@@ -38,10 +38,11 @@ export const StoreOffersSection = ({ sellerId }: StoreOffersSectionProps) => {
 
   const rows = (offers ?? []) as OfferDTO[];
 
-  const columns = useOfferTableColumns();
-  // Scoped to this store already, so the Store filter is redundant.
+  const columns = useOfferTableColumns({ hideStoreAction: true });
   const filters = useOfferTableFilters().filter((f) => f.key !== "seller_id");
-  const { mutateAsync: bulkDelete } = useBulkDeleteOffers();
+  const commands = useOfferTableCommands({
+    onDeleted: () => setSelection({}),
+  });
 
   const { table } = useDataTable({
     data: rows,
@@ -87,6 +88,7 @@ export const StoreOffersSection = ({ sellerId }: StoreOffersSectionProps) => {
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        defaultOrder="-created_at"
         navigateTo={(row) =>
           `/offers/${row.original.product_id}?seller_id=${row.original.seller_id}`
         }
@@ -95,44 +97,7 @@ export const StoreOffersSection = ({ sellerId }: StoreOffersSectionProps) => {
           message: t("offers.empty.storeDescription"),
           icon: <Tag className="text-ui-fg-subtle" />,
         }}
-        commands={[
-          {
-            label: t("offers.actions.bulkDelete"),
-            shortcut: "d",
-            action: async (currentSelection) => {
-              const offerIds = Object.keys(currentSelection);
-              if (offerIds.length === 0) return;
-
-              const confirmed = await prompt({
-                title: t("general.areYouSure"),
-                description: t("offers.bulkDelete.description", {
-                  count: offerIds.length,
-                }),
-                confirmText: t("actions.delete"),
-                cancelText: t("actions.cancel"),
-                variant: "danger",
-              });
-
-              if (!confirmed) return;
-
-              const result = await bulkDelete(offerIds);
-              if (result.failed.length === 0) {
-                toast.success(
-                  t("offers.bulkDelete.successToast", {
-                    count: result.succeeded.length,
-                  }),
-                );
-                setSelection({});
-              } else {
-                toast.warning(
-                  t("offers.bulkDelete.errorToast", {
-                    message: `${result.succeeded.length}/${offerIds.length} succeeded`,
-                  }),
-                );
-              }
-            },
-          },
-        ]}
+        commands={commands}
       />
     </Container>
   );

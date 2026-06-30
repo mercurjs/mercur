@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { OfferDTO } from "@mercurjs/types"
+import { OfferDTO, SellerDTO } from "@mercurjs/types"
 
 export type OfferProductVariant = HttpTypes.AdminProductVariant & {
   offers?: OfferDTO[] | null
@@ -82,11 +82,6 @@ export type OfferDetail = {
   } | null
   prices?: OfferPrice[] | null
   inventory_item_link?: OfferInventoryItemLink[] | null
-  seller?: {
-    id?: string | null
-    name?: string | null
-    handle?: string | null
-    email?: string | null
-  } | null
+  seller?: Partial<Pick<SellerDTO, "id" | "name" | "handle" | "email">> | null
   audit_log?: OfferAuditEntry[] | null
 }

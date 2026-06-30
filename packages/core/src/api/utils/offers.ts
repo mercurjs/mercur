@@ -148,12 +148,9 @@ export const applyOfferedProductsFilter = async (
 
 const PRODUCT_FILTER_KEYS = ["q", "status", "collection_id", "type_id"] as const
 
-/**
- * For the grouped offers list (`group_by_seller`), product-attribute filters
- * can't be applied to the offer query (cross-module links aren't filterable), so
- * resolve them to a `product_id` set on the `product` entity first and constrain
- * the offer query by it. No-op for the flat offer list (no flag).
- */
+// Cross-module link relations can't be filtered on the offer query, so
+// product-attribute filters are resolved to a product_id set on the product
+// entity first.
 export const applyGroupedOfferProductFilter = async (
   req: OfferAwareRequest,
   _res: MedusaResponse,
