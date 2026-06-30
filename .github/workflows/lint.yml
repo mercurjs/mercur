@@ -63,3 +63,12 @@ jobs:
 
       - name: Run lint
         run: bun run lint
+
+      - name: Check routes manifest is up to date
+        run: |
+          bun run --filter @mercurjs/cli routes-manifest
+          if ! git diff --quiet packages/cli/routes-manifest.json; then
+            echo "::error::packages/cli/routes-manifest.json is stale. Run 'bun run --filter @mercurjs/cli routes-manifest' and commit the result."
+            git --no-pager diff packages/cli/routes-manifest.json
+            exit 1
+          fi
