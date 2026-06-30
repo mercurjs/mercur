@@ -15376,11 +15376,15 @@
             },
             "description": {
               "type": "string"
+            },
+            "storeDescription": {
+              "type": "string"
             }
           },
           "required": [
             "heading",
-            "description"
+            "description",
+            "storeDescription"
           ],
           "additionalProperties": false
         },

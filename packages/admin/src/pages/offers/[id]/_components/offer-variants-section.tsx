@@ -3,22 +3,21 @@ import {
   Badge,
   clx,
   Container,
-  createDataTableColumnHelper,
-  type DataTableAction,
   Heading,
   toast,
   Tooltip,
   usePrompt,
 } from "@medusajs/ui"
-import type { CellContext } from "@tanstack/react-table"
+import { createColumnHelper } from "@tanstack/react-table"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { ActionMenu } from "../../../../components/common/action-menu"
 import { Thumbnail } from "../../../../components/common/thumbnail"
-import { DataTable } from "../../../../components/data-table"
-import { useDataTableDateFilters } from "../../../../components/data-table/helpers/general/use-data-table-date-filters"
+import { _DataTable, Filter } from "../../../../components/table/data-table"
+import { DataTableOrderByKey } from "../../../../components/table/data-table/data-table-order-by"
 import { useBulkDeleteOffers } from "../../../../hooks/api/offers"
-import { useDate } from "../../../../hooks/use-date"
+import { useDataTable } from "../../../../hooks/use-data-table"
 import { useQueryParams } from "../../../../hooks/use-query-params"
 import { OfferDTO } from "@mercurjs/types"
 import { OfferProductVariant } from "../../common/types"
@@ -93,63 +92,53 @@ const matchesDateFilter = (
   return true
 }
 
-const columnHelper = createDataTableColumnHelper<OfferVariantRow>()
+const columnHelper = createColumnHelper<OfferVariantRow>()
 
 const useColumns = ({
   optionTitles,
   thumbnail,
-  getActions,
+  onDelete,
 }: {
   optionTitles: string[]
   thumbnail?: string | null
-  getActions: (
-    ctx: CellContext<OfferVariantRow, unknown>,
-  ) => DataTableAction<OfferVariantRow>[][]
+  onDelete: (offerId: string, sku: string) => void
 }) => {
   const { t } = useTranslation()
-  const { getFullDate } = useDate()
 
   return useMemo(
     () => [
-      columnHelper.display({
-        id: "thumbnail",
-        header: "",
-        // Variant-level images aren't carried by the `withOffers` wrap, so
-        // every row falls back to the product thumbnail.
-        cell: () => (
-          <div className="flex items-center">
-            <Thumbnail src={thumbnail ?? null} />
-          </div>
-        ),
-      }),
-      // Admin-only Store column — rows can span sellers on the platform-wide
-      // offer surface, so the store disambiguates them.
-      columnHelper.accessor((row) => row.offer.seller?.name ?? "", {
-        id: "store",
-        header: t("offers.fields.store"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
-        sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
-        cell: ({ getValue }) =>
-          getValue() || <span className="text-ui-fg-muted">-</span>,
-      }),
       columnHelper.accessor((row) => row.variant.title ?? "", {
         id: "title",
         header: t("fields.title"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
-        sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
-        cell: ({ getValue }) =>
-          getValue() || <span className="text-ui-fg-muted">-</span>,
+        cell: ({ getValue }) => {
+          const value = getValue()
+          return (
+            <div className="flex h-full w-[220px] items-center gap-x-3 overflow-hidden">
+              <div className="w-fit flex-shrink-0">
+                <Thumbnail src={thumbnail ?? null} />
+              </div>
+              {value ? (
+                <span title={value} className="truncate">
+                  {value}
+                </span>
+              ) : (
+                <span className="text-ui-fg-muted">-</span>
+              )}
+            </div>
+          )
+        },
       }),
       columnHelper.accessor((row) => skuOf(row), {
         id: "sku",
         header: t("fields.sku"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.alphabeticallyAsc"),
-        sortDescLabel: t("filters.sorting.alphabeticallyDesc"),
-        cell: ({ getValue }) =>
-          getValue() || <span className="text-ui-fg-muted">-</span>,
+        cell: ({ getValue }) => {
+          const value = getValue()
+          return (
+            <div className="w-[140px] truncate whitespace-nowrap">
+              {value ? value : <span className="text-ui-fg-muted">-</span>}
+            </div>
+          )
+        },
       }),
       ...optionTitles.map((title) =>
         columnHelper.display({
@@ -159,10 +148,25 @@ const useColumns = ({
             const opt = row.original.variant.options?.find(
               (o) => o.option?.title === title,
             )
-            return opt?.value ? (
-              <Badge size="2xsmall">{opt.value}</Badge>
-            ) : (
-              <span className="text-ui-fg-muted">-</span>
+            if (!opt?.value) {
+              return (
+                <div className="w-[120px]">
+                  <span className="text-ui-fg-muted">-</span>
+                </div>
+              )
+            }
+            return (
+              <div className="flex w-[120px] items-center gap-1">
+                <Tooltip content={opt.value}>
+                  <Badge
+                    size="2xsmall"
+                    title={opt.value}
+                    className="inline-flex min-w-[20px] max-w-[140px] items-center justify-center overflow-hidden truncate"
+                  >
+                    {opt.value}
+                  </Badge>
+                </Tooltip>
+              </div>
             )
           },
         }),
@@ -175,7 +179,11 @@ const useColumns = ({
             row.original.offer,
           )
           if (!hasItems) {
-            return <span className="text-ui-fg-muted">-</span>
+            return (
+              <div className="w-[160px]">
+                <span className="text-ui-fg-muted">-</span>
+              </div>
+            )
           }
           const text = t("products.variant.tableItem", {
             availableCount: available,
@@ -184,7 +192,7 @@ const useColumns = ({
           })
           return (
             <Tooltip content={text}>
-              <div className="flex h-full w-full items-center gap-2 overflow-hidden">
+              <div className="flex h-full w-[160px] items-center gap-2 overflow-hidden">
                 {isKit && <Component className="text-ui-fg-subtle" />}
                 <span
                   className={clx("truncate", {
@@ -198,54 +206,36 @@ const useColumns = ({
           )
         },
       }),
-      columnHelper.accessor((row) => row.offer.created_at, {
-        id: "created_at",
-        header: t("fields.createdAt"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.dateAsc"),
-        sortDescLabel: t("filters.sorting.dateDesc"),
-        cell: ({ getValue }) => {
-          const date = getValue()
-          if (!date) {
-            return <span className="text-ui-fg-muted">-</span>
-          }
-          return (
-            <Tooltip content={getFullDate({ date, includeTime: true })}>
-              <span>{getFullDate({ date })}</span>
-            </Tooltip>
-          )
-        },
+      columnHelper.display({
+        id: "actions",
+        cell: ({ row }) => (
+          <ActionMenu
+            groups={[
+              {
+                actions: [
+                  {
+                    icon: <Trash />,
+                    label: t("actions.delete"),
+                    onClick: () =>
+                      onDelete(row.original.offer.id, skuOf(row.original)),
+                  },
+                ],
+              },
+            ]}
+          />
+        ),
       }),
-      columnHelper.accessor((row) => row.offer.updated_at, {
-        id: "updated_at",
-        header: t("fields.updatedAt"),
-        enableSorting: true,
-        sortAscLabel: t("filters.sorting.dateAsc"),
-        sortDescLabel: t("filters.sorting.dateDesc"),
-        cell: ({ getValue }) => {
-          const date = getValue()
-          if (!date) {
-            return <span className="text-ui-fg-muted">-</span>
-          }
-          return (
-            <Tooltip content={getFullDate({ date, includeTime: true })}>
-              <span>{getFullDate({ date })}</span>
-            </Tooltip>
-          )
-        },
-      }),
-      columnHelper.action({ actions: getActions }),
     ],
-    [t, optionTitles, thumbnail, getActions, getFullDate],
+    [t, optionTitles, thumbnail, onDelete],
   )
 }
 
 /**
- * Variants table of the product-shaped admin offer detail (SPEC-010).
- * One row per offer across the product's offered variants, with an
- * admin-only **Store** column (rows can span sellers). Admin is
- * read-only, so the row kebab carries only Delete; the row navigates to
- * the read-only Offer Variant detail `variants/:offer_id`.
+ * Variants table of the product-shaped admin offer detail. One row per
+ * offer across the product's offered variants (scoped to a single store
+ * via `?seller_id=`). Admin is read-only, so the row kebab carries only
+ * Delete; the row navigates to the read-only Offer Variant detail
+ * `variants/:offer_id`.
  *
  * Reads come from the wrapped product graph (client-side), so search /
  * sort / date-filter / pagination are applied in memory.
@@ -297,11 +287,8 @@ export const OfferVariantsSection = ({
     if (search) {
       rows = rows.filter((row) => {
         const title = (row.variant.title ?? "").toLowerCase()
-        const store = (row.offer.seller?.name ?? "").toLowerCase()
         return (
-          title.includes(search) ||
-          store.includes(search) ||
-          skuOf(row).toLowerCase().includes(search)
+          title.includes(search) || skuOf(row).toLowerCase().includes(search)
         )
       })
     }
@@ -336,8 +323,6 @@ export const OfferVariantsSection = ({
 
     const valueOf = (row: OfferVariantRow): string => {
       switch (key) {
-        case "store":
-          return row.offer.seller?.name ?? ""
         case "title":
           return row.variant.title ?? ""
         case "sku":
@@ -391,53 +376,69 @@ export const OfferVariantsSection = ({
     [prompt, bulkDelete, t],
   )
 
-  const getActions = useCallback(
-    (
-      ctx: CellContext<OfferVariantRow, unknown>,
-    ): DataTableAction<OfferVariantRow>[][] => {
-      const row = ctx.row.original
-      return [
-        [
-          {
-            icon: <Trash />,
-            label: t("actions.delete"),
-            onClick: () => handleDelete(row.offer.id, skuOf(row)),
-          },
-        ],
-      ]
-    },
-    [handleDelete, t],
-  )
+  const columns = useColumns({ optionTitles, thumbnail, onDelete: handleDelete })
+  const filters = useFilters()
+  const orderBy = useOrderBy()
 
-  const columns = useColumns({ optionTitles, thumbnail, getActions })
-  const filters = useDataTableDateFilters()
+  const { table } = useDataTable({
+    data: pageRows,
+    columns,
+    count: sortedRows.length,
+    pageSize: PAGE_SIZE,
+    getRowId: (row) => row.id,
+    prefix: PREFIX,
+  })
 
   return (
     <Container className="divide-y p-0" data-testid="offer-variants-section">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("offers.fields.variants")}</Heading>
       </div>
-      <DataTable
-        data={pageRows}
+      <_DataTable
+        table={table}
         columns={columns}
-        filters={filters}
-        getRowId={(row) => row.id}
-        rowHref={(row) => `variants/${row.id}`}
-        rowCount={sortedRows.length}
+        count={sortedRows.length}
         pageSize={PAGE_SIZE}
+        filters={filters}
+        search
+        pagination
+        orderBy={orderBy}
         prefix={PREFIX}
-        compact
-        emptyState={{
-          empty: {
-            heading: t("offers.empty.heading"),
-            description: t("offers.empty.description"),
-          },
-          filtered: {
-            heading: t("offers.filtered.heading"),
-            description: t("offers.filtered.description"),
-          },
+        queryObject={{ q, order, created_at, updated_at }}
+        navigateTo={(row) => `variants/${row.original.id}`}
+        noRecords={{
+          title: t("offers.empty.heading"),
+          message: t("offers.empty.description"),
         }}
       />
     </Container>
+  )
+}
+
+const useFilters = (): Filter[] => {
+  const { t } = useTranslation()
+
+  return useMemo(
+    () => [
+      { key: "created_at", label: t("fields.createdAt"), type: "date" },
+      { key: "updated_at", label: t("fields.updatedAt"), type: "date" },
+    ],
+    [t],
+  )
+}
+
+const useOrderBy = (): DataTableOrderByKey<OfferVariantRow>[] => {
+  const { t } = useTranslation()
+
+  // Sort keys map to the nested `variant`/`offer` fields read by the
+  // in-memory sort above, not to row-level keys — cast past the
+  // `keyof OfferVariantRow` constraint.
+  return useMemo(
+    () =>
+      [
+        { key: "title", label: t("fields.title") },
+        { key: "sku", label: t("fields.sku") },
+      ] as unknown as DataTableOrderByKey<OfferVariantRow>[],
+    [t],
   )
 }

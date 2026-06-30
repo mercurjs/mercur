@@ -3,13 +3,16 @@ import { Avatar, Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
-import { OfferDetail } from "../../common/types"
+type StoreSeller = {
+  id?: string | null
+  name?: string | null
+  handle?: string | null
+}
 
-type Props = { offer: OfferDetail }
+type Props = { seller?: StoreSeller | null }
 
-export const OfferStoreSidebar = ({ offer }: Props) => {
+export const OfferStoreSidebar = ({ seller }: Props) => {
   const { t } = useTranslation()
-  const seller = offer.seller
 
   if (!seller?.id) {
     return null

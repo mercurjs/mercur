@@ -57,7 +57,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <TwoColumnPage.Sidebar>
             <OfferVariantShippingSection offer={typed} />
             <OfferPricingSection offer={typed} />
-            <OfferStoreSidebar offer={typed} />
+            <OfferStoreSidebar seller={typed.seller} />
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}

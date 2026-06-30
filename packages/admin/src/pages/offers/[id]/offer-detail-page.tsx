@@ -10,6 +10,7 @@ import { OfferProduct } from "../common/types"
 import {
   OfferAssociatedProductSection,
   OfferDetailGeneralSection,
+  OfferDetailStoreSection,
   OfferVariantsSection,
 } from "./_components"
 import { loader } from "./loader"
@@ -52,6 +53,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
             <OfferAssociatedProductSection product={typed} />
+            <OfferDetailStoreSection sellerId={sellerId} />
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}
@@ -66,6 +68,7 @@ export const OfferDetailPage = Object.assign(Root, {
   Media: ProductMediaSection,
   Variants: OfferVariantsSection,
   AssociatedProduct: OfferAssociatedProductSection,
+  Store: OfferDetailStoreSection,
 })
 
 export const Component = Root
