@@ -1,5 +1,27 @@
 import { useQueryParams } from "../../../hooks/use-query-params"
 
+const OFFER_LIST_FIELDS = [
+  "id",
+  "product_id",
+  "seller_id",
+  "variant_id",
+  "sku",
+  "created_at",
+  "updated_at",
+  "product.id",
+  "product.title",
+  "product.handle",
+  "product.status",
+  "product.thumbnail",
+  "product.collection.id",
+  "product.collection.title",
+  "product.categories.id",
+  "product.categories.name",
+  "seller.id",
+  "seller.name",
+  "seller.handle",
+].join(",")
+
 export const useOfferTableQuery = ({
   pageSize = 10,
   prefix,
@@ -51,7 +73,8 @@ export const useOfferTableQuery = ({
     seller_id: seller_id ? seller_id.split(",") : undefined,
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
-    grouped: "true",
+    group_by_seller: "true",
+    fields: OFFER_LIST_FIELDS,
   }
 
   return {

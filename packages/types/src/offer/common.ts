@@ -4,7 +4,7 @@ import {
   ShippingProfileDTO,
 } from "@medusajs/types"
 
-import { ProductVariantDTO } from "../product/common"
+import { ProductDTO, ProductVariantDTO } from "../product/common"
 import { SellerDTO } from "../seller/common"
 
 /**
@@ -70,6 +70,8 @@ export interface OfferDTO {
   inventory_items?: OfferInventoryItemLinkDTO[]
   /** The seller that owns this offer (joined through `offer ↔ seller`). */
   seller?: SellerDTO
+  /** The product this offer points at (joined through `offer ↔ product`). */
+  product?: ProductDTO
   /** The master variant this offer points at (joined through `offer ↔ variant`). */
   product_variant?: ProductVariantDTO
   /** The offer's shipping profile (joined through `offer ↔ shipping_profile`). */

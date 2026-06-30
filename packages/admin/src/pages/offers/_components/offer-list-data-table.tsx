@@ -3,15 +3,12 @@ import { keepPreviousData } from "@tanstack/react-query"
 import { RowSelectionState } from "@tanstack/react-table"
 import { useState } from "react"
 import { useTranslation } from "react-i18next"
+import { OfferDTO } from "@mercurjs/types"
 
 import { _DataTable } from "../../../components/table/data-table"
 import { useDataTable } from "../../../hooks/use-data-table"
-import {
-  useBulkDeleteOffers,
-  useGroupedOffers,
-} from "../../../hooks/api/offers"
+import { useBulkDeleteOffers, useOffers } from "../../../hooks/api/offers"
 import { OFFERS_PAGE_SIZE } from "../common/constants"
-import { GroupedOfferRow } from "../common/types"
 import { useOfferTableColumns } from "./use-offer-table-columns"
 import { useOfferTableFilters } from "./use-offer-table-filters"
 import { useOfferTableQuery } from "./use-offer-table-query"
@@ -26,12 +23,11 @@ export const OfferListDataTable = () => {
     pageSize: OFFERS_PAGE_SIZE,
   })
 
-  const { offers, count, isLoading, isError, error } = useGroupedOffers(
-    searchParams,
-    { placeholderData: keepPreviousData },
-  )
+  const { offers, count, isLoading, isError, error } = useOffers(searchParams, {
+    placeholderData: keepPreviousData,
+  })
 
-  const rows = (offers ?? []) as GroupedOfferRow[]
+  const rows = (offers ?? []) as OfferDTO[]
 
   const filters = useOfferTableFilters()
   const columns = useOfferTableColumns()
@@ -42,7 +38,7 @@ export const OfferListDataTable = () => {
     columns,
     count,
     enablePagination: true,
-    getRowId: (row) => row.row_id,
+    getRowId: (row) => row.id,
     pageSize: OFFERS_PAGE_SIZE,
     enableRowSelection: true,
     rowSelection: {
@@ -71,7 +67,7 @@ export const OfferListDataTable = () => {
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
       navigateTo={(row) =>
-        `${row.original.id}?seller_id=${row.original.seller_id}`
+        `${row.original.product_id}?seller_id=${row.original.seller_id}`
       }
       noRecords={{
         title: t("offers.empty.heading"),
@@ -82,11 +78,7 @@ export const OfferListDataTable = () => {
           label: t("offers.actions.bulkDelete"),
           shortcut: "d",
           action: async (currentSelection) => {
-            const rowIds = Object.keys(currentSelection)
-            if (rowIds.length === 0) return
-
-            const selectedRows = rows.filter((r) => rowIds.includes(r.row_id))
-            const offerIds = selectedRows.flatMap((r) => r.offer_ids)
+            const offerIds = Object.keys(currentSelection)
             if (offerIds.length === 0) return
 
             const confirmed = await prompt({

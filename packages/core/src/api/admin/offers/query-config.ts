@@ -33,27 +33,6 @@ export const defaultAdminOfferFields = [
   "inventory_items.sku",
 ]
 
-export const groupedAdminOfferFields = [
-  "id",
-  "product_id",
-  "seller_id",
-  "variant_id",
-  "created_at",
-  "updated_at",
-  "product.id",
-  "product.title",
-  "product.handle",
-  "product.status",
-  "product.thumbnail",
-  "product.collection.id",
-  "product.collection.title",
-  "product.categories.id",
-  "product.categories.name",
-  "seller.id",
-  "seller.name",
-  "seller.handle",
-]
-
 export const adminOfferQueryConfig = {
   list: {
     defaults: defaultAdminOfferFields,

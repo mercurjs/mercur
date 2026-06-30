@@ -2,6 +2,7 @@ import { Checkbox, Text } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { OfferDTO, ProductStatus } from "@mercurjs/types"
 
 import { PlaceholderCell } from "../../../components/table/table-cells/common/placeholder-cell"
 import {
@@ -16,11 +17,9 @@ import {
   ProductStatusCell,
   ProductStatusHeader,
 } from "../../../components/table/table-cells/product/product-status-cell"
-import { ProductStatus } from "@mercurjs/types"
-import { GroupedOfferRow } from "../common/types"
 import { OfferActions } from "./offer-actions"
 
-const columnHelper = createColumnHelper<GroupedOfferRow>()
+const columnHelper = createColumnHelper<OfferDTO>()
 
 export const useOfferTableColumns = () => {
   const { t } = useTranslation()
@@ -97,17 +96,6 @@ export const useOfferTableColumns = () => {
         },
       }),
       columnHelper.display({
-        id: "variants",
-        header: t("offers.fields.variants"),
-        cell: ({ row }) => (
-          <Text size="small" leading="compact" className="truncate">
-            {t("offers.fields.variantsCount", {
-              count: row.original.variant_count,
-            })}
-          </Text>
-        ),
-      }),
-      columnHelper.display({
         id: "status",
         header: () => <ProductStatusHeader />,
         cell: ({ row }) => {
@@ -121,8 +109,8 @@ export const useOfferTableColumns = () => {
         cell: ({ row }) => (
           <OfferActions
             product={{
-              id: row.original.id,
-              offerIds: row.original.offer_ids,
+              id: row.original.product_id,
+              offerIds: [row.original.id],
               sellerId: row.original.seller_id ?? null,
             }}
           />

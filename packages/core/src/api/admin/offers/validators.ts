@@ -25,7 +25,7 @@ export const AdminGetOffersParams = createFindParams({
     sku: z.union([z.string(), z.array(z.string())]).optional(),
     ean: z.union([z.string(), z.array(z.string())]).optional(),
     upc: z.union([z.string(), z.array(z.string())]).optional(),
-    grouped: booleanString().optional(),
+    group_by_seller: booleanString().optional(),
     status: z.union([z.string(), z.array(z.string())]).optional(),
     category_id: z.union([z.string(), z.array(z.string())]).optional(),
     collection_id: z.union([z.string(), z.array(z.string())]).optional(),

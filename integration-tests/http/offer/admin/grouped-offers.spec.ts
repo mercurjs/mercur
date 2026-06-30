@@ -18,6 +18,17 @@ medusaIntegrationTestRunner({
             let seller2: any
             let seller2Headers: any
 
+            const LIST_FIELDS = [
+                "id",
+                "product_id",
+                "seller_id",
+                "variant_id",
+                "product.id",
+                "product.title",
+                "seller.id",
+                "seller.name",
+            ].join(",")
+
             const createShippingProfile = async (headers: any, tag: string) => {
                 const res = await api.post(
                     `/vendor/shipping-profiles`,
@@ -98,7 +109,7 @@ medusaIntegrationTestRunner({
                 )
 
                 const res = await api.get(
-                    `/admin/offers?grouped=true`,
+                    `/admin/offers?group_by_seller=true&fields=${LIST_FIELDS}`,
                     adminHeaders
                 )
 
@@ -107,6 +118,7 @@ medusaIntegrationTestRunner({
                 const rows = (res.data.offers as any[]).filter(
                     (row) => row.product_id === product.id
                 )
+                // store 1's two offers collapse into a single row; store 2 keeps one
                 expect(rows).toHaveLength(2)
                 expect(res.data.count).toBeGreaterThanOrEqual(2)
 
@@ -115,17 +127,67 @@ medusaIntegrationTestRunner({
                 expect(bySeller.has(seller2.id)).toBe(true)
 
                 for (const row of rows) {
-                    expect(row.id).toEqual(product.id)
-                    expect(row.row_id).toEqual(
-                        `${product.id}:${row.seller_id}`
-                    )
-                    expect(row.variant_count).toEqual(1)
+                    // rows are plain OfferDTO: id is an offer id, with product/seller hydrated
+                    expect(typeof row.id).toEqual("string")
+                    expect(row.variant_id).toEqual(variantId)
                     expect(row.product?.id).toEqual(product.id)
+                    expect(row.product?.title).toBeTruthy()
                     expect(row.seller?.id).toEqual(row.seller_id)
                 }
+            })
 
-                expect(bySeller.get(seller1.id).offer_ids).toHaveLength(2)
-                expect(bySeller.get(seller2.id).offer_ids).toHaveLength(1)
+            it("returns flat per-offer rows without the group_by_seller flag", async () => {
+                const product = await createVendorProduct(api, seller1Headers, {
+                    title: `Flat Product ${Date.now()}`,
+                    variants: [{ title: "Default" }],
+                })
+                const variantId = product.variants[0].id
+
+                const sp1 = await createShippingProfile(seller1Headers, "f1")
+                const sp2 = await createShippingProfile(seller2Headers, "f2")
+
+                await api.post(
+                    `/vendor/offers`,
+                    {
+                        sku: "FLAT-S1-A",
+                        variant_id: variantId,
+                        shipping_profile_id: sp1,
+                        inventory_items: [{}],
+                        prices: [{ amount: 1000, currency_code: "usd" }],
+                    },
+                    seller1Headers
+                )
+                await api.post(
+                    `/vendor/offers`,
+                    {
+                        sku: "FLAT-S1-B",
+                        variant_id: variantId,
+                        shipping_profile_id: sp1,
+                        inventory_items: [{}],
+                        prices: [{ amount: 1100, currency_code: "usd" }],
+                    },
+                    seller1Headers
+                )
+                await api.post(
+                    `/vendor/offers`,
+                    {
+                        sku: "FLAT-S2",
+                        variant_id: variantId,
+                        shipping_profile_id: sp2,
+                        inventory_items: [{}],
+                        prices: [{ amount: 1500, currency_code: "usd" }],
+                    },
+                    seller2Headers
+                )
+
+                const res = await api.get(`/admin/offers`, adminHeaders)
+
+                expect(res.status).toEqual(200)
+                const rows = (res.data.offers as any[]).filter(
+                    (row) => row.product_id === product.id
+                )
+                // no grouping: every offer is its own row
+                expect(rows).toHaveLength(3)
             })
 
             it("scopes the grouped list to a single store via seller_id", async () => {
@@ -166,7 +228,7 @@ medusaIntegrationTestRunner({
                 )
 
                 const res = await api.get(
-                    `/admin/offers?grouped=true&seller_id=${seller1.id}`,
+                    `/admin/offers?group_by_seller=true&seller_id=${seller1.id}`,
                     adminHeaders
                 )
 

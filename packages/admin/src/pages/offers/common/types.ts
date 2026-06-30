@@ -9,33 +9,6 @@ export type OfferProduct = HttpTypes.AdminProduct & {
   variants?: OfferProductVariant[] | null
 }
 
-export type GroupedOfferRow = {
-  // product id (row navigation target), not the offer id
-  id: string
-  // unique table key: `${product_id}:${seller_id}`
-  row_id: string
-  product_id: string
-  seller_id: string
-  offer_ids: string[]
-  variant_count: number
-  created_at?: string | null
-  updated_at?: string | null
-  product?: {
-    id?: string | null
-    title?: string | null
-    handle?: string | null
-    status?: string | null
-    thumbnail?: string | null
-    collection?: { id?: string | null; title?: string | null } | null
-    categories?: { id?: string | null; name?: string | null }[] | null
-  } | null
-  seller?: {
-    id?: string | null
-    name?: string | null
-    handle?: string | null
-  } | null
-}
-
 export type OfferPriceRule = {
   attribute?: string | null
   value?: string | null

@@ -19,7 +19,7 @@ const OFFERS_QUERY_KEY = "offers" as const
 export const offerQueryKeys = queryKeysFactory(OFFERS_QUERY_KEY)
 
 export const useOffers = (
-  query?: InferClientInput<typeof sdk.admin.offers.query>,
+  query?: Record<string, unknown>,
   options?: Omit<
     UseQueryOptions<
       InferClientOutput<typeof sdk.admin.offers.query>,
@@ -31,34 +31,11 @@ export const useOffers = (
   >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.offers.query({ ...query }),
-    queryKey: offerQueryKeys.list(query),
-    ...options,
-  })
-
-  return { ...data, ...rest }
-}
-
-export type GroupedOffersResponse = {
-  offers: unknown[]
-  count: number
-  offset: number
-  limit: number
-}
-
-export const useGroupedOffers = (
-  query?: Record<string, unknown>,
-  options?: Omit<
-    UseQueryOptions<GroupedOffersResponse, ClientError, GroupedOffersResponse, QueryKey>,
-    "queryKey" | "queryFn"
-  >,
-) => {
-  const { data, ...rest } = useQuery({
     queryFn: () =>
       sdk.admin.offers.query({
         ...(query as InferClientInput<typeof sdk.admin.offers.query>),
-      }) as unknown as Promise<GroupedOffersResponse>,
-    queryKey: offerQueryKeys.list({ grouped: true, ...query }),
+      }),
+    queryKey: offerQueryKeys.list(query),
     ...options,
   })
 

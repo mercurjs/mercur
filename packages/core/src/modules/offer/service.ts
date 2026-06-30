@@ -4,15 +4,15 @@ import {
   MedusaService,
 } from "@medusajs/framework/utils"
 import { Context, FindConfig } from "@medusajs/framework/types"
+import { SqlEntityManager } from "@medusajs/framework/mikro-orm/postgresql"
+import { OfferDTO } from "@mercurjs/types"
 
 import { Offer } from "./models"
 
-type OfferRow = {
-  id: string
-  product_id: string | null
-  seller_id: string | null
-  [key: string]: unknown
-}
+type OfferFilters = Record<string, unknown> & { group_by_seller?: boolean }
+
+const toArray = (value: unknown): string[] =>
+  (Array.isArray(value) ? value : [value]).map(String)
 
 class OfferModuleService extends MedusaService({
   Offer,
@@ -20,74 +20,110 @@ class OfferModuleService extends MedusaService({
   @InjectManager()
   // @ts-ignore - override narrows the generated signature
   async listOffers(
-    filters: Record<string, unknown> = {},
-    config: FindConfig<unknown> = {},
+    filters: OfferFilters = {},
+    config: FindConfig<OfferDTO> = {},
     @MedusaContext() sharedContext: Context = {}
-  ): Promise<OfferRow[]> {
-    if (!filters?.group_by_seller) {
+  ): Promise<OfferDTO[]> {
+    if (!filters.group_by_seller) {
       return super.listOffers(
         filters,
         config,
         sharedContext
-      ) as unknown as Promise<OfferRow[]>
+      ) as unknown as Promise<OfferDTO[]>
     }
-    const [rows] = await this.listGroupedOffersBySeller_(
+    const [offers] = await this.listGroupedOffersBySeller_(
       filters,
       config,
       sharedContext
     )
-    return rows
+    return offers
   }
 
   @InjectManager()
   // @ts-ignore - override narrows the generated signature
   async listAndCountOffers(
-    filters: Record<string, unknown> = {},
-    config: FindConfig<unknown> = {},
+    filters: OfferFilters = {},
+    config: FindConfig<OfferDTO> = {},
     @MedusaContext() sharedContext: Context = {}
-  ): Promise<[OfferRow[], number]> {
-    if (!filters?.group_by_seller) {
+  ): Promise<[OfferDTO[], number]> {
+    if (!filters.group_by_seller) {
       return super.listAndCountOffers(
         filters,
         config,
         sharedContext
-      ) as unknown as Promise<[OfferRow[], number]>
+      ) as unknown as Promise<[OfferDTO[], number]>
     }
     return this.listGroupedOffersBySeller_(filters, config, sharedContext)
   }
 
+  /**
+   * Collapses offers to one row per `(product_id, seller_id)` in SQL
+   * (`DISTINCT ON`), paginating over the groups and reporting the group count.
+   * Returns the same `OfferDTO` shape as the ungrouped path — just fewer rows.
+   */
   private async listGroupedOffersBySeller_(
-    filters: Record<string, unknown>,
-    config: FindConfig<unknown>,
+    filters: OfferFilters,
+    config: FindConfig<OfferDTO>,
     sharedContext: Context
-  ): Promise<[OfferRow[], number]> {
+  ): Promise<[OfferDTO[], number]> {
     const { group_by_seller: _flag, ...rest } = filters
     const skip = config.skip ?? 0
     const take = config.take ?? 20
 
-    const offers = (await super.listOffers(
-      rest,
-      {
-        ...config,
-        skip: 0,
-        take: null,
-        order: config.order ?? { created_at: "DESC" },
-      },
-      sharedContext
-    )) as unknown as OfferRow[]
+    const { baseRepository_ } = this as unknown as {
+      baseRepository_: { getActiveManager<T>(context?: Context): T }
+    }
+    const manager =
+      baseRepository_.getActiveManager<SqlEntityManager>(sharedContext)
+    const knex = manager.getKnex()
 
-    const representatives = new Map<string, OfferRow>()
-    const order: string[] = []
-    for (const offer of offers) {
-      const key = `${offer.product_id}:${offer.seller_id}`
-      if (!representatives.has(key)) {
-        representatives.set(key, offer)
-        order.push(key)
+    const scoped = () => {
+      const qb = knex("offer").whereNull("deleted_at")
+      if (rest.product_id !== undefined) {
+        qb.whereIn("product_id", toArray(rest.product_id))
       }
+      if (rest.seller_id !== undefined) {
+        qb.whereIn("seller_id", toArray(rest.seller_id))
+      }
+      return qb
     }
 
-    const grouped = order.map((key) => representatives.get(key)!)
-    return [grouped.slice(skip, skip + take), grouped.length]
+    const idRows = (await scoped()
+      .distinctOn("product_id", "seller_id")
+      .select("id")
+      .orderBy([
+        { column: "product_id" },
+        { column: "seller_id" },
+        { column: "created_at", order: "desc" },
+      ])
+      .limit(take)
+      .offset(skip)) as Array<{ id: string }>
+
+    const countRow = (await knex
+      .count({ count: "*" })
+      .from(
+        scoped().groupBy("product_id", "seller_id").select(knex.raw("1")).as(
+          "groups"
+        )
+      )
+      .first()) as { count?: string | number } | undefined
+    const count = Number(countRow?.count ?? 0)
+
+    const ids = idRows.map((row) => row.id)
+    if (!ids.length) {
+      return [[], count]
+    }
+
+    const offers = (await super.listOffers(
+      { id: ids } as OfferFilters,
+      { ...config, skip: 0, take: ids.length },
+      sharedContext
+    )) as unknown as OfferDTO[]
+
+    const rank = new Map(ids.map((id, index) => [id, index]))
+    offers.sort((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0))
+
+    return [offers, count]
   }
 }
 
