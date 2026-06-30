@@ -11,6 +11,7 @@ const Offer = model
     ean: model.text().searchable().nullable(),
     upc: model.text().searchable().nullable(),
     created_by: model.text(),
+    variant_count: model.number().computed(),
     metadata: model.json().nullable(),
   })
   .indexes([
