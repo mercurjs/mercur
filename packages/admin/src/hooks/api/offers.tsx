@@ -19,7 +19,7 @@ const OFFERS_QUERY_KEY = "offers" as const
 export const offerQueryKeys = queryKeysFactory(OFFERS_QUERY_KEY)
 
 export const useOffers = (
-  query?: InferClientInput<typeof sdk.admin.offers.query>,
+  query?: Record<string, unknown>,
   options?: Omit<
     UseQueryOptions<
       InferClientOutput<typeof sdk.admin.offers.query>,
@@ -31,7 +31,10 @@ export const useOffers = (
   >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryFn: () => sdk.admin.offers.query({ ...query }),
+    queryFn: () =>
+      sdk.admin.offers.query({
+        ...(query as InferClientInput<typeof sdk.admin.offers.query>),
+      }),
     queryKey: offerQueryKeys.list(query),
     ...options,
   })

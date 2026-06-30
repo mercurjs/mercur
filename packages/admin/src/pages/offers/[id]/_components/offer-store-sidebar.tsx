@@ -1,15 +1,15 @@
 import { TriangleRightMini } from "@medusajs/icons"
 import { Avatar, Container, Heading } from "@medusajs/ui"
+import { SellerDTO } from "@mercurjs/types"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
-import { OfferDetail } from "../../common/types"
+type Props = {
+  seller?: Partial<Pick<SellerDTO, "id" | "name" | "handle">> | null
+}
 
-type Props = { offer: OfferDetail }
-
-export const OfferStoreSidebar = ({ offer }: Props) => {
+export const OfferStoreSidebar = ({ seller }: Props) => {
   const { t } = useTranslation()
-  const seller = offer.seller
 
   if (!seller?.id) {
     return null

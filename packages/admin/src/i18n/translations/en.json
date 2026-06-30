@@ -4024,7 +4024,8 @@
     "domain": "Offers",
     "empty": {
       "heading": "No offers yet",
-      "description": "Stores haven't published any offers on this marketplace yet."
+      "description": "Stores haven't published any offers on this marketplace yet.",
+      "storeDescription": "This store doesn't have any offers"
     },
     "filtered": {
       "heading": "No matching offers",

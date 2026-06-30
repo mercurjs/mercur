@@ -1,17 +1,10 @@
 import { HttpTypes } from "@medusajs/types"
-import { OfferDTO } from "@mercurjs/types"
+import { OfferDTO, SellerDTO } from "@mercurjs/types"
 
-/**
- * A product variant carrying offers, as returned by the admin product
- * endpoint's `withOffers` wrap (SPEC-010). Admin is platform-wide, so each
- * offer carries its `seller` (on `OfferDTO`) to drive the Store column.
- * Composed from the Medusa `AdminProductVariant` DTO + the Mercur `OfferDTO`.
- */
 export type OfferProductVariant = HttpTypes.AdminProductVariant & {
   offers?: OfferDTO[] | null
 }
 
-/** A product with offers wrapped under each variant (admin Offers surface). */
 export type OfferProduct = HttpTypes.AdminProduct & {
   variants?: OfferProductVariant[] | null
 }
@@ -89,11 +82,6 @@ export type OfferDetail = {
   } | null
   prices?: OfferPrice[] | null
   inventory_item_link?: OfferInventoryItemLink[] | null
-  seller?: {
-    id?: string | null
-    name?: string | null
-    handle?: string | null
-    email?: string | null
-  } | null
+  seller?: Partial<Pick<SellerDTO, "id" | "name" | "handle" | "email">> | null
   audit_log?: OfferAuditEntry[] | null
 }

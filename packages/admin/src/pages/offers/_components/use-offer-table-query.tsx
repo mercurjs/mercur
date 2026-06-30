@@ -1,14 +1,27 @@
 import { useQueryParams } from "../../../hooks/use-query-params"
-import { OFFER_PRODUCT_LIST_FIELDS } from "../common/constants"
 
-/**
- * Query parsing for the product-backed admin Offers list (SPEC-010). The
- * list reads `/admin/products` scoped to products that carry at least one
- * offer (`has_offer=true`), with every seller's offers wrapped under each
- * variant (`OFFER_PRODUCT_LIST_FIELDS` triggers the wrap). `seller_id` is
- * the Store filter — on the Offers surface the backend reinterprets it as
- * the offer's store (not product ownership).
- */
+const OFFER_LIST_FIELDS = [
+  "id",
+  "product_id",
+  "seller_id",
+  "variant_id",
+  "sku",
+  "created_at",
+  "updated_at",
+  "product.id",
+  "product.title",
+  "product.handle",
+  "product.status",
+  "product.thumbnail",
+  "product.collection.id",
+  "product.collection.title",
+  "product.categories.id",
+  "product.categories.name",
+  "seller.id",
+  "seller.name",
+  "seller.handle",
+].join(",")
+
 export const useOfferTableQuery = ({
   pageSize = 10,
   prefix,
@@ -50,7 +63,7 @@ export const useOfferTableQuery = ({
   const searchParams: Record<string, unknown> = {
     limit: pageSize,
     offset: offset ? parseInt(offset, 10) : 0,
-    order: order || "title",
+    order: order || "-created_at",
     q,
     category_id: category_id ? category_id.split(",") : undefined,
     collection_id: collection_id ? collection_id.split(",") : undefined,
@@ -60,8 +73,8 @@ export const useOfferTableQuery = ({
     seller_id: seller_id ? seller_id.split(",") : undefined,
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
-    has_offer: "true",
-    fields: OFFER_PRODUCT_LIST_FIELDS,
+    group_by_seller: "true",
+    fields: OFFER_LIST_FIELDS,
   }
 
   return {

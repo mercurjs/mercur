@@ -52,7 +52,8 @@ export const GET = async (
   if (withOffers) {
     await wrapProductVariantsWithOffers(
       req.scope,
-      [product] as Parameters<typeof wrapProductVariantsWithOffers>[1]
+      [product] as Parameters<typeof wrapProductVariantsWithOffers>[1],
+      req.filterableFields?.seller_id as string | undefined
     )
   }
 

@@ -146,6 +146,66 @@ export const applyOfferedProductsFilter = async (
   return next()
 }
 
+const PRODUCT_FILTER_KEYS = ["q", "status", "collection_id", "type_id"] as const
+
+// Cross-module link relations can't be filtered on the offer query, so
+// product-attribute filters are resolved to a product_id set on the product
+// entity first.
+export const applyGroupedOfferProductFilter = async (
+  req: OfferAwareRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  req.filterableFields ??= {}
+  const fields = req.filterableFields as Record<string, unknown>
+
+  if (fields.group_by_seller !== true) {
+    return next()
+  }
+
+  const productFilters: Record<string, unknown> = {}
+  for (const key of PRODUCT_FILTER_KEYS) {
+    if (fields[key] !== undefined && fields[key] !== null) {
+      productFilters[key] = fields[key]
+      delete fields[key]
+    }
+  }
+  if (fields.category_id !== undefined && fields.category_id !== null) {
+    productFilters.categories = {
+      id: Array.isArray(fields.category_id)
+        ? fields.category_id
+        : [fields.category_id],
+    }
+    delete fields.category_id
+  }
+  if (fields.tag_id !== undefined && fields.tag_id !== null) {
+    productFilters.tags = {
+      id: Array.isArray(fields.tag_id) ? fields.tag_id : [fields.tag_id],
+    }
+    delete fields.tag_id
+  }
+
+  if (!Object.keys(productFilters).length) {
+    return next()
+  }
+
+  if (fields.product_id !== undefined && fields.product_id !== null) {
+    productFilters.id = fields.product_id
+  }
+
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: products } = await query.graph({
+    entity: "product",
+    fields: ["id"],
+    filters: productFilters,
+  })
+
+  const productIds = products.map((product: { id: string }) => product.id)
+  fields.product_id = productIds.length ? productIds : ["__none__"]
+
+  return next()
+}
+
 type StoreRequestWithContext = MedusaStoreRequest<unknown> & {
   pricingContext?: MedusaPricingContext
   taxContext?: {
