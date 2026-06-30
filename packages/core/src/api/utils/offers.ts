@@ -59,7 +59,7 @@ type OfferRow = { variant_id: string }
 export const wrapProductVariantsWithOffers = async (
   scope: MedusaContainer,
   products: WrappableProduct[],
-  sellerId?: string
+  sellerId?: unknown
 ): Promise<void> => {
   const variantIds = Array.from(
     new Set(products.flatMap((p) => (p.variants ?? []).map((v) => v.id)))

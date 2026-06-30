@@ -50,11 +50,10 @@ export const GET = async (
   await enrichProductAttributes(req.scope, [product])
 
   if (withOffers) {
-    const sellerId = req.query.seller_id as string | undefined
     await wrapProductVariantsWithOffers(
       req.scope,
       [product] as Parameters<typeof wrapProductVariantsWithOffers>[1],
-      sellerId
+      req.filterableFields?.seller_id
     )
   }
 
