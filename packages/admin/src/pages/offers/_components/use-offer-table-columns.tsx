@@ -103,6 +103,23 @@ export const useOfferTableColumns = (options?: {
         },
       }),
       columnHelper.display({
+        id: "variants",
+        header: () => (
+          <div className="flex h-full w-full items-center">
+            <span>{t("fields.variants")}</span>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const count = row.original.variant_count
+          if (!count) return <PlaceholderCell />
+          return (
+            <Text size="small" leading="compact" className="truncate">
+              {t("products.variantCount", { count })}
+            </Text>
+          )
+        },
+      }),
+      columnHelper.display({
         id: "status",
         header: () => <ProductStatusHeader />,
         cell: ({ row }) => {

@@ -56,6 +56,12 @@ export interface OfferDTO {
   updated_at: Date
   deleted_at: Date | null
   /**
+   * Number of offers the seller has for this product, computed only when
+   * offers are grouped by seller (`group_by_seller`). One offer per variant,
+   * so this is effectively the variant count for the grouped row.
+   */
+  variant_count?: number | null
+  /**
    * Joined through the writable `offer ↔ price` list-link defined in
    * `packages/core/src/links/offer-price-link.ts`. Carries the offer's
    * Price rows on the variant's shared `PriceSet` (filtered by the

@@ -6,6 +6,7 @@ const OFFER_LIST_FIELDS = [
   "seller_id",
   "variant_id",
   "sku",
+  "variant_count",
   "created_at",
   "updated_at",
   "product.id",

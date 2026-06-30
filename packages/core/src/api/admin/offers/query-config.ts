@@ -8,6 +8,7 @@ export const defaultAdminOfferFields = [
   "ean",
   "upc",
   "created_by",
+  "variant_count",
   "metadata",
   "created_at",
   "updated_at",
