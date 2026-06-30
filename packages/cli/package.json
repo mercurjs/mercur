@@ -34,7 +34,8 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "tsup --watch",
-    "build": "tsup"
+    "build": "bun scripts/generate-routes-manifest.ts && tsup",
+    "routes-manifest": "bun scripts/generate-routes-manifest.ts"
   },
   "dependencies": {
     "@antfu/ni": "^27.0.1",
