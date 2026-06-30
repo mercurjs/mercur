@@ -243,6 +243,59 @@ medusaIntegrationTestRunner({
                 )
                 expect(productRows).toHaveLength(1)
             })
+
+            it("scopes the product detail offers to a single store via seller_id", async () => {
+                const product = await createVendorProduct(api, seller1Headers, {
+                    title: `Detail Product ${Date.now()}`,
+                    variants: [{ title: "Default" }],
+                })
+                const variantId = product.variants[0].id
+
+                const sp1 = await createShippingProfile(seller1Headers, "d1")
+                const sp2 = await createShippingProfile(seller2Headers, "d2")
+
+                await api.post(
+                    `/vendor/offers`,
+                    {
+                        sku: "DETAIL-S1",
+                        variant_id: variantId,
+                        shipping_profile_id: sp1,
+                        inventory_items: [{}],
+                        prices: [{ amount: 1000, currency_code: "usd" }],
+                    },
+                    seller1Headers
+                )
+                await api.post(
+                    `/vendor/offers`,
+                    {
+                        sku: "DETAIL-S2",
+                        variant_id: variantId,
+                        shipping_profile_id: sp2,
+                        inventory_items: [{}],
+                        prices: [{ amount: 1500, currency_code: "usd" }],
+                    },
+                    seller2Headers
+                )
+
+                const fields =
+                    "id,variants.id,variants.offers.id,variants.offers.seller_id"
+
+                const scoped = await api.get(
+                    `/admin/products/${product.id}?seller_id=${seller1.id}&fields=${fields}`,
+                    adminHeaders
+                )
+                expect(scoped.status).toEqual(200)
+                const scopedOffers = scoped.data.product.variants[0].offers
+                expect(scopedOffers).toHaveLength(1)
+                expect(scopedOffers[0].seller_id).toEqual(seller1.id)
+
+                // without seller_id the wrap returns every store's offers
+                const all = await api.get(
+                    `/admin/products/${product.id}?fields=${fields}`,
+                    adminHeaders
+                )
+                expect(all.data.product.variants[0].offers).toHaveLength(2)
+            })
         })
     },
 })
