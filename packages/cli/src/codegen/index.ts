@@ -1,7 +1,8 @@
 import fs from "fs/promises";
 import path from "path";
-import { DIST_DIR, defaultMedusaRoutes, defaultMercurRoutes } from "./constants";
+import { DIST_DIR } from "./constants";
 import { ensureDir } from "./fs";
+import { loadBaselineRoutes, type RouteManifest } from "./manifest";
 import { getRoutes, type RouteInfo } from "./routes";
 import { normalizeApiPath, normalizePathSep } from "./path";
 import { toCamelCase } from "../utils/to-camel-case";
@@ -9,6 +10,7 @@ import { toCamelCase } from "../utils/to-camel-case";
 export { getRoutes, type RouteInfo } from "./routes";
 export { recursiveReadDir, pathExists, ensureDir } from "./fs";
 export { normalizeApiPath, normalizePathSep } from "./path";
+export { loadBaselineRoutes, type RouteManifest } from "./manifest";
 export { DIST_DIR, ROUTE_FILE_PATTERN } from "./constants";
 
 function generateImportPath(filePath: string): string {
@@ -91,17 +93,16 @@ function generateTypeFromTree(node: RouteNode, indent: string = "    "): string 
     return parts.join(" & ");
 }
 
-export function generateRouteTypesFile(routes: RouteInfo[], importPathFn?: (filePath: string) => string): string {
-    // Use Map to handle route deduplication (user routes override default routes)
+export function generateRouteTypesFile(
+    routes: RouteInfo[],
+    baseline: RouteManifest,
+    importPathFn?: (filePath: string) => string
+): string {
+    // Use Map to handle route deduplication (user routes override baseline routes)
     const routeMap = new Map<string, string>();
 
-    // First, add default Medusa routes
-    for (const [route, importType] of Object.entries(defaultMedusaRoutes)) {
-        routeMap.set(route, importType);
-    }
-
-    // Second, add default Mercur routes
-    for (const [route, importType] of Object.entries(defaultMercurRoutes)) {
+    // Seed with the baseline Medusa + Mercur core route map
+    for (const [route, importType] of Object.entries(baseline)) {
         routeMap.set(route, importType);
     }
 
@@ -133,13 +134,17 @@ export async function writeRouteTypes(rootDir: string) {
 
     await ensureDir(entryDir);
 
+    const baseline = await loadBaselineRoutes();
     const routes = await getRoutes(apiDir);
-    const routeTypes = generateRouteTypesFile(routes);
+    const routeTypes = generateRouteTypesFile(routes, baseline);
 
     await fs.writeFile(entryFilePath, routeTypes, "utf-8");
 }
 
-export async function writeRegistryRouteTypes(rootDir: string, routeFilePaths: string[]) {
+export async function writeRegistryRouteTypes(
+    rootDir: string,
+    routeFilePaths: string[]
+) {
     const entryFilePath = path.join(rootDir, DIST_DIR, "index.d.ts");
     const entryDir = path.dirname(entryFilePath);
 
@@ -157,7 +162,8 @@ export async function writeRegistryRouteTypes(rootDir: string, routeFilePaths: s
     const registryImportPath = (filePath: string) =>
         `../src/${filePath.replace(/\.ts$/, "")}`;
 
-    const routeTypes = generateRouteTypesFile(allRoutes, registryImportPath);
+    const baseline = await loadBaselineRoutes();
+    const routeTypes = generateRouteTypesFile(allRoutes, baseline, registryImportPath);
 
     await fs.writeFile(entryFilePath, routeTypes, "utf-8");
 }
