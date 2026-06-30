@@ -85,11 +85,11 @@ Because Mercur is a plain Node.js application backed by PostgreSQL and Redis, it
 
 This repository is **Mercur core**, licensed under the [MIT License](./LICENSE) and fully open source. It's the marketplace engine on top of [Medusa](https://medusajs.com) — vendors, multi-vendor catalogs, offers, commissions, and payouts, with the admin and vendor dashboards and APIs to run a marketplace yourself.
 
-Mercur Enterprise adds a licensed suite of advanced modules (EAN matching & deduplication, a Buy Box / winning-offer engine, master-data governance, multi-channel stock sync, automated split payouts, vendor KYC, and much more), all maintained, tested, and upgraded by the core team. You deploy and run Enterprise on your own infrastructure, exactly like the open-source core.
+**Mercur Enterprise** adds a licensed suite of advanced modules (EAN matching & deduplication, a Buy Box / winning-offer engine, master-data governance, multi-channel stock sync, automated split payouts, vendor KYC, and much more), all maintained, tested, and upgraded by the core team. You deploy and run Enterprise on your own infrastructure, exactly like the open-source core.
 
 It comes backed by a direct support relationship with the people who build the platform: a dedicated support channel, contractual SLAs with guaranteed response times, prioritized bug fixes and security patches, and hands-on onboarding and architecture guidance to get you to production. Higher support tiers add priority escalation and a named technical contact.
 
-[Book a demo](https://www.mercurjs.com/enterprise).
+[Book Mercur Enterprise demo](https://www.mercurjs.com/enterprise).
 
 <!-- GETTING STARTED -->
 
