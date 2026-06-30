@@ -1,12 +1,5 @@
 import { useQueryParams } from "../../../hooks/use-query-params"
 
-/**
- * Query parsing for the per-seller grouped admin Offers list. Reads
- * `/admin/offers?grouped=true` — one row per `(product_id, seller_id)` group.
- * Product-attribute filters (category/collection/type/tag/status) and `q` are
- * resolved against products on the backend, then offers are scoped to the
- * matching products; `seller_id` is the Store filter.
- */
 export const useOfferTableQuery = ({
   pageSize = 10,
   prefix,

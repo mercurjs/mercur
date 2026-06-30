@@ -16,14 +16,6 @@ import { useOfferTableColumns } from "./use-offer-table-columns"
 import { useOfferTableFilters } from "./use-offer-table-filters"
 import { useOfferTableQuery } from "./use-offer-table-query"
 
-/**
- * Per-seller grouped admin Offers list. Reads `/admin/offers?grouped=true` —
- * one row per `(product_id, seller_id)`, so a product offered by multiple
- * stores shows once per store. Clicking a row opens the product detail scoped
- * to that store (`?seller_id=`). Admin is read-only except delete — the bulk
- * command removes the selected rows' offers (per-offer DELETE fan-out via
- * `useBulkDeleteOffers`).
- */
 export const OfferListDataTable = () => {
   const { t } = useTranslation()
   const prompt = usePrompt()

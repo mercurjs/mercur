@@ -9,12 +9,6 @@ import {
 
 jest.setTimeout(60000)
 
-/**
- * Admin grouped offers list (`GET /admin/offers?grouped=true`). The same
- * product surfaces once per store that offers it — one row per
- * `(product_id, seller_id)` — so the operator can drill into a single
- * store's offers via `?seller_id=`.
- */
 medusaIntegrationTestRunner({
     testSuite: ({ getContainer, api, dbConnection }) => {
         describe("Admin - Grouped Offers", () => {
@@ -69,8 +63,6 @@ medusaIntegrationTestRunner({
                 const sp1 = await createShippingProfile(seller1Headers, "s1")
                 const sp2 = await createShippingProfile(seller2Headers, "s2")
 
-                // Store 1 places two offers on the product; store 2 places one.
-                // Grouping must collapse store 1's two offers into a single row.
                 await api.post(
                     `/vendor/offers`,
                     {
@@ -132,8 +124,6 @@ medusaIntegrationTestRunner({
                     expect(row.seller?.id).toEqual(row.seller_id)
                 }
 
-                // Store 1's two offers collapse into a single row carrying both
-                // offer ids; store 2's single offer carries one.
                 expect(bySeller.get(seller1.id).offer_ids).toHaveLength(2)
                 expect(bySeller.get(seller2.id).offer_ids).toHaveLength(1)
             })

@@ -32,12 +32,6 @@ export type GetOffersListWorkflowOutput = {
 
 export const getOffersListWorkflowId = "get-offers-list"
 
-/**
- * Lists offers grouped by `(product_id, seller_id)` — one row per product+store.
- * The grouping + count + pagination happen in `OfferModuleService.listAndCountOffers`
- * (triggered by `group_by_seller`); a second ungrouped read aggregates each group's
- * offer ids and offered-variant count for the list UI.
- */
 export const getOffersListWorkflow = createWorkflow(
   getOffersListWorkflowId,
   (input: GetOffersListWorkflowInput) => {

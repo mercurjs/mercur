@@ -46,11 +46,6 @@ export type GroupedOffersResponse = {
   limit: number
 }
 
-/**
- * Per-seller grouped offers list — `GET /admin/offers?grouped=true`. Each row
- * is one `(product_id, seller_id)` group. The grouped response shape differs
- * from the flat offers query, so callers cast `offers` to `GroupedOfferRow[]`.
- */
 export const useGroupedOffers = (
   query?: Record<string, unknown>,
   options?: Omit<

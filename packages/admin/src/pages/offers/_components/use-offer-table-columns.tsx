@@ -20,12 +20,6 @@ import { ProductStatus } from "@mercurjs/types"
 import { GroupedOfferRow } from "../common/types"
 import { OfferActions } from "./offer-actions"
 
-/**
- * A row on the per-seller grouped admin Offers list: one product offered by
- * one store. The same product appears once per store that offers it, so the
- * Store column identifies which seller's offers the row (and its detail link)
- * scopes to.
- */
 const columnHelper = createColumnHelper<GroupedOfferRow>()
 
 export const useOfferTableColumns = () => {

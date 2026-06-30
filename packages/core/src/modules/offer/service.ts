@@ -14,14 +14,6 @@ type OfferRow = {
   [key: string]: unknown
 }
 
-/**
- * `group_by_seller` collapses offers to one row per `(product_id, seller_id)`
- * so the same product surfaces once per store. Mirrors Medusa's product-category
- * `include_descendants_tree` flag: the flag rides in `filters`, is stripped before
- * delegating, and the result set + count are post-processed. `query.graph` calls
- * these methods underneath and still hydrates the `product` / `seller` links from
- * each row's foreign keys, so the grouped rows keep `product_id` + `seller_id`.
- */
 class OfferModuleService extends MedusaService({
   Offer,
 }) {

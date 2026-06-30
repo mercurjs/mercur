@@ -1,30 +1,18 @@
 import { HttpTypes } from "@medusajs/types"
 import { OfferDTO } from "@mercurjs/types"
 
-/**
- * A product variant carrying offers, as returned by the admin product
- * endpoint's `withOffers` wrap (SPEC-010). Admin is platform-wide, so each
- * offer carries its `seller` (on `OfferDTO`) to drive the Store column.
- * Composed from the Medusa `AdminProductVariant` DTO + the Mercur `OfferDTO`.
- */
 export type OfferProductVariant = HttpTypes.AdminProductVariant & {
   offers?: OfferDTO[] | null
 }
 
-/** A product with offers wrapped under each variant (admin Offers surface). */
 export type OfferProduct = HttpTypes.AdminProduct & {
   variants?: OfferProductVariant[] | null
 }
 
-/**
- * A row on the per-seller grouped admin Offers list: one offer representing a
- * `(product_id, seller_id)` group, with the product/seller links hydrated and
- * the group's offer ids + offered-variant count aggregated by the backend
- * workflow. `id` is the product id (the row's navigation target); `row_id` is
- * the unique table key (`product_id:seller_id`).
- */
 export type GroupedOfferRow = {
+  // product id (row navigation target), not the offer id
   id: string
+  // unique table key: `${product_id}:${seller_id}`
   row_id: string
   product_id: string
   seller_id: string
