@@ -2,7 +2,6 @@ import { Checkbox, Text } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
-import { SellerDTO } from "@mercurjs/types"
 
 import { PlaceholderCell } from "../../../components/table/table-cells/common/placeholder-cell"
 import {
@@ -18,37 +17,16 @@ import {
   ProductStatusHeader,
 } from "../../../components/table/table-cells/product/product-status-cell"
 import { ProductStatus } from "@mercurjs/types"
-import { OfferProduct } from "../common/types"
+import { GroupedOfferRow } from "../common/types"
 import { OfferActions } from "./offer-actions"
 
 /**
- * A row on the product-backed admin Offers list (SPEC-010): a product
- * with every seller's offers wrapped under each variant. Row identity is
- * the product; `variants[].offers[]` drive the offered-variant count, the
- * single-store "Open store" action, and the product-level delete.
+ * A row on the per-seller grouped admin Offers list: one product offered by
+ * one store. The same product appears once per store that offers it, so the
+ * Store column identifies which seller's offers the row (and its detail link)
+ * scopes to.
  */
-const columnHelper = createColumnHelper<OfferProduct>()
-
-const countOfferedVariants = (row: OfferProduct) =>
-  (row.variants ?? []).filter((v) => (v.offers?.length ?? 0) > 0).length
-
-/** All offer ids across the product's offered variants (every seller). */
-export const collectOfferIds = (row: OfferProduct) =>
-  (row.variants ?? []).flatMap((v) => (v.offers ?? []).map((o) => o.id))
-
-/** Distinct stores (sellers) that offer this product. */
-const collectOfferSellers = (row: OfferProduct): SellerDTO[] => {
-  const seen = new Map<string, SellerDTO>()
-  for (const variant of row.variants ?? []) {
-    for (const offer of variant.offers ?? []) {
-      const seller = offer.seller
-      if (seller?.id && !seen.has(seller.id)) {
-        seen.set(seller.id, seller as SellerDTO)
-      }
-    }
-  }
-  return Array.from(seen.values())
-}
+const columnHelper = createColumnHelper<GroupedOfferRow>()
 
 export const useOfferTableColumns = () => {
   const { t } = useTranslation()
@@ -83,18 +61,31 @@ export const useOfferTableColumns = () => {
         cell: ({ row }) => (
           <ProductCell
             product={{
-              title: row.original.title ?? "",
-              thumbnail: row.original.thumbnail ?? null,
+              title: row.original.product?.title ?? "",
+              thumbnail: row.original.product?.thumbnail ?? null,
             }}
           />
         ),
+      }),
+      columnHelper.display({
+        id: "store",
+        header: t("offers.fields.store"),
+        cell: ({ row }) => {
+          const name = row.original.seller?.name
+          if (!name) return <PlaceholderCell />
+          return (
+            <Text size="small" leading="compact" className="truncate">
+              {name}
+            </Text>
+          )
+        },
       }),
       columnHelper.display({
         id: "categories",
         header: () => <CategoryHeader />,
         cell: ({ row }) => (
           <CategoryCell
-            categories={(row.original.categories ?? undefined) as never}
+            categories={(row.original.product?.categories ?? undefined) as never}
           />
         ),
       }),
@@ -102,7 +93,7 @@ export const useOfferTableColumns = () => {
         id: "collection",
         header: t("fields.collection"),
         cell: ({ row }) => {
-          const collection = row.original.collection
+          const collection = row.original.product?.collection
           if (!collection?.title) return <PlaceholderCell />
           return (
             <Text size="small" leading="compact" className="truncate">
@@ -117,7 +108,7 @@ export const useOfferTableColumns = () => {
         cell: ({ row }) => (
           <Text size="small" leading="compact" className="truncate">
             {t("offers.fields.variantsCount", {
-              count: countOfferedVariants(row.original),
+              count: row.original.variant_count,
             })}
           </Text>
         ),
@@ -126,25 +117,22 @@ export const useOfferTableColumns = () => {
         id: "status",
         header: () => <ProductStatusHeader />,
         cell: ({ row }) => {
-          const status = row.original.status
+          const status = row.original.product?.status
           if (!status) return <PlaceholderCell />
           return <ProductStatusCell status={status as ProductStatus} />
         },
       }),
       columnHelper.display({
         id: "actions",
-        cell: ({ row }) => {
-          const sellers = collectOfferSellers(row.original)
-          return (
-            <OfferActions
-              product={{
-                id: row.original.id,
-                offerIds: collectOfferIds(row.original),
-                sellerId: sellers.length === 1 ? sellers[0].id ?? null : null,
-              }}
-            />
-          )
-        },
+        cell: ({ row }) => (
+          <OfferActions
+            product={{
+              id: row.original.id,
+              offerIds: row.original.offer_ids,
+              sellerId: row.original.seller_id ?? null,
+            }}
+          />
+        ),
       }),
     ],
     [t],

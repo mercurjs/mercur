@@ -39,6 +39,37 @@ export const useOffers = (
   return { ...data, ...rest }
 }
 
+export type GroupedOffersResponse = {
+  offers: unknown[]
+  count: number
+  offset: number
+  limit: number
+}
+
+/**
+ * Per-seller grouped offers list — `GET /admin/offers?grouped=true`. Each row
+ * is one `(product_id, seller_id)` group. The grouped response shape differs
+ * from the flat offers query, so callers cast `offers` to `GroupedOfferRow[]`.
+ */
+export const useGroupedOffers = (
+  query?: Record<string, unknown>,
+  options?: Omit<
+    UseQueryOptions<GroupedOffersResponse, ClientError, GroupedOffersResponse, QueryKey>,
+    "queryKey" | "queryFn"
+  >,
+) => {
+  const { data, ...rest } = useQuery({
+    queryFn: () =>
+      sdk.admin.offers.query({
+        ...(query as InferClientInput<typeof sdk.admin.offers.query>),
+      }) as unknown as Promise<GroupedOffersResponse>,
+    queryKey: offerQueryKeys.list({ grouped: true, ...query }),
+    ...options,
+  })
+
+  return { ...data, ...rest }
+}
+
 export const useOffer = (
   id: string,
   query?: Omit<InferClientInput<typeof sdk.admin.offers.$id.query>, "$id">,

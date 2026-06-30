@@ -33,6 +33,33 @@ export const defaultAdminOfferFields = [
   "inventory_items.sku",
 ]
 
+/**
+ * Fields for the per-seller grouped offers list. Each row is one offer
+ * representing a `(product_id, seller_id)` group; the product / seller links
+ * hydrate from the row's foreign keys (`offer_ids` / `variant_count` are added
+ * by the workflow, not read from the graph).
+ */
+export const groupedAdminOfferFields = [
+  "id",
+  "product_id",
+  "seller_id",
+  "variant_id",
+  "created_at",
+  "updated_at",
+  "product.id",
+  "product.title",
+  "product.handle",
+  "product.status",
+  "product.thumbnail",
+  "product.collection.id",
+  "product.collection.title",
+  "product.categories.id",
+  "product.categories.name",
+  "seller.id",
+  "seller.name",
+  "seller.handle",
+]
+
 export const adminOfferQueryConfig = {
   list: {
     defaults: defaultAdminOfferFields,

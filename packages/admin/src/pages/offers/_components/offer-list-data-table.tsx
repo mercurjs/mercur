@@ -6,21 +6,23 @@ import { useTranslation } from "react-i18next"
 
 import { _DataTable } from "../../../components/table/data-table"
 import { useDataTable } from "../../../hooks/use-data-table"
-import { useBulkDeleteOffers } from "../../../hooks/api/offers"
-import { useProducts } from "../../../hooks/api/products"
+import {
+  useBulkDeleteOffers,
+  useGroupedOffers,
+} from "../../../hooks/api/offers"
 import { OFFERS_PAGE_SIZE } from "../common/constants"
-import { OfferProduct } from "../common/types"
-import { collectOfferIds, useOfferTableColumns } from "./use-offer-table-columns"
+import { GroupedOfferRow } from "../common/types"
+import { useOfferTableColumns } from "./use-offer-table-columns"
 import { useOfferTableFilters } from "./use-offer-table-filters"
 import { useOfferTableQuery } from "./use-offer-table-query"
 
 /**
- * Product-backed admin Offers list (SPEC-010). Reads `/admin/products`
- * scoped to products that carry an offer (`has_offer=true`) with every
- * seller's offers wrapped under each variant. One row per product. Admin
- * is read-only except for delete — the bulk command collects the offer
- * ids across the selected product rows and removes them (per-offer DELETE
- * fan-out via `useBulkDeleteOffers`).
+ * Per-seller grouped admin Offers list. Reads `/admin/offers?grouped=true` —
+ * one row per `(product_id, seller_id)`, so a product offered by multiple
+ * stores shows once per store. Clicking a row opens the product detail scoped
+ * to that store (`?seller_id=`). Admin is read-only except delete — the bulk
+ * command removes the selected rows' offers (per-offer DELETE fan-out via
+ * `useBulkDeleteOffers`).
  */
 export const OfferListDataTable = () => {
   const { t } = useTranslation()
@@ -32,12 +34,12 @@ export const OfferListDataTable = () => {
     pageSize: OFFERS_PAGE_SIZE,
   })
 
-  const { products, count, isLoading, isError, error } = useProducts(
+  const { offers, count, isLoading, isError, error } = useGroupedOffers(
     searchParams,
     { placeholderData: keepPreviousData },
   )
 
-  const rows = (products ?? []) as OfferProduct[]
+  const rows = (offers ?? []) as GroupedOfferRow[]
 
   const filters = useOfferTableFilters()
   const columns = useOfferTableColumns()
@@ -48,7 +50,7 @@ export const OfferListDataTable = () => {
     columns,
     count,
     enablePagination: true,
-    getRowId: (row) => row.id,
+    getRowId: (row) => row.row_id,
     pageSize: OFFERS_PAGE_SIZE,
     enableRowSelection: true,
     rowSelection: {
@@ -73,12 +75,12 @@ export const OfferListDataTable = () => {
       filters={filters}
       queryObject={raw}
       orderBy={[
-        { key: "title", label: t("fields.title") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
-      defaultOrderBy="title"
-      navigateTo={(row) => `${row.id}`}
+      navigateTo={(row) =>
+        `${row.original.id}?seller_id=${row.original.seller_id}`
+      }
       noRecords={{
         title: t("offers.empty.heading"),
         message: t("offers.empty.description"),
@@ -88,11 +90,11 @@ export const OfferListDataTable = () => {
           label: t("offers.actions.bulkDelete"),
           shortcut: "d",
           action: async (currentSelection) => {
-            const productIds = Object.keys(currentSelection)
-            if (productIds.length === 0) return
+            const rowIds = Object.keys(currentSelection)
+            if (rowIds.length === 0) return
 
-            const selectedRows = rows.filter((r) => productIds.includes(r.id))
-            const offerIds = selectedRows.flatMap((r) => collectOfferIds(r))
+            const selectedRows = rows.filter((r) => rowIds.includes(r.row_id))
+            const offerIds = selectedRows.flatMap((r) => r.offer_ids)
             if (offerIds.length === 0) return
 
             const confirmed = await prompt({

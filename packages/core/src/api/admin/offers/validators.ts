@@ -4,6 +4,7 @@ import {
   createOperatorMap,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
 
 export type AdminGetOfferParamsType = z.infer<typeof AdminGetOfferParams>
 export const AdminGetOfferParams = createSelectParams()
@@ -24,6 +25,12 @@ export const AdminGetOffersParams = createFindParams({
     sku: z.union([z.string(), z.array(z.string())]).optional(),
     ean: z.union([z.string(), z.array(z.string())]).optional(),
     upc: z.union([z.string(), z.array(z.string())]).optional(),
+    grouped: booleanString().optional(),
+    status: z.union([z.string(), z.array(z.string())]).optional(),
+    category_id: z.union([z.string(), z.array(z.string())]).optional(),
+    collection_id: z.union([z.string(), z.array(z.string())]).optional(),
+    type_id: z.union([z.string(), z.array(z.string())]).optional(),
+    tag_id: z.union([z.string(), z.array(z.string())]).optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })

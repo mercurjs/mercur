@@ -1,5 +1,5 @@
 import { Children, ReactNode } from "react"
-import { useLoaderData, useParams } from "react-router-dom"
+import { useLoaderData, useParams, useSearchParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
@@ -16,11 +16,13 @@ import { loader } from "./loader"
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
+  const [searchParams] = useSearchParams()
+  const sellerId = searchParams.get("seller_id") ?? undefined
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
   const { product, isLoading, isError, error } = useProduct(
     id!,
-    { fields: OFFER_PRODUCT_DETAIL_FIELDS },
+    { fields: OFFER_PRODUCT_DETAIL_FIELDS, seller_id: sellerId },
     { initialData },
   )
 
