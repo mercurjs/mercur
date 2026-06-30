@@ -11,6 +11,8 @@
     <br />
     <a href="https://mercurjs.com/"><strong>Website</strong></a>
     <br />
+    <a href="#getting-started">Getting Started</a>
+    &middot;
     <a href="https://docs.mercurjs.com">Docs</a>
     &middot;
     <a href="https://discord.gg/hnZBzc4NJU">Discord</a>
@@ -60,6 +62,27 @@
 - [PostgreSQL](https://www.postgresql.org/)
 - [Redis](https://redis.io/)
 
+## Architecture
+
+Mercur is modular. Each piece is a separate, independently deployable app that talks to the core over APIs.
+
+- **Mercur Core**: the marketplace engine on top of Medusa, with vendors, commissions, payouts, and multi-vendor primitives.
+- **Admin Panel**: marketplace operators manage vendors, catalog, categories, commissions, and rules.
+- **Vendor Panel**: sellers manage their products, orders, and payouts.
+- **Storefronts**: customer-facing B2C/B2B apps with multi-vendor browsing, cart, and checkout.
+
+![Mercur](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a1020f202572832c954ead_6b96703adfe74613f85133f83a19b1f0_Fleek%20Tilt%20-%20Readme.png)
+
+## What's in this repo
+
+This is the Mercur development monorepo: the `@mercurjs/core` plugin, the React + Vite admin and vendor dashboards, the `@mercurjs/cli`, the typed API client, the dashboard SDK, the Stripe Connect payout provider, and the cross-package integration suites. If you just want to build a marketplace, run `bunx @mercurjs/cli@latest create` (see [Getting Started](#getting-started)) - clone this repo only when you want to contribute to Mercur itself.
+
+## Deployment
+
+Because Mercur is a plain Node.js application backed by PostgreSQL and Redis, it deploys the same way whether you ship it as a container, orchestrate it with Kubernetes, push it to a managed cloud, or lock it inside an air-gapped network. There's no proprietary runtime to adopt and no hosting tier you're forced onto, so where your marketplace lives and where its data sits stay entirely under your control. Prefer a managed backend? Mercur also deploys to [Medusa Cloud](https://medusajs.com/pricing/) with push-to-deploy and auto-scaling.
+
+Mercur Enterprise adds a licensed suite of advanced modules (EAN matching & deduplication, a Buy Box / winning-offer engine, master-data governance, multi-channel stock sync, automated split payouts, vendor KYC, and much more), all maintained, tested, and upgraded by the core team. You deploy and run Enterprise on your own infrastructure, exactly like the open-source core. It comes backed by a direct support relationship with the people who build the platform: a dedicated support channel, contractual SLAs with guaranteed response times, prioritized bug fixes and security patches, and hands-on onboarding and architecture guidance to get you to production. Higher support tiers add priority escalation and a named technical contact. [Book a demo](https://www.mercurjs.com/enterprise).
+
 <!-- GETTING STARTED -->
 
 ## Getting Started
@@ -96,27 +119,6 @@ Here's what you need to run Mercur.
    - Backend API: `http://localhost:9000`
    - Admin Panel: `http://localhost:9000/dashboard`
    - Vendor Panel: `http://localhost:9000/seller`
-
-## Architecture
-
-Mercur is modular. Each piece is a separate, independently deployable app that talks to the core over APIs.
-
-- **Mercur Core** — the marketplace engine on top of Medusa: vendors, commissions, payouts, multi-vendor primitives.
-- **Admin Panel** — marketplace operators manage vendors, catalog, categories, commissions, and rules.
-- **Vendor Panel** — sellers manage their products, orders, and payouts.
-- **Storefronts** — customer-facing B2C/B2B apps with multi-vendor browsing, cart, and checkout.
-
-![Mercur](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a1020f202572832c954ead_6b96703adfe74613f85133f83a19b1f0_Fleek%20Tilt%20-%20Readme.png)
-
-## What's in this repo
-
-This is the Mercur development monorepo: the `@mercurjs/core` plugin, the React + Vite admin and vendor dashboards, the `@mercurjs/cli`, the typed API client, the dashboard SDK, the Stripe Connect payout provider, and the cross-package integration suites. If you just want to build a marketplace, run `bunx @mercurjs/cli@latest create` (see [Getting Started](#getting-started)) - clone this repo only when you want to contribute to Mercur itself.
-
-## Deployment
-
-Because Mercur is a plain Node.js application backed by PostgreSQL and Redis, it deploys the same way whether you ship it as a container, orchestrate it with Kubernetes, push it to a managed cloud, or lock it inside an air-gapped network. There's no proprietary runtime to adopt and no hosting tier you're forced onto — where your marketplace lives and where its data sits stay entirely under your control. Prefer a managed backend? Mercur also deploys to [Medusa Cloud](https://medusajs.com/pricing/) with push-to-deploy and auto-scaling.
-
-Mercur Enterprise adds a licensed suite of advanced modules — EAN matching & deduplication, a Buy Box / winning-offer engine, master-data governance, multi-channel stock sync, automated split payouts, and vendor KYC and much more — backed by direct support. You deploy and run Enterprise on your own infrastructure, exactly like the open-source core. [Book a demo](https://www.mercurjs.com/contact).
 
 ## Professional services
 
