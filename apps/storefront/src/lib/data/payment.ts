@@ -1,8 +1,6 @@
 'use server';
 
-import { HttpTypes } from '@medusajs/types';
-
-import { sdk } from '../config';
+import { mercur } from '../mercur';
 import { getAuthHeaders, getCacheOptions } from './cookies';
 
 export const listCartPaymentMethods = async (regionId: string) => {
@@ -14,13 +12,10 @@ export const listCartPaymentMethods = async (regionId: string) => {
     ...(await getCacheOptions('payment_providers'))
   };
 
-  return sdk.client
-    .fetch<HttpTypes.StorePaymentProviderListResponse>(`/store/payment-providers`, {
-      method: 'GET',
-      query: { region_id: regionId },
-      headers,
-      next,
-      cache: 'force-cache'
+  return mercur.store.paymentProviders
+    .query({
+      region_id: regionId,
+      fetchOptions: { headers, next, cache: 'force-cache' }
     })
     .then(({ payment_providers }) =>
       payment_providers.sort((a, b) => {

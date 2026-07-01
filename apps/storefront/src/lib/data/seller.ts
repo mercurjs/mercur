@@ -1,17 +1,18 @@
 import { SellerProps } from '@/types/seller';
 
-import { sdk } from '../config';
+import { mercur } from '../mercur';
 
 export const getSellerByHandle = async (handle: string) => {
-  return sdk.client
-    .fetch<{ seller: SellerProps }>(`/store/seller/${handle}`, {
-      query: {
-        fields:
-          '+created_at,+email,+reviews.seller.name,+reviews.rating,+reviews.customer_note,+reviews.seller_note,+reviews.created_at,+reviews.updated_at,+reviews.customer.first_name,+reviews.customer.last_name'
-      },
-      cache: 'no-cache'
+  return mercur.store.sellers
+    .query({
+      handle,
+      fields:
+        '+created_at,+email,+reviews.seller.name,+reviews.rating,+reviews.customer_note,+reviews.seller_note,+reviews.created_at,+reviews.updated_at,+reviews.customer.first_name,+reviews.customer.last_name',
+      fetchOptions: { cache: 'no-cache' }
     })
-    .then(({ seller }) => {
+    .then(({ sellers }) => {
+      const seller = sellers[0] as unknown as SellerProps;
+
       const response = {
         ...seller,
         reviews:

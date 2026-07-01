@@ -7,6 +7,7 @@ import { SortOptions } from '@/types/product';
 import { SellerProps } from '@/types/seller';
 
 import { sdk } from '../config';
+import { mercur } from '../mercur';
 import { getAuthHeaders } from './cookies';
 import { retrieveCustomer } from './customer';
 import { getRegion, retrieveRegion } from './regions';
@@ -67,29 +68,28 @@ export const listProducts = async ({
 
   const useCached = forceCache || (limit <= 8 && !category_id && !collection_id);
 
-  return sdk.client
-    .fetch<{
-      products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
-      count: number;
-    }>(`/store/products`, {
-      method: 'GET',
-      query: {
-        country_code: countryCode,
-        category_id,
-        collection_id,
-        limit,
-        offset,
-        region_id: region?.id,
-        fields:
-          '*variants.calculated_price,+variants.inventory_quantity,*seller,*variants,*seller.products,' +
-          '*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants,*attribute_values,*attribute_values.attribute',
-        ...queryParams
-      },
-      headers,
-      next: useCached ? { revalidate: 60 } : undefined,
-      cache: useCached ? 'force-cache' : 'no-cache'
-    })
-    .then(({ products: productsRaw, count }) => {
+  return mercur.store.products
+    .query({
+      country_code: countryCode,
+      category_id,
+      collection_id,
+      limit,
+      offset,
+      region_id: region?.id,
+      fields:
+        '*variants.calculated_price,variants.offer_id,+variants.inventory_quantity,*seller,*variants,*seller.products,' +
+        '*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants',
+      ...queryParams,
+      fetchOptions: {
+        headers,
+        next: useCached ? { revalidate: 60 } : undefined,
+        cache: useCached ? 'force-cache' : 'no-cache'
+      }
+    } as Parameters<typeof mercur.store.products.query>[0])
+    .then(({ products: productsRawRes, count }) => {
+      const productsRaw = productsRawRes as (HttpTypes.StoreProduct & {
+        seller?: SellerProps;
+      })[];
       const products = productsRaw.filter(product => product.seller?.store_status !== 'SUSPENDED');
 
       const nextPage = count > offset + limit ? pageParam + 1 : null;

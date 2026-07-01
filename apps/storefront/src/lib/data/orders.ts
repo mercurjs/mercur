@@ -4,6 +4,7 @@ import { HttpTypes } from '@medusajs/types';
 
 import { SellerProps } from '@/types/seller';
 
+import { mercur } from '../mercur';
 import { sdk } from '../config';
 import medusaError from '../helpers/medusa-error';
 import { getAuthHeaders, getCacheOptions } from './cookies';
@@ -13,13 +14,9 @@ export const retrieveOrderSet = async (id: string) => {
     ...(await getAuthHeaders())
   };
 
-  return sdk.client
-    .fetch<any>(`/store/order-set/${id}`, {
-      method: 'GET',
-      headers,
-      cache: 'no-cache'
-    })
-    .then(({ order_set }) => order_set)
+  return mercur.store.orderGroups.$id
+    .query({ $id: id, fetchOptions: { headers, cache: 'no-cache' } })
+    .then(({ order_group }) => order_group)
     .catch(err => medusaError(err));
 };
 
@@ -32,18 +29,14 @@ export const retrieveOrder = async (id: string) => {
     ...(await getCacheOptions('orders'))
   };
 
-  return sdk.client
-    .fetch<HttpTypes.StoreOrderResponse & { seller: SellerProps }>(`/store/orders/${id}`, {
-      method: 'GET',
-      query: {
-        fields:
-          '*payment_collections.payments,*items,*items.metadata,*items.variant,*items.product,*seller,*order_set'
-      },
-      headers,
-      next,
-      cache: 'force-cache'
+  return mercur.store.orders.$id
+    .query({
+      $id: id,
+      fields:
+        '*payment_collections.payments,*items,*items.metadata,*items.variant,*items.product,*seller,*order_group',
+      fetchOptions: { headers, next, cache: 'force-cache' }
     })
-    .then(({ order }) => order)
+    .then(({ order }) => order as HttpTypes.StoreOrder & { seller: SellerProps })
     .catch(err => medusaError(err));
 };
 
@@ -109,30 +102,63 @@ export const listOrders = async (
     ...(await getCacheOptions('orders'))
   };
 
-  return sdk.client
-    .fetch<{
-      orders: Array<
-        HttpTypes.StoreOrder & {
-          seller: { id: string; name: string; reviews?: any[] };
-          reviews: any[];
-          order_set: { id: string };
-        }
-      >;
-    }>(`/store/orders`, {
-      method: 'GET',
-      query: {
-        limit,
-        offset,
-        order: '-created_at',
-        fields:
-          '*items,+items.metadata,*items.variant,*items.product,*seller,*reviews,*order_set,shipping_total,total,created_at',
-        ...filters
-      },
-      headers,
-      next,
-      cache: 'no-cache'
-    })
-    .then(({ orders }) => orders.filter(order => order.order_set))
+  return mercur.store.orders
+    .query({
+      limit,
+      offset,
+      order: '-created_at',
+      fields:
+        '*items,+items.metadata,*items.variant,*items.product,*seller,*reviews,*order_group,shipping_total,total,created_at',
+      ...filters,
+      fetchOptions: { headers, next, cache: 'no-cache' }
+    } as Parameters<typeof mercur.store.orders.query>[0])
+    .then(({ orders }) =>
+      (
+        orders as Array<
+          HttpTypes.StoreOrder & {
+            seller: { id: string; name: string; reviews?: any[] };
+            reviews: any[];
+            order_group: { id: string };
+          }
+        >
+      ).filter(order => order.order_group)
+    )
+    .catch(err => medusaError(err));
+};
+
+export type StoreOrderGroup = {
+  id: string;
+  display_id: number;
+  created_at: string;
+  total: number;
+  currency_code?: string;
+  orders: Array<
+    HttpTypes.StoreOrder & {
+      seller: { id: string; name: string };
+    }
+  >;
+};
+
+export const listOrderGroups = async (
+  limit: number = 50,
+  offset: number = 0
+): Promise<StoreOrderGroup[]> => {
+  const headers = {
+    ...(await getAuthHeaders())
+  };
+
+  const next = {
+    ...(await getCacheOptions('orders'))
+  };
+
+  return mercur.store.orderGroups
+    .query({
+      limit,
+      offset,
+      order: '-created_at',
+      fetchOptions: { headers, next, cache: 'no-cache' }
+    } as Parameters<typeof mercur.store.orderGroups.query>[0])
+    .then(({ order_groups }) => order_groups as unknown as StoreOrderGroup[])
     .catch(err => medusaError(err));
 };
 
@@ -190,14 +216,8 @@ export const declineTransferRequest = async (id: string, token: string) => {
 export const retrieveReturnReasons = async () => {
   const headers = await getAuthHeaders();
 
-  return sdk.client
-    .fetch<{
-      return_reasons: Array<HttpTypes.StoreReturnReason>;
-    }>(`/store/return-reasons`, {
-      method: 'GET',
-      headers,
-      cache: 'force-cache'
-    })
+  return mercur.store.returnReasons
+    .query({ fetchOptions: { headers, cache: 'force-cache' } })
     .then(({ return_reasons }) => return_reasons)
     .catch(err => medusaError(err));
 };

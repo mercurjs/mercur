@@ -4,9 +4,10 @@ import {
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
+import { StoreGetOrderGroupsParamsType } from "./validators"
 
 export const GET = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<StoreGetOrderGroupsParamsType>,
   res: MedusaResponse<HttpTypes.StoreOrderGroupListResponse>
 ) => {
   const customerId = req.auth_context.actor_id

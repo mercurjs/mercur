@@ -4,6 +4,7 @@ import { HttpTypes } from '@medusajs/types';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
+import { mercur } from '../mercur';
 import { sdk } from '../config';
 import {
   getAuthHeaders,
@@ -27,15 +28,10 @@ export const retrieveCustomer = async (): Promise<HttpTypes.StoreCustomer | null
     ...(await getCacheOptions('customers'))
   };
 
-  return await sdk.client
-    .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
-      method: 'GET',
-      query: {
-        fields: '*orders'
-      },
-      headers,
-      next,
-      cache: 'force-cache'
+  return await mercur.store.customers.me
+    .query({
+      fields: '*orders',
+      fetchOptions: { headers, next, cache: 'force-cache' }
     })
     .then(({ customer }) => customer ?? null)
     .catch(() => null);

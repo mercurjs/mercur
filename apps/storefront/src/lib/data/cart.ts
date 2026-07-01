@@ -1,13 +1,15 @@
 'use server';
 
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 import { revalidatePath, revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
 import medusaError from '@/lib/helpers/medusa-error';
 import { parseVariantIdsFromError } from '@/lib/helpers/parse-variant-error';
+import { Cart } from '@/types/cart';
 
-import { fetchQuery, sdk } from '../config';
+import { sdk } from '../config';
+import { mercur } from '../mercur';
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -34,19 +36,15 @@ export async function retrieveCart(cartId?: string) {
     ...(await getAuthHeaders())
   };
 
-  return await sdk.client
-    .fetch<HttpTypes.StoreCartResponse>(`/store/carts/${id}`, {
-      method: 'GET',
-      query: {
-        fields:
-          '*items,*region, *items.product, *items.variant, *items.variant.options, items.variant.options.option.title,' +
-          '*items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.seller' +
-          ''
-      },
-      headers,
-      cache: 'no-cache'
+  return await mercur.store.carts.$id
+    .query({
+      $id: id,
+      fields:
+        '*items,*region, *items.product, *items.variant, *items.variant.options, items.variant.options.option.title,' +
+        '*items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.seller',
+      fetchOptions: { headers, cache: 'no-cache' }
     })
-    .then(({ cart }) => cart)
+    .then(({ cart }) => cart as unknown as Cart)
     .catch(() => null);
 }
 
@@ -65,7 +63,7 @@ export async function getOrSetCart(countryCode: string) {
 
   if (!cart) {
     const cartResp = await sdk.store.cart.create({ region_id: region.id }, {}, headers);
-    cart = cartResp.cart;
+    cart = cartResp.cart as unknown as Cart;
 
     await setCartId(cart.id);
 
@@ -180,10 +178,11 @@ export async function updateLineItem({ lineId, quantity }: { lineId: string; qua
     ...(await getAuthHeaders())
   };
 
-  const res = await fetchQuery(`/store/carts/${cartId}/line-items/${lineId}`, {
-    body: { quantity },
-    method: 'POST',
-    headers
+  const res = await mercur.store.carts.$id.lineItems.$lineId.mutate({
+    $id: cartId,
+    $lineId: lineId,
+    quantity,
+    fetchOptions: { headers }
   });
 
   const cartCacheTag = await getCacheTag('carts');
@@ -227,16 +226,23 @@ export async function setShippingMethod({
     ...(await getAuthHeaders())
   };
 
-  const res = await fetchQuery(`/store/carts/${cartId}/shipping-methods`, {
-    body: { option_id: shippingMethodId },
-    method: 'POST',
-    headers
-  });
+  try {
+    await mercur.store.carts.$id.shippingMethods.mutate({
+      $id: cartId,
+      option_id: shippingMethodId,
+      fetchOptions: { headers }
+    });
 
-  const cartCacheTag = await getCacheTag('carts');
-  revalidateTag(cartCacheTag);
+    const cartCacheTag = await getCacheTag('carts');
+    revalidateTag(cartCacheTag);
 
-  return res;
+    return { ok: true as const, error: null };
+  } catch (err) {
+    return {
+      ok: false as const,
+      error: { message: (err as Error).message }
+    };
+  }
 }
 
 export async function initiatePaymentSession(
@@ -411,22 +417,31 @@ export async function placeOrder(cartId?: string) {
     ...(await getAuthHeaders())
   };
 
-  const res = await fetchQuery(`/store/carts/${id}/complete`, {
-    method: 'POST',
-    headers
-  });
+  let res;
+
+  try {
+    res = await mercur.store.carts.$id.complete.mutate({
+      $id: id,
+      fetchOptions: { headers }
+    });
+  } catch (err) {
+    return { ok: false as const, error: { message: (err as Error).message } };
+  }
 
   const cartCacheTag = await getCacheTag('carts');
   revalidateTag(cartCacheTag);
 
-  if (res?.data?.order_set) {
+  if (res.type === 'order_group' && res.order_group) {
+    const orderGroup = res.order_group as unknown as {
+      orders: { id: string }[];
+    };
     revalidatePath('/user/reviews');
     revalidatePath('/user/orders');
     removeCartId();
-    redirect(`/order/${res?.data?.order_set.orders[0].id}/confirmed`);
+    redirect(`/order/${orderGroup.orders[0].id}/confirmed`);
   }
 
-  return res;
+  return { ok: true as const, error: null, data: res };
 }
 
 /**
@@ -502,17 +517,11 @@ export async function updateRegionWithValidation(
 
       // Fetch cart with minimal fields to get items
       try {
-        const { cart } = await sdk.client.fetch<HttpTypes.StoreCartResponse>(
-          `/store/carts/${cartId}`,
-          {
-            method: 'GET',
-            query: {
-              fields: '*items'
-            },
-            headers,
-            cache: 'no-cache'
-          }
-        );
+        const { cart } = await mercur.store.carts.$id.query({
+          $id: cartId,
+          fields: '*items',
+          fetchOptions: { headers, cache: 'no-cache' }
+        });
 
         // Iterate over problematic variants and remove corresponding items
         for (const variantId of problematicVariantIds) {
@@ -562,12 +571,8 @@ export async function listCartOptions() {
     ...(await getCacheOptions('shippingOptions'))
   };
 
-  return await sdk.client.fetch<{
-    shipping_options: HttpTypes.StoreCartShippingOption[];
-  }>('/store/shipping-options', {
-    query: { cart_id: cartId },
-    next,
-    headers,
-    cache: 'force-cache'
-  });
+  return await mercur.store.shippingOptions.query({
+    cart_id: cartId,
+    fetchOptions: { headers, next, cache: 'force-cache' }
+  } as Parameters<typeof mercur.store.shippingOptions.query>[0]);
 }

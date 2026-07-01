@@ -1,6 +1,4 @@
-import { HttpTypes } from '@medusajs/types';
-
-import { sdk } from '@/lib/config';
+import { mercur } from '../mercur';
 
 interface CategoriesProps {
   query?: Record<string, unknown>;
@@ -9,19 +7,14 @@ interface CategoriesProps {
 export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) => {
   const limit = query?.limit || 100;
 
-  const allCategories = await sdk.client
-    .fetch<{
-      product_categories: HttpTypes.StoreProductCategory[];
-    }>('/store/product-categories', {
-      query: {
-        fields: 'id,handle,name,rank,metadata,parent_category_id,description,*category_children',
-        include_descendants_tree: true,
-        include_ancestors_tree: true,
-        limit,
-        ...query
-      },
-      cache: 'force-cache',
-      next: { revalidate: 3600 }
+  const allCategories = await mercur.store.productCategories
+    .query({
+      fields: 'id,handle,name,rank,metadata,parent_category_id,description,*category_children',
+      include_descendants_tree: true,
+      include_ancestors_tree: true,
+      limit,
+      ...query,
+      fetchOptions: { cache: 'force-cache', next: { revalidate: 3600 } }
     })
     .then(({ product_categories }) => product_categories);
 
@@ -49,14 +42,11 @@ export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) =
 };
 
 export const getCategoryByHandle = async (categoryHandle: string) => {
-  return sdk.client
-    .fetch<HttpTypes.StoreProductCategoryListResponse>(`/store/product-categories`, {
-      query: {
-        fields: '*category_children',
-        handle: categoryHandle
-      },
-      cache: 'force-cache',
-      next: { revalidate: 300 }
+  return mercur.store.productCategories
+    .query({
+      fields: '*category_children',
+      handle: categoryHandle,
+      fetchOptions: { cache: 'force-cache', next: { revalidate: 300 } }
     })
     .then(({ product_categories }) => product_categories[0]);
 };
