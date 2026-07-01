@@ -1,26 +1,20 @@
-'use server';
+'use cache';
 
 import { HttpTypes } from '@mercurjs/types';
+import { cacheLife, cacheTag } from 'next/cache';
 
+import { CACHE_TAGS } from '../cache/cache-tags';
+import { EXPIRE, REVALIDATE } from '../cache/constants';
 import { sdk } from '../config';
-import { getAuthHeaders, getCacheOptions } from './cookies';
 
 export const listCartPaymentMethods = async (regionId: string) => {
-  const headers = {
-    ...(await getAuthHeaders())
-  };
-
-  const next = {
-    ...(await getCacheOptions('payment_providers'))
-  };
+  cacheTag(CACHE_TAGS.paymentProviders);
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE });
 
   return sdk.client
     .fetch<HttpTypes.StorePaymentProviderListResponse>(`/store/payment-providers`, {
       method: 'GET',
-      query: { region_id: regionId },
-      headers,
-      next,
-      cache: 'force-cache'
+      query: { region_id: regionId }
     })
     .then(({ payment_providers }) =>
       payment_providers.sort((a, b) => {

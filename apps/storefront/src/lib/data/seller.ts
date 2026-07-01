@@ -1,15 +1,23 @@
+'use cache';
+
+import { cacheLife, cacheTag } from 'next/cache';
+
 import { SellerProps } from '@/types/seller';
 
+import { CACHE_TAGS, sellerTag } from '../cache/cache-tags';
+import { EXPIRE, REVALIDATE } from '../cache/constants';
 import { sdk } from '../config';
 
 export const getSellerByHandle = async (handle: string) => {
+  cacheTag(CACHE_TAGS.sellers, sellerTag(handle));
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE });
+
   return sdk.client
     .fetch<{ seller: SellerProps }>(`/store/seller/${handle}`, {
       query: {
         fields:
           '+created_at,+email,+reviews.seller.name,+reviews.rating,+reviews.customer_note,+reviews.seller_note,+reviews.created_at,+reviews.updated_at,+reviews.customer.first_name,+reviews.customer.last_name'
-      },
-      cache: 'no-cache'
+      }
     })
     .then(({ seller }) => {
       const response = {

@@ -1,68 +1,55 @@
-'use server';
+'use cache';
 
 import { HttpTypes } from '@mercurjs/types';
+import { cacheLife, cacheTag } from 'next/cache';
 
-import medusaError from '@/lib/helpers/medusa-error';
-
+import { CACHE_TAGS, regionTag } from '../cache/cache-tags';
+import { EXPIRE, REVALIDATE } from '../cache/constants';
 import { sdk } from '../config';
-import { getCacheOptions } from './cookies';
 
 export const listRegions = async () => {
-  const next = {
-    ...(await getCacheOptions('regions')),
-    revalidate: 3600
-  };
+  cacheTag(CACHE_TAGS.regions);
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE });
 
   return sdk.client
     .fetch<{ regions: HttpTypes.StoreRegion[] }>(`/store/regions`, {
-      method: 'GET',
-      next,
-      cache: 'force-cache'
+      method: 'GET'
     })
     .then(({ regions }) => regions)
-    .catch(medusaError);
+    .catch(() => [] as HttpTypes.StoreRegion[]);
 };
 
 export const retrieveRegion = async (id: string) => {
-  const next = {
-    ...(await getCacheOptions(['regions', id].join('-'))),
-    revalidate: 3600
-  };
+  cacheTag(CACHE_TAGS.regions, regionTag(id));
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE });
 
   return sdk.client
     .fetch<{ region: HttpTypes.StoreRegion }>(`/store/regions/${id}`, {
-      method: 'GET',
-      next,
-      cache: 'force-cache'
+      method: 'GET'
     })
     .then(({ region }) => region)
-    .catch(medusaError);
+    .catch(() => null);
 };
 
-const regionMap = new Map<string, HttpTypes.StoreRegion>();
-
 export const getRegion = async (countryCode: string) => {
-  try {
-    if (regionMap.has(countryCode)) {
-      return regionMap.get(countryCode);
-    }
+  cacheTag(CACHE_TAGS.regions);
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE });
 
-    const regions = await listRegions();
+  const regions = await listRegions();
 
-    if (!regions) {
-      return null;
-    }
-
-    regions.forEach(region => {
-      region.countries?.forEach(c => {
-        regionMap.set(c?.iso_2 ?? '', region);
-      });
-    });
-
-    const region = countryCode ? regionMap.get(countryCode) : regionMap.get('us');
-
-    return region;
-  } catch (e: any) {
+  if (!regions.length) {
     return null;
   }
+
+  const regionMap = new Map<string, HttpTypes.StoreRegion>();
+
+  regions.forEach(region => {
+    region.countries?.forEach(c => {
+      if (c?.iso_2) {
+        regionMap.set(c.iso_2, region);
+      }
+    });
+  });
+
+  return (countryCode ? regionMap.get(countryCode) : regionMap.get('us')) ?? null;
 };

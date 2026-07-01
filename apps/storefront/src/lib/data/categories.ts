@@ -1,5 +1,10 @@
-import { HttpTypes } from '@mercurjs/types';
+'use cache';
 
+import { HttpTypes } from '@mercurjs/types';
+import { cacheLife, cacheTag } from 'next/cache';
+
+import { CACHE_TAGS, categoryTag } from '@/lib/cache/cache-tags';
+import { EXPIRE, REVALIDATE } from '@/lib/cache/constants';
 import { sdk } from '@/lib/config';
 
 interface CategoriesProps {
@@ -7,6 +12,9 @@ interface CategoriesProps {
 }
 
 export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) => {
+  cacheTag(CACHE_TAGS.categories);
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE });
+
   const limit = query?.limit || 100;
 
   const allCategories = await sdk.client
@@ -19,9 +27,7 @@ export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) =
         include_ancestors_tree: true,
         limit,
         ...query
-      },
-      cache: 'force-cache',
-      next: { revalidate: 3600 }
+      }
     })
     .then(({ product_categories }) => product_categories);
 
@@ -49,14 +55,15 @@ export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) =
 };
 
 export const getCategoryByHandle = async (categoryHandle: string) => {
+  cacheTag(CACHE_TAGS.categories, categoryTag(categoryHandle));
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE });
+
   return sdk.client
     .fetch<HttpTypes.StoreProductCategoryListResponse>(`/store/product-categories`, {
       query: {
         fields: '*category_children',
         handle: categoryHandle
-      },
-      cache: 'force-cache',
-      next: { revalidate: 300 }
+      }
     })
     .then(({ product_categories }) => product_categories[0]);
 };

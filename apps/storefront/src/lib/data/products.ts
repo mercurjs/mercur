@@ -1,14 +1,15 @@
-'use server';
+'use cache';
 
 import { HttpTypes } from '@mercurjs/types';
+import { cacheLife, cacheTag } from 'next/cache';
 
 import { sortProducts } from '@/lib/helpers/sort-products';
 import { SortOptions } from '@/types/product';
 import { SellerProps } from '@/types/seller';
 
+import { CACHE_TAGS } from '../cache/cache-tags';
+import { EXPIRE, REVALIDATE } from '../cache/constants';
 import { sdk } from '../config';
-import { getAuthHeaders } from './cookies';
-import { retrieveCustomer } from './customer';
 import { getRegion, retrieveRegion } from './regions';
 
 export const listProducts = async ({
@@ -17,8 +18,7 @@ export const listProducts = async ({
   countryCode,
   regionId,
   category_id,
-  collection_id,
-  forceCache = false
+  collection_id
 }: {
   pageParam?: number;
   queryParams?: HttpTypes.FindParams &
@@ -29,7 +29,6 @@ export const listProducts = async ({
   collection_id?: string;
   countryCode?: string;
   regionId?: string;
-  forceCache?: boolean;
 }): Promise<{
   response: {
     products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
@@ -38,6 +37,9 @@ export const listProducts = async ({
   nextPage: number | null;
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams;
 }> => {
+  cacheTag(CACHE_TAGS.products);
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE });
+
   if (!countryCode && !regionId) {
     throw new Error('Country code or region ID is required');
   }
@@ -61,12 +63,6 @@ export const listProducts = async ({
     };
   }
 
-  const headers = {
-    ...(await getAuthHeaders())
-  };
-
-  const useCached = forceCache || (limit <= 8 && !category_id && !collection_id);
-
   return sdk.client
     .fetch<{
       products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
@@ -84,10 +80,7 @@ export const listProducts = async ({
           '*variants.calculated_price,+variants.inventory_quantity,*seller,*variants,*seller.products,' +
           '*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants,*attribute_values,*attribute_values.attribute',
         ...queryParams
-      },
-      headers,
-      next: useCached ? { revalidate: 60 } : undefined,
-      cache: useCached ? 'force-cache' : 'no-cache'
+      }
     })
     .then(({ products: productsRaw, count }) => {
       const products = productsRaw.filter(product => product.seller?.store_status !== 'SUSPENDED');
@@ -159,6 +152,9 @@ export const listProductsWithSort = async ({
   nextPage: number | null;
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams;
 }> => {
+  cacheTag(CACHE_TAGS.products);
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE });
+
   const limit = queryParams?.limit || 12;
 
   const {
@@ -198,97 +194,4 @@ export const listProductsWithSort = async ({
     nextPage,
     queryParams
   };
-};
-
-export const searchProducts = async (params: {
-  query?: string;
-  page?: number;
-  hitsPerPage?: number;
-  filters?: string;
-  facets?: string[];
-  maxValuesPerFacet?: number;
-  currency_code?: string;
-  countryCode?: string;
-  region_id?: string;
-  customer_id?: string;
-  customer_group_id?: string[];
-}): Promise<{
-  products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
-  nbHits: number;
-  page: number;
-  nbPages: number;
-  hitsPerPage: number;
-  facets: Record<string, any>;
-  processingTimeMS: number;
-}> => {
-  if (!params.countryCode && !params.region_id) {
-    throw new Error('Country code or region ID is required');
-  }
-
-  let region_id = params.region_id;
-
-  if (!region_id && params.countryCode) {
-    const region = await getRegion(params.countryCode);
-    if (!region) {
-      throw new Error(`Region not found for country code: ${params.countryCode}`);
-    }
-    region_id = region.id;
-  }
-
-  const headers = {
-    ...(await getAuthHeaders())
-  };
-
-  let customer_id = params.customer_id;
-
-  if (!customer_id) {
-    const customer = await retrieveCustomer();
-    if (customer) {
-      customer_id = customer.id;
-    }
-  }
-
-  let facets = params.facets;
-
-  if(!facets) {
-    facets = ["variants.condition", "variants.color", "variants.size"];
-  }
-
-  const { countryCode, ...bodyParams } = params;
-
-  return sdk.client
-    .fetch<{
-      products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
-      nbHits: number;
-      page: number;
-      nbPages: number;
-      hitsPerPage: number;
-      facets: Record<string, any>;
-      processingTimeMS: number;
-    }>(`/store/products/search`, {
-      method: 'POST',
-      body: {
-        ...bodyParams,
-        region_id,
-        customer_id,
-        facets,
-        maxValuesPerFacet: 100,
-      },
-      headers,
-      cache: 'no-cache'
-    })
-    .then((response) => {
-      return response;
-    })
-    .catch(() => {
-      return {
-        products: [],
-        nbHits: 0,
-        page: params.page || 0,
-        nbPages: 0,
-        hitsPerPage: params.hitsPerPage || 12,
-        facets: {},
-        processingTimeMS: 0
-      };
-    });
 };

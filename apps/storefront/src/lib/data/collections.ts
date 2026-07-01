@@ -1,21 +1,19 @@
-"use server"
+"use cache"
 
 import { HttpTypes } from "@mercurjs/types"
-import { getCacheOptions } from "./cookies"
+import { cacheLife, cacheTag } from "next/cache"
+
+import { CACHE_TAGS, collectionTag } from "../cache/cache-tags"
+import { EXPIRE, REVALIDATE } from "../cache/constants"
 import { sdk } from "../config"
 
 export const retrieveCollection = async (id: string) => {
-  const next = {
-    ...(await getCacheOptions("collections")),
-  }
+  cacheTag(CACHE_TAGS.collections)
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE })
 
   return sdk.client
     .fetch<{ collection: HttpTypes.StoreCollection }>(
-      `/store/collections/${id}`,
-      {
-        next,
-        cache: "force-cache",
-      }
+      `/store/collections/${id}`
     )
     .then(({ collection }) => collection)
 }
@@ -23,9 +21,8 @@ export const retrieveCollection = async (id: string) => {
 export const listCollections = async (
   queryParams: Record<string, string> = {}
 ): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
-  const next = {
-    ...(await getCacheOptions("collections")),
-  }
+  cacheTag(CACHE_TAGS.collections)
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE })
 
   queryParams.limit = queryParams.limit || "100"
   queryParams.offset = queryParams.offset || "0"
@@ -35,8 +32,6 @@ export const listCollections = async (
       "/store/collections",
       {
         query: queryParams,
-        next,
-        cache: "force-cache",
       }
     )
     .then(({ collections }) => ({ collections, count: collections.length }))
@@ -45,15 +40,12 @@ export const listCollections = async (
 export const getCollectionByHandle = async (
   handle: string
 ): Promise<HttpTypes.StoreCollection> => {
-  const next = {
-    ...(await getCacheOptions("collections")),
-  }
+  cacheTag(CACHE_TAGS.collections, collectionTag(handle))
+  cacheLife({ revalidate: REVALIDATE, expire: EXPIRE })
 
   return sdk.client
     .fetch<HttpTypes.StoreCollectionListResponse>(`/store/collections`, {
       query: { handle, fields: "*products" },
-      next,
-      cache: "force-cache",
     })
     .then(({ collections }) => collections[0])
 }

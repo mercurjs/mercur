@@ -16,7 +16,7 @@ import { getFacedFilters } from "@/lib/helpers/get-faced-filters"
 import { PRODUCT_LIMIT } from "@/const"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
 import { useEffect, useMemo, useState } from "react"
-import { searchProducts } from "@/lib/data/products"
+import { searchProducts } from "@/lib/data/search"
 import { FacetModel } from "@/components/organisms/ProductSidebar/AlgoliaProductSidebar"
 
 export const AlgoliaProductsListing = ({

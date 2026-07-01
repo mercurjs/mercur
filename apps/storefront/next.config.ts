@@ -4,6 +4,9 @@ const nextConfig: NextConfig = {
   output: "standalone",
   trailingSlash: false,
   reactStrictMode: true,
+  experimental: {
+    useCache: true
+  },
   logging: {
     fetches: {
       fullUrl: true
