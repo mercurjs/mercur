@@ -12,20 +12,12 @@ import { Cart, StoreCartLineItemOptimisticUpdate } from '@/types/cart';
 
 import { CartContext } from './context';
 
-interface CartProviderProps extends PropsWithChildren {
-  cart: Cart | null;
-}
-
-export function CartProvider({ cart, children }: CartProviderProps) {
-  const [cartState, setCartState] = useState(cart);
+export function CartProvider({ children }: PropsWithChildren) {
+  const [cartState, setCartState] = useState<Cart | null>(null);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isAddingItem, setIsAddingItem] = useState(false);
   const [isUpdatingItem, setIsUpdatingItem] = useState(false);
   const [isRemovingItem, setIsRemovingItem] = useState(false);
-
-  useEffect(() => {
-    setCartState(cart);
-  }, [cart]);
 
   const refreshCart = useCallback(async () => {
     try {
@@ -37,6 +29,10 @@ export function CartProvider({ cart, children }: CartProviderProps) {
       return null;
     }
   }, []);
+
+  useEffect(() => {
+    refreshCart();
+  }, [refreshCart]);
 
   function handleAddToCart(newItem: StoreCartLineItemOptimisticUpdate, currency_code: string) {
     setCartState(prev => {

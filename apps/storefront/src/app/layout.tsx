@@ -7,7 +7,6 @@ import { Toaster } from '@medusajs/ui';
 import Head from 'next/head';
 
 import { HtmlLangSetter } from '@/components/atoms/HtmlLangSetter/HtmlLangSetter';
-import { retrieveCart } from '@/lib/data/cart';
 
 import { Providers } from './providers';
 
@@ -34,13 +33,11 @@ export const metadata: Metadata = {
   }
 };
 
-export default async function RootLayout({
+export default function RootLayout({
   children
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const cart = await retrieveCart();
-
   const ALGOLIA_APP = process.env.NEXT_PUBLIC_ALGOLIA_ID;
   // default lang updated by HtmlLangSetter
   const htmlLang = 'en';
@@ -140,7 +137,7 @@ export default async function RootLayout({
       </Head>
       <body className={`${funnelDisplay.className} relative bg-primary text-secondary antialiased`}>
         <HtmlLangSetter />
-        <Providers cart={cart}>{children}</Providers>
+        <Providers>{children}</Providers>
         <Toaster position="top-right" />
       </body>
     </html>
