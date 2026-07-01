@@ -5,7 +5,7 @@ import { HttpTypes as MercurHttpTypes } from "@mercurjs/types"
 import { listSellerShippingOptionsForCartWorkflow } from "../../../workflows"
 
 export const GET = async (
-    req: MedusaRequest<{}, HttpTypes.StoreGetShippingOptionList>,
+    req: MedusaRequest<HttpTypes.StoreGetShippingOptionList, HttpTypes.StoreGetShippingOptionList>,
     res: MedusaResponse<MercurHttpTypes.StoreSellerShippingOptionsResponse>
 ) => {
     const { cart_id, is_return } = req.filterableFields

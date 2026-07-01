@@ -19,3 +19,11 @@ export interface VendorProductAttributeResponse {
 export type VendorProductAttributeListResponse = PaginatedResponse<{
   product_attributes: ProductAttributeDTO[]
 }>
+
+export interface StoreProductAttributeResponse {
+  product_attribute: ProductAttributeDTO
+}
+
+export type StoreProductAttributeListResponse = PaginatedResponse<{
+  product_attributes: ProductAttributeDTO[]
+}>

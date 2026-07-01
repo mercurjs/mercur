@@ -3,14 +3,19 @@ import {
   MedusaStoreRequest,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
 import {
   enrichProductAttributes,
   wrapProductVariantsWithOfferPrice,
 } from "../../utils"
 import { splitComputedVariantFields } from "./helpers"
+import { StoreGetProductsParamsType } from "./validators"
 
-export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
+export const GET = async (
+  req: MedusaStoreRequest<StoreGetProductsParamsType>,
+  res: MedusaResponse<HttpTypes.StoreProductListResponse>
+) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   // `variants.calculated_price` / `variants.offer_id` are computed from the

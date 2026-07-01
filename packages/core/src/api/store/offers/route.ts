@@ -3,6 +3,7 @@ import {
   MedusaStoreRequest,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
 import {
   splitComputedOfferFields,
@@ -14,7 +15,7 @@ import { StoreGetOffersParamsType } from "./validators"
 
 export const GET = async (
   req: MedusaStoreRequest<StoreGetOffersParamsType>,
-  res: MedusaResponse
+  res: MedusaResponse<HttpTypes.StoreOfferListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

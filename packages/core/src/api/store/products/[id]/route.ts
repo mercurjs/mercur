@@ -6,14 +6,19 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
 
 import {
   enrichProductAttributes,
   wrapProductVariantsWithOfferPrice,
 } from "../../../utils"
 import { splitComputedVariantFields } from "../helpers"
+import { StoreGetProductParamsType } from "../validators"
 
-export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
+export const GET = async (
+  req: MedusaStoreRequest<StoreGetProductParamsType>,
+  res: MedusaResponse<HttpTypes.StoreProductResponse>
+) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const visibleIds = (req.filterableFields as { id?: unknown }).id

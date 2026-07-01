@@ -1,3 +1,5 @@
+import "./augmentations"
+
 export { HttpTypes as MedusaHttpTypes } from "@medusajs/types"
 
 export * from "@medusajs/types/dist/http"

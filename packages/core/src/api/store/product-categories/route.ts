@@ -1,12 +1,15 @@
 import {
-  MedusaRequest,
   MedusaResponse,
+  MedusaStoreRequest,
 } from "@medusajs/framework/http"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { HttpTypes } from "@mercurjs/types"
+
+import { StoreGetProductCategoriesParamsType } from "./validators"
 
 export const GET = async (
-  req: MedusaRequest,
-  res: MedusaResponse
+  req: MedusaStoreRequest<StoreGetProductCategoriesParamsType>,
+  res: MedusaResponse<HttpTypes.StoreProductCategoryListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 

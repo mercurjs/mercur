@@ -2,6 +2,7 @@ import {
   InventoryItemDTO,
   MoneyAmountDTO,
   ShippingProfileDTO,
+  StoreProductVariant,
 } from "@medusajs/types"
 
 import { ProductDTO, ProductVariantDTO } from "../product/common"
@@ -82,4 +83,17 @@ export interface OfferDTO {
   product_variant?: ProductVariantDTO
   /** The offer's shipping profile (joined through `offer ↔ shipping_profile`). */
   shipping_profile?: ShippingProfileDTO
+  /**
+   * Per-offer calculated price, computed post-query on the store surface
+   * (`wrapOffersWithCalculatedPrices` / `wrapOffersWithTaxPrices`). Carries
+   * the tax-inclusive/exclusive amounts. Not a stored column.
+   */
+  calculated_price?: StoreProductVariant["calculated_price"] | null
+  /**
+   * Offer availability for the request's sales channel, computed post-query
+   * on the store surface (`wrapOffersWithInventoryQuantityForSalesChannel`).
+   */
+  inventory_quantity?: number | null
+  /** `true` when `inventory_quantity > 0`; computed alongside it. */
+  in_stock?: boolean
 }

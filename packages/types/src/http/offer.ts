@@ -90,3 +90,21 @@ export interface AdminOfferResponse {
 export type AdminOfferListResponse = PaginatedResponse<{
   offers: OfferDTO[]
 }>
+
+/*
+ * --------------------------------------------------------------------
+ * Store surface (read-only under /store/offers)
+ *
+ * The store offer routes enrich each offer post-query with
+ * `calculated_price` / `inventory_quantity` / `in_stock` — those fields
+ * are declared (as optional, store-only) directly on `OfferDTO`.
+ * --------------------------------------------------------------------
+ */
+
+export interface StoreOfferResponse {
+  offer: OfferDTO
+}
+
+export type StoreOfferListResponse = PaginatedResponse<{
+  offers: OfferDTO[]
+}>

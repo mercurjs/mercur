@@ -1,4 +1,5 @@
 import { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { HttpTypes } from "@medusajs/framework/types"
 import {
   ContainerRegistrationKeys,
   MedusaError,
@@ -9,7 +10,7 @@ import { StoreAddCartLineItemType } from "./validators"
 
 export const POST = async (
   req: MedusaRequest<StoreAddCartLineItemType>,
-  res: MedusaResponse,
+  res: MedusaResponse<HttpTypes.StoreCartResponse>,
 ) => {
   const cart_id = req.params.id
   const { additional_data, metadata, offer_id, ...item } = req.validatedBody
