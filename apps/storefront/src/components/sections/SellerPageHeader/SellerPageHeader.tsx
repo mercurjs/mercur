@@ -1,5 +1,5 @@
 import { SellerFooter, SellerHeading } from "@/components/organisms"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 
 export const SellerPageHeader = ({
   header = false,

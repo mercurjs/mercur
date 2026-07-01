@@ -11,8 +11,10 @@
   "dependencies": {
     "@headlessui/react": "^2.2.1",
     "@hookform/resolvers": "^3.10.0",
+    "@medusajs/icons": "^2.16.0-options-preview-20260605124754",
     "@medusajs/js-sdk": "^2.12.5",
     "@medusajs/ui": "^4.0.33",
+    "@mercurjs/types": "workspace:*",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.1.0",
     "@talkjs/react": "^0.1.11",
@@ -31,6 +33,7 @@
     "react-dom": "^19.0.0",
     "react-hook-form": "^7.54.2",
     "react-i18next": "^15.5.2",
+    "sonner": "^2.0.7",
     "tailwind-merge": "^2.6.0",
     "talkjs": "^0.37.0",
     "uuid": "^11.0.5",

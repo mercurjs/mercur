@@ -1,6 +1,6 @@
 'use server';
 
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 
 import { sortProducts } from '@/lib/helpers/sort-products';
 import { SortOptions } from '@/types/product';

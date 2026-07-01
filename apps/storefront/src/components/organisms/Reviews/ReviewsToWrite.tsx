@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 import { isEmpty } from 'lodash';
 import { usePathname } from 'next/navigation';
 

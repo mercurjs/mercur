@@ -3,7 +3,7 @@
 import { FC, useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 import { FieldError, FieldValues, FormProvider, useForm, useFormContext } from 'react-hook-form';
 
 import { Button } from '@/components/atoms';

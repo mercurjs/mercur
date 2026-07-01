@@ -1,5 +1,5 @@
 import { ProductCarousel } from '@/components/cells';
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 
 export const GalleryCarousel = ({
   images,

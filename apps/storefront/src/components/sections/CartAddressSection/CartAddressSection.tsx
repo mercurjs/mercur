@@ -3,7 +3,7 @@
 import { Heading, Text, useToggleState } from "@medusajs/ui"
 import { setAddresses } from "@/lib/data/cart"
 import compareAddresses from "@/lib/helpers/compare-addresses"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useActionState, useEffect } from "react"
 import { Button } from "@/components/atoms"

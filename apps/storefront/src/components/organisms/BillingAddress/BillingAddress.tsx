@@ -1,6 +1,6 @@
 import { Input } from "@/components/atoms/Input/Input"
 import CountrySelect from "@/components/cells/CountrySelect/CountrySelect"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import React, { useState } from "react"
 
 const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {

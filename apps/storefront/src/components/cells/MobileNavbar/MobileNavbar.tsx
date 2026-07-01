@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 
 import { IconButton } from '@/components/atoms';
 import { HeaderCategoryNavbar } from '@/components/molecules';

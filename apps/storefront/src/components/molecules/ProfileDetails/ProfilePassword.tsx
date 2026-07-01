@@ -7,7 +7,7 @@ import { Divider, Heading } from "@medusajs/ui"
 import { useState } from "react"
 import { Modal } from "../Modal/Modal"
 // import { ProfilePasswordForm } from "../ProfilePasswordForm/ProfilePasswordForm"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { sendResetPasswordEmail } from "@/lib/data/customer"
 
 export const ProfilePassword = ({

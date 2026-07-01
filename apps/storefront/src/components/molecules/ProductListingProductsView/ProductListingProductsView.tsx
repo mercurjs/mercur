@@ -1,4 +1,4 @@
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { ProductCard } from "@/components/organisms"
 
 interface Props {

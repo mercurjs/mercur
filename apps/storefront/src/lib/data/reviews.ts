@@ -1,6 +1,6 @@
 'use server';
 
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 import { revalidatePath } from 'next/cache';
 
 import { fetchQuery } from '../config';

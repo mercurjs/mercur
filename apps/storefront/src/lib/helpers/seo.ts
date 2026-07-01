@@ -1,4 +1,4 @@
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { Metadata } from "next"
 import { headers } from "next/headers"
 

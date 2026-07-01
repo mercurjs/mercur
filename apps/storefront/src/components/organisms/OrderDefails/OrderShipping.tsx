@@ -1,6 +1,6 @@
 import { isStripe, paymentInfoMap } from "@/lib/constants"
 import { convertToLocale } from "@/lib/helpers/money"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { Container, Text } from "@medusajs/ui"
 
 type ShippingDetailsProps = {

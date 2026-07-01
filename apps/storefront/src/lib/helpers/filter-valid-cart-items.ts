@@ -1,4 +1,4 @@
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 
 /**
  * Filters out cart items with invalid data (missing subtotal or variant)

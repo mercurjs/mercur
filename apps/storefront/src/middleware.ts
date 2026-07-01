@@ -1,4 +1,4 @@
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 import { NextRequest, NextResponse } from 'next/server';
 
 import { PROTECTED_ROUTES } from './lib/constants';

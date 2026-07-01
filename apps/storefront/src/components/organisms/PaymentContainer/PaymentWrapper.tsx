@@ -2,7 +2,7 @@
 
 import { loadStripe } from "@stripe/stripe-js"
 import React from "react"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { isStripe } from "@/lib/constants"
 import StripeWrapper from "./StripeWrapper"
 

@@ -1,4 +1,4 @@
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 import { isEmpty } from 'lodash';
 import { redirect } from 'next/navigation';
 

@@ -1,5 +1,5 @@
 import { Divider } from "@/components/atoms"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { Table } from "@medusajs/ui"
 import { Item } from "./Item"
 

@@ -4,7 +4,7 @@ import { Button } from "@/components/atoms"
 import { BinIcon } from "@/icons"
 
 import { convertToLocale } from "@/lib/helpers/money"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { Text } from "@medusajs/ui"
 
 export const CartShippingMethodRow = ({

@@ -1,6 +1,6 @@
 'use server';
 
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 

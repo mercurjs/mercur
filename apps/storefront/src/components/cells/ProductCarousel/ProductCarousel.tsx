@@ -1,7 +1,7 @@
 "use client"
 
 import useEmblaCarousel from "embla-carousel-react"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import Image from "next/image"
 import { ProductCarouselIndicator } from "@/components/molecules"
 import { useScreenSize } from "@/hooks/useScreenSize"

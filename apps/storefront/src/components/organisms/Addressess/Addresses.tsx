@@ -5,7 +5,7 @@ import { emptyDefaultAddressValues } from "@/components/molecules/AddressForm/Ad
 import { AddressFormData } from "@/components/molecules/AddressForm/schema"
 import { deleteCustomerAddress } from "@/lib/data/customer"
 import { cn } from "@/lib/utils"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { isEmpty } from "lodash"
 import { useState } from "react"
 

@@ -3,7 +3,7 @@ import {
   ProductReportButton,
   ProductTags,
 } from '@/components/molecules';
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 
 export const ProductDetailsFooter = ({
   tags = [],

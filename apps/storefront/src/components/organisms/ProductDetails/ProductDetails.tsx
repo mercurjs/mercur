@@ -12,7 +12,7 @@ import { getUserWishlists } from "@/lib/data/wishlist"
 import { AdditionalAttributeProps } from "@/types/product"
 import { SellerProps } from "@/types/seller"
 import { Wishlist } from "@/types/wishlist"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 
 export const ProductDetails = async ({
   product,

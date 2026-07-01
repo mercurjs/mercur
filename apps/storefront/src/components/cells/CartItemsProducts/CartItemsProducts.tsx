@@ -1,4 +1,4 @@
-import { HttpTypes } from '@medusajs/types';
+import { HttpTypes } from '@mercurjs/types';
 import Image from 'next/image';
 
 import { DeleteCartItemButton } from '@/components/molecules';

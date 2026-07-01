@@ -1,6 +1,6 @@
 "use client"
 import Image from "next/image"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { EmblaCarouselType } from "embla-carousel"
 import { useCallback, useEffect, useState } from "react"
 import { cn } from "@/lib/utils"

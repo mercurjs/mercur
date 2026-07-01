@@ -1,4 +1,4 @@
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { CategoryNavbar, NavbarSearch } from "@/components/molecules"
 
 export const Navbar = ({

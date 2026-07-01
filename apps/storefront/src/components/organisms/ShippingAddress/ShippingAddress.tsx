@@ -1,4 +1,4 @@
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { Container } from "@medusajs/ui"
 import { mapKeys } from "lodash"
 import React, { useEffect, useMemo, useState } from "react"

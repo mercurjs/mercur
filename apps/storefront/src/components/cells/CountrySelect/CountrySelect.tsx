@@ -6,7 +6,7 @@ import {
   Fragment,
 } from "react"
 
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import NativeSelect, {
   NativeSelectProps,
 } from "@/components/molecules/NativeSelect/NativeSelect"

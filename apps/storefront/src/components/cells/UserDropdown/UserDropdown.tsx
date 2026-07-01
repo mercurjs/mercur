@@ -9,7 +9,7 @@ import {
 import { Dropdown } from "@/components/molecules"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ProfileIcon } from "@/icons"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { useUnreads } from "@talkjs/react"
 import { useState } from "react"
 

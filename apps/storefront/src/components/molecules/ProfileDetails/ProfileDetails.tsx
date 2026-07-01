@@ -1,6 +1,6 @@
 "use client"
 import { Button, Card } from "@/components/atoms"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { Modal } from "../Modal/Modal"
 import { useState } from "react"
 import { ProfileDetailsForm } from "../ProfileDetailsForm/ProfileDetailsForm"

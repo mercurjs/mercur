@@ -1,7 +1,7 @@
 import { SellerInfo } from "@/components/molecules"
 import { SellerProps } from "@/types/seller"
 import { Chat } from "../Chat/Chat"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { Button } from "@medusajs/ui"
 
 export const SellerHeading = ({

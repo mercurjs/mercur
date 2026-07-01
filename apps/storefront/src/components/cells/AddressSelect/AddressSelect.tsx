@@ -5,7 +5,7 @@ import { Fragment, useMemo } from "react"
 
 import { Radio } from "@/components/atoms/Radio/Radio"
 
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import compareAddresses from "@/lib/helpers/compare-addresses"
 import clsx from "clsx"
 

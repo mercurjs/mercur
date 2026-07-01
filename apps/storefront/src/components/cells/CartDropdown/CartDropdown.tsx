@@ -7,7 +7,7 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 import { CartIcon } from "@/icons"
 import { convertToLocale } from "@/lib/helpers/money"
 import { filterValidCartItems } from "@/lib/helpers/filter-valid-cart-items"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { useCartContext } from "@/components/providers"

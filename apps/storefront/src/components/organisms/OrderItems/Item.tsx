@@ -1,5 +1,5 @@
 import { convertToLocale } from "@/lib/helpers/money"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import Image from "next/image"
 export const Item = ({
   item,
@@ -9,12 +9,12 @@ export const Item = ({
   currencyCode: string
 }) => {
   const original_total = convertToLocale({
-    amount: item.original_total,
+    amount: item.original_total ?? 0,
     currency_code: currencyCode,
   })
 
   const total = convertToLocale({
-    amount: item.total,
+    amount: item.total ?? 0,
     currency_code: currencyCode,
   })
 

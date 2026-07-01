@@ -4,7 +4,7 @@ import { Fragment, useEffect, useState, useTransition, type FC } from 'react';
 
 import { Listbox, Transition } from '@headlessui/react';
 import { CheckCircleSolid, ChevronUpDown, Loader } from '@medusajs/icons';
-import type { HttpTypes } from '@medusajs/types';
+import type { HttpTypes } from '@mercurjs/types';
 import { clx, Heading, Text } from '@medusajs/ui';
 import clsx from 'clsx';
 import { usePathname, useRouter, useSearchParams } from 'next/navigation';

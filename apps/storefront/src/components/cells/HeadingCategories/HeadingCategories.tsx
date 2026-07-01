@@ -1,7 +1,7 @@
 "use client"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { cn } from "@/lib/utils"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { useParams } from "next/navigation"
 
 export const HeadingCategories = ({

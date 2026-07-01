@@ -3,7 +3,7 @@ import {
   CartItemsHeader,
   CartItemsProducts,
 } from "@/components/cells"
-import { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@mercurjs/types"
 import { EmptyCart } from "./EmptyCart"
 
 export const CartItems = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
