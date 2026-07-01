@@ -3,8 +3,8 @@ set -euo pipefail
 
 REPO_ROOT="/Users/viktorholik/Desktop/mercur"
 
-# api=9000, admin=7000, vendor=7001
-PORTS=(9000 7000 7001)
+# api=9000, admin=7000, vendor=7001, storefront=3000
+PORTS=(9000 7000 7001 3000)
 
 echo "→ Killing previous dev processes"
 for port in "${PORTS[@]}"; do
@@ -44,6 +44,10 @@ pids+=($!)
 
 echo "→ Starting apps/vendor    (http://localhost:7001)"
 (cd "$REPO_ROOT/apps/vendor" && bun run dev) &
+pids+=($!)
+
+echo "→ Starting apps/storefront (http://localhost:3000)"
+(cd "$REPO_ROOT/apps/storefront" && bun run dev) &
 pids+=($!)
 
 wait
