@@ -8,6 +8,7 @@ import {
 } from "@/components/cells"
 
 import { retrieveCustomer } from "@/lib/data/customer"
+import { listProductOffers } from "@/lib/data/offers"
 import { getUserWishlists } from "@/lib/data/wishlist"
 import { AdditionalAttributeProps } from "@/types/product"
 import { SellerProps } from "@/types/seller"
@@ -31,10 +32,16 @@ export const ProductDetails = async ({
     wishlist = await getUserWishlists({countryCode: locale})
   }
 
+  const offers = await listProductOffers({
+    productId: product.id,
+    countryCode: locale,
+  })
+
   return (
     <div>
       <ProductDetailsHeader
         product={product}
+        offers={offers}
         locale={locale}
         user={user}
         wishlist={wishlist}

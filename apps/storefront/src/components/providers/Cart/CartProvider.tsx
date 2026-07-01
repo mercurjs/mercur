@@ -39,15 +39,19 @@ export function CartProvider({ cart, children }: CartProviderProps) {
   }, []);
 
   function handleAddToCart(newItem: StoreCartLineItemOptimisticUpdate, currency_code: string) {
+    const offerIdOf = (item?: { metadata?: unknown } | null) =>
+      (item?.metadata as { offer_id?: string } | null)?.offer_id;
+    const newOfferId = offerIdOf(newItem);
+
     setCartState(prev => {
       const currentItems = prev?.items || [];
       const isNewItemInCart = currentItems.find(
-        ({ variant_id }) => variant_id === newItem.variant_id
+        item => offerIdOf(item) === newOfferId
       );
 
       if (isNewItemInCart) {
         const updatedItems = currentItems.map(currentItem => {
-          if (currentItem.variant_id !== newItem.variant_id) {
+          if (offerIdOf(currentItem) !== newOfferId) {
             return currentItem;
           }
 
@@ -114,11 +118,11 @@ export function CartProvider({ cart, children }: CartProviderProps) {
   };
 
   const addToCart = async ({
-    variantId,
+    offerId,
     quantity,
     countryCode
   }: {
-    variantId: string;
+    offerId: string;
     quantity: number;
     countryCode: string;
   }) => {
@@ -127,7 +131,7 @@ export function CartProvider({ cart, children }: CartProviderProps) {
 
     try {
       await apiAddToCart({
-        variantId,
+        offerId,
         quantity,
         countryCode
       });

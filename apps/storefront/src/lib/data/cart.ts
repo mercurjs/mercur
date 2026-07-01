@@ -102,16 +102,16 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
 }
 
 export async function addToCart({
-  variantId,
+  offerId,
   quantity,
   countryCode
 }: {
-  variantId: string;
+  offerId: string;
   quantity: number;
   countryCode: string;
 }) {
-  if (!variantId) {
-    throw new Error('Missing variant ID when adding to cart');
+  if (!offerId) {
+    throw new Error('Missing offer ID when adding to cart');
   }
 
   const cart = await getOrSetCart(countryCode);
@@ -124,7 +124,9 @@ export async function addToCart({
     ...(await getAuthHeaders())
   };
 
-  const currentItem = cart.items?.find(item => item.variant_id === variantId);
+  const currentItem = cart.items?.find(
+    item => (item.metadata as { offer_id?: string } | null)?.offer_id === offerId
+  );
 
   if (currentItem) {
     await sdk.store.cart
@@ -141,25 +143,18 @@ export async function addToCart({
         revalidateTag(cartCacheTag);
       });
   } else {
-    await sdk.store.cart
-      .createLineItem(
-        cart.id,
-        {
-          variant_id: variantId,
-          quantity
-        },
-        {},
-        headers
-      )
+    await mercur.store.carts.$id.lineItems
+      .mutate({
+        $id: cart.id,
+        offer_id: offerId,
+        quantity,
+        fetchOptions: { headers }
+      })
       .then(async () => {
         const cartCacheTag = await getCacheTag('carts');
         revalidateTag(cartCacheTag);
       })
-      .catch(medusaError)
-      .finally(async () => {
-        const cartCacheTag = await getCacheTag('carts');
-        revalidateTag(cartCacheTag);
-      });
+      .catch(medusaError);
   }
 }
 

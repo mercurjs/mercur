@@ -1,10 +1,12 @@
 "use client"
 
+import { useState } from "react"
+
 import { Button } from "@/components/atoms"
-import { HttpTypes } from "@medusajs/types"
-import { ProductVariants } from "@/components/molecules"
-import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
-import { getProductPrice } from "@/lib/helpers/get-product-price"
+import { HttpTypes, OfferDTO } from "@mercurjs/types"
+import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
+import { CompareOffersModal } from "@/components/organisms/CompareOffersModal/CompareOffersModal"
+import { getPricesForVariant } from "@/lib/helpers/get-product-price"
 import { Chat } from "@/components/organisms/Chat/Chat"
 import { SellerProps } from "@/types/seller"
 import { WishlistButton } from "../WishlistButton/WishlistButton"
@@ -12,146 +14,134 @@ import { Wishlist } from "@/types/wishlist"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
 
-const optionsAsKeymap = (
-  variantOptions: HttpTypes.StoreProductVariant["options"]
-) => {
-  return variantOptions?.reduce(
-    (
-      acc: Record<string, string>,
-      varopt: HttpTypes.StoreProductOptionValue
-    ) => {
-      acc[varopt.option?.title.toLowerCase() || ""] = varopt.value
-
-      return acc
-    },
-    {}
-  )
-}
-
 export const ProductDetailsHeader = ({
   product,
+  offers,
   locale,
   user,
   wishlist,
 }: {
   product: HttpTypes.StoreProduct & { seller?: SellerProps }
+  offers: OfferDTO[]
   locale: string
   user: HttpTypes.StoreCustomer | null
   wishlist?: Wishlist
 }) => {
   const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
-  const { allSearchParams } = useGetAllSearchParams()
+  const [isCompareOpen, setIsCompareOpen] = useState(false)
 
-  const { cheapestVariant, cheapestPrice } = getProductPrice({
-    product,
-  })
+  const cheapestOffer = offers[0] ?? null
+  const offerPrice = cheapestOffer
+    ? getPricesForVariant({ calculated_price: cheapestOffer.calculated_price })
+    : null
 
-  // Check if product has any valid prices in current region
-  const hasAnyPrice = cheapestPrice !== null && cheapestVariant !== null
+  const hasOffer = !!cheapestOffer && !!offerPrice
+  const inStock = !!cheapestOffer?.in_stock
 
-  // set default variant
-  const selectedVariant = hasAnyPrice
-    ? {
-        ...optionsAsKeymap(cheapestVariant.options ?? null),
-        ...allSearchParams,
-      }
-    : allSearchParams
+  const quantityInCart =
+    cart?.items?.find(
+      (item) =>
+        (item.metadata as { offer_id?: string } | null)?.offer_id ===
+        cheapestOffer?.id
+    )?.quantity ?? 0
 
-  // get selected variant id
-  const variantId =
-    product.variants?.find(({ options }: { options: any }) =>
-      options?.every((option: any) =>
-        selectedVariant[option.option?.title.toLowerCase() || ""]?.includes(
-          option.value
-        )
-      )
-    )?.id || ""
+  const isStockLimitReached =
+    quantityInCart >= (cheapestOffer?.inventory_quantity ?? 0)
 
-  // get variant price
-  const { variantPrice } = getProductPrice({
-    product,
-    variantId,
-  })
+  const isAddToCartDisabled = !hasOffer || !inStock || isStockLimitReached
 
-  const variantStock =
-    product.variants?.find(({ id }) => id === variantId)?.inventory_quantity ||
-    0
-
-  const variantHasPrice = !!product.variants?.find(({ id }) => id === variantId)
-    ?.calculated_price
-
-  const isVariantStockMaxLimitReached =
-    (cart?.items?.find((item) => item.variant_id === variantId)?.quantity ??
-      0) >= variantStock
-
-  // add the selected variant to the cart
   const handleAddToCart = async () => {
-    if (!variantId || !hasAnyPrice || isVariantStockMaxLimitReached) return
+    if (!cheapestOffer || !offerPrice || isStockLimitReached) return
 
-    const subtotal = +(variantPrice?.calculated_price_without_tax_number || 0)
-    const total = +(variantPrice?.calculated_price_number || 0)
+    const subtotal = +(offerPrice.calculated_price_without_tax_number || 0)
+    const total = +(offerPrice.calculated_price_number || 0)
 
-    const storeCartLineItem = {
-      thumbnail: product.thumbnail || "",
-      product_title: product.title,
-      quantity: 1,
-      subtotal,
-      total,
-      tax_total: total - subtotal,
-      variant_id: variantId,
-      product_id: product.id,
-      variant: product.variants?.find(({ id }) => id === variantId),
-    }
-
-    // Optimistic update
-    onAddToCart(storeCartLineItem, variantPrice?.currency_code || "eur")
+    onAddToCart(
+      {
+        thumbnail: product.thumbnail || "",
+        product_title: product.title,
+        quantity: 1,
+        subtotal,
+        total,
+        tax_total: total - subtotal,
+        variant_id: cheapestOffer.variant_id,
+        product_id: product.id,
+        variant: product.variants?.find(
+          ({ id }) => id === cheapestOffer.variant_id
+        ),
+        metadata: { offer_id: cheapestOffer.id },
+      },
+      offerPrice.currency_code || "eur"
+    )
 
     try {
       await addToCart({
-        variantId: variantId,
+        offerId: cheapestOffer.id,
         quantity: 1,
         countryCode: locale,
       })
     } catch (error) {
       toast.error({
         title: "Error adding to cart",
-        description: "Some variant does not have the required inventory",
+        description: "This offer does not have the required inventory",
       })
     }
   }
-
-  const isAddToCartDisabled = !variantStock || !variantHasPrice || !hasAnyPrice || isVariantStockMaxLimitReached
 
   return (
     <div className="border rounded-sm p-5" data-testid="product-details-header">
       <div className="flex justify-between">
         <div>
-          <h2 className="label-md text-secondary">
-            {/* {product?.brand || "No brand"} */}
-          </h2>
-          <h1 className="heading-lg text-primary" data-testid="product-title">{product.title}</h1>
-          <div className="mt-2 flex gap-2 items-center" data-testid="product-price-container">
-            {hasAnyPrice && variantPrice ? (
+          <h1 className="heading-lg text-primary" data-testid="product-title">
+            {product.title}
+          </h1>
+          <div
+            className="mt-2 flex gap-2 items-center"
+            data-testid="product-price-container"
+          >
+            {hasOffer && offerPrice ? (
               <>
-                <span className="heading-md text-primary" data-testid="product-price-current">
-                  {variantPrice.calculated_price}
+                <span
+                  className="heading-md text-primary"
+                  data-testid="product-price-current"
+                >
+                  {offerPrice.calculated_price}
                 </span>
-                {variantPrice.calculated_price_number !==
-                  variantPrice.original_price_number && (
-                  <span className="label-md text-secondary line-through" data-testid="product-price-original">
-                    {variantPrice.original_price}
+                {offerPrice.calculated_price_number !==
+                  offerPrice.original_price_number && (
+                  <span
+                    className="label-md text-secondary line-through"
+                    data-testid="product-price-original"
+                  >
+                    {offerPrice.original_price}
                   </span>
                 )}
               </>
             ) : (
-              <span className="label-md text-secondary pt-2 pb-4" data-testid="product-price-unavailable">
+              <span
+                className="label-md text-secondary pt-2 pb-4"
+                data-testid="product-price-unavailable"
+              >
                 Not available in your region
               </span>
             )}
           </div>
+          {cheapestOffer?.seller && (
+            <p
+              className="label-md text-secondary mt-2"
+              data-testid="product-offer-seller"
+            >
+              Sold by{" "}
+              <LocalizedClientLink
+                href={`/sellers/${cheapestOffer.seller.handle}`}
+                className="text-primary underline"
+              >
+                {cheapestOffer.seller.name}
+              </LocalizedClientLink>
+            </p>
+          )}
         </div>
         <div>
-          {/* Add to Wishlist */}
           <WishlistButton
             productId={product.id}
             wishlist={wishlist}
@@ -159,26 +149,33 @@ export const ProductDetailsHeader = ({
           />
         </div>
       </div>
-      {/* Product Variants */}
-      {hasAnyPrice && (
-        <ProductVariants product={product} selectedVariant={selectedVariant} />
-      )}
-      {/* Add to Cart */}
+
       <Button
         onClick={handleAddToCart}
         disabled={isAddToCartDisabled}
         loading={isAddingItem}
-        className="w-full uppercase mb-4 py-3 flex justify-center"
+        className="w-full uppercase mt-4 mb-2 py-3 flex justify-center"
         size="large"
         data-testid="product-add-to-cart-button"
       >
-        {!hasAnyPrice
+        {!hasOffer
           ? "NOT AVAILABLE IN YOUR REGION"
-          : variantStock && variantHasPrice
+          : inStock
           ? "ADD TO CART"
           : "OUT OF STOCK"}
       </Button>
-      {/* Seller message */}
+
+      {offers.length > 1 && (
+        <Button
+          onClick={() => setIsCompareOpen(true)}
+          variant="tonal"
+          className="w-full uppercase mb-4 py-3 flex justify-center"
+          size="large"
+          data-testid="product-compare-offers-button"
+        >
+          {`Compare other offers (${offers.length - 1})`}
+        </Button>
+      )}
 
       {user && product.seller && (
         <Chat
@@ -186,6 +183,15 @@ export const ProductDetailsHeader = ({
           seller={product.seller}
           buttonClassNames="w-full uppercase"
           product={product}
+        />
+      )}
+
+      {isCompareOpen && (
+        <CompareOffersModal
+          product={product}
+          offers={offers}
+          locale={locale}
+          onClose={() => setIsCompareOpen(false)}
         />
       )}
     </div>
