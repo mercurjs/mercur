@@ -437,24 +437,22 @@ and per-seller callers alongside `reindexAll`):
 ## Endpoint Contracts
 
 - `POST /store/search`
-  - Body (base): `{ query: string, page?=1, hitsPerPage?=12 (max 100),
-    context?: { region_id?, country_code?, province? }, filters?: {…} }`.
-    `context` holds the **inputs** for the pricing/tax context — the authoritative
-    context is built in middleware (see below), not trusted from the raw body.
-    **`filters` shape is defined by the active provider, not the route** — the
-    route imports the provider's exported zod validator (for `search-orama`:
-    `type`, `collection_ids`, `category_ids`, `seller_handle`, `attributes`).
-    Because exactly one provider is active, there's exactly one validator to
-    import. Unknown filter keys are a validation error. `attributes` keys/values
-    are validated against `^[a-zA-Z0-9_-]+$` (the Meili-block injection-safety
-    pattern).
-  - Behavior: the route is **thin** — force `filters.seller_status = "open"`
-    (security invariant), then `search.search(query)` and return the provider's
-    `hits` + `facets` verbatim. The **provider** projects each hit's
+  - Body (Medusa-like list params): `{ q?: string, limit?=12 (max 100),
+    offset?=0, region_id?, country_code?, province?, filters?: Record<string,
+    unknown> }`. `region_id`/`country_code`/`province` are the **inputs** for the
+    pricing/tax context — the authoritative context is built in middleware (see
+    below), not trusted from the raw body. **`filters` is an open passthrough
+    record** — the provider owns its filter shape and interprets the record;
+    the route does not validate filter contents (for `search-orama`: `type`,
+    `collection_ids`, `category_ids`, `seller_handle`, `attributes`).
+  - Behavior: the route is **thin** — `search.search(query)` and return the
+    provider's `hits` + `facets` verbatim. The **provider** projects each hit's
     `calculated_price` from `prices[context.region_id]` (null when the region has
-    no stored entry) and builds the labelled facets. No `query.graph` hydration;
-    hit order is preserved by the provider.
-  - Response: `{ hits, count, page, hitsPerPage, query,
+    no stored entry) and builds the labelled facets. Suspended/unpublished content
+    is excluded **at index time** (`reindexAll` only indexes published,
+    open-seller docs) — there is no query-time seller-status force. No
+    `query.graph` hydration; hit order is preserved by the provider.
+  - Response: `{ hits, count, limit, offset,
     facets: { collections: SearchFacetValue[], categories: SearchFacetValue[],
     attributes: Array<{ handle, label, values: SearchFacetValue[] }> } }`.
   - Middleware: `authenticate("customer", …, { allowUnauthenticated: true })`,
@@ -491,7 +489,8 @@ the storefront never needs to know which backend is active.
 
 - Searching from the navbar returns relevance-ranked products and per-offer
   hits when the Mercur search provider is selected.
-- Suspended-seller content never appears (server-enforced `seller_status = "open"`).
+- Suspended/unpublished content never appears — excluded at index time by
+  `reindexAll` (published + open-seller only).
 - Offer hits price identically to the product page / `GET /store/offers`.
 - New published products and new/updated offers appear after the next
   `syncSearchWorkflow` reindex; deleted/unpublished content disappears on the
@@ -519,10 +518,10 @@ follow-up (see "Deferred — event subscribers")._
    offers inherit product tokens). `reindexAll` calls `search.index` directly and
    is exported from `@mercurjs/core/modules/search`; it is invoked programmatically
    (no workflow wrapper, no admin HTTP route in this cut).
-5. Thin store `/store/search` route (enforce `seller_status="open"`, return the
-   provider's `hits` + `facets` verbatim) + `setSearchPricingContext` middleware
-   (builds the pricing/tax context, `/store/products`-inspired) + validators
-   (incl. `filters.attributes`). The provider owns `calculated_price` projection
+5. Thin store `/store/search` route (Medusa-like `q`/`limit`/`offset`, open
+   `filters` passthrough, return the provider's `hits` + `facets` verbatim) +
+   `setSearchPricingContext` middleware (builds the pricing/tax context,
+   `/store/products`-inspired). The provider owns `calculated_price` projection
    and labelled facet building.
 6. Storefront data fn + `NEXT_PUBLIC_SEARCH_PROVIDER` branch + offer-hit rendering.
 7. Integration tests under `integration-tests/http/search/store/`.
@@ -545,7 +544,7 @@ follow-up (see "Deferred — event subscribers")._
      in the affected region's `prices` entry after reindex;
    - a deleted offer / unpublished product is absent after reindex;
    - a suspended seller's content is absent after reindex; unsuspended restores it;
-   - `seller_status="open"` enforced even with no client filter;
+   - suspended/unpublished content excluded after reindex (index-time);
    - projected `prices[region_id]` equals `GET /store/offers` (offers) and
      `/store/products` buybox (products) for that region;
    - a product with an `is_filterable` attribute value exposes an `attributes`
@@ -585,8 +584,8 @@ implemented; storefront branch (plan item 6) still outstanding.
   native `facets` — and **owns facet labelling** (id→label maps maintained at
   index time) **and `calculated_price` projection** from `prices[context.region_id]`,
   so the store route is thin. `types.ts` (`OramaSearchQuery`), `validators.ts`
-  (exported zod `OramaSearchFiltersSchema` the store route imports), `index.ts`
-  (`ModuleProvider`). `@orama/orama` added to core deps.
+  (`OramaSearchQuery` filter type — interpreted from the open passthrough
+  record), `index.ts` (`ModuleProvider`). `@orama/orama` added to core deps.
 - Shared index-sync core (`modules/search/lib/`): `build-docs.ts`
   (`buildProductDocs`/`buildOfferDocs`/`filterOpenSellerProducts`, faked-`req`
   per-region buybox via `wrapProductVariantsWithOfferPrice` /
@@ -594,13 +593,15 @@ implemented; storefront branch (plan item 6) still outstanding.
   offers inherit parent tokens) and `reindex.ts` (`reindexAll` + `indexProductPage`,
   page size 100, published + open-seller only, calls `search.index` directly).
   `reindexAll` re-exported from `@mercurjs/core/modules/search`.
-- Thin store `POST /store/search` (`api/store/search/`): forces
-  `seller_status="open"`, calls `search.search`, returns the provider's `hits` +
-  `facets` verbatim. `setSearchPricingContext` middleware builds the pricing/tax
-  context (`/store/products`-inspired: refetches the region, customer groups from
-  auth, tax from `automatic_taxes` + address); `authenticate("customer", …,
-  { allowUnauthenticated: true })` + `validateAndTransformBody`. Registered in
-  `store/middlewares.ts`.
+- Thin store `POST /store/search` (`api/store/search/`): Medusa-like body
+  (`q`/`limit`/`offset` + `region_id`/`country_code`/`province`), open `filters`
+  passthrough record (provider owns the shape), calls `search.search`, returns
+  the provider's `hits` + `facets` verbatim. `setSearchPricingContext` middleware
+  builds the pricing/tax context (`/store/products`-inspired: refetches the
+  region, customer groups from auth, tax from `automatic_taxes` + address);
+  `authenticate("customer", …, { allowUnauthenticated: true })` +
+  `validateAndTransformBody`. Registered in `store/middlewares.ts`. Suspended /
+  unpublished content is excluded at index time, not query-time.
 - **No search workflows and no admin HTTP routes** in this cut (both removed at
   the user's direction). Reindex = call `reindexAll(container)` directly
   (programmatic / seed / future boot + subscriber triggers).

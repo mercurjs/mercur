@@ -172,8 +172,8 @@ medusaIntegrationTestRunner({
           const response = await api.post(
             `/store/search`,
             {
-              query: "Searchable",
-              context: { region_id: region.id },
+              q: "Searchable",
+              region_id: region.id,
             },
             storeHeaders
           )
@@ -207,7 +207,7 @@ medusaIntegrationTestRunner({
 
           const response = await api.post(
             `/store/search`,
-            { query: "Hidden", context: { region_id: region.id } },
+            { q: "Hidden", region_id: region.id },
             storeHeaders
           )
 
@@ -218,7 +218,7 @@ medusaIntegrationTestRunner({
           expect(hit).toBeFalsy()
         })
 
-        it("enforces seller_status=open even without a client filter", async () => {
+        it("excludes suspended-seller content at index time", async () => {
           const seed = await seedSellerOffer({
             email: "search-suspended@test.com",
             name: "Suspended",
@@ -239,7 +239,7 @@ medusaIntegrationTestRunner({
 
           const response = await api.post(
             `/store/search`,
-            { query: "Suspended", context: { region_id: region.id } },
+            { q: "Suspended", region_id: region.id },
             storeHeaders
           )
 

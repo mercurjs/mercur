@@ -16,28 +16,24 @@ export const POST = async (
   const search = req.scope.resolve<SearchModuleService>(MercurModules.SEARCH)
   const body = req.validatedBody
 
-  const page = body.page
-  const hitsPerPage = body.hitsPerPage
-
   const result: SearchResults = await search.search({
-    q: body.query,
-    limit: hitsPerPage,
-    offset: (page - 1) * hitsPerPage,
+    q: body.q,
+    limit: body.limit,
+    offset: body.offset,
     // Pricing context is built by middleware (`setSearchPricingContext`),
     // inspired by the `/store/products` chain — not trusted from the raw body.
     // The provider projects each hit's `calculated_price` from it.
     context: req.pricingContext,
-    // Force the seller-status invariant server-side, independent of any client
-    // filter — suspended-seller content never surfaces.
-    filters: { ...(body.filters ?? {}), seller_status: "open" },
+    // Passed through to the active provider verbatim. Suspended/unpublished
+    // content is excluded at index time (`reindexAll`), not query-time.
+    filters: body.filters,
   })
 
   res.json({
     hits: result.hits,
     count: result.count,
-    page,
-    hitsPerPage,
-    query: body.query,
+    limit: body.limit,
+    offset: body.offset,
     facets: result.facets,
   })
 }
