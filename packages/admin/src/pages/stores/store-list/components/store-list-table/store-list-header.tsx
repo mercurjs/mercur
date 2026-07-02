@@ -4,9 +4,10 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 export const StoreListTitle = () => {
+  const { t } = useTranslation()
   return (
     <div>
-      <Heading level="h2">Stores</Heading>
+      <Heading level="h2">{t("stores.domain")}</Heading>
     </div>
   )
 }

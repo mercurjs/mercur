@@ -129,24 +129,24 @@ const Total = ({ order }: { order: HttpTypes.AdminOrder }) => {
 
 const getPaymentStatus = (
   payment: HttpTypes.AdminPayment
-): { label: string; color: "green" | "orange" | "red" | "grey" } => {
+): { labelKey: string; color: "green" | "orange" | "red" | "grey" } => {
   const refundedAmount = (payment.refunds ?? []).reduce(
     (acc: number, r: { amount?: number }) => acc + (r.amount ?? 0),
     0
   )
   if (payment.canceled_at) {
-    return { label: "Canceled", color: "red" }
+    return { labelKey: "orders.payment.status.canceled", color: "red" }
   }
   if (refundedAmount > 0 && refundedAmount >= (payment.amount as number)) {
-    return { label: "Refunded", color: "grey" }
+    return { labelKey: "orders.payment.status.refunded", color: "grey" }
   }
   if (refundedAmount > 0) {
-    return { label: "Partly refunded", color: "orange" }
+    return { labelKey: "orders.payment.status.partiallyRefunded", color: "orange" }
   }
   if (payment.captured_at) {
-    return { label: "Captured", color: "green" }
+    return { labelKey: "orders.payment.status.captured", color: "green" }
   }
-  return { label: "Pending", color: "orange" }
+  return { labelKey: "orders.payment.status.pending", color: "orange" }
 }
 
 const PaymentRow = ({
@@ -205,7 +205,7 @@ const PaymentRow = ({
 
         <div className="flex items-center gap-x-3">
           <StatusBadge color={status.color} className="text-nowrap">
-            {status.label}
+            {t(status.labelKey)}
           </StatusBadge>
           <Text
             size="small"

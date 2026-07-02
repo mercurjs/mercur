@@ -218,36 +218,24 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
         <SwitchBox
           control={form.control}
           name="is_filterable"
-          label={t("attributes.fields.isFilterable", "Filterable attribute")}
-          description={t(
-            "attributes.fields.isFilterableHint",
-            "If checked, buyers will be able to filter products using this attribute."
-          )}
+          label={t("attributes.fields.isFilterable")}
+          description={t("attributes.fields.isFilterableHint")}
           data-testid="attribute-form-filterable-switch"
         />
 
         <SwitchBox
           control={form.control}
           name="is_required"
-          label={t("attributes.fields.isRequired", "Required attribute")}
-          description={t(
-            "attributes.fields.isRequiredHint",
-            "If checked, vendors must set a value for this attribute."
-          )}
+          label={t("attributes.fields.isRequired")}
+          description={t("attributes.fields.isRequiredHint")}
           data-testid="attribute-form-required-switch"
         />
 
         <SwitchBox
           control={form.control}
           name="is_variant_axis"
-          label={t(
-            "attributes.fields.isVariantAxis",
-            "Use for Variants"
-          )}
-          description={t(
-            "attributes.fields.isVariantAxisHint",
-            "If checked, this attribute can be used to create product variants."
-          )}
+          label={t("attributes.fields.isVariantAxis")}
+          description={t("attributes.fields.isVariantAxisHint")}
           data-testid="attribute-form-variant-axis-switch"
         />
       </div>
@@ -272,10 +260,7 @@ export const AttributeForm = forwardRef<AttributeFormRef, AttributeFormProps>(
                 >
                   <Select.Trigger data-testid="attribute-form-type-trigger">
                     <Select.Value
-                      placeholder={t(
-                        "attributes.fields.typePlaceholder",
-                        "Select Type"
-                      )}
+                      placeholder={t("attributes.fields.typePlaceholder")}
                     />
                   </Select.Trigger>
                   <Select.Content>

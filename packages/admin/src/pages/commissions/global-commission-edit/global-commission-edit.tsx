@@ -91,9 +91,7 @@ const EditGlobalCommissionForm = ({ rate }: { rate: CommissionRate }) => {
     await mutateAsync(payload, {
       onSuccess: () => {
         toast.success(
-          t("commissions.global.edit.successToast", {
-            defaultValue: "Global commission was successfully updated.",
-          })
+          t("commissions.global.edit.successToast")
         );
         handleSuccess();
       },

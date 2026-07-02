@@ -120,7 +120,7 @@ const AttributeEditForm = ({ attribute }: AttributeEditFormProps) => {
             <SwitchBox
               control={form.control}
               name="is_required"
-              label={t("attributes.fields.isRequired", "Required attribute")}
+              label={t("attributes.fields.isRequired")}
               description={t(
                 "attributes.fields.isRequiredHint",
                 "If checked, vendors must set a value for this attribute.",
@@ -131,7 +131,7 @@ const AttributeEditForm = ({ attribute }: AttributeEditFormProps) => {
             <SwitchBox
               control={form.control}
               name="is_filterable"
-              label={t("attributes.fields.isFilterable", "Filterable attribute")}
+              label={t("attributes.fields.isFilterable")}
               description={t(
                 "attributes.fields.isFilterableHint",
                 "If checked, buyers will be able to filter products using this attribute.",

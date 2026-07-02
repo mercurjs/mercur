@@ -126,7 +126,7 @@ export const MultiSelectCategory = ({
               className="text-ui-fg-subtle"
               data-testid="attribute-form-category-multiselect-placeholder"
             >
-              {t("attributes.fields.categories", "Select categories")}
+              {t("attributes.selectCategory.placeholder")}
             </Text>
           )}
         </div>
@@ -162,7 +162,7 @@ export const MultiSelectCategory = ({
               className="p-3 text-ui-fg-subtle"
               data-testid="attribute-form-category-multiselect-empty"
             >
-              {t("general.noResultsTitle", "No categories found.")}
+              {t("general.noResultsTitle")}
             </div>
           ) : (
             currentCategories.map((category) => {

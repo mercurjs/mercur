@@ -133,7 +133,7 @@ const EditRankingInner = () => {
   const { mutateAsync: upsertValues, isPending: isSaving } =
     useUpsertProductAttributeValues(id!, {
       onSuccess: () => {
-        toast.success(t("attributes.editRanking.successToast", "Ranking updated successfully."))
+        toast.success(t("attributes.editRanking.successToast"))
         handleSuccess()
       },
       onError: (err) => {

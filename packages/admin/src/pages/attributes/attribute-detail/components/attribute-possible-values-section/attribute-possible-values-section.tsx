@@ -186,7 +186,7 @@ export const AttributePossibleValuesSection = ({
           />
           <Button variant="secondary" size="small" asChild>
             <Link to="edit-ranking">
-              {t("attributes.possibleValues.editRanking", "Edit ranking")}
+              {t("attributes.possibleValues.editRanking")}
             </Link>
           </Button>
           <Button variant="secondary" size="small" asChild>
@@ -207,8 +207,8 @@ export const AttributePossibleValuesSection = ({
       ) : (
         <NoRecords
           className="border-t"
-          title={t("attributes.possibleValues.noRecordsTitle", "No created values")}
-          message={t("attributes.possibleValues.noRecordsMessage", "Create attribute to organize your products")}
+          title={t("attributes.possibleValues.noRecordsTitle")}
+          message={t("attributes.possibleValues.noRecordsMessage")}
           action={{
             to: "create-possible-value",
             label: t("actions.create"),

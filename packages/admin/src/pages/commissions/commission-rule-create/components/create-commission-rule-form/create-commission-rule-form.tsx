@@ -71,9 +71,7 @@ export const CreateCommissionRuleForm = () => {
       {
         onSuccess: ({ commission_rate }) => {
           toast.success(
-            t("commissions.create.successToast", {
-              defaultValue: "Commission rule was successfully created.",
-            })
+            t("commissions.create.successToast")
           );
           handleSuccess(`/settings/commissions/${commission_rate.id}`);
         },

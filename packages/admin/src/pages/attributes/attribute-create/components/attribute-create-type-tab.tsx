@@ -43,10 +43,7 @@ const Root = () => {
         <div>
           <Heading level="h2">{t("attributes.fields.type")}</Heading>
           <Text size="small" className="text-ui-fg-subtle mt-1">
-            {t(
-              "attributes.create.typeDescription",
-              "Select the type of this attribute and define its values."
-            )}
+            {t("attributes.create.typeDescription")}
           </Text>
         </div>
 
@@ -64,10 +61,7 @@ const Root = () => {
                 >
                   <Select.Trigger data-testid="attribute-create-type-trigger">
                     <Select.Value
-                      placeholder={t(
-                        "attributes.fields.typePlaceholder",
-                        "Select Type"
-                      )}
+                      placeholder={t("attributes.fields.typePlaceholder")}
                     />
                   </Select.Trigger>
                   <Select.Content>
@@ -92,11 +86,8 @@ const Root = () => {
           <SwitchBox
             control={form.control}
             name="is_variant_axis"
-            label={t("attributes.fields.isVariantAxis", "Use for variants")}
-            description={t(
-              "attributes.fields.isVariantAxisHint",
-              "If checked, this attribute will define product variants (e.g. size, color)."
-            )}
+            label={t("attributes.fields.isVariantAxis")}
+            description={t("attributes.fields.isVariantAxisHint")}
             data-testid="attribute-create-variant-axis-switch"
           />
         )}

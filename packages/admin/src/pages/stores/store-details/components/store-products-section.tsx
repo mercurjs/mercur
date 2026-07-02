@@ -79,7 +79,7 @@ export const StoreProductsSection = ({
         pagination
         prefix={PREFIX}
         noRecords={{
-          title: t("stores.emptyStates.products.title", "No products yet"),
+          title: t("stores.emptyStates.products.title"),
           message: t(
             "stores.emptyStates.products.message",
             "Products published by this store will appear here.",
