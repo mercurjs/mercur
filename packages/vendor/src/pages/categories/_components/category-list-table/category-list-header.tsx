@@ -8,7 +8,7 @@ export const CategoryListTitle = () => {
     <div>
       <Heading>{t("categories.domain")}</Heading>
       <Text className="text-ui-fg-subtle" size="small">
-        Organize products into categories.
+        {t("categories.subtitle")}
       </Text>
     </div>
   );

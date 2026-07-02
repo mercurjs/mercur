@@ -285,8 +285,18 @@ medusaIntegrationTestRunner({
 
                     expect(response.status).toEqual(200)
                     expect(response.data.offers).toHaveLength(2)
-                    expect(spy).toHaveBeenCalledTimes(1)
-                    const arg = spy.mock.calls[0][0] as { id: string[] }
+                    // Event-driven search reindex may also call calculatePrices
+                    // in the background (one price set per product), so scope the
+                    // assertion to the endpoint's batched call, which is the only
+                    // one spanning both offers' price sets.
+                    const batchedCalls = spy.mock.calls.filter(
+                        ([selector]) =>
+                            Array.isArray(
+                                (selector as { id?: string[] })?.id
+                            ) && (selector as { id: string[] }).id.length > 1
+                    )
+                    expect(batchedCalls).toHaveLength(1)
+                    const arg = batchedCalls[0][0] as { id: string[] }
                     expect(arg.id).toHaveLength(2)
 
                     const byId = new Map<string, any>(

@@ -5,7 +5,7 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { AdditionalData } from "@medusajs/framework/types"
-import { emitEventStep } from "@medusajs/medusa/core-flows"
+import { emitEventStep, useQueryGraphStep } from "@medusajs/medusa/core-flows"
 
 import { deleteOffersStep } from "../steps"
 import { OfferWorkflowEvents } from "../../events"
@@ -17,10 +17,16 @@ export const deleteOffersWorkflowId = "delete-offers"
 export const deleteOffersWorkflow = createWorkflow(
   deleteOffersWorkflowId,
   function (input: DeleteOffersWorkflowInput) {
+    const { data: offers } = useQueryGraphStep({
+      entity: "offer",
+      fields: ["id", "product_id"],
+      filters: { id: input.ids },
+    })
+
     deleteOffersStep({ ids: input.ids })
 
-    const eventData = transform({ input }, ({ input }) =>
-      input.ids.map((id) => ({ id })),
+    const eventData = transform({ offers }, ({ offers }) =>
+      offers.map((o) => ({ id: o.id, product_id: o.product_id })),
     )
 
     emitEventStep({

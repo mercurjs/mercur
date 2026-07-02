@@ -85,7 +85,7 @@ export const StoreOrdersSection = ({ sellerId }: StoreOrdersSectionProps) => {
         queryObject={raw}
         prefix={PREFIX}
         noRecords={{
-          title: t("stores.emptyStates.orders.title", "No orders yet"),
+          title: t("stores.emptyStates.orders.title"),
           message: t(
             "stores.emptyStates.orders.message",
             "Orders placed at this store will appear here.",

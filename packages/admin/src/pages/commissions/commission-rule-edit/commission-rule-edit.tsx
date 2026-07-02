@@ -151,9 +151,7 @@ const EditCommissionRuleForm = ({ rule }: { rule: CommissionRate }) => {
       }
 
       toast.success(
-        t("commissions.edit.successToast", {
-          defaultValue: "Commission rule was successfully updated.",
-        })
+        t("commissions.edit.successToast")
       );
       handleSuccess();
     } catch (e) {

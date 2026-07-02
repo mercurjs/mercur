@@ -31,9 +31,7 @@ export const useDeleteCommissionRuleAction = (rule: {
     await mutateAsync(undefined, {
       onSuccess: () => {
         toast.success(
-          t("commissions.delete.successToast", {
-            defaultValue: "Commission rule was successfully deleted.",
-          })
+          t("commissions.delete.successToast")
         );
         navigate("/settings/commissions");
       },

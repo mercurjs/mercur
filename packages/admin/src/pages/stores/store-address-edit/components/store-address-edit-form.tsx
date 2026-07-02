@@ -118,7 +118,7 @@ export const StoreAddressEditForm = ({
             render={({ field }) => (
               <Form.Item>
                 <Form.Label optional>
-                  {t("store.address.apartmentLabel", "Apartment, suite, etc.")}
+                  {t("store.address.apartmentLabel")}
                 </Form.Label>
                 <Form.Control>
                   <Input size="small" {...field} />

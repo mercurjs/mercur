@@ -92,7 +92,7 @@ const Root = () => {
           <SwitchBox
             control={form.control}
             name="is_required"
-            label={t("attributes.fields.isRequired", "Required attribute")}
+            label={t("attributes.fields.isRequired")}
             description={t(
               "attributes.fields.isRequiredHint",
               "If checked, a value must be set to this attribute.",
@@ -103,7 +103,7 @@ const Root = () => {
           <SwitchBox
             control={form.control}
             name="is_filterable"
-            label={t("attributes.fields.isFilterable", "Filterable attribute")}
+            label={t("attributes.fields.isFilterable")}
             description={t(
               "attributes.fields.isFilterableHint",
               "If checked, customers will be able to filter products using this attribute.",
@@ -114,7 +114,7 @@ const Root = () => {
           <SwitchBox
             control={form.control}
             name="is_global"
-            label={t("attributes.fields.isGlobal", "Global attribute")}
+            label={t("attributes.fields.isGlobal")}
             description={t(
               "attributes.fields.isGlobalHint",
               "If checked, this attribute applies to all products across all categories.",

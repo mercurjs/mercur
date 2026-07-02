@@ -129,6 +129,7 @@
     "duplicate": "Duplicate",
     "publish": "Publish",
     "create": "Create",
+    "request": "Request",
     "delete": "Delete",
     "remove": "Remove",
     "revoke": "Revoke",
@@ -916,6 +917,7 @@
     "createCollection": "Create Collection",
     "createCollectionHint": "Create a new collection to organize your products.",
     "createSuccess": "Collection created successfully.",
+    "requestSuccess": "Collection requested successfully",
     "editCollection": "Edit Collection",
     "handleTooltip": "The handle is used to reference the collection in your storefront. If not specified, the handle will be generated from the collection title.",
     "deleteWarning": "You are about to delete the collection {{title}}. This action cannot be undone.",
@@ -1053,6 +1055,7 @@
       "attributes": "Attributes",
       "requiresShipping": "Requires shipping",
       "requiresShippingHint": "Does the inventory item require shipping?",
+      "descriptionPlaceholder": "The item description",
       "successToast": "Inventory item was successfully created."
     },
     "reservation": {
@@ -1104,6 +1107,7 @@
     "subtitle": "Manage your catalog listings",
     "create": {
       "header": "Create offer",
+      "description": "Select variants and configure stock levels and prices to create offers.",
       "successToast": "Offer was successfully published. Only offers with stock levels and prices set will be visible on the storefront.",
       "publish": "Publish",
       "tipLabel": "Tip:",
@@ -1478,6 +1482,7 @@
         "partiallyCaptured": "Partially captured",
         "refunded": "Refunded",
         "canceled": "Canceled",
+        "pending": "Pending",
         "requiresAction": "Requires action"
       },
       "capturePayment": "Payment of {{amount}} will be captured.",
@@ -2540,10 +2545,16 @@
     "campaign_currency": {
       "tooltip": "This is the promotion's currency. Change it from the Details tab."
     },
+    "campaignSection": {
+      "noRecordsTitle": "Not part of a campaign",
+      "noRecordsMessage": "Add this promotion to an existing campaign",
+      "addToCampaign": "Add to Campaign"
+    },
     "form": {
       "required": "Required",
       "and": "AND",
       "selectAttribute": "Select Attribute",
+      "selectOperator": "Select Operator",
       "campaign": {
         "existing": {
           "title": "Existing Campaign",
@@ -2810,10 +2821,17 @@
         "successToast_other": "Successfully deleted prices for {{count}} products."
       },
       "add": {
-        "successToast": "Prices were successfully added to the price list."
+        "successToast": "Prices were successfully added to the price list.",
+        "atLeastOnePrice": "At least one price must be added.",
+        "alreadyInPriceList": "This product is already in the price list",
+        "noVariants": "This product has no variants",
+        "title": "Add Products to Price List",
+        "description": "Add products and set prices for the price list"
       },
       "edit": {
-        "successToast": "Prices were successfully updated."
+        "successToast": "Prices were successfully updated.",
+        "title": "Edit Prices for {{title}}",
+        "description": "Update prices for products in the price list"
       }
     },
     "fields": {
@@ -3742,8 +3760,10 @@
     "subtitle": "Organize your products into types.",
     "create": {
       "header": "Create Product Type",
+      "requestHeader": "Request Product Type",
       "hint": "Create a new product type to categorize your products.",
-      "successToast": "Product type {{value}} was successfully created."
+      "successToast": "Product type {{value}} was successfully created.",
+      "requestSuccessToast": "Product type requested successfully"
     },
     "edit": {
       "header": "Edit Product Type",
@@ -4025,8 +4045,10 @@
   "views": {
     "save": "Save",
     "saveAsNew": "Save as new view",
+    "saveAsSystemDefault": "Save as system default",
     "updateDefaultForEveryone": "Update default for everyone",
     "updateViewName": "Update view",
+    "updateNamed": "Update \"{{name}}\"",
     "prompts": {
       "updateDefault": {
         "title": "Update default view",
@@ -4037,6 +4059,18 @@
       "updateView": {
         "title": "Update view",
         "description": "Are you sure you want to update \"{{name}}\"?",
+        "confirmText": "Update",
+        "cancelText": "Cancel"
+      },
+      "saveAsDefault": {
+        "title": "Save as system default",
+        "description": "This will save the current configuration as the system default. All users will see this configuration by default unless they have their own personal views. Are you sure?",
+        "confirmText": "Save as default",
+        "cancelText": "Cancel"
+      },
+      "updateExisting": {
+        "title": "Update existing view",
+        "description": "Update \"{{name}}\" with the current configuration?",
         "confirmText": "Update",
         "cancelText": "Cancel"
       }

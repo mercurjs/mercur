@@ -314,7 +314,7 @@ export const RulesFormField = ({
                                   className="bg-ui-bg-base"
                                   data-testid={`rules-form-field-rule-${ruleType}-${index}-operator-select-trigger`}
                                 >
-                                  <Select.Value placeholder="Select Operator" />
+                                  <Select.Value placeholder={t('promotions.form.selectOperator')} />
                                 </Select.Trigger>
 
                                 <Select.Content
