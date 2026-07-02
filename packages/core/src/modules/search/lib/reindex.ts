@@ -2,7 +2,7 @@ import { MedusaContainer } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
 
-import SearchModuleService from "../services/search-module-service"
+import type SearchModuleService from "../services/search-module-service"
 import {
   buildOfferDocs,
   buildProductDocs,
@@ -25,11 +25,13 @@ const loadRegions = async (
   return data as SearchRegion[]
 }
 
-// Requires the app container (cross-module `query.graph` + the resolved search
-// module), so it runs from a route/subscriber/script, not module init.
-export const reindexAll = async (container: MedusaContainer): Promise<void> => {
+export const reindexAll = async (
+  container: MedusaContainer,
+  search: SearchModuleService = container.resolve<SearchModuleService>(
+    MercurModules.SEARCH
+  )
+): Promise<void> => {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
-  const search = container.resolve<SearchModuleService>(MercurModules.SEARCH)
 
   const regions = await loadRegions(container)
 

@@ -9,7 +9,10 @@ import {
   Modules,
 } from "@medusajs/framework/utils"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
-import { reindexAll } from "@mercurjs/core/modules/search"
+import {
+  reindexAll,
+  SearchModuleService,
+} from "@mercurjs/core/modules/search"
 
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createVendorProduct } from "../../../helpers/create-product"
@@ -193,6 +196,39 @@ medusaIntegrationTestRunner({
           )
           expect(offerHit).toBeTruthy()
           expect(offerHit.calculated_price?.calculated_amount).toEqual(2500)
+        })
+
+        it("indexes when passed an explicit search service", async () => {
+          const seed = await seedSellerOffer({
+            email: "search-explicit-service@test.com",
+            name: "Explicit",
+            offerPrice: 4200,
+          })
+
+          const search = appContainer.resolve<SearchModuleService>(
+            MercurModules.SEARCH
+          )
+          await reindexAll(appContainer, search)
+
+          const response = await api.post(
+            `/store/search`,
+            { q: "Explicit", region_id: region.id },
+            storeHeaders
+          )
+
+          expect(response.status).toEqual(200)
+
+          const productHit = response.data.hits.find(
+            (h: { type: string; id: string }) =>
+              h.type === "product" && h.id === seed.productId
+          )
+          expect(productHit).toBeTruthy()
+
+          const offerHit = response.data.hits.find(
+            (h: { type: string; id: string }) =>
+              h.type === "offer" && h.id === seed.offer.id
+          )
+          expect(offerHit).toBeTruthy()
         })
 
         it("omits draft products from results", async () => {
