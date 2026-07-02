@@ -95,6 +95,7 @@
     "node": ">=20"
   },
   "dependencies": {
+    "@orama/orama": "^3.1.18",
     "pkg-dir": "4",
     "resolve-cwd": "^3.0.0"
   }

@@ -258,7 +258,7 @@ export const updateOffersWorkflow: ReturnWorkflow<
     })
 
     const eventData = transform({ offers }, ({ offers }) =>
-      offers.map((o) => ({ id: o.id })),
+      offers.map((o) => ({ id: o.id, product_id: o.product_id })),
     )
 
     emitEventStep({

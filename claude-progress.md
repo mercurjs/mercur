@@ -15,6 +15,52 @@
 
 ## Session Log
 
+### Session 39: 2026-07-02 -- SPEC-016 provider-agnostic search module (backend vertical)
+
+**Scope.** Started SPEC-016 in a worktree off `canary` (branch
+`feat/search-module`). Delivered the full backend vertical for a
+provider-agnostic Search module with a bundled in-memory `search-orama` default.
+Event subscribers deferred per the spec's first-cut scope; storefront branch
+(plan item 6) not yet started.
+
+**Landed** (see SPEC-016 Evidence for the file-by-file list):
+- `@mercurjs/types` provider contract (`SearchDoc`/`SearchProvider`/…),
+  `MercurModules.SEARCH`, `AbstractSearchProvider` re-exported from core.
+- Search module (module + provider-service asserting exactly one provider +
+  module-service + payout-style loader fallback to `search-orama`).
+- `search-orama` provider (`@orama/orama` 3.1.18): **plain Orama** (native
+  `where` + `facets`); the provider **owns facet labelling** (id→label maps kept
+  at index time) **and `calculated_price` projection** from
+  `prices[context.region_id]`. Exports its zod filter validator for the route.
+- Shared `reindexAll` + `buildProductDocs`/`buildOfferDocs` (faked-`req`
+  per-region buybox, tax-inclusive, `is_filterable` tokenization, offers inherit
+  parent tokens); `reindexAll` calls `search.index` directly and is exported from
+  `@mercurjs/core/modules/search`.
+- **Thin** `POST /store/search` (forces `seller_status="open"`, returns the
+  provider's `hits` + `facets` verbatim) + `setSearchPricingContext` middleware
+  (builds pricing/tax context, `/store/products`-inspired).
+- Integration test `integration-tests/http/search/store/search.spec.ts` (calls
+  `reindexAll` directly).
+
+**Removed at the user's direction:** the admin search HTTP routes and the
+`syncSearchWorkflow`/step. Reindex is now `reindexAll(container)` called
+programmatically.
+
+**Verified:** `packages/core` `tsc --noEmit` 0 errors; `bun run build` (codegen +
+declaration) green; route map carries `store.search` only; integration spec
+typechecks. Integration tests **not run in-worktree** (per
+`worktree-integration-test-env`) — rely on CI.
+
+**Deviation:** boot-reindex mechanism. `moduleProviderLoader` runs provider
+services, not loaders, and a module service only gets the module container (no
+cross-module `query.graph`). So `reindexAll` needs the app container and is
+invoked programmatically; **automatic boot-time population is deferred alongside
+the event subscribers**. The three-verb provider contract is unchanged.
+
+**Owed / next:** storefront `searchCatalog()` + `NEXT_PUBLIC_SEARCH_PROVIDER`
+branch + offer-hit rendering (plan item 6); event subscribers (deferred section);
+automatic boot reindex trigger; runtime verification against Postgres.
+
 ### Session 38: 2026-06-19 -- SPEC-014 happy-path attribute-linking test coverage
 
 **Scope.** Expanded the HTTP integration suites with down-to-earth full-matrix
