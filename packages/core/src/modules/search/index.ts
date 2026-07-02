@@ -10,7 +10,17 @@ export {
   SearchProviderRegistrationPrefix,
   SearchProviderIdentifierRegistrationName,
 } from "./services/search-provider-service"
-export { reindexAll, indexProductPage } from "./lib/reindex"
+export {
+  reindexAll,
+  indexProductPage,
+  SEARCH_REINDEX_EVENT,
+} from "./lib/reindex"
+export {
+  reindexProductsById,
+  removeProductAndOffers,
+  removeOfferDocs,
+  offersForSeller,
+} from "./lib/sync"
 
 export default Module(MercurModules.SEARCH, {
   service: SearchModuleService,

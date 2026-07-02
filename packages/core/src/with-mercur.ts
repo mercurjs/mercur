@@ -1,11 +1,6 @@
 import type { InputConfigWithArrayModules } from "@medusajs/framework/types"
-import {
-  ContainerRegistrationKeys,
-  defineConfig,
-} from '@medusajs/framework/utils'
+import { defineConfig } from '@medusajs/framework/utils'
 import { disableMedusaMiddlewares } from "./utils/disable-medusa-middlewares"
-
-const SEARCH_MODULE_RESOLVE = "@mercurjs/core/modules/search"
 
 type HttpConfig = NonNullable<NonNullable<InputConfigWithArrayModules["projectConfig"]>["http"]>
 
@@ -47,22 +42,6 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
     )
       ? []
       : [{ resolve: "@medusajs/medusa/rbac" as const }]),
-    ...((config.modules ?? []).some(
-      (m) =>
-        typeof m === "object" &&
-        "resolve" in m &&
-        m.resolve === SEARCH_MODULE_RESOLVE
-    )
-      ? []
-      : [
-          {
-            resolve: SEARCH_MODULE_RESOLVE,
-            dependencies: [
-              ContainerRegistrationKeys.QUERY,
-              ContainerRegistrationKeys.REMOTE_QUERY,
-            ],
-          },
-        ]),
   ]
 
   const plugins = [

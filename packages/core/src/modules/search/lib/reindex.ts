@@ -14,7 +14,9 @@ import {
 
 const PAGE_SIZE = 100
 
-const loadRegions = async (
+export const SEARCH_REINDEX_EVENT = "search.reindex"
+
+export const loadRegions = async (
   container: MedusaContainer
 ): Promise<SearchRegion[]> => {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)

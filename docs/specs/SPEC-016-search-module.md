@@ -28,15 +28,15 @@ calculated price so results price identically to `GET /store/offers`.
 
 Everything above the provider is provider-agnostic:
 
-- **Index sync** (`reindexAll`, invoked programmatically) calls
-  `search.index(docs)` / `search.remove(ids)`. (Event subscribers doing the same
-  per-change are a deferred follow-up — see "Deferred — event subscribers".)
-- **The store route** calls `search.search(query)` (returns hit docs + facets)
-  then projects each doc's `prices[context.region_id]` for display — identical for
-  every provider, no `query.graph` hydration.
-- **Boot reindex** is the provider's own concern: the `search-orama` provider
-  ships a Medusa provider *loader* that rebuilds the index from Postgres on init.
-  Persistent providers ship no such loader. Core doesn't poll a flag for it.
+- **Subscribers** call `search.index(docs)` / `search.remove(ids)` (via the
+  `lib/sync` helpers) on product / offer / seller events — see "Subscribers".
+- **The store route** calls `search.search(query)` (returns hit docs + facets);
+  the provider projects each doc's `prices[context.region_id]` onto
+  `calculated_price` — identical for every provider, no `query.graph` hydration.
+- **Boot reindex** is event-driven: the module service's `onApplicationStart`
+  hook (worker mode only) emits `search.reindex`, and the `search-reindex`
+  subscriber runs `reindexAll` with the real request-scoped container. In-memory
+  providers rebuild on boot this way; a persistent provider can ignore the event.
 
 Only the provider knows how/where documents are stored. The default
 `search-orama` provider keeps them in RAM (needs a boot reindex); an
