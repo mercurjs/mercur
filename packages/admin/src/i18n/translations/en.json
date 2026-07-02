@@ -605,7 +605,8 @@
       "proposed": "Proposed",
       "published": "Published",
       "requires_action": "Requires Action",
-      "rejected": "Rejected"
+      "rejected": "Rejected",
+      "accepted": "Accepted"
     },
     "request": {
       "panel": {
@@ -1088,6 +1089,7 @@
       "attributes": "Attributes",
       "requiresShipping": "Requires shipping",
       "requiresShippingHint": "Does the inventory item require shipping?",
+      "descriptionPlaceholder": "The item description",
       "successToast": "Inventory item was successfully created."
     },
     "reservation": {
@@ -1283,6 +1285,13 @@
     }
   },
   "orders": {
+    "group": {
+      "heading": "Orders in group",
+      "noOtherOrders": "No other orders in this group"
+    },
+    "commission": {
+      "total": "Total"
+    },
     "giftCardsStoreCreditLines": "Gift cards & credit lines",
     "creditLines": {
       "title": "Credit lines",
@@ -1360,6 +1369,7 @@
       "title": "Payments",
       "isReadyToBeCaptured": "Payment <0/> is ready to be captured.",
       "totalPaidByCustomer": "Total paid by customer",
+      "totalPending": "Total pending",
       "totalStoreCreditRefunds": "Total store credit refunds",
       "capture": "Capture payment",
       "capture_short": "Capture",
@@ -2384,10 +2394,16 @@
     "campaign_currency": {
       "tooltip": "This is the promotion's currency. Change it from the Details tab."
     },
+    "campaignSection": {
+      "noRecordsTitle": "Not part of a campaign",
+      "noRecordsMessage": "Add this promotion to an existing campaign",
+      "addToCampaign": "Add to Campaign"
+    },
     "form": {
       "required": "Required",
       "and": "AND",
       "selectAttribute": "Select Attribute",
+      "selectOperator": "Select Operator",
       "campaign": {
         "existing": {
           "title": "Existing Campaign",
@@ -2644,7 +2660,9 @@
         "successToast_other": "Successfully deleted prices for {{count}} products."
       },
       "add": {
-        "successToast": "Prices were successfully added to the price list."
+        "successToast": "Prices were successfully added to the price list.",
+        "alreadyInPriceList": "This product is already in the price list",
+        "noVariants": "This product has no variants"
       },
       "edit": {
         "successToast": "Prices were successfully updated."
@@ -2762,7 +2780,8 @@
     "domain": "Marketplace",
     "manageMarketplaceDetails": "Manage your marketplace's details",
     "edit": {
-      "header": "Edit Marketplace"
+      "header": "Edit Marketplace",
+      "namePlaceholder": "ACME"
     }
   },
   "store": {
@@ -3119,12 +3138,21 @@
       "lastUsedAtLabel": "Last used at",
       "revokedByLabel": "Revoked by",
       "revokedAtLabel": "Revoked at",
-      "createdByLabel": "Created by"
+      "createdByLabel": "Created by",
+      "tokenLabel": "Token"
     }
   },
   "attributes": {
     "domain": "Product Attributes",
     "subtitle": "Manage product attributes and their possible values.",
+    "editRanking": {
+      "successToast": "Ranking updated successfully."
+    },
+    "possibleValues": {
+      "editRanking": "Edit ranking",
+      "noRecordsTitle": "No created values",
+      "noRecordsMessage": "Create attribute to organize your products"
+    },
     "list": {
       "title": "Product Attributes",
       "noRecordsMessage": "No product attributes have been created yet."
@@ -3197,7 +3225,9 @@
       "isFilterable": "Filterable attribute",
       "isFilterableHint": "If checked, customers will be able to filter products using this attribute.",
       "isGlobal": "Global attribute",
-      "isGlobalHint": "If checked, this attribute applies to all products across all categories."
+      "isGlobalHint": "If checked, this attribute applies to all products across all categories.",
+      "isVariantAxis": "Use for variants",
+      "isVariantAxisHint": "If checked, this attribute will define product variants (e.g. size, color)."
     },
     "type": {
       "select": "Single Select",
@@ -3484,6 +3514,7 @@
     "yes": "Yes",
     "no": "No",
     "amount": "Amount",
+    "commission": "Commission",
     "reference": "Reference",
     "reference_id": "Reference ID",
     "refundAmount": "Refund amount",
@@ -3693,8 +3724,10 @@
   "views": {
     "save": "Save",
     "saveAsNew": "Save as new view",
+    "saveAsSystemDefault": "Save as system default",
     "updateDefaultForEveryone": "Update default for everyone",
     "updateViewName": "Update view",
+    "updateNamed": "Update \"{{name}}\"",
     "prompts": {
       "updateDefault": {
         "title": "Update default view",
@@ -3705,6 +3738,18 @@
       "updateView": {
         "title": "Update view",
         "description": "Are you sure you want to update \"{{name}}\"?",
+        "confirmText": "Update",
+        "cancelText": "Cancel"
+      },
+      "saveAsDefault": {
+        "title": "Save as system default",
+        "description": "This will save the current configuration as the system default. All users will see this configuration by default unless they have their own personal views. Are you sure?",
+        "confirmText": "Save as default",
+        "cancelText": "Cancel"
+      },
+      "updateExisting": {
+        "title": "Update existing view",
+        "description": "Update \"{{name}}\" with the current configuration?",
         "confirmText": "Update",
         "cancelText": "Cancel"
       }
@@ -3725,6 +3770,17 @@
   "stores": {
     "domain": "Stores",
     "handleTooltip": "The handle is used as the URL slug for the store. Leave empty to auto-generate from the name.",
+    "emptyStates": {
+      "users": {
+        "title": "No users yet"
+      },
+      "products": {
+        "title": "No products yet"
+      },
+      "orders": {
+        "title": "No orders yet"
+      }
+    },
     "fields": {
       "name": "Name",
       "handle": "Handle",

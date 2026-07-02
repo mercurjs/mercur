@@ -587,16 +587,8 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
 
                       <RadioGroup.ChoiceBox
                         value="once"
-                        label={t("promotions.form.allocation.once.title", {
-                          defaultValue: "Once",
-                        })}
-                        description={t(
-                          "promotions.form.allocation.once.description",
-                          {
-                            defaultValue:
-                              "Limit discount to max quantity",
-                          }
-                        )}
+                        label={t("promotions.form.allocation.once.title")}
+                        description={t("promotions.form.allocation.once.description")}
                         className={clx("basis-1/2")}
                         data-testid="promotion-create-form-allocation-option-once"
                       />

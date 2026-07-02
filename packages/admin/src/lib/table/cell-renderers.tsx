@@ -95,15 +95,15 @@ const StatusRenderer: CellRenderer = (value, row, column, t) => {
     const lowerStatus = status.toLowerCase()
     switch (lowerStatus) {
       case "active":
-        return t("general.active", "Active") as string
+        return t("general.active") as string
       case "accepted":
-        return t("products.productStatus.accepted", "Accepted") as string
+        return t("products.productStatus.accepted") as string
       case "draft":
-        return t("orders.status.draft", "Draft") as string
+        return t("orders.status.draft") as string
       case "pending":
-        return t("orders.status.pending", "Pending") as string
+        return t("orders.status.pending") as string
       case "canceled":
-        return t("orders.status.canceled", "Canceled") as string
+        return t("orders.status.canceled") as string
       default:
         // Try generic status translation with fallback
         return t(`status.${lowerStatus}`, status) as string
@@ -183,7 +183,7 @@ const CustomerNameRenderer: CellRenderer = (_, row, _column, t) => {
     return row.customer.phone
   }
 
-  return t ? t("customers.guest", "Guest") : "Guest"
+  return t ? t("customers.guest") : "Guest"
 }
 
 const AddressSummaryRenderer: CellRenderer = (_, row, column, _t) => {
@@ -306,7 +306,7 @@ export function getCellRenderer(
     case "boolean":
       return (value, _row, _column, t) => {
         if (t) {
-          return value ? t("fields.yes", "Yes") : t("fields.no", "No")
+          return value ? t("fields.yes") : t("fields.no")
         }
         return value ? "Yes" : "No"
       }

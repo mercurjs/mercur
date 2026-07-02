@@ -169,7 +169,7 @@ export const StoreMembersDataTable = ({
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
       noRecords={{
-        title: t("stores.emptyStates.users.title", "No users yet"),
+        title: t("stores.emptyStates.users.title"),
         message: t(
           "stores.emptyStates.users.message",
           "Invite the first user to manage this store.",
@@ -202,7 +202,7 @@ const useColumns = (sellerId: string) => {
                 color="grey"
                 className="flex-shrink-0"
               >
-                {t("stores.members.mainAdmin", "Admin")}
+                {t("stores.members.mainAdmin")}
               </Badge>
             )}
           </div>

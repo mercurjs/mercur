@@ -35,7 +35,7 @@ export const OrderCommissionSection = ({
   return (
     <Container className="divide-y p-0" data-testid="order-commission-section">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading level="h2">{t("fields.commission", "Commission")}</Heading>
+        <Heading level="h2">{t("fields.commission")}</Heading>
       </div>
       <div className="divide-y">
         {commission_lines.map((line) => {
@@ -59,7 +59,7 @@ export const OrderCommissionSection = ({
       </div>
       <div className="flex items-center justify-between px-6 py-4">
         <Text size="small" weight="plus" leading="compact">
-          {t("orders.commission.total", "Total")}
+          {t("orders.commission.total")}
         </Text>
         <Text size="small" weight="plus" leading="compact">
           {getLocaleAmount(total, order.currency_code)}

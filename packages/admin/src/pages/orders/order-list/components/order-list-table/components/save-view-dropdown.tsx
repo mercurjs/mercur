@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import { Button, DropdownMenu, usePrompt } from "@medusajs/ui"
 import { ChevronDownMini } from "@medusajs/icons"
 
@@ -18,14 +19,15 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
   onSaveAsNew,
 }) => {
 
+  const { t } = useTranslation()
   const prompt = usePrompt()
 
   const handleSaveAsDefault = async () => {
     const result = await prompt({
-      title: "Update default view",
-      description: "This will update the default view for all users. Are you sure?",
-      confirmText: "Update for everyone",
-      cancelText: "Cancel",
+      title: t("views.prompts.updateDefault.title"),
+      description: t("views.prompts.updateDefault.description"),
+      confirmText: t("views.prompts.updateDefault.confirmText"),
+      cancelText: t("views.prompts.updateDefault.cancelText"),
     })
 
     if (result) {
@@ -35,10 +37,12 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
 
   const handleUpdateExisting = async () => {
     const result = await prompt({
-      title: "Update view",
-      description: `Are you sure you want to update "${currentViewName}"?`,
-      confirmText: "Update",
-      cancelText: "Cancel",
+      title: t("views.prompts.updateView.title"),
+      description: t("views.prompts.updateView.description", {
+        name: currentViewName,
+      }),
+      confirmText: t("views.prompts.updateView.confirmText"),
+      cancelText: t("views.prompts.updateView.cancelText"),
     })
 
     if (result) {
@@ -50,7 +54,7 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary" size="small">
-          Save
+          {t("views.save")}
           <ChevronDownMini />
         </Button>
       </DropdownMenu.Trigger>
@@ -58,19 +62,19 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
         {isDefaultView ? (
           <>
             <DropdownMenu.Item onClick={handleSaveAsDefault}>
-              Update default for everyone
+              {t("views.updateDefaultForEveryone")}
             </DropdownMenu.Item>
             <DropdownMenu.Item onClick={onSaveAsNew}>
-              Save as new view
+              {t("views.saveAsNew")}
             </DropdownMenu.Item>
           </>
         ) : (
           <>
             <DropdownMenu.Item onClick={handleUpdateExisting}>
-              Update "{currentViewName}"
+              {t("views.updateNamed", { name: currentViewName })}
             </DropdownMenu.Item>
             <DropdownMenu.Item onClick={onSaveAsNew}>
-              Save as new view
+              {t("views.saveAsNew")}
             </DropdownMenu.Item>
           </>
         )}

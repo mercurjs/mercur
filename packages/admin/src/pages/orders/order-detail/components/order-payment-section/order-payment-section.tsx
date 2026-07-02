@@ -491,7 +491,7 @@ const Total = ({ order }: { order: AdminOrder }) => {
           data-testid="order-payment-total-pending"
         >
           <Text size="small" weight="plus" leading="compact">
-            Total pending
+            {t("orders.payment.totalPending")}
           </Text>
 
           <Text size="small" weight="plus" leading="compact">
