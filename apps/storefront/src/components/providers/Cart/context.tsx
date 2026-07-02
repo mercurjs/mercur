@@ -8,7 +8,7 @@ interface CartContextInterface {
   cart: Cart | null;
   onAddToCart: (item: StoreCartLineItemOptimisticUpdate, currency_code: string) => void;
   addToCart: (params: {
-    variantId: string;
+    offerId: string;
     quantity: number;
     countryCode: string;
   }) => Promise<void>;

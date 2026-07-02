@@ -24,6 +24,7 @@ import { Addresses } from "./Addressess/Addresses"
 import { ReviewsToWrite } from "./Reviews/ReviewsToWrite"
 import { ReviewsWritten } from "./Reviews/ReviewsWritten"
 import { CartEmpty } from "./CartEmpty/CartEmpty"
+import { CompareOffersModal } from "./CompareOffersModal/CompareOffersModal"
 
 export {
   ProductCard,
@@ -52,4 +53,5 @@ export {
   ReviewsToWrite,
   ReviewsWritten,
   CartEmpty,
+  CompareOffersModal,
 }
