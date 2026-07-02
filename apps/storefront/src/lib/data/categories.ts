@@ -9,7 +9,7 @@ export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) =
 
   const allCategories = await mercur.store.productCategories
     .query({
-      fields: 'id,handle,name,rank,metadata,parent_category_id,description,*category_children',
+      fields: 'id,handle,name,rank,metadata,parent_category_id,description,*category_children,media_images.url,media_images.is_thumbnail',
       include_descendants_tree: true,
       include_ancestors_tree: true,
       limit,

@@ -8,11 +8,12 @@ import {
   ContainerRegistrationKeys,
   Modules,
 } from "@medusajs/framework/utils"
-import { MercurModules, SellerStatus } from "@mercurjs/types"
+import { AttributeType, MercurModules, SellerStatus } from "@mercurjs/types"
 import {
   reindexAll,
   SearchModuleService,
 } from "@mercurjs/core/modules/search"
+import { createProductAttributesWorkflow } from "@mercurjs/core/workflows"
 
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createVendorProduct } from "../../../helpers/create-product"
@@ -292,6 +293,156 @@ medusaIntegrationTestRunner({
                 h.type === "product" && h.id === seed.productId
             )
           ).toBeTruthy()
+        })
+      })
+
+      describe("faceted filtering", () => {
+        type Attr = {
+          id: string
+          handle: string
+          values: Array<{ id: string; name: string }>
+        }
+
+        const createFilterableAttr = async (
+          name: string,
+          valueNames: string[]
+        ): Promise<Attr> => {
+          const { result } = await createProductAttributesWorkflow(
+            appContainer
+          ).run({
+            input: {
+              attributes: [
+                {
+                  name,
+                  type: AttributeType.SINGLE_SELECT,
+                  is_filterable: true,
+                  values: valueNames.map((n, i) => ({ name: n, rank: i })),
+                },
+              ],
+            },
+          })
+          const attr = result[0] as unknown as {
+            id: string
+            handle: string | null
+            values: Array<{ id: string; name: string }>
+          }
+          // Tokens key on `handle ?? id` (see build-docs), so mirror that.
+          return { id: attr.id, handle: attr.handle ?? attr.id, values: attr.values }
+        }
+
+        const valueId = (attr: Attr, name: string): string =>
+          attr.values.find((v) => v.name === name)!.id
+
+        let color: Attr
+        let size: Attr
+        let redL: string
+        let blueL: string
+        let redM: string
+
+        beforeEach(async () => {
+          const tag = `${Date.now()}`
+          color = await createFilterableAttr(`Color ${tag}`, ["Red", "Blue"])
+          size = await createFilterableAttr(`Size ${tag}`, ["L", "M"])
+
+          const seller = await createSellerUser(appContainer, {
+            email: `facet-${tag}@test.com`,
+            name: "Facet Seller",
+          })
+          await approveSeller(appContainer, seller.seller.id)
+
+          const mk = async (
+            title: string,
+            colorName: string,
+            sizeName: string
+          ): Promise<string> => {
+            const product = await createVendorProduct(api, seller.headers, {
+              title: `${title} ${tag}`,
+              attributes: [
+                { id: color.id, value_ids: [valueId(color, colorName)] },
+                { id: size.id, value_ids: [valueId(size, sizeName)] },
+              ],
+            })
+            return product.id
+          }
+
+          redL = await mk("Facet Red L", "Red", "L")
+          blueL = await mk("Facet Blue L", "Blue", "L")
+          redM = await mk("Facet Red M", "Red", "M")
+
+          await reindex()
+        })
+
+        it("ANDs across attribute handles and ORs within a handle", async () => {
+          const and = await api.post(
+            `/store/search`,
+            {
+              region_id: region.id,
+              filters: {
+                type: "product",
+                attributes: {
+                  [color.handle]: [valueId(color, "Red")],
+                  [size.handle]: [valueId(size, "L")],
+                },
+              },
+            },
+            storeHeaders
+          )
+          const andIds = and.data.hits.map((h: { id: string }) => h.id)
+          expect(andIds).toContain(redL)
+          expect(andIds).not.toContain(blueL) // wrong color
+          expect(andIds).not.toContain(redM) // wrong size
+
+          const or = await api.post(
+            `/store/search`,
+            {
+              region_id: region.id,
+              filters: {
+                type: "product",
+                attributes: {
+                  [color.handle]: [
+                    valueId(color, "Red"),
+                    valueId(color, "Blue"),
+                  ],
+                },
+              },
+            },
+            storeHeaders
+          )
+          const orIds = or.data.hits.map((h: { id: string }) => h.id)
+          expect(orIds).toEqual(expect.arrayContaining([redL, blueL, redM]))
+        })
+
+        it("keeps sibling facet values visible (disjunctive faceting)", async () => {
+          const response = await api.post(
+            `/store/search`,
+            {
+              region_id: region.id,
+              filters: {
+                type: "product",
+                attributes: { [color.handle]: [valueId(color, "Red")] },
+              },
+            },
+            storeHeaders
+          )
+
+          const ids = response.data.hits.map((h: { id: string }) => h.id)
+          expect(ids).toContain(redL)
+          expect(ids).toContain(redM)
+          expect(ids).not.toContain(blueL)
+
+          const colorFacet = response.data.facets.attributes.find(
+            (a: { handle: string }) => a.handle === color.handle
+          )
+          const facetValueIds = colorFacet.values.map(
+            (v: { id: string }) => v.id
+          )
+          // Blue must remain selectable even though Red is the active filter.
+          expect(facetValueIds).toEqual(
+            expect.arrayContaining([
+              valueId(color, "Red"),
+              valueId(color, "Blue"),
+            ])
+          )
         })
       })
     })

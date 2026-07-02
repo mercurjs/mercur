@@ -1,17 +1,17 @@
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { ProductListingAttributes } from "@/components/organisms/ProductListingAttributes/ProductListingAttributes"
 import { getCategoryByHandle } from "@/lib/data/categories"
 import { Suspense } from "react"
 
 import type { Metadata } from "next"
 import { Breadcrumbs } from "@/components/atoms"
-import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
+import { SearchProductsListing, ProductListing } from "@/components/sections"
 import { notFound } from "next/navigation"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
 import Script from "next/script"
 import { getRegion, listRegions } from "@/lib/data/regions"
 import { listProducts } from "@/lib/data/products"
+import { listProductAttributes } from "@/lib/data/product-attributes"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
 export const revalidate = 60
@@ -77,18 +77,18 @@ export async function generateMetadata({
   }
 }
 
-const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
-const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
-
 async function Category({
   params,
+  searchParams,
 }: {
   params: Promise<{
     category: string
     locale: string
   }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { category: categoryHandle, locale } = await params
+  const resolvedSearchParams = await searchParams
 
   const category = await getCategoryByHandle(categoryHandle)
 
@@ -163,14 +163,14 @@ async function Category({
 
       <h1 className="heading-xl uppercase">{category.name}</h1>
 
-      <ProductListingAttributes category_id={category.id} />
-
       <Suspense fallback={<div data-testid="category-page-loading"><ProductListingSkeleton /></div>}>
-        {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
+        {bot ? (
           <ProductListing category_id={category.id} showSidebar locale={locale} />
         ) : (
-          <AlgoliaProductsListing
+          <SearchProductsListing
             category_id={category.id}
+            attributes={await listProductAttributes({ category_id: category.id })}
+            searchParams={resolvedSearchParams}
             locale={locale}
             currency_code={currency_code}
           />

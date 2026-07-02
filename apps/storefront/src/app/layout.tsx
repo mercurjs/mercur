@@ -41,7 +41,6 @@ export default async function RootLayout({
 }>) {
   const cart = await retrieveCart();
 
-  const ALGOLIA_APP = process.env.NEXT_PUBLIC_ALGOLIA_ID;
   // default lang updated by HtmlLangSetter
   const htmlLang = 'en';
 
@@ -78,28 +77,6 @@ export default async function RootLayout({
           rel="dns-prefetch"
           href="https://i.imgur.com"
         />
-        {ALGOLIA_APP && (
-          <>
-            <link
-              rel="preconnect"
-              href="https://algolia.net"
-              crossOrigin="anonymous"
-            />
-            <link
-              rel="preconnect"
-              href="https://algolianet.com"
-              crossOrigin="anonymous"
-            />
-            <link
-              rel="dns-prefetch"
-              href="https://algolia.net"
-            />
-            <link
-              rel="dns-prefetch"
-              href="https://algolianet.com"
-            />
-          </>
-        )}
         {/* Image origins for faster LCP */}
         <link
           rel="preconnect"

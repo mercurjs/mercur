@@ -12,7 +12,7 @@ export const listProductAttributes = async ({
   return mercur.store.productAttributes
     .query({
       category_id,
-      fields: 'id,name,handle,type,is_variant_axis,rank,*values',
+      fields: 'id,name,handle,type,is_variant_axis,is_filterable,rank,*values',
       limit: 100,
       fetchOptions: { cache: 'force-cache', next: { revalidate: 3600 } }
     } as Parameters<typeof mercur.store.productAttributes.query>[0])

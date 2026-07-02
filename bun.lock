@@ -75,6 +75,7 @@
         "@mercurjs/core": "*",
         "@mercurjs/types": "*",
         "http-proxy-middleware": "^3.0.3",
+        "zod": "3.25.76",
       },
       "devDependencies": {
         "@medusajs/test-utils": "options-preview",

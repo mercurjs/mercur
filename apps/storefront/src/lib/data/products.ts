@@ -6,10 +6,8 @@ import { sortProducts } from '@/lib/helpers/sort-products';
 import { SortOptions } from '@/types/product';
 import { SellerProps } from '@/types/seller';
 
-import { sdk } from '../config';
 import { mercur } from '../mercur';
 import { getAuthHeaders } from './cookies';
-import { retrieveCustomer } from './customer';
 import { getRegion, retrieveRegion } from './regions';
 
 export const listProducts = async ({
@@ -24,7 +22,7 @@ export const listProducts = async ({
   pageParam?: number;
   queryParams?: HttpTypes.FindParams &
     HttpTypes.StoreProductParams & {
-      handle?: string[];
+      handle?: string;
     };
   category_id?: string;
   collection_id?: string;
@@ -70,15 +68,12 @@ export const listProducts = async ({
 
   return mercur.store.products
     .query({
-      country_code: countryCode,
       category_id,
       collection_id,
       limit,
       offset,
       region_id: region?.id,
-      fields:
-        'variants.offer_id,+variants.inventory_quantity,*seller,*variants,*seller.products,' +
-        '*seller.reviews,*seller.reviews.customer,*seller.reviews.seller,*seller.products.variants',
+      fields: '+variants.offer_id,+variants.inventory_quantity,variants.*',
       ...queryParams,
       fetchOptions: {
         headers,
@@ -87,35 +82,20 @@ export const listProducts = async ({
       }
     } as Parameters<typeof mercur.store.products.query>[0])
     .then(({ products: productsRawRes, count }) => {
-      const productsRaw = productsRawRes as (HttpTypes.StoreProduct & {
+      // Products are master products (no owning seller); visibility is scoped
+      // server-side by `product_seller`. Seller info comes from offers.
+      const products = productsRawRes as (HttpTypes.StoreProduct & {
         seller?: SellerProps;
       })[];
-      const products = productsRaw.filter(product => product.seller?.store_status !== 'SUSPENDED');
 
       const nextPage = count > offset + limit ? pageParam + 1 : null;
 
-      const response = products.filter(prod => {
-        // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
-        const reviews = prod.seller?.reviews.filter(item => !!item) ?? [];
-        return (
-          // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
-          prod?.seller && {
-            ...prod,
-            seller: {
-              // @ts-ignore Property 'seller' exists but TypeScript doesn't recognize it
-              ...prod.seller,
-              reviews
-            }
-          }
-        );
-      });
-
       return {
         response: {
-          products: response,
+          products,
           count
         },
-        nextPage: nextPage,
+        nextPage,
         queryParams
       };
     })
@@ -200,95 +180,3 @@ export const listProductsWithSort = async ({
   };
 };
 
-export const searchProducts = async (params: {
-  query?: string;
-  page?: number;
-  hitsPerPage?: number;
-  filters?: string;
-  facets?: string[];
-  maxValuesPerFacet?: number;
-  currency_code?: string;
-  countryCode?: string;
-  region_id?: string;
-  customer_id?: string;
-  customer_group_id?: string[];
-}): Promise<{
-  products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
-  nbHits: number;
-  page: number;
-  nbPages: number;
-  hitsPerPage: number;
-  facets: Record<string, any>;
-  processingTimeMS: number;
-}> => {
-  if (!params.countryCode && !params.region_id) {
-    throw new Error('Country code or region ID is required');
-  }
-
-  let region_id = params.region_id;
-
-  if (!region_id && params.countryCode) {
-    const region = await getRegion(params.countryCode);
-    if (!region) {
-      throw new Error(`Region not found for country code: ${params.countryCode}`);
-    }
-    region_id = region.id;
-  }
-
-  const headers = {
-    ...(await getAuthHeaders())
-  };
-
-  let customer_id = params.customer_id;
-
-  if (!customer_id) {
-    const customer = await retrieveCustomer();
-    if (customer) {
-      customer_id = customer.id;
-    }
-  }
-
-  let facets = params.facets;
-
-  if(!facets) {
-    facets = ["variants.condition", "variants.color", "variants.size"];
-  }
-
-  const { countryCode, ...bodyParams } = params;
-
-  return sdk.client
-    .fetch<{
-      products: (HttpTypes.StoreProduct & { seller?: SellerProps })[];
-      nbHits: number;
-      page: number;
-      nbPages: number;
-      hitsPerPage: number;
-      facets: Record<string, any>;
-      processingTimeMS: number;
-    }>(`/store/products/search`, {
-      method: 'POST',
-      body: {
-        ...bodyParams,
-        region_id,
-        customer_id,
-        facets,
-        maxValuesPerFacet: 100,
-      },
-      headers,
-      cache: 'no-cache'
-    })
-    .then((response) => {
-      return response;
-    })
-    .catch(() => {
-      return {
-        products: [],
-        nbHits: 0,
-        page: params.page || 0,
-        nbPages: 0,
-        hitsPerPage: params.hitsPerPage || 12,
-        facets: {},
-        processingTimeMS: 0
-      };
-    });
-};

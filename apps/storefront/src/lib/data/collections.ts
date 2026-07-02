@@ -23,6 +23,9 @@ export const listCollections = async (
 
   queryParams.limit = queryParams.limit || "100"
   queryParams.offset = queryParams.offset || "0"
+  queryParams.fields =
+    queryParams.fields ||
+    "+media_images.url,+media_images.is_thumbnail"
 
   return mercur.store.collections
     .query({ ...queryParams, fetchOptions: { next, cache: "force-cache" } })

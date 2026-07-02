@@ -7,10 +7,13 @@ import { SellerProps } from "@/types/seller"
 
 export default async function SellerPage({
   params,
+  searchParams,
 }: {
   params: Promise<{ handle: string; locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { handle, locale } = await params
+  const resolvedSearchParams = await searchParams
 
   const seller = (await getSellerByHandle(handle)) as SellerProps
 
@@ -33,6 +36,7 @@ export default async function SellerPage({
         seller_handle={seller.handle}
         locale={locale}
         currency_code={currency_code}
+        searchParams={resolvedSearchParams}
       />
     </main>
   )

@@ -1,17 +1,38 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
+
+import type { ProductAttributeDTO, SearchFacets, SearchFacetValue } from '@mercurjs/types';
 
 import { Button } from '@/components/atoms';
-import { ColorFilter, ConditionFilter, PriceFilter, SizeFilter } from '@/components/cells';
+import { Accordion, FilterCheckboxOption } from '@/components/molecules';
 import { ProductListingActiveFilters } from '@/components/organisms';
 import useFilters from '@/hooks/useFilters';
 import { CloseIcon } from '@/icons';
 import { cn } from '@/lib/utils';
 
-export const ProductSidebar = () => {
+export const ProductSidebar = ({
+  facets,
+  attributes: attributesProp,
+  category_id,
+  collection_id
+}: {
+  facets?: SearchFacets;
+  attributes?: ProductAttributeDTO[];
+  category_id?: string;
+  collection_id?: string;
+}) => {
   const [filterModal, setFilterModal] = useState(false);
   const { clearAllFilters } = useFilters('');
+
+  const attributes = useMemo(
+    () =>
+      (attributesProp ?? []).filter(
+        (attribute) =>
+          attribute.is_filterable && (attribute.values?.length ?? 0) > 0
+      ),
+    [attributesProp]
+  );
 
   return (
     <aside
@@ -20,7 +41,7 @@ export const ProductSidebar = () => {
     >
       <div
         className={cn(
-          'pointer-events-none left-0 top-0 h-full w-full bg-primary blur-sm transition-opacity duration-100 md:relative',
+          'left-0 top-0 h-full w-full bg-primary transition-opacity duration-100 md:relative',
           filterModal ? 'opacity-1 z-20' : '-z-10 opacity-0 md:z-10 md:opacity-100'
         )}
       >
@@ -49,10 +70,28 @@ export const ProductSidebar = () => {
           className="no-scrollbar h-[calc(100vh-200px)] overflow-y-scroll px-2 md:h-full md:overflow-y-auto md:px-0"
           data-testid="sidebar-filters"
         >
-          <PriceFilter />
-          <SizeFilter />
-          <ColorFilter />
-          <ConditionFilter />
+          {!category_id && (
+            <FacetFilter
+              paramKey="category"
+              heading="Category"
+              values={facets?.categories}
+            />
+          )}
+          {!collection_id && (
+            <FacetFilter
+              paramKey="collection"
+              heading="Collection"
+              values={facets?.collections}
+            />
+          )}
+
+          {attributes.map((attribute) => (
+            <AttributeFilter
+              key={attribute.id}
+              attribute={attribute}
+              facets={facets}
+            />
+          ))}
         </div>
         <div
           className="absolute bottom-0 left-0 flex w-full items-center gap-2 border-y bg-primary px-4 py-4 md:hidden"
@@ -71,13 +110,82 @@ export const ProductSidebar = () => {
             onClick={() => setFilterModal(false)}
             data-testid="sidebar-view-listings-button"
           >
-            View 222 listings
+            View listings
           </Button>
         </div>
       </div>
-      <div className="heading-md absolute top-4 z-10 w-full rounded-lg bg-primary p-8 text-center shadow-md">
-        Set your Algolia ID and configure filters to enable product filtering
-      </div>
     </aside>
+  );
+};
+
+const FacetFilter = ({
+  paramKey,
+  heading,
+  values
+}: {
+  paramKey: string;
+  heading: string;
+  values?: SearchFacetValue[];
+}) => {
+  const { updateFilters, isFilterActive } = useFilters(paramKey);
+
+  if (!values?.length) return null;
+
+  return (
+    <Accordion heading={heading}>
+      <ul className="px-4">
+        {values.map((value) => (
+          <li key={value.id} className="mb-4">
+            <FilterCheckboxOption
+              label={value.label}
+              amount={value.count}
+              checked={isFilterActive(value.id)}
+              onCheck={() => updateFilters(value.id)}
+              data-testid={`filter-${paramKey}-${value.id}`}
+            />
+          </li>
+        ))}
+      </ul>
+    </Accordion>
+  );
+};
+
+const AttributeFilter = ({
+  attribute,
+  facets
+}: {
+  attribute: ProductAttributeDTO;
+  facets?: SearchFacets;
+}) => {
+  const handle = attribute.handle ?? attribute.id;
+  const { updateFilters, isFilterActive } = useFilters(`attr_${handle}`);
+
+  const counts = useMemo(() => {
+    const group = facets?.attributes?.find((facet) => facet.handle === handle);
+    return new Map(group?.values.map((value) => [value.id, value.count]));
+  }, [facets, handle]);
+
+  const values = (attribute.values ?? []).filter(
+    (value) => (counts.get(value.id) ?? 0) > 0
+  );
+
+  if (!values.length) return null;
+
+  return (
+    <Accordion heading={attribute.name}>
+      <ul className="px-4" data-testid={`filter-attribute-${handle}`}>
+        {values.map((value) => (
+          <li key={value.id} className="mb-4">
+            <FilterCheckboxOption
+              label={value.name}
+              amount={counts.get(value.id)}
+              checked={isFilterActive(value.id)}
+              onCheck={() => updateFilters(value.id)}
+              data-testid={`filter-attribute-value-${value.id}`}
+            />
+          </li>
+        ))}
+      </ul>
+    </Accordion>
   );
 };

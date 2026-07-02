@@ -2,7 +2,7 @@ import { ProductListingSkeleton } from "@/components/organisms/ProductListingSke
 import { Suspense } from "react"
 
 import { Breadcrumbs } from "@/components/atoms"
-import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
+import { SearchProductsListing, ProductListing } from "@/components/sections"
 import { getRegion } from "@/lib/data/regions"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
@@ -10,6 +10,7 @@ import type { Metadata } from "next"
 import Script from "next/script"
 import { listRegions } from "@/lib/data/regions"
 import { listProducts } from "@/lib/data/products"
+import { listProductAttributes } from "@/lib/data/product-attributes"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
 export const revalidate = 60
@@ -65,15 +66,15 @@ export async function generateMetadata({
   }
 }
 
-const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
-const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
-
 async function AllCategories({
   params,
+  searchParams,
 }: {
   params: Promise<{ locale: string }>
+  searchParams: Promise<Record<string, string | string[] | undefined>>
 }) {
   const { locale } = await params
+  const resolvedSearchParams = await searchParams
 
   const ua = (await headers()).get("user-agent") || ""
   const bot = isBot(ua)
@@ -144,10 +145,12 @@ async function AllCategories({
       <h1 className="heading-xl uppercase">All Products</h1>
 
       <Suspense fallback={<div data-testid="all-categories-page-loading"><ProductListingSkeleton /></div>}>
-        {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
+        {bot ? (
           <ProductListing showSidebar locale={locale} />
         ) : (
-          <AlgoliaProductsListing
+          <SearchProductsListing
+            attributes={await listProductAttributes()}
+            searchParams={resolvedSearchParams}
             locale={locale}
             currency_code={currency_code}
           />

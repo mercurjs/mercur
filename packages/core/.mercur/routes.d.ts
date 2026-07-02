@@ -611,6 +611,7 @@ export type Routes = {
             $id: typeof import("@medusajs/medusa/api/store/return-reasons/[id]/route");
         };
         returns: typeof import("@medusajs/medusa/api/store/returns/route");
+        search: typeof import("../src/api/store/search/route");
         sellers: typeof import("../src/api/store/sellers/route") & {
             $id: typeof import("../src/api/store/sellers/[id]/route");
         };
@@ -619,7 +620,6 @@ export type Routes = {
                 calculate: typeof import("@medusajs/medusa/api/store/shipping-options/[id]/calculate/route");
             };
         };
-        search: typeof import("../src/api/store/search/route");
     };
     vendor: {
         campaigns: typeof import("../src/api/vendor/campaigns/route") & {

@@ -1,11 +1,22 @@
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import Image from "next/image"
 
+type MediaImage = { url: string; is_thumbnail?: boolean | null }
+
 export function CategoryCard({
   category,
 }: {
-  category: { name: string; handle: string }
+  category: {
+    name: string
+    handle: string
+    media_images?: MediaImage[] | null
+  }
 }) {
+  const media = category.media_images ?? []
+  const imageUrl =
+    (media.find((m) => m.is_thumbnail) ?? media[0])?.url ||
+    `/images/categories/${category.handle}.png`
+
   return (
     <LocalizedClientLink
       href={`/categories/${category.handle}`}
@@ -14,7 +25,7 @@ export function CategoryCard({
       <div className="flex relative aspect-square overflow-hidden w-[200px]">
         <Image
           loading="lazy"
-          src={`/images/categories/${category.handle}.png`}
+          src={imageUrl}
           alt={`category - ${category.name}`}
           width={200}
           height={200}

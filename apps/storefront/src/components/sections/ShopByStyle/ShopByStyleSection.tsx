@@ -1,64 +1,54 @@
 import Image from "next/image"
 import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedLink"
 import { ArrowRightIcon } from "@/icons"
-import { Style } from "@/types/styles"
+import { listCollections } from "@/lib/data/collections"
 
-export const styles: Style[] = [
-  {
-    id: 1,
-    name: "LUXURY",
-    href: "/collections/luxury",
-  },
-  {
-    id: 2,
-    name: "VINTAGE",
-    href: "/collections/vintage",
-  },
-  {
-    id: 3,
-    name: "CASUAL",
-    href: "/collections/casual",
-  },
-  {
-    id: 4,
-    name: "STREETWEAR",
-    href: "/collections/streetwear",
-  },
-  {
-    id: 5,
-    name: "Y2K",
-    href: "/collections/y2k",
-  },
-]
+type MediaImage = { url: string; is_thumbnail?: boolean | null }
 
-export function ShopByStyleSection() {
+export async function ShopByStyleSection() {
+  const { collections } = await listCollections()
+
+  if (!collections?.length) {
+    return null
+  }
+
   return (
     <section className="bg-primary container">
-      <h2 className="heading-lg text-primary mb-12">SHOP BY STYLE</h2>
-      <div className="grid grid-cols-1 lg:grid-cols-2 items-center">
-        <div className="py-[52px] px-[58px] h-full border rounded-sm">
-          {styles.map((style) => (
+      <h2 className="heading-lg text-primary mb-12">SHOP BY COLLECTION</h2>
+      <div className="grid grid-cols-2 lg:grid-cols-3 gap-4">
+        {collections.map((collection) => {
+          const media =
+            (collection as unknown as { media_images?: MediaImage[] | null })
+              .media_images ?? []
+          const imageUrl =
+            (media.find((m) => m.is_thumbnail) ?? media[0])?.url ||
+            "/images/placeholder.svg"
+
+          return (
             <LocalizedClientLink
-              key={style.id}
-              href={style.href}
-              className="group flex items-center gap-4 text-primary hover:text-action transition-colors border-b border-transparent hover:border-primary w-fit pb-2 mb-8"
+              key={collection.id}
+              href={`/collections/${collection.handle}`}
+              className="group flex flex-col border rounded-sm bg-component overflow-hidden"
             >
-              <span className="heading-lg">{style.name}</span>
-              <ArrowRightIcon className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+              <div className="relative aspect-[4/3] overflow-hidden">
+                <Image
+                  loading="lazy"
+                  src={imageUrl}
+                  alt={collection.title}
+                  fill
+                  sizes="(min-width: 1024px) 33vw, 50vw"
+                  className="object-cover transition-transform duration-300 group-hover:scale-105"
+                />
+              </div>
+              <div className="flex items-center justify-between p-4">
+                <span className="label-lg text-primary uppercase">
+                  {collection.title}
+                </span>
+                <ArrowRightIcon className="opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 transition-all" />
+              </div>
             </LocalizedClientLink>
-          ))}
-        </div>
-        <div className="relative hidden lg:block">
-          <Image
-            loading="lazy"
-            fetchPriority="high"
-            src="/images/shop-by-styles/Image.jpg"
-            alt="Models showcasing luxury fashion styles"
-            width={700}
-            height={600}
-            className="object-cover rounded-sm w-full h-auto"
-          />
-        </div>
+          )
+        })}
       </div>
     </section>
   )
