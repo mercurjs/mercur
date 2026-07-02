@@ -273,17 +273,15 @@ export async function applyPromotions(codes: string[]) {
   };
 
   try {
-    const { cart } = await sdk.store.cart.update(
-      cartId,
-      { promo_codes: codes },
-      {},
-      headers
-    )
+    const { cart } = await mercur.store.carts.$id.promotions.mutate({
+      $id: cartId,
+      promo_codes: codes,
+      fetchOptions: { headers }
+    })
     const cartCacheTag = await getCacheTag("carts")
     revalidateTag(cartCacheTag)
-    // @ts-ignore
-    const applied = cart.promotions?.some((promotion: any) =>
-      codes.includes(promotion.code)
+    const applied = cart.promotions?.some((promotion) =>
+      promotion.code ? codes.includes(promotion.code) : false
     )
     return { success: true, applied }
   } catch (error: any) {
@@ -327,16 +325,15 @@ export async function deletePromotionCode(promoId: string) {
     throw new Error('No existing cart found');
   }
   const headers = {
-    ...(await getAuthHeaders()),
-    'Content-Type': 'application/json',
-    'x-publishable-api-key': process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY as string
+    ...(await getAuthHeaders())
   };
 
-  return fetch(`${process.env.MEDUSA_BACKEND_URL}/store/carts/${cartId}/promotions`, {
-    method: 'DELETE',
-    body: JSON.stringify({ promo_codes: [promoId] }),
-    headers
-  })
+  return mercur.store.carts.$id.promotions
+    .delete({
+      $id: cartId,
+      promo_codes: [promoId],
+      fetchOptions: { headers }
+    })
     .then(async () => {
       const cartCacheTag = await getCacheTag('carts');
       revalidateTag(cartCacheTag);

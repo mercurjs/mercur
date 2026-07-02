@@ -1,6 +1,7 @@
 import { MiddlewareRoute } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 
+import { filterAttributesByCategoryLinkOrGlobal } from "../../utils"
 import { storeProductAttributeQueryConfig } from "./query-config"
 import {
   StoreGetProductAttributeParams,
@@ -24,6 +25,7 @@ export const storeProductAttributesMiddlewares: MiddlewareRoute[] = [
         storeProductAttributeQueryConfig.list
       ),
       applyAttributeFilters,
+      filterAttributesByCategoryLinkOrGlobal,
     ],
   },
   {

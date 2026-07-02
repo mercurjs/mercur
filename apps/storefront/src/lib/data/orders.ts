@@ -9,14 +9,14 @@ import { sdk } from '../config';
 import medusaError from '../helpers/medusa-error';
 import { getAuthHeaders, getCacheOptions } from './cookies';
 
-export const retrieveOrderSet = async (id: string) => {
+export const retrieveOrderGroup = async (id: string) => {
   const headers = {
     ...(await getAuthHeaders())
   };
 
   return mercur.store.orderGroups.$id
     .query({ $id: id, fetchOptions: { headers, cache: 'no-cache' } })
-    .then(({ order_group }) => order_group)
+    .then(({ order_group }) => order_group as unknown as StoreOrderGroup)
     .catch(err => medusaError(err));
 };
 

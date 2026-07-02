@@ -1,6 +1,7 @@
 import NotFound from "@/app/not-found"
 import { Breadcrumbs } from "@/components/atoms"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
+import { ProductListingAttributes } from "@/components/organisms/ProductListingAttributes/ProductListingAttributes"
 import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
 import { getCollectionByHandle } from "@/lib/data/collections"
 import { getRegion } from "@/lib/data/regions"
@@ -38,6 +39,8 @@ const SingleCollectionsPage = async ({
       </div>
 
       <h1 className="heading-xl uppercase">{collection.title}</h1>
+
+      <ProductListingAttributes />
 
       <Suspense fallback={<div data-testid="collection-page-loading"><ProductListingSkeleton /></div>}>
         {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (

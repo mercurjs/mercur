@@ -9,6 +9,7 @@ import {
   applyAndAndOrOperators,
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
+import { isPresent } from "@medusajs/framework/utils"
 
 const typeEnum = z.nativeEnum(AttributeType)
 
@@ -22,6 +23,7 @@ const StoreProductAttributesParamsFields = z.object({
   type: z.union([typeEnum, z.array(typeEnum)]).optional(),
   is_variant_axis: booleanString().optional(),
   is_filterable: booleanString().optional(),
+  category_id: z.union([z.string(), z.array(z.string())]).optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
 })
@@ -33,3 +35,13 @@ export const StoreGetProductAttributesParams = createFindParams({
 })
   .merge(StoreProductAttributesParamsFields)
   .merge(applyAndAndOrOperators(StoreProductAttributesParamsFields))
+  .transform((data) => {
+    const res = { ...data } as Record<string, unknown>
+
+    if (isPresent(data.category_id)) {
+      res.product_category_id = data.category_id
+      delete res.category_id
+    }
+
+    return res
+  })

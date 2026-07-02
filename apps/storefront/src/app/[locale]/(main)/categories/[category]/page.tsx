@@ -1,4 +1,5 @@
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
+import { ProductListingAttributes } from "@/components/organisms/ProductListingAttributes/ProductListingAttributes"
 import { getCategoryByHandle } from "@/lib/data/categories"
 import { Suspense } from "react"
 
@@ -161,6 +162,8 @@ async function Category({
       </div>
 
       <h1 className="heading-xl uppercase">{category.name}</h1>
+
+      <ProductListingAttributes category_id={category.id} />
 
       <Suspense fallback={<div data-testid="category-page-loading"><ProductListingSkeleton /></div>}>
         {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
