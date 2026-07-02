@@ -358,6 +358,7 @@
   "/store/return-reasons": "typeof import(\"@medusajs/medusa/api/store/return-reasons/route\")",
   "/store/return-reasons/:id": "typeof import(\"@medusajs/medusa/api/store/return-reasons/[id]/route\")",
   "/store/returns": "typeof import(\"@medusajs/medusa/api/store/returns/route\")",
+  "/store/search": "typeof import(\"@mercurjs/core/api/store/search/route\")",
   "/store/sellers": "typeof import(\"@mercurjs/core/api/store/sellers/route\")",
   "/store/sellers/:id": "typeof import(\"@mercurjs/core/api/store/sellers/[id]/route\")",
   "/store/shipping-options": "typeof import(\"@mercurjs/core/api/store/shipping-options/route\")",
