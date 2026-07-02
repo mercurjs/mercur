@@ -124,10 +124,10 @@ filters narrow product and offer hits identically.
 > worker's `variant.prices[regionId]`) — **no per-request hydration for display**.
 > Like the worker, **price is stored, not indexed**: it never enters
 > `create({ schema })`, so the base provider does not filter or sort by price
-> (see Notes). Recompute happens on the next full reindex (boot loader / admin
-> `syncSearchWorkflow`); the region-keyed snapshot is the tradeoff for skipping
-> hydration (see the staleness caveat in Notes). (Per-change recompute via event
-> subscribers is deferred — see "Deferred — event subscribers".)
+> (see Notes). The region-keyed snapshot is recomputed per-change by the
+> subscribers (offer / seller / product events) and rebuilt in full on boot —
+> the tradeoff for skipping per-request hydration (see the staleness caveat in
+> Notes).
 
 ```ts
 // packages/types/src/search/index.ts
@@ -263,29 +263,35 @@ export class AbstractSearchProvider implements SearchProvider {
 
 `packages/core/src/modules/search/`
 
-- `index.ts`: `MercurModules.SEARCH = "search"` +
-  `Module(MercurModules.SEARCH, { service: SearchModuleService, loaders: [loadProviders] })`.
-- `types.ts`: `SearchProviderRegistrationPrefix = "search_"`,
-  `SearchProviderIdentifierRegistrationName = "search_providers_identifier"`,
-  `SearchModuleOptions = Partial<ModuleServiceInitializeOptions> & { provider?:
-  { resolve: string | ModuleProviderExports; id: string; options?: Record<string, unknown> } }`.
+- `index.ts`: `Module(MercurModules.SEARCH, { service: SearchModuleService,
+  loaders: [loadProviders] })`, and re-exports the public surface consumed
+  elsewhere: `AbstractSearchProvider`, `SearchModuleService`, the registration
+  constants, `reindexAll` / `indexProductPage` / `SEARCH_REINDEX_EVENT`
+  (`lib/reindex`), and the single-entity sync helpers `reindexProductsById` /
+  `removeProductAndOffers` / `removeOfferDocs` / `offersForSeller` (`lib/sync`).
+- `services/search-provider-service.ts`: also declares the registration
+  constants (`SearchProviderRegistrationPrefix = "search_"`,
+  `SearchProviderIdentifierRegistrationName`). Resolves the single provider by
+  scanning container keys for the prefix (asserts exactly one, like
+  `FileProviderService`), forwards `index`/`remove`/`search`.
 - `loaders/providers.ts`: `registrationFn` registering the provider under
   `SearchProviderRegistrationPrefix + <identifier>_<id>` via
   `asFunction((cradle) => new klass(cradle, options))`, calling the shared
-  `moduleProviderLoader`. Mirror `file/src/loaders/providers.ts` verbatim.
-- `services/search-provider-service.ts`: resolve the single provider by
-  scanning container keys for the prefix (assert exactly one, like
-  `FileProviderService`), forward `index`/`remove`/`search`.
-- `services/search-module-service.ts`: inject `searchProviderService`, delegate
-  the three verbs. This is what subscribers and routes resolve
-  (`container.resolve(MercurModules.SEARCH)`).
+  `moduleProviderLoader`; falls back to `search-orama` when no `provider` option
+  is passed.
+- `services/search-module-service.ts`: injects `searchProviderService`, the
+  `logger`, and the **event bus**; delegates the three verbs. This is what
+  subscribers and routes resolve (`container.resolve(MercurModules.SEARCH)`). It
+  also carries the boot-reindex `onApplicationStart` hook — see "Boot reindex".
+- `lib/sync.ts`: single-entity sync helpers (`reindexProductsById`,
+  `removeProductAndOffers`, `removeOfferDocs`, `offersForSeller`) reused by the
+  subscribers.
 
-(No `bootstrap.ts` in the module — boot reindex belongs to whichever provider
-needs it, shipped as that provider's own loader. See `search-orama` below.)
-
-Register the module in `withMercur()` with a **default provider fallback**: if
-the consuming app passes no `search.provider`, default to `search-orama` (mirror
-how Medusa apps default file to `file-local`).
+The module is registered in `withMercur()` (added automatically unless the app
+already lists it) with `dependencies: [QUERY, REMOTE_QUERY]` so the module can
+resolve those at init. The provider loader defaults to `search-orama` when no
+`provider` option is passed — mirroring how Medusa apps default file to
+`file-local`.
 
 ## The Default Provider — `search-orama`
 
@@ -294,14 +300,13 @@ Packaged like Medusa's `file-local`. Location:
 standalone `@mercurjs/search-orama` package can be extracted later).
 
 - `index.ts`: `ModuleProvider(MercurModules.SEARCH, { services:
-  [OramaSearchProvider], loaders: [oramaBootReindex] })` — note the **provider
-  loader** carrying the in-memory-specific boot rebuild.
+  [OramaSearchProvider] })`.
 - `service.ts`: `class OramaSearchProvider extends AbstractSearchProvider
   implements SearchProvider<OramaSearchQuery> { static identifier = "search-orama"; … }`.
-  This is where the concrete filter shape lives (NOT in `@mercurjs/types`):
+  The concrete filter shape lives in `providers/orama/types.ts` (NOT in
+  `@mercurjs/types`):
 
   ```ts
-  // packages/core/src/modules/search/providers/orama/types.ts
   export interface OramaSearchQuery extends SearchQueryBase {
     filters?: {
       type?: "product" | "offer"
@@ -313,52 +318,46 @@ standalone `@mercurjs/search-orama` package can be extracted later).
       attributes?: Record<string, string[]>
     }
   }
-  // exported alongside a zod validator the store route imports (see store route)
   ```
-  - Constructor `(container, options)` builds the Orama schema lazily. The
-    schema includes `attribute_tokens: "enum[]"` (facetable + filterable);
-    `attributes` and `prices` stay out of the schema (stored only).
-  - `index()` → `removeMultiple` + `insertMultiple`; `remove()` →
-    `removeMultiple`; `search()` → Orama `search()` → `{ hits, count, facets }`.
-    When `filters.attributes` is present, expand each `{ handle: [ids] }` into
-    `attr:<handle>:<id>` token sets and apply OR-within-handle / AND-across-handle;
-    recompute the attribute facet with the attribute filters removed (same rule
-    as collections/categories). Facet on `attribute_tokens` and return the raw
-    token→count map for the route to group.
-- `loaders/boot-reindex.ts`: the provider's own loader (see below).
+  - Constructor builds the Orama `create({ schema })` in memory. The schema
+    includes `attribute_tokens: "enum[]"` (facetable + filterable); `attributes`
+    and `prices` stay out of the schema (stored only).
+  - `index()` → `removeMultiple` + `insertMultiple` (and records id→label maps);
+    `remove()` → `removeMultiple`; `search()` → **plain Orama** `search()` with
+    native `where` + `facets`. The provider then labels the raw facet counts from
+    its id→label maps and projects each hit's `calculated_price` from
+    `prices[context.region_id]`, returning fully-built `SearchResults` (the store
+    route returns them verbatim — no route-side facet or price work).
 - `@orama/orama` added as a dependency of `@mercurjs/core`.
 
 A reference persistent provider (Algolia/Meili) is **out of scope** here — the
 existing registry blocks can be refactored into this contract in a follow-up.
 
-### Boot reindex — async, non-blocking (the first sync on startup)
+### Boot reindex — event-driven via `onApplicationStart`
 
-The reference implementation the storefront team supplied is an offline script
-that, per region, fetches products with `calculated_price` and builds a
-`variant → region → price` map. In-process we produce the same shape using
-Medusa patterns and **reuse the existing buybox helpers** — no cheapest-offer
-math is reimplemented. The closest in-tree precedent for a provider loader with a
-bundled-default fallback is Mercur's own **payout module**
-(`packages/core/src/modules/payout/loaders/provider.ts` +
-`services/provider-service.ts`) — it already defaults to a bundled provider
-(`SystemPayoutProvider`) when options carry none. Mirror it for `search-orama`.
+A module service is constructed with the awilix **module** cradle, not the app
+container, so it cannot run the cross-module reindex itself (the buybox needs
+`query.graph`). So the boot reindex is **event-driven**:
 
-- **Loader signature & lifecycle.** Medusa runs provider `loaders` once at module
-  init (`runLoaders` in `@medusajs/framework/modules-sdk`); the loader receives
-  `{ container, logger, options }` (`ProviderLoaderOptions`).
-- **Non-blocking.** The loader does **not** await the full reindex — it kicks it
-  off in the background so the API accepts traffic immediately:
-  `void reindexAll(container).catch((e) => logger.error(…))`. There is a brief
-  window after boot where the in-memory index is empty; acceptable per the chosen
-  tradeoff. (Blocking-until-synced was considered and rejected: slow boot on
-  large catalogs.)
-- **`reindexAll(container)`** — the shared sync core, also called by the admin
-  reindex workflow and reused (single-entity) by the subscribers:
-  1. `query.graph({ entity: "region", fields: ["id", "currency_code"] })` once.
-  2. Paginate product ids (page size 100, like the Meili sync step), filtered to
-     published (products are master; open-seller filtering applies to offers).
-  3. Per page, build docs via `buildProductDocs` / `buildOfferDocs` and call
-     `search.index(docs)` (`container.resolve(MercurModules.SEARCH)`).
+- `SearchModuleService.__hooks.onApplicationStart` fires once after boot. In
+  **worker mode only** (`moduleDeclaration.worker_mode !== "server"`) it emits
+  `SEARCH_REINDEX_EVENT` (`"search.reindex"`) on the event bus — a no-op
+  otherwise, and failures are logged, never thrown.
+- The `search-reindex` subscriber receives it with the real request-scoped
+  container and runs `reindexAll(container)`. Any code path (a seed script, an
+  ops task) can trigger a full reindex the same way — emit `search.reindex`.
+- There is a brief window after boot where the in-memory index is empty until the
+  background reindex finishes; acceptable per the chosen tradeoff. A persistent
+  provider can simply ignore the event (its store survives restarts).
+
+- **`reindexAll(container)`** — the shared full-sync core, reused single-entity by
+  the subscribers via `lib/sync`:
+  1. `loadRegions` — `query.graph({ entity: "region", fields:
+     ["id","currency_code","automatic_taxes","countries.iso_2"] })` once.
+  2. Paginate products (page size 100), filtered to published (products are
+     master; open-seller filtering applies to offers).
+  3. Per page, `indexProductPage` builds docs via `buildProductDocs` /
+     `buildOfferDocs` and calls `search.index(docs)`.
 - **Per-region buybox WITHOUT an HTTP request.** `wrapProductVariantsWithOfferPrice`
   and `wrapOffersWithCalculatedPrices` read only `req.pricingContext` +
   `req.scope` (plus optional `req.taxContext`) — no Express internals. So the doc
@@ -380,13 +379,11 @@ bundled-default fallback is Mercur's own **payout module**
 
 ## Index Sync — the shared builder core (provider-agnostic)
 
-The index is populated by `reindexAll(container)` (see "Boot reindex" above),
-called from two places in this first cut: the `search-orama` boot loader
-(async/non-blocking at init) and the `syncSearchWorkflow` full reindex.
-Both go through the **same `buildProductDocs` / `buildOfferDocs` core** — one
-implementation, two callers. Those builders resolve all store regions once and,
-per region, run the existing helpers via the faked-`req` (`{ scope,
-pricingContext, taxContext }`):
+The index is populated by `reindexAll(container)` (full) and by the single-entity
+`lib/sync` helpers (per event) — all sharing the **same `buildProductDocs` /
+`buildOfferDocs` core** under `packages/core/src/modules/search/lib/`. Those
+builders resolve all store regions once and, per region, run the existing helpers
+via the faked-`req` (`{ scope, pricingContext, taxContext }`):
 
 - **Product buybox per region:** `wrapProductVariantsWithOfferPrice` (from
   `packages/core/src/api/utils/offers.ts`) → take the cheapest variant's
@@ -398,10 +395,10 @@ So the stored numbers match `/store/products` and `/store/offers` at region
 granularity. Prices live only in the stored `prices` map — nothing price-related
 enters the Orama searchable schema.
 
-Transform helpers live in `packages/core/src/subscribers/utils/search-*.ts`
-(`filterProductsByStatus`, `buildProductDocs`, `buildOfferDocs`) — each builds
-the region-keyed `prices` map. Published master products are indexed regardless
-of seller; offers are indexed only for open sellers.
+Doc builders live in `packages/core/src/modules/search/lib/build-docs.ts`
+(`buildProductDocs`, `buildOfferDocs`, `searchProductFields`, `searchOfferFields`)
+— each builds the region-keyed `prices` map. Published master products are
+indexed regardless of seller; offers are indexed only for open sellers.
 
 Building `attribute_tokens` + `attributes` (index time): `buildProductDocs`
 extends its product `query.graph` with the selected-value relation path
@@ -413,25 +410,32 @@ see `vendor-products-default-fields-500`). Keep only values whose
 group selected values into the stored `attributes` label array. `buildOfferDocs`
 reuses the parent product's computed tokens/labels so offers inherit them.
 
-## Deferred — event subscribers
+## Subscribers (`packages/core/src/subscribers/search-*.ts`)
 
-Live, per-event reindexing is **out of scope for this first cut**. The index
-stays fresh via the `syncSearchWorkflow` full reindex (invoked programmatically);
-new/changed content becomes searchable after the next full reindex, not within
-one event cycle. The following subscribers are a planned follow-up (they
-reuse the same `buildProductDocs` / `buildOfferDocs` core, adding single-entity
-and per-seller callers alongside `reindexAll`):
+The index is kept live by event subscribers. Each resolves the search module
+via the app container and calls the single-entity `lib/sync` helpers; none knows
+which provider is active. All log-and-rethrow on failure.
 
-- `search-product-events-bridge.ts` — the 6 Medusa product events
-  (`product.created/updated/deleted` + `product.product.*`) → transform →
-  `search.index(...)` / `search.remove(...)`.
-- `search-offer-events.ts` — `OfferWorkflowEvents.CREATED/UPDATED/DELETED`;
-  reindexes both the offer doc and its parent product's buybox.
-- `search-seller-suspended.ts` / `search-seller-unsuspended.ts` — reindex the
-  seller's offers so a suspended seller's offers drop out (the master product
-  stays).
-- `search-attribute-events.ts` — reindex on attribute-value pivot link changes
-  and `is_filterable` toggles.
+- `search-product-changed.ts` — `ProductWorkflowEvents.PUBLISHED` / `REJECTED`
+  + `product.updated` / `product.product.updated` → `reindexProductsById([id])`.
+  `reindexProductsById` re-fetches the product filtered to `status: "published"`;
+  a now-unpublished id is treated as stale and removed (product + its offers).
+- `search-product-deleted.ts` — `product.deleted` / `product.product.deleted` →
+  `removeProductAndOffers([id])` (removes the product doc and its offer docs).
+- `search-offer-changed.ts` — `OfferWorkflowEvents.CREATED/UPDATED/DELETED`. On
+  DELETED, `removeOfferDocs([id])`; then, whenever the event carries a
+  `product_id`, `reindexProductsById([product_id])` so the product's buybox and
+  its remaining offer docs are rebuilt. (The offer create/update/delete workflows
+  were updated to emit `{ id, product_id }`.)
+- `search-seller-changed.ts` — seller lifecycle events
+  (`APPROVED`/`UNSUSPENDED`/`UPDATED`/`SUSPENDED`/`TERMINATED`/`UNTERMINATED`/`DELETED`).
+  Resolves the seller's offers via `offersForSeller`; on a deactivating event
+  (suspend/terminate/unterminate/delete) it `removeOfferDocs(offerIds)`, then
+  always `reindexProductsById(productIds)` to refresh those products' buyboxes
+  (and re-add offers when a seller becomes open again).
+- `search-reindex.ts` — `SEARCH_REINDEX_EVENT` (`"search.reindex"`) →
+  `reindexAll(container)`. This is the boot-reindex handler (see "Boot reindex")
+  and the single programmatic full-reindex entry point.
 
 ## Endpoint Contracts
 
@@ -462,12 +466,10 @@ and per-seller callers alongside `reindexAll`):
     tax context from the region's `automatic_taxes` + supplied address. Optional:
     with no `region_id` the search runs context-free and hits carry
     `calculated_price: null`.
-- **Reindex trigger** → `syncSearchWorkflow`, whose step calls the shared
-  `reindexAll(container)` (full reindex from Postgres via `search.index`). This
-  first cut ships **no admin HTTP routes** for search — the workflow is invoked
-  programmatically (e.g. `medusaExec`, a seed script, or the future boot /
-  subscriber triggers). Admin management endpoints (provider identifier, reindex
-  button) are deferred.
+- **Full-reindex trigger** → emit `SEARCH_REINDEX_EVENT` (`"search.reindex"`);
+  the `search-reindex` subscriber runs `reindexAll(container)`. Fired
+  automatically on boot (worker mode) and emittable programmatically (seed script,
+  ops task). No admin HTTP route ships in this cut.
 
 ## Storefront — `apps/storefront`
 
@@ -491,39 +493,36 @@ the storefront never needs to know which backend is active.
 - Suspended/unpublished content never appears — excluded at index time by
   `reindexAll` (published + open-seller only).
 - Offer hits price identically to the product page / `GET /store/offers`.
-- New published products and new/updated offers appear after the next
-  `syncSearchWorkflow` reindex; deleted/unpublished content disappears on the
-  same. (Per-event freshness is a deferred follow-up.)
+- New published products and new/updated offers appear within one event cycle
+  (subscribers); deleted/unpublished content and a suspended seller's offers
+  disappear the same way. A full rebuild runs on boot (worker mode).
 - Swapping the provider (e.g. to Algolia) changes nothing user-visible except
   latency/scale characteristics — no storefront or API changes.
 
 ## Implementation Plan
 
-_Incremental scope for this first cut: build the module, provider, index-sync
-core, and read paths. **Event subscribers are deferred** — the index is kept
-fresh by the `syncSearchWorkflow` reindex (invoked programmatically) for
-now. Live per-event reindexing (product/offer/seller/attribute subscribers) is a
-follow-up (see "Deferred — event subscribers")._
-
 1. Provider contract in `@mercurjs/types` (`SearchProvider`, DTOs) +
    `AbstractSearchProvider` re-exported from `@mercurjs/core`.
-2. Search module (`index.ts`, `types.ts`, `loaders/providers.ts`,
+2. Search module (`index.ts`, `loaders/providers.ts`,
    `services/search-provider-service.ts`, `services/search-module-service.ts`)
-   — copy the `file` module structure.
-3. Default `search-orama` provider (service + its own `boot-reindex` loader) +
-   `@orama/orama` dependency; wire the default-provider fallback into `withMercur()`.
+   — copy the `file` module structure; register in `withMercur()` with
+   `[QUERY, REMOTE_QUERY]` deps.
+3. Default `search-orama` provider (plain-Orama service, provider-owned facets +
+   price projection) + `@orama/orama` dependency; default-provider fallback in the
+   loader.
 4. Shared `reindexAll(container)` + `buildProductDocs`/`buildOfferDocs` (faked-`req`
    per-region buybox, tax-inclusive; incl. `is_filterable` attribute tokenization,
-   offers inherit product tokens). `reindexAll` calls `search.index` directly and
-   is exported from `@mercurjs/core/modules/search`; it is invoked programmatically
-   (no workflow wrapper, no admin HTTP route in this cut).
+   offers inherit product tokens) + single-entity `lib/sync` helpers.
 5. Thin store `/store/search` route (Medusa-like `q`/`limit`/`offset`, open
    `filters` passthrough, return the provider's `hits` + `facets` verbatim) +
    `setSearchPricingContext` middleware (builds the pricing/tax context,
-   `/store/products`-inspired). The provider owns `calculated_price` projection
-   and labelled facet building.
-6. Storefront data fn + `NEXT_PUBLIC_SEARCH_PROVIDER` branch + offer-hit rendering.
-7. Integration tests under `integration-tests/http/search/store/`.
+   `/store/products`-inspired).
+6. Boot reindex via `onApplicationStart` → `SEARCH_REINDEX_EVENT` →
+   `search-reindex` subscriber; per-event subscribers
+   (`search-product-changed`/`-deleted`, `search-offer-changed`,
+   `search-seller-changed`); offer workflows emit `{ id, product_id }`.
+7. Storefront data fn + `NEXT_PUBLIC_SEARCH_PROVIDER` branch + offer-hit rendering.
+8. Integration tests under `integration-tests/http/search/store/`.
 
 ## Verification
 
@@ -531,10 +530,10 @@ follow-up (see "Deferred — event subscribers")._
    and `@mercurjs/types` exits 0; route map regenerated under
    `packages/core/.mercur/_generated/` with `store.search`.
 2. Integration tests (mirror offer / product-attribute suites), all against the
-   default `search-orama` provider:
-   All state changes below are asserted **after an explicit `reindexAll`** (call
-   it directly — the boot loader fires async, so tests must not race it; live
-   per-event reindexing is deferred):
+   default `search-orama` provider. `store/search.spec.ts` drives state through an
+   explicit `reindexAll`; `store/search-sync.spec.ts` drives the single-entity
+   `lib/sync` helpers (`reindexProductsById`, `removeProductAndOffers`,
+   `removeOfferDocs`, `offersForSeller`) the subscribers call:
    - published product searchable after `reindexAll`;
    - a region's `prices` entry is tax-inclusive when the region has automatic
      taxes, pre-tax when it doesn't;
@@ -556,15 +555,16 @@ follow-up (see "Deferred — event subscribers")._
 3. Provider-swap test: register a trivial in-test fake provider via module
    options and assert `reindexAll` + `/store/search` call it — proving the
    pipeline is provider-agnostic and the module resolves the configured provider.
-4. Manual: `MEDUSA_WORKER_MODE=shared`, storefront flag on — run `reindexAll`
-   (e.g. via `medusaExec` / a seed script), then `POST /store/search` returns
-   results; create an offer in the vendor panel, run `reindexAll` again, and
-   confirm the new offer appears.
+4. Manual: `MEDUSA_WORKER_MODE=shared`, storefront flag on — restart the API and
+   confirm it boots immediately, then within a moment `POST /store/search` returns
+   results (background boot reindex via `search.reindex` finished); create /
+   suspend in the vendor panel and confirm search reflects it within one event
+   cycle.
 
 ## Evidence
 
-Session 2026-07-02 (branch `feat/search-module`, off `canary`). Backend vertical
-implemented; storefront branch (plan item 6) still outstanding.
+Session 2026-07-02 (branch `feat/search-module`, off `canary`). Backend +
+event-driven sync implemented; storefront branch (plan item 7) still outstanding.
 
 **Landed:**
 
@@ -583,17 +583,27 @@ implemented; storefront branch (plan item 6) still outstanding.
   / `collection_id` `in` / `category_ids` + `attribute_tokens` `containsAny`) and
   native `facets` — and **owns facet labelling** (id→label maps maintained at
   index time) **and `calculated_price` projection** from `prices[context.region_id]`,
-  so the store route is thin. `types.ts` (`OramaSearchQuery`), `validators.ts`
-  (`OramaSearchQuery` filter type — interpreted from the open passthrough
-  record), `index.ts` (`ModuleProvider`). `@orama/orama` added to core deps.
+  so the store route is thin. `types.ts` holds `OramaSearchQuery` (the concrete
+  filter shape it interprets from the open passthrough record); `index.ts`
+  (`ModuleProvider`). `@orama/orama` added to core deps.
 - Shared index-sync core (`modules/search/lib/`): `build-docs.ts`
-  (`buildProductDocs`/`buildOfferDocs`/`filterOpenSellerProducts`, faked-`req`
-  per-region buybox via `wrapProductVariantsWithOfferPrice` /
-  `wrapOffersWithCalculatedPrices` + tax, `is_filterable` attribute tokenization,
-  offers inherit parent tokens) and `reindex.ts` (`reindexAll` + `indexProductPage`,
-  page size 100, published master products + open-seller offers, calls
-  `search.index` directly).
-  `reindexAll` re-exported from `@mercurjs/core/modules/search`.
+  (`buildProductDocs`/`buildOfferDocs`, faked-`req` per-region buybox via
+  `wrapProductVariantsWithOfferPrice` / `wrapOffersWithCalculatedPrices` + tax,
+  `is_filterable` attribute tokenization, offers inherit parent tokens),
+  `reindex.ts` (`reindexAll` + `indexProductPage` + `loadRegions` +
+  `SEARCH_REINDEX_EVENT`, page size 100, published master products + open-seller
+  offers) and `sync.ts` (single-entity `reindexProductsById` /
+  `removeProductAndOffers` / `removeOfferDocs` / `offersForSeller`;
+  `reindexProductsById` removes now-unpublished products). All re-exported from
+  `@mercurjs/core/modules/search`.
+- **Event-driven sync** — `SearchModuleService.__hooks.onApplicationStart` emits
+  `search.reindex` in worker mode (it holds the module cradle + event bus, not the
+  app container); subscribers under `packages/core/src/subscribers/search-*.ts`:
+  `search-reindex` (→ `reindexAll`), `search-product-changed`/`-deleted`,
+  `search-offer-changed`, `search-seller-changed`. The offer create/update/delete
+  workflows were updated to emit `{ id, product_id }` so the offer subscriber can
+  rebuild the parent product. Search module registered in `withMercur()` with
+  `[QUERY, REMOTE_QUERY]` deps.
 - Thin store `POST /store/search` (`api/store/search/`): Medusa-like body
   (`q`/`limit`/`offset` + `region_id`/`country_code`/`province`), open `filters`
   passthrough record (provider owns the shape), calls `search.search`, returns
@@ -603,14 +613,13 @@ implemented; storefront branch (plan item 6) still outstanding.
   `authenticate("customer", …, { allowUnauthenticated: true })` +
   `validateAndTransformBody`. Registered in `store/middlewares.ts`. Suspended /
   unpublished content is excluded at index time, not query-time.
-- **No search workflows and no admin HTTP routes** in this cut (both removed at
-  the user's direction). Reindex = call `reindexAll(container)` directly
-  (programmatic / seed / future boot + subscriber triggers).
-- Integration test `integration-tests/http/search/store/search.spec.ts` (product +
-  offer hit priced per region after `reindexAll`; drafts excluded;
-  suspending a seller drops its offer but keeps the master product). Not run
-  in-worktree (see
-  `worktree-integration-test-env`); relies on CI.
+- **No search workflows and no admin HTTP routes** in this cut. Full reindex is
+  triggered by emitting `search.reindex` (fired on boot in worker mode).
+- Integration tests `integration-tests/http/search/store/search.spec.ts`
+  (reindex → product + offer priced per region; drafts excluded; suspend drops the
+  offer, keeps the master product) and `search-sync.spec.ts` (the single-entity
+  `lib/sync` helpers). Not run in-worktree (see `worktree-integration-test-env`);
+  rely on CI.
 
 **Verification run:**
 
@@ -622,19 +631,17 @@ implemented; storefront branch (plan item 6) still outstanding.
 - Integration typecheck of the new spec: clean. Lint: only the repo-standard
   `no-underscore-dangle` / `no-await-in-loop` warnings, no errors.
 
-**Deviation from the plan — boot reindex trigger.** The plan called for the
-`search-orama` provider to ship its own boot-reindex loader. Two findings forced
-a change: (1) `moduleProviderLoader` registers only provider *services*, not
-provider `loaders`, and the payout-style fallback path bypasses it entirely; and
-(2) a module service's constructor/`__hooks` receives the **module** container
-(`__pg_connection__`, `logger`) — not the app container — so it cannot run the
-cross-module `query.graph` the buybox needs (custom-fields confirms this by
-opening its own ORM connection at load). So `reindexAll(container)` requires the
-app container and is invoked programmatically (exported from
-`@mercurjs/core/modules/search`; no workflow wrapper and no admin HTTP route in
-this cut). **Automatic boot-time population is deferred** alongside the event
-subscribers (both need the app-container/event machinery). The `SearchProvider`
-contract stays at three verbs.
+**Deviation from the plan — boot reindex is event-driven, not a provider loader.**
+The plan called for the `search-orama` provider to ship its own boot-reindex
+loader. Two findings ruled that out: (1) `moduleProviderLoader` registers only
+provider *services*, not provider `loaders`; and (2) a module service is
+constructed with the **module** cradle, not the app container, so it cannot run
+the cross-module `query.graph` the buybox needs. The resolution: the module's
+`onApplicationStart` hook (worker mode) **emits `search.reindex`**, and the
+`search-reindex` subscriber runs `reindexAll` with the real request-scoped
+container. This keeps the constraint inside the module, needs no admin route, and
+gives any caller a one-line full-reindex trigger. The `SearchProvider` contract
+stays at three verbs.
 
 ## Notes
 
@@ -644,9 +651,9 @@ contract stays at three verbs.
   RAM (writers and the reader must be the same process; every replica has its own
   copy; restart is empty → boot reindex). A persistent provider (Algolia, Meili,
   or an Orama build using `@orama/plugin-data-persistence` to Redis) drops all of
-  these constraints. The seam is Medusa's per-provider **loader**: `search-orama`
-  ships a boot-reindex loader; providers that don't need it ship none. No flag,
-  no core polling — the constraint stays inside the one provider that has it.
+  these constraints. The seam is the boot `search.reindex` event: the in-memory
+  provider needs it to repopulate on restart; a persistent provider can ignore
+  it. No flag, no core polling.
 - **Single active provider is a hard design constraint (file pattern), not
   multi (notification pattern):** the marketplace runs exactly one search
   backend at a time. `search-provider-service.ts` asserts exactly one registered
