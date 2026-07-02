@@ -5,10 +5,6 @@ import {
   SearchResults,
 } from "@mercurjs/types"
 
-/**
- * Base class for search providers, mirroring `AbstractFileProviderService`.
- * Provider authors extend this and override the three verbs.
- */
 export class AbstractSearchProvider implements SearchProvider {
   static identifier: string
 

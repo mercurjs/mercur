@@ -15,10 +15,6 @@ type InjectedDependencies = {
   [key: `${typeof SearchProviderRegistrationPrefix}${string}`]: SearchProvider
 }
 
-/**
- * Resolves the single registered search provider (asserting exactly one, like
- * `FileProviderService`) and forwards the three provider verbs to it.
- */
 export default class SearchProviderService {
   protected readonly searchProvider_: SearchProvider
 

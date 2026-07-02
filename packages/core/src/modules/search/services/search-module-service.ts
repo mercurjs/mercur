@@ -10,12 +10,6 @@ type InjectedDependencies = {
   searchProviderService: SearchProviderService
 }
 
-/**
- * The module service subscribers and routes resolve via
- * `container.resolve(MercurModules.SEARCH)`. It owns no data models — it simply
- * delegates the three verbs to the single active provider. Which provider is
- * active is opaque here.
- */
 export default class SearchModuleService {
   protected readonly searchProviderService_: SearchProviderService
 

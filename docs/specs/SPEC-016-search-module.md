@@ -138,8 +138,7 @@ export interface SearchDoc {
   description?: string
   handle?: string
   thumbnail?: string
-  seller_handle?: string
-  seller_status?: string       // route forces "open"
+  seller_handle?: string       // offers only — master products carry no seller
   collection_id?: string
   collection?: string          // label
   category_ids?: string[]
@@ -216,9 +215,9 @@ support different filtering, so the rich filter shape (`collection_ids`,
 `SearchQueryBase.filters` is an open `Record`; the active provider declares a
 concrete `filters` type by extending `SearchQueryBase` and implementing
 `SearchProvider<ItsOwnQuery>`. The only cross-provider expectation is that a
-marketplace search provider honours `filters.seller_status` (the route forces it
-to `"open"` — a security invariant, see the store route), since `seller_status`
-is a documented `SearchDoc` field. Everything else is the provider's to define
+marketplace search provider indexes offers only for open sellers at index time
+(products are master — SPEC-015 — so they carry no seller). Everything else is
+the provider's to define
 and advertise (a provider may also export its zod validator so the store route
 and storefront validate against exactly what it accepts — see the store route).
 
@@ -306,12 +305,11 @@ standalone `@mercurjs/search-orama` package can be extracted later).
   export interface OramaSearchQuery extends SearchQueryBase {
     filters?: {
       type?: "product" | "offer"
-      collection_ids?: string[]   // OR within, AND across
+      collection_ids?: string[]
       category_ids?: string[]
-      seller_handle?: string
-      seller_status?: string      // route forces "open"
-      // attribute_handle -> selected value ids. OR within a handle, AND across
-      // handles. Expanded to attr:<handle>:<value_id> tokens vs attribute_tokens.
+      seller_handle?: string      // offers only
+      // attribute_handle -> selected value ids, expanded to
+      // attr:<handle>:<value_id> tokens vs attribute_tokens.
       attributes?: Record<string, string[]>
     }
   }
@@ -358,7 +356,7 @@ bundled-default fallback is Mercur's own **payout module**
   reindex workflow and reused (single-entity) by the subscribers:
   1. `query.graph({ entity: "region", fields: ["id", "currency_code"] })` once.
   2. Paginate product ids (page size 100, like the Meili sync step), filtered to
-     published + open seller.
+     published (products are master; open-seller filtering applies to offers).
   3. Per page, build docs via `buildProductDocs` / `buildOfferDocs` and call
      `search.index(docs)` (`container.resolve(MercurModules.SEARCH)`).
 - **Per-region buybox WITHOUT an HTTP request.** `wrapProductVariantsWithOfferPrice`
@@ -402,8 +400,8 @@ enters the Orama searchable schema.
 
 Transform helpers live in `packages/core/src/subscribers/utils/search-*.ts`
 (`filterProductsByStatus`, `buildProductDocs`, `buildOfferDocs`) — each builds
-the region-keyed `prices` map. Only published + open-seller content is indexed
-(`filterProductsByStatus`).
+the region-keyed `prices` map. Published master products are indexed regardless
+of seller; offers are indexed only for open sellers.
 
 Building `attribute_tokens` + `attributes` (index time): `buildProductDocs`
 extends its product `query.graph` with the selected-value relation path
@@ -430,7 +428,8 @@ and per-seller callers alongside `reindexAll`):
 - `search-offer-events.ts` — `OfferWorkflowEvents.CREATED/UPDATED/DELETED`;
   reindexes both the offer doc and its parent product's buybox.
 - `search-seller-suspended.ts` / `search-seller-unsuspended.ts` — reindex the
-  seller's products + offers so suspended sellers drop out.
+  seller's offers so a suspended seller's offers drop out (the master product
+  stays).
 - `search-attribute-events.ts` — reindex on attribute-value pivot link changes
   and `is_filterable` toggles.
 
@@ -543,7 +542,8 @@ follow-up (see "Deferred — event subscribers")._
    - an updated offer price is reflected in its own doc AND its product's buybox
      in the affected region's `prices` entry after reindex;
    - a deleted offer / unpublished product is absent after reindex;
-   - a suspended seller's content is absent after reindex; unsuspended restores it;
+   - a suspended seller's offers are absent after reindex (the master product
+     remains); unsuspending restores the offers;
    - suspended/unpublished content excluded after reindex (index-time);
    - projected `prices[region_id]` equals `GET /store/offers` (offers) and
      `/store/products` buybox (products) for that region;
@@ -591,7 +591,8 @@ implemented; storefront branch (plan item 6) still outstanding.
   per-region buybox via `wrapProductVariantsWithOfferPrice` /
   `wrapOffersWithCalculatedPrices` + tax, `is_filterable` attribute tokenization,
   offers inherit parent tokens) and `reindex.ts` (`reindexAll` + `indexProductPage`,
-  page size 100, published + open-seller only, calls `search.index` directly).
+  page size 100, published master products + open-seller offers, calls
+  `search.index` directly).
   `reindexAll` re-exported from `@mercurjs/core/modules/search`.
 - Thin store `POST /store/search` (`api/store/search/`): Medusa-like body
   (`q`/`limit`/`offset` + `region_id`/`country_code`/`province`), open `filters`
@@ -607,7 +608,8 @@ implemented; storefront branch (plan item 6) still outstanding.
   (programmatic / seed / future boot + subscriber triggers).
 - Integration test `integration-tests/http/search/store/search.spec.ts` (product +
   offer hit priced per region after `reindexAll`; drafts excluded;
-  `seller_status=open` enforced on suspend). Not run in-worktree (see
+  suspending a seller drops its offer but keeps the master product). Not run
+  in-worktree (see
   `worktree-integration-test-env`); relies on CI.
 
 **Verification run:**
@@ -654,16 +656,13 @@ contract stays at three verbs.
   deliberately excluded.
 - **Filters are provider-owned, not part of the shared contract.** Only
   `SearchQueryBase` (`q`/`limit`/`offset`/open `filters`) lives in
-  `@mercurjs/types`; each provider declares its concrete `filters` shape + zod
-  validator and implements `SearchProvider<ItsQuery>`. Consequence: the accepted
-  filter set is a property of the *active* provider — swapping providers can add
-  or drop filters, and the store route/storefront validate against whatever the
-  active provider exports. The single cross-provider guarantee is
-  `filters.seller_status` (route-forced to `"open"`), because `seller_status` is a
-  documented `SearchDoc` field every marketplace provider must index. This is the
-  one place the store route is *not* fully backend-agnostic — an intentional
-  trade for letting each backend expose its native filtering (Algolia facets vs
-  Meili filter strings vs Orama `where`).
+  `@mercurjs/types`; each provider declares its concrete `filters` shape and
+  implements `SearchProvider<ItsQuery>`. The store route passes `filters` through
+  as an **open `Record<string, unknown>`** — it validates nothing beyond
+  structure, so the active provider owns interpretation (swapping providers can
+  add or drop filters). There is no query-time seller-status filter: products are
+  master (SPEC-015) and carry no seller, and providers index offers only for open
+  sellers at index time.
 - **Migrating the existing registry blocks:** the Algolia/Meilisearch blocks in
   `packages/registry` can later be refactored to implement `SearchProvider` and
   register through this module, unifying three code paths into one contract.

@@ -20,12 +20,8 @@ export const POST = async (
     q: body.q,
     limit: body.limit,
     offset: body.offset,
-    // Pricing context is built by middleware (`setSearchPricingContext`),
-    // inspired by the `/store/products` chain — not trusted from the raw body.
-    // The provider projects each hit's `calculated_price` from it.
+    // Built by `setSearchPricingContext`; the provider projects calculated_price.
     context: req.pricingContext,
-    // Passed through to the active provider verbatim. Suspended/unpublished
-    // content is excluded at index time (`reindexAll`), not query-time.
     filters: body.filters,
   })
 

@@ -21,11 +21,8 @@ type StoreSearchRequest = MedusaStoreRequest<StoreSearchType> & {
   }
 }
 
-// Mirrors the /store/products setPricingContext + setTaxContext chain: the
-// region is refetched (never trusted from the body), customer groups come from
-// the auth context, and tax context derives from the region's automatic-taxes
-// setting. With no region_id the search runs without pricing and hits carry
-// calculated_price: null.
+// Refetches the region (never trusts the body) to build the pricing/tax context,
+// mirroring the /store/products chain. No region_id -> no pricing context.
 const setSearchPricingContext = async (
   req: StoreSearchRequest,
   _res: MedusaResponse,

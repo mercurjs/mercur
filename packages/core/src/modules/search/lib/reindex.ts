@@ -25,12 +25,8 @@ const loadRegions = async (
   return data as SearchRegion[]
 }
 
-/**
- * Rebuilds the search index from Postgres. The single source of truth for
- * index sync — called by the admin reindex workflow and reused (single-page)
- * for targeted reindexing. Requires the app container (cross-module
- * `query.graph` + the resolved search module).
- */
+// Requires the app container (cross-module `query.graph` + the resolved search
+// module), so it runs from a route/subscriber/script, not module init.
 export const reindexAll = async (container: MedusaContainer): Promise<void> => {
   const query = container.resolve(ContainerRegistrationKeys.QUERY)
   const search = container.resolve<SearchModuleService>(MercurModules.SEARCH)
@@ -65,10 +61,6 @@ export const reindexAll = async (container: MedusaContainer): Promise<void> => {
   }
 }
 
-/**
- * Builds and indexes the product + offer docs for a single page of products.
- * Shared by `reindexAll` and targeted reindex callers.
- */
 export const indexProductPage = async (
   container: MedusaContainer,
   search: SearchModuleService,

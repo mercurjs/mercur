@@ -218,7 +218,7 @@ medusaIntegrationTestRunner({
           expect(hit).toBeFalsy()
         })
 
-        it("excludes suspended-seller content at index time", async () => {
+        it("drops a suspended seller's offer but keeps the master product", async () => {
           const seed = await seedSellerOffer({
             email: "search-suspended@test.com",
             name: "Suspended",
@@ -244,9 +244,19 @@ medusaIntegrationTestRunner({
           )
 
           expect(response.status).toEqual(200)
+          // Sellers live on offers only — the offer drops, the master product stays.
           expect(
-            response.data.hits.find((h: { id: string }) => h.id === seed.productId)
+            response.data.hits.find(
+              (h: { type: string; id: string }) =>
+                h.type === "offer" && h.id === seed.offer.id
+            )
           ).toBeFalsy()
+          expect(
+            response.data.hits.find(
+              (h: { type: string; id: string }) =>
+                h.type === "product" && h.id === seed.productId
+            )
+          ).toBeTruthy()
         })
       })
     })

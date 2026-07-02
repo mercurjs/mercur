@@ -22,7 +22,6 @@ const SEARCH_SCHEMA = {
   handle: "string",
   sku: "string",
   seller_handle: "enum",
-  seller_status: "enum",
   collection_id: "enum",
   category_ids: "enum[]",
   product_id: "enum",
@@ -32,15 +31,9 @@ const SEARCH_SCHEMA = {
 
 const SEARCHABLE_PROPERTIES = ["title", "description", "handle", "sku"]
 
-/**
- * In-process, in-memory Orama index. Zero external infrastructure. The index
- * lives in the API process's RAM, so it needs a reindex to populate (its own
- * concern, not the shared contract's).
- *
- * Plain Orama usage: filtering via native `where`, facets via native `facets`.
- * The provider also owns facet labelling — id → label maps are maintained at
- * index time so the store route stays a thin `search()` + price projection.
- */
+// In-memory index living in the API process's RAM — it starts empty and needs a
+// reindex to populate. id → label maps are kept at index time so `search` can
+// label facets without a second lookup.
 export class OramaSearchProvider extends AbstractSearchProvider {
   static identifier = "search-orama"
 
@@ -109,9 +102,6 @@ export class OramaSearchProvider extends AbstractSearchProvider {
     }
     if (filters.seller_handle) {
       where.seller_handle = { eq: filters.seller_handle }
-    }
-    if (filters.seller_status) {
-      where.seller_status = { eq: filters.seller_status }
     }
     if (filters.collection_ids?.length) {
       where.collection_id = { in: filters.collection_ids }

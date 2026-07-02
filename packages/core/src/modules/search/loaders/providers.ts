@@ -30,11 +30,6 @@ const registrationFn = async (
   })
 }
 
-/**
- * Registers the single active search provider. When the consuming app passes no
- * `provider`, falls back to the bundled `search-orama` provider — mirroring how
- * a Medusa app defaults `file` to `file-local`.
- */
 export default async ({
   container,
   options,

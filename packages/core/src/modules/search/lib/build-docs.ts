@@ -33,13 +33,6 @@ type ProductVariantRow = {
   calculated_price?: CalculatedPrice | null
 }
 
-type ProductSellerRow = {
-  id?: string
-  handle?: string | null
-  name?: string | null
-  status?: string | null
-}
-
 type ProductAttributeValueRow = {
   id: string
   name: string
@@ -52,6 +45,7 @@ type ProductAttributeValueRow = {
   } | null
 }
 
+// Master products carry no seller — sellers live only on offers.
 export type SearchProductRow = {
   id: string
   title: string
@@ -63,14 +57,11 @@ export type SearchProductRow = {
   collection?: { id?: string; title?: string | null } | null
   categories?: { id: string; name?: string | null }[] | null
   variants?: ProductVariantRow[] | null
-  sellers?: ProductSellerRow[] | null
   product_attribute_values?: ProductAttributeValueRow[] | null
 }
 
-/**
- * Curated field list for search reindex product queries. Never `+`-prefixed on
- * a default product list (see `vendor-products-default-fields-500`).
- */
+// Curated list — never `+`-prefixed on a default product list, which 500s
+// ("Cannot resolve alias path").
 export const searchProductFields = [
   "id",
   "title",
@@ -84,10 +75,6 @@ export const searchProductFields = [
   "categories.id",
   "categories.name",
   "variants.id",
-  "sellers.id",
-  "sellers.handle",
-  "sellers.name",
-  "sellers.status",
   "product_attribute_values.id",
   "product_attribute_values.name",
   "product_attribute_values.attribute.id",
@@ -110,17 +97,6 @@ export const searchOfferFields = [
   "product_variant.title",
   "product_variant.price_set.id",
 ]
-
-const openSeller = (product: SearchProductRow): ProductSellerRow | undefined =>
-  (product.sellers ?? []).find((s) => s.status === SellerStatus.OPEN)
-
-/**
- * Products with at least one open seller. Suspended / pending sellers keep their
- * content out of the index.
- */
-export const filterOpenSellerProducts = (
-  products: SearchProductRow[]
-): SearchProductRow[] => products.filter((p) => Boolean(openSeller(p)))
 
 const buildRegionTaxContext = (region: SearchRegion) => {
   if (!region.automatic_taxes) {
@@ -204,13 +180,8 @@ const buildAttributes = (
   return { tokens, attributes: [...byAttribute.values()] }
 }
 
-/**
- * Builds `type:"product"` docs with the per-region buybox (cheapest offer, min
- * across variants) written into `prices`. Reuses the store buybox helper via a
- * faked request per region — no HTTP request, no cheapest-offer math
- * reimplemented. Returns the docs plus a per-product attribute map so offer docs
- * can inherit their parent's tokens/labels.
- */
+// Per-region buybox comes from the store price helper via a faked request (no
+// HTTP) so the stored number matches `/store/products`.
 export const buildProductDocs = async (
   container: MedusaContainer,
   products: SearchProductRow[],
@@ -222,15 +193,14 @@ export const buildProductDocs = async (
     { tokens: string[]; attributes: SearchDocAttribute[] }
   >
 }> => {
-  const open = filterOpenSellerProducts(products)
-  if (!open.length) {
+  if (!products.length) {
     return { docs: [], attributesByProduct: new Map() }
   }
 
   const pricesByProduct = new Map<string, Record<string, SearchDocPrice>>()
   for (const region of regions) {
-    await wrapProductVariantsWithOfferPrice(fakeReq(container, region), open)
-    for (const product of open) {
+    await wrapProductVariantsWithOfferPrice(fakeReq(container, region), products)
+    for (const product of products) {
       const price = cheapestVariantPrice(product)
       if (!price) {
         continue
@@ -245,8 +215,7 @@ export const buildProductDocs = async (
     string,
     { tokens: string[]; attributes: SearchDocAttribute[] }
   >()
-  const docs: SearchDoc[] = open.map((product) => {
-    const seller = openSeller(product)
+  const docs: SearchDoc[] = products.map((product) => {
     const attrs = buildAttributes(product)
     attributesByProduct.set(product.id, attrs)
 
@@ -257,8 +226,6 @@ export const buildProductDocs = async (
       description: product.description ?? undefined,
       handle: product.handle ?? undefined,
       thumbnail: product.thumbnail ?? undefined,
-      seller_handle: seller?.handle ?? undefined,
-      seller_status: seller?.status ?? undefined,
       collection_id: product.collection?.id ?? product.collection_id ?? undefined,
       collection: product.collection?.title ?? undefined,
       category_ids: (product.categories ?? []).map((c) => c.id),
@@ -284,12 +251,7 @@ type OfferRow = EnrichableOffer & {
   } | null
 }
 
-/**
- * Builds `type:"offer"` docs (one hit per vendor offer) carrying that offer's
- * own `calculated_price` per region. Offers inherit their parent product's
- * attribute tokens/labels so attribute filters narrow products and offers
- * identically.
- */
+// Suspended sellers' offers are dropped here; the master product doc is untouched.
 export const buildOfferDocs = async (
   container: MedusaContainer,
   offers: OfferRow[],
@@ -344,7 +306,6 @@ export const buildOfferDocs = async (
       handle: product?.handle ?? undefined,
       thumbnail: product?.thumbnail ?? undefined,
       seller_handle: offer.seller?.handle ?? undefined,
-      seller_status: offer.seller?.status ?? undefined,
       collection_id: product?.collection?.id ?? undefined,
       collection: product?.collection?.title ?? undefined,
       category_ids: (product?.categories ?? []).map((c) => c.id),

@@ -1,12 +1,6 @@
 import { z } from "zod"
 
-/**
- * Medusa-like store list params (`q` / `limit` / `offset`) plus the pricing/tax
- * context inputs (`region_id` / `country_code` / `province`, read by
- * `setSearchPricingContext`, mirroring `/store/products`). `filters` is an open
- * record passed straight to the active provider — the provider owns its filter
- * shape, so the route validates nothing beyond structure.
- */
+// `filters` is passed straight to the active provider, which owns its shape.
 export const StoreSearchSchema = z
   .object({
     q: z.string().optional().default(""),
