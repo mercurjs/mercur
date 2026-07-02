@@ -244,7 +244,6 @@ medusaIntegrationTestRunner({
           )
 
           expect(response.status).toEqual(200)
-          // Sellers live on offers only — the offer drops, the master product stays.
           expect(
             response.data.hits.find(
               (h: { type: string; id: string }) =>

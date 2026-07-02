@@ -7,7 +7,6 @@ export interface SearchDoc {
   description?: string
   handle?: string
   thumbnail?: string
-  // Offers only — master products carry no seller (SPEC-015).
   seller_handle?: string
   collection_id?: string
   collection?: string
@@ -80,7 +79,6 @@ export interface SearchProvider<
 }
 
 export interface SearchModuleOptions {
-  // Omit to fall back to the bundled `search-orama` provider.
   provider?: {
     resolve: string | ModuleProviderExports
     id: string
