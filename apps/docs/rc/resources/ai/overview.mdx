@@ -1,0 +1,42 @@
+---
+title: "Building with AI"
+description: "Give an AI agent a verifiable outcome and let it build within Mercur's guardrails — CLI, typed contracts, workflows, and a self-verifying loop."
+---
+
+<Note>
+  This page is being written. The outline below is the intended structure.
+</Note>
+
+## How AI works with Mercur
+
+AI works at the system level — composing APIs, extending workflows, and adding UI — not stitching together loose snippets.
+
+## Give AI a verifiable outcome
+
+Define what "done" looks like so the agent can work toward a measurable target instead of guessing.
+
+## The self-verify loop
+
+Mercur's equivalent of a grading rubric: an agent checks its own work with `bun run build`, `bun run lint`, the integration test runner, and `cli diff` against the registry — iterating until the outcome is met.
+
+## Concrete examples
+
+Each backed by a runnable command:
+
+- **Add a feature via CLI** — `bunx @mercurjs/cli@latest add reviews`
+- **Extend a workflow via hook** — inject a step into `complete-cart-with-split-orders`
+- **Generate typed integrations** — `bunx @mercurjs/cli@latest codegen`, then call the typed client
+- **Build UI via file-based routing** — drop a `page.tsx` under `src/routes/`
+- **Modify blocks it can diff** — `bunx @mercurjs/cli@latest diff`
+
+## Why this beats snippet generators
+
+Typed contracts, discrete blocks, and a single monorepo give AI real context instead of chaos.
+
+## Connect your tools
+
+<CardGroup cols={3}>
+  <Card title="llms.txt" href="/rc/resources/ai/llms" />
+  <Card title="MCP server" href="/rc/resources/ai/mcp" />
+  <Card title="Skills" href="/rc/resources/ai/skills" />
+</CardGroup>

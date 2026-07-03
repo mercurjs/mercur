@@ -29,65 +29,108 @@
         "version": "Release Candidate",
         "tabs": [
           {
-            "tab": "Docs",
+            "tab": "Learn",
             "groups": [
               {
-                "group": "Getting started",
+                "group": "Get started",
                 "pages": [
-                  "rc/getting-started/introduction",
-                  "rc/getting-started/concepts",
-                  "rc/getting-started/installation"
+                  "rc/learn/introduction",
+                  "rc/learn/installation",
+                  "rc/learn/concepts",
+                  "rc/learn/architecture"
                 ]
               },
               {
-                "group": "Core Concepts",
+                "group": "Marketplace concepts",
                 "pages": [
-                  "rc/core-concepts/seller",
-                  "rc/core-concepts/seller-members",
-                  "rc/core-concepts/payout",
-                  "rc/core-concepts/commission",
-                  "rc/core-concepts/order-groups"
+                  "rc/learn/sellers",
+                  "rc/learn/seller-members",
+                  "rc/learn/order-groups",
+                  "rc/learn/commissions",
+                  "rc/learn/payouts"
                 ]
               },
               {
-                "group": "Developer Guide",
+                "group": "Blocks",
                 "pages": [
-                  "rc/developer-guide/overview",
-                  "rc/developer-guide/blocks",
-                  "rc/developer-guide/registry",
-                  "rc/developer-guide/api-client",
-                  "rc/developer-guide/cli",
-                  "rc/developer-guide/extending-panels",
-                  "rc/developer-guide/custom-fields"
+                  "rc/learn/blocks",
+                  "rc/learn/registry"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Resources",
+            "groups": [
+              {
+                "group": "Tutorials",
+                "pages": [
+                  "rc/resources/tutorials/first-marketplace",
+                  "rc/resources/tutorials/add-a-block",
+                  "rc/resources/tutorials/custom-panel-page"
                 ]
               },
               {
-                "group": "How-to Guides",
+                "group": "Customization",
                 "pages": [
-                  "rc/how-to-guides/stripe-connect-integration",
-                  "rc/how-to-guides/medusa-cloud"
+                  "rc/resources/customization/extending-panels",
+                  "rc/resources/customization/custom-fields",
+                  "rc/resources/customization/extend-a-workflow"
                 ]
               },
               {
-                "group": "Migration",
+                "group": "Integrations",
                 "pages": [
-                  "rc/migrations/overview",
-                  "rc/migrations/from-2-0-to-2-1",
-                  "rc/migrations/from-1-x-to-2-0"
+                  "rc/resources/integrations/stripe-connect",
+                  "rc/resources/integrations/search",
+                  "rc/resources/integrations/notifications"
                 ]
               },
               {
-                "group": "AI Development",
+                "group": "Deployment",
                 "pages": [
-                  "rc/ai-development/llms",
-                  "rc/ai-development/mcp",
-                  "rc/ai-development/skills"
+                  "rc/resources/deployment/medusa-cloud"
                 ]
               },
               {
-                "group": "Legal",
+                "group": "Building with AI",
                 "pages": [
-                  "rc/telemetry"
+                  "rc/resources/ai/overview",
+                  "rc/resources/ai/llms",
+                  "rc/resources/ai/mcp",
+                  "rc/resources/ai/skills"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Tools",
+            "groups": [
+              {
+                "group": "Tools",
+                "pages": [
+                  "rc/tools/cli",
+                  "rc/tools/api-client",
+                  "rc/tools/dashboard-sdk"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "References",
+            "groups": [
+              {
+                "group": "Modules",
+                "pages": [
+                  "rc/references/modules/seller",
+                  "rc/references/modules/commission",
+                  "rc/references/modules/payout"
+                ]
+              },
+              {
+                "group": "Configuration",
+                "pages": [
+                  "rc/references/configuration"
                 ]
               }
             ]
@@ -98,13 +141,34 @@
               {
                 "group": "Admin Panel",
                 "pages": [
-                  "rc/user-guides/admin/stores"
+                  "rc/user-guide/admin/overview",
+                  "rc/user-guide/admin/stores"
                 ]
               },
               {
                 "group": "Vendor Panel",
                 "pages": [
-                  "rc/user-guides/vendor/stores"
+                  "rc/user-guide/vendor/overview",
+                  "rc/user-guide/vendor/stores"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Migration",
+            "groups": [
+              {
+                "group": "Migration",
+                "pages": [
+                  "rc/migration/overview",
+                  "rc/migration/from-2-0-to-2-1",
+                  "rc/migration/from-1-x-to-2-0"
+                ]
+              },
+              {
+                "group": "Legal",
+                "pages": [
+                  "rc/telemetry"
                 ]
               }
             ]
@@ -536,12 +600,112 @@
   },
   "redirects": [
     {
-      "source": "/rc/welcome",
-      "destination": "/rc/getting-started/introduction"
+      "source": "/rc",
+      "destination": "/rc/learn/introduction"
     },
     {
-      "source": "/rc",
-      "destination": "/rc/getting-started/introduction"
+      "source": "/rc/welcome",
+      "destination": "/rc/learn/introduction"
+    },
+    {
+      "source": "/rc/getting-started/introduction",
+      "destination": "/rc/learn/introduction"
+    },
+    {
+      "source": "/rc/getting-started/installation",
+      "destination": "/rc/learn/installation"
+    },
+    {
+      "source": "/rc/getting-started/concepts",
+      "destination": "/rc/learn/concepts"
+    },
+    {
+      "source": "/rc/developer-guide/overview",
+      "destination": "/rc/learn/architecture"
+    },
+    {
+      "source": "/rc/core-concepts/seller",
+      "destination": "/rc/learn/sellers"
+    },
+    {
+      "source": "/rc/core-concepts/seller-members",
+      "destination": "/rc/learn/seller-members"
+    },
+    {
+      "source": "/rc/core-concepts/order-groups",
+      "destination": "/rc/learn/order-groups"
+    },
+    {
+      "source": "/rc/core-concepts/commission",
+      "destination": "/rc/learn/commissions"
+    },
+    {
+      "source": "/rc/core-concepts/payout",
+      "destination": "/rc/learn/payouts"
+    },
+    {
+      "source": "/rc/developer-guide/blocks",
+      "destination": "/rc/learn/blocks"
+    },
+    {
+      "source": "/rc/developer-guide/registry",
+      "destination": "/rc/learn/registry"
+    },
+    {
+      "source": "/rc/developer-guide/extending-panels",
+      "destination": "/rc/resources/customization/extending-panels"
+    },
+    {
+      "source": "/rc/developer-guide/custom-fields",
+      "destination": "/rc/resources/customization/custom-fields"
+    },
+    {
+      "source": "/rc/developer-guide/cli",
+      "destination": "/rc/tools/cli"
+    },
+    {
+      "source": "/rc/developer-guide/api-client",
+      "destination": "/rc/tools/api-client"
+    },
+    {
+      "source": "/rc/how-to-guides/stripe-connect-integration",
+      "destination": "/rc/resources/integrations/stripe-connect"
+    },
+    {
+      "source": "/rc/how-to-guides/medusa-cloud",
+      "destination": "/rc/resources/deployment/medusa-cloud"
+    },
+    {
+      "source": "/rc/ai-development/llms",
+      "destination": "/rc/resources/ai/llms"
+    },
+    {
+      "source": "/rc/ai-development/mcp",
+      "destination": "/rc/resources/ai/mcp"
+    },
+    {
+      "source": "/rc/ai-development/skills",
+      "destination": "/rc/resources/ai/skills"
+    },
+    {
+      "source": "/rc/migrations/overview",
+      "destination": "/rc/migration/overview"
+    },
+    {
+      "source": "/rc/migrations/from-2-0-to-2-1",
+      "destination": "/rc/migration/from-2-0-to-2-1"
+    },
+    {
+      "source": "/rc/migrations/from-1-x-to-2-0",
+      "destination": "/rc/migration/from-1-x-to-2-0"
+    },
+    {
+      "source": "/rc/user-guides/admin/stores",
+      "destination": "/rc/user-guide/admin/stores"
+    },
+    {
+      "source": "/rc/user-guides/vendor/stores",
+      "destination": "/rc/user-guide/vendor/stores"
     },
     {
       "source": "/v2/welcome",
