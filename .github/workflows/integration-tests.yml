@@ -40,7 +40,7 @@ jobs:
           node-version: 20
 
       - name: Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'bun.lockb') }}
@@ -48,7 +48,7 @@ jobs:
             ${{ runner.os }}-bun-
 
       - name: Cache Turborepo
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           # This key is what the integration shards restore from, so a single
           # build is shared across all four of them.
@@ -59,7 +59,7 @@ jobs:
 
       - name: Cache node_modules
         id: node-modules-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           # Bun's (default, isolated) linker materialises a ~7k-symlink store
           # under node_modules/.bun; rebuilding it from the tarball cache costs
@@ -156,7 +156,7 @@ jobs:
           node-version: 20
 
       - name: Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'bun.lockb') }}
@@ -164,7 +164,7 @@ jobs:
             ${{ runner.os }}-bun-
 
       - name: Cache Turborepo
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: .turbo
           # Per-shard key so parallel shards don't race to save the same entry;
@@ -177,7 +177,7 @@ jobs:
 
       - name: Cache node_modules
         id: node-modules-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           # Restores the materialised node_modules saved by the `build` gate
           # (same lockfile-keyed entry), so each shard skips the ~19-min install
