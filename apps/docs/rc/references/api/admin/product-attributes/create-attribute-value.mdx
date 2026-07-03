@@ -1,0 +1,76 @@
+---
+title: "Upsert Attribute Values"
+api: "POST /admin/product-attributes/{id}/values"
+description: "Create or update values on a product attribute."
+---
+
+Upserts the given values on the attribute — items with an `id` update an existing value, items without one create a new value.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The attribute's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="values" type="object[]" required>
+  Values to create or update — one of two shapes per item.
+  <Expandable title="update existing value (by id)">
+    <ParamField body="id" type="string" required>The value's ID.</ParamField>
+    <ParamField body="name" type="string">Value name.</ParamField>
+    <ParamField body="handle" type="string">Unique URL-safe handle.</ParamField>
+    <ParamField body="rank" type="number">Sort rank; must be non-negative.</ParamField>
+    <ParamField body="is_active" type="boolean">Whether the value is active.</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+  </Expandable>
+  <Expandable title="create new value (by name)">
+    <ParamField body="name" type="string" required>Value name.</ParamField>
+    <ParamField body="handle" type="string">Unique URL-safe handle.</ParamField>
+    <ParamField body="rank" type="number">Sort rank; must be non-negative.</ParamField>
+    <ParamField body="is_active" type="boolean">Whether the value is active.</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="product_attribute" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The attribute's ID.</ResponseField>
+    <ResponseField name="name" type="string">Attribute name.</ResponseField>
+    <ResponseField name="type" type="string">The attribute's type.</ResponseField>
+    <ResponseField name="values" type="object[]">All values after the upsert, with `id`, `name`, `handle`, `rank`, and `is_active`.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/product-attributes/pattr_01HXYZABCDEF/values' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"values": [{ "name": "Wool" }, { "id": "pattrval_01HXYZABCDEF", "rank": 1 }]}'
+```
+
+```ts JS Client
+const { product_attribute } = await client.admin.productAttributes.$id.values.mutate({
+  $id: "pattr_01HXYZABCDEF",
+  values: [{ name: "Wool" }, { id: "pattrval_01HXYZABCDEF", rank: 1 }],
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_attribute": {
+    "id": "pattr_01HXYZABCDEF",
+    "name": "Material",
+    "type": "single_select",
+    "values": [
+      { "id": "pattrval_01HXYZABCDEG", "name": "Wool", "rank": 0 },
+      { "id": "pattrval_01HXYZABCDEF", "name": "Linen", "rank": 1 }
+    ]
+  }
+}
+```
+</ResponseExample>

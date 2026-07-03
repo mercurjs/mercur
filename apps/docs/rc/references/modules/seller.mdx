@@ -1,0 +1,175 @@
+---
+title: "Seller module"
+description: "Data models, links, and service methods for the Seller module."
+---
+
+The Seller module owns the marketplace vendor domain: the seller entity and its satellite records (professional details, address, payment details), the seller's team (members and pending invites), and the **order group** — the aggregate that binds the per-seller orders created from a single multi-vendor cart.
+
+For the conceptual introduction, see [Sellers](/rc/learn/sellers), [Seller members](/rc/learn/seller-members), and [Order groups](/rc/learn/order-groups).
+
+## Data models
+
+### `Seller`
+
+Table `seller`, ID prefix `sel`.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `name` | text | Unique, searchable |
+| `handle` | text | Unique, URL-friendly; auto-generated from `name` when omitted |
+| `email` | text | Unique, searchable |
+| `phone` | text | Nullable |
+| `description` | text | Nullable |
+| `logo` | text | Nullable |
+| `banner` | text | Nullable |
+| `website_url` | text | Nullable |
+| `external_id` | text | Nullable; unique when set |
+| `currency_code` | text | The seller's single operating currency |
+| `status` | enum | `SellerStatus`, default `pending_approval` |
+| `status_reason` | text | Nullable |
+| `approved_at` | dateTime | Nullable |
+| `rejected_at` | dateTime | Nullable |
+| `is_premium` | boolean | Default `false`; operator-set only |
+| `closed_from` / `closed_to` | dateTime | Nullable; scheduled closure window |
+| `closure_note` | text | Nullable |
+| `metadata` | json | Nullable |
+
+Relations: `professional_details`, `address`, and `payment_details` (one-to-one, deleted with the seller), `members` (many-to-many through `SellerMember`), `member_invites` (one-to-many, deleted with the seller).
+
+### `ProfessionalDetails`
+
+Table `professional_details`, ID prefix `selprodet`. Presence of this record marks the seller as a registered business.
+
+| Field | Type |
+| --- | --- |
+| `corporate_name` | text, nullable |
+| `registration_number` | text, nullable |
+| `tax_id` | text, nullable |
+
+### `SellerAddress`
+
+Table `seller_address`, ID prefix `seladdr`. Fields: `name`, `company`, `first_name`, `last_name`, `address_1`, `address_2`, `city`, `country_code`, `province`, `postal_code`, `phone`, `metadata` — all nullable.
+
+### `PaymentDetails`
+
+Table `payment_details`, ID prefix `selpaydet`. Fields: `country_code`, `holder_name`, `bank_name`, `iban`, `bic`, `routing_number`, `account_number` — all nullable.
+
+### `Member`
+
+Table `member`, ID prefix `mem`. A member is a dashboard user that can belong to one or more sellers.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `email` | text | Unique, searchable |
+| `first_name` / `last_name` | text | Nullable |
+| `locale` | text | Nullable |
+| `is_active` | boolean | Default `true` |
+| `metadata` | json | Nullable |
+
+### `SellerMember`
+
+Table `seller_member`, ID prefix `selmem`. Pivot between `Seller` and `Member`; unique on (`seller_id`, `member_id`).
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `role_id` | text | Nullable; resolved against the RBAC roles module |
+| `is_owner` | boolean | Default `false` |
+| `metadata` | json | Nullable |
+
+### `MemberInvite`
+
+Table `member_invite`, ID prefix `meminv`. Unique on (`email`, `seller_id`) while unaccepted.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `email` | text | Searchable |
+| `token` | text | Signed JWT |
+| `accepted` | boolean | Default `false` |
+| `expires_at` | dateTime | Derived from `invite_valid_duration` |
+| `role_id` | text | Role assigned on acceptance |
+| `metadata` | json | Nullable |
+
+### `OrderGroup`
+
+Table `order_group`, ID prefix `og`. Created when a multi-vendor cart completes.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `display_id` | autoincrement | Shopper-facing number |
+| `cart_id` | text | The originating cart |
+| `customer_id` | text | Nullable |
+| `seller_count` | number | Computed |
+| `total` | bigNumber | Computed across child orders |
+
+## Enums
+
+```ts
+enum SellerStatus {
+  OPEN = "open",
+  PENDING_APPROVAL = "pending_approval",
+  SUSPENDED = "suspended",
+  TERMINATED = "terminated",
+}
+
+enum SellerRole {
+  SELLER_ADMINISTRATION = "role_seller_administration",
+  INVENTORY_MANAGEMENT = "role_seller_inventory_management",
+  ORDER_MANAGEMENT = "role_seller_order_management",
+  ACCOUNTING = "role_seller_accounting",
+  SUPPORT = "role_seller_support",
+}
+```
+
+## Links
+
+The seller is the anchor of the marketplace graph. Nearly every seller-scoped resource is connected through a module link rather than a foreign key:
+
+| Linked entity | Cardinality | Purpose |
+| --- | --- | --- |
+| `Product.product` | many-to-many (`product_seller`) | Selling-eligibility allowlist for [master products](/rc/references/modules/product-edit) |
+| `Order.order` | one seller — many orders | Per-seller child orders |
+| `Payout.payout` | one seller — many payouts | Settlements |
+| `Payout.payoutAccount` | one-to-one | The seller's provider account |
+| `Pricing.priceList` | one seller — many lists | Vendor price lists |
+| `Promotion.promotion` / `Promotion.campaign` | one seller — many | Vendor promotions and campaigns |
+| `Inventory.inventoryItem` | one seller — many items | Vendor inventory |
+| `StockLocation.stockLocation` | one seller — many | Vendor locations |
+| `Fulfillment.shippingProfile` / `shippingOption` / `fulfillmentSet` / `serviceZone` | one seller — many | Vendor shipping setup |
+| `Customer.customer` / `customerGroup` | many-to-many / one seller — many | Vendor customer base |
+| `Product.productCategory` | many-to-many | Categories a seller may sell in |
+
+Order groups carry two additional links: a read-only link to the originating `Cart` (via `cart_id`) and a list link to the child `Order` records (table `order_group_order`). The `SellerMember.role_id` field is a read-only link into the RBAC roles module.
+
+## Service
+
+`SellerModuleService` extends `MedusaService` with auto-generated CRUD for all models above, plus:
+
+| Method | Behavior |
+| --- | --- |
+| `createSellers(data)` / `updateSellers(data)` | Validates the handle and auto-generates it from `name` when missing |
+| `upsertMembers(data)` | Dedupes by email, creates missing members, backfills empty names; returns members in input order |
+| `createMemberInvites(data)` | Rejects emails that already belong to the seller; issues a JWT token with an expiry |
+| `validateMemberInviteToken(token)` | Verifies the JWT and rejects accepted or expired invites |
+| `listOrderGroups` / `listAndCountOrderGroups` / `retrieveOrderGroup` | Custom repository-backed reads that resolve the computed `seller_count` and `total` fields |
+
+## Module options
+
+| Option | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `invite_valid_duration` | number (seconds) | 7 days | Member invite lifetime |
+| `jwt_secret` | string | project `http.jwtSecret` | Signs invite tokens |
+| `vendor_url` | string | `MERCUR_VENDOR_URL` env var | Vendor dashboard base URL used in invite links |
+
+## Related endpoints
+
+- [Admin API — sellers, members, order groups](/rc/references/api/admin)
+- [Vendor API — sellers, members](/rc/references/api/vendor)
+- [Store API — public seller storefronts](/rc/references/api/store)
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Commission module" href="/rc/references/modules/commission" />
+  <Card title="Payout module" href="/rc/references/modules/payout" />
+</CardGroup>

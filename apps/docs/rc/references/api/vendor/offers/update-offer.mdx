@@ -1,0 +1,82 @@
+---
+title: "Update Offer"
+api: "POST /vendor/offers/{id}"
+description: "Update one of the seller's offers."
+---
+
+Updates the offer directly (no change request) and returns the refreshed offer.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The offer's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="sku" type="string">
+  The seller's SKU for this listing.
+</ParamField>
+
+<ParamField body="shipping_profile_id" type="string">
+  ID of the shipping profile used to fulfill the offer.
+</ParamField>
+
+<ParamField body="prices" type="object[]">
+  Prices to upsert; include `id` to update an existing price, omit it to add one.
+  <Expandable title="properties">
+    <ParamField body="id" type="string">Existing price ID to update.</ParamField>
+    <ParamField body="amount" type="number" required>Price amount.</ParamField>
+    <ParamField body="currency_code" type="string" required>Currency code, e.g. `usd`.</ParamField>
+    <ParamField body="min_quantity" type="number">Minimum quantity for the price to apply; positive integer.</ParamField>
+    <ParamField body="max_quantity" type="number">Maximum quantity for the price to apply; positive integer.</ParamField>
+    <ParamField body="rules" type="object">Price rules as attribute-to-value pairs.</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Custom key-value pairs.
+</ParamField>
+
+## Response
+
+<ResponseField name="offer" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The offer's ID.</ResponseField>
+    <ResponseField name="sku" type="string">The seller's SKU for this listing.</ResponseField>
+    <ResponseField name="shipping_profile_id" type="string">ID of the shipping profile.</ResponseField>
+    <ResponseField name="prices" type="object[]">The offer's prices after the update.</ResponseField>
+    <ResponseField name="inventory_items" type="object[]">Linked inventory items.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/offers/offer_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"prices": [{ "id": "price_01HXYZ", "amount": 2300, "currency_code": "usd" }]}'
+```
+
+```ts JS Client
+const { offer } = await client.vendor.offers.$id.mutate({
+  $id: "offer_01HXYZ",
+  prices: [{ id: "price_01HXYZ", amount: 2300, currency_code: "usd" }],
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "offer": {
+    "id": "offer_01HXYZ",
+    "sku": "ACME-SHIRT-M",
+    "prices": [
+      { "id": "price_01HXYZ", "amount": 2300, "currency_code": "usd" }
+    ]
+  }
+}
+```
+</ResponseExample>

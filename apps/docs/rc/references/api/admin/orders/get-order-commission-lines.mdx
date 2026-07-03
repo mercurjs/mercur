@@ -1,0 +1,65 @@
+---
+title: "Get Order Commission Lines"
+api: "GET /admin/orders/{id}/commission-lines"
+description: "Retrieve the commission lines calculated for an order."
+---
+
+Returns the commission lines applied to an order's items and shipping methods.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order's ID.</ParamField>
+
+## Response
+
+<ResponseField name="commission_lines" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The commission line's ID.</ResponseField>
+    <ResponseField name="item_id" type="string | null">ID of the order item the line applies to.</ResponseField>
+    <ResponseField name="shipping_method_id" type="string | null">ID of the shipping method the line applies to.</ResponseField>
+    <ResponseField name="commission_rate_id" type="string | null">ID of the commission rate that produced the line.</ResponseField>
+    <ResponseField name="code" type="string">Code of the applied commission rate.</ResponseField>
+    <ResponseField name="rate" type="number">The applied commission rate value.</ResponseField>
+    <ResponseField name="amount" type="number">The calculated commission amount.</ResponseField>
+    <ResponseField name="description" type="string | null">Optional description of the line.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Number of commission lines on the order.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/orders/order_01HXYZ8Q2M4N6P8R0T2V4W6X8Y/commission-lines' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { commission_lines, count } =
+  await client.admin.orders.$id.commissionLines.query({
+    $id: "order_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "commission_lines": [
+    {
+      "id": "comline_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+      "item_id": "ordli_01HXYZ",
+      "shipping_method_id": null,
+      "commission_rate_id": "comrate_01HXYZ",
+      "code": "default",
+      "rate": 10,
+      "amount": 490,
+      "description": null,
+      "created_at": "2026-06-01T10:00:00.000Z",
+      "updated_at": "2026-06-01T10:00:00.000Z"
+    }
+  ],
+  "count": 1
+}
+```
+</ResponseExample>

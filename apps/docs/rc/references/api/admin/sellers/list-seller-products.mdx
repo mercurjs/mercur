@@ -1,0 +1,85 @@
+---
+title: "List Seller Products"
+api: "GET /admin/sellers/{id}/products"
+description: "Retrieve a paginated list of a seller's products."
+---
+
+Returns the products owned by the seller.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+<ParamField query="q" type="string">Search term matched against product fields.</ParamField>
+<ParamField query="id" type="string | string[]">Filter by product ID(s).</ParamField>
+<ParamField query="status" type="string | string[]">Filter by product status.</ParamField>
+<ParamField query="collection_id" type="string | string[]">Filter by collection ID(s).</ParamField>
+<ParamField query="sales_channel_id" type="string | string[]">Filter by sales channel ID(s).</ParamField>
+<ParamField query="type_id" type="string | string[]">Filter by product type ID(s).</ParamField>
+<ParamField query="tag_id" type="string | string[]">Filter by product tag ID(s).</ParamField>
+<ParamField query="created_at" type="object">Filter by creation date with operators like `$gte`, `$lte`.</ParamField>
+<ParamField query="updated_at" type="object">Filter by update date with operators like `$gte`, `$lte`.</ParamField>
+
+## Response
+
+<ResponseField name="products" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">Product title.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="status" type="string">Product status, e.g. `draft` or `published`.</ResponseField>
+    <ResponseField name="thumbnail" type="string">URL of the product's thumbnail.</ResponseField>
+    <ResponseField name="collection" type="object">The product's collection.</ResponseField>
+    <ResponseField name="sales_channels" type="object[]">Sales channels the product is available in.</ResponseField>
+    <ResponseField name="variants" type="object[]">The product's variants (IDs only by default).</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of the seller's products.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/products?limit=20' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { products, count } = await client.admin.sellers.$id.products.query({
+  $id: "sel_01HXYZABCDEF",
+  limit: 20,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "products": [
+    {
+      "id": "prod_01HXYZPRODAA",
+      "title": "Canvas Tote Bag",
+      "handle": "canvas-tote-bag",
+      "status": "published",
+      "thumbnail": "https://cdn.example.com/tote.jpg",
+      "collection": null,
+      "sales_channels": [],
+      "variants": [{ "id": "variant_01HXYZVARAA" }],
+      "created_at": "2026-06-03T10:00:00.000Z",
+      "updated_at": "2026-06-03T10:00:00.000Z"
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

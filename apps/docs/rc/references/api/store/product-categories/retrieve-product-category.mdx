@@ -1,0 +1,79 @@
+---
+title: "Retrieve Product Category"
+api: "GET /store/product-categories/{id}"
+description: "Retrieve an active, public product category by ID."
+---
+
+Returns a single category; inactive or internal categories return a `404`.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The category's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="include_ancestors_tree" type="boolean">
+  Include the category's ancestors in `parent_category`.
+</ParamField>
+
+<ParamField query="include_descendants_tree" type="boolean">
+  Include the category's descendants in `category_children`.
+</ParamField>
+
+## Response
+
+<ResponseField name="product_category" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The category's ID.</ResponseField>
+    <ResponseField name="name" type="string">The category's name.</ResponseField>
+    <ResponseField name="description" type="string">The category's description.</ResponseField>
+    <ResponseField name="handle" type="string">URL-safe handle.</ResponseField>
+    <ResponseField name="rank" type="number">Sort rank among siblings.</ResponseField>
+    <ResponseField name="parent_category_id" type="string | null">ID of the parent category.</ResponseField>
+    <ResponseField name="parent_category" type="object | null">The parent category.</ResponseField>
+    <ResponseField name="category_children" type="object[]">Direct child categories.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/product-categories/pcat_01JB2K6A2B?include_descendants_tree=true' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { product_category } = await client.store.productCategories.$id.query({
+  $id: "pcat_01JB2K6A2B",
+  include_descendants_tree: true,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_category": {
+    "id": "pcat_01JB2K6A2B",
+    "name": "Shirts",
+    "description": "",
+    "handle": "shirts",
+    "rank": 0,
+    "parent_category_id": null,
+    "parent_category": null,
+    "category_children": [{ "id": "pcat_01JB2K6H7J", "name": "Linen Shirts" }],
+    "metadata": null,
+    "created_at": "2026-05-01T10:00:00.000Z",
+    "updated_at": "2026-05-01T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

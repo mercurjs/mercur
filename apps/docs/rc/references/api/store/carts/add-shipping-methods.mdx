@@ -1,0 +1,84 @@
+---
+title: "Add Shipping Method"
+api: "POST /store/carts/{id}/shipping-methods"
+description: "Add a seller shipping option to the cart."
+---
+
+Adds the chosen shipping option to the cart through Mercur's seller-aware workflow, so each seller's items can carry their own shipping method.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The cart's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include on the returned cart; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="option_id" type="string" required>
+  ID of the shipping option to add.
+</ParamField>
+
+<ParamField body="data" type="object">
+  Provider-specific data forwarded to the fulfillment provider.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Data passed to the workflow's hooks.
+</ParamField>
+
+## Response
+
+<ResponseField name="cart" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The cart's ID.</ResponseField>
+    <ResponseField name="currency_code" type="string">The cart's currency.</ResponseField>
+    <ResponseField name="items" type="object[]">Line items in the cart.</ResponseField>
+    <ResponseField name="shipping_methods" type="object[]">Shipping methods with `shipping_option_id`, `amount`, and tax lines.</ResponseField>
+    <ResponseField name="shipping_total" type="number">Total shipping amount.</ResponseField>
+    <ResponseField name="total" type="number">Cart total including tax and shipping.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/store/carts/cart_01JB2KB1CD/shipping-methods' \
+  -H 'Content-Type: application/json' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ' \
+  -d '{"option_id": "so_01JB2KC4GH"}'
+```
+
+```ts JS Client
+const { cart } = await client.store.carts.$id.shippingMethods.mutate({
+  $id: "cart_01JB2KB1CD",
+  option_id: "so_01JB2KC4GH",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "cart": {
+    "id": "cart_01JB2KB1CD",
+    "currency_code": "eur",
+    "items": [{ "id": "cali_01JB2KB3EF", "quantity": 1, "unit_price": 4500 }],
+    "shipping_methods": [
+      {
+        "shipping_option_id": "so_01JB2KC4GH",
+        "amount": 900,
+        "is_tax_inclusive": false,
+        "tax_lines": []
+      }
+    ],
+    "shipping_total": 900,
+    "total": 5400
+  }
+}
+```
+</ResponseExample>

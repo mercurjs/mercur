@@ -1,0 +1,36 @@
+---
+title: "createOnboardingWorkflow"
+description: "Start a provider onboarding session for a payout account."
+---
+
+Creates an onboarding session for an existing payout account through the payout provider — for Stripe Connect this returns a hosted onboarding link the seller completes in the browser. Triggered by `POST /vendor/payout-accounts/:id/onboarding`.
+
+## Usage
+
+```ts
+import { createOnboardingWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await createOnboardingWorkflow(container).run({
+  input: {
+    account_id: "pacc_123",
+    data: {
+      refresh_url: "https://vendor.example.com/payouts",
+      return_url: "https://vendor.example.com/payouts",
+    },
+  },
+})
+```
+
+## Input
+
+<ParamField body="account_id" type="string" required>The payout account to onboard.</ParamField>
+<ParamField body="context" type="object">Provider context; supports `idempotency_key` plus provider-specific keys.</ParamField>
+<ParamField body="data" type="object">Provider-specific onboarding data (e.g. Stripe `refresh_url` / `return_url`).</ParamField>
+
+## Result
+
+<ResponseField name="result" type="OnboardingDTO">The created onboarding session.</ResponseField>
+<ResponseField name="result.id" type="string">Onboarding ID.</ResponseField>
+<ResponseField name="result.account_id" type="string">The payout account the session belongs to.</ResponseField>
+<ResponseField name="result.data" type="object | null">Provider response data (e.g. the hosted onboarding URL).</ResponseField>
+<ResponseField name="result.context" type="object | null">The context the session was created with.</ResponseField>

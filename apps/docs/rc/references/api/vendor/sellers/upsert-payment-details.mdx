@@ -1,0 +1,74 @@
+---
+title: "Upsert Payment Details"
+api: "POST /vendor/sellers/{id}/payment-details"
+description: "Create or update the seller's bank account details."
+---
+
+Upserts the seller's payment details and returns the full seller object.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The seller's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="country_code" type="string">Bank country code.</ParamField>
+<ParamField body="holder_name" type="string">Account holder name.</ParamField>
+<ParamField body="bank_name" type="string">Bank name.</ParamField>
+<ParamField body="iban" type="string">IBAN.</ParamField>
+<ParamField body="bic" type="string">BIC / SWIFT code.</ParamField>
+<ParamField body="routing_number" type="string">Routing number.</ParamField>
+<ParamField body="account_number" type="string">Account number.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed to workflow hooks.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="payment_details" type="object">The updated payment details.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/sellers/sel_01HXYZ/payment-details' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"holder_name": "Acme Inc.", "iban": "DE89370400440532013000", "bic": "COBADEFFXXX"}'
+```
+
+```ts JS Client
+const { seller } = await client.vendor.sellers.$id.paymentDetails.mutate({
+  $id: "sel_01HXYZ",
+  holder_name: "Acme Inc.",
+  iban: "DE89370400440532013000",
+  bic: "COBADEFFXXX",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZ",
+    "name": "Acme Store",
+    "payment_details": {
+      "holder_name": "Acme Inc.",
+      "iban": "DE89370400440532013000",
+      "bic": "COBADEFFXXX"
+    }
+  }
+}
+```
+</ResponseExample>

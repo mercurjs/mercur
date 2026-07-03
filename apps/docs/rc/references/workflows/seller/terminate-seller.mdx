@@ -1,0 +1,35 @@
+---
+title: "terminateSellerWorkflow"
+description: "Terminate a seller with an optional reason."
+---
+
+Validates the seller can be terminated, then sets `status` to `terminated` and records the reason. Emits `seller.terminated`.
+
+## Usage
+
+```ts
+import { terminateSellerWorkflow } from "@mercurjs/core/workflows"
+
+await terminateSellerWorkflow(container).run({
+  input: { seller_id: "sel_123", reason: "Account closure requested" },
+})
+```
+
+## Input
+
+<ParamField body="seller_id" type="string" required>Id of the seller to terminate.</ParamField>
+<ParamField body="reason" type="string">Reason stored in `status_reason`.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">Nothing is returned.</ResponseField>
+
+## Hooks
+
+- `sellerTerminated` — runs after termination with `{ seller_id }`.
+
+```ts
+terminateSellerWorkflow.hooks.sellerTerminated(async ({ seller_id }) => {
+  // e.g. archive the seller's data
+})
+```

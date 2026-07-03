@@ -1,0 +1,79 @@
+---
+title: "Products"
+description: "Mercur products are master products — a single shared catalog for the whole marketplace, with selling eligibility instead of ownership."
+---
+
+Products in Mercur are **master products**: a single shared catalog of product records that the whole marketplace draws from. A product is **not** owned by the seller who created it — creating a product adds a candidate to the shared catalog, and sellers sell against that catalog through [offers](/rc/learn/offers).
+
+This is the model used by large marketplaces: one canonical product record ("iPhone 15 Pro, 256 GB, Black"), many sellers listing against it.
+
+## No product ownership
+
+There is no owner column on a product. What looks like ownership in other platforms is split into three independent mechanisms:
+
+| Mechanism | What it controls | What it does *not* control |
+|-----------|-----------------|----------------------------|
+| Selling eligibility (`product_seller` link) | Which sellers may sell the product and see it while restricted | Who can edit the product |
+| Creator attribution | Which unpublished products appear in a seller's own list | Any rights over the product after publication |
+| Status lifecycle | Who can see the product at all | Which seller it "belongs" to |
+
+### Selling eligibility
+
+The `product_seller` link is an **allowlist**, analogous to Medusa's `product_sales_channel` link:
+
+- **Restricted** — a product assigned to one or more sellers is visible and sellable only for those sellers.
+- **Unrestricted** — a product with no seller assignments is available to every seller on the marketplace (subject to its status).
+
+Assignments are managed by the operator; creating a product does not assign it to the creator.
+
+### Creator attribution
+
+When a product is created, the platform records who created it as part of the product's [change history](/rc/learn/product-requests). This attribution has exactly one purpose: scoping vendor lists so a seller sees their own not-yet-published submissions without seeing other sellers' pending work.
+
+## Status lifecycle
+
+```
+DRAFT ──> PROPOSED ──> PUBLISHED
+              │
+              └──────> REJECTED
+```
+
+| Status | Meaning |
+|--------|---------|
+| `draft` | Work in progress, not submitted |
+| `proposed` | Submitted for review — visible only to its creator until published |
+| `published` | Live in the shared catalog |
+| `rejected` | Declined by the operator |
+
+Vendor-created products default to **`proposed`**. The operator reviews the submission and publishes or rejects it — see [Product Requests & Approvals](/rc/learn/product-requests).
+
+## Visibility rules
+
+| Surface | What is visible |
+|---------|----------------|
+| Vendor | Products the seller created (any status) plus published products not restricted to other sellers |
+| Admin | Every product, regardless of status or eligibility |
+| Store | Published products of visible sellers |
+
+The vendor rule in practice: a seller's product list is their own submissions **or** the shared published catalog, minus products allowlisted exclusively to other sellers.
+
+## Editing shared products
+
+Because the catalog is shared, edits are collaborative: **any seller may request a change to any product** — updating details, adding or removing variants, changing attributes. Edits flow through the [change-request pipeline](/rc/learn/product-requests) rather than mutating the product directly, so the operator stays in control of the shared record.
+
+Eligibility restrictions limit who may *sell* a product; they do not limit who may *propose changes* to it.
+
+## What sellers actually sell
+
+A master product defines *what the item is*. It carries no seller price and no seller stock. To sell it, a seller creates an **offer** — their own SKU, price, inventory, and shipping profile bound to the product. This separation is what allows many sellers to compete on the same catalog entry.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Offers" href="/rc/learn/offers">
+    How sellers list, price, and stock products from the shared catalog.
+  </Card>
+  <Card title="Product Requests & Approvals" href="/rc/learn/product-requests">
+    How new products and edits are reviewed by the operator.
+  </Card>
+</CardGroup>

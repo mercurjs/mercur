@@ -1,0 +1,70 @@
+---
+title: "Batch Commission Rules"
+api: "POST /admin/commission-rates/{id}/rules"
+description: "Create, update, and delete a commission rate's rules in one request."
+---
+
+Applies a batch of rule operations against a commission rate.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The commission rate's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="create" type="object[]">
+  Rules to create.
+  <Expandable title="properties">
+    <ParamField body="reference" type="string" required>The rule target type: `product`, `product_type`, `product_collection`, `product_category`, or `seller`.</ParamField>
+    <ParamField body="reference_id" type="string" required>ID of the referenced entity.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="update" type="object[]">
+  Rules to update.
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>The rule's ID.</ParamField>
+    <ParamField body="reference" type="string">The rule target type: `product`, `product_type`, `product_collection`, `product_category`, or `seller`.</ParamField>
+    <ParamField body="reference_id" type="string">ID of the referenced entity.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="delete" type="string[]">IDs of rules to delete.</ParamField>
+
+## Response
+
+<ResponseField name="created" type="object[]">The created rules.</ResponseField>
+<ResponseField name="updated" type="object[]">The updated rules.</ResponseField>
+<ResponseField name="deleted" type="string[]">IDs of the deleted rules.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/commission-rates/comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y/rules' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"create": [{"reference": "seller", "reference_id": "sel_01HXYZ"}], "delete": ["comrule_01HABC"]}'
+```
+
+```ts JS Client
+const { created, updated, deleted } =
+  await client.admin.commissionRates.$id.rules.mutate({
+    $id: "comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+    create: [{ reference: "seller", reference_id: "sel_01HXYZ" }],
+    delete: ["comrule_01HABC"],
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "created": [
+    {
+      "id": "comrule_01HXYZ9A1B2C3D4E5F6G7H8J9K",
+      "reference": "seller",
+      "reference_id": "sel_01HXYZ"
+    }
+  ],
+  "updated": [],
+  "deleted": ["comrule_01HABC"]
+}
+```
+</ResponseExample>

@@ -1,0 +1,56 @@
+---
+title: "Retrieve Order Group"
+api: "GET /admin/order-groups/{id}"
+description: "Retrieve an order group by ID."
+---
+
+Returns a single order group.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order group's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated fields to include in the response.</ParamField>
+
+## Response
+
+<ResponseField name="order_group" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order group's ID.</ResponseField>
+    <ResponseField name="customer_id" type="string">ID of the customer who placed the order.</ResponseField>
+    <ResponseField name="seller_count" type="number">Number of sellers in the group.</ResponseField>
+    <ResponseField name="total" type="number">The group's total amount.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/order-groups/og_01HXYZ8Q2M4N6P8R0T2V4W6X8Y' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { order_group } = await client.admin.orderGroups.$id.query({
+  $id: "og_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "order_group": {
+    "id": "og_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+    "customer_id": "cus_01HXYZ",
+    "seller_count": 2,
+    "total": 7400,
+    "created_at": "2026-06-01T10:00:00.000Z",
+    "updated_at": "2026-06-01T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

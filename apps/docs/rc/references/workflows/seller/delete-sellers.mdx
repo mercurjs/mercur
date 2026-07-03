@@ -1,0 +1,24 @@
+---
+title: "deleteSellersWorkflow"
+description: "Delete sellers by id."
+---
+
+Soft-deletes the given sellers. Emits `seller.deleted` for each id.
+
+## Usage
+
+```ts
+import { deleteSellersWorkflow } from "@mercurjs/core/workflows"
+
+await deleteSellersWorkflow(container).run({
+  input: { ids: ["sel_123"] },
+})
+```
+
+## Input
+
+<ParamField body="ids" type="string[]" required>Ids of the sellers to delete.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">Nothing is returned.</ResponseField>

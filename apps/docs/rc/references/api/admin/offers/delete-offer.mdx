@@ -1,0 +1,40 @@
+---
+title: "Delete Offer"
+api: "DELETE /admin/offers/{id}"
+description: "Delete an offer."
+---
+
+Deletes an offer by ID.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The offer's ID.</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">The deleted offer's ID.</ResponseField>
+<ResponseField name="object" type="string">The object type: `offer`.</ResponseField>
+<ResponseField name="deleted" type="boolean">Whether the offer was deleted.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/admin/offers/offer_01HXYZ8Q2M4N6P8R0T2V4W6X8Y' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const result = await client.admin.offers.$id.delete({
+  $id: "offer_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "offer_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+  "object": "offer",
+  "deleted": true
+}
+```
+</ResponseExample>

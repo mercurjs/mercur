@@ -1,0 +1,89 @@
+---
+title: "Work with master products and offers"
+description: "Two sellers compete on one catalog entry: publish a master product, create competing offers, and read per-offer prices from the Store API."
+---
+
+Mercur's catalog is a **master catalog**: one canonical product record, many sellers listing against it. The product defines *what the item is*; each seller's **offer** defines *how they sell it* — their SKU, price, stock, and shipping. This tutorial builds the classic "buy box" scenario: two sellers, one product, two competing offers.
+
+<Info>
+  **No seller owns a product.** There is no owner column. Creating a product adds a candidate to the shared catalog — the creator gets attribution (so their unpublished submissions appear in their own list) but no rights over the record after publication. What looks like ownership elsewhere is split into selling eligibility, creator attribution, and the status lifecycle. See [Products](/rc/learn/products).
+</Info>
+
+## What you'll build
+
+A published master product with offers from two sellers at different prices, visible side by side through the Store API with per-offer calculated prices.
+
+## Product vs offer
+
+| Concern | Lives on | Example |
+|---------|----------|---------|
+| What the item is | Master product | "Classic White T-Shirt", variants, attributes |
+| Who may sell it | `product_seller` allowlist | Empty = every seller; assigned = only those sellers |
+| How a seller sells it | Offer | SKU, price, stock, shipping profile |
+
+## Build the buy box
+
+<Steps>
+  <Step title="Publish a master product">
+    As Seller A, create a product in the Vendor Portal — say "Classic White T-Shirt" with a size variant. It enters as `proposed`; as the operator, confirm it in the Admin Panel so it's `published` (the review flow is covered in [Handle product requests](/rc/resources/tutorials/handle-product-requests)).
+
+    The published product now belongs to the shared catalog. Note what it does **not** have: a seller price or seller stock.
+  </Step>
+  <Step title="Seller A creates an offer">
+    In Seller A's Vendor Portal, create an offer against the product's variant: their own SKU, a price of $25, stock of 100, and one of their shipping profiles.
+
+    <Warning>
+      Offer inventory is linked to the **offer, not the variant**. Each seller manages stock for their own listing independently — a variant has no marketplace-wide stock figure, and its own `inventory_items` relation is empty for offer-based listings. Always read stock through the offer.
+    </Warning>
+  </Step>
+  <Step title="Seller B lists the same product">
+    As Seller B, find the same published product in the catalog and create a competing offer on the same variant — different SKU, $23, stock of 40. The `(seller_id, sku)` pair is unique per seller, so both sellers can use whatever SKU scheme they like.
+
+    Nothing about the master product changed. Two commercial listings now point at one catalog entry.
+  </Step>
+  <Step title="Read the buy box from the Store API">
+    The Store API exposes offers directly, each with its own calculated price:
+
+    ```bash
+    curl "http://localhost:9000/store/offers?product_id=prod_123" \
+      -H "x-publishable-api-key: <key>"
+    ```
+
+    Offers share the variant's price set scoped by an offer rule — each offer carries its own prices without duplicating the variant, and the storefront computes a `calculated_price` per offer. A buy-box storefront fetches the product once, then renders every seller's offer against it.
+  </Step>
+  <Step title="Check out against an offer">
+    Add Seller B's offer to a cart and place the order. The cart line item links to the **specific offer** purchased, and that link is preserved onto the order line item — so fulfillment, [commission calculation](/rc/learn/commissions), and [payouts](/rc/learn/payouts) all resolve to Seller B, even though both sellers list the same variant.
+  </Step>
+</Steps>
+
+## Verify
+
+1. Both offers appear in `GET /store/offers?product_id=...` with different `calculated_price` values.
+2. Each seller's Vendor Portal shows only their own offer; the Admin Panel lists both with store, pricing, and inventory.
+3. After the checkout in step 5, the order lands with Seller B; Seller A's offer and stock are untouched.
+4. Reducing Seller B's offer stock doesn't affect Seller A's availability — inventory is per offer.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="How do I restrict who may sell a product?">
+    The operator manages the `product_seller` allowlist: a product with assignments is visible and sellable only for those sellers, while a product with **no** assignments is open to every seller. Eligibility limits selling — it does not limit who may propose edits to the shared record.
+  </Accordion>
+  <Accordion title="Can two sellers use the same SKU?">
+    Yes — SKU uniqueness is per seller (`seller_id` + `sku`). Seller A and Seller B can both use `TSHIRT-WHITE-M`; a single seller cannot list the same SKU twice.
+  </Accordion>
+  <Accordion title="Who fulfills, refunds, and gets paid when several sellers list the same variant?">
+    Always the seller whose **offer** was purchased. The offer link travels from cart line to order line, so fulfillment, returns, commission, and payout all resolve through it — the variant alone is never enough to identify the seller.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Offers" href="/rc/learn/offers">
+    The offer data model, relationships, and checkout links.
+  </Card>
+  <Card title="Order Groups" href="/rc/learn/order-groups">
+    What happens when a cart spans both sellers — the multi-vendor split.
+  </Card>
+</CardGroup>

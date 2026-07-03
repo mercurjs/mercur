@@ -1,0 +1,76 @@
+---
+title: "Create Fulfillment"
+api: "POST /vendor/orders/{id}/fulfillments"
+description: "Create a fulfillment for the order's items."
+---
+
+Creates a fulfillment for the specified items from a stock location owned by the seller.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="items" type="object[]" required>
+  Items to fulfill.
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>Line item ID.</ParamField>
+    <ParamField body="quantity" type="number" required>Quantity to fulfill; integer, minimum 0.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="requires_shipping" type="boolean" required>Whether the fulfillment requires shipping.</ParamField>
+<ParamField body="location_id" type="string" required>ID of the stock location to fulfill from.</ParamField>
+
+## Response
+
+<ResponseField name="fulfillment" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The fulfillment's ID.</ResponseField>
+    <ResponseField name="location_id" type="string">ID of the stock location fulfilled from.</ResponseField>
+    <ResponseField name="requires_shipping" type="boolean">Whether the fulfillment requires shipping.</ResponseField>
+    <ResponseField name="packed_at" type="string">When the fulfillment was packed.</ResponseField>
+    <ResponseField name="shipped_at" type="string">When the fulfillment was shipped.</ResponseField>
+    <ResponseField name="delivered_at" type="string">When the fulfillment was delivered.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/orders/order_01HXYZABCDEF/fulfillments' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "items": [{ "id": "ordli_01HXYZABCDEF", "quantity": 1 }],
+    "requires_shipping": true,
+    "location_id": "sloc_01HXYZABCDEF"
+  }'
+```
+
+```ts JS Client
+const { fulfillment } = await client.vendor.orders.$id.fulfillments.mutate({
+  $id: "order_01HXYZABCDEF",
+  items: [{ id: "ordli_01HXYZABCDEF", quantity: 1 }],
+  requires_shipping: true,
+  location_id: "sloc_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "fulfillment": {
+    "id": "ful_01HXYZABCDEF",
+    "location_id": "sloc_01HXYZABCDEF",
+    "requires_shipping": true,
+    "packed_at": "2026-06-03T10:00:00.000Z",
+    "shipped_at": null,
+    "delivered_at": null,
+    "created_at": "2026-06-03T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

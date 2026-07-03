@@ -1,0 +1,41 @@
+---
+title: "createCommissionRatesWorkflow"
+description: "Create one or more commission rates."
+---
+
+Creates commission rates — the fee definitions (flat or percentage) applied to seller orders. A unique `code` is auto-generated from the name when not provided. Triggered by `POST /admin/commission-rates`.
+
+## Usage
+
+```ts
+import { createCommissionRatesWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await createCommissionRatesWorkflow(container).run({
+  input: [
+    {
+      name: "Default commission",
+      type: "percentage",
+      value: 10,
+      is_default: true,
+    },
+  ],
+})
+```
+
+## Input
+
+The input is an array of commission rates to create.
+
+<ParamField body="name" type="string" required>Display name of the rate.</ParamField>
+<ParamField body="type" type="string" required>One of `fixed`, `percentage`.</ParamField>
+<ParamField body="value" type="number" required>Rate value — a percentage for `percentage`, an amount for `fixed`.</ParamField>
+<ParamField body="code" type="string">Unique code; auto-generated from the name when omitted.</ParamField>
+<ParamField body="currency_code" type="string | null">Currency of a `fixed` rate.</ParamField>
+<ParamField body="include_tax" type="boolean">Include tax totals in the commission base.</ParamField>
+<ParamField body="include_shipping" type="boolean">Also apply the rate to shipping methods.</ParamField>
+<ParamField body="is_enabled" type="boolean">Whether the rate is active.</ParamField>
+<ParamField body="is_default" type="boolean">Marks the rate as the platform-wide fallback.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="CommissionRateDTO[]">The created commission rates.</ResponseField>

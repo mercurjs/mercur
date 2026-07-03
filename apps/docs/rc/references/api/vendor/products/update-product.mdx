@@ -1,0 +1,148 @@
+---
+title: "Update Product"
+api: "POST /vendor/products/{id}"
+description: "Stage an update to a product as a change request."
+---
+
+Does not modify the product directly — it stages a pending change request that an operator confirms or declines.
+
+<Note>
+  The endpoint responds with `202 Accepted` and a `product_change` record, not the updated product. Use [Preview Product Change](/rc/references/api/vendor/products/preview-product) to inspect the pending change and [Cancel Product Change](/rc/references/api/vendor/products/cancel-product-change) to withdraw it.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="title" type="string">The product's title.</ParamField>
+<ParamField body="subtitle" type="string">The product's subtitle.</ParamField>
+<ParamField body="description" type="string">The product's description.</ParamField>
+<ParamField body="discountable" type="boolean">Whether discounts can apply to the product.</ParamField>
+<ParamField body="is_giftcard" type="boolean">Whether the product is a gift card.</ParamField>
+
+<ParamField body="images" type="object[]">
+  <Expandable title="properties">
+    <ParamField body="id" type="string">Existing image ID to keep.</ParamField>
+    <ParamField body="url" type="string" required>Image URL.</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="thumbnail" type="string">URL of the product's thumbnail image.</ParamField>
+<ParamField body="handle" type="string">The product's URL handle.</ParamField>
+<ParamField body="external_id" type="string">ID of the product in an external system.</ParamField>
+<ParamField body="type_id" type="string">ID of the product type.</ParamField>
+<ParamField body="collection_id" type="string">ID of the collection the product belongs to.</ParamField>
+
+<ParamField body="categories" type="object[]">
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>Category ID.</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="tags" type="object[]">
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>Tag ID.</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="options" type="object[]">
+  <Expandable title="properties">
+    <ParamField body="title" type="string" required>Option title.</ParamField>
+    <ParamField body="values" type="string[]" required>Allowed option values.</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="variants" type="object[]">
+  Variant updates staged with the change.
+  <Expandable title="properties">
+    <ParamField body="id" type="string">Existing variant ID to update.</ParamField>
+    <ParamField body="title" type="string">Variant title.</ParamField>
+    <ParamField body="sku" type="string">Variant SKU.</ParamField>
+    <ParamField body="ean" type="string">EAN barcode.</ParamField>
+    <ParamField body="upc" type="string">UPC barcode.</ParamField>
+    <ParamField body="isbn" type="string">ISBN code.</ParamField>
+    <ParamField body="asin" type="string">Amazon ASIN.</ParamField>
+    <ParamField body="gtin" type="string">GTIN code.</ParamField>
+    <ParamField body="barcode" type="string">Generic barcode.</ParamField>
+    <ParamField body="hs_code" type="string">Harmonized System code.</ParamField>
+    <ParamField body="mid_code" type="string">Manufacturer ID code.</ParamField>
+    <ParamField body="thumbnail" type="string">Variant thumbnail URL.</ParamField>
+    <ParamField body="variant_rank" type="number">Sort rank of the variant.</ParamField>
+    <ParamField body="weight" type="number">Weight of the variant.</ParamField>
+    <ParamField body="length" type="number">Length of the variant.</ParamField>
+    <ParamField body="height" type="number">Height of the variant.</ParamField>
+    <ParamField body="width" type="number">Width of the variant.</ParamField>
+    <ParamField body="origin_country" type="string">Country of origin.</ParamField>
+    <ParamField body="material" type="string">Material of the variant.</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value pairs.</ParamField>
+    <ParamField body="options" type="object">Option title to value mapping.</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="weight" type="number">Weight of the product.</ParamField>
+<ParamField body="length" type="number">Length of the product.</ParamField>
+<ParamField body="height" type="number">Height of the product.</ParamField>
+<ParamField body="width" type="number">Width of the product.</ParamField>
+<ParamField body="hs_code" type="string">Harmonized System code.</ParamField>
+<ParamField body="mid_code" type="string">Manufacturer ID code.</ParamField>
+<ParamField body="origin_country" type="string">Country of origin.</ParamField>
+<ParamField body="material" type="string">Material of the product.</ParamField>
+<ParamField body="metadata" type="object">Custom key-value pairs.</ParamField>
+<ParamField body="additional_data" type="object">Extra data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="product_change" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The change request's ID.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the product the change targets.</ResponseField>
+    <ResponseField name="status" type="string">One of `pending`, `confirmed`, `declined`, `canceled`.</ResponseField>
+    <ResponseField name="created_by" type="string">ID of the seller that staged the change.</ResponseField>
+    <ResponseField name="actions" type="object[]">Staged operations, each with `id`, `action` (e.g. `UPDATE`), `details`, `ordering`, and `applied`.</ResponseField>
+    <ResponseField name="internal_note" type="string">Internal note attached to the change.</ResponseField>
+    <ResponseField name="external_note" type="string">Note from the operator, e.g. a revision request.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/products/prod_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"title": "Acme T-Shirt v2", "description": "Softer fabric."}'
+```
+
+```ts JS Client
+const { product_change } = await client.vendor.products.$id.mutate({
+  $id: "prod_01HXYZ",
+  title: "Acme T-Shirt v2",
+  description: "Softer fabric.",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 202
+{
+  "product_change": {
+    "id": "prodch_01HXYZ",
+    "product_id": "prod_01HXYZ",
+    "status": "pending",
+    "created_by": "sel_01HXYZ",
+    "actions": [
+      {
+        "id": "prodchact_01HXYZ",
+        "action": "UPDATE",
+        "details": { "title": "Acme T-Shirt v2" },
+        "applied": false
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,89 @@
+---
+title: "Product Attributes"
+description: "Typed, filterable product attributes on top of Medusa's native product options — including variant axes shared across the catalog."
+---
+
+Product attributes extend the master catalog with structured, typed data — "Material: Cotton", "Weight: 10kg", "Waterproof: yes". The operator defines the attribute catalog; products reference it. Attributes power filtering, enforce consistent values across sellers, and — for select attributes — can drive variant generation.
+
+## Attribute types
+
+| Type | Values | Example |
+|------|--------|---------|
+| `multi_select` | Multiple values from a defined list | Color: Red, Blue, Green |
+| `single_select` | One value from a defined list | Condition: New |
+| `text` | Free text | Care instructions |
+| `unit` | A measured value | Weight: 10kg |
+| `toggle` | Boolean — fixed `true` / `false` values | Waterproof |
+
+## Attribute fields
+
+| Field | Description |
+|-------|-------------|
+| `name` / `handle` | Display name and unique handle |
+| `type` | One of the types above |
+| `is_variant_axis` | Whether the attribute generates product variants — only allowed for `multi_select` |
+| `is_filterable` | Whether the attribute is exposed as a storefront filter |
+| `is_required` | Whether products must set a value |
+| `rank` | Ordering in listings and forms |
+| `is_active` | Soft enable/disable |
+| `product_id` | `null` for global attributes; set when the attribute is product-scoped |
+
+Each select attribute owns a ranked list of **values** (`ProductAttributeValue`), managed by the operator in the Admin Panel.
+
+## Global vs product-scoped
+
+- **Global attributes** (`product_id = null`) live in the marketplace-wide catalog. They can be attached to any product and linked to categories, so the right attributes surface for the right product types.
+- **Product-scoped attributes** are created inline from a single product's form — a one-off axis or field that doesn't belong in the shared catalog. They don't appear in the global attribute list.
+
+## Variant axes and native product options
+
+Attributes marked `is_variant_axis` are not a parallel system — **a variant-axis attribute is backed by a native Medusa global product option**. The attribute and its values mirror one-to-one onto a `ProductOption` and its option values:
+
+- A **global** axis attribute maps to a shared product option that many products link to, each restricted to its selected subset of values.
+- A **product-scoped** axis attribute maps to an exclusive, product-owned option.
+
+Because axes are real product options, variants are built with Medusa's standard machinery — `variants[].options` maps axis titles to value names, exactly as in a plain Medusa project. Non-axis attributes never become options; they attach as plain value links.
+
+Only `multi_select` attributes can be variant axes — an axis needs an enumerable set of values to combine into variants.
+
+## Attaching attributes to products
+
+Products manage their attributes through a single **batch** endpoint that adds, removes, and updates in one request:
+
+```bash
+curl -X POST "http://localhost:9000/vendor/products/prod_123/attributes/batch" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "add": [
+      { "id": "pattr_material", "value_ids": ["pattrval_cotton"] },
+      { "title": "Fit", "values": ["Slim", "Regular"], "is_variant_axis": true }
+    ],
+    "remove": ["pattr_old"]
+  }'
+```
+
+An entry either references an **existing** attribute by `id` (with the selected `value_ids`, or a `value` for text/unit/toggle types) or defines an **inline** one by `title` — created product-scoped on the fly.
+
+At product create time, the same shape is passed as a unified `attributes[]` array.
+
+## Who manages what
+
+| Surface | Capability |
+|---------|-----------|
+| Admin Panel | Owns the attribute catalog — create attributes, manage possible values, set ranking, edit flags |
+| Vendor Portal | Consumes attributes on products — select values, propose inline attributes as part of product submissions |
+| Store API | Reads attributes for display and filtering |
+
+Attribute changes on products submitted by vendors flow through the same [change-request pipeline](/rc/learn/product-requests) as other product edits.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Products" href="/rc/learn/products">
+    The master catalog attributes describe.
+  </Card>
+  <Card title="Product Requests & Approvals" href="/rc/learn/product-requests">
+    How attribute edits are reviewed.
+  </Card>
+</CardGroup>

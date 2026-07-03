@@ -1,0 +1,66 @@
+---
+title: "Update Attribute Value"
+api: "POST /admin/product-attributes/{id}/values/{value_id}"
+description: "Update a single value on a product attribute."
+---
+
+Updates the value and returns the parent attribute.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The attribute's ID.</ParamField>
+<ParamField path="value_id" type="string" required>The value's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="name" type="string">Value name.</ParamField>
+<ParamField body="handle" type="string">Unique URL-safe handle.</ParamField>
+<ParamField body="rank" type="number">Sort rank; must be non-negative.</ParamField>
+<ParamField body="is_active" type="boolean">Whether the value is active.</ParamField>
+<ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="product_attribute" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The attribute's ID.</ResponseField>
+    <ResponseField name="name" type="string">Attribute name.</ResponseField>
+    <ResponseField name="type" type="string">The attribute's type.</ResponseField>
+    <ResponseField name="values" type="object[]">All values, including the updated one.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/product-attributes/pattr_01HXYZABCDEF/values/pattrval_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "Belgian Linen"}'
+```
+
+```ts JS Client
+const { product_attribute } =
+  await client.admin.productAttributes.$id.values.$value_id.mutate({
+    $id: "pattr_01HXYZABCDEF",
+    $value_id: "pattrval_01HXYZABCDEF",
+    name: "Belgian Linen",
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_attribute": {
+    "id": "pattr_01HXYZABCDEF",
+    "name": "Material",
+    "type": "single_select",
+    "values": [
+      { "id": "pattrval_01HXYZABCDEF", "name": "Belgian Linen", "rank": 0 }
+    ]
+  }
+}
+```
+</ResponseExample>

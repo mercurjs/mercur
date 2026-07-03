@@ -1,0 +1,112 @@
+---
+title: "Retrieve Offer"
+api: "GET /store/offers/{id}"
+description: "Retrieve a seller offer by ID with its per-offer calculated price."
+---
+
+Returns a single offer; offers from hidden sellers or on unpublished products return a `404`.
+
+<Note>
+  Customer authentication is optional. `calculated_price` is computed per offer only when requested in `fields` and a pricing context (`region_id`, `country_code`, or `cart_id`) resolves; requesting `inventory_quantity` or `in_stock` requires a single sales channel on the publishable key or via `sales_channel_id`.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The offer's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; add `calculated_price`, `inventory_quantity`, or `in_stock` to receive the computed fields.
+</ParamField>
+
+<ParamField query="region_id" type="string">
+  Region used to build the pricing context for `calculated_price`.
+</ParamField>
+
+<ParamField query="country_code" type="string">
+  Country used for the tax portion of the pricing context.
+</ParamField>
+
+<ParamField query="province" type="string">
+  Province used for the tax portion of the pricing context.
+</ParamField>
+
+<ParamField query="cart_id" type="string">
+  Cart whose region and customer resolve the pricing context.
+</ParamField>
+
+## Response
+
+<ResponseField name="offer" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The offer's ID.</ResponseField>
+    <ResponseField name="seller_id" type="string">ID of the selling seller.</ResponseField>
+    <ResponseField name="variant_id" type="string">ID of the offered product variant.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the offered product.</ResponseField>
+    <ResponseField name="shipping_profile_id" type="string | null">ID of the offer's shipping profile.</ResponseField>
+    <ResponseField name="sku" type="string | null">The offer's SKU.</ResponseField>
+    <ResponseField name="ean" type="string | null">The offer's EAN.</ResponseField>
+    <ResponseField name="upc" type="string | null">The offer's UPC.</ResponseField>
+    <ResponseField name="seller" type="object">The seller's `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="product_variant" type="object">The variant's `id`, `title`, `sku`, and `price_set`.</ResponseField>
+    <ResponseField name="shipping_profile" type="object | null">The shipping profile's `id` and `name`.</ResponseField>
+    <ResponseField name="prices" type="object[]">Raw offer prices with `amount`, `currency_code`, `min_quantity`, and `max_quantity`.</ResponseField>
+    <ResponseField name="inventory_item_link" type="object[]">Inventory items backing the offer, with location stock levels.</ResponseField>
+    <ResponseField name="calculated_price" type="object | null">Per-offer calculated price with tax-adjusted amounts when a tax context resolves; only present when requested.</ResponseField>
+    <ResponseField name="inventory_quantity" type="number">Available quantity in the sales channel's stock locations; only present when requested.</ResponseField>
+    <ResponseField name="in_stock" type="boolean">Whether the offer has available inventory; only present when requested.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/offers/offer_01JB2K6G5H?region_id=reg_01JB2K4S1T&fields=%2Bcalculated_price' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { offer } = await client.store.offers.$id.query({
+  $id: "offer_01JB2K6G5H",
+  region_id: "reg_01JB2K4S1T",
+  fields: "+calculated_price",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "offer": {
+    "id": "offer_01JB2K6G5H",
+    "seller_id": "sel_01JB2K8A1B",
+    "variant_id": "variant_01JB2K6E4F",
+    "product_id": "prod_01JB2K5M8N",
+    "shipping_profile_id": "sp_01JB2K9C2D",
+    "sku": "NT-LINEN-M",
+    "ean": null,
+    "upc": null,
+    "seller": { "id": "sel_01JB2K8A1B", "name": "Nordic Textiles", "handle": "nordic-textiles" },
+    "product_variant": { "id": "variant_01JB2K6E4F", "title": "M", "sku": null, "price_set": { "id": "pset_01JB2K9E3F" } },
+    "shipping_profile": { "id": "sp_01JB2K9C2D", "name": "Default" },
+    "prices": [
+      { "id": "price_01JB2K9G4H", "amount": 4500, "currency_code": "eur", "min_quantity": null, "max_quantity": null }
+    ],
+    "inventory_item_link": [],
+    "calculated_price": {
+      "calculated_amount": 4500,
+      "original_amount": 4500,
+      "currency_code": "eur"
+    },
+    "metadata": null,
+    "created_at": "2026-05-01T10:00:00.000Z",
+    "updated_at": "2026-05-01T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

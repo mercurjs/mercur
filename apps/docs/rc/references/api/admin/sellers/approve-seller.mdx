@@ -1,0 +1,54 @@
+---
+title: "Approve Seller"
+api: "POST /admin/sellers/{id}/approve"
+description: "Approve a pending seller."
+---
+
+Moves the seller from `pending_approval` to `open` and sets `approved_at`.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="status" type="string">The seller's status, `open` after approval.</ResponseField>
+    <ResponseField name="approved_at" type="string">When the seller was approved.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/approve' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.$id.approve.mutate({
+  $id: "sel_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "handle": "acme",
+    "status": "open",
+    "approved_at": "2026-06-02T09:30:00.000Z",
+    "updated_at": "2026-06-02T09:30:00.000Z"
+  }
+}
+```
+</ResponseExample>

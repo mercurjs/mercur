@@ -1,0 +1,100 @@
+---
+title: "Create Seller"
+api: "POST /admin/sellers"
+description: "Create a new seller account."
+---
+
+Creates a seller and its initial owner member.
+
+<Note>
+The `member.email` must belong to an existing or invited user; the seller is created with status `pending_approval` unless a `status` is provided.
+</Note>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="name" type="string" required>Display name of the seller.</ParamField>
+<ParamField body="email" type="string" required>Contact email of the seller.</ParamField>
+<ParamField body="currency_code" type="string" required>The seller's currency code.</ParamField>
+<ParamField body="member" type="object" required>
+  The initial owner member of the seller.
+  <Expandable title="properties">
+    <ParamField body="email" type="string" required>Email of the owner member.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="handle" type="string">Unique URL-safe handle, generated from the name if omitted.</ParamField>
+<ParamField body="phone" type="string">Contact phone number.</ParamField>
+<ParamField body="description" type="string">Seller description.</ParamField>
+<ParamField body="logo" type="string">URL of the seller's logo.</ParamField>
+<ParamField body="banner" type="string">URL of the seller's banner image.</ParamField>
+<ParamField body="website_url" type="string">The seller's website URL.</ParamField>
+<ParamField body="external_id" type="string">ID of the seller in an external system.</ParamField>
+<ParamField body="status" type="string" default="pending_approval">One of `open`, `pending_approval`, `suspended`, `terminated`.</ParamField>
+<ParamField body="status_reason" type="string">Reason recorded with the status.</ParamField>
+<ParamField body="is_premium" type="boolean">Whether the seller is marked as premium.</ParamField>
+<ParamField body="closed_from" type="string">Start of a temporary store closure.</ParamField>
+<ParamField body="closed_to" type="string">End of a temporary store closure.</ParamField>
+<ParamField body="closure_note" type="string">Note shown while the store is closed.</ParamField>
+<ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+<ParamField body="additional_data" type="object">Extra data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="name" type="string">Display name of the seller.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="email" type="string">Contact email of the seller.</ResponseField>
+    <ResponseField name="currency_code" type="string">The seller's currency code.</ResponseField>
+    <ResponseField name="status" type="string">One of `open`, `pending_approval`, `suspended`, `terminated`.</ResponseField>
+    <ResponseField name="is_premium" type="boolean">Whether the seller is marked as premium.</ResponseField>
+    <ResponseField name="members" type="object[]">The seller's members.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/sellers' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Acme",
+    "email": "hello@acme.co",
+    "currency_code": "usd",
+    "member": { "email": "owner@acme.co" }
+  }'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.mutate({
+  name: "Acme",
+  email: "hello@acme.co",
+  currency_code: "usd",
+  member: { email: "owner@acme.co" },
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "handle": "acme",
+    "email": "hello@acme.co",
+    "currency_code": "usd",
+    "status": "pending_approval",
+    "is_premium": false,
+    "created_at": "2026-06-01T10:00:00.000Z",
+    "updated_at": "2026-06-01T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

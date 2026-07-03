@@ -1,0 +1,99 @@
+---
+title: "Create Product Attribute"
+api: "POST /admin/product-attributes"
+description: "Create a catalog product attribute."
+---
+
+Creates a shared attribute that products across the catalog can use.
+
+<Note>
+`is_variant_axis` is only valid for `multi_select` attributes — axis attributes provide the value sets that variants are generated from.
+</Note>
+
+## Body parameters
+
+<ParamField body="name" type="string" required>Attribute name.</ParamField>
+<ParamField body="type" type="string" required>One of `single_select`, `multi_select`, `unit`, `toggle`, `text`.</ParamField>
+<ParamField body="handle" type="string">Unique URL-safe handle, generated from the name if omitted.</ParamField>
+<ParamField body="description" type="string">Attribute description.</ParamField>
+<ParamField body="is_required" type="boolean">Whether a value is required on products.</ParamField>
+<ParamField body="is_filterable" type="boolean">Whether the attribute can be used as a storefront filter.</ParamField>
+<ParamField body="is_variant_axis" type="boolean">Whether the attribute drives variant generation; only valid for `multi_select`.</ParamField>
+<ParamField body="rank" type="number">Sort rank of the attribute; must be non-negative.</ParamField>
+<ParamField body="is_active" type="boolean">Whether the attribute is active.</ParamField>
+<ParamField body="category_ids" type="string[]">IDs of categories to link the attribute to; omit for a global attribute.</ParamField>
+<ParamField body="values" type="object[]">
+  Initial attribute values for select types.
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>Value name.</ParamField>
+    <ParamField body="handle" type="string">Unique URL-safe handle.</ParamField>
+    <ParamField body="rank" type="number">Sort rank; must be non-negative.</ParamField>
+    <ParamField body="is_active" type="boolean">Whether the value is active.</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="product_attribute" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The attribute's ID.</ResponseField>
+    <ResponseField name="name" type="string">Attribute name.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="type" type="string">One of `single_select`, `multi_select`, `unit`, `toggle`, `text`.</ResponseField>
+    <ResponseField name="is_required" type="boolean">Whether a value is required on products.</ResponseField>
+    <ResponseField name="is_filterable" type="boolean">Whether the attribute can be used as a storefront filter.</ResponseField>
+    <ResponseField name="is_variant_axis" type="boolean">Whether the attribute drives variant generation.</ResponseField>
+    <ResponseField name="is_active" type="boolean">Whether the attribute is active.</ResponseField>
+    <ResponseField name="values" type="object[]">The attribute's values.</ResponseField>
+    <ResponseField name="categories" type="object[]">Linked categories with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/product-attributes' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Material",
+    "type": "single_select",
+    "is_filterable": true,
+    "values": [{ "name": "Linen" }, { "name": "Cotton" }]
+  }'
+```
+
+```ts JS Client
+const { product_attribute } = await client.admin.productAttributes.mutate({
+  name: "Material",
+  type: "single_select",
+  is_filterable: true,
+  values: [{ name: "Linen" }, { name: "Cotton" }],
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_attribute": {
+    "id": "pattr_01HXYZABCDEF",
+    "name": "Material",
+    "handle": "material",
+    "type": "single_select",
+    "is_required": false,
+    "is_filterable": true,
+    "is_variant_axis": false,
+    "is_active": true,
+    "values": [
+      { "id": "pattrval_01HXYZABCDEF", "name": "Linen", "rank": 0 },
+      { "id": "pattrval_01HXYZABCDEG", "name": "Cotton", "rank": 1 }
+    ]
+  }
+}
+```
+</ResponseExample>

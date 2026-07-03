@@ -1,0 +1,104 @@
+---
+title: "Update Product Variant"
+api: "POST /vendor/products/{id}/variants/{variant_id}"
+description: "Stage an update to a product variant as a change request."
+---
+
+Stages a `VARIANT_UPDATE` operation as a pending change request instead of updating the variant directly.
+
+<Note>
+  The endpoint responds with `202 Accepted` and a `product_change` record, not the updated variant.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+<ParamField path="variant_id" type="string" required>
+  The variant's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="title" type="string">The variant's title.</ParamField>
+<ParamField body="sku" type="string">The variant's SKU.</ParamField>
+<ParamField body="ean" type="string">EAN barcode.</ParamField>
+<ParamField body="upc" type="string">UPC barcode.</ParamField>
+<ParamField body="isbn" type="string">ISBN code.</ParamField>
+<ParamField body="asin" type="string">Amazon ASIN.</ParamField>
+<ParamField body="gtin" type="string">GTIN code.</ParamField>
+<ParamField body="barcode" type="string">Generic barcode.</ParamField>
+<ParamField body="hs_code" type="string">Harmonized System code.</ParamField>
+<ParamField body="mid_code" type="string">Manufacturer ID code.</ParamField>
+<ParamField body="thumbnail" type="string">Variant thumbnail URL.</ParamField>
+<ParamField body="variant_rank" type="number">Sort rank of the variant.</ParamField>
+<ParamField body="weight" type="number">Weight of the variant.</ParamField>
+<ParamField body="length" type="number">Length of the variant.</ParamField>
+<ParamField body="height" type="number">Height of the variant.</ParamField>
+<ParamField body="width" type="number">Width of the variant.</ParamField>
+<ParamField body="origin_country" type="string">Country of origin.</ParamField>
+<ParamField body="material" type="string">Material of the variant.</ParamField>
+<ParamField body="allow_backorder" type="boolean">Whether backorders are allowed.</ParamField>
+<ParamField body="manage_inventory" type="boolean">Whether inventory is managed for the variant.</ParamField>
+<ParamField body="metadata" type="object">Custom key-value pairs.</ParamField>
+<ParamField body="options" type="object">Option title to value mapping, e.g. `{"Size": "M"}`.</ParamField>
+
+<ParamField body="images" type="object">
+  <Expandable title="properties">
+    <ParamField body="add" type="string[]">Image URLs to attach to the variant.</ParamField>
+    <ParamField body="remove" type="string[]">Image IDs to detach from the variant.</ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="product_change" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The change request's ID.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the product the change targets.</ResponseField>
+    <ResponseField name="status" type="string">One of `pending`, `confirmed`, `declined`, `canceled`.</ResponseField>
+    <ResponseField name="actions" type="object[]">Staged operations, each with `id`, `action` (`VARIANT_UPDATE`), `details`, `ordering`, and `applied`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/products/prod_01HXYZ/variants/variant_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"sku": "ACME-SHIRT-M-V2", "weight": 200}'
+```
+
+```ts JS Client
+const { product_change } =
+  await client.vendor.products.$id.variants.$variant_id.mutate({
+    $id: "prod_01HXYZ",
+    $variant_id: "variant_01HXYZ",
+    sku: "ACME-SHIRT-M-V2",
+    weight: 200,
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 202
+{
+  "product_change": {
+    "id": "prodch_01HXYZ",
+    "product_id": "prod_01HXYZ",
+    "status": "pending",
+    "actions": [
+      {
+        "id": "prodchact_01HXYZ",
+        "action": "VARIANT_UPDATE",
+        "details": { "variant_id": "variant_01HXYZ", "fields": { "sku": "ACME-SHIRT-M-V2" } },
+        "applied": false
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

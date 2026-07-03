@@ -1,0 +1,58 @@
+---
+title: "batchOfferInventoryItemsWorkflow"
+description: "Create, update, and delete an offer's inventory-item links in one call."
+---
+
+Manages the `offer ↔ inventory_item` links that define what stock an offer consumes. Validates the payload (no duplicates, no ID in more than one bucket, created items must exist, deleted items must already be linked), then batches the link changes — each link carries a `required_quantity` (default `1`). Emits `offer.updated`. Triggered by `POST /vendor/offers/:id/inventory-items/batch`.
+
+## Usage
+
+```ts
+import { batchOfferInventoryItemsWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await batchOfferInventoryItemsWorkflow(container).run({
+  input: {
+    offer_id: "offer_123",
+    create: [{ inventory_item_id: "iitem_1", required_quantity: 2 }],
+    update: [{ inventory_item_id: "iitem_2", required_quantity: 1 }],
+    delete: ["iitem_3"],
+  },
+})
+```
+
+## Input
+
+<ParamField body="offer_id" type="string" required>The offer whose inventory links are managed; fails if not found.</ParamField>
+<ParamField body="create" type="object[]">Links to create; the inventory items must exist and not appear in `update`/`delete`.
+  <Expandable title="properties">
+    <ParamField body="inventory_item_id" type="string" required>The inventory item to link.</ParamField>
+    <ParamField body="required_quantity" type="number">Units consumed per offer unit; defaults to `1`.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="update" type="object[]">Existing links to update.
+  <Expandable title="properties">
+    <ParamField body="inventory_item_id" type="string" required>The linked inventory item.</ParamField>
+    <ParamField body="required_quantity" type="number" required>New units consumed per offer unit.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="delete" type="string[]">Inventory item IDs to unlink; each must currently be linked or the workflow throws a 404.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed through to the workflow hooks.</ParamField>
+
+## Result
+
+<ResponseField name="result.created" type="LinkDefinition[]">The created offer ↔ inventory-item links.</ResponseField>
+<ResponseField name="result.updated" type="LinkDefinition[]">The updated links.</ResponseField>
+<ResponseField name="result.deleted" type="string[]">Inventory item IDs that were unlinked.</ResponseField>
+
+## Hooks
+
+- `validate` — runs first with `{ input }`.
+- `offerInventoryItemsBatched` — runs after the batch with `{ offer_id, result, additional_data }`.
+
+```ts
+batchOfferInventoryItemsWorkflow.hooks.offerInventoryItemsBatched(
+  async ({ offer_id, result }) => {
+    // react to link changes
+  }
+)
+```

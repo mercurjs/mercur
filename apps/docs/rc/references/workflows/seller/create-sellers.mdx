@@ -1,0 +1,65 @@
+---
+title: "createSellersWorkflow"
+description: "Create one or more sellers and invite their first member."
+---
+
+Creates sellers (defaulting `status` to `pending_approval`), then runs `createMemberInvitesWorkflow` to invite each seller's initial member with the seller administration role. Triggered by `POST /admin/sellers`. Emits `seller.created` and `member_invite.created`.
+
+## Usage
+
+```ts
+import { createSellersWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await createSellersWorkflow(container).run({
+  input: {
+    sellers: [
+      {
+        name: "Acme",
+        email: "hello@acme.co",
+        currency_code: "usd",
+        member: { email: "owner@acme.co" },
+      },
+    ],
+  },
+})
+```
+
+## Input
+
+<ParamField body="sellers" type="object[]" required>
+  Sellers to create.
+  <Expandable title="properties">
+    <ParamField body="name" type="string" required>Display name of the seller.</ParamField>
+    <ParamField body="email" type="string" required>Contact email of the seller.</ParamField>
+    <ParamField body="currency_code" type="string" required>Default currency of the seller.</ParamField>
+    <ParamField body="member" type="object" required>Initial member to invite; `{ email: string }`.</ParamField>
+    <ParamField body="handle" type="string">URL handle; auto-generated from the name when omitted.</ParamField>
+    <ParamField body="description" type="string">Public seller description.</ParamField>
+    <ParamField body="logo" type="string">Logo URL.</ParamField>
+    <ParamField body="banner" type="string">Banner URL.</ParamField>
+    <ParamField body="website_url" type="string">Seller website URL.</ParamField>
+    <ParamField body="external_id" type="string">External system identifier.</ParamField>
+    <ParamField body="status" type="string">One of `open`, `pending_approval`, `suspended`, `terminated`; defaults to `pending_approval`.</ParamField>
+    <ParamField body="status_reason" type="string">Reason attached to the current status.</ParamField>
+    <ParamField body="is_premium" type="boolean">Marks the seller as premium.</ParamField>
+    <ParamField body="closed_from" type="Date">Start of a store closure window.</ParamField>
+    <ParamField body="closed_to" type="Date">End of a store closure window.</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed through to the workflow hooks.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="SellerDTO[]">The created sellers.</ResponseField>
+
+## Hooks
+
+- `validate` — runs before creation with `{ input }`.
+- `sellersCreated` — runs after creation with `{ sellers, additional_data }`.
+
+```ts
+createSellersWorkflow.hooks.sellersCreated(async ({ sellers, additional_data }) => {
+  // react to new sellers
+})
+```

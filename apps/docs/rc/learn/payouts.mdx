@@ -1,0 +1,175 @@
+---
+title: "Payout"
+description: "How seller payouts work in Mercur — accounts, onboarding, payment capture, and the transfer pipeline."
+---
+
+The payout module handles the financial side of a marketplace — onboarding sellers to a payment provider, capturing authorized payments, and transferring funds to sellers after fulfillment.
+
+## Payout account
+
+Every seller that wants to receive funds needs a **PayoutAccount**. This account links a seller to an external payment provider (e.g. Stripe Connect).
+
+### Account lifecycle
+
+```
+PENDING → ACTIVE
+           ↓
+        RESTRICTED → ACTIVE (or REJECTED)
+```
+
+| Status | Description |
+|--------|-------------|
+| `PENDING` | Account created, awaiting provider onboarding |
+| `ACTIVE` | Fully onboarded, can receive payouts |
+| `RESTRICTED` | Provider has flagged the account (e.g. missing KYC) |
+| `REJECTED` | Provider rejected the account |
+
+### Onboarding
+
+When a payout account is created, an **Onboarding** record is attached to it. This stores provider-specific data needed for identity verification or account setup (e.g. Stripe Connect onboarding links).
+
+## The payout pipeline
+
+The payout flow is fully automated through two scheduled jobs and event-driven subscribers. No manual intervention is needed after configuration.
+
+### 1. Capture check (every 15 minutes)
+
+A scheduled job scans for orders that are ready for payment capture. For each order, it checks:
+
+- Payment is in `authorized` status
+- Seller has an `ACTIVE` payout account
+- Order meets the required fulfillment status (configurable, default: `fulfilled`)
+- No payout has been created yet
+
+When the capture deadline approaches (authorization window minus safety buffer), the job emits an `order.capture_requested` event. If the authorization has already expired, it emits `order.authorization_expired` instead.
+
+### 2. Payment capture (event-driven)
+
+A subscriber listens for `order.capture_requested` events and runs the Medusa `capturePaymentWorkflow` to capture the authorized payment. On success, the order is marked as captured. On failure, the order is flagged so it won't be retried.
+
+### 3. Daily payouts (once per day)
+
+A daily scheduled job (1 AM UTC) scans for captured orders that haven't been paid out yet. For each eligible order, it emits a `payout.requested` event.
+
+An order qualifies for payout when:
+- Payment has been captured (`metadata.captured = true`)
+- No existing payout transfer
+- Seller has an `ACTIVE` payout account
+
+### 4. Payout transfer (event-driven)
+
+A subscriber listens for `payout.requested` events and runs the `createPayoutWorkflow`:
+
+1. **Fetch order** — Loads the order with its seller, payout account, and commission lines
+2. **Calculate payout amount** — Subtracts commission from the order total:
+   ```
+   payout_amount = order.total - total_commission
+   ```
+3. **Create payout** — Calls the payment provider to initiate the transfer and creates a `Payout` record
+4. **Link payout** — Associates the payout with the seller
+
+### Payout statuses
+
+| Status | Description |
+|--------|-------------|
+| `PENDING` | Payout created, transfer initiated |
+| `PROCESSING` | Provider is processing the transfer |
+| `PAID` | Funds successfully transferred |
+| `FAILED` | Transfer failed |
+| `CANCELED` | Transfer was canceled |
+
+Payout statuses are updated via webhook events from the payment provider.
+
+### Webhook handling
+
+A subscriber listens for `payout.webhook_received` events and delegates to the `processPayoutForWebhookWorkflow`. The provider parses the raw webhook payload and returns an action:
+
+**Account events:**
+- `account.activated` → Status set to `ACTIVE`
+- `account.restricted` → Status set to `RESTRICTED`
+- `account.rejected` → Status set to `REJECTED`
+
+**Payout events:**
+- `payout.processing` → Status set to `PROCESSING`
+- `payout.paid` → Status set to `PAID`
+- `payout.failed` → Status set to `FAILED`
+- `payout.canceled` → Status set to `CANCELED`
+
+## Configuration
+
+The payout module accepts the following options in `medusa-config.ts`:
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `disabled` | `false` | Disables both scheduled jobs |
+| `authorizationWindowMs` | 7 days | How long a payment authorization is valid |
+| `sellerActionWindowMs` | 72 hours | Time for seller to fulfill the order |
+| `captureSafetyBufferMs` | 24 hours | Safety margin before authorization expiry to trigger capture |
+| `requiredFulfillmentStatus` | `"fulfilled"` | Minimum fulfillment status before capture is allowed |
+
+## Data model overview
+
+```
+PayoutAccount
+├── Onboarding (one-to-one)
+└── Payout (one-to-many, per-order transfers)
+```
+
+## Configuration example
+
+```typescript
+// medusa-config.ts
+{
+  resolve: "./modules/payout",
+  options: {
+    // How long payment authorizations are valid
+    authorizationWindowMs: 7 * 24 * 60 * 60 * 1000, // 7 days
+
+    // Time for seller to fulfill before capture
+    sellerActionWindowMs: 72 * 60 * 60 * 1000, // 72 hours
+
+    // Safety margin before authorization expiry
+    captureSafetyBufferMs: 24 * 60 * 60 * 1000, // 24 hours
+
+    // Minimum fulfillment status before capture
+    requiredFulfillmentStatus: "fulfilled",
+  },
+}
+```
+
+## API examples
+
+### Get seller's payout account (Vendor API)
+
+```bash
+curl http://localhost:9000/vendor/payout-accounts/<account-id> \
+  -H "Authorization: Bearer <seller-token>"
+```
+
+### Create payout onboarding (Vendor API)
+
+Initiates provider onboarding (e.g. Stripe Connect account setup). The `data` and `context` fields are passed to the payout provider:
+
+```bash
+curl -X POST http://localhost:9000/vendor/payout-accounts/<account-id>/onboarding \
+  -H "Authorization: Bearer <seller-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "context": {
+      "return_url": "https://my-store.com/settings/payouts"
+    }
+  }'
+```
+
+### List payouts (Admin API)
+
+```bash
+curl http://localhost:9000/admin/payouts \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+## Provider abstraction
+
+The payout module is **provider-agnostic**. A `PayoutProviderService` acts as a bridge to the external payment processor. It delegates all external operations — creating accounts, processing payouts, parsing webhooks — to a pluggable provider implementation.
+
+The module expects exactly one payout provider to be registered. Provider-specific data is stored in the `data` JSON fields on accounts, payouts, and onboarding records.

@@ -1,0 +1,78 @@
+---
+title: "Retrieve Product Attribute"
+api: "GET /store/product-attributes/{id}"
+description: "Retrieve an active global product attribute by ID."
+---
+
+Returns a single active, global product attribute; inactive or product-scoped attributes return a `404`.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The attribute's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+## Response
+
+<ResponseField name="product_attribute" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The attribute's ID.</ResponseField>
+    <ResponseField name="name" type="string">The attribute's display name.</ResponseField>
+    <ResponseField name="handle" type="string">URL-safe handle.</ResponseField>
+    <ResponseField name="description" type="string | null">The attribute's description.</ResponseField>
+    <ResponseField name="type" type="string">One of `single_select`, `multi_select`, `unit`, `toggle`, `text`.</ResponseField>
+    <ResponseField name="is_required" type="boolean">Whether sellers must set a value.</ResponseField>
+    <ResponseField name="is_filterable" type="boolean">Whether the attribute can drive storefront filters.</ResponseField>
+    <ResponseField name="is_variant_axis" type="boolean">Whether the attribute defines a variant axis.</ResponseField>
+    <ResponseField name="product_id" type="null">Always `null` on the store API (global attributes only).</ResponseField>
+    <ResponseField name="rank" type="number">Sort rank.</ResponseField>
+    <ResponseField name="values" type="object[]">The attribute's predefined values.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/product-attributes/attr_01JB2K7A1B' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { product_attribute } = await client.store.productAttributes.$id.query({
+  $id: "attr_01JB2K7A1B",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_attribute": {
+    "id": "attr_01JB2K7A1B",
+    "name": "Material",
+    "handle": "material",
+    "description": null,
+    "type": "single_select",
+    "is_required": false,
+    "is_filterable": true,
+    "is_variant_axis": false,
+    "product_id": null,
+    "rank": 0,
+    "values": [
+      { "id": "attrval_01JB2K7C2D", "name": "Linen", "rank": 0 }
+    ],
+    "metadata": null,
+    "created_at": "2026-05-01T10:00:00.000Z",
+    "updated_at": "2026-05-01T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

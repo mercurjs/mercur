@@ -1,0 +1,71 @@
+---
+title: "Retrieve Product Attribute"
+api: "GET /vendor/product-attributes/{id}"
+description: "Retrieve a product attribute by its ID."
+---
+
+Returns a single attribute definition with its values and category assignments.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The attribute's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response. Prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+## Response
+
+<ResponseField name="product_attribute" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The attribute's ID.</ResponseField>
+    <ResponseField name="name" type="string">The attribute's name.</ResponseField>
+    <ResponseField name="handle" type="string">The attribute's handle.</ResponseField>
+    <ResponseField name="description" type="string">The attribute's description.</ResponseField>
+    <ResponseField name="type" type="string">One of `single_select`, `multi_select`, `unit`, `toggle`, `text`.</ResponseField>
+    <ResponseField name="is_required" type="boolean">Whether a value is required on products.</ResponseField>
+    <ResponseField name="is_filterable" type="boolean">Whether the attribute can be used for filtering.</ResponseField>
+    <ResponseField name="is_variant_axis" type="boolean">Whether the attribute drives variant combinations.</ResponseField>
+    <ResponseField name="is_active" type="boolean">Whether the attribute is active.</ResponseField>
+    <ResponseField name="rank" type="number">Sort rank of the attribute.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value pairs.</ResponseField>
+    <ResponseField name="values" type="object[]">The attribute's values with `id`, `name`, `handle`, and `rank`.</ResponseField>
+    <ResponseField name="categories" type="object[]">Assigned categories with `id`, `name`, and `handle`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/product-attributes/pattr_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { product_attribute } = await client.vendor.productAttributes.$id.query({
+  $id: "pattr_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_attribute": {
+    "id": "pattr_01HXYZ",
+    "name": "Color",
+    "handle": "color",
+    "type": "multi_select",
+    "is_variant_axis": true,
+    "values": [
+      { "id": "pattrval_01HXYZ", "name": "Red", "rank": 0 },
+      { "id": "pattrval_01HABC", "name": "Blue", "rank": 1 }
+    ]
+  }
+}
+```
+</ResponseExample>

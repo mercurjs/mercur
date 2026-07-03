@@ -1,0 +1,91 @@
+---
+title: "Upsert Seller Address"
+api: "POST /admin/sellers/{id}/address"
+description: "Create or update a seller's address."
+---
+
+Creates the seller's address if none exists, otherwise updates it.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="name" type="string">Label for the address.</ParamField>
+<ParamField body="company" type="string">Company name.</ParamField>
+<ParamField body="first_name" type="string">First name of the contact person.</ParamField>
+<ParamField body="last_name" type="string">Last name of the contact person.</ParamField>
+<ParamField body="address_1" type="string">First address line.</ParamField>
+<ParamField body="address_2" type="string">Second address line.</ParamField>
+<ParamField body="city" type="string">City.</ParamField>
+<ParamField body="country_code" type="string">Two-letter ISO country code.</ParamField>
+<ParamField body="province" type="string">Province or state.</ParamField>
+<ParamField body="postal_code" type="string">Postal code.</ParamField>
+<ParamField body="phone" type="string">Phone number for the address.</ParamField>
+<ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+<ParamField body="additional_data" type="object">Extra data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="address" type="object">
+      <Expandable title="properties">
+        <ResponseField name="address_1" type="string">First address line.</ResponseField>
+        <ResponseField name="city" type="string">City.</ResponseField>
+        <ResponseField name="country_code" type="string">Two-letter ISO country code.</ResponseField>
+        <ResponseField name="postal_code" type="string">Postal code.</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/address' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "address_1": "123 Market St",
+    "city": "San Francisco",
+    "country_code": "us",
+    "postal_code": "94103"
+  }'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.$id.address.mutate({
+  $id: "sel_01HXYZABCDEF",
+  address_1: "123 Market St",
+  city: "San Francisco",
+  country_code: "us",
+  postal_code: "94103",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "status": "open",
+    "address": {
+      "address_1": "123 Market St",
+      "city": "San Francisco",
+      "country_code": "us",
+      "postal_code": "94103"
+    },
+    "updated_at": "2026-06-12T10:30:00.000Z"
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,44 @@
+---
+title: "Select Seller"
+api: "POST /vendor/sellers/select"
+description: "Set the active seller for the member's session."
+---
+
+Stores the chosen seller in the session after verifying the member belongs to it.
+
+<Note>
+  Requires only the `Authorization` header. Session-based clients get the seller stored server-side; token-based clients should send `x-seller-id` on subsequent requests instead.
+</Note>
+
+## Body parameters
+
+<ParamField body="seller_id" type="string" required>
+  The ID of the seller to activate for this session.
+</ParamField>
+
+## Response
+
+<ResponseField name="success" type="boolean">
+  Whether the seller was selected.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/sellers/select' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"seller_id": "sel_01HXYZ"}'
+```
+
+```ts JS Client
+const { success } = await client.vendor.sellers.select.mutate({
+  seller_id: "sel_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{ "success": true }
+```
+</ResponseExample>

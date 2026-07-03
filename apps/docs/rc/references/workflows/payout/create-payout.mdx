@@ -1,0 +1,30 @@
+---
+title: "createPayoutWorkflow"
+description: "Issue a payout to a seller through the registered provider."
+---
+
+Loads a settled order with its seller and payout account, sums the order's commission lines (item and shipping), and pays out `order.total - total commission` through the payout provider, linking the payout to the seller. Fails if the seller has no payout account. The order ID doubles as the provider idempotency key, so re-running for the same order is safe. Not wired to a route — run it from your own subscriber or scheduled job once an order is captured and ready to settle.
+
+## Usage
+
+```ts
+import { createPayoutWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await createPayoutWorkflow(container).run({
+  input: { order_id: "order_123" },
+})
+```
+
+## Input
+
+<ParamField body="order_id" type="string" required>The order to settle; must belong to a seller with a payout account.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="PayoutDTO">The created payout.</ResponseField>
+<ResponseField name="result.id" type="string">Payout ID.</ResponseField>
+<ResponseField name="result.account_id" type="string">The seller's payout account.</ResponseField>
+<ResponseField name="result.amount" type="BigNumberInput">Order total minus the order's commission lines.</ResponseField>
+<ResponseField name="result.currency_code" type="string">The order's currency.</ResponseField>
+<ResponseField name="result.status" type="string">One of `pending`, `processing`, `paid`, `failed`, `canceled`.</ResponseField>
+<ResponseField name="result.data" type="object | null">Provider transfer data; includes `order_id` and `seller_id`.</ResponseField>

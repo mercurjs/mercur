@@ -1,0 +1,150 @@
+---
+title: "Create Seller"
+api: "POST /vendor/sellers"
+description: "Register a new seller account with its first member."
+---
+
+Creates a seller account, optionally with an initial address, professional details, and payment details.
+
+<Note>
+  This is a public route — no `Authorization` or `x-seller-id` header is required. When called without an authenticated member, `member_email` is required so the owner member can be created.
+</Note>
+
+## Body parameters
+
+<ParamField body="name" type="string" required>
+  The seller's display name.
+</ParamField>
+
+<ParamField body="email" type="string" required>
+  The seller's contact email.
+</ParamField>
+
+<ParamField body="currency_code" type="string" required>
+  The seller's default currency code (e.g. `usd`).
+</ParamField>
+
+<ParamField body="handle" type="string">
+  Unique handle for the seller's storefront URL.
+</ParamField>
+
+<ParamField body="phone" type="string">
+  The seller's contact phone number.
+</ParamField>
+
+<ParamField body="member_email" type="string">
+  Email for the owner member — required when there is no authenticated member.
+</ParamField>
+
+<ParamField body="first_name" type="string">
+  First name of the owner member.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  Last name of the owner member.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Description of the seller's store.
+</ParamField>
+
+<ParamField body="address" type="object">
+  The seller's address.
+  <Expandable title="properties">
+    <ParamField body="name" type="string">Address label.</ParamField>
+    <ParamField body="company" type="string">Company name.</ParamField>
+    <ParamField body="first_name" type="string">Contact first name.</ParamField>
+    <ParamField body="last_name" type="string">Contact last name.</ParamField>
+    <ParamField body="address_1" type="string">Street address.</ParamField>
+    <ParamField body="address_2" type="string">Apartment, suite, etc.</ParamField>
+    <ParamField body="city" type="string">City.</ParamField>
+    <ParamField body="country_code" type="string">Two-letter country code.</ParamField>
+    <ParamField body="province" type="string">Province or state.</ParamField>
+    <ParamField body="postal_code" type="string">Postal code.</ParamField>
+    <ParamField body="phone" type="string">Phone number.</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="professional_details" type="object">
+  The seller's business registration details.
+  <Expandable title="properties">
+    <ParamField body="corporate_name" type="string">Registered corporate name.</ParamField>
+    <ParamField body="registration_number" type="string">Business registration number.</ParamField>
+    <ParamField body="tax_id" type="string">Tax identification number.</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="payment_details" type="object">
+  The seller's bank account details.
+  <Expandable title="properties">
+    <ParamField body="country_code" type="string">Bank country code.</ParamField>
+    <ParamField body="holder_name" type="string">Account holder name.</ParamField>
+    <ParamField body="bank_name" type="string">Bank name.</ParamField>
+    <ParamField body="iban" type="string">IBAN.</ParamField>
+    <ParamField body="bic" type="string">BIC / SWIFT code.</ParamField>
+    <ParamField body="routing_number" type="string">Routing number.</ParamField>
+    <ParamField body="account_number" type="string">Account number.</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Custom key-value pairs.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Custom data passed to workflow hooks.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="name" type="string">The seller's name.</ResponseField>
+    <ResponseField name="handle" type="string">The seller's handle.</ResponseField>
+    <ResponseField name="email" type="string">The seller's email.</ResponseField>
+    <ResponseField name="status" type="enum">One of `open`, `pending_approval`, `suspended`, `terminated`.</ResponseField>
+    <ResponseField name="currency_code" type="string">The seller's default currency.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/sellers' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "name": "Acme Store",
+    "email": "store@acme.com",
+    "currency_code": "usd",
+    "member_email": "owner@acme.com",
+    "first_name": "Jane",
+    "last_name": "Doe"
+  }'
+```
+
+```ts JS Client
+const { seller } = await client.vendor.sellers.mutate({
+  name: "Acme Store",
+  email: "store@acme.com",
+  currency_code: "usd",
+  member_email: "owner@acme.com",
+  first_name: "Jane",
+  last_name: "Doe",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201
+{
+  "seller": {
+    "id": "sel_01HXYZ",
+    "name": "Acme Store",
+    "handle": "acme-store",
+    "email": "store@acme.com",
+    "status": "pending_approval",
+    "currency_code": "usd"
+  }
+}
+```
+</ResponseExample>

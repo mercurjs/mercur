@@ -1,0 +1,78 @@
+---
+title: "Retrieve Order Group"
+api: "GET /store/order-groups/{id}"
+description: "Retrieve one of the authenticated customer's order groups by ID."
+---
+
+Returns a single order group with its per-seller child orders; order groups belonging to another customer return a `404`.
+
+<Note>
+  Customer authentication is required (`Authorization: Bearer <customer_token>` or a session cookie).
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The order group's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include; only fields from the route's allowed list are accepted.
+</ParamField>
+
+## Response
+
+<ResponseField name="order_group" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order group's ID.</ResponseField>
+    <ResponseField name="customer_id" type="string">ID of the purchasing customer.</ResponseField>
+    <ResponseField name="seller_count" type="number">Number of per-seller orders in the group.</ResponseField>
+    <ResponseField name="total" type="number">Combined total across all child orders.</ResponseField>
+    <ResponseField name="orders" type="object[]">
+      Child orders, each with `seller_id` and its `items` (including each item's variant, product, and seller).
+    </ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/order-groups/og_01JB2KE7NP' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ' \
+  -H 'Authorization: Bearer <customer_token>'
+```
+
+```ts JS Client
+const { order_group } = await client.store.orderGroups.$id.query({ $id: "og_01JB2KE7NP" })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "order_group": {
+    "id": "og_01JB2KE7NP",
+    "customer_id": "cus_01JB2KE8QR",
+    "seller_count": 2,
+    "total": 9900,
+    "orders": [
+      {
+        "id": "order_01JB2KH1WX",
+        "seller_id": "sel_01JB2K8A1B",
+        "items": [{ "id": "ordli_01JB2KH2YZ", "title": "M", "quantity": 1 }]
+      },
+      {
+        "id": "order_01JB2KH3AB",
+        "seller_id": "sel_01JB2KF9ST",
+        "items": [{ "id": "ordli_01JB2KH4CD", "title": "One Size", "quantity": 1 }]
+      }
+    ],
+    "created_at": "2026-05-01T10:05:00.000Z",
+    "updated_at": "2026-05-01T10:05:00.000Z"
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,109 @@
+---
+title: "List Products"
+api: "GET /admin/products"
+description: "Retrieve a paginated list of master catalog products."
+---
+
+Returns all products across the marketplace, with optional filtering by status, seller, category, and more.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+<ParamField query="q" type="string">Search term matched against product fields.</ParamField>
+<ParamField query="id" type="string | string[]">Filter by product ID(s).</ParamField>
+<ParamField query="title" type="string">Filter by product title.</ParamField>
+<ParamField query="handle" type="string">Filter by product handle.</ParamField>
+<ParamField query="seller_id" type="string | string[]">Filter by the seller(s) eligible to sell the product.</ParamField>
+<ParamField query="status" type="string[]">Filter by status: `draft`, `proposed`, `published`, or `rejected`.</ParamField>
+<ParamField query="collection_id" type="string | string[]">Filter by collection ID(s).</ParamField>
+<ParamField query="type_id" type="string | string[]">Filter by product type ID(s).</ParamField>
+<ParamField query="category_id" type="string | string[]">Filter by category ID(s).</ParamField>
+<ParamField query="tag_id" type="string | string[]">Filter by tag ID(s).</ParamField>
+<ParamField query="sku" type="string">Filter by variant SKU.</ParamField>
+<ParamField query="ean" type="string">Filter by variant EAN.</ParamField>
+<ParamField query="upc" type="string">Filter by variant UPC.</ParamField>
+<ParamField query="barcode" type="string">Filter by variant barcode.</ParamField>
+<ParamField query="has_offer" type="boolean">Filter to products that have (or don't have) seller offers.</ParamField>
+<ParamField query="created_at" type="object">Filter by creation date with operators like `$gte`, `$lte`.</ParamField>
+<ParamField query="updated_at" type="object">Filter by update date with operators like `$gte`, `$lte`.</ParamField>
+<ParamField query="deleted_at" type="object">Filter by deletion date with operators like `$gte`, `$lte`.</ParamField>
+
+## Response
+
+<ResponseField name="products" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">Product title.</ResponseField>
+    <ResponseField name="subtitle" type="string">Product subtitle.</ResponseField>
+    <ResponseField name="status" type="string">One of `draft`, `proposed`, `published`, `rejected`.</ResponseField>
+    <ResponseField name="description" type="string">Product description.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="is_giftcard" type="boolean">Whether the product is a gift card.</ResponseField>
+    <ResponseField name="discountable" type="boolean">Whether discounts can apply to the product.</ResponseField>
+    <ResponseField name="thumbnail" type="string">URL of the product thumbnail.</ResponseField>
+    <ResponseField name="external_id" type="string">ID of the product in an external system.</ResponseField>
+    <ResponseField name="collection_id" type="string">ID of the product's collection.</ResponseField>
+    <ResponseField name="type_id" type="string">ID of the product's type.</ResponseField>
+    <ResponseField name="collection" type="object">The collection with `id`, `title`, and `handle`.</ResponseField>
+    <ResponseField name="categories" type="object[]">Categories with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="variants" type="object[]">Variants with `id`, `title`, `sku`, `manage_inventory`, `allow_backorder`, and `variant_rank`.</ResponseField>
+    <ResponseField name="product_attribute_values" type="object[]">Attribute values selected on the product, each with its parent `attribute`.</ResponseField>
+    <ResponseField name="scoped_attributes" type="object[]">Product-scoped (inline) attributes with their `values`.</ResponseField>
+    <ResponseField name="attributes" type="object[]">Computed attribute groups, each with the selected `values` and the attribute's full `all_values`.</ResponseField>
+    <ResponseField name="weight" type="number">Product weight.</ResponseField>
+    <ResponseField name="length" type="number">Product length.</ResponseField>
+    <ResponseField name="height" type="number">Product height.</ResponseField>
+    <ResponseField name="width" type="number">Product width.</ResponseField>
+    <ResponseField name="hs_code" type="string">Harmonized System code.</ResponseField>
+    <ResponseField name="mid_code" type="string">Manufacturer identification code.</ResponseField>
+    <ResponseField name="origin_country" type="string">Country of origin.</ResponseField>
+    <ResponseField name="material" type="string">Product material.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of matching products.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/products?status[]=published&limit=20' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { products, count } = await client.admin.products.query({
+  status: ["published"],
+  limit: 20,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "products": [
+    {
+      "id": "prod_01HXYZABCDEF",
+      "title": "Linen Shirt",
+      "handle": "linen-shirt",
+      "status": "published",
+      "thumbnail": "https://cdn.example.com/linen-shirt.png",
+      "variants": [
+        { "id": "variant_01HXYZABCDEF", "title": "M", "sku": "LS-M", "variant_rank": 0 }
+      ],
+      "created_at": "2026-06-01T10:00:00.000Z",
+      "updated_at": "2026-06-01T10:00:00.000Z"
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

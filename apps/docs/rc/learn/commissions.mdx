@@ -1,0 +1,175 @@
+---
+title: "Commission"
+description: "How marketplace commissions work in Mercur — rates, rules, the matching algorithm, and commission lines."
+---
+
+Commissions are how the marketplace earns revenue. Rather than storing a single commission percentage, Mercur uses a **rule-based system** where commission rates are matched to order line items based on configurable conditions, with a global default as the fallback.
+
+## Commission rates
+
+A **CommissionRate** defines how much commission the marketplace takes and when it applies.
+
+| Field | Description |
+|-------|-------------|
+| `name` | Human-readable name (e.g. "Electronics Commission") |
+| `code` | Unique system identifier |
+| `type` | `fixed` (flat amount) or `percentage` |
+| `value` | The percentage, or the flat amount used when no per-currency value matches |
+| `values` | Per-currency amounts for `fixed` rates (`currency_code` + `amount`) |
+| `include_tax` | Include tax in the base amount for calculation |
+| `include_shipping` | Whether shipping methods are also commissioned (global rate only) |
+| `is_default` | Marks the **global commission** — the fallback applied when no scoped rate matches |
+| `is_enabled` | Disabled rates are skipped entirely |
+
+<Info>
+  `percentage` rates use the scalar `value`. `fixed` rates read the per-currency `values` list and fall back to `value` when the order's currency has no entry.
+</Info>
+
+## Commission rules
+
+Rules determine **when** a rate applies. Each rule has a `reference` (the dimension) and a `reference_id` (the value to match):
+
+| Reference | Matches items whose product… |
+|-----------|------------------------------|
+| `product` | is that specific product |
+| `product_type` | has that product type |
+| `product_collection` | belongs to that collection |
+| `product_category` | belongs to that category |
+| `seller` | is sold by that seller |
+
+A rate with **no rules** matches everything — that's what makes the default rate a catch-all.
+
+### The matching algorithm
+
+For each line item:
+
+1. **Group** the rate's rules by dimension (`reference`).
+2. A rate matches when **every dimension group has at least one matching rule** — AND across dimensions, OR within a dimension. Example: a rate with rules `seller: A` and `product_category: electronics` matches only electronics sold by seller A; a rate with two `product_category` rules matches either category.
+3. Among all matching rates, the **most specific wins** — the rate scoping on the largest number of distinct dimensions.
+4. Ties break deterministically to the **oldest rate**.
+
+**Example configuration:**
+
+| Rate | Rules | Type | Value | Matches |
+|------|-------|------|-------|---------|
+| Premium seller electronics | `seller: slr_abc` + `product_category: electronics` | Percentage | 8% | Electronics from that seller (2 dimensions — most specific) |
+| Electronics commission | `product_category: electronics` | Percentage | 12% | Other sellers' electronics (1 dimension) |
+| Global commission | _(none, `is_default`)_ | Percentage | 15% | Everything else |
+
+An electronics item from seller `slr_abc` gets 8% — the two-dimension rate beats the one-dimension category rate, regardless of creation order.
+
+## The calculation pipeline
+
+The `getCommissionLines` step calculates commissions when an order is placed:
+
+1. **Load** all enabled rates with their rules and per-currency values. Rates pinned to a `currency_code` apply only to orders in that currency.
+2. **Match items** — for each line item, find matching rates and pick the most specific (see above).
+3. **Calculate** — the base amount is the item subtotal, plus tax when `include_tax` is on. Percentage: `(base × value) / 100`. Fixed: the per-currency amount.
+4. **Shipping** — governed solely by the **global commission**: when its `include_shipping` flag is on, each shipping method gets a commission line calculated from the global rate.
+5. **Output** — one `CommissionLine` per commissioned item and shipping method.
+
+<Info>
+  All commission calculations use `BigNumber` arithmetic for precision. This is critical for financial accuracy — standard floating-point math can introduce rounding errors.
+</Info>
+
+## API examples
+
+### Set up the global commission (Admin API)
+
+```bash
+curl -X POST http://localhost:9000/admin/commission-rates \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Global Commission",
+    "code": "global",
+    "type": "percentage",
+    "value": 15,
+    "is_default": true,
+    "include_shipping": true
+  }'
+```
+
+### Create a scoped rate with rules (Admin API)
+
+```bash
+curl -X POST http://localhost:9000/admin/commission-rates \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Electronics Commission",
+    "code": "electronics",
+    "type": "percentage",
+    "value": 12,
+    "rules": [
+      { "reference": "product_category", "reference_id": "pcat_electronics" }
+    ]
+  }'
+```
+
+### Create a fixed rate with per-currency amounts
+
+```bash
+curl -X POST http://localhost:9000/admin/commission-rates \
+  -H "Authorization: Bearer <admin-token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "name": "Flat Listing Fee",
+    "code": "flat-fee",
+    "type": "fixed",
+    "value": 2,
+    "values": [
+      { "currency_code": "usd", "amount": 2 },
+      { "currency_code": "eur", "amount": 1.8 }
+    ],
+    "rules": [
+      { "reference": "seller", "reference_id": "slr_abc123" }
+    ]
+  }'
+```
+
+### List commission rates
+
+```bash
+curl http://localhost:9000/admin/commission-rates \
+  -H "Authorization: Bearer <admin-token>"
+```
+
+## Commission lines
+
+A **CommissionLine** is the calculated commission for a single line item or shipping method:
+
+| Field | Description |
+|-------|-------------|
+| `item_id` | The order line item (null for shipping lines) |
+| `shipping_method_id` | The shipping method (null for item lines) |
+| `commission_rate_id` | The rate that was applied |
+| `code` | Code of the applied rate |
+| `rate` | The rate value used |
+| `amount` | The calculated commission amount |
+
+Commission lines are linked to order line items via a **read-only link**, so an order's items can be queried together with their commission data in a single request.
+
+## How commission connects to payouts
+
+Commission lines are the bridge between orders and seller earnings:
+
+1. An order is completed → commission lines are calculated for each item
+2. When the order is credited to the seller's payout account, the total commission is subtracted:
+   ```
+   seller_earnings = order.total - sum(commission_line.amount)
+   ```
+3. The marketplace retains the commission amount
+
+This separation means commission rates can be changed at any time without affecting already-calculated orders — the `CommissionLine` records serve as a permanent audit trail.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Payouts" href="/rc/learn/payouts">
+    How seller earnings settle after commission.
+  </Card>
+  <Card title="Order Groups" href="/rc/learn/order-groups">
+    The per-seller orders commissions are calculated on.
+  </Card>
+</CardGroup>

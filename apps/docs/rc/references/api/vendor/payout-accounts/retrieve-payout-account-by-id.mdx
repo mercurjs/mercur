@@ -1,0 +1,60 @@
+---
+title: "Retrieve Payout Account"
+api: "GET /vendor/payout-accounts/{id}"
+description: "Retrieve one of the seller's payout accounts by ID."
+---
+
+Returns a payout account, verifying it belongs to the current seller.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The payout account's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="payout_account" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The payout account's ID.</ResponseField>
+    <ResponseField name="status" type="enum">One of `pending`, `active`, `restricted`, `rejected`.</ResponseField>
+    <ResponseField name="data" type="object">Provider-specific account data.</ResponseField>
+    <ResponseField name="context" type="object">Context passed when the account was created.</ResponseField>
+    <ResponseField name="onboarding" type="object">The account's onboarding record (`id`, `data`, `context`).</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/payout-accounts/pacc_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { payout_account } = await client.vendor.payoutAccounts.$id.query({
+  $id: "pacc_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "payout_account": {
+    "id": "pacc_01HXYZ",
+    "status": "active",
+    "onboarding": { "id": "onb_01HXYZ" },
+    "created_at": "2026-01-15T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

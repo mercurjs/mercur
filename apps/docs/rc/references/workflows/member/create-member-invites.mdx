@@ -1,0 +1,34 @@
+---
+title: "createMemberInvitesWorkflow"
+description: "Create tokenized member invitations for sellers."
+---
+
+Creates invite records with a signed token and expiry for each entry. Triggered by `POST /admin/sellers/:id/members/invite` and the vendor invite routes; also run as a step by `createSellersWorkflow` for the initial member. Emits `member_invite.created` with `{ id, token, expires_at }` per invite, which typically drives the invitation email.
+
+## Usage
+
+```ts
+import { createMemberInvitesWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await createMemberInvitesWorkflow(container).run({
+  input: [
+    {
+      seller_id: "sel_123",
+      email: "teammate@acme.co",
+      role_id: "role_seller_support",
+    },
+  ],
+})
+```
+
+## Input
+
+The input is an array of invites.
+
+<ParamField body="[].seller_id" type="string" required>Seller the invite belongs to.</ParamField>
+<ParamField body="[].email" type="string" required>Email of the invitee.</ParamField>
+<ParamField body="[].role_id" type="string" required>Role the invitee receives on acceptance.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="MemberInviteDTO[]">The created invites, including `token` and `expires_at`.</ResponseField>

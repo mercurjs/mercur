@@ -1,0 +1,81 @@
+---
+title: "Retrieve Seller"
+api: "GET /admin/sellers/{id}"
+description: "Retrieve a seller by ID."
+---
+
+Returns a single seller, including address, payment details, professional details, payout account, and members.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="name" type="string">Display name of the seller.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="email" type="string">Contact email of the seller.</ResponseField>
+    <ResponseField name="phone" type="string">Contact phone number.</ResponseField>
+    <ResponseField name="description" type="string">Seller description.</ResponseField>
+    <ResponseField name="logo" type="string">URL of the seller's logo.</ResponseField>
+    <ResponseField name="banner" type="string">URL of the seller's banner image.</ResponseField>
+    <ResponseField name="website_url" type="string">The seller's website URL.</ResponseField>
+    <ResponseField name="currency_code" type="string">The seller's currency code.</ResponseField>
+    <ResponseField name="status" type="string">One of `open`, `pending_approval`, `suspended`, `terminated`.</ResponseField>
+    <ResponseField name="status_reason" type="string">Reason recorded with the latest status change.</ResponseField>
+    <ResponseField name="approved_at" type="string">When the seller was approved.</ResponseField>
+    <ResponseField name="rejected_at" type="string">When the seller was rejected.</ResponseField>
+    <ResponseField name="is_premium" type="boolean">Whether the seller is marked as premium.</ResponseField>
+    <ResponseField name="address" type="object">The seller's address.</ResponseField>
+    <ResponseField name="payment_details" type="object">The seller's bank payment details.</ResponseField>
+    <ResponseField name="professional_details" type="object">The seller's legal and tax details.</ResponseField>
+    <ResponseField name="payout_account" type="object">The seller's payout account with status and onboarding data.</ResponseField>
+    <ResponseField name="members" type="object[]">The seller's members.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.$id.query({
+  $id: "sel_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "handle": "acme",
+    "email": "hello@acme.co",
+    "currency_code": "usd",
+    "status": "open",
+    "approved_at": "2026-06-02T09:30:00.000Z",
+    "is_premium": false,
+    "address": null,
+    "payment_details": null,
+    "professional_details": null,
+    "members": [],
+    "created_at": "2026-06-01T10:00:00.000Z",
+    "updated_at": "2026-06-02T09:30:00.000Z"
+  }
+}
+```
+</ResponseExample>

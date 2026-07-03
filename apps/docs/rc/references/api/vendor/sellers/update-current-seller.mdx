@@ -1,0 +1,108 @@
+---
+title: "Update Current Seller"
+api: "POST /vendor/sellers/me"
+description: "Update the seller the request is scoped to."
+---
+
+Updates the current seller's profile and returns the full seller object.
+
+## Body parameters
+
+<ParamField body="name" type="string">
+  The seller's display name.
+</ParamField>
+
+<ParamField body="handle" type="string">
+  Unique handle for the seller's storefront URL.
+</ParamField>
+
+<ParamField body="email" type="string">
+  The seller's contact email.
+</ParamField>
+
+<ParamField body="phone" type="string">
+  The seller's contact phone number.
+</ParamField>
+
+<ParamField body="description" type="string">
+  Description of the seller's store.
+</ParamField>
+
+<ParamField body="logo" type="string">
+  URL of the seller's logo.
+</ParamField>
+
+<ParamField body="banner" type="string">
+  URL of the seller's banner image.
+</ParamField>
+
+<ParamField body="website_url" type="string">
+  The seller's website URL.
+</ParamField>
+
+<ParamField body="closed_from" type="string">
+  Start date of a temporary store closure (ISO 8601).
+</ParamField>
+
+<ParamField body="closed_to" type="string">
+  End date of a temporary store closure (ISO 8601).
+</ParamField>
+
+<ParamField body="closure_note" type="string">
+  Message shown to customers while the store is closed.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Custom key-value pairs.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Custom data passed to workflow hooks.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="name" type="string">The seller's name.</ResponseField>
+    <ResponseField name="handle" type="string">The seller's handle.</ResponseField>
+    <ResponseField name="status" type="enum">One of `open`, `pending_approval`, `suspended`, `terminated`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/sellers/me' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"description": "Handmade goods from Brooklyn."}'
+```
+
+```ts JS Client
+const { seller } = await client.vendor.sellers.me.mutate({
+  description: "Handmade goods from Brooklyn.",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZ",
+    "name": "Acme Store",
+    "handle": "acme-store",
+    "description": "Handmade goods from Brooklyn.",
+    "status": "open"
+  }
+}
+```
+</ResponseExample>

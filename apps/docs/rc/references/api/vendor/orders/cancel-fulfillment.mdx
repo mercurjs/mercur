@@ -1,0 +1,63 @@
+---
+title: "Cancel Fulfillment"
+api: "POST /vendor/orders/{id}/fulfillments/{fulfillment_id}/cancel"
+description: "Cancel a fulfillment on the order."
+---
+
+Cancels the fulfillment and returns the updated order.
+
+<Note>A fulfillment cannot be canceled after it has been shipped.</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order's ID.</ParamField>
+<ParamField path="fulfillment_id" type="string" required>The fulfillment's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include in the returned order, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="order" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order's ID.</ResponseField>
+    <ResponseField name="status" type="string">The order's status.</ResponseField>
+    <ResponseField name="fulfillments" type="object[]">The order's fulfillments, including the canceled one.</ResponseField>
+    <ResponseField name="items" type="object[]">The order's line items.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/orders/order_01HXYZABCDEF/fulfillments/ful_01HXYZABCDEF/cancel' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { order } =
+  await client.vendor.orders.$id.fulfillments.$fulfillment_id.cancel.mutate({
+    $id: "order_01HXYZABCDEF",
+    $fulfillment_id: "ful_01HXYZABCDEF",
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "order": {
+    "id": "order_01HXYZABCDEF",
+    "display_id": 42,
+    "status": "pending",
+    "fulfillments": [
+      {
+        "id": "ful_01HXYZABCDEF",
+        "canceled_at": "2026-06-04T10:00:00.000Z"
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

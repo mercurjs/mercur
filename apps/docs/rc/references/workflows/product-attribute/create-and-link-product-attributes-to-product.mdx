@@ -1,0 +1,46 @@
+---
+title: "createAndLinkProductAttributesToProductWorkflow"
+description: "Batch attach, detach, and update attribute selections on a product."
+---
+
+The batch orchestrator behind `POST /admin/products/:id/attributes/batch` and `POST /vendor/products/:id/attributes/batch`. Delegates to `removeProductAttributesFromProductWorkflow`, `addProductAttributesToProductWorkflow`, and `updateProductAttributesOnProductWorkflow`, applied in the order **remove → add → update** so removing and re-adding the same attribute in one call resolves correctly.
+
+## Usage
+
+```ts
+import { createAndLinkProductAttributesToProductWorkflow } from "@mercurjs/core/workflows"
+
+await createAndLinkProductAttributesToProductWorkflow(container).run({
+  input: {
+    product_id: "prod_123",
+    add: [{ id: "pattr_color", value_ids: ["pattrval_red"] }],
+    remove: ["pattr_old"],
+    update: [{ id: "pattr_size", add: ["pattrval_xl"] }],
+  },
+})
+```
+
+## Input
+
+<ParamField body="product_id" type="string" required>The product whose attributes are being managed.</ParamField>
+<ParamField body="add" type="ProductAttributeBatchAdd[]">Attributes to attach — existing (`{ id, value_ids | value }`) or inline (`{ title, type?, value | values, is_variant_axis? }`).</ParamField>
+<ParamField body="remove" type="string[]">Ids of attributes to detach; product-scoped attributes are deleted, shared ones are unlinked.</ParamField>
+<ParamField body="update" type="ProductAttributeBatchUpdate[]">Per-attribute selection changes (`{ id, title?, add?, remove?, value? }`).</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed through to the workflow hooks.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">No return value.</ResponseField>
+
+## Hooks
+
+- `validate` — runs before any mutation with `{ input }`; throw to reject the batch.
+- `productAttributesLinked` — runs after all sub-workflows with `{ product_id }`.
+
+```ts
+createAndLinkProductAttributesToProductWorkflow.hooks.productAttributesLinked(
+  async ({ product_id }) => {
+    // re-index the product
+  },
+)
+```

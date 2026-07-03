@@ -1,0 +1,62 @@
+---
+title: "Delete Product"
+api: "DELETE /vendor/products/{id}"
+description: "Stage a product deletion as a change request."
+---
+
+Does not delete the product directly — it stages a pending `PRODUCT_DELETE` change request that an operator confirms or declines.
+
+<Note>
+  The endpoint responds with `202 Accepted` and a `product_change` record; the product remains until the change is confirmed.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+## Response
+
+<ResponseField name="product_change" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The change request's ID.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the product the change targets.</ResponseField>
+    <ResponseField name="status" type="string">One of `pending`, `confirmed`, `declined`, `canceled`.</ResponseField>
+    <ResponseField name="created_by" type="string">ID of the seller that staged the change.</ResponseField>
+    <ResponseField name="actions" type="object[]">Staged operations, each with `id`, `action` (`PRODUCT_DELETE`), `details`, `ordering`, and `applied`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/vendor/products/prod_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { product_change } = await client.vendor.products.$id.delete({
+  $id: "prod_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 202
+{
+  "product_change": {
+    "id": "prodch_01HXYZ",
+    "product_id": "prod_01HXYZ",
+    "status": "pending",
+    "actions": [
+      {
+        "id": "prodchact_01HXYZ",
+        "action": "PRODUCT_DELETE",
+        "applied": false
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

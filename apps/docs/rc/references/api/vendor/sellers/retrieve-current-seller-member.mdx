@@ -1,0 +1,59 @@
+---
+title: "Retrieve Current Seller Member"
+api: "GET /vendor/sellers/{id}/members/me"
+description: "Retrieve the authenticated member's membership in a seller."
+---
+
+Returns the seller member record linking the authenticated member to the given seller.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The seller's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller_member" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller member's ID.</ResponseField>
+    <ResponseField name="is_owner" type="boolean">Whether the member owns the seller account.</ResponseField>
+    <ResponseField name="member" type="object">The member's profile.</ResponseField>
+    <ResponseField name="rbac_role" type="object">The member's role for this seller.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/sellers/sel_01HXYZ/members/me' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { seller_member } = await client.vendor.sellers.$id.members.me.query({
+  $id: "sel_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller_member": {
+    "id": "selmem_01HXYZ",
+    "is_owner": true,
+    "member": { "id": "mem_01HXYZ", "first_name": "Jane", "last_name": "Doe" },
+    "rbac_role": { "id": "role_seller_administration", "name": "Administration" },
+    "created_at": "2026-01-15T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

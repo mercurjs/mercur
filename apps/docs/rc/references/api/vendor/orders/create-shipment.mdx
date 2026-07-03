@@ -1,0 +1,99 @@
+---
+title: "Create Shipment"
+api: "POST /vendor/orders/{id}/fulfillments/{fulfillment_id}/shipments"
+description: "Create a shipment for a fulfillment."
+---
+
+Marks the fulfillment as shipped with optional tracking labels and returns the updated order.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order's ID.</ParamField>
+<ParamField path="fulfillment_id" type="string" required>The fulfillment's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include in the returned order, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="items" type="object[]" required>
+  Items included in the shipment.
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>Line item ID.</ParamField>
+    <ParamField body="quantity" type="number" required>Quantity shipped.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="labels" type="object[]">
+  Tracking labels for the shipment.
+  <Expandable title="properties">
+    <ParamField body="tracking_number" type="string" required>The shipment's tracking number.</ParamField>
+    <ParamField body="tracking_url" type="string" required>URL to track the shipment.</ParamField>
+    <ParamField body="label_url" type="string" required>URL of the shipping label.</ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="order" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order's ID.</ResponseField>
+    <ResponseField name="status" type="string">The order's status.</ResponseField>
+    <ResponseField name="fulfillments" type="object[]">The order's fulfillments with `shipped_at` set.</ResponseField>
+    <ResponseField name="items" type="object[]">The order's line items.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/orders/order_01HXYZABCDEF/fulfillments/ful_01HXYZABCDEF/shipments' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "items": [{ "id": "ordli_01HXYZABCDEF", "quantity": 1 }],
+    "labels": [
+      {
+        "tracking_number": "1Z999AA10123456784",
+        "tracking_url": "https://track.example.com/1Z999AA10123456784",
+        "label_url": "https://labels.example.com/1Z999AA10123456784.pdf"
+      }
+    ]
+  }'
+```
+
+```ts JS Client
+const { order } =
+  await client.vendor.orders.$id.fulfillments.$fulfillment_id.shipments.mutate({
+    $id: "order_01HXYZABCDEF",
+    $fulfillment_id: "ful_01HXYZABCDEF",
+    items: [{ id: "ordli_01HXYZABCDEF", quantity: 1 }],
+    labels: [
+      {
+        tracking_number: "1Z999AA10123456784",
+        tracking_url: "https://track.example.com/1Z999AA10123456784",
+        label_url: "https://labels.example.com/1Z999AA10123456784.pdf",
+      },
+    ],
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "order": {
+    "id": "order_01HXYZABCDEF",
+    "display_id": 42,
+    "status": "pending",
+    "fulfillments": [
+      {
+        "id": "ful_01HXYZABCDEF",
+        "shipped_at": "2026-06-04T10:00:00.000Z",
+        "delivered_at": null
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

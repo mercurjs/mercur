@@ -1,0 +1,59 @@
+---
+title: "Confirm Product"
+api: "POST /admin/products/{id}/confirm"
+description: "Approve a proposed product for publishing."
+---
+
+Approves the product's publish request and returns the updated product.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="internal_note" type="string">Note recorded on the approval, visible to operators only.</ParamField>
+
+## Response
+
+<ResponseField name="product" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">Product title.</ResponseField>
+    <ResponseField name="status" type="string">Product status after confirmation.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/products/prod_01HXYZABCDEF/confirm' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"internal_note": "Looks good"}'
+```
+
+```ts JS Client
+const { product } = await client.admin.products.$id.confirm.mutate({
+  $id: "prod_01HXYZABCDEF",
+  internal_note: "Looks good",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product": {
+    "id": "prod_01HXYZABCDEF",
+    "title": "Linen Shirt",
+    "status": "published",
+    "updated_at": "2026-06-02T09:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

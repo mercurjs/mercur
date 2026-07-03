@@ -133,6 +133,15 @@ To build all apps and packages:
 bun run build
 ```
 
+## AI agents
+
+This project bundles its documentation as a dependency (`@mercurjs/docs`), so AI agents can read it offline and version-matched to your installed packages. Point your agent at:
+
+- `node_modules/@mercurjs/docs/llms.txt` — an index of every page
+- `node_modules/@mercurjs/docs/content/**/*.mdx` — the full pages
+
+`CLAUDE.md` and `AGENTS.md` instruct agents to read these before making changes. The same docs are online at [docs.mercurjs.com](https://docs.mercurjs.com).
+
 ## Questions
 
 If you have any issues or questions start a [GitHub discussion](https://github.com/mercurjs/mercur/discussions).

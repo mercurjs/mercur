@@ -1,0 +1,75 @@
+---
+title: "List Payouts"
+api: "GET /admin/payouts"
+description: "Retrieve a paginated list of payouts across all sellers."
+---
+
+Returns payouts with their payout account and seller details.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated fields to include in the response.</ParamField>
+<ParamField query="id" type="string | string[]">Filter by payout ID(s).</ParamField>
+<ParamField query="status" type="string | string[]">Filter by payout status.</ParamField>
+<ParamField query="account_id" type="string | string[]">Filter by payout account ID(s).</ParamField>
+<ParamField query="created_at" type="object">Filter by creation date using operators like `$gte` and `$lte`.</ParamField>
+<ParamField query="updated_at" type="object">Filter by update date using operators like `$gte` and `$lte`.</ParamField>
+
+## Response
+
+<ResponseField name="payouts" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The payout's ID.</ResponseField>
+    <ResponseField name="display_id" type="number">Human-readable payout number.</ResponseField>
+    <ResponseField name="amount" type="number">The payout amount.</ResponseField>
+    <ResponseField name="currency_code" type="string">The payout currency.</ResponseField>
+    <ResponseField name="status" type="string">The payout status.</ResponseField>
+    <ResponseField name="data" type="object | null">Provider-specific payout data.</ResponseField>
+    <ResponseField name="account" type="object">The payout account, with `id` and `status`.</ResponseField>
+    <ResponseField name="seller" type="object">The seller, with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of matching payouts.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/payouts?status=completed&limit=20' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { payouts, count } = await client.admin.payouts.query({
+  status: "completed",
+  limit: 20,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "payouts": [
+    {
+      "id": "pout_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+      "display_id": 42,
+      "amount": 1250,
+      "currency_code": "usd",
+      "status": "completed",
+      "data": null,
+      "account": { "id": "pacc_01HXYZ", "status": "active" },
+      "seller": { "id": "sel_01HXYZ", "name": "Acme Store", "handle": "acme-store" }
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

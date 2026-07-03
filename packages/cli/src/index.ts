@@ -5,7 +5,6 @@ import { add } from "./commands/add";
 import { registryBuild } from "./commands/registry-build";
 import { registryCodegen } from "./commands/registry-codegen";
 import { codegen } from "./commands/codegen";
-import { create } from "./commands/create";
 import { diff } from "./commands/diff";
 import { info } from "./commands/info";
 import { init } from "./commands/init";
@@ -32,7 +31,6 @@ async function main() {
     .addCommand(registryBuild)
     .addCommand(registryCodegen)
     .addCommand(codegen)
-    .addCommand(create)
     .addCommand(diff)
     .addCommand(info)
     .addCommand(init)

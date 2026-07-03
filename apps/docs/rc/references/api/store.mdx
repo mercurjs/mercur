@@ -1,0 +1,67 @@
+---
+title: "Store API"
+description: "Storefront routes under /store/* — discovery, multi-vendor carts, checkout, and order groups."
+---
+
+The Store API is what a storefront talks to. It extends Medusa's store routes with marketplace discovery (sellers, offers, search) and replaces the cart completion flow with the multi-vendor order-group split.
+
+Most routes are public; customer authentication requirements are noted per group. See [API conventions](/rc/references/api/conventions) for pagination and field selection.
+
+## Products and discovery
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/store/products` | List published products (filtered to sellers visible to the shopper) |
+| `GET` | `/store/products/:id` | Retrieve a product |
+| `GET` | `/store/product-categories[/:id]` | Category tree with media and icons |
+| `GET` | `/store/product-attributes[/:id]` | Filterable attributes for building facet UIs |
+
+## Search
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST` | `/store/search` | Query the search index across products and offers |
+
+Request body: `q`, `limit` (default 12, max 100), `offset`, pricing context (`region_id`, `country_code`, `province`), and provider-owned `filters`. Response: `{ hits, count, limit, offset, facets }` with pre-labelled collection, category, and attribute facets. See the [Search module](/rc/references/modules/search) for document shapes and filter semantics.
+
+## Sellers
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/store/sellers` | List public seller storefronts (only `open` sellers outside a closure window) |
+| `GET` | `/store/sellers/:id` | Retrieve a seller storefront |
+
+## Offers
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/store/offers` | List offers, with per-offer calculated prices |
+| `GET` | `/store/offers/:id` | Retrieve an offer |
+
+## Carts and checkout
+
+Mercur overrides the cart routes so a single cart can span multiple sellers:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST` | `/store/carts/:id/line-items` | Add a line item (offer-aware, multi-seller) |
+| `POST` | `/store/carts/:id/shipping-methods` | Add per-seller shipping methods |
+| `GET` | `/store/shipping-options` | Shipping options available for the cart, grouped by seller |
+| `POST` | `/store/carts/:id/promotions` | Apply promotions |
+| `POST` | `/store/carts/:id/complete` | Complete the cart — splits it into per-seller orders under an order group |
+
+## Order groups
+
+Customer authentication **required**.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/store/order-groups` | The customer's order groups |
+| `GET` | `/store/order-groups/:id` | An order group with its per-seller child orders |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Order groups" href="/rc/learn/order-groups" />
+  <Card title="Search module" href="/rc/references/modules/search" />
+</CardGroup>

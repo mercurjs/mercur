@@ -1,0 +1,83 @@
+---
+title: "Update Seller"
+api: "POST /admin/sellers/{id}"
+description: "Update a seller's details."
+---
+
+Updates the seller and returns the updated record.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="name" type="string">Display name of the seller.</ParamField>
+<ParamField body="handle" type="string">Unique URL-safe handle.</ParamField>
+<ParamField body="email" type="string">Contact email of the seller.</ParamField>
+<ParamField body="phone" type="string">Contact phone number.</ParamField>
+<ParamField body="description" type="string">Seller description.</ParamField>
+<ParamField body="logo" type="string">URL of the seller's logo.</ParamField>
+<ParamField body="banner" type="string">URL of the seller's banner image.</ParamField>
+<ParamField body="website_url" type="string">The seller's website URL.</ParamField>
+<ParamField body="external_id" type="string">ID of the seller in an external system.</ParamField>
+<ParamField body="status" type="string">One of `open`, `pending_approval`, `suspended`, `terminated`.</ParamField>
+<ParamField body="status_reason" type="string">Reason recorded with the status.</ParamField>
+<ParamField body="is_premium" type="boolean">Whether the seller is marked as premium.</ParamField>
+<ParamField body="closed_from" type="string">Start of a temporary store closure.</ParamField>
+<ParamField body="closed_to" type="string">End of a temporary store closure.</ParamField>
+<ParamField body="closure_note" type="string">Note shown while the store is closed.</ParamField>
+<ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+<ParamField body="additional_data" type="object">Extra data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="name" type="string">Display name of the seller.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="email" type="string">Contact email of the seller.</ResponseField>
+    <ResponseField name="status" type="string">One of `open`, `pending_approval`, `suspended`, `terminated`.</ResponseField>
+    <ResponseField name="is_premium" type="boolean">Whether the seller is marked as premium.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"description": "Handmade goods.", "is_premium": true}'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.$id.mutate({
+  $id: "sel_01HXYZABCDEF",
+  description: "Handmade goods.",
+  is_premium: true,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "handle": "acme",
+    "email": "hello@acme.co",
+    "description": "Handmade goods.",
+    "status": "open",
+    "is_premium": true,
+    "updated_at": "2026-06-03T14:20:00.000Z"
+  }
+}
+```
+</ResponseExample>

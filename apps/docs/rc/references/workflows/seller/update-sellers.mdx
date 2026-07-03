@@ -1,0 +1,57 @@
+---
+title: "updateSellersWorkflow"
+description: "Update sellers matching a selector."
+---
+
+Updates every seller matching the selector with the given data. Triggered by `POST /admin/sellers/:id` and `POST /vendor/sellers/:id`. Emits `seller.updated` for each updated seller.
+
+## Usage
+
+```ts
+import { updateSellersWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await updateSellersWorkflow(container).run({
+  input: {
+    selector: { id: "sel_123" },
+    update: { name: "Acme Inc." },
+  },
+})
+```
+
+## Input
+
+<ParamField body="selector" type="object" required>Filter selecting the sellers to update, e.g. `{ id: "sel_123" }`.</ParamField>
+<ParamField body="update" type="UpdateSellerDTO" required>
+  Fields to update; all optional.
+  <Expandable title="properties">
+    <ParamField body="name" type="string">Display name.</ParamField>
+    <ParamField body="handle" type="string">URL handle.</ParamField>
+    <ParamField body="email" type="string">Contact email.</ParamField>
+    <ParamField body="description" type="string">Public description.</ParamField>
+    <ParamField body="logo" type="string">Logo URL.</ParamField>
+    <ParamField body="banner" type="string">Banner URL.</ParamField>
+    <ParamField body="website_url" type="string">Website URL.</ParamField>
+    <ParamField body="external_id" type="string">External system identifier.</ParamField>
+    <ParamField body="status" type="string">One of `open`, `pending_approval`, `suspended`, `terminated`.</ParamField>
+    <ParamField body="status_reason" type="string">Reason attached to the status.</ParamField>
+    <ParamField body="is_premium" type="boolean">Premium flag.</ParamField>
+    <ParamField body="closed_from" type="Date">Start of a store closure window.</ParamField>
+    <ParamField body="closed_to" type="Date">End of a store closure window.</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed through to the workflow hooks.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="SellerDTO[]">The updated sellers.</ResponseField>
+
+## Hooks
+
+- `sellersUpdated` — runs after the update with `{ sellers, additional_data }`.
+
+```ts
+updateSellersWorkflow.hooks.sellersUpdated(async ({ sellers }) => {
+  // sync updated sellers elsewhere
+})
+```

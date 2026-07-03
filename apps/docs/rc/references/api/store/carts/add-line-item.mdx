@@ -1,0 +1,115 @@
+---
+title: "Add Line Item"
+api: "POST /store/carts/{id}/line-items"
+description: "Add a seller offer to the cart as a line item."
+---
+
+Adds an item to the cart by offer — Mercur resolves the offer's variant and stamps the `offer_id` on the line item so the cart can later split into per-seller orders.
+
+<Note>
+  Unlike vanilla Medusa, this route takes an `offer_id` instead of a `variant_id`; an unknown offer returns a `404`.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The cart's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="offer_id" type="string" required>
+  ID of the offer to add.
+</ParamField>
+
+<ParamField body="quantity" type="number" required>
+  Quantity to add; must be a positive integer.
+</ParamField>
+
+<ParamField body="unit_price" type="number">
+  Custom unit price overriding the offer's calculated price.
+</ParamField>
+
+<ParamField body="compare_at_unit_price" type="number">
+  Compare-at unit price shown as the original price.
+</ParamField>
+
+<ParamField body="metadata" type="object">
+  Custom key-value data stored on the line item; `offer_id` is merged in automatically.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Data passed to the add-to-cart workflow's hooks.
+</ParamField>
+
+## Response
+
+<ResponseField name="cart" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The cart's ID.</ResponseField>
+    <ResponseField name="currency_code" type="string">The cart's currency.</ResponseField>
+    <ResponseField name="region_id" type="string">The cart's region.</ResponseField>
+    <ResponseField name="email" type="string | null">The customer's email.</ResponseField>
+    <ResponseField name="items" type="object[]">Line items, each carrying `offer_id` in its `metadata`.</ResponseField>
+    <ResponseField name="shipping_methods" type="object[]">Selected shipping methods.</ResponseField>
+    <ResponseField name="promotions" type="object[]">Applied promotions.</ResponseField>
+    <ResponseField name="shipping_address" type="object | null">The shipping address.</ResponseField>
+    <ResponseField name="billing_address" type="object | null">The billing address.</ResponseField>
+    <ResponseField name="payment_collection" type="object | null">The cart's payment collection with its sessions.</ResponseField>
+    <ResponseField name="total" type="number">Cart total including tax and shipping.</ResponseField>
+    <ResponseField name="subtotal" type="number">Cart subtotal.</ResponseField>
+    <ResponseField name="tax_total" type="number">Total tax amount.</ResponseField>
+    <ResponseField name="discount_total" type="number">Total discount amount.</ResponseField>
+    <ResponseField name="shipping_total" type="number">Total shipping amount.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/store/carts/cart_01JB2KB1CD/line-items' \
+  -H 'Content-Type: application/json' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ' \
+  -d '{"offer_id": "offer_01JB2K6G5H", "quantity": 1}'
+```
+
+```ts JS Client
+const { cart } = await client.store.carts.$id.lineItems.mutate({
+  $id: "cart_01JB2KB1CD",
+  offer_id: "offer_01JB2K6G5H",
+  quantity: 1,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "cart": {
+    "id": "cart_01JB2KB1CD",
+    "currency_code": "eur",
+    "region_id": "reg_01JB2K4S1T",
+    "email": null,
+    "items": [
+      {
+        "id": "cali_01JB2KB3EF",
+        "title": "M",
+        "product_title": "Linen Shirt",
+        "quantity": 1,
+        "unit_price": 4500,
+        "metadata": { "offer_id": "offer_01JB2K6G5H" }
+      }
+    ],
+    "shipping_methods": [],
+    "promotions": [],
+    "shipping_address": null,
+    "billing_address": null,
+    "payment_collection": null,
+    "total": 4500,
+    "subtotal": 4500,
+    "tax_total": 0,
+    "discount_total": 0,
+    "shipping_total": 0
+  }
+}
+```
+</ResponseExample>

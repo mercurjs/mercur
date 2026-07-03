@@ -1,0 +1,33 @@
+{
+  "name": "@mercurjs/docs",
+  "version": "2.2.0-canary.40",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mercurjs/mercur",
+    "directory": "packages/docs"
+  },
+  "keywords": [
+    "marketplace",
+    "multi-vendor",
+    "medusajs",
+    "documentation",
+    "llms"
+  ],
+  "description": "Bundled Mercur documentation for AI agents — read node_modules/@mercurjs/docs/llms.txt, then open the referenced content/*.mdx.",
+  "author": "Mercur",
+  "license": "MIT",
+  "files": [
+    "content",
+    "llms.txt"
+  ],
+  "scripts": {
+    "build": "node ./scripts/build.mjs",
+    "dev": "node ./scripts/build.mjs"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -1,0 +1,44 @@
+---
+title: "updateProductAttributeValuesWorkflow"
+description: "Update attribute values matching a selector and re-sync the mirror option."
+---
+
+Updates attribute values by selector. When the touched values belong to a single variant-axis `multi_select` attribute with a mirror `ProductOption`, the option's value list is rewritten from the attribute's current value names. Triggered by `POST /admin/product-attributes/:id/values/:value_id`. Emits `product-attribute-value.updated`.
+
+## Usage
+
+```ts
+import { updateProductAttributeValuesWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await updateProductAttributeValuesWorkflow(container).run({
+  input: {
+    selector: { id: "pattrval_123" },
+    update: { name: "Dark Green" },
+  },
+})
+```
+
+## Input
+
+<ParamField body="selector" type="object" required>Filter for the values to update, e.g. `{ id: "pattrval_123" }`.</ParamField>
+<ParamField body="update" type="UpdateProductAttributeValueDTO" required>
+  Fields to set on every matched value.
+  <Expandable title="properties">
+    <ParamField body="name" type="string">New display name.</ParamField>
+    <ParamField body="handle" type="string">New handle.</ParamField>
+    <ParamField body="rank" type="number">Sort rank.</ParamField>
+    <ParamField body="is_active" type="boolean">Whether the value is active.</ParamField>
+    <ParamField body="product_option_value_id" type="string | null">Bound mirror option value.</ParamField>
+    <ParamField body="metadata" type="object | null">Custom key-value data.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed through to the hooks.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="ProductAttributeValueDTO[]">The updated values.</ResponseField>
+
+## Hooks
+
+- `validate` — runs before the update with `{ input }`.
+- `productAttributeValuesUpdated` — runs after the update with `{ values, additional_data }`.

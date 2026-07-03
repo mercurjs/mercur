@@ -1,0 +1,309 @@
+---
+title: "Extending Panels"
+description: "Add pages, customize navigation, branding, and replace components in the admin and vendor panels."
+---
+
+Both the admin panel and vendor portal use the same SDK (`@mercurjs/dashboard-sdk`). Customization is file-based and convention-driven — you add pages by creating files, configure navigation through exports, and override components through config.
+
+<Info>
+  **Mercur does not use Medusa's admin customization.** If you're coming from Medusa, forget `defineWidgetConfig`, `defineRouteConfig`, and widget injection zones — none of them exist here. Mercur ships its own admin **and** vendor panels, built on a shared extension framework with three mechanisms: **drop-in routes** (file-based pages that can also *replace* built-in pages), **compound-component re-composition** (every built-in page exposes its parts as slots), and **named layout overrides** (sidebar, topbar, store setup). The trade: instead of injecting widgets into fixed zones around a page Medusa controls, you compose the actual page — which is what makes a two-panel marketplace customizable without forking.
+</Info>
+
+## Choosing your extension mechanism
+
+Junior-friendly rule of thumb: **adding something new? Drop in a route. Changing something that exists? Re-compose it. Changing the frame around every page? Override a component. Sharing it across projects? Make it a block.**
+
+| You want to… | Use | Why it's the right tool |
+|--------------|-----|------------------------|
+| Add a new screen or feature | A drop-in `page.tsx` route | New URL, auto-registered, sidebar entry via the `config` export — see [Add a page](#add-a-page) |
+| Change part of an existing page | A drop-in route **at the same path**, re-composing the page's compound slots | Your route replaces the built-in one; untouched slots keep all their behavior — see the [re-compose tutorial](/rc/resources/tutorials/recompose-a-page) |
+| Change global chrome (sidebar, topbar, store setup) | A component override in the plugin config | One component, applied everywhere its slot renders — see [Replace components](#replace-components) |
+| Reuse a feature across projects | A [block](/rc/learn/blocks) | Ships API + admin + vendor files installable with `mercurjs add` — see the [build-a-block tutorial](/rc/resources/tutorials/build-a-block) |
+
+<Note>
+  The middle row is the one Medusa developers miss most. Because built-in pages are exported as compound components (e.g. `ProductListPage` from `@mercurjs/vendor/pages` with `Header`, `HeaderActions`, `DataTable` slots), "customize the products page" doesn't mean forking it — it means rendering it with your own composition and reusing the slots you don't change.
+</Note>
+
+## Set up
+
+All configuration lives in the panel app's Vite config — there is no separate config file.
+
+<Steps>
+  <Step title="Register the plugin">
+    Add `mercurDashboardPlugin` to the panel app's `vite.config.ts`. The only required option is `medusaConfigPath` — the plugin reads panel paths and ports from your API's Medusa config:
+
+    ```typescript vite.config.ts
+    import { defineConfig } from 'vite'
+    import react from '@vitejs/plugin-react'
+    import { mercurDashboardPlugin } from '@mercurjs/dashboard-sdk'
+
+    export default defineConfig({
+      plugins: [
+        react(),
+        mercurDashboardPlugin({
+          medusaConfigPath: '../../packages/api/medusa-config.ts',
+          name: 'My Marketplace',
+          logo: 'https://example.com/logo.svg',
+        }),
+      ],
+    })
+    ```
+
+    Projects created with `create-mercur-app` ship with this already wired for both panels.
+  </Step>
+  <Step title="Pass environment values explicitly">
+    The plugin doesn't read `.env` itself — load environment variables in `vite.config.ts` (e.g. with Vite's `loadEnv`) and pass them into the plugin options, as the starter template does with `backendUrl`.
+  </Step>
+  <Step title="Restart after config changes">
+    Options are applied at build time through virtual modules. Adding or removing routes hot-reloads automatically, but changes to the plugin options require a dev-server restart.
+  </Step>
+</Steps>
+
+### Configuration options
+
+| Option | Type | Description |
+|--------|------|-------------|
+| `medusaConfigPath` | `string` | **Required.** Path to your API's `medusa-config.ts`, relative to the panel project root |
+| `backendUrl` | `string` | Medusa backend URL (default: `http://localhost:9000`) |
+| `vendorUrl` | `string` | Absolute vendor portal URL including its path prefix |
+| `name` | `string` | Application name shown in the sidebar |
+| `logo` | `string` | URL to a logo image |
+| `components` | `object` | Component overrides (see [Replace components](#replace-components)) |
+| `i18n` | `object` | Internationalization settings (`{ defaultLanguage }`) |
+| `enableSellerRegistration` | `boolean` | Enable the public seller registration flow (vendor portal) |
+| `imageLimit` | `number` | Max upload size for images in bytes (default: 2 MB) |
+
+## Add a page
+
+<Steps>
+  <Step title="Create the route file">
+    Create a `page.tsx` inside `src/routes/` and export a default React component. The route is determined by the file path:
+
+    ```tsx src/routes/reviews/page.tsx
+    import { Star } from "@medusajs/icons"
+    import type { RouteConfig } from "@mercurjs/dashboard-sdk"
+
+    export const config: RouteConfig = {
+      label: "Reviews",
+      icon: Star,
+      rank: 10,
+    }
+
+    export default function ReviewsPage() {
+      return <div>Reviews</div>
+    }
+    ```
+  </Step>
+  <Step title="Add the config export for navigation">
+    A sidebar item is generated only when the page exports a `config` with a `label`. Pages without one are still routed — they just don't appear in the menu.
+
+    | Property | Type | Description |
+    |----------|------|-------------|
+    | `label` | `string` | **Required.** Text shown in the sidebar menu |
+    | `icon` | `ComponentType` | Icon component (e.g. from `@medusajs/icons`) |
+    | `rank` | `number` | Sort order — lower numbers appear first |
+    | `nested` | `string` | Parent path for nested menu items |
+    | `translationNs` | `string` | i18n namespace for the label |
+    | `public` | `boolean` | If `true`, the route is accessible without authentication |
+
+    Route files may also export a `loader` (React Router data loader) and `handle` (route metadata) alongside the default component.
+  </Step>
+  <Step title="Open it in the running panel">
+    Start the dev server — the SDK picks the file up automatically. This example creates a `/reviews` route with a "Reviews" sidebar item. No route registration, no configuration file.
+  </Step>
+</Steps>
+
+<Info>
+  **Matching paths replace, new paths append.** If your route's path matches a built-in page (e.g. `src/routes/products/page.tsx` → `/products`), your page **replaces** the built-in one — that's the override mechanism, no registration needed. Any other path is added alongside the built-in routes. Delete the file and the built-in page returns.
+</Info>
+
+### Routing conventions
+
+File paths map to URL routes automatically:
+
+| File path | Route | Description |
+|-----------|-------|-------------|
+| `src/routes/page.tsx` | `/` | Root page |
+| `src/routes/reviews/page.tsx` | `/reviews` | Static segment |
+| `src/routes/reviews/[id]/page.tsx` | `/reviews/:id` | Dynamic segment |
+| `src/routes/reviews/[[id]]/page.tsx` | `/reviews/:id?` | Optional dynamic segment |
+| `src/routes/search/[*]/page.tsx` | `/search/*` | Catch-all |
+| `src/routes/(settings)/page.tsx` | Route grouping | Groups routes without adding a URL segment |
+| `src/routes/dashboard/@sidebar/page.tsx` | Parallel route | Renders alongside parent |
+
+## Navigation
+
+Sidebar items are generated from pages that export a `config` with a `label`.
+
+### Ordering
+
+Use `rank` to control the order. Lower values appear higher:
+
+```tsx
+// src/routes/orders/page.tsx
+export const config: RouteConfig = {
+  label: "Orders",
+  icon: ShoppingCart,
+  rank: 1,
+}
+
+// src/routes/products/page.tsx
+export const config: RouteConfig = {
+  label: "Products",
+  icon: Tag,
+  rank: 2,
+}
+```
+
+### Nested menus
+
+Use `nested` to group pages under a parent:
+
+```tsx src/routes/settings/shipping/page.tsx
+export const config: RouteConfig = {
+  label: "Shipping",
+  nested: "/settings",
+}
+```
+
+This places "Shipping" as a child item under `/settings` in the sidebar.
+
+## Branding
+
+Set `name` and `logo` in the plugin options to customize the sidebar header:
+
+```typescript vite.config.ts
+mercurDashboardPlugin({
+  medusaConfigPath: '../../packages/api/medusa-config.ts',
+  name: 'WeTest',
+  logo: 'https://ui-avatars.com/api/?name=WeTest&background=18181B&color=fff&size=200&bold=true&format=svg',
+})
+```
+
+## Replace components
+
+<Steps>
+  <Step title="Write the replacement">
+    Create the component anywhere under `src/`. It must have a default export:
+
+    ```tsx src/components/custom-topbar-actions.tsx
+    export default function CustomTopbarActions() {
+      return (
+        <div>
+          <button>Help</button>
+          <button>Notifications</button>
+        </div>
+      )
+    }
+    ```
+  </Step>
+  <Step title="Point the config at it">
+    Register it in the `components` option. Paths are relative to `src/`:
+
+    ```typescript vite.config.ts
+    mercurDashboardPlugin({
+      medusaConfigPath: '../../packages/api/medusa-config.ts',
+      name: 'My Marketplace',
+      components: {
+        MainSidebar: 'components/custom-sidebar',
+        SettingsSidebar: 'components/custom-settings-sidebar',
+        TopbarActions: 'components/custom-topbar-actions',
+      },
+    })
+    ```
+  </Step>
+  <Step title="Restart and verify">
+    Restart the dev server — your component now renders everywhere its slot appears. Remove the entry and restart to get the built-in back; the originals are never modified.
+  </Step>
+</Steps>
+
+| Component | Description |
+|-----------|-------------|
+| `MainSidebar` | Primary navigation sidebar |
+| `SettingsSidebar` | Settings section sidebar |
+| `TopbarActions` | Action buttons in the top bar |
+| `StoreSetup` | Store setup screen for new sellers (vendor portal) |
+
+<Warning>
+  These four slots are the complete list — there is no generic "replace any component" registry. If what you want to change isn't one of them, it's a page concern: [re-compose the page](/rc/resources/tutorials/recompose-a-page) instead.
+</Warning>
+
+## Internationalization
+
+<Steps>
+  <Step title="Create translation resources">
+    ```typescript src/i18n/index.ts
+    export default {
+      en: {
+        reviews: {
+          title: "Reviews",
+          description: "Manage product reviews",
+        },
+      },
+      de: {
+        reviews: {
+          title: "Bewertungen",
+          description: "Produktbewertungen verwalten",
+        },
+      },
+    }
+    ```
+  </Step>
+  <Step title="Reference the namespace in your page config">
+    ```tsx src/routes/reviews/page.tsx
+    export const config: RouteConfig = {
+      label: "reviews.title",
+      icon: Star,
+      translationNs: "reviews",
+    }
+    ```
+  </Step>
+  <Step title="Set the default language">
+    ```typescript vite.config.ts
+    mercurDashboardPlugin({
+      medusaConfigPath: '../../packages/api/medusa-config.ts',
+      name: 'My Marketplace',
+      i18n: {
+        defaultLanguage: 'en',
+      },
+    })
+    ```
+  </Step>
+</Steps>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Can I use Medusa's defineWidgetConfig or widget zones?">
+    No. The Mercur panels don't load Medusa's admin extension system — there are no widget zones to inject into. The equivalent workflows are: drop-in routes for new pages, [compound-component re-composition](/rc/resources/tutorials/recompose-a-page) for changing existing pages, and the four `components` overrides for global chrome. Backend customization (workflows, modules, subscribers) still follows standard Medusa conventions.
+  </Accordion>
+  <Accordion title="How do I change just one part of a built-in page?">
+    Import the page from the `/pages` subpath (`@mercurjs/vendor/pages` or `@mercurjs/admin/pages`), drop a route at the same path, and re-compose its slots — keep the slots you don't change and they retain all their behavior (data fetching, filters, pagination). The [re-compose tutorial](/rc/resources/tutorials/recompose-a-page) walks through a real example.
+  </Accordion>
+  <Accordion title="Why doesn't my page show up in the sidebar?">
+    A sidebar item is only generated when the route file exports a `config` object with a `label`. Also check that the file is named exactly `page.tsx` (or `.ts`/`.jsx`/`.js`) under `src/routes/` and has a **default** export — files without one are skipped entirely.
+  </Accordion>
+  <Accordion title="Is there a mercur.config.ts file?">
+    No — all panel configuration is passed inline to `mercurDashboardPlugin()` in `vite.config.ts`. If you've seen references to a separate config file, they're outdated.
+  </Accordion>
+  <Accordion title="Does this apply to both the admin panel and the vendor portal?">
+    Yes — both panels use the same SDK and the same conventions. The differences are which built-in pages exist (`@mercurjs/admin/pages` vs `@mercurjs/vendor/pages`) and a few vendor-only options like `StoreSetup` and `enableSellerRegistration`.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a custom panel page" href="/rc/resources/tutorials/custom-panel-page">
+    Hands-on: your first drop-in route, end to end.
+  </Card>
+  <Card title="Re-compose a built-in page" href="/rc/resources/tutorials/recompose-a-page">
+    Hands-on: override the vendor products page while keeping its table.
+  </Card>
+  <Card title="Replace panel components" href="/rc/resources/tutorials/replace-panel-components">
+    Hands-on: swap the topbar actions and sidebar.
+  </Card>
+  <Card title="Build your own block" href="/rc/resources/tutorials/build-a-block">
+    Package your customization and share it across projects.
+  </Card>
+</CardGroup>

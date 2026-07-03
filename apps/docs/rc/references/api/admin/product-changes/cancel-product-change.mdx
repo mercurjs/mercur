@@ -1,0 +1,68 @@
+---
+title: "Cancel Product Change"
+api: "POST /admin/product-changes/{id}/cancel"
+description: "Cancel a pending product change without applying it."
+---
+
+Cancels the pending change set and returns the updated change record.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product change's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="internal_note" type="string">Note recorded with the cancellation, visible to operators only.</ParamField>
+
+## Response
+
+<ResponseField name="product_change" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product change's ID.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the product the change applied to.</ResponseField>
+    <ResponseField name="status" type="string">Change status after cancellation.</ResponseField>
+    <ResponseField name="canceled_by" type="string">ID of the actor who canceled the change.</ResponseField>
+    <ResponseField name="canceled_at" type="string">When the change was canceled.</ResponseField>
+    <ResponseField name="actions" type="object[]">The change's individual actions with `action`, `ordering`, `details`, and `applied`.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/product-changes/prodch_01HXYZABCDEF/cancel' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+```ts JS Client
+const { product_change } = await client.admin.productChanges.$id.cancel.mutate({
+  $id: "prodch_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_change": {
+    "id": "prodch_01HXYZABCDEF",
+    "product_id": "prod_01HXYZABCDEF",
+    "status": "canceled",
+    "canceled_by": "user_01HXYZABCDEF",
+    "canceled_at": "2026-06-02T09:00:00.000Z",
+    "actions": [
+      {
+        "id": "prodchact_01HXYZABCDEF",
+        "action": "update_product",
+        "ordering": 0,
+        "details": { "title": "Linen Shirt v2" },
+        "applied": false
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

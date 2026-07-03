@@ -1,0 +1,65 @@
+---
+title: "Accept Member Invite"
+api: "POST /vendor/members/invites/accept"
+description: "Accept a seller team invite using its token."
+---
+
+Accepts a member invite and joins the inviting seller's team.
+
+<Note>
+  This is a public route — no `Authorization` or `x-seller-id` header is required. The invite is identified by the `invite_token` sent in the invitation email.
+</Note>
+
+## Body parameters
+
+<ParamField body="invite_token" type="string" required>
+  The token from the invitation email.
+</ParamField>
+
+<ParamField body="first_name" type="string">
+  First name for the new member profile.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  Last name for the new member profile.
+</ParamField>
+
+## Response
+
+<ResponseField name="member" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The member's ID.</ResponseField>
+    <ResponseField name="first_name" type="string">The member's first name.</ResponseField>
+    <ResponseField name="last_name" type="string">The member's last name.</ResponseField>
+    <ResponseField name="email" type="string">The member's email.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/members/invites/accept' \
+  -H 'Content-Type: application/json' \
+  -d '{"invite_token": "<invite_token>", "first_name": "John", "last_name": "Roe"}'
+```
+
+```ts JS Client
+const { member } = await client.vendor.members.invites.accept.mutate({
+  invite_token: "<invite_token>",
+  first_name: "John",
+  last_name: "Roe",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "member": {
+    "id": "mem_01HXYZ",
+    "first_name": "John",
+    "last_name": "Roe",
+    "email": "teammate@acme.com"
+  }
+}
+```
+</ResponseExample>

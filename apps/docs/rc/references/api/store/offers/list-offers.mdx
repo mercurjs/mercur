@@ -1,0 +1,161 @@
+---
+title: "List Offers"
+api: "GET /store/offers"
+description: "Retrieve seller offers with per-offer calculated prices."
+---
+
+Returns a paginated list of offers from visible sellers whose products are published.
+
+<Note>
+  Customer authentication is optional. When a customer token is provided, the customer's group memberships enter the pricing context used for `calculated_price`. Prices are computed per offer (each offer scopes the variant's price set by an `offer_id` rule) only when `calculated_price` is in `fields` and a pricing context (`region_id`, `country_code`, or `cart_id`) resolves. Requesting `inventory_quantity` or `in_stock` requires a single sales channel — either configured on the publishable key or passed as `sales_channel_id`.
+</Note>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of offers to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of offers to skip before collecting results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  Field to sort by, prefixed with `-` for descending order.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; add `calculated_price`, `inventory_quantity`, or `in_stock` to receive the computed fields.
+</ParamField>
+
+<ParamField query="region_id" type="string">
+  Region used to build the pricing context for `calculated_price`.
+</ParamField>
+
+<ParamField query="country_code" type="string">
+  Country used for the tax portion of the pricing context.
+</ParamField>
+
+<ParamField query="province" type="string">
+  Province used for the tax portion of the pricing context.
+</ParamField>
+
+<ParamField query="cart_id" type="string">
+  Cart whose region and customer resolve the pricing context.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Free-text search term applied to offer fields.
+</ParamField>
+
+<ParamField query="id" type="string | string[]">
+  Filter by one or more offer IDs.
+</ParamField>
+
+<ParamField query="product_id" type="string | string[]">
+  Filter by one or more product IDs.
+</ParamField>
+
+<ParamField query="variant_id" type="string | string[]">
+  Filter by one or more variant IDs.
+</ParamField>
+
+<ParamField query="seller_id" type="string | string[]">
+  Filter by one or more seller IDs.
+</ParamField>
+
+<ParamField query="sku" type="string | string[]">
+  Filter by one or more offer SKUs.
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+## Response
+
+<ResponseField name="offers" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The offer's ID.</ResponseField>
+    <ResponseField name="seller_id" type="string">ID of the selling seller.</ResponseField>
+    <ResponseField name="variant_id" type="string">ID of the offered product variant.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the offered product.</ResponseField>
+    <ResponseField name="shipping_profile_id" type="string | null">ID of the offer's shipping profile.</ResponseField>
+    <ResponseField name="sku" type="string | null">The offer's SKU.</ResponseField>
+    <ResponseField name="ean" type="string | null">The offer's EAN.</ResponseField>
+    <ResponseField name="upc" type="string | null">The offer's UPC.</ResponseField>
+    <ResponseField name="seller" type="object">The seller's `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="product_variant" type="object">The variant's `id`, `title`, `sku`, and `price_set`.</ResponseField>
+    <ResponseField name="shipping_profile" type="object | null">The shipping profile's `id` and `name`.</ResponseField>
+    <ResponseField name="prices" type="object[]">Raw offer prices with `amount`, `currency_code`, `min_quantity`, and `max_quantity`.</ResponseField>
+    <ResponseField name="inventory_item_link" type="object[]">Inventory items backing the offer, with location stock levels.</ResponseField>
+    <ResponseField name="calculated_price" type="object | null">
+      Per-offer calculated price; includes `calculated_amount_with_tax` / `calculated_amount_without_tax` (and original-amount variants) when a tax context resolves. Only present when requested.
+    </ResponseField>
+    <ResponseField name="inventory_quantity" type="number">Available quantity in the sales channel's stock locations; only present when requested.</ResponseField>
+    <ResponseField name="in_stock" type="boolean">Whether the offer has available inventory; only present when requested.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching offers.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped offers.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned offers.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/offers?product_id=prod_01JB2K5M8N&region_id=reg_01JB2K4S1T&fields=%2Bcalculated_price' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { offers, count } = await client.store.offers.query({
+  product_id: "prod_01JB2K5M8N",
+  region_id: "reg_01JB2K4S1T",
+  fields: "+calculated_price",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "offers": [
+    {
+      "id": "offer_01JB2K6G5H",
+      "seller_id": "sel_01JB2K8A1B",
+      "variant_id": "variant_01JB2K6E4F",
+      "product_id": "prod_01JB2K5M8N",
+      "shipping_profile_id": "sp_01JB2K9C2D",
+      "sku": "NT-LINEN-M",
+      "ean": null,
+      "upc": null,
+      "seller": { "id": "sel_01JB2K8A1B", "name": "Nordic Textiles", "handle": "nordic-textiles" },
+      "product_variant": { "id": "variant_01JB2K6E4F", "title": "M", "sku": null, "price_set": { "id": "pset_01JB2K9E3F" } },
+      "shipping_profile": { "id": "sp_01JB2K9C2D", "name": "Default" },
+      "prices": [
+        { "id": "price_01JB2K9G4H", "amount": 4500, "currency_code": "eur", "min_quantity": null, "max_quantity": null }
+      ],
+      "inventory_item_link": [],
+      "calculated_price": {
+        "calculated_amount": 4500,
+        "original_amount": 4500,
+        "currency_code": "eur"
+      },
+      "metadata": null,
+      "created_at": "2026-05-01T10:00:00.000Z",
+      "updated_at": "2026-05-01T10:00:00.000Z"
+    }
+  ],
+  "count": 3,
+  "offset": 0,
+  "limit": 50
+}
+```
+</ResponseExample>

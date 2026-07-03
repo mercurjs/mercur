@@ -1,0 +1,155 @@
+---
+title: "Configuration"
+description: "withMercur() options, environment variables, and provider configuration."
+---
+
+Mercur is configured through the standard Medusa config file. `withMercur()` wraps `defineConfig()` and wires the marketplace layer in — you pass it the same shape you would pass to Medusa, plus one Mercur-specific field.
+
+## withMercur()
+
+```ts medusa-config.ts
+import { loadEnv } from "@medusajs/framework/utils"
+import { withMercur } from "@mercurjs/core"
+
+loadEnv(process.env.NODE_ENV || "development", process.cwd())
+
+module.exports = withMercur({
+  projectConfig: {
+    databaseUrl: process.env.DATABASE_URL,
+    redisUrl: process.env.REDIS_URL,
+    http: {
+      storeCors: process.env.STORE_CORS!,
+      adminCors: process.env.ADMIN_CORS!,
+      vendorCors: process.env.VENDOR_CORS!, // Mercur-specific
+      authCors: process.env.AUTH_CORS!,
+      jwtSecret: process.env.JWT_SECRET,
+      cookieSecret: process.env.COOKIE_SECRET,
+    },
+  },
+  featureFlags: {
+    seller_registration: true,
+  },
+  modules: [
+    // your modules and providers
+  ],
+})
+```
+
+The option surface is Medusa's `InputConfigWithArrayModules` extended with:
+
+| Option | Type | Purpose |
+| --- | --- | --- |
+| `projectConfig.http.vendorCors` | `string` | CORS origins for the Vendor API (`/vendor/*`) — the only Mercur-specific option |
+
+### What withMercur applies
+
+| Behavior | Detail |
+| --- | --- |
+| Registers the core plugin | Appends `@mercurjs/core` to `plugins` unless already present |
+| Registers RBAC | Appends the `@medusajs/medusa/rbac` module and forces `featureFlags.rbac = true`, so vendor role scoping works out of the box |
+| Disables the Medusa admin | `admin.disable` defaults to `true` — Mercur ships its own dashboards |
+| Adjusts core middlewares | Replaces the Medusa middlewares that Mercur overrides (e.g. collections with media) |
+
+Everything you pass is otherwise forwarded to `defineConfig()` unchanged, so any valid Medusa configuration remains valid here.
+
+## Environment variables
+
+The starter (`apps/api` and projects created with `create-mercur-app`) reads:
+
+| Variable | Purpose | Default |
+| --- | --- | --- |
+| `DATABASE_URL` | Postgres connection string | — (required) |
+| `REDIS_URL` | Redis for cache, event bus, workflow engine, locking | `redis://localhost:6379` |
+| `STORE_CORS` | Storefront CORS origins | — (required) |
+| `ADMIN_CORS` | Admin panel CORS origins | — (required) |
+| `VENDOR_CORS` | Vendor panel CORS origins | — (required) |
+| `AUTH_CORS` | Auth endpoint CORS origins | — (required) |
+| `JWT_SECRET` | JWT signing secret | `supersecret` (change in production) |
+| `COOKIE_SECRET` | Cookie signing secret | `supersecret` (change in production) |
+| `FILE_BACKEND_URL` | Public origin baked into uploaded file URLs | `http://localhost:9000/static` |
+| `MERCUR_VENDOR_URL` | Vendor dashboard base URL used in member invite links | `""` — can also be set via the seller module's `vendor_url` option |
+| `NODE_ENV` | Environment selection | `development` |
+
+## Dashboard modules
+
+The admin and vendor dashboards are served by two UI modules:
+
+```ts
+modules: [
+  {
+    resolve: "@mercurjs/core/modules/admin-ui",
+    options: { appDir: "./admin", path: "/dashboard" },
+  },
+  {
+    resolve: "@mercurjs/core/modules/vendor-ui",
+    options: { appDir: "./vendor", path: "/seller" },
+  },
+]
+```
+
+| Option | Type | Purpose |
+| --- | --- | --- |
+| `disable` | `boolean` | Skip serving this dashboard from the API process |
+| `path` | `string` | Mount path (e.g. `/dashboard`, `/seller`) |
+| `appDir` | `string` | Directory of the dashboard Vite app |
+| `viteDevServerPort` / `viteDevServerHost` | `number` / `string` | Dev-mode proxy target (host defaults to `localhost`) |
+
+## Stripe Connect payout provider
+
+Register `@mercurjs/payout-stripe-connect` as a provider of the payout module:
+
+```ts
+{
+  resolve: "@mercurjs/core/modules/payout",
+  options: {
+    providers: [
+      {
+        resolve: "@mercurjs/payout-stripe-connect",
+        id: "stripe-connect",
+        options: {
+          apiKey: process.env.STRIPE_SECRET_KEY,
+          webhookSecret: process.env.STRIPE_WEBHOOK_SECRET,
+        },
+      },
+    ],
+  },
+}
+```
+
+| Option | Type | Default | Purpose |
+| --- | --- | --- | --- |
+| `apiKey` | `string` | — (required) | Stripe secret key |
+| `webhookSecret` | `string` | — (required) | Verifies incoming Stripe webhook signatures |
+| `accountValidation.detailsSubmitted` | `boolean` | `true` | Require onboarding details submitted before the account is active |
+| `accountValidation.chargesEnabled` | `boolean` | `true` | Require charges enabled |
+| `accountValidation.payoutsEnabled` | `boolean` | `true` | Require payouts enabled |
+| `accountValidation.noOutstandingRequirements` | `boolean` | `true` | Treat pending Stripe requirements as `restricted` |
+| `accountValidation.requiredCapabilities` | `string[]` | `[]` | Stripe capabilities that must be `active` |
+
+The payout module itself also accepts scheduling options (`authorizationWindowMs`, `sellerActionWindowMs`, `captureSafetyBufferMs`, `requiredFulfillmentStatus`) — see the [Payout module reference](/rc/references/modules/payout#module-options).
+
+## Search provider
+
+The search module needs no configuration — when no provider is given, the built-in in-memory Orama provider registers automatically. To use a custom provider:
+
+```ts
+{
+  resolve: "@mercurjs/core/modules/search",
+  options: {
+    provider: {
+      resolve: "./src/providers/my-search-provider",
+      id: "my-search",
+      options: { /* provider options */ },
+    },
+  },
+}
+```
+
+The provider must extend `AbstractSearchProvider` — see the [Search module reference](/rc/references/modules/search#provider-contract).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Installation" href="/rc/learn/installation" />
+  <Card title="Stripe Connect integration" href="/rc/resources/integrations/stripe-connect" />
+</CardGroup>

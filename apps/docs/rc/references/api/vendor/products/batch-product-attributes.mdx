@@ -1,0 +1,104 @@
+---
+title: "Batch Product Attributes"
+api: "POST /vendor/products/{id}/attributes/batch"
+description: "Stage attribute additions, removals, and updates on a product."
+---
+
+Stages attribute operations as a pending change request instead of applying them directly.
+
+<Note>
+  The endpoint responds with `202 Accepted` and a `product_change` record containing `ATTRIBUTE_ADD` / `ATTRIBUTE_REMOVE` / `ATTRIBUTE_UPDATE` actions.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="add" type="object[]">
+  Attributes to attach; each entry references an existing attribute by `id` or defines one inline by `title`.
+  <Expandable title="properties">
+    <ParamField body="id" type="string">Existing attribute ID (referencing form).</ParamField>
+    <ParamField body="value_ids" type="string[]">IDs of attribute values to select (referencing form).</ParamField>
+    <ParamField body="value" type="string | number | boolean">Scalar value for `text`, `unit`, or `toggle` attributes.</ParamField>
+    <ParamField body="title" type="string">Attribute title (inline form).</ParamField>
+    <ParamField body="type" type="string">One of `single_select`, `multi_select`, `text`, `toggle`, `unit`. Required for inline non-axis attributes unless `value` is a boolean.</ParamField>
+    <ParamField body="values" type="string[]">Value names to create and select (inline form).</ParamField>
+    <ParamField body="is_variant_axis" type="boolean">Whether the attribute drives variant combinations; only allowed on `multi_select` attributes.</ParamField>
+    <ParamField body="is_filterable" type="boolean">Whether the attribute is filterable (inline form).</ParamField>
+    <ParamField body="is_required" type="boolean">Whether the attribute is required (inline form).</ParamField>
+    <ParamField body="description" type="string">Attribute description (inline form).</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value pairs (inline form).</ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="remove" type="string[]">
+  IDs of attributes to detach from the product.
+</ParamField>
+
+<ParamField body="update" type="object[]">
+  Changes to attributes already attached to the product.
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>The attribute's ID.</ParamField>
+    <ParamField body="title" type="string">New attribute title.</ParamField>
+    <ParamField body="add" type="(string | object)[]">Values to select — plain strings or `{ "value": "..." }` objects.</ParamField>
+    <ParamField body="remove" type="string[]">Value IDs to deselect.</ParamField>
+    <ParamField body="value" type="string | number | boolean">New scalar value for `text`, `unit`, or `toggle` attributes.</ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="product_change" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The change request's ID.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the product the change targets.</ResponseField>
+    <ResponseField name="status" type="string">One of `pending`, `confirmed`, `declined`, `canceled`.</ResponseField>
+    <ResponseField name="actions" type="object[]">Staged attribute operations, each with `id`, `action`, `details`, `ordering`, and `applied`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/products/prod_01HXYZ/attributes/batch' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "add": [{ "id": "pattr_01HXYZ", "value_ids": ["pattrval_01HXYZ"] }],
+    "remove": ["pattr_01HABC"]
+  }'
+```
+
+```ts JS Client
+const { product_change } =
+  await client.vendor.products.$id.attributes.batch.mutate({
+    $id: "prod_01HXYZ",
+    add: [{ id: "pattr_01HXYZ", value_ids: ["pattrval_01HXYZ"] }],
+    remove: ["pattr_01HABC"],
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 202
+{
+  "product_change": {
+    "id": "prodch_01HXYZ",
+    "product_id": "prod_01HXYZ",
+    "status": "pending",
+    "actions": [
+      {
+        "id": "prodchact_01HXYZ",
+        "action": "ATTRIBUTE_ADD",
+        "details": { "id": "pattr_01HXYZ", "value_ids": ["pattrval_01HXYZ"] },
+        "applied": false
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

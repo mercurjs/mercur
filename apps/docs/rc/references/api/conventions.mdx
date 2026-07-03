@@ -1,0 +1,109 @@
+---
+title: "API conventions"
+description: "Authentication, seller scoping, pagination, field selection, and webhooks — shared by every Mercur API surface."
+---
+
+Mercur exposes three HTTP surfaces on the Medusa server. They share the same conventions for authentication, pagination, and field selection.
+
+| Surface | Base path | Audience | Authentication |
+| --- | --- | --- | --- |
+| [Admin API](/rc/references/api/admin) | `/admin/*` | Marketplace operator | Medusa admin user (session or bearer) |
+| [Vendor API](/rc/references/api/vendor) | `/vendor/*` | Sellers | Member auth + seller scoping (below) |
+| [Store API](/rc/references/api/store) | `/store/*` | Storefront | Mostly public; customer auth where noted |
+
+All requests and responses are JSON. The recommended way to call these APIs is the typed [`@mercurjs/client`](/rc/tools/api-client) — every route below maps 1:1 to a client call.
+
+## Authentication
+
+### Admin
+
+Admin routes use standard Medusa admin authentication — log in via `/auth/user/emailpass`, then send the session cookie or a `Authorization: Bearer <token>` header.
+
+### Vendor
+
+Vendor routes authenticate the **member** actor (`/auth/member/emailpass` to obtain a token) and are additionally scoped to a single seller:
+
+1. The request must carry an `x-seller-id` header (or a seller selected in the session via `POST /vendor/sellers/select`).
+2. Middleware verifies the authenticated member belongs to that seller and populates the request's seller context — every query and mutation on the surface is automatically filtered to that seller.
+3. The member's RBAC roles are resolved for the selected seller.
+
+A handful of vendor routes are public by design: seller registration (`POST /vendor/sellers`), invite acceptance (`POST /vendor/members/invites/accept`), `GET /vendor/stores`, and `GET /vendor/feature-flags`.
+
+### Store
+
+Store routes are public. Customer authentication (session or bearer) is **required** for `/store/order-groups` and **optional** for `/store/offers`, `/store/products`, and `/store/search` (it enriches the pricing context when present). Public seller routes only return sellers whose status is `open` and who are not inside a scheduled closure window.
+
+## Pagination
+
+List endpoints use offset pagination with two query parameters:
+
+```
+GET /admin/sellers?limit=20&offset=40
+```
+
+| Parameter | Description | Default |
+| --- | --- | --- |
+| `limit` | Maximum number of records to return | 50 for most routes (some use 10, 20, or 200) |
+| `offset` | Number of records to skip | 0 |
+
+Every list response carries the paging envelope alongside the records:
+
+```json
+{
+  "sellers": [ ... ],
+  "count": 133,
+  "offset": 40,
+  "limit": 20
+}
+```
+
+`count` is the total number of records matching the filters, so `offset + limit < count` means more pages exist.
+
+## Field selection
+
+List and detail endpoints accept a `fields` query parameter to control which fields and relations are returned:
+
+```
+GET /vendor/products?fields=id,title,+variants.sku,-description
+```
+
+- `+field` adds a field or relation **on top of** the route's defaults.
+- `-field` removes one from the defaults.
+- A bare `field` (no prefix) **replaces** the default set entirely.
+
+<Warning>
+  Mixing one unprefixed field into an otherwise-prefixed list switches the
+  whole parameter to replace mode and silently drops the route defaults.
+  Prefix every entry with `+` or `-` when you mean to merge.
+</Warning>
+
+## Filtering and ordering
+
+List endpoints accept entity-specific filter parameters (documented per route group), a free-text `q` search parameter where the entity has searchable fields, and `order` for sorting (`order=-created_at` for descending).
+
+## Errors
+
+Errors follow Medusa's format:
+
+```json
+{
+  "type": "invalid_data",
+  "message": "Seller with handle already exists"
+}
+```
+
+Common types: `invalid_data` (400), `unauthorized` (401), `not_allowed` (403), `not_found` (404). The typed client throws these as `ClientError`.
+
+## Webhooks
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST` | `/hooks/payout` | Payout provider webhook receiver. The registered provider (e.g. Stripe Connect) verifies the signature and resolves the event into a payout action. |
+
+## Next steps
+
+<CardGroup cols={3}>
+  <Card title="Admin API" href="/rc/references/api/admin" />
+  <Card title="Vendor API" href="/rc/references/api/vendor" />
+  <Card title="Store API" href="/rc/references/api/store" />
+</CardGroup>

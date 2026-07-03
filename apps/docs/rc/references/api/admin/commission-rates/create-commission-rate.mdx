@@ -1,0 +1,95 @@
+---
+title: "Create Commission Rate"
+api: "POST /admin/commission-rates"
+description: "Create a commission rate."
+---
+
+Creates a commission rate, optionally with scoping rules and per-currency values.
+
+## Body parameters
+
+<ParamField body="name" type="string" required>The rate's display name.</ParamField>
+<ParamField body="code" type="string" required>Unique code identifying the rate.</ParamField>
+<ParamField body="type" type="string" required>The rate type: `fixed` or `percentage`.</ParamField>
+<ParamField body="value" type="number" required>The commission value — a percentage or a fixed amount.</ParamField>
+<ParamField body="currency_code" type="string">Currency of a fixed rate's value.</ParamField>
+<ParamField body="include_tax" type="boolean">Whether commission is calculated on tax-inclusive amounts.</ParamField>
+<ParamField body="include_shipping" type="boolean">Whether shipping is included in the commission base.</ParamField>
+<ParamField body="is_enabled" type="boolean">Whether the rate is active.</ParamField>
+<ParamField body="is_default" type="boolean">Whether this is the marketplace default rate.</ParamField>
+<ParamField body="rules" type="object[]">
+  Rules scoping which sellers or products the rate applies to.
+  <Expandable title="properties">
+    <ParamField body="reference" type="string" required>The rule target type: `product`, `product_type`, `product_collection`, `product_category`, or `seller`.</ParamField>
+    <ParamField body="reference_id" type="string" required>ID of the referenced entity.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="values" type="object[]">
+  Per-currency fixed amounts.
+  <Expandable title="properties">
+    <ParamField body="currency_code" type="string" required>The value's currency code.</ParamField>
+    <ParamField body="amount" type="number" required>The fixed commission amount for that currency.</ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="commission_rate" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The commission rate's ID.</ResponseField>
+    <ResponseField name="name" type="string">The rate's display name.</ResponseField>
+    <ResponseField name="code" type="string">The rate's unique code.</ResponseField>
+    <ResponseField name="type" type="string">The rate type: `fixed` or `percentage`.</ResponseField>
+    <ResponseField name="value" type="number">The commission value.</ResponseField>
+    <ResponseField name="is_enabled" type="boolean">Whether the rate is active.</ResponseField>
+    <ResponseField name="is_default" type="boolean">Whether this is the marketplace default rate.</ResponseField>
+    <ResponseField name="rules" type="object[]">Rules scoping the rate.</ResponseField>
+    <ResponseField name="values" type="object[]">Per-currency fixed amounts.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/commission-rates' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"name": "Electronics", "code": "electronics", "type": "percentage", "value": 12, "rules": [{"reference": "product_category", "reference_id": "pcat_01HXYZ"}]}'
+```
+
+```ts JS Client
+const { commission_rate } = await client.admin.commissionRates.mutate({
+  name: "Electronics",
+  code: "electronics",
+  type: "percentage",
+  value: 12,
+  rules: [{ reference: "product_category", reference_id: "pcat_01HXYZ" }],
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201
+{
+  "commission_rate": {
+    "id": "comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+    "name": "Electronics",
+    "code": "electronics",
+    "type": "percentage",
+    "value": 12,
+    "currency_code": null,
+    "include_tax": false,
+    "include_shipping": false,
+    "is_enabled": true,
+    "is_default": false,
+    "rules": [
+      {
+        "id": "comrule_01HXYZ9A1B2C3D4E5F6G7H8J9K",
+        "reference": "product_category",
+        "reference_id": "pcat_01HXYZ"
+      }
+    ],
+    "values": []
+  }
+}
+```
+</ResponseExample>

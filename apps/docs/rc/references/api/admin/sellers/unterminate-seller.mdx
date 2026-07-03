@@ -1,0 +1,52 @@
+---
+title: "Unterminate Seller"
+api: "POST /admin/sellers/{id}/unterminate"
+description: "Reverse a seller termination."
+---
+
+Restores a terminated seller to `open`.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="status" type="string">The seller's status, `open` after this call.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/unterminate' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.$id.unterminate.mutate({
+  $id: "sel_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "status": "open",
+    "status_reason": null,
+    "updated_at": "2026-06-11T09:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

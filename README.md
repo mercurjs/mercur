@@ -77,7 +77,7 @@ Mercur is modular. Each piece is a separate, independently deployable app that t
 
 ## What's in this repo
 
-This is the Mercur development monorepo: the `@mercurjs/core` plugin, the React + Vite admin and vendor dashboards, the `@mercurjs/cli`, the typed API client, the dashboard SDK, the Stripe Connect payout provider, and the cross-package integration suites. If you just want to build a marketplace, run `bunx @mercurjs/cli@latest create` (see [Getting Started](#getting-started)) - clone this repo only when you want to contribute to Mercur itself.
+This is the Mercur development monorepo: the `@mercurjs/core` plugin, the React + Vite admin and vendor dashboards, the `@mercurjs/cli`, the typed API client, the dashboard SDK, the Stripe Connect payout provider, and the cross-package integration suites. If you just want to build a marketplace, run `bun create mercur-app@latest` (see [Getting Started](#getting-started)) - clone this repo only when you want to contribute to Mercur itself.
 
 ## Deployment
 
@@ -115,7 +115,7 @@ Here's what you need to run Mercur.
 1. Create a new Mercur project
 
    ```sh
-   bunx @mercurjs/cli@latest create my-marketplace
+   bun create mercur-app@latest my-marketplace
    ```
 
 2. Start the development server
