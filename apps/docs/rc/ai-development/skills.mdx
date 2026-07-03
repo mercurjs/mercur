@@ -1,0 +1,187 @@
+---
+title: "Skills"
+description: "Pre-built AI workflows that ship with every Mercur project for safe, guided development."
+---
+
+# Skills
+
+Every Mercur project created with `@mercurjs/cli@latest create` includes a set of **skills** — reusable prompt modules that teach your AI coding tool how to work with Mercur correctly.
+
+Skills encode domain knowledge, enforce patterns, and catch common mistakes. Instead of prompting your AI with "please follow the Mercur conventions for forms", the skill handles it automatically.
+
+---
+
+## How skills work
+
+Skills are markdown files in your project's `.claude/skills/` directory. They're loaded by [Claude Code](https://docs.anthropic.com/en/docs/claude-code/overview) (and compatible tools) in two ways:
+
+- **Slash command** — type `/skill-name` to invoke a skill explicitly
+- **Auto-trigger** — the AI detects that your task matches a skill's description and loads it automatically
+
+Each skill contains rules, checklists, and workflows tailored to a specific aspect of Mercur development.
+
+---
+
+## Included skills
+
+Every project created from the Mercur starter template includes these skills:
+
+| Skill | What it does | When it triggers |
+|-------|-------------|-----------------|
+| `mercur-cli` | Guides correct usage of CLI commands (`create`, `init`, `add`, `search`, `view`, `diff`) | Working with the Mercur CLI |
+| `mercur-blocks` | Discovers, evaluates, installs, and verifies blocks using `blocks.json` aliases | Adding or updating blocks |
+| `migration-guide` | Analyzes a 1.x project and walks through migration to 2.0 step by step | Upgrading from Mercur 1.x |
+| `dashboard-page-ui` | Enforces correct routing, page composition, and i18n for dashboard pages | Building admin or vendor pages |
+| `dashboard-form-ui` | Enforces form structure, validation, submission guards, and UI conventions | Building forms in dashboards |
+| `dashboard-tab-ui` | Enforces tab structure, validation scope, and wizard conventions | Adding tabs to multi-step forms |
+| `medusa-ui-conformance` | Keeps custom UI aligned with `@medusajs/ui` patterns and local wrappers | Adding reusable UI components |
+
+---
+
+## Using skills
+
+### Invoke explicitly
+
+Type the slash command in Claude Code:
+
+```
+/mercur-blocks
+```
+
+The skill loads its full context and guides you through the workflow.
+
+### Let it auto-trigger
+
+Just describe your task naturally:
+
+```
+Add the reviews block to my project
+```
+
+Claude Code matches this to the `mercur-blocks` skill and activates it automatically.
+
+### Pass arguments
+
+Some skills accept arguments:
+
+```
+/migration-guide /path/to/old-project
+```
+
+---
+
+## Where skills live
+
+```
+your-project/
+└── .claude/
+    └── skills/
+        ├── mercur-cli/
+        │   └── SKILL.md
+        ├── mercur-blocks/
+        │   └── SKILL.md
+        ├── dashboard-page-ui/
+        │   └── SKILL.md
+        ├── dashboard-form-ui/
+        │   └── SKILL.md
+        ├── dashboard-tab-ui/
+        │   └── SKILL.md
+        ├── medusa-ui-conformance/
+        │   └── SKILL.md
+        └── migration-guide/
+            └── SKILL.md
+```
+
+Each skill is a directory containing a `SKILL.md` file with frontmatter metadata and the skill content.
+
+---
+
+## Creating custom skills
+
+You can create your own skills to encode project-specific patterns and workflows.
+
+### 1. Create the skill directory
+
+```bash
+mkdir -p .claude/skills/my-custom-skill
+```
+
+### 2. Write the skill file
+
+Create `.claude/skills/my-custom-skill/SKILL.md`:
+
+```markdown
+---
+name: my-custom-skill
+description: One sentence describing when this skill should trigger.
+---
+
+# My Custom Skill
+
+Use this skill when:
+- [trigger condition 1]
+- [trigger condition 2]
+
+## Rules
+
+- [rule 1]
+- [rule 2]
+
+## Workflow
+
+1. [step 1]
+2. [step 2]
+```
+
+### 3. Key conventions
+
+- **Directory name** must be `kebab-case` and match the `name` in frontmatter
+- **File** must be named `SKILL.md` (uppercase)
+- **Description** is the primary trigger — write it clearly so the AI knows when to activate
+- Keep skills focused on one domain; split broad skills into smaller ones
+
+### Frontmatter options
+
+| Field | Required | Purpose |
+|-------|----------|---------|
+| `name` | Yes | Must match directory name |
+| `description` | Yes | Primary trigger — AI uses this to decide relevance |
+| `allowed-tools` | No | Restrict available tools (e.g., `Read, Grep, Glob` for review-only skills) |
+| `argument-hint` | No | Hint shown in slash command menu (e.g., `"[block-name]"`) |
+
+<Tip>
+  Start with just `name` and `description`. Add other fields only when they change runtime behavior.
+</Tip>
+
+---
+
+## Using skills with other AI tools
+
+Skills ship in `.claude/skills/` — this is the canonical location, tracked in git. They're plain markdown files, so any AI coding tool that reads project-level prompts can use them.
+
+### OpenAI Codex
+
+Codex reads skills from `.codex/skills/`. Symlink to `.claude/skills/`:
+
+```bash
+mkdir -p .codex
+ln -s ../.claude/skills .codex/skills
+```
+
+Codex picks up the same `SKILL.md` files and triggers them the same way.
+
+### Cursor
+
+Cursor reads project rules from `.cursor/rules/`. You can convert skills to Cursor rules:
+
+```bash
+mkdir -p .cursor/rules
+# Copy a skill as a Cursor rule
+cp .claude/skills/mercur-blocks/SKILL.md .cursor/rules/mercur-blocks.md
+```
+
+Cursor rules use a similar markdown format — the skill content works as-is, though Cursor-specific frontmatter fields (like `globs`) can be added for file-pattern triggering.
+
+<Tip>
+  Skills are markdown — they work with any AI tool that supports project-level context. If your tool doesn't have a conventional directory, you can paste skill content into custom instructions or system prompts.
+</Tip>

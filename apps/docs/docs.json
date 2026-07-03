@@ -9,9 +9,9 @@
   },
   "favicon": "/favicon.png",
   "colors": {
-    "primary": "#090909",
-    "light": "#ffffff",
-    "dark": "#090909"
+    "primary": "#3139FB",
+    "light": "#9BA0FF",
+    "dark": "#2A31D8"
   },
   "topbarLinks": [
     {
@@ -25,6 +25,101 @@
   },
   "navigation": {
     "versions": [
+      {
+        "version": "Release Candidate",
+        "tabs": [
+          {
+            "tab": "Docs",
+            "groups": [
+              {
+                "group": "Getting started",
+                "pages": [
+                  "rc/getting-started/introduction",
+                  "rc/getting-started/concepts",
+                  "rc/getting-started/installation"
+                ]
+              },
+              {
+                "group": "Core Concepts",
+                "pages": [
+                  "rc/core-concepts/seller",
+                  "rc/core-concepts/seller-members",
+                  "rc/core-concepts/payout",
+                  "rc/core-concepts/commission",
+                  "rc/core-concepts/order-groups"
+                ]
+              },
+              {
+                "group": "Developer Guide",
+                "pages": [
+                  "rc/developer-guide/overview",
+                  "rc/developer-guide/blocks",
+                  "rc/developer-guide/registry",
+                  "rc/developer-guide/api-client",
+                  "rc/developer-guide/cli",
+                  "rc/developer-guide/extending-panels",
+                  "rc/developer-guide/custom-fields"
+                ]
+              },
+              {
+                "group": "How-to Guides",
+                "pages": [
+                  "rc/how-to-guides/stripe-connect-integration",
+                  "rc/how-to-guides/medusa-cloud"
+                ]
+              },
+              {
+                "group": "Migration",
+                "pages": [
+                  "rc/migrations/overview",
+                  "rc/migrations/from-2-0-to-2-1",
+                  "rc/migrations/from-1-x-to-2-0"
+                ]
+              },
+              {
+                "group": "AI Development",
+                "pages": [
+                  "rc/ai-development/llms",
+                  "rc/ai-development/mcp",
+                  "rc/ai-development/skills"
+                ]
+              },
+              {
+                "group": "Legal",
+                "pages": [
+                  "rc/telemetry"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "User Guide",
+            "groups": [
+              {
+                "group": "Admin Panel",
+                "pages": [
+                  "rc/user-guides/admin/stores"
+                ]
+              },
+              {
+                "group": "Vendor Panel",
+                "pages": [
+                  "rc/user-guides/vendor/stores"
+                ]
+              }
+            ]
+          },
+          {
+            "tab": "Changelog",
+            "groups": [
+              {
+                "group": "Changelog",
+                "pages": []
+              }
+            ]
+          }
+        ]
+      },
       {
         "version": "2.1.1",
         "default": true,
@@ -441,6 +536,14 @@
   },
   "redirects": [
     {
+      "source": "/rc/welcome",
+      "destination": "/rc/getting-started/introduction"
+    },
+    {
+      "source": "/rc",
+      "destination": "/rc/getting-started/introduction"
+    },
+    {
       "source": "/v2/welcome",
       "destination": "/welcome"
     },
@@ -554,19 +657,10 @@
       }
     ]
   },
-  "fonts": {
-    "heading": {
-      "family": "Sora",
-      "weight": 400
-    },
-    "body": {
-      "family": "Poppins",
-      "weight": 400
-    }
-  },
   "background": {
     "color": {
-      "dark": "#090909"
+      "light": "#F7F7F9",
+      "dark": "#0B0B12"
     }
   }
 }

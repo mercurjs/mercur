@@ -1,0 +1,117 @@
+---
+title: "Installation"
+description: "Install Mercur and set up your marketplace project."
+---
+
+## Requirements
+
+- [Node.js v20+](https://nodejs.org/en/download) (LTS version)
+- [Bun v1.3+](https://bun.sh) (recommended package manager)
+- [Git](https://git-scm.com/downloads)
+- PostgreSQL v14+
+
+<Tip>
+  The quickest way to get PostgreSQL running locally is with Docker:
+
+  ```bash
+  docker run -d --name mercur-postgres \
+    -e POSTGRES_PASSWORD=postgres \
+    -p 5432:5432 postgres:16
+  ```
+
+  Or on macOS with Homebrew:
+
+  ```bash
+  brew install postgresql@16 && brew services start postgresql@16
+  ```
+</Tip>
+
+## Create a new project
+
+```bash
+bunx @mercurjs/cli@latest create
+```
+
+The CLI will prompt for a project name and template, then handle everything automatically:
+- downloads the template
+- installs dependencies
+- creates and migrates the database
+- seeds initial data
+- starts the development server and opens the admin setup page in your browser
+
+### Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `--template <template>` | Template to use (`basic` or `plugin`) | prompted |
+| `--db-connection-string <string>` | Full PostgreSQL connection string | — |
+| `--db-host <host>` | PostgreSQL host | `localhost` |
+| `--db-port <port>` | PostgreSQL port | `5432` |
+| `--no-deps` | Skip dependency installation | — |
+| `--skip-db` | Skip database setup | — |
+
+## Access your marketplace
+
+Once the development server is running, your marketplace is available at:
+
+| Panel | URL |
+|-------|-----|
+| API | `http://localhost:9000` |
+| Admin Panel | `http://localhost:9000/dashboard` |
+| Vendor Panel | `http://localhost:9000/seller` |
+
+### Create an admin account
+
+The CLI automatically opens the admin invite page in your browser after setup. Follow the on-screen instructions to create your first admin account.
+
+### Create your first seller
+
+The seed data does not include a seller account. To create one, open the Vendor Panel and register:
+
+```
+http://localhost:9000/seller/register
+```
+
+Fill in the registration form and complete the onboarding wizard. Once submitted, the seller will appear in the Admin Panel for approval.
+
+## Start the development server
+
+After stopping the server, start it again from your project directory:
+
+```bash
+cd <your-project-name>
+bun dev
+```
+
+## Initialize an existing project
+
+If you have an existing Medusa project, initialize Mercur in it:
+
+```bash
+bunx @mercurjs/cli@latest init
+```
+
+This creates a `blocks.json` configuration file in your project.
+
+## Add blocks
+
+Install blocks from the registry:
+
+```bash
+bunx @mercurjs/cli@latest add <block-name>
+```
+
+Browse available blocks:
+
+```bash
+bunx @mercurjs/cli@latest search
+```
+
+## Run database migrations
+
+After adding blocks that include modules:
+
+```bash
+bunx medusa db:generate <module1> <module2> ...
+bunx medusa db:migrate
+```
