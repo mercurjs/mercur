@@ -42,70 +42,82 @@ silently point at `http://localhost:9000` — so make sure to set it as describe
 
 ## Setup
 
-1. From the Medusa Cloud dashboard, choose **Import your existing repository into the Cloud** (the Mercur project lives in your own GitHub repo, not in the bundled DTC/B2B starters).
-   ![Medusa Cloud welcome screen](/images/v2/cloud_1.png)
-2. On the **Repository** step, make sure the Medusa Cloud GitHub app is installed, pick your Mercur repository from the list, and click **Continue**.
-   ![Choose repository](/images/v2/cloud_2.png)
-3. On the **Configure** step, fill in:
-   - **Project name** and **Custom subdomain**. The subdomain determines your backend URL (`https://<subdomain>.medusajs.app`) — you will reference it in the environment variables below.
-   - **Region** closest to your users.
-   - **Medusa root directory**: `/packages/api`.
-   - **Initial user** — the first admin email and password.
+<Steps>
+  <Step title="Import your repository">
+    From the Medusa Cloud dashboard, choose **Import your existing repository into the Cloud** (the Mercur project lives in your own GitHub repo, not in the bundled DTC/B2B starters).
+    ![Medusa Cloud welcome screen](/images/v2/cloud_1.png)
+  </Step>
+  <Step title="Pick the repository">
+    On the **Repository** step, make sure the Medusa Cloud GitHub app is installed, pick your Mercur repository from the list, and click **Continue**.
+    ![Choose repository](/images/v2/cloud_2.png)
+  </Step>
+  <Step title="Configure the project">
+    On the **Configure** step, fill in:
 
-   Leave **Storefront root directory** empty — the Mercur basic template doesn't ship a storefront.
-   ![Configure project — name, region, Medusa root directory](/images/v2/cloud_3.png)
-4. Scroll down to **Environment variables** and add the **Backend Environment Variables** below. Medusa Cloud provisions the database, Redis, and file storage automatically, so you don't need to set those.
-   ![Environment variables](/images/v2/cloud_4.png)
+    - **Project name** and **Custom subdomain**. The subdomain determines your backend URL (`https://<subdomain>.medusajs.app`) — you will reference it in the environment variables below.
+    - **Region** closest to your users.
+    - **Medusa root directory**: `/packages/api`.
+    - **Initial user** — the first admin email and password.
 
-Only the following variables should be set:
+    Leave **Storefront root directory** empty — the Mercur basic template doesn't ship a storefront.
+    ![Configure project — name, region, Medusa root directory](/images/v2/cloud_3.png)
+  </Step>
+  <Step title="Set environment variables">
+    Scroll down to **Environment variables** and add the **Backend Environment Variables** below. Medusa Cloud provisions the database, Redis, and file storage automatically, so you don't need to set those.
+    ![Environment variables](/images/v2/cloud_4.png)
 
-```bash
-# Panels (build-time): the deployed backend origin, baked into the admin and
-# vendor panels. Enable the **Build** toggle for this variable — the panels
-# read it while they are being built, not at runtime.
-MERCUR_BACKEND_URL=https://<your-subdomain>.medusajs.app
+    Only the following variables should be set:
 
-# CORS — the panels are served from the backend's own origin, so it is enough
-# to list that origin (plus your storefront URL in STORE_CORS, if you have one)
-STORE_CORS=https://<your-subdomain>.medusajs.app
-ADMIN_CORS=https://<your-subdomain>.medusajs.app
-VENDOR_CORS=https://<your-subdomain>.medusajs.app
-AUTH_CORS=https://<your-subdomain>.medusajs.app
+    ```bash
+    # Panels (build-time): the deployed backend origin, baked into the admin and
+    # vendor panels. Enable the **Build** toggle for this variable — the panels
+    # read it while they are being built, not at runtime.
+    MERCUR_BACKEND_URL=https://<your-subdomain>.medusajs.app
 
-# Secrets
-JWT_SECRET=
-COOKIE_SECRET=
+    # CORS — the panels are served from the backend's own origin, so it is enough
+    # to list that origin (plus your storefront URL in STORE_CORS, if you have one)
+    STORE_CORS=https://<your-subdomain>.medusajs.app
+    ADMIN_CORS=https://<your-subdomain>.medusajs.app
+    VENDOR_CORS=https://<your-subdomain>.medusajs.app
+    AUTH_CORS=https://<your-subdomain>.medusajs.app
 
-# Vendor panel URL used in seller emails and onboarding flows
-MERCUR_VENDOR_URL=https://<your-subdomain>.medusajs.app/seller
+    # Secrets
+    JWT_SECRET=
+    COOKIE_SECRET=
 
-# Stripe (customer payments + Mercur payout provider)
-STRIPE_API_KEY=
-STRIPE_WEBHOOK_SECRET=
-STRIPE_PAYOUT_WEBHOOK_SECRET=
+    # Vendor panel URL used in seller emails and onboarding flows
+    MERCUR_VENDOR_URL=https://<your-subdomain>.medusajs.app/seller
 
-# Email (optional, e.g. Resend)
-RESEND_API_KEY=
-RESEND_FROM_EMAIL=
+    # Stripe (customer payments + Mercur payout provider)
+    STRIPE_API_KEY=
+    STRIPE_WEBHOOK_SECRET=
+    STRIPE_PAYOUT_WEBHOOK_SECRET=
 
-# Search (optional)
-ALGOLIA_APP_ID=
-ALGOLIA_API_KEY=
-```
+    # Email (optional, e.g. Resend)
+    RESEND_API_KEY=
+    RESEND_FROM_EMAIL=
 
-<Warning>
-  `MERCUR_BACKEND_URL` must have the **Build** toggle enabled in the Medusa Cloud
-  environment-variable settings. Without it, the production build stops with a clear
-  error rather than baking the localhost default into the panels.
-</Warning>
+    # Search (optional)
+    ALGOLIA_APP_ID=
+    ALGOLIA_API_KEY=
+    ```
 
-<Info>
-  For Stripe setup, including which keys go where and how to wire both webhooks,
-  see the [Stripe Connect integration
-  guide](/rc/resources/integrations/stripe-connect).
-</Info>
+    <Warning>
+      `MERCUR_BACKEND_URL` must have the **Build** toggle enabled in the Medusa Cloud
+      environment-variable settings. Without it, the production build stops with a clear
+      error rather than baking the localhost default into the panels.
+    </Warning>
 
-5. Click **Create**. The build and deploy process will start and can take a few minutes to complete.
+    <Info>
+      For Stripe setup, including which keys go where and how to wire both webhooks,
+      see the [Stripe Connect integration
+      guide](/rc/resources/integrations/stripe-connect).
+    </Info>
+  </Step>
+  <Step title="Create and deploy">
+    Click **Create**. The build and deploy process will start and can take a few minutes to complete.
+  </Step>
+</Steps>
 
 You can change these variables later from the project's environment settings, and switch the deployment branch at any time. Medusa Cloud will automatically pull and rebuild your environment whenever a new commit is pushed to the selected branch. Remember that `MERCUR_BACKEND_URL` is baked into the panels at build time — changing it requires a redeploy.
 
@@ -128,3 +140,28 @@ Open the admin panel and sign in with the **Initial user** you configured in the
   time, and add the panel URLs to the backend's `ADMIN_CORS`, `VENDOR_CORS`, and
   `AUTH_CORS` variables.
 </Tip>
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="A panel shows a 'Dashboard not built' page — what went wrong?">
+    The bundling step didn't run during the build. Check the deployment's build logs for output from `bundle-dashboards`; the most common cause is a build that failed earlier (often a missing `MERCUR_BACKEND_URL` with the Build toggle off).
+  </Accordion>
+  <Accordion title="I changed MERCUR_BACKEND_URL but the panels still call the old URL">
+    The backend URL is **baked into the panels at build time**, not read at runtime. After changing the variable, trigger a redeploy so the panels rebuild with the new value.
+  </Accordion>
+  <Accordion title="Do I need to configure a database or Redis?">
+    No — Medusa Cloud provisions Postgres, Redis, and file storage automatically and injects their connection variables. Only set the variables listed in the setup step.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Stripe Connect" href="/rc/resources/integrations/stripe-connect">
+    Wire payments and payouts on the deployed environment.
+  </Card>
+  <Card title="Build your first marketplace" href="/rc/resources/tutorials/first-marketplace">
+    Run the end-to-end flow against your new deployment.
+  </Card>
+</CardGroup>

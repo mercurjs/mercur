@@ -3,33 +3,72 @@ title: "Add a custom panel page"
 description: "Add a page to the vendor portal with file-based routing — the dashboard SDK wires it in automatically."
 ---
 
-<Note>
-  This tutorial is being written. The outline below is the intended structure.
-</Note>
+Adding a page to the admin panel or vendor portal takes one file. The dashboard SDK scans `src/routes/` at build time, registers the route, and — if you export a `config` — adds it to the sidebar with a label and icon. No route table, no registration call.
 
 <Info>
   **Adding vs changing.** This tutorial *adds* a brand-new page — the right move for new features. To *change* an existing page, don't rebuild it: drop a route at the same path and [re-compose the built-in page's slots](/rc/resources/tutorials/recompose-a-page). The [decision guide](/rc/resources/customization/extending-panels#choosing-your-extension-mechanism) compares every extension mechanism.
 </Info>
 
-## Goal
+## What you'll build
 
-Add a new page to the vendor portal without touching route configuration.
+A `/reviews` page in the vendor portal with a sidebar entry — from a single file.
 
-## 1. Create the route file
+## Add the page
 
-Drop a `page.tsx` under `src/routes/`.
+<Steps>
+  <Step title="Create the route file">
+    Drop a `page.tsx` under `src/routes/` in your vendor app. The file path becomes the URL, and the default export is the page:
 
-## 2. What the SDK wires automatically
+    ```tsx apps/vendor/src/routes/reviews/page.tsx
+    import { Container, Heading } from "@medusajs/ui"
+    import { Star } from "@medusajs/icons"
+    import type { RouteConfig } from "@mercurjs/dashboard-sdk"
 
-Navigation, i18n namespace, and registration are handled at build time.
+    export const config: RouteConfig = {
+      label: "Reviews",
+      icon: Star,
+      rank: 10,
+    }
 
-## 3. See it in the running panel
-
-Where the page appears and how to reach it.
+    export default function ReviewsPage() {
+      return (
+        <Container className="divide-y p-0">
+          <div className="flex items-center justify-between px-6 py-4">
+            <Heading>Reviews</Heading>
+          </div>
+        </Container>
+      )
+    }
+    ```
+  </Step>
+  <Step title="Let the SDK wire it up">
+    At build time the SDK registers the `/reviews` route, generates the sidebar item from `config` (`label`, `icon`, `rank`), and hot-reloads the route tree when you add or remove page files. Dynamic segments use brackets — `src/routes/reviews/[id]/page.tsx` becomes `/reviews/:id`. The full path-to-route table is in [Extending Panels](/rc/resources/customization/extending-panels#routing-conventions).
+  </Step>
+  <Step title="Open it in the running panel">
+    Start the project (`bun run dev`) and open the vendor portal — **Reviews** appears in the sidebar at the position set by `rank`, and `/reviews` renders your component.
+  </Step>
+</Steps>
 
 ## Verify
 
-A checklist confirming the page renders and is navigable.
+1. The sidebar shows **Reviews** with the star icon.
+2. Navigating to `/reviews` renders the page inside the standard panel layout (sidebar and topbar intact).
+3. Removing the `config` export keeps the route working but drops the sidebar item.
+4. Deleting the file removes the route entirely.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="How do I fetch data on my page?">
+    Use the [typed API client](/rc/tools/api-client) with TanStack Query — the panels already ship both. For a full loop including a custom backend endpoint, follow [Add a custom API route](/rc/resources/tutorials/custom-api-route).
+  </Accordion>
+  <Accordion title="Can the page live under /settings?">
+    Yes — place the file under a `settings/` route segment and set `nested: "/settings"` in the config to group its sidebar item under Settings.
+  </Accordion>
+  <Accordion title="Does the same work for the admin panel?">
+    Identically — drop the file in the admin app's `src/routes/` instead. Both panels use the same SDK and conventions.
+  </Accordion>
+</AccordionGroup>
 
 ## Next steps
 

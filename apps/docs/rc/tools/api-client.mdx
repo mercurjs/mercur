@@ -128,3 +128,28 @@ try {
   }
 }
 ```
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Why is a route missing from the client after I added it?">
+    The client's types come from the generated route map — run `bunx @mercurjs/cli@rc codegen` after adding or changing route files. During development, `codegen --watch` keeps the map current automatically.
+  </Accordion>
+  <Accordion title="How are URLs derived from property access?">
+    Each property becomes a kebab-cased path segment (`client.vendor.salesSummary` → `/vendor/sales-summary`), `$`-prefixed keys fill path parameters, and the terminal method picks the HTTP verb: `query` → GET, `mutate` → POST, `delete` → DELETE.
+  </Accordion>
+  <Accordion title="Can I upload files through the client?">
+    Yes — pass `Blob`/`File` values in the payload and the client switches to multipart form data automatically.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a custom API route" href="/rc/resources/tutorials/custom-api-route">
+    Build a route and call it through the client, end to end.
+  </Card>
+  <Card title="CLI" href="/rc/tools/cli">
+    The codegen command that generates the client's route map.
+  </Card>
+</CardGroup>

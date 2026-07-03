@@ -44,26 +44,26 @@ The two integrations serve different purposes:
 
 ## Stripe Dashboard setup
 
-### 1. Enable Connect
+<Steps>
+  <Step title="Enable Connect">
+    In your Stripe Dashboard, go to **Settings → Connect settings** and enable Connect. If you're starting fresh, Stripe will walk you through an onboarding flow to activate your platform account.
+  </Step>
+  <Step title="Find your API keys">
+    Go to **Developers → API keys**. You'll need:
 
-In your Stripe Dashboard, go to **Settings → Connect settings** and enable Connect. If you're starting fresh, Stripe will walk you through an onboarding flow to activate your platform account.
+    - **Secret key** — starts with `sk_test_` (test mode) or `sk_live_` (production)
+    - **Publishable key** — starts with `pk_test_` or `pk_live_`
+  </Step>
+  <Step title="Set environment variables">
+    Add the following to your `.env` file:
 
-### 2. Find your API keys
-
-Go to **Developers → API keys**. You'll need:
-
-- **Secret key** — starts with `sk_test_` (test mode) or `sk_live_` (production)
-- **Publishable key** — starts with `pk_test_` or `pk_live_`
-
-### 3. Set environment variables
-
-Add the following to your `.env` file:
-
-```bash
-STRIPE_API_KEY=sk_test_...
-STRIPE_WEBHOOK_SECRET=whsec_...
-STRIPE_PAYOUT_WEBHOOK_SECRET=whsec_...
-```
+    ```bash
+    STRIPE_API_KEY=sk_test_...
+    STRIPE_WEBHOOK_SECRET=whsec_...
+    STRIPE_PAYOUT_WEBHOOK_SECRET=whsec_...
+    ```
+  </Step>
+</Steps>
 
 ## Configure Medusa payment provider
 
@@ -183,28 +183,29 @@ You need **two separate webhook endpoints** in Stripe — one for payment events
   These are two distinct webhook endpoints, each with its own signing secret. Do not combine them into a single endpoint.
 </Warning>
 
-### Payment webhook (Medusa)
+<Steps>
+  <Step title="Add the payment webhook (Medusa)">
+    In the Stripe Dashboard, go to **Developers → Webhooks → Add endpoint**.
 
-In the Stripe Dashboard, go to **Developers → Webhooks → Add endpoint**.
+    - **Endpoint URL**: `https://{your-backend-url}/hooks/payment/stripe_stripe`
+    - **Events to subscribe to**:
+      - `payment_intent.succeeded`
+      - `payment_intent.amount_capturable_updated`
+      - `payment_intent.payment_failed`
+      - `charge.refunded`
 
-- **Endpoint URL**: `https://{your-backend-url}/hooks/payment/stripe_stripe`
-- **Events to subscribe to**:
-  - `payment_intent.succeeded`
-  - `payment_intent.amount_capturable_updated`
-  - `payment_intent.payment_failed`
-  - `charge.refunded`
+    Copy the signing secret and set it as `STRIPE_WEBHOOK_SECRET` in your `.env`.
+  </Step>
+  <Step title="Add the payout webhook (Mercur)">
+    Add a second webhook endpoint in the Stripe Dashboard.
 
-Copy the signing secret and set it as `STRIPE_WEBHOOK_SECRET` in your `.env`.
+    - **Endpoint URL**: `https://{your-backend-url}/hooks/payout`
+    - **Events to subscribe to**:
+      - `account.updated`
 
-### Payout webhook (Mercur)
-
-Add a second webhook endpoint in the Stripe Dashboard.
-
-- **Endpoint URL**: `https://{your-backend-url}/hooks/payout`
-- **Events to subscribe to**:
-  - `account.updated`
-
-Copy the signing secret and set it as `STRIPE_PAYOUT_WEBHOOK_SECRET` in your `.env`.
+    Copy the signing secret and set it as `STRIPE_PAYOUT_WEBHOOK_SECRET` in your `.env`.
+  </Step>
+</Steps>
 
 ## How the payment flow works
 
@@ -364,3 +365,31 @@ stripe listen --forward-to localhost:9000/hooks/payout
 4. Verify orders are split by seller in the Admin Panel
 5. Fulfill the orders through the Vendor Portal
 6. Confirm transfers appear in the Stripe Dashboard under the connected account
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Why do I need two webhook endpoints with two secrets?">
+    They belong to two different integrations: the payment webhook feeds Medusa's payment provider (charges, captures, refunds), while the payout webhook feeds Mercur's payout provider (connected-account status, transfer status). Each endpoint verifies its own signing secret — combining them silently breaks whichever side's signature doesn't match.
+  </Accordion>
+  <Accordion title="Why must capture be set to false on the payment provider?">
+    The marketplace flow authorizes at checkout and captures later, after sellers fulfill. Automatic capture would take the money before the split-order pipeline (fulfillment checks, commission, payouts) has run — `capture: false` hands that timing to the payout module's capture job.
+  </Accordion>
+  <Accordion title="A seller finished Stripe onboarding but is still not ACTIVE — why?">
+    Check the `accountValidation` options: by default the account must have details submitted, charges and payouts enabled, and **no outstanding requirements**. Stripe often adds follow-up requirements (e.g. extra KYC) after initial onboarding — the account shows as `RESTRICTED` until they're cleared.
+  </Accordion>
+  <Accordion title="Who handles VAT, disputes, and chargebacks?">
+    The platform. Separate Charges and Transfers makes the platform the Merchant of Record — see [EU/EEA considerations](#eueea-considerations) for what that entails.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Set up seller payouts" href="/rc/resources/tutorials/seller-payouts-stripe">
+    Hands-on: one seller from onboarding to a settled payout.
+  </Card>
+  <Card title="Payout" href="/rc/learn/payouts">
+    The pipeline reference — statuses, jobs, and webhook events.
+  </Card>
+</CardGroup>

@@ -167,3 +167,28 @@ Use `{name}` as a placeholder for block names. Reference custom registries with 
 ```bash
 bunx @mercurjs/cli@rc search --query review --registry @my-registry
 ```
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="When do I use create vs init?">
+    `create` scaffolds a brand-new project from a template. `init` only writes a `blocks.json` into an **existing** project so the CLI knows where to place blocks — use it when adopting blocks in a repo that wasn't created by the CLI.
+  </Accordion>
+  <Accordion title="When do I need to run codegen?">
+    After any change to API route files — added routes, changed validators, renamed paths. The [typed client](/rc/tools/api-client) reads the generated route map, so stale types mean `codegen` hasn't run.
+  </Accordion>
+  <Accordion title="Will add overwrite my local changes to a block?">
+    Not silently — the CLI asks before overwriting existing files unless you pass `--overwrite`. Use `diff` first to see exactly what changed between your copy and the registry.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a feature with a block" href="/rc/resources/tutorials/add-a-block">
+    The install workflow end to end — search, view, add, migrate.
+  </Card>
+  <Card title="API Client" href="/rc/tools/api-client">
+    What codegen's route map powers on the frontend.
+  </Card>
+</CardGroup>

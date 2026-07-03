@@ -13,55 +13,55 @@ Bulk catalog operations belong to vendors, not the operator — a seller migrati
 
 A vendor product list with **Import** and **Export** header buttons, a working CSV round-trip, and the block's source code in your project.
 
-## 1. Install the block
+## Install and wire the block
 
-```bash
-bunx @mercurjs/cli@rc add product-import-export
-```
+<Steps>
+  <Step title="Install the block">
+    ```bash
+    bunx @mercurjs/cli@rc add product-import-export
+    ```
 
-The CLI copies the block's files into the directories mapped by your `blocks.json` aliases — workflows and routes into the API package, pages and hooks into the vendor app.
+    The CLI copies the block's files into the directories mapped by your `blocks.json` aliases — workflows and routes into the API package, pages and hooks into the vendor app.
+  </Step>
+  <Step title="Install its dependencies">
+    The block uses Medusa's CSV flows and `multer` for uploads. Install them in the **API workspace**, not the project root:
 
-## 2. Install its dependencies
+    ```bash
+    cd packages/api
+    bun add @medusajs/core-flows multer @types/multer
+    ```
+  </Step>
+  <Step title="Register the middleware">
+    The import route needs its upload middleware. Add it to your API's `middlewares.ts`:
 
-The block uses Medusa's CSV flows and `multer` for uploads. Install them in the **API workspace**, not the project root:
+    ```typescript packages/api/src/api/middlewares.ts
+    import { defineMiddlewares } from '@medusajs/medusa'
+    import { productImportExportMiddlewares } from './vendor/products/middlewares'
 
-```bash
-cd packages/api
-bun add @medusajs/core-flows multer @types/multer
-```
+    export default defineMiddlewares({
+      routes: [...productImportExportMiddlewares],
+    })
+    ```
+  </Step>
+  <Step title="Regenerate types">
+    The block added `POST /vendor/products/import` and `GET /vendor/products/export`. Regenerate the route map so the vendor app's typed client knows about them:
 
-## 3. Register the middleware
+    ```bash
+    bunx @mercurjs/cli@rc codegen
+    ```
 
-The import route needs its upload middleware. Add it to your API's `middlewares.ts`:
+    <Note>
+      No new modules and no migrations — the block reuses Medusa's built-in product CSV steps, so there's nothing to add to `medusa-config.ts` for this one. Always read a block's post-install output: each block declares its own setup steps.
+    </Note>
+  </Step>
+  <Step title="Run a round-trip">
+    Start the project and open the Vendor Portal's **Products** page — the header now shows Import and Export next to Create.
 
-```typescript packages/api/src/api/middlewares.ts
-import { defineMiddlewares } from '@medusajs/medusa'
-import { productImportExportMiddlewares } from './vendor/products/middlewares'
-
-export default defineMiddlewares({
-  routes: [...productImportExportMiddlewares],
-})
-```
-
-## 4. Regenerate types
-
-The block added `POST /vendor/products/import` and `GET /vendor/products/export`. Regenerate the route map so the vendor app's typed client knows about them:
-
-```bash
-bunx @mercurjs/cli@rc codegen
-```
-
-<Note>
-  No new modules and no migrations — the block reuses Medusa's built-in product CSV steps, so there's nothing to add to `medusa-config.ts` for this one. Always read a block's post-install output: each block declares its own setup steps.
-</Note>
-
-## 5. Run a round-trip
-
-Start the project and open the Vendor Portal's **Products** page — the header now shows Import and Export next to Create.
-
-1. **Export** — opens the drawer at `/products/export` and downloads the seller's current products as CSV.
-2. Edit the CSV: tweak a title, add a row.
-3. **Import** — the drawer at `/products/import` accepts the file, validates rows, and shows an import summary before applying.
+    1. **Export** — opens the drawer at `/products/export` and downloads the seller's current products as CSV.
+    2. Edit the CSV: tweak a title, add a row.
+    3. **Import** — the drawer at `/products/import` accepts the file, validates rows, and shows an import summary before applying.
+  </Step>
+</Steps>
 
 ## Verify
 
@@ -69,6 +69,20 @@ Start the project and open the Vendor Portal's **Products** page — the header 
 2. The exported CSV contains the seller's products — and only theirs; the workflow scopes to the authenticated seller.
 3. After importing the edited CSV, the changed title appears in the product list.
 4. The block's source lives in your repo (e.g. `packages/api/src/workflows/import-seller-products.ts`, `apps/vendor/src/routes/products/page.tsx`) — run `bunx @mercurjs/cli@rc diff product-import-export` to compare against the registry later.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Can I customize the CSV columns or validation?">
+    Yes — the block is source code in your repo. The import workflow (`import-seller-products.ts`) and its validation step are yours to edit; the drawer UI under `routes/products/import/` includes the CSV template helper you can extend.
+  </Accordion>
+  <Accordion title="I already customized my /products page — will the block overwrite it?">
+    The block ships its own `routes/products/page.tsx`. If you already have one, the CLI asks before overwriting (or use `--overwrite` explicitly). Merge by hand in that case: keep your composition and add the block's Import/Export buttons to your `HeaderActions`.
+  </Accordion>
+  <Accordion title="Does import respect the product approval flow?">
+    Imported products enter through the same vendor create path as manual submissions — so they follow the [product-request pipeline](/rc/resources/tutorials/handle-product-requests) and land as `proposed` for operator review, not as instantly published records.
+  </Accordion>
+</AccordionGroup>
 
 ## Next steps
 

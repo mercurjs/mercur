@@ -15,17 +15,17 @@ description: "Inject custom logic into an existing Mercur workflow through hooks
 
 Extend behavior without forking or rewriting the workflow.
 
-## Target: cart completion with split orders
-
-The `completeCartWithSplitOrdersWorkflow` and where its hooks sit.
-
-## Inject a step
-
-The shape of a hook and how to register your step.
-
-## Compensation and rollback
-
-How your step participates in automatic rollback on failure.
+<Steps>
+  <Step title="Pick the target hook">
+    The `completeCartWithSplitOrdersWorkflow` and where its hooks sit.
+  </Step>
+  <Step title="Inject a step">
+    The shape of a hook and how to register your step.
+  </Step>
+  <Step title="Handle compensation and rollback">
+    How your step participates in automatic rollback on failure.
+  </Step>
+</Steps>
 
 ## Verify
 
@@ -34,6 +34,6 @@ Confirm the injected behavior runs and rolls back correctly.
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Building with AI" href="/rc/resources/ai/overview" />
+  <Card title="Add a custom API route" href="/rc/resources/tutorials/custom-api-route" />
   <Card title="Custom fields" href="/rc/resources/customization/custom-fields" />
 </CardGroup>

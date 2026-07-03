@@ -96,6 +96,20 @@ Because subscribers and the store route only talk to the module contract, your p
 2. Publish a product and search for its title — it appears without a manual reindex (subscribers indexed it).
 3. Restart the API and search again — results still return (the boot reindex rebuilt the in-memory index).
 
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Can I run two providers at once, e.g. Orama locally and Algolia in production?">
+    Only one provider is active at a time — the module has no multi-provider machinery. But because the provider is chosen by configuration, you can register different providers per environment (default Orama in development, Algolia in production) without touching any other code.
+  </Accordion>
+  <Accordion title="Do I ever need to trigger a reindex manually?">
+    Normally no — subscribers keep the index current, and in-memory providers rebuild on boot. A manual full reindex is only interesting after bulk data changes outside normal flows (e.g. direct DB imports); persistent providers ignore the boot event entirely.
+  </Accordion>
+  <Accordion title="Why does each offer appear as its own search hit?">
+    Because pricing and availability are per offer, not per product. One hit per vendor listing lets results carry the correct `calculated_price` for each seller — the same numbers as `GET /store/offers` — instead of an ambiguous product-level price.
+  </Accordion>
+</AccordionGroup>
+
 ## Next steps
 
 <CardGroup cols={2}>

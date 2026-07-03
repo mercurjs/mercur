@@ -36,49 +36,64 @@ Custom Fields let you attach extra data to any existing Medusa entity — produc
 
 The Custom Fields module creates a separate table for each entity you extend (e.g. `product_custom_fields`). Each table is linked back to the original entity via a foreign key with a unique constraint, ensuring a one-to-one relationship. The module automatically registers these links so you can query custom fields through Medusa's standard remote query.
 
-## Configuration
+## Set up custom fields
 
-Register the Custom Fields module in your `medusa-config.ts` and define your fields in the `customFields` option:
+<Steps>
+  <Step title="Define your fields in medusa-config.ts">
+    Register the Custom Fields module and describe your fields in the `customFields` option:
 
-```ts medusa-config.ts
-import { Modules } from "@medusajs/framework/utils";
+    ```ts medusa-config.ts
+    import { Modules } from "@medusajs/framework/utils";
 
-module.exports = defineConfig({
-  // ...
-  modules: [
-    {
-      resolve: "@mercurjs/core/modules/custom-fields",
-      options: {
-        customFields: {
-          Product: {
-            brand: { type: "string", nullable: true },
-            is_featured: { type: "boolean", defaultValue: false },
-            weight: { type: "float", nullable: true },
-          },
-          Customer: {
-            company_name: { type: "string", nullable: true },
-            tier: {
-              type: "enum",
-              enum: ["bronze", "silver", "gold"],
-              defaultValue: "bronze",
+    module.exports = defineConfig({
+      // ...
+      modules: [
+        {
+          resolve: "@mercurjs/core/modules/custom-fields",
+          options: {
+            customFields: {
+              Product: {
+                brand: { type: "string", nullable: true },
+                is_featured: { type: "boolean", defaultValue: false },
+                weight: { type: "float", nullable: true },
+              },
+              Customer: {
+                company_name: { type: "string", nullable: true },
+                tier: {
+                  type: "enum",
+                  enum: ["bronze", "silver", "gold"],
+                  defaultValue: "bronze",
+                },
+              },
             },
           },
         },
-      },
-    },
-  ],
-});
-```
+      ],
+    });
+    ```
 
-<Warning>
-  The key in `customFields` (e.g. `Product`, `Customer`) must match the entity name as registered in Medusa's joiner configuration — a mismatched name fails at link resolution, not at config load, so double-check spelling and casing.
-</Warning>
+    <Warning>
+      The key in `customFields` (e.g. `Product`, `Customer`) must match the entity name as registered in Medusa's joiner configuration — a mismatched name fails at link resolution, not at config load, so double-check spelling and casing.
+    </Warning>
+  </Step>
+  <Step title="Run migrations">
+    ```bash
+    bunx medusa db:migrate
+    ```
 
-After updating your configuration, run migrations to apply the schema changes:
+    The module generates and applies the schema for each side table automatically.
+  </Step>
+  <Step title="Query the fields">
+    Custom fields are automatically linked to their parent entity. Retrieve them with Medusa's remote query:
 
-```bash
-bunx medusa db:migrate
-```
+    ```ts
+    const products = await query.graph({
+      entity: "product",
+      fields: ["id", "title", "custom_fields.*"],
+    });
+    ```
+  </Step>
+</Steps>
 
 ## Supported field types
 
@@ -103,17 +118,6 @@ bunx medusa db:migrate
 | `nullable`     | `boolean`  | `true`  | Whether the field can be null                    |
 | `defaultValue` | `any`      | `null`  | Default value for the field                      |
 | `enum`         | `string[]` | —       | Required for `enum` type. List of allowed values |
-
-## Querying custom fields
-
-Custom fields are automatically linked to their parent entity. You can retrieve them using Medusa's remote query:
-
-```ts
-const products = await query.graph({
-  entity: "product",
-  fields: ["id", "title", "custom_fields.*"],
-});
-```
 
 ## Using the service directly
 
@@ -151,3 +155,28 @@ import {
 
 - **`upsertCustomFieldsStep`** — Takes `{ alias, data }` where `alias` is the entity name (e.g. `"product"`) and `data` contains the entity ID and field values.
 - **`deleteCustomFieldsStep`** — Takes `{ alias, ids }` to soft-delete custom field records by their IDs.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Can I add or change fields after the first migration?">
+    Yes — edit the `customFields` config and run `db:migrate` again; the module updates the side table's schema. Removing a field from config stops exposing it; treat destructive column changes with the same care as any schema migration.
+  </Accordion>
+  <Accordion title="How do vendors or admins edit these values from the panels?">
+    Through your own UI: add a page or re-compose an existing one ([extending panels](/rc/resources/customization/extending-panels)) and call an API route that uses the service's `upsert` — or compose `upsertCustomFieldsStep` into a workflow behind a [custom route](/rc/resources/tutorials/custom-api-route).
+  </Accordion>
+  <Accordion title="Can one entity have multiple custom-field records?">
+    No — the side table has a unique constraint on the parent ID, enforcing one-to-one. If you need many records per parent, that's a custom module, not custom fields.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a custom API route" href="/rc/resources/tutorials/custom-api-route">
+    Expose your custom fields through a typed endpoint.
+  </Card>
+  <Card title="Extend a workflow" href="/rc/resources/customization/extend-a-workflow">
+    Write custom fields from inside existing business flows.
+  </Card>
+</CardGroup>

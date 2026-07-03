@@ -13,15 +13,9 @@ Because Mercur's catalog is [shared](/rc/learn/products), vendors never mutate p
 
 One complete review cycle: a vendor submits a new product, the operator requests a revision, the vendor resubmits, the operator publishes. Then a smaller edit request on the now-live product.
 
-## 1. Submit a product as the vendor
+## Review outcomes
 
-In the Vendor Portal, create a product. Vendor-created products enter the catalog with status **`proposed`** — visible only to their creator, not to other sellers or the storefront.
-
-Behind the scenes the platform records a `ProductChange` with a `PRODUCT_ADD` action and `created_by` set to the submitting member. That attribution is what keeps the seller's unpublished submissions in their own product list.
-
-## 2. Review it as the operator
-
-In the Admin Panel, open the product. The review queue on the product detail offers three outcomes:
+The review queue on the admin product detail offers three outcomes:
 
 | Action | Effect |
 |--------|--------|
@@ -29,21 +23,28 @@ In the Admin Panel, open the product. The review queue on the product detail off
 | **Reject** | Status becomes `rejected`; the product stays out of the catalog |
 | **Request changes** | The submission returns to the vendor with a reason (`requires_action_by` / `requires_action_reason`) |
 
-Choose **Request changes** and leave a note — say, "add product dimensions". Use the external note for the vendor-visible message; internal notes stay operator-only.
+## Run the review cycle
 
-## 3. Revise and resubmit as the vendor
+<Steps>
+  <Step title="Submit a product as the vendor">
+    In the Vendor Portal, create a product. Vendor-created products enter the catalog with status **`proposed`** — visible only to their creator, not to other sellers or the storefront.
 
-Back in the Vendor Portal, the product page shows the revision request and the operator's note. The vendor updates the product and resubmits. As the operator, **Confirm** this time — the product's status flips to `published` and it enters the shared catalog for every eligible seller.
-
-## 4. Request an edit on the live product
-
-Now that the product is published, edits also flow through review. As the vendor, change the product's description. This creates a new `ProductChange` in `pending` with an `UPDATE` action — and the live product is unchanged until the operator confirms.
+    Behind the scenes the platform records a `ProductChange` with a `PRODUCT_ADD` action and `created_by` set to the submitting member. That attribution is what keeps the seller's unpublished submissions in their own product list.
+  </Step>
+  <Step title="Request changes as the operator">
+    In the Admin Panel, open the product and choose **Request changes** with a note — say, "add product dimensions". Use the external note for the vendor-visible message; internal notes stay operator-only.
+  </Step>
+  <Step title="Revise and resubmit as the vendor">
+    Back in the Vendor Portal, the product page shows the revision request and the operator's note. The vendor updates the product and resubmits. As the operator, **Confirm** this time — the product's status flips to `published` and it enters the shared catalog for every eligible seller.
+  </Step>
+  <Step title="Request an edit on the live product">
+    Now that the product is published, edits also flow through review. As the vendor, change the product's description. This creates a new `ProductChange` in `pending` with an `UPDATE` action — the live product is unchanged until the operator confirms. Confirm it and watch the description update.
+  </Step>
+</Steps>
 
 <Note>
-  Any seller may propose changes to any published product — the shared catalog is collaborative. Selling-eligibility restrictions limit who may *sell* a product, not who may *suggest improvements* to it. Some low-risk edits are auto-confirmed: they still create a change record for the audit trail but apply immediately.
+  Any seller may propose changes to any published product — the shared catalog is collaborative. Selling-eligibility restrictions limit who may *sell* a product, not who may *suggest improvements* to it.
 </Note>
-
-As the operator, confirm the edit and watch the description update.
 
 ## Verify
 
@@ -52,6 +53,20 @@ As the operator, confirm the edit and watch the description update.
 3. After the final **Confirm** in step 3, the product is `published` and appears in the Store API.
 4. During step 4, the storefront still shows the old description while the change is `pending` — and the new one after confirmation.
 5. The product's change history lists every change with who requested it, who reviewed it, and when.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Do all edits require operator review?">
+    No — some low-risk edits are **auto-confirmed**: they still create a change record for the audit trail but apply immediately without waiting. Structural changes (variants, attributes, status) go through review.
+  </Accordion>
+  <Accordion title="Can the vendor withdraw a pending request?">
+    Yes — a pending change can be **canceled** by its requester, recorded with the same audit fields (`canceled_by`, timestamp). Once confirmed or declined, the outcome is final; a new change is needed for further edits.
+  </Accordion>
+  <Accordion title="What's the difference between rejecting and requesting changes?">
+    **Reject** is terminal for a submission — the product is marked `rejected` and stays out of the catalog. **Request changes** keeps the change alive and hands it back to the vendor with a reason; it's the "revise and resubmit" path.
+  </Accordion>
+</AccordionGroup>
 
 ## Next steps
 
