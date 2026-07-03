@@ -15,6 +15,7 @@
     "eslint": "^9.39.2",
     "globals": "^17.0.0",
     "oxlint": "^1.64.0",
+    "pg-god": "^1.0.12",
     "prettier": "^3.7.4",
     "turbo": "^2.7.4",
     "typescript": "5.9.3",
