@@ -3,18 +3,6 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import path from "path";
 
-import { clearRegistryContext } from "@/src/registry/context";
-import { sendTelemetryEvent, setTelemetryEmail, showTelemetryNoticeIfNeeded } from "@/src/telemetry";
-import { setupDatabase, type SetupDatabaseResult } from "@/src/utils/create-db";
-import {
-  resolveProjectPackageManager,
-  type PackageManager,
-} from "@/src/utils/get-package-manager";
-import { handleError } from "@/src/utils/handle-error";
-import { highlighter } from "@/src/utils/highlighter";
-import { logger } from "@/src/utils/logger";
-import { manageEnvFiles } from "@/src/utils/manage-env-files";
-import { spinner } from "@/src/utils/spinner";
 import { Command } from "commander";
 import { execa } from "execa";
 import fs from "fs-extra";
@@ -27,6 +15,21 @@ import validateProjectName from "validate-npm-package-name";
 import waitOn from "wait-on";
 
 import packageJson from "../../package.json";
+import {
+  sendTelemetryEvent,
+  setTelemetryEmail,
+  showTelemetryNoticeIfNeeded,
+} from "../telemetry";
+import { setupDatabase, type SetupDatabaseResult } from "../utils/create-db";
+import {
+  resolveProjectPackageManager,
+  type PackageManager,
+} from "../utils/get-package-manager";
+import { handleError } from "../utils/handle-error";
+import { highlighter } from "../utils/highlighter";
+import { logger } from "../utils/logger";
+import { manageEnvFiles } from "../utils/manage-env-files";
+import { spinner } from "../utils/spinner";
 
 const IS_PRERELEASE =
   packageJson.version?.includes("-canary") || packageJson.version?.includes("-rc");
@@ -156,7 +159,7 @@ export const create = new Command()
       downloadSpinner.succeed("Template downloaded successfully.");
 
       const packageManager = await resolveProjectPackageManager();
-      await setPackageManagerField(projectDir, packageManager);
+      await updateRootPackageJson(projectDir, projectName, packageManager);
 
       if (!opts.deps) {
         spinner("Dependency installation skipped.").warn();
@@ -303,8 +306,6 @@ export const create = new Command()
     } catch (error) {
       logger.break();
       handleError(error);
-    } finally {
-      clearRegistryContext();
     }
   });
 
@@ -451,12 +452,15 @@ function createTerminalLink(text: string, url: string) {
   });
 }
 
-async function setPackageManagerField(
+async function updateRootPackageJson(
   projectDir: string,
+  projectName: string,
   packageManager: string
 ): Promise<void> {
   const packageJsonPath = path.join(projectDir, "package.json");
   const packageJson = await fs.readJSON(packageJsonPath);
+
+  packageJson.name = projectName;
 
   try {
     const { stdout: version } = await execa(packageManager, ["--version"]);

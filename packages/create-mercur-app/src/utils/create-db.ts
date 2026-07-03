@@ -1,7 +1,7 @@
-import { getPackageManager } from "@/src/utils/get-package-manager";
-import { logger } from "@/src/utils/logger";
-import { manageEnvFiles } from "@/src/utils/manage-env-files";
-import { spinner } from "@/src/utils/spinner";
+import { getPackageManager } from "./get-package-manager";
+import { logger } from "./logger";
+import { manageEnvFiles } from "./manage-env-files";
+import { spinner } from "./spinner";
 import { execa } from "execa";
 import type { Ora } from "ora";
 import path from "path";

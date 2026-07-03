@@ -1,5 +1,5 @@
 {
-  "name": "create-mercur",
+  "name": "@acme/monorepo",
   "private": true,
   "scripts": {
     "build": "turbo run build",

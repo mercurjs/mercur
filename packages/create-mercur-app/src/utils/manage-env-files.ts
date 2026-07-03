@@ -1,4 +1,4 @@
-import { logger } from "@/src/utils/logger";
+import { logger } from "./logger";
 import fs from "fs-extra";
 import path from "path";
 

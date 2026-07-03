@@ -49,7 +49,7 @@ All configuration lives in the panel app's Vite config — there is no separate 
     })
     ```
 
-    Projects created with `mercurjs create` ship with this already wired for both panels.
+    Projects created with `create-mercur-app` ship with this already wired for both panels.
   </Step>
   <Step title="Pass environment values explicitly">
     The plugin doesn't read `.env` itself — load environment variables in `vite.config.ts` (e.g. with Vite's `loadEnv`) and pass them into the plugin options, as the starter template does with `backendUrl`.
