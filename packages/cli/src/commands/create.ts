@@ -28,7 +28,9 @@ import waitOn from "wait-on";
 
 import packageJson from "../../package.json";
 
-const DEFAULT_BRANCH = packageJson.version?.includes("-canary") ? "canary" : "main";
+const IS_PRERELEASE =
+  packageJson.version?.includes("-canary") || packageJson.version?.includes("-rc");
+const DEFAULT_BRANCH = IS_PRERELEASE ? "canary" : "main";
 const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {

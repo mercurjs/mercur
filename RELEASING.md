@@ -3,6 +3,8 @@
 All packages are published under the `@mercurjs` scope on npm.
 
 - **Stable** releases use the `latest` npm tag (default)
+- **Release candidate** (`rc`) releases use the `rc` npm tag — a preview of an
+  upcoming stable release, published for testing before it is promoted
 - **Canary** releases use the `canary` npm tag
 
 ## Published Packages
@@ -118,11 +120,59 @@ git push origin canary --tags
 
 5. The GitHub Action detects `canary` in the tag name and publishes with `--tag canary`.
 
+### Release Candidate
+
+A release candidate is a preview of an upcoming stable release. It is believed
+shippable and is published so it can be tested before being promoted to
+`latest`. Once an `rc` is verified, cut the stable release with the same
+`2.X.Y` version (dropping the `-rc.Z` suffix).
+
+1. Bump the version in every package's `package.json`:
+
+```
+"version": "2.X.Y-rc.Z"
+```
+
+Where `Z` is the next incremental number (0, 1, 2, ...).
+
+   Also bump every internal `@mercurjs/*` cross-dependency in `packages/*` and
+   `packages/providers/*` to the same `2.X.Y-rc.Z` (see [Internal Dependencies](#internal-dependencies)).
+
+2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template to the same `2.X.Y-rc.Z` value:
+
+   - `templates/basic/package.json` — `@mercurjs/dashboard-sdk`, `@mercurjs/dashboard-shared`, `@mercurjs/client`
+   - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
+   - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
+   - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
+
+3. Refresh the lockfile so workspace versions match `package.json`:
+
+```bash
+bun install
+```
+
+   Commit the updated `bun.lock` together with the version bumps — CI runs
+   `bun install --frozen-lockfile` and will fail otherwise.
+
+4. Commit and tag:
+
+```bash
+git add -A
+git commit -m "chore: v2.X.Y-rc.Z"
+git tag v2.X.Y-rc.Z
+git push origin canary --tags
+```
+
+5. The GitHub Action detects `rc` in the tag name and publishes with `--tag rc`.
+
 ## Installing Packages
 
 ```bash
 # Stable (latest)
 npm install @mercurjs/cli
+
+# Release candidate
+npm install @mercurjs/cli@rc
 
 # Canary
 npm install @mercurjs/cli@canary
@@ -133,6 +183,9 @@ npm install @mercurjs/cli@canary
 ```
 v2.0.0-canary.0   # first canary
 v2.0.0-canary.1   # second canary
+...
+v2.0.0-rc.0        # first release candidate
+v2.0.0-rc.1        # second release candidate
 ...
 v2.0.0             # stable
 v2.0.1             # patch
