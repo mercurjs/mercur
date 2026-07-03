@@ -1,0 +1,88 @@
+---
+title: "Upsert Payment Details"
+api: "POST /admin/sellers/{id}/payment-details"
+description: "Create or update a seller's bank payment details."
+---
+
+Creates the seller's payment details if none exist, otherwise updates them.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="country_code" type="string">Two-letter ISO country code of the bank account.</ParamField>
+<ParamField body="holder_name" type="string">Name of the account holder.</ParamField>
+<ParamField body="bank_name" type="string">Name of the bank.</ParamField>
+<ParamField body="iban" type="string">IBAN of the account.</ParamField>
+<ParamField body="bic" type="string">BIC / SWIFT code.</ParamField>
+<ParamField body="routing_number" type="string">Routing number for US accounts.</ParamField>
+<ParamField body="account_number" type="string">Account number.</ParamField>
+<ParamField body="additional_data" type="object">Extra data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="payment_details" type="object">
+      <Expandable title="properties">
+        <ResponseField name="country_code" type="string">Two-letter ISO country code of the bank account.</ResponseField>
+        <ResponseField name="holder_name" type="string">Name of the account holder.</ResponseField>
+        <ResponseField name="bank_name" type="string">Name of the bank.</ResponseField>
+        <ResponseField name="iban" type="string">IBAN of the account.</ResponseField>
+        <ResponseField name="bic" type="string">BIC / SWIFT code.</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/payment-details' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "country_code": "de",
+    "holder_name": "Acme GmbH",
+    "iban": "DE89370400440532013000",
+    "bic": "COBADEFFXXX"
+  }'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.$id.paymentDetails.mutate({
+  $id: "sel_01HXYZABCDEF",
+  country_code: "de",
+  holder_name: "Acme GmbH",
+  iban: "DE89370400440532013000",
+  bic: "COBADEFFXXX",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "status": "open",
+    "payment_details": {
+      "country_code": "de",
+      "holder_name": "Acme GmbH",
+      "bank_name": null,
+      "iban": "DE89370400440532013000",
+      "bic": "COBADEFFXXX"
+    },
+    "updated_at": "2026-06-12T11:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

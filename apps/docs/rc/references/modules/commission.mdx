@@ -3,21 +3,100 @@ title: "Commission module"
 description: "Data models and service methods for the Commission module."
 ---
 
-<Note>
-  This reference is being written. The outline below is the intended structure.
-</Note>
+The Commission module owns commission configuration and calculation. Operators define **commission rates** (percentage or fixed, optionally per-currency) with a set of **rules** that scope where a rate applies. During checkout, the module resolves the most specific matching rate per order item and persists idempotent **commission lines** on the order.
 
-## Concept
-
-What the module owns and its responsibilities.
+For the conceptual introduction, see [Commissions](/rc/learn/commissions).
 
 ## Data models
 
-Rates, rules, and lines.
+### `CommissionRate`
 
-## Service methods
+Table `commission_rate`, ID prefix `comrate`.
 
-The public service API.
+| Field | Type | Notes |
+| --- | --- | --- |
+| `name` | text | Searchable |
+| `code` | text | Unique; auto-generated from `name` when omitted |
+| `type` | enum | `fixed` or `percentage` |
+| `value` | bigNumber | The percentage or the fixed amount |
+| `is_enabled` | boolean | Default `true` |
+| `is_default` | boolean | Default `false`; the platform fallback rate |
+| `currency_code` | text | Nullable; restricts the rate to one currency |
+| `include_tax` | boolean | Default `false`; commission is computed on the tax-inclusive amount |
+| `include_shipping` | boolean | Default `false`; adds shipping commission lines from the default rate |
+
+Relations: `rules` (one-to-many `CommissionRule`), `values` (one-to-many `CommissionRateValue`).
+
+### `CommissionRule`
+
+Table `commission_rule`, ID prefix `comrule`. A rule scopes its rate to one reference:
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `reference` | text | One of `product`, `product_type`, `product_collection`, `product_category`, `seller` |
+| `reference_id` | text | The referenced entity's ID |
+
+### `CommissionRateValue`
+
+Table `commission_rate_value`, ID prefix `comval`. Per-currency amounts for `fixed` rates:
+
+| Field | Type |
+| --- | --- |
+| `currency_code` | text |
+| `amount` | bigNumber |
+
+### `CommissionLine`
+
+Table `commission_line`, ID prefix `comline`. The persisted result of a calculation, anchored to an order item or shipping method:
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `item_id` | text | Nullable; the order line item |
+| `shipping_method_id` | text | Nullable; set for shipping commission lines |
+| `commission_rate_id` | text | Nullable; the rate that produced this line |
+| `code` | text | Rate code snapshot |
+| `rate` | float | Rate value snapshot |
+| `amount` | bigNumber | Computed commission |
+| `description` | text | Nullable |
+
+## Enums
+
+```ts
+enum CommissionRateType {
+  FIXED = "fixed",
+  PERCENTAGE = "percentage",
+}
+```
+
+## Rate matching
+
+When multiple rates match an order item, the module resolves them deterministically:
+
+1. Only enabled rates whose `currency_code` matches (or is unset) are considered.
+2. Rules combine **AND across dimensions, OR within a dimension** — a rate with a `seller` rule and a `product_category` rule matches only items that satisfy both.
+3. The **most specific** rate wins (the one matching on the most dimensions).
+4. Ties break to the oldest-created rate.
+5. If nothing matches, the rate flagged `is_default` applies.
+
+List endpoints additionally accept a virtual `scope_type` filter (`store`, `product_type`, `category`, `store_product_type`, `store_category`) that the service translates into SQL predicates over the rules table.
+
+## Service
+
+`CommissionModuleService` extends `MedusaService` with auto-generated CRUD for all models above, plus:
+
+| Method | Behavior |
+| --- | --- |
+| `getCommissionLines(context)` | The core calculator — resolves the matching rate per item, computes amounts (percentage of the subtotal, or the per-currency fixed amount), and appends shipping lines when the winning rate has `include_shipping` |
+| `upsertCommissionLines(lines)` | Idempotent replace: deletes existing lines for the same item/shipping anchors, then inserts |
+| `createCommissionRates(data)` | Auto-generates a unique `code` from `name` when absent |
+| `listCommissionRates` / `listAndCountCommissionRates` | Apply the virtual `scope_type` filter |
+
+A loader seeds a default commission rate on first boot.
+
+## Related endpoints
+
+- `GET/POST /admin/commission-rates`, `POST /admin/commission-rates/:id/rules` — see [Admin API](/rc/references/api/admin)
+- `GET /admin/orders/:id/commission-lines` and `GET /vendor/orders/:id/commission-lines` expose the computed lines per order.
 
 ## Next steps
 

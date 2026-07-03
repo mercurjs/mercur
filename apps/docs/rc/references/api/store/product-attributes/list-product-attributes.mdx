@@ -1,0 +1,134 @@
+---
+title: "List Product Attributes"
+api: "GET /store/product-attributes"
+description: "Retrieve active global product attributes."
+---
+
+Returns a paginated list of active, global product attributes (attributes scoped to a single product are excluded).
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of attributes to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of attributes to skip before collecting results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  Field to sort by, prefixed with `-` for descending order.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Free-text search term applied to attribute fields.
+</ParamField>
+
+<ParamField query="id" type="string | string[]">
+  Filter by one or more attribute IDs.
+</ParamField>
+
+<ParamField query="handle" type="string | string[]">
+  Filter by one or more attribute handles.
+</ParamField>
+
+<ParamField query="type" type="string | string[]">
+  Filter by attribute type. Values: `single_select`, `multi_select`, `unit`, `toggle`, `text`.
+</ParamField>
+
+<ParamField query="is_variant_axis" type="boolean">
+  Filter attributes that define variant axes.
+</ParamField>
+
+<ParamField query="is_filterable" type="boolean">
+  Filter attributes usable as storefront filters.
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+<ParamField query="$and" type="object[]">
+  Join multiple filter objects with a logical AND.
+</ParamField>
+
+<ParamField query="$or" type="object[]">
+  Join multiple filter objects with a logical OR.
+</ParamField>
+
+## Response
+
+<ResponseField name="product_attributes" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The attribute's ID.</ResponseField>
+    <ResponseField name="name" type="string">The attribute's display name.</ResponseField>
+    <ResponseField name="handle" type="string">URL-safe handle.</ResponseField>
+    <ResponseField name="description" type="string | null">The attribute's description.</ResponseField>
+    <ResponseField name="type" type="string">One of `single_select`, `multi_select`, `unit`, `toggle`, `text`.</ResponseField>
+    <ResponseField name="is_required" type="boolean">Whether sellers must set a value.</ResponseField>
+    <ResponseField name="is_filterable" type="boolean">Whether the attribute can drive storefront filters.</ResponseField>
+    <ResponseField name="is_variant_axis" type="boolean">Whether the attribute defines a variant axis.</ResponseField>
+    <ResponseField name="product_id" type="null">Always `null` on the store API (global attributes only).</ResponseField>
+    <ResponseField name="rank" type="number">Sort rank.</ResponseField>
+    <ResponseField name="values" type="object[]">The attribute's predefined values.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching attributes.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped attributes.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned attributes.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/product-attributes?is_filterable=true' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { product_attributes, count } = await client.store.productAttributes.query({
+  is_filterable: true,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_attributes": [
+    {
+      "id": "attr_01JB2K7A1B",
+      "name": "Material",
+      "handle": "material",
+      "description": null,
+      "type": "single_select",
+      "is_required": false,
+      "is_filterable": true,
+      "is_variant_axis": false,
+      "product_id": null,
+      "rank": 0,
+      "values": [
+        { "id": "attrval_01JB2K7C2D", "name": "Linen", "rank": 0 },
+        { "id": "attrval_01JB2K7E3F", "name": "Cotton", "rank": 1 }
+      ],
+      "metadata": null,
+      "created_at": "2026-05-01T10:00:00.000Z",
+      "updated_at": "2026-05-01T10:00:00.000Z"
+    }
+  ],
+  "count": 5,
+  "offset": 0,
+  "limit": 50
+}
+```
+</ResponseExample>

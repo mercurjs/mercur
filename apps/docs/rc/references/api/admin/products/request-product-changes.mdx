@@ -1,0 +1,59 @@
+---
+title: "Request Product Changes"
+api: "POST /admin/products/{id}/request-changes"
+description: "Ask the vendor to revise a product before it can be published."
+---
+
+Flags the product as requiring action and records a message for the vendor.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="message" type="string">Message describing the requested changes, shared with the vendor.</ParamField>
+
+## Response
+
+<ResponseField name="product" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">Product title.</ResponseField>
+    <ResponseField name="status" type="string">Current product status.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/products/prod_01HXYZABCDEF/request-changes' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"message": "Please add size measurements to the description"}'
+```
+
+```ts JS Client
+const { product } = await client.admin.products.$id.requestChanges.mutate({
+  $id: "prod_01HXYZABCDEF",
+  message: "Please add size measurements to the description",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product": {
+    "id": "prod_01HXYZABCDEF",
+    "title": "Linen Shirt",
+    "status": "proposed",
+    "updated_at": "2026-06-02T09:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

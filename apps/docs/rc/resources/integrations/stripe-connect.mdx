@@ -7,6 +7,10 @@ A Mercur marketplace needs **two** Stripe integrations working together. The fir
 
 This guide covers both — setting up Stripe, configuring both providers, wiring up webhooks, and understanding how money flows from customer to seller.
 
+<Tip>
+  This page is the configuration reference. For a hands-on walkthrough that takes one seller from onboarding to a settled payout, follow the [Set up seller payouts](/rc/resources/tutorials/seller-payouts-stripe) tutorial after completing the setup below.
+</Tip>
+
 <Info>
   Mercur uses Stripe's [Separate Charges and Transfers](https://docs.stripe.com/connect/separate-charges-and-transfers) model. The platform collects the full payment from the customer, then creates transfers to each seller's connected account. This makes the platform the **Merchant of Record**, responsible for VAT, disputes, and chargebacks.
 </Info>
@@ -15,7 +19,7 @@ This guide covers both — setting up Stripe, configuring both providers, wiring
 
 - A [Stripe account](https://dashboard.stripe.com) with Connect enabled
 - Stripe Secret API key and Publishable API key
-- A running Mercur project ([installation guide](/getting-started/installation))
+- A running Mercur project ([installation guide](/rc/learn/installation))
 - Node.js 20+
 
 ## Architecture overview
@@ -269,7 +273,7 @@ PENDING → (Stripe onboarding) → ACTIVE
 
 4. **Ongoing monitoring** — Stripe may send additional `account.updated` events if requirements change. The provider re-evaluates and updates the status accordingly.
 
-For more details on payout accounts, balances, and transactions, see [Payout](/core-concepts/payout).
+For more details on payout accounts, balances, and transactions, see [Payout](/rc/learn/payouts).
 
 ## Transfers vs payouts
 

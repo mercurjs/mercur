@@ -1,0 +1,71 @@
+---
+title: "List Sellers"
+api: "GET /vendor/sellers"
+description: "List the seller accounts the authenticated member belongs to."
+---
+
+Returns the member's seller memberships (excluding terminated sellers), each with the related seller and role.
+
+<Note>
+  This route requires only the `Authorization` header — no `x-seller-id` — since it is used before a seller is selected.
+</Note>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of items to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of items to skip.
+</ParamField>
+
+<ParamField query="order" type="string">
+  Field to sort by, prefixed with `-` for descending order.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller_members" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller member's ID.</ResponseField>
+    <ResponseField name="seller" type="object">The related seller.</ResponseField>
+    <ResponseField name="rbac_role" type="object">The member's role for this seller.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of memberships.</ResponseField>
+<ResponseField name="offset" type="number">Number of items skipped.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of items returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/sellers' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { seller_members } = await client.vendor.sellers.query()
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller_members": [
+    {
+      "id": "selmem_01HXYZ",
+      "seller": { "id": "sel_01HXYZ", "name": "Acme Store", "status": "open" },
+      "rbac_role": { "id": "role_seller_administration", "name": "Administration" }
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 50
+}
+```
+</ResponseExample>

@@ -1,0 +1,62 @@
+---
+title: "Cancel Product Change"
+api: "POST /vendor/products/{id}/cancel"
+description: "Cancel the seller's pending change request for a product."
+---
+
+Cancels the product's pending change request; responds `404` when no pending change exists.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="internal_note" type="string">
+  Optional note recorded with the cancellation.
+</ParamField>
+
+## Response
+
+<ResponseField name="product_change" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The change request's ID.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the product the change targeted.</ResponseField>
+    <ResponseField name="status" type="string">`canceled` after this call.</ResponseField>
+    <ResponseField name="canceled_by" type="string">ID of the seller that canceled the change.</ResponseField>
+    <ResponseField name="canceled_at" type="string">Timestamp of the cancellation.</ResponseField>
+    <ResponseField name="actions" type="object[]">The staged operations that were discarded.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/products/prod_01HXYZ/cancel' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{}'
+```
+
+```ts JS Client
+const { product_change } = await client.vendor.products.$id.cancel.mutate({
+  $id: "prod_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_change": {
+    "id": "prodch_01HXYZ",
+    "product_id": "prod_01HXYZ",
+    "status": "canceled",
+    "canceled_by": "sel_01HXYZ",
+    "canceled_at": "2026-07-03T12:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

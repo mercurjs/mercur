@@ -1,0 +1,125 @@
+---
+title: "List Offers"
+api: "GET /vendor/offers"
+description: "Retrieve a paginated list of the seller's offers."
+---
+
+Returns the seller's offers with variant, shipping profile, prices, and linked inventory items.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  The maximum number of offers to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  The number of offers to skip before returning results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  The field to sort by, e.g. `created_at` or `-created_at` for descending.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response. Prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Search term matched against offer fields.
+</ParamField>
+
+<ParamField query="id" type="string | string[]">
+  Filter by offer ID(s).
+</ParamField>
+
+<ParamField query="variant_id" type="string | string[]">
+  Filter by product variant ID(s).
+</ParamField>
+
+<ParamField query="shipping_profile_id" type="string | string[]">
+  Filter by shipping profile ID(s).
+</ParamField>
+
+<ParamField query="sku" type="string | string[]">
+  Filter by seller SKU(s).
+</ParamField>
+
+<ParamField query="ean" type="string | string[]">
+  Filter by EAN(s).
+</ParamField>
+
+<ParamField query="upc" type="string | string[]">
+  Filter by UPC(s).
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gt`, `$lt`, `$gte`, `$lte`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gt`, `$lt`, `$gte`, `$lte`.
+</ParamField>
+
+## Response
+
+<ResponseField name="offers" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The offer's ID.</ResponseField>
+    <ResponseField name="seller_id" type="string">ID of the owning seller.</ResponseField>
+    <ResponseField name="variant_id" type="string">ID of the listed product variant.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the parent product.</ResponseField>
+    <ResponseField name="shipping_profile_id" type="string">ID of the shipping profile used to fulfill the offer.</ResponseField>
+    <ResponseField name="sku" type="string">The seller's SKU for this listing.</ResponseField>
+    <ResponseField name="ean" type="string">EAN barcode.</ResponseField>
+    <ResponseField name="upc" type="string">UPC barcode.</ResponseField>
+    <ResponseField name="seller" type="object">The seller with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="product_variant" type="object">The variant with `id`, `title`, and `sku`.</ResponseField>
+    <ResponseField name="shipping_profile" type="object">The shipping profile with `id` and `name`.</ResponseField>
+    <ResponseField name="prices" type="object[]">Offer prices with `id`, `amount`, `currency_code`, `min_quantity`, `max_quantity`, and `price_rules`.</ResponseField>
+    <ResponseField name="inventory_items" type="object[]">Linked inventory items with `id`, `inventory_item_id`, `required_quantity`, and `sku`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching offers.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped offers.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned offers.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/offers?variant_id=variant_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { offers, count } = await client.vendor.offers.query({
+  variant_id: "variant_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "offers": [
+    {
+      "id": "offer_01HXYZ",
+      "seller_id": "sel_01HXYZ",
+      "variant_id": "variant_01HXYZ",
+      "product_id": "prod_01HXYZ",
+      "shipping_profile_id": "sp_01HXYZ",
+      "sku": "ACME-SHIRT-M",
+      "prices": [
+        { "id": "price_01HXYZ", "amount": 2500, "currency_code": "usd" }
+      ],
+      "inventory_items": [
+        { "inventory_item_id": "iitem_01HXYZ", "required_quantity": 1 }
+      ]
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 50
+}
+```
+</ResponseExample>

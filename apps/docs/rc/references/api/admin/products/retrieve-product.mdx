@@ -1,0 +1,96 @@
+---
+title: "Retrieve Product"
+api: "GET /admin/products/{id}"
+description: "Retrieve a master catalog product by ID."
+---
+
+Returns a single product with its variants, attribute values, and product-scoped attributes.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+<ParamField query="seller_id" type="string">Scope offer data (when requested via `fields`) to a single seller.</ParamField>
+
+## Response
+
+<ResponseField name="product" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">Product title.</ResponseField>
+    <ResponseField name="subtitle" type="string">Product subtitle.</ResponseField>
+    <ResponseField name="status" type="string">One of `draft`, `proposed`, `published`, `rejected`.</ResponseField>
+    <ResponseField name="description" type="string">Product description.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="is_giftcard" type="boolean">Whether the product is a gift card.</ResponseField>
+    <ResponseField name="discountable" type="boolean">Whether discounts can apply to the product.</ResponseField>
+    <ResponseField name="thumbnail" type="string">URL of the product thumbnail.</ResponseField>
+    <ResponseField name="collection" type="object">The collection with `id`, `title`, and `handle`.</ResponseField>
+    <ResponseField name="categories" type="object[]">Categories with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="variants" type="object[]">Variants with `id`, `title`, `sku`, `manage_inventory`, `allow_backorder`, and `variant_rank`.</ResponseField>
+    <ResponseField name="product_attribute_values" type="object[]">
+      Attribute values selected on the product.
+      <Expandable title="properties">
+        <ResponseField name="id" type="string">The value's ID.</ResponseField>
+        <ResponseField name="name" type="string">Value name.</ResponseField>
+        <ResponseField name="rank" type="number">Sort rank.</ResponseField>
+        <ResponseField name="attribute" type="object">The parent attribute with `id`, `name`, `handle`, `type`, `is_variant_axis`, `is_required`, `rank`, and its full `values` list.</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="scoped_attributes" type="object[]">
+      Product-scoped (inline) attributes.
+      <Expandable title="properties">
+        <ResponseField name="id" type="string">The attribute's ID.</ResponseField>
+        <ResponseField name="name" type="string">Attribute name.</ResponseField>
+        <ResponseField name="handle" type="string">Attribute handle.</ResponseField>
+        <ResponseField name="type" type="string">One of `single_select`, `multi_select`, `unit`, `toggle`, `text`.</ResponseField>
+        <ResponseField name="is_variant_axis" type="boolean">Whether the attribute drives variant generation.</ResponseField>
+        <ResponseField name="values" type="object[]">Values with `id`, `name`, and `rank`.</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="attributes" type="object[]">Computed attribute groups, each with the selected `values` and the attribute's full `all_values`.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/products/prod_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { product } = await client.admin.products.$id.query({
+  $id: "prod_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product": {
+    "id": "prod_01HXYZABCDEF",
+    "title": "Linen Shirt",
+    "handle": "linen-shirt",
+    "status": "published",
+    "variants": [
+      { "id": "variant_01HXYZABCDEF", "title": "M", "sku": "LS-M", "variant_rank": 0 }
+    ],
+    "product_attribute_values": [
+      {
+        "id": "pattrval_01HXYZABCDEF",
+        "name": "Linen",
+        "attribute": { "id": "pattr_01HXYZABCDEF", "name": "Material", "type": "single_select" }
+      }
+    ],
+    "scoped_attributes": []
+  }
+}
+```
+</ResponseExample>

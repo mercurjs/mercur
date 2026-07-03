@@ -1,38 +1,108 @@
 ---
-title: "Search integration"
-description: "Add product and seller search with Algolia or Meilisearch, and re-index from the admin panel."
+title: "Search"
+description: "Mercur's provider-agnostic search module — zero-infrastructure Orama by default, swappable for Algolia, Meilisearch, or your own provider."
 ---
 
+Mercur ships a **Search module** in `@mercurjs/core`, modeled on Medusa's pluggable-provider pattern (like the `file` and `notification` modules). The module owns a stable contract — `index`, `remove`, `search` — and delegates storage to exactly one active **provider**. Out of the box that provider is [Orama](https://docs.orama.com): an in-process, in-memory index that needs zero external infrastructure.
+
+<Warning>
+  The search module is a release-candidate feature and its surface may still evolve before the stable release.
+</Warning>
+
+<Info>
+  **Everything above the provider is provider-agnostic.** Subscribers index and remove documents on product, offer, and seller events; the store route calls `search.search(query)`; boot reindexing is event-driven. Swapping Orama for Algolia or Meilisearch means changing one provider registration — no changes to subscribers, the store route, or your storefront.
+</Info>
+
+## What gets indexed
+
+Products **and offers** are searchable. Offers are indexed as **per-offer documents** — one hit per vendor listing — each carrying the offer's scoped price, so search results price identically to `GET /store/offers`. Index updates are driven by subscribers on product, offer, and seller events; you never call `index()` from application code.
+
+## Searching from the storefront
+
+The Store API exposes one endpoint:
+
+```bash
+curl -X POST "http://localhost:9000/store/search" \
+  -H "x-publishable-api-key: <key>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "q": "t-shirt",
+    "limit": 12,
+    "offset": 0,
+    "region_id": "reg_123"
+  }'
+```
+
+| Field | Description |
+|-------|-------------|
+| `q` | Search query (defaults to `""` — browse mode) |
+| `limit` / `offset` | Pagination (limit 1–100, default 12) |
+| `region_id`, `country_code`, `province` | Pricing context — the provider projects the matching price onto each hit's `calculated_price` |
+| `filters` | Passed straight to the active provider, which owns its shape |
+
+The response returns `hits`, `count`, and `facets`.
+
+## The default provider: Orama
+
+The bundled `search-orama` provider keeps the index in RAM inside the API process. That means:
+
+- **Zero setup** — no accounts, keys, or services. Search works on a fresh project.
+- **Boot reindex** — an in-memory index is empty after a restart, so the module emits a reindex event on application start and a subscriber rebuilds the index from the database.
+
 <Note>
-  This guide is being written. The outline below is the intended structure.
+  In-memory search fits development and small-to-medium catalogs. For large catalogs or multi-instance deployments, use a persistent provider — the index then lives in the external service and the boot reindex is unnecessary.
 </Note>
 
-## Choosing a provider
+## Swapping in Algolia or Meilisearch
+
+Ready-made provider integrations ship as blocks:
+
+```bash
+bunx @mercurjs/cli@rc add algolia
+# or
+bunx @mercurjs/cli@rc add meilisearch
+```
 
 | Provider | Hosting | Best for |
 |----------|---------|----------|
+| Orama (default) | In-process | Zero-infra development and smaller catalogs |
 | Algolia | Managed SaaS | Fastest setup, hosted relevance tuning |
 | Meilisearch | Self-hosted or cloud | Full control, open source |
 
-## Prerequisites
+Each block installs the provider source and prints the configuration steps (API keys, module options). Follow the block's post-install docs to register the provider and set environment variables.
 
-Accounts, API keys, and environment variables.
+## Writing your own provider
 
-## Install and configure
+A provider extends `AbstractSearchProvider` from `@mercurjs/core` and implements three methods:
 
-Enable the integration and point it at your provider.
+```typescript
+import { AbstractSearchProvider } from "@mercurjs/core/modules/search"
+import { SearchDoc, SearchQueryBase, SearchResults } from "@mercurjs/types"
 
-## Re-index from the admin
+export class MySearchProvider extends AbstractSearchProvider {
+  static identifier = "my-search"
 
-Trigger and monitor indexing.
+  async index(docs: SearchDoc[]): Promise<void> { /* upsert documents */ }
+  async remove(ids: string[]): Promise<void> { /* delete by id */ }
+  async search(query: SearchQueryBase): Promise<SearchResults> { /* query + facets */ }
+}
+```
+
+Because subscribers and the store route only talk to the module contract, your provider slots in without touching anything else. Use the Algolia or Meilisearch block source as a working reference.
 
 ## Verify
 
-Run a query and confirm results return.
+1. Start a fresh project and `POST /store/search` with an empty `q` — published products return without any search service configured (that's Orama).
+2. Publish a product and search for its title — it appears without a manual reindex (subscribers indexed it).
+3. Restart the API and search again — results still return (the boot reindex rebuilt the in-memory index).
 
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Notifications" href="/rc/resources/integrations/notifications" />
-  <Card title="Deploy to Medusa Cloud" href="/rc/resources/deployment/medusa-cloud" />
+  <Card title="Offers" href="/rc/learn/offers">
+    Why offers are indexed per seller with scoped prices.
+  </Card>
+  <Card title="Add a feature with a block" href="/rc/resources/tutorials/add-a-block">
+    How provider blocks are installed and configured.
+  </Card>
 </CardGroup>

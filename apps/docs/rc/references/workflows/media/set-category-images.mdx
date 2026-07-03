@@ -1,0 +1,41 @@
+---
+title: "setCategoryImagesWorkflow"
+description: "Replace a category's media gallery and icon, enforcing single thumbnail/banner."
+---
+
+Replaces a product category's media. When `media` is provided, the entire existing gallery is swapped for the new list; when `icon` is provided, the existing icon image is swapped (pass `null` to clear it). Omitted fields are left untouched. At most one image keeps `is_thumbnail` and one keeps `is_banner` — the first flagged entry wins and later flags are silently dropped. Usually invoked through the `createProductCategoryWithImagesWorkflow`, `updateProductCategoryWithImagesWorkflow`, and `deleteProductCategoryWithImagesWorkflow` wrappers behind the `/admin/product-categories` routes.
+
+## Usage
+
+```ts
+import { setCategoryImagesWorkflow } from "@mercurjs/core/workflows"
+
+await setCategoryImagesWorkflow(container).run({
+  input: {
+    category_id: "pcat_123",
+    media: [
+      { url: "https://cdn.example.com/hero.jpg", is_banner: true },
+      { url: "https://cdn.example.com/thumb.jpg", is_thumbnail: true },
+    ],
+    icon: "https://cdn.example.com/icon.svg",
+  },
+})
+```
+
+## Input
+
+<ParamField body="category_id" type="string" required>The category whose images are replaced.</ParamField>
+<ParamField body="media" type="CategoryMediaInput[]">
+  New gallery; replaces all existing non-icon images (pass `[]` to clear).
+  <Expandable title="properties">
+    <ParamField body="url" type="string" required>Public URL of the image.</ParamField>
+    <ParamField body="is_thumbnail" type="boolean">Mark as the thumbnail; only the first flagged image is honoured.</ParamField>
+    <ParamField body="is_banner" type="boolean">Mark as the banner; only the first flagged image is honoured.</ParamField>
+    <ParamField body="rank" type="number">Sort rank; defaults to the array index.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="icon" type="string | null">New icon URL; `null` removes the current icon, omit to keep it.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">No return value.</ResponseField>

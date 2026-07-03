@@ -1,0 +1,67 @@
+---
+title: "Invite Seller Member"
+api: "POST /vendor/sellers/{id}/members"
+description: "Invite a new member to the seller's team."
+---
+
+Creates a member invite for the given email and role.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The seller's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="email" type="string" required>
+  Email address to send the invite to.
+</ParamField>
+
+<ParamField body="role_id" type="enum" required>
+  The role assigned on acceptance. One of `role_seller_administration`, `role_seller_inventory_management`, `role_seller_order_management`, `role_seller_accounting`, `role_seller_support`.
+</ParamField>
+
+## Response
+
+<ResponseField name="member_invite" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The invite's ID.</ResponseField>
+    <ResponseField name="email" type="string">The invited email.</ResponseField>
+    <ResponseField name="role_id" type="string">The role granted on acceptance.</ResponseField>
+    <ResponseField name="accepted" type="boolean">Whether the invite has been accepted.</ResponseField>
+    <ResponseField name="expires_at" type="string">Expiration timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/sellers/sel_01HXYZ/members' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"email": "teammate@acme.com", "role_id": "role_seller_order_management"}'
+```
+
+```ts JS Client
+const { member_invite } = await client.vendor.sellers.$id.members.mutate({
+  $id: "sel_01HXYZ",
+  email: "teammate@acme.com",
+  role_id: "role_seller_order_management",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201
+{
+  "member_invite": {
+    "id": "meminv_01HXYZ",
+    "email": "teammate@acme.com",
+    "role_id": "role_seller_order_management",
+    "accepted": false,
+    "expires_at": "2026-01-22T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,82 @@
+---
+title: "Product Requests & Approvals"
+description: "How vendor product submissions and edits are reviewed — the ProductChange pipeline that keeps a shared catalog under operator control."
+---
+
+Because the catalog is [shared](/rc/learn/products), vendors don't mutate products directly. New products and edits flow through a review pipeline built on **product changes** — structured requests the operator can confirm, decline, or send back for revision. The same records double as the product's audit trail.
+
+There are two flows:
+
+## 1. New-product approval
+
+A vendor-created product enters the catalog with status `proposed` and is visible only to its creator. The operator reviews it from the Admin Panel:
+
+- **Confirm** — the product is published into the shared catalog.
+- **Reject** — the product is marked `rejected` and stays out of the catalog.
+- **Request changes** — the submission is sent back to the vendor with a note for revision.
+
+## 2. Edit change-requests
+
+Edits to existing products — detail updates, variant additions/updates/removals, attribute changes — are captured as a **ProductChange**: a reviewable bundle of one or more ordered actions.
+
+### ProductChange
+
+| Field | Description |
+|-------|-------------|
+| `product_id` | The product the change targets |
+| `status` | `pending` → `confirmed` / `declined` / `canceled` |
+| `created_by` | Who requested the change |
+| `confirmed_by` / `confirmed_at` | Review outcome audit fields (same pattern for declined/canceled) |
+| `declined_reason` | Why a change was declined |
+| `requires_action_by` / `requires_action_reason` | Set when the operator asks the vendor to revise |
+| `internal_note` / `external_note` | Operator-only vs vendor-visible notes |
+
+### ProductChangeAction
+
+Each change groups ordered **actions** — the atomic operations applied to the live product when the change is confirmed:
+
+| Action | Effect |
+|--------|--------|
+| `UPDATE` | Update product details |
+| `VARIANT_ADD` / `VARIANT_UPDATE` / `VARIANT_REMOVE` | Variant operations |
+| `ATTRIBUTE_ADD` / `ATTRIBUTE_UPDATE` / `ATTRIBUTE_REMOVE` | Attribute operations |
+| `STATUS_CHANGE` | Status transitions (publish, reject) |
+| `PRODUCT_ADD` / `PRODUCT_DELETE` | Creation and deletion markers |
+
+Each action carries its payload in a `details` JSON field and an `applied` flag. Actions are applied in order on confirmation — nothing touches the live product while the change is `pending`.
+
+## Lifecycle
+
+```
+             ┌────────────> confirmed ── actions applied to product
+             │
+pending ─────┼────────────> declined  ── with a reason
+             │
+             └────────────> canceled  ── withdrawn by the requester
+```
+
+The operator can also flag a pending change as **requires action**, handing it back to the vendor with a reason before a final decision.
+
+Some low-risk edits are **auto-confirmed** — they still create a change record for the audit trail, but apply immediately without waiting for review.
+
+## Audit trail
+
+Confirmed changes are never deleted. The product's change history answers "who changed what, when, and who approved it" — including the original creation (`PRODUCT_ADD`), which is also what scopes a vendor's list to their own unpublished submissions.
+
+## Where it appears
+
+| Surface | Capability |
+|---------|-----------|
+| Admin Panel | Review queue on the product detail — confirm, reject, or request changes on submissions and pending edits |
+| Vendor Portal | Shows the seller's own pending edits and revision requests on their product pages |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Products" href="/rc/learn/products">
+    The master-catalog model this pipeline protects.
+  </Card>
+  <Card title="Product Attributes" href="/rc/learn/attributes">
+    Attribute edits that flow through this pipeline.
+  </Card>
+</CardGroup>

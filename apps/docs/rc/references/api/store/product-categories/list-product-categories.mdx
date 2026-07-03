@@ -1,0 +1,126 @@
+---
+title: "List Product Categories"
+api: "GET /store/product-categories"
+description: "Retrieve active, public product categories."
+---
+
+Returns a paginated list of product categories; inactive and internal categories are always excluded.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of categories to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of categories to skip before collecting results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  Field to sort by, prefixed with `-` for descending order.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Free-text search term applied to category fields.
+</ParamField>
+
+<ParamField query="id" type="string | string[]">
+  Filter by one or more category IDs.
+</ParamField>
+
+<ParamField query="handle" type="string | string[]">
+  Filter by one or more category handles.
+</ParamField>
+
+<ParamField query="parent_category_id" type="string | string[]">
+  Filter by parent category ID; pass `null` to fetch top-level categories.
+</ParamField>
+
+<ParamField query="include_ancestors_tree" type="boolean">
+  Include each category's ancestors in `parent_category`.
+</ParamField>
+
+<ParamField query="include_descendants_tree" type="boolean">
+  Include each category's descendants in `category_children`.
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+<ParamField query="$and" type="object[]">
+  Join multiple filter objects with a logical AND.
+</ParamField>
+
+<ParamField query="$or" type="object[]">
+  Join multiple filter objects with a logical OR.
+</ParamField>
+
+## Response
+
+<ResponseField name="product_categories" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The category's ID.</ResponseField>
+    <ResponseField name="name" type="string">The category's name.</ResponseField>
+    <ResponseField name="description" type="string">The category's description.</ResponseField>
+    <ResponseField name="handle" type="string">URL-safe handle.</ResponseField>
+    <ResponseField name="rank" type="number">Sort rank among siblings.</ResponseField>
+    <ResponseField name="parent_category_id" type="string | null">ID of the parent category.</ResponseField>
+    <ResponseField name="parent_category" type="object | null">The parent category.</ResponseField>
+    <ResponseField name="category_children" type="object[]">Direct child categories.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching categories.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped categories.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned categories.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/product-categories?parent_category_id=null&limit=50' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { product_categories, count } = await client.store.productCategories.query({
+  parent_category_id: "null",
+  limit: 50,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_categories": [
+    {
+      "id": "pcat_01JB2K6A2B",
+      "name": "Shirts",
+      "description": "",
+      "handle": "shirts",
+      "rank": 0,
+      "parent_category_id": null,
+      "parent_category": null,
+      "category_children": [{ "id": "pcat_01JB2K6H7J", "name": "Linen Shirts" }],
+      "metadata": null,
+      "created_at": "2026-05-01T10:00:00.000Z",
+      "updated_at": "2026-05-01T10:00:00.000Z"
+    }
+  ],
+  "count": 8,
+  "offset": 0,
+  "limit": 50
+}
+```
+</ResponseExample>

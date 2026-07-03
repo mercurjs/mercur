@@ -7,6 +7,10 @@ description: "Inject custom logic into an existing Mercur workflow through hooks
   This guide is being written. The outline below is the intended structure.
 </Note>
 
+<Info>
+  **Workflows are Medusa's extension model — Mercur keeps it.** Unlike the panels (where Mercur ships [its own customization framework](/rc/resources/customization/extending-panels)), backend logic follows Medusa conventions unchanged: Mercur's workflows expose hooks you inject steps into, with the same compensation/rollback semantics as any Medusa workflow. Skills learned in plain Medusa transfer here one-to-one.
+</Info>
+
 ## Why hooks
 
 Extend behavior without forking or rewriting the workflow.

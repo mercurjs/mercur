@@ -1,0 +1,34 @@
+---
+title: "approveSellerWorkflow"
+description: "Approve a pending seller and open its store."
+---
+
+Validates the seller can be approved, sets `status` to `open`, clears `status_reason`, and stamps `approved_at` on first approval. Triggered by `POST /admin/sellers/:id/approve`. Emits `seller.approved`.
+
+## Usage
+
+```ts
+import { approveSellerWorkflow } from "@mercurjs/core/workflows"
+
+await approveSellerWorkflow(container).run({
+  input: { seller_id: "sel_123" },
+})
+```
+
+## Input
+
+<ParamField body="seller_id" type="string" required>Id of the seller to approve.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">Nothing is returned.</ResponseField>
+
+## Hooks
+
+- `sellerApproved` — runs after approval with `{ seller_id }`.
+
+```ts
+approveSellerWorkflow.hooks.sellerApproved(async ({ seller_id }) => {
+  // e.g. send a welcome email
+})
+```

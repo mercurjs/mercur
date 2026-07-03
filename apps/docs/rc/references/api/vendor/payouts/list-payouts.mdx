@@ -1,0 +1,90 @@
+---
+title: "List Payouts"
+api: "GET /vendor/payouts"
+description: "List the seller's payouts."
+---
+
+Returns the payouts belonging to the current seller.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="20">
+  Maximum number of items to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of items to skip.
+</ParamField>
+
+<ParamField query="order" type="string">
+  Field to sort by, prefixed with `-` for descending order.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+<ParamField query="status" type="string | string[]">
+  Filter by payout status: `pending`, `processing`, `paid`, `failed`, `canceled`.
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gte`, `$lte`, `$gt`, `$lt`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gte`, `$lte`, `$gt`, `$lt`.
+</ParamField>
+
+## Response
+
+<ResponseField name="payouts" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The payout's ID.</ResponseField>
+    <ResponseField name="display_id" type="number">Human-readable payout number.</ResponseField>
+    <ResponseField name="amount" type="number">The payout amount.</ResponseField>
+    <ResponseField name="currency_code" type="string">The payout currency.</ResponseField>
+    <ResponseField name="status" type="enum">One of `pending`, `processing`, `paid`, `failed`, `canceled`.</ResponseField>
+    <ResponseField name="data" type="object">Provider-specific data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of payouts.</ResponseField>
+<ResponseField name="offset" type="number">Number of items skipped.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of items returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/payouts?status=paid' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { payouts, count } = await client.vendor.payouts.query({
+  status: "paid",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "payouts": [
+    {
+      "id": "pout_01HXYZ",
+      "display_id": 42,
+      "amount": 1250,
+      "currency_code": "usd",
+      "status": "paid",
+      "created_at": "2026-01-15T10:00:00.000Z"
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

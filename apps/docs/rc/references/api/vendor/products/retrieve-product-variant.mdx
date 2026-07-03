@@ -1,0 +1,76 @@
+---
+title: "Retrieve Product Variant"
+api: "GET /vendor/products/{id}/variants/{variant_id}"
+description: "Retrieve a single variant of a product."
+---
+
+Returns a variant scoped to the given product.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+<ParamField path="variant_id" type="string" required>
+  The variant's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response. Prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+## Response
+
+<ResponseField name="variant" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The variant's ID.</ResponseField>
+    <ResponseField name="title" type="string">The variant's title.</ResponseField>
+    <ResponseField name="sku" type="string">The variant's SKU.</ResponseField>
+    <ResponseField name="ean" type="string">EAN barcode.</ResponseField>
+    <ResponseField name="upc" type="string">UPC barcode.</ResponseField>
+    <ResponseField name="barcode" type="string">Generic barcode.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the parent product.</ResponseField>
+    <ResponseField name="manage_inventory" type="boolean">Whether inventory is managed for the variant.</ResponseField>
+    <ResponseField name="allow_backorder" type="boolean">Whether backorders are allowed.</ResponseField>
+    <ResponseField name="variant_rank" type="number">Sort rank of the variant.</ResponseField>
+    <ResponseField name="options" type="object[]">Selected option values with `id`, `value`, and the parent `option`.</ResponseField>
+    <ResponseField name="images" type="object[]">Variant images with `id`, `url`, and `rank`.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value pairs.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/products/prod_01HXYZ/variants/variant_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { variant } = await client.vendor.products.$id.variants.$variant_id.query({
+  $id: "prod_01HXYZ",
+  $variant_id: "variant_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "variant": {
+    "id": "variant_01HXYZ",
+    "title": "M",
+    "sku": "ACME-SHIRT-M",
+    "product_id": "prod_01HXYZ",
+    "manage_inventory": false,
+    "allow_backorder": false,
+    "options": [
+      { "id": "optval_01HXYZ", "value": "M", "option": { "id": "opt_01HXYZ", "title": "Size" } }
+    ]
+  }
+}
+```
+</ResponseExample>

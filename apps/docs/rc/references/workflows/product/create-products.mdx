@@ -1,0 +1,63 @@
+---
+title: "createProductsWorkflow"
+description: "Create master catalog products with seller eligibility and creator attribution."
+---
+
+Creates master catalog products, resolving Mercur `attributes` inputs into native product options and value links, linking each product to its eligible sellers (`product_seller` links), and recording a confirmed `PRODUCT_ADD` audit action attributed to `created_by`. Triggered by `POST /admin/products` and `POST /vendor/products`. Variants default to `manage_inventory: false` unless set explicitly. Emits `product.created`.
+
+## Usage
+
+```ts
+import { createProductsWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await createProductsWorkflow(container).run({
+  input: {
+    products: [{ title: "Linen Shirt", seller_ids: ["sel_01H..."] }],
+    created_by: "sel_01H...",
+  },
+})
+```
+
+## Input
+
+<ParamField body="products" type="object[]" required>
+  Products to create.
+  <Expandable title="properties">
+    <ParamField body="title" type="string" required>
+      The product title. All Medusa `CreateProductDTO` fields (handle, description, status, variants, categories, images, etc.) are accepted, except `options`.
+    </ParamField>
+    <ParamField body="attributes" type="ProductAttributeBatchAdd[]">
+      Attribute inputs resolved into native options and value links — `{ id, value_ids }` / `{ id, value }` for existing attributes, or `{ title, values, is_variant_axis }` / `{ title, type, value }` for inline ones. Do not pass native `options`.
+    </ParamField>
+    <ParamField body="seller_ids" type="string[]">
+      Seller ids to link to the product as eligible sellers.
+    </ParamField>
+    <ParamField body="variants" type="object[]">
+      Variants to create; `options` name-maps bind them to axis attributes. `manage_inventory` defaults to `false`.
+    </ParamField>
+  </Expandable>
+</ParamField>
+
+<ParamField body="created_by" type="string" required>
+  Actor id recorded on the `PRODUCT_ADD` audit action.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Arbitrary data forwarded to the underlying Medusa create workflows and the `productsCreated` hook.
+</ParamField>
+
+## Result
+
+<ResponseField name="result" type="ProductDTO[]">
+  The created products, including their generated ids, options, and statuses.
+</ResponseField>
+
+## Hooks
+
+<ResponseField name="validate" type="hook">
+  Runs first with `{ input, products }` — use it to reject invalid payloads before anything is created.
+</ResponseField>
+
+<ResponseField name="productsCreated" type="hook">
+  Runs after creation with `{ products, additional_data }`.
+</ResponseField>

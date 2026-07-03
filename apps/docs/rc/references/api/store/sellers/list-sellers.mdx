@@ -1,0 +1,105 @@
+---
+title: "List Sellers"
+api: "GET /store/sellers"
+description: "Retrieve open sellers visible on the storefront."
+---
+
+Returns a paginated list of sellers; only sellers with status `open` that are outside any scheduled closure window (`closed_from` / `closed_to`) are included.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of sellers to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of sellers to skip before collecting results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  Field to sort by, prefixed with `-` for descending order.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Free-text search term applied to seller fields.
+</ParamField>
+
+<ParamField query="id" type="string | string[]">
+  Filter by one or more seller IDs.
+</ParamField>
+
+<ParamField query="name" type="string | string[]">
+  Filter by one or more seller names.
+</ParamField>
+
+<ParamField query="handle" type="string">
+  Filter by seller handle.
+</ParamField>
+
+<ParamField query="is_premium" type="boolean">
+  Filter premium sellers.
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+## Response
+
+<ResponseField name="sellers" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="name" type="string">The seller's display name.</ResponseField>
+    <ResponseField name="handle" type="string">URL-safe handle.</ResponseField>
+    <ResponseField name="description" type="string | null">The seller's storefront description.</ResponseField>
+    <ResponseField name="logo" type="string | null">Logo URL.</ResponseField>
+    <ResponseField name="banner" type="string | null">Banner image URL.</ResponseField>
+    <ResponseField name="is_premium" type="boolean">Whether the seller has premium status.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching sellers.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped sellers.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned sellers.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/sellers?limit=20' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { sellers, count } = await client.store.sellers.query({ limit: 20 })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "sellers": [
+    {
+      "id": "sel_01JB2K8A1B",
+      "name": "Nordic Textiles",
+      "handle": "nordic-textiles",
+      "description": "Scandinavian linen and wool.",
+      "logo": "https://cdn.example.com/nordic-logo.png",
+      "banner": null,
+      "is_premium": false,
+      "metadata": null
+    }
+  ],
+  "count": 12,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

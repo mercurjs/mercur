@@ -1,0 +1,89 @@
+---
+title: "Update Product Variant"
+api: "POST /admin/products/{id}/variants/{variant_id}"
+description: "Update a variant of a product."
+---
+
+Updates the variant and returns the parent product.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+<ParamField path="variant_id" type="string" required>The variant's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="title" type="string">Variant title.</ParamField>
+<ParamField body="sku" type="string">Variant SKU.</ParamField>
+<ParamField body="ean" type="string">Variant EAN.</ParamField>
+<ParamField body="upc" type="string">Variant UPC.</ParamField>
+<ParamField body="isbn" type="string">Variant ISBN.</ParamField>
+<ParamField body="asin" type="string">Variant ASIN.</ParamField>
+<ParamField body="gtin" type="string">Variant GTIN.</ParamField>
+<ParamField body="barcode" type="string">Variant barcode.</ParamField>
+<ParamField body="hs_code" type="string">Harmonized System code.</ParamField>
+<ParamField body="mid_code" type="string">Manufacturer identification code.</ParamField>
+<ParamField body="thumbnail" type="string">URL of the variant thumbnail.</ParamField>
+<ParamField body="variant_rank" type="number">Sort rank of the variant.</ParamField>
+<ParamField body="weight" type="number">Variant weight.</ParamField>
+<ParamField body="length" type="number">Variant length.</ParamField>
+<ParamField body="height" type="number">Variant height.</ParamField>
+<ParamField body="width" type="number">Variant width.</ParamField>
+<ParamField body="origin_country" type="string">Country of origin.</ParamField>
+<ParamField body="material" type="string">Variant material.</ParamField>
+<ParamField body="prices" type="object[]">
+  Variant prices.
+  <Expandable title="properties">
+    <ParamField body="id" type="string">Existing price ID to update.</ParamField>
+    <ParamField body="currency_code" type="string">Price currency code.</ParamField>
+    <ParamField body="amount" type="number">Price amount.</ParamField>
+    <ParamField body="min_quantity" type="number">Minimum quantity for the price to apply.</ParamField>
+    <ParamField body="max_quantity" type="number">Maximum quantity for the price to apply.</ParamField>
+    <ParamField body="rules" type="object">Map of rule attribute to value.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="options" type="object">Map of option title to option value.</ParamField>
+<ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="product" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">Product title.</ResponseField>
+    <ResponseField name="variants" type="object[]">All variants, including the updated one.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/products/prod_01HXYZABCDEF/variants/variant_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"sku": "LS-M-2026"}'
+```
+
+```ts JS Client
+const { product } = await client.admin.products.$id.variants.$variant_id.mutate({
+  $id: "prod_01HXYZABCDEF",
+  $variant_id: "variant_01HXYZABCDEF",
+  sku: "LS-M-2026",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product": {
+    "id": "prod_01HXYZABCDEF",
+    "title": "Linen Shirt",
+    "variants": [
+      { "id": "variant_01HXYZABCDEF", "title": "M", "sku": "LS-M-2026" }
+    ]
+  }
+}
+```
+</ResponseExample>

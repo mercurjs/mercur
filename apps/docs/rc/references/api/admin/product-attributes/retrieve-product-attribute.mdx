@@ -1,0 +1,81 @@
+---
+title: "Retrieve Product Attribute"
+api: "GET /admin/product-attributes/{id}"
+description: "Retrieve a catalog product attribute by ID."
+---
+
+Returns a single attribute with its values and linked categories.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The attribute's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="product_attribute" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The attribute's ID.</ResponseField>
+    <ResponseField name="name" type="string">Attribute name.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="description" type="string">Attribute description.</ResponseField>
+    <ResponseField name="type" type="string">One of `single_select`, `multi_select`, `unit`, `toggle`, `text`.</ResponseField>
+    <ResponseField name="is_required" type="boolean">Whether a value is required on products.</ResponseField>
+    <ResponseField name="is_filterable" type="boolean">Whether the attribute can be used as a storefront filter.</ResponseField>
+    <ResponseField name="is_variant_axis" type="boolean">Whether the attribute drives variant generation.</ResponseField>
+    <ResponseField name="is_active" type="boolean">Whether the attribute is active.</ResponseField>
+    <ResponseField name="created_by" type="string">ID of the actor who created the attribute.</ResponseField>
+    <ResponseField name="product_id" type="string">Owning product's ID for product-scoped attributes, otherwise `null`.</ResponseField>
+    <ResponseField name="rank" type="number">Sort rank of the attribute.</ResponseField>
+    <ResponseField name="values" type="object[]">
+      The attribute's values.
+      <Expandable title="properties">
+        <ResponseField name="id" type="string">The value's ID.</ResponseField>
+        <ResponseField name="name" type="string">Value name.</ResponseField>
+        <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+        <ResponseField name="rank" type="number">Sort rank.</ResponseField>
+        <ResponseField name="is_active" type="boolean">Whether the value is active.</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="categories" type="object[]">Linked categories with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/product-attributes/pattr_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { product_attribute } = await client.admin.productAttributes.$id.query({
+  $id: "pattr_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_attribute": {
+    "id": "pattr_01HXYZABCDEF",
+    "name": "Material",
+    "handle": "material",
+    "type": "single_select",
+    "is_required": false,
+    "is_filterable": true,
+    "is_variant_axis": false,
+    "is_active": true,
+    "values": [
+      { "id": "pattrval_01HXYZABCDEF", "name": "Linen", "rank": 0 }
+    ]
+  }
+}
+```
+</ResponseExample>

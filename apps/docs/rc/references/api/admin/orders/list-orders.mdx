@@ -1,0 +1,79 @@
+---
+title: "List Orders"
+api: "GET /admin/orders"
+description: "Retrieve a paginated list of orders across all sellers."
+---
+
+Returns orders platform-wide. Mercur extends the standard Medusa endpoint with `seller_id` and `name` filters.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="15">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated fields to include in the response.</ParamField>
+<ParamField query="q" type="string">Search term matched against orders.</ParamField>
+<ParamField query="id" type="string | string[]">Filter by order ID(s).</ParamField>
+<ParamField query="status" type="string | string[]">Filter by order status.</ParamField>
+<ParamField query="seller_id" type="string | string[]">Filter to orders belonging to the given seller(s).</ParamField>
+<ParamField query="name" type="string | string[]">Filter by order name(s).</ParamField>
+<ParamField query="sales_channel_id" type="string[]">Filter by sales channel IDs.</ParamField>
+<ParamField query="region_id" type="string | string[]">Filter by region ID(s).</ParamField>
+<ParamField query="customer_id" type="string | string[]">Filter by customer ID(s).</ParamField>
+<ParamField query="total" type="object">Filter by order total using operators like `$gte` and `$lte`.</ParamField>
+<ParamField query="created_at" type="object">Filter by creation date using operators like `$gte` and `$lte`.</ParamField>
+<ParamField query="updated_at" type="object">Filter by update date using operators like `$gte` and `$lte`.</ParamField>
+
+## Response
+
+<ResponseField name="orders" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order's ID.</ResponseField>
+    <ResponseField name="display_id" type="number">Human-readable order number.</ResponseField>
+    <ResponseField name="status" type="string">The order's status.</ResponseField>
+    <ResponseField name="currency_code" type="string">The order's currency.</ResponseField>
+    <ResponseField name="total" type="number">The order's total amount.</ResponseField>
+    <ResponseField name="customer_id" type="string">ID of the customer who placed the order.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of matching orders.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/orders?seller_id=sel_01HXYZ&limit=20' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { orders, count } = await client.admin.orders.query({
+  seller_id: "sel_01HXYZ",
+  limit: 20,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "orders": [
+    {
+      "id": "order_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+      "display_id": 128,
+      "status": "pending",
+      "currency_code": "usd",
+      "total": 4900,
+      "customer_id": "cus_01HXYZ",
+      "created_at": "2026-06-01T10:00:00.000Z",
+      "updated_at": "2026-06-01T10:00:00.000Z"
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

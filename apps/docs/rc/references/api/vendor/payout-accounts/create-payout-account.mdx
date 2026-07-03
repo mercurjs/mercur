@@ -1,0 +1,59 @@
+---
+title: "Create Payout Account"
+api: "POST /vendor/payout-accounts"
+description: "Create the seller's payout account with the configured provider."
+---
+
+Creates a payout account for the current seller through the configured payout provider (e.g. Stripe Connect).
+
+## Body parameters
+
+<ParamField body="data" type="object">
+  Provider-specific data forwarded when creating the account.
+</ParamField>
+
+<ParamField body="context" type="object">
+  Provider-specific context (e.g. `{ "country": "US" }` for Stripe Connect).
+</ParamField>
+
+## Response
+
+<ResponseField name="payout_account" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The payout account's ID.</ResponseField>
+    <ResponseField name="status" type="enum">One of `pending`, `active`, `restricted`, `rejected`.</ResponseField>
+    <ResponseField name="data" type="object">Provider-specific account data.</ResponseField>
+    <ResponseField name="context" type="object">The context used to create the account.</ResponseField>
+    <ResponseField name="onboarding" type="object">The onboarding record, once created.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/payout-accounts' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"context": {"country": "US"}}'
+```
+
+```ts JS Client
+const { payout_account } = await client.vendor.payoutAccounts.mutate({
+  context: { country: "US" },
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 201
+{
+  "payout_account": {
+    "id": "pacc_01HXYZ",
+    "status": "pending",
+    "context": { "country": "US" },
+    "created_at": "2026-01-15T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,47 @@
+---
+title: "Set Product Sellers"
+api: "POST /admin/products/{id}/sellers"
+description: "Manage which sellers are eligible to sell a product."
+---
+
+Links or unlinks sellers from the product to control selling eligibility.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="add" type="string[]">IDs of sellers to link to the product.</ParamField>
+<ParamField body="remove" type="string[]">IDs of sellers to unlink from the product.</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">The product's ID.</ResponseField>
+<ResponseField name="object" type="string">Always `product`.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/products/prod_01HXYZABCDEF/sellers' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"add": ["sel_01HXYZABCDEF"], "remove": ["sel_01HXYZABCDEG"]}'
+```
+
+```ts JS Client
+const result = await client.admin.products.$id.sellers.mutate({
+  $id: "prod_01HXYZABCDEF",
+  add: ["sel_01HXYZABCDEF"],
+  remove: ["sel_01HXYZABCDEG"],
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "prod_01HXYZABCDEF",
+  "object": "product"
+}
+```
+</ResponseExample>

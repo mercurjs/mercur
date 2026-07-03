@@ -1,0 +1,52 @@
+---
+title: "Delete Professional Details"
+api: "DELETE /admin/sellers/{id}/professional-details"
+description: "Delete a seller's professional details."
+---
+
+Removes the seller's professional details and returns the updated seller.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="professional_details" type="object">The seller's professional details, `null` after deletion.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/professional-details' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.$id.professionalDetails.delete({
+  $id: "sel_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "status": "open",
+    "professional_details": null,
+    "updated_at": "2026-06-12T12:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

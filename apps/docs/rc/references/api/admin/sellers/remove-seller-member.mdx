@@ -1,0 +1,42 @@
+---
+title: "Remove Seller Member"
+api: "DELETE /admin/sellers/{id}/members/{member_id}"
+description: "Remove a member from a seller's team."
+---
+
+Unlinks the seller member from the seller.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+<ParamField path="member_id" type="string" required>The seller member's ID.</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">ID of the removed seller member.</ResponseField>
+<ResponseField name="object" type="string">Always `seller_member`.</ResponseField>
+<ResponseField name="deleted" type="boolean">Whether the member was removed.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/members/selmem_01HXYZSMBB' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const result = await client.admin.sellers.$id.members.$memberId.delete({
+  $id: "sel_01HXYZABCDEF",
+  $memberId: "selmem_01HXYZSMBB",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "selmem_01HXYZSMBB",
+  "object": "seller_member",
+  "deleted": true
+}
+```
+</ResponseExample>

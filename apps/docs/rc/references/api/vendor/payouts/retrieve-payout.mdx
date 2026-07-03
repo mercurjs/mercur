@@ -1,0 +1,63 @@
+---
+title: "Retrieve Payout"
+api: "GET /vendor/payouts/{id}"
+description: "Retrieve one of the seller's payouts by ID."
+---
+
+Returns a payout, verifying it belongs to the current seller.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The payout's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="payout" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The payout's ID.</ResponseField>
+    <ResponseField name="display_id" type="number">Human-readable payout number.</ResponseField>
+    <ResponseField name="amount" type="number">The payout amount.</ResponseField>
+    <ResponseField name="currency_code" type="string">The payout currency.</ResponseField>
+    <ResponseField name="status" type="enum">One of `pending`, `processing`, `paid`, `failed`, `canceled`.</ResponseField>
+    <ResponseField name="data" type="object">Provider-specific data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/payouts/pout_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { payout } = await client.vendor.payouts.$id.query({
+  $id: "pout_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "payout": {
+    "id": "pout_01HXYZ",
+    "display_id": 42,
+    "amount": 1250,
+    "currency_code": "usd",
+    "status": "paid",
+    "created_at": "2026-01-15T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

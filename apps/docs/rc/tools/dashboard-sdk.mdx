@@ -7,6 +7,10 @@ description: "The Vite plugin that powers admin and vendor panel extension — f
   This reference is being written. The outline below is the intended structure.
 </Note>
 
+<Info>
+  **Not Medusa's admin-vite-plugin.** The dashboard SDK is Mercur's own extension framework for both panels — it scans `src/routes/**/page.tsx` files, generates navigation, and injects everything through `virtual:mercur/*` modules at build time. Medusa's `defineWidgetConfig` / `defineRouteConfig` and widget zones are not part of this model. Start with [Extending Panels](/rc/resources/customization/extending-panels) for the authoring guide; this page covers the plugin's internals and options.
+</Info>
+
 ## What it does
 
 File-based routing, virtual route modules, and block resolution for the admin and vendor panels.

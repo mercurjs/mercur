@@ -1,0 +1,78 @@
+---
+title: "Preview Product Changes"
+api: "GET /admin/products/{id}/preview"
+description: "Retrieve the pending change set for a product."
+---
+
+Returns the product's pending change request with its individual change actions, or `null` if no change is pending.
+
+<Note>
+The response contains the pending `product_change` record and its `actions` — the raw edits awaiting review — not a merged product payload.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+
+## Response
+
+<ResponseField name="product_change" type="object | null">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product change's ID.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the product the change applies to.</ResponseField>
+    <ResponseField name="status" type="string">Always `pending` for this endpoint.</ResponseField>
+    <ResponseField name="internal_note" type="string">Note visible to operators only.</ResponseField>
+    <ResponseField name="external_note" type="string">Note visible to the vendor.</ResponseField>
+    <ResponseField name="created_by" type="string">ID of the actor who created the change.</ResponseField>
+    <ResponseField name="actions" type="object[]">
+      Individual change actions, in order.
+      <Expandable title="properties">
+        <ResponseField name="id" type="string">The action's ID.</ResponseField>
+        <ResponseField name="action" type="string">The action type.</ResponseField>
+        <ResponseField name="ordering" type="number">Application order of the action.</ResponseField>
+        <ResponseField name="details" type="object">The proposed field changes.</ResponseField>
+        <ResponseField name="applied" type="boolean">Whether the action has been applied.</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/products/prod_01HXYZABCDEF/preview' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { product_change } = await client.admin.products.$id.preview.query({
+  $id: "prod_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_change": {
+    "id": "prodch_01HXYZABCDEF",
+    "product_id": "prod_01HXYZABCDEF",
+    "status": "pending",
+    "internal_note": null,
+    "external_note": null,
+    "actions": [
+      {
+        "id": "prodchact_01HXYZABCDEF",
+        "action": "update_product",
+        "ordering": 0,
+        "details": { "title": "Linen Shirt v2" },
+        "applied": false
+      }
+    ],
+    "created_at": "2026-06-01T10:00:00.000Z",
+    "updated_at": "2026-06-01T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

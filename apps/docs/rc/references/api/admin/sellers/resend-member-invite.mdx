@@ -1,0 +1,55 @@
+---
+title: "Resend Member Invite"
+api: "POST /admin/sellers/{id}/members/invites/{invite_id}/resend"
+description: "Resend a seller's member invite."
+---
+
+Regenerates the invite token, extends its expiry, and re-sends the invite email.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+<ParamField path="invite_id" type="string" required>The invite's ID.</ParamField>
+
+## Response
+
+<ResponseField name="member_invite" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The invite's ID.</ResponseField>
+    <ResponseField name="email" type="string">Invited email address.</ResponseField>
+    <ResponseField name="role_id" type="string">Role assigned on acceptance.</ResponseField>
+    <ResponseField name="accepted" type="boolean">Whether the invite was accepted.</ResponseField>
+    <ResponseField name="token" type="string">The regenerated invite token.</ResponseField>
+    <ResponseField name="expires_at" type="string">The new expiry date.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/members/invites/meminv_01HXYZINVAA/resend' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { member_invite } =
+  await client.admin.sellers.$id.members.invites.$inviteId.resend.mutate({
+    $id: "sel_01HXYZABCDEF",
+    $inviteId: "meminv_01HXYZINVAA",
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "member_invite": {
+    "id": "meminv_01HXYZINVAA",
+    "email": "new.member@acme.co",
+    "role_id": "role_01HXYZROLEAA",
+    "accepted": false,
+    "token": "inv_token_def456",
+    "expires_at": "2026-06-29T09:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

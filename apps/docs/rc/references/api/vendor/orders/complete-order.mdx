@@ -1,0 +1,55 @@
+---
+title: "Complete Order"
+api: "POST /vendor/orders/{id}/complete"
+description: "Mark the order as completed."
+---
+
+Completes the order and returns the updated order.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include in the returned order, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="order" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order's ID.</ResponseField>
+    <ResponseField name="status" type="string">The order's status, now `completed`.</ResponseField>
+    <ResponseField name="items" type="object[]">The order's line items.</ResponseField>
+    <ResponseField name="summary" type="object">Order totals summary.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/orders/order_01HXYZABCDEF/complete' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { order } = await client.vendor.orders.$id.complete.mutate({
+  $id: "order_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "order": {
+    "id": "order_01HXYZABCDEF",
+    "display_id": 42,
+    "status": "completed",
+    "currency_code": "usd",
+    "updated_at": "2026-06-05T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

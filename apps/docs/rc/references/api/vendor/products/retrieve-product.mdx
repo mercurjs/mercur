@@ -1,0 +1,69 @@
+---
+title: "Retrieve Product"
+api: "GET /vendor/products/{id}"
+description: "Retrieve a product by its ID."
+---
+
+Returns a single product with its images, variants, and attribute assignments.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response. Prefix with `+`/`-` to add to or remove from the defaults. Include `variants.offers` to attach the seller's offers to each variant.
+</ParamField>
+
+## Response
+
+<ResponseField name="product" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">The product's title.</ResponseField>
+    <ResponseField name="subtitle" type="string">The product's subtitle.</ResponseField>
+    <ResponseField name="description" type="string">The product's description.</ResponseField>
+    <ResponseField name="status" type="string">One of `draft`, `proposed`, `published`, `rejected`.</ResponseField>
+    <ResponseField name="handle" type="string">The product's URL handle.</ResponseField>
+    <ResponseField name="thumbnail" type="string">URL of the product's thumbnail image.</ResponseField>
+    <ResponseField name="images" type="object[]">Images with `id`, `url`, and `rank`.</ResponseField>
+    <ResponseField name="collection" type="object">The associated collection with `id`, `title`, and `handle`.</ResponseField>
+    <ResponseField name="categories" type="object[]">Associated categories with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="variants" type="object[]">Variants with `id`, `title`, `sku`, `manage_inventory`, `allow_backorder`, and `variant_rank`.</ResponseField>
+    <ResponseField name="attributes" type="object[]">Product attributes grouped per attribute with their selected values.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value pairs.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/products/prod_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { product } = await client.vendor.products.$id.query({
+  $id: "prod_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product": {
+    "id": "prod_01HXYZ",
+    "title": "Acme T-Shirt",
+    "status": "published",
+    "handle": "acme-t-shirt",
+    "variants": [
+      { "id": "variant_01HXYZ", "title": "M", "sku": "ACME-SHIRT-M" }
+    ]
+  }
+}
+```
+</ResponseExample>

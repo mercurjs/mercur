@@ -2,11 +2,14 @@
 
 **This is a Mercur marketplace project — an open-source AI-native multi-vendor marketplace built on MedusaJS v2.**
 
-## Architecture
+## Read the docs first
 
-- **Foundation**: MedusaJS v2 (headless commerce)
-- **Language**: TypeScript (strict)
-- **Pattern**: Block-based — modules, workflows, API routes, and UI extensions installed via CLI
+Before any non-trivial change, read the **bundled documentation** — it ships as a dependency, so it is offline and version-matched to this project's packages:
+
+1. Index: `node_modules/@mercurjs/docs/llms.txt`
+2. Full pages: `node_modules/@mercurjs/docs/content/**/*.mdx`
+
+It covers the domain model (sellers, products, offers, attributes, commissions, payouts, order groups), the CLI, the typed API client, the dashboard SDK, and module references. Don't guess at an API or data model the docs already describe.
 
 ### Project Structure
 
@@ -19,51 +22,10 @@
 
 ## Documentation
 
-- **Docs**: https://docs.mercurjs.com
+- **Bundled docs (read first)**: `node_modules/@mercurjs/docs/llms.txt` → `content/**/*.mdx`
+- **Online docs**: https://docs.mercurjs.com
 - **MCP Server**: https://docs.mercurjs.com/mcp — connect your AI agent for documentation search
-- **llms.txt**: https://docs.mercurjs.com/llms.txt — machine-readable project summary
-
-## CLI Commands
-
-```bash
-# Add blocks from the Mercur registry
-bunx @mercurjs/cli add <block-name>
-
-# Search available blocks
-bunx @mercurjs/cli search -q "commission"
-
-# Generate TypeScript types from API routes
-bunx @mercurjs/cli codegen
-
-# Start development server
-bun run dev
-```
-
-## Block System
-
-Mercur uses reusable blocks installed into your project:
-
-- **Modules** — data models and business logic (sellers, commissions, offers)
-- **Links** — relationships between modules
-- **Workflows** — multi-step business processes (order splitting, payouts)
-- **API Routes** — HTTP endpoints for admin, vendor, and storefront
-- **Admin Extensions** — UI components for the admin dashboard
-- **Vendor Extensions** — UI components for the vendor portal
-
-Install blocks:
-
-```bash
-bunx @mercurjs/cli add seller commission payout
-```
-
-## Skills
-
-This project includes `.claude/skills/` with domain-specific patterns for:
-- Admin and vendor UI (pages, forms, tabs)
-- Block discovery and installation
-- Code review and UI conformance
-
-Skills are auto-loaded by Claude Code. See `CLAUDE.md` for the full workflow guide.
+- **llms.txt (online)**: https://docs.mercurjs.com/llms.txt
 
 ## Configuration Files
 
@@ -79,6 +41,7 @@ bun run dev
 ```
 
 This starts:
+
 - Backend API at `http://localhost:9000`
-- Admin Panel at `http://localhost:7000`
-- Vendor Panel at `http://localhost:7001`
+- Admin Panel at `http://localhost:9000/seller`
+- Vendor Panel at `http://localhost:9000/dashboard`

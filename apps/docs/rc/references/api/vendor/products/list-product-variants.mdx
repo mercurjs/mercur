@@ -1,0 +1,114 @@
+---
+title: "List Product Variants"
+api: "GET /vendor/products/{id}/variants"
+description: "Retrieve a paginated list of a product's variants."
+---
+
+Returns the variants belonging to the given product.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  The maximum number of variants to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  The number of variants to skip before returning results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  The field to sort by, e.g. `variant_rank` or `-created_at`.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response. Prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Search term matched against variant fields.
+</ParamField>
+
+<ParamField query="manage_inventory" type="boolean">
+  Filter by whether inventory is managed for the variant.
+</ParamField>
+
+<ParamField query="allow_backorder" type="boolean">
+  Filter by whether backorders are allowed.
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gt`, `$lt`, `$gte`, `$lte`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gt`, `$lt`, `$gte`, `$lte`.
+</ParamField>
+
+<ParamField query="$and" type="object[]">
+  Join multiple filter objects with a logical AND.
+</ParamField>
+
+<ParamField query="$or" type="object[]">
+  Join multiple filter objects with a logical OR.
+</ParamField>
+
+## Response
+
+<ResponseField name="variants" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The variant's ID.</ResponseField>
+    <ResponseField name="title" type="string">The variant's title.</ResponseField>
+    <ResponseField name="sku" type="string">The variant's SKU.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the parent product.</ResponseField>
+    <ResponseField name="manage_inventory" type="boolean">Whether inventory is managed for the variant.</ResponseField>
+    <ResponseField name="allow_backorder" type="boolean">Whether backorders are allowed.</ResponseField>
+    <ResponseField name="variant_rank" type="number">Sort rank of the variant.</ResponseField>
+    <ResponseField name="options" type="object[]">Selected option values with `id`, `value`, and the parent `option`.</ResponseField>
+    <ResponseField name="images" type="object[]">Variant images with `id`, `url`, and `rank`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching variants.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped variants.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned variants.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/products/prod_01HXYZ/variants?limit=20' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { variants, count } = await client.vendor.products.$id.variants.query({
+  $id: "prod_01HXYZ",
+  limit: 20,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "variants": [
+    {
+      "id": "variant_01HXYZ",
+      "title": "M",
+      "sku": "ACME-SHIRT-M",
+      "product_id": "prod_01HXYZ",
+      "manage_inventory": false,
+      "allow_backorder": false
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

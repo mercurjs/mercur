@@ -1,0 +1,25 @@
+---
+title: "confirmClaimRequestWorkflow"
+description: "Confirm a claim request and fix reservations for offer bundles."
+---
+
+Wraps Medusa's `confirmClaimRequestWorkflow` and then rewrites the reservations created for the claim's additional items when those items come from offers: single-link offers get their reservation quantity scaled by `required_quantity`, multi-link (bundle) offers have the default reservation replaced with one reservation per linked inventory item. Triggered by `POST /admin/claims/:id/request` and `POST /vendor/claims/:id/request`. Events are emitted by the wrapped Medusa workflow.
+
+## Usage
+
+```ts
+import { confirmClaimRequestWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await confirmClaimRequestWorkflow(container).run({
+  input: { claim_id: "claim_123", confirmed_by: "user_123" },
+})
+```
+
+## Input
+
+<ParamField body="claim_id" type="string" required>The claim whose pending request is confirmed.</ParamField>
+<ParamField body="confirmed_by" type="string">Id of the user confirming the claim.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="OrderPreviewDTO">Preview of the order with the confirmed claim applied.</ResponseField>

@@ -51,7 +51,7 @@ Medusa provides the core commerce engine — products, pricing, carts, orders, p
 
 ### Marketplace layer
 
-This is where Mercur's code lives. It introduces three custom modules — **Seller**, **Commission**, and **Payout** — along with workflows that coordinate marketplace-specific operations like order splitting and commission calculation. Links connect these modules to Medusa's core entities (products, orders, customers) without modifying the original models.
+This is where Mercur's code lives. It introduces marketplace modules — **Seller**, **Commission**, **Offer**, **Payout**, **Product Attribute**, and **Product Edit**, among others — along with workflows that coordinate marketplace-specific operations like order splitting, product approvals, and commission calculation. Links connect these modules to Medusa's core entities (products, orders, customers) without modifying the original models.
 
 ### API layer
 
@@ -95,19 +95,24 @@ The core plugin (`@mercurjs/core`) is the main package that contains all marketp
 ```
 core/src/
 ├── modules/          # Data models and services
-│   ├── seller/       # Seller registration, profiles, order groups
+│   ├── seller/       # Seller registration, profiles, members, order groups
 │   ├── commission/   # Commission rates, rules, calculation
-│   └── payout/       # Payout accounts, balances, transactions
+│   ├── offer/        # Seller listings against the shared product catalog
+│   ├── payout/       # Payout accounts, onboarding, payouts
+│   ├── product-attribute/  # Typed attribute catalog and values
+│   ├── product-edit/ # Product change requests and audit trail
+│   └── ...           # Media, custom fields, search
 ├── links/            # Relationships between modules
 ├── workflows/        # Multi-step business processes
 │   ├── seller/       # Seller CRUD workflows
 │   ├── cart/         # Cart completion with order splitting
 │   ├── commission/   # Commission rate and line management
 │   ├── payout/       # Payout processing and crediting
+│   ├── offer/        # Offer lifecycle
+│   ├── product/      # Product approval and seller linking
+│   ├── product-edit/ # Change-request lifecycle
 │   ├── order-group/  # Order group operations
-│   ├── promotion/    # Seller promotion workflows
-│   ├── price-list/   # Price list operations
-│   └── ...           # Shipping, inventory, campaigns, etc.
+│   └── ...           # Attributes, shipping, inventory, promotions, etc.
 ├── api/              # HTTP route handlers
 │   ├── admin/        # Admin API routes
 │   ├── vendor/       # Vendor API routes
@@ -124,7 +129,7 @@ Modules encapsulate data models and business logic for a specific domain. Each m
 
 ### Links
 
-Links define relationships between Mercur modules and Medusa core entities. For example, the `product-seller-link` connects a Medusa `Product` to a Mercur `Seller` without modifying either model. There are 17 links that wire the marketplace layer into the commerce layer — connecting sellers to products, orders, customers, shipping options, inventory, promotions, and more.
+Links define relationships between Mercur modules and Medusa core entities. For example, the `product-seller-link` connects a Medusa `Product` to a Mercur `Seller` without modifying either model. Dozens of links wire the marketplace layer into the commerce layer — connecting sellers to their scoped resources (orders, customers, shipping, inventory, promotions), offers to products, variants, prices, and line items, order groups to carts and orders, and attributes to Medusa's native product options.
 
 ### Workflows
 
@@ -158,7 +163,7 @@ This means:
 - There are no hidden abstractions or version conflicts
 - Updates are explicit — you diff and apply changes from the registry
 
-The CLI (`@mercurjs/cli@latest`) manages this process: scaffolding projects, installing blocks, searching the registry, and comparing local changes against upstream versions.
+The CLI (`@mercurjs/cli@rc`) manages this process: scaffolding projects, installing blocks, searching the registry, and comparing local changes against upstream versions.
 
 ## Workflow example
 

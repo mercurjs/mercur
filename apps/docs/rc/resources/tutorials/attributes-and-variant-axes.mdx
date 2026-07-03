@@ -1,0 +1,89 @@
+---
+title: "Create attributes and variant axes"
+description: "Build the attribute catalog: a filterable attribute, a variant axis backed by a native product option, and an inline product-scoped axis."
+---
+
+Attributes give the shared catalog structured, typed data — and for `multi_select` attributes, they can drive variant generation. This tutorial sets up the two kinds that matter most: a plain filterable attribute and a **variant axis**, which under the hood is a native Medusa global product option.
+
+<Warning>
+  This is a release-candidate feature built on Medusa's global product options (Medusa 2.16 preview). Details may still shift before the stable release.
+</Warning>
+
+<Info>
+  **A variant axis IS a product option.** Attributes marked `is_variant_axis` aren't a parallel system bolted onto products — each one mirrors one-to-one onto a Medusa `ProductOption` and its values. Variants are then built with Medusa's standard machinery (`variants[].options`), exactly as in a plain Medusa project. Non-axis attributes never become options; they attach as plain value links. This is why only `multi_select` attributes can be axes — an axis needs an enumerable set of values to combine into variants.
+</Info>
+
+## What you'll build
+
+- A global `Material` attribute (multi-select, filterable) used for storefront filtering.
+- A global `Color` variant axis shared across the catalog.
+- An inline, product-scoped `Fit` axis created on the fly from a product form.
+
+## 1. Create a filterable attribute
+
+In the Admin Panel, the operator owns the attribute catalog. Create **Material** as a global `multi_select` attribute with values like Cotton, Wool, Linen, and turn on `is_filterable`. Global attributes (`product_id = null`) can be attached to any product and linked to categories so the right attributes surface for the right product types.
+
+Since it's not a variant axis, Material describes the product — it will never generate variants.
+
+## 2. Create a variant axis
+
+Create **Color** the same way, but enable `is_variant_axis`. This is only allowed for `multi_select` attributes — the platform rejects the flag on any other type.
+
+Because Color is a **global** axis, it's backed by one shared product option. Every product that uses it links to that option, restricted to the subset of values the product actually offers — so "Color" means the same thing across the whole catalog, while one product can offer only Red and Blue.
+
+## 3. Attach attributes to a product
+
+Products manage attributes through one **batch** endpoint that adds, removes, and updates in a single request:
+
+```bash
+curl -X POST "http://localhost:9000/vendor/products/prod_123/attributes/batch" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "add": [
+      { "id": "pattr_material", "value_ids": ["pattrval_cotton"] },
+      { "id": "pattr_color", "value_ids": ["pattrval_red", "pattrval_blue"] }
+    ]
+  }'
+```
+
+At product create time, the same entry shape is passed as a unified `attributes[]` array. Because Color is an axis, selecting Red and Blue makes them available as variant options — variants are then defined with standard Medusa `variants[].options` mapping `"Color"` to `"Red"` or `"Blue"`.
+
+## 4. Add an inline product-scoped axis
+
+Sometimes one product needs an axis that doesn't belong in the shared catalog. Define it **inline** by `title` instead of referencing an `id`:
+
+```bash
+curl -X POST "http://localhost:9000/vendor/products/prod_123/attributes/batch" \
+  -H "Authorization: Bearer <token>" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "add": [
+      { "title": "Fit", "values": ["Slim", "Regular"], "is_variant_axis": true }
+    ]
+  }'
+```
+
+This creates a product-scoped attribute on the fly, backed by an **exclusive**, product-owned option. It won't appear in the global attribute list — it belongs to this product alone.
+
+<Note>
+  Attribute changes on products submitted by vendors flow through the same [change-request pipeline](/rc/learn/product-requests) as other product edits — `ATTRIBUTE_ADD` / `ATTRIBUTE_UPDATE` / `ATTRIBUTE_REMOVE` actions the operator reviews.
+</Note>
+
+## Verify
+
+1. **Material** and **Color** appear in the Admin Panel's attribute catalog; **Fit** does not (it's product-scoped).
+2. The product detail shows Material as descriptive data and Color/Fit as variant axes.
+3. The product's variants combine the selected Color and Fit values, built from real product options.
+4. The Store API exposes Material for filtering on product listings (`is_filterable`).
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Product Attributes" href="/rc/learn/attributes">
+    Types, fields, and the full attribute-to-option mapping.
+  </Card>
+  <Card title="Master products & offers" href="/rc/resources/tutorials/master-products-and-offers">
+    How sellers list against the variants your axes generate.
+  </Card>
+</CardGroup>

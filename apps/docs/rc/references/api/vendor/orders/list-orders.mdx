@@ -1,0 +1,103 @@
+---
+title: "List Orders"
+api: "GET /vendor/orders"
+description: "Retrieve a paginated list of the seller's orders."
+---
+
+Returns all non-draft orders belonging to the authenticated seller, with optional filtering by status, customer, region, and more.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+<ParamField query="q" type="string">Search term matched against order fields.</ParamField>
+<ParamField query="id" type="string | string[]">Filter by order ID(s).</ParamField>
+<ParamField query="status" type="string | string[]">Filter by order status.</ParamField>
+<ParamField query="customer_id" type="string | string[]">Filter by customer ID(s).</ParamField>
+<ParamField query="sales_channel_id" type="string | string[]">Filter by sales channel ID(s).</ParamField>
+<ParamField query="region_id" type="string | string[]">Filter by region ID(s).</ParamField>
+<ParamField query="currency_code" type="string | string[]">Filter by currency code(s).</ParamField>
+<ParamField query="fulfillment_status" type="string">Filter by fulfillment status.</ParamField>
+<ParamField query="payment_status" type="string">Filter by payment status.</ParamField>
+<ParamField query="created_at" type="object">Filter by creation date with operators like `$gte`, `$lte`.</ParamField>
+<ParamField query="updated_at" type="object">Filter by update date with operators like `$gte`, `$lte`.</ParamField>
+
+## Response
+
+<ResponseField name="orders" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order's ID.</ResponseField>
+    <ResponseField name="display_id" type="number">Human-readable order number.</ResponseField>
+    <ResponseField name="status" type="string">The order's status.</ResponseField>
+    <ResponseField name="email" type="string">The customer's email.</ResponseField>
+    <ResponseField name="currency_code" type="string">The order's currency code.</ResponseField>
+    <ResponseField name="region_id" type="string">ID of the order's region.</ResponseField>
+    <ResponseField name="customer_id" type="string">ID of the customer.</ResponseField>
+    <ResponseField name="sales_channel_id" type="string">ID of the sales channel.</ResponseField>
+    <ResponseField name="items" type="object[]">The order's line items, including variant, product, and offer data.</ResponseField>
+    <ResponseField name="shipping_address" type="object">The order's shipping address.</ResponseField>
+    <ResponseField name="billing_address" type="object">The order's billing address.</ResponseField>
+    <ResponseField name="shipping_methods" type="object[]">The order's shipping methods.</ResponseField>
+    <ResponseField name="payment_collections" type="object[]">Payment collections with payments and refunds.</ResponseField>
+    <ResponseField name="fulfillments" type="object[]">The order's fulfillments.</ResponseField>
+    <ResponseField name="returns" type="object[]">The order's returns with items and reasons.</ResponseField>
+    <ResponseField name="summary" type="object">Order totals summary.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+    <ResponseField name="canceled_at" type="string">Cancellation timestamp, if canceled.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of matching orders.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/orders?limit=20&order=-created_at' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { orders, count } = await client.vendor.orders.query({
+  limit: 20,
+  order: "-created_at",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "orders": [
+    {
+      "id": "order_01HXYZABCDEF",
+      "display_id": 42,
+      "status": "pending",
+      "email": "jane@example.com",
+      "currency_code": "usd",
+      "region_id": "reg_01HXYZABCDEF",
+      "customer_id": "cus_01HXYZABCDEF",
+      "sales_channel_id": "sc_01HXYZABCDEF",
+      "items": [
+        {
+          "id": "ordli_01HXYZABCDEF",
+          "title": "T-Shirt / M",
+          "quantity": 1,
+          "unit_price": 2500
+        }
+      ],
+      "created_at": "2026-06-01T10:00:00.000Z",
+      "updated_at": "2026-06-01T10:00:00.000Z",
+      "canceled_at": null
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

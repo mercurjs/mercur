@@ -1,0 +1,54 @@
+---
+title: "rejectProductChangeWorkflow"
+description: "Decline a pending ProductChange with an optional reason for the vendor."
+---
+
+Declines a pending `ProductChange`: validates the change exists and is still `pending`, then sets it to `declined` with `declined_by`, `declined_at`, and `declined_reason` — the staged actions are never applied to the master product. Emits `product-change.declined` with `{ id }`.
+
+## Usage
+
+```ts
+import { rejectProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+await rejectProductChangeWorkflow(container).run({
+  input: {
+    id: "prch_01H...",
+    declined_by: "user_01H...",
+    declined_reason: "Price change exceeds allowed range",
+  },
+})
+```
+
+## Input
+
+<ParamField body="id" type="string" required>
+  Id of the product change to decline. Must exist and be in `pending` status.
+</ParamField>
+
+<ParamField body="declined_by" type="string">
+  Actor id recorded as the decliner on the change.
+</ParamField>
+
+<ParamField body="declined_reason" type="string">
+  Vendor-facing reason stored on the change.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Arbitrary data forwarded to the `productChangeRejected` hook.
+</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">
+  Returns nothing; the change status is updated in place.
+</ResponseField>
+
+## Hooks
+
+<ResponseField name="validate" type="hook">
+  Runs first with `{ input }` — use it to block rejection.
+</ResponseField>
+
+<ResponseField name="productChangeRejected" type="hook">
+  Runs after the decline with `{ id, additional_data }`.
+</ResponseField>

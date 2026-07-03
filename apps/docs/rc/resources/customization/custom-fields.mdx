@@ -5,6 +5,33 @@ description: "Extend any Medusa entity with additional fields without modifying 
 
 Custom Fields let you attach extra data to any existing Medusa entity — products, customers, orders, and more — through configuration alone. No migrations to write, no models to define. The module handles table creation and schema updates automatically when you run `db:migrate`.
 
+<Info>
+  **Where this sits in the stack.** Custom Fields is a Mercur module (`@mercurjs/core/modules/custom-fields`) layered on top of Medusa's standard module-link system — it generates the side table, the link, and the schema for you. It's the lightest way to add data to an entity.
+</Info>
+
+## When to use Custom Fields
+
+<Tip>
+  **Use Custom Fields when** the data is a plain property of an existing entity — it belongs to exactly one record, has no lifecycle of its own, and you mostly read it alongside its parent. Typical cases:
+
+  - A `brand`, `warranty_months`, or `is_featured` flag on a product
+  - A `company_name` or loyalty `tier` on a customer
+  - An internal `source` or `priority` tag on an order
+
+  You get a typed column, a default value, and queryability through `query.graph` — for the cost of one config entry and a `db:migrate`.
+</Tip>
+
+<Warning>
+  **Build a custom Medusa module instead when** the data outgrows "extra columns":
+
+  - It has its **own lifecycle** — created, updated, and deleted independently of the parent (e.g. reviews, support tickets)
+  - It has **relations** to more than one entity, or many records per parent
+  - It carries **business logic** — validation rules, state transitions, workflows
+  - You need **its own API routes** and permissions around it
+
+  Custom Fields is strictly one row per parent entity. Forcing a one-to-many or stateful concept into a JSON field works until it doesn't — model it as a module (or check whether a [block](/rc/learn/blocks) already ships it).
+</Warning>
+
 ## How it works
 
 The Custom Fields module creates a separate table for each entity you extend (e.g. `product_custom_fields`). Each table is linked back to the original entity via a foreign key with a unique constraint, ensuring a one-to-one relationship. The module automatically registers these links so you can query custom fields through Medusa's standard remote query.
@@ -43,7 +70,9 @@ module.exports = defineConfig({
 });
 ```
 
-The key in `customFields` (e.g. `Product`, `Customer`) must match the entity name as registered in Medusa's joiner configuration.
+<Warning>
+  The key in `customFields` (e.g. `Product`, `Customer`) must match the entity name as registered in Medusa's joiner configuration — a mismatched name fails at link resolution, not at config load, so double-check spelling and casing.
+</Warning>
 
 After updating your configuration, run migrations to apply the schema changes:
 

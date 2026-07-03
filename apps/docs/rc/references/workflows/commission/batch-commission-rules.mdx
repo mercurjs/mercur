@@ -1,0 +1,45 @@
+---
+title: "batchCommissionRulesWorkflow"
+description: "Create, update, and delete a commission rate's rules in one call."
+---
+
+Runs create, update, and delete operations on a commission rate's rules in parallel. Rules bind a rate to a reference (e.g. a seller, category, or product type) so the rate applies when an order line matches. Triggered by `POST /admin/commission-rates/:id/rules`.
+
+## Usage
+
+```ts
+import { batchCommissionRulesWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await batchCommissionRulesWorkflow(container).run({
+  input: {
+    commission_rate_id: "comrate_123",
+    create: [{ reference: "seller", reference_id: "sel_123" }],
+    update: [{ id: "comrule_456", reference_id: "sel_789" }],
+    delete: ["comrule_999"],
+  },
+})
+```
+
+## Input
+
+<ParamField body="commission_rate_id" type="string" required>The commission rate the rules belong to.</ParamField>
+<ParamField body="create" type="object[]">Rules to create.
+  <Expandable title="properties">
+    <ParamField body="reference" type="string" required>Entity type the rule targets (e.g. `seller`, `product_category`, `product_type`).</ParamField>
+    <ParamField body="reference_id" type="string" required>ID of the referenced entity.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="update" type="object[]">Rules to update.
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>The rule to update.</ParamField>
+    <ParamField body="reference" type="string">New reference type.</ParamField>
+    <ParamField body="reference_id" type="string">New referenced entity ID.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="delete" type="string[]">IDs of rules to delete.</ParamField>
+
+## Result
+
+<ResponseField name="result.created" type="CommissionRuleDTO[]">The created rules.</ResponseField>
+<ResponseField name="result.updated" type="CommissionRuleDTO[]">The updated rules.</ResponseField>
+<ResponseField name="result.deleted" type="string[]">IDs of the deleted rules.</ResponseField>

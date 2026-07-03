@@ -1,0 +1,105 @@
+---
+title: "List Order Groups"
+api: "GET /store/order-groups"
+description: "Retrieve the authenticated customer's order groups."
+---
+
+Returns a paginated list of the logged-in customer's order groups — the multi-seller wrappers created when a cart is completed.
+
+<Note>
+  Customer authentication is required (`Authorization: Bearer <customer_token>` or a session cookie); results are always scoped to the authenticated customer.
+</Note>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of order groups to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of order groups to skip before collecting results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  Field to sort by, prefixed with `-` for descending order.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include; only fields from the route's allowed list are accepted.
+</ParamField>
+
+<ParamField query="id" type="string | string[]">
+  Filter by one or more order group IDs.
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+## Response
+
+<ResponseField name="order_groups" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order group's ID.</ResponseField>
+    <ResponseField name="customer_id" type="string">ID of the purchasing customer.</ResponseField>
+    <ResponseField name="seller_count" type="number">Number of per-seller orders in the group.</ResponseField>
+    <ResponseField name="total" type="number">Combined total across all child orders.</ResponseField>
+    <ResponseField name="orders" type="object[]">
+      Child orders, each with `seller_id` and its `items` (including each item's variant, product, and seller).
+    </ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching order groups.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped order groups.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned order groups.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/order-groups?limit=10' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ' \
+  -H 'Authorization: Bearer <customer_token>'
+```
+
+```ts JS Client
+const { order_groups, count } = await client.store.orderGroups.query({ limit: 10 })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "order_groups": [
+    {
+      "id": "og_01JB2KE7NP",
+      "customer_id": "cus_01JB2KE8QR",
+      "seller_count": 2,
+      "total": 9900,
+      "orders": [
+        {
+          "id": "order_01JB2KH1WX",
+          "seller_id": "sel_01JB2K8A1B",
+          "items": [{ "id": "ordli_01JB2KH2YZ", "title": "M", "quantity": 1 }]
+        },
+        {
+          "id": "order_01JB2KH3AB",
+          "seller_id": "sel_01JB2KF9ST",
+          "items": [{ "id": "ordli_01JB2KH4CD", "title": "One Size", "quantity": 1 }]
+        }
+      ],
+      "created_at": "2026-05-01T10:05:00.000Z",
+      "updated_at": "2026-05-01T10:05:00.000Z"
+    }
+  ],
+  "count": 4,
+  "offset": 0,
+  "limit": 10
+}
+```
+</ResponseExample>

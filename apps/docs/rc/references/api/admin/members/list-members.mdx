@@ -1,0 +1,61 @@
+---
+title: "List Members"
+api: "GET /admin/members"
+description: "Retrieve a paginated list of members across all sellers."
+---
+
+Returns member records platform-wide, useful for finding a member to add to a seller's team.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="10">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+<ParamField query="q" type="string">Search term matched against member fields.</ParamField>
+<ParamField query="email" type="string">Filter by member email.</ParamField>
+
+## Response
+
+<ResponseField name="members" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The member's ID.</ResponseField>
+    <ResponseField name="email" type="string">The member's email address.</ResponseField>
+    <ResponseField name="is_active" type="boolean">Whether the member's account is active.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of matching members.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/members?email=owner@acme.co' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { members, count } = await client.admin.members.query({
+  email: "owner@acme.co",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "members": [
+    {
+      "id": "mem_01HXYZMEMAA",
+      "email": "owner@acme.co",
+      "is_active": true,
+      "created_at": "2026-06-01T10:00:00.000Z"
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 10
+}
+```
+</ResponseExample>

@@ -1,0 +1,150 @@
+---
+title: "Vendor API"
+description: "Seller-scoped routes under /vendor/* — every request operates on the authenticated member's selected seller."
+---
+
+The Vendor API is the seller's surface. Every route is scoped to one seller through the member authentication and `x-seller-id` mechanism described in [API conventions](/rc/references/api/conventions#vendor) — a seller can never read or mutate another seller's data.
+
+## Account and team
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/vendor/sellers` | Registration lookup / create a seller account (**public**) |
+| `POST` | `/vendor/sellers/select` | Select the active seller for the session |
+| `GET` `POST` | `/vendor/sellers/me` | Retrieve / update the current seller |
+| `POST` | `/vendor/sellers/:id/address` | Upsert the seller address |
+| `POST` | `/vendor/sellers/:id/payment-details` | Upsert payment details |
+| `POST` `DELETE` | `/vendor/sellers/:id/professional-details` | Upsert / remove professional details |
+| `GET` `POST` | `/vendor/sellers/:id/members` | List / manage members |
+| `POST` `DELETE` | `/vendor/sellers/:id/members/:member_id` | Update role / remove a member |
+| `GET` | `/vendor/sellers/:id/members/me` | The current member within this seller |
+| `GET` | `/vendor/sellers/:id/members/invites` | List pending invites |
+| `GET` `POST` | `/vendor/members/me` | Retrieve / update the current member profile |
+| `POST` | `/vendor/members/invites/accept` | Accept an invite (**public**) |
+
+## Products and offers
+
+Products are shared master records: updates stage a [change request](/rc/references/modules/product-edit) rather than writing directly, and the list shows products the seller created plus published, unrestricted products.
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/vendor/products` | List / create a product (created as `proposed`) |
+| `GET` `POST` `DELETE` | `/vendor/products/:id` | Retrieve / request an update / request deletion |
+| `GET` | `/vendor/products/:id/preview` | Preview with pending changes applied |
+| `POST` | `/vendor/products/:id/cancel` | Withdraw the pending change request |
+| `POST` | `/vendor/products/:id/attributes/batch` | Batch add / update / remove attributes |
+| `GET` `POST` | `/vendor/products/:id/variants` | List / create variants |
+| `GET` `POST` `DELETE` | `/vendor/products/:id/variants/:variant_id` | Retrieve / update / delete a variant |
+| `GET` | `/vendor/product-variants` | List variants across products |
+| `GET` `POST` | `/vendor/offers` | List / create offers |
+| `GET` `POST` `DELETE` | `/vendor/offers/:id` | Retrieve / update / delete an offer |
+| `POST` | `/vendor/offers/batch` | Batch create offers |
+| `POST` | `/vendor/offers/:id/inventory-items/batch` | Link inventory items to an offer |
+
+### Catalog taxonomy (read-only)
+
+`GET /vendor/product-categories[/:id]`, `/vendor/product-tags[/:id]`, `/vendor/product-types[/:id]`, `/vendor/product-attributes[/:id]`, `/vendor/collections[/:id]` — plus `POST /vendor/product-categories/:id/products` and `POST /vendor/collections/:id/products` to place own products.
+
+## Orders and fulfillment
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/vendor/orders` | List the seller's orders |
+| `GET` | `/vendor/orders/:id` | Retrieve an order |
+| `GET` | `/vendor/orders/:id/preview` | Preview with pending edits |
+| `GET` | `/vendor/orders/:id/changes` | List order changes |
+| `GET` | `/vendor/orders/:id/commission-lines` | Commission charged on the order |
+| `POST` | `/vendor/orders/:id/complete` | Complete the order |
+| `POST` | `/vendor/orders/:id/cancel` | Cancel the order |
+| `POST` | `/vendor/orders/:id/fulfillments` | Create a fulfillment |
+| `POST` | `/vendor/orders/:id/fulfillments/:fulfillment_id/cancel` | Cancel a fulfillment |
+| `POST` | `/vendor/orders/:id/fulfillments/:fulfillment_id/mark-as-delivered` | Mark delivered |
+| `POST` | `/vendor/orders/:id/fulfillments/:fulfillment_id/shipments` | Create a shipment |
+
+### Order edits, returns, claims, exchanges
+
+Full RMA suites exist per domain, following the same action pattern Medusa uses (begin → stage item/shipping actions → request → confirm):
+
+- `POST /vendor/order-edits` + `/:id/request|confirm|items|shipping-method` sub-routes
+- `GET/POST /vendor/returns` + `/:id/request-items|dismiss-items|receive-items|receive|shipping-method` sub-routes
+- `GET/POST /vendor/claims` + `/:id/claim-items|inbound|outbound` sub-routes
+- `GET/POST /vendor/exchanges` + `/:id/inbound|outbound` sub-routes
+- `GET /vendor/return-reasons[/:id]`, `GET /vendor/refund-reasons[/:id]`
+
+### Payments
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/vendor/payments[/:id]` | List / retrieve payments |
+| `POST` | `/vendor/payments/:id/capture` | Capture a payment |
+| `POST` | `/vendor/payments/:id/refund` | Refund a payment |
+| `GET` | `/vendor/payments/payment-providers` | List payment providers |
+
+## Payouts
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/vendor/payouts[/:id]` | Payout history |
+| `GET` `POST` | `/vendor/payout-accounts` | Retrieve / create the payout account |
+| `POST` | `/vendor/payout-accounts/:id/onboarding` | Start or refresh provider onboarding |
+
+## Inventory and stock locations
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/vendor/inventory-items` | List / create inventory items |
+| `GET` `POST` `DELETE` | `/vendor/inventory-items/:id` | Retrieve / update / delete an item |
+| `GET` `POST` | `/vendor/inventory-items/:id/location-levels` | List / create location levels |
+| `POST` `DELETE` | `/vendor/inventory-items/:id/location-levels/:location_id` | Update / delete a level |
+| `POST` | `/vendor/inventory-items/location-levels/batch` | Batch update levels |
+| `GET` `POST` | `/vendor/reservations[/:id]` | Manage reservations |
+| `GET` `POST` | `/vendor/stock-locations` | List / create stock locations |
+| `GET` `POST` `DELETE` | `/vendor/stock-locations/:id` | Retrieve / update / delete a location |
+| `POST` | `/vendor/stock-locations/:id/fulfillment-sets` | Create a fulfillment set |
+| `POST` | `/vendor/stock-locations/:id/fulfillment-providers` | Link fulfillment providers |
+| `POST` | `/vendor/stock-locations/:id/sales-channels` | Link sales channels |
+
+## Shipping
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/vendor/shipping-options` | List / create shipping options |
+| `GET` `POST` `DELETE` | `/vendor/shipping-options/:id` | Retrieve / update / delete an option |
+| `POST` | `/vendor/shipping-options/:id/rules/batch` | Batch manage option rules |
+| `GET` | `/vendor/shipping-option-types[/:id]` | List option types |
+| `GET` `POST` | `/vendor/shipping-profiles` | List / create profiles |
+| `GET` `POST` `DELETE` | `/vendor/shipping-profiles/:id` | Retrieve / update / delete a profile |
+| `DELETE` | `/vendor/fulfillment-sets/:id` | Delete a fulfillment set |
+| `POST` | `/vendor/fulfillment-sets/:id/service-zones` | Create a service zone |
+| `GET` `POST` `DELETE` | `/vendor/fulfillment-sets/:id/service-zones/:zone_id` | Manage a service zone |
+| `GET` | `/vendor/fulfillment-providers` | List fulfillment providers |
+
+## Pricing, promotions, customers
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/vendor/price-lists[/:id]` | Manage price lists (+ `/:id/prices`, `/:id/prices/batch`, `/:id/products`) |
+| `GET` | `/vendor/price-preferences[/:id]` | Read price preferences |
+| `GET` `POST` | `/vendor/promotions[/:id]` | Manage promotions (+ rule batch sub-routes and rule option lookups) |
+| `GET` `POST` | `/vendor/campaigns[/:id]` | Manage campaigns (+ `/:id/promotions`) |
+| `GET` | `/vendor/customers[/:id]` | The seller's customers |
+| `POST` | `/vendor/customers/:id/customer-groups` | Manage a customer's groups |
+| `GET` `POST` | `/vendor/customer-groups[/:id]` | Manage customer groups (+ `/:id/customers`) |
+
+## Configuration and misc
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/vendor/sales-channels[/:id]` | Manage sales channels (+ `/:id/products`) |
+| `GET` | `/vendor/regions[/:id]` | Read regions |
+| `GET` | `/vendor/currencies[/:code]` | Read currencies |
+| `GET` | `/vendor/stores` | List stores (**public**) |
+| `GET` | `/vendor/feature-flags` | Feature flags (**public**) |
+| `POST` | `/vendor/uploads` | Upload files |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Store API" href="/rc/references/api/store" />
+  <Card title="API Client" href="/rc/tools/api-client" />
+</CardGroup>

@@ -1,0 +1,70 @@
+---
+title: "Retrieve Commission Rate"
+api: "GET /admin/commission-rates/{id}"
+description: "Retrieve a commission rate by ID."
+---
+
+Returns a single commission rate with its rules and per-currency values.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The commission rate's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated fields to include in the response.</ParamField>
+
+## Response
+
+<ResponseField name="commission_rate" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The commission rate's ID.</ResponseField>
+    <ResponseField name="name" type="string">The rate's display name.</ResponseField>
+    <ResponseField name="code" type="string">The rate's unique code.</ResponseField>
+    <ResponseField name="type" type="string">The rate type: `fixed` or `percentage`.</ResponseField>
+    <ResponseField name="value" type="number">The commission value.</ResponseField>
+    <ResponseField name="currency_code" type="string | null">Currency of a fixed rate's value.</ResponseField>
+    <ResponseField name="include_tax" type="boolean">Whether commission is calculated on tax-inclusive amounts.</ResponseField>
+    <ResponseField name="include_shipping" type="boolean">Whether shipping is included in the commission base.</ResponseField>
+    <ResponseField name="is_enabled" type="boolean">Whether the rate is active.</ResponseField>
+    <ResponseField name="is_default" type="boolean">Whether this is the marketplace default rate.</ResponseField>
+    <ResponseField name="rules" type="object[]">Rules scoping the rate, each with `id`, `reference`, and `reference_id`.</ResponseField>
+    <ResponseField name="values" type="object[]">Per-currency fixed amounts, each with `id`, `currency_code`, and `amount`.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/commission-rates/comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { commission_rate } = await client.admin.commissionRates.$id.query({
+  $id: "comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "commission_rate": {
+    "id": "comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+    "name": "Default",
+    "code": "default",
+    "type": "percentage",
+    "value": 10,
+    "currency_code": null,
+    "include_tax": false,
+    "include_shipping": false,
+    "is_enabled": true,
+    "is_default": true,
+    "rules": [],
+    "values": []
+  }
+}
+```
+</ResponseExample>

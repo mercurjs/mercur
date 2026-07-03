@@ -1,0 +1,34 @@
+---
+title: "cancelOrderFulfillmentWorkflow"
+description: "Cancel an unshipped fulfillment and restore reservations and stock."
+---
+
+Mercur's offer-aware replacement for Medusa's cancel-order-fulfillment flow. Validates that the fulfillment exists, is not shipped, and not already canceled, then cancels it on the order and at the provider, re-creates or tops up reservations, and adjusts inventory back up — dividing line quantities by each offer's `required_quantity` so bundle offers restock correctly. Triggered by `POST /vendor/orders/:id/fulfillments/:fulfillment_id/cancel`. Emits `order.fulfillment_canceled`.
+
+## Usage
+
+```ts
+import { cancelOrderFulfillmentWorkflow } from "@mercurjs/core/workflows"
+
+await cancelOrderFulfillmentWorkflow(container).run({
+  input: {
+    order_id: "order_123",
+    fulfillment_id: "ful_123",
+  },
+})
+```
+
+## Input
+
+<ParamField body="order_id" type="string" required>The order the fulfillment belongs to; must not be canceled.</ParamField>
+<ParamField body="fulfillment_id" type="string" required>The fulfillment to cancel; shipped or already-canceled fulfillments throw.</ParamField>
+<ParamField body="no_notification" type="boolean">Suppress customer notification for the cancellation.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed through to the hooks.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">No return value.</ResponseField>
+
+## Hooks
+
+- `orderFulfillmentCanceled` — runs after cancellation with `{ fulfillment, additional_data }`.

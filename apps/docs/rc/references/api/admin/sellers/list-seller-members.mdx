@@ -1,0 +1,71 @@
+---
+title: "List Seller Members"
+api: "GET /admin/sellers/{id}/members"
+description: "Retrieve a paginated list of a seller's members."
+---
+
+Returns the members of the seller's team, including their user record and role.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="seller_members" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller member's ID.</ResponseField>
+    <ResponseField name="is_owner" type="boolean">Whether this member owns the seller account.</ResponseField>
+    <ResponseField name="member" type="object">The underlying member record, including its email.</ResponseField>
+    <ResponseField name="rbac_role" type="object">The role assigned to the member.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of seller members.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/members' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { seller_members } = await client.admin.sellers.$id.members.query({
+  $id: "sel_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller_members": [
+    {
+      "id": "selmem_01HXYZSMAA",
+      "is_owner": true,
+      "member": {
+        "id": "mem_01HXYZMEMAA",
+        "email": "owner@acme.co"
+      },
+      "rbac_role": {
+        "id": "role_01HXYZROLEAA",
+        "name": "Owner"
+      },
+      "created_at": "2026-06-01T10:00:00.000Z"
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 50
+}
+```
+</ResponseExample>

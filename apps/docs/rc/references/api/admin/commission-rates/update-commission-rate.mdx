@@ -1,0 +1,84 @@
+---
+title: "Update Commission Rate"
+api: "POST /admin/commission-rates/{id}"
+description: "Update a commission rate."
+---
+
+Updates a commission rate's properties.
+
+<Note>
+  Rules are managed separately through the
+  [batch rules endpoint](/rc/references/api/admin/commission-rates/batch-commission-rules).
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The commission rate's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="name" type="string">The rate's display name.</ParamField>
+<ParamField body="code" type="string">Unique code identifying the rate.</ParamField>
+<ParamField body="type" type="string">The rate type: `fixed` or `percentage`.</ParamField>
+<ParamField body="value" type="number">The commission value — a percentage or a fixed amount.</ParamField>
+<ParamField body="currency_code" type="string">Currency of a fixed rate's value.</ParamField>
+<ParamField body="include_tax" type="boolean">Whether commission is calculated on tax-inclusive amounts.</ParamField>
+<ParamField body="include_shipping" type="boolean">Whether shipping is included in the commission base.</ParamField>
+<ParamField body="is_enabled" type="boolean">Whether the rate is active.</ParamField>
+<ParamField body="values" type="object[]">
+  Per-currency fixed amounts.
+  <Expandable title="properties">
+    <ParamField body="currency_code" type="string" required>The value's currency code.</ParamField>
+    <ParamField body="amount" type="number" required>The fixed commission amount for that currency.</ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="commission_rate" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The commission rate's ID.</ResponseField>
+    <ResponseField name="name" type="string">The rate's display name.</ResponseField>
+    <ResponseField name="code" type="string">The rate's unique code.</ResponseField>
+    <ResponseField name="type" type="string">The rate type: `fixed` or `percentage`.</ResponseField>
+    <ResponseField name="value" type="number">The commission value.</ResponseField>
+    <ResponseField name="is_enabled" type="boolean">Whether the rate is active.</ResponseField>
+    <ResponseField name="rules" type="object[]">Rules scoping the rate.</ResponseField>
+    <ResponseField name="values" type="object[]">Per-currency fixed amounts.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/commission-rates/comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"value": 15, "is_enabled": true}'
+```
+
+```ts JS Client
+const { commission_rate } = await client.admin.commissionRates.$id.mutate({
+  $id: "comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+  value: 15,
+  is_enabled: true,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "commission_rate": {
+    "id": "comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+    "name": "Default",
+    "code": "default",
+    "type": "percentage",
+    "value": 15,
+    "is_enabled": true,
+    "is_default": true,
+    "rules": [],
+    "values": []
+  }
+}
+```
+</ResponseExample>

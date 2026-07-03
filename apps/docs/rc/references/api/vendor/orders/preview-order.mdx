@@ -1,0 +1,65 @@
+---
+title: "Preview Order"
+api: "GET /vendor/orders/{id}/preview"
+description: "Preview the order with its pending order change applied."
+---
+
+Returns a preview of the order as it would look once the currently active order change (e.g. a pending edit, return, or exchange) is confirmed.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order's ID.</ParamField>
+
+## Response
+
+<ResponseField name="order" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order's ID.</ResponseField>
+    <ResponseField name="display_id" type="number">Human-readable order number.</ResponseField>
+    <ResponseField name="status" type="string">The order's status.</ResponseField>
+    <ResponseField name="items" type="object[]">Line items with pending change actions applied.</ResponseField>
+    <ResponseField name="shipping_methods" type="object[]">Shipping methods with pending change actions applied.</ResponseField>
+    <ResponseField name="order_change" type="object">The active order change being previewed.</ResponseField>
+    <ResponseField name="total" type="number">Projected order total after the change.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/orders/order_01HXYZABCDEF/preview' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { order } = await client.vendor.orders.$id.preview.query({
+  $id: "order_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "order": {
+    "id": "order_01HXYZABCDEF",
+    "display_id": 42,
+    "status": "pending",
+    "items": [
+      {
+        "id": "ordli_01HXYZABCDEF",
+        "title": "T-Shirt / M",
+        "quantity": 1,
+        "unit_price": 2500
+      }
+    ],
+    "order_change": {
+      "id": "ordch_01HXYZABCDEF",
+      "change_type": "edit",
+      "status": "pending"
+    },
+    "total": 2500
+  }
+}
+```
+</ResponseExample>

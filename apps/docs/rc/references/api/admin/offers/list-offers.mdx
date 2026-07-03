@@ -1,0 +1,106 @@
+---
+title: "List Offers"
+api: "GET /admin/offers"
+description: "Retrieve a paginated list of offers across all sellers."
+---
+
+Returns offers with their seller, variant, shipping profile, prices, and inventory items.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated fields to include in the response.</ParamField>
+<ParamField query="q" type="string">Search term matched against offers.</ParamField>
+<ParamField query="id" type="string | string[]">Filter by offer ID(s).</ParamField>
+<ParamField query="seller_id" type="string | string[]">Filter by seller ID(s).</ParamField>
+<ParamField query="variant_id" type="string | string[]">Filter by product variant ID(s).</ParamField>
+<ParamField query="shipping_profile_id" type="string | string[]">Filter by shipping profile ID(s).</ParamField>
+<ParamField query="sku" type="string | string[]">Filter by SKU(s).</ParamField>
+<ParamField query="ean" type="string | string[]">Filter by EAN(s).</ParamField>
+<ParamField query="upc" type="string | string[]">Filter by UPC(s).</ParamField>
+<ParamField query="group_by_seller" type="boolean">Group results by seller.</ParamField>
+<ParamField query="status" type="string | string[]">Filter by the offered product's status.</ParamField>
+<ParamField query="category_id" type="string | string[]">Filter by product category ID(s).</ParamField>
+<ParamField query="collection_id" type="string | string[]">Filter by product collection ID(s).</ParamField>
+<ParamField query="type_id" type="string | string[]">Filter by product type ID(s).</ParamField>
+<ParamField query="tag_id" type="string | string[]">Filter by product tag ID(s).</ParamField>
+<ParamField query="created_at" type="object">Filter by creation date using operators like `$gte` and `$lte`.</ParamField>
+<ParamField query="updated_at" type="object">Filter by update date using operators like `$gte` and `$lte`.</ParamField>
+
+## Response
+
+<ResponseField name="offers" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The offer's ID.</ResponseField>
+    <ResponseField name="seller_id" type="string">ID of the seller who owns the offer.</ResponseField>
+    <ResponseField name="variant_id" type="string">ID of the offered product variant.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the offered product.</ResponseField>
+    <ResponseField name="shipping_profile_id" type="string">ID of the offer's shipping profile.</ResponseField>
+    <ResponseField name="sku" type="string">The offer's SKU.</ResponseField>
+    <ResponseField name="ean" type="string | null">The offer's EAN.</ResponseField>
+    <ResponseField name="upc" type="string | null">The offer's UPC.</ResponseField>
+    <ResponseField name="created_by" type="string">ID of the actor who created the offer.</ResponseField>
+    <ResponseField name="variant_count" type="number">Number of variants on the offered product.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+    <ResponseField name="seller" type="object">The seller, with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="product_variant" type="object">The variant, with `id`, `title`, and `sku`.</ResponseField>
+    <ResponseField name="shipping_profile" type="object">The shipping profile, with `id` and `name`.</ResponseField>
+    <ResponseField name="prices" type="object[]">Offer prices, each with `id`, `amount`, `currency_code`, `min_quantity`, `max_quantity`, and `price_rules`.</ResponseField>
+    <ResponseField name="inventory_items" type="object[]">Linked inventory items, each with `id`, `inventory_item_id`, `required_quantity`, and `sku`.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of matching offers.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/offers?seller_id=sel_01HXYZ&limit=20' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { offers, count } = await client.admin.offers.query({
+  seller_id: "sel_01HXYZ",
+  limit: 20,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "offers": [
+    {
+      "id": "offer_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+      "seller_id": "sel_01HXYZ",
+      "variant_id": "variant_01HXYZ",
+      "product_id": "prod_01HXYZ",
+      "shipping_profile_id": "sp_01HXYZ",
+      "sku": "SHIRT-M-BLUE",
+      "ean": null,
+      "upc": null,
+      "created_by": "user_01HXYZ",
+      "variant_count": 3,
+      "metadata": null,
+      "seller": { "id": "sel_01HXYZ", "name": "Acme Store", "handle": "acme-store" },
+      "product_variant": { "id": "variant_01HXYZ", "title": "M / Blue", "sku": "SHIRT-M-BLUE" },
+      "shipping_profile": { "id": "sp_01HXYZ", "name": "Default" },
+      "prices": [
+        { "id": "price_01HXYZ", "amount": 2500, "currency_code": "usd", "min_quantity": null, "max_quantity": null }
+      ],
+      "inventory_items": [
+        { "id": "iitem_01HXYZ", "inventory_item_id": "iitem_01HXYZ", "required_quantity": 1, "sku": "SHIRT-M-BLUE" }
+      ]
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

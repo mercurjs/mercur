@@ -1,0 +1,45 @@
+---
+title: "Custom Fields module"
+description: "Add extra columns to any entity without writing a custom module."
+---
+
+The Custom Fields module lets a project attach arbitrary extra fields to existing entities — sellers, products, orders, anything with a joiner alias — without defining a new Medusa module. Fields are declared in configuration; the module generates and manages a `<entity>_custom_fields` table per configured entity and reads/writes it directly.
+
+For the usage guide, see [Custom fields](/rc/resources/customization/custom-fields).
+
+## How it works
+
+- On application start, the module builds a map from joiner aliases (e.g. `seller`, `product`) to entity names for every entity listed in its options.
+- Each configured entity gets a dedicated table named `<entity>_custom_fields` with one column per declared field plus a `<entity>_id` foreign key.
+- Rows are soft-deleted (`deleted_at`).
+
+There are no `model.define` models and no links — the module operates dynamically over its own tables.
+
+## Module options
+
+```ts
+interface CustomFieldsModuleOptions {
+  customFields?: {
+    [entityName: string]: Record<string, Field>
+  }
+}
+```
+
+A `Field` is either a `BaseField` (scalar type) or an `EnumField` (fixed set of values). Both types are exported from the module.
+
+## Service
+
+`CustomFieldsModuleService` is a plain service (not `MedusaService`):
+
+| Method | Behavior |
+| --- | --- |
+| `list(alias, filters?, config?)` | Queries the entity's custom-fields table; supports array filters (`IN`) and field selection |
+| `upsert(alias, data)` | Diffs against existing rows per entity ID, inserts new rows and updates changed ones in a transaction |
+| `delete(alias, ids)` | Soft-deletes the rows for the given entity IDs |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Custom fields guide" href="/rc/resources/customization/custom-fields" />
+  <Card title="Configuration" href="/rc/references/configuration" />
+</CardGroup>

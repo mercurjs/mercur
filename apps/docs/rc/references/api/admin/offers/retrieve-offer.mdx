@@ -1,0 +1,82 @@
+---
+title: "Retrieve Offer"
+api: "GET /admin/offers/{id}"
+description: "Retrieve an offer by ID."
+---
+
+Returns a single offer with its seller, variant, shipping profile, prices, and inventory items.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The offer's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated fields to include in the response.</ParamField>
+
+## Response
+
+<ResponseField name="offer" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The offer's ID.</ResponseField>
+    <ResponseField name="seller_id" type="string">ID of the seller who owns the offer.</ResponseField>
+    <ResponseField name="variant_id" type="string">ID of the offered product variant.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the offered product.</ResponseField>
+    <ResponseField name="shipping_profile_id" type="string">ID of the offer's shipping profile.</ResponseField>
+    <ResponseField name="sku" type="string">The offer's SKU.</ResponseField>
+    <ResponseField name="ean" type="string | null">The offer's EAN.</ResponseField>
+    <ResponseField name="upc" type="string | null">The offer's UPC.</ResponseField>
+    <ResponseField name="created_by" type="string">ID of the actor who created the offer.</ResponseField>
+    <ResponseField name="variant_count" type="number">Number of variants on the offered product.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+    <ResponseField name="seller" type="object">The seller, with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="product_variant" type="object">The variant, with `id`, `title`, and `sku`.</ResponseField>
+    <ResponseField name="shipping_profile" type="object">The shipping profile, with `id` and `name`.</ResponseField>
+    <ResponseField name="prices" type="object[]">Offer prices, each with `id`, `amount`, `currency_code`, `min_quantity`, `max_quantity`, and `price_rules`.</ResponseField>
+    <ResponseField name="inventory_items" type="object[]">Linked inventory items, each with `id`, `inventory_item_id`, `required_quantity`, and `sku`.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/offers/offer_01HXYZ8Q2M4N6P8R0T2V4W6X8Y' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { offer } = await client.admin.offers.$id.query({
+  $id: "offer_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "offer": {
+    "id": "offer_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+    "seller_id": "sel_01HXYZ",
+    "variant_id": "variant_01HXYZ",
+    "product_id": "prod_01HXYZ",
+    "shipping_profile_id": "sp_01HXYZ",
+    "sku": "SHIRT-M-BLUE",
+    "ean": null,
+    "upc": null,
+    "created_by": "user_01HXYZ",
+    "variant_count": 3,
+    "metadata": null,
+    "seller": { "id": "sel_01HXYZ", "name": "Acme Store", "handle": "acme-store" },
+    "product_variant": { "id": "variant_01HXYZ", "title": "M / Blue", "sku": "SHIRT-M-BLUE" },
+    "shipping_profile": { "id": "sp_01HXYZ", "name": "Default" },
+    "prices": [
+      { "id": "price_01HXYZ", "amount": 2500, "currency_code": "usd", "min_quantity": null, "max_quantity": null }
+    ],
+    "inventory_items": [
+      { "id": "iitem_01HXYZ", "inventory_item_id": "iitem_01HXYZ", "required_quantity": 1, "sku": "SHIRT-M-BLUE" }
+    ]
+  }
+}
+```
+</ResponseExample>

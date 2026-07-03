@@ -1,0 +1,51 @@
+---
+title: "Delete Offer"
+api: "DELETE /vendor/offers/{id}"
+description: "Delete one of the seller's offers."
+---
+
+Deletes the offer immediately; the underlying product and variant are unaffected.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The offer's ID.
+</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">
+  The deleted offer's ID.
+</ResponseField>
+
+<ResponseField name="object" type="string">
+  Always `offer`.
+</ResponseField>
+
+<ResponseField name="deleted" type="boolean">
+  Always `true`.
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/vendor/offers/offer_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { id, deleted } = await client.vendor.offers.$id.delete({
+  $id: "offer_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "offer_01HXYZ",
+  "object": "offer",
+  "deleted": true
+}
+```
+</ResponseExample>

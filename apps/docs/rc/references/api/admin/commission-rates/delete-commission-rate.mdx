@@ -1,0 +1,40 @@
+---
+title: "Delete Commission Rate"
+api: "DELETE /admin/commission-rates/{id}"
+description: "Delete a commission rate."
+---
+
+Deletes a commission rate and its rules.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The commission rate's ID.</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">The deleted commission rate's ID.</ResponseField>
+<ResponseField name="object" type="string">The object type: `commission_rate`.</ResponseField>
+<ResponseField name="deleted" type="boolean">Whether the rate was deleted.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/admin/commission-rates/comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const result = await client.admin.commissionRates.$id.delete({
+  $id: "comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "comrate_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+  "object": "commission_rate",
+  "deleted": true
+}
+```
+</ResponseExample>

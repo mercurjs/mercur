@@ -37,11 +37,27 @@ The core plugin (`@mercurjs/core`) is the main package that contains all of Merc
 
 ## Modules
 
-Modules encapsulate data models and business logic for a specific domain. Each module is self-contained with its own models, service, and migrations. Mercur's marketplace modules include Seller, Commission, Payout, Marketplace, Requests, Reviews, and others. They communicate through [Links](#links) and [Workflows](#workflows), never directly.
+Modules encapsulate data models and business logic for a specific domain. Each module is self-contained with its own models, service, and migrations. Mercur's marketplace modules include Seller, Commission, Offer, Payout, Product Attribute, Product Edit, Media, Custom Fields, and Search. They communicate through [Links](#links) and [Workflows](#workflows), never directly. Additional domains — such as Reviews — ship as installable [blocks](#blocks) from the registry rather than inside the core plugin.
+
+## Master Products
+
+Products form a single **shared catalog** for the whole marketplace — a product is not owned by the seller who created it. Sellers gain the right to sell a product through eligibility assignments and sell it through [offers](#offers). See [Products](/rc/learn/products).
+
+## Offers
+
+An offer is a seller's sellable listing against a master product: their own SKU, price, inventory, and shipping profile. Many sellers can hold competing offers on the same product. See [Offers](/rc/learn/offers).
+
+## Product Attributes
+
+A typed, operator-managed attribute catalog (select, text, unit, toggle) that products reference for structured data and storefront filtering. Variant-axis attributes are backed by Medusa's native global product options. See [Product Attributes](/rc/learn/attributes).
+
+## Product Requests
+
+Vendor product submissions and edits flow through a reviewable change-request pipeline — the operator confirms, declines, or requests revisions before anything touches the shared catalog. See [Product Requests & Approvals](/rc/learn/product-requests).
 
 ## Links
 
-Links define relationships between Mercur modules and Medusa core entities without modifying either side. For example, a link connects a Medusa Product to a Mercur Seller — this is how the system knows which seller owns which product.
+Links define relationships between Mercur modules and Medusa core entities without modifying either side. For example, a link connects a Medusa Product to a Mercur Seller — this is how the system knows which sellers are eligible to sell which products.
 
 ## Workflows
 
@@ -53,16 +69,16 @@ Blocks are the unit of distribution in Mercur. Each block is a self-contained pi
 
 ## Registry
 
-A registry is a collection of blocks available for installation. The official Mercur registry (`@mercurjs`) provides all marketplace blocks. You can also create and host [custom registries](/developer-guide/cli#custom-registries) for your own blocks.
+A registry is a collection of blocks available for installation. The official Mercur registry (`@mercurjs`) provides all marketplace blocks. You can also create and host [custom registries](/rc/tools/cli#custom-registries) for your own blocks.
 
 ## CLI
 
-The [Mercur CLI](/developer-guide/cli) (`@mercurjs/cli@latest`) manages your project — scaffolding from templates, installing blocks, searching registries, generating types, and diffing local changes against upstream versions.
+The [Mercur CLI](/rc/tools/cli) (`@mercurjs/cli@rc`) manages your project — scaffolding from templates, installing blocks, searching registries, generating types, and diffing local changes against upstream versions.
 
 ## Dashboard SDK
 
-The [Dashboard SDK](/developer-guide/extending-panels) (`@mercurjs/dashboard-sdk`) is a Vite plugin shared by the admin panel and vendor portal. It provides file-based routing, automatic navigation generation, component overrides, and i18n support.
+The [Dashboard SDK](/rc/tools/dashboard-sdk) (`@mercurjs/dashboard-sdk`) is a Vite plugin shared by the admin panel and vendor portal. It provides file-based routing, automatic navigation generation, component overrides, and i18n support.
 
 ## API Client
 
-The [API Client](/developer-guide/api-client) (`@mercurjs/client`) provides type-safe access to all Mercur API endpoints. Types are generated from your actual API routes using `bunx @mercurjs/cli@latest codegen`, so requests and responses are always in sync with your backend.
+The [API Client](/rc/tools/api-client) (`@mercurjs/client`) provides type-safe access to all Mercur API endpoints. Types are generated from your actual API routes using `bunx @mercurjs/cli@rc codegen`, so requests and responses are always in sync with your backend.

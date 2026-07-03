@@ -1,0 +1,37 @@
+---
+title: "deleteSellerProfessionalDetailsWorkflow"
+description: "Remove a seller's professional details."
+---
+
+Deletes the professional details record attached to a seller.
+
+## Usage
+
+```ts
+import { deleteSellerProfessionalDetailsWorkflow } from "@mercurjs/core/workflows"
+
+await deleteSellerProfessionalDetailsWorkflow(container).run({
+  input: { seller_id: "sel_123" },
+})
+```
+
+## Input
+
+<ParamField body="seller_id" type="string" required>Id of the seller whose professional details are removed.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed through to the workflow hooks.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">Nothing is returned.</ResponseField>
+
+## Hooks
+
+- `professionalDetailsDeleted` — runs after deletion with `{ seller_id, additional_data }`.
+
+```ts
+deleteSellerProfessionalDetailsWorkflow.hooks.professionalDetailsDeleted(
+  async ({ seller_id }) => {
+    // e.g. flag the seller for re-verification
+  }
+)
+```
