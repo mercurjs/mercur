@@ -74,6 +74,7 @@ jobs:
             packages/*/node_modules
             packages/providers/*/node_modules
             integration-tests/node_modules
+            e2e-tests/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('bun.lock', 'bun.lockb') }}
 
       - name: Install dependencies
@@ -188,6 +189,7 @@ jobs:
             packages/*/node_modules
             packages/providers/*/node_modules
             integration-tests/node_modules
+            e2e-tests/node_modules
           key: ${{ runner.os }}-node-modules-${{ hashFiles('bun.lock', 'bun.lockb') }}
 
       - name: Install dependencies
