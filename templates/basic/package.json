@@ -1,5 +1,5 @@
 {
-  "name": "create-mercur",
+  "name": "@acme/monorepo",
   "private": true,
   "scripts": {
     "build": "turbo run build",
@@ -9,11 +9,11 @@
     "check-types": "turbo run check-types"
   },
   "dependencies": {
-    "react": "^18.3.1",
-    "react-dom": "^18.3.1",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
     "zod": "3.25.76",
-    "@medusajs/icons": "2.16.0-options-preview-20260605124754",
-    "@medusajs/ui": "4.1.16-options-preview-20260605124754",
+    "@medusajs/icons": "2.17.2",
+    "@medusajs/ui": "4.1.19",
     "@mercurjs/dashboard-sdk": "2.2.0-canary.39",
     "@mercurjs/dashboard-shared": "2.2.0-canary.39",
     "@mercurjs/client": "2.2.0-canary.39",
@@ -25,7 +25,7 @@
     "react-hook-form": "7.49.1",
     "@hookform/resolvers": "3.4.2",
     "jsonwebtoken": "9.0.2",
-    "react-jwt": "^2.0.0"
+    "react-jwt": "2.1.1"
   },
   "devDependencies": {
     "@types/react": "^18.3.2",
@@ -49,19 +49,51 @@
     "node": ">=20"
   },
   "resolutions": {
-    "@medusajs/admin-sdk": "2.16.0-options-preview-20260605124754",
-    "@medusajs/admin-shared": "2.16.0-options-preview-20260605124754",
-    "@medusajs/cli": "2.16.0-options-preview-20260605124754",
-    "@medusajs/core-flows": "2.16.0-options-preview-20260605124754",
-    "@medusajs/dashboard": "2.16.0-options-preview-20260605124754",
-    "@medusajs/draft-order": "2.16.0-options-preview-20260605124754",
-    "@medusajs/framework": "2.16.0-options-preview-20260605124754",
-    "@medusajs/icons": "2.16.0-options-preview-20260605124754",
-    "@medusajs/medusa": "2.16.0-options-preview-20260605124754",
-    "@medusajs/test-utils": "2.16.0-options-preview-20260605124754",
-    "@medusajs/types": "2.16.0-options-preview-20260605124754",
-    "@medusajs/ui": "4.1.16-options-preview-20260605124754",
+    "@medusajs/admin-sdk": "2.17.2",
+    "@medusajs/admin-shared": "2.17.2",
+    "@medusajs/cli": "2.17.2",
+    "@medusajs/core-flows": "2.17.2",
+    "@medusajs/dashboard": "2.17.2",
+    "@medusajs/draft-order": "2.17.2",
+    "@medusajs/framework": "2.17.2",
+    "@medusajs/icons": "2.17.2",
+    "@medusajs/medusa": "2.17.2",
+    "@medusajs/test-utils": "2.17.2",
+    "@medusajs/types": "2.17.2",
+    "@medusajs/ui": "4.1.19",
     "zod": "3.25.76"
+  },
+  "overrides": {
+    "@medusajs/admin-sdk": "2.17.2",
+    "@medusajs/admin-shared": "2.17.2",
+    "@medusajs/cli": "2.17.2",
+    "@medusajs/core-flows": "2.17.2",
+    "@medusajs/dashboard": "2.17.2",
+    "@medusajs/draft-order": "2.17.2",
+    "@medusajs/framework": "2.17.2",
+    "@medusajs/icons": "2.17.2",
+    "@medusajs/medusa": "2.17.2",
+    "@medusajs/test-utils": "2.17.2",
+    "@medusajs/types": "2.17.2",
+    "@medusajs/ui": "4.1.19",
+    "zod": "3.25.76"
+  },
+  "pnpm": {
+    "overrides": {
+      "@medusajs/admin-sdk": "2.17.2",
+      "@medusajs/admin-shared": "2.17.2",
+      "@medusajs/cli": "2.17.2",
+      "@medusajs/core-flows": "2.17.2",
+      "@medusajs/dashboard": "2.17.2",
+      "@medusajs/draft-order": "2.17.2",
+      "@medusajs/framework": "2.17.2",
+      "@medusajs/icons": "2.17.2",
+      "@medusajs/medusa": "2.17.2",
+      "@medusajs/test-utils": "2.17.2",
+      "@medusajs/types": "2.17.2",
+      "@medusajs/ui": "4.1.19",
+      "zod": "3.25.76"
+    }
   },
   "workspaces": [
     "packages/*",

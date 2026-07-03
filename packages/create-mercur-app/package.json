@@ -1,13 +1,13 @@
 {
-  "name": "@mercurjs/cli",
+  "name": "create-mercur-app",
   "version": "2.2.0-canary.39",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
-    "directory": "packages/cli"
+    "directory": "packages/create-mercur-app"
   },
   "type": "module",
-  "description": "Mercur CLI",
+  "description": "Create a new Mercur marketplace project",
   "author": "MercurJS (https://github.com/mercurjs)",
   "keywords": [
     "marketplace",
@@ -16,7 +16,7 @@
     "ecommerce",
     "open-source-marketplace",
     "headless-commerce",
-    "ai-ready",
+    "create-mercur-app",
     "marketplace-framework"
   ],
   "publishConfig": {
@@ -26,44 +26,43 @@
     "dist"
   ],
   "bin": {
-    "mercurjs": "./dist/index.js"
+    "create-mercur-app": "./dist/index.js"
   },
   "exports": {
-    ".": "./dist/index.js"
+    ".": "./dist/lib.js",
+    "./package.json": "./package.json"
   },
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "tsup --watch",
-    "build": "bun scripts/generate-routes-manifest.ts && tsup",
-    "routes-manifest": "bun scripts/generate-routes-manifest.ts"
+    "build": "tsup"
   },
   "dependencies": {
     "@antfu/ni": "^27.0.1",
-    "@medusajs/admin-bundler": "2.17.2",
-    "@medusajs/framework": "2.17.2",
-    "@mercurjs/dashboard-sdk": "2.2.0-canary.39",
-    "@vitejs/plugin-react": "^4.2.1",
     "commander": "^14.0.2",
-    "cosmiconfig": "^9.0.0",
-    "deepmerge": "^4.3.1",
-    "diff": "^8.0.2",
     "execa": "^9.6.0",
-    "fast-glob": "^3.3.3",
     "fs-extra": "^11.3.2",
     "kleur": "^4.1.5",
+    "open": "^11.0.0",
     "ora": "^9.0.0",
-    "pkg-dir": "^9.0.0",
+    "pg": "^8.17.1",
     "prompts": "^2.4.2",
-    "resolve-cwd": "^3.0.0",
-    "ts-morph": "^27.0.2",
-    "tsconfig-paths": "^4.2.0",
-    "vite": "^5.4.21",
-    "zod": "3.25.76"
+    "tar": "^7.5.2",
+    "terminal-link": "^5.0.0",
+    "validate-npm-package-name": "^7.0.2",
+    "wait-on": "^9.0.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
+    "@types/pg": "^8.16.0",
     "@types/prompts": "^2.4.9",
+    "@types/tar": "^6.1.13",
+    "@types/validate-npm-package-name": "^4.0.2",
+    "@types/wait-on": "^5.3.4",
     "tsup": "^8.5.0",
     "typescript": "5.9.3"
+  },
+  "engines": {
+    "node": ">=20"
   }
 }

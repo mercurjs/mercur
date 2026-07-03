@@ -66,7 +66,7 @@ The Medusa plugin that holds all marketplace business logic. Wired into the API 
 ### `packages/cli` — `mercurjs` command
 Scaffolds and operates projects. Key commands:
 
-- `create`, `init` — bootstrap a new project from `templates/basic` (or `plugin` / `registry`).
+- `init` — initialize an existing project with a `blocks.json` configuration. (Bootstrapping new projects from `templates/basic` / `plugin` lives in the standalone `create-mercur-app` package under `packages/create-mercur-app`.)
 - `add`, `search`, `view`, `diff` — discover and install **blocks** declared in `blocks.json`.
 - `develop`, `start`, `build` — run the API + dashboards.
 - `codegen`, `registry-codegen`, `plugin-build`, `registry-build` — generate the typed route map consumed by `@mercurjs/client` and build registry/plugin artefacts.
@@ -109,7 +109,7 @@ Stripe Connect implementation for the `payout` module: creates connected account
 
 ## Templates (consumed by the CLI)
 
-- **`templates/basic`** — full marketplace starter (API + Admin + Vendor + workspace tooling). What `mercurjs create` produces. Ships with `.claude/skills/` for `dashboard-page-ui`, `dashboard-form-ui`, `dashboard-tab-ui`, `mercur-cli`, `mercur-blocks`.
+- **`templates/basic`** — full marketplace starter (API + Admin + Vendor + workspace tooling). What `create-mercur-app` produces. Ships with `.claude/skills/` for `dashboard-page-ui`, `dashboard-form-ui`, `dashboard-tab-ui`, `mercur-cli`, `mercur-blocks`.
 - **`templates/plugin`** — scaffold for building a reusable Medusa/Mercur plugin that can be installed as a block into projects.
 - **`templates/registry`** — scaffold for hosting a custom block registry (alternative to the default `@mercurjs/registry`).
 

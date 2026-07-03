@@ -3,7 +3,7 @@ title: "CLI"
 description: "Install blocks, scaffold projects, and generate types from the command line."
 ---
 
-The Mercur CLI (`@mercurjs/cli@rc`) manages your marketplace project — creating projects, installing blocks, generating types, and checking for updates.
+The Mercur CLI (`@mercurjs/cli@rc`) manages your marketplace project — installing blocks, generating types, and checking for updates. To create a new project, use [`create-mercur-app`](https://www.npmjs.com/package/create-mercur-app).
 
 ## Installation
 
@@ -15,13 +15,15 @@ bun add -g @mercurjs/cli@rc
 
 ### create
 
-Scaffold a new Mercur project from a template.
+Scaffolding new projects lives in the standalone [`create-mercur-app`](https://www.npmjs.com/package/create-mercur-app) package, so it downloads fast and works with every package manager's `create` command.
 
 ```bash
-bunx @mercurjs/cli@rc create my-marketplace
+bun create mercur-app@rc my-marketplace
+# or
+npm create mercur-app@rc my-marketplace
 ```
 
-The CLI will prompt you for database credentials and install dependencies automatically.
+It will prompt you for database credentials and install dependencies automatically.
 
 | Option | Description |
 |--------|-------------|
