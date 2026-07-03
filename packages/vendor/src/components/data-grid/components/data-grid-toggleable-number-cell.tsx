@@ -82,6 +82,10 @@ const OuterComponent = ({
       newValue.quantity = 0
     }
 
+    if (!update && !newValue.disabledToggle) {
+      newValue.quantity = ""
+    }
+
     setLocalValue(newValue)
     onChange(newValue, value)
   }
@@ -159,15 +163,13 @@ const Inner = ({
     const newValue = { ...localValue, quantity: ensuredValue }
 
     /**
-     * If the value is not empty, then the location should be enabled.
-     *
-     * Else, if the value is empty and the location is enabled, then the
-     * location should be disabled, unless toggling the location is disabled.
+     * Typing in a non-empty value implicitly enables the location. We never
+     * flip `checked` to false from inside the input — only the Switch toggle
+     * controls that. Otherwise clearing the input mid-edit would unmount the
+     * input and trap the user.
      */
-    if (ensuredValue !== "") {
+    if (ensuredValue !== "" && !newValue.checked) {
       newValue.checked = true
-    } else if (newValue.checked && newValue.disabledToggle === false) {
-      newValue.checked = false
     }
 
     setLocalValue(newValue)
@@ -185,6 +187,7 @@ const Inner = ({
     return (
       <div className="flex size-full items-center gap-x-2 pl-8">
         <input
+          aria-label="Toggle"
           ref={combinedRefs}
           className="sr-only"
           onFocus={onFocus}
@@ -197,27 +200,6 @@ const Inner = ({
         />
         <span className="txt-compact-small text-ui-fg-subtle">
           {localValue?.checked ? t("dataGrid.toggle.enabled") : t("dataGrid.toggle.notEnabled")}
-        </span>
-      </div>
-    )
-  }
-
-  if (!localValue?.checked) {
-    return (
-      <div className="flex size-full items-center gap-x-2 pl-8">
-        <input
-          ref={combinedRefs}
-          className="sr-only"
-          onFocus={onFocus}
-          onBlur={() => {
-            onBlur()
-            onInputBlur()
-          }}
-          tabIndex={-1}
-          readOnly
-        />
-        <span className="txt-compact-small text-ui-fg-subtle">
-          {t("dataGrid.toggle.notEnabled")}
         </span>
       </div>
     )
@@ -243,6 +225,9 @@ const Inner = ({
         decimalsLimit={0}
         autoComplete="off"
         tabIndex={-1}
+        placeholder={
+          !localValue?.checked ? t("dataGrid.toggle.notEnabled") : undefined
+        }
       />
     </div>
   )

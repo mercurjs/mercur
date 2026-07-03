@@ -47,7 +47,12 @@ export const useShippingOption = (
 }
 
 export const useShippingOptions = (
-  query?: InferClientInput<typeof sdk.admin.shippingOptions.query>,
+  query?: InferClientInput<typeof sdk.admin.shippingOptions.query> & {
+    // Mercur seller link — when set, `/admin/shipping-options` filters via
+    // the `shipping_option_seller` link table. Server-side handler lives in
+    // `packages/core/src/api/admin/shipping-options/middlewares.ts`.
+    seller_id?: string | string[]
+  },
   options?: Omit<
     UseQueryOptions<
       InferClientOutput<typeof sdk.admin.shippingOptions.query>,

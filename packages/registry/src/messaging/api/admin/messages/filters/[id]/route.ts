@@ -2,10 +2,7 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework"
-import { MedusaError } from "@medusajs/framework/utils"
 
-import { MESSAGING_FILTERS_MODULE } from "../../../../../modules/messaging-filters"
-import type MessagingFiltersModuleService from "../../../../../modules/messaging-filters/service"
 import { updateFilterRuleWorkflow } from "../../../../../workflows/messaging-filters/workflows/update-filter-rule"
 import { deleteFilterRuleWorkflow } from "../../../../../workflows/messaging-filters/workflows/delete-filter-rule"
 import { AdminUpdateFilterType } from "../validators"

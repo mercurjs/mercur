@@ -24,6 +24,7 @@ export const ProductCreateGeneralSection = () => {
                   <Form.Control data-testid="product-create-general-section-title-control">
                     <Input {...field} placeholder={t("products.fields.title.placeholder")} data-testid="product-create-general-section-title-input" />
                   </Form.Control>
+                  <Form.ErrorMessage data-testid="product-create-general-section-title-error" />
                 </Form.Item>
               )
             }}

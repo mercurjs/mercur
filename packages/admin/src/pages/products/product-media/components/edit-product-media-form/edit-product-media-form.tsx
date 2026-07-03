@@ -118,8 +118,8 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
     let uploaded: HttpTypes.AdminFile[] = [];
 
     if (filesToUpload.length) {
-      const { files: uploads } = await sdk.admin.upload
-        .create({ files: filesToUpload.map((m) => m.file) })
+      const { files: uploads } = await sdk.admin.uploads
+        .mutate({ files: filesToUpload.map((m) => m.file) })
         .catch(() => {
           form.setError("media", {
             type: "invalid_file",
@@ -141,7 +141,9 @@ export const EditProductMediaForm = ({ product }: ProductMediaViewProps) => {
 
     await mutateAsync(
       {
-        images: withUpdatedUrls.map((file) => ({ url: file.url, id: file.id })),
+        images: withUpdatedUrls.map((file) =>
+          file.file ? { url: file.url } : { url: file.url, id: file.id },
+        ),
         thumbnail: thumbnail || null,
       },
       {

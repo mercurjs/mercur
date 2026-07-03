@@ -1,12 +1,12 @@
-import { Heading, Input, Switch } from "@medusajs/ui"
-import { useWatch } from "react-hook-form"
+import { Heading, Input } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
+import { ProductDTO, AttributeType } from "@mercurjs/types"
 
 import { Form } from "../../../../../components/common/form"
-import { Combobox } from "../../../../../components/inputs/combobox"
+import { AttributeValueInput } from "../../../../../components/inputs/attribute-value-input"
 import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
 import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { CreateProductVariantSchema } from "./constants"
@@ -19,10 +19,10 @@ function DetailsTab({ product }: DetailsTabProps) {
   const { t } = useTranslation()
   const form = useTabbedForm<z.infer<typeof CreateProductVariantSchema>>()
 
-  const manageInventoryEnabled = useWatch({
-    control: form.control,
-    name: "manage_inventory",
-  })
+  const variantAttributes =
+    (
+      product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">
+    ).attributes?.filter((a) => a.is_variant_axis) ?? []
 
   return (
     <div className="flex flex-1 flex-col items-center overflow-y-auto" data-testid="product-variant-create-form-details-tab">
@@ -62,134 +62,35 @@ function DetailsTab({ product }: DetailsTabProps) {
             }}
           />
 
-          {product.options?.map((option: any) => (
-            <Form.Field
-              key={option.id}
-              control={form.control}
-              name={`options.${option.title}`}
-              render={({ field: { value, onChange, ...field } }) => {
-                return (
-                  <Form.Item data-testid={`product-variant-create-form-option-${option.title}-item`}>
-                    <Form.Label data-testid={`product-variant-create-form-option-${option.title}-label`}>{option.title}</Form.Label>
-                    <Form.Control data-testid={`product-variant-create-form-option-${option.title}-control`}>
-                      <Combobox
-                        value={value}
-                        onChange={(v) => {
-                          onChange(v)
-                        }}
-                        {...field}
-                        options={option.values.map((v: any) => ({
-                          label: v.value,
-                          value: v.value,
-                        }))}
-                        data-testid={`product-variant-create-form-option-${option.title}-combobox`}
-                      />
-                    </Form.Control>
-                    <Form.ErrorMessage data-testid={`product-variant-create-form-option-${option.title}-error`} />
-                  </Form.Item>
-                )
-              }}
-            />
-          ))}
-        </div>
-        <div className="flex flex-col gap-y-4">
-          <Form.Field
-            control={form.control}
-            name="manage_inventory"
-            render={({ field: { value, onChange, ...field } }) => {
-              return (
-                <Form.Item data-testid="product-variant-create-form-manage-inventory-item">
-                  <div className="bg-ui-bg-component shadow-elevation-card-rest flex gap-x-3 rounded-lg p-4" data-testid="product-variant-create-form-manage-inventory-container">
-                    <Form.Control data-testid="product-variant-create-form-manage-inventory-control">
-                      <Switch
-                        dir="ltr"
-                        className="mt-[2px] rtl:rotate-180"
-                        checked={value}
-                        onCheckedChange={(checked) => onChange(!!checked)}
-                        {...field}
-                        data-testid="product-variant-create-form-manage-inventory-switch"
-                      />
-                    </Form.Control>
-
-                    <div className="flex flex-col">
-                      <Form.Label data-testid="product-variant-create-form-manage-inventory-label">
-                        {t("products.variant.inventory.manageInventoryLabel")}
-                      </Form.Label>
-                      <Form.Hint data-testid="product-variant-create-form-manage-inventory-hint">
-                        {t("products.variant.inventory.manageInventoryHint")}
-                      </Form.Hint>
-                    </div>
-                  </div>
-                  <Form.ErrorMessage data-testid="product-variant-create-form-manage-inventory-error" />
-                </Form.Item>
-              )
-            }}
-          />
-          <Form.Field
-            control={form.control}
-            name="allow_backorder"
-            disabled={!manageInventoryEnabled}
-            render={({ field: { value, onChange, ...field } }) => {
-              return (
-                <Form.Item data-testid="product-variant-create-form-allow-backorder-item">
-                  <div className="bg-ui-bg-component shadow-elevation-card-rest flex gap-x-3 rounded-lg p-4" data-testid="product-variant-create-form-allow-backorder-container">
-                    <Form.Control data-testid="product-variant-create-form-allow-backorder-control">
-                      <Switch
-                        dir="ltr"
-                        className="rtl:rotate-180"
-                        checked={value}
-                        onCheckedChange={(checked) => onChange(!!checked)}
-                        {...field}
-                        disabled={!manageInventoryEnabled}
-                        data-testid="product-variant-create-form-allow-backorder-switch"
-                      />
-                    </Form.Control>
-                    <div className="flex flex-col">
-                      <Form.Label data-testid="product-variant-create-form-allow-backorder-label">
-                        {t("products.variant.inventory.allowBackordersLabel")}
-                      </Form.Label>
-                      <Form.Hint data-testid="product-variant-create-form-allow-backorder-hint">
-                        {t("products.variant.inventory.allowBackordersHint")}
-                      </Form.Hint>
-                    </div>
-                  </div>
-                  <Form.ErrorMessage data-testid="product-variant-create-form-allow-backorder-error" />
-                </Form.Item>
-              )
-            }}
-          />
-          <Form.Field
-            control={form.control}
-            name="inventory_kit"
-            render={({ field: { value, onChange, ...field } }) => {
-              return (
-                <Form.Item data-testid="product-variant-create-form-inventory-kit-item">
-                  <div className="bg-ui-bg-component shadow-elevation-card-rest flex gap-x-3 rounded-lg p-4" data-testid="product-variant-create-form-inventory-kit-container">
-                    <Form.Control data-testid="product-variant-create-form-inventory-kit-control">
-                      <Switch
-                        dir="ltr"
-                        className="rtl:rotate-180"
-                        checked={value}
-                        onCheckedChange={(checked) => onChange(!!checked)}
-                        {...field}
-                        disabled={!manageInventoryEnabled}
-                        data-testid="product-variant-create-form-inventory-kit-switch"
-                      />
-                    </Form.Control>
-                    <div className="flex flex-col">
-                      <Form.Label data-testid="product-variant-create-form-inventory-kit-label">
-                        {t("products.variant.inventory.inventoryKit")}
-                      </Form.Label>
-                      <Form.Hint data-testid="product-variant-create-form-inventory-kit-hint">
-                        {t("products.variant.inventory.inventoryKitHint")}
-                      </Form.Hint>
-                    </div>
-                  </div>
-                  <Form.ErrorMessage data-testid="product-variant-create-form-inventory-kit-error" />
-                </Form.Item>
-              )
-            }}
-          />
+          {variantAttributes.map((attribute) => {
+            const fieldKey = attribute.handle ?? attribute.id
+            return (
+              <Form.Field
+                key={attribute.id}
+                control={form.control}
+                name={`options.${fieldKey}`}
+                render={({ field: { value, onChange } }) => {
+                  return (
+                    <Form.Item data-testid={`product-variant-create-form-attribute-${attribute.id}-item`}>
+                      <Form.Label data-testid={`product-variant-create-form-attribute-${attribute.id}-label`}>{attribute.name}</Form.Label>
+                      <Form.Control data-testid={`product-variant-create-form-attribute-${attribute.id}-control`}>
+                        <AttributeValueInput
+                          type={AttributeType.SINGLE_SELECT}
+                          value={typeof value === "string" ? value : ""}
+                          onChange={onChange}
+                          availableValues={(attribute.values ?? []).map((v) => ({
+                            id: v.id,
+                            name: v.name,
+                          }))}
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage data-testid={`product-variant-create-form-attribute-${attribute.id}-error`} />
+                    </Form.Item>
+                  )
+                }}
+              />
+            )
+          })}
         </div>
       </div>
     </div>
@@ -199,7 +100,7 @@ function DetailsTab({ product }: DetailsTabProps) {
 DetailsTab._tabMeta = defineTabMeta<z.infer<typeof CreateProductVariantSchema>>({
   id: "detail",
   labelKey: "priceLists.create.tabs.details",
-  validationFields: ["title", "sku", "manage_inventory", "allow_backorder", "inventory_kit", "options"],
+  validationFields: ["title", "sku", "options"],
 })
 
 export default DetailsTab

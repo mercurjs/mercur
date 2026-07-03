@@ -2,24 +2,22 @@ import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
 import { HttpTypes } from "@medusajs/types";
-import { SellerDTO } from "@mercurjs/types";
+import { HttpTypes as MercurHttpTypes, SellerDTO } from "@mercurjs/types";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useProduct } from "../../../hooks/api/products";
+import { ProductActiveEditSection } from "./components/product-active-edit-section";
+import { ProductActiveRequestSection } from "./components/product-active-request-section";
 import { ProductAttributeSection } from "./components/product-attribute-section";
 import { ProductGeneralSection } from "./components/product-general-section";
 import { ProductMediaSection } from "./components/product-media-section";
-import { ProductOptionSection } from "./components/product-option-section";
 import { ProductOrganizationSection } from "./components/product-organization-section";
-import { ProductSalesChannelSection } from "./components/product-sales-channel-section";
-import { ProductSellerSection } from "./components/product-seller-section/product-seller-section";
-import { ProductShippingProfileSection } from "./components/product-shipping-profile-section";
 import { ProductVariantSection } from "./components/product-variant-section";
 import { productLoader } from "./loader";
 import { PRODUCT_DETAIL_QUERY } from "../constants";
 
 type AdminProductWithSeller = HttpTypes.AdminProduct & {
-  seller?: SellerDTO;
+  sellers?: SellerDTO[];
 };
 
 const Root = ({ children }: { children?: ReactNode }) => {
@@ -28,13 +26,14 @@ const Root = ({ children }: { children?: ReactNode }) => {
   >;
 
   const { id } = useParams();
-  const { product: rawProduct, isLoading, isError, error } = useProduct(
-    id!,
-    PRODUCT_DETAIL_QUERY,
-    {
-      initialData: initialData,
-    },
-  );
+  const {
+    product: rawProduct,
+    isLoading,
+    isError,
+    error,
+  } = useProduct(id!, PRODUCT_DETAIL_QUERY, {
+    initialData: initialData as unknown as MercurHttpTypes.AdminProductResponse,
+  });
   const product = rawProduct as AdminProductWithSeller | undefined;
 
   if (isLoading || !product) {
@@ -69,15 +68,13 @@ const Root = ({ children }: { children?: ReactNode }) => {
       data-testid="product-detail-page"
     >
       <TwoColumnPage.Main data-testid="product-detail-main">
+        <ProductActiveRequestSection product={product} />
+        <ProductActiveEditSection product={product} />
         <ProductGeneralSection product={product} />
         <ProductMediaSection product={product} />
-        <ProductOptionSection product={product} />
         <ProductVariantSection product={product} />
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
-        <ProductSellerSection seller={product.seller} />
-        <ProductSalesChannelSection product={product} />
-        <ProductShippingProfileSection product={product} />
         <ProductOrganizationSection product={product} />
         <ProductAttributeSection product={product} />
       </TwoColumnPage.Sidebar>
@@ -88,13 +85,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
 export const ProductDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
+  MainActiveRequestSection: ProductActiveRequestSection,
+  MainActiveEditSection: ProductActiveEditSection,
   MainGeneralSection: ProductGeneralSection,
   MainMediaSection: ProductMediaSection,
-  MainOptionSection: ProductOptionSection,
+  MainAttributeSection: ProductAttributeSection,
   MainVariantSection: ProductVariantSection,
-  SidebarSellerSection: ProductSellerSection,
-  SidebarSalesChannelSection: ProductSalesChannelSection,
-  SidebarShippingProfileSection: ProductShippingProfileSection,
   SidebarOrganizationSection: ProductOrganizationSection,
-  SidebarAttributeSection: ProductAttributeSection,
 });

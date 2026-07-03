@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom"
 import { RouteDrawer } from "@components/modals"
 import { usePaymentProviders } from "@hooks/api/payments"
 import { useRegion } from "@hooks/api/regions"
-import { useStore } from "@hooks/api/store"
+import { useCurrentSeller } from "@hooks/api/sellers"
 import { currencies } from "@lib/data/currencies"
 import { EditRegionForm } from "./_components/edit-region-form"
 import { usePricePreferences } from "@hooks/api/price-preferences"
@@ -24,11 +24,11 @@ const RegionEdit = () => {
   })
 
   const {
-    store,
-    isPending: isStoreLoading,
-    isError: isStoreError,
-    error: storeError,
-  } = useStore()
+    currency_code,
+    isPending: isSellerLoading,
+    isError: isSellerError,
+    error: sellerError,
+  } = useCurrentSeller()
 
   const {
     price_preferences: pricePreferences = [],
@@ -43,11 +43,11 @@ const RegionEdit = () => {
     { enabled: !!region }
   )
 
-  const isLoading = isRegionLoading || isStoreLoading || isPreferenceLoading
+  const isLoading = isRegionLoading || isSellerLoading || isPreferenceLoading
 
-  const storeCurrencies = (store?.supported_currencies ?? []).map(
-    (c) => currencies[c.currency_code.toUpperCase()]
-  )
+  const sellerCurrencies = currency_code
+    ? [currencies[currency_code.toUpperCase()]]
+    : []
   const { payment_providers: paymentProviders = [] } = usePaymentProviders({
     limit: 999,
     is_enabled: true,
@@ -57,8 +57,8 @@ const RegionEdit = () => {
     throw regionError
   }
 
-  if (isStoreError) {
-    throw storeError
+  if (isSellerError) {
+    throw sellerError
   }
 
   if (isPreferenceError) {
@@ -73,7 +73,7 @@ const RegionEdit = () => {
       {!isLoading && region && (
         <EditRegionForm
           region={region}
-          currencies={storeCurrencies}
+          currencies={sellerCurrencies}
           paymentProviders={paymentProviders}
           pricePreferences={pricePreferences}
         />

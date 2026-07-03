@@ -1,12 +1,12 @@
 {
   "name": "@acme/api",
-  "version": "2.1.6",
+  "version": "2.2.0-canary.8",
   "description": "A starter for Medusa projects.",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
   "exports": {
     "./_generated": {
-      "types": "./.mercur/_generated/index.ts"
+      "types": "./.mercur/routes.d.ts"
     }
   },
   "keywords": [
@@ -18,29 +18,33 @@
     "medusa"
   ],
   "scripts": {
-    "build": "medusa build",
+    "build": "medusa build && node ./scripts/bundle-dashboards.mjs",
     "seed": "medusa exec ./src/scripts/seed.ts",
     "start": "medusa start",
     "dev": "medusa develop",
     "test:integration:http": "TEST_TYPE=integration:http NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
     "test:integration:modules": "TEST_TYPE=integration:modules NODE_OPTIONS=--experimental-vm-modules jest --silent=false --runInBand --forceExit",
-    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit"
+    "test:unit": "TEST_TYPE=unit NODE_OPTIONS=--experimental-vm-modules jest --silent --runInBand --forceExit",
+    "codegen": "mercurjs codegen",
+    "cloud:prebuild": "mercurjs codegen"
   },
   "dependencies": {
-    "@medusajs/admin-sdk": "2.13.4",
-    "@medusajs/cli": "2.13.4",
-    "@medusajs/framework": "2.13.4",
-    "@medusajs/dashboard": "2.13.4",
-    "@medusajs/admin-shared": "2.13.4",
-    "@medusajs/medusa": "2.13.4",
-    "@medusajs/draft-order": "2.13.4",
-    "@mercurjs/core": "2.1.6",
-    "@mercurjs/types": "2.1.6",
+    "@medusajs/admin-sdk": "2.16.0-options-preview-20260605124754",
+    "@medusajs/cli": "2.16.0-options-preview-20260605124754",
+    "@medusajs/framework": "2.16.0-options-preview-20260605124754",
+    "@medusajs/dashboard": "2.16.0-options-preview-20260605124754",
+    "@medusajs/admin-shared": "2.16.0-options-preview-20260605124754",
+    "@medusajs/medusa": "2.16.0-options-preview-20260605124754",
+    "@medusajs/draft-order": "2.16.0-options-preview-20260605124754",
+    "@mercurjs/core": "2.2.0-canary.39",
+    "@mercurjs/types": "2.2.0-canary.39",
     "http-proxy-middleware": "^3.0.3",
-    "@mercurjs/cli": "2.1.6"
+    "@mercurjs/cli": "2.2.0-canary.39"
   },
   "devDependencies": {
-    "@medusajs/test-utils": "2.13.4",
+    "@acme/admin": "*",
+    "@acme/vendor": "*",
+    "@medusajs/test-utils": "2.16.0-options-preview-20260605124754",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",
     "@types/jest": "^29.5.13",

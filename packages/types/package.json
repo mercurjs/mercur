@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/types",
-  "version": "2.1.6",
+  "version": "2.2.0-canary.39",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -25,6 +25,10 @@
     ".": {
       "types": "./dist/index.d.ts",
       "default": "./dist/index.js"
+    },
+    "./product": {
+      "types": "./dist/product/index.d.ts",
+      "default": "./dist/product/index.js"
     }
   },
   "scripts": {
@@ -32,7 +36,7 @@
     "dev": "tsc --watch"
   },
   "dependencies": {
-    "@medusajs/types": "2.13.4"
+    "@medusajs/types": "options-preview"
   },
   "devDependencies": {
     "typescript": "5.9.3"

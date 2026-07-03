@@ -358,6 +358,19 @@ export const DataTable = <TData,>({
 
   const shouldRenderHeading = heading || subHeading
 
+  // When the consumer supplies a heading or toolbar actions, render the full
+  // toolbar (heading + filter/sort/search row) and let Medusa append its own
+  // filter bar underneath. When it supplies none of those — e.g. a section
+  // that draws its own header in a Container — render Medusa's filter bar
+  // directly: a single row with Add filter on the left and Search/Sort on the
+  // right (its own `border-t` acts as the separator), instead of an empty
+  // toolbar band stacked on top of the filter bar.
+  const hasToolbarHeader =
+    Boolean(shouldRenderHeading) ||
+    Boolean(actionMenu) ||
+    Boolean(actions && actions.length > 0) ||
+    Boolean(action)
+
   return (
     <UiDataTable
       instance={instance}
@@ -365,43 +378,58 @@ export const DataTable = <TData,>({
         layout === "fill" ? "h-full [&_tr]:last-of-type:!border-b" : undefined
       }
     >
-      <UiDataTable.Toolbar
-        className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center"
-        translations={toolbarTranslations}
-        filterBarContent={filterBarContent}
-      >
-        <div className="flex w-full items-center justify-between gap-2">
-          <div className="flex items-center gap-x-4">
-            {shouldRenderHeading && (
-              <div>
-                {heading && <Heading level={headingLevel}>{heading}</Heading>}
-                {subHeading && (
-                  <Text size="small" className="text-ui-fg-subtle">
-                    {subHeading}
-                  </Text>
-                )}
-              </div>
-            )}
+      {hasToolbarHeader ? (
+        <UiDataTable.Toolbar
+          className="flex flex-col items-start justify-between gap-2 md:flex-row md:items-center"
+          translations={toolbarTranslations}
+          filterBarContent={filterBarContent}
+        >
+          <div className="flex w-full items-center justify-between gap-2">
+            <div className="flex items-center gap-x-4">
+              {shouldRenderHeading && (
+                <div>
+                  {heading && (
+                    <Heading level={headingLevel}>{heading}</Heading>
+                  )}
+                  {subHeading && (
+                    <Text size="small" className="text-ui-fg-subtle">
+                      {subHeading}
+                    </Text>
+                  )}
+                </div>
+              )}
+            </div>
+            <div className="flex items-center gap-x-2">
+              {showFilterMenu && <UiDataTable.FilterMenu />}
+              {enableSorting && <UiDataTable.SortingMenu />}
+              {enableSearch && (
+                <div className="w-full md:w-auto">
+                  <UiDataTable.Search
+                    placeholder={t("filters.searchLabel")}
+                  />
+                </div>
+              )}
+              {actionMenu && <ActionMenu variant="primary" {...actionMenu} />}
+              {actions && actions.length > 0 && (
+                <DataTableActions actions={actions} />
+              )}
+              {!actions && action && <DataTableAction {...action} />}
+            </div>
           </div>
-          <div className="flex items-center gap-x-2">
-            {showFilterMenu && <UiDataTable.FilterMenu />}
-            {enableSorting && <UiDataTable.SortingMenu />}
-            {enableSearch && (
-              <div className="w-full md:w-auto">
-                <UiDataTable.Search
-                  placeholder={t("filters.searchLabel")}
-                  
-                />
-              </div>
-            )}
-            {actionMenu && <ActionMenu variant="primary" {...actionMenu} />}
-            {actions && actions.length > 0 && (
-              <DataTableActions actions={actions} />
-            )}
-            {!actions && action && <DataTableAction {...action} />}
-          </div>
-        </div>
-      </UiDataTable.Toolbar>
+        </UiDataTable.Toolbar>
+      ) : (
+        <UiDataTable.FilterBar
+          alwaysShow
+          clearAllFiltersLabel={toolbarTranslations.clearAll}
+          sortingTooltip={toolbarTranslations.sort}
+          columnsTooltip={toolbarTranslations.columns}
+        >
+          {enableSearch && (
+            <UiDataTable.Search placeholder={t("filters.searchLabel")} />
+          )}
+          {filterBarContent}
+        </UiDataTable.FilterBar>
+      )}
       <UiDataTable.Table emptyState={emptyState} />
       {enablePagination && (
         <UiDataTable.Pagination translations={paginationTranslations} />

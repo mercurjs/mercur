@@ -87,7 +87,7 @@ export const EditCategoryProductsForm = ({
   })
 
   const columns = useColumns()
-  const filters = useProductTableFilters(["categories"])
+  const filters = useProductTableFilters()
 
   const { table } = useDataTable({
     data,
@@ -163,6 +163,7 @@ export const EditCategoryProductsForm = ({
               { key: "created_at", label: t("fields.createdAt") },
               { key: "updated_at", label: t("fields.updatedAt") },
             ]}
+            defaultOrder={searchParams.order}
             prefix={PREFIX}
             isLoading={isPending}
             layout="fill"

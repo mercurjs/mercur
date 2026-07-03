@@ -37,3 +37,9 @@ export const MemberInviteWorkflowEvents = {
   CREATED: "member_invite.created",
   ACCEPTED: "member_invite.accepted",
 }
+
+export const OfferWorkflowEvents = {
+  CREATED: "offer.created",
+  UPDATED: "offer.updated",
+  DELETED: "offer.deleted",
+}

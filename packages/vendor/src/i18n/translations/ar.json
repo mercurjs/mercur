@@ -396,15 +396,6 @@
     "availableIn": "متاح في <0>{{x}}</0> من <1>{{y}}</1> قنوات البيع"
   },
   "products": {
-    "stock": {
-      "description": "إضافة عناصر المخزون إلى مجموعة المخزون الخاصة بالبديل.",
-      "heading": "مجموعات المخزون",
-      "loading": "جاري التحميل...",
-      "tooltips": {
-        "alreadyManaged": "هذا العنصر مدار بالفعل.",
-        "alreadyManagedWithSku": "هذا العنصر مدار بالفعل بالمعرف {{sku}}."
-      }
-    },
     "shippingProfile": {
       "create": {
         "errors": {
@@ -435,19 +426,13 @@
       "tabs": {
         "details": "التفاصيل",
         "organize": "تنظيم",
-        "variants": "البدائل",
-        "inventory": "مجموعات المخزون"
+        "variants": "البدائل"
       },
       "errors": {
         "variants": "يرجى تحديد بديل واحد على الأقل.",
         "options": "يرجى إنشاء خيار واحد على الأقل.",
-        "uniqueSku": "يجب أن يكون SKU فريدًا."
-      },
-      "inventory": {
-        "heading": "مجموعات المخزون",
-        "label": "أضف عناصر المخزون إلى مجموعة المخزون الخاصة بالبديل.",
-        "itemPlaceholder": "اختر عنصر المخزون",
-        "quantityPlaceholder": "كم عدد هذه العناصر المطلوبة للمجموعة؟"
+        "uniqueSku": "يجب أن يكون SKU فريدًا.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "البدائل",
@@ -470,7 +455,21 @@
           "hint": "حدد الخيارات للمنتج، مثل اللون، الحجم، إلخ."
         }
       },
-      "successToast": "تم إنشاء المنتج {{title}} بنجاح."
+      "successToast": "تم إنشاء المنتج {{title}} بنجاح.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "تصدير قائمة المنتجات",
@@ -524,7 +523,6 @@
     "attributes": "السمات",
     "editAttributes": "تحرير السمات",
     "editOptions": "تحرير الخيارات",
-    "editPrices": "تحرير الأسعار",
     "media": {
       "label": "الوسائط",
       "editHint": "أضف وسائط إلى المنتج لعرضها في واجهة متجرك.",
@@ -557,6 +555,7 @@
       "draft": "مسودة",
       "published": "منشور",
       "proposed": "مقترح",
+      "requires_action": "Changes required",
       "rejected": "مرفوض"
     },
     "fields": {
@@ -650,27 +649,18 @@
         "header": "تفاصيل البديل"
       },
       "deleteWarning": "هل أنت متأكد أنك تريد حذف هذا البديل؟",
-      "pricesPagination": "1 - {{current}} من {{total}} أسعار",
       "tableItemAvailable": "{{availableCount}} متاح",
       "tableItem_one": "{{availableCount}} متاح في {{locationCount}} موقع",
       "tableItem_other": "{{availableCount}} متاح في {{locationCount}} مواقع",
       "inventory": {
         "notManaged": "غير مُدار",
-        "manageItems": "إدارة عناصر المخزون",
-        "notManagedDesc": "لا يتم إدارة المخزون لهذا البديل. قم بتشغيل 'إدارة المخزون' لتتبع مخزون البديل.",
-        "manageKit": "إدارة مجموعة المخزون",
         "navigateToItem": "الانتقال إلى عنصر المخزون",
-        "actions": {
-          "inventoryItems": "الانتقال إلى عنصر المخزون",
-          "inventoryKit": "عرض عناصر المخزون"
-        },
         "inventoryKit": "مجموعة المخزون",
         "inventoryKitHint": "هل يتكون هذا البديل من عدة عناصر مخزون؟",
         "validation": {
           "itemId": "يرجى اختيار عنصر المخزون.",
           "quantity": "الكمية مطلوبة. يرجى إدخال رقم موجب."
         },
-        "header": "المخزون والمخزون",
         "editItemDetails": "تحرير تفاصيل العنصر",
         "manageInventoryLabel": "إدارة المخزون",
         "manageInventoryHint": "عند التمكين، سنقوم بتغيير كمية المخزون لك عند إنشاء الطلبات والإرجاعات.",
@@ -2940,7 +2930,8 @@
     "startDate": "تاريخ البدء",
     "endDate": "تاريخ الانتهاء",
     "draft": "مسودة",
-    "values": "القيم"
+    "values": "القيم",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "سنة",
@@ -2957,5 +2948,23 @@
     "minutes_other": "دقائق",
     "seconds_one": "ثانية",
     "seconds_other": "ثواني"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

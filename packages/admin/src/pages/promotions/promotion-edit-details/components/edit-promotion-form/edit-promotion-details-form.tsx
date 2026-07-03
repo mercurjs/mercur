@@ -414,13 +414,8 @@ return (
 
                         <RadioGroup.ChoiceBox
                           value="once"
-                          label={t("promotions.form.allocation.once.title", {
-                            defaultValue: "Once",
-                          })}
-                          description={t(
-                            "promotions.form.allocation.once.description",
-                            { defaultValue: "Limit discount to max quantity" }
-                          )}
+                          label={t("promotions.form.allocation.once.title")}
+                          description={t("promotions.form.allocation.once.description")}
                           data-testid="promotion-edit-details-form-allocation-option-once"
                         />
                           </RadioGroup>

@@ -2,6 +2,10 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 
 import {
+  CategoryCell,
+  CategoryHeader,
+} from "../../../components/table/table-cells/product/category-cell/category-cell"
+import {
   CollectionCell,
   CollectionHeader,
 } from "../../../components/table/table-cells/product/collection-cell/collection-cell"
@@ -14,16 +18,12 @@ import {
   ProductStatusHeader,
 } from "../../../components/table/table-cells/product/product-status-cell"
 import {
-  SalesChannelHeader,
-  SalesChannelsCell,
-} from "../../../components/table/table-cells/product/sales-channels-cell"
-import {
   VariantCell,
   VariantHeader,
 } from "../../../components/table/table-cells/product/variant-cell"
-import { HttpTypes } from "@medusajs/types"
+import { ProductDTO } from "@mercurjs/types"
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProduct>()
+const columnHelper = createColumnHelper<ProductDTO>()
 
 export const useProductTableColumns = () => {
   return useMemo(
@@ -38,21 +38,21 @@ export const useProductTableColumns = () => {
           />
         ),
       }),
+      columnHelper.accessor("categories", {
+        header: () => <CategoryHeader />,
+        cell: ({ row }) => (
+          <CategoryCell
+            categories={row.original.categories}
+            data-testid={`products-table-cell-${row.id}-categories-value`}
+          />
+        ),
+      }),
       columnHelper.accessor("collection", {
         header: () => <CollectionHeader />,
         cell: ({ row }) => (
           <CollectionCell
             collection={row.original.collection}
             data-testid={`products-table-cell-${row.id}-collection-value`}
-          />
-        ),
-      }),
-      columnHelper.accessor("sales_channels", {
-        header: () => <SalesChannelHeader />,
-        cell: ({ row }) => (
-          <SalesChannelsCell
-            salesChannels={row.original.sales_channels}
-            data-testid={`products-table-cell-${row.id}-sales_channels-value`}
           />
         ),
       }),

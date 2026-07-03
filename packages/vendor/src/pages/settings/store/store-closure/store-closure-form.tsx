@@ -31,6 +31,8 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
+  const isEditing = Boolean(seller.closed_from);
+
   const form = useForm<z.infer<typeof StoreClosureSchema>>({
     defaultValues: {
       closed_from: seller.closed_from
@@ -53,7 +55,13 @@ export const StoreClosureForm = ({ seller }: StoreClosureFormProps) => {
       },
       {
         onSuccess: () => {
-          toast.success(t("store.timeOff.create.successToast"));
+          toast.success(
+            t(
+              isEditing
+                ? "store.timeOff.edit.successToast"
+                : "store.timeOff.create.successToast",
+            ),
+          );
           handleSuccess();
         },
         onError: (error: Error) => {

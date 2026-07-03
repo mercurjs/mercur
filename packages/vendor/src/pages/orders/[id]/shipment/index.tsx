@@ -9,7 +9,10 @@ export const Component = () => {
   const { id, f_id } = useParams()
 
   const { order, isLoading, isError, error } = useOrder(id!, {
-    fields: "*fulfillments,*fulfillments.items,*fulfillments.labels",
+    // Use `fulfillments.*` + `fulfillments.<rel>.*` rather than stacking
+    // multiple `*fulfillments…` segments — the query parser reads
+    // `*fulfillments.items` as a literal property on Order and 500s.
+    fields: "fulfillments.*,fulfillments.items.*,fulfillments.labels.*",
   })
 
   if (isError) {

@@ -44,11 +44,11 @@ export const useOrderGroupTableFilters = () => {
     if (sellers?.length) {
       filters.push({
         key: "seller_id",
-        label: "Seller",
+        label: t("fields.store"),
         type: "select",
         multiple: true,
         searchable: true,
-        options: sellers.map((s: any) => ({
+        options: sellers.map((s) => ({
           label: s.name,
           value: s.id,
         })),
@@ -68,19 +68,6 @@ export const useOrderGroupTableFilters = () => {
         })),
       })
     }
-
-    filters.push({
-      key: "status",
-      label: t("fields.status"),
-      type: "select",
-      multiple: true,
-      options: [
-        { label: "Pending", value: "pending" },
-        { label: "Completed", value: "completed" },
-        { label: "Canceled", value: "canceled" },
-        { label: "Requires action", value: "requires_action" },
-      ],
-    })
 
     filters.push(
       {

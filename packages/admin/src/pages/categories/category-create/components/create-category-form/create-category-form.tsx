@@ -9,6 +9,7 @@ import { useRouteModal } from "../../../../../components/modals"
 import { TabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
 import { useCreateProductCategory } from "../../../../../hooks/api/categories"
 import { transformNullableFormData } from "../../../../../lib/form-helpers"
+import { uploadCategoryImages } from "../../../common/components/category-image-fields"
 import { CreateCategoryDetails } from "./create-category-details"
 import { CreateCategoryNesting } from "./create-category-nesting"
 import { CreateCategorySchema } from "./schema"
@@ -48,8 +49,22 @@ export const CreateCategoryForm = ({
   const { mutateAsync, isPending } = useCreateProductCategory()
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const { visibility, status, parent_category_id, rank, name, ...rest } = data
+    const {
+      visibility,
+      status,
+      parent_category_id,
+      rank,
+      name,
+      media,
+      icon,
+      ...rest
+    } = data
     const parsedData = transformNullableFormData(rest, false)
+
+    const images = await uploadCategoryImages({
+      media: media ?? [],
+      icon: icon ?? null,
+    })
 
     await mutateAsync(
       {
@@ -59,6 +74,7 @@ export const CreateCategoryForm = ({
         rank: rank ?? undefined,
         is_active: status === "active",
         is_internal: visibility === "internal",
+        ...images,
       },
       {
         onSuccess: ({ product_category }) => {

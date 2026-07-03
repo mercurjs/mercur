@@ -206,7 +206,7 @@ export const InviteMemberForm = () => {
                 <Form.Control>
                   <Select {...field} onValueChange={onChange}>
                     <Select.Trigger ref={ref}>
-                      <Select.Value placeholder={t("fields.selectPlaceholder", "Select")} />
+                      <Select.Value placeholder={t("fields.selectPlaceholder")} />
                     </Select.Trigger>
                     <Select.Content>
                       {ROLE_OPTIONS.map((role) => (

@@ -4,7 +4,7 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite --port 7000",
+    "dev": "rm -rf node_modules/.vite && vite --port 7000",
     "lint": "oxlint",
     "preview": "vite preview --port 7000"
   },
@@ -13,11 +13,12 @@
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "zod": "3.25.76",
-    "@medusajs/icons": "^2.13.4",
-    "@medusajs/ui": "4.1.1",
+    "@medusajs/icons": "options-preview",
+    "@medusajs/ui": "options-preview",
     "@mercurjs/dashboard-sdk": "*",
     "@mercurjs/dashboard-shared": "*",
     "@mercurjs/client": "*",
+    "i18next": "23.7.11",
     "react-i18next": "13.5.0",
     "@tanstack/react-query": "5.64.2",
     "react-router-dom": "6.30.3",

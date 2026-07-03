@@ -9,9 +9,10 @@ medusaIntegrationTestRunner({
                 const email = "seller@test.com"
                 const password = "somepassword"
 
-                // Register auth identity via /auth/seller/emailpass/register
+                // Register auth identity via /auth/member/emailpass/register
+                // (vendor routes authenticate the "member" actor type).
                 const registerResponse = await api.post(
-                    `/auth/seller/emailpass/register`,
+                    `/auth/member/emailpass/register`,
                     {
                         email,
                         password,
@@ -27,6 +28,8 @@ medusaIntegrationTestRunner({
                     {
                         name: "Test Seller",
                         email: email,
+                        member_email: email,
+                        currency_code: "usd",
                     },
                     {
                         headers: {

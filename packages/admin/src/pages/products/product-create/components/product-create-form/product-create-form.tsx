@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types";
 import { Button, toast } from "@medusajs/ui";
-import { ReactNode, useCallback, useMemo, Children } from "react";
+import { ReactNode, useEffect, useMemo, Children } from "react";
 import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import {
@@ -8,7 +8,6 @@ import {
   useRouteModal,
 } from "../../../../../components/modals";
 import { TabbedForm } from "../../../../../components/tabbed-form/tabbed-form";
-import { TabDefinition } from "../../../../../components/tabbed-form/types";
 import { useCreateProduct } from "../../../../../hooks/api/products";
 import { useRegions } from "../../../../../hooks/api";
 import { sdk } from "../../../../../lib/client";
@@ -17,9 +16,12 @@ import {
   ProductCreateSchema,
 } from "../../constants";
 import { ProductCreateSchemaType } from "../../types";
-import { normalizeProductFormValues } from "../../utils";
+import {
+  generateVariantsFromAttributes,
+  normalizeProductFormValues,
+} from "../../utils";
+import { ProductCreateAttributesForm } from "../product-create-attributes-form";
 import { ProductCreateDetailsForm } from "../product-create-details-form";
-import { ProductCreateInventoryKitForm } from "../product-create-inventory-kit-form";
 import { ProductCreateOrganizeForm } from "../product-create-organize-form";
 import { ProductCreateVariantsForm } from "../product-create-variants-form";
 import { z } from "zod";
@@ -29,14 +31,12 @@ import { DeepPartial } from "react-hook-form";
 const SAVE_DRAFT_BUTTON = "save-draft-button";
 
 type ProductCreateFormProps = {
-  defaultChannel?: HttpTypes.AdminSalesChannel;
   children?: ReactNode;
   schema?: z.ZodType<ProductCreateSchemaType>;
   defaultValues?: DeepPartial<ProductCreateSchemaType>;
 };
 
 export const ProductCreateForm = ({
-  defaultChannel,
   children,
   schema,
   defaultValues: extraDefaults,
@@ -47,9 +47,6 @@ export const ProductCreateForm = ({
     defaultValues: {
       ...PRODUCT_CREATE_FORM_DEFAULTS,
       ...extraDefaults,
-      sales_channels: defaultChannel
-        ? [{ id: defaultChannel.id, name: defaultChannel.name }]
-        : [],
     } as ProductCreateSchemaType,
     resolver: zodResolver(schema ?? ProductCreateSchema),
   });
@@ -81,15 +78,26 @@ export const ProductCreateForm = ({
     );
   }, [regions]);
 
-  /**
-   * TODO: Important to revisit this - use variants watch so high in the tree can cause needless rerenders of the entire page
-   * which is suboptimal when rerenders are caused by bulk editor changes
-   */
-
-  const watchedVariants = useWatch({
+  const watchedAttributes = useWatch({
     control: form.control,
-    name: "variants",
+    name: "attributes",
   });
+
+  // Generate variants from variant-axis attributes
+  useEffect(() => {
+    const currentVariants = form.getValues("variants") ?? [];
+    const newVariants = generateVariantsFromAttributes(
+      watchedAttributes ?? [],
+      currentVariants,
+    );
+
+    if (
+      JSON.stringify(newVariants.map((v) => v.options)) !==
+      JSON.stringify(currentVariants.map((v) => v.options))
+    ) {
+      form.setValue("variants", newVariants);
+    }
+  }, [watchedAttributes, form]);
 
   const handleSubmit = form.handleSubmit(async (values, e) => {
     if (isRegionsPending) {
@@ -161,31 +169,12 @@ export const ProductCreateForm = ({
     );
   });
 
-  const transformTabs = useCallback(
-    (tabs: TabDefinition<ProductCreateSchemaType>[]) => {
-      const showInventoryTab = watchedVariants?.some(
-        (v) => v.manage_inventory && v.inventory_kit
-      ) ?? false;
-
-      return tabs.map((tab) => {
-        if (tab.id === "inventory") {
-          return {
-            ...tab,
-            isVisible: () => showInventoryTab,
-          };
-        }
-        return tab;
-      });
-    },
-    [watchedVariants],
-  );
-
   const defaultTabs = useMemo(
     () => [
       <ProductCreateDetailsForm key="details" />,
       <ProductCreateOrganizeForm key="organize" />,
+      <ProductCreateAttributesForm key="attributes" />,
       <ProductCreateVariantsForm key="variants" />,
-      <ProductCreateInventoryKitForm key="inventory" />,
     ],
     [],
   );
@@ -197,7 +186,6 @@ export const ProductCreateForm = ({
       form={form}
       onSubmit={handleSubmit}
       isLoading={isPending || isRegionsPending}
-      transformTabs={transformTabs}
       footer={({ isLastTab, onNext, isLoading }) => (
         <div
           className="flex items-center justify-end gap-x-2"

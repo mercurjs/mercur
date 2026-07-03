@@ -3,13 +3,12 @@ import {
   CommissionLineDTO,
   CreateCommissionLineDTO,
   MercurModules,
-  UpdateCommissionLineDTO,
 } from "@mercurjs/types"
 
 import CommissionModuleService from "../../../modules/commission/service"
 
 type UpsertCommissionLinesStepInput = {
-  commission_lines: (CreateCommissionLineDTO | UpdateCommissionLineDTO)[]
+  commission_lines: CreateCommissionLineDTO[]
 }
 
 export const upsertCommissionLinesStepId = "upsert-commission-lines"
@@ -20,8 +19,9 @@ export const upsertCommissionLinesStep = createStep(
     input: UpsertCommissionLinesStepInput,
     { container }
   ): Promise<StepResponse<CommissionLineDTO[]>> => {
-    const service =
-      container.resolve<CommissionModuleService>(MercurModules.COMMISSION)
+    const service = container.resolve<CommissionModuleService>(
+      MercurModules.COMMISSION
+    )
 
     const commissionLines = await service.upsertCommissionLines(
       input.commission_lines

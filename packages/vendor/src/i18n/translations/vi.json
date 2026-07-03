@@ -414,19 +414,13 @@
       "tabs": {
         "details": "Chi tiết",
         "organize": "Sắp xếp",
-        "variants": "Biến thể",
-        "inventory": "Bộ thành phần trong kho"
+        "variants": "Biến thể"
       },
       "errors": {
         "variants": "Vui lòng chọn ít nhất một biến thể.",
         "options": "Vui lòng tạo ít nhất một tùy chọn.",
-        "uniqueSku": "SKU phải là duy nhất."
-      },
-      "inventory": {
-        "heading": "Bộ thành phần trong kho",
-        "label": "Thêm các mục hàng từ kho để tạo thành bộ thành phần cho biến thể này.",
-        "itemPlaceholder": "Chọn mục hàng trong kho",
-        "quantityPlaceholder": "Cần bao nhiêu cái cho bộ này?"
+        "uniqueSku": "SKU phải là duy nhất.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Biến thể",
@@ -449,7 +443,21 @@
           "hint": "Xác định các tùy chọn cho sản phẩm, ví dụ: màu sắc, kích thước, v.v."
         }
       },
-      "successToast": "Sản phẩm {{title}} đã được tạo thành công."
+      "successToast": "Sản phẩm {{title}} đã được tạo thành công.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Xuất danh sách sản phẩm",
@@ -503,7 +511,6 @@
     "attributes": "Thuộc tính",
     "editAttributes": "Chỉnh sửa thuộc tính",
     "editOptions": "Chỉnh sửa tùy chọn",
-    "editPrices": "Chỉnh sửa giá",
     "media": {
       "label": "Phương tiện",
       "editHint": "Thêm phương tiện vào sản phẩm để hiển thị trên giao diện cửa hàng của bạn.",
@@ -536,6 +543,7 @@
       "draft": "Nháp",
       "published": "Đã xuất bản",
       "proposed": "Đã đề xuất",
+      "requires_action": "Changes required",
       "rejected": "Đã từ chối"
     },
     "fields": {
@@ -629,27 +637,18 @@
         "header": "Chi tiết biến thể"
       },
       "deleteWarning": "Bạn có chắc muốn xóa biến thể này không?",
-      "pricesPagination": "1 - {{current}} trong số {{total}} giá",
       "tableItemAvailable": "{{availableCount}} có sẵn",
       "tableItem_one": "{{availableCount}} có sẵn tại {{locationCount}} vị trí",
       "tableItem_other": "{{availableCount}} có sẵn tại {{locationCount}} vị trí",
       "inventory": {
         "notManaged": "Không được quản lý",
-        "manageItems": "Quản lý các mục kho hàng",
-        "notManagedDesc": "Kho hàng không được quản lý cho biến thể này. Bật ‘Quản lý kho’ để theo dõi kho của biến thể.",
-        "manageKit": "Quản lý bộ thành phần trong kho",
         "navigateToItem": "Đi đến mục kho hàng",
-        "actions": {
-          "inventoryItems": "Đi đến mục kho hàng",
-          "inventoryKit": "Hiển thị các mục kho hàng"
-        },
         "inventoryKit": "Bộ thành phần trong kho",
         "inventoryKitHint": "Biến thể này có bao gồm nhiều mục kho hàng không?",
         "validation": {
           "itemId": "Vui lòng chọn mục kho hàng.",
           "quantity": "Số lượng là bắt buộc. Vui lòng nhập một số dương."
         },
-        "header": "Tồn kho & Quản lý",
         "editItemDetails": "Chỉnh sửa chi tiết mục",
         "manageInventoryLabel": "Quản lý kho",
         "manageInventoryHint": "Khi bật, chúng tôi sẽ tự động thay đổi số lượng kho cho bạn khi có đơn hàng hoặc trả hàng.",
@@ -682,15 +681,6 @@
         "toasts": {
           "success": "Đã cập nhật thành công cách sắp xếp của {{title}}."
         }
-      }
-    },
-    "stock": {
-      "heading": "Quản lý mức tồn kho và vị trí sản phẩm",
-      "description": "Cập nhật mức tồn kho cho tất cả các biến thể của sản phẩm.",
-      "loading": "Chờ chút, việc này có thể mất một lúc...",
-      "tooltips": {
-        "alreadyManaged": "Mục kho hàng này đã có thể chỉnh sửa dưới {{title}}.",
-        "alreadyManagedWithSku": "Mục kho hàng này đã có thể chỉnh sửa dưới {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {
@@ -3035,7 +3025,8 @@
     "startDate": "Ngày bắt đầu",
     "endDate": "Ngày kết thúc",
     "draft": "Nháp",
-    "values": "Giá trị"
+    "values": "Giá trị",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Năm",
@@ -3052,5 +3043,23 @@
     "minutes_other": "Phút",
     "seconds_one": "Giây",
     "seconds_other": "Giây"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

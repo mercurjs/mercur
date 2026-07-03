@@ -5,9 +5,11 @@ import {
     MedusaContainer,
 } from "@medusajs/framework/types"
 import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { MercurModules, SellerStatus } from "@mercurjs/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
 import { createCustomerUser } from "../../../helpers/create-customer-user"
 import { generatePublishableKey, generateStoreHeaders } from "../../../helpers/create-admin-user"
+import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(120000)
 
@@ -25,8 +27,18 @@ medusaIntegrationTestRunner({
             let salesChannel: any
             let product1: any
             let product2: any
+            let offer1: any
+            let offer2: any
             let _shippingOption1: any
             let _shippingOption2: any
+
+            const approveSeller = async (sellerId: string) => {
+                const sellerModule: any = appContainer.resolve(MercurModules.SELLER)
+                await sellerModule.updateSellers({
+                    id: sellerId,
+                    status: SellerStatus.OPEN,
+                })
+            }
 
             beforeAll(async () => {
                 appContainer = getContainer()
@@ -48,6 +60,9 @@ medusaIntegrationTestRunner({
                 })
                 seller2 = seller2Result.seller
                 seller2Headers = seller2Result.headers
+
+                await approveSeller(seller1.id)
+                await approveSeller(seller2.id)
 
                 // Create customer
                 const customerResult = await createCustomerUser(appContainer, {
@@ -83,50 +98,28 @@ medusaIntegrationTestRunner({
                 })
 
                 // Create product for seller 1
-                const product1Response = await api.post(
-                    `/vendor/products`,
-                    {
-                        status: 'published',
-                        title: "Seller 1 Product",
-                        description: "Product from seller 1",
-                        options: [{ title: "Size", values: ["S", "M"] }],
-                        variants: [
-                            {
-                                title: "Small",
-                                sku: "SELLER1-S",
-                                options: { Size: "S" },
-                                prices: [{ currency_code: "usd", amount: 2000 }],
-                                manage_inventory: false,
-                            },
-                        ],
-                        sales_channels: [{ id: salesChannel.id }],
-                    },
+                product1 = await createVendorProduct(api, seller1Headers, {
+                    title: "Seller 1 Product",
+                    sku: "SELLER1-S",
+                    variantTitle: "Small",
+                })
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product1.id] },
                     seller1Headers
                 )
-                product1 = product1Response.data.product
 
                 // Create product for seller 2
-                const product2Response = await api.post(
-                    `/vendor/products`,
-                    {
-                        status: 'published',
-                        title: "Seller 2 Product",
-                        description: "Product from seller 2",
-                        options: [{ title: "Color", values: ["Red", "Blue"] }],
-                        variants: [
-                            {
-                                title: "Red",
-                                sku: "SELLER2-RED",
-                                options: { Color: "Red" },
-                                prices: [{ currency_code: "usd", amount: 3000 }],
-                                manage_inventory: false,
-                            },
-                        ],
-                        sales_channels: [{ id: salesChannel.id }],
-                    },
+                product2 = await createVendorProduct(api, seller2Headers, {
+                    title: "Seller 2 Product",
+                    sku: "SELLER2-RED",
+                    variantTitle: "Red",
+                })
+                await api.post(
+                    `/vendor/sales-channels/${salesChannel.id}/products`,
+                    { add: [product2.id] },
                     seller2Headers
                 )
-                product2 = product2Response.data.product
 
                 // Create shipping prerequisites for seller 1
                 const shippingPrerequisites1 = await createShippingPrerequisites(seller1Headers, "seller1")
@@ -187,6 +180,60 @@ medusaIntegrationTestRunner({
                     seller2Headers
                 )
                 _shippingOption2 = shippingOption2Response.data.shipping_option
+
+                // Create offer for seller 1
+                const offer1Response = await api.post(
+                    `/vendor/offers`,
+                    {
+                        sku: `OF-SELLER1-${Date.now()}`,
+                        variant_id: product1.variants[0].id,
+                        shipping_profile_id: shippingPrerequisites1.shippingProfile.id,
+                        inventory_items: [
+                            {
+                                title: "Seller 1 Inventory",
+                                required_quantity: 1,
+                                stock_levels: [
+                                    {
+                                        location_id: shippingPrerequisites1.stockLocation.id,
+                                        stocked_quantity: 100,
+                                    },
+                                ],
+                            },
+                        ],
+                        prices: [
+                            { amount: 1000, currency_code: "usd" },
+                        ],
+                    },
+                    seller1Headers
+                )
+                offer1 = offer1Response.data.offer
+
+                // Create offer for seller 2
+                const offer2Response = await api.post(
+                    `/vendor/offers`,
+                    {
+                        sku: `OF-SELLER2-${Date.now()}`,
+                        variant_id: product2.variants[0].id,
+                        shipping_profile_id: shippingPrerequisites2.shippingProfile.id,
+                        inventory_items: [
+                            {
+                                title: "Seller 2 Inventory",
+                                required_quantity: 1,
+                                stock_levels: [
+                                    {
+                                        location_id: shippingPrerequisites2.stockLocation.id,
+                                        stocked_quantity: 100,
+                                    },
+                                ],
+                            },
+                        ],
+                        prices: [
+                            { amount: 1500, currency_code: "usd" },
+                        ],
+                    },
+                    seller2Headers
+                )
+                offer2 = offer2Response.data.offer
             })
 
             let prerequisiteCounter = 0
@@ -285,7 +332,7 @@ medusaIntegrationTestRunner({
                     const addItem1Response = await api.post(
                         `/store/carts/${cart.id}/line-items`,
                         {
-                            variant_id: product1.variants[0].id,
+                            offer_id: offer1.id,
                             quantity: 2,
                         },
                         storeHeaders
@@ -296,7 +343,7 @@ medusaIntegrationTestRunner({
                     const addItem2Response = await api.post(
                         `/store/carts/${cart.id}/line-items`,
                         {
-                            variant_id: product2.variants[0].id,
+                            offer_id: offer2.id,
                             quantity: 1,
                         },
                         storeHeaders
@@ -409,7 +456,7 @@ medusaIntegrationTestRunner({
                     const addItemResponse = await api.post(
                         `/store/carts/${cart.id}/line-items`,
                         {
-                            variant_id: product1.variants[0].id,
+                            offer_id: offer1.id,
                             quantity: 3,
                         },
                         storeHeaders
@@ -506,7 +553,7 @@ medusaIntegrationTestRunner({
                     await api.post(
                         `/store/carts/${cart.id}/line-items`,
                         {
-                            variant_id: product1.variants[0].id,
+                            offer_id: offer1.id,
                             quantity: 1,
                         },
                         storeHeaders
@@ -515,7 +562,7 @@ medusaIntegrationTestRunner({
                     await api.post(
                         `/store/carts/${cart.id}/line-items`,
                         {
-                            variant_id: product2.variants[0].id,
+                            offer_id: offer2.id,
                             quantity: 1,
                         },
                         storeHeaders

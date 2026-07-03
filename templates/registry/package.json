@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/registry",
-  "version": "2.1.6",
+  "version": "2.2.0-canary.2",
   "private": true,
   "type": "module",
   "scripts": {

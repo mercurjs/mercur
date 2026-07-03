@@ -13,7 +13,7 @@ class MessagingRedisModuleService {
 
   constructor(
     { messagingRedisConnection }: { messagingRedisConnection: Redis | null },
-    options: MessagingRedisModuleOptions
+    _options: MessagingRedisModuleOptions
   ) {
     this.connection_ = messagingRedisConnection
 

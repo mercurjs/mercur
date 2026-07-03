@@ -6,6 +6,8 @@ import { Button, Heading, Input, toast } from "@medusajs/ui"
 import { useFieldArray, useForm } from "react-hook-form"
 
 import { Form } from "@components/common/form"
+import { SwitchBox } from "@components/common/switch-box"
+import { HandleInput } from "@components/inputs/handle-input"
 import {
   RouteFocusModal,
   useRouteModal,
@@ -34,7 +36,10 @@ export function OrderCreateShipmentForm({
     useCreateOrderShipment(order.id, fulfillment?.id)
 
   const form = useForm<zod.infer<typeof CreateShipmentSchema>>({
-    defaultValues: {},
+    defaultValues: {
+      labels: [{ tracking_number: "", tracking_url: "" }],
+      notify: false,
+    },
     resolver: zodResolver(CreateShipmentSchema),
   })
 
@@ -54,9 +59,8 @@ export function OrderCreateShipmentForm({
           .filter((l) => !!l.tracking_number)
           .map((l) => ({
             tracking_number: l.tracking_number,
-            tracking_url: "#",
-            label_url: "#"
-            ,
+            tracking_url: l.tracking_url ?? "",
+            label_url: "",
           })),
       },
       {
@@ -77,68 +81,105 @@ export function OrderCreateShipmentForm({
         onSubmit={handleSubmit}
         className="flex h-full flex-col overflow-hidden"
       >
-        <RouteFocusModal.Header>
+        <RouteFocusModal.Header />
+        <RouteFocusModal.Body className="flex flex-col items-center overflow-y-auto p-16">
+          <div className="flex w-full max-w-[736px] flex-col gap-8">
+            <div className="flex items-center justify-between">
+              <Heading>{t("orders.shipment.title")}</Heading>
+              <Button
+                type="button"
+                size="small"
+                variant="secondary"
+                onClick={() =>
+                  append({
+                    tracking_number: "",
+                    tracking_url: "",
+                  })
+                }
+                data-testid="shipment-add-tracking"
+              >
+                {t("orders.shipment.addTracking")}
+              </Button>
+            </div>
+
+            <div className="flex flex-col gap-8 divide-y divide-dashed">
+              {labels.map((label, index) => (
+                <div
+                  key={label.id}
+                  className="flex flex-col gap-y-4 [&:not(:first-child)]:pt-8"
+                >
+                  <Form.Field
+                    control={form.control}
+                    name={`labels.${index}.tracking_url`}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label optional>
+                          {t("orders.shipment.trackingUrl")}
+                        </Form.Label>
+                        <Form.Control>
+                          <HandleInput
+                            {...field}
+                            value={field.value ?? ""}
+                            prefix="/"
+                            placeholder={t(
+                              "orders.shipment.trackingUrlPlaceholder"
+                            )}
+                            data-testid={`shipment-tracking-url-${index}`}
+                          />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    )}
+                  />
+                  <Form.Field
+                    control={form.control}
+                    name={`labels.${index}.tracking_number`}
+                    render={({ field }) => (
+                      <Form.Item>
+                        <Form.Label optional>
+                          {t("orders.shipment.trackingNumber")}
+                        </Form.Label>
+                        <Form.Control>
+                          <Input
+                            {...field}
+                            data-testid={`shipment-tracking-number-${index}`}
+                          />
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    )}
+                  />
+                </div>
+              ))}
+
+              <div className="pt-8">
+                <SwitchBox
+                  control={form.control}
+                  name="notify"
+                  label={t("orders.shipment.sendNotification")}
+                  description={t("orders.shipment.sendNotificationHint")}
+                />
+              </div>
+            </div>
+          </div>
+        </RouteFocusModal.Body>
+        <RouteFocusModal.Footer>
           <div className="flex items-center justify-end gap-x-2">
             <RouteFocusModal.Close asChild>
               <Button size="small" variant="secondary">
                 {t("actions.cancel")}
               </Button>
             </RouteFocusModal.Close>
-            <Button size="small" type="submit" isLoading={isMutating}>
-              {t("actions.save")}
+            <Button
+              size="small"
+              type="submit"
+              isLoading={isMutating}
+              data-testid="shipment-confirm"
+            >
+              {t("actions.confirm")}
             </Button>
           </div>
-        </RouteFocusModal.Header>
-        <RouteFocusModal.Body className="flex h-full w-full flex-col items-center divide-y overflow-y-auto">
-          <div className="flex size-full flex-col items-center overflow-auto p-16">
-            <div className="flex w-full max-w-[736px] flex-col justify-center px-2 pb-2">
-              <div className="flex flex-col divide-y">
-                <div className="flex flex-1 flex-col">
-                  <Heading className="mb-4">
-                    {t("orders.shipment.title")}
-                  </Heading>
-
-                  {labels.map((label, index) => (
-                    <Form.Field
-                      key={label.id}
-                      control={form.control}
-                      name={`labels.${index}.tracking_number`}
-                      render={({ field }) => {
-                        return (
-                          <Form.Item className="mb-4">
-                            {index === 0 && (
-                              <Form.Label>
-                                {t("orders.shipment.trackingUrl")}
-                              </Form.Label>
-                            )}
-                            <Form.Control>
-                              <Input
-                                {...field}
-                                placeholder={t(
-                                  "orders.shipment.trackingUrlPlaceholder"
-                                )}
-                              />
-                            </Form.Control>
-                            <Form.ErrorMessage />
-                          </Form.Item>
-                        )
-                      }}
-                    />
-                  ))}
-
-                  <Button
-                    type="button"
-                    onClick={() => append({ tracking_number: "" })}
-                    className="self-end"
-                    variant="secondary"
-                  >
-                    {t("orders.shipment.addTrackingUrl")}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </RouteFocusModal.Body>
+        </RouteFocusModal.Footer>
       </KeyboundForm>
     </RouteFocusModal.Form>
   )

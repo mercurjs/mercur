@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/cli",
-  "version": "2.1.6",
+  "version": "2.2.0-canary.39",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -34,16 +34,17 @@
   "scripts": {
     "typecheck": "tsc --noEmit",
     "dev": "tsup --watch",
-    "build": "tsup"
+    "build": "bun scripts/generate-routes-manifest.ts && tsup",
+    "routes-manifest": "bun scripts/generate-routes-manifest.ts"
   },
   "dependencies": {
     "@antfu/ni": "^27.0.1",
-    "@medusajs/admin-bundler": "2.13.4",
-    "@medusajs/admin-shared": "2.13.4",
-    "@medusajs/admin-vite-plugin": "2.13.4",
-    "@medusajs/dashboard": "2.13.4",
-    "@medusajs/framework": "2.13.4",
-    "@mercurjs/dashboard-sdk": "2.1.6",
+    "@medusajs/admin-bundler": "options-preview",
+    "@medusajs/admin-shared": "options-preview",
+    "@medusajs/admin-vite-plugin": "options-preview",
+    "@medusajs/dashboard": "options-preview",
+    "@medusajs/framework": "options-preview",
+    "@mercurjs/dashboard-sdk": "2.2.0-canary.39",
     "@types/cross-spawn": "^6.0.6",
     "@vitejs/plugin-react": "^4.2.1",
     "autoprefixer": "^10.4.19",

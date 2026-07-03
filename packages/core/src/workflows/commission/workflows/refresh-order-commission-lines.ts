@@ -25,12 +25,13 @@ const orderFields = [
   "subtotal",
   "items.*",
   "items.subtotal",
+  "items.tax_total",
   "items.product.id",
   "items.product.collection_id",
   "items.product.categories.id",
   "items.product.tags.id",
   "items.product.type_id",
-  "items.product.seller.id",
+  "items.offer.seller_id",
   "items.adjustments.*",
   "shipping_methods.*",
   "shipping_methods.total",
@@ -76,7 +77,9 @@ export const refreshOrderCommissionLinesWorkflow = createWorkflow(
               categories: item.product.categories,
               tags: item.product.tags,
               type_id: item.product.type_id,
-              seller: item.product.seller,
+              seller: item.offer?.seller_id
+                ? { id: item.offer.seller_id }
+                : undefined,
             }
             : undefined,
         })),

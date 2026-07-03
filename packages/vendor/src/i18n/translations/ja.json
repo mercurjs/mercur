@@ -401,19 +401,13 @@
       "tabs": {
         "details": "詳細",
         "organize": "整理",
-        "variants": "バリエーション",
-        "inventory": "在庫キット"
+        "variants": "バリエーション"
       },
       "errors": {
         "variants": "少なくとも1つのバリエーションを選択してください。",
         "options": "少なくとも1つのオプションを作成してください。",
-        "uniqueSku": "SKUは一意である必要があります。"
-      },
-      "inventory": {
-        "heading": "在庫キット",
-        "label": "バリエーションの在庫キットに在庫アイテムを追加します。",
-        "itemPlaceholder": "在庫アイテムを選択",
-        "quantityPlaceholder": "このキットに必要な数量は？"
+        "uniqueSku": "SKUは一意である必要があります。",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "バリエーション",
@@ -436,7 +430,21 @@
           "hint": "色、サイズなど、商品のオプションを定義します。"
         }
       },
-      "successToast": "商品「{{title}}」が正常に作成されました。"
+      "successToast": "商品「{{title}}」が正常に作成されました。",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "商品リストをエクスポート",
@@ -490,7 +498,6 @@
     "attributes": "属性",
     "editAttributes": "属性を編集",
     "editOptions": "オプションを編集",
-    "editPrices": "価格を編集",
     "media": {
       "label": "メディア",
       "editHint": "ストアフロントで商品を展示するためにメディアを追加します。",
@@ -523,6 +530,7 @@
       "draft": "下書き",
       "published": "公開済み",
       "proposed": "提案済み",
+      "requires_action": "Changes required",
       "rejected": "却下"
     },
     "fields": {
@@ -612,27 +620,18 @@
         "header": "バリエーション詳細"
       },
       "deleteWarning": "このバリエーションを削除してもよろしいですか？",
-      "pricesPagination": "1 - {{total}}件中{{current}}件の価格",
       "tableItemAvailable": "{{availableCount}}個利用可能",
       "tableItem_one": "{{locationCount}}の拠点で{{availableCount}}個利用可能",
       "tableItem_other": "{{locationCount}}の拠点で{{availableCount}}個利用可能",
       "inventory": {
         "notManaged": "管理されていません",
-        "manageItems": "在庫アイテムを管理",
-        "notManagedDesc": "このバリエーションの在庫は管理されていません。「在庫を管理」をオンにしてバリエーションの在庫を追跡します。",
-        "manageKit": "在庫キットを管理",
         "navigateToItem": "在庫アイテムに移動",
-        "actions": {
-          "inventoryItems": "在庫アイテムに移動",
-          "inventoryKit": "在庫アイテムを表示"
-        },
         "inventoryKit": "在庫キット",
         "inventoryKitHint": "このバリエーションは複数の在庫アイテムで構成されていますか？",
         "validation": {
           "itemId": "在庫アイテムを選択してください。",
           "quantity": "数量は必須です。正の数値を入力してください。"
         },
-        "header": "在庫と在庫管理",
         "editItemDetails": "アイテム詳細を編集",
         "manageInventoryLabel": "在庫を管理",
         "manageInventoryHint": "有効にすると、注文や返品が作成されたときに在庫数量を変更します。",
@@ -2805,7 +2804,8 @@
     "startDate": "開始日",
     "endDate": "終了日",
     "draft": "下書き",
-    "values": "値"
+    "values": "値",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "年",
@@ -2822,5 +2822,23 @@
     "minutes_other": "分",
     "seconds_one": "秒",
     "seconds_other": "秒"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

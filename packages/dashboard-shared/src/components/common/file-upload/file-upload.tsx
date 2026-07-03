@@ -138,6 +138,7 @@ export const FileUpload = ({
       </button>
       <input
         hidden
+        aria-label="File upload"
         ref={inputRef}
         onChange={handleFileChange}
         type="file"

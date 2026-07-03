@@ -67,7 +67,12 @@ export const useShippingProfile = (
 }
 
 export const useShippingProfiles = (
-  query?: InferClientInput<typeof sdk.admin.shippingProfiles.query>,
+  query?: InferClientInput<typeof sdk.admin.shippingProfiles.query> & {
+    // Mercur seller link — when set, `/admin/shipping-profiles` filters via
+    // the `shipping_profile_seller` link table. Server-side handler lives in
+    // `packages/core/src/api/admin/shipping-profiles/middlewares.ts`.
+    seller_id?: string | string[]
+  },
   options?: Omit<
     UseQueryOptions<
       InferClientOutput<typeof sdk.admin.shippingProfiles.query>,

@@ -6,7 +6,10 @@ import path from "path";
 import { clearRegistryContext } from "@/src/registry/context";
 import { sendTelemetryEvent, setTelemetryEmail, showTelemetryNoticeIfNeeded } from "@/src/telemetry";
 import { setupDatabase, type SetupDatabaseResult } from "@/src/utils/create-db";
-import { getPackageManager } from "@/src/utils/get-package-manager";
+import {
+  resolveProjectPackageManager,
+  type PackageManager,
+} from "@/src/utils/get-package-manager";
 import { handleError } from "@/src/utils/handle-error";
 import { highlighter } from "@/src/utils/highlighter";
 import { logger } from "@/src/utils/logger";
@@ -23,7 +26,11 @@ import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
 import waitOn from "wait-on";
 
-const DEFAULT_BRANCH = "main";
+import packageJson from "../../package.json";
+
+const IS_PRERELEASE =
+  packageJson.version?.includes("-canary") || packageJson.version?.includes("-rc");
+const DEFAULT_BRANCH = IS_PRERELEASE ? "canary" : "main";
 const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
@@ -148,7 +155,7 @@ export const create = new Command()
       });
       downloadSpinner.succeed("Template downloaded successfully.");
 
-      const packageManager = await getPackageManager(projectDir);
+      const packageManager = await resolveProjectPackageManager();
       await setPackageManagerField(projectDir, packageManager);
 
       if (!opts.deps) {
@@ -360,7 +367,7 @@ async function installDeps({
   packageManager,
 }: {
   projectDir: string;
-  packageManager: Awaited<ReturnType<typeof getPackageManager>>;
+  packageManager: PackageManager;
 }): Promise<boolean> {
   let cmd = "npm";
   let args = ["install"];
@@ -395,7 +402,7 @@ async function installDeps({
 
 function successMessage(
   projectDir: string,
-  packageManager: Awaited<ReturnType<typeof getPackageManager>>
+  packageManager: PackageManager
 ): string {
   const relativePath = path.relative(process.cwd(), projectDir);
   const header = (message: string) => kleur.bold(message);
@@ -450,8 +457,16 @@ async function setPackageManagerField(
 ): Promise<void> {
   const packageJsonPath = path.join(projectDir, "package.json");
   const packageJson = await fs.readJSON(packageJsonPath);
-  const { stdout: version } = await execa(packageManager, ["--version"]);
-  packageJson.packageManager = `${packageManager}@${version.trim()}`;
+
+  try {
+    const { stdout: version } = await execa(packageManager, ["--version"]);
+    packageJson.packageManager = `${packageManager}@${version.trim()}`;
+  } catch {
+    // Pin the manager without a version rather than failing project creation
+    // if the version lookup is unavailable for any reason.
+    packageJson.packageManager = packageManager;
+  }
+
   await fs.writeJSON(packageJsonPath, packageJson, { spaces: 2 });
 }
 

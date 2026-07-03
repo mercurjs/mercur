@@ -2,10 +2,10 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { cancelOrderFulfillmentWorkflow } from "@medusajs/medusa/core-flows"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
+import { cancelOrderFulfillmentWorkflow } from "../../../../../../../workflows/order/workflows/cancel-order-fulfillment"
 import { validateSellerOrder } from "../../../../helpers"
 
 export const POST = async (

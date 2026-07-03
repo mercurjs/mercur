@@ -22,7 +22,7 @@ export const CreateSellerAccount = z.object({
   handle: z.string().optional(),
   email: z.string().email(),
   phone: z.string().nullable().optional(),
-  member_email: z.string().email(),
+  member_email: z.string().email().optional(),
   first_name: z.string().nullable().optional(),
   last_name: z.string().nullable().optional(),
   description: z.string().nullable().optional(),

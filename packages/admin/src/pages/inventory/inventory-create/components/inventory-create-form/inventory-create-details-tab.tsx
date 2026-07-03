@@ -62,7 +62,7 @@ const Root = () => {
                     {t("products.fields.description.label")}
                   </Form.Label>
                   <Form.Control data-testid="inventory-create-form-description-control">
-                    <Textarea {...field} placeholder="The item description" data-testid="inventory-create-form-description-textarea" />
+                    <Textarea {...field} placeholder={t("inventory.create.descriptionPlaceholder")} data-testid="inventory-create-form-description-textarea" />
                   </Form.Control>
                   <Form.ErrorMessage data-testid="inventory-create-form-description-error" />
                 </Form.Item>

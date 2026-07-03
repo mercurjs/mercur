@@ -1,5 +1,3 @@
-import { defaultAdminProductVariantFields } from "@medusajs/medusa/api/admin/product-variants/query-config"
-
 export const vendorProductFields = [
   "id",
   "title",
@@ -24,40 +22,108 @@ export const vendorProductFields = [
   "created_at",
   "updated_at",
   "metadata",
-  "*type",
-  "*collection",
-  "*options",
-  "*options.values",
-  "*tags",
-  "*images",
-  "*variants",
-  "*variants.prices",
-  "*variants.options",
-  "*variants.inventory_items",
-  "*categories",
-  "*attribute_values",
-  "*attribute_values.attribute",
+  "images.id",
+  "images.url",
+  "images.rank",
+  // Medusa 2.16's remote joiner rejects bare `*relation` wildcards in the
+  // query-config defaults with "Cannot resolve alias path \"\"", so each
+  // relation is spelled out.
+  "collection.id",
+  "collection.title",
+  "collection.handle",
+  "categories.id",
+  "categories.name",
+  "categories.handle",
+  // NOTE: native `options(.values)` and `variants.options` are omitted —
+  // `product.options` populate crashes MikroORM `expandDotPaths` on the 2.16
+  // options-preview build. Read axis options from the `product_option` side.
+  "variants.id",
+  "variants.title",
+  "variants.sku",
+  "variants.manage_inventory",
+  "variants.allow_backorder",
+  "variants.variant_rank",
+  "product_attribute_values.id",
+  "product_attribute_values.name",
+  "product_attribute_values.rank",
+  "product_attribute_values.attribute.id",
+  "product_attribute_values.attribute.name",
+  "product_attribute_values.attribute.handle",
+  "product_attribute_values.attribute.type",
+  "product_attribute_values.attribute.is_variant_axis",
+  "product_attribute_values.attribute.is_required",
+  "product_attribute_values.attribute.rank",
+  "product_attribute_values.attribute.values.id",
+  "product_attribute_values.attribute.values.name",
+  "product_attribute_values.attribute.values.rank",
+  "scoped_attributes.id",
+  "scoped_attributes.name",
+  "scoped_attributes.handle",
+  "scoped_attributes.type",
+  "scoped_attributes.is_variant_axis",
+  "scoped_attributes.values.id",
+  "scoped_attributes.values.name",
+  "scoped_attributes.values.rank",
 ]
+
+export const vendorProductRetrieveFields = [...vendorProductFields]
 
 export const vendorProductQueryConfig = {
   list: {
     defaults: vendorProductFields,
+    defaultLimit: 50,
     isList: true,
   },
   retrieve: {
-    defaults: vendorProductFields,
+    defaults: vendorProductRetrieveFields,
     isList: false,
   },
 }
 
+export const vendorProductVariantFields = [
+  "id",
+  "title",
+  "sku",
+  "ean",
+  "upc",
+  "isbn",
+  "asin",
+  "gtin",
+  "barcode",
+  "hs_code",
+  "mid_code",
+  "variant_rank",
+  "weight",
+  "length",
+  "height",
+  "width",
+  "origin_country",
+  "material",
+  "metadata",
+  "created_at",
+  "updated_at",
+  "product_id",
+  "manage_inventory",
+  "allow_backorder",
+  "thumbnail",
+  "options.id",
+  "options.value",
+  "options.option.id",
+  "options.option.title",
+  "images.id",
+  "images.url",
+  "images.rank",
+  "images.variants.id",
+]
+
 export const vendorProductVariantQueryConfig = {
   list: {
-    defaults: defaultAdminProductVariantFields,
-    isList: true,
+    defaults: vendorProductVariantFields,
     defaultLimit: 50,
+    isList: true,
   },
   retrieve: {
-    defaults: defaultAdminProductVariantFields,
+    defaults: vendorProductVariantFields,
     isList: false,
   },
 }

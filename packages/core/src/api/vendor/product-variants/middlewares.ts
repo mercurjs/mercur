@@ -1,27 +1,47 @@
 import {
   AuthenticatedMedusaRequest,
-  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaResponse,
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
+import { ProductStatus } from "@mercurjs/types"
 
-import { vendorProductVariantQueryConfig } from "./query-config"
+import {
+  getProductIdsRestrictedFromSeller,
+  getSellerOwnedProductIds,
+} from "../products/helpers"
+import { vendorProductVariantsQueryConfig } from "./query-config"
 import { VendorGetProductVariantsParams } from "./validators"
 
-const applySellerProductVariantLinkFilter = (
+const applySellerProductVariantFilter = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse,
+  _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  req.filterableFields.seller_id = req.seller_context!.seller_id
+  const sellerId = req.seller_context!.seller_id
 
-  return maybeApplyLinkFilter({
-    entryPoint: "product_seller",
-    resourceId: "product_id",
-    filterableField: "seller_id",
-  })(req, res, next)
+  const [ownProductIds, restrictedFromSellerIds] = await Promise.all([
+    getSellerOwnedProductIds(req.scope, sellerId),
+    getProductIdsRestrictedFromSeller(req.scope, sellerId),
+  ])
+
+  req.filterableFields ??= {}
+  const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
+  req.filterableFields.$and = [
+    ...existingAnd,
+    {
+      $or: [
+        { product_id: ownProductIds },
+        {
+          product: { status: ProductStatus.PUBLISHED },
+          product_id: { $nin: restrictedFromSellerIds },
+        },
+      ],
+    },
+  ]
+
+  return next()
 }
 
 export const vendorProductVariantsMiddlewares: MiddlewareRoute[] = [
@@ -31,9 +51,9 @@ export const vendorProductVariantsMiddlewares: MiddlewareRoute[] = [
     middlewares: [
       validateAndTransformQuery(
         VendorGetProductVariantsParams,
-        vendorProductVariantQueryConfig.list
+        vendorProductVariantsQueryConfig.list
       ),
-      applySellerProductVariantLinkFilter,
+      applySellerProductVariantFilter,
     ],
   },
 ]

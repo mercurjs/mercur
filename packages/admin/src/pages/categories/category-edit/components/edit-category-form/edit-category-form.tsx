@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Input, Select, Textarea, toast } from "@medusajs/ui"
+import i18n from "i18next"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -13,7 +14,7 @@ import { useUpdateProductCategory } from "../../../../../hooks/api/categories"
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 
 const EditCategorySchema = z.object({
-  name: z.string().min(1),
+  name: z.string().min(1, { message: i18n.t("categories.validation.titleRequired") }),
   handle: z.string().min(1),
   description: z.string().optional(),
   status: z.enum(["active", "inactive"]),
@@ -89,7 +90,7 @@ export const EditCategoryForm = ({ category }: EditCategoryFormProps) => {
                   <Form.Item>
                     <Form.Label
                       optional
-                      tooltip={t("collections.handleTooltip")}
+                      tooltip={t("categories.handleTooltip")}
                     >
                       {t("fields.handle")}
                     </Form.Label>

@@ -27,8 +27,8 @@ The repository is a Turborepo monorepo managed with Bun. It contains the framewo
                               v
 +-----------------------------------------------------------------+
 |                     @mercurjs/core (Medusa plugin)               |
-|  modules:    seller, commission, payout, subscription,           |
-|              order-group, attribute, product-attribute,          |
+|  modules:    seller, commission, payout, order-group,            |
+|              attribute, product-attribute,                       |
 |              shipping-profile, price-list, promotion, ...        |
 |  workflows:  seller lifecycle, payouts, commissions,             |
 |              order-group split, cart, fulfilment, ...            |
@@ -58,7 +58,7 @@ Dashboards (separate Vite apps that talk to the API above):
 ### `packages/core` — marketplace plugin
 The Medusa plugin that holds all marketplace business logic. Wired into the API via `withMercur()` in `apps/api/medusa-config.ts`.
 
-- **Modules** (`src/modules/`): `seller`, `commission`, `payout`, `subscription`, `attribute`, `product-attribute`, `vendor-product-attribute`, `order-group`, `custom-fields`, `inventory-item`, `stock-location`, `shipping-profile`, `shipping-option`, `price-list`, `promotion`, `campaign`.
+- **Modules** (`src/modules/`): `seller`, `commission`, `payout`, `attribute`, `product-attribute`, `vendor-product-attribute`, `order-group`, `custom-fields`, `inventory-item`, `stock-location`, `shipping-profile`, `shipping-option`, `price-list`, `promotion`, `campaign`.
 - **Workflows** (`src/workflows/`): 22+ workflow groups for seller lifecycle (create / approve / suspend), member invites, commissions, payouts, multi-vendor cart and order split, fulfilment.
 - **API routes** (`src/api/`): `admin/*` (marketplace operator), `vendor/*` (seller-scoped), plus hooks, middlewares, query configs, and validators.
 - **Auth/RBAC**: `withMercur()` auto-registers a roles module so vendor scoping works out of the box.
@@ -89,7 +89,7 @@ The mechanism that lets users add their own pages and blocks into Admin/Vendor w
 React primitives shared by Admin and Vendor: `TabbedForm`, `DataTable`, `Form`, `SwitchBox`, `FileUpload`, `ChipInput`, `ActionMenu`, layout shells. Built on `@medusajs/ui`, Ariakit, React Hook Form, TanStack Query/Table, i18next.
 
 ### `packages/admin` — operator dashboard UI library
-~39 page folders covering the operator surface: sellers, products, categories, orders, customers, inventory, locations, commissions, attributes, payouts, campaigns, collections, order-groups, subscription-plans, commission-rates, etc. Each folder typically owns `page.tsx`, query configs, validators, and forms.
+~39 page folders covering the operator surface: sellers, products, categories, orders, customers, inventory, locations, commissions, attributes, payouts, campaigns, collections, order-groups, commission-rates, etc. Each folder typically owns `page.tsx`, query configs, validators, and forms.
 
 ### `packages/vendor` — seller dashboard UI library
 ~24 page folders for the vendor surface: products, orders, payouts, categories, inventory, price-lists, campaigns, collections, customers, product-variants, promotions, onboarding, store settings. Same primitives as Admin, scoped to a single seller's data.
@@ -120,7 +120,6 @@ Stripe Connect implementation for the `payout` module: creates connected account
 - **Order-Group** — wrapper that lets a single customer cart contain items from multiple sellers. On placement, the cart is split into per-seller orders linked to a parent group.
 - **Commission** — per-seller or per-category fee structure applied during order placement, deducted from payouts.
 - **Payout** — settlement to a seller's connected account (default provider: Stripe Connect). States: `pending` / `completed` / `cancelled`.
-- **Subscription** — recurring seller plans (e.g. tiered marketplace access).
 - **Attributes / Product-Attributes** — extended product schema editable by vendors.
 - **Blocks** — installable feature packages (UI + workflows + routes) discovered via `blocks.json` and added with `mercurjs add`.
 

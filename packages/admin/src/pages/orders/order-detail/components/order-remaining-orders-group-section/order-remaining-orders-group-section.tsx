@@ -80,7 +80,7 @@ export const OrderRemainingOrdersGroupSection = () => {
         data-testid="order-remaining-orders-group-header"
       >
         <Heading level="h2" data-testid="order-remaining-orders-group-heading">
-          {t("orders.domain")} in group
+          {t("orders.group.heading")}
         </Heading>
       </div>
       <_DataTable
@@ -91,7 +91,7 @@ export const OrderRemainingOrdersGroupSection = () => {
         isLoading={isLoading}
         pageSize={orders.length}
         noRecords={{
-          message: "No other orders in this group",
+          message: t("orders.group.noOtherOrders"),
         }}
       />
     </Container>
@@ -109,7 +109,7 @@ const useColumns = () => {
       }),
       columnHelper.display({
         id: "seller",
-        header: () => <TextHeader text="Seller" />,
+        header: () => <TextHeader text="Store" />,
         cell: ({ row }) => {
           const seller = (row.original as any).seller
           return <TextCell text={seller?.name ?? "-"} />

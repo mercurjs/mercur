@@ -58,10 +58,19 @@ export const POST = async (
     ...sellerData
   } = req.validatedBody
 
+  const memberId = req.auth_context.actor_id || undefined
+
+  if (!memberId && !member_email) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      "member_email is required when creating a seller without an existing member"
+    )
+  }
+
   const { result: seller } = await createSellerAccountWorkflow(req.scope).run({
     input: {
       auth_identity_id: req.auth_context.auth_identity_id,
-      member_id: req.auth_context.actor_id || undefined,
+      member_id: memberId,
       seller: sellerData,
       member_email,
       first_name: first_name ?? undefined,

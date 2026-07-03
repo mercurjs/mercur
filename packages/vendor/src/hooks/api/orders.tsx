@@ -1,4 +1,4 @@
-import { ClientError } from "@mercurjs/client"
+import { ClientError, InferClientOutput } from "@mercurjs/client"
 
 import { HttpTypes } from "@medusajs/types";
 import {
@@ -7,6 +7,7 @@ import {
   UseMutationOptions,
   useQuery,
   UseQueryOptions,
+  UseQueryResult,
 } from "@tanstack/react-query";
 import { sdk, fetchQuery } from "../../lib/client";
 import { queryClient } from "../../lib/query-client";
@@ -309,27 +310,33 @@ export const useCompleteOrder = (
   });
 };
 
-type OrderCommission = {
-  commission: any
-}
+type OrderCommissionLinesResponse = InferClientOutput<
+  typeof sdk.vendor.orders.$id.commissionLines.query
+>;
 
-export const useOrderCommission = (
+export type OrderCommissionLine =
+  OrderCommissionLinesResponse["commission_lines"][number];
+
+export const useOrderCommissionLines = (
   id: string,
-  query?: Record<string, any>,
   options?: Omit<
-    UseQueryOptions<OrderCommission, Error, OrderCommission, QueryKey>,
+    UseQueryOptions<
+      OrderCommissionLinesResponse,
+      ClientError,
+      OrderCommissionLinesResponse,
+      QueryKey
+    >,
     "queryFn" | "queryKey"
   >
-) => {
+): Omit<UseQueryResult<OrderCommissionLinesResponse, ClientError>, "data"> & {
+  commission_lines: OrderCommissionLine[];
+} => {
   const { data, ...rest } = useQuery({
     queryFn: async () =>
-      fetchQuery(`/vendor/orders/${id}/commission`, {
-        method: "GET",
-        query,
-      }),
-    queryKey: ordersQueryKeys.detail(`${id}/commission`, query),
+      sdk.vendor.orders.$id.commissionLines.query({ $id: id }),
+    queryKey: ordersQueryKeys.detail(`${id}/commission-lines`),
     ...options,
   });
 
-  return { commission: data?.commission, ...rest };
+  return { commission_lines: data?.commission_lines ?? [], ...rest };
 };

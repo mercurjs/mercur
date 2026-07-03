@@ -91,7 +91,10 @@ export const NoRecords = ({
             {title ?? t("general.noRecordsTitle")}
           </Text>
 
-          <Text size="small" className="text-ui-fg-muted">
+          <Text
+            size="small"
+            className="text-ui-fg-muted whitespace-pre-line text-center"
+          >
             {message ?? t("general.noRecordsMessage")}
           </Text>
         </div>

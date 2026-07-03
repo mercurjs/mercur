@@ -1,0 +1,223 @@
+name: Build & Integration Test
+
+on:
+  pull_request:
+    branches: [canary, main]
+  push:
+    branches: [canary, main]
+
+concurrency:
+  group: integration-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # Fast gate: the build is also our typecheck (core/providers compile with
+  # `tsc`, dashboards with `tsup`), so a PR that doesn't compile fails here in
+  # a couple of minutes — before any of the slow, Postgres/Redis-backed
+  # integration shards spin up. The shards `needs: build` and restore this
+  # job's Turborepo cache, so their own `bun run build` is a cache hit rather
+  # than a 4x-redundant rebuild.
+  build:
+    name: Build (typecheck gate)
+    runs-on: ubuntu-latest
+    # Headroom for the cold-cache case: when the lockfile changes, the
+    # node_modules cache misses and a full `bun install` (~19 min) runs before
+    # the build. On the common path the cache hits and this job is a few minutes.
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Cache Turborepo
+        uses: actions/cache@v4
+        with:
+          # This key is what the integration shards restore from, so a single
+          # build is shared across all four of them.
+          key: ${{ runner.os }}-turbo-${{ github.sha }}
+          path: .turbo
+          restore-keys: |
+            ${{ runner.os }}-turbo-
+
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          # Bun's (default, isolated) linker materialises a ~7k-symlink store
+          # under node_modules/.bun; rebuilding it from the tarball cache costs
+          # ~19 min in CI. This gate job runs first (the shards `needs: build`),
+          # so on a cold lockfile it pays that cost once and saves the tree here;
+          # every shard then restores it under the same key and skips install.
+          # No restore-keys: a fuzzy hit from a different lockfile would leave
+          # node_modules out of sync and we skip install on a hit.
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            packages/providers/*/node_modules
+            integration-tests/node_modules
+            e2e-tests/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('bun.lock', 'bun.lockb') }}
+
+      - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: bun install --frozen-lockfile
+
+      - name: Build packages
+        run: bun run build
+
+  integration-http:
+    name: HTTP integration tests (shard ${{ matrix.shard }}/4)
+    needs: build
+    runs-on: ubuntu-latest
+    # Shards are balanced by duration (see integration-tests/test-sequencer.js),
+    # so this is a safety net against a genuinely hung spec, not the normal
+    # runtime — a balanced shard finishes well under this.
+    timeout-minutes: 40
+
+    strategy:
+      # Run every shard to completion even if one fails, so a single broken
+      # shard doesn't mask failures (or passes) in the others.
+      fail-fast: false
+      matrix:
+        shard: [1, 2, 3, 4]
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: mercur
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://postgres:postgres@localhost:5432/mercur
+      # @medusajs/test-utils derives its Postgres connection from these DB_*
+      # vars (NOT DATABASE_URL). Without DB_PASSWORD the generated connection
+      # URL has no password segment and SCRAM auth fails with
+      # "client password must be a string".
+      DB_HOST: localhost
+      DB_PORT: "5432"
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      REDIS_URL: redis://localhost:6379
+      MEDUSA_FF_SELLER_REGISTRATION: "true"
+      MEDUSA_FF_PRODUCT_REQUEST: "false"
+      JWT_SECRET: supersecret
+      COOKIE_SECRET: supersecret
+      NODE_ENV: test
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.8
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Cache Turborepo
+        uses: actions/cache@v4
+        with:
+          path: .turbo
+          # Per-shard key so parallel shards don't race to save the same entry;
+          # restore-keys falls back to the `build` job's cache
+          # (turbo-${{ github.sha }}), making each shard's `bun run build` a hit.
+          key: ${{ runner.os }}-turbo-${{ github.sha }}-${{ matrix.shard }}
+          restore-keys: |
+            ${{ runner.os }}-turbo-${{ github.sha }}
+            ${{ runner.os }}-turbo-
+
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          # Restores the materialised node_modules saved by the `build` gate
+          # (same lockfile-keyed entry), so each shard skips the ~19-min install
+          # rather than rebuilding bun's symlink store four more times.
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            packages/providers/*/node_modules
+            integration-tests/node_modules
+            e2e-tests/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('bun.lock', 'bun.lockb') }}
+
+      - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: bun install --frozen-lockfile
+
+      - name: Build packages
+        run: bun run build
+
+      - name: Run HTTP integration tests
+        # A custom sequencer (integration-tests/test-sequencer.js) bin-packs
+        # specs across shards by estimated duration, so each shard runs a
+        # ~equal-time slice of the suite against its own Postgres/Redis service.
+        run: cd integration-tests && bun run test:integration:http -- --shard=${{ matrix.shard }}/4
+
+  # Single required status check that aggregates every shard. Branch protection
+  # should require this job instead of the individual matrix shards (whose names
+  # change if the shard count changes).
+  all-passed:
+    name: Integration tests passed
+    if: always()
+    needs: integration-http
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify all shards succeeded
+        run: |
+          if [ "${{ needs.integration-http.result }}" != "success" ]; then
+            echo "One or more integration test shards did not succeed (result: ${{ needs.integration-http.result }})"
+            exit 1
+          fi
+          echo "All integration test shards passed."

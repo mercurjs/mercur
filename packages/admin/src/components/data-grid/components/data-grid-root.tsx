@@ -680,9 +680,10 @@ export const DataGridRoot = <
           headerContent={headerContent}
         />
         <div className="size-full overflow-hidden">
+          {/* oxlint-disable-next-line jsx-a11y/no-noninteractive-element-interactions */}
           <div
             ref={containerRef}
-            
+
             tabIndex={0}
             className="relative h-full select-none overflow-auto outline-none"
             onFocus={handleRestoreGridFocus}
@@ -907,8 +908,15 @@ const DataGridHeader = ({
           )}
         </div>
       )}
-      {headerContent}
       <div className="ml-auto flex items-center gap-x-2">
+        {headerContent && (
+          <div
+            className="flex items-center"
+            onFocusCapture={() => onHeaderInteractionChange(true)}
+          >
+            {headerContent}
+          </div>
+        )}
         {errorCount > 0 && (
           <Button
             size="small"
@@ -1141,6 +1149,7 @@ const DataGridRowSkeleton = ({
           <div
             key={`skeleton-cell-${vc.index}`}
             role="gridcell"
+            aria-label="Cell input"
             style={{ width: vc.size }}
             className="relative flex items-center border-b border-r p-0 outline-none"
           >

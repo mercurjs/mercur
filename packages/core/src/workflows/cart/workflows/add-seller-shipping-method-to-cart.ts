@@ -147,7 +147,6 @@ export const addSellerShippingMethodToCartWorkflow = createWorkflow(
                     .filter(Boolean) as string[]
             )
 
-            // Return IDs of existing shipping methods from sellers whose options we're adding
             return cart.shipping_methods
                 .filter(sm => {
                     const shippingOption = shippingOptionsMap.get(sm.shipping_option_id)

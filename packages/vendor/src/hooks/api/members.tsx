@@ -73,6 +73,21 @@ export const useSellerMembers = (
   };
 };
 
+export const useMember = (id: string) => {
+  const meResult = useMe() as { member?: any }
+  const sellerId = (meResult.member as any)?.seller?.id ?? ""
+
+  const membersResult = useSellerMembers(
+    sellerId,
+    {},
+    { enabled: !!sellerId && !!id }
+  ) as { members?: any[] }
+
+  const user = (membersResult.members ?? []).find((m: any) => m.id === id)
+
+  return { user }
+}
+
 export const useUpdateMemberRole = (
   sellerId: string,
   memberId: string,

@@ -412,19 +412,13 @@
       "tabs": {
         "details": "Детали",
         "organize": "Организирај",
-        "variants": "Варијанти",
-        "inventory": "Инвентар комплети"
+        "variants": "Варијанти"
       },
       "errors": {
         "variants": "Изберете барем една варијанта.",
         "options": "Ве молиме креирајте барем една опција.",
-        "uniqueSku": "SKU мора да биде единствен."
-      },
-      "inventory": {
-        "heading": "Инвентар комплети",
-        "label": "Додадете инвентарни ставки во комплетот за инвентар на варијантата.",
-        "itemPlaceholder": "Изберете ставка за залиха",
-        "quantityPlaceholder": "Колку од нив се потребни за комплетот?"
+        "uniqueSku": "SKU мора да биде единствен.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Варијанти",
@@ -447,7 +441,21 @@
           "hint": "Дефинирајте ги опциите за производот, на пр. "
         }
       },
-      "successToast": "Производ {{title}} беше успешно создаден."
+      "successToast": "Производ {{title}} беше успешно создаден.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Листа на производи за експортирање",
@@ -501,7 +509,6 @@
     "attributes": "Атрибути",
     "editAttributes": "Уреди атрибути",
     "editOptions": "Опции за уредување",
-    "editPrices": "Уредете ги цените",
     "media": {
       "label": "Медиуми",
       "editHint": "Додајте медиуми на производот за да го покажете на вашиот излог.",
@@ -534,6 +541,7 @@
       "draft": "Драфт",
       "published": "Објавено",
       "proposed": "Предложено",
+      "requires_action": "Changes required",
       "rejected": "Одбиено"
     },
     "fields": {
@@ -623,27 +631,18 @@
         "header": "Детали за варијанта"
       },
       "deleteWarning": "Дали сте сигурни дека сакате да ја избришете оваа варијанта?",
-      "pricesPagination": "1 - {{current}} на {{total}} цените",
       "tableItemAvailable": "{{availableCount}} достапни",
       "tableItem_one": "{{availableCount}} достапни на {{locationCount}} локација",
       "tableItem_other": "{{availableCount}} достапни на {{locationCount}} локации",
       "inventory": {
         "notManaged": "Не се управува",
-        "manageItems": "Управувајте со ставките за залиха",
-        "notManagedDesc": "Инвентар не се управува за оваа варијанта. ",
-        "manageKit": "Управувајте со комплет за инвентар",
         "navigateToItem": "Одете во ставката за залиха",
-        "actions": {
-          "inventoryItems": "Одете во ставката за залиха",
-          "inventoryKit": "Прикажи артикли за залиха"
-        },
         "inventoryKit": "Инвентар комплет",
         "inventoryKitHint": "Дали оваа варијанта се состои од неколку инвентарни ставки?",
         "validation": {
           "itemId": "Изберете ставка за залиха.",
           "quantity": "Потребна е количина. "
         },
-        "header": "Акции и инвентар",
         "editItemDetails": "Уредете ги деталите за ставката",
         "manageInventoryLabel": "Управувајте со инвентар",
         "manageInventoryHint": "Кога е овозможено, ќе ја промениме количината на залиха за вас кога ќе се создадат нарачки и враќања.",
@@ -676,15 +675,6 @@
         "toasts": {
           "success": "Успешно ажурирана организација на {{title}}."
         }
-      }
-    },
-    "stock": {
-      "heading": "Управувајте со нивоата и локациите на залиха на производи",
-      "description": "Ажурирајте ги порибените нивоа на залихи за сите варијанти на производот.",
-      "loading": "Застанете, можеби ќе потрае малку...",
-      "tooltips": {
-        "alreadyManaged": "Оваа ставка на инвентар веќе може да се уредува под {{title}}.",
-        "alreadyManagedWithSku": "Оваа ставка на инвентар веќе може да се уредува под {{title}} ({{sku}})."
       }
     },
     "toasts": {
@@ -2906,7 +2896,8 @@
     "startDate": "Датум на почеток",
     "endDate": "Краен датум",
     "draft": "Драфт",
-    "values": "Вредности"
+    "values": "Вредности",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Година",
@@ -2923,5 +2914,23 @@
     "minutes_other": "Минути",
     "seconds_one": "Второ",
     "seconds_other": "Секунди"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

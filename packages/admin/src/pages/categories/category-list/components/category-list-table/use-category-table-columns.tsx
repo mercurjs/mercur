@@ -5,11 +5,16 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { Thumbnail } from "../../../../../components/common/thumbnail"
 import { StatusCell } from "../../../../../components/table/table-cells/common/status-cell"
 import {
   TextCell,
   TextHeader,
 } from "../../../../../components/table/table-cells/common/text-cell"
+import {
+  CategoryWithImages,
+  getCategoryGallery,
+} from "../../../common/components/category-image-fields"
 import {
   getCategoryPath,
   getIsActiveProps,
@@ -56,6 +61,14 @@ export const useCategoryTableColumns = () => {
             )
           }
 
+          const gallery = getCategoryGallery(
+            (row.original as CategoryWithImages).media_images
+          )
+          const thumbnailSrc =
+            gallery.find((image) => image.is_thumbnail)?.url ??
+            gallery[0]?.url ??
+            null
+
           return (
             <div className="flex size-full items-center gap-x-3 overflow-hidden">
               <div className="flex size-7 items-center justify-center">
@@ -81,6 +94,7 @@ export const useCategoryTableColumns = () => {
                   </IconButton>
                 ) : null}
               </div>
+              <Thumbnail src={thumbnailSrc} />
               <span className="truncate">{getValue()}</span>
             </div>
           )

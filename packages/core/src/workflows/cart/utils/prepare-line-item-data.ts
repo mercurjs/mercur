@@ -18,6 +18,7 @@ import {
 } from "@medusajs/framework/utils"
 
 interface PrepareItemLineItemInput {
+    id?: string
     title?: string
     subtitle?: string
     thumbnail?: string
@@ -132,8 +133,6 @@ export function prepareLineItemData(data: PrepareLineItemDataInput) {
         (inventoryItem) => !!inventoryItem.inventory.requires_shipping
     )
 
-    // Note: If any of the items require shipping or product has a shipping profile set,
-    // we enable fulfillment unless explicitly set to not require shipping by the item in the request
     const requiresShipping = isDefined(item?.requires_shipping)
         ? item.requires_shipping
         : hasShippingProfile || someInventoryRequiresShipping
@@ -172,7 +171,7 @@ export function prepareLineItemData(data: PrepareLineItemDataInput) {
         compare_at_unit_price: compareAtUnitPrice,
         is_tax_inclusive: !!isTaxInclusive,
 
-        metadata: item?.metadata ?? {},
+        metadata: item?.metadata ?? null,
     }
 
     if (isCustomPrice) {

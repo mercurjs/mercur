@@ -412,19 +412,13 @@
       "tabs": {
         "details": "Detalii",
         "organize": "Organiza",
-        "variants": "Variante",
-        "inventory": "Truse de inventar"
+        "variants": "Variante"
       },
       "errors": {
         "variants": "Vă rugăm să selectați cel puțin o variantă.",
         "options": "Vă rugăm să creați cel puțin o opțiune.",
-        "uniqueSku": "SKU trebuie să fie unic."
-      },
-      "inventory": {
-        "heading": "Truse de inventar",
-        "label": "Adăugați articole de inventar la kitul de inventar al variantei.",
-        "itemPlaceholder": "Selectați obiectul de inventar",
-        "quantityPlaceholder": "Câte dintre acestea sunt necesare pentru kit?"
+        "uniqueSku": "SKU trebuie să fie unic.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Variante",
@@ -447,7 +441,21 @@
           "hint": "Definiți opțiunile pentru produs, de ex. "
         }
       },
-      "successToast": "Produs {{title}} a fost creat cu succes."
+      "successToast": "Produs {{title}} a fost creat cu succes.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Exportați lista de produse",
@@ -501,7 +509,6 @@
     "attributes": "Atribute",
     "editAttributes": "Editați atribute",
     "editOptions": "Editare opțiuni",
-    "editPrices": "Editați prețurile",
     "media": {
       "label": "Media",
       "editHint": "Adăugați conținut media la produs pentru a-l prezenta în vitrina dvs.",
@@ -532,6 +539,7 @@
       "draft": "Proiect",
       "published": "Publicat",
       "proposed": "Propus",
+      "requires_action": "Changes required",
       "rejected": "Respins"
     },
     "fields": {
@@ -621,25 +629,16 @@
         "header": "Detalii variante"
       },
       "deleteWarning": "Sigur doriți să ștergeți această variantă?",
-      "pricesPagination": "1 - {{current}} de {{total}} preturi",
       "tableItemAvailable": "{{availableCount}} disponibil",
       "inventory": {
         "notManaged": "Nu este gestionat",
-        "manageItems": "Gestionați articolele de inventar",
-        "notManagedDesc": "Inventarul nu este gestionat pentru această variantă. ",
-        "manageKit": "Gestionați setul de inventar",
         "navigateToItem": "Accesați obiectul de inventar",
-        "actions": {
-          "inventoryItems": "Accesați obiectul de inventar",
-          "inventoryKit": "Afișați articolele de inventar"
-        },
         "inventoryKit": "Kit de inventar",
         "inventoryKitHint": "Această variantă constă din mai multe articole de inventar?",
         "validation": {
           "itemId": "Vă rugăm să selectați articolul de inventar.",
           "quantity": "Cantitatea este necesară. "
         },
-        "header": "Stoc și inventar",
         "editItemDetails": "Editați detaliile articolului",
         "manageInventoryLabel": "Gestionați inventarul",
         "manageInventoryHint": "Când este activată, vom modifica cantitatea de inventar pentru dvs. când sunt create comenzi și retururi.",
@@ -674,15 +673,6 @@
         "toasts": {
           "success": "Am actualizat cu succes organizarea {{title}}."
         }
-      }
-    },
-    "stock": {
-      "heading": "Gestionați nivelurile stocurilor de produse și locațiile",
-      "description": "Actualizați nivelurile de inventar stocate pentru toate variantele de produs.",
-      "loading": "Așteaptă asta poate dura un moment...",
-      "tooltips": {
-        "alreadyManaged": "Acest articol de inventar este deja editabil sub {{title}}.",
-        "alreadyManagedWithSku": "Acest articol de inventar este deja editabil sub {{title}} ({{sku}})."
       }
     },
     "toasts": {
@@ -2916,7 +2906,8 @@
     "startDate": "Data de începere",
     "endDate": "Data de încheiere",
     "draft": "Proiect",
-    "values": "Valori"
+    "values": "Valori",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "An",
@@ -2933,5 +2924,23 @@
     "minutes_other": "Minute",
     "seconds_one": "Doilea",
     "seconds_other": "secunde"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

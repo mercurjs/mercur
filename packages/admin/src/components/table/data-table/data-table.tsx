@@ -26,10 +26,12 @@ export const _DataTable = <TData,>({
   columns,
   pagination,
   navigateTo,
+  onRowClick,
   commands,
   count = 0,
   search = false,
   orderBy,
+  defaultOrder,
   filters,
   prefix,
   queryObject = {},
@@ -38,6 +40,7 @@ export const _DataTable = <TData,>({
   noHeader = false,
   layout = "fit",
   noRecords: noRecordsProps = {},
+  toolbarActions,
 }: DataTableProps<TData>) => {
   if (isLoading) {
     return (
@@ -77,8 +80,10 @@ export const _DataTable = <TData,>({
       <MemoizedDataTableQuery
         search={search}
         orderBy={orderBy}
+        defaultOrder={defaultOrder}
         filters={filters}
         prefix={prefix}
+        toolbarActions={toolbarActions}
       />
       <DataTableRoot
         table={table}
@@ -86,6 +91,7 @@ export const _DataTable = <TData,>({
         columns={columns}
         pagination
         navigateTo={navigateTo}
+        onRowClick={onRowClick}
         commands={commands}
         noResults={noResults}
         noHeader={noHeader}

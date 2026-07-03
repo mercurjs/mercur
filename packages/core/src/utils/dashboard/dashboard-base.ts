@@ -51,7 +51,12 @@ export abstract class DashboardBase {
     async detectServingMode(): Promise<void> {
         this.lastDetectionTime_ = Date.now()
 
-        if (await this.checkViteDevServer_()) {
+        // The Vite dev server only exists during development. In production (a built
+        // artifact, e.g. on Medusa Cloud) skip the probe — it can only cost a timeout,
+        // or hijack the dashboard when an unrelated process listens on the dev port.
+        const isProduction = process.env.NODE_ENV === "production"
+
+        if (!isProduction && (await this.checkViteDevServer_())) {
             this.servingMode_ = "vite-proxy"
             return
         }

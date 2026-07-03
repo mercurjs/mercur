@@ -1,8 +1,8 @@
 import { HttpTypes } from "@medusajs/types"
-import { clx, Container, Heading, toast, usePrompt } from "@medusajs/ui"
+import { Button, clx, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
-import { Trash } from "@medusajs/icons"
+import { PencilSquare, Trash } from "@medusajs/icons"
 import { Link, useNavigate } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
@@ -56,8 +56,10 @@ export const CustomerAddressSection = ({
     <Container className="p-0" data-testid="customer-address-section">
       <div className="flex items-center justify-between px-6 py-4" data-testid="customer-address-section-header">
         <Heading level="h2" data-testid="customer-address-section-heading">{t("addresses.title")}</Heading>
-        <Link to={`create-address`} className="text-ui-fg-muted text-xs" data-testid="customer-address-section-add-link">
-          Add
+        <Link to={`create-address`} data-testid="customer-address-section-add-link">
+          <Button variant="secondary" size="small" data-testid="customer-address-section-create-button">
+            {t("actions.create")}
+          </Button>
         </Link>
       </div>
 
@@ -68,8 +70,8 @@ export const CustomerAddressSection = ({
               "flex h-full flex-col overflow-hidden border-t p-6": true,
             })}
             icon={null}
-            title={t("general.noRecordsTitle")}
-            message={t("general.noRecordsMessage")}
+            title={t("customers.addresses.emptyTitle")}
+            message={t("customers.addresses.emptyMessage")}
           />
         </div>
       )}
@@ -84,6 +86,15 @@ export const CustomerAddressSection = ({
               <ActionMenu
                 data-testid={`customer-address-section-address-${address.id}-actions`}
                 groups={[
+                  {
+                    actions: [
+                      {
+                        icon: <PencilSquare />,
+                        label: t("actions.edit"),
+                        to: `edit-address/${address.id}`,
+                      },
+                    ],
+                  },
                   {
                     actions: [
                       {

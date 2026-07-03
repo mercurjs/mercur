@@ -1,7 +1,7 @@
 import { useState } from "react"
 
 import { PencilSquare, ThumbnailBadge } from "@medusajs/icons"
-import type { HttpTypes } from "@medusajs/types"
+import { HttpTypes } from "@medusajs/types"
 import {
   Button,
   Checkbox,
@@ -10,22 +10,36 @@ import {
   Container,
   Heading,
   Text,
+  toast,
   Tooltip,
+  usePrompt,
 } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import { ActionMenu } from "@components/common/action-menu"
-import {
-  useUpdateProductVariant,
-  useUpdateVariantMedia,
-} from "@hooks/api/products"
+import { useUpdateProductVariant } from "@hooks/api/products"
 
-type VariantMediaSectionProps = {
-  variant: any
-  variantImages: HttpTypes.AdminProductImage[]
-  productId: string
+type VariantImage = {
+  id: string
+  url: string
+  variants?: Array<{ id: string }> | null
 }
+
+type VariantWithMedia = HttpTypes.AdminProductVariant & {
+  images?: VariantImage[] | null
+  thumbnail?: string | null
+}
+
+/**
+ * `variant.images` also includes product-level (general) images linked
+ * to no variant. The variant media section only manages this variant's
+ * own images, so keep the ones explicitly linked to it.
+ */
+const getVariantImages = (variant: VariantWithMedia): VariantImage[] =>
+  (variant.images ?? []).filter((image) =>
+    (image.variants ?? []).some((v) => v.id === variant.id)
+  )
 
 type Media = {
   id: string
@@ -33,36 +47,21 @@ type Media = {
   isThumbnail: boolean
 }
 
-const getMedia = (
-  images: HttpTypes.AdminProductImage[] | null | undefined,
-  thumbnail: string | null | undefined
-): Media[] => {
-  const media: Media[] = (images ?? []).map((image) => ({
-    id: image.id!,
-    url: image.url!,
-    isThumbnail: image.url === thumbnail,
-  }))
-
-  if (thumbnail && !media.some((m) => m.isThumbnail)) {
-    media.unshift({
-      id: "variant_thumbnail",
-      url: thumbnail,
-      isThumbnail: true,
-    })
-  }
-
-  return media
-}
-
 export const VariantMediaSection = ({
   variant,
-  variantImages,
-  productId,
-}: VariantMediaSectionProps) => {
+}: {
+  variant: VariantWithMedia
+}) => {
   const { t } = useTranslation()
+  const prompt = usePrompt()
   const [selection, setSelection] = useState<Record<string, boolean>>({})
 
-  const media = getMedia(variantImages, variant.thumbnail)
+  const media = getMedia(variant)
+
+  const { mutateAsync } = useUpdateProductVariant(
+    variant.product_id!,
+    variant.id
+  )
 
   const handleCheckedChange = (id: string) => {
     setSelection((prev) => {
@@ -74,40 +73,45 @@ export const VariantMediaSection = ({
     })
   }
 
-  const { mutateAsync: updateVariantMedia } = useUpdateVariantMedia(
-    productId,
-    variant.id
-  )
-  const { mutateAsync: updateVariant } = useUpdateProductVariant(
-    productId,
-    variant.id
-  )
-
-  const handleRemove = async () => {
+  const handleDelete = async () => {
     const ids = Object.keys(selection)
     const includingThumbnail = ids.some(
       (id) => media.find((m) => m.id === id)?.isThumbnail
     )
 
-    const imageIdsToRemove = ids.filter((id) => id !== "variant_thumbnail")
+    const res = await prompt({
+      title: t("general.areYouSure"),
+      description: includingThumbnail
+        ? t("products.media.deleteWarningWithThumbnail", { count: ids.length })
+        : t("products.media.deleteWarning", { count: ids.length }),
+      confirmText: t("actions.delete"),
+      cancelText: t("actions.cancel"),
+    })
 
-    const ops: Promise<unknown>[] = []
-
-    if (imageIdsToRemove.length) {
-      ops.push(updateVariantMedia({ remove: imageIdsToRemove }))
-    }
-
-    if (includingThumbnail) {
-      ops.push(updateVariant({ thumbnail: null } as any))
-    }
-
-    if (!ops.length) {
-      setSelection({})
+    if (!res) {
       return
     }
 
-    await Promise.all(ops)
-    setSelection({})
+    // Unlink the selected images from the variant (the synthetic
+    // thumbnail entry is not a linked image, so it is filtered out).
+    const linkedIds = new Set(getVariantImages(variant).map((i) => i.id))
+    const remove = ids.filter((id) => linkedIds.has(id))
+
+    await mutateAsync(
+      {
+        images: { remove },
+        thumbnail: includingThumbnail ? "" : undefined,
+      },
+      {
+        onSuccess: () => {
+          toast.success(t("products.media.successToast"))
+          setSelection({})
+        },
+        onError: (error) => {
+          toast.error(error.message)
+        },
+      }
+    )
   }
 
   return (
@@ -120,7 +124,7 @@ export const VariantMediaSection = ({
               actions: [
                 {
                   label: t("actions.edit"),
-                  to: "media?view=edit",
+                  to: "media",
                   icon: <PencilSquare />,
                 },
               ],
@@ -130,37 +134,38 @@ export const VariantMediaSection = ({
       </div>
       {media.length > 0 ? (
         <div className="grid grid-cols-[repeat(auto-fill,minmax(96px,1fr))] gap-4 px-6 py-4">
-          {media.map((item, index) => {
-            const isSelected = selection[item.id]
+          {media.map((image) => {
+            const isSelected = selection[image.id]
 
             return (
               <div
-                className="group relative aspect-square size-full cursor-pointer overflow-hidden rounded-[8px] shadow-elevation-card-rest transition-fg hover:shadow-elevation-card-hover"
-                key={item.id}
+                className="group shadow-elevation-card-rest hover:shadow-elevation-card-hover transition-fg relative aspect-square size-full cursor-pointer overflow-hidden rounded-[8px]"
+                key={image.id}
               >
                 <div
                   className={clx(
-                    "invisible absolute right-2 top-2 opacity-0 transition-fg group-hover:visible group-hover:opacity-100",
-                    { "visible opacity-100": isSelected }
+                    "transition-fg invisible absolute right-2 top-2 opacity-0 group-hover:visible group-hover:opacity-100",
+                    {
+                      "visible opacity-100": isSelected,
+                    }
                   )}
                 >
                   <Checkbox
-                    checked={selection[item.id] || false}
-                    onCheckedChange={() => handleCheckedChange(item.id)}
-                    aria-label={t("actions.select")}
+                    checked={selection[image.id] || false}
+                    onCheckedChange={() => handleCheckedChange(image.id)}
                   />
                 </div>
-                {item.isThumbnail && (
+                {image.isThumbnail && (
                   <div className="absolute left-2 top-2">
                     <Tooltip content={t("fields.thumbnail")}>
                       <ThumbnailBadge />
                     </Tooltip>
                   </div>
                 )}
-                <Link to="media" state={{ curr: index }}>
+                <Link to="media">
                   <img
-                    src={item.url}
-                    alt={`${variant.title ?? ""} ${index + 1}`}
+                    src={image.url}
+                    alt={variant.title ?? ""}
                     className="size-full object-cover"
                   />
                 </Link>
@@ -180,13 +185,11 @@ export const VariantMediaSection = ({
               {t("products.media.emptyState.header")}
             </Text>
             <Text size="small" className="text-ui-fg-muted">
-              {t("products.media.emptyState.variantDescription")}
+              {t("products.media.emptyState.description")}
             </Text>
           </div>
           <Button size="small" variant="secondary" asChild>
-            <Link to="media?view=edit">
-              {t("products.media.emptyState.action")}
-            </Link>
+            <Link to="media">{t("products.media.emptyState.action")}</Link>
           </Button>
         </div>
       )}
@@ -199,12 +202,32 @@ export const VariantMediaSection = ({
           </CommandBar.Value>
           <CommandBar.Seperator />
           <CommandBar.Command
-            action={handleRemove}
-            label={t("actions.remove")}
-            shortcut="r"
+            action={handleDelete}
+            label={t("actions.delete")}
+            shortcut="d"
           />
         </CommandBar.Bar>
       </CommandBar>
     </Container>
   )
+}
+
+const getMedia = (variant: VariantWithMedia): Media[] => {
+  const { thumbnail } = variant
+
+  const media: Media[] = getVariantImages(variant).map((image) => ({
+    id: image.id,
+    url: image.url,
+    isThumbnail: image.url === thumbnail,
+  }))
+
+  if (thumbnail && !media.some((m) => m.url === thumbnail)) {
+    media.unshift({
+      id: "img_thumbnail",
+      url: thumbnail,
+      isThumbnail: true,
+    })
+  }
+
+  return media
 }

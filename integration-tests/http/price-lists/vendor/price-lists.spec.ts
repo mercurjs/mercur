@@ -1,6 +1,7 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(50000)
 
@@ -342,24 +343,12 @@ medusaIntegrationTestRunner({
 
             describe("POST /vendor/price-lists/:id/products", () => {
                 it("should remove products from price list", async () => {
-                    const productResponse = await api.post(
-                        `/vendor/products`,
-                        {
-                            title: "Product for Price List",
-                            options: [{ title: "Default", values: ["Default"] }],
-                            variants: [
-                                {
-                                    title: "Default Variant",
-                                    options: { Default: "Default" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
-                                },
-                            ],
-                        },
-                        seller1Headers
-                    )
+                    const product = await createVendorProduct(api, seller1Headers, {
+                        title: "Product for Price List",
+                    })
 
-                    const productId = productResponse.data.product.id
-                    const variantId = productResponse.data.product.variants[0].id
+                    const productId = product.id
+                    const variantId = product.variants[0].id
 
                     const priceListResponse = await api.post(
                         `/vendor/price-lists`,
@@ -417,24 +406,12 @@ medusaIntegrationTestRunner({
                 })
 
                 it("should not allow seller to remove products from another seller's price list", async () => {
-                    const productResponse = await api.post(
-                        `/vendor/products`,
-                        {
-                            title: "Seller 1 Product",
-                            options: [{ title: "Default", values: ["Default"] }],
-                            variants: [
-                                {
-                                    title: "Default Variant",
-                                    options: { Default: "Default" },
-                                    prices: [{ currency_code: "usd", amount: 1000 }],
-                                },
-                            ],
-                        },
-                        seller1Headers
-                    )
+                    const product = await createVendorProduct(api, seller1Headers, {
+                        title: "Seller 1 Product",
+                    })
 
-                    const productId = productResponse.data.product.id
-                    const variantId = productResponse.data.product.variants[0].id
+                    const productId = product.id
+                    const variantId = product.variants[0].id
 
                     const priceListResponse = await api.post(
                         `/vendor/price-lists`,

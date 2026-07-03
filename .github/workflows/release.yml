@@ -38,6 +38,8 @@ jobs:
         run: |
           if [[ "${{ github.ref_name }}" == *canary* ]]; then
             echo "tag=canary" >> "$GITHUB_OUTPUT"
+          elif [[ "${{ github.ref_name }}" == *rc* ]]; then
+            echo "tag=rc" >> "$GITHUB_OUTPUT"
           else
             echo "tag=latest" >> "$GITHUB_OUTPUT"
           fi

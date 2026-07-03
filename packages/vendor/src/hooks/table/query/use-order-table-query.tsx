@@ -16,10 +16,7 @@ export const useOrderTableQuery = ({
       "q",
       "created_at",
       "updated_at",
-      "region_id",
-      "sales_channel_id",
-      "payment_status",
-      "fulfillment_status",
+      "request",
       "order",
     ],
     prefix,
@@ -27,26 +24,22 @@ export const useOrderTableQuery = ({
 
   const {
     offset,
-    sales_channel_id,
     created_at,
     updated_at,
-    fulfillment_status,
-    payment_status,
-    region_id,
+    request,
     q,
     order,
   } = queryObject;
 
-  const searchParams: HttpTypes.AdminOrderFilters = {
+  const searchParams: HttpTypes.AdminOrderFilters & {
+    request?: string[];
+  } = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
-    sales_channel_id: sales_channel_id?.split(","),
-    fulfillment_status: fulfillment_status?.split(","),
-    payment_status: payment_status?.split(","),
+    request: request?.split(","),
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
-    region_id: region_id?.split(","),
-    order: order ? order : "-created_at",
+    order: order ? order : "-display_id",
     q,
   };
 

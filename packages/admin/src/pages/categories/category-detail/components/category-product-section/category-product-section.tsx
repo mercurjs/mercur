@@ -1,5 +1,6 @@
 import { ExclamationCircle, PlusMini } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
+import { ProductDTO } from "@mercurjs/types";
 import {
   Checkbox,
   CommandBar,
@@ -10,7 +11,7 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import { RowSelectionState, createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -130,24 +131,27 @@ export const CategoryProductSection = ({
           </Text>
         </div>
       ) : (
-      <_DataTable
-        table={table}
-        filters={filters}
-        columns={columns}
-        orderBy={[
-          { key: "title", label: t("fields.title") },
-          { key: "created_at", label: t("fields.createdAt") },
-          { key: "updated_at", label: t("fields.updatedAt") },
-        ]}
-        pageSize={PAGE_SIZE}
-        count={count}
-        navigateTo={(row) => `/products/${row.id}`}
-        isLoading={isLoading}
-        queryObject={raw}
-        noRecords={{
-          message: t("categories.products.list.noRecordsMessage"),
-        }}
-      />
+        <_DataTable
+          table={table}
+          filters={filters}
+          columns={columns}
+          orderBy={[
+            { key: "title", label: t("fields.title") },
+            { key: "created_at", label: t("fields.createdAt") },
+            { key: "updated_at", label: t("fields.updatedAt") },
+          ]}
+          defaultOrder={searchParams.order}
+          pageSize={PAGE_SIZE}
+          count={count}
+          navigateTo={(row) => `/products/${row.id}`}
+          isLoading={isLoading}
+          queryObject={raw}
+          noRecords={{
+            icon: null,
+            title: t("categories.products.list.noRecordsTitle"),
+            message: t("categories.products.list.noRecordsMessage"),
+          }}
+        />
       )}
       <CommandBar open={!!Object.keys(selection).length}>
         <CommandBar.Bar>
@@ -168,7 +172,7 @@ export const CategoryProductSection = ({
   );
 };
 
-const columnHelper = createColumnHelper<HttpTypes.AdminProduct>();
+const columnHelper = createColumnHelper<ProductDTO>();
 
 const useColumns = () => {
   const base = useProductTableColumns();
@@ -177,31 +181,27 @@ const useColumns = () => {
     () => [
       columnHelper.display({
         id: "select",
-        header: ({ table }) => {
-          return (
-            <Checkbox
-              checked={
-                table.getIsSomePageRowsSelected()
-                  ? "indeterminate"
-                  : table.getIsAllPageRowsSelected()
-              }
-              onCheckedChange={(value) =>
-                table.toggleAllPageRowsSelected(!!value)
-              }
-            />
-          );
-        },
-        cell: ({ row }) => {
-          return (
-            <Checkbox
-              checked={row.getIsSelected()}
-              onCheckedChange={(value) => row.toggleSelected(!!value)}
-              onClick={(e) => {
-                e.stopPropagation();
-              }}
-            />
-          );
-        },
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsSomePageRowsSelected()
+                ? "indeterminate"
+                : table.getIsAllPageRowsSelected()
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+            data-testid="products-table-header-select-checkbox"
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            onClick={(e) => e.stopPropagation()}
+            data-testid={`products-table-cell-${row.id}-select-checkbox`}
+          />
+        ),
       }),
       ...base,
     ],

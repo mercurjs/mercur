@@ -1,0 +1,7 @@
+export * from "./offer-detail-general-section"
+export * from "./offer-variants-section"
+export * from "./offer-associated-product-section"
+export * from "./offer-inventory-section"
+export * from "./offer-pricing-section"
+export * from "./offer-store-sidebar"
+export * from "./offer-detail-store-section"

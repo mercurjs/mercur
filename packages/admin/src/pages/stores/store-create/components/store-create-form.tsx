@@ -50,7 +50,7 @@ export const StoreCreateForm = ({ children }: StoreCreateFormProps) => {
       });
 
       toast.success(
-        t("stores.create.successToast", "Store created successfully"),
+        t("stores.create.successToast"),
       );
       handleSuccess();
     } catch (error) {

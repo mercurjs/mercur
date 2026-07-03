@@ -14,9 +14,6 @@ export default defineConfig(({ mode }) => {
       mercurDashboardPlugin({
         medusaConfigPath: '../api/medusa-config.ts',
         ...(backendUrl ? { backendUrl } : {}),
-        components: {
-          StoreSetup: 'components/store-setup/store-setup',
-        },
       }),
     ],
   }

@@ -446,19 +446,13 @@
       "tabs": {
         "details": "Detalles",
         "organize": "Organizar",
-        "variants": "Variantes",
-        "inventory": "Kits de inventario"
+        "variants": "Variantes"
       },
       "errors": {
         "variants": "Por favor, selecciona al menos una variante.",
         "options": "Por favor, crea al menos una opción.",
-        "uniqueSku": "El SKU debe ser único."
-      },
-      "inventory": {
-        "heading": "Kits de inventario",
-        "label": "Agrega ítems de inventario al kit de inventario de la variante.",
-        "itemPlaceholder": "Selecciona ítem de inventario",
-        "quantityPlaceholder": "¿Cuántos de estos se necesitan para el kit?"
+        "uniqueSku": "El SKU debe ser único.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Variantes",
@@ -481,7 +475,21 @@
           "hint": "Define las opciones del producto, por ejemplo, color, tamaño, etc."
         }
       },
-      "successToast": "Producto {{title}} creado correctamente."
+      "successToast": "Producto {{title}} creado correctamente.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Exportar lista de productos",
@@ -535,7 +543,6 @@
     "attributes": "Atributos",
     "editAttributes": "Editar Atributos",
     "editOptions": "Editar Opciones",
-    "editPrices": "Editar precios",
     "media": {
       "label": "Medios",
       "editHint": "Agrega medios al producto para mostrarlo en tu tienda.",
@@ -568,6 +575,7 @@
       "draft": "Borrador",
       "published": "Publicado",
       "proposed": "Propuesto",
+      "requires_action": "Changes required",
       "rejected": "Rechazado"
     },
     "fields": {
@@ -661,27 +669,18 @@
         "header": "Detalles de la Variante"
       },
       "deleteWarning": "¿Estás seguro de que quieres eliminar esta variante?",
-      "pricesPagination": "1 - {{current}} de {{total}} precios",
       "tableItemAvailable": "{{availableCount}} disponible",
       "tableItem_one": "{{availableCount}} disponible en {{locationCount}} ubicación",
       "tableItem_other": "{{availableCount}} disponible en {{locationCount}} ubicaciones",
       "inventory": {
         "notManaged": "No gestionado",
-        "manageItems": "Gestionar ítems de inventario",
-        "notManagedDesc": "El inventario no está gestionado para esta variante. Activa 'Gestionar Inventario' para hacer un seguimiento del inventario de la variante.",
-        "manageKit": "Gestionar kit de inventario",
         "navigateToItem": "Ir al ítem de inventario",
-        "actions": {
-          "inventoryItems": "Ir al ítem de inventario",
-          "inventoryKit": "Mostrar ítems de inventario"
-        },
         "inventoryKit": "Kit de Inventario",
         "inventoryKitHint": "¿Esta variante consiste en varios ítems de inventario?",
         "validation": {
           "itemId": "Por favor, selecciona un ítem de inventario.",
           "quantity": "Se requiere la cantidad. Por favor, ingresa un número positivo."
         },
-        "header": "Stock & Inventario",
         "editItemDetails": "Editar detalles del ítem",
         "manageInventoryLabel": "Gestionar inventario",
         "manageInventoryHint": "Cuando se habilite, cambiaremos la cantidad de inventario por ti cuando se creen pedidos y devoluciones.",
@@ -714,15 +713,6 @@
         "toasts": {
           "success": "Organización de {{title}} actualizada correctamente."
         }
-      }
-    },
-    "stock": {
-      "heading": "Gestionar niveles de stock y ubicaciones de productos",
-      "description": "Actualiza los niveles de inventario en stock para todas las variantes del producto.",
-      "loading": "Espera un momento, esto puede tardar...",
-      "tooltips": {
-        "alreadyManaged": "Este artículo de inventario ya es editable bajo {{title}}.",
-        "alreadyManagedWithSku": "Este artículo de inventario ya es editable bajo {{title}} ({{sku}})."
       }
     },
     "shippingProfile": {
@@ -3148,7 +3138,8 @@
     "startDate": "Fecha de inicio",
     "endDate": "Fecha de finalización",
     "draft": "Borrador",
-    "values": "Valores"
+    "values": "Valores",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Año",
@@ -3165,5 +3156,23 @@
     "minutes_other": "Minutos",
     "seconds_one": "Segundo",
     "seconds_other": "Segundos"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

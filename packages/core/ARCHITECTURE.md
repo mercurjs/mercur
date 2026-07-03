@@ -11,8 +11,8 @@ the `withMercur(...)` config wrapper.
 The plugin contributes:
 
 - Custom data modules (sellers, members, invites, commissions, payouts,
-  subscriptions, attributes, vendor-product attributes, custom fields,
-  embedded admin/vendor dashboards, codegen).
+  attributes, vendor-product attributes, custom fields, embedded
+  admin/vendor dashboards, codegen).
 - Module links that associate Mercur entities with first-party Medusa
   entities (product, order, cart, fulfillment, inventory, promotion,
   etc.).
@@ -20,8 +20,8 @@ The plugin contributes:
   `/vendor/*` (seller-facing), `/store/*` (customer-facing), plus
   `/hooks/*` for inbound webhooks.
 - Workflows + steps that orchestrate seller, cart, order-group,
-  payout, commission, subscription, promotion, campaign, shipping,
-  inventory, and price-list flows.
+  payout, commission, promotion, campaign, shipping, inventory, and
+  price-list flows.
 - Subscribers that bridge framework events (e.g. payout webhooks) into
   workflows.
 - Embedded admin and vendor dashboards served by the API process in
@@ -52,14 +52,14 @@ The plugin contributes:
 |                   Workflow Layer (src/workflows)                 |
 |  seller / cart / order-group / payout / commission /             |
 |  promotion / campaign / shipping-* / inventory-item /            |
-|  price-list / subscription / custom-fields / hooks /             |
+|  price-list / custom-fields / hooks /                            |
 |  events.ts (event name constants)                                |
 +-----------------------------------------------------------------+
         |  step.run() / module.<method>()
         v
 +-----------------------------------------------------------------+
 |                     Module Layer (src/modules)                   |
-|  seller | commission | payout | subscription | attribute |       |
+|  seller | commission | payout | attribute |                     |
 |  vendor-product-attribute | custom-fields | admin-ui |           |
 |  vendor-ui | codegen                                             |
 |    Each module: index.ts (Module(...)), service.ts,              |
@@ -108,7 +108,6 @@ Each module is a self-contained Medusa module with `index.ts` calling
 | `seller` | `Seller`, `SellerMember`, `Member`, `MemberInvite`, `Address`, `ProfessionalDetails`, `PaymentDetails`, `OrderGroup` | Seller identity, members, invites (JWT-signed), and per-seller order groups. Hosts `SellerModuleService` with seller validation, member upsert, invite-token generation/verification, and `OrderGroupRepository`. |
 | `commission` | `CommissionRule`, `CommissionRate`, `CommissionLine` | Commission configuration and persisted lines linked to order line items. |
 | `payout` | `Payout`, `PayoutAccount`, `Onboarding` | Payout records and provider-driven onboarding state; loads payout providers via `loaders/provider.ts`. |
-| `subscription` | `SubscriptionPlan`, `SubscriptionOverride` | Seller subscription plans and per-seller overrides. |
 | `attribute` | `Attribute`, `AttributeValue`, `AttributePossibleValue` | Attribute definitions and assignable values. |
 | `vendor-product-attribute` | `VendorProductAttribute` | Vendor-scoped attribute extensions on products. |
 | `custom-fields` | (no models) | Loader-based schema for user-defined custom fields on core entities. |
@@ -156,11 +155,11 @@ File-based routing with three top-level scopes plus webhook hooks:
 
 - `src/api/admin/*` -- marketplace-operator endpoints
   (`attributes`, `commission-rates`, `members`, `order-groups`,
-  `orders`, `payouts`, `products`, `sellers`, `subscription-plans`).
+  `orders`, `payouts`, `products`, `sellers`).
 - `src/api/vendor/*` -- seller-facing endpoints covering the full
   vendor surface (products, orders, fulfillment, returns, payouts,
   promotions, price lists, shipping, customers, members, uploads,
-  subscription, etc.).
+  etc.).
 - `src/api/store/*` -- customer-facing endpoints
   (`carts`, `order-groups`, `products`, `sellers`, `shipping-options`).
 - `src/api/hooks/*` -- inbound webhooks (e.g. payout providers).
@@ -239,7 +238,7 @@ Notable groups:
   `processPayoutForWebhookWorkflow` invoked by the subscriber.
 - `commission/`, `promotion/`, `campaign/`, `shipping-option/`,
   `shipping-profile/`, `stock-location/`, `inventory-item/`,
-  `price-list/`, `subscription/`, `custom-fields/`.
+  `price-list/`, `custom-fields/`.
 - `hooks/` -- workflow hooks (e.g. `product-created`,
   `product-variant-created`) attached to first-party Medusa workflows
   to enrich them with marketplace behavior.

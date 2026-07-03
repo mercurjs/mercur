@@ -414,19 +414,13 @@
       "tabs": {
         "details": "Részletek",
         "organize": "Rendszerezés",
-        "variants": "Variánsok",
-        "inventory": "Készlet"
+        "variants": "Variánsok"
       },
       "errors": {
         "variants": "Kérjük, válasszon legalább egy variánst.",
         "options": "Kérjük, adjon hozzá legalább egy termékopciót.",
-        "uniqueSku": "A SKU értéknek egyedinek kell lennie."
-      },
-      "inventory": {
-        "heading": "Készlet",
-        "label": "Elemek hozzáadása a készlethez",
-        "itemPlaceholder": "Készletelem kiválasztása",
-        "quantityPlaceholder": "Mennyi szükséges a készlethez?"
+        "uniqueSku": "A SKU értéknek egyedinek kell lennie.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Variánsok",
@@ -449,7 +443,21 @@
           "hint": "Az opciók segítségével meghatározhatja a termék tulajdonságait, például a színt vagy a méretet."
         }
       },
-      "successToast": "A {{title}} termék sikeresen létrehozva."
+      "successToast": "A {{title}} termék sikeresen létrehozva.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Terméklista exportálása",
@@ -503,7 +511,6 @@
     "attributes": "Attribútumok",
     "editAttributes": "Attribútumok szerkesztése",
     "editOptions": "Opciók szerkesztése",
-    "editPrices": "Árak szerkesztése",
     "media": {
       "label": "Média",
       "editHint": "A termék média szerkesztése",
@@ -536,6 +543,7 @@
       "draft": "Piszkozat",
       "published": "Közzétéve",
       "proposed": "Javasolt",
+      "requires_action": "Changes required",
       "rejected": "Elutasítva"
     },
     "fields": {
@@ -625,27 +633,18 @@
         "header": "Variáns részletei"
       },
       "deleteWarning": "Biztosan törölni szeretné a variánst?",
-      "pricesPagination": "1 - {{current}} - {{total}} árak",
       "tableItemAvailable": "{{availableCount}} elérhető",
       "tableItem_one": "{{availableCount}} elérhető {{locationCount}} helyszínen",
       "tableItem_other": "{{availableCount}} elérhető {{locationCount}} helyszínen",
       "inventory": {
         "notManaged": "Nem kezelt",
-        "manageItems": "Készletelemek kezelése",
-        "notManagedDesc": "Ennél a változatnál a készlet nem kerül kezelésre. Kapcsolja be a „Készlet kezelése” opciót a változat készletének nyomon követéséhez.",
-        "manageKit": "Készletcsomag kezelése",
         "navigateToItem": "Ugrás a készletelemhez",
-        "actions": {
-          "inventoryItems": "Ugrás a készletelemhez",
-          "inventoryKit": "Készletelemek mutatása"
-        },
         "inventoryKit": "Készletcsomag",
         "inventoryKitHint": "Ez a variáns egy készletcsomag, amely több készletelemet tartalmaz?",
         "validation": {
           "itemId": "Készletelem kiválasztása kötelező.",
           "quantity": "A mennyiség mező kitöltése kötelező."
         },
-        "header": "Készletkezelés",
         "editItemDetails": "Készletelem részleteinek szerkesztése",
         "manageInventoryLabel": "Készlet automatikus kezelése",
         "manageInventoryHint": "Ha engedélyezve van, akkor a megrendelések és visszáru létrehozásakor megváltoztatjuk a készlet mennyiségét.",
@@ -678,15 +677,6 @@
         "toasts": {
           "success": "{{title}} szervezete sikeresen frissítve."
         }
-      }
-    },
-    "stock": {
-      "heading": "A termékkészletszintek és helyszínek kezelése",
-      "description": "A termék összes változatának készletszintjének frissítése.",
-      "loading": "Egy pillanat...",
-      "tooltips": {
-        "alreadyManaged": "Ez a leltári tétel már szerkeszthető {{title}} név alatt.",
-        "alreadyManagedWithSku": "Ez a leltári tétel már szerkeszthető {{title}} ({{sku}}) név alatt."
       }
     },
     "shippingProfile": {
@@ -2989,7 +2979,8 @@
     "startDate": "Kezdési dátum",
     "endDate": "Befejezési dátum",
     "draft": "Piszkozat",
-    "values": "Értékek"
+    "values": "Értékek",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Év",
@@ -3006,5 +2997,23 @@
     "minutes_other": "Percek",
     "seconds_one": "Másodperc",
     "seconds_other": "Másodpercek"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

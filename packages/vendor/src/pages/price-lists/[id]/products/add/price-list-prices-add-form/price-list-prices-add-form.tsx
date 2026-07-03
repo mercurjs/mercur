@@ -22,7 +22,7 @@ import {
 
 type PriceListPricesAddFormProps = {
   priceList: HttpTypes.AdminPriceList;
-  currencies: HttpTypes.AdminStoreCurrency[];
+  currencies: string[];
   regions: HttpTypes.AdminRegion[];
   pricePreferences: HttpTypes.AdminPricePreference[];
 };
@@ -84,7 +84,7 @@ export const PriceListPricesAddForm = ({
     },
     (errors) => {
       if (errors.products) {
-        toast.error("At least one price must be added.");
+        toast.error(t("priceLists.products.add.atLeastOnePrice"));
       }
     },
   );

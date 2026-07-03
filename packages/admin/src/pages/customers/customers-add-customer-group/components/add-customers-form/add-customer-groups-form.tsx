@@ -119,13 +119,16 @@ export const AddCustomerGroupsForm = ({
     try {
       await batchCustomerCustomerGroups({ add: data.customer_group_ids });
 
+      const names = data.customer_group_ids
+        .map((id) => customer_groups?.find((g) => g.id === id)?.name)
+        .filter(Boolean);
+
       toast.success(
-        t("customers.groups.add.success", {
-          groups: data.customer_group_ids
-            .map((id) => customer_groups?.find((g) => g.id === id))
-            .filter(Boolean)
-            .map((cg) => cg?.name),
-        }),
+        names.length === 1
+          ? t("customers.groups.add.successOne", { groups: names[0] })
+          : t("customers.groups.add.successMany", {
+              groups: names.join(", "),
+            }),
       );
 
       handleSuccess(`/customers/${customerId}`);

@@ -48,6 +48,18 @@ export const vendorShippingOptionsMiddlewares: MiddlewareRoute[] = [
         VendorGetShippingOptionsParams,
         vendorShippingOptionQueryConfig.list
       ),
+      // Mirrors admin's `/admin/shipping-options` middleware: the raw
+      // `stock_location_id` query param doesn't exist on `shipping_option`
+      // — it has to be translated into a `service_zone.fulfillment_set_id`
+      // filter via the `location_fulfillment_set` link. Without this hop
+      // the query graph blows up with a 500 on
+      // `?stock_location_id=sloc_…`.
+      maybeApplyLinkFilter({
+        entryPoint: "location_fulfillment_set",
+        resourceId: "fulfillment_set_id",
+        filterableField: "stock_location_id",
+        filterByField: "service_zone.fulfillment_set_id",
+      }),
       applySellerShippingOptionLinkFilter,
     ],
   },

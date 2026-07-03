@@ -3,6 +3,8 @@
 All packages are published under the `@mercurjs` scope on npm.
 
 - **Stable** releases use the `latest` npm tag (default)
+- **Release candidate** (`rc`) releases use the `rc` npm tag — a preview of an
+  upcoming stable release, published for testing before it is promoted
 - **Canary** releases use the `canary` npm tag
 
 ## Published Packages
@@ -18,6 +20,23 @@ All packages are published under the `@mercurjs` scope on npm.
 
 `@mercurjs/registry` is private and not published.
 
+## Internal Dependencies
+
+Published packages depend on each other (e.g. `@mercurjs/admin` → `@mercurjs/client`).
+These cross-dependencies **must be pinned to the exact release version** in each
+package's `package.json` — never `workspace:*`.
+
+`npm publish` (used by the release workflow) does not resolve the `workspace:`
+protocol the way bun/pnpm/yarn do, so a `workspace:*` specifier is published
+verbatim and every yarn/npm consumer then fails with `Workspace not found`.
+Pinning the exact version makes the tarballs install correctly under any package
+manager while still linking to the local workspace during development (the local
+package satisfies the exact version).
+
+When bumping the release version, bump these internal specifiers to the same
+value. Only the dev-only, never-published workspaces (the repo-root
+`package.json` and `apps/*`) may keep `workspace:*`.
+
 ## How to Release
 
 ### Stable Release
@@ -28,7 +47,26 @@ All packages are published under the `@mercurjs` scope on npm.
 "version": "2.X.Y"
 ```
 
-2. Commit and tag:
+   Also bump every internal `@mercurjs/*` cross-dependency in `packages/*` and
+   `packages/providers/*` to the same `2.X.Y` (see [Internal Dependencies](#internal-dependencies)).
+
+2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template so newly scaffolded projects pin to the matching release:
+
+   - `templates/basic/package.json` — `@mercurjs/dashboard-sdk`, `@mercurjs/dashboard-shared`, `@mercurjs/client`
+   - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
+   - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
+   - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
+
+3. Refresh the lockfile so workspace versions match `package.json`:
+
+```bash
+bun install
+```
+
+   Commit the updated `bun.lock` together with the version bumps — CI runs
+   `bun install --frozen-lockfile` and will fail otherwise.
+
+4. Commit and tag:
 
 ```bash
 git add -A
@@ -37,7 +75,7 @@ git tag v2.X.Y
 git push origin main --tags
 ```
 
-3. The GitHub Action (`.github/workflows/release.yml`) triggers automatically and:
+5. The GitHub Action (`.github/workflows/release.yml`) triggers automatically and:
    - Generates a GitHub Release with changelog via `changelogithub`
    - Builds all packages with `bun run build` (Turborepo)
    - Publishes every non-private package to npm with `--tag latest`
@@ -52,7 +90,26 @@ git push origin main --tags
 
 Where `Z` is the next incremental number (0, 1, 2, ...).
 
-2. Commit and tag:
+   Also bump every internal `@mercurjs/*` cross-dependency in `packages/*` and
+   `packages/providers/*` to the same `2.X.Y-canary.Z` (see [Internal Dependencies](#internal-dependencies)).
+
+2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template to the same `2.X.Y-canary.Z` value:
+
+   - `templates/basic/package.json` — `@mercurjs/dashboard-sdk`, `@mercurjs/dashboard-shared`, `@mercurjs/client`
+   - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
+   - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
+   - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
+
+3. Refresh the lockfile so workspace versions match `package.json`:
+
+```bash
+bun install
+```
+
+   Commit the updated `bun.lock` together with the version bumps — CI runs
+   `bun install --frozen-lockfile` and will fail otherwise.
+
+4. Commit and tag:
 
 ```bash
 git add -A
@@ -61,13 +118,61 @@ git tag v2.X.Y-canary.Z
 git push origin canary --tags
 ```
 
-3. The GitHub Action detects `canary` in the tag name and publishes with `--tag canary`.
+5. The GitHub Action detects `canary` in the tag name and publishes with `--tag canary`.
+
+### Release Candidate
+
+A release candidate is a preview of an upcoming stable release. It is believed
+shippable and is published so it can be tested before being promoted to
+`latest`. Once an `rc` is verified, cut the stable release with the same
+`2.X.Y` version (dropping the `-rc.Z` suffix).
+
+1. Bump the version in every package's `package.json`:
+
+```
+"version": "2.X.Y-rc.Z"
+```
+
+Where `Z` is the next incremental number (0, 1, 2, ...).
+
+   Also bump every internal `@mercurjs/*` cross-dependency in `packages/*` and
+   `packages/providers/*` to the same `2.X.Y-rc.Z` (see [Internal Dependencies](#internal-dependencies)).
+
+2. Bump every `@mercurjs/*` dependency version inside the `templates/basic` template to the same `2.X.Y-rc.Z` value:
+
+   - `templates/basic/package.json` — `@mercurjs/dashboard-sdk`, `@mercurjs/dashboard-shared`, `@mercurjs/client`
+   - `templates/basic/packages/api/package.json` — `@mercurjs/core`, `@mercurjs/types`, `@mercurjs/cli`
+   - `templates/basic/apps/admin/package.json` — `@mercurjs/admin`
+   - `templates/basic/apps/vendor/package.json` — `@mercurjs/vendor`
+
+3. Refresh the lockfile so workspace versions match `package.json`:
+
+```bash
+bun install
+```
+
+   Commit the updated `bun.lock` together with the version bumps — CI runs
+   `bun install --frozen-lockfile` and will fail otherwise.
+
+4. Commit and tag:
+
+```bash
+git add -A
+git commit -m "chore: v2.X.Y-rc.Z"
+git tag v2.X.Y-rc.Z
+git push origin canary --tags
+```
+
+5. The GitHub Action detects `rc` in the tag name and publishes with `--tag rc`.
 
 ## Installing Packages
 
 ```bash
 # Stable (latest)
 npm install @mercurjs/cli
+
+# Release candidate
+npm install @mercurjs/cli@rc
 
 # Canary
 npm install @mercurjs/cli@canary
@@ -78,6 +183,9 @@ npm install @mercurjs/cli@canary
 ```
 v2.0.0-canary.0   # first canary
 v2.0.0-canary.1   # second canary
+...
+v2.0.0-rc.0        # first release candidate
+v2.0.0-rc.1        # second release candidate
 ...
 v2.0.0             # stable
 v2.0.1             # patch

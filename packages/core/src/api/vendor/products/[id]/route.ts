@@ -1,4 +1,3 @@
-import { deleteProductsWorkflow } from "@medusajs/core-flows"
 import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
@@ -7,21 +6,31 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { HttpTypes } from "@mercurjs/types"
+import { AdditionalData } from "@medusajs/framework/types"
+import { HttpTypes, ProductChangeDTO } from "@mercurjs/types"
 
-import { validateSellerProduct } from "../helpers"
+import { productEditDeleteProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-delete-product"
+import { productEditUpdateProductWorkflow } from "../../../../workflows/product-edit/workflows/product-edit-update-product"
+import {
+  enrichProductAttributes,
+  wrapProductVariantsWithOffers,
+} from "../../../utils"
 import { VendorUpdateProductType } from "../validators"
-import { transformProductWithInformationalAttributes } from "../utils/transform-product-attributes"
-import { updateProductWithVariantImagesWorkflow } from "../../../../workflows/product-attribute/workflows/update-product-with-variant-images"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<HttpTypes.VendorProductResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
 
-  await validateSellerProduct(req.scope, sellerId, req.params.id)
+  const withOffers = req.queryConfig.fields.some((field) =>
+    field.includes("variants.offers")
+  )
+  if (withOffers) {
+    req.queryConfig.fields = req.queryConfig.fields.filter(
+      (field) => !field.includes("variants.offers")
+    )
+  }
 
   const {
     data: [product],
@@ -38,66 +47,67 @@ export const GET = async (
     )
   }
 
-  const transformedProduct = transformProductWithInformationalAttributes(
-    product as any
-  )
+  await enrichProductAttributes(req.scope, [product])
 
-  res.json({ product: transformedProduct })
+  if (withOffers) {
+    await wrapProductVariantsWithOffers(
+      req.scope,
+      [product] as Parameters<typeof wrapProductVariantsWithOffers>[1],
+      req.seller_context!.seller_id
+    )
+  }
+
+  res.json({ product })
 }
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest<VendorUpdateProductType>,
-  res: MedusaResponse<HttpTypes.VendorProductResponse>
+  req: AuthenticatedMedusaRequest<VendorUpdateProductType & AdditionalData>,
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
-  const { additional_data, ...update } = req.validatedBody
+  const sellerId = req.seller_context!.seller_id
 
-  await validateSellerProduct(req.scope, sellerId, req.params.id)
+  const { additional_data: _ad, ...update } = req.validatedBody
 
-  const { result } = await updateProductWithVariantImagesWorkflow(
-    req.scope
-  ).run({
+  const { result } = await productEditUpdateProductWorkflow(req.scope).run({
     input: {
-      selector: { id: req.params.id },
-      update,
-      additional_data: {
-        ...additional_data,
-        seller_id: sellerId,
-      },
+      product_id: req.params.id,
+      created_by: sellerId,
+      update: update as Record<string, unknown>,
     },
   })
 
   const {
-    data: [product],
+    data: [product_change],
   } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: { id: result[0].id },
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
   })
 
-  const transformedProduct = transformProductWithInformationalAttributes(
-    product as any
-  )
-
-  res.json({ product: transformedProduct })
+  res.status(202).json({ product_change: product_change ?? result })
 }
 
 export const DELETE = async (
   req: AuthenticatedMedusaRequest,
-  res: MedusaResponse<HttpTypes.VendorDeleteResponse>
+  res: MedusaResponse<{ product_change: ProductChangeDTO }>
 ) => {
-  const sellerId =  req.seller_context!.seller_id
-
-  await validateSellerProduct(req.scope, sellerId, req.params.id)
-
-  await deleteProductsWorkflow(req.scope).run({
-    input: { ids: [req.params.id] },
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const sellerId = req.seller_context!.seller_id
+  const { result } = await productEditDeleteProductWorkflow(req.scope).run({
+    input: {
+      product_id: req.params.id,
+      created_by: sellerId,
+    },
   })
 
-  res.json({
-    id: req.params.id,
-    object: "product",
-    deleted: true,
+  const {
+    data: [product_change],
+  } = await query.graph({
+    entity: "product_change",
+    fields: ["*", "actions.*"],
+    filters: { id: result.id },
   })
+
+  res.status(202).json({ product_change: product_change ?? result })
 }

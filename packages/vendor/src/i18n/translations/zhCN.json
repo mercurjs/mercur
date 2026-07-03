@@ -414,19 +414,13 @@
       "tabs": {
         "details": "详情",
         "organize": "组织",
-        "variants": "变体",
-        "inventory": "库存套件"
+        "variants": "变体"
       },
       "errors": {
         "variants": "请至少选择一个变体。",
         "options": "请至少创建一个选项。",
-        "uniqueSku": "SKU 必须唯一。"
-      },
-      "inventory": {
-        "heading": "库存套件",
-        "label": "将库存项目添加到变体的库存套件中。",
-        "itemPlaceholder": "选择库存项目",
-        "quantityPlaceholder": "套件需要多少这种商品？"
+        "uniqueSku": "SKU 必须唯一。",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "变体",
@@ -449,7 +443,21 @@
           "hint": "定义产品的选项,例如颜色、尺寸等。"
         }
       },
-      "successToast": "产品 {{title}} 创建成功。"
+      "successToast": "产品 {{title}} 创建成功。",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "导出产品列表",
@@ -503,7 +511,6 @@
     "attributes": "属性",
     "editAttributes": "编辑属性",
     "editOptions": "编辑选项",
-    "editPrices": "编辑价格",
     "media": {
       "label": "媒体",
       "editHint": "添加媒体到产品以在您的店面展示它。",
@@ -536,6 +543,7 @@
       "draft": "草稿",
       "published": "已发布",
       "proposed": "已提议",
+      "requires_action": "Changes required",
       "rejected": "已拒绝"
     },
     "fields": {
@@ -629,27 +637,18 @@
         "header": "变体详情"
       },
       "deleteWarning": "您确定要删除此变体吗？",
-      "pricesPagination": "第 1-{{current}} 个价格,共 {{total}} 个",
       "tableItemAvailable": "{{availableCount}} 个可用",
       "tableItem_one": "{{availableCount}} 个可用,位于 {{locationCount}} 个位置",
       "tableItem_other": "{{availableCount}} 个可用,位于 {{locationCount}} 个位置",
       "inventory": {
         "notManaged": "未管理",
-        "manageItems": "管理库存项目",
-        "notManagedDesc": "此变体未管理库存。启用`管理库存`以跟踪变体的库存。",
-        "manageKit": "管理库存套件",
         "navigateToItem": "转到库存项目",
-        "actions": {
-          "inventoryItems": "转到库存项目",
-          "inventoryKit": "显示库存项目"
-        },
         "inventoryKit": "库存套件",
         "inventoryKitHint": "此变体是否由多个库存项目组成？",
         "validation": {
           "itemId": "请选择库存项目。",
           "quantity": "数量为必填项。请输入一个正数。"
         },
-        "header": "库存与库存",
         "editItemDetails": "编辑项目详情",
         "manageInventoryLabel": "管理库存",
         "manageInventoryHint": "启用后,我们将在创建订单和退货时为您更改库存数量。",
@@ -682,15 +681,6 @@
         "toasts": {
           "success": "{{title}} 的组织更新成功。"
         }
-      }
-    },
-    "stock": {
-      "heading": "管理产品库存数量和库存地点",
-      "description": "更新所有产品变体的库存数量。",
-      "loading": "请稍候,这可能需要一点时间...",
-      "tooltips": {
-        "alreadyManaged": "此库存项目已可在 {{title}} 下编辑。",
-        "alreadyManagedWithSku": "此库存项目已可在 {{title}} ({{sku}}) 下编辑。"
       }
     },
     "shippingProfile": {
@@ -3001,7 +2991,8 @@
     "startDate": "开始日期",
     "endDate": "结束日期",
     "draft": "草稿",
-    "values": "值"
+    "values": "值",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "年",
@@ -3018,5 +3009,23 @@
     "minutes_other": "分钟",
     "seconds_one": "秒",
     "seconds_other": "秒"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

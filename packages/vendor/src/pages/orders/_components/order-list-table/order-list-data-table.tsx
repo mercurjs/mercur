@@ -28,7 +28,6 @@ export const OrderListDataTable = () => {
       "total",
       "currency_code",
       "*customer",
-      "*sales_channel",
       "*payment_collections",
     ].join(","),
     ...searchParams,
@@ -54,6 +53,7 @@ export const OrderListDataTable = () => {
       columns={columns}
       table={table}
       pagination
+      search
       filters={filters}
       navigateTo={(row) => `/orders/${row.original.id}`}
       count={count}
@@ -73,6 +73,7 @@ export const OrderListDataTable = () => {
           label: t("fields.updatedAt"),
         },
       ]}
+      defaultOrderBy="-display_id"
       queryObject={raw}
       noRecords={{
         message: t("orders.list.noRecordsMessage"),

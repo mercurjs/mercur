@@ -182,7 +182,6 @@ class SellerModuleService extends MedusaService({
     )
     const existingEmailSet = new Set(existingMembers.map((m) => m.email))
 
-    // Check if any invited emails already belong to the seller
     if (existingMembers.length > 0) {
       const memberIds = existingMembers.map((m) => m.id)
       const existingSellerMembers = await this.listSellerMembers(

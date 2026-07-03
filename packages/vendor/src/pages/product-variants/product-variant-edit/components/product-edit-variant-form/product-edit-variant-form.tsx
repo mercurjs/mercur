@@ -1,36 +1,38 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Divider, Heading, Input, toast } from "@medusajs/ui"
+import { InformationCircleSolid } from "@medusajs/icons"
+import { Button, Divider, Heading, Input, Tooltip, toast } from "@medusajs/ui"
+import i18next from "i18next"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
+import { HttpTypes } from "@medusajs/types"
+import { ProductDTO, AttributeType, MercurFeatureFlags } from "@mercurjs/types"
+
 import { Form } from "@components/common/form"
-import { Combobox } from "@components/inputs/combobox"
+import { AttributeValueInput } from "@components/inputs/attribute-value-input"
 import { CountrySelect } from "@components/inputs/country-select"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
+import { useFeatureFlags } from "@hooks/api"
 import { useUpdateProductVariant } from "@hooks/api/products"
 import {
   transformNullableFormData,
   transformNullableFormNumber,
 } from "@lib/form-helpers"
 import { optionalInt } from "@lib/validation"
-import { ExtendedAdminProduct, ExtendedAdminProductVariant } from "@custom-types/products"
 
 type ProductEditVariantFormProps = {
-  product: ExtendedAdminProduct
-  variant?: ExtendedAdminProductVariant
+  product: HttpTypes.AdminProduct
+  variant: HttpTypes.AdminProductVariant
 }
 
 const ProductEditVariantSchema = z.object({
-  title: z.string().min(1),
-  material: z.string().optional(),
+  title: z.string().min(1, i18next.t("products.variant.validation.titleRequired")),
   sku: z.string().optional(),
   ean: z.string().optional(),
   upc: z.string().optional(),
   barcode: z.string().optional(),
-  manage_inventory: z.boolean(),
-  allow_backorder: z.boolean(),
   weight: optionalInt,
   height: optionalInt,
   width: optionalInt,
@@ -38,47 +40,65 @@ const ProductEditVariantSchema = z.object({
   mid_code: z.string().optional(),
   hs_code: z.string().optional(),
   origin_country: z.string().optional(),
-  options: z.record(z.string()),
+  options: z
+    .record(z.string().min(1, i18next.t("products.variant.validation.optionRequired")))
+    .optional(),
 })
 
-// TODO: Either pass option ID or make the backend handle options constraints differently to handle the lack of IDs
 export const ProductEditVariantForm = ({
   variant,
   product,
 }: ProductEditVariantFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
-  const defaultOptions = product.options?.reduce((acc: any, option: any) => {
-    const varOpt = variant?.options?.find((o: any) => o.option_id === option.id)
-    acc[option.title] = varOpt?.value
-    return acc
-  }, {})
+
+  const { feature_flags } = useFeatureFlags()
+  const isProductRequestEnabled =
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
+
+  const variantAttributes =
+    (product as HttpTypes.AdminProduct & Pick<ProductDTO, "attributes">)
+      .attributes?.filter((a) => a.is_variant_axis) ?? []
+
+  // Form fields are keyed by attribute handle/id; the submit payload
+  // translates them to option titles (= attribute names) — the shape
+  // the stock Medusa variant route expects under `options`. Prefill
+  // from the existing variant.options[] (Medusa-side option-value
+  // pairing, matched to the attribute by option title = attribute name).
+  const defaultOptions = variantAttributes.reduce<Record<string, string>>(
+    (acc, attribute) => {
+      const key = attribute.handle ?? attribute.id
+      const matched = variant.options?.find(
+        (o) => o.option?.title === attribute.name,
+      )
+      acc[key] = matched?.value ?? ""
+      return acc
+    },
+    {},
+  )
 
   const form = useForm<z.infer<typeof ProductEditVariantSchema>>({
     defaultValues: {
-      title: variant?.title || "",
-      material: variant?.material || "",
-      sku: variant?.sku || undefined,
-      ean: variant?.ean || "",
-      upc: variant?.upc || "",
-      barcode: variant?.barcode || "",
-      manage_inventory: true,
-      allow_backorder: true,
-      weight: variant?.weight || "",
-      height: variant?.height || "",
-      width: variant?.width || "",
-      length: variant?.length || "",
-      mid_code: variant?.mid_code || "",
-      hs_code: variant?.hs_code || "",
-      origin_country: variant?.origin_country || "",
+      title: variant.title || "",
+      sku: variant.sku || "",
+      ean: variant.ean || "",
+      upc: variant.upc || "",
+      barcode: variant.barcode || "",
+      weight: variant.weight || "",
+      height: variant.height || "",
+      width: variant.width || "",
+      length: variant.length || "",
+      mid_code: variant.mid_code || "",
+      hs_code: variant.hs_code || "",
+      origin_country: variant.origin_country || "",
       options: defaultOptions,
     },
     resolver: zodResolver(ProductEditVariantSchema),
   })
 
   const { mutateAsync, isPending } = useUpdateProductVariant(
-    variant?.product_id,
-    variant?.id
+    variant.product_id!,
+    variant.id,
   )
 
   const handleSubmit = form.handleSubmit(async (data) => {
@@ -88,13 +108,23 @@ export const ProductEditVariantForm = ({
       height,
       width,
       length,
-      allow_backorder,
-      manage_inventory,
       options,
       ...optional
     } = data
 
     const nullableData = transformNullableFormData(optional)
+
+    // Backend keys options by option title (= attribute name). Form
+    // keys by handle/id; remap and drop empties.
+    const cleanedOptions = variantAttributes.reduce<Record<string, string>>(
+      (acc, attr) => {
+        const fieldKey = attr.handle ?? attr.id
+        const v = options?.[fieldKey]
+        if (v && attr.name) acc[attr.name] = v
+        return acc
+      },
+      {},
+    )
 
     await mutateAsync(
       {
@@ -103,20 +133,24 @@ export const ProductEditVariantForm = ({
         width: transformNullableFormNumber(width),
         length: transformNullableFormNumber(length),
         title,
-        allow_backorder,
-        manage_inventory,
-        options,
+        options: Object.keys(cleanedOptions).length
+          ? cleanedOptions
+          : undefined,
         ...nullableData,
       },
       {
         onSuccess: () => {
           handleSuccess("../")
-          toast.success(t("products.variant.edit.success"))
+          toast.success(
+            isProductRequestEnabled
+              ? t("products.edit.requestSuccessToast")
+              : t("products.variant.edit.success"),
+          )
         },
         onError: (error) => {
           toast.error(error.message)
         },
-      }
+      },
     )
   })
 
@@ -143,44 +177,31 @@ export const ProductEditVariantForm = ({
                 )
               }}
             />
-            <Form.Field
-              control={form.control}
-              name="material"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Label optional>{t("fields.material")}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                )
-              }}
-            />
-            {product.options?.map((option: any) => {
+            {variantAttributes.map((attribute) => {
+              const fieldKey = attribute.handle ?? attribute.id
               return (
                 <Form.Field
-                  key={option.id}
+                  key={attribute.id}
                   control={form.control}
-                  name={`options.${option.title}`}
-                  render={({ field: { value, onChange, ...field } }) => {
+                  name={`options.${fieldKey}`}
+                  render={({ field: { value, onChange } }) => {
                     return (
                       <Form.Item>
-                        <Form.Label>{option.title}</Form.Label>
+                        <Form.Label>{attribute.name}</Form.Label>
                         <Form.Control>
-                          <Combobox
-                            value={value}
-                            onChange={(v) => {
-                              onChange(v)
-                            }}
-                            {...field}
-                            options={option.values.map((v: any) => ({
-                              label: v.value,
-                              value: v.value,
-                            }))}
+                          <AttributeValueInput
+                            type={AttributeType.SINGLE_SELECT}
+                            value={typeof value === "string" ? value : ""}
+                            onChange={onChange}
+                            availableValues={(attribute.values ?? []).map(
+                              (v) => ({
+                                id: v.id,
+                                name: v.name,
+                              }),
+                            )}
                           />
                         </Form.Control>
+                        <Form.ErrorMessage />
                       </Form.Item>
                     )
                   }}
@@ -191,9 +212,6 @@ export const ProductEditVariantForm = ({
           <Divider />
           <div className="flex flex-col gap-y-8">
             <div className="flex flex-col gap-y-4">
-              <Heading level="h2">
-                {t("products.variant.inventory.header")}
-              </Heading>
               <Form.Field
                 control={form.control}
                 name="sku"
@@ -258,7 +276,12 @@ export const ProductEditVariantForm = ({
           </div>
           <Divider />
           <div className="flex flex-col gap-y-4">
-            <Heading level="h2">{t("products.attributes")}</Heading>
+            <div className="flex items-center gap-x-1">
+              <Heading level="h2">{t("products.attributes")}</Heading>
+              <Tooltip content={t("products.variant.edit.attributesTooltip")}>
+                <InformationCircleSolid className="text-ui-fg-muted" />
+              </Tooltip>
+            </div>
             <Form.Field
               control={form.control}
               name="weight"

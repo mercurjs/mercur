@@ -18,16 +18,19 @@ const PAGE_SIZE = 20
 export const CategoryListDataTable = () => {
   const { raw, searchParams } = useCategoryTableQuery({ pageSize: PAGE_SIZE })
 
+  const imageFields =
+    "media_images.id,media_images.url,media_images.type,media_images.is_thumbnail,media_images.is_banner"
+
   const query = raw.q
     ? {
         include_ancestors_tree: true,
-        fields: "id,name,handle,is_active,is_internal,parent_category",
+        fields: `id,name,handle,is_active,is_internal,parent_category,${imageFields}`,
         ...searchParams,
       }
     : {
         include_descendants_tree: true,
         parent_category_id: "null",
-        fields: "id,name,category_children,handle,is_internal,is_active",
+        fields: `id,name,category_children,handle,is_internal,is_active,${imageFields}`,
         ...searchParams,
       }
 

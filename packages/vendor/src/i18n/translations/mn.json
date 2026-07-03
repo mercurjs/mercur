@@ -412,19 +412,13 @@
       "tabs": {
         "details": "Дэлгэрэнгүй",
         "organize": "Зохион байгуулах",
-        "variants": "Хувилбарууд",
-        "inventory": "Үлдэгдэл хэрэгсэл"
+        "variants": "Хувилбарууд"
       },
       "errors": {
         "variants": "Дор хаяж нэг хувилбарыг сонгоно уу.",
         "options": "Дор хаяж нэг сонголт үүсгэ.",
-        "uniqueSku": "SKU нь давтагдашгүй байх ёстой."
-      },
-      "inventory": {
-        "heading": "Үлдэгдэл хэрэгсэл",
-        "label": "Хувилбарын үлдэгдлийн хэрэгсэлд барааны үлдэгдэл нэмэх.",
-        "itemPlaceholder": "Барааны үлдэгдлийг сонго",
-        "quantityPlaceholder": "Хэрэв хэрэгтэй бол хэдийгээ бич"
+        "uniqueSku": "SKU нь давтагдашгүй байх ёстой.",
+        "requiredAttribute": "This attribute is required."
       },
       "variants": {
         "header": "Хувилбарууд",
@@ -447,7 +441,21 @@
           "hint": "Бүтээгдэхүүний сонголтуудыг, жишээ нь өнгө, хэмжээ гэх мэтийг тодорхойл."
         }
       },
-      "successToast": "Бүтээгдэхүүн {{title}} амжилттай үүсгэгдлээ."
+      "successToast": "Бүтээгдэхүүн {{title}} амжилттай үүсгэгдлээ.",
+      "attributes": {
+        "header": "Attributes",
+        "addExisting": "Add existing",
+        "createNew": "Create new",
+        "requiredAttributes": "Required attributes",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "selectValues": "Select values",
+        "tip": "Tip",
+        "useForVariants": "Use for Variations",
+        "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
+        "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
+        "titlePlaceholder": "e.g. Color",
+        "valuePlaceholder": "Enter values"
+      }
     },
     "export": {
       "header": "Бүтээгдэхүүний жагсаалтыг экспортлох",
@@ -501,7 +509,6 @@
     "attributes": "Атрибутууд",
     "editAttributes": "Атрибутуудыг засах",
     "editOptions": "Сонголтуудыг засах",
-    "editPrices": "Үнийг засах",
     "media": {
       "label": "Медиа",
       "editHint": "Бүтээгдэхүүндээ медиа нэмэх замаар дэлгүүрийн нүүрэнд үзүүлэх.",
@@ -534,6 +541,7 @@
       "draft": "Ноорог",
       "published": "Нийтлэгдсэн",
       "proposed": "Санал болгосон",
+      "requires_action": "Changes required",
       "rejected": "Татгалзсан"
     },
     "fields": {
@@ -623,27 +631,18 @@
         "header": "Хувилбарын дэлгэрэнгүй"
       },
       "deleteWarning": "Та энэ хувилбарыг устгах гэж байна уу?",
-      "pricesPagination": "1 - {{current}} нь {{total}} үнээс",
       "tableItemAvailable": "{{availableCount}} боломжтой",
       "tableItem_one": "{{availableCount}} нь {{locationCount}} байршилд боломжтой",
       "tableItem_other": "{{availableCount}} нь {{locationCount}} байршлуудад боломжтой",
       "inventory": {
         "notManaged": "Удирдагдаагүй",
-        "manageItems": "Барааны үлдэгдлийг удирдах",
-        "notManagedDesc": "Энэ хувилбарын хувьд барааны үлдэгдэл удирдагдахгүй. ‘Барааны үлдэгдэл удирдах’-г асааж барааны үлдэгдлийг хянана уу.",
-        "manageKit": "Үлдэгдэл хэрэгсэл удирдах",
         "navigateToItem": "Барааны үлдэгдэл рүү очих",
-        "actions": {
-          "inventoryItems": "Барааны үлдэгдэл рүү очих",
-          "inventoryKit": "Үлдэгдэл зүйлсийг үзүүлэх"
-        },
         "inventoryKit": "Үлдэгдэл хэрэгсэл",
         "inventoryKitHint": "Энэ хувилбар хэд хэдэн барааны үлдэгдэл зүйлээс бүрддэг үү?",
         "validation": {
           "itemId": "Барааны үлдэгдлийг сонгоно уу.",
           "quantity": "Тоо хэмжээ шаардлагатай. Эерэг тоо оруулна уу."
         },
-        "header": "Үлдэгдэл ба бараа материал",
         "editItemDetails": "Барааны дэлгэрэнгүйг засах",
         "manageInventoryLabel": "Барааны үлдэгдэл удирдах",
         "manageInventoryHint": "Идэвхжүүлсэн үед, захиалга болон буцаалт үүссэн үед барааны үлдэгдлийн тоо хэмжээг бид өөрчлөх болно.",
@@ -676,15 +675,6 @@
         "toasts": {
           "success": "{{title}}-г амжилттай зохион байгуулалтанд оруулсан."
         }
-      }
-    },
-    "stock": {
-      "heading": "Бүтээгдэхүүний үлдэгдэл түвшин болон байршлуудыг удирдах",
-      "description": "Бүтээгдэхүүний бүх хувилбарын үлдэгдлийн түвшинг шинэчлэнэ үү.",
-      "loading": "Хүлээнэ үү, энэ нь бага зэрэг хугацаа шаардлагаж магадгүй...",
-      "tooltips": {
-        "alreadyManaged": "Энэ барааны үлдэгдэл нь аль хэдийн {{title}} дотор засварлагдах боломжтой.",
-        "alreadyManagedWithSku": "Энэ барааны үлдэгдэл нь аль хэдийн {{title}} ({{sku}}) дотор засварлагдах боломжтой."
       }
     },
     "toasts": {
@@ -2906,7 +2896,8 @@
     "startDate": "Эхлэх огноо",
     "endDate": "Дуусах огноо",
     "draft": "Ноорог",
-    "values": "Утгууд"
+    "values": "Утгууд",
+    "brand": "Brand"
   },
   "dateTime": {
     "years_one": "Жил",
@@ -2923,5 +2914,23 @@
     "minutes_other": "Минут",
     "seconds_one": "Секунд",
     "seconds_other": "Секунд"
+  },
+  "attributes": {
+    "fields": {
+      "name": "Name",
+      "handle": "Handle",
+      "required": "Required",
+      "type": "Type",
+      "values": "Values",
+      "variantAxis": "Use for Variants",
+      "filterable": "Filterable"
+    },
+    "type": {
+      "select": "Single Select",
+      "multivalue": "Multi Select",
+      "unit": "Unit",
+      "toggle": "Toggle",
+      "text_area": "Text Area"
+    }
   }
 }

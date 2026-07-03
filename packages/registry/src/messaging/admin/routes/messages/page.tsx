@@ -88,7 +88,7 @@ const AdminMessagesPage = () => {
     date_to: "",
   })
 
-  const { conversations, next_cursor, isLoading, isError, error } =
+  const { conversations, isLoading, isError, error } =
     useAdminConversations({ limit: 50, ...searchParams })
 
   useMessagingLayout()

@@ -105,7 +105,7 @@ export const EditMarketplaceForm = ({ store }: EditMarketplaceFormProps) => {
                 <Form.Item data-testid="store-edit-form-name-item">
                   <Form.Label data-testid="store-edit-form-name-label">{t("fields.name")}</Form.Label>
                   <Form.Control data-testid="store-edit-form-name-control">
-                    <Input placeholder="ACME" {...field} data-testid="store-edit-form-name-input" />
+                    <Input placeholder={t("marketplace.edit.namePlaceholder")} {...field} data-testid="store-edit-form-name-input" />
                   </Form.Control>
                   <Form.ErrorMessage data-testid="store-edit-form-name-error" />
                 </Form.Item>

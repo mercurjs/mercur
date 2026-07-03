@@ -1,0 +1,74 @@
+name: Lint
+
+on:
+  pull_request:
+    branches: [canary, main]
+  push:
+    branches: [canary, main]
+
+concurrency:
+  group: lint-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Lint
+    runs-on: ubuntu-latest
+    # Headroom for the rare cold-cache case: when the lockfile changes, the
+    # node_modules cache misses and a full `bun install` (~19 min, see below)
+    # has to run before lint. On the common path the cache hits and this job
+    # finishes in a couple of minutes.
+    timeout-minutes: 30
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 1.3.8
+
+      - name: Cache Bun dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.bun/install/cache
+          key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'bun.lockb') }}
+          restore-keys: |
+            ${{ runner.os }}-bun-
+
+      - name: Cache node_modules
+        id: node-modules-cache
+        uses: actions/cache@v4
+        with:
+          # Bun's (default, isolated) linker materialises a ~7k-symlink store
+          # under node_modules/.bun; rebuilding it from the tarball cache costs
+          # ~19 min in CI — long enough that `bun install` alone used to blow the
+          # old 20-min lint timeout. Caching the materialised tree keyed on the
+          # exact lockfile turns the lockfile-unchanged case into a fast restore.
+          # No restore-keys: a fuzzy hit from a different lockfile would leave
+          # node_modules out of sync and we skip install on a hit.
+          path: |
+            node_modules
+            apps/*/node_modules
+            packages/*/node_modules
+            packages/providers/*/node_modules
+            integration-tests/node_modules
+            e2e-tests/node_modules
+          key: ${{ runner.os }}-node-modules-${{ hashFiles('bun.lock', 'bun.lockb') }}
+
+      - name: Install dependencies
+        if: steps.node-modules-cache.outputs.cache-hit != 'true'
+        run: bun install --frozen-lockfile
+
+      - name: Run lint
+        run: bun run lint
+
+      - name: Check routes manifest is up to date
+        run: |
+          bun run --filter @mercurjs/cli routes-manifest
+          if ! git diff --quiet packages/cli/routes-manifest.json; then
+            echo "::error::packages/cli/routes-manifest.json is stale. Run 'bun run --filter @mercurjs/cli routes-manifest' and commit the result."
+            git --no-pager diff packages/cli/routes-manifest.json
+            exit 1
+          fi

@@ -3,32 +3,64 @@ import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
 import {
+  ArrowDownRightMini,
   ArrowLongRight,
+  ArrowPath,
+  ArrowUturnLeft,
+  DocumentText,
+  ExclamationCircle,
+  PencilSquare,
   TriangleDownMini,
 } from "@medusajs/icons"
 import {
   AdminOrder,
   AdminOrderLineItem,
+  AdminOrderPreview,
+  AdminReservation,
+  AdminReturn,
+  AdminReturnItem,
+  AdminReturnReason,
   HttpTypes,
 } from "@medusajs/types"
 import {
+  Badge,
   Button,
   clx,
   Container,
   Copy,
   Heading,
+  StatusBadge,
   Text,
+  Tooltip,
+  toast,
 } from "@medusajs/ui"
 
 import { ActionMenu } from "@components/common/action-menu"
+import { useOrderPreview } from "../../../../../hooks/api/orders"
+import { useReservationItems } from "../../../../../hooks/api/reservations"
+import { useReturns } from "../../../../../hooks/api/returns"
 import {
   getLocaleAmount,
   getStylizedAmount,
   isAmountLessThenRoundingError,
 } from "@lib/money-amount-helpers"
 import { getTotalCaptured } from "@lib/payment"
+import { getReservationsLimitCount } from "../../../../../lib/orders"
+import {
+  CLAIM_POLICY_DAYS,
+  EXCHANGE_POLICY_DAYS,
+  RETURN_POLICY_DAYS,
+  isOutsidePolicyWindow,
+} from "@lib/policy"
+import { getReturnableQuantity } from "@lib/rma"
+import { useDate } from "../../../../../hooks/use-date"
+import ReturnInfoPopover from "./return-info-popover"
 import ShippingInfoPopover from "./shipping-info-popover"
 import { Thumbnail } from "@components/common/thumbnail"
+
+type ReturnWithReason = Omit<AdminReturn, "items"> & {
+  items: (AdminReturnItem & { reason?: AdminReturnReason })[]
+}
 
 type OrderSummarySectionProps = {
   order: HttpTypes.AdminOrder
@@ -39,12 +71,58 @@ export const OrderSummarySection = ({
 }: OrderSummarySectionProps) => {
   const { t } = useTranslation()
 
-  const receivableReturns = useMemo(
-    () => order.returns?.filter((r) => !r.canceled_at),
-    [order]
+  const { reservations } = useReservationItems(
+    {
+      line_item_id: order?.items?.map((i) => i.id),
+      limit: getReservationsLimitCount(order),
+    },
+    { enabled: Array.isArray(order?.items) }
   )
 
-  const showReturns = !!receivableReturns?.length
+  const { order: orderPreview } = useOrderPreview(order.id)
+
+  const reservationList = useMemo(
+    () => (reservations ?? []) as AdminReservation[],
+    [reservations]
+  )
+
+  const { returns: receivableReturnsList = [] } = useReturns({
+    status: "requested",
+    order_id: order.id,
+    fields: "+received_at",
+  })
+
+  const receivableReturns = useMemo(
+    () =>
+      (receivableReturnsList as AdminReturn[]).filter((r) => !r.canceled_at),
+    [receivableReturnsList]
+  )
+
+  const showReturns = !!receivableReturns.length
+
+  const showAllocateButton = useMemo(() => {
+    if (!reservations) {
+      return false
+    }
+
+    const reservationsMap = new Map(
+      reservationList.map((r) => [r.line_item_id, r.id])
+    )
+
+    return order.items?.some((item) => {
+      const offerLinks = (item as unknown as {
+        offer?: { inventory_item_link?: unknown[] | null }
+      }).offer?.inventory_item_link
+      if (!offerLinks?.length) {
+        return false
+      }
+      const fulfilled = item.detail?.fulfilled_quantity ?? 0
+      if (item.quantity - fulfilled <= 0) {
+        return false
+      }
+      return !reservationsMap.has(item.id)
+    }) ?? false
+  }, [order.items, reservations, reservationList])
 
   const unpaidPaymentCollection = order.payment_collections?.find(
     (pc) => pc.status !== "captured" && pc.status !== "canceled"
@@ -60,16 +138,16 @@ export const OrderSummarySection = ({
     unpaidPaymentCollection && pendingDifference < 0 && isAmountSignificant
 
   return (
-    <Container className="divide-y divide-dashed p-0">
-      <Header />
-      <ItemBreakdown order={order} />
+    <Container className="divide-y p-0">
+      <Header order={order} orderPreview={orderPreview} />
+      <ItemBreakdown order={order} reservations={reservationList} />
       <CostBreakdown order={order} />
       <Total order={order} />
 
-      {(showReturns || showRefund) && (
+      {(showReturns || showRefund || showAllocateButton) && (
         <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
           {showReturns &&
-            (receivableReturns?.length === 1 ? (
+            (receivableReturns.length === 1 ? (
               <Button asChild variant="secondary" size="small">
                 <Link
                   to={`/orders/${order.id}/returns/${receivableReturns[0].id}/receive`}
@@ -81,7 +159,7 @@ export const OrderSummarySection = ({
               <ActionMenu
                 groups={[
                   {
-                    actions: receivableReturns?.map((r) => {
+                    actions: receivableReturns.map((r) => {
                       let id = r.id
                       let returnType = "Return"
 
@@ -113,6 +191,19 @@ export const OrderSummarySection = ({
               </ActionMenu>
             ))}
 
+          {showAllocateButton && (
+            <Button
+              asChild
+              variant="secondary"
+              size="small"
+              data-testid="order-summary-allocate-items-cta"
+            >
+              <Link to="allocate-items">
+                {t("orders.allocateItems.action")}
+              </Link>
+            </Button>
+          )}
+
           {showRefund && (
             <Button size="small" variant="secondary" asChild>
               <Link to={`/orders/${order.id}/refund`}>
@@ -127,16 +218,134 @@ export const OrderSummarySection = ({
           )}
         </div>
       )}
+
+      <OutstandingActions order={order} />
     </Container>
   )
 }
 
-const Header = () => {
+const Header = ({
+  order,
+  orderPreview,
+}: {
+  order: HttpTypes.AdminOrder
+  orderPreview?: AdminOrderPreview
+}) => {
   const { t } = useTranslation()
+
+  const isCanceled = !!order.canceled_at
+  const returnOutOfPolicy = isOutsidePolicyWindow(order, RETURN_POLICY_DAYS)
+  const exchangeOutOfPolicy = isOutsidePolicyWindow(
+    order,
+    EXCHANGE_POLICY_DAYS
+  )
+  const claimOutOfPolicy = isOutsidePolicyWindow(order, CLAIM_POLICY_DAYS)
+
+  const shouldDisableReturn = (order.items || []).every(
+    (i) => !(getReturnableQuantity(i) > 0)
+  )
+
+  const orderChange = orderPreview?.order_change
+  const isOrderEditActive = orderChange?.change_type === "edit"
+  const isOrderEditPending =
+    orderChange?.change_type === "edit" && orderChange?.status === "pending"
+
+  const editDisabled =
+    isCanceled ||
+    (!!orderChange && orderChange.change_type !== "edit") ||
+    (orderChange?.change_type === "edit" && orderChange?.status === "requested")
+
+  const returnDisabledByChange =
+    isOrderEditActive ||
+    !!orderChange?.exchange_id ||
+    !!orderChange?.claim_id
+
+  const exchangeDisabledByChange =
+    isOrderEditActive ||
+    (!!orderChange?.return_id && !orderChange?.exchange_id) ||
+    !!orderChange?.claim_id
+
+  const claimDisabledByChange =
+    isOrderEditActive ||
+    (!!orderChange?.return_id && !orderChange?.claim_id) ||
+    !!orderChange?.exchange_id
 
   return (
     <div className="flex items-center justify-between px-6 py-4">
       <Heading level="h2">{t("fields.summary")}</Heading>
+      <ActionMenu
+        groups={[
+          {
+            actions: [
+              {
+                label: t(
+                  isOrderEditPending
+                    ? "orders.summary.editOrderContinue"
+                    : "orders.edits.create"
+                ),
+                to: "edit",
+                disabled: editDisabled,
+                icon: <PencilSquare />,
+              },
+            ],
+          },
+          {
+            actions: [
+              {
+                label: t("orders.returns.create"),
+                to: "returns/create",
+                disabled:
+                  isCanceled ||
+                  returnOutOfPolicy ||
+                  shouldDisableReturn ||
+                  returnDisabledByChange,
+                disabledTooltip: returnOutOfPolicy
+                  ? t("orders.returns.outOfPolicy", {
+                      days: RETURN_POLICY_DAYS,
+                    })
+                  : undefined,
+                icon: <ArrowUturnLeft />,
+              },
+              {
+                label:
+                  orderChange?.id && orderChange?.exchange_id
+                    ? t("orders.exchanges.manage")
+                    : t("orders.exchanges.create"),
+                to: "exchanges/create",
+                disabled:
+                  isCanceled ||
+                  exchangeOutOfPolicy ||
+                  shouldDisableReturn ||
+                  exchangeDisabledByChange,
+                disabledTooltip: exchangeOutOfPolicy
+                  ? t("orders.exchanges.outOfPolicy", {
+                      days: EXCHANGE_POLICY_DAYS,
+                    })
+                  : undefined,
+                icon: <ArrowPath />,
+              },
+              {
+                label:
+                  orderChange?.id && orderChange?.claim_id
+                    ? t("orders.claims.manage")
+                    : t("orders.claims.create"),
+                to: "claims/create",
+                disabled:
+                  isCanceled ||
+                  claimOutOfPolicy ||
+                  shouldDisableReturn ||
+                  claimDisabledByChange,
+                disabledTooltip: claimOutOfPolicy
+                  ? t("orders.claims.outOfPolicy", {
+                      days: CLAIM_POLICY_DAYS,
+                    })
+                  : undefined,
+                icon: <ExclamationCircle />,
+              },
+            ],
+          },
+        ]}
+      />
     </div>
   )
 }
@@ -144,14 +353,33 @@ const Header = () => {
 const Item = ({
   item,
   currencyCode,
+  returns,
+  reservation,
 }: {
   item: AdminOrderLineItem
   currencyCode: string
+  returns: ReturnWithReason[]
+  reservation?: AdminReservation
 }) => {
+  const { t } = useTranslation()
   const original_price =
     item.variant?.prices?.find((price) => price.currency_code === currencyCode)
       ?.amount || 0
   const price = item.unit_price
+
+  const offerInventoryLinks =
+    (item as unknown as {
+      offer?: { inventory_item_link?: unknown[] | null }
+    }).offer?.inventory_item_link ?? []
+  const isInventoryManaged = !!offerInventoryLinks.length
+  const hasUnfulfilledItems =
+    item.quantity - (item.detail?.fulfilled_quantity ?? 0) > 0
+
+  // `offer` is wired through Mercur's order-line-item-offer link but isn't in
+  // Medusa's public AdminOrderLineItem type. Pull it off the runtime shape.
+  const offerSku =
+    (item as unknown as { offer?: { sku?: string | null } }).offer?.sku ?? null
+  const captionSku = offerSku ?? item.variant_sku ?? null
 
   return (
     <>
@@ -171,10 +399,10 @@ const Item = ({
               {item.title || item.product_title}
             </Text>
 
-            {item.variant_sku && (
+            {captionSku && (
               <div className="flex items-center gap-x-1">
-                <Text size="small">{item.variant_sku}</Text>
-                <Copy content={item.variant_sku} className="text-ui-fg-muted" />
+                <Text size="small">{captionSku}</Text>
+                <Copy content={captionSku} className="text-ui-fg-muted" />
               </div>
             )}
             <Text size="small">
@@ -201,6 +429,19 @@ const Item = ({
                 <span className="tabular-nums">{item.quantity}</span>x
               </Text>
             </div>
+
+            <div className="overflow-visible">
+              {isInventoryManaged && hasUnfulfilledItems && (
+                <StatusBadge
+                  color={reservation ? "green" : "orange"}
+                  className="text-nowrap"
+                >
+                  {reservation
+                    ? t("orders.reservations.allocatedLabel")
+                    : t("orders.reservations.notAllocatedLabel")}
+                </StatusBadge>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center justify-end">
@@ -210,15 +451,37 @@ const Item = ({
           </div>
         </div>
       </div>
+
+      {returns.map((r) => (
+        <ReturnBreakdown key={r.id} orderReturn={r} itemId={item.id} />
+      ))}
     </>
   )
 }
 
 const ItemBreakdown = ({
   order,
+  reservations,
 }: {
   order: AdminOrder
+  reservations: AdminReservation[]
 }) => {
+  const { returns: returnsList = [] } = useReturns({
+    order_id: order.id,
+    fields: "*items,*items.reason",
+  })
+
+  const returns = useMemo<ReturnWithReason[]>(
+    () =>
+      (returnsList as ReturnWithReason[]).filter((r) => !r.canceled_at),
+    [returnsList]
+  )
+
+  const reservationsMap = useMemo(
+    () => new Map(reservations.map((r) => [r.line_item_id, r])),
+    [reservations]
+  )
+
   return (
     <div>
       {order.items?.map((item) => {
@@ -227,10 +490,159 @@ const ItemBreakdown = ({
             key={item.id}
             item={item}
             currencyCode={order.currency_code}
+            returns={returns}
+            reservation={reservationsMap.get(item.id)}
           />
         )
       })}
     </div>
+  )
+}
+
+const ReturnBreakdownWithDamages = ({
+  orderReturn,
+  itemId,
+}: {
+  orderReturn: ReturnWithReason
+  itemId: string
+}) => {
+  const { t } = useTranslation()
+
+  const item = orderReturn.items?.find((ri) => ri.item_id === itemId)
+  const damagedQuantity = item?.damaged_quantity || 0
+
+  if (!item || damagedQuantity <= 0) {
+    return null
+  }
+
+  return (
+    <div
+      key={`${orderReturn.id}-damaged`}
+      className="txt-compact-small-plus text-ui-fg-subtle bg-ui-bg-subtle flex flex-row justify-between gap-y-2 border-t-2 border-dotted px-6 py-4"
+    >
+      <div className="flex items-center gap-2">
+        <ArrowDownRightMini className="text-ui-fg-muted" />
+        <Text size="small">
+          {t("orders.returns.damagedItemsReturned", {
+            quantity: damagedQuantity,
+          })}
+        </Text>
+
+        {item.note && (
+          <Tooltip content={item.note}>
+            <DocumentText className="text-ui-tag-neutral-icon ml-1 inline" />
+          </Tooltip>
+        )}
+
+        {item.reason && (
+          <Badge
+            size="2xsmall"
+            className="cursor-default select-none capitalize"
+            rounded="full"
+          >
+            {item.reason.label}
+          </Badge>
+        )}
+      </div>
+
+      <Text size="small" leading="compact" className="text-ui-fg-muted">
+        {t("orders.returns.damagedItemReceived")}
+        <span className="ml-2">
+          <ReturnInfoPopover orderReturn={orderReturn} />
+        </span>
+      </Text>
+    </div>
+  )
+}
+
+const ReturnBreakdown = ({
+  orderReturn,
+  itemId,
+}: {
+  orderReturn: ReturnWithReason
+  itemId: string
+}) => {
+  const { t } = useTranslation()
+  const { getRelativeDate } = useDate()
+
+  if (
+    !["requested", "received", "partially_received"].includes(
+      orderReturn.status || ""
+    )
+  ) {
+    return null
+  }
+
+  const isRequested = orderReturn.status === "requested"
+  const item = orderReturn.items?.find((ri) => ri.item_id === itemId)
+
+  if (!item) {
+    return null
+  }
+
+  const damagedQuantity = item.damaged_quantity || 0
+
+  return (
+    <>
+      {damagedQuantity > 0 && (
+        <ReturnBreakdownWithDamages
+          orderReturn={orderReturn}
+          itemId={itemId}
+        />
+      )}
+      <div
+        key={item.id}
+        className="txt-compact-small-plus text-ui-fg-subtle bg-ui-bg-subtle flex flex-row justify-between gap-y-2 border-t-2 border-dotted px-6 py-4"
+      >
+        <div className="flex items-center gap-2">
+          <ArrowDownRightMini className="text-ui-fg-muted" />
+          <Text size="small">
+            {t(
+              `orders.returns.${
+                isRequested ? "returnRequestedInfo" : "returnReceivedInfo"
+              }`,
+              {
+                requestedItemsCount: isRequested
+                  ? item.quantity
+                  : item.received_quantity,
+              }
+            )}
+          </Text>
+
+          {item.note && (
+            <Tooltip content={item.note}>
+              <DocumentText className="text-ui-tag-neutral-icon ml-1 inline" />
+            </Tooltip>
+          )}
+
+          {item.reason && (
+            <Badge
+              size="2xsmall"
+              className="cursor-default select-none capitalize"
+              rounded="full"
+            >
+              {item.reason.label}
+            </Badge>
+          )}
+        </div>
+
+        {isRequested ? (
+          <Text size="small" leading="compact" className="text-ui-fg-muted">
+            {getRelativeDate(orderReturn.created_at)}
+            <span className="ml-2">
+              <ReturnInfoPopover orderReturn={orderReturn} />
+            </span>
+          </Text>
+        ) : (
+          <Text size="small" leading="compact" className="text-ui-fg-muted">
+            {t("orders.returns.itemReceived")}
+            <span className="ml-2">
+              <ReturnInfoPopover orderReturn={orderReturn} />
+            </span>
+          </Text>
+        )}
+      </div>
+    </>
   )
 }
 
@@ -270,14 +682,6 @@ const CostBreakdown = ({
   const { t } = useTranslation()
   const [isTaxOpen, setIsTaxOpen] = useState(false)
   const [isShippingOpen, setIsShippingOpen] = useState(false)
-
-  const commissionTotal = useMemo(() => {
-    return order.items.reduce((acc, item) => {
-      const lines = (item as any).commission_lines as any[] | undefined
-      if (!lines) return acc
-      return acc + lines.reduce((sum: number, line: any) => sum + (line.amount ?? 0), 0)
-    }, 0)
-  }, [order.items])
 
   const discountCodes = useMemo(() => {
     const codes = new Set()
@@ -457,18 +861,14 @@ const CostBreakdown = ({
           </div>
         )}
       </>
-      {commissionTotal > 0 && (
-        <Cost
-          label={t("fields.commission")}
-          value={getLocaleAmount(commissionTotal, order.currency_code)}
-        />
-      )}
     </div>
   )
 }
 
 const Total = ({ order }: { order: AdminOrder }) => {
   const { t } = useTranslation()
+  const totalCaptured = getTotalCaptured(order.payment_collections || [])
+  const outstanding = Math.max(0, order.total - totalCaptured)
 
   return (
     <div className=" flex flex-col gap-y-2 px-6 py-4">
@@ -506,12 +906,66 @@ const Total = ({ order }: { order: AdminOrder }) => {
           size="small"
           leading="compact"
         >
-          {getStylizedAmount(
-            getTotalCaptured(order.payment_collections || []),
-            order.currency_code
-          )}
+          {getStylizedAmount(totalCaptured, order.currency_code)}
         </Text>
       </div>
+
+      <div className="text-ui-fg-base flex items-center justify-between">
+        <Text weight="plus" size="small" leading="compact">
+          {t("orders.payment.outstandingAmount")}
+        </Text>
+        <Text weight="plus" size="small" leading="compact">
+          {getStylizedAmount(outstanding, order.currency_code)}
+        </Text>
+      </div>
+    </div>
+  )
+}
+
+const OutstandingActions = ({ order }: { order: HttpTypes.AdminOrder }) => {
+  const { t } = useTranslation()
+
+  const unpaidCollection = order.payment_collections?.find(
+    (pc) => pc.status !== "captured" && pc.status !== "canceled"
+  )
+
+  const pendingDifference = order.summary?.pending_difference || 0
+  const isOutstanding =
+    pendingDifference > 0.005 &&
+    order.status !== "canceled" &&
+    !!unpaidCollection
+
+  if (!isOutstanding || !unpaidCollection) {
+    return null
+  }
+
+  const paymentLink =
+    (
+      unpaidCollection.payment_sessions?.[0]?.data as
+        | { url?: string }
+        | undefined
+    )?.url ?? null
+
+  if (!paymentLink) {
+    return null
+  }
+
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(paymentLink)
+      toast.success(t("orders.payment.copyLinkSuccess"))
+    } catch {
+      toast.error(t("orders.payment.copyLinkError"))
+    }
+  }
+
+  return (
+    <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
+      <Button size="small" variant="secondary" onClick={handleCopyLink}>
+        {t("orders.payment.copyPaymentLink", {
+          amount: getStylizedAmount(pendingDifference, order.currency_code),
+        })}
+      </Button>
     </div>
   )
 }

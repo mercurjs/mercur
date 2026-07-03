@@ -30,20 +30,14 @@ export const CustomerOrderSection = ({
     prefix: PREFIX,
   });
 
-  const { orders, isLoading, isError, error } = useOrders({
+  const { orders, count, isLoading, isError, error } = useOrders({
     fields: DEFAULT_FIELDS + "," + DEFAULT_RELATIONS,
-    limit: searchParams.limit,
-    offset: searchParams.offset,
-    created_at: searchParams.created_at,
-    updated_at: searchParams.updated_at,
-    order: searchParams.order,
+    ...searchParams,
     customer_id: customer.id,
   });
 
   const columns = useColumns();
   const filters = useOrderTableFilters();
-
-  const count = orders?.length || 0;
 
   const { table } = useDataTable({
     data: orders ?? [],
@@ -67,6 +61,7 @@ export const CustomerOrderSection = ({
         columns={columns}
         table={table}
         pagination
+        search
         navigateTo={(row) => `/orders/${row.original.id}`}
         filters={filters}
         count={count}
@@ -86,6 +81,7 @@ export const CustomerOrderSection = ({
             label: t("fields.updatedAt"),
           },
         ]}
+        defaultOrderBy="-display_id"
         queryObject={raw}
         prefix={PREFIX}
       />

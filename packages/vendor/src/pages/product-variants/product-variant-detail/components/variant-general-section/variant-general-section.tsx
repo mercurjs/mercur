@@ -3,21 +3,22 @@ import { Badge, Container, Heading, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { HttpTypes } from "@medusajs/types"
+
 import { ActionMenu } from "@components/common/action-menu"
 import { SectionRow } from "@components/common/section"
 import { useDeleteVariant } from "@hooks/api/products"
-import { ExtendedAdminProductVariant } from "@custom-types/products"
 
-type VariantGeneralSectionProps = {
-  variant: ExtendedAdminProductVariant
-}
-
-export function VariantGeneralSection({ variant }: VariantGeneralSectionProps) {
+export function VariantGeneralSection({
+  variant,
+}: {
+  variant: HttpTypes.AdminProductVariant
+}) {
   const { t } = useTranslation()
   const prompt = usePrompt()
   const navigate = useNavigate()
 
-  const hasInventoryKit = variant.inventory && variant.inventory.length > 1
+  const hasInventoryKit = (variant.inventory_items?.length ?? 0) > 1
 
   const { mutateAsync } = useDeleteVariant(variant.product_id!, variant.id)
 
@@ -85,13 +86,21 @@ export function VariantGeneralSection({ variant }: VariantGeneralSectionProps) {
       </div>
 
       <SectionRow title={t("fields.sku")} value={variant.sku} />
-      {variant.options?.map((o) => (
-        <SectionRow
-          key={o.id}
-          title={o.option?.title}
-          value={<Badge size="2xsmall">{o.value}</Badge>}
-        />
-      ))}
+      {(variant.options ?? []).map((opt) => {
+        const title = opt.option?.title
+        if (!title || !opt.value) return null
+        return (
+          <SectionRow
+            key={opt.id}
+            title={title}
+            value={
+              <div className="flex flex-wrap items-center gap-1">
+                <Badge size="2xsmall">{opt.value}</Badge>
+              </div>
+            }
+          />
+        )
+      })}
     </Container>
   )
 }

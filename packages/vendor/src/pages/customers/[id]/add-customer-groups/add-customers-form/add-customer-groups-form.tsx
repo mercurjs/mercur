@@ -80,7 +80,7 @@ export const AddCustomerGroupsForm = ({
     isError,
     error,
   } = useCustomerGroups({
-    fields: "*customers",
+    fields: "id,name,customers.id",
     ...searchParams,
   })
 
@@ -99,13 +99,8 @@ export const AddCustomerGroupsForm = ({
 
   const columns = useColumns()
 
-
-  const flatCustomerGroups = customer_groups?.map((cg) => ({
-    ...cg.customer_group
-  }))
-
   const { table } = useDataTable({
-    data: flatCustomerGroups ?? [],
+    data: customer_groups ?? [],
     columns,
     count,
     enablePagination: true,
@@ -128,7 +123,17 @@ export const AddCustomerGroupsForm = ({
         remove: [],
       })
 
-      toast.success("Customer groups added successfully")
+      const names = data.customer_group_ids
+        .map((id) => customer_groups?.find((g) => g.id === id)?.name)
+        .filter(Boolean)
+
+      toast.success(
+        names.length === 1
+          ? t("customers.groups.add.successOne", { groups: names[0] })
+          : t("customers.groups.add.successMany", {
+              groups: names.join(", "),
+            })
+      )
 
       handleSuccess(`/customers/${customerId}`)
     } catch (e: any) {

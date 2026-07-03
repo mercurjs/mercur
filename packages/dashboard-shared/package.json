@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/dashboard-shared",
-  "version": "2.1.6",
+  "version": "2.2.0-canary.39",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -23,7 +23,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@mercurjs/client": "2.1.6",
+    "@mercurjs/client": "2.2.0-canary.39",
     "@ariakit/react": "^0.4.15",
     "@babel/runtime": "^7.26.10",
     "@dnd-kit/core": "^6.1.0",
@@ -31,10 +31,10 @@
     "@dnd-kit/utilities": "^3.2.2",
     "@hookform/error-message": "^2.0.1",
     "@hookform/resolvers": "3.4.2",
-    "@medusajs/admin-shared": "^2.13.4",
-    "@medusajs/dashboard": "^2.13.4",
-    "@medusajs/icons": "2.13.4",
-    "@medusajs/ui": "4.1.1",
+    "@medusajs/admin-shared": "options-preview",
+    "@medusajs/dashboard": "options-preview",
+    "@medusajs/icons": "options-preview",
+    "@medusajs/ui": "options-preview",
     "@radix-ui/react-dialog": "1.1.4",
     "@radix-ui/react-dismissable-layer": "1.1.4",
     "@tanstack/react-query": "5.64.2",
@@ -46,7 +46,7 @@
     "date-fns": "^3.6.0",
     "i18next": "23.7.11",
     "i18next-browser-languagedetector": "7.2.0",
-    "i18next-http-backend": "3.0.5",
+    "i18next-http-backend": "2.4.2",
     "lodash.debounce": "^4.0.8",
     "lodash.isequal": "^4.5.0",
     "match-sorter": "^6.3.4",
@@ -63,9 +63,9 @@
     "zod": "3.25.76"
   },
   "devDependencies": {
-    "@mercurjs/types": "workspace:*",
-    "@mercurjs/core": "workspace:*",
-    "@mercurjs/dashboard-sdk": "workspace:*",
+    "@mercurjs/types": "2.2.0-canary.39",
+    "@mercurjs/core": "2.2.0-canary.39",
+    "@mercurjs/dashboard-sdk": "2.2.0-canary.39",
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
     "@types/lodash.debounce": "^4.0.8",

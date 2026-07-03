@@ -5,7 +5,7 @@ import {
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
 import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
-import { CommissionRateTarget, CommissionRateType } from "@mercurjs/types"
+import { CommissionRateType } from "@mercurjs/types"
 
 export type AdminGetCommissionRateParamsType = z.infer<
   typeof AdminGetCommissionRateParams
@@ -24,8 +24,12 @@ export const AdminGetCommissionRatesParams = createFindParams({
     id: z.union([z.string(), z.array(z.string())]).optional(),
     code: z.union([z.string(), z.array(z.string())]).optional(),
     type: z.union([z.string(), z.array(z.string())]).optional(),
-    target: z.union([z.string(), z.array(z.string())]).optional(),
+    // Virtual filter: the rule scope ("store", "product_type", "category",
+    // "store_product_type", "store_category"). Derived from each rate's
+    // linked rules in the route, not a stored column.
+    scope_type: z.union([z.string(), z.array(z.string())]).optional(),
     is_enabled: booleanString().optional(),
+    is_default: booleanString().optional(),
     created_at: createOperatorMap().optional(),
     updated_at: createOperatorMap().optional(),
   })
@@ -36,21 +40,26 @@ const CommissionRuleSchema = z.object({
   reference_id: z.string(),
 })
 
+const CommissionRateValueSchema = z.object({
+  currency_code: z.string(),
+  amount: z.number(),
+})
+
 export type AdminCreateCommissionRateType = z.infer<
   typeof AdminCreateCommissionRate
 >
 export const AdminCreateCommissionRate = z.object({
   name: z.string(),
-  code: z.string(),
+  code: z.string().min(1),
   type: z.nativeEnum(CommissionRateType),
-  target: z.nativeEnum(CommissionRateTarget).optional(),
   value: z.number(),
   currency_code: z.string().nullish(),
-  min_amount: z.number().nullish(),
   include_tax: z.boolean().optional(),
+  include_shipping: z.boolean().optional(),
   is_enabled: z.boolean().optional(),
-  priority: z.number().optional(),
+  is_default: z.boolean().optional(),
   rules: z.array(CommissionRuleSchema).optional(),
+  values: z.array(CommissionRateValueSchema).optional(),
 })
 
 export type AdminUpdateCommissionRateType = z.infer<
@@ -60,13 +69,12 @@ export const AdminUpdateCommissionRate = z.object({
   name: z.string().optional(),
   code: z.string().optional(),
   type: z.nativeEnum(CommissionRateType).optional(),
-  target: z.nativeEnum(CommissionRateTarget).optional(),
   value: z.number().optional(),
   currency_code: z.string().nullish(),
-  min_amount: z.number().nullish(),
   include_tax: z.boolean().optional(),
+  include_shipping: z.boolean().optional(),
   is_enabled: z.boolean().optional(),
-  priority: z.number().optional(),
+  values: z.array(CommissionRateValueSchema).optional(),
 })
 
 const UpdateCommissionRuleSchema = z.object({

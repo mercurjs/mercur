@@ -1,4 +1,5 @@
 import React from "react"
+import { useTranslation } from "react-i18next"
 import {
   DropdownMenu,
   Button,
@@ -26,14 +27,15 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
   onUpdateExisting,
   onSaveAsNew,
 }) => {
+  const { t } = useTranslation()
   const prompt = usePrompt()
 
   const handleSaveAsDefault = async () => {
     const result = await prompt({
-      title: "Save as system default",
-      description: "This will save the current configuration as the system default. All users will see this configuration by default unless they have their own personal views. Are you sure?",
-      confirmText: "Save as default",
-      cancelText: "Cancel",
+      title: t("views.prompts.saveAsDefault.title"),
+      description: t("views.prompts.saveAsDefault.description"),
+      confirmText: t("views.prompts.saveAsDefault.confirmText"),
+      cancelText: t("views.prompts.saveAsDefault.cancelText"),
     })
 
     if (result && onSaveAsDefault) {
@@ -43,10 +45,12 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
 
   const handleUpdateExisting = async () => {
     const result = await prompt({
-      title: "Update existing view",
-      description: `Update "${currentViewName}" with the current configuration?`,
-      confirmText: "Update",
-      cancelText: "Cancel",
+      title: t("views.prompts.updateExisting.title"),
+      description: t("views.prompts.updateExisting.description", {
+        name: currentViewName,
+      }),
+      confirmText: t("views.prompts.updateExisting.confirmText"),
+      cancelText: t("views.prompts.updateExisting.cancelText"),
     })
 
     if (result && onUpdateExisting) {
@@ -58,26 +62,26 @@ export const SaveViewDropdown: React.FC<SaveViewDropdownProps> = ({
     <DropdownMenu>
       <DropdownMenu.Trigger asChild>
         <Button variant="secondary" size="small">
-          Save
+          {t("views.save")}
         </Button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Content>
         {isDefaultView && onSaveAsDefault && (
           <DropdownMenu.Item onClick={handleSaveAsDefault}>
             <CloudArrowUp className="h-4 w-4" />
-            Save as system default
+            {t("views.saveAsSystemDefault")}
           </DropdownMenu.Item>
         )}
         {!isDefaultView && currentViewId && onUpdateExisting && (
           <DropdownMenu.Item onClick={handleUpdateExisting}>
             <CloudArrowUp className="h-4 w-4" />
-            Update "{currentViewName}"
+            {t("views.updateNamed", { name: currentViewName })}
           </DropdownMenu.Item>
         )}
         {onSaveAsNew && (
           <DropdownMenu.Item onClick={onSaveAsNew}>
             <SquarePlusMicro className="h-4 w-4" />
-            Save as new view
+            {t("views.saveAsNew")}
           </DropdownMenu.Item>
         )}
       </DropdownMenu.Content>

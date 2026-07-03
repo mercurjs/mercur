@@ -6,6 +6,11 @@ import { HandleInput } from "../../../../../components/inputs/handle-input"
 import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
 import { defineTabMeta } from "../../../../../components/tabbed-form/types"
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
+import {
+  CategoryIconInput,
+  CategoryIconTip,
+  CategoryMediaInput,
+} from "../../../common/components/category-image-fields"
 import { CreateCategorySchema } from "./schema"
 
 const Root = () => {
@@ -44,7 +49,7 @@ const Root = () => {
             render={({ field }) => {
               return (
                 <Form.Item data-testid="category-create-form-handle-item">
-                  <Form.Label optional tooltip={t("collections.handleTooltip")} data-testid="category-create-form-handle-label">
+                  <Form.Label optional tooltip={t("categories.handleTooltip")} data-testid="category-create-form-handle-label">
                     {t("fields.handle")}
                   </Form.Label>
                   <Form.Control data-testid="category-create-form-handle-control">
@@ -139,6 +144,51 @@ const Root = () => {
             }}
           />
         </div>
+        <Form.Field
+          control={form.control}
+          name="media"
+          render={({ field: { value, onChange } }) => {
+            return (
+              <Form.Item data-testid="category-create-form-media-item">
+                <Form.Label optional data-testid="category-create-form-media-label">
+                  {t("categories.media.label")}
+                </Form.Label>
+                <Form.Control data-testid="category-create-form-media-control">
+                  <CategoryMediaInput
+                    value={value ?? []}
+                    onChange={onChange}
+                    hasError={!!form.formState.errors.media}
+                  />
+                </Form.Control>
+                <Form.ErrorMessage data-testid="category-create-form-media-error" />
+              </Form.Item>
+            )
+          }}
+        />
+        <Form.Field
+          control={form.control}
+          name="icon"
+          render={({ field: { value, onChange } }) => {
+            return (
+              <Form.Item data-testid="category-create-form-icon-item">
+                <Form.Label optional data-testid="category-create-form-icon-label">
+                  {t("categories.icon.label")}
+                </Form.Label>
+                <Form.Control data-testid="category-create-form-icon-control">
+                  <div className="flex flex-col gap-y-2">
+                    <CategoryIconInput
+                      value={value ?? null}
+                      onChange={onChange}
+                      hasError={!!form.formState.errors.icon}
+                    />
+                    <CategoryIconTip />
+                  </div>
+                </Form.Control>
+                <Form.ErrorMessage data-testid="category-create-form-icon-error" />
+              </Form.Item>
+            )
+          }}
+        />
       </div>
     </div>
   )

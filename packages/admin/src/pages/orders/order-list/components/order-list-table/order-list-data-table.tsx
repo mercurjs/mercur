@@ -29,6 +29,7 @@ import { getStylizedAmount } from "@lib/money-amount-helpers";
 
 import { DEFAULT_FIELDS } from "../../const";
 import { useOrderGroupTableFilters } from "./use-order-table-filters";
+import { OrderExpandCollapseButton } from "./order-expand-collapse-button";
 
 const PAGE_SIZE = 20;
 
@@ -152,6 +153,11 @@ export const OrderListDataTable = () => {
       navigateTo={(row) =>
         row.original._type === "order" ? `/orders/${row.original.id}` : ""
       }
+      onRowClick={(row) => {
+        if (row.getCanExpand()) {
+          row.toggleExpanded();
+        }
+      }}
       count={count}
       search
       filters={filters}
@@ -162,6 +168,8 @@ export const OrderListDataTable = () => {
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
+      defaultOrder="-display_id"
+      toolbarActions={<OrderExpandCollapseButton table={table} />}
       queryObject={raw}
       noRecords={{
         message: t("orders.list.noRecordsMessage"),

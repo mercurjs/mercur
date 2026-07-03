@@ -1,7 +1,27 @@
-![Mercur Main Cover](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png)
+<!-- PROJECT LOGO -->
+<p align="center">
+  <a href="https://github.com/mercurjs/mercur">
+   <img src="https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png" alt="Mercur">
+  </a>
+
+  <h3 align="center">Mercur</h3>
+
+  <p align="center">
+   The open-source marketplace platform.
+    <br />
+    <a href="https://mercurjs.com/"><strong>Website</strong></a>
+    <br />
+    <a href="#getting-started">Getting Started</a>
+    &middot;
+    <a href="https://docs.mercurjs.com">Docs</a>
+    &middot;
+    <a href="https://discord.gg/hnZBzc4NJU">Discord</a>
+  </p>
+</p>
+
+<!-- ABOUT THE PROJECT -->
 
 <div align="center">
-  <h1>Mercur <br> Open Source Marketplace Platform</h1> 
   <!-- Shields.io Badges -->
   <a href="https://github.com/mercurjs/mercur/tree/main?tab=MIT-1-ov-file">
     <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" />
@@ -15,128 +35,104 @@
   <a href="https://discord.gg/hnZBzc4NJU">
     <img alt="Discord" src="https://img.shields.io/badge/Discord-Join%20Chat-5865F2?logo=discord&logoColor=white" />
   </a>
-  <!-- Website Links -->
-  <p>
-    <a href="https://mercurjs.com/">Mercur</a> |   <a href="https://docs.mercurjs.com/">Docs</a> 
-  </p> 
+  <a href="https://github.com/mercurjs/mercur/issues?q=is%3Aissue%20state%3Aclosed">
+    <img alt="GitHub closed issues" src="https://img.shields.io/github/issues-closed/mercurjs/mercur" />
+  </a>
 </div>
 
-# What is Mercur?
+## What is Mercur
 
-<a href="https://www.mercurjs.com/">Mercur</a> is the first
-truly limitless open source marketplace platform that
-combines the simplicity of SaaS with the freedom of open
-source. Built on
-[MedusaJS](https://github.com/medusajs/medusa), it empowers
-businesses to create custom marketplaces without choosing
-between ownership and ease of use.
+<img width="100%" alt="demo-screen" src="https://github.com/user-attachments/assets/8b73163c-230a-46c4-b86c-fed4fa339964" />
 
-Mercur is a platform to start, customize, manage, and scale
-your marketplace for every business model with a modern
-technology stack.
+**Mercur** is an open-source, headless platform for building multi-vendor marketplaces. Add vendor onboarding, multi-vendor catalogs, offers, commissions, and automated payouts on top of a commerce core you can change at its foundation. Run B2C, B2B, and hybrid marketplaces without choosing between a profit-draining SaaS platform and a build from scratch.
 
-## What's new in Mercur 2.0
-
-**Mercur 2.0** is a major rearchitecture of the platform built by [@vholik](https://github.com/vholik), [@Si3r4dz](https://github.com/Si3r4dz), and [@gtomaka](https://github.com/gtomaka).
-
-- **Block-based architecture** — reusable modules, workflows, API routes, and UI extensions installable via CLI
-- **Vendor portal** — a standalone React-based vendor dashboard
-- **Dashboard SDK** — Vite plugin with file-based routing and hot module reloading
-- **CLI** — `@mercurjs/cli` for scaffolding projects, adding blocks, and managing registries
-- **Full code ownership** — code is copied into your project, no black-box dependencies
-
-## Using with AI Agents
-
-Mercur is built to be AI-agent friendly. Your AI coding assistant can use these resources to understand and work with Mercur projects:
-
-- **MCP Server**: `https://docs.mercurjs.com/mcp` — connect your agent for documentation search
-- **llms.txt**: `https://docs.mercurjs.com/llms.txt` — machine-readable project summary
-- **AGENTS.md**: included in every project created with `mercurjs create` — gives agents instant project context
-- **Skills**: `.claude/skills/` shipped with templates — domain-specific patterns for Claude Code
-- **AI Development Guide**: [docs.mercurjs.com/v2/ai-development/mcp](https://docs.mercurjs.com/ai-development/mcp)
-
-## Why Choose Mercur?
-
-- Full Ownership: Unlike SaaS platforms, you own your
-  marketplace with no transaction fees or vendor lock-in
-- Modern Foundation: Built on MedusaJS, offering a modern
-  tech stack that developers love
-- Beautiful by Default: Create stunning storefronts without
-  sacrificing customization
-
-## Power Any Marketplace Model
-
-- Custom B2B Marketplace: Build enterprise-grade platforms
-  with specialized workflows
-- Custom B2C Marketplace: Create engaging consumer
-  marketplaces with modern UX
-- eCommerce Extension: Transform your store into a
-  marketplace (coming soon)
+- **Own your marketplace, no fees**: Self-host on your own infrastructure with full source access. No percentage of GMV, no per-transaction cut, no vendor lock-in — your data, your customers, and your roadmap stay yours.
+- **Built for the marketplace model**: Vendor onboarding, multi-vendor catalogs, offers, commissions, and automated payouts are built in — multiple sellers can list offers against the same product, so you're not rebuilding marketplace logic on top of a single-seller commerce engine.
+- **Headless and customizable, no forks**: TypeScript, event-driven, and API-first — serve any storefront or frontend. Extend or override workflows, products, and vendor rules through a composable architecture built for the most complex B2B and multi-vendor models, without patching the core.
+- **Standing on [Medusa](https://medusajs.com/)**: Inherit a mature, battle-tested commerce core — catalog, orders, payments, shipping, tax, and stock — instead of reinventing it. Mercur adds the marketplace layer on top of **[Medusa](https://medusajs.com/)**.
+- **Production-ready and AI-native**: Run real marketplaces in production today, on an architecture designed for AI-assisted development — an introspectable, API-first stack that works hand in hand with your AI coding tools.
 
 ![Mercur Use Cases](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67b46aa08180d5b8499c6a15_Use-cases.jpg)
-&nbsp;
 
-# Ready-to-go marketplace features
+### Built With
 
-<b>Storefronts for Marketplace </b> <br> Customizable
-storefronts designed for B2B and B2C with all elements
-including browsing and buying products across multiple
-vendors at once.
+- [Medusa.js](https://medusajs.com/)
+- [TypeScript](https://www.typescriptlang.org/)
+- [React.js](https://reactjs.org/)
+- [Vite](https://vitejs.dev/)
+- [Node.js](https://nodejs.org/)
+- [PostgreSQL](https://www.postgresql.org/)
+- [Redis](https://redis.io/)
 
-Discover
-<a href="https://github.com/mercurjs/b2c-marketplace-storefront">B2C
-Storefront Repository</a> -
-<a href="https://b2c.mercurjs.com/">🛍️ Check demo </a>
+## Architecture
 
-<b>Admin Panel</b> <br> Control over whole marketplace:
-setting product categories, vendors, commissions and rules
+Mercur is modular. Each piece is a separate, independently deployable app that talks to the core over APIs.
 
-<b>Vendor Panel</b> <br> A powerful dashboard giving sellers
-complete control over their products, orders, and store
-management in one intuitive interface.
-
-Discover
-<a href="https://github.com/mercurjs/mercur/tree/main/packages/vendor">Vendor
-Panel</a> - <a href="https://www.mercurjs.com/contact">
-Contact us to get demo </a>
-
-<b>Integrations</b> <br> Built-in integration with Stripe
-for payments and Resend for communication needs. More
-integrations coming soon.
+- **Mercur Core**: the marketplace engine on top of Medusa, with vendors, commissions, payouts, and multi-vendor primitives.
+- **Admin Panel**: marketplace operators manage vendors, catalog, categories, commissions, and rules.
+- **Vendor Panel**: sellers manage their products, orders, and payouts.
+- **Storefronts**: customer-facing B2C/B2B apps with multi-vendor browsing, cart, and checkout.
 
 ![Mercur](https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a1020f202572832c954ead_6b96703adfe74613f85133f83a19b1f0_Fleek%20Tilt%20-%20Readme.png)
 
-&nbsp;
+## What's in this repo
 
-## Quickstart
+This is the Mercur development monorepo: the `@mercurjs/core` plugin, the React + Vite admin and vendor dashboards, the `@mercurjs/cli`, the typed API client, the dashboard SDK, the Stripe Connect payout provider, and the cross-package integration suites. If you just want to build a marketplace, run `bunx @mercurjs/cli@latest create` (see [Getting Started](#getting-started)) - clone this repo only when you want to contribute to Mercur itself.
 
-**Step 1**: Create a new Mercur project and start the development server:
+## Deployment
 
-```bash
-bunx @mercurjs/cli@latest create my-marketplace
-```
+Because Mercur is a plain Node.js application backed by PostgreSQL and Redis, it deploys the same way whether you ship it as a container, orchestrate it with Kubernetes, push it to a managed cloud, or lock it inside an air-gapped network. There's no proprietary runtime to adopt and no hosting tier you're forced onto, so where your marketplace lives and where its data sits stay entirely under your control. Prefer a managed backend? Mercur also deploys to [Medusa Cloud](https://medusajs.com/pricing/) with push-to-deploy and auto-scaling.
 
-**Step 2**: Start the development server:
+## License
 
-```bash
-cd my-marketplace
-bun run dev
-```
+This repository is **Mercur core**, licensed under the [MIT License](./LICENSE) and fully open source. It's the marketplace engine on top of [Medusa](https://medusajs.com) — vendors, multi-vendor catalogs, offers, commissions, and payouts, with the admin and vendor dashboards and APIs to run a marketplace yourself.
 
-**Step 3**: Access your marketplace:
+**Mercur Enterprise** adds a licensed suite of advanced modules (EAN matching & deduplication, a Buy Box / winning-offer engine, master-data governance, multi-channel stock sync, automated split payouts, vendor KYC, and much more), all maintained, tested, and upgraded by the core team. You deploy and run Enterprise on your own infrastructure, exactly like the open-source core.
 
-- Backend API: `http://localhost:9000`
-- Admin Panel: `http://localhost:7000`
-- Vendor Panel: `http://localhost:7001`
+It comes backed by a direct support relationship with the people who build the platform: a dedicated support channel, contractual SLAs with guaranteed response times, prioritized bug fixes and security patches, and hands-on onboarding and architecture guidance to get you to production. Higher support tiers add priority escalation and a named technical contact.
 
-&nbsp;
+[Book Mercur Enterprise demo](https://www.mercurjs.com/enterprise).
 
-## Prerequisites
+<!-- GETTING STARTED -->
 
-- [Node.js v20+](https://nodejs.org/en/download)
-- [PostgreSQL](https://www.postgresql.org/download/)
-- [Redis](https://redis.io/download/)
-- [Git CLI](https://git-scm.com/downloads)
+## Getting Started
+
+To get a local marketplace up and running, please follow these simple steps.
+
+### Prerequisites
+
+Here's what you need to run Mercur.
+
+- Node.js (Version: >=20.x)
+- PostgreSQL (Version: >=13.x)
+- Redis
+- Bun _(recommended)_
+
+> If you want to enable any of the available integrations (e.g. Stripe Connect payouts, Resend email, Algolia/Meilisearch search), you may want to obtain additional credentials for each one and add them to your `.env` file.
+
+### Setup
+
+1. Create a new Mercur project
+
+   ```sh
+   bunx @mercurjs/cli@latest create my-marketplace
+   ```
+
+2. Start the development server
+
+   ```sh
+   cd my-marketplace
+   bun run dev
+   ```
+
+3. Access your marketplace
+   - Backend API: `http://localhost:9000`
+   - Admin Panel: `http://localhost:9000/dashboard`
+   - Vendor Panel: `http://localhost:9000/seller`
+
+## Professional services
+
+Mercur is built and maintained by [Rigby](https://rigbyjs.com), a team that has designed, built, and launched multi-vendor marketplaces in production. If you'd rather not do it alone, we work alongside your engineers — from architecture reviews and integrating Mercur with your existing stack to hardening, scaling, and getting your marketplace live on schedule. [Talk to our team](https://www.mercurjs.com/contact).
 
 ## Contribution
 
@@ -146,14 +142,18 @@ If you have any questions about contributing, please join our [Discord server](h
 
 Discovered a 🐜 or have feature suggestion? Feel free to [create an issue](https://github.com/mercurjs/mercur/issues/new/choose) on Github.
 
-# Resources
+## Upgrades
 
-#### Learn more about Mercur
+Follow the [Release Notes](https://github.com/mercurjs/mercur/releases) to keep your Mercur marketplace up-to-date.
 
-- [Mercur Website](https://www.mercurjs.com/)
-- [Mercur Docs](https://docs.mercurjs.com/introduction)
+## Contributors
 
-#### Learn more about Medusa
+<a href="https://github.com/mercurjs/mercur/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=mercurjs/mercur" alt="Mercur contributors" />
+</a>
 
-- [Medusa Website](https://www.medusajs.com/)
-- [Medusa Docs](https://docs.medusajs.com/v2)
+## Star history
+
+<a href="https://star-history.com/#mercurjs/mercur&Date">
+  <img src="https://api.star-history.com/svg?repos=mercurjs/mercur&type=Date" alt="Star History Chart" width="70%" />
+</a>
