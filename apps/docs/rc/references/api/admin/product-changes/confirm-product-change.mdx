@@ -1,0 +1,47 @@
+---
+title: "Confirm Product Change"
+api: "POST /admin/product-changes/{id}/confirm"
+description: "Approve a pending product change and apply it to the product."
+---
+
+Applies the pending change set to the product and marks the change as confirmed.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product change's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="internal_note" type="string">Note recorded on the confirmation, visible to operators only.</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">The confirmed product change's ID.</ResponseField>
+<ResponseField name="object" type="string">Always `product_change`.</ResponseField>
+<ResponseField name="deleted" type="boolean">Always `true` — the change is no longer pending.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/product-changes/prodch_01HXYZABCDEF/confirm' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"internal_note": "Approved after review"}'
+```
+
+```ts JS Client
+const result = await client.admin.productChanges.$id.confirm.mutate({
+  $id: "prodch_01HXYZABCDEF",
+  internal_note: "Approved after review",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "prodch_01HXYZABCDEF",
+  "object": "product_change",
+  "deleted": true
+}
+```
+</ResponseExample>

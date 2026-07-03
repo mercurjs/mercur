@@ -1,0 +1,40 @@
+---
+title: "Delete Product Attribute"
+api: "DELETE /admin/product-attributes/{id}"
+description: "Delete a catalog product attribute."
+---
+
+Deletes the attribute and its values.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The attribute's ID.</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">The deleted attribute's ID.</ResponseField>
+<ResponseField name="object" type="string">Always `product_attribute`.</ResponseField>
+<ResponseField name="deleted" type="boolean">Always `true`.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/admin/product-attributes/pattr_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const result = await client.admin.productAttributes.$id.delete({
+  $id: "pattr_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "pattr_01HXYZABCDEF",
+  "object": "product_attribute",
+  "deleted": true
+}
+```
+</ResponseExample>

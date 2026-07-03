@@ -1,0 +1,49 @@
+---
+title: "cancelProductChangeWorkflow"
+description: "Cancel a pending ProductChange so its staged actions are never applied."
+---
+
+Cancels a pending `ProductChange`: validates the change exists and is still `pending`, then sets it to `canceled` with `canceled_by` and `canceled_at` — the staged actions are never applied to the master product. Triggered by `POST /admin/product-changes/:id/cancel` (operator) and `POST /vendor/products/:id/cancel` (vendor withdrawing their own edit). Emits `product-change.canceled` with `{ id }`.
+
+## Usage
+
+```ts
+import { cancelProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+await cancelProductChangeWorkflow(container).run({
+  input: {
+    id: "prch_01H...",
+    canceled_by: "sel_01H...",
+  },
+})
+```
+
+## Input
+
+<ParamField body="id" type="string" required>
+  Id of the product change to cancel. Must exist and be in `pending` status.
+</ParamField>
+
+<ParamField body="canceled_by" type="string">
+  Actor id recorded as the canceler on the change.
+</ParamField>
+
+<ParamField body="additional_data" type="object">
+  Arbitrary data forwarded to the `productChangeCanceled` hook.
+</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">
+  Returns nothing; the change status is updated in place.
+</ResponseField>
+
+## Hooks
+
+<ResponseField name="validate" type="hook">
+  Runs first with `{ input }` — use it to block cancellation.
+</ResponseField>
+
+<ResponseField name="productChangeCanceled" type="hook">
+  Runs after cancellation with `{ id, additional_data }`.
+</ResponseField>

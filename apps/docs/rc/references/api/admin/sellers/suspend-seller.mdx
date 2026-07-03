@@ -1,0 +1,60 @@
+---
+title: "Suspend Seller"
+api: "POST /admin/sellers/{id}/suspend"
+description: "Suspend a seller."
+---
+
+Sets the seller's status to `suspended`, optionally recording a reason.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="reason" type="string">Reason for the suspension, stored in `status_reason`.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="status" type="string">The seller's status, `suspended` after this call.</ResponseField>
+    <ResponseField name="status_reason" type="string">The recorded suspension reason.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/suspend' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"reason": "Policy violation"}'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.$id.suspend.mutate({
+  $id: "sel_01HXYZABCDEF",
+  reason: "Policy violation",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "status": "suspended",
+    "status_reason": "Policy violation",
+    "updated_at": "2026-06-05T11:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

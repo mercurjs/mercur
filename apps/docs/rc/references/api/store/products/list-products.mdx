@@ -1,0 +1,184 @@
+---
+title: "List Products"
+api: "GET /store/products"
+description: "Retrieve published products from visible sellers."
+---
+
+Returns a paginated list of published products belonging to open, visible sellers.
+
+<Note>
+  Customer authentication is optional. When a customer token is provided, the customer's group memberships are included in the pricing context, which can change `variants.calculated_price` results. Variant prices are only computed when you request `variants.calculated_price` in `fields` (or pass `region_id`); the calculated price reflects the cheapest offer for each variant.
+</Note>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  Maximum number of products to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  Number of products to skip before collecting results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  Field to sort by, prefixed with `-` for descending order (for example `-created_at`).
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Free-text search term applied to product fields.
+</ParamField>
+
+<ParamField query="id" type="string | string[]">
+  Filter by one or more product IDs.
+</ParamField>
+
+<ParamField query="title" type="string">
+  Filter by exact product title.
+</ParamField>
+
+<ParamField query="handle" type="string">
+  Filter by product handle.
+</ParamField>
+
+<ParamField query="collection_id" type="string | string[]">
+  Filter by one or more collection IDs.
+</ParamField>
+
+<ParamField query="type_id" type="string | string[]">
+  Filter by one or more product type IDs.
+</ParamField>
+
+<ParamField query="category_id" type="string | string[]">
+  Filter by one or more category IDs; only active, non-internal categories match.
+</ParamField>
+
+<ParamField query="tag_id" type="string | string[]">
+  Filter by one or more tag IDs.
+</ParamField>
+
+<ParamField query="is_giftcard" type="boolean">
+  Filter by gift-card products.
+</ParamField>
+
+<ParamField query="region_id" type="string">
+  Region used to build the pricing context for `variants.calculated_price`.
+</ParamField>
+
+<ParamField query="currency_code" type="string">
+  Currency used in the pricing context.
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gt`, `$gte`, `$lt`, `$lte`.
+</ParamField>
+
+<ParamField query="$and" type="object[]">
+  Join multiple filter objects with a logical AND.
+</ParamField>
+
+<ParamField query="$or" type="object[]">
+  Join multiple filter objects with a logical OR.
+</ParamField>
+
+## Response
+
+<ResponseField name="products" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">The product's title.</ResponseField>
+    <ResponseField name="subtitle" type="string | null">The product's subtitle.</ResponseField>
+    <ResponseField name="status" type="string">Always `published` on the store API.</ResponseField>
+    <ResponseField name="description" type="string | null">The product's description.</ResponseField>
+    <ResponseField name="handle" type="string">URL-safe handle.</ResponseField>
+    <ResponseField name="is_giftcard" type="boolean">Whether the product is a gift card.</ResponseField>
+    <ResponseField name="discountable" type="boolean">Whether promotions can apply to the product.</ResponseField>
+    <ResponseField name="thumbnail" type="string | null">Thumbnail URL.</ResponseField>
+    <ResponseField name="collection" type="object | null">The product's collection.</ResponseField>
+    <ResponseField name="type" type="object | null">The product's type.</ResponseField>
+    <ResponseField name="tags" type="object[]">The product's tags.</ResponseField>
+    <ResponseField name="images" type="object[]">The product's images.</ResponseField>
+    <ResponseField name="categories" type="object[]">The product's categories.</ResponseField>
+    <ResponseField name="options" type="object[]">Product options with their values.</ResponseField>
+    <ResponseField name="variants" type="object[]">
+      Product variants with their options; `calculated_price` and `offer_id` are added when requested and reflect the cheapest offer.
+    </ResponseField>
+    <ResponseField name="product_attribute_values" type="object[]">Attribute values assigned to the product, each with its parent attribute.</ResponseField>
+    <ResponseField name="scoped_attributes" type="object[]">Attributes scoped to this product, with their values.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching products.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped products.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned products.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/products?limit=20&region_id=reg_01JB2K4S1T&fields=*variants.calculated_price' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { products, count } = await client.store.products.query({
+  limit: 20,
+  region_id: "reg_01JB2K4S1T",
+  fields: "*variants.calculated_price",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "products": [
+    {
+      "id": "prod_01JB2K5M8N",
+      "title": "Linen Shirt",
+      "subtitle": null,
+      "status": "published",
+      "description": "A breathable linen shirt.",
+      "handle": "linen-shirt",
+      "is_giftcard": false,
+      "discountable": true,
+      "thumbnail": "https://cdn.example.com/linen-shirt.png",
+      "collection": null,
+      "type": null,
+      "tags": [],
+      "images": [],
+      "categories": [{ "id": "pcat_01JB2K6A2B", "name": "Shirts" }],
+      "options": [{ "id": "opt_01JB2K6C3D", "title": "Size", "values": [{ "value": "M" }] }],
+      "variants": [
+        {
+          "id": "variant_01JB2K6E4F",
+          "title": "M",
+          "offer_id": "offer_01JB2K6G5H",
+          "calculated_price": {
+            "calculated_amount": 4500,
+            "original_amount": 5000,
+            "currency_code": "eur"
+          }
+        }
+      ],
+      "product_attribute_values": [],
+      "scoped_attributes": [],
+      "metadata": null,
+      "created_at": "2026-05-01T10:00:00.000Z",
+      "updated_at": "2026-05-01T10:00:00.000Z"
+    }
+  ],
+  "count": 42,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

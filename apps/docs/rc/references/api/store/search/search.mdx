@@ -1,0 +1,136 @@
+---
+title: "Search"
+api: "POST /store/search"
+description: "Query the search index across products and offers."
+---
+
+Runs a full-text query against the active search provider's index of products and offers.
+
+<Note>
+  Customer authentication is optional. When a customer token is provided together with `region_id`, the customer's group memberships enter the pricing context, so hits can carry group-specific `calculated_price` values.
+</Note>
+
+## Body parameters
+
+<ParamField body="q" type="string" default="">
+  Search query.
+</ParamField>
+
+<ParamField body="limit" type="number" default="12">
+  Maximum number of hits to return; minimum `1`, maximum `100`.
+</ParamField>
+
+<ParamField body="offset" type="number" default="0">
+  Number of hits to skip before collecting results.
+</ParamField>
+
+<ParamField body="region_id" type="string">
+  Region used to build the pricing context; without it, hits have no `calculated_price`.
+</ParamField>
+
+<ParamField body="country_code" type="string">
+  Country used for the tax context when the region has automatic taxes.
+</ParamField>
+
+<ParamField body="province" type="string">
+  Province used for the tax context.
+</ParamField>
+
+<ParamField body="filters" type="object">
+  Provider-owned filter object passed straight to the active search provider, which defines its shape (for example category, collection, or attribute filters).
+</ParamField>
+
+## Response
+
+<ResponseField name="hits" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The document's ID.</ResponseField>
+    <ResponseField name="type" type="string">One of `product` or `offer`.</ResponseField>
+    <ResponseField name="title" type="string">Display title.</ResponseField>
+    <ResponseField name="description" type="string">Description text.</ResponseField>
+    <ResponseField name="handle" type="string">URL-safe handle.</ResponseField>
+    <ResponseField name="thumbnail" type="string">Thumbnail URL.</ResponseField>
+    <ResponseField name="seller_handle" type="string">Handle of the owning seller.</ResponseField>
+    <ResponseField name="collection_id" type="string">ID of the product's collection.</ResponseField>
+    <ResponseField name="collection" type="string">Title of the product's collection.</ResponseField>
+    <ResponseField name="category_ids" type="string[]">IDs of the product's categories.</ResponseField>
+    <ResponseField name="categories" type="string[]">Names of the product's categories.</ResponseField>
+    <ResponseField name="product_id" type="string">Product ID (offer documents).</ResponseField>
+    <ResponseField name="variant_id" type="string">Variant ID (offer documents).</ResponseField>
+    <ResponseField name="sku" type="string">Offer SKU (offer documents).</ResponseField>
+    <ResponseField name="attributes" type="object[]">Filterable attributes with their values.</ResponseField>
+    <ResponseField name="calculated_price" type="object | null">
+      Price for the requested pricing context, with `calculated_amount`, `original_amount`, and `currency_code`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching documents.</ResponseField>
+<ResponseField name="limit" type="number">The applied limit.</ResponseField>
+<ResponseField name="offset" type="number">The applied offset.</ResponseField>
+
+<ResponseField name="facets" type="object">
+  <Expandable title="properties">
+    <ResponseField name="collections" type="object[]">Collection facets with `id`, `label`, and `count`.</ResponseField>
+    <ResponseField name="categories" type="object[]">Category facets with `id`, `label`, and `count`.</ResponseField>
+    <ResponseField name="attributes" type="object[]">Attribute facets with `handle`, `label`, and value counts.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/store/search' \
+  -H 'Content-Type: application/json' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ' \
+  -d '{"q": "linen shirt", "limit": 12, "region_id": "reg_01JB2K4S1T"}'
+```
+
+```ts JS Client
+const { hits, count, facets } = await client.store.search.mutate({
+  q: "linen shirt",
+  limit: 12,
+  region_id: "reg_01JB2K4S1T",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "hits": [
+    {
+      "id": "offer_01JB2K6G5H",
+      "type": "offer",
+      "title": "Linen Shirt",
+      "handle": "linen-shirt",
+      "thumbnail": "https://cdn.example.com/linen-shirt.png",
+      "seller_handle": "nordic-textiles",
+      "product_id": "prod_01JB2K5M8N",
+      "variant_id": "variant_01JB2K6E4F",
+      "sku": "NT-LINEN-M",
+      "category_ids": ["pcat_01JB2K6A2B"],
+      "categories": ["Shirts"],
+      "calculated_price": {
+        "calculated_amount": 4500,
+        "original_amount": 5000,
+        "currency_code": "eur"
+      }
+    }
+  ],
+  "count": 42,
+  "limit": 12,
+  "offset": 0,
+  "facets": {
+    "collections": [],
+    "categories": [{ "id": "pcat_01JB2K6A2B", "label": "Shirts", "count": 42 }],
+    "attributes": [
+      {
+        "handle": "material",
+        "label": "Material",
+        "values": [{ "id": "attrval_01JB2K7C2D", "label": "Linen", "count": 30 }]
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

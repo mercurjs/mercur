@@ -1,0 +1,39 @@
+---
+title: "autoConfirmProductChangeWorkflow"
+description: "Conditionally confirm a ProductChange based on the product_request feature flag."
+---
+
+Decides whether a freshly staged `ProductChange` should be confirmed immediately: it runs `confirmProductChangeWorkflow` for the change when `force` is `true` or the `product_request` feature flag is disabled, and does nothing otherwise (leaving the change `pending` for operator review). Run as a step by `stageProductChangeWorkflow`. Any events (`product-change.confirmed`) come from the nested confirm workflow.
+
+## Usage
+
+```ts
+import { autoConfirmProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+await autoConfirmProductChangeWorkflow(container).run({
+  input: {
+    change_id: "prch_01H...",
+    confirmed_by: "sel_01H...",
+  },
+})
+```
+
+## Input
+
+<ParamField body="change_id" type="string" required>
+  Id of the product change to (conditionally) confirm.
+</ParamField>
+
+<ParamField body="confirmed_by" type="string">
+  Actor id forwarded as `confirmed_by` to the confirm workflow.
+</ParamField>
+
+<ParamField body="force" type="boolean">
+  Confirm regardless of the `product_request` feature flag.
+</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">
+  Returns nothing; the change is either confirmed (and its actions applied) or left `pending`.
+</ResponseField>

@@ -1,0 +1,48 @@
+---
+title: "Delete Product Variant"
+api: "DELETE /admin/products/{id}/variants/{variant_id}"
+description: "Delete a variant from a product."
+---
+
+Deletes the variant and returns the parent product.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+<ParamField path="variant_id" type="string" required>The variant's ID.</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">The deleted variant's ID.</ResponseField>
+<ResponseField name="object" type="string">Always `variant`.</ResponseField>
+<ResponseField name="deleted" type="boolean">Always `true`.</ResponseField>
+<ResponseField name="parent" type="object">The parent product after deletion.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/admin/products/prod_01HXYZABCDEF/variants/variant_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const result = await client.admin.products.$id.variants.$variant_id.delete({
+  $id: "prod_01HXYZABCDEF",
+  $variant_id: "variant_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "variant_01HXYZABCDEF",
+  "object": "variant",
+  "deleted": true,
+  "parent": {
+    "id": "prod_01HXYZABCDEF",
+    "title": "Linen Shirt",
+    "variants": []
+  }
+}
+```
+</ResponseExample>

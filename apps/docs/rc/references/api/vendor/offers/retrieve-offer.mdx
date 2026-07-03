@@ -1,0 +1,74 @@
+---
+title: "Retrieve Offer"
+api: "GET /vendor/offers/{id}"
+description: "Retrieve one of the seller's offers by its ID."
+---
+
+Returns a single offer owned by the seller; requesting another seller's offer fails.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The offer's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response. Prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+## Response
+
+<ResponseField name="offer" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The offer's ID.</ResponseField>
+    <ResponseField name="seller_id" type="string">ID of the owning seller.</ResponseField>
+    <ResponseField name="variant_id" type="string">ID of the listed product variant.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the parent product.</ResponseField>
+    <ResponseField name="shipping_profile_id" type="string">ID of the shipping profile.</ResponseField>
+    <ResponseField name="sku" type="string">The seller's SKU for this listing.</ResponseField>
+    <ResponseField name="ean" type="string">EAN barcode.</ResponseField>
+    <ResponseField name="upc" type="string">UPC barcode.</ResponseField>
+    <ResponseField name="seller" type="object">The seller with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="product_variant" type="object">The variant with `id`, `title`, and `sku`.</ResponseField>
+    <ResponseField name="shipping_profile" type="object">The shipping profile with `id` and `name`.</ResponseField>
+    <ResponseField name="prices" type="object[]">Offer prices with `id`, `amount`, `currency_code`, `min_quantity`, `max_quantity`, and `price_rules`.</ResponseField>
+    <ResponseField name="inventory_items" type="object[]">Linked inventory items with `id`, `inventory_item_id`, `required_quantity`, and `sku`.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value pairs.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/offers/offer_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { offer } = await client.vendor.offers.$id.query({
+  $id: "offer_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "offer": {
+    "id": "offer_01HXYZ",
+    "seller_id": "sel_01HXYZ",
+    "variant_id": "variant_01HXYZ",
+    "product_id": "prod_01HXYZ",
+    "sku": "ACME-SHIRT-M",
+    "prices": [
+      { "id": "price_01HXYZ", "amount": 2500, "currency_code": "usd" }
+    ],
+    "inventory_items": [
+      { "inventory_item_id": "iitem_01HXYZ", "required_quantity": 1 }
+    ]
+  }
+}
+```
+</ResponseExample>

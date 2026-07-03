@@ -1,0 +1,30 @@
+---
+title: "refreshOrderCommissionLinesWorkflow"
+description: "Recompute the commission lines for one or more orders."
+---
+
+Loads each order with its items, products, sellers, and shipping methods, evaluates the matching commission rates, and upserts a commission line per item and shipping method (delete-then-insert, so re-running is idempotent). Runs inside `completeCartWithSplitOrdersWorkflow` after orders are created, and again from the `order-edit-confirmed` subscriber on order edits, returns, claims, and exchanges.
+
+## Usage
+
+```ts
+import { refreshOrderCommissionLinesWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await refreshOrderCommissionLinesWorkflow(container).run({
+  input: { order_ids: ["order_123"] },
+})
+```
+
+## Input
+
+<ParamField body="order_ids" type="string[]" required>IDs of the orders to recompute commission lines for; fails if any order is not found.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="CommissionLineDTO[]">The upserted commission lines.</ResponseField>
+<ResponseField name="result[].item_id" type="string | null">The order line item the commission applies to.</ResponseField>
+<ResponseField name="result[].shipping_method_id" type="string | null">The shipping method the commission applies to.</ResponseField>
+<ResponseField name="result[].commission_rate_id" type="string | null">The rate that produced the line.</ResponseField>
+<ResponseField name="result[].code" type="string">Code of the applied rate.</ResponseField>
+<ResponseField name="result[].rate" type="number">Rate value applied.</ResponseField>
+<ResponseField name="result[].amount" type="number">Commission amount in the order currency.</ResponseField>

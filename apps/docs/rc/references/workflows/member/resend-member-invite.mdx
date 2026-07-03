@@ -1,0 +1,28 @@
+---
+title: "resendMemberInviteWorkflow"
+description: "Re-issue a member invite with a fresh token."
+---
+
+Loads the existing invite, deletes it, and creates a new one with the same email and role — resetting the token and expiry. Triggered by `POST /admin/sellers/:id/members/invites/:invite_id/resend` and the vendor equivalent. Emits `member_invite.created` for the new invite.
+
+## Usage
+
+```ts
+import { resendMemberInviteWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await resendMemberInviteWorkflow(container).run({
+  input: {
+    invite_id: "meminv_123",
+    seller_id: "sel_123",
+  },
+})
+```
+
+## Input
+
+<ParamField body="invite_id" type="string" required>Id of the invite to re-issue; must belong to the seller.</ParamField>
+<ParamField body="seller_id" type="string" required>Seller the invite belongs to.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="MemberInviteDTO[]">The re-created invite (single-element array) with a new `token` and `expires_at`.</ResponseField>

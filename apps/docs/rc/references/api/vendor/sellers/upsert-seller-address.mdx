@@ -1,0 +1,81 @@
+---
+title: "Upsert Seller Address"
+api: "POST /vendor/sellers/{id}/address"
+description: "Create or update the seller's address."
+---
+
+Upserts the seller's address and returns the full seller object.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The seller's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="name" type="string">Address label.</ParamField>
+<ParamField body="company" type="string">Company name.</ParamField>
+<ParamField body="first_name" type="string">Contact first name.</ParamField>
+<ParamField body="last_name" type="string">Contact last name.</ParamField>
+<ParamField body="address_1" type="string">Street address.</ParamField>
+<ParamField body="address_2" type="string">Apartment, suite, etc.</ParamField>
+<ParamField body="city" type="string">City.</ParamField>
+<ParamField body="country_code" type="string">Two-letter country code.</ParamField>
+<ParamField body="province" type="string">Province or state.</ParamField>
+<ParamField body="postal_code" type="string">Postal code.</ParamField>
+<ParamField body="phone" type="string">Phone number.</ParamField>
+<ParamField body="metadata" type="object">Custom key-value pairs.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed to workflow hooks.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="address" type="object">The updated address.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/sellers/sel_01HXYZ/address' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"address_1": "123 Main St", "city": "New York", "country_code": "us", "postal_code": "10001"}'
+```
+
+```ts JS Client
+const { seller } = await client.vendor.sellers.$id.address.mutate({
+  $id: "sel_01HXYZ",
+  address_1: "123 Main St",
+  city: "New York",
+  country_code: "us",
+  postal_code: "10001",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZ",
+    "name": "Acme Store",
+    "address": {
+      "address_1": "123 Main St",
+      "city": "New York",
+      "country_code": "us",
+      "postal_code": "10001"
+    }
+  }
+}
+```
+</ResponseExample>

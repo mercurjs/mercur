@@ -1,0 +1,39 @@
+---
+title: "listSellerShippingOptionsForCartWorkflow"
+description: "List available shipping options for a cart, grouped by seller."
+---
+
+Resolves the sellers behind the cart's offers, finds their stock locations valid for the cart's sales channel, and queries shipping options in those locations' fulfillment sets with cart-scoped pricing. Each option carries its calculated `amount`, `is_tax_inclusive`, and an `insufficient_inventory` flag when the seller's location can't cover the cart quantities. Options are translated to the cart locale and returned keyed by seller ID. Triggered by `GET /store/shipping-options`.
+
+## Usage
+
+```ts
+import { listSellerShippingOptionsForCartWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await listSellerShippingOptionsForCartWorkflow(container).run({
+  input: { cart_id: "cart_123" },
+})
+```
+
+## Input
+
+<ParamField body="cart_id" type="string" required>The cart to list options for; must have `sales_channel_id`, `region_id`, and `currency_code` set.</ParamField>
+<ParamField body="is_return" type="boolean">List return shipping options instead; defaults to `false`.</ParamField>
+<ParamField body="enabled_in_store" type="boolean">Only options enabled in the storefront; defaults to `true`.</ParamField>
+<ParamField body="fields" type="string[]">Extra shipping-option fields to retrieve on top of the defaults.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed through to the workflow hooks.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="Record<string, ShippingOptionDTO[]>">Map of seller ID to that seller's priced shipping options, each extended with `amount`, `is_tax_inclusive`, and `insufficient_inventory`.</ResponseField>
+
+## Hooks
+
+- `setPricingContext` — runs with `{ cart, fulfillmentSetIds, additional_data }`; return a record to merge into the price calculation context.
+- `setShippingOptionsContext` — runs with the same payload; return a record to merge into the shipping-option rule context.
+
+```ts
+listSellerShippingOptionsForCartWorkflow.hooks.setPricingContext(async ({ cart }) => {
+  return { customer_tier: "vip" }
+})
+```

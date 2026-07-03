@@ -1,0 +1,142 @@
+---
+title: "Add a custom API route"
+description: "Create a backend endpoint, regenerate the route map, and call it from a panel page with full type safety end to end."
+---
+
+Mercur's typed API client isn't hand-maintained — its types are **generated from your actual route files**. That means a custom endpoint you add to the API package becomes a first-class, fully typed client call after one codegen run. This tutorial walks the whole loop: route → codegen → typed call from a custom panel page.
+
+<Info>
+  **The contract is generated, not declared.** You never write an interface for your endpoint. `mercurjs codegen` reads the route's handler and validators and emits the `Routes` type the client consumes — so the panel call site breaks at compile time the moment the backend changes. This loop is also what makes Mercur projects reliable targets for AI agents: see [Building with AI](/rc/resources/ai/overview).
+</Info>
+
+## What you'll build
+
+A `GET /vendor/sales-summary` endpoint returning the seller's order count, called from a custom vendor portal page via `client.vendor.salesSummary.query()` with inferred types.
+
+## Build the loop
+
+<Steps>
+  <Step title="Create the route">
+    API routes follow Medusa's file conventions inside your API package. The URL path mirrors the directory path:
+
+    ```typescript packages/api/src/api/vendor/sales-summary/route.ts
+    import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+    import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+
+    export async function GET(
+      req: AuthenticatedMedusaRequest,
+      res: MedusaResponse
+    ) {
+      const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
+      const { data: orders } = await query.graph({
+        entity: "order",
+        fields: ["id"],
+        filters: { seller_id: req.auth_context.actor_id },
+      })
+
+      res.json({ order_count: orders.length })
+    }
+    ```
+
+    Routes under `src/api/vendor/*` run behind the vendor authentication middleware, so `req.auth_context` identifies the calling seller. Use `src/api/admin/*` for operator endpoints and `src/api/store/*` for public storefront endpoints.
+  </Step>
+  <Step title="Regenerate the route map">
+    ```bash
+    bunx @mercurjs/cli@rc codegen
+    ```
+
+    Codegen scans your route files and rewrites the generated `Routes` type that your panel apps already import:
+
+    ```typescript apps/vendor/src/lib/client.ts
+    import { createClient, type InferClient } from "@mercurjs/client"
+    import type { Routes } from "@acme/api/_generated"
+
+    declare const __BACKEND_URL__: string
+
+    export const client: InferClient<Routes> = createClient({
+      baseUrl: __BACKEND_URL__,
+      fetchOptions: { credentials: "include" },
+    })
+    ```
+
+    This file ships with the starter template — you don't need to touch it. After codegen, `client.vendor.salesSummary` simply exists, typed.
+
+    <Tip>
+      Run `bunx @mercurjs/cli@rc codegen --watch` during development so the route map regenerates as you edit route files.
+    </Tip>
+  </Step>
+  <Step title="Call it from a panel page">
+    Drop a page into the vendor app and call the endpoint through the client. Route segments map to camelCase properties, and the HTTP method is chosen by the terminal call: `query` (GET), `mutate` (POST), `delete` (DELETE).
+
+    ```tsx apps/vendor/src/routes/sales-summary/page.tsx
+    import { useQuery } from "@tanstack/react-query"
+    import { Container, Heading, Text } from "@medusajs/ui"
+    import { ChartBar } from "@medusajs/icons"
+    import type { RouteConfig } from "@mercurjs/dashboard-sdk"
+    import type { InferClientOutput } from "@mercurjs/client"
+    import { client } from "../../lib/client"
+
+    export const config: RouteConfig = {
+      label: "Sales summary",
+      icon: ChartBar,
+    }
+
+    type Summary = InferClientOutput<typeof client.vendor.salesSummary.query>
+
+    export default function SalesSummaryPage() {
+      const { data } = useQuery<Summary>({
+        queryKey: ["sales-summary"],
+        queryFn: () => client.vendor.salesSummary.query(),
+      })
+
+      return (
+        <Container className="divide-y p-0">
+          <div className="flex items-center justify-between px-6 py-4">
+            <Heading>Sales summary</Heading>
+          </div>
+          <div className="px-6 py-4">
+            <Text size="small" className="text-ui-fg-subtle">
+              Orders: {data?.order_count ?? "—"}
+            </Text>
+          </div>
+        </Container>
+      )
+    }
+    ```
+
+    `InferClientOutput` extracts the response type straight from the client method — change the route's response shape, rerun codegen, and this component stops compiling until you update it.
+  </Step>
+</Steps>
+
+## Verify
+
+1. Start the project (`bun run dev`) and log into the vendor portal.
+2. **Sales summary** appears in the sidebar (the `config` export registered it); the page shows the order count.
+3. `curl http://localhost:9000/vendor/sales-summary` without a token returns an authentication error — the vendor middleware guards your route.
+4. Change the route to return `{ count: ... }` instead of `{ order_count: ... }`, rerun codegen, and confirm the page fails to type-check — that's the generated contract doing its job. Revert after.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="How do path parameters work in the client?">
+    Use `$`-prefixed segments: a route at `src/api/vendor/things/[id]/route.ts` is called as `client.vendor.things.$id.query({ $id: "thing_123" })`. The `$id` key is threaded into the URL path; everything else in the object becomes query params (GET) or the JSON body (POST).
+  </Accordion>
+  <Accordion title="How do I handle errors from the client?">
+    Failed requests throw `ClientError` from `@mercurjs/client`, carrying `status`, `statusText`, and the backend's `message`. Wrap calls in try/catch or let TanStack Query surface the error. Full reference: [API Client](/rc/tools/api-client).
+  </Accordion>
+  <Accordion title="Where do request validation schemas go?">
+    Follow Medusa conventions: a `validators.ts` next to the route with a Zod schema, wired through the route's middleware. Codegen reads validators too, so the client's input type reflects them.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="API Client" href="/rc/tools/api-client">
+    Everything the typed client can do — inputs, outputs, errors, React Query.
+  </Card>
+  <Card title="Extend a workflow" href="/rc/resources/customization/extend-a-workflow">
+    Put multi-step business logic behind your endpoint with rollback support.
+  </Card>
+</CardGroup>

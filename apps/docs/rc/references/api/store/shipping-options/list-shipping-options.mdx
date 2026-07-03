@@ -1,0 +1,74 @@
+---
+title: "List Shipping Options"
+api: "GET /store/shipping-options"
+description: "Retrieve available shipping options for a cart, grouped by seller."
+---
+
+Returns the shipping options that can fulfill the given cart, grouped by the seller of the items each option applies to.
+
+## Query parameters
+
+<ParamField query="cart_id" type="string" required>
+  ID of the cart to list shipping options for.
+</ParamField>
+
+<ParamField query="is_return" type="boolean">
+  Set to `true` to list return shipping options.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include on each shipping option; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+## Response
+
+<ResponseField name="shipping_options" type="object">
+  Map of seller ID to the shipping options available for that seller's items.
+  <Expandable title="properties">
+    <ResponseField name="{seller_id}" type="object[]">
+      Shipping options for the seller, each with `id`, `name`, `price_type`, `provider_id`, calculated `amount`, and `type`.
+    </ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/shipping-options?cart_id=cart_01JB2KB1CD' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { shipping_options } = await client.store.shippingOptions.query({
+  cart_id: "cart_01JB2KB1CD",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "shipping_options": {
+    "sel_01JB2K8A1B": [
+      {
+        "id": "so_01JB2KC4GH",
+        "name": "Standard Shipping",
+        "price_type": "flat",
+        "provider_id": "manual_manual",
+        "amount": 900,
+        "type": { "label": "Standard", "code": "standard" }
+      }
+    ],
+    "sel_01JB2KF9ST": [
+      {
+        "id": "so_01JB2KG0UV",
+        "name": "Express",
+        "price_type": "flat",
+        "provider_id": "manual_manual",
+        "amount": 1500,
+        "type": { "label": "Express", "code": "express" }
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

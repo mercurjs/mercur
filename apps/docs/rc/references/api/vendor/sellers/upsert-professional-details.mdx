@@ -1,0 +1,70 @@
+---
+title: "Upsert Professional Details"
+api: "POST /vendor/sellers/{id}/professional-details"
+description: "Create or update the seller's business registration details."
+---
+
+Upserts the seller's professional details and returns the full seller object.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The seller's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="corporate_name" type="string">Registered corporate name.</ParamField>
+<ParamField body="registration_number" type="string">Business registration number.</ParamField>
+<ParamField body="tax_id" type="string">Tax identification number.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed to workflow hooks.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="professional_details" type="object">The updated professional details.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/sellers/sel_01HXYZ/professional-details' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"corporate_name": "Acme Inc.", "registration_number": "HRB 12345", "tax_id": "DE123456789"}'
+```
+
+```ts JS Client
+const { seller } = await client.vendor.sellers.$id.professionalDetails.mutate({
+  $id: "sel_01HXYZ",
+  corporate_name: "Acme Inc.",
+  registration_number: "HRB 12345",
+  tax_id: "DE123456789",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZ",
+    "name": "Acme Store",
+    "professional_details": {
+      "corporate_name": "Acme Inc.",
+      "registration_number": "HRB 12345",
+      "tax_id": "DE123456789"
+    }
+  }
+}
+```
+</ResponseExample>

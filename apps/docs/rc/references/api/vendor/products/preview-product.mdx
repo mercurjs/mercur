@@ -1,0 +1,61 @@
+---
+title: "Preview Product Change"
+api: "GET /vendor/products/{id}/preview"
+description: "Retrieve the seller's pending change request for a product."
+---
+
+Returns the seller's `pending` change request for the product, or `null` when there is none.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+## Response
+
+<ResponseField name="product_change" type="object | null">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The change request's ID.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the product the change targets.</ResponseField>
+    <ResponseField name="status" type="string">Always `pending` for this endpoint.</ResponseField>
+    <ResponseField name="created_by" type="string">ID of the seller that staged the change.</ResponseField>
+    <ResponseField name="actions" type="object[]">Staged operations, each with `id`, `action`, `details`, `ordering`, and `applied`.</ResponseField>
+    <ResponseField name="internal_note" type="string">Internal note attached to the change.</ResponseField>
+    <ResponseField name="external_note" type="string">Note from the operator, e.g. a revision request.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/products/prod_01HXYZ/preview' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { product_change } = await client.vendor.products.$id.preview.query({
+  $id: "prod_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_change": {
+    "id": "prodch_01HXYZ",
+    "product_id": "prod_01HXYZ",
+    "status": "pending",
+    "actions": [
+      {
+        "id": "prodchact_01HXYZ",
+        "action": "UPDATE",
+        "details": { "title": "Acme T-Shirt v2" },
+        "applied": false
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

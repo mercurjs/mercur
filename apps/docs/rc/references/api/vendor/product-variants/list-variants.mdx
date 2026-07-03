@@ -1,0 +1,136 @@
+---
+title: "List Variants"
+api: "GET /vendor/product-variants"
+description: "Retrieve a paginated list of product variants across products."
+---
+
+Returns product variants regardless of parent product, with the parent product embedded.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">
+  The maximum number of variants to return.
+</ParamField>
+
+<ParamField query="offset" type="number" default="0">
+  The number of variants to skip before returning results.
+</ParamField>
+
+<ParamField query="order" type="string">
+  The field to sort by, e.g. `created_at` or `-created_at` for descending.
+</ParamField>
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response. Prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="q" type="string">
+  Search term matched against variant fields.
+</ParamField>
+
+<ParamField query="id" type="string | string[]">
+  Filter by variant ID(s).
+</ParamField>
+
+<ParamField query="manage_inventory" type="boolean">
+  Filter by whether inventory is managed for the variant.
+</ParamField>
+
+<ParamField query="allow_backorder" type="boolean">
+  Filter by whether backorders are allowed.
+</ParamField>
+
+<ParamField query="sku" type="string | string[]">
+  Filter by SKU(s).
+</ParamField>
+
+<ParamField query="ean" type="string | string[]">
+  Filter by EAN(s).
+</ParamField>
+
+<ParamField query="upc" type="string | string[]">
+  Filter by UPC(s).
+</ParamField>
+
+<ParamField query="barcode" type="string | string[]">
+  Filter by barcode(s).
+</ParamField>
+
+<ParamField query="product_id" type="string | string[]">
+  Filter by parent product ID(s).
+</ParamField>
+
+<ParamField query="created_at" type="object">
+  Filter by creation date using operators like `$gt`, `$lt`, `$gte`, `$lte`.
+</ParamField>
+
+<ParamField query="updated_at" type="object">
+  Filter by update date using operators like `$gt`, `$lt`, `$gte`, `$lte`.
+</ParamField>
+
+<ParamField query="deleted_at" type="object">
+  Filter by deletion date using operators like `$gt`, `$lt`, `$gte`, `$lte`.
+</ParamField>
+
+<ParamField query="$and" type="object[]">
+  Join multiple filter objects with a logical AND.
+</ParamField>
+
+<ParamField query="$or" type="object[]">
+  Join multiple filter objects with a logical OR.
+</ParamField>
+
+## Response
+
+<ResponseField name="variants" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The variant's ID.</ResponseField>
+    <ResponseField name="title" type="string">The variant's title.</ResponseField>
+    <ResponseField name="sku" type="string">The variant's SKU.</ResponseField>
+    <ResponseField name="ean" type="string">EAN barcode.</ResponseField>
+    <ResponseField name="upc" type="string">UPC barcode.</ResponseField>
+    <ResponseField name="barcode" type="string">Generic barcode.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the parent product.</ResponseField>
+    <ResponseField name="product" type="object">The parent product record.</ResponseField>
+    <ResponseField name="manage_inventory" type="boolean">Whether inventory is managed for the variant.</ResponseField>
+    <ResponseField name="allow_backorder" type="boolean">Whether backorders are allowed.</ResponseField>
+    <ResponseField name="variant_rank" type="number">Sort rank of the variant.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="count" type="number">Total number of matching variants.</ResponseField>
+<ResponseField name="offset" type="number">Number of skipped variants.</ResponseField>
+<ResponseField name="limit" type="number">Maximum number of returned variants.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/product-variants?sku=ACME-SHIRT-M' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { variants, count } = await client.vendor.productVariants.query({
+  sku: "ACME-SHIRT-M",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "variants": [
+    {
+      "id": "variant_01HXYZ",
+      "title": "M",
+      "sku": "ACME-SHIRT-M",
+      "product_id": "prod_01HXYZ",
+      "product": { "id": "prod_01HXYZ", "title": "Acme T-Shirt" }
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 50
+}
+```
+</ResponseExample>

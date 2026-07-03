@@ -1,0 +1,89 @@
+---
+title: "Set up seller payouts"
+description: "Take a seller from zero to paid: Stripe Connect onboarding, an order through fulfillment, capture, and the automated payout."
+---
+
+Payouts are the last mile of a marketplace — the marketplace collects the customer's payment, deducts its commission, and transfers the remainder to the seller. In Mercur that pipeline is **fully automated**: once a seller is onboarded and an order is fulfilled, scheduled jobs and subscribers handle capture and transfer without any manual step. This tutorial follows one order through the entire pipeline.
+
+<Info>
+  **Nothing pays out until the seller's account is `ACTIVE`.** Every stage of the pipeline checks the payout account status. A seller who skips onboarding can sell, but their orders sit uncaptured until the authorization window forces the issue — which is exactly why surfacing onboarding status in the vendor portal matters.
+</Info>
+
+## What you'll build
+
+A working payout loop: a seller with an active Stripe Connect account, one fulfilled order, a captured payment, and a payout record that settles via webhook.
+
+## Prerequisites
+
+Stripe Connect must be configured first — provider registration, API keys, and **both** webhooks (payment and payout). Follow the [Stripe Connect integration guide](/rc/resources/integrations/stripe-connect) up to and including "Set up webhooks", then come back here. For local development, keep `stripe listen` forwarding running.
+
+## Run the pipeline
+
+<Steps>
+  <Step title="Onboard the seller">
+    In the Vendor Portal, the seller opens **Settings → Payouts** and starts onboarding. Under the hood this creates a `PayoutAccount` (status `PENDING`) and an `Onboarding` record holding the Stripe onboarding link:
+
+    ```bash
+    curl -X POST http://localhost:9000/vendor/payout-accounts/<account-id>/onboarding \
+      -H "Authorization: Bearer <seller-token>" \
+      -H "Content-Type: application/json" \
+      -d '{ "context": { "return_url": "http://localhost:7001/settings/payouts" } }'
+    ```
+
+    The seller completes Stripe's hosted flow (identity, bank account) — in test mode, Stripe's test data completes it in a minute. When Stripe activates the account, the payout webhook delivers an `account.activated` event and Mercur flips the account to `ACTIVE`. No polling — the webhook is the source of truth.
+  </Step>
+  <Step title="Place and fulfill an order">
+    Place an order for one of the seller's listings, then in the Vendor Portal fulfill it. Fulfillment matters: by default, capture requires the order to reach `fulfilled` status (configurable via the payout module's `requiredFulfillmentStatus` option).
+  </Step>
+  <Step title="Watch the capture">
+    A scheduled job runs every 15 minutes looking for orders that are ready: payment `authorized`, seller `ACTIVE`, fulfillment status met, no payout yet. When the capture deadline approaches it emits `order.capture_requested`, and a subscriber captures the payment.
+
+    To move faster while testing, wait for the next 15-minute tick after fulfillment.
+
+    <Warning>
+      Payment authorizations expire — 7 days by default (`authorizationWindowMs`). Sellers who don't fulfill within the window (`sellerActionWindowMs`, 72h default) risk the capture buffer kicking in or the authorization expiring entirely. Tune these in the payout module options with your fulfillment SLAs in mind.
+    </Warning>
+  </Step>
+  <Step title="The payout lands">
+    Once per day (1 AM UTC) a job scans captured orders without payouts and emits `payout.requested` per order. The `createPayoutWorkflow` then:
+
+    1. Loads the order with its commission lines.
+    2. Calculates `payout_amount = order.total − total_commission`.
+    3. Calls Stripe to create the transfer and records a `Payout` (status `PENDING`).
+
+    Stripe's webhook then walks the payout through `PROCESSING` → `PAID` (or `FAILED`).
+  </Step>
+</Steps>
+
+## Verify
+
+1. **Account**: `GET /vendor/payout-accounts/<id>` returns `status: "ACTIVE"` after onboarding.
+2. **Capture**: after fulfillment plus one job tick, the order's payment shows as captured.
+3. **Payout**: `GET /admin/payouts` lists a payout for the order, with `amount` equal to the order total minus the commission lines from your [commission configuration](/rc/resources/tutorials/configure-commissions).
+4. **Vendor view**: the seller sees the payout and its status in the Vendor Portal's payout history.
+5. **Stripe**: the transfer appears on the connected account in the Stripe test dashboard.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="What if the seller never completes onboarding?">
+    Their orders stay uncaptured. The capture job skips orders whose seller isn't `ACTIVE`, and once the authorization window lapses the payment expires (an `order.authorization_expired` event fires). Surface the onboarding status prominently and chase incomplete sellers early.
+  </Accordion>
+  <Accordion title="Why hasn't a payout appeared even though the order is captured?">
+    The payout job runs once per day at 1 AM UTC — a captured order waits for the next daily tick. Also check that no payout already exists for the order and that the seller's account is still `ACTIVE` (a `RESTRICTED` account pauses payouts until the provider clears it).
+  </Accordion>
+  <Accordion title="What do the payout statuses mean?">
+    `PENDING` — transfer initiated; `PROCESSING` — the provider is moving funds; `PAID` — settled; `FAILED` / `CANCELED` — the transfer didn't complete. All transitions after `PENDING` come from provider webhook events, so a stuck status usually means the payout webhook isn't reaching your API.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Payout" href="/rc/learn/payouts">
+    The full pipeline reference — statuses, jobs, webhook events, module options.
+  </Card>
+  <Card title="Stripe Connect" href="/rc/resources/integrations/stripe-connect">
+    Provider configuration, transfers vs payouts, refunds, and EU considerations.
+  </Card>
+</CardGroup>

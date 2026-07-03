@@ -1,0 +1,169 @@
+---
+title: "Create Product"
+api: "POST /admin/products"
+description: "Create a master catalog product."
+---
+
+Creates a shared master product that sellers can be made eligible to sell.
+
+<Note>
+Pass `seller_ids` to set which sellers may sell the product. The `attributes` array accepts a unified input: reference an existing catalog attribute by `id`, or create an inline product-scoped attribute by `title`.
+</Note>
+
+## Body parameters
+
+<ParamField body="title" type="string" required>Product title.</ParamField>
+<ParamField body="subtitle" type="string">Product subtitle.</ParamField>
+<ParamField body="description" type="string">Product description.</ParamField>
+<ParamField body="handle" type="string">Unique URL-safe handle, generated from the title if omitted.</ParamField>
+<ParamField body="status" type="string">One of `draft`, `proposed`, `published`, `rejected`.</ParamField>
+<ParamField body="is_giftcard" type="boolean" default="false">Whether the product is a gift card.</ParamField>
+<ParamField body="discountable" type="boolean" default="true">Whether discounts can apply to the product.</ParamField>
+<ParamField body="thumbnail" type="string">URL of the product thumbnail.</ParamField>
+<ParamField body="images" type="object[]">
+  Product images.
+  <Expandable title="properties">
+    <ParamField body="url" type="string" required>Image URL.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="external_id" type="string">ID of the product in an external system.</ParamField>
+<ParamField body="type_id" type="string">ID of the product type.</ParamField>
+<ParamField body="collection_id" type="string">ID of the collection to assign the product to.</ParamField>
+<ParamField body="seller_ids" type="string[]">IDs of sellers eligible to sell the product.</ParamField>
+<ParamField body="categories" type="object[]">
+  Categories to assign the product to.
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>Category ID.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="tags" type="object[]">
+  Tags to assign to the product.
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>Tag ID.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="options" type="object[]">
+  Product options used to build variants.
+  <Expandable title="properties">
+    <ParamField body="title" type="string" required>Option title, for example `Size`.</ParamField>
+    <ParamField body="values" type="string[]" required>Possible option values.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="attributes" type="object[]">
+  Unified attribute input — one of two shapes per item.
+  <Expandable title="existing attribute (by id)">
+    <ParamField body="id" type="string" required>ID of an existing catalog attribute.</ParamField>
+    <ParamField body="value_ids" type="string[]">IDs of attribute values to select.</ParamField>
+    <ParamField body="value" type="string | number | boolean">Scalar value for `text`, `unit`, or `toggle` attributes.</ParamField>
+  </Expandable>
+  <Expandable title="inline attribute (by title)">
+    <ParamField body="title" type="string" required>Attribute title.</ParamField>
+    <ParamField body="type" type="string">One of `single_select`, `multi_select`, `unit`, `toggle`, `text`.</ParamField>
+    <ParamField body="values" type="string[]">Value names to create and select.</ParamField>
+    <ParamField body="value" type="string | number | boolean">Scalar value for non-select types.</ParamField>
+    <ParamField body="is_variant_axis" type="boolean">Whether the attribute drives variant generation; only valid for `multi_select`.</ParamField>
+    <ParamField body="is_filterable" type="boolean">Whether the attribute can be used as a storefront filter.</ParamField>
+    <ParamField body="is_required" type="boolean">Whether a value is required on products.</ParamField>
+    <ParamField body="description" type="string">Attribute description.</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="variants" type="object[]">
+  Product variants.
+  <Expandable title="properties">
+    <ParamField body="title" type="string" required>Variant title.</ParamField>
+    <ParamField body="sku" type="string">Variant SKU.</ParamField>
+    <ParamField body="ean" type="string">Variant EAN.</ParamField>
+    <ParamField body="upc" type="string">Variant UPC.</ParamField>
+    <ParamField body="isbn" type="string">Variant ISBN.</ParamField>
+    <ParamField body="asin" type="string">Variant ASIN.</ParamField>
+    <ParamField body="gtin" type="string">Variant GTIN.</ParamField>
+    <ParamField body="barcode" type="string">Variant barcode.</ParamField>
+    <ParamField body="hs_code" type="string">Harmonized System code.</ParamField>
+    <ParamField body="mid_code" type="string">Manufacturer identification code.</ParamField>
+    <ParamField body="variant_rank" type="number">Sort rank of the variant.</ParamField>
+    <ParamField body="weight" type="number">Variant weight.</ParamField>
+    <ParamField body="length" type="number">Variant length.</ParamField>
+    <ParamField body="height" type="number">Variant height.</ParamField>
+    <ParamField body="width" type="number">Variant width.</ParamField>
+    <ParamField body="origin_country" type="string">Country of origin.</ParamField>
+    <ParamField body="material" type="string">Variant material.</ParamField>
+    <ParamField body="options" type="object">Map of option title to option value, for example `{"Size": "M"}`.</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="weight" type="number">Product weight.</ParamField>
+<ParamField body="length" type="number">Product length.</ParamField>
+<ParamField body="height" type="number">Product height.</ParamField>
+<ParamField body="width" type="number">Product width.</ParamField>
+<ParamField body="hs_code" type="string">Harmonized System code.</ParamField>
+<ParamField body="mid_code" type="string">Manufacturer identification code.</ParamField>
+<ParamField body="origin_country" type="string">Country of origin.</ParamField>
+<ParamField body="material" type="string">Product material.</ParamField>
+<ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+<ParamField body="additional_data" type="object">Custom data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="product" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">Product title.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="status" type="string">One of `draft`, `proposed`, `published`, `rejected`.</ResponseField>
+    <ResponseField name="variants" type="object[]">Created variants.</ResponseField>
+    <ResponseField name="product_attribute_values" type="object[]">Attribute values selected on the product.</ResponseField>
+    <ResponseField name="scoped_attributes" type="object[]">Product-scoped (inline) attributes with their values.</ResponseField>
+    <ResponseField name="attributes" type="object[]">Computed attribute groups with selected `values` and `all_values`.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/products' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "title": "Linen Shirt",
+    "seller_ids": ["sel_01HXYZABCDEF"],
+    "options": [{ "title": "Size", "values": ["S", "M"] }],
+    "variants": [
+      { "title": "S", "sku": "LS-S", "options": { "Size": "S" } },
+      { "title": "M", "sku": "LS-M", "options": { "Size": "M" } }
+    ],
+    "attributes": [{ "title": "Material", "type": "single_select", "values": ["Linen"] }]
+  }'
+```
+
+```ts JS Client
+const { product } = await client.admin.products.mutate({
+  title: "Linen Shirt",
+  seller_ids: ["sel_01HXYZABCDEF"],
+  options: [{ title: "Size", values: ["S", "M"] }],
+  variants: [
+    { title: "S", sku: "LS-S", options: { Size: "S" } },
+    { title: "M", sku: "LS-M", options: { Size: "M" } },
+  ],
+  attributes: [{ title: "Material", type: "single_select", values: ["Linen"] }],
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product": {
+    "id": "prod_01HXYZABCDEF",
+    "title": "Linen Shirt",
+    "handle": "linen-shirt",
+    "status": "draft",
+    "variants": [
+      { "id": "variant_01HXYZABCDEF", "title": "S", "sku": "LS-S" },
+      { "id": "variant_01HXYZABCDEG", "title": "M", "sku": "LS-M" }
+    ]
+  }
+}
+```
+</ResponseExample>

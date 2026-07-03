@@ -1,0 +1,35 @@
+---
+title: "suspendSellerWorkflow"
+description: "Suspend a seller with an optional reason."
+---
+
+Validates the seller can be suspended, sets `status` to `suspended`, records the reason, and stamps `rejected_at` on first suspension. Triggered by `POST /admin/sellers/:id/suspend`. Emits `seller.suspended`.
+
+## Usage
+
+```ts
+import { suspendSellerWorkflow } from "@mercurjs/core/workflows"
+
+await suspendSellerWorkflow(container).run({
+  input: { seller_id: "sel_123", reason: "Policy violation" },
+})
+```
+
+## Input
+
+<ParamField body="seller_id" type="string" required>Id of the seller to suspend.</ParamField>
+<ParamField body="reason" type="string">Reason stored in `status_reason`.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">Nothing is returned.</ResponseField>
+
+## Hooks
+
+- `sellerSuspended` — runs after suspension with `{ seller_id }`.
+
+```ts
+suspendSellerWorkflow.hooks.sellerSuspended(async ({ seller_id }) => {
+  // e.g. pause the seller's listings
+})
+```

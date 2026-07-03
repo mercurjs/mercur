@@ -1,0 +1,39 @@
+---
+title: "Extend a workflow"
+description: "Inject custom logic into an existing Mercur workflow through hooks — without rewriting it."
+---
+
+<Note>
+  This guide is being written. The outline below is the intended structure.
+</Note>
+
+<Info>
+  **Workflows are Medusa's extension model — Mercur keeps it.** Unlike the panels (where Mercur ships [its own customization framework](/rc/resources/customization/extending-panels)), backend logic follows Medusa conventions unchanged: Mercur's workflows expose hooks you inject steps into, with the same compensation/rollback semantics as any Medusa workflow. Skills learned in plain Medusa transfer here one-to-one.
+</Info>
+
+## Why hooks
+
+Extend behavior without forking or rewriting the workflow.
+
+<Steps>
+  <Step title="Pick the target hook">
+    The `completeCartWithSplitOrdersWorkflow` and where its hooks sit.
+  </Step>
+  <Step title="Inject a step">
+    The shape of a hook and how to register your step.
+  </Step>
+  <Step title="Handle compensation and rollback">
+    How your step participates in automatic rollback on failure.
+  </Step>
+</Steps>
+
+## Verify
+
+Confirm the injected behavior runs and rolls back correctly.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a custom API route" href="/rc/resources/tutorials/custom-api-route" />
+  <Card title="Custom fields" href="/rc/resources/customization/custom-fields" />
+</CardGroup>

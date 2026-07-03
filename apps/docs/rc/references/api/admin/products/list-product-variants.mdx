@@ -1,0 +1,91 @@
+---
+title: "List Product Variants"
+api: "GET /admin/products/{id}/variants"
+description: "Retrieve a paginated list of a product's variants."
+---
+
+Returns the variants of a single product, with optional filtering by SKU and identifiers.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+<ParamField query="q" type="string">Search term matched against variant fields.</ParamField>
+<ParamField query="id" type="string | string[]">Filter by variant ID(s).</ParamField>
+<ParamField query="sku" type="string">Filter by SKU.</ParamField>
+<ParamField query="ean" type="string">Filter by EAN.</ParamField>
+<ParamField query="upc" type="string">Filter by UPC.</ParamField>
+<ParamField query="barcode" type="string">Filter by barcode.</ParamField>
+
+## Response
+
+<ResponseField name="variants" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The variant's ID.</ResponseField>
+    <ResponseField name="title" type="string">Variant title.</ResponseField>
+    <ResponseField name="sku" type="string">Variant SKU.</ResponseField>
+    <ResponseField name="ean" type="string">Variant EAN.</ResponseField>
+    <ResponseField name="upc" type="string">Variant UPC.</ResponseField>
+    <ResponseField name="barcode" type="string">Variant barcode.</ResponseField>
+    <ResponseField name="hs_code" type="string">Harmonized System code.</ResponseField>
+    <ResponseField name="mid_code" type="string">Manufacturer identification code.</ResponseField>
+    <ResponseField name="variant_rank" type="number">Sort rank of the variant.</ResponseField>
+    <ResponseField name="weight" type="number">Variant weight.</ResponseField>
+    <ResponseField name="length" type="number">Variant length.</ResponseField>
+    <ResponseField name="height" type="number">Variant height.</ResponseField>
+    <ResponseField name="width" type="number">Variant width.</ResponseField>
+    <ResponseField name="origin_country" type="string">Country of origin.</ResponseField>
+    <ResponseField name="material" type="string">Variant material.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the parent product.</ResponseField>
+    <ResponseField name="manage_inventory" type="boolean">Whether inventory is tracked for the variant.</ResponseField>
+    <ResponseField name="allow_backorder" type="boolean">Whether the variant can be ordered when out of stock.</ResponseField>
+    <ResponseField name="options" type="object[]">The variant's option values.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of matching variants.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/products/prod_01HXYZABCDEF/variants?limit=20' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { variants, count } = await client.admin.products.$id.variants.query({
+  $id: "prod_01HXYZABCDEF",
+  limit: 20,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "variants": [
+    {
+      "id": "variant_01HXYZABCDEF",
+      "title": "M",
+      "sku": "LS-M",
+      "product_id": "prod_01HXYZABCDEF",
+      "manage_inventory": false,
+      "allow_backorder": false,
+      "variant_rank": 0
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

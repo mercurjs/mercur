@@ -1,0 +1,43 @@
+/* Blurred brand-color glow in the page background (à la bun.com/docs). */
+body {
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: absolute;
+  top: -18rem;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60rem;
+  height: 40rem;
+  z-index: 0;
+  pointer-events: none;
+  border-radius: 9999px;
+  filter: blur(120px);
+  opacity: 0.28;
+  background: radial-gradient(
+    closest-side,
+    #3139fb 0%,
+    rgba(49, 57, 251, 0.45) 45%,
+    rgba(49, 57, 251, 0) 100%
+  );
+}
+
+/* Slightly stronger and cooler on the dark theme so it reads on near-black. */
+.dark body::before {
+  opacity: 0.4;
+  background: radial-gradient(
+    closest-side,
+    #4b52ff 0%,
+    rgba(75, 82, 255, 0.5) 45%,
+    rgba(75, 82, 255, 0) 100%
+  );
+}
+
+/* Keep the actual content above the glow. */
+#content-area,
+main {
+  position: relative;
+  z-index: 1;
+}

@@ -1,0 +1,134 @@
+---
+title: "Admin API"
+description: "Operator routes under /admin/* — sellers, commissions, payouts, master catalog, and marketplace-wide orders."
+---
+
+The Admin API is the marketplace operator's surface. It extends Medusa's standard admin routes with the marketplace domains below; everything else (regions, currencies, users, API keys, …) comes from Medusa core unchanged.
+
+Authentication and shared conventions are covered in [API conventions](/rc/references/api/conventions).
+
+## Sellers
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/admin/sellers` | List sellers / create a seller |
+| `GET` `POST` | `/admin/sellers/:id` | Retrieve / update a seller |
+| `POST` | `/admin/sellers/:id/approve` | Approve a pending seller |
+| `POST` | `/admin/sellers/:id/suspend` | Suspend a seller |
+| `POST` | `/admin/sellers/:id/unsuspend` | Lift a suspension |
+| `POST` | `/admin/sellers/:id/terminate` | Terminate a seller |
+| `POST` | `/admin/sellers/:id/unterminate` | Reverse a termination |
+| `POST` | `/admin/sellers/:id/address` | Upsert the seller address |
+| `POST` | `/admin/sellers/:id/payment-details` | Upsert payment details |
+| `POST` `DELETE` | `/admin/sellers/:id/professional-details` | Upsert / remove professional details |
+| `GET` | `/admin/sellers/:id/products` | List the seller's products |
+
+### Members and invites
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/admin/members` | List members across all sellers |
+| `GET` `POST` | `/admin/sellers/:id/members` | List / add a member |
+| `DELETE` | `/admin/sellers/:id/members/:member_id` | Remove a member |
+| `POST` | `/admin/sellers/:id/members/invite` | Invite a member |
+| `GET` | `/admin/sellers/:id/members/invites` | List pending invites |
+| `DELETE` | `/admin/sellers/:id/members/invites/:invite_id` | Revoke an invite |
+| `POST` | `/admin/sellers/:id/members/invites/:invite_id/resend` | Resend an invite |
+
+## Commission rates
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/admin/commission-rates` | List rates (supports the `scope_type` filter) / create a rate |
+| `GET` `POST` `DELETE` | `/admin/commission-rates/:id` | Retrieve / update / delete a rate |
+| `POST` | `/admin/commission-rates/:id/rules` | Batch add and remove rules on a rate |
+
+## Payouts
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/admin/payouts` | List payouts across the marketplace |
+| `GET` | `/admin/payouts/:id` | Retrieve a payout |
+
+## Products (master catalog)
+
+Products are shared catalog records — see the [master products model](/rc/references/modules/product-edit#the-master-products-model).
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/admin/products` | List / create a product (`seller_ids` sets selling eligibility) |
+| `GET` `POST` `DELETE` | `/admin/products/:id` | Retrieve / update / delete a product |
+| `GET` | `/admin/products/:id/preview` | Preview the product with pending changes applied |
+| `POST` | `/admin/products/:id/confirm` | Confirm the pending change |
+| `POST` | `/admin/products/:id/reject` | Reject the pending change |
+| `POST` | `/admin/products/:id/request-changes` | Send a change back to the seller for action |
+| `POST` | `/admin/products/:id/sellers` | Set the selling-eligibility allowlist |
+| `POST` | `/admin/products/:id/attributes/batch` | Batch add / update / remove product attributes |
+| `GET` `POST` | `/admin/products/:id/variants` | List / create variants |
+| `GET` `POST` `DELETE` | `/admin/products/:id/variants/:variant_id` | Retrieve / update / delete a variant |
+
+### Product changes
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST` | `/admin/product-changes/:id/confirm` | Confirm a change request directly |
+| `POST` | `/admin/product-changes/:id/cancel` | Cancel a change request |
+
+## Offers
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/admin/offers` | List offers (supports `group_by_seller`) |
+| `GET` `DELETE` | `/admin/offers/:id` | Retrieve / delete an offer |
+| `POST` | `/admin/offers/batch` | Batch create offers |
+
+## Product attributes
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/admin/product-attributes` | List / create attributes |
+| `GET` `POST` `DELETE` | `/admin/product-attributes/:id` | Retrieve / update / delete an attribute |
+| `POST` | `/admin/product-attributes/:id/values` | Create a value |
+| `POST` `DELETE` | `/admin/product-attributes/:id/values/:value_id` | Update / delete a value |
+
+## Categories and collections
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` `POST` | `/admin/product-categories` | List / create categories (with media + icon) |
+| `GET` `POST` `DELETE` | `/admin/product-categories/:id` | Retrieve / update / delete a category |
+| `POST` | `/admin/product-categories/:id/products` | Batch link products |
+| `POST` | `/admin/product-categories/:id/sellers` | Batch link sellers |
+| `GET` `POST` | `/admin/collections` | List / create collections (with media + icon) |
+| `GET` `POST` `DELETE` | `/admin/collections/:id` | Retrieve / update / delete a collection |
+
+## Orders and order groups
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `GET` | `/admin/orders` | List all orders across sellers |
+| `GET` | `/admin/orders/:id/commission-lines` | Commission lines computed for an order |
+| `GET` | `/admin/orders/:id/order-group` | The order group an order belongs to |
+| `GET` | `/admin/order-groups` | List order groups |
+| `GET` | `/admin/order-groups/:id` | Retrieve an order group with its child orders |
+
+### Order edits, claims, exchanges, returns
+
+Mercur extends the Medusa RMA routes so they respect seller boundaries:
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| `POST` | `/admin/order-edits/:id/items` | Add items to an order edit |
+| `POST` | `/admin/order-edits/:id/confirm` | Confirm an order edit |
+| `POST` | `/admin/claims/:id/outbound/items` | Add outbound items to a claim |
+| `POST` `DELETE` | `/admin/claims/:id/request` | Request / cancel a claim |
+| `POST` | `/admin/exchanges/:id/outbound/items` | Add outbound items to an exchange |
+| `POST` `DELETE` | `/admin/exchanges/:id/request` | Request / cancel an exchange |
+| `POST` | `/admin/returns/:id/receive/confirm` | Confirm receipt of a return |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Vendor API" href="/rc/references/api/vendor" />
+  <Card title="API Client" href="/rc/tools/api-client" />
+</CardGroup>

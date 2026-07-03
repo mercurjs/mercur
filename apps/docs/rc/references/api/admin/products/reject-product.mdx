@@ -1,0 +1,59 @@
+---
+title: "Reject Product"
+api: "POST /admin/products/{id}/reject"
+description: "Reject a proposed product."
+---
+
+Rejects the product's publish request and returns the updated product.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="message" type="string">Rejection reason shared with the vendor.</ParamField>
+
+## Response
+
+<ResponseField name="product" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">Product title.</ResponseField>
+    <ResponseField name="status" type="string">Product status after rejection.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/products/prod_01HXYZABCDEF/reject' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{"message": "Images are too low resolution"}'
+```
+
+```ts JS Client
+const { product } = await client.admin.products.$id.reject.mutate({
+  $id: "prod_01HXYZABCDEF",
+  message: "Images are too low resolution",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product": {
+    "id": "prod_01HXYZABCDEF",
+    "title": "Linen Shirt",
+    "status": "rejected",
+    "updated_at": "2026-06-02T09:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

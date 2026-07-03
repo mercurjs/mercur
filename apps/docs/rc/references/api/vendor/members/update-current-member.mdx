@@ -1,0 +1,70 @@
+---
+title: "Update Current Member"
+api: "POST /vendor/members/me"
+description: "Update the authenticated member's profile."
+---
+
+Updates the member's personal details and returns the seller member record for the active seller.
+
+## Body parameters
+
+<ParamField body="first_name" type="string">
+  The member's first name.
+</ParamField>
+
+<ParamField body="last_name" type="string">
+  The member's last name.
+</ParamField>
+
+<ParamField body="locale" type="string">
+  The member's preferred locale (e.g. `en-US`).
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller_member" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller member's ID.</ResponseField>
+    <ResponseField name="is_owner" type="boolean">Whether the member owns the seller account.</ResponseField>
+    <ResponseField name="member" type="object">The updated member profile.</ResponseField>
+    <ResponseField name="rbac_role" type="object">The member's role for this seller.</ResponseField>
+    <ResponseField name="seller" type="object">The active seller.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/members/me' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"first_name": "Jane", "last_name": "Smith"}'
+```
+
+```ts JS Client
+const { seller_member } = await client.vendor.members.me.mutate({
+  first_name: "Jane",
+  last_name: "Smith",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller_member": {
+    "id": "selmem_01HXYZ",
+    "is_owner": true,
+    "member": { "id": "mem_01HXYZ", "first_name": "Jane", "last_name": "Smith" },
+    "rbac_role": { "id": "role_seller_administration", "name": "Administration" },
+    "seller": { "id": "sel_01HXYZ", "name": "Acme Store" }
+  }
+}
+```
+</ResponseExample>

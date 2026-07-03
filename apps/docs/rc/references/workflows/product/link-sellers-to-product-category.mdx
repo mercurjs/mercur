@@ -1,0 +1,40 @@
+---
+title: "linkSellersToProductCategoryWorkflow"
+description: "Add or remove seller eligibility links on a product category."
+---
+
+Updates which sellers are allowed to sell in a product category by creating and removing seller–category links in one call — the mechanism behind restricted categories. Triggered by `POST /admin/product-categories/:id/sellers`. No events are emitted.
+
+## Usage
+
+```ts
+import { linkSellersToProductCategoryWorkflow } from "@mercurjs/core/workflows"
+
+await linkSellersToProductCategoryWorkflow(container).run({
+  input: {
+    id: "pcat_01H...",
+    add: ["sel_01H..."],
+    remove: ["sel_01J..."],
+  },
+})
+```
+
+## Input
+
+<ParamField body="id" type="string" required>
+  Id of the product category whose seller links are being updated.
+</ParamField>
+
+<ParamField body="add" type="string[]">
+  Seller ids to link to the category.
+</ParamField>
+
+<ParamField body="remove" type="string[]">
+  Seller ids to unlink from the category.
+</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">
+  Returns nothing; the links are created and removed in place.
+</ResponseField>

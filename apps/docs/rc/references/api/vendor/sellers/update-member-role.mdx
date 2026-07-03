@@ -1,0 +1,51 @@
+---
+title: "Update Member Role"
+api: "POST /vendor/sellers/{id}/members/{member_id}"
+description: "Change the role of a seller team member."
+---
+
+Updates the role assigned to a seller member.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The seller's ID.
+</ParamField>
+
+<ParamField path="member_id" type="string" required>
+  The seller member's ID.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="role_id" type="enum" required>
+  The new role. One of `role_seller_administration`, `role_seller_inventory_management`, `role_seller_order_management`, `role_seller_accounting`, `role_seller_support`.
+</ParamField>
+
+## Response
+
+An empty object on success.
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/vendor/sellers/sel_01HXYZ/members/selmem_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>' \
+  -H 'Content-Type: application/json' \
+  -d '{"role_id": "role_seller_accounting"}'
+```
+
+```ts JS Client
+await client.vendor.sellers.$id.members.$member_id.mutate({
+  $id: "sel_01HXYZ",
+  $member_id: "selmem_01HXYZ",
+  role_id: "role_seller_accounting",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{}
+```
+</ResponseExample>

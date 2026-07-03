@@ -1,0 +1,40 @@
+---
+title: "Delete Product"
+api: "DELETE /admin/products/{id}"
+description: "Delete a master catalog product."
+---
+
+Soft-deletes the product and its variants.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">The deleted product's ID.</ResponseField>
+<ResponseField name="object" type="string">Always `product`.</ResponseField>
+<ResponseField name="deleted" type="boolean">Always `true`.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/admin/products/prod_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const result = await client.admin.products.$id.delete({
+  $id: "prod_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "prod_01HXYZABCDEF",
+  "object": "product",
+  "deleted": true
+}
+```
+</ResponseExample>

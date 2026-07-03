@@ -1,0 +1,107 @@
+---
+title: "Retrieve Product"
+api: "GET /store/products/{id}"
+description: "Retrieve a published product by ID."
+---
+
+Returns a single published product; a `404` is returned if the product is unpublished or its seller is not visible.
+
+<Note>
+  Customer authentication is optional. When a customer token is provided, the customer's group memberships enter the pricing context used for `variants.calculated_price`. Prices are computed only when `variants.calculated_price` is requested in `fields` (or `region_id` is passed) and reflect the cheapest offer per variant.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+<ParamField query="region_id" type="string">
+  Region used to build the pricing context for `variants.calculated_price`.
+</ParamField>
+
+<ParamField query="currency_code" type="string">
+  Currency used in the pricing context.
+</ParamField>
+
+## Response
+
+<ResponseField name="product" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">The product's title.</ResponseField>
+    <ResponseField name="handle" type="string">URL-safe handle.</ResponseField>
+    <ResponseField name="status" type="string">Always `published` on the store API.</ResponseField>
+    <ResponseField name="description" type="string | null">The product's description.</ResponseField>
+    <ResponseField name="thumbnail" type="string | null">Thumbnail URL.</ResponseField>
+    <ResponseField name="collection" type="object | null">The product's collection.</ResponseField>
+    <ResponseField name="type" type="object | null">The product's type.</ResponseField>
+    <ResponseField name="tags" type="object[]">The product's tags.</ResponseField>
+    <ResponseField name="images" type="object[]">The product's images.</ResponseField>
+    <ResponseField name="categories" type="object[]">The product's categories.</ResponseField>
+    <ResponseField name="options" type="object[]">Product options with their values.</ResponseField>
+    <ResponseField name="variants" type="object[]">
+      Product variants; `calculated_price` and `offer_id` are added when requested and reflect the cheapest offer.
+    </ResponseField>
+    <ResponseField name="product_attribute_values" type="object[]">Attribute values assigned to the product.</ResponseField>
+    <ResponseField name="scoped_attributes" type="object[]">Attributes scoped to this product, with their values.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/products/prod_01JB2K5M8N?region_id=reg_01JB2K4S1T&fields=*variants.calculated_price' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { product } = await client.store.products.$id.query({
+  $id: "prod_01JB2K5M8N",
+  region_id: "reg_01JB2K4S1T",
+  fields: "*variants.calculated_price",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product": {
+    "id": "prod_01JB2K5M8N",
+    "title": "Linen Shirt",
+    "handle": "linen-shirt",
+    "status": "published",
+    "description": "A breathable linen shirt.",
+    "thumbnail": "https://cdn.example.com/linen-shirt.png",
+    "collection": null,
+    "type": null,
+    "tags": [],
+    "images": [],
+    "categories": [{ "id": "pcat_01JB2K6A2B", "name": "Shirts" }],
+    "options": [{ "id": "opt_01JB2K6C3D", "title": "Size", "values": [{ "value": "M" }] }],
+    "variants": [
+      {
+        "id": "variant_01JB2K6E4F",
+        "title": "M",
+        "offer_id": "offer_01JB2K6G5H",
+        "calculated_price": {
+          "calculated_amount": 4500,
+          "original_amount": 5000,
+          "currency_code": "eur"
+        }
+      }
+    ],
+    "product_attribute_values": [],
+    "scoped_attributes": [],
+    "metadata": null
+  }
+}
+```
+</ResponseExample>

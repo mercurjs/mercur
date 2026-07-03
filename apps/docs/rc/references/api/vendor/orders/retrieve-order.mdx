@@ -1,0 +1,84 @@
+---
+title: "Retrieve Order"
+api: "GET /vendor/orders/{id}"
+description: "Retrieve a single order by ID."
+---
+
+Returns an order belonging to the authenticated seller, including items, addresses, payments, fulfillments, and returns.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="order" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order's ID.</ResponseField>
+    <ResponseField name="display_id" type="number">Human-readable order number.</ResponseField>
+    <ResponseField name="status" type="string">The order's status.</ResponseField>
+    <ResponseField name="email" type="string">The customer's email.</ResponseField>
+    <ResponseField name="currency_code" type="string">The order's currency code.</ResponseField>
+    <ResponseField name="region_id" type="string">ID of the order's region.</ResponseField>
+    <ResponseField name="customer_id" type="string">ID of the customer.</ResponseField>
+    <ResponseField name="sales_channel_id" type="string">ID of the sales channel.</ResponseField>
+    <ResponseField name="items" type="object[]">The order's line items, including variant, product, and offer data.</ResponseField>
+    <ResponseField name="shipping_address" type="object">The order's shipping address.</ResponseField>
+    <ResponseField name="billing_address" type="object">The order's billing address.</ResponseField>
+    <ResponseField name="shipping_methods" type="object[]">The order's shipping methods.</ResponseField>
+    <ResponseField name="payment_collections" type="object[]">Payment collections with payments and refunds.</ResponseField>
+    <ResponseField name="fulfillments" type="object[]">The order's fulfillments.</ResponseField>
+    <ResponseField name="returns" type="object[]">The order's returns with items and reasons.</ResponseField>
+    <ResponseField name="summary" type="object">Order totals summary.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+    <ResponseField name="canceled_at" type="string">Cancellation timestamp, if canceled.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/orders/order_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { order } = await client.vendor.orders.$id.query({
+  $id: "order_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "order": {
+    "id": "order_01HXYZABCDEF",
+    "display_id": 42,
+    "status": "pending",
+    "email": "jane@example.com",
+    "currency_code": "usd",
+    "items": [
+      {
+        "id": "ordli_01HXYZABCDEF",
+        "title": "T-Shirt / M",
+        "quantity": 1,
+        "unit_price": 2500
+      }
+    ],
+    "summary": {
+      "current_order_total": 2500,
+      "paid_total": 2500
+    },
+    "created_at": "2026-06-01T10:00:00.000Z",
+    "updated_at": "2026-06-01T10:00:00.000Z"
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,68 @@
+---
+title: "Delete Product Variant"
+api: "DELETE /vendor/products/{id}/variants/{variant_id}"
+description: "Stage the removal of a product variant as a change request."
+---
+
+Stages a `VARIANT_REMOVE` operation as a pending change request instead of deleting the variant directly.
+
+<Note>
+  The endpoint responds with `202 Accepted` and a `product_change` record; the variant remains until the change is confirmed.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The product's ID.
+</ParamField>
+
+<ParamField path="variant_id" type="string" required>
+  The variant's ID.
+</ParamField>
+
+## Response
+
+<ResponseField name="product_change" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The change request's ID.</ResponseField>
+    <ResponseField name="product_id" type="string">ID of the product the change targets.</ResponseField>
+    <ResponseField name="status" type="string">One of `pending`, `confirmed`, `declined`, `canceled`.</ResponseField>
+    <ResponseField name="actions" type="object[]">Staged operations, each with `id`, `action` (`VARIANT_REMOVE`), `details`, `ordering`, and `applied`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/vendor/products/prod_01HXYZ/variants/variant_01HXYZ' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { product_change } =
+  await client.vendor.products.$id.variants.$variant_id.delete({
+    $id: "prod_01HXYZ",
+    $variant_id: "variant_01HXYZ",
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 202
+{
+  "product_change": {
+    "id": "prodch_01HXYZ",
+    "product_id": "prod_01HXYZ",
+    "status": "pending",
+    "actions": [
+      {
+        "id": "prodchact_01HXYZ",
+        "action": "VARIANT_REMOVE",
+        "details": { "variant_id": "variant_01HXYZ" },
+        "applied": false
+      }
+    ]
+  }
+}
+```
+</ResponseExample>

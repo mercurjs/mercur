@@ -1,0 +1,34 @@
+---
+title: "deleteCommissionRatesWorkflow"
+description: "Soft-delete commission rates after validating they can be removed."
+---
+
+Validates the rates are deletable, then soft-deletes them. Deletion is reversible on workflow failure (compensation restores the rates). Triggered by `DELETE /admin/commission-rates/:id`.
+
+## Usage
+
+```ts
+import { deleteCommissionRatesWorkflow } from "@mercurjs/core/workflows"
+
+await deleteCommissionRatesWorkflow(container).run({
+  input: { ids: ["comrate_123"] },
+})
+```
+
+## Input
+
+<ParamField body="ids" type="string[]" required>IDs of the commission rates to delete.</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">No return value; the rates are soft-deleted.</ResponseField>
+
+## Hooks
+
+- `commissionRatesDeleted` — runs after deletion with `{ ids }`.
+
+```ts
+deleteCommissionRatesWorkflow.hooks.commissionRatesDeleted(async ({ ids }) => {
+  // react to deleted rates
+})
+```

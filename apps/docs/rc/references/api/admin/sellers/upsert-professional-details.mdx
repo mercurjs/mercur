@@ -1,0 +1,78 @@
+---
+title: "Upsert Professional Details"
+api: "POST /admin/sellers/{id}/professional-details"
+description: "Create or update a seller's legal and tax details."
+---
+
+Creates the seller's professional details if none exist, otherwise updates them.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Body parameters
+
+<ParamField body="corporate_name" type="string">Registered corporate name.</ParamField>
+<ParamField body="registration_number" type="string">Company registration number.</ParamField>
+<ParamField body="tax_id" type="string">Tax identification number.</ParamField>
+<ParamField body="additional_data" type="object">Extra data passed to workflow hooks.</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="professional_details" type="object">
+      <Expandable title="properties">
+        <ResponseField name="corporate_name" type="string">Registered corporate name.</ResponseField>
+        <ResponseField name="registration_number" type="string">Company registration number.</ResponseField>
+        <ResponseField name="tax_id" type="string">Tax identification number.</ResponseField>
+      </Expandable>
+    </ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/professional-details' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "corporate_name": "Acme GmbH",
+    "registration_number": "HRB 123456",
+    "tax_id": "DE123456789"
+  }'
+```
+
+```ts JS Client
+const { seller } = await client.admin.sellers.$id.professionalDetails.mutate({
+  $id: "sel_01HXYZABCDEF",
+  corporate_name: "Acme GmbH",
+  registration_number: "HRB 123456",
+  tax_id: "DE123456789",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZABCDEF",
+    "name": "Acme",
+    "status": "open",
+    "professional_details": {
+      "corporate_name": "Acme GmbH",
+      "registration_number": "HRB 123456",
+      "tax_id": "DE123456789"
+    },
+    "updated_at": "2026-06-12T11:30:00.000Z"
+  }
+}
+```
+</ResponseExample>

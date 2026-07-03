@@ -1,0 +1,52 @@
+---
+title: "Delete Attribute Value"
+api: "DELETE /admin/product-attributes/{id}/values/{value_id}"
+description: "Delete a value from a product attribute."
+---
+
+Deletes the value and returns the parent attribute.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The attribute's ID.</ParamField>
+<ParamField path="value_id" type="string" required>The value's ID.</ParamField>
+
+## Response
+
+<ResponseField name="product_attribute" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The attribute's ID.</ResponseField>
+    <ResponseField name="name" type="string">Attribute name.</ResponseField>
+    <ResponseField name="type" type="string">The attribute's type.</ResponseField>
+    <ResponseField name="values" type="object[]">Remaining values after deletion.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/admin/product-attributes/pattr_01HXYZABCDEF/values/pattrval_01HXYZABCDEF' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { product_attribute } =
+  await client.admin.productAttributes.$id.values.$value_id.delete({
+    $id: "pattr_01HXYZABCDEF",
+    $value_id: "pattrval_01HXYZABCDEF",
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product_attribute": {
+    "id": "pattr_01HXYZABCDEF",
+    "name": "Material",
+    "type": "single_select",
+    "values": []
+  }
+}
+```
+</ResponseExample>

@@ -1,0 +1,66 @@
+---
+title: "Get Order Commission Lines"
+api: "GET /vendor/orders/{id}/commission-lines"
+description: "Retrieve the commission lines charged on the order."
+---
+
+Returns the marketplace commission lines applied to the order's items and shipping methods for the authenticated seller.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order's ID.</ParamField>
+
+## Response
+
+<ResponseField name="commission_lines" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The commission line's ID.</ResponseField>
+    <ResponseField name="item_id" type="string">ID of the line item the commission applies to, if any.</ResponseField>
+    <ResponseField name="shipping_method_id" type="string">ID of the shipping method the commission applies to, if any.</ResponseField>
+    <ResponseField name="commission_rate_id" type="string">ID of the commission rate that produced the line.</ResponseField>
+    <ResponseField name="code" type="string">Code of the applied commission rule.</ResponseField>
+    <ResponseField name="rate" type="number">The commission rate applied.</ResponseField>
+    <ResponseField name="amount" type="number">The commission amount charged.</ResponseField>
+    <ResponseField name="description" type="string">Description of the commission line.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Number of commission lines returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/orders/order_01HXYZABCDEF/commission-lines' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { commission_lines, count } =
+  await client.vendor.orders.$id.commissionLines.query({
+    $id: "order_01HXYZABCDEF",
+  })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "commission_lines": [
+    {
+      "id": "comline_01HXYZABCDEF",
+      "item_id": "ordli_01HXYZABCDEF",
+      "shipping_method_id": null,
+      "commission_rate_id": "comrate_01HXYZABCDEF",
+      "code": "default",
+      "rate": 10,
+      "amount": 250,
+      "description": null,
+      "created_at": "2026-06-01T10:00:00.000Z",
+      "updated_at": "2026-06-01T10:00:00.000Z"
+    }
+  ],
+  "count": 1
+}
+```
+</ResponseExample>

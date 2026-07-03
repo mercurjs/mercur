@@ -1,0 +1,96 @@
+---
+title: "List Sellers"
+api: "GET /admin/sellers"
+description: "Retrieve a paginated list of sellers."
+---
+
+Returns all sellers on the marketplace, with optional filtering by status, handle, email, and more.
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+<ParamField query="q" type="string">Search term matched against seller fields.</ParamField>
+<ParamField query="id" type="string | string[]">Filter by seller ID(s).</ParamField>
+<ParamField query="name" type="string | string[]">Filter by seller name(s).</ParamField>
+<ParamField query="handle" type="string">Filter by seller handle.</ParamField>
+<ParamField query="email" type="string">Filter by seller email.</ParamField>
+<ParamField query="status" type="string | string[]">Filter by status: `open`, `pending_approval`, `suspended`, or `terminated`.</ParamField>
+<ParamField query="is_premium" type="boolean">Filter by premium flag.</ParamField>
+<ParamField query="created_at" type="object">Filter by creation date with operators like `$gte`, `$lte`.</ParamField>
+<ParamField query="updated_at" type="object">Filter by update date with operators like `$gte`, `$lte`.</ParamField>
+
+## Response
+
+<ResponseField name="sellers" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="name" type="string">Display name of the seller.</ResponseField>
+    <ResponseField name="handle" type="string">Unique URL-safe handle.</ResponseField>
+    <ResponseField name="email" type="string">Contact email of the seller.</ResponseField>
+    <ResponseField name="phone" type="string">Contact phone number.</ResponseField>
+    <ResponseField name="description" type="string">Seller description.</ResponseField>
+    <ResponseField name="logo" type="string">URL of the seller's logo.</ResponseField>
+    <ResponseField name="banner" type="string">URL of the seller's banner image.</ResponseField>
+    <ResponseField name="website_url" type="string">The seller's website URL.</ResponseField>
+    <ResponseField name="external_id" type="string">ID of the seller in an external system.</ResponseField>
+    <ResponseField name="currency_code" type="string">The seller's currency code.</ResponseField>
+    <ResponseField name="status" type="string">One of `open`, `pending_approval`, `suspended`, `terminated`.</ResponseField>
+    <ResponseField name="status_reason" type="string">Reason recorded with the latest status change.</ResponseField>
+    <ResponseField name="approved_at" type="string">When the seller was approved.</ResponseField>
+    <ResponseField name="rejected_at" type="string">When the seller was rejected.</ResponseField>
+    <ResponseField name="is_premium" type="boolean">Whether the seller is marked as premium.</ResponseField>
+    <ResponseField name="closed_from" type="string">Start of a temporary store closure.</ResponseField>
+    <ResponseField name="closed_to" type="string">End of a temporary store closure.</ResponseField>
+    <ResponseField name="closure_note" type="string">Note shown while the store is closed.</ResponseField>
+    <ResponseField name="address" type="object">The seller's address.</ResponseField>
+    <ResponseField name="payment_details" type="object">The seller's bank payment details.</ResponseField>
+    <ResponseField name="professional_details" type="object">The seller's legal and tax details.</ResponseField>
+    <ResponseField name="payout_account" type="object">The seller's payout account with status and onboarding data.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value data.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of matching sellers.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/sellers?status=pending_approval&limit=20' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { sellers, count } = await client.admin.sellers.query({
+  status: "pending_approval",
+  limit: 20,
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "sellers": [
+    {
+      "id": "sel_01HXYZABCDEF",
+      "name": "Acme",
+      "handle": "acme",
+      "email": "hello@acme.co",
+      "currency_code": "usd",
+      "status": "pending_approval",
+      "is_premium": false,
+      "created_at": "2026-06-01T10:00:00.000Z",
+      "updated_at": "2026-06-01T10:00:00.000Z"
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 20
+}
+```
+</ResponseExample>

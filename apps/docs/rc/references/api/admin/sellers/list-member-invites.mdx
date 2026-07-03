@@ -1,0 +1,71 @@
+---
+title: "List Member Invites"
+api: "GET /admin/sellers/{id}/members/invites"
+description: "Retrieve a paginated list of a seller's member invites."
+---
+
+Returns all member invites created for the seller.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="limit" type="number" default="50">Maximum number of records to return.</ParamField>
+<ParamField query="offset" type="number" default="0">Number of records to skip.</ParamField>
+<ParamField query="order" type="string">Field to sort by, prefix with `-` for descending order.</ParamField>
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="member_invites" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The invite's ID.</ResponseField>
+    <ResponseField name="email" type="string">Invited email address.</ResponseField>
+    <ResponseField name="role_id" type="string">Role assigned on acceptance.</ResponseField>
+    <ResponseField name="accepted" type="boolean">Whether the invite was accepted.</ResponseField>
+    <ResponseField name="token" type="string">Token used to accept the invite.</ResponseField>
+    <ResponseField name="expires_at" type="string">When the invite expires.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+<ResponseField name="count" type="number">Total number of invites.</ResponseField>
+<ResponseField name="offset" type="number">Number of records skipped.</ResponseField>
+<ResponseField name="limit" type="number">Number of records returned.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/members/invites' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { member_invites } = await client.admin.sellers.$id.members.invites.query({
+  $id: "sel_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "member_invites": [
+    {
+      "id": "meminv_01HXYZINVAA",
+      "email": "new.member@acme.co",
+      "role_id": "role_01HXYZROLEAA",
+      "accepted": false,
+      "token": "inv_token_abc123",
+      "expires_at": "2026-06-22T09:00:00.000Z",
+      "created_at": "2026-06-15T09:00:00.000Z",
+      "updated_at": "2026-06-15T09:00:00.000Z"
+    }
+  ],
+  "count": 1,
+  "offset": 0,
+  "limit": 50
+}
+```
+</ResponseExample>

@@ -1,0 +1,62 @@
+---
+title: "Retrieve Seller"
+api: "GET /store/sellers/{id}"
+description: "Retrieve an open seller by ID."
+---
+
+Returns a single seller; sellers that are not `open` or are inside a scheduled closure window return a `404`.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The seller's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="name" type="string">The seller's display name.</ResponseField>
+    <ResponseField name="handle" type="string">URL-safe handle.</ResponseField>
+    <ResponseField name="description" type="string | null">The seller's storefront description.</ResponseField>
+    <ResponseField name="logo" type="string | null">Logo URL.</ResponseField>
+    <ResponseField name="banner" type="string | null">Banner image URL.</ResponseField>
+    <ResponseField name="is_premium" type="boolean">Whether the seller has premium status.</ResponseField>
+    <ResponseField name="metadata" type="object | null">Custom key-value data.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/store/sellers/sel_01JB2K8A1B' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const { seller } = await client.store.sellers.$id.query({ $id: "sel_01JB2K8A1B" })
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01JB2K8A1B",
+    "name": "Nordic Textiles",
+    "handle": "nordic-textiles",
+    "description": "Scandinavian linen and wool.",
+    "logo": "https://cdn.example.com/nordic-logo.png",
+    "banner": null,
+    "is_premium": false,
+    "metadata": null
+  }
+}
+```
+</ResponseExample>

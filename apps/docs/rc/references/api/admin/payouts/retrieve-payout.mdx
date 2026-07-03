@@ -1,0 +1,62 @@
+---
+title: "Retrieve Payout"
+api: "GET /admin/payouts/{id}"
+description: "Retrieve a payout by ID."
+---
+
+Returns a single payout with its payout account and seller details.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The payout's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated fields to include in the response.</ParamField>
+
+## Response
+
+<ResponseField name="payout" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The payout's ID.</ResponseField>
+    <ResponseField name="display_id" type="number">Human-readable payout number.</ResponseField>
+    <ResponseField name="amount" type="number">The payout amount.</ResponseField>
+    <ResponseField name="currency_code" type="string">The payout currency.</ResponseField>
+    <ResponseField name="status" type="string">The payout status.</ResponseField>
+    <ResponseField name="data" type="object | null">Provider-specific payout data.</ResponseField>
+    <ResponseField name="account" type="object">The payout account, with `id` and `status`.</ResponseField>
+    <ResponseField name="seller" type="object">The seller, with `id`, `name`, and `handle`.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/admin/payouts/pout_01HXYZ8Q2M4N6P8R0T2V4W6X8Y' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const { payout } = await client.admin.payouts.$id.query({
+  $id: "pout_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "payout": {
+    "id": "pout_01HXYZ8Q2M4N6P8R0T2V4W6X8Y",
+    "display_id": 42,
+    "amount": 1250,
+    "currency_code": "usd",
+    "status": "completed",
+    "data": null,
+    "account": { "id": "pacc_01HXYZ", "status": "active" },
+    "seller": { "id": "sel_01HXYZ", "name": "Acme Store", "handle": "acme-store" }
+  }
+}
+```
+</ResponseExample>

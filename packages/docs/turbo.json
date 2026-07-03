@@ -1,0 +1,10 @@
+{
+  "$schema": "https://turborepo.dev/schema.json",
+  "extends": ["//"],
+  "tasks": {
+    "build": {
+      "inputs": ["scripts/**", "../../apps/docs/rc/**"],
+      "outputs": ["content/**", "llms.txt"]
+    }
+  }
+}

@@ -1,0 +1,67 @@
+---
+title: "Telemetry"
+description: "Learn about the anonymous usage data collected by the Mercur CLI"
+---
+
+## Overview
+
+The Mercur CLI collects **anonymous usage data** to help us understand how the CLI is used and improve the developer experience. This data is collected by default but can be easily disabled.
+
+## What We Collect
+
+When you run CLI commands (`create`, `init`, `add`, `registry:build`), the following data is sent:
+
+| Data | Description |
+|------|-------------|
+| Event type | Which command was run and its outcome |
+| Node.js version | Your Node.js runtime version |
+| Node environment | The `NODE_ENV` value |
+| Mercur version | Version of `@mercurjs/cli` in your project |
+| Medusa version | Version of `@medusajs/framework` in your project |
+| Package manager | npm, yarn, pnpm, or bun |
+| Project structure | Whether `src/` directory is used, alias prefix |
+| System info | OS, platform, architecture, CPU model/speed/count, RAM |
+| Environment | Whether running in WSL, Docker, or a TTY |
+| Deployment vendor | Detected hosting platform (Railway, Fly.io, Heroku, etc.) |
+| Project ID | SHA-256 hash (base64) of your git remote URL — **not the URL itself** |
+| Project config | Contents of your `blocks.json` configuration |
+| Email | **Only** if you voluntarily provided it during `mercurjs create` |
+
+## What We Do NOT Collect
+
+- Source code or file contents
+- File names or directory structure
+- Git history or commit messages
+- Personal data (beyond the optional email above)
+
+## How to Opt Out
+
+### Using the CLI
+
+```bash
+mercurjs telemetry --disable
+```
+
+### Using an environment variable
+
+```bash
+export MERCUR_DISABLE_TELEMETRY=true
+```
+
+This is useful for CI/CD environments or shared configurations.
+
+### Check current status
+
+```bash
+mercurjs telemetry
+```
+
+## Where Data Goes
+
+Telemetry events are sent to `https://telemetry.mercurjs.com`. The data is used exclusively by the Mercur team to prioritize features and fix issues.
+
+## Re-enabling Telemetry
+
+```bash
+mercurjs telemetry --enable
+```

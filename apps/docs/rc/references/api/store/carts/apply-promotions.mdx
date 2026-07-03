@@ -1,0 +1,83 @@
+---
+title: "Apply Promotions"
+api: "POST /store/carts/{id}/promotions"
+description: "Apply promotion codes to the cart."
+---
+
+Applies promotion codes through Mercur's seller-aware workflow so seller-scoped promotions only adjust that seller's items; sending an empty array replaces (clears) the applied codes.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The cart's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields and relations to include on the returned cart; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+## Body parameters
+
+<ParamField body="promo_codes" type="string[]" required>
+  Promotion codes to add; an empty array removes all applied codes.
+</ParamField>
+
+## Response
+
+<ResponseField name="cart" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The cart's ID.</ResponseField>
+    <ResponseField name="promotions" type="object[]">Applied promotions with `code` and `application_method`.</ResponseField>
+    <ResponseField name="items" type="object[]">Line items with their promotion `adjustments`.</ResponseField>
+    <ResponseField name="discount_total" type="number">Total discount amount.</ResponseField>
+    <ResponseField name="total" type="number">Cart total after discounts.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/store/carts/cart_01JB2KB1CD/promotions' \
+  -H 'Content-Type: application/json' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ' \
+  -d '{"promo_codes": ["SUMMER10"]}'
+```
+
+```ts JS Client
+const { cart } = await client.store.carts.$id.promotions.mutate({
+  $id: "cart_01JB2KB1CD",
+  promo_codes: ["SUMMER10"],
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "cart": {
+    "id": "cart_01JB2KB1CD",
+    "promotions": [
+      {
+        "id": "promo_01JB2KD5JK",
+        "code": "SUMMER10",
+        "is_automatic": false,
+        "application_method": { "type": "percentage", "value": 10, "currency_code": "eur" }
+      }
+    ],
+    "items": [
+      {
+        "id": "cali_01JB2KB3EF",
+        "quantity": 1,
+        "unit_price": 4500,
+        "adjustments": [
+          { "id": "caadj_01JB2KD6LM", "code": "SUMMER10", "promotion_id": "promo_01JB2KD5JK", "amount": 450 }
+        ]
+      }
+    ],
+    "discount_total": 450,
+    "total": 4950
+  }
+}
+```
+</ResponseExample>

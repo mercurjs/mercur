@@ -1,0 +1,75 @@
+---
+title: "List Order Changes"
+api: "GET /vendor/orders/{id}/changes"
+description: "Retrieve the change history of an order."
+---
+
+Returns all order changes (edits, returns, exchanges, claims) recorded for the order, with their actions.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The order's ID.</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">Comma-separated list of fields to include, prefix with `+`/`-` to add or remove from defaults.</ParamField>
+
+## Response
+
+<ResponseField name="order_changes" type="object[]">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order change's ID.</ResponseField>
+    <ResponseField name="order_id" type="string">ID of the order the change belongs to.</ResponseField>
+    <ResponseField name="version" type="number">Order version the change targets.</ResponseField>
+    <ResponseField name="change_type" type="string">Type of change, e.g. `edit`, `return`, `exchange`, `claim`.</ResponseField>
+    <ResponseField name="status" type="string">The change's status, e.g. `pending`, `confirmed`, `canceled`.</ResponseField>
+    <ResponseField name="created_by" type="string">ID of the actor who created the change.</ResponseField>
+    <ResponseField name="confirmed_by" type="string">ID of the actor who confirmed the change.</ResponseField>
+    <ResponseField name="canceled_by" type="string">ID of the actor who canceled the change.</ResponseField>
+    <ResponseField name="actions" type="object[]">The individual actions that make up the change.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+    <ResponseField name="confirmed_at" type="string">Confirmation timestamp.</ResponseField>
+    <ResponseField name="canceled_at" type="string">Cancellation timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/orders/order_01HXYZABCDEF/changes' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { order_changes } = await client.vendor.orders.$id.changes.query({
+  $id: "order_01HXYZABCDEF",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "order_changes": [
+    {
+      "id": "ordch_01HXYZABCDEF",
+      "order_id": "order_01HXYZABCDEF",
+      "version": 2,
+      "change_type": "return",
+      "status": "confirmed",
+      "created_by": "sel_01HXYZABCDEF",
+      "actions": [
+        {
+          "id": "ordchact_01HXYZABCDEF",
+          "action": "RETURN_ITEM",
+          "details": { "quantity": 1 }
+        }
+      ],
+      "created_at": "2026-06-02T10:00:00.000Z",
+      "confirmed_at": "2026-06-02T11:00:00.000Z"
+    }
+  ]
+}
+```
+</ResponseExample>

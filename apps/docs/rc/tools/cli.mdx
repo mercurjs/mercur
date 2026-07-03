@@ -1,0 +1,194 @@
+---
+title: "CLI"
+description: "Install blocks, scaffold projects, and generate types from the command line."
+---
+
+The Mercur CLI (`@mercurjs/cli@rc`) manages your marketplace project — creating projects, installing blocks, generating types, and checking for updates.
+
+## Installation
+
+```bash
+bun add -g @mercurjs/cli@rc
+```
+
+## Commands
+
+### create
+
+Scaffold a new Mercur project from a template.
+
+```bash
+bunx @mercurjs/cli@rc create my-marketplace
+```
+
+The CLI will prompt you for database credentials and install dependencies automatically.
+
+| Option | Description |
+|--------|-------------|
+| `-t, --template <template>` | Template to use (default: `basic`) |
+| `--no-deps` | Skip dependency installation |
+| `--skip-db` | Skip database configuration |
+| `--db-connection-string <string>` | PostgreSQL connection string |
+
+### init
+
+Initialize an existing project by creating a `blocks.json` configuration file.
+
+```bash
+bunx @mercurjs/cli@rc init
+```
+
+This sets up path aliases so the CLI knows where to place blocks in your project:
+
+```json
+{
+  "aliases": {
+    "api": "packages/api/src",
+    "vendor": "apps/vendor/src",
+    "admin": "apps/admin/src"
+  }
+}
+```
+
+| Option | Description |
+|--------|-------------|
+| `-d, --defaults` | Use default paths without prompting |
+| `-s, --silent` | Suppress output |
+
+### add
+
+Install blocks from the registry into your project.
+
+```bash
+bunx @mercurjs/cli@rc add wishlist
+bunx @mercurjs/cli@rc add product-review order-tracking
+```
+
+Blocks are copied directly into your project as source code. The CLI resolves dependencies, transforms imports to match your path aliases, and installs required packages.
+
+| Option | Description |
+|--------|-------------|
+| `-o, --overwrite` | Overwrite existing files |
+| `-y, --yes` | Skip confirmation |
+| `-s, --silent` | Suppress output |
+
+### search
+
+Find available blocks in the registry.
+
+```bash
+bunx @mercurjs/cli@rc search --query wishlist
+```
+
+| Option | Description |
+|--------|-------------|
+| `-q, --query <query>` | Search by name or description |
+| `-r, --registry <registry>` | Registry to search (default: `@mercurjs`) |
+
+### view
+
+Display detailed information about a block.
+
+```bash
+bunx @mercurjs/cli@rc view wishlist
+```
+
+### diff
+
+Compare local blocks against registry versions to check for updates.
+
+```bash
+bunx @mercurjs/cli@rc diff wishlist
+```
+
+If there are changes you want, update with:
+
+```bash
+bunx @mercurjs/cli@rc add wishlist --overwrite
+```
+
+### codegen
+
+Generate TypeScript types from your API routes. Used by the [API Client](/rc/tools/api-client) for type-safe requests.
+
+```bash
+bunx @mercurjs/cli@rc codegen
+```
+
+| Option | Description |
+|--------|-------------|
+| `-w, --watch` | Watch for changes and regenerate automatically |
+
+### registry:build
+
+Build a custom registry from a `registry.json` file.
+
+```bash
+bunx @mercurjs/cli@rc build
+```
+
+| Option | Description |
+|--------|-------------|
+| `-o, --output <path>` | Output directory (default: `./r`) |
+| `-v, --verbose` | Show detailed output |
+
+### info
+
+Display project configuration and diagnostics.
+
+```bash
+bunx @mercurjs/cli@rc info
+```
+
+### telemetry
+
+Control anonymous usage data collection.
+
+```bash
+bunx @mercurjs/cli@rc telemetry --disable
+bunx @mercurjs/cli@rc telemetry --enable
+```
+
+## Custom registries
+
+Add custom block registries to your `blocks.json`:
+
+```json
+{
+  "registries": {
+    "@mercurjs": "https://registry.mercurjs.com/{name}",
+    "@my-registry": "https://my-registry.com/blocks/{name}.json"
+  }
+}
+```
+
+Use `{name}` as a placeholder for block names. Reference custom registries with the `-r` flag:
+
+```bash
+bunx @mercurjs/cli@rc search --query review --registry @my-registry
+```
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="When do I use create vs init?">
+    `create` scaffolds a brand-new project from a template. `init` only writes a `blocks.json` into an **existing** project so the CLI knows where to place blocks — use it when adopting blocks in a repo that wasn't created by the CLI.
+  </Accordion>
+  <Accordion title="When do I need to run codegen?">
+    After any change to API route files — added routes, changed validators, renamed paths. The [typed client](/rc/tools/api-client) reads the generated route map, so stale types mean `codegen` hasn't run.
+  </Accordion>
+  <Accordion title="Will add overwrite my local changes to a block?">
+    Not silently — the CLI asks before overwriting existing files unless you pass `--overwrite`. Use `diff` first to see exactly what changed between your copy and the registry.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a feature with a block" href="/rc/resources/tutorials/add-a-block">
+    The install workflow end to end — search, view, add, migrate.
+  </Card>
+  <Card title="API Client" href="/rc/tools/api-client">
+    What codegen's route map powers on the frontend.
+  </Card>
+</CardGroup>

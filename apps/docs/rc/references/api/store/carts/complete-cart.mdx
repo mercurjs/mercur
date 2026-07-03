@@ -1,0 +1,98 @@
+---
+title: "Complete Cart"
+api: "POST /store/carts/{id}/complete"
+description: "Complete the cart and split it into per-seller orders under an order group."
+---
+
+Completes the cart with Mercur's split-order workflow: items are grouped by seller, one order is created per seller, and all orders are attached to a single order group returned to the shopper.
+
+<Note>
+  On payment errors that need customer action (authorization failed or requires more), the route still returns `200` with `type: "cart"`, the refreshed cart, and an `error` object; any other failure is thrown as an error response.
+</Note>
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The cart's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include on the returned order group; prefix with `+`/`-` to add to or remove from the defaults.
+</ParamField>
+
+## Response
+
+<ResponseField name="type" type="string">
+  `order_group` on success, `cart` when payment requires further action.
+</ResponseField>
+
+<ResponseField name="order_group" type="object">
+  Present when `type` is `order_group`.
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The order group's ID.</ResponseField>
+    <ResponseField name="customer_id" type="string">ID of the purchasing customer.</ResponseField>
+    <ResponseField name="cart_id" type="string">ID of the completed cart.</ResponseField>
+    <ResponseField name="seller_count" type="number">Number of per-seller orders created.</ResponseField>
+    <ResponseField name="total" type="number">Combined total across all child orders.</ResponseField>
+    <ResponseField name="created_at" type="string">Creation timestamp.</ResponseField>
+    <ResponseField name="updated_at" type="string">Last update timestamp.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<ResponseField name="cart" type="object">
+  Present when `type` is `cart`; the refreshed cart with items, totals, and payment collection.
+</ResponseField>
+
+<ResponseField name="error" type="object">
+  Present when `type` is `cart`.
+  <Expandable title="properties">
+    <ResponseField name="message" type="string">The payment error message.</ResponseField>
+    <ResponseField name="name" type="string">The error name.</ResponseField>
+    <ResponseField name="type" type="string">One of `payment_authorization_error` or `payment_requires_more_error`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/store/carts/cart_01JB2KB1CD/complete' \
+  -H 'x-publishable-api-key: pk_01JB2K3XYZ'
+```
+
+```ts JS Client
+const result = await client.store.carts.$id.complete.mutate({ $id: "cart_01JB2KB1CD" })
+if (result.type === "order_group") {
+  console.log(result.order_group.id)
+}
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200 (success)
+{
+  "type": "order_group",
+  "order_group": {
+    "id": "og_01JB2KE7NP",
+    "customer_id": "cus_01JB2KE8QR",
+    "cart_id": "cart_01JB2KB1CD",
+    "seller_count": 2,
+    "total": 9900,
+    "created_at": "2026-05-01T10:05:00.000Z",
+    "updated_at": "2026-05-01T10:05:00.000Z"
+  }
+}
+```
+
+```json 200 (payment error)
+{
+  "type": "cart",
+  "cart": { "id": "cart_01JB2KB1CD", "total": 9900 },
+  "error": {
+    "message": "Payment authorization failed",
+    "name": "Error",
+    "type": "payment_authorization_error"
+  }
+}
+```
+</ResponseExample>

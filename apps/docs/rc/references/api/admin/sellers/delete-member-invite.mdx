@@ -1,0 +1,42 @@
+---
+title: "Delete Member Invite"
+api: "DELETE /admin/sellers/{id}/members/invites/{invite_id}"
+description: "Delete a seller's member invite."
+---
+
+Deletes a pending member invite.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The seller's ID.</ParamField>
+<ParamField path="invite_id" type="string" required>The invite's ID.</ParamField>
+
+## Response
+
+<ResponseField name="id" type="string">ID of the deleted invite.</ResponseField>
+<ResponseField name="object" type="string">Always `member_invite`.</ResponseField>
+<ResponseField name="deleted" type="boolean">Whether the invite was deleted.</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/admin/sellers/sel_01HXYZABCDEF/members/invites/meminv_01HXYZINVAA' \
+  -H 'Authorization: Bearer <token>'
+```
+
+```ts JS Client
+const result = await client.admin.sellers.$id.members.invites.$inviteId.delete({
+  $id: "sel_01HXYZABCDEF",
+  $inviteId: "meminv_01HXYZINVAA",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "id": "meminv_01HXYZINVAA",
+  "object": "member_invite",
+  "deleted": true
+}
+```
+</ResponseExample>

@@ -1,0 +1,54 @@
+---
+title: "Delete Professional Details"
+api: "DELETE /vendor/sellers/{id}/professional-details"
+description: "Remove the seller's business registration details."
+---
+
+Deletes the seller's professional details and returns the full seller object.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>
+  The seller's ID.
+</ParamField>
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="professional_details" type="object">`null` after deletion.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X DELETE 'http://localhost:9000/vendor/sellers/sel_01HXYZ/professional-details' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { seller } = await client.vendor.sellers.$id.professionalDetails.delete({
+  $id: "sel_01HXYZ",
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZ",
+    "name": "Acme Store",
+    "professional_details": null
+  }
+}
+```
+</ResponseExample>

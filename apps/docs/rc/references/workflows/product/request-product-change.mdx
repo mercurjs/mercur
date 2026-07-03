@@ -1,0 +1,46 @@
+---
+title: "requestProductChangeWorkflow"
+description: "Ask a vendor to revise a proposed product submission without changing its status."
+---
+
+Records an operator's request for revisions on a product awaiting review. Validates the product is in `proposed` status and records a confirmed `CHANGE_REQUESTED` audit action — the product itself is not mutated; the audit entry and its `external_note` are the durable signal to the vendor. Triggered by `POST /admin/products/:id/request-changes`. Emits `product.change-requested` with `{ id, message, actor_id }`.
+
+## Usage
+
+```ts
+import { requestProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+await requestProductChangeWorkflow(container).run({
+  input: {
+    product_id: "prod_01H...",
+    message: "Please add care instructions to the description",
+    actor_id: "user_01H...",
+  },
+})
+```
+
+## Input
+
+<ParamField body="product_id" type="string" required>
+  Id of the product to request changes on. Must currently be in `proposed` status.
+</ParamField>
+
+<ParamField body="message" type="string">
+  Vendor-facing revision request, stored as the audit change's `external_note` and in the action's `details.message`.
+</ParamField>
+
+<ParamField body="actor_id" type="string">
+  Actor id recorded on the audit trail entry.
+</ParamField>
+
+## Result
+
+<ResponseField name="result" type="void">
+  Returns nothing; only an audit entry is created.
+</ResponseField>
+
+## Hooks
+
+<ResponseField name="productChangeRequested" type="hook">
+  Runs after the audit entry is recorded with `{ product_id, message }`.
+</ResponseField>

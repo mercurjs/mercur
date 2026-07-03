@@ -1,0 +1,69 @@
+---
+title: "Retrieve Current Seller"
+api: "GET /vendor/sellers/me"
+description: "Retrieve the seller the request is scoped to."
+---
+
+Returns the seller identified by the current seller context (`x-seller-id` header or session), including address, payment details, and professional details.
+
+## Query parameters
+
+<ParamField query="fields" type="string">
+  Comma-separated fields to include in the response.
+</ParamField>
+
+## Response
+
+<ResponseField name="seller" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The seller's ID.</ResponseField>
+    <ResponseField name="name" type="string">The seller's name.</ResponseField>
+    <ResponseField name="handle" type="string">The seller's handle.</ResponseField>
+    <ResponseField name="email" type="string">The seller's email.</ResponseField>
+    <ResponseField name="phone" type="string">The seller's phone.</ResponseField>
+    <ResponseField name="description" type="string">Store description.</ResponseField>
+    <ResponseField name="logo" type="string">Logo URL.</ResponseField>
+    <ResponseField name="banner" type="string">Banner URL.</ResponseField>
+    <ResponseField name="website_url" type="string">Website URL.</ResponseField>
+    <ResponseField name="currency_code" type="string">Default currency.</ResponseField>
+    <ResponseField name="status" type="enum">One of `open`, `pending_approval`, `suspended`, `terminated`.</ResponseField>
+    <ResponseField name="approved_at" type="string">Approval timestamp.</ResponseField>
+    <ResponseField name="rejected_at" type="string">Rejection timestamp.</ResponseField>
+    <ResponseField name="is_premium" type="boolean">Whether the seller has premium status.</ResponseField>
+    <ResponseField name="closed_from" type="string">Start of a temporary store closure.</ResponseField>
+    <ResponseField name="closed_to" type="string">End of a temporary store closure.</ResponseField>
+    <ResponseField name="closure_note" type="string">Closure message shown to customers.</ResponseField>
+    <ResponseField name="address" type="object">The seller's address.</ResponseField>
+    <ResponseField name="payment_details" type="object">The seller's bank details.</ResponseField>
+    <ResponseField name="professional_details" type="object">The seller's business registration details.</ResponseField>
+    <ResponseField name="metadata" type="object">Custom key-value pairs.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl 'http://localhost:9000/vendor/sellers/me' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'x-seller-id: <seller_id>'
+```
+
+```ts JS Client
+const { seller } = await client.vendor.sellers.me.query()
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "seller": {
+    "id": "sel_01HXYZ",
+    "name": "Acme Store",
+    "handle": "acme-store",
+    "email": "store@acme.com",
+    "status": "open",
+    "currency_code": "usd",
+    "address": { "city": "New York", "country_code": "us" }
+  }
+}
+```
+</ResponseExample>

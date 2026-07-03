@@ -1,0 +1,96 @@
+---
+title: "Batch Product Attributes"
+api: "POST /admin/products/{id}/attributes/batch"
+description: "Add, remove, and update attributes on a product in one request."
+---
+
+Applies attribute changes to the product in the order `remove` → `add` → `update`.
+
+## Path parameters
+
+<ParamField path="id" type="string" required>The product's ID.</ParamField>
+
+## Body parameters
+
+<ParamField body="add" type="object[]">
+  Attributes to attach — one of two shapes per item.
+  <Expandable title="existing attribute (by id)">
+    <ParamField body="id" type="string" required>ID of an existing catalog attribute.</ParamField>
+    <ParamField body="value_ids" type="string[]">IDs of attribute values to select.</ParamField>
+    <ParamField body="value" type="string | number | boolean">Scalar value for `text`, `unit`, or `toggle` attributes.</ParamField>
+  </Expandable>
+  <Expandable title="inline attribute (by title)">
+    <ParamField body="title" type="string" required>Attribute title.</ParamField>
+    <ParamField body="type" type="string">One of `single_select`, `multi_select`, `unit`, `toggle`, `text`; required for non-axis inline attributes unless `value` is a boolean.</ParamField>
+    <ParamField body="values" type="string[]">Value names to create and select.</ParamField>
+    <ParamField body="value" type="string | number | boolean">Scalar value for non-select types.</ParamField>
+    <ParamField body="is_variant_axis" type="boolean">Whether the attribute drives variant generation; only allowed on `multi_select` attributes.</ParamField>
+    <ParamField body="is_filterable" type="boolean">Whether the attribute can be used as a storefront filter.</ParamField>
+    <ParamField body="is_required" type="boolean">Whether a value is required on products.</ParamField>
+    <ParamField body="description" type="string">Attribute description.</ParamField>
+    <ParamField body="metadata" type="object">Custom key-value data.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="remove" type="string[]">IDs of attributes to detach from the product.</ParamField>
+<ParamField body="update" type="object[]">
+  Changes to attributes already on the product.
+  <Expandable title="properties">
+    <ParamField body="id" type="string" required>The attribute's ID.</ParamField>
+    <ParamField body="title" type="string">New attribute title.</ParamField>
+    <ParamField body="add" type="(string | object)[]">Value names (or `{ value }` objects) to add to the selection.</ParamField>
+    <ParamField body="remove" type="string[]">Value IDs to remove from the selection.</ParamField>
+    <ParamField body="value" type="string | number | boolean">New scalar value for non-select types.</ParamField>
+  </Expandable>
+</ParamField>
+
+## Response
+
+<ResponseField name="product" type="object">
+  <Expandable title="properties">
+    <ResponseField name="id" type="string">The product's ID.</ResponseField>
+    <ResponseField name="title" type="string">Product title.</ResponseField>
+    <ResponseField name="status" type="string">Current product status.</ResponseField>
+    <ResponseField name="product_attribute_values" type="object[]">Attribute values selected on the product, each with its parent `attribute`.</ResponseField>
+    <ResponseField name="scoped_attributes" type="object[]">Product-scoped (inline) attributes with their `values`.</ResponseField>
+  </Expandable>
+</ResponseField>
+
+<RequestExample>
+```bash cURL
+curl -X POST 'http://localhost:9000/admin/products/prod_01HXYZABCDEF/attributes/batch' \
+  -H 'Authorization: Bearer <token>' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "add": [{ "id": "pattr_01HXYZABCDEF", "value_ids": ["pattrval_01HXYZABCDEF"] }],
+    "remove": ["pattr_01HXYZABCDEG"]
+  }'
+```
+
+```ts JS Client
+const { product } = await client.admin.products.$id.attributes.batch.mutate({
+  $id: "prod_01HXYZABCDEF",
+  add: [{ id: "pattr_01HXYZABCDEF", value_ids: ["pattrval_01HXYZABCDEF"] }],
+  remove: ["pattr_01HXYZABCDEG"],
+})
+```
+</RequestExample>
+
+<ResponseExample>
+```json 200
+{
+  "product": {
+    "id": "prod_01HXYZABCDEF",
+    "title": "Linen Shirt",
+    "status": "published",
+    "product_attribute_values": [
+      {
+        "id": "pattrval_01HXYZABCDEF",
+        "name": "Linen",
+        "attribute": { "id": "pattr_01HXYZABCDEF", "name": "Material", "type": "single_select" }
+      }
+    ],
+    "scoped_attributes": []
+  }
+}
+```
+</ResponseExample>

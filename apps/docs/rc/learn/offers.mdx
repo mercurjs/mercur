@@ -1,0 +1,78 @@
+---
+title: "Offers"
+description: "An offer is a seller's sellable listing against a master product — their own SKU, price, inventory, and shipping."
+---
+
+An **offer** is how a seller actually sells something. While [products](/rc/learn/products) form a shared master catalog, an offer binds one seller to one product variant with the seller's own commercial terms: SKU, price, stock, and shipping profile. Many sellers can hold offers against the same variant, each competing on price and availability.
+
+## Data model
+
+| Field | Description |
+|-------|-------------|
+| `id` | Prefixed with `offer_` |
+| `seller_id` | The seller who owns the listing |
+| `product_id` / `variant_id` | The master catalog entry the offer sells |
+| `sku` | The seller's own SKU — unique per seller |
+| `ean` / `upc` | Optional barcodes, searchable |
+| `shipping_profile_id` | The seller's shipping profile used to fulfill this offer |
+| `created_by` | The member who created the offer |
+| `metadata` | Free-form JSON |
+
+The `(seller_id, sku)` pair is unique: a seller cannot list the same SKU twice.
+
+## Relationships
+
+Offers sit at the center of the seller's commercial graph. Module links connect each offer to:
+
+- **Seller** — the listing owner
+- **Product and variant** — the master catalog entry
+- **Price** — offer-scoped pricing (see below)
+- **Inventory item** — offer-scoped stock (see below)
+- **Shipping profile** — how the offer ships
+- **Cart and order line items** — which offer a purchased line came from
+
+### Offer-scoped pricing
+
+Offers share the variant's price set, scoped by an offer rule — each offer carries its own prices without duplicating the variant. The storefront computes a `calculated_price` per offer, so two sellers listing the same variant can show different prices side by side.
+
+### Offer-scoped inventory
+
+Inventory is linked to the **offer, not the variant**. Each seller manages stock for their own listing independently; a variant has no marketplace-wide stock figure of its own.
+
+<Warning>
+  When working with offer orders, read inventory through the offer link. The variant's own `inventory_items` relation is empty for offer-based listings.
+</Warning>
+
+## Offers at checkout
+
+When a customer buys, the cart line item links to the specific offer that was purchased. The link is preserved onto the order line item, so fulfillment, commission calculation, and payouts all resolve to the right seller — even when several sellers list the same variant.
+
+## Discovery
+
+The Store API exposes offers directly:
+
+```bash
+curl "http://localhost:9000/store/offers?product_id=prod_123" \
+  -H "x-publishable-api-key: <key>"
+```
+
+This powers "buy box"-style storefronts: fetch a product from the shared catalog, then list every seller's offer against it with per-offer calculated prices.
+
+## Where offers appear
+
+| Surface | Capability |
+|---------|-----------|
+| Vendor Portal | Full lifecycle — create offers, edit price and stock, manage variants and inventory |
+| Admin Panel | Oversight — list and inspect all offers with their store, pricing, inventory, and the associated master product |
+| Store API | Browse offers per product, with per-offer calculated prices |
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Products" href="/rc/learn/products">
+    The shared master catalog offers are built on.
+  </Card>
+  <Card title="Order Groups" href="/rc/learn/order-groups">
+    How multi-seller purchases split into per-seller orders.
+  </Card>
+</CardGroup>
