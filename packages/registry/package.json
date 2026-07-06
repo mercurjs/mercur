@@ -38,7 +38,7 @@
     "@mercurjs/cli": "2.2.0-rc.0",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^18.2.22",
-    "@types/node": "^22",
+    "@types/node": "^26",
     "@types/unzipper": "^0.10.10",
     "@medusajs/cli": "2.17.2",
     "@types/multer": "^2.0.0",
