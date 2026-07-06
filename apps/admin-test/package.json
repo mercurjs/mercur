@@ -12,7 +12,7 @@
     "@mercurjs/admin": "*",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "zod": "3.25.76",
+    "zod": "4.4.3",
     "@medusajs/icons": "2.17.2",
     "@medusajs/ui": "4.1.19",
     "@mercurjs/dashboard-sdk": "*",

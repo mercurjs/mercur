@@ -67,7 +67,7 @@
     "react-i18next": "13.5.0",
     "react-jwt": "^1.2.0",
     "react-router-dom": "6.30.3",
-    "zod": "3.25.76"
+    "zod": "4.4.3"
   },
   "peerDependencies": {
     "react": "^18.0.0",

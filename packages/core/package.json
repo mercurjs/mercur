@@ -76,7 +76,7 @@
     "typescript": "5.9.3",
     "yalc": "^1.0.0-pre.53",
     "@medusajs/types": "2.17.2",
-    "zod": "3.25.76",
+    "zod": "4.4.3",
     "multer": "^2.0.2",
     "http-proxy-middleware": "^3.0.3",
     "jsonwebtoken": "^9.0.2",

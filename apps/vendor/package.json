@@ -27,7 +27,7 @@
     "react-i18next": "13.5.0",
     "react-jwt": "^2.0.0",
     "react-router-dom": "6.30.3",
-    "zod": "3.25.76"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@types/react": "^19.2.17",
