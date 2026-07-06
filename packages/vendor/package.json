@@ -59,7 +59,7 @@
     "match-sorter": "^6.3.4",
     "motion": "^11.15.0",
     "qs": "^6.12.1",
-    "radix-ui": "1.1.2",
+    "radix-ui": "1.6.1",
     "react-country-flag": "^3.1.0",
     "react-currency-input-field": "^3.6.11",
     "react-helmet-async": "^2.0.5",
