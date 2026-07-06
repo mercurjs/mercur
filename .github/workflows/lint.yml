@@ -30,7 +30,7 @@ jobs:
           bun-version: 1.3.8
 
       - name: Cache Bun dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ~/.bun/install/cache
           key: ${{ runner.os }}-bun-${{ hashFiles('bun.lock', 'bun.lockb') }}
@@ -39,7 +39,7 @@ jobs:
 
       - name: Cache node_modules
         id: node-modules-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           # Bun's (default, isolated) linker materialises a ~7k-symlink store
           # under node_modules/.bun; rebuilding it from the tarball cache costs
