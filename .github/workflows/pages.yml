@@ -53,6 +53,16 @@ jobs:
         with:
           path: _site
 
+      # The deploy itself is reliable; what's flaky is the action's status
+      # poll — GitHub's Pages backend occasionally returns a transient error
+      # while still provisioning, which the action treats as terminal
+      # ("Deployment failed, try again later") even though the deploy then
+      # succeeds. A higher error_count rides through those transient errors
+      # instead of aborting on the first one.
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
+        with:
+          timeout: 600000
+          error_count: 25
+          reporting_interval: 5000
