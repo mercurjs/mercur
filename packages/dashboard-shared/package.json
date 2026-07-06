@@ -42,7 +42,7 @@
     "@tanstack/react-virtual": "^3.8.3",
     "@uiw/react-json-view": "^2.0.0-alpha.17",
     "cmdk": "^0.2.0",
-    "copy-to-clipboard": "^3.3.3",
+    "copy-to-clipboard": "^4.0.2",
     "date-fns": "^3.6.0",
     "i18next": "23.7.11",
     "i18next-browser-languagedetector": "7.2.0",
@@ -60,7 +60,7 @@
     "react-i18next": "13.5.0",
     "react-jwt": "^1.2.0",
     "react-router-dom": "6.30.3",
-    "zod": "3.25.76"
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "@mercurjs/types": "2.2.0-rc.0",
@@ -69,7 +69,7 @@
     "tsup": "^8.0.2",
     "typescript": "5.9.3",
     "@types/lodash.debounce": "^4.0.8",
-    "@types/react": "^18.2.66",
+    "@types/react": "^19.2.17",
     "@types/react-dom": "^18.2.22"
   }
 }
