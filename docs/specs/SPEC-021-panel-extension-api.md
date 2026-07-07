@@ -101,9 +101,11 @@ To reorder, hide, or relabel **built-in** items without replacing the whole
 // src/_navigation.ts
 export default defineNavigationConfig({
   items: [
-    { id: "orders", rank: 0 }, // pin to top
-    { id: "price-lists", hidden: true }, // hide a built-in item
+    { id: "orders", rank: 0 }, // pin a top-level item
+    { id: "price-lists", hidden: true }, // hide a top-level built-in
     { id: "payouts", label: "settlements" }, // relabel (i18n key or literal)
+    { id: "categories", nested: null, rank: 1 }, // promote a nested built-in to top level
+    { id: "campaigns", nested: "orders" }, // re-parent a nested built-in under Orders
   ],
 });
 ```
@@ -113,16 +115,31 @@ export default defineNavigationConfig({
   blocks **cannot** contribute nav overrides: unlike widgets/custom-fields, which
   merge across host + blocks, the sidebar order/visibility is a deliberate
   host-only single source of truth.
-- `id` targets a built-in core route (the `useCoreRoutes()` set per panel) or a
-  custom route path.
-- `rank` overrides the hard-coded core order; `hidden` removes it from the
-  sidebar (route may still be reachable directly unless also removed);
-  `label`/`icon` relabel it.
-- Composes with the existing `virtual:mercur/menu-items` rank system used by
-  custom drop-in routes.
-- Authored with the typed `defineNavigationConfig` helper so `id`s autocomplete
-  and typos fail type-check; the crawl would accept a bare object, but the helper
-  keeps parity with the other `defineXConfig` surfaces.
+- `id` targets **any** built-in nav item — top-level core routes _or_ nested
+  sub-items (e.g. `offers` / `collections` / `categories` under Products,
+  `campaigns` under Promotions, `customer-groups` under Customers). The id
+  namespace is flat: nested items are addressed by their own id, not a path. The
+  full set is generated and typed (`NavItemId`) — see the Codegen subsection
+  under §6.
+- `nested` **re-parents** a built-in item: `nested: "products"` moves it under
+  Products' children, `nested: null` promotes a nested item to top level. It is
+  constrained to the built-in **parent** ids (the top-level `useCoreRoutes()` set
+  per panel), mirroring Medusa's `NestedRoutePosition`; an invalid parent fails
+  type-check.
+- `rank` orders an item **within its parent's children** (or among top-level
+  items when the item is top-level or promoted via `nested: null`). `hidden`
+  removes it from the sidebar (route may still be reachable directly unless also
+  removed); `label`/`icon` relabel it.
+- **Composition with custom-route nesting.** Custom routes still declare their own
+  placement via `defineRouteConfig({ nested })` (unchanged — a freeform child of a
+  custom or core path). `_navigation.ts` only reshapes **built-in** items. The two
+  layer: custom routes place themselves; `_navigation.ts` overrides built-ins.
+  Both feed the existing `virtual:mercur/menu-items` rank system.
+- Authored with the typed `defineNavigationConfig` helper: `id` and `nested` are
+  checked against the generated `NavItemId` registry (Design Principle #4), the
+  same way `defineWidgetConfig`'s `zone` is checked against `WidgetZoneId`. The
+  crawl would accept a bare object, but the helper makes typos and invalid targets
+  fail type-check.
 
 ### 2. Widgets (injection zones)
 
@@ -168,7 +185,7 @@ export default defineCustomFieldsConfig({
       { id: "brand_name", header: "Brand", component: ({ row }) => row.brand?.name }, // add (from link)
     ],
     bulkActions: [
-      { order: 0, component: ArchiveBulkAction }, // { order?, component } — component owns its own label/icon/onClick
+      { rank: 0, component: ArchiveBulkAction }, // { rank?, component } — component owns its own label/icon/onClick
     ],
     filters: [/* add / remove list filters */],
     viewDefaults: {
@@ -205,9 +222,9 @@ export default defineCustomFieldsConfig({
 There is **no separate action-bar config**. Because section `ActionMenu` groups
 belong to a model's detail sections, action contributions ride inside the model's
 `displays[].actions` (same model-scoped file as §3/§8). Each entry is
-`{ order?, component }` — the **same api as list `bulkActions`** (§3), no
+`{ rank?, component }` — the **same api as list `bulkActions`** (§3), no
 `hidden`/`id` — and the `component` owns its own label, icon, group placement, and
-`onClick`; `order` positions it within the section's `ActionMenu`. See the
+`onClick`; `rank` positions it within the section's `ActionMenu`. See the
 expanded `displays` shape in §8.
 
 Page-level action bars that are not tied to a model (e.g. a global topbar button)
@@ -280,8 +297,8 @@ export default defineCustomFieldsConfig({
         { id: "created_by", hidden: true }, // REMOVE a built-in field from the section
       ],
       actions: [
-        // §4: section ActionMenu contributions — same { order?, component } api as list bulkActions
-        { order: 0, component: SyncErpAction }, // component owns its own label/icon/group/onClick
+        // §4: section ActionMenu contributions — same { rank?, component } api as list bulkActions
+        { rank: 0, component: SyncErpAction }, // component owns its own label/icon/group/onClick
       ],
     },
   ],
@@ -304,9 +321,9 @@ array / object / null / nullable / coerce` (Medusa's surface, no `unstable_`).
   - `fields`: add a new read-only field, replace a built-in field's render
     (`component`), or remove it (`hidden`), keyed by field `id`.
   - `actions`: add entries to that section's `ActionMenu` (this is §4, folded
-    in). Each entry is `{ order?, component }` — the **same api as list
+    in). Each entry is `{ rank?, component }` — the **same api as list
     `bulkActions`**, no `hidden`/`id` — with the `component` owning its own label,
-    icon, group, and `onClick`, and `order` positioning it in the menu.
+    icon, group, and `onClick`, and `rank` positioning it in the menu.
 - `zone: "attributes"` targets the vendor product attributes tab (see SPEC-014
   attributes work) — custom fields and the attributes module must not collide.
 - **Onboarding is just a form zone.** The vendor onboarding wizard is the
@@ -328,7 +345,7 @@ array / object / null / nullable / coerce` (Medusa's surface, no `unstable_`).
   (e.g. `productsCreated` / update hooks) is a per-model design decision to be
   resolved in the sub-spec; start with `product` only.
 
-### Codegen — typed targets for `defineCustomFieldsConfig` and `defineWidgetConfig`
+### Codegen — typed targets for `defineCustomFieldsConfig`, `defineWidgetConfig`, and `defineNavigationConfig`
 
 The valid `model` values and, **per model**, the valid form `zone`s, form `tab`s,
 `displays` `zone`s, and `displays[].fields` ids are not
@@ -336,9 +353,10 @@ hand-maintained union types — they are **generated** from the built-in pages a
 build time, the same way Mercur already generates the API route map
 (`mercurjs codegen` → `packages/core-plugin/.mercur/_generated`), emitting the
 declaration file `.mercur/custom-fields.d.ts`. The same crawl
-also emits the valid **widget `zone` ids** consumed by `defineWidgetConfig` (§2).
+also emits the valid **widget `zone` ids** consumed by `defineWidgetConfig` (§2)
+and the **built-in nav item ids** consumed by `defineNavigationConfig` (§1).
 This is what makes Design Principle #4 (Typed) real: a typo in a
-zone/tab/field id, or targeting a model/page that doesn't expose that
+zone/tab/field/nav id, or targeting a model/page that doesn't expose that
 zone, fails type-check instead of silently no-op'ing at runtime.
 
 - **What it emits.** A generated declaration module
@@ -387,12 +405,48 @@ zone, fails type-check instead of silently no-op'ing at runtime.
   (`before | after | replace`, §2) is part of the id, so only placements a zone
   actually supports appear in the union.
 
+  The same module also emits the **built-in nav item registry** consumed by
+  `defineNavigationConfig` (§1) — a flat union of every built-in nav id (top-level
+  _and_ nested), plus the parent subset used to constrain re-parenting:
+
+  ```ts
+  // GENERATED — do not edit
+  export type NavItemId =
+    | "orders"
+    | "products"
+    | "offers" // nested under products
+    | "collections" // nested under products
+    | "categories" // nested under products
+    | "promotions"
+    | "campaigns" // nested under promotions
+    | "customers"
+    | "customer-groups" // nested under customers
+    | "price-lists"
+    | "payouts"
+    // … one entry per built-in nav item exposed by useCoreRoutes()
+
+  // parent ids only — the valid targets for a re-parenting `nested`
+  export type NavParentId =
+    | "orders"
+    | "products"
+    | "inventory"
+    | "customers"
+    | "promotions"
+    | "price-lists"
+  ```
+
+  `defineNavigationConfig`'s `items[].id` is constrained to `NavItemId` and its
+  `items[].nested` to `NavParentId | null`, so targeting or re-parenting under an
+  id that no built-in page exposes fails type-check. Admin and vendor generate
+  independent unions (their core route sets differ).
+
 - **Where the ids come from.** Each built-in page/section that renders a
   zone host (`<FormZone>`, `<DisplayZone>`, `<WidgetZone>`, section `ActionMenu`)
-  declares its ids at the source, and the codegen crawls those declarations — it
-  does **not** infer from arbitrary JSX. Adding a new built-in section or widget
-  zone id is therefore a deliberate, reviewable change that shows up in the
-  generated registry diff.
+  declares its ids at the source, and the nav ids are crawled from the per-panel
+  `useCoreRoutes()` declaration — the codegen crawls those declarations, it
+  does **not** infer from arbitrary JSX. Adding a new built-in section, widget
+  zone, or nav item is therefore a deliberate, reviewable change that shows up in
+  the generated registry diff.
 
 - **When it runs.** As part of the existing codegen step (extend
   `mercurjs codegen` / the dashboard-sdk build), so the registry regenerates
@@ -476,14 +530,16 @@ export default defineAlertConfig({
   (`packages/dashboard-sdk/src/i18n.ts`, `findI18nIndex`/`generateI18n`) rather
   than a folder crawl. It does **not** aggregate block `admin_ui`/`vendor_ui`
   contributions — no plugin-entry `navigationModule` slot — so the sidebar stays a
-  host-only single source of truth.
+  host-only single source of truth. Its targets (`items[].id` / `items[].nested`)
+  are still fully type-checked: the generated `NavItemId` / `NavParentId` registry
+  comes from the same codegen as `WidgetZoneId` / `CustomFieldsRegistry` (§6).
 - **Rendering.** Built-in pages render zone hosts (`<WidgetZone id="..." />`,
   field/display hosts, section-action hosts) at the documented zone ids.
   Compound-page slots and zone hosts coexist: compound slots are for full
   re-composition, zones are for additive injection.
-- **Typing.** Page ids, zone ids, and custom-field models/zones/tabs/fields
-  are **generated** so invalid targets fail type-check — see the Codegen
-  subsection under §6. This extends the existing generated route-map typing story
+- **Typing.** Page ids, zone ids, built-in nav ids, and custom-field
+  models/zones/tabs/fields are **generated** so invalid targets fail type-check —
+  see the Codegen subsection under §6. This extends the existing generated route-map typing story
   (`packages/core-plugin/.mercur/_generated`); the custom-fields registry is a new
   generated declaration file (`.mercur/custom-fields.d.ts`) alongside it.
 - **Surface split is implicit.** Admin and vendor are separate Vite apps with
@@ -516,7 +572,7 @@ Each can land independently and flip to `passing` on its own:
    file + `defineNavigationConfig` (single-file discovery like `i18n`, no block
    merge).
 3. Custom fields for `product` — `defineCustomFieldsConfig` + `createFormHelper`:
-   forms, section `displays` (fields add/replace/remove + `{ order?, component }`
+   forms, section `displays` (fields add/replace/remove + `{ rank?, component }`
    actions), and the
    model-scoped `list` block (columns, cells, bulk actions, filters, view
    defaults; linked data fetched via `link`), plus `additional_data` persistence.
