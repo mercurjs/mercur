@@ -282,7 +282,6 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                     exclude: [
                         "virtual:mercur/config",
                         "virtual:mercur/routes",
-                        "virtual:mercur/components",
                         "virtual:mercur/menu-items",
                         "virtual:mercur/i18n",
                         "virtual:mercur/widgets",
@@ -321,7 +320,7 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
             if (isResolvedMedusaVirtualModule(id)) {
                 return "export default {}";
             }
-            return loadVirtualModule({ cwd: root, id, mercurConfig: config });
+            return loadVirtualModule({ id, mercurConfig: config });
         },
         configureServer(server) {
             const invalidate = (moduleId: string, reload: boolean) => {

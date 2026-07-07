@@ -23,7 +23,6 @@ import { useMe, useSelectSeller, useSellers } from "../../../hooks/api";
 import { useSearch } from "../../../providers/search-provider";
 import { UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
-import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
 import {
   applyNavOverrides,
@@ -47,10 +46,9 @@ const toCoreNavItem = (route: Omit<INavItem, "pathname">): CoreNavItem => ({
 });
 
 export const MainLayout = () => {
-  const Sidebar = components.MainSidebar ? components.MainSidebar : MainSidebar;
   return (
     <Shell>
-      <Sidebar />
+      <MainSidebar />
     </Shell>
   );
 };

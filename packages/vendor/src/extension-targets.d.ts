@@ -82,6 +82,8 @@ declare module "@mercurjs/dashboard-sdk" {
     "reservations.detail.side.before": true
     "reservations.list.after": true
     "reservations.list.before": true
+    "store.setup.after": true
+    "store.setup.before": true
   }
 
   interface NavItemRegistry {

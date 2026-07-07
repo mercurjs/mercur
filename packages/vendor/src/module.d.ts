@@ -11,12 +11,6 @@ declare module "virtual:mercur/config" {
     export default config
 }
 
-declare module "virtual:mercur/components" {
-    import { ComponentType } from 'react'
-    const components: Record<string, ComponentType>
-    export default components
-}
-
 declare module "virtual:mercur/menu-items" {
     import { MenuItem } from './utils/routes'
     const menuItems: { menuItems: MenuItem[] }

@@ -39,16 +39,6 @@ export interface MercurConfig {
     name?: string
     /** Path to a logo asset for the dashboard. */
     logo?: string
-    /**
-     * Override built-in layout components with custom implementations.
-     * Paths are resolved relative to `src/`.
-     */
-    components?: {
-        MainSidebar?: string
-        SettingsSidebar?: string
-        TopbarActions?: string
-        StoreSetup?: string
-    },
     /** Internationalization settings. */
     i18n?: {
         /** The default language code (e.g. `"en"`). */

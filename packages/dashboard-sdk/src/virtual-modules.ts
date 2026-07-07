@@ -1,8 +1,6 @@
-import path from "path"
 import {
     RESOLVED_CONFIG_MODULE,
     RESOLVED_ROUTES_MODULE,
-    RESOLVED_COMPONENTS_MODULE,
     RESOLVED_MENU_ITEMS_MODULE,
     RESOLVED_I18N_MODULE,
     RESOLVED_WIDGETS_MODULE,
@@ -29,20 +27,14 @@ export function resolveVirtualModule(id: string): string {
 export interface LoadVirtualModuleOptions {
     id: string
     mercurConfig: BuiltMercurConfig
-    cwd: string
 }
 
 export function loadVirtualModule({
-    cwd,
     id,
     mercurConfig,
 }: LoadVirtualModuleOptions): string | null {
     if (id === RESOLVED_CONFIG_MODULE) {
         return loadConfigModule(mercurConfig)
-    }
-
-    if (id === RESOLVED_COMPONENTS_MODULE) {
-        return loadComponentsModule(mercurConfig, cwd)
     }
 
     if (id === RESOLVED_ROUTES_MODULE) {
@@ -73,28 +65,7 @@ export function loadVirtualModule({
 }
 
 function loadConfigModule(mercurConfig: BuiltMercurConfig): string {
-    const { ...configWithoutComponents } = mercurConfig
-    return `export default ${JSON.stringify(configWithoutComponents)}`
-}
-
-function loadComponentsModule(mercurConfig: BuiltMercurConfig, cwd: string): string {
-    const components = mercurConfig.components ?? {}
-    const imports: string[] = []
-    const exports: string[] = []
-
-    Object.entries(components).forEach(([name, componentPath]) => {
-        const resolvedPath = path.resolve(cwd, 'src', componentPath)
-        imports.push(`import _${name} from "${JSON.stringify(resolvedPath)}"`)
-        exports.push(`${name}: _${name}`)
-    })
-
-    return `
-${imports.join('\n')}
-
-export default {
-    ${exports.join(',\n    ')}
-}
-`
+    return `export default ${JSON.stringify(mercurConfig)}`
 }
 
 function loadRoutesModule(mercurConfig: BuiltMercurConfig): string {
