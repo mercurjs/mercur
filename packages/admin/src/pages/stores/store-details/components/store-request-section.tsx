@@ -121,7 +121,7 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
           }}
         />
       </div>
-      <DisplayExtensionZone model="store" zone="requests" data={seller} />
+      <DisplayExtensionZone model="seller" zone="requests" data={seller} />
     </Container>
   );
 };

@@ -81,7 +81,7 @@ export const StorePaymentDetailsSection = ({
           </Text>
         </div>
       )}
-      <DisplayExtensionZone model="store" zone="payment-details" data={seller} />
+      <DisplayExtensionZone model="seller" zone="payment-details" data={seller} />
     </Container>
   );
 };

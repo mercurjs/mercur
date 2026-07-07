@@ -24,7 +24,7 @@ export const StoreMembersSection = ({ sellerId }: StoreMembersSectionProps) => {
         </Link>
       </div>
       <StoreMembersDataTable sellerId={sellerId} />
-      <DisplayExtensionZone model="store" zone="members" data={sellerId} />
+      <DisplayExtensionZone model="seller" zone="members" data={sellerId} />
     </Container>
   );
 };

@@ -1,9 +1,9 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
 import { Button, Input, toast } from "@medusajs/ui";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
+
+import { FormExtensionZone, useExtendableForm } from "@mercurjs/dashboard-shared";
 
 import { Form } from "@components/common/form";
 import { CountrySelect } from "@components/inputs/country-select/country-select";
@@ -40,7 +40,10 @@ export const StorePaymentDetailsForm = ({
   const { handleSuccess } = useRouteModal();
   const details = seller.payment_details;
 
-  const form = useForm<zod.infer<typeof StorePaymentDetailsSchema>>({
+  const form = useExtendableForm({
+    schema: StorePaymentDetailsSchema,
+    model: "seller",
+    data: seller,
     defaultValues: {
       country_code: details?.country_code ?? "",
       holder_name: details?.holder_name ?? "",
@@ -49,7 +52,6 @@ export const StorePaymentDetailsForm = ({
       routing_number: details?.routing_number ?? "",
       account_number: details?.account_number ?? "",
     },
-    resolver: zodResolver(StorePaymentDetailsSchema),
   });
 
   const selectedCountry = form.watch("country_code");
@@ -66,6 +68,7 @@ export const StorePaymentDetailsForm = ({
         bic: isABA ? null : values.bic || null,
         routing_number: isABA ? values.routing_number || null : null,
         account_number: values.account_number || null,
+        additional_data: values.additional_data,
       },
       {
         onSuccess: () => {
@@ -200,6 +203,12 @@ export const StorePaymentDetailsForm = ({
               />
             </>
           )}
+          <FormExtensionZone
+            model="seller"
+            zone="payment-details"
+            control={form.control}
+            data={seller}
+          />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
           <div className="flex items-center justify-end gap-x-2">

@@ -148,6 +148,12 @@ declare module "@mercurjs/dashboard-sdk" {
       displayZones: "attributes" | "general" | "locations" | "variants"
       displayFieldIds: "available" | "in_stock" | "reserved" | "sku" | "title"
     }
+    "member": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "general"
+      displayFieldIds: "first_name" | "language" | "last_name"
+    }
     "offer": {
       formZones: "create" | "edit"
       formTabs: { "create": "catalogue" | "stockLevelsAndPrices" }
@@ -191,16 +197,10 @@ declare module "@mercurjs/dashboard-sdk" {
       displayFieldIds: "available_quantity" | "description" | "line_item_id" | "location" | "reserved_quantity" | "stocked_quantity" | "title"
     }
     "seller": {
-      formZones: "onboarding"
+      formZones: "address" | "edit" | "onboarding" | "payment-details" | "professional-details"
       formTabs: Record<string, string>
-      displayZones: "store-select"
-      displayFieldIds: "status"
-    }
-    "store": {
-      formZones: never
-      formTabs: Record<string, string>
-      displayZones: "general"
-      displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "website_url"
+      displayZones: "general" | "seller-select"
+      displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "status" | "website_url"
     }
   }
 }

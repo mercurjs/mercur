@@ -1,9 +1,9 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
 import { Button, Input, toast } from "@medusajs/ui";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
+
+import { FormExtensionZone, useExtendableForm } from "@mercurjs/dashboard-shared";
 
 import { Form } from "@components/common/form";
 import { CountrySelect } from "@components/inputs/country-select";
@@ -36,7 +36,10 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
   const { handleSuccess } = useRouteModal();
   const address = seller.address;
 
-  const form = useForm<zod.infer<typeof StoreAddressSchema>>({
+  const form = useExtendableForm({
+    schema: StoreAddressSchema,
+    model: "seller",
+    data: seller,
     defaultValues: {
       name: address?.name ?? "",
       address_1: address?.address_1 ?? "",
@@ -46,7 +49,6 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
       postal_code: address?.postal_code ?? "",
       country_code: address?.country_code ?? "",
     },
-    resolver: zodResolver(StoreAddressSchema),
   });
 
   const { mutateAsync, isPending } = useUpdateSellerAddress(seller.id);
@@ -61,6 +63,7 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
         province: values.province || null,
         postal_code: values.postal_code || null,
         country_code: values.country_code,
+        additional_data: values.additional_data,
       },
       {
         onSuccess: () => {
@@ -173,6 +176,12 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
                 <Form.ErrorMessage />
               </Form.Item>
             )}
+          />
+          <FormExtensionZone
+            model="seller"
+            zone="address"
+            control={form.control}
+            data={seller}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

@@ -156,7 +156,7 @@ const useColumns = () => {
   )
 
   const { columns: extended, filters } = useExtendableTable<SellerDTO>({
-    model: "store",
+    model: "seller",
     columns: [selectColumn, ...base] as unknown as ColumnDef<
       SellerDTO,
       unknown

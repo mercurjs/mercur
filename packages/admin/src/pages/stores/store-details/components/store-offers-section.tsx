@@ -100,7 +100,7 @@ export const StoreOffersSection = ({ sellerId }: StoreOffersSectionProps) => {
         }}
         commands={commands}
       />
-      <DisplayExtensionZone model="store" zone="offers" data={sellerId} />
+      <DisplayExtensionZone model="seller" zone="offers" data={sellerId} />
     </Container>
   );
 };

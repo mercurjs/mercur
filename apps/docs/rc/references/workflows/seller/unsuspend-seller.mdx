@@ -19,6 +19,8 @@ await unsuspendSellerWorkflow(container).run({
 
 <ParamField body="seller_id" type="string" required>Id of the suspended seller.</ParamField>
 
+<ParamField body="additional_data" type="object">Custom data passed through to the workflow hooks.</ParamField>
+
 ## Result
 
 <ResponseField name="result" type="void">Nothing is returned.</ResponseField>

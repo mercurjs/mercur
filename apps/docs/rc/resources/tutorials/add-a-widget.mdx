@@ -70,6 +70,7 @@ Zones mounted today in the **vendor portal**:
 | Zone | Where it renders |
 |------|------------------|
 | `product.list.before` / `.after` | Vendor product list page |
+| `store.setup.before` / `.after` | The store-setup / onboarding surface (dashboard home + store settings), passed the `seller` as `data` |
 | `login.logo.*` | The logo slot on the public login screen |
 | `login.before.*` / `login.after.*` | Around the login form (rendered before authentication) |
 
@@ -103,8 +104,8 @@ The full, valid set is typed as `WidgetZoneId` and generated into `@mercurjs/ven
   <Card title="Extend forms and tables" href="/rc/resources/tutorials/extend-forms-and-tables">
     Add validated fields and columns with defineCustomFieldsConfig.
   </Card>
-  <Card title="Customize navigation" href="/rc/resources/tutorials/customize-navigation">
-    Reorder, hide, and re-parent sidebar items.
+  <Card title="Extend the onboarding flow" href="/rc/resources/tutorials/extend-onboarding">
+    Add a store-setup field and persist it through a workflow hook.
   </Card>
 </CardGroup>
 </content>
