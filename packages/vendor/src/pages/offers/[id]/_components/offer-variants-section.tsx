@@ -22,6 +22,8 @@ import { PlaceholderCell } from "../../../../components/table/table-cells/common
 import { useBulkDeleteOffers } from "../../../../hooks/api/offers"
 import { useDataTable } from "../../../../hooks/use-data-table"
 import { useQueryParams } from "../../../../hooks/use-query-params"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { OfferProductVariant } from "../../common/types"
 
 const PAGE_SIZE = 10
@@ -446,6 +448,7 @@ export const OfferVariantsSection = ({
           message: t("offers.empty.description"),
         }}
       />
+      <DisplayExtensionZone model="offer" zone="variants" data={variants} />
     </Container>
   )
 }

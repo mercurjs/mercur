@@ -8,7 +8,6 @@ import {
   TextHeader,
 } from "@components/table/table-cells/common/text-cell"
 import { getPriceListStatus } from "@pages/price-lists/common/utils"
-import { PriceListListTableActions } from "./price-list-list-table-actions"
 import { ExtendedPriceList } from "@custom-types/price-list"
 
 const columnHelper = createColumnHelper<ExtendedPriceList>()
@@ -38,12 +37,6 @@ export const usePricingTableColumns = () => {
           const prices = row.original?.prices?.length || "-"
           return <TextCell text={prices} />
         },
-      }),
-      columnHelper.display({
-        id: "actions",
-        cell: ({ row }) => (
-          <PriceListListTableActions priceList={row.original} />
-        ),
       }),
     ],
     [t]

@@ -2,6 +2,8 @@ import { ReactNode, Children, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
+
 import { TwoColumnPageSkeleton } from "../../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../../components/layout/pages";
 import { useSeller } from "@/hooks/api";
@@ -102,6 +104,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <TwoColumnPage data={seller} hasOutlet data-testid="store-detail-page">
       <TwoColumnPage.Main>
+        <WidgetZone id="stores.detail.main" data={seller}>
         {seller.status === SellerStatus.PENDING_APPROVAL &&
           !seller.approved_at &&
           !seller.rejected_at && (
@@ -145,11 +148,14 @@ const Root = ({ children }: { children?: ReactNode }) => {
             <StoreConfigurationSection seller={seller} />
           </div>
         )}
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <StoreAddressSection seller={seller} />
-        <StoreCompanyDetailsSection seller={seller} />
-        <StorePaymentDetailsSection seller={seller} />
+        <WidgetZone id="stores.detail.side" data={seller}>
+          <StoreAddressSection seller={seller} />
+          <StoreCompanyDetailsSection seller={seller} />
+          <StorePaymentDetailsSection seller={seller} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );

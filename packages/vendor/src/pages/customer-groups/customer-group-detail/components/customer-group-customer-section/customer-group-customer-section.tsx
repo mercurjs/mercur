@@ -13,6 +13,8 @@ import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+
 import { ActionMenu } from "@components/common/action-menu";
 import { _DataTable } from "@components/table/data-table";
 import { useRemoveCustomersFromGroup } from "@hooks/api/customer-groups";
@@ -160,6 +162,11 @@ export const CustomerGroupCustomerSection = ({
           title: t("customerGroups.customers.list.noRecordsTitle"),
           message: t("customerGroups.customers.list.noRecordsMessage"),
         }}
+      />
+      <DisplayExtensionZone
+        model="customer_group"
+        zone="customers"
+        data={group}
       />
     </Container>
   );

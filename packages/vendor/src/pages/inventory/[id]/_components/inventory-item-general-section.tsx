@@ -3,8 +3,12 @@ import { HttpTypes } from "@medusajs/types"
 import { PencilSquare } from "@medusajs/icons"
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "@components/common/action-menu"
 import { SectionRow } from "@components/common/section"
+
+const GENERAL_FIELD_IDS = ["title", "sku", "in_stock", "reserved", "available"]
 
 type InventoryItemGeneralSectionProps = {
   inventoryItem: HttpTypes.AdminInventoryItemResponse["inventory_item"]
@@ -29,9 +33,16 @@ export const InventoryItemGeneralSection = ({
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>
-          {inventoryItem.title ?? inventoryItem.sku} {t("fields.details")}
-        </Heading>
+        <DisplayField
+          model="inventory_item"
+          zone="general"
+          id="title"
+          data={inventoryItem}
+        >
+          <Heading>
+            {inventoryItem.title ?? inventoryItem.sku} {t("fields.details")}
+          </Heading>
+        </DisplayField>
         <ActionMenu
           groups={[
             {
@@ -46,28 +57,61 @@ export const InventoryItemGeneralSection = ({
           ]}
         />
       </div>
-      <SectionRow title={t("fields.sku")} value={inventoryItem.sku ?? "-"} />
-      <SectionRow
-        title={t("fields.inStock")}
-        value={getQuantityFormat(
-          stockedQuantity,
-          inventoryItem.location_levels?.length
-        )}
-      />
-
-      <SectionRow
-        title={t("inventory.reserved")}
-        value={getQuantityFormat(
-          reservedQuantity,
-          inventoryItem.location_levels?.length
-        )}
-      />
-      <SectionRow
-        title={t("inventory.available")}
-        value={getQuantityFormat(
-          availableQuantity,
-          inventoryItem.location_levels?.length
-        )}
+      <DisplayField
+        model="inventory_item"
+        zone="general"
+        id="sku"
+        data={inventoryItem}
+      >
+        <SectionRow title={t("fields.sku")} value={inventoryItem.sku ?? "-"} />
+      </DisplayField>
+      <DisplayField
+        model="inventory_item"
+        zone="general"
+        id="in_stock"
+        data={inventoryItem}
+      >
+        <SectionRow
+          title={t("fields.inStock")}
+          value={getQuantityFormat(
+            stockedQuantity,
+            inventoryItem.location_levels?.length
+          )}
+        />
+      </DisplayField>
+      <DisplayField
+        model="inventory_item"
+        zone="general"
+        id="reserved"
+        data={inventoryItem}
+      >
+        <SectionRow
+          title={t("inventory.reserved")}
+          value={getQuantityFormat(
+            reservedQuantity,
+            inventoryItem.location_levels?.length
+          )}
+        />
+      </DisplayField>
+      <DisplayField
+        model="inventory_item"
+        zone="general"
+        id="available"
+        data={inventoryItem}
+      >
+        <SectionRow
+          title={t("inventory.available")}
+          value={getQuantityFormat(
+            availableQuantity,
+            inventoryItem.location_levels?.length
+          )}
+        />
+      </DisplayField>
+      <DisplayExtensionZone
+        model="inventory_item"
+        zone="general"
+        data={inventoryItem}
+        builtInFieldIds={GENERAL_FIELD_IDS}
       />
     </Container>
   )

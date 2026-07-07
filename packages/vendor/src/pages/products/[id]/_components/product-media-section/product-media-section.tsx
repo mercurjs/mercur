@@ -15,6 +15,8 @@ import {
 import { useTranslation } from 'react-i18next';
 import { Link } from 'react-router-dom';
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "@components/common/action-menu"
 import { useUpdateProduct } from "@hooks/api/products"
 
@@ -201,6 +203,7 @@ export const ProductMediaSection = ({
           </CommandBar.Bar>
         </CommandBar>
       )}
+      <DisplayExtensionZone model="product" zone="media" data={product} />
     </Container>
   );
 };

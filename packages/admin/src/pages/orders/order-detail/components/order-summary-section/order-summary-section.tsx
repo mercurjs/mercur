@@ -36,6 +36,7 @@ import {
 } from "@medusajs/ui";
 
 import type { AdminReservation } from "@medusajs/types";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { format } from "date-fns";
 import { ActionMenu } from "../../../../../components/common/action-menu/index.ts";
 import DisplayId from "../../../../../components/common/display-id/display-id.tsx";
@@ -184,6 +185,7 @@ export const OrderSummarySection = ({ order }: OrderSummarySectionProps) => {
           )}
         </div>
       )}
+      <DisplayExtensionZone model="order" zone="summary" data={order} />
     </Container>
   );
 };

@@ -10,6 +10,7 @@ import {
   usePrompt,
 } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useCancelOrder } from "../../../../../hooks/api/orders"
 import { useDate } from "../../../../../hooks/use-date"
@@ -22,6 +23,14 @@ import {
 type OrderGeneralSectionProps = {
   order: HttpTypes.AdminOrder
 }
+
+const GENERAL_FIELD_IDS = [
+  "display_id",
+  "created_at",
+  "status",
+  "payment_status",
+  "fulfillment_status",
+]
 
 export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
   const { t } = useTranslation()
@@ -69,22 +78,32 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
   return (
     <Container className="flex items-center justify-between px-6 py-4" data-testid="order-general-section">
       <div>
-        <div className="flex items-center gap-x-1" data-testid="order-general-section-id-container">
-          <Heading data-testid="order-general-section-id-heading">#{order.display_id}</Heading>
-          <Copy content={`#${order.display_id}`} className="text-ui-fg-muted" data-testid="order-general-section-id-copy" />
-        </div>
-        <Text size="small" className="text-ui-fg-subtle" data-testid="order-general-section-date">
-          {t("orders.onDateFromSalesChannel", {
-            date: getFullDate({ date: order.created_at, includeTime: true }),
-            salesChannel: order.sales_channel?.name,
-          })}
-        </Text>
+        <DisplayField model="order" zone="general" id="display_id" data={order}>
+          <div className="flex items-center gap-x-1" data-testid="order-general-section-id-container">
+            <Heading data-testid="order-general-section-id-heading">#{order.display_id}</Heading>
+            <Copy content={`#${order.display_id}`} className="text-ui-fg-muted" data-testid="order-general-section-id-copy" />
+          </div>
+        </DisplayField>
+        <DisplayField model="order" zone="general" id="created_at" data={order}>
+          <Text size="small" className="text-ui-fg-subtle" data-testid="order-general-section-date">
+            {t("orders.onDateFromSalesChannel", {
+              date: getFullDate({ date: order.created_at, includeTime: true }),
+              salesChannel: order.sales_channel?.name,
+            })}
+          </Text>
+        </DisplayField>
       </div>
       <div className="flex items-center gap-x-4" data-testid="order-general-section-badges-container">
         <div className="flex items-center gap-x-1.5" data-testid="order-general-section-badges">
-          <OrderBadge order={order} />
-          <PaymentBadge order={order} />
-          <FulfillmentBadge order={order} />
+          <DisplayField model="order" zone="general" id="status" data={order}>
+            <OrderBadge order={order} />
+          </DisplayField>
+          <DisplayField model="order" zone="general" id="payment_status" data={order}>
+            <PaymentBadge order={order} />
+          </DisplayField>
+          <DisplayField model="order" zone="general" id="fulfillment_status" data={order}>
+            <FulfillmentBadge order={order} />
+          </DisplayField>
         </div>
         <ActionMenu
           groups={[
@@ -103,6 +122,12 @@ export const OrderGeneralSection = ({ order }: OrderGeneralSectionProps) => {
           data-testid="order-general-section-action-menu"
         />
       </div>
+      <DisplayExtensionZone
+        model="order"
+        zone="general"
+        data={order}
+        builtInFieldIds={GENERAL_FIELD_IDS}
+      />
     </Container>
   )
 }

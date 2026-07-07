@@ -1,5 +1,6 @@
 import { Button, Container, Heading } from "@medusajs/ui";
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
@@ -38,6 +39,11 @@ export const InventoryItemLocationLevelsSection = ({
         </Button>
       </div>
       <ItemLocationListTable inventory_item_id={inventoryItem.id} />
+      <DisplayExtensionZone
+        model="inventory_item"
+        zone="locations"
+        data={inventoryItem}
+      />
     </Container>
   );
 };

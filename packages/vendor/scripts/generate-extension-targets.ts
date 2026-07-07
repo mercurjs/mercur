@@ -19,7 +19,7 @@ import path from "path"
 
 const SRC = path.join(import.meta.dir ?? __dirname, "..", "src")
 const OUT = path.join(SRC, "extension-targets.d.ts")
-const PLACEMENTS = ["before", "after", "replace"] as const
+const PLACEMENTS = ["before", "after"] as const
 
 function walk(dir: string, out: string[] = []): string[] {
   for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {

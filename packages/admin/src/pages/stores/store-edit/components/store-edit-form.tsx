@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
 import { InformationCircleSolid } from "@medusajs/icons";
 import {
@@ -10,7 +9,7 @@ import {
   Textarea,
   toast,
 } from "@medusajs/ui";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 import { useCallback } from "react";
@@ -21,6 +20,10 @@ import { SwitchBox } from "@components/common/switch-box";
 import { HandleInput } from "@components/inputs/handle-input";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared";
 import { MediaSchema } from "@pages/products/product-create/constants";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
@@ -96,7 +99,10 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
-  const form = useForm<zod.infer<typeof EditStoreSchema>>({
+  const form = useExtendableForm({
+    schema: EditStoreSchema,
+    model: "store",
+    data: seller,
     defaultValues: {
       status: (seller.status as SellerStatus) ?? SellerStatus.OPEN,
       name: seller.name ?? "",
@@ -113,7 +119,6 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
         ? [{ id: "existing-banner", url: seller.banner, isThumbnail: false, file: null }]
         : [],
     },
-    resolver: zodResolver(EditStoreSchema),
   });
 
   const { fields: logoFields } = useFieldArray({
@@ -448,6 +453,12 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
               </div>
             </div>
           </div>
+          <FormExtensionZone
+            model="store"
+            zone="edit"
+            control={form.control}
+            data={seller}
+          />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
           <div className="flex items-center justify-end gap-x-2">

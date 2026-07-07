@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { DateCell } from "../../../../components/table/table-cells/common/date-cell";
 import { NoRecords } from "../../../../components/common/empty-table-content/empty-table-content";
 import { InferClientOutput } from "@mercurjs/client";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { sdk } from "@lib/client";
 
 type Seller = InferClientOutput<typeof sdk.admin.sellers.$id.query>["seller"];
@@ -56,6 +57,7 @@ export const StoreConfigurationSection = ({
           message={t("store.timeOff.empty.message")}
         />
       )}
+      <DisplayExtensionZone model="store" zone="configuration" data={seller} />
     </Container>
   );
 };

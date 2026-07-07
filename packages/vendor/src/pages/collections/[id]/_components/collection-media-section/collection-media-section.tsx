@@ -1,5 +1,5 @@
 import { ThumbnailBadge } from "@medusajs/icons"
-import { ListBadge } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, ListBadge } from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text, Tooltip } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -72,6 +72,7 @@ export const CollectionMediaSection = ({
           </div>
         )}
       </div>
+      <DisplayExtensionZone model="collection" zone="media" data={collection} />
     </Container>
   )
 }

@@ -4,6 +4,8 @@ import { Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "@components/common/action-menu"
 import { DateRangeDisplay } from "@components/common/date-range-display"
 import { NoRecords } from "@components/common/empty-table-content"
@@ -87,6 +89,8 @@ export const CampaignSection = ({
           buttonVariant="transparentIconLeft"
         />
       )}
+
+      <DisplayExtensionZone model="promotion" zone="campaign" data={campaign} />
     </Container>
   )
 }

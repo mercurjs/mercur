@@ -4,6 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import { UIMatch } from "react-router-dom"
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { useDashboardExtension } from "@/extensions"
 import { useReservationItem } from "@hooks/api/reservations"
 import { useInventoryItem } from "@hooks/api"
@@ -67,12 +68,16 @@ export const Component = () => {
       data={reservation}
     >
       <TwoColumnPage.Main>
-        <ReservationGeneralSection reservation={reservation} />
+        <WidgetZone id="reservations.detail.main" data={reservation}>
+          <ReservationGeneralSection reservation={reservation} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        {inventory_item && (
-          <InventoryItemGeneralSection inventoryItem={inventory_item!} />
-        )}
+        <WidgetZone id="reservations.detail.side" data={reservation}>
+          {inventory_item && (
+            <InventoryItemGeneralSection inventoryItem={inventory_item!} />
+          )}
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   )

@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types";
 import { Container, Heading, Text } from "@medusajs/ui";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
 
 import { NoRecords } from "@components/common/empty-table-content";
@@ -108,6 +109,7 @@ export const CustomerAddressSection = ({
           })}
         </div>
       )}
+      <DisplayExtensionZone model="customer" zone="addresses" data={customer} />
     </Container>
   );
 };

@@ -4,6 +4,8 @@ import { HttpTypes } from "@medusajs/types"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { Thumbnail } from "../../../../components/common/thumbnail"
 
 /**
@@ -51,6 +53,11 @@ export const OfferAssociatedProductSection = ({
           </div>
         </Link>
       </div>
+      <DisplayExtensionZone
+        model="offer"
+        zone="associated-product"
+        data={product}
+      />
     </Container>
   )
 }

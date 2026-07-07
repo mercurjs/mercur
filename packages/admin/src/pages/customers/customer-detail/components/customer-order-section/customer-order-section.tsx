@@ -7,6 +7,7 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
 import {
@@ -195,6 +196,7 @@ export const CustomerOrderSection = ({
         queryObject={raw}
         prefix={PREFIX}
       />
+      <DisplayExtensionZone model="customer" zone="orders" data={customer} />
     </Container>
   )
 }

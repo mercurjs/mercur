@@ -3,6 +3,7 @@ import { Container, Heading, Text } from "@medusajs/ui"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { getLocaleAmount } from "@lib/money-amount-helpers"
 import { useOrderCommissionLines } from "@hooks/api/orders"
 
@@ -66,6 +67,7 @@ export const OrderCommissionSection = ({
           {getLocaleAmount(total, order.currency_code)}
         </Text>
       </div>
+      <DisplayExtensionZone model="order" zone="commission" data={order} />
     </Container>
   )
 }

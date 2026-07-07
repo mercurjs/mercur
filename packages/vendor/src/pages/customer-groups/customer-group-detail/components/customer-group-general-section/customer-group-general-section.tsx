@@ -4,6 +4,8 @@ import { Container, Heading, Text, toast, usePrompt } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared";
+
 import { ActionMenu } from "@components/common/action-menu";
 import { useDeleteCustomerGroup } from "@hooks/api/customer-groups";
 
@@ -59,9 +61,11 @@ export const CustomerGroupGeneralSection = ({
         className="flex items-center justify-between px-6 py-4"
         data-testid="customer-group-general-section-header"
       >
-        <Heading data-testid="customer-group-general-section-name">
-          {group.name}
-        </Heading>
+        <DisplayField model="customer_group" zone="general" id="name" data={group}>
+          <Heading data-testid="customer-group-general-section-name">
+            {group.name}
+          </Heading>
+        </DisplayField>
         <ActionMenu
           groups={[
             {
@@ -85,26 +89,39 @@ export const CustomerGroupGeneralSection = ({
           ]}
         />
       </div>
-      <div
-        className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4"
-        data-testid="customer-group-general-section-customers-row"
+      <DisplayField
+        model="customer_group"
+        zone="general"
+        id="customers"
+        data={group}
       >
-        <Text
-          size="small"
-          leading="compact"
-          weight="plus"
-          data-testid="customer-group-general-section-customers-label"
+        <div
+          className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4"
+          data-testid="customer-group-general-section-customers-row"
         >
-          {t("customers.domain")}
-        </Text>
-        <Text
-          size="small"
-          leading="compact"
-          data-testid="customer-group-general-section-customers-value"
-        >
-          {group.customers?.length || "-"}
-        </Text>
-      </div>
+          <Text
+            size="small"
+            leading="compact"
+            weight="plus"
+            data-testid="customer-group-general-section-customers-label"
+          >
+            {t("customers.domain")}
+          </Text>
+          <Text
+            size="small"
+            leading="compact"
+            data-testid="customer-group-general-section-customers-value"
+          >
+            {group.customers?.length || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayExtensionZone
+        model="customer_group"
+        zone="general"
+        data={group}
+        builtInFieldIds={["name", "customers"]}
+      />
     </Container>
   );
 };

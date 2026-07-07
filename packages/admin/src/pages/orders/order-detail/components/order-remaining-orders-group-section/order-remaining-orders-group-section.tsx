@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -93,6 +94,11 @@ export const OrderRemainingOrdersGroupSection = () => {
         noRecords={{
           message: t("orders.group.noOtherOrders"),
         }}
+      />
+      <DisplayExtensionZone
+        model="order"
+        zone="order-group"
+        data={order_group}
       />
     </Container>
   )

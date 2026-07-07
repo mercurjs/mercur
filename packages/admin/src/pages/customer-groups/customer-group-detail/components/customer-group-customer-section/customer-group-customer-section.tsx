@@ -1,6 +1,7 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Button, Checkbox, Container, Heading, usePrompt } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -124,6 +125,11 @@ export const CustomerGroupCustomerSection = ({
         noRecords={{
           message: t("customerGroups.customers.list.noRecordsMessage"),
         }}
+      />
+      <DisplayExtensionZone
+        model="customer_group"
+        zone="customers"
+        data={group}
       />
     </Container>
   )

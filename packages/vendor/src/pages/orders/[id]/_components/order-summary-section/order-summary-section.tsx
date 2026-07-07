@@ -35,6 +35,7 @@ import {
   toast,
 } from "@medusajs/ui"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { useOrderPreview } from "../../../../../hooks/api/orders"
 import { useReservationItems } from "../../../../../hooks/api/reservations"
@@ -220,6 +221,7 @@ export const OrderSummarySection = ({
       )}
 
       <OutstandingActions order={order} />
+      <DisplayExtensionZone model="order" zone="summary" data={order} />
     </Container>
   )
 }

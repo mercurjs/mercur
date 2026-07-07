@@ -1,9 +1,11 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Input, Text } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared"
 import { HttpTypes } from "@medusajs/types"
 import { Form } from "../../../../../components/common/form"
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
@@ -23,12 +25,14 @@ export const EditCollectionForm = ({ collection }: EditCollectionFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const form = useForm<zod.infer<typeof EditCollectionSchema>>({
+  const form = useExtendableForm({
+    schema: EditCollectionSchema,
+    model: "collection",
+    data: collection,
     defaultValues: {
       title: collection.title,
       handle: collection.handle,
     },
-    resolver: zodResolver(EditCollectionSchema),
   })
 
   const { mutateAsync, isPending } = useUpdateCollection(collection.id)
@@ -89,6 +93,12 @@ export const EditCollectionForm = ({ collection }: EditCollectionFormProps) => {
                   </Form.Item>
                 )
               }}
+            />
+            <FormExtensionZone
+              model="collection"
+              zone="edit"
+              control={form.control}
+              data={collection}
             />
           </div>
         </RouteDrawer.Body>

@@ -1,5 +1,6 @@
 import { Container, Heading } from "@medusajs/ui"
 import { PencilSquare } from "@medusajs/icons"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import type { ExtendedAdminInventoryItem } from "@custom-types/inventory"
 import { ActionMenu } from "@components/common/action-menu"
@@ -45,6 +46,11 @@ export const InventoryItemAttributeSection = ({
         title={t("fields.countryOfOrigin")}
         value={getFormattedCountry(inventoryItem.origin_country)}
         data-testid="inventory-item-country-of-origin-row"
+      />
+      <DisplayExtensionZone
+        model="inventory_item"
+        zone="attributes"
+        data={inventoryItem}
       />
     </Container>
   )

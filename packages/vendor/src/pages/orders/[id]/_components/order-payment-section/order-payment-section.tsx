@@ -11,6 +11,7 @@ import {
 
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { getLocaleAmount, getStylizedAmount } from "@lib/money-amount-helpers"
 import { getOrderPaymentStatus } from "@lib/order-helpers"
@@ -50,6 +51,7 @@ export const OrderPaymentSection = ({ order }: OrderPaymentSectionProps) => {
         </ul>
       )}
       <Total order={order} />
+      <DisplayExtensionZone model="order" zone="payment" data={order} />
     </Container>
   )
 }

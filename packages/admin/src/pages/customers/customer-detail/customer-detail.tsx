@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { useCustomer } from "../../../hooks/api/customers"
@@ -35,12 +36,16 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage data={customer} hasOutlet showJSON showMetadata>
       <TwoColumnPage.Main>
-        <CustomerGeneralSection customer={customer} />
-        <CustomerOrderSection customer={customer} />
-        <CustomerGroupSection customer={customer} />
+        <WidgetZone id="customers.detail.main" data={customer}>
+          <CustomerGeneralSection customer={customer} />
+          <CustomerOrderSection customer={customer} />
+          <CustomerGroupSection customer={customer} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <CustomerAddressSection customer={customer} />
+        <WidgetZone id="customers.detail.side" data={customer}>
+          <CustomerAddressSection customer={customer} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   )

@@ -1,6 +1,10 @@
 import { useTranslation } from "react-i18next";
 import { keepPreviousData } from "@tanstack/react-query";
+import { type ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
+
+import { HttpTypes } from "@mercurjs/types";
+import { useExtendableTable } from "@mercurjs/dashboard-shared";
 
 import { _DataTable } from "@components/table/data-table";
 import { useCollections } from "@hooks/api/collections";
@@ -26,8 +30,12 @@ export const CollectionListDataTable = () => {
     },
   );
 
-  const filters = useCollectionTableFilters();
-  const columns = useColumns();
+  const baseFilters = useCollectionTableFilters();
+  const { columns, filters: extFilters } = useColumns();
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  );
 
   const { table } = useDataTable({
     data: collections ?? [],
@@ -69,8 +77,16 @@ export const CollectionListDataTable = () => {
   );
 };
 
+type CollectionRow = HttpTypes.VendorCollectionResponse["collection"];
+
 const useColumns = () => {
   const base = useCollectionTableColumns();
+  const { columns: extended, filters } = useExtendableTable<CollectionRow>({
+    model: "collection",
+    columns: base as unknown as ColumnDef<CollectionRow, unknown>[],
+  });
 
-  return useMemo(() => [...base], [base]);
+  const columns = useMemo(() => [...extended], [extended]);
+
+  return { columns, filters };
 };

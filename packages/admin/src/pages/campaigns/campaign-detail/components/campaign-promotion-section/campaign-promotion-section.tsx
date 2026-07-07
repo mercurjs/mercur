@@ -5,6 +5,7 @@ import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -118,6 +119,8 @@ export const CampaignPromotionSection = ({
         }}
         data-testid="campaign-promotion-section-table"
       />
+
+      <DisplayExtensionZone model="campaign" zone="promotions" data={campaign} />
     </Container>
   )
 }

@@ -1,3 +1,4 @@
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
@@ -48,13 +49,17 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage showJSON showMetadata data={product_category} data-testid="category-detail-page">
       <TwoColumnPage.Main>
-        <CategoryGeneralSection category={product_category} />
-        <CategoryMediaSection category={product_category} />
-        <CategoryIconSection category={product_category} />
-        <CategoryProductSection category={product_category} />
+        <WidgetZone id="categories.detail.main" data={product_category}>
+          <CategoryGeneralSection category={product_category} />
+          <CategoryMediaSection category={product_category} />
+          <CategoryIconSection category={product_category} />
+          <CategoryProductSection category={product_category} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <CategoryOrganizeSection category={product_category} />
+        <WidgetZone id="categories.detail.side" data={product_category}>
+          <CategoryOrganizeSection category={product_category} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   )

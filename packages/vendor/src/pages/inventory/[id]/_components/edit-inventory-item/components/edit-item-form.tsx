@@ -1,16 +1,16 @@
-import * as zod from "zod"
-
 import { Button, Input, toast } from "@medusajs/ui"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 
-import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 import { Form } from "@components/common/form"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useUpdateInventoryItem } from "@hooks/api/inventory"
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared"
 
 type EditInventoryItemFormProps = {
   item: HttpTypes.AdminInventoryItem
@@ -31,9 +31,11 @@ const getDefaultValues = (item: HttpTypes.AdminInventoryItem) => {
 export const EditInventoryItemForm = ({ item }: EditInventoryItemFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
-  const form = useForm<zod.infer<typeof EditInventoryItemSchema>>({
+  const form = useExtendableForm({
+    schema: EditInventoryItemSchema,
+    model: "inventory_item",
+    data: item,
     defaultValues: getDefaultValues(item),
-    resolver: zodResolver(EditInventoryItemSchema),
   })
 
   const { mutateAsync, isPending: isLoading } = useUpdateInventoryItem(item.id)
@@ -84,6 +86,12 @@ export const EditInventoryItemForm = ({ item }: EditInventoryItemFormProps) => {
                 </Form.Item>
               )
             }}
+          />
+          <FormExtensionZone
+            model="inventory_item"
+            zone="edit"
+            control={form.control}
+            data={item}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

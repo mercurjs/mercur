@@ -8,7 +8,7 @@ import type {
   SectionAction,
 } from "@mercurjs/dashboard-sdk"
 
-export type WidgetPlacement = "before" | "after" | "replace"
+export type WidgetPlacement = "before" | "after"
 
 export type Widget = {
   Component: ComponentType<{ data?: unknown }>
@@ -30,11 +30,10 @@ type ResolvedWidget = { Component: Widget["Component"]; widgetId: string }
 
 export type ZoneWidgets = {
   before: ResolvedWidget[]
-  replace?: ResolvedWidget
   after: ResolvedWidget[]
 }
 
-const PLACEMENTS: WidgetPlacement[] = ["before", "after", "replace"]
+const PLACEMENTS: WidgetPlacement[] = ["before", "after"]
 
 function splitZone(zone: string): { slot: string; placement: WidgetPlacement } {
   const lastDot = zone.lastIndexOf(".")
@@ -89,12 +88,7 @@ export class ExtensionRegistry {
           Component: widget.Component,
           widgetId: widget.widgetId,
         }
-        if (placement === "replace") {
-          // Last registered replace wins; keep it deterministic.
-          entry.replace = resolved
-        } else {
-          entry[placement].push(resolved)
-        }
+        entry[placement].push(resolved)
       }
     }
   }

@@ -18,6 +18,7 @@ import {
 import { useTranslation } from "react-i18next";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { ProductAttributeDTO, ProductDTO } from "@mercurjs/types";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { useRemoveAttributeFromProduct } from "../../../../../hooks/api/products";
 
 type ProductWithAttributes = Pick<ProductDTO, "id" | "attributes">;
@@ -271,6 +272,7 @@ export const ProductAttributeSection = ({
           productId={product.id}
         />
       )}
+      <DisplayExtensionZone model="product" zone="attributes" data={product} />
     </Container>
   );
 };

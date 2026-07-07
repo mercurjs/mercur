@@ -3,6 +3,7 @@ import { Container, Heading, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
 import { InferClientOutput } from "@mercurjs/client";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { sdk } from "@lib/client";
 
 import { ActionMenu } from "../../../../components/common/action-menu";
@@ -81,6 +82,7 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
           </Text>
         </div>
       )}
+      <DisplayExtensionZone model="store" zone="address" data={seller} />
     </Container>
   );
 };

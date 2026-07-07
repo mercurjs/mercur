@@ -1,11 +1,13 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Input, Select, Textarea, toast } from "@medusajs/ui"
 import i18n from "i18next"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
 import { HttpTypes } from "@medusajs/types"
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared"
 import { Form } from "../../../../../components/common/form"
 import { HandleInput } from "../../../../../components/inputs/handle-input"
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
@@ -29,7 +31,10 @@ export const EditCategoryForm = ({ category }: EditCategoryFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
   const direction = useDocumentDirection()
-  const form = useForm<z.infer<typeof EditCategorySchema>>({
+  const form = useExtendableForm({
+    schema: EditCategorySchema,
+    model: "category",
+    data: category,
     defaultValues: {
       name: category.name,
       handle: category.handle,
@@ -37,7 +42,6 @@ export const EditCategoryForm = ({ category }: EditCategoryFormProps) => {
       status: category.is_active ? "active" : "inactive",
       visibility: category.is_internal ? "internal" : "public",
     },
-    resolver: zodResolver(EditCategorySchema),
   })
 
   const { mutateAsync, isPending } = useUpdateProductCategory(category.id)
@@ -185,6 +189,12 @@ export const EditCategoryForm = ({ category }: EditCategoryFormProps) => {
                 }}
               />
             </div>
+            <FormExtensionZone
+              model="category"
+              zone="edit"
+              control={form.control}
+              data={category}
+            />
           </div>
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

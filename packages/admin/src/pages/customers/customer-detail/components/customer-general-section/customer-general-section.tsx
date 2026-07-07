@@ -11,8 +11,11 @@ import {
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useDeleteCustomer } from "../../../../../hooks/api/customers"
+
+const GENERAL_FIELD_IDS = ["email", "status", "name", "company_name", "phone"]
 
 export const CustomerGeneralSection = ({
   customer,
@@ -69,9 +72,13 @@ export const CustomerGeneralSection = ({
   return (
     <Container className="divide-y p-0" data-testid="customer-general-section">
       <div className="flex items-center justify-between px-6 py-4" data-testid="customer-general-section-header">
-        <Heading data-testid="customer-general-section-email">{customer.email}</Heading>
+        <DisplayField model="customer" zone="general" id="email" data={customer}>
+          <Heading data-testid="customer-general-section-email">{customer.email}</Heading>
+        </DisplayField>
         <div className="flex items-center gap-x-2" data-testid="customer-general-section-actions">
-          <StatusBadge color={statusColor} data-testid="customer-general-section-status-badge">{statusText}</StatusBadge>
+          <DisplayField model="customer" zone="general" id="status" data={customer}>
+            <StatusBadge color={statusColor} data-testid="customer-general-section-status-badge">{statusText}</StatusBadge>
+          </DisplayField>
           <ActionMenu
             data-testid="customer-general-section-action-menu"
             groups={[
@@ -97,30 +104,42 @@ export const CustomerGeneralSection = ({
           />
         </div>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-general-section-name-row">
-        <Text size="small" leading="compact" weight="plus" data-testid="customer-general-section-name-label">
-          {t("fields.name")}
-        </Text>
-        <Text size="small" leading="compact" data-testid="customer-general-section-name-value">
-          {name || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-general-section-company-row">
-        <Text size="small" leading="compact" weight="plus" data-testid="customer-general-section-company-label">
-          {t("fields.company")}
-        </Text>
-        <Text size="small" leading="compact" data-testid="customer-general-section-company-value">
-          {customer.company_name || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-general-section-phone-row">
-        <Text size="small" leading="compact" weight="plus" data-testid="customer-general-section-phone-label">
-          {t("fields.phone")}
-        </Text>
-        <Text size="small" leading="compact" data-testid="customer-general-section-phone-value">
-          {customer.phone || "-"}
-        </Text>
-      </div>
+      <DisplayField model="customer" zone="general" id="name" data={customer}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-general-section-name-row">
+          <Text size="small" leading="compact" weight="plus" data-testid="customer-general-section-name-label">
+            {t("fields.name")}
+          </Text>
+          <Text size="small" leading="compact" data-testid="customer-general-section-name-value">
+            {name || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayField model="customer" zone="general" id="company_name" data={customer}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-general-section-company-row">
+          <Text size="small" leading="compact" weight="plus" data-testid="customer-general-section-company-label">
+            {t("fields.company")}
+          </Text>
+          <Text size="small" leading="compact" data-testid="customer-general-section-company-value">
+            {customer.company_name || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayField model="customer" zone="general" id="phone" data={customer}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-general-section-phone-row">
+          <Text size="small" leading="compact" weight="plus" data-testid="customer-general-section-phone-label">
+            {t("fields.phone")}
+          </Text>
+          <Text size="small" leading="compact" data-testid="customer-general-section-phone-value">
+            {customer.phone || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayExtensionZone
+        model="customer"
+        zone="general"
+        data={customer}
+        builtInFieldIds={GENERAL_FIELD_IDS}
+      />
     </Container>
   )
 }

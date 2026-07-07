@@ -1,6 +1,8 @@
 import { ReactNode, Children } from "react"
 import { useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { usePriceList } from "../../../hooks/api/price-lists"
@@ -30,11 +32,15 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage data={price_list} showJSON data-testid="price-list-detail-page">
       <TwoColumnPage.Main>
-        <PriceListGeneralSection priceList={price_list} />
-        <PriceListProductSection priceList={price_list} />
+        <WidgetZone id="price-lists.detail.main" data={price_list}>
+          <PriceListGeneralSection priceList={price_list} />
+          <PriceListProductSection priceList={price_list} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <PriceListConfigurationSection priceList={price_list} />
+        <WidgetZone id="price-lists.detail.side" data={price_list}>
+          <PriceListConfigurationSection priceList={price_list} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   )

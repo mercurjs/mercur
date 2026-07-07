@@ -9,6 +9,7 @@ import { useOrderTableColumns } from "../../../../hooks/table/columns/use-order-
 import { useOrderTableFilters } from "../../../../hooks/table/filters/use-order-table-filters";
 import { useOrderTableQuery } from "../../../../hooks/table/query/use-order-table-query";
 import { useDataTable } from "../../../../hooks/use-data-table";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 
 const PAGE_SIZE = 10;
 const PREFIX = "store-orders";
@@ -93,6 +94,7 @@ export const StoreOrdersSection = ({ sellerId }: StoreOrdersSectionProps) => {
           icon: <ShoppingCart className="text-ui-fg-subtle" />,
         }}
       />
+      <DisplayExtensionZone model="store" zone="orders" data={sellerId} />
     </Container>
   );
 };

@@ -3,6 +3,8 @@ import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "@components/common/action-menu"
 import { useDeletePriceListAction } from "../../../common/hooks/use-delete-price-list-action"
 import { getPriceListStatus } from "../../../common/utils"
@@ -30,9 +32,13 @@ export const PriceListGeneralSection = ({
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>{priceList.title}</Heading>
+        <DisplayField model="price_list" zone="general" id="title" data={priceList}>
+          <Heading>{priceList.title}</Heading>
+        </DisplayField>
         <div className="flex items-center gap-x-4">
-          <StatusBadge color={color}>{text}</StatusBadge>
+          <DisplayField model="price_list" zone="general" id="status" data={priceList}>
+            <StatusBadge color={color}>{text}</StatusBadge>
+          </DisplayField>
           <ActionMenu
             groups={[
               {
@@ -57,30 +63,48 @@ export const PriceListGeneralSection = ({
           />
         </div>
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text leading="compact" size="small" weight="plus">
-          {t("fields.type")}
-        </Text>
-        <Text size="small" className="text-pretty">
-          {type}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text leading="compact" size="small" weight="plus">
-          {t("fields.description")}
-        </Text>
-        <Text size="small" className="text-pretty">
-          {priceList.description}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text leading="compact" size="small" weight="plus">
-          {t("priceLists.fields.priceOverrides.label")}
-        </Text>
-        <Text size="small" className="text-pretty">
-          {overrideCount || "-"}
-        </Text>
-      </div>
+      <DisplayField model="price_list" zone="general" id="type" data={priceList}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+          <Text leading="compact" size="small" weight="plus">
+            {t("fields.type")}
+          </Text>
+          <Text size="small" className="text-pretty">
+            {type}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayField model="price_list" zone="general" id="description" data={priceList}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+          <Text leading="compact" size="small" weight="plus">
+            {t("fields.description")}
+          </Text>
+          <Text size="small" className="text-pretty">
+            {priceList.description}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayField model="price_list" zone="general" id="price_overrides" data={priceList}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+          <Text leading="compact" size="small" weight="plus">
+            {t("priceLists.fields.priceOverrides.label")}
+          </Text>
+          <Text size="small" className="text-pretty">
+            {overrideCount || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayExtensionZone
+        model="price_list"
+        zone="general"
+        data={priceList}
+        builtInFieldIds={[
+          "title",
+          "status",
+          "type",
+          "description",
+          "price_overrides",
+        ]}
+      />
     </Container>
   )
 }

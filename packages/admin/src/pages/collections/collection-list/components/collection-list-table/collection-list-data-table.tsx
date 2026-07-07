@@ -1,6 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
+import { useExtendableTable } from "@mercurjs/dashboard-shared"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -26,8 +27,12 @@ export const CollectionListDataTable = () => {
     }
   )
 
-  const filters = useCollectionTableFilters()
-  const columns = useColumns()
+  const baseFilters = useCollectionTableFilters()
+  const { columns, filters: extFilters } = useColumns()
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters]
+  )
 
   const { table } = useDataTable({
     data: collections ?? [],
@@ -67,15 +72,21 @@ const columnHelper = createColumnHelper<HttpTypes.AdminCollection>()
 
 const useColumns = () => {
   const base = useCollectionTableColumns()
+  const { columns: extended, filters } = useExtendableTable<HttpTypes.AdminCollection>({
+    model: "collection",
+    columns: base as unknown as ColumnDef<HttpTypes.AdminCollection, unknown>[],
+  })
 
-  return useMemo(
+  const columns = useMemo(
     () => [
-      ...base,
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => <CollectionRowActions collection={row.original} />,
       }),
     ],
-    [base]
+    [extended]
   )
+
+  return { columns, filters }
 }

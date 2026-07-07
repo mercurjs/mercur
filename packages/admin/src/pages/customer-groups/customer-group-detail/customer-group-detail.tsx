@@ -1,5 +1,6 @@
 import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useCustomerGroup } from "../../../hooks/api/customer-groups"
@@ -38,8 +39,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage showJSON showMetadata data={customer_group}>
-      <CustomerGroupGeneralSection group={customer_group} />
-      <CustomerGroupCustomerSection group={customer_group} />
+      <WidgetZone id="customer-groups.detail.main" data={customer_group}>
+        <CustomerGroupGeneralSection group={customer_group} />
+        <CustomerGroupCustomerSection group={customer_group} />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

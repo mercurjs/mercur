@@ -1,6 +1,7 @@
 import { PencilSquare, Plus, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Checkbox, Container, Heading, toast, usePrompt } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -141,6 +142,7 @@ export const CollectionProductSection = ({
           message: t("collections.products.list.noRecordsMessage"),
         }}
       />
+      <DisplayExtensionZone model="collection" zone="products" data={collection} />
     </Container>
   )
 }

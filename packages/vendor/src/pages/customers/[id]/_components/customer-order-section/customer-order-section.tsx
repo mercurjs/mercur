@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types";
 import { Container, Heading } from "@medusajs/ui";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { _DataTable } from "@components/table/data-table";
@@ -85,6 +86,7 @@ export const CustomerOrderSection = ({
         queryObject={raw}
         prefix={PREFIX}
       />
+      <DisplayExtensionZone model="customer" zone="orders" data={customer} />
     </Container>
   );
 };

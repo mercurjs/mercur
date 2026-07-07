@@ -5,7 +5,8 @@ import { useDataTable } from "@hooks/use-data-table";
 import { IconButton, clx } from "@medusajs/ui";
 import { TriangleRightMini } from "@medusajs/icons";
 import { keepPreviousData } from "@tanstack/react-query";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { useExtendableTable } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -127,8 +128,12 @@ export const OrderListDataTable = () => {
     [order_groups, t],
   );
 
-  const filters = useOrderGroupTableFilters();
-  const columns = useColumns();
+  const baseFilters = useOrderGroupTableFilters();
+  const { columns, filters: extFilters } = useColumns();
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  );
 
   const { table } = useDataTable({
     data: rows,
@@ -183,7 +188,7 @@ const columnHelper = createColumnHelper<OrderGroupRow>();
 const useColumns = () => {
   const { t } = useTranslation();
 
-  return useMemo(
+  const base = useMemo(
     () => [
       columnHelper.accessor("display_id", {
         header: () => <TextHeader text={t("orders.fields.groupId")} />,
@@ -281,4 +286,11 @@ const useColumns = () => {
     ],
     [t],
   );
+
+  const { columns: extended, filters } = useExtendableTable<OrderGroupRow>({
+    model: "order",
+    columns: base as unknown as ColumnDef<OrderGroupRow, unknown>[],
+  });
+
+  return { columns: extended, filters };
 };

@@ -2,6 +2,8 @@ import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import {
   CollectionWithImages,
   getCollectionIcon,
@@ -49,6 +51,7 @@ export const CollectionIconSection = ({
           </div>
         )}
       </div>
+      <DisplayExtensionZone model="collection" zone="icon" data={collection} />
     </Container>
   )
 }

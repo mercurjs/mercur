@@ -24,6 +24,7 @@ import {
   Tooltip,
   usePrompt,
 } from "@medusajs/ui";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { format } from "date-fns";
 import { Trans, useTranslation } from "react-i18next";
 
@@ -54,6 +55,7 @@ export const OrderPaymentSection = ({ order }: OrderPaymentSectionProps) => {
       />
 
       <Total order={order} />
+      <DisplayExtensionZone model="order" zone="payment" data={order} />
     </Container>
   );
 };

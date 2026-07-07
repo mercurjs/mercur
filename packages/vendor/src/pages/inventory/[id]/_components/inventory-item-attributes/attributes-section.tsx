@@ -1,5 +1,7 @@
 import { Container, Heading } from "@medusajs/ui"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "@components/common/action-menu"
 import { InventoryTypes } from "@medusajs/types"
 import { PencilSquare } from "@medusajs/icons"
@@ -43,6 +45,11 @@ export const InventoryItemAttributeSection = ({
       <SectionRow
         title={t("fields.countryOfOrigin")}
         value={getFormattedCountry(inventoryItem.origin_country)}
+      />
+      <DisplayExtensionZone
+        model="inventory_item"
+        zone="attributes"
+        data={inventoryItem}
       />
     </Container>
   )
