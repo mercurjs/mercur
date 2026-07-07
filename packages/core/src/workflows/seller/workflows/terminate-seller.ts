@@ -5,6 +5,7 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
+import { AdditionalData } from "@medusajs/framework/types"
 import { SellerStatus } from "@mercurjs/types"
 
 import { validateTerminateSellerStep, updateSellersStep } from "../steps"
@@ -15,7 +16,7 @@ export const terminateSellerWorkflowId = "terminate-seller"
 type TerminateSellerWorkflowInput = {
   seller_id: string
   reason?: string
-}
+} & AdditionalData
 
 export const terminateSellerWorkflow = createWorkflow(
   terminateSellerWorkflowId,
@@ -48,6 +49,7 @@ export const terminateSellerWorkflow = createWorkflow(
 
     const sellerTerminated = createHook("sellerTerminated", {
       seller_id: input.seller_id,
+      additional_data: input.additional_data,
     })
 
     return new WorkflowResponse(void 0, { hooks: [sellerTerminated] })

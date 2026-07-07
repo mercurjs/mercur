@@ -22,7 +22,14 @@ export type CreateAndLinkProductAttributesWorkflowHooks = [
     { input: CreateAndLinkProductAttributesWorkflowInput },
     unknown
   >,
-  Hook<"productAttributesLinked", { product_id: string }, unknown>,
+  Hook<
+    "productAttributesLinked",
+    {
+      product_id: string
+      additional_data: Record<string, unknown> | undefined
+    },
+    unknown
+  >,
 ]
 
 export const createAndLinkProductAttributesToProductWorkflowId =
@@ -57,6 +64,7 @@ export const createAndLinkProductAttributesToProductWorkflow: ReturnWorkflow<
 
     const productAttributesLinked = createHook("productAttributesLinked", {
       product_id: input.product_id,
+      additional_data: input.additional_data,
     })
 
     return new WorkflowResponse(void 0, {

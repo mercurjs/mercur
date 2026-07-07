@@ -16,6 +16,7 @@ export const POST = async (
     input: {
       seller_id: req.params.id,
       reason: req.validatedBody.reason,
+      additional_data: req.validatedBody.additional_data,
     },
   })
 

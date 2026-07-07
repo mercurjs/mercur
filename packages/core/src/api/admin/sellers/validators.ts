@@ -95,15 +95,30 @@ export const UpdateSeller = z.object({
 })
 export const AdminUpdateSeller = WithAdditionalData(UpdateSeller)
 
-export type AdminSuspendSellerType = z.infer<typeof AdminSuspendSeller>
-export const AdminSuspendSeller = z.object({
+const SuspendSeller = z.object({
   reason: z.string().optional(),
 })
+export type AdminSuspendSellerType = z.infer<typeof SuspendSeller> &
+  AdditionalData
+export const AdminSuspendSeller = WithAdditionalData(SuspendSeller)
 
-export type AdminTerminateSellerType = z.infer<typeof AdminTerminateSeller>
-export const AdminTerminateSeller = z.object({
+const TerminateSeller = z.object({
   reason: z.string().optional(),
 })
+export type AdminTerminateSellerType = z.infer<typeof TerminateSeller> &
+  AdditionalData
+export const AdminTerminateSeller = WithAdditionalData(TerminateSeller)
+
+const SellerLifecycleAction = z.object({})
+export type AdminApproveSellerType = z.infer<typeof SellerLifecycleAction> &
+  AdditionalData
+export const AdminApproveSeller = WithAdditionalData(SellerLifecycleAction)
+export type AdminUnsuspendSellerType = z.infer<typeof SellerLifecycleAction> &
+  AdditionalData
+export const AdminUnsuspendSeller = WithAdditionalData(SellerLifecycleAction)
+export type AdminUnterminateSellerType = z.infer<typeof SellerLifecycleAction> &
+  AdditionalData
+export const AdminUnterminateSeller = WithAdditionalData(SellerLifecycleAction)
 
 export type AdminAddSellerMemberType = z.infer<typeof AdminAddSellerMember>
 export const AdminAddSellerMember = z.object({
