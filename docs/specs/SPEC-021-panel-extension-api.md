@@ -3,7 +3,7 @@ status: not_started
 canonical: true
 area: framework/dx
 created: 2026-07-06
-last_updated: 2026-07-06
+last_updated: 2026-07-07
 ---
 
 # SPEC-021 New Extension API for Admin & Vendor Panels
@@ -50,7 +50,8 @@ mirrors Medusa admin's helpers (`defineWidgetConfig`, `defineRouteConfig`,
 inventing a Vendure-style single `defineDashboardExtension({...})` config tree.
 The names are re-exported from `@mercurjs/dashboard-sdk` (without Medusa's
 `unstable_` prefix); the semantics are extended where Mercur needs more (e.g. the
-`order: before | after | replace` placement field).
+`before | after | replace` placement suffix and a numeric `rank` for ordering
+multiple contributions).
 
 The admin and vendor panels are **separate Vite apps**, each with its own host
 `src/`. A file dropped into a panel already targets that panel, so there is **no
@@ -119,7 +120,9 @@ export default defineNavigationConfig({
   sub-items (e.g. `offers` / `collections` / `categories` under Products,
   `campaigns` under Promotions, `customer-groups` under Customers). The id
   namespace is flat: nested items are addressed by their own id, not a path. The
-  full set is generated and typed (`NavItemId`) — see the Codegen subsection
+  full set is typed as `NavItemId`, generated into the panel's shipped
+  `extension-targets.d.ts` from its `useCoreRoutes()` ids — see the Typed-targets
+  subsection
   under §6.
 - `nested` **re-parents** a built-in item: `nested: "products"` moves it under
   Products' children, `nested: null` promotes a nested item to top level. It is
@@ -136,10 +139,10 @@ export default defineNavigationConfig({
   layer: custom routes place themselves; `_navigation.ts` overrides built-ins.
   Both feed the existing `virtual:mercur/menu-items` rank system.
 - Authored with the typed `defineNavigationConfig` helper: `id` and `nested` are
-  checked against the generated `NavItemId` registry (Design Principle #4), the
-  same way `defineWidgetConfig`'s `zone` is checked against `WidgetZoneId`. The
-  crawl would accept a bare object, but the helper makes typos and invalid targets
-  fail type-check.
+  checked against the generated `NavItemId` / `NavParentId` unions (Design
+  Principle #4), the same way `defineWidgetConfig`'s `zone` is checked against
+  `WidgetZoneId`. The crawl would accept a bare object, but the helper makes typos
+  and invalid targets fail type-check.
 
 ### 2. Widgets (injection zones)
 
@@ -156,10 +159,13 @@ export default ProductListBanner;
 
 - Follows Medusa's `zone: "product.list.before"` string convention: the
   placement (`before | after | replace`) is the last segment of the zone id, so
-  there is no separate `order` field.
-- Zones exist on list, detail, create, and edit views. The typed registry of
-  zone ids (`WidgetZoneId`) is **generated** from the built-in pages by the same
-  codegen that types custom-field targets — see the Codegen subsection under §6.
+  there is no separate `rank` field.
+- Zones exist on list, detail, create, and edit views. The typed set of zone ids
+  (`WidgetZoneId = keyof WidgetZoneRegistry`) is **generated** by a script in the
+  panel package: the panel ships `extension-targets.d.ts` seeding the built-in
+  zones (derived from its `<WidgetZone>` host usages). A developer's own custom
+  zone is added by hand `declare module` augmentation (no end-project codegen for
+  the MVP) — see the Typed-targets subsection under §6.
 - `replace` swaps the built-in content of that zone; multiple `before`/`after`
   widgets stack in registration order (ties broken deterministically).
 - **Subsumes** the old standalone Login and Toolbar surfaces: global topbar
@@ -294,7 +300,7 @@ export default defineCustomFieldsConfig({
       fields: [
         { id: "erp_id", component }, // ADD a read-only field to the section
         { id: "status", component: BrandedStatusBadge }, // REPLACE an existing field's render
-        { id: "created_by", hidden: true }, // REMOVE a built-in field from the section
+        { id: "created_by", component: null }, // REMOVE a built-in field (render nothing)
       ],
       actions: [
         // §4: section ActionMenu contributions — same { rank?, component } api as list bulkActions
@@ -318,8 +324,9 @@ array / object / null / nullable / coerce` (Medusa's surface, no `unstable_`).
   from the core validators — no "Unrecognized fields" rejection on the built-in
   route.
 - `displays` is the model's read/section surface:
-  - `fields`: add a new read-only field, replace a built-in field's render
-    (`component`), or remove it (`hidden`), keyed by field `id`.
+  - `fields`: add a new read-only field, replace a built-in field's render, or
+    remove it by rendering nothing (`component: null`), keyed by field `id`. There
+    is no separate `hidden` flag — a `null` component is the removal.
   - `actions`: add entries to that section's `ActionMenu` (this is §4, folded
     in). Each entry is `{ rank?, component }` — the **same api as list
     `bulkActions`**, no `hidden`/`id` — with the `component` owning its own label,
@@ -345,117 +352,117 @@ array / object / null / nullable / coerce` (Medusa's surface, no `unstable_`).
   (e.g. `productsCreated` / update hooks) is a per-model design decision to be
   resolved in the sub-spec; start with `product` only.
 
-### Codegen — typed targets for `defineCustomFieldsConfig`, `defineWidgetConfig`, and `defineNavigationConfig`
+### Typed targets — panel-generated `extension-targets.d.ts` + runtime registry
 
-The valid `model` values and, **per model**, the valid form `zone`s, form `tab`s,
-`displays` `zone`s, and `displays[].fields` ids are not
-hand-maintained union types — they are **generated** from the built-in pages at
-build time, the same way Mercur already generates the API route map
-(`mercurjs codegen` → `packages/core-plugin/.mercur/_generated`), emitting the
-declaration file `.mercur/custom-fields.d.ts`. The same crawl
-also emits the valid **widget `zone` ids** consumed by `defineWidgetConfig` (§2)
-and the **built-in nav item ids** consumed by `defineNavigationConfig` (§1).
-This is what makes Design Principle #4 (Typed) real: a typo in a
-zone/tab/field/nav id, or targeting a model/page that doesn't expose that
-zone, fails type-check instead of silently no-op'ing at runtime.
+Design Principle #4 (Typed) is delivered by **generating** the valid target-id
+unions from the real built-in pages, rather than hand-writing them. The key idea:
+the zone **host component** a built-in page renders — `<WidgetZone id="…" />` (and
+the equivalent display/form hosts) — is the **single declaration point** for a
+zone. From that one usage, two things derive:
 
-- **What it emits.** A generated declaration module
-  (`.mercur/custom-fields.d.ts`) exporting a per-model registry:
+- *Runtime:* the host resolves contributions against the `DashboardAPI` singleton
+  via `useExtension().getWidgets(id)` (below).
+- *Build time (in the panel package only):* a derive step scans those host usages
+  and generates a `.d.ts` (`@mercurjs/{admin,vendor}/extension-targets.d.ts`)
+  seeding the built-in ids into open **registry interfaces**, shipped in the
+  package types (below).
+
+So a zone that no page renders as a host cannot be targeted and never enters the
+types — the pages are the source of truth, and there is no separate hand-written
+zone registry to keep in sync. The codegen runs **only when the panel package is
+built**; the end developer never runs a crawl. This is the same crawl→template→
+write shape as Mercur's CLI route codegen
+(`packages/cli/src/codegen/index.ts::writeRouteTypes` → `.mercur/routes.d.ts`),
+except the output is a shipped `.d.ts` of open interfaces (declaration-merge
+target) rather than a JSON file re-read in the consuming app. A typo in a
+zone/tab/field/nav id, or targeting a model/page that doesn't expose that zone,
+fails `tsc` instead of silently no-op'ing at runtime.
+
+- **Baseline registry per panel — a generated `.d.ts`, not JSON.** Each panel owns
+  a small generator **script** (e.g. `packages/vendor/scripts/generate-extension-targets.ts`,
+  and the admin equivalent) wired as a prebuild step in that package's `build`
+  (before `tsup`). It scans `packages/{admin,vendor}/src/pages/**` for the
+  `<WidgetZone id>` / display / form host usages plus the `useCoreRoutes()` nav ids
+  (reusing the dashboard-sdk babel helpers — `parse`/`traverse`, `crawlRoutes`) and
+  writes `src/extension-targets.d.ts`, shipped in the package types as
+  `@mercurjs/{admin,vendor}/extension-targets.d.ts`. It seeds the built-in ids into
+  **registry interfaces**; the helper types read the union off the interface keys
+  (`type WidgetZoneId = keyof WidgetZoneRegistry`), so the panel ships the built-in
+  half as an open interface an end project can extend:
 
   ```ts
-  // GENERATED — do not edit
-  export interface CustomFieldsRegistry {
-    product: {
-      formZones: "create" | "edit" | "organize" | "attributes"
-      formTabs: { create: "general" | "organize"; edit: never; /* … */ }
-      displayZones: "general" | "organize" | "attributes"
-      displayFields: { general: "title" | "status" | "created_by" | /* … */ }
+  // @mercurjs/vendor/extension-targets.d.ts — GENERATED at panel build from host usages
+  declare module "@mercurjs/dashboard-sdk" {
+    interface WidgetZoneRegistry {
+      "product.list.before": true
+      "product.list.after": true
+      "topbar.before": true
+      "login.logo.replace": true
     }
-    seller: {
-      formZones: "onboarding" | "edit"
-      formTabs: { onboarding: "store-details" | "payment" | /* wizard step ids */ }
-      /* … */
+    interface NavItemRegistry { orders: true; products: true; categories: true; campaigns: true /* … */ }
+    interface NavParentRegistry { orders: true; products: true; customers: true; promotions: true; "price-lists": true }
+    interface CustomFieldsRegistry {
+      product: {
+        formZones: "create" | "edit" | "organize" | "attributes"
+        formTabs: { create: "general" | "organize"; edit: never }
+        displayZones: "general" | "organize" | "attributes"
+      }
     }
-    // … one entry per model that exposes custom-field/zone hosts
   }
   ```
 
-  `defineCustomFieldsConfig<TModel>` is generic over the model and constrains
-  every `zone`/`tab`/`id` against `CustomFieldsRegistry[TModel]`, so
-  `createFormHelper` and the config literal autocomplete the real ids and reject
-  invalid ones.
+  `defineWidgetConfig` types `zone` as `WidgetZoneId`; `defineNavigationConfig`
+  types `items[].id`/`items[].nested` as `NavItemId`/`NavParentId | null`;
+  `defineCustomFieldsConfig<TModel>` constrains `zone`/`tab`/display `zone` against
+  `CustomFieldsRegistry[TModel]`.
 
-  The same module also emits a flat **widget zone registry** — the union of every
-  `<domain>.<view>[.<slot>].<placement>` id exposed by built-in pages:
-
-  ```ts
-  // GENERATED — do not edit
-  export type WidgetZoneId =
-    | "product.list.before"
-    | "product.list.after"
-    | "product.list.replace"
-    | "product.detail.before"
-    | "topbar.before"
-    | "login.logo.replace"
-    // … one entry per zone × placement exposed by built-in pages
-  ```
-
-  `defineWidgetConfig` constrains its `zone` field to `WidgetZoneId`, so a typo or
-  a zone that no built-in page renders fails type-check. The placement suffix
-  (`before | after | replace`, §2) is part of the id, so only placements a zone
-  actually supports appear in the union.
-
-  The same module also emits the **built-in nav item registry** consumed by
-  `defineNavigationConfig` (§1) — a flat union of every built-in nav id (top-level
-  _and_ nested), plus the parent subset used to constrain re-parenting:
+- **No end-project codegen for the MVP.** The SDK plugin does **not** crawl the
+  developer's app or emit any `.mercur/*.d.ts` for extension targets. The only
+  generated artifact is the panel-shipped `extension-targets.d.ts` above (produced
+  at each panel's own build). A developer who renders their **own** custom zone
+  hand-writes a `declare module "@mercurjs/dashboard-sdk"` augmentation to register
+  its id (the escape hatch below). Auto-deriving the developer's own zone ids from
+  a crawl of their `src/{widgets,custom-fields}` is a **post-MVP** enhancement.
 
   ```ts
-  // GENERATED — do not edit
-  export type NavItemId =
-    | "orders"
-    | "products"
-    | "offers" // nested under products
-    | "collections" // nested under products
-    | "categories" // nested under products
-    | "promotions"
-    | "campaigns" // nested under promotions
-    | "customers"
-    | "customer-groups" // nested under customers
-    | "price-lists"
-    | "payouts"
-    // … one entry per built-in nav item exposed by useCoreRoutes()
-
-  // parent ids only — the valid targets for a re-parenting `nested`
-  export type NavParentId =
-    | "orders"
-    | "products"
-    | "inventory"
-    | "customers"
-    | "promotions"
-    | "price-lists"
+  // the developer's own d.ts — hand-written escape hatch (MVP)
+  declare module "@mercurjs/dashboard-sdk" {
+    interface WidgetZoneRegistry {
+      "erp.dashboard.before": true // a zone the developer's own page renders
+    }
+  }
   ```
 
-  `defineNavigationConfig`'s `items[].id` is constrained to `NavItemId` and its
-  `items[].nested` to `NavParentId | null`, so targeting or re-parenting under an
-  id that no built-in page exposes fails type-check. Admin and vendor generate
-  independent unions (their core route sets differ).
+  Because `WidgetZoneId = keyof WidgetZoneRegistry`, the panel's shipped
+  `extension-targets.d.ts` and any hand-written augmentation **merge** into one
+  union — the panel owns the built-in keys, the developer adds their own.
 
-- **Where the ids come from.** Each built-in page/section that renders a
-  zone host (`<FormZone>`, `<DisplayZone>`, `<WidgetZone>`, section `ActionMenu`)
-  declares its ids at the source, and the nav ids are crawled from the per-panel
-  `useCoreRoutes()` declaration — the codegen crawls those declarations, it
-  does **not** infer from arbitrary JSX. Adding a new built-in section, widget
-  zone, or nav item is therefore a deliberate, reviewable change that shows up in
-  the generated registry diff.
+- **Runtime singleton.** At app root each panel constructs a single
+  `ExtensionRegistry` (mirror Medusa's `DashboardApp`,
+  `dashboard/src/dashboard-app/dashboard-app.tsx`) from the aggregated
+  `virtual:mercur/{widgets,custom-fields,navigation,commands}` modules. It holds
+  `Map<WidgetZoneId, Widget[]>`, per-model form/display maps, and nav overrides,
+  and exposes getters via a `useExtension()` hook (`getWidgets(zone)`,
+  `getDisplays(model, zone)`, `getFormFields(model, zone, tab)`, `getMenu()`).
+  The built-in `<WidgetZone id>` / display / form hosts read from it via
+  `getWidgets(id)` and resolve `before → built-in|replace → after`. The MVP uses
+  this lightweight per-id host; Medusa's richer `LayoutComposer`
+  (`components/layout-composer/`, a `widgetsZonePrefix` + `sections={{main,side}}`
+  composer resolved by `getWidgetsForSections`) is a possible later enhancement,
+  not part of the MVP.
 
-- **When it runs.** As part of the existing codegen step (extend
-  `mercurjs codegen` / the dashboard-sdk build), so the registry regenerates
-  whenever built-in pages change. Admin and vendor generate independently (they
-  expose different models/zones), consistent with them being separate Vite apps.
+- **One generated layer + a hand-written escape hatch.** The only generated
+  artifact is the panel's shipped `extension-targets.d.ts` (built-in keys). To
+  register a zone their **own** page renders, a developer hand-writes a
+  `declare module "@mercurjs/dashboard-sdk"` augmentation — the same
+  declaration-merging mechanism as Medusa's `InjectionZoneRegistry` merge; such ids
+  are validated-but-warned at runtime (mirror `isValidInjectionZone`). Built-in
+  keys are never hand-written — they come from the panel's generated `.d.ts`.
+  Auto-generating the developer's own ids from a crawl of their app is post-MVP.
 
-- **Field-value types.** The generated types cover **targets** (which
-  zone/tab/field/action ids exist). The **value** type of a custom form field
-  still comes from its Zod `validation` via `createFormHelper` — the two compose:
+- **Field-value types.** The generated unions type **targets** (which
+  zone/tab/field/nav ids exist). The **value** type of a custom form field still
+  comes from its Zod `validation` via `createFormHelper` — the two compose:
   codegen types the address, Zod types the payload.
 
 ## Post-MVP Surfaces
@@ -531,23 +538,196 @@ export default defineAlertConfig({
   than a folder crawl. It does **not** aggregate block `admin_ui`/`vendor_ui`
   contributions — no plugin-entry `navigationModule` slot — so the sidebar stays a
   host-only single source of truth. Its targets (`items[].id` / `items[].nested`)
-  are still fully type-checked: the generated `NavItemId` / `NavParentId` registry
-  comes from the same codegen as `WidgetZoneId` / `CustomFieldsRegistry` (§6).
+  are still fully type-checked against the generated `NavItemId` / `NavParentId`
+  unions (§6, Typed targets).
 - **Rendering.** Built-in pages render zone hosts (`<WidgetZone id="..." />`,
   field/display hosts, section-action hosts) at the documented zone ids.
   Compound-page slots and zone hosts coexist: compound slots are for full
   re-composition, zones are for additive injection.
-- **Typing.** Page ids, zone ids, built-in nav ids, and custom-field
-  models/zones/tabs/fields are **generated** so invalid targets fail type-check —
-  see the Codegen subsection under §6. This extends the existing generated route-map typing story
-  (`packages/core-plugin/.mercur/_generated`); the custom-fields registry is a new
-  generated declaration file (`.mercur/custom-fields.d.ts`) alongside it.
+- **Runtime registry (singleton).** Each panel constructs one `ExtensionRegistry`
+  at app root from the aggregated `virtual:mercur/*` modules — mirroring Medusa's
+  `DashboardApp` (`dashboard/src/dashboard-app/dashboard-app.tsx`). It holds
+  `Map<WidgetZoneId, Widget[]>`, per-model form/display maps, and nav overrides,
+  and exposes getters via a `useExtension()` hook (`getWidgets`, `getDisplays`,
+  `getFormFields`, `getMenu`) that the zone hosts consume.
+- **Typing.** Zone ids, built-in nav ids, and custom-field models/zones/tabs/fields
+  are **generated** as open registry interfaces by a script inside each panel
+  package (`packages/{admin,vendor}/scripts/…`), which ships
+  `extension-targets.d.ts` in the package types. There is **no end-project
+  codegen** for the MVP — a developer types their own custom zones by hand
+  `declare module` augmentation — see the Typed-targets subsection under §6. This
+  mirrors the shape of the existing generated API route-map (`writeRouteTypes` →
+  `.mercur/routes.d.ts`), which stays as-is.
 - **Surface split is implicit.** Admin and vendor are separate Vite apps with
   separate host `src/`, so there is no `surface` field and no build-time filter —
   a file only ships to the panel it lives in.
 - **Blocks.** Blocks (`mercurjs add`) can ship these files the same way they ship
   pages today, so a block can add a widget/column/field without the consumer
   wiring anything.
+
+## Implementation
+
+This section is the build guide for the MVP. It reuses two proven skeletons: the
+Mercur Dashboard SDK's build-time crawl + virtual-module machinery
+(`packages/dashboard-sdk/src`) and Medusa's admin extension patterns
+(`/Users/viktorholik/Desktop/medusa/packages/admin`). The MVP lands as the five
+[Deliverable Slices](#deliverable-slices-suggested-sub-specs); each slice is a
+sub-spec. Runtime contributions are aggregated by a per-panel singleton
+(`ExtensionRegistry`, mirroring Medusa's `DashboardApp`); typed target ids are
+**generated** as open registry interfaces by a script in each panel package that
+ships `extension-targets.d.ts` (from its host usages). No end-project codegen for
+the MVP; developers augment by hand for their own zones (§6, Typed targets).
+
+### The repeatable SDK surface recipe
+
+Every folder-crawled virtual-module surface (widgets, custom-fields, commands)
+follows the same five edits in `packages/dashboard-sdk/src`, mirroring how
+`menu-items` / `routes` / `i18n` are already wired:
+
+1. **`constants.ts`** — add `X_VIRTUAL_MODULE = "virtual:mercur/x"`,
+   `RESOLVED_X_MODULE = "\0" + X_VIRTUAL_MODULE`, and push the id into
+   `VIRTUAL_MODULES`.
+2. **`src/x.ts`** — a `generateX(config: BuiltMercurConfig): string` that crawls
+   `path.join(srcDir, "x")` with the `crawlRoutes`-style recursive walk and
+   extracts `export const config` / default export via the Babel helpers in
+   `menu-items.ts` (`getConfigObjectProperties`, `parse`/`traverse` from
+   `./babel`). Emit a module that imports each contributor and default-exports the
+   aggregated array. Append plugin/block contributions with the
+   `pluginExtensions.map(... __plugin${i}.xModule?.… )` spread pattern already in
+   `generateMenuItems`.
+3. **`virtual-modules.ts`** — add `if (id === RESOLVED_X_MODULE) return
+   generateX(mercurConfig)` to `loadVirtualModule`.
+4. **`plugin.ts`** — add `virtual:mercur/x` to `optimizeDeps.exclude`, and extend
+   the `configureServer` / `handleHotUpdate` watchers so edits under `src/x/`
+   invalidate `RESOLVED_X_MODULE` (generalize the current `isRouteFile` check to
+   the surface's folder).
+5. **`generate-plugin-entry.ts`** — add an `xModule` to the plugin entry object so
+   installed blocks contribute (all surfaces **except navigation**, which is
+   host-only).
+6. **Typed-target generation lives in the panel package, not the SDK plugin.** The
+   `plugin.ts` does **not** emit any extension-target `.d.ts` for the MVP. Instead
+   each panel package owns a prebuild **script**
+   (`packages/{admin,vendor}/scripts/generate-extension-targets.ts`, wired before
+   `tsup` in the package `build`) that scans `src/pages/**` for `<WidgetZone id>` /
+   display / form host usages + `useCoreRoutes()` ids and writes
+   `src/extension-targets.d.ts` (open `WidgetZoneRegistry` / `NavItemRegistry` /
+   `NavParentRegistry` / `CustomFieldsRegistry` interfaces), shipped in the package
+   types. Developers add their own zones by hand `declare module` augmentation;
+   declaration merging unions the two. This is the crawl→template→write shape of
+   `packages/cli/src/codegen/index.ts::writeRouteTypes`, applied to extension
+   targets.
+
+Consumer wiring per panel: declare `virtual:mercur/x` in
+`packages/{admin,vendor}/src/module.d.ts`, import it into the panel's
+`ExtensionRegistry` singleton (mirror Medusa `dashboard-app.tsx`), and read it
+from the zone hosts via `useExtension()` (see each slice).
+
+Helpers live in a new `packages/dashboard-sdk/src/config/` (re-exported from
+`index.ts`): `defineWidgetConfig`, `defineNavigationConfig`,
+`defineCustomFieldsConfig`, `createFormHelper`, `defineCommandConfig`. Each is a
+thin `createConfigHelper` wrapper — copy Medusa's
+`admin-sdk/src/config/utils.ts`, which spreads the config and adds
+`$$typeof: Symbol.for("react.memo")` for HMR on values that carry a component.
+`createFormHelper<T>()` returns Medusa's zod surface verbatim (`define`, `string`,
+`number`, `boolean`, `date`, `array`, `object`, `null`, `nullable`, `coerce`).
+
+### Slice 1 — Widgets
+
+- **Config/type:** `WidgetConfig = { zone: WidgetZoneId | WidgetZoneId[]; id?: string }`,
+  `WidgetZoneId` from the panel's generated `extension-targets.d.ts` (§6).
+  Placement is the zone-id suffix.
+- **Crawl/generate:** `src/widgets.ts` scans `src/widgets/**`, requires a default
+  export (component) + `export const config`, derives a stable `widgetId`
+  (explicit `config.id` or a short path hash — mirror Medusa
+  `admin-vite-plugin/src/widgets/generate-widgets.ts`), and emits
+  `export default { widgets: [{ Component, zone, widgetId }] }`.
+- **Runtime:** the panel `ExtensionRegistry` singleton builds
+  `Map<WidgetZoneId, Widget[]>` from `virtual:mercur/widgets` (mirror Medusa
+  `dashboard-app.tsx::populateWidgets`), and a `<WidgetZone id data />` host reads
+  it via `useExtension().getWidgets(id)` to render `.before` widgets → the built-in
+  child (or the single `.replace` widget) → `.after` widgets. Reference
+  render path: Medusa `components/layout-composer/layout-composer.tsx`.
+- **Placement:** mount hosts on one page family first (vendor product list +
+  detail), plus the `topbar` zone (near the `TopbarActions` slot in
+  `main-layout.tsx`) and the public `login.*` zones (the login route rendered
+  under `PublicLayout`, before auth).
+
+### Slice 2 — Navigation
+
+- **Discovery:** single host file `src/_navigation.ts` found by a
+  `findNavigationFile` helper modeled on `i18n.ts::findI18nIndex`; new
+  `NAVIGATION_VIRTUAL_MODULE`; **no** `generate-plugin-entry` slot (host-only).
+- **Stable ids at source:** the core routes and their nested children are
+  hard-coded in `useCoreRoutes()`
+  (`packages/{admin,vendor}/src/components/layout/main-layout/main-layout.tsx`) as
+  `{ label, to, items }` with no id. Add a stable `id` to each core route and each
+  nested child; the panel's build-time scan reads those ids to seed the
+  `NavItemRegistry` / `NavParentRegistry` interfaces in its baseline `.d.ts` (§6).
+- **Apply:** an `applyNavOverrides(coreRoutes, navConfig)` step in the sidebar
+  merge consumes `virtual:mercur/navigation` and reorders (`rank`), hides
+  (`hidden`), relabels (`label`/`icon`), and re-parents (`nested`) built-in items
+  before render. The custom-route layer (`getMenuItemsByType` /
+  `getNestedMenuItems` in `.../utils/routes.ts`) is untouched.
+
+### Slice 3 — Custom fields for `product`
+
+- **Config/helper:** `defineCustomFieldsConfig<TModel>({ model, link, forms,
+  displays, list })`; `forms[].fields` keyed by id → `{ validation, defaultValue,
+  label, description, placeholder, component? }`. Copy the shape from Medusa
+  `admin-sdk/src/config/types.ts` (`CustomFieldConfig` / `CustomFormField`).
+- **Crawl/generate:** `src/custom-fields.ts` scans `src/custom-fields/**`; emit a
+  per-model module split into `forms` and `displays` (mirror Medusa
+  `generate-virtual-form-module` / `generate-virtual-display-module`). Wire the
+  virtual module + `customFieldsModule` block spread.
+- **Form injection:** a `<FormExtensionZone model zone tab form />` that renders
+  extra fields through the mandated `Form.Field → Form.Item` chain under RHF name
+  **`additional_data.<field>`** (mirror Medusa
+  `dashboard-app/forms/form-extension-zone/form-extension-zone.tsx`). Mount it in
+  the vendor product create `TabbedForm` tabs and the product edit `RouteDrawer`.
+- **Display injection:** a `getDisplays(model, zone)` registry drives adding,
+  replacing (`component`), or removing (`component: null`) section fields, plus the
+  `{ rank?, component }` section `ActionMenu` actions, inside the product-detail
+  section containers.
+- **List extension:** apply `list.columns` / `bulkActions` / `filters` /
+  `viewDefaults` on the product-list `DataTable`. Respect the vendor curated-field
+  constraint — the fetch derived from `link` must merge with `+`/`-`, never bare
+  fields (`useProductTableQuery`; gotcha `vendor-products-default-fields-500`).
+- **Persistence (`additional_data`):** the built-in vendor product create/update
+  routes destructure `additional_data` and pass it into the workflow; register a
+  create/update **workflow hook** in `@mercurjs/core` that reads
+  `additional_data.<field>` and writes to the `link`ed module. Reference:
+  Medusa `packages/medusa/src/api/admin/products/[id]/route.ts` +
+  `registerHook("...Product.after")`. Custom-field values are never spread onto
+  the core entity payload, so the built-in validators don't reject them (see the
+  `override-core-medusa-admin-route` gotcha for the validation caveat). Add vendor
+  integration tests under `integration-tests/http/product/vendor/`.
+
+### Slice 4 — Onboarding fields (vendor)
+
+No new helper: `zone: "onboarding"` on the `seller`/`store` model with `tab` = the
+wizard **step id**, reusing Slice 3's form injection + `additional_data` path,
+mounted into the vendor onboarding wizard
+(`packages/vendor/src/components/onboarding-wizard/…`) and respecting its existing
+state machine + completion gating. The seller/store onboarding zone and step ids
+enter `CustomFieldsRegistry` through the panel's build-time scan of the wizard's
+step hosts (seeding its baseline `.d.ts`, §6), so no hand-maintained map is needed.
+
+### Slice 5 — Commands (searchbar)
+
+`defineCommandConfig({ commands: [{ id, group, label, keywords, onSelect }] })`;
+crawl `src/commands/**`; wire `COMMANDS_VIRTUAL_MODULE` + block spread; register
+the aggregated commands into the panel `SearchProvider` / command palette.
+
+### Verification per slice
+
+- Add an example extension file in a host app (`apps/vendor/src`,
+  `apps/admin-test/src`) or a `packages/registry` block exercising the surface;
+  confirm the built-in page renders the contribution at the right zone/order with
+  the rest of the page unchanged (run `./scripts/dev-worktree.sh`; API :9000,
+  admin :7000, vendor :7001).
+- A deliberately-wrong `zone`/`model`/nav `id` must fail `bun run lint` (tsc).
+- `bun run build` passes; Slice 3 adds `additional_data` round-trip integration
+  tests (`bun run test:integration:http -- <pattern>`).
 
 ## Non-Goals
 
@@ -576,8 +756,9 @@ Each can land independently and flip to `passing` on its own:
    actions), and the
    model-scoped `list` block (columns, cells, bulk actions, filters, view
    defaults; linked data fetched via `link`), plus `additional_data` persistence.
-   Includes the **codegen** that emits the per-model `CustomFieldsRegistry`
-   (valid zones/tabs/display fields/actions) so invalid targets fail type-check.
+   Includes the per-model `CustomFieldsRegistry` interface shipped in the panel's
+   generated `extension-targets.d.ts` (hand `declare module` augmentation for a
+   developer's own models/zones) so invalid targets fail type-check.
 4. Onboarding field injection (vendor) — `zone: "onboarding"` on the seller/store
    model via the same `defineCustomFieldsConfig`.
 5. Commands / searchbar contributions.
@@ -634,7 +815,32 @@ _None yet — spec not started._
   Medusa `packages/admin/admin-sdk/src/config/{types,utils}.ts`
   (`defineWidgetConfig`, `defineRouteConfig`, `unstable_defineCustomFieldsConfig`,
   `unstable_createFormHelper`, `defineLayoutConfig`). Mercur drops the
-  `unstable_` prefix and adds the `order: before | after | replace` placement.
+  `unstable_` prefix and adds the `before | after | replace` placement suffix
+  plus a numeric `rank` for ordering contributions.
+- **Runtime aggregation mirrors Medusa's `DashboardApp`.** Medusa builds a
+  per-panel singleton
+  (`packages/admin/dashboard/src/dashboard-app/dashboard-app.tsx`) that populates
+  `Map<zone, Widget[]>` / per-model form + display maps and exposes them via a
+  `useExtension()` hook; Mercur's per-panel `ExtensionRegistry` is the same shape.
+- **Typed targets diverge from Medusa: Mercur derives them from the host usages.**
+  Medusa drives its runtime with a component API (`LayoutComposer`,
+  `components/layout-composer/`) but keeps the canonical zone list as a
+  hand-written, exported const (`INJECTION_ZONES` +
+  `InjectionZoneRegistry`, `admin-shared/src/extensions/**`) that pages must match
+  manually. Mercur removes the hand-written list: the `<WidgetZone id>` /
+  display / form **host** a built-in page renders is the single declaration point,
+  and a **script in each panel package** (`packages/{admin,vendor}/scripts/…`,
+  prebuild before `tsup`) **derives** the `WidgetZoneId` / `NavItemId` /
+  `CustomFieldsRegistry` interfaces from those host usages and writes
+  `src/extension-targets.d.ts`, shipped in the package types — the same
+  crawl→template→write shape as the CLI route codegen
+  (`packages/cli/src/codegen/index.ts::writeRouteTypes` → `.mercur/routes.d.ts`).
+  For the MVP there is **no end-project codegen**: a developer registers a zone
+  their own page renders via `declare module "@mercurjs/dashboard-sdk"`
+  augmentation (declaration merging unions it with the panel's shipped interfaces);
+  auto-deriving those from a crawl of the developer's app is post-MVP. The MVP host
+  is the lightweight `<WidgetZone id>`; a `LayoutComposer`-style prefix/sections
+  composer is a later option.
 - Medusa's own widget system (`virtual:medusa/widgets`) is **deliberately
   stubbed to `export default {}`** in `plugin.ts`, so the Medusa widget path is a
   no-op in Mercur today — the widget surface in this spec is a new Mercur system
