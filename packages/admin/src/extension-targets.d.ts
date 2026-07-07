@@ -4,7 +4,12 @@ import "@mercurjs/dashboard-sdk"
 
 declare module "@mercurjs/dashboard-sdk" {
   interface WidgetZoneRegistry {
-
+    "product.detail.main.after": true
+    "product.detail.main.before": true
+    "product.detail.main.replace": true
+    "product.detail.side.after": true
+    "product.detail.side.before": true
+    "product.detail.side.replace": true
   }
 
   interface NavItemRegistry {

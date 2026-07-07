@@ -9,6 +9,10 @@ Custom Fields let you attach extra data to any existing Medusa entity — produc
   **Where this sits in the stack.** Custom Fields is a Mercur module (`@mercurjs/core/modules/custom-fields`) layered on top of Medusa's standard module-link system — it generates the side table, the link, and the schema for you. It's the lightest way to add data to an entity.
 </Info>
 
+<Note>
+  **This is the *data* layer — not the panel UI.** This module *stores* extra data. The panel-side `defineCustomFieldsConfig` helper (see [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables)) *renders* fields into the built-in forms, sections, and tables. They share a name but solve different halves of the problem: use this module for storage and queryability, and the panel helper to expose the values to admins and vendors.
+</Note>
+
 ## When to use Custom Fields
 
 <Tip>

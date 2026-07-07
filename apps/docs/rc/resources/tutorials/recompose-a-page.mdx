@@ -6,7 +6,7 @@ description: "Override a built-in panel page by dropping a route file at the sam
 Every page in the admin and vendor panels is exported as a **compound component** — a root plus named slots like `Header`, `HeaderActions`, and `DataTable`. That means you never fork a page to change one part of it: you drop a `page.tsx` at the same route path, render the original page, and swap only the slot you care about. Everything you don't touch keeps its default behavior — data fetching, filters, pagination, i18n, all of it.
 
 <Info>
-  **This is not Medusa's widget system.** Medusa's admin lets you inject widgets into predefined zones around a page. Mercur takes a different approach: pages are React compound components you re-compose directly. There are no injection zones and no `defineWidgetConfig` — you get the actual page component and decide what renders inside it. See [Extending Panels](/rc/resources/customization/extending-panels) for the full comparison.
+  **Re-composition vs. widgets.** Mercur *does* ship widget injection zones (`defineWidgetConfig`) — reach for a [widget](/rc/resources/tutorials/add-a-widget) when you just want to *add* something at a fixed spot on a page. Re-composition is the heavier tool: pages are React compound components you rebuild directly, so use it when you need to **restructure** a page — remove a built-in element, reorder slots, or replace the table. You get the actual page component and decide what renders inside it. See [Extending Panels](/rc/resources/customization/extending-panels#choosing-your-extension-mechanism) for the full comparison.
 </Info>
 
 ## What you'll build
@@ -113,7 +113,7 @@ Children.count(children) > 0 ? children : <DefaultComposition />
     Yes — re-composition is declarative. Anything you don't render doesn't appear: re-declare `HeaderActions` with only your own buttons and omit `HeaderCreateButton`.
   </Accordion>
   <Accordion title="What about changing the table columns?">
-    `DataTable` is a single slot — you either keep it wholesale or replace it with your own table. For a different column set, replace the slot with your own component built on the shared `DataTable`/`useDataTable` primitives from the panel package.
+    For adding or overriding a column, don't re-compose — use the `list` block of a [custom field](/rc/resources/tutorials/extend-forms-and-tables), which extends the built-in table's columns by id. Re-composition's `DataTable` is a single slot: you either keep it wholesale or replace it entirely with your own table built on the shared `DataTable`/`useDataTable` primitives.
   </Accordion>
 </AccordionGroup>
 

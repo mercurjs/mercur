@@ -21,8 +21,8 @@ export default defineCustomFieldsConfig({
           label: "ERP ID",
           description: "External system identifier",
           placeholder: "ERP-000",
-          defaultValue: (data) =>
-            ((data as ProductWithMeta)?.metadata?.erp_id as string) ?? "",
+          defaultValue: (data: ProductWithMeta) =>
+            (data?.metadata?.erp_id as string) ?? "",
         }),
       },
     },

@@ -1,0 +1,111 @@
+---
+title: "Customize navigation"
+description: "Reorder, hide, relabel, and re-parent built-in sidebar items with a single _navigation.ts file and defineNavigationConfig."
+---
+
+The built-in sidebar ships a fixed set of items — Orders, Products, Customers, and so on. To reshape them without replacing the whole sidebar, author one host-owned file: `src/_navigation.ts`. It reorders, hides, relabels, and re-parents **built-in** items, and it is the single source of truth for the sidebar's shape.
+
+<Info>
+  **When to use this vs. a `config` export.** New pages you add via [drop-in routes](/rc/resources/tutorials/custom-panel-page) place their own sidebar item through `defineRouteConfig({ label, rank, nested })`. `_navigation.ts` is for the items you *didn't* create — the built-in ones. The two layer cleanly: custom routes place themselves; `_navigation.ts` reshapes the built-ins.
+</Info>
+
+## What you'll build
+
+A vendor sidebar with Orders pinned to the top, Price Lists hidden, and Campaigns moved under Orders.
+
+## Register the typed targets (once)
+
+Nav item ids are typed and generated per panel. Register them once with a single ambient reference in your app's `src` (already shipped by `create-mercur-app`):
+
+```typescript apps/vendor/src/extension-targets.d.ts
+/// <reference types="@mercurjs/vendor/extension-targets" />
+```
+
+With it present, `id` and `nested` autocomplete and an unknown id fails `tsc`.
+
+## Author the navigation file
+
+<Steps>
+  <Step title="Create src/_navigation.ts">
+    The file is host-owned and underscore-prefixed. Default-export a `defineNavigationConfig` with an `items` array of overrides:
+
+    ```ts apps/vendor/src/_navigation.ts
+    import { defineNavigationConfig } from "@mercurjs/dashboard-sdk"
+
+    export default defineNavigationConfig({
+      items: [
+        { id: "orders", rank: 0 },              // pin to the top
+        { id: "price-lists", hidden: true },    // hide from the sidebar
+        { id: "campaigns", nested: "orders" },  // re-parent under Orders
+      ],
+    })
+    ```
+  </Step>
+  <Step title="Know the override fields">
+    Each entry targets one built-in item by its stable `id`:
+
+    | Field | Type | Effect |
+    |-------|------|--------|
+    | `id` | `NavItemId` | **Required.** The built-in item to override (top-level or nested) |
+    | `rank` | `number` | Order within its parent (lower first) |
+    | `hidden` | `boolean` | Remove it from the sidebar |
+    | `label` | `string` | Relabel (i18n key or literal) |
+    | `icon` | `ComponentType` | Replace its icon |
+    | `nested` | `NavParentId \| null` | Re-parent under another top-level item; `null` promotes a nested item to top level |
+
+    Both `id` and `nested` are checked against the panel's generated `NavItemRegistry` / `NavParentRegistry`.
+  </Step>
+  <Step title="Reload the panel">
+    Open the vendor portal — Orders sits at the top, Price Lists is gone from the menu, and Campaigns now appears under Orders. The route for a hidden item stays reachable directly by URL unless you also remove it.
+  </Step>
+</Steps>
+
+## Common recipes
+
+```ts
+export default defineNavigationConfig({
+  items: [
+    { id: "payouts", label: "Settlements" },        // relabel
+    { id: "categories", nested: null, rank: 1 },    // promote a nested item to top level
+    { id: "collections", nested: "orders" },        // move a nested item under a different parent
+    { id: "inventory", hidden: true },              // hide a built-in
+  ],
+})
+```
+
+## Verify
+
+1. The top-level order reflects your `rank` values, with `orders` first.
+2. `price-lists` no longer appears in the sidebar.
+3. `campaigns` renders as a child under Orders.
+4. Set `id: "not-an-item"` — `bun run lint` (tsc) fails against `NavItemRegistry`.
+5. Delete `_navigation.ts` — the default sidebar returns.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Can an installed block reorder the sidebar?">
+    No. Navigation is deliberately host-only — blocks can ship pages, widgets, and custom fields, but the sidebar order stays a single source of truth in your app's `_navigation.ts`.
+  </Accordion>
+  <Accordion title="What ids can I target?">
+    Any built-in item, top-level or nested, by its own id — e.g. `orders`, `products`, `categories`, `collections`, `campaigns`, `customer-groups`. Let your editor autocomplete `id:` against `NavItemId`; the full set is generated into your panel's `extension-targets.d.ts`.
+  </Accordion>
+  <Accordion title="Does this work in the admin panel too?">
+    Yes — drop `src/_navigation.ts` in the admin app and reference `@mercurjs/admin/extension-targets`. Each panel ships its own nav id set.
+  </Accordion>
+  <Accordion title="How do I add a brand-new sidebar item?">
+    That's a [drop-in route](/rc/resources/tutorials/custom-panel-page) with a `config` export — `_navigation.ts` only reshapes built-in items, it doesn't create routes.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a custom panel page" href="/rc/resources/tutorials/custom-panel-page">
+    Add a new screen with its own sidebar item.
+  </Card>
+  <Card title="Add a widget" href="/rc/resources/tutorials/add-a-widget">
+    Inject a component into a built-in page.
+  </Card>
+</CardGroup>
+</content>

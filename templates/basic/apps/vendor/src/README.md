@@ -128,3 +128,93 @@ Each `page.tsx` file supports these exports:
 | `config` | No | Sidebar menu item configuration |
 | `loader` | No | Data loading function (React Router) |
 | `handle` | No | Route metadata (React Router) |
+
+---
+
+# Extending Built-in Pages
+
+Beyond adding whole new pages, you can augment the **built-in** vendor pages
+without forking them: inject widgets into documented zones, add validated custom
+fields to forms, extend detail sections and list tables, and reorder the
+sidebar. Each concern is a single file under a well-known folder, discovered by
+the same `@mercurjs/dashboard-sdk` build-time crawl used for routes.
+
+## Typed targets are pre-wired
+
+`src/extension-targets.d.ts` ships in this app:
+
+```ts
+/// <reference types="@mercurjs/vendor/extension-targets" />
+```
+
+This one line registers the built-in zone / model / navigation ids (generated
+and shipped by `@mercurjs/vendor`) for the **whole app**, so every extension file
+gets typed targets with **no per-file import**. A typo in a `zone`, `model`, or
+nav `id` fails type-check. Keep this file; you don't need to import
+`@mercurjs/vendor/extension-targets` anywhere else.
+
+## Widgets — `src/widgets/*.tsx`
+
+Attach a component to a named zone; placement is the zone-id suffix
+(`before | after | replace`).
+
+```tsx
+import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
+
+export const config = defineWidgetConfig({
+  zone: "product.list.before",
+})
+
+export default function ProductListBanner() {
+  return <div>Heads up!</div>
+}
+```
+
+## Custom fields, section displays & list tables — `src/custom-fields/*.tsx`
+
+One model-scoped file owns form fields, detail-section displays, and list-table
+columns/filters/bulk actions.
+
+```tsx
+import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
+import { createFormHelper } from "@mercurjs/dashboard-shared"
+
+const form = createFormHelper<{ metadata?: Record<string, unknown> }>()
+
+export default defineCustomFieldsConfig({
+  model: "product",
+  forms: [
+    {
+      zone: "edit",
+      fields: {
+        erp_id: form.define({
+          validation: form.string().optional(),
+          label: "ERP ID",
+        }),
+      },
+    },
+  ],
+})
+```
+
+The vendor onboarding wizard is just a form zone: use `zone: "onboarding"` with
+`tab` set to the wizard step id.
+
+## Navigation — `src/_navigation.ts`
+
+Reorder, hide, relabel, or re-parent built-in sidebar items from a single
+host-owned file.
+
+```ts
+import { defineNavigationConfig } from "@mercurjs/dashboard-sdk"
+
+export default defineNavigationConfig({
+  items: [
+    { id: "orders", rank: 0 },
+    { id: "payouts", label: "Settlements" },
+  ],
+})
+```
+
+> See the full contract in the Mercur documentation (SPEC-021, Panel Extension
+> API).

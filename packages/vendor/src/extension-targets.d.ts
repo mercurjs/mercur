@@ -13,6 +13,12 @@ declare module "@mercurjs/dashboard-sdk" {
     "login.logo.after": true
     "login.logo.before": true
     "login.logo.replace": true
+    "product.detail.main.after": true
+    "product.detail.main.before": true
+    "product.detail.main.replace": true
+    "product.detail.side.after": true
+    "product.detail.side.before": true
+    "product.detail.side.replace": true
     "product.list.after": true
     "product.list.before": true
     "product.list.replace": true
