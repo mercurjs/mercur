@@ -15,6 +15,88 @@
 
 ## Session Log
 
+### Session 40: 2026-07-07 -- SPEC-021 panel extension API (Slices 1, 2, 3)
+
+Landed the **foundation + Slice 1 (Widgets) + Slice 2 (Navigation) + Slice 3
+(Custom fields for `product`)** of the live SPEC-021 contract, each tracked as
+its own `passing` sub-spec (SPEC-022 widgets, SPEC-023 navigation, SPEC-024
+custom fields).
+
+**Slice 3 (custom fields)**: `defineCustomFieldsConfig` + `CustomFieldsConfig`/
+`CustomFormField`/`CustomListExtension` types + open `CustomFieldsRegistry` in the
+SDK (kept **zod-free** — `validation` is a structural `FieldValidation`;
+`createFormHelper` lives in `@mercurjs/dashboard-shared`). `virtual:mercur/
+custom-fields` crawl aggregates default-exported configs. Runtime: registry
+`getFormFields`/`getDisplays`/`getListExtension`/`getLinks`, `<FormExtensionZone>`
+(fields under `additional_data.<field>`), `<DisplayExtensionZone>` +
+`useDisplayFieldOverride`, `buildAdditionalDataSchema`/`Defaults`. Mounted on the
+vendor product **edit drawer** (schema/defaults extended, `additional_data`
+submitted) and product **detail general section**. Backend: `POST /vendor/
+products/:id` persists `additional_data` → `product.metadata` (MVP sink; the
+route already accepted `WithAdditionalData`). Widget `login.*` zones mounted on
+the login page. Generator now emits `CustomFieldsRegistry` from
+`<FormExtensionZone>`/`<DisplayExtensionZone>` host usages. Demo:
+`apps/vendor/src/custom-fields/product.tsx`.
+
+**Scope note (per session direction)**: only product + login pages were touched
+for Slice 3; Slice 4 (onboarding) and Slice 5 (commands) were descoped — the
+onboarding runtime host exists but is unmounted, and all commands wiring was
+removed.
+
+**Dependency fix (narrow, supporting)**: the committed `bun.lock` pins
+`tailwindcss@3.4.19` / `@types/react@18.3.29` while package.json ranges drifted to
+`^4`/`^19`; a required `bun install` reconciled upward and broke the build
+(React 19 `useRef()`/props typing; Tailwind 4 PostCSS plugin move). Restored the
+working baseline by pinning `tailwindcss`, `@types/react`, `@types/react-dom` in
+the root `overrides`. (One incidental React-19 compat cast left in
+`dashboard-shared/tabbed-form.tsx::resolveTabMeta`.)
+
+---
+
+Landed the **foundation + Slice 1 (Widgets) + Slice 2 (Navigation)** of the
+live SPEC-021 contract, each tracked as its own `passing` sub-spec
+(SPEC-022 widgets, SPEC-023 navigation).
+
+**SDK (`packages/dashboard-sdk/src`)**: new `config/` module
+(`defineWidgetConfig` / `defineNavigationConfig` / `defineCommandConfig` via a
+`createConfigHelper` wrapper with the `$$typeof` HMR marker; open
+`WidgetZoneRegistry` / `NavItemRegistry` / `NavParentRegistry` interfaces →
+`WidgetZoneId` / `NavItemId` / `NavParentId`). New `widgets.ts` (crawl
+`src/widgets/**` → `virtual:mercur/widgets`, stable `widgetId`, `collectWidgets`
+reused by the plugin-entry) and `navigation.ts` (single-file `src/_navigation.ts`
+discovery → `virtual:mercur/navigation`, host-only, no block slot). Wired
+`constants.ts`, `virtual-modules.ts`, `plugin.ts` (optimizeDeps + HMR watchers),
+`generate-plugin-entry.ts` (`widgetModule`), `index.ts`.
+
+**Runtime (`packages/dashboard-shared/src/extensions/`)**: `ExtensionRegistry`
+(mirror of Medusa `DashboardApp`; `Map<slot,{before,replace,after}>` + nav
+overrides), `ExtensionProvider` + `useExtension`, `<WidgetZone id data>` host
+(before → built-in|replace → after), and `applyNavOverrides` (rank/hide/relabel/
+re-parent on the two-level `useCoreRoutes()` shape).
+
+**Panels (admin + vendor)**: `module.d.ts` declares the two new virtual modules;
+`app.tsx` mounts `<ExtensionProvider>` fed by the virtual modules; `MainSidebar`
+applies nav overrides (stable id = path-without-slash); `<WidgetZone id="topbar">`
+in both shells + `<WidgetZone id="product.list">` in the vendor product list.
+Each panel ships a **generated** `extension-targets.d.ts`
+(`scripts/generate-extension-targets.ts`, run before `tsup`, copied post-tsup by
+`ship-extension-targets.ts` since the concurrent DTS phase prunes stray `.d.ts`);
+exported as `@mercurjs/{admin,vendor}/extension-targets`.
+
+**Demo extensions**: `apps/vendor/src/widgets/{topbar-help,product-list-banner}.tsx`
+and `apps/vendor/src/_navigation.ts`.
+
+**Verified**: `bun run build` green (11/11, ~76s). Typed-target contract proven —
+`defineWidgetConfig({ zone: "does.not.exist" })` fails `tsc` (TS2322 vs
+`keyof WidgetZoneRegistry`), valid zone compiles. oxlint clean on new files.
+Generator output: vendor 6 zones / 12 nav items / 7 parents; admin 3 zones /
+14 / 8. Not runtime-verified in a running app (no dev server this session).
+
+**Owed / next** (superseded — see the Slices 1,2,3 entry above): Slice 4
+(onboarding), Slice 5 (commands), Slice-3 follow-ups (create-form + list
+bulk-actions mounts, `link`ed-module persistence hook instead of the metadata
+sink), and runtime verification via `./scripts/dev-worktree.sh`.
+
 ### Session 39: 2026-07-02 -- SPEC-016 provider-agnostic search module (backend vertical)
 
 **Scope.** Started SPEC-016 in a worktree off `canary` (branch

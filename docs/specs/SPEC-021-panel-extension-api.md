@@ -1,5 +1,5 @@
 ---
-status: not_started
+status: live
 canonical: true
 area: framework/dx
 created: 2026-07-06
@@ -800,7 +800,49 @@ _To be filled in per sub-spec._ Each slice must:
 
 ## Evidence
 
-_None yet — spec not started._
+Delivered slices (each its own `passing` sub-spec):
+
+- **Slice 1 — Widgets:** [SPEC-022](./SPEC-022-panel-widgets.md) (`passing`).
+  `defineWidgetConfig` + `before|after|replace`, `virtual:mercur/widgets` crawl,
+  `ExtensionRegistry`/`ExtensionProvider`/`useExtension`/`<WidgetZone>` runtime in
+  `@mercurjs/dashboard-shared`, mounted on the vendor product list and both
+  panels' topbar. Panel-generated `extension-targets.d.ts` types the zone ids.
+- **Slice 2 — Navigation:** [SPEC-023](./SPEC-023-panel-navigation.md)
+  (`passing`). Single host-owned `src/_navigation.ts` +
+  `defineNavigationConfig`, `virtual:mercur/navigation`, `applyNavOverrides`
+  wired into both panels' `MainSidebar`.
+- **Slice 3 — Custom fields for `product`:**
+  [SPEC-024](./SPEC-024-panel-custom-fields.md) (`passing`).
+  `defineCustomFieldsConfig` + `createFormHelper`, `virtual:mercur/custom-fields`,
+  `<FormExtensionZone>` / `<DisplayExtensionZone>` runtime, mounted on the vendor
+  product edit drawer + detail section, with `additional_data` → `product.metadata`
+  persistence and a generated `CustomFieldsRegistry`.
+- Widget zones now also cover the public `login.*` slots (login page) alongside
+  `topbar` and `product.list`.
+
+Foundation shared by all future slices: `packages/dashboard-sdk/src/config/`
+(helpers + open registry interfaces), the repeatable virtual-module recipe
+(`constants.ts` → `virtual-modules.ts` → `plugin.ts` →
+`generate-plugin-entry.ts`), and the per-panel `extension-targets.d.ts`
+generator (`packages/{admin,vendor}/scripts/generate-extension-targets.ts`).
+
+Build/type evidence: `bun run build` green (11/11, 2026-07-07); a bad
+`zone`/nav id fails `tsc` (TS2322 against `keyof WidgetZoneRegistry`).
+
+Remaining MVP slices — **deliberately deferred by owner decision** (2026-07-07),
+not oversights:
+
+- **Slice 4 (onboarding fields):** deferred — mounting it requires editing the
+  vendor onboarding-wizard page, which was explicitly held out of scope this
+  session (work limited to the product + login pages). The runtime host
+  (`<FormExtensionZone zone="onboarding">`) already exists; only the wizard mount
+  remains.
+- **Slice 5 (commands):** descoped by owner direction; the commands
+  virtual-module + searchbar wiring was intentionally removed.
+
+Slice-3 follow-ups (also deferred): mount the create-form injection and list
+bulk-actions, and replace the `product.metadata` persistence sink with a
+`link`ed-module workflow hook.
 
 ## Notes
 

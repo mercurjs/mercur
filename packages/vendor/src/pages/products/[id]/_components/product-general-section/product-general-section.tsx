@@ -3,6 +3,8 @@ import { Container, Heading, StatusBadge, usePrompt } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+
 import { ActionMenu } from "@components/common/action-menu";
 import { SectionRow } from "@components/common/section";
 import { useDeleteProduct } from "@hooks/api/products";
@@ -100,6 +102,7 @@ export const ProductGeneralSection = ({
         title={t("fields.discountable")}
         value={product.discountable ? t("general.true") : t("general.false")}
       />
+      <DisplayExtensionZone model="product" zone="general" data={product} />
     </Container>
   );
 };

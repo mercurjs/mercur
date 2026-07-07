@@ -10,8 +10,15 @@ import { RouteDrawer, useRouteModal } from "@components/modals";
 import { useFeatureFlags, useUpdateProduct } from "@hooks/api";
 
 import { KeyboundForm } from "@components/utilities/keybound-form";
+import {
+  FormExtensionZone,
+  buildAdditionalDataDefaults,
+  buildAdditionalDataSchema,
+  useExtension,
+} from "@mercurjs/dashboard-shared";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useMemo } from "react";
 
 type EditProductFormProps = {
   product: ExtendedAdminProduct;
@@ -28,10 +35,21 @@ const EditProductSchema = zod.object({
 export const EditProductForm = ({ product }: EditProductFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
+  const extension = useExtension();
 
   const { feature_flags } = useFeatureFlags();
   const isProductRequestEnabled =
     !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST];
+
+  const schema = useMemo(
+    () =>
+      EditProductSchema.extend({
+        additional_data: buildAdditionalDataSchema(extension, "product")
+          .partial()
+          .optional(),
+      }),
+    [extension],
+  );
 
   const form = useForm({
     defaultValues: {
@@ -40,23 +58,30 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
       handle: product.handle || "",
       description: product.description || "",
       discountable: product.discountable,
+      additional_data: buildAdditionalDataDefaults(extension, "product", product),
     },
-    resolver: zodResolver(EditProductSchema),
+    resolver: zodResolver(schema),
   });
 
   const { mutateAsync, isPending } = useUpdateProduct(product.id);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const { description, discountable, handle, subtitle, title } = data;
+    const additional_data = data.additional_data;
+
+    const payload = {
+      description,
+      discountable,
+      handle,
+      subtitle: subtitle || null,
+      title,
+      ...(additional_data && Object.keys(additional_data).length
+        ? { additional_data }
+        : {}),
+    } as Parameters<typeof mutateAsync>[0];
 
     await mutateAsync(
-      {
-        description,
-        discountable,
-        handle,
-        subtitle: subtitle || null,
-        title,
-      },
+      payload,
       {
         onSuccess: () => {
           toast.success(
@@ -220,6 +245,12 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
               name="discountable"
               label={t("fields.discountable")}
               description={t("products.discountableHint")}
+            />
+            <FormExtensionZone
+              model="product"
+              zone="edit"
+              control={form.control}
+              data={product}
             />
           </div>
         </RouteDrawer.Body>

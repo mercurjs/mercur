@@ -5,6 +5,7 @@ import {
 import {
   ContainerRegistrationKeys,
   MedusaError,
+  Modules,
 } from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes, ProductChangeDTO } from "@mercurjs/types"
@@ -67,7 +68,7 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
 
-  const { additional_data: _ad, ...update } = req.validatedBody
+  const { additional_data, ...update } = req.validatedBody
 
   const { result } = await productEditUpdateProductWorkflow(req.scope).run({
     input: {
@@ -76,6 +77,19 @@ export const POST = async (
       update: update as Record<string, unknown>,
     },
   })
+
+  // Custom-field values (SPEC-021 §6) arrive under `additional_data` and are
+  // persisted onto the product's metadata — the built-in validators never see
+  // them, so no "Unrecognized fields" rejection.
+  if (additional_data && Object.keys(additional_data).length) {
+    const productModule = req.scope.resolve(Modules.PRODUCT)
+    const existing = await productModule.retrieveProduct(req.params.id, {
+      select: ["id", "metadata"],
+    })
+    await productModule.updateProducts(req.params.id, {
+      metadata: { ...(existing.metadata ?? {}), ...additional_data },
+    })
+  }
 
   const {
     data: [product_change],
