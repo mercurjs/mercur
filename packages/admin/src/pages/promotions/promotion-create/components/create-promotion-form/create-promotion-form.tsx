@@ -288,6 +288,8 @@ export function CreatePromotionForm({
 
   return (
     <TabbedForm
+      model="promotion"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isLoading}

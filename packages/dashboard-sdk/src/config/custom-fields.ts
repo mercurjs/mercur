@@ -58,12 +58,27 @@ export type CustomFormField<TData = unknown> = {
 
 export type CustomFormZone<TModel> = ModelShape<TModel>["formZones"]
 
-export type CustomFormEntry<TModel> = {
-  zone: CustomFormZone<TModel>
-  /** TabbedForm tab id, or onboarding wizard step id for `zone: "onboarding"`. */
-  tab?: string
-  fields: Record<string, CustomFormField>
-}
+/**
+ * Valid tab ids for a model's form zone. Narrows to the scanned union when the
+ * zone has tabbed forms; falls back to `string` for zones without tabs (e.g.
+ * onboarding steps) and for unknown models.
+ */
+export type CustomFormTab<TModel, TZone> =
+  TZone extends keyof ModelShape<TModel>["formTabs"]
+    ? ModelShape<TModel>["formTabs"][TZone]
+    : string
+
+export type CustomFormEntry<TModel> =
+  CustomFormZone<TModel> extends infer TZone
+    ? TZone extends CustomFormZone<TModel>
+      ? {
+          zone: TZone
+          /** TabbedForm tab id, or onboarding wizard step id for `zone: "onboarding"`. */
+          tab?: CustomFormTab<TModel, TZone>
+          fields: Record<string, CustomFormField>
+        }
+      : never
+    : never
 
 /**
  * ADD (unknown id + component), REPLACE (built-in id + component), or REMOVE

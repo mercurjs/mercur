@@ -107,6 +107,12 @@ declare module "@mercurjs/dashboard-sdk" {
   }
 
   interface CustomFieldsRegistry {
+    "attribute": {
+      formZones: "create"
+      formTabs: { "create": "details" | "type" }
+      displayZones: never
+      displayFieldIds: never
+    }
     "campaign": {
       formZones: "edit"
       formTabs: Record<string, string>
@@ -114,8 +120,8 @@ declare module "@mercurjs/dashboard-sdk" {
       displayFieldIds: "campaign_identifier" | "currency_code" | "description" | "name" | "status"
     }
     "category": {
-      formZones: "edit"
-      formTabs: Record<string, string>
+      formZones: "create" | "edit"
+      formTabs: { "create": "details" | "organize" }
       displayZones: "general" | "icon" | "media" | "organize" | "products"
       displayFieldIds: "description" | "handle" | "is_active" | "is_internal" | "name"
     }
@@ -138,8 +144,8 @@ declare module "@mercurjs/dashboard-sdk" {
       displayFieldIds: "customers" | "name" | "owner"
     }
     "inventory_item": {
-      formZones: "edit"
-      formTabs: Record<string, string>
+      formZones: "create" | "edit"
+      formTabs: { "create": "availability" | "details" }
       displayZones: "attributes" | "general" | "locations" | "reservations" | "variants"
       displayFieldIds: "available_quantity" | "reserved_quantity" | "sku" | "stocked_quantity" | "title"
     }
@@ -156,20 +162,20 @@ declare module "@mercurjs/dashboard-sdk" {
       displayFieldIds: "created_at" | "display_id" | "fulfillment_status" | "payment_status" | "status"
     }
     "price_list": {
-      formZones: "edit"
-      formTabs: Record<string, string>
+      formZones: "create" | "edit"
+      formTabs: { "create": "detail" | "price" | "product" }
       displayZones: "configuration" | "general" | "products"
       displayFieldIds: "description" | "price_overrides" | "status" | "title" | "type"
     }
     "product": {
-      formZones: never
-      formTabs: Record<string, string>
+      formZones: "create"
+      formTabs: { "create": "attributes" | "details" | "organize" | "variants" }
       displayZones: "attributes" | "general" | "media" | "organize" | "request" | "variants"
       displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
     }
     "promotion": {
-      formZones: "edit"
-      formTabs: Record<string, string>
+      formZones: "create" | "edit"
+      formTabs: { "create": "campaign" | "promotion" | "type" }
       displayZones: "campaign" | "general"
       displayFieldIds: "allocation" | "code" | "code_badge" | "is_automatic" | "is_tax_inclusive" | "status" | "type" | "value"
     }
@@ -180,8 +186,8 @@ declare module "@mercurjs/dashboard-sdk" {
       displayFieldIds: "available_quantity" | "description" | "header" | "line_item_id" | "location" | "reserved_quantity" | "stocked_quantity"
     }
     "store": {
-      formZones: "edit"
-      formTabs: Record<string, string>
+      formZones: "create" | "edit"
+      formTabs: { "create": "details" | "users" }
       displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "requests"
       displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "website_url"
     }

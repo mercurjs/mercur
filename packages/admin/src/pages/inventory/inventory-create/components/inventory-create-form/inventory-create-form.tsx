@@ -127,6 +127,8 @@ export function InventoryCreateForm({
 
   return (
     <TabbedForm
+      model="inventory_item"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isLoading}

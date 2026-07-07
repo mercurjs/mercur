@@ -147,8 +147,8 @@ declare module "@mercurjs/dashboard-sdk" {
       displayFieldIds: "available" | "in_stock" | "reserved" | "sku" | "title"
     }
     "offer": {
-      formZones: "edit"
-      formTabs: Record<string, string>
+      formZones: "create" | "edit"
+      formTabs: { "create": "catalogue" | "stockLevelsAndPrices" }
       displayZones: "associated-product" | "general" | "inventory" | "prices" | "shipping" | "variant-general" | "variants"
       displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
     }
@@ -171,8 +171,8 @@ declare module "@mercurjs/dashboard-sdk" {
       displayFieldIds: "description" | "price_overrides" | "status" | "title" | "type"
     }
     "product": {
-      formZones: "edit"
-      formTabs: Record<string, string>
+      formZones: "create" | "edit"
+      formTabs: { "create": "attributes" | "details" | "organize" | "variants" }
       displayZones: "attributes" | "general" | "media" | "organize" | "sales-channels" | "shipping-profile" | "variants"
       displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
     }
