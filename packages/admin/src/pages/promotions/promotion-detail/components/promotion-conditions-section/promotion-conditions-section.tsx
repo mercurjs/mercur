@@ -7,6 +7,8 @@ import { Badge, Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { BadgeListSummary } from "../../../../../components/common/badge-list-summary";
 import { NoRecords } from "../../../../../components/common/empty-table-content";
@@ -139,6 +141,12 @@ export const PromotionConditionsSection = ({
           </div>
         ))}
       </div>
+
+      <DisplayExtensionZone
+        model="promotion"
+        zone={`conditions-${ruleType}`}
+        data={rules}
+      />
     </Container>
   );
 };

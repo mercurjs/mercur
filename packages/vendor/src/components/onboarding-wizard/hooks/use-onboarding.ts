@@ -13,6 +13,7 @@ type StoreData = {
   currency_code: string;
   description?: string;
   handle?: string;
+  additional_data?: Record<string, unknown>;
 };
 
 type AddressData = {
@@ -143,6 +144,10 @@ export const useOnboarding = (memberEmail: string) => {
           last_name: registerDraft.last_name,
           currency_code: storeData.currency_code.toLowerCase(),
           description: storeData.description || undefined,
+          ...(storeData.additional_data &&
+          Object.keys(storeData.additional_data).length
+            ? { additional_data: storeData.additional_data }
+            : {}),
           address: addressData
             ? {
                 name: addressData.name || undefined,

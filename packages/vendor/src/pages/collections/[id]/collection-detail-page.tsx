@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { useCollection } from "@hooks/api/collections";
 
 import { CollectionGeneralSection } from "./_components/collection-general-section";
@@ -31,10 +32,12 @@ const Root = ({ children }: { children?: ReactNode }) => {
         children
       ) : (
         <SingleColumnPage data={collection}>
-          <CollectionGeneralSection collection={collection} />
-          <CollectionMediaSection collection={collection} />
-          <CollectionIconSection collection={collection} />
-          <CollectionProductSection collection={collection} />
+          <WidgetZone id="collections.detail.main" data={collection}>
+            <CollectionGeneralSection collection={collection} />
+            <CollectionMediaSection collection={collection} />
+            <CollectionIconSection collection={collection} />
+            <CollectionProductSection collection={collection} />
+          </WidgetZone>
         </SingleColumnPage>
       )}
     </>

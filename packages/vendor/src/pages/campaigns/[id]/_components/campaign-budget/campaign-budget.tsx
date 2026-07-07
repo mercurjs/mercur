@@ -2,6 +2,7 @@ import { ChartPie, PencilSquare } from "@medusajs/icons"
 import { AdminCampaign } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
 import { Trans, useTranslation } from "react-i18next"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 
 type CampaignBudgetProps = {
@@ -72,6 +73,8 @@ export const CampaignBudget = ({ campaign }: CampaignBudgetProps) => {
           />
         </Text>
       </div>
+
+      <DisplayExtensionZone model="campaign" zone="budget" data={campaign} />
     </Container>
   )
 }

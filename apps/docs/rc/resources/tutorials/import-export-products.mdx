@@ -6,7 +6,7 @@ description: "Install the product-import-export block and give vendors CSV impor
 Bulk catalog operations belong to vendors, not the operator — a seller migrating from another platform needs to bring hundreds of listings with them. The `product-import-export` block adds CSV import and export to the Vendor Portal: API routes, workflows built on Medusa's product CSV steps, and drawer UIs wired into the product list.
 
 <Info>
-  **This block is also a masterclass in Mercur's extension model.** It ships backend workflows and routes into your API package, and it overrides the vendor `/products` page by dropping a route file that [re-composes the built-in page's compound slots](/rc/resources/tutorials/recompose-a-page) — adding Import/Export buttons while keeping the stock table untouched. After installing, read its source; you own every file.
+  **This block is also a masterclass in Mercur's extension model.** It ships backend workflows and routes into your API package, and it adds Import/Export actions to the vendor products area through the panel extension surface. After installing, read its source; you own every file.
 </Info>
 
 ## What you'll build
@@ -87,8 +87,8 @@ A vendor product list with **Import** and **Export** header buttons, a working C
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Re-compose a built-in page" href="/rc/resources/tutorials/recompose-a-page">
-    The page-override technique this block uses, explained step by step.
+  <Card title="Add a widget" href="/rc/resources/tutorials/add-a-widget">
+    Inject a component at a built-in zone with `defineWidgetConfig`.
   </Card>
   <Card title="Build your own block" href="/rc/resources/tutorials/build-a-block">
     Package a feature like this one and publish it to your own registry.

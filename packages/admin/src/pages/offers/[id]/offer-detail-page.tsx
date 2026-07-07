@@ -1,6 +1,8 @@
 import { Children, ReactNode } from "react"
 import { useLoaderData, useParams, useSearchParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { useProduct } from "../../../hooks/api/products"
@@ -44,16 +46,20 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <TwoColumnPage data={typed} hasOutlet>
           <TwoColumnPage.Main>
-            <OfferDetailGeneralSection product={typed} />
-            <ProductMediaSection product={typed} readOnly />
-            <OfferVariantsSection
-              variants={typed.variants}
-              thumbnail={typed.thumbnail}
-            />
+            <WidgetZone id="offers.detail.main" data={typed}>
+              <OfferDetailGeneralSection product={typed} />
+              <ProductMediaSection product={typed} readOnly />
+              <OfferVariantsSection
+                variants={typed.variants}
+                thumbnail={typed.thumbnail}
+              />
+            </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <OfferAssociatedProductSection product={typed} />
-            <OfferDetailStoreSection sellerId={sellerId} />
+            <WidgetZone id="offers.detail.side" data={typed}>
+              <OfferAssociatedProductSection product={typed} />
+              <OfferDetailStoreSection sellerId={sellerId} />
+            </WidgetZone>
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}

@@ -15,6 +15,7 @@ import { format } from "date-fns"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
 import { ActionMenu } from "@components/common/action-menu"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { Skeleton } from "@components/common/skeleton"
 import { Thumbnail } from "@components/common/thumbnail"
 import {
@@ -45,6 +46,7 @@ export const OrderFulfillmentSection = ({
       {fulfillments.map((f, index) => (
         <Fulfillment key={f.id} index={index} fulfillment={f} order={order} />
       ))}
+      <DisplayExtensionZone model="order" zone="fulfillment" data={order} />
     </div>
   )
 }

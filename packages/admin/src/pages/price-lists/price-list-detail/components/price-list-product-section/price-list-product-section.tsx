@@ -8,6 +8,8 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
 import { usePriceListLinkProducts } from "../../../../../hooks/api/price-lists"
@@ -173,6 +175,11 @@ export const PriceListProductSection = ({
         data-testid="price-list-product-section-table"
       />
       )}
+      <DisplayExtensionZone
+        model="price_list"
+        zone="products"
+        data={priceList}
+      />
     </Container>
   )
 }

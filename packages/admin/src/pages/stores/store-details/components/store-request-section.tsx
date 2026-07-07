@@ -17,6 +17,7 @@ import {
   useSuspendSeller,
 } from "../../../../hooks/api/sellers";
 import { InferClientOutput } from "@mercurjs/client";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { sdk } from "@lib/client";
 
 type Seller = InferClientOutput<typeof sdk.admin.sellers.$id.query>["seller"];
@@ -120,6 +121,7 @@ export const StoreRequestSection = ({ seller }: StoreRequestSectionProps) => {
           }}
         />
       </div>
+      <DisplayExtensionZone model="store" zone="requests" data={seller} />
     </Container>
   );
 };

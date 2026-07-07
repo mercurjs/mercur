@@ -7,8 +7,9 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui"
+import { useExtendableTable } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { Children, ReactNode, useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -89,8 +90,12 @@ export const CustomerGroupListDataTable = () => {
       },
     )
 
-  const filters = useCustomerGroupTableFilters()
-  const columns = useColumns()
+  const baseFilters = useCustomerGroupTableFilters()
+  const { columns, filters: extFilters } = useColumns()
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters]
+  )
 
   const { table } = useDataTable({
     data: customer_groups ?? [],
@@ -224,7 +229,7 @@ const useColumns = () => {
   const { t } = useTranslation()
   const { getFullDate } = useDate()
 
-  return useMemo(
+  const base = useMemo(
     () => [
       columnHelper.accessor("name", {
         header: t("fields.name"),
@@ -273,11 +278,25 @@ const useColumns = () => {
           )
         },
       }),
+    ],
+    [t, getFullDate]
+  )
+
+  const { columns: extended, filters } = useExtendableTable<CustomerGroupRow>({
+    model: "customer_group",
+    columns: base as unknown as ColumnDef<CustomerGroupRow, unknown>[],
+  })
+
+  const columns = useMemo(
+    () => [
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => <CustomerGroupActions group={row.original} />,
       }),
     ],
-    [t, getFullDate]
+    [extended]
   )
+
+  return { columns, filters }
 }

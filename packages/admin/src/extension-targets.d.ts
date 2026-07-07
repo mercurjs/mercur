@@ -4,12 +4,78 @@ import "@mercurjs/dashboard-sdk"
 
 declare module "@mercurjs/dashboard-sdk" {
   interface WidgetZoneRegistry {
+    "campaigns.detail.main.after": true
+    "campaigns.detail.main.before": true
+    "campaigns.detail.side.after": true
+    "campaigns.detail.side.before": true
+    "campaigns.list.after": true
+    "campaigns.list.before": true
+    "categories.detail.main.after": true
+    "categories.detail.main.before": true
+    "categories.detail.side.after": true
+    "categories.detail.side.before": true
+    "categories.list.after": true
+    "categories.list.before": true
+    "collections.detail.main.after": true
+    "collections.detail.main.before": true
+    "collections.list.after": true
+    "collections.list.before": true
+    "customer-groups.detail.main.after": true
+    "customer-groups.detail.main.before": true
+    "customer-groups.list.after": true
+    "customer-groups.list.before": true
+    "customers.detail.main.after": true
+    "customers.detail.main.before": true
+    "customers.detail.side.after": true
+    "customers.detail.side.before": true
+    "customers.list.after": true
+    "customers.list.before": true
+    "inventory.detail.main.after": true
+    "inventory.detail.main.before": true
+    "inventory.detail.side.after": true
+    "inventory.detail.side.before": true
+    "inventory.list.after": true
+    "inventory.list.before": true
+    "offers.detail.main.after": true
+    "offers.detail.main.before": true
+    "offers.detail.side.after": true
+    "offers.detail.side.before": true
+    "offers.list.after": true
+    "offers.list.before": true
+    "orders.detail.main.after": true
+    "orders.detail.main.before": true
+    "orders.detail.side.after": true
+    "orders.detail.side.before": true
+    "orders.list.after": true
+    "orders.list.before": true
+    "price-lists.detail.main.after": true
+    "price-lists.detail.main.before": true
+    "price-lists.detail.side.after": true
+    "price-lists.detail.side.before": true
+    "price-lists.list.after": true
+    "price-lists.list.before": true
     "product.detail.main.after": true
     "product.detail.main.before": true
-    "product.detail.main.replace": true
     "product.detail.side.after": true
     "product.detail.side.before": true
-    "product.detail.side.replace": true
+    "promotions.detail.main.after": true
+    "promotions.detail.main.before": true
+    "promotions.detail.side.after": true
+    "promotions.detail.side.before": true
+    "promotions.list.after": true
+    "promotions.list.before": true
+    "reservation.detail.main.after": true
+    "reservation.detail.main.before": true
+    "reservation.detail.side.after": true
+    "reservation.detail.side.before": true
+    "reservation.list.after": true
+    "reservation.list.before": true
+    "stores.detail.main.after": true
+    "stores.detail.main.before": true
+    "stores.detail.side.after": true
+    "stores.detail.side.before": true
+    "stores.list.after": true
+    "stores.list.before": true
   }
 
   interface NavItemRegistry {
@@ -41,11 +107,89 @@ declare module "@mercurjs/dashboard-sdk" {
   }
 
   interface CustomFieldsRegistry {
-    "product": {
+    "attribute": {
+      formZones: "create"
+      formTabs: { "create": "details" | "type" }
+      displayZones: never
+      displayFieldIds: never
+    }
+    "campaign": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "configuration" | "general" | "promotions"
+      displayFieldIds: "campaign_identifier" | "currency_code" | "description" | "name" | "status"
+    }
+    "category": {
+      formZones: "create" | "edit"
+      formTabs: { "create": "details" | "organize" }
+      displayZones: "general" | "icon" | "media" | "organize" | "products"
+      displayFieldIds: "description" | "handle" | "is_active" | "is_internal" | "name"
+    }
+    "collection": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "general" | "icon" | "media" | "products"
+      displayFieldIds: "handle" | "title"
+    }
+    "customer": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "addresses" | "general" | "groups" | "orders"
+      displayFieldIds: "company_name" | "email" | "name" | "phone" | "status"
+    }
+    "customer_group": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "customers" | "general"
+      displayFieldIds: "customers" | "name" | "owner"
+    }
+    "inventory_item": {
+      formZones: "create" | "edit"
+      formTabs: { "create": "availability" | "details" }
+      displayZones: "attributes" | "general" | "locations" | "reservations" | "variants"
+      displayFieldIds: "available_quantity" | "reserved_quantity" | "sku" | "stocked_quantity" | "title"
+    }
+    "offer": {
       formZones: never
       formTabs: Record<string, string>
-      displayZones: "general"
+      displayZones: "associated-product" | "general" | "store" | "variants"
       displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
+    }
+    "order": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "activity" | "commission" | "customer" | "general" | "order-group" | "payment" | "summary"
+      displayFieldIds: "created_at" | "display_id" | "fulfillment_status" | "payment_status" | "status"
+    }
+    "price_list": {
+      formZones: "create" | "edit"
+      formTabs: { "create": "detail" | "price" | "product" }
+      displayZones: "configuration" | "general" | "products"
+      displayFieldIds: "description" | "price_overrides" | "status" | "title" | "type"
+    }
+    "product": {
+      formZones: "create"
+      formTabs: { "create": "attributes" | "details" | "organize" | "variants" }
+      displayZones: "attributes" | "general" | "media" | "organize" | "request" | "variants"
+      displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
+    }
+    "promotion": {
+      formZones: "create" | "edit"
+      formTabs: { "create": "campaign" | "promotion" | "type" }
+      displayZones: "campaign" | "general"
+      displayFieldIds: "allocation" | "code" | "code_badge" | "is_automatic" | "is_tax_inclusive" | "status" | "type" | "value"
+    }
+    "reservation": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "general"
+      displayFieldIds: "available_quantity" | "description" | "header" | "line_item_id" | "location" | "reserved_quantity" | "stocked_quantity"
+    }
+    "store": {
+      formZones: "create" | "edit"
+      formTabs: { "create": "details" | "users" }
+      displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "requests"
+      displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "website_url"
     }
   }
 }

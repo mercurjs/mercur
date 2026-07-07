@@ -3,6 +3,7 @@ import { useCallback, useMemo } from "react";
 import { PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import { ProductDTO, ProductVariantDTO } from "@mercurjs/types";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import {
   Badge,
   Button,
@@ -107,6 +108,7 @@ export const ProductVariantSection = ({
           message: t("products.variants.empty.description"),
         }}
       />
+      <DisplayExtensionZone model="product" zone="variants" data={product} />
     </Container>
   );
 };

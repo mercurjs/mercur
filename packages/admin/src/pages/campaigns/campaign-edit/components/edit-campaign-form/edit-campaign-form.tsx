@@ -1,9 +1,11 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { AdminCampaign } from "@medusajs/types"
 import { Button, DatePicker, Input, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared"
 import { Form } from "../../../../../components/common/form"
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
@@ -25,7 +27,10 @@ export const EditCampaignForm = ({ campaign }: EditCampaignFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const form = useForm<zod.infer<typeof EditCampaignSchema>>({
+  const form = useExtendableForm({
+    schema: EditCampaignSchema,
+    model: "campaign",
+    data: campaign,
     defaultValues: {
       name: campaign.name || "",
       description: campaign.description || "",
@@ -33,7 +38,6 @@ export const EditCampaignForm = ({ campaign }: EditCampaignFormProps) => {
       starts_at: campaign.starts_at ? new Date(campaign.starts_at) : undefined,
       ends_at: campaign.ends_at ? new Date(campaign.ends_at) : undefined,
     },
-    resolver: zodResolver(EditCampaignSchema),
   })
 
   const { mutateAsync, isPending } = useUpdateCampaign(campaign.id)
@@ -168,6 +172,13 @@ export const EditCampaignForm = ({ campaign }: EditCampaignFormProps) => {
                   </Form.Item>
                 )
               }}
+            />
+
+            <FormExtensionZone
+              model="campaign"
+              zone="edit"
+              control={form.control}
+              data={campaign}
             />
           </div>
         </RouteDrawer.Body>

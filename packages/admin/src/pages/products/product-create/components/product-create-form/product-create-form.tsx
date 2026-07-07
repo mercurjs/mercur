@@ -183,6 +183,8 @@ export const ProductCreateForm = ({
 
   return (
     <TabbedForm
+      model="product"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isPending || isRegionsPending}

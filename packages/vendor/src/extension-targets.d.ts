@@ -4,24 +4,86 @@ import "@mercurjs/dashboard-sdk"
 
 declare module "@mercurjs/dashboard-sdk" {
   interface WidgetZoneRegistry {
+    "campaigns.detail.main.after": true
+    "campaigns.detail.main.before": true
+    "campaigns.detail.side.after": true
+    "campaigns.detail.side.before": true
+    "campaigns.list.after": true
+    "campaigns.list.before": true
+    "categories.detail.main.after": true
+    "categories.detail.main.before": true
+    "categories.detail.side.after": true
+    "categories.detail.side.before": true
+    "categories.list.after": true
+    "categories.list.before": true
+    "collections.detail.main.after": true
+    "collections.detail.main.before": true
+    "collections.list.after": true
+    "collections.list.before": true
+    "customer-groups.detail.main.after": true
+    "customer-groups.detail.main.before": true
+    "customer-groups.list.after": true
+    "customer-groups.list.before": true
+    "customers.detail.main.after": true
+    "customers.detail.main.before": true
+    "customers.detail.side.after": true
+    "customers.detail.side.before": true
+    "customers.list.after": true
+    "customers.list.before": true
+    "inventory.detail.main.after": true
+    "inventory.detail.main.before": true
+    "inventory.detail.side.after": true
+    "inventory.detail.side.before": true
+    "inventory.list.after": true
+    "inventory.list.before": true
     "login.after.after": true
     "login.after.before": true
-    "login.after.replace": true
     "login.before.after": true
     "login.before.before": true
-    "login.before.replace": true
     "login.logo.after": true
     "login.logo.before": true
-    "login.logo.replace": true
+    "offers.detail.main.after": true
+    "offers.detail.main.before": true
+    "offers.detail.side.after": true
+    "offers.detail.side.before": true
+    "offers.list.after": true
+    "offers.list.before": true
+    "orders.detail.main.after": true
+    "orders.detail.main.before": true
+    "orders.detail.side.after": true
+    "orders.detail.side.before": true
+    "orders.list.after": true
+    "orders.list.before": true
+    "payouts.detail.main.after": true
+    "payouts.detail.main.before": true
+    "payouts.list.after": true
+    "payouts.list.before": true
+    "price-lists.detail.main.after": true
+    "price-lists.detail.main.before": true
+    "price-lists.detail.side.after": true
+    "price-lists.detail.side.before": true
+    "price-lists.list.after": true
+    "price-lists.list.before": true
     "product.detail.main.after": true
     "product.detail.main.before": true
-    "product.detail.main.replace": true
     "product.detail.side.after": true
     "product.detail.side.before": true
-    "product.detail.side.replace": true
     "product.list.after": true
     "product.list.before": true
-    "product.list.replace": true
+    "promotions.detail.main.after": true
+    "promotions.detail.main.before": true
+    "promotions.detail.side.after": true
+    "promotions.detail.side.before": true
+    "promotions.list.after": true
+    "promotions.list.before": true
+    "reservations.detail.main.after": true
+    "reservations.detail.main.before": true
+    "reservations.detail.side.after": true
+    "reservations.detail.side.before": true
+    "reservations.list.after": true
+    "reservations.list.before": true
+    "store.setup.after": true
+    "store.setup.before": true
   }
 
   interface NavItemRegistry {
@@ -50,11 +112,95 @@ declare module "@mercurjs/dashboard-sdk" {
   }
 
   interface CustomFieldsRegistry {
+    "campaign": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "budget" | "configuration" | "general" | "promotions" | "spend"
+      displayFieldIds: "campaign_identifier" | "currency_code" | "description" | "name" | "status"
+    }
+    "category": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "general" | "icon" | "media" | "organize" | "products"
+      displayFieldIds: "description" | "handle" | "name"
+    }
+    "collection": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "general" | "icon" | "media" | "products"
+      displayFieldIds: "handle" | "title"
+    }
+    "customer": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "addresses" | "general" | "groups" | "orders"
+      displayFieldIds: "company_name" | "email" | "name" | "phone" | "status"
+    }
+    "customer_group": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "customers" | "general"
+      displayFieldIds: "customers" | "name"
+    }
+    "inventory_item": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "attributes" | "general" | "locations" | "variants"
+      displayFieldIds: "available" | "in_stock" | "reserved" | "sku" | "title"
+    }
+    "offer": {
+      formZones: "create" | "edit"
+      formTabs: { "create": "catalogue" | "stockLevelsAndPrices" }
+      displayZones: "associated-product" | "general" | "inventory" | "prices" | "shipping" | "variant-general" | "variants"
+      displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
+    }
+    "order": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "active-claim" | "active-edit" | "active-exchange" | "active-return" | "activity" | "commission" | "customer" | "fulfillment" | "general" | "payment" | "summary"
+      displayFieldIds: "display_id" | "fulfillment_status" | "payment_status" | "status"
+    }
+    "payout": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "general"
+      displayFieldIds: "amount" | "created_at" | "display_id" | "status" | "updated_at"
+    }
+    "price_list": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "configuration" | "general" | "products"
+      displayFieldIds: "description" | "price_overrides" | "status" | "title" | "type"
+    }
     "product": {
+      formZones: "create" | "edit"
+      formTabs: { "create": "attributes" | "details" | "organize" | "variants" }
+      displayZones: "attributes" | "general" | "media" | "organize" | "sales-channels" | "shipping-profile" | "variants"
+      displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
+    }
+    "promotion": {
+      formZones: "edit"
+      formTabs: Record<string, string>
+      displayZones: "campaign" | "general"
+      displayFieldIds: "allocation" | "code" | "code_value" | "is_automatic" | "status" | "type" | "value"
+    }
+    "reservation": {
       formZones: "edit"
       formTabs: Record<string, string>
       displayZones: "general"
-      displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
+      displayFieldIds: "available_quantity" | "description" | "line_item_id" | "location" | "reserved_quantity" | "stocked_quantity" | "title"
+    }
+    "seller": {
+      formZones: "onboarding"
+      formTabs: Record<string, string>
+      displayZones: "store-select"
+      displayFieldIds: "status"
+    }
+    "store": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "general"
+      displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "website_url"
     }
   }
 }

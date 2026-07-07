@@ -2,6 +2,8 @@ import { PencilSquare } from "@medusajs/icons"
 import { Badge, Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "../../../../../../components/common/action-menu"
 import { SectionRow } from "../../../../../../components/common/section"
 
@@ -74,6 +76,7 @@ export const OfferVariantGeneralSection = ({
           }
         />
       ))}
+      <DisplayExtensionZone model="offer" zone="variant-general" data={offer} />
     </Container>
   )
 }

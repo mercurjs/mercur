@@ -1,5 +1,6 @@
 import { ExclamationCircle, PlusMini } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { ProductDTO } from "@mercurjs/types";
 import {
   Checkbox,
@@ -168,6 +169,7 @@ export const CategoryProductSection = ({
           />
         </CommandBar.Bar>
       </CommandBar>
+      <DisplayExtensionZone model="category" zone="products" data={category} />
     </Container>
   );
 };

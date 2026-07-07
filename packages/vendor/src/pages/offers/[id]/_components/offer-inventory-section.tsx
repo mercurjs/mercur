@@ -8,6 +8,8 @@ import { ActionMenu } from "../../../../components/common/action-menu"
 import { _DataTable } from "../../../../components/table/data-table"
 import { PlaceholderCell } from "../../../../components/table/table-cells/common/placeholder-cell"
 import { useDataTable } from "../../../../hooks/use-data-table"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { OfferDetail, OfferInventoryItemLink } from "../../common/types"
 
 type Props = { offer: OfferDetail }
@@ -186,6 +188,7 @@ export const OfferInventorySection = ({ offer }: Props) => {
           navigateTo={(row) => `/inventory/${row.id}`}
         />
       )}
+      <DisplayExtensionZone model="offer" zone="inventory" data={offer} />
     </Container>
   )
 }

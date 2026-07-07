@@ -86,6 +86,8 @@ export const AttributeCreateForm = ({ children }: AttributeCreateFormProps) => {
 
   return (
     <TabbedForm
+      model="attribute"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isPending}

@@ -6,6 +6,7 @@ import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { _DataTable } from "@components/table/data-table"
 import { useRemovePromotionFromCampaign } from "@hooks/api/promotions"
@@ -137,6 +138,12 @@ export const CampaignPromotionSection = ({
         noRecords={{
           message: t("campaigns.promotions.list.noRecordsMessage"),
         }}
+      />
+
+      <DisplayExtensionZone
+        model="campaign"
+        zone="promotions"
+        data={campaign}
       />
     </Container>
   )

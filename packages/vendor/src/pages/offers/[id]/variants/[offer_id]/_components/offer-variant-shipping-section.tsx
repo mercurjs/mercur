@@ -3,6 +3,8 @@ import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "../../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../../components/common/empty-table-content"
 
@@ -72,6 +74,7 @@ export const OfferVariantShippingSection = ({
       ) : (
         <NoRecords className="h-40" />
       )}
+      <DisplayExtensionZone model="offer" zone="shipping" data={offer} />
     </Container>
   )
 }

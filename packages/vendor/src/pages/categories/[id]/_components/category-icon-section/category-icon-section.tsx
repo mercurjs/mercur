@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import {
@@ -49,6 +50,7 @@ export const CategoryIconSection = ({
           </div>
         )}
       </div>
+      <DisplayExtensionZone model="category" zone="icon" data={category} />
     </Container>
   )
 }

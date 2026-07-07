@@ -1,6 +1,7 @@
 import { ArrowPath, CurrencyDollar, Envelope, FlyingBox } from '@medusajs/icons';
 import { HttpTypes } from '@medusajs/types';
 import { Container, Heading } from '@medusajs/ui';
+import { DisplayExtensionZone } from '@mercurjs/dashboard-shared';
 import { useTranslation } from 'react-i18next';
 
 import { ActionMenu } from '../../../../../components/common/action-menu';
@@ -21,6 +22,7 @@ export const OrderCustomerSection = ({ order }: OrderCustomerSectionProps) => {
       <CustomerInfo.Contact data={order} />
       <CustomerInfo.Company data={order} />
       <CustomerInfo.Addresses data={order} />
+      <DisplayExtensionZone model="order" zone="customer" data={order} />
     </Container>
   );
 };

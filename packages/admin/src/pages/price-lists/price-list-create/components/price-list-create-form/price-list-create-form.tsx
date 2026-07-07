@@ -111,6 +111,8 @@ export const PriceListCreateForm = ({
 
   return (
     <TabbedForm
+      model="price_list"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isPending}

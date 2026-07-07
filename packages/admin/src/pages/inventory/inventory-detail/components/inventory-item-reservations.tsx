@@ -1,5 +1,6 @@
 import type { HttpTypes } from "@medusajs/types"
 import { Button, Container, Heading } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 import { ReservationItemTable } from "./reservations-table/reservation-list-table"
@@ -23,6 +24,11 @@ export const InventoryItemReservationsSection = ({
         </Button>
       </div>
       <ReservationItemTable inventoryItem={inventoryItem} />
+      <DisplayExtensionZone
+        model="inventory_item"
+        zone="reservations"
+        data={inventoryItem}
+      />
     </Container>
   )
 }

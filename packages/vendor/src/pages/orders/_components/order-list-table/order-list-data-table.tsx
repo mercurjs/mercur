@@ -1,4 +1,8 @@
+import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { type ColumnDef } from "@tanstack/react-table";
+import { HttpTypes } from "@medusajs/types";
+import { useExtendableTable } from "@mercurjs/dashboard-shared";
 
 import { _DataTable } from "@components/table/data-table/data-table";
 import { useOrders } from "@hooks/api/orders";
@@ -33,8 +37,22 @@ export const OrderListDataTable = () => {
     ...searchParams,
   });
 
-  const columns = useOrderTableColumns({});
-  const filters = useOrderTableFilters();
+  const baseColumns = useOrderTableColumns({});
+  const baseFilters = useOrderTableFilters();
+
+  const { columns, filters: extFilters } =
+    useExtendableTable<HttpTypes.AdminOrder>({
+      model: "order",
+      columns: baseColumns as unknown as ColumnDef<
+        HttpTypes.AdminOrder,
+        unknown
+      >[],
+    });
+
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  );
 
   const { table } = useDataTable({
     data: orders ?? [],

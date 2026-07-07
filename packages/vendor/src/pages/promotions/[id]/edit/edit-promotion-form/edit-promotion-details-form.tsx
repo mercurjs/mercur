@@ -1,9 +1,12 @@
-import { zodResolver } from '@hookform/resolvers/zod';
 import { AdminPromotion } from '@medusajs/types';
 import { Button, Input, RadioGroup, Text } from '@medusajs/ui';
-import { useForm } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import * as zod from 'zod';
+
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared"
 
 import { Form } from "@components/common/form"
 import { DeprecatedPercentageInput } from "@components/inputs/percentage-input"
@@ -28,7 +31,10 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
-  const form = useForm<zod.infer<typeof EditPromotionSchema>>({
+  const form = useExtendableForm({
+    schema: EditPromotionSchema,
+    model: "promotion",
+    data: promotion,
     defaultValues: {
       is_automatic: promotion.is_automatic!.toString(),
       code: promotion.code,
@@ -36,8 +42,7 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
       value: promotion.application_method!.value,
       value_type: promotion.application_method!.type,
       max_quantity: promotion.application_method?.max_quantity ?? 1
-    },
-    resolver: zodResolver(EditPromotionSchema)
+    }
   });
 
   const { mutateAsync, isPending } = useUpdatePromotion(promotion.id);
@@ -230,6 +235,13 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
                 }}
               />
             )}
+
+            <FormExtensionZone
+              model="promotion"
+              zone="edit"
+              control={form.control}
+              data={promotion}
+            />
           </div>
         </RouteDrawer.Body>
 

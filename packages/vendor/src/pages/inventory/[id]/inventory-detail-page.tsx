@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { useInventoryItem } from "@hooks/api/inventory";
 
 import { InventoryItemAttributeSection } from "./_components/inventory-item-attributes/attributes-section";
@@ -40,14 +41,22 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <TwoColumnPage data={inventory_item}>
           <TwoColumnPage.Main>
-            <InventoryItemGeneralSection inventoryItem={inventory_item} />
-            <InventoryItemLocationLevelsSection inventoryItem={inventory_item} />
+            <WidgetZone id="inventory.detail.main" data={inventory_item}>
+              <InventoryItemGeneralSection inventoryItem={inventory_item} />
+              <InventoryItemLocationLevelsSection
+                inventoryItem={inventory_item}
+              />
+            </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <InventoryItemVariantsSection
-              variants={(inventory_item as any).variants}
-            />
-            <InventoryItemAttributeSection inventoryItem={inventory_item as any} />
+            <WidgetZone id="inventory.detail.side" data={inventory_item}>
+              <InventoryItemVariantsSection
+                variants={(inventory_item as any).variants}
+              />
+              <InventoryItemAttributeSection
+                inventoryItem={inventory_item as any}
+              />
+            </WidgetZone>
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}

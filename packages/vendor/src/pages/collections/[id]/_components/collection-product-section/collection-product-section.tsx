@@ -4,6 +4,7 @@ import { Checkbox, Container, Heading, toast, usePrompt } from "@medusajs/ui";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { ActionMenu } from "@components/common/action-menu";
 import { _DataTable } from "@components/table/data-table";
 import { useUpdateCollectionProducts } from "@hooks/api/collections";
@@ -147,6 +148,7 @@ export const CollectionProductSection = ({
           message: t("collections.products.list.noRecordsMessage"),
         }}
       />
+      <DisplayExtensionZone model="collection" zone="products" data={collection} />
     </Container>
   );
 };

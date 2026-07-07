@@ -1,7 +1,8 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Button, Container, Heading, usePrompt } from "@medusajs/ui"
-import { createColumnHelper } from "@tanstack/react-table"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
+import { useExtendableTable } from "@mercurjs/dashboard-shared"
 import { Children, ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom"
@@ -79,8 +80,12 @@ export const PromotionListDataTable = () => {
     }
   )
 
-  const filters = usePromotionTableFilters()
-  const columns = useColumns()
+  const baseFilters = usePromotionTableFilters()
+  const { columns, filters: extFilters } = useColumns()
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters]
+  )
 
   const { table } = useDataTable({
     data: promotions ?? [],
@@ -192,10 +197,18 @@ const columnHelper = createColumnHelper<HttpTypes.AdminPromotion>()
 
 const useColumns = () => {
   const base = usePromotionTableColumns()
+  const { columns: extended, filters } =
+    useExtendableTable<HttpTypes.AdminPromotion>({
+      model: "promotion",
+      columns: base as unknown as ColumnDef<
+        HttpTypes.AdminPromotion,
+        unknown
+      >[],
+    })
 
-  return useMemo(
+  const columns = useMemo(
     () => [
-      ...base,
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
@@ -203,6 +216,8 @@ const useColumns = () => {
         },
       }),
     ],
-    [base]
+    [extended]
   )
+
+  return { columns, filters }
 }

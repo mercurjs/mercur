@@ -31,9 +31,9 @@ export type NavParentId = keyof NavParentRegistry extends never
 
 /**
  * A widget is a React component attached to a named zone on a page. The
- * placement (`before | after | replace`) is encoded as the zone-id suffix, so
- * there is no separate rank field — multiple `before`/`after` widgets stack in
- * registration order.
+ * placement (`before | after`) is encoded as the zone-id suffix, so there is no
+ * separate rank field — multiple `before`/`after` widgets stack in registration
+ * order.
  */
 export interface WidgetConfig {
     zone: WidgetZoneId | WidgetZoneId[]

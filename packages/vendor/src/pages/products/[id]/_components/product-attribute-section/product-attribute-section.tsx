@@ -15,6 +15,7 @@ import {
   Tooltip,
   usePrompt,
 } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "@components/common/action-menu"
@@ -287,6 +288,7 @@ export const ProductAttributeSection = ({
           productId={product.id}
         />
       )}
+      <DisplayExtensionZone model="product" zone="attributes" data={product} />
     </Container>
   )
 }

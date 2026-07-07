@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import {
   Button,
   Checkbox,
@@ -191,6 +192,7 @@ export const CustomerGroupSection = ({
           icon: null,
         }}
       />
+      <DisplayExtensionZone model="customer" zone="groups" data={customer} />
     </Container>
   )
 }

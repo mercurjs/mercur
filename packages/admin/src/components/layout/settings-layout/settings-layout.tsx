@@ -10,18 +10,13 @@ import { Link, useLocation } from "react-router-dom";
 import { type INavItem, NavItem } from "@components/layout/nav-item";
 import { Shell } from "@components/layout/shell";
 import { UserMenu } from "@components/layout/user-menu";
-import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
 import { getMenuItemsByType } from "../../../utils/routes";
 
 export const SettingsLayout = () => {
-  const Sidebar = components.SettingsSidebar
-    ? components.SettingsSidebar
-    : SettingsSidebar;
-
   return (
     <Shell>
-      <Sidebar />
+      <SettingsSidebar />
     </Shell>
   );
 };

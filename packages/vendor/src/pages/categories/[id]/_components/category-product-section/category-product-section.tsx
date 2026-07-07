@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { RowSelectionState } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
@@ -158,6 +159,7 @@ export const CategoryProductSection = ({
           />
         </CommandBar.Bar>
       </CommandBar> */}
+      <DisplayExtensionZone model="category" zone="products" data={category} />
     </Container>
   )
 }

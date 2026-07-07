@@ -2,7 +2,7 @@ import { SidebarLeft, TriangleRightMini, XMark } from "@medusajs/icons"
 import { IconButton, clx } from "@medusajs/ui"
 import { AnimatePresence } from "motion/react"
 import { Dialog as RadixDialog } from "radix-ui"
-import React, { PropsWithChildren, ReactNode, useEffect, useState } from "react"
+import { PropsWithChildren, ReactNode, useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import {
   Link,
@@ -13,7 +13,7 @@ import {
   useNavigation,
 } from "react-router-dom"
 
-import components from "virtual:mercur/components"
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { KeybindProvider } from "../../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
 import { useSidebar } from "../../../providers/sidebar-provider"
@@ -195,17 +195,13 @@ const ToggleSidebar = () => {
 }
 
 const Topbar = () => {
-  const TopbarActions = components.TopbarActions
-
   return (
     <div className="grid w-full grid-cols-2 border-b p-3">
       <div className="flex items-center gap-x-1.5">
         <ToggleSidebar />
         <Breadcrumbs />
       </div>
-      <div className="flex items-center justify-end gap-x-3">
-        {TopbarActions && <TopbarActions />}
-      </div>
+      <div className="flex items-center justify-end gap-x-3" />
     </div>
   )
 }
@@ -274,16 +270,13 @@ const isTopLevelRoute = (pathname: string) => {
 }
 
 const StoreSetupWidget = () => {
-  const StoreSetup = components.StoreSetup as
-    | React.ComponentType<{ seller: any }>
-    | undefined
   const { seller_member } = useMe()
   const seller = seller_member?.seller
   const location = useLocation()
 
-  if (!StoreSetup || !seller || !isTopLevelRoute(location.pathname)) {
+  if (!seller || !isTopLevelRoute(location.pathname)) {
     return null
   }
 
-  return <StoreSetup seller={seller} />
+  return <WidgetZone id="store.setup" data={seller} />
 }

@@ -1,5 +1,6 @@
 import { AdminReservationResponse } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { PencilSquare } from "@medusajs/icons"
@@ -40,11 +41,18 @@ export const ReservationGeneralSection = ({
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>
-          {t("inventory.reservation.header", {
-            itemName: inventoryItem.title ?? inventoryItem.sku,
-          })}
-        </Heading>
+        <DisplayField
+          model="reservation"
+          zone="general"
+          id="header"
+          data={reservation}
+        >
+          <Heading>
+            {t("inventory.reservation.header", {
+              itemName: inventoryItem.title ?? inventoryItem.sku,
+            })}
+          </Heading>
+        </DisplayField>
         <ActionMenu
           groups={[
             {
@@ -59,29 +67,85 @@ export const ReservationGeneralSection = ({
           ]}
         />
       </div>
-      <SectionRow
-        title={t("inventory.reservation.lineItemId")}
-        value={reservation.line_item_id} // TODO fetch order instead + add link
-      />
-      <SectionRow
-        title={t("inventory.reservation.description")}
-        value={reservation.description}
-      />
-      <SectionRow
-        title={t("inventory.reservation.location")}
-        value={location?.name}
-      />
-      <SectionRow
-        title={t("inventory.reservation.inStockAtLocation")}
-        value={locationLevel?.stocked_quantity}
-      />
-      <SectionRow
-        title={t("inventory.reservation.availableAtLocation")}
-        value={locationLevel?.available_quantity}
-      />
-      <SectionRow
-        title={t("inventory.reservation.reservedAtLocation")}
-        value={locationLevel?.reserved_quantity}
+      <DisplayField
+        model="reservation"
+        zone="general"
+        id="line_item_id"
+        data={reservation}
+      >
+        <SectionRow
+          title={t("inventory.reservation.lineItemId")}
+          value={reservation.line_item_id} // TODO fetch order instead + add link
+        />
+      </DisplayField>
+      <DisplayField
+        model="reservation"
+        zone="general"
+        id="description"
+        data={reservation}
+      >
+        <SectionRow
+          title={t("inventory.reservation.description")}
+          value={reservation.description}
+        />
+      </DisplayField>
+      <DisplayField
+        model="reservation"
+        zone="general"
+        id="location"
+        data={reservation}
+      >
+        <SectionRow
+          title={t("inventory.reservation.location")}
+          value={location?.name}
+        />
+      </DisplayField>
+      <DisplayField
+        model="reservation"
+        zone="general"
+        id="stocked_quantity"
+        data={reservation}
+      >
+        <SectionRow
+          title={t("inventory.reservation.inStockAtLocation")}
+          value={locationLevel?.stocked_quantity}
+        />
+      </DisplayField>
+      <DisplayField
+        model="reservation"
+        zone="general"
+        id="available_quantity"
+        data={reservation}
+      >
+        <SectionRow
+          title={t("inventory.reservation.availableAtLocation")}
+          value={locationLevel?.available_quantity}
+        />
+      </DisplayField>
+      <DisplayField
+        model="reservation"
+        zone="general"
+        id="reserved_quantity"
+        data={reservation}
+      >
+        <SectionRow
+          title={t("inventory.reservation.reservedAtLocation")}
+          value={locationLevel?.reserved_quantity}
+        />
+      </DisplayField>
+      <DisplayExtensionZone
+        model="reservation"
+        zone="general"
+        data={reservation}
+        builtInFieldIds={[
+          "header",
+          "line_item_id",
+          "description",
+          "location",
+          "stocked_quantity",
+          "available_quantity",
+          "reserved_quantity",
+        ]}
       />
     </Container>
   )

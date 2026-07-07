@@ -2,7 +2,8 @@ import { PencilSquare, Trash } from "@medusajs/icons"
 import { AdminCampaign } from "@medusajs/types"
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
+import { useExtendableTable } from "@mercurjs/dashboard-shared"
 import { Children, ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -194,10 +195,14 @@ const columnHelper = createColumnHelper<AdminCampaign>()
 
 const useColumns = () => {
   const base = useCampaignTableColumns()
+  const { columns: extended } = useExtendableTable<AdminCampaign>({
+    model: "campaign",
+    columns: base as unknown as ColumnDef<AdminCampaign, unknown>[],
+  })
 
   return useMemo(
     () => [
-      ...base,
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
@@ -205,6 +210,6 @@ const useColumns = () => {
         },
       }),
     ],
-    [base]
+    [extended]
   )
 }

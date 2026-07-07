@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { usePriceList } from "@hooks/api/price-lists";
 
 import { PriceListConfigurationSection } from "./_components/price-list-configuration-section";
@@ -36,11 +37,15 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <TwoColumnPage hasOutlet data={price_list}>
           <TwoColumnPage.Main>
-            <PriceListGeneralSection priceList={price_list} />
-            <PriceListProductSection priceList={price_list} />
+            <WidgetZone id="price-lists.detail.main" data={price_list}>
+              <PriceListGeneralSection priceList={price_list} />
+              <PriceListProductSection priceList={price_list} />
+            </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <PriceListConfigurationSection priceList={price_list} />
+            <WidgetZone id="price-lists.detail.side" data={price_list}>
+              <PriceListConfigurationSection priceList={price_list} />
+            </WidgetZone>
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}

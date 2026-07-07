@@ -5,6 +5,7 @@ import { RowSelectionState } from "@tanstack/react-table";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { OfferDTO } from "@mercurjs/types";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 
 import { _DataTable } from "../../../../components/table/data-table";
 import { useOffers } from "../../../../hooks/api/offers";
@@ -99,6 +100,7 @@ export const StoreOffersSection = ({ sellerId }: StoreOffersSectionProps) => {
         }}
         commands={commands}
       />
+      <DisplayExtensionZone model="store" zone="offers" data={sellerId} />
     </Container>
   );
 };

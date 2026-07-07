@@ -1,5 +1,7 @@
 import { Children, ReactNode } from "react"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { SingleColumnPage } from "../../../components/layout/pages"
 import {
   InventoryListTable,
@@ -14,7 +16,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <div data-testid="inventory-page">
       <SingleColumnPage>
-        {Children.count(children) > 0 ? children : <InventoryListTable />}
+        <WidgetZone id="inventory.list">
+          {Children.count(children) > 0 ? children : <InventoryListTable />}
+        </WidgetZone>
       </SingleColumnPage>
     </div>
   )

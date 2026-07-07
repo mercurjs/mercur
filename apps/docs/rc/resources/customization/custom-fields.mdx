@@ -167,7 +167,7 @@ import {
     Yes — edit the `customFields` config and run `db:migrate` again; the module updates the side table's schema. Removing a field from config stops exposing it; treat destructive column changes with the same care as any schema migration.
   </Accordion>
   <Accordion title="How do vendors or admins edit these values from the panels?">
-    Through your own UI: add a page or re-compose an existing one ([extending panels](/rc/resources/customization/extending-panels)) and call an API route that uses the service's `upsert` — or compose `upsertCustomFieldsStep` into a workflow behind a [custom route](/rc/resources/tutorials/custom-api-route).
+    Through your own UI: add a page or a [panel custom field](/rc/resources/customization/extending-panels#custom-fields) and call an API route that uses the service's `upsert` — or compose `upsertCustomFieldsStep` into a workflow behind a [custom route](/rc/resources/tutorials/custom-api-route).
   </Accordion>
   <Accordion title="Can one entity have multiple custom-field records?">
     No — the side table has a unique constraint on the parent ID, enforcing one-to-one. If you need many records per parent, that's a custom module, not custom fields.

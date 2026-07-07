@@ -259,6 +259,8 @@ export const CreateOfferForm = () => {
 
   return (
     <TabbedForm
+      model="offer"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isSubmitting}

@@ -26,7 +26,6 @@ import { Skeleton } from "../../common/skeleton";
 import { INavItem, NavItem } from "../../layout/nav-item";
 import { Shell } from "../../layout/shell";
 import { UserMenu } from "../user-menu";
-import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
 import {
   applyNavOverrides,
@@ -50,10 +49,9 @@ const toCoreNavItem = (route: Omit<INavItem, "pathname">): CoreNavItem => ({
 import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
 
 export const MainLayout = () => {
-  const Sidebar = components.MainSidebar ? components.MainSidebar : MainSidebar;
   return (
     <Shell>
-      <Sidebar />
+      <MainSidebar />
     </Shell>
   );
 };

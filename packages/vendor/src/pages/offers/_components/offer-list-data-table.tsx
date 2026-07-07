@@ -1,5 +1,9 @@
 import { keepPreviousData } from "@tanstack/react-query"
+import { type ColumnDef } from "@tanstack/react-table"
+import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+
+import { useExtendableTable } from "@mercurjs/dashboard-shared"
 
 import { _DataTable } from "../../../components/table/data-table"
 import { useDataTable } from "../../../hooks/use-data-table"
@@ -30,8 +34,12 @@ export const OfferListDataTable = () => {
 
   const rows = (products ?? []) as OfferProduct[]
 
-  const filters = useOfferTableFilters()
-  const columns = useOfferTableColumns()
+  const baseFilters = useOfferTableFilters()
+  const { columns, filters: extFilters } = useColumns()
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  )
 
   const { table } = useDataTable({
     data: rows,
@@ -74,4 +82,22 @@ export const OfferListDataTable = () => {
       }}
     />
   )
+}
+
+const useColumns = () => {
+  const base = useOfferTableColumns()
+  const actionsColumn = base[base.length - 1]
+  const baseColumns = base.slice(0, -1)
+
+  const { columns: extended, filters } = useExtendableTable<OfferProduct>({
+    model: "offer",
+    columns: baseColumns as unknown as ColumnDef<OfferProduct, unknown>[],
+  })
+
+  const columns = useMemo(
+    () => [...extended, actionsColumn],
+    [extended, actionsColumn],
+  )
+
+  return { columns, filters }
 }

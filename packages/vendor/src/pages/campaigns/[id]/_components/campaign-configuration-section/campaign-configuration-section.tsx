@@ -3,6 +3,7 @@ import { Container, Heading } from "@medusajs/ui"
 
 import { PencilSquare } from "@medusajs/icons"
 import { useTranslation } from "react-i18next"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { DateRangeDisplay } from "@components/common/date-range-display"
 
@@ -37,6 +38,11 @@ export const CampaignConfigurationSection = ({
         startsAt={campaign.starts_at}
         endsAt={campaign.ends_at}
         showTime
+      />
+      <DisplayExtensionZone
+        model="campaign"
+        zone="configuration"
+        data={campaign}
       />
     </Container>
   )

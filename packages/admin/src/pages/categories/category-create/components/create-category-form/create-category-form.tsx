@@ -105,6 +105,8 @@ export const CreateCategoryForm = ({
 
   return (
     <TabbedForm
+      model="category"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isPending}

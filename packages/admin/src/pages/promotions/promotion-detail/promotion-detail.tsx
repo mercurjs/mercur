@@ -1,6 +1,8 @@
 import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
+
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { usePromotion, usePromotionRules } from "../../../hooks/api/promotions";
@@ -39,28 +41,32 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage data={promotion} hasOutlet showJSON data-testid="promotion-detail-page">
       <TwoColumnPage.Main>
-        <PromotionGeneralSection promotion={promotion} />
-        <PromotionConditionsSection
-          rules={rules || []}
-          ruleType={"rules"}
-        />
-        <PromotionConditionsSection
-          rules={targetRules || []}
-          ruleType={"target-rules"}
-          applicationMethodTargetType={
-            promotion.application_method?.target_type || "items"
-          }
-        />
-        {promotion.type === "buyget" && (
+        <WidgetZone id="promotions.detail.main" data={promotion}>
+          <PromotionGeneralSection promotion={promotion} />
           <PromotionConditionsSection
-            rules={buyRules || []}
-            ruleType={"buy-rules"}
-            applicationMethodTargetType={"items"}
+            rules={rules || []}
+            ruleType={"rules"}
           />
-        )}
+          <PromotionConditionsSection
+            rules={targetRules || []}
+            ruleType={"target-rules"}
+            applicationMethodTargetType={
+              promotion.application_method?.target_type || "items"
+            }
+          />
+          {promotion.type === "buyget" && (
+            <PromotionConditionsSection
+              rules={buyRules || []}
+              ruleType={"buy-rules"}
+              applicationMethodTargetType={"items"}
+            />
+          )}
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <CampaignSection campaign={promotion.campaign!} />
+        <WidgetZone id="promotions.detail.side" data={promotion}>
+          <CampaignSection campaign={promotion.campaign!} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );

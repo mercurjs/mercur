@@ -1,10 +1,10 @@
-import React, { Children, ReactNode } from "react";
+import { Children, ReactNode } from "react";
 import { Alert, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
-import components from "virtual:mercur/components";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { useMe } from "@/hooks/api";
 import { SellerStatus } from "@mercurjs/types";
 
@@ -48,13 +48,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     }
   })();
 
-  const StoreSetup = components.StoreSetup as
-    | React.ComponentType<{ seller: any }>
-    | undefined;
-
   const StatusBanner = () => (
     <>
-      {StoreSetup && <StoreSetup seller={seller} />}
+      <WidgetZone id="store.setup" data={seller} />
       {statusAlert && (
         <Alert variant={statusAlert.variant} dismissible className="p-5">
           <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">

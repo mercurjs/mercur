@@ -2,6 +2,9 @@ import { HttpTypes } from "@medusajs/types"
 import { Button, Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
+
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { ItemLocationListTable } from "./location-levels-table/location-list-table"
 
 type InventoryItemLocationLevelsSectionProps = {
@@ -21,6 +24,11 @@ export const InventoryItemLocationLevelsSection = ({
         </Button>
       </div>
       <ItemLocationListTable inventory_item_id={inventoryItem.id} />
+      <DisplayExtensionZone
+        model="inventory_item"
+        zone="locations"
+        data={inventoryItem}
+      />
     </Container>
   )
 }

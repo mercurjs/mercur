@@ -1,6 +1,7 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text, usePrompt } from "@medusajs/ui"
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useDeleteCollection } from "../../../../../hooks/api/collections"
@@ -39,7 +40,9 @@ export const CollectionGeneralSection = ({
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>{collection.title}</Heading>
+        <DisplayField model="collection" zone="general" id="title" data={collection}>
+          <Heading>{collection.title}</Heading>
+        </DisplayField>
         <ActionMenu
           groups={[
             {
@@ -65,12 +68,20 @@ export const CollectionGeneralSection = ({
           ]}
         />
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-        <Text size="small" leading="compact" weight="plus">
-          {t("fields.handle")}
-        </Text>
-        <Text size="small">/{collection.handle}</Text>
-      </div>
+      <DisplayField model="collection" zone="general" id="handle" data={collection}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+          <Text size="small" leading="compact" weight="plus">
+            {t("fields.handle")}
+          </Text>
+          <Text size="small">/{collection.handle}</Text>
+        </div>
+      </DisplayField>
+      <DisplayExtensionZone
+        model="collection"
+        zone="general"
+        data={collection}
+        builtInFieldIds={["title", "handle"]}
+      />
     </Container>
   )
 }

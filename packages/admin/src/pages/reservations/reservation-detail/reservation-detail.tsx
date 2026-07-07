@@ -1,6 +1,8 @@
 import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
+
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useInventoryItem } from "../../../hooks/api";
@@ -64,12 +66,16 @@ const Root = ({ children }: { children?: ReactNode }) => {
       data-testid="reservation-detail-page"
     >
       <TwoColumnPage.Main>
-        <ReservationGeneralSection reservation={reservation} />
+        <WidgetZone id="reservation.detail.main" data={reservation}>
+          <ReservationGeneralSection reservation={reservation} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        {inventory_item && (
-          <InventoryItemGeneralSection inventoryItem={inventory_item} />
-        )}
+        <WidgetZone id="reservation.detail.side" data={reservation}>
+          {inventory_item && (
+            <InventoryItemGeneralSection inventoryItem={inventory_item} />
+          )}
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );

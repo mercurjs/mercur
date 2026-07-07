@@ -9,7 +9,6 @@ import {
   TextHeader,
 } from "../../../../../components/table/table-cells/common/text-cell"
 import { getPriceListStatus } from "../../../common/utils"
-import { PriceListListTableActions } from "./price-list-list-table-actions"
 
 const columnHelper = createColumnHelper<HttpTypes.AdminPriceList>()
 
@@ -33,12 +32,6 @@ export const usePricingTableColumns = () => {
       columnHelper.accessor("prices", {
         header: t("priceLists.fields.priceOverrides.header"),
         cell: (info) => <TextCell text={`${info.getValue()?.length || "-"}`} />,
-      }),
-      columnHelper.display({
-        id: "actions",
-        cell: ({ row }) => (
-          <PriceListListTableActions priceList={row.original} />
-        ),
       }),
     ],
     [t]

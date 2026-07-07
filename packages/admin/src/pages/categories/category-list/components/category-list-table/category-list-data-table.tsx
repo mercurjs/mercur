@@ -1,7 +1,8 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { AdminProductCategoryResponse } from "@medusajs/types"
+import { useExtendableTable } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -112,12 +113,18 @@ const CategoryRowActions = ({
 const columnHelper =
   createColumnHelper<AdminProductCategoryResponse["product_category"]>()
 
+type CategoryRow = AdminProductCategoryResponse["product_category"]
+
 const useColumns = () => {
   const base = useCategoryTableColumns()
+  const { columns: extended } = useExtendableTable<CategoryRow>({
+    model: "category",
+    columns: base as unknown as ColumnDef<CategoryRow, unknown>[],
+  })
 
   return useMemo(
     () => [
-      ...base,
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
@@ -125,6 +132,6 @@ const useColumns = () => {
         },
       }),
     ],
-    [base]
+    [extended]
   )
 }

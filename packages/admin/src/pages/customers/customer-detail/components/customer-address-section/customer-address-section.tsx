@@ -3,6 +3,7 @@ import { Button, clx, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { PencilSquare, Trash } from "@medusajs/icons"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { Link, useNavigate } from "react-router-dom"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
@@ -112,6 +113,7 @@ export const CustomerAddressSection = ({
           </div>
         )
       })}
+      <DisplayExtensionZone model="customer" zone="addresses" data={customer} />
     </Container>
   )
 }

@@ -11,6 +11,7 @@ import {
 } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useDeleteCampaign } from "../../../../../hooks/api/campaigns"
 import { currencies } from "../../../../../lib/data/currencies"
@@ -18,6 +19,14 @@ import {
   campaignStatus,
   statusColor,
 } from "../../../common/utils/campaign-status"
+
+const GENERAL_FIELD_IDS = [
+  "name",
+  "status",
+  "campaign_identifier",
+  "description",
+  "currency_code",
+]
 
 type CampaignGeneralSectionProps = {
   campaign: AdminCampaignResponse["campaign"]
@@ -66,12 +75,16 @@ export const CampaignGeneralSection = ({
   return (
     <Container className="divide-y p-0" data-testid="campaign-general-section-container">
       <div className="flex items-center justify-between px-6 py-4" data-testid="campaign-general-section-header">
-        <Heading data-testid="campaign-general-section-name">{campaign.name}</Heading>
+        <DisplayField model="campaign" zone="general" id="name" data={campaign}>
+          <Heading data-testid="campaign-general-section-name">{campaign.name}</Heading>
+        </DisplayField>
 
         <div className="flex items-center gap-x-4">
-          <StatusBadge color={statusColor(status)} data-testid="campaign-general-section-status">
-            {t(`campaigns.status.${status}`)}
-          </StatusBadge>
+          <DisplayField model="campaign" zone="general" id="status" data={campaign}>
+            <StatusBadge color={statusColor(status)} data-testid="campaign-general-section-status">
+              {t(`campaigns.status.${status}`)}
+            </StatusBadge>
+          </DisplayField>
 
           <ActionMenu
             groups={[
@@ -99,40 +112,53 @@ export const CampaignGeneralSection = ({
         </div>
       </div>
 
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-identifier">
-        <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-identifier-label">
-          {t("campaigns.fields.identifier")}
-        </Text>
-
-        <Text size="small" leading="compact" data-testid="campaign-general-section-identifier-value">
-          {campaign.campaign_identifier}
-        </Text>
-      </div>
-
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-description">
-        <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-description-label">
-          {t("fields.description")}
-        </Text>
-
-        <Text size="small" leading="compact" data-testid="campaign-general-section-description-value">
-          {campaign.description || "-"}
-        </Text>
-      </div>
-
-      {campaign?.budget && campaign.budget.type === "spend" && (
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-currency">
-          <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-currency-label">
-            {t("fields.currency")}
+      <DisplayField model="campaign" zone="general" id="campaign_identifier" data={campaign}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-identifier">
+          <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-identifier-label">
+            {t("campaigns.fields.identifier")}
           </Text>
 
-          <div data-testid="campaign-general-section-currency-value">
-            <Badge size="xsmall" data-testid="campaign-general-section-currency-badge">{campaign?.budget.currency_code}</Badge>
-            <Text className="inline pl-3" size="small" leading="compact" data-testid="campaign-general-section-currency-name">
-              {currencies[campaign?.budget.currency_code?.toUpperCase()]?.name}
-            </Text>
-          </div>
+          <Text size="small" leading="compact" data-testid="campaign-general-section-identifier-value">
+            {campaign.campaign_identifier}
+          </Text>
         </div>
+      </DisplayField>
+
+      <DisplayField model="campaign" zone="general" id="description" data={campaign}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-description">
+          <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-description-label">
+            {t("fields.description")}
+          </Text>
+
+          <Text size="small" leading="compact" data-testid="campaign-general-section-description-value">
+            {campaign.description || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+
+      {campaign?.budget && campaign.budget.type === "spend" && (
+        <DisplayField model="campaign" zone="general" id="currency_code" data={campaign}>
+          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-currency">
+            <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-currency-label">
+              {t("fields.currency")}
+            </Text>
+
+            <div data-testid="campaign-general-section-currency-value">
+              <Badge size="xsmall" data-testid="campaign-general-section-currency-badge">{campaign?.budget.currency_code}</Badge>
+              <Text className="inline pl-3" size="small" leading="compact" data-testid="campaign-general-section-currency-name">
+                {currencies[campaign?.budget.currency_code?.toUpperCase()]?.name}
+              </Text>
+            </div>
+          </div>
+        </DisplayField>
       )}
+
+      <DisplayExtensionZone
+        model="campaign"
+        zone="general"
+        data={campaign}
+        builtInFieldIds={GENERAL_FIELD_IDS}
+      />
     </Container>
   )
 }

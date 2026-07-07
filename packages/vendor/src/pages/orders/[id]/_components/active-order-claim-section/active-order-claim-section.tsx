@@ -4,6 +4,7 @@ import { Button, Container, Heading, Text, toast } from "@medusajs/ui"
 import { useNavigate } from "react-router-dom"
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { useCancelClaimBegin } from "@hooks/api/claims"
 
 /**
@@ -103,6 +104,11 @@ export const ActiveOrderClaimSection = ({
             </Button>
           </div>
         </div>
+        <DisplayExtensionZone
+          model="order"
+          zone="active-claim"
+          data={orderPreview}
+        />
       </Container>
     </div>
   )
