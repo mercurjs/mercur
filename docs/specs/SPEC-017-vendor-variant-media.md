@@ -7,7 +7,7 @@ created: 2026-06-11
 last_updated: 2026-06-11
 ---
 
-# SPEC-009 Vendor Variant Media (per-variant images)
+# SPEC-017 Vendor Variant Media (per-variant images)
 
 Split out of **MER-127** (*PRODUCTS — Vendor Panel — Product Creation —
 Step 4 — Variant*). That ticket bundled three items; the two contained

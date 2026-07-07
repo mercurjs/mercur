@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { HttpTypes } from "@medusajs/types";
 import { HttpTypes as MercurHttpTypes, SellerDTO } from "@mercurjs/types";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useProduct } from "../../../hooks/api/products";
@@ -68,15 +69,19 @@ const Root = ({ children }: { children?: ReactNode }) => {
       data-testid="product-detail-page"
     >
       <TwoColumnPage.Main data-testid="product-detail-main">
-        <ProductActiveRequestSection product={product} />
-        <ProductActiveEditSection product={product} />
-        <ProductGeneralSection product={product} />
-        <ProductMediaSection product={product} />
-        <ProductVariantSection product={product} />
+        <WidgetZone id="product.detail.main" data={product}>
+          <ProductActiveRequestSection product={product} />
+          <ProductActiveEditSection product={product} />
+          <ProductGeneralSection product={product} />
+          <ProductMediaSection product={product} />
+          <ProductVariantSection product={product} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
-        <ProductOrganizationSection product={product} />
-        <ProductAttributeSection product={product} />
+        <WidgetZone id="product.detail.side" data={product}>
+          <ProductOrganizationSection product={product} />
+          <ProductAttributeSection product={product} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );

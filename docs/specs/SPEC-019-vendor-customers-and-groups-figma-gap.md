@@ -7,7 +7,7 @@ created: 2026-06-15
 last_updated: 2026-06-16
 ---
 
-# SPEC-011 Vendor Customers & Customer Groups — Figma vs Implementation Gap
+# SPEC-019 Vendor Customers & Customer Groups — Figma vs Implementation Gap
 
 This spec audits the **Customers** and **Customer Groups** surfaces of
 `@mercurjs/vendor` (`packages/vendor/src/pages/customers`) against the

@@ -7,7 +7,7 @@ created: 2026-06-16
 last_updated: 2026-06-16
 ---
 
-# SPEC-011 Categories — Admin Panel (BASIC, no Requests)
+# SPEC-018 Categories — Admin Panel (BASIC, no Requests)
 
 Implements [MER-156](https://linear.app/rigbyjs/issue/MER-156/categories-admin-panel).
 

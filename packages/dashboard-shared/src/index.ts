@@ -23,3 +23,4 @@ export {
 } from "./lib/product-change-diff"
 export * from "./components"
 export * from "./hooks"
+export * from "./extensions"

@@ -3,7 +3,7 @@ import { builtinModules } from "node:module";
 import { rm, writeFile } from "node:fs/promises";
 import path from "path";
 import fs from "fs";
-import { generatePluginEntryModule } from "@mercurjs/dashboard-sdk";
+import { generatePluginEntryModule } from "@mercurjs/dashboard-sdk/vite";
 
 interface BuildVendorExtensionsOptions {
   root: string;

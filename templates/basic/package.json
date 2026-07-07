@@ -31,7 +31,7 @@
     "@types/react": "^18.3.2",
     "@types/react-dom": "^18.2.25",
     "@types/jsonwebtoken": "^9.0.9",
-    "@vitejs/plugin-react": "^4.2.1",
+    "@vitejs/plugin-react": "^5.2.0",
     "esbuild": "^0.21.5",
     "vite": "^5.4.21",
     "eslint": "^9.39.1",

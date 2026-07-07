@@ -18,6 +18,10 @@
       "types": "./dist/pages/index.d.ts",
       "import": "./dist/pages/index.js"
     },
+    "./extension-targets": {
+      "types": "./dist/extension-targets.d.ts",
+      "import": "./dist/extension-targets.js"
+    },
     "./index.css": "./dist/index.css"
   },
   "files": [
@@ -25,7 +29,8 @@
   ],
   "scripts": {
     "dev": "tsup --watch",
-    "build": "tsup",
+    "generate:targets": "bun run scripts/generate-extension-targets.ts",
+    "build": "tsup && bun run generate:targets",
     "lint": "oxlint --max-warnings 0"
   },
   "dependencies": {

@@ -2,7 +2,12 @@ import type * as Vite from "vite";
 import path from "path";
 import fs from "fs";
 import { getFileExports } from "./utils";
-import { RESOLVED_ROUTES_MODULE } from "./constants";
+import {
+    RESOLVED_ROUTES_MODULE,
+    RESOLVED_WIDGETS_MODULE,
+    RESOLVED_NAVIGATION_MODULE,
+    RESOLVED_CUSTOM_FIELDS_MODULE,
+} from "./constants";
 import {
     isVirtualModule,
     resolveVirtualModule,
@@ -13,6 +18,23 @@ import type { MercurConfig, BuiltMercurConfig } from "./types";
 function isRouteFile(file: string): boolean {
     const basename = path.basename(file, path.extname(file));
     return basename === "page";
+}
+
+function isWidgetFile(file: string): boolean {
+    return normalizeSep(file).includes("/src/widgets/");
+}
+
+function isNavigationFile(file: string): boolean {
+    const basename = path.basename(file, path.extname(file));
+    return basename === "_navigation";
+}
+
+function isCustomFieldFile(file: string): boolean {
+    return normalizeSep(file).includes("/src/custom-fields/");
+}
+
+function normalizeSep(file: string): string {
+    return file.replace(/\\/g, "/");
 }
 
 const UI_MODULE_KEYS = ["admin_ui", "vendor_ui"];
@@ -263,6 +285,9 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                         "virtual:mercur/components",
                         "virtual:mercur/menu-items",
                         "virtual:mercur/i18n",
+                        "virtual:mercur/widgets",
+                        "virtual:mercur/navigation",
+                        "virtual:mercur/custom-fields",
                         ...MEDUSA_VIRTUAL_MODULES,
                     ],
                     include: [
@@ -299,26 +324,34 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
             return loadVirtualModule({ cwd: root, id, mercurConfig: config });
         },
         configureServer(server) {
-            const handleRouteChange = (file: string) => {
-                if (!isRouteFile(file)) return;
-
-                const mod = server.moduleGraph.getModuleById(RESOLVED_ROUTES_MODULE);
+            const invalidate = (moduleId: string, reload: boolean) => {
+                const mod = server.moduleGraph.getModuleById(moduleId);
                 if (mod) {
                     server.moduleGraph.invalidateModule(mod);
-                    server.ws.send({ type: "full-reload" });
+                    if (reload) server.ws.send({ type: "full-reload" });
                 }
             };
 
-            server.watcher.on("add", handleRouteChange);
-            server.watcher.on("unlink", handleRouteChange);
+            const handleChange = (file: string) => {
+                if (isRouteFile(file)) invalidate(RESOLVED_ROUTES_MODULE, true);
+                if (isWidgetFile(file)) invalidate(RESOLVED_WIDGETS_MODULE, true);
+                if (isNavigationFile(file)) invalidate(RESOLVED_NAVIGATION_MODULE, true);
+                if (isCustomFieldFile(file)) invalidate(RESOLVED_CUSTOM_FIELDS_MODULE, true);
+            };
+
+            server.watcher.on("add", handleChange);
+            server.watcher.on("unlink", handleChange);
         },
         handleHotUpdate({ file, server }) {
-            if (isRouteFile(file)) {
-                const mod = server.moduleGraph.getModuleById(RESOLVED_ROUTES_MODULE);
-                if (mod) {
-                    server.moduleGraph.invalidateModule(mod);
-                }
-            }
+            const invalidate = (moduleId: string) => {
+                const mod = server.moduleGraph.getModuleById(moduleId);
+                if (mod) server.moduleGraph.invalidateModule(mod);
+            };
+
+            if (isRouteFile(file)) invalidate(RESOLVED_ROUTES_MODULE);
+            if (isWidgetFile(file)) invalidate(RESOLVED_WIDGETS_MODULE);
+            if (isNavigationFile(file)) invalidate(RESOLVED_NAVIGATION_MODULE);
+            if (isCustomFieldFile(file)) invalidate(RESOLVED_CUSTOM_FIELDS_MODULE);
         },
     };
 }

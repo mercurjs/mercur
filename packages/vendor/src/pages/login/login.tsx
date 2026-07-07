@@ -7,6 +7,7 @@ import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import * as z from "zod";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { Form } from "@components/common/form";
 import AvatarBox from "@components/common/logo-box/avatar-box";
 import { AuthLayout } from "@components/layout/auth-layout";
@@ -25,7 +26,11 @@ const LoginSchema = z.object({
 });
 
 const LoginLogo = () => {
-  return <AvatarBox />;
+  return (
+    <WidgetZone id="login.logo">
+      <AvatarBox />
+    </WidgetZone>
+  );
 };
 
 const LoginHeader = () => {
@@ -197,10 +202,12 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <>
           <LoginLogo />
+          <WidgetZone id="login.before" />
           <div className="mt-6">
             <LoginHeader />
             <LoginForm />
           </div>
+          <WidgetZone id="login.after" />
           <LoginFooter />
         </>
       )}

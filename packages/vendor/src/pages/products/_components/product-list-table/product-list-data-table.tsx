@@ -1,11 +1,14 @@
 import { toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import { createColumnHelper } from "@tanstack/react-table";
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
+import { useExtendableTable } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
+import { useLoaderData } from "react-router-dom";
 import { PencilSquare, Tag, Trash } from "@medusajs/icons";
 
 import { ExtendedAdminProduct } from "@custom-types/products";
+import type { productListLoader } from "../../list-loader";
 import { ActionMenu } from "@components/common/action-menu";
 import { _DataTable } from "@components/table/data-table";
 import { useDeleteProduct, useProducts } from "@hooks/api/products";
@@ -23,15 +26,24 @@ export const ProductListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
+  const initialData = useLoaderData() as
+    | Awaited<ReturnType<typeof productListLoader>>
+    | undefined;
+
   const { products, count, isLoading, isError, error } = useProducts(
     searchParams,
     {
+      initialData,
       placeholderData: keepPreviousData,
     },
   );
 
-  const filters = useProductTableFilters();
-  const columns = useColumns();
+  const baseFilters = useProductTableFilters();
+  const { columns, filters: extFilters } = useColumns();
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  );
 
   const { table } = useDataTable({
     data: products,
@@ -148,10 +160,16 @@ const columnHelper = createColumnHelper<ExtendedAdminProduct>();
 
 const useColumns = () => {
   const base = useProductTableColumns();
+  const { columns: extended, filters } = useExtendableTable<ExtendedAdminProduct>(
+    {
+      model: "product",
+      columns: base as unknown as ColumnDef<ExtendedAdminProduct, unknown>[],
+    },
+  );
 
   const columns = useMemo(
     () => [
-      ...base,
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
@@ -159,8 +177,8 @@ const useColumns = () => {
         },
       }),
     ],
-    [base],
+    [extended],
   );
 
-  return columns;
+  return { columns, filters };
 };

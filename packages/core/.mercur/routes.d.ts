@@ -149,6 +149,12 @@ export type Routes = {
             };
             accept: typeof import("@medusajs/medusa/api/admin/invites/accept/route");
         };
+        layouts: {
+            $zone: {
+                configuration: typeof import("@medusajs/medusa/api/admin/layouts/[zone]/configuration/route");
+            };
+            configurations: typeof import("@medusajs/medusa/api/admin/layouts/configurations/route");
+        };
         locales: typeof import("@medusajs/medusa/api/admin/locales/route") & {
             $code: typeof import("@medusajs/medusa/api/admin/locales/[code]/route");
         };
@@ -198,6 +204,9 @@ export type Routes = {
                 };
                 lineItems: typeof import("@medusajs/medusa/api/admin/orders/[id]/line-items/route");
                 orderGroup: typeof import("../src/api/admin/orders/[id]/order-group/route");
+                paymentSessions: {
+                    authorize: typeof import("@medusajs/medusa/api/admin/orders/[id]/payment-sessions/authorize/route");
+                };
                 preview: typeof import("@medusajs/medusa/api/admin/orders/[id]/preview/route");
                 shippingOptions: typeof import("@medusajs/medusa/api/admin/orders/[id]/shipping-options/route");
                 transfer: typeof import("@medusajs/medusa/api/admin/orders/[id]/transfer/route") & {
@@ -254,7 +263,11 @@ export type Routes = {
             };
         };
         productOptions: typeof import("@medusajs/medusa/api/admin/product-options/route") & {
-            $id: typeof import("@medusajs/medusa/api/admin/product-options/[id]/route");
+            $id: typeof import("@medusajs/medusa/api/admin/product-options/[id]/route") & {
+                values: typeof import("@medusajs/medusa/api/admin/product-options/[id]/values/route") & {
+                    $valueId: typeof import("@medusajs/medusa/api/admin/product-options/[id]/values/[value_id]/route");
+                };
+            };
         };
         productTags: typeof import("@medusajs/medusa/api/admin/product-tags/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/product-tags/[id]/route");
@@ -342,7 +355,10 @@ export type Routes = {
                 permissions: typeof import("@medusajs/medusa/api/admin/rbac/me/permissions/route");
             };
             policies: typeof import("@medusajs/medusa/api/admin/rbac/policies/route") & {
-                $id: typeof import("@medusajs/medusa/api/admin/rbac/policies/[id]/route");
+                $id: typeof import("@medusajs/medusa/api/admin/rbac/policies/[id]/route") & {
+                    roles: typeof import("@medusajs/medusa/api/admin/rbac/policies/[id]/roles/route");
+                };
+                assignable: typeof import("@medusajs/medusa/api/admin/rbac/policies/assignable/route");
             };
             roles: typeof import("@medusajs/medusa/api/admin/rbac/roles/route") & {
                 $id: typeof import("@medusajs/medusa/api/admin/rbac/roles/[id]/route") & {
@@ -351,6 +367,7 @@ export type Routes = {
                     };
                     users: typeof import("@medusajs/medusa/api/admin/rbac/roles/[id]/users/route");
                 };
+                assignable: typeof import("@medusajs/medusa/api/admin/rbac/roles/assignable/route");
             };
         };
         refundReasons: typeof import("@medusajs/medusa/api/admin/refund-reasons/route") & {
@@ -499,10 +516,6 @@ export type Routes = {
                 register: typeof import("@medusajs/medusa/api/auth/[actor_type]/[auth_provider]/register/route");
                 resetPassword: typeof import("@medusajs/medusa/api/auth/[actor_type]/[auth_provider]/reset-password/route");
                 update: typeof import("@medusajs/medusa/api/auth/[actor_type]/[auth_provider]/update/route");
-                verification: {
-                    confirm: typeof import("@medusajs/medusa/api/auth/[actor_type]/[auth_provider]/verification/confirm/route");
-                    request: typeof import("@medusajs/medusa/api/auth/[actor_type]/[auth_provider]/verification/request/route");
-                };
             };
         };
         mfa: {
@@ -521,6 +534,10 @@ export type Routes = {
         session: typeof import("@medusajs/medusa/api/auth/session/route");
         token: {
             refresh: typeof import("@medusajs/medusa/api/auth/token/refresh/route");
+        };
+        verification: {
+            confirm: typeof import("@medusajs/medusa/api/auth/verification/confirm/route");
+            request: typeof import("@medusajs/medusa/api/auth/verification/request/route");
         };
     };
     cloud: {

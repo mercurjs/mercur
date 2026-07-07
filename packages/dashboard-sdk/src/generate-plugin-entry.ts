@@ -1,7 +1,8 @@
 import path from "path"
 import { crawlRoutes, parseFile, buildRouteTree, formatRoute } from "./routes"
 import { parseMenuItemFile, formatMenuItem } from "./menu-items"
-import { normalizePath } from "./utils"
+import { collectWidgets } from "./widgets"
+import { normalizePath, crawlModuleFiles } from "./utils"
 import { VALID_FILE_EXTENSIONS } from "./constants"
 import fs from "fs"
 
@@ -55,6 +56,19 @@ export function generatePluginEntryModule(srcDir: string): string {
         .filter(Boolean)
         .map((r) => formatMenuItem(r!.menuItem))
 
+    // widgets (offset the index namespace so component names don't collide)
+    const { imports: widgetImports, entries: widgetEntries } = collectWidgets(
+        srcDir,
+        index
+    )
+
+    // custom-fields (aggregate default exports)
+    const cfFiles = crawlModuleFiles(path.join(srcDir, "custom-fields"))
+    const cfImports = cfFiles.map(
+        (file, i) => `import __cf${i} from "${normalizePath(file)}"`
+    )
+    const cfRefs = cfFiles.map((_, i) => `    __cf${i}`)
+
     // i18n
     const i18nFile = findI18nIndex(srcDir)
     const i18nImport = i18nFile
@@ -62,7 +76,12 @@ export function generatePluginEntryModule(srcDir: string): string {
         : ""
     const i18nValue = i18nFile ? "i18nResources" : "{}"
 
-    const allImports = [...routeImports, ...menuItemImports]
+    const allImports = [
+        ...routeImports,
+        ...menuItemImports,
+        ...widgetImports,
+        ...cfImports,
+    ]
     if (i18nImport) allImports.push(i18nImport)
 
     return `// Auto-generated plugin extensions entry
@@ -80,9 +99,23 @@ ${menuItems.join(",\n")}
     ]
 }
 
+const widgetModule = {
+    widgets: [
+${widgetEntries.join(",\n")}
+    ]
+}
+
+const customFieldsModule = {
+    configs: [
+${cfRefs.join(",\n")}
+    ]
+}
+
 const plugin = {
     routeModule,
     menuItemModule,
+    widgetModule,
+    customFieldsModule,
     i18nModule: ${i18nValue},
 }
 

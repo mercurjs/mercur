@@ -31,17 +31,18 @@ function resolveTabMeta<T extends FieldValues>(
 ): TabDefinition<T> | null {
   const type = child.type as any
   const meta: TabDefinition<T> | undefined = type?._tabMeta
+  const props = (child.props ?? {}) as Record<string, any>
 
-  if (!meta && !child.props?.id) {
+  if (!meta && !props.id) {
     return null
   }
 
   return {
-    id: child.props?.id ?? meta?.id ?? "",
+    id: props.id ?? meta?.id ?? "",
     labelKey: meta?.labelKey ?? "",
-    label: child.props?.label,
-    validationFields: child.props?.validationFields ?? meta?.validationFields,
-    isVisible: child.props?.isVisible ?? meta?.isVisible,
+    label: props.label,
+    validationFields: props.validationFields ?? meta?.validationFields,
+    isVisible: props.isVisible ?? meta?.isVisible,
   }
 }
 
