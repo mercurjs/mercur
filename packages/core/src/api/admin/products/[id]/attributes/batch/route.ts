@@ -16,11 +16,13 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const productId = req.params.id
 
-  const { add, remove, update } =
-    req.validatedBody as ProductAttributeBatchInput
+  const { add, remove, update, additional_data } =
+    req.validatedBody as ProductAttributeBatchInput & {
+      additional_data?: Record<string, unknown>
+    }
 
   await createAndLinkProductAttributesToProductWorkflow(req.scope).run({
-    input: { product_id: productId, add, remove, update },
+    input: { product_id: productId, add, remove, update, additional_data },
   })
 
   const {

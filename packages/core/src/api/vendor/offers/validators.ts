@@ -3,7 +3,9 @@ import {
   createFindParams,
   createOperatorMap,
   createSelectParams,
+  WithAdditionalData,
 } from "@medusajs/medusa/api/utils/validators"
+import { AdditionalData } from "@medusajs/framework/types"
 
 export type VendorGetOfferParamsType = z.infer<typeof VendorGetOfferParams>
 export const VendorGetOfferParams = createSelectParams()
@@ -67,8 +69,7 @@ const VendorOfferUpsertPrice = z
   })
   .strict()
 
-export type VendorCreateOfferType = z.infer<typeof VendorCreateOffer>
-export const VendorCreateOffer = z
+const CreateOffer = z
   .object({
     sku: z.string().min(1),
     variant_id: z.string(),
@@ -81,8 +82,10 @@ export const VendorCreateOffer = z
   })
   .strict()
 
-export type VendorUpdateOfferType = z.infer<typeof VendorUpdateOffer>
-export const VendorUpdateOffer = z
+export type VendorCreateOfferType = z.infer<typeof CreateOffer> & AdditionalData
+export const VendorCreateOffer = WithAdditionalData(CreateOffer)
+
+const UpdateOffer = z
   .object({
     sku: z.string().min(1).optional(),
     shipping_profile_id: z.string().min(1).optional(),
@@ -90,6 +93,9 @@ export const VendorUpdateOffer = z
     prices: z.array(VendorOfferUpsertPrice).optional(),
   })
   .strict()
+
+export type VendorUpdateOfferType = z.infer<typeof UpdateOffer> & AdditionalData
+export const VendorUpdateOffer = WithAdditionalData(UpdateOffer)
 
 const VendorBatchInventoryItemCreate = z
   .object({
@@ -105,16 +111,21 @@ const VendorBatchInventoryItemUpdate = z
   })
   .strict()
 
-export type VendorBatchOfferInventoryItemsType = z.infer<
-  typeof VendorBatchOfferInventoryItems
->
-export const VendorBatchOfferInventoryItems = z
+const BatchOfferInventoryItems = z
   .object({
     create: z.array(VendorBatchInventoryItemCreate).optional(),
     update: z.array(VendorBatchInventoryItemUpdate).optional(),
     delete: z.array(z.string()).optional(),
   })
   .strict()
+
+export type VendorBatchOfferInventoryItemsType = z.infer<
+  typeof BatchOfferInventoryItems
+> &
+  AdditionalData
+export const VendorBatchOfferInventoryItems = WithAdditionalData(
+  BatchOfferInventoryItems
+)
 
 const VendorCreateOffersBatchItem = z
   .object({
@@ -129,11 +140,14 @@ const VendorCreateOffersBatchItem = z
   })
   .strict()
 
-export type VendorCreateOffersBatchType = z.infer<
-  typeof VendorCreateOffersBatch
->
-export const VendorCreateOffersBatch = z
+const CreateOffersBatch = z
   .object({
     offers: z.array(VendorCreateOffersBatchItem).min(1).max(100),
   })
   .strict()
+
+export type VendorCreateOffersBatchType = z.infer<
+  typeof CreateOffersBatch
+> &
+  AdditionalData
+export const VendorCreateOffersBatch = WithAdditionalData(CreateOffersBatch)

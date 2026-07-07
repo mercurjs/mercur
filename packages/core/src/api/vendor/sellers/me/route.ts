@@ -6,6 +6,7 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { HttpTypes } from "@mercurjs/types"
 
 import { VendorUpdateSellerType } from "../validators"
+import { updateSellersWorkflow } from "../../../../workflows/seller"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,
@@ -30,7 +31,17 @@ export const POST = async (
   res: MedusaResponse<HttpTypes.VendorSellerResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-  const sellerId =  req.seller_context!.seller_id
+  const sellerId = req.seller_context!.seller_id
+
+  const { additional_data, ...update } = req.validatedBody
+
+  await updateSellersWorkflow(req.scope).run({
+    input: {
+      selector: { id: sellerId },
+      update,
+      additional_data,
+    },
+  })
 
   const {
     data: [seller],

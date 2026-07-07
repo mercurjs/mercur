@@ -67,13 +67,14 @@ export const POST = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const sellerId = req.seller_context!.seller_id
 
-  const { additional_data: _ad, ...update } = req.validatedBody
+  const { additional_data, ...update } = req.validatedBody
 
   const { result } = await productEditUpdateProductWorkflow(req.scope).run({
     input: {
       product_id: req.params.id,
       created_by: sellerId,
       update: update as Record<string, unknown>,
+      additional_data,
     },
   })
 

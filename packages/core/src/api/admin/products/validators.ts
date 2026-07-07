@@ -274,24 +274,32 @@ export const UpdateProduct = z
   .strict()
 export const AdminUpdateProduct = WithAdditionalData(UpdateProduct)
 
-export type AdminConfirmProductType = z.infer<typeof AdminConfirmProduct>
-export const AdminConfirmProduct = z
+const ConfirmProduct = z
   .object({
     internal_note: z.string().optional(),
   })
   .strict()
+export type AdminConfirmProductType = z.infer<typeof ConfirmProduct> &
+  AdditionalData
+export const AdminConfirmProduct = WithAdditionalData(ConfirmProduct)
 
-export type AdminRejectProductType = z.infer<typeof AdminRejectProduct>
-export const AdminRejectProduct = z.object({
+const RejectProduct = z.object({
   message: z.string().optional(),
 })
+export type AdminRejectProductType = z.infer<typeof RejectProduct> &
+  AdditionalData
+export const AdminRejectProduct = WithAdditionalData(RejectProduct)
 
+const RequestProductChanges = z.object({
+  message: z.string().optional(),
+})
 export type AdminRequestProductChangesType = z.infer<
-  typeof AdminRequestProductChanges
->
-export const AdminRequestProductChanges = z.object({
-  message: z.string().optional(),
-})
+  typeof RequestProductChanges
+> &
+  AdditionalData
+export const AdminRequestProductChanges = WithAdditionalData(
+  RequestProductChanges
+)
 
 const BatchVariantCreateItem = CreateProductVariant
 const BatchVariantUpdateItem = UpdateProductVariant.extend({
@@ -397,11 +405,14 @@ const BatchAttributeUpdate = z
   })
   .strict()
 
-export type AdminBatchProductAttributesType = z.infer<
-  typeof AdminBatchProductAttributes
->
-export const AdminBatchProductAttributes = z.object({
+const BatchProductAttributes = z.object({
   add: z.array(BatchAttributeAdd).optional(),
   remove: z.array(z.string()).optional(),
   update: z.array(BatchAttributeUpdate).optional(),
 })
+export type AdminBatchProductAttributesType = z.infer<
+  typeof BatchProductAttributes
+> &
+  AdditionalData
+export const AdminBatchProductAttributes =
+  WithAdditionalData(BatchProductAttributes)
