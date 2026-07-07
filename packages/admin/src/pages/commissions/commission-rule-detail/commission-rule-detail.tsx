@@ -3,6 +3,7 @@ import { Container, Heading, StatusBadge } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { ActionMenu } from "../../../components/common/action-menu";
 import { SectionRow } from "../../../components/common/section";
 import { SingleColumnPage } from "../../../components/layout/pages";
@@ -173,8 +174,10 @@ export const CommissionRuleDetail = () => {
 
   return (
     <SingleColumnPage hasOutlet data={commission_rate}>
-      <ScopeSection rule={commission_rate} />
-      <CommissionSection rule={commission_rate} />
+      <WidgetZone id="commissions.detail.main" data={commission_rate}>
+        <ScopeSection rule={commission_rate} />
+        <CommissionSection rule={commission_rate} />
+      </WidgetZone>
     </SingleColumnPage>
   );
 };

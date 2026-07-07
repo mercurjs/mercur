@@ -1,5 +1,7 @@
 import { ReactNode, Children } from "react"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { SingleColumnPage } from "../../../components/layout/pages"
 import {
   TaxRegionListView,
@@ -12,7 +14,9 @@ import {
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage hasOutlet>
-      {Children.count(children) > 0 ? children : <TaxRegionListView />}
+      <WidgetZone id="tax-regions.list">
+        {Children.count(children) > 0 ? children : <TaxRegionListView />}
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

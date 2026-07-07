@@ -4,6 +4,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 import { HttpTypes } from "@medusajs/types";
 import { useProductVariant } from "../../../hooks/api/products";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { VariantGeneralSection } from "./components/variant-general-section";
@@ -47,9 +48,15 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage data={variant} showJSON showMetadata hasOutlet>
       <TwoColumnPage.Main>
-        <VariantGeneralSection variant={variant} />
+        <WidgetZone id="product-variants.detail.main" data={variant}>
+          <VariantGeneralSection variant={variant} />
+        </WidgetZone>
       </TwoColumnPage.Main>
-      <TwoColumnPage.Sidebar>{null}</TwoColumnPage.Sidebar>
+      <TwoColumnPage.Sidebar>
+        <WidgetZone id="product-variants.detail.side" data={variant}>
+          {null}
+        </WidgetZone>
+      </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );
 };

@@ -1,5 +1,7 @@
 import { Children, ReactNode } from "react";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
+
 import { SingleColumnPage } from "../../../components/layout/pages";
 import { RefundReasonListTable } from "./components/refund-reason-list-table";
 import {
@@ -12,7 +14,9 @@ import { RefundReasonListDataTable } from "./components/refund-reason-list-table
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage showMetadata={false} showJSON={false} hasOutlet>
-      {Children.count(children) > 0 ? children : <RefundReasonListTable />}
+      <WidgetZone id="refund-reasons.list">
+        {Children.count(children) > 0 ? children : <RefundReasonListTable />}
+      </WidgetZone>
     </SingleColumnPage>
   );
 };

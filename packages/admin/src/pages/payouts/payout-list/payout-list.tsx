@@ -3,6 +3,8 @@ import { Container, Heading } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { _DataTable } from "../../../components/table/data-table"
 import { usePayouts } from "../../../hooks/api/payouts"
@@ -112,7 +114,9 @@ export const PayoutListTable = ({ children }: { children?: ReactNode }) => {
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage>
-      {Children.count(children) > 0 ? children : <PayoutListTable />}
+      <WidgetZone id="payouts.list">
+        {Children.count(children) > 0 ? children : <PayoutListTable />}
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

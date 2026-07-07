@@ -6,6 +6,7 @@ import { LocationGeneralSection } from "./components/location-general-section";
 import LocationsSalesChannelsSection from "./components/location-sales-channels-section/locations-sales-channels-section";
 import { locationLoader } from "./loader";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import LocationsFulfillmentProvidersSection from "./components/location-fulfillment-providers-section/location-fulfillment-providers-section";
@@ -55,11 +56,15 @@ const Root = ({ children }: { children?: ReactNode }) => {
       data-testid="location-detail-page"
     >
       <TwoColumnPage.Main data-testid="location-detail-main">
-        <LocationGeneralSection location={location} />
+        <WidgetZone id="locations.detail.main" data={location}>
+          <LocationGeneralSection location={location} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="location-detail-sidebar">
-        <LocationsSalesChannelsSection location={location} />
-        <LocationsFulfillmentProvidersSection location={location} />
+        <WidgetZone id="locations.detail.side" data={location}>
+          <LocationsSalesChannelsSection location={location} />
+          <LocationsFulfillmentProvidersSection location={location} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );

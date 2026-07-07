@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { useShippingProfile } from "../../../hooks/api/shipping-profiles"
 import { ShippingProfileGeneralSection } from "./components/shipping-profile-general-section"
@@ -35,7 +36,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage showMetadata showJSON data={shipping_profile}>
-      <ShippingProfileGeneralSection profile={shipping_profile} />
+      <WidgetZone id="shipping-profiles.detail.main" data={shipping_profile}>
+        <ShippingProfileGeneralSection profile={shipping_profile} />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

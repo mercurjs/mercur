@@ -4,6 +4,14 @@ import "@mercurjs/dashboard-sdk"
 
 declare module "@mercurjs/dashboard-sdk" {
   interface WidgetZoneRegistry {
+    "api-keys.detail.main.after": true
+    "api-keys.detail.main.before": true
+    "api-keys.list.after": true
+    "api-keys.list.before": true
+    "attributes.detail.main.after": true
+    "attributes.detail.main.before": true
+    "attributes.list.after": true
+    "attributes.list.before": true
     "campaigns.detail.main.after": true
     "campaigns.detail.main.before": true
     "campaigns.detail.side.after": true
@@ -20,6 +28,10 @@ declare module "@mercurjs/dashboard-sdk" {
     "collections.detail.main.before": true
     "collections.list.after": true
     "collections.list.before": true
+    "commissions.detail.main.after": true
+    "commissions.detail.main.before": true
+    "commissions.list.after": true
+    "commissions.list.before": true
     "customer-groups.detail.main.after": true
     "customer-groups.detail.main.before": true
     "customer-groups.list.after": true
@@ -36,6 +48,18 @@ declare module "@mercurjs/dashboard-sdk" {
     "inventory.detail.side.before": true
     "inventory.list.after": true
     "inventory.list.before": true
+    "locations.detail.main.after": true
+    "locations.detail.main.before": true
+    "locations.detail.side.after": true
+    "locations.detail.side.before": true
+    "locations.list.after": true
+    "locations.list.before": true
+    "marketplace.detail.main.after": true
+    "marketplace.detail.main.before": true
+    "offer-variants.detail.main.after": true
+    "offer-variants.detail.main.before": true
+    "offer-variants.detail.side.after": true
+    "offer-variants.detail.side.before": true
     "offers.detail.main.after": true
     "offers.detail.main.before": true
     "offers.detail.side.after": true
@@ -48,34 +72,84 @@ declare module "@mercurjs/dashboard-sdk" {
     "orders.detail.side.before": true
     "orders.list.after": true
     "orders.list.before": true
+    "payouts.detail.main.after": true
+    "payouts.detail.main.before": true
+    "payouts.list.after": true
+    "payouts.list.before": true
     "price-lists.detail.main.after": true
     "price-lists.detail.main.before": true
     "price-lists.detail.side.after": true
     "price-lists.detail.side.before": true
     "price-lists.list.after": true
     "price-lists.list.before": true
+    "product-tags.detail.main.after": true
+    "product-tags.detail.main.before": true
+    "product-tags.list.after": true
+    "product-tags.list.before": true
+    "product-types.detail.main.after": true
+    "product-types.detail.main.before": true
+    "product-types.list.after": true
+    "product-types.list.before": true
+    "product-variants.detail.main.after": true
+    "product-variants.detail.main.before": true
+    "product-variants.detail.side.after": true
+    "product-variants.detail.side.before": true
     "product.detail.main.after": true
     "product.detail.main.before": true
     "product.detail.side.after": true
     "product.detail.side.before": true
+    "products.list.after": true
+    "products.list.before": true
+    "profile.detail.main.after": true
+    "profile.detail.main.before": true
     "promotions.detail.main.after": true
     "promotions.detail.main.before": true
     "promotions.detail.side.after": true
     "promotions.detail.side.before": true
     "promotions.list.after": true
     "promotions.list.before": true
+    "refund-reasons.list.after": true
+    "refund-reasons.list.before": true
+    "regions.detail.main.after": true
+    "regions.detail.main.before": true
+    "regions.list.after": true
+    "regions.list.before": true
     "reservation.detail.main.after": true
     "reservation.detail.main.before": true
     "reservation.detail.side.after": true
     "reservation.detail.side.before": true
     "reservation.list.after": true
     "reservation.list.before": true
+    "return-reasons.list.after": true
+    "return-reasons.list.before": true
+    "sales-channels.detail.main.after": true
+    "sales-channels.detail.main.before": true
+    "sales-channels.list.after": true
+    "sales-channels.list.before": true
+    "shipping-option-types.detail.main.after": true
+    "shipping-option-types.detail.main.before": true
+    "shipping-option-types.list.after": true
+    "shipping-option-types.list.before": true
+    "shipping-profiles.detail.main.after": true
+    "shipping-profiles.detail.main.before": true
+    "shipping-profiles.list.after": true
+    "shipping-profiles.list.before": true
     "stores.detail.main.after": true
     "stores.detail.main.before": true
     "stores.detail.side.after": true
     "stores.detail.side.before": true
     "stores.list.after": true
     "stores.list.before": true
+    "tax-regions.detail.main.after": true
+    "tax-regions.detail.main.before": true
+    "tax-regions.list.after": true
+    "tax-regions.list.before": true
+    "tax-regions.province.detail.main.after": true
+    "tax-regions.province.detail.main.before": true
+    "users.detail.main.after": true
+    "users.detail.main.before": true
+    "users.list.after": true
+    "users.list.before": true
   }
 
   interface NavItemRegistry {

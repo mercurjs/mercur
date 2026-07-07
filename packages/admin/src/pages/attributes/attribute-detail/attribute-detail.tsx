@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton";
 import { SingleColumnPage } from "../../../components/layout/pages";
 import { useProductAttribute } from "../../../hooks/api";
@@ -43,8 +44,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage hasOutlet showJSON data={attribute}>
-      <AttributeGeneralSection attribute={attribute} />
-      <AttributePossibleValuesSection attribute={attribute} />
+      <WidgetZone id="attributes.detail.main" data={attribute}>
+        <AttributeGeneralSection attribute={attribute} />
+        <AttributePossibleValuesSection attribute={attribute} />
+      </WidgetZone>
     </SingleColumnPage>
   );
 };

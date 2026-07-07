@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { useShippingProfile } from "@hooks/api/shipping-profiles";
 
 import { ShippingProfileGeneralSection } from "./_components/shipping-profile-general-section";
@@ -37,7 +38,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <ShippingProfileGeneralSection profile={shipping_profile} />
+        <WidgetZone id="shipping-profiles.detail.main" data={shipping_profile}>
+          <ShippingProfileGeneralSection profile={shipping_profile} />
+        </WidgetZone>
       )}
     </SingleColumnPage>
   );

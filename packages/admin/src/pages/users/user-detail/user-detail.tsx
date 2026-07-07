@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useUser } from "../../../hooks/api/users"
@@ -34,7 +35,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage data={user} showJSON showMetadata>
-      <UserGeneralSection user={user} />
+      <WidgetZone id="users.detail.main" data={user}>
+        <UserGeneralSection user={user} />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

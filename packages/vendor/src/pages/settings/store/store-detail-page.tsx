@@ -50,7 +50,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const StatusBanner = () => (
     <>
-      <WidgetZone id="store.setup" data={seller} />
+      <WidgetZone id="seller.setup" data={seller} />
       {statusAlert && (
         <Alert variant={statusAlert.variant} dismissible className="p-5">
           <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">

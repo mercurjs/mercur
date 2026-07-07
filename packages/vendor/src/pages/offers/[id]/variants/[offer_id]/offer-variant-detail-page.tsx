@@ -2,6 +2,8 @@ import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../../../components/common/skeleton"
+import { WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { TwoColumnPage } from "../../../../../components/layout/pages"
 import { useOffer } from "../../../../../hooks/api/offers"
 import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../common/constants"
@@ -47,12 +49,16 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <TwoColumnPage data={typed} hasOutlet>
           <TwoColumnPage.Main>
-            <OfferVariantGeneralSection offer={typed} />
-            <OfferInventorySection offer={typed} />
+            <WidgetZone id="offer-variants.detail.main" data={typed}>
+              <OfferVariantGeneralSection offer={typed} />
+              <OfferInventorySection offer={typed} />
+            </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <OfferVariantShippingSection offer={typed} />
-            <OfferPricingSection offer={typed} />
+            <WidgetZone id="offer-variants.detail.side" data={typed}>
+              <OfferVariantShippingSection offer={typed} />
+              <OfferPricingSection offer={typed} />
+            </WidgetZone>
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}
