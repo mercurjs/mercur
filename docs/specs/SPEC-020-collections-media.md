@@ -7,18 +7,18 @@ created: 2026-06-17
 last_updated: 2026-06-17
 ---
 
-# SPEC-012 Collections — Media & Icon (Admin + Vendor)
+# SPEC-020 Collections — Media & Icon (Admin + Vendor)
 
 Implements [MER-155](https://linear.app/rigbyjs/issue/MER-155/collections-admin-panel)
 (admin panel) and [MER-153](https://linear.app/rigbyjs/issue/MER-153/collections-vendor-panel)
 (vendor panel). "BASIC version, no Requests" per both issues.
 
-This is the follow-up promised by [[SPEC-011-categories-admin-panel]]: enrich
+This is the follow-up promised by [[SPEC-018-categories-admin-panel]]: enrich
 core Medusa **product collections** with the same media gallery
 (thumbnail/banner designations) + single icon that categories already have, by
 **reusing the existing `media` module** via a second module link. No new module
 is introduced — the `media` module and its `Image` model were deliberately
-built entity-agnostic in SPEC-011.
+built entity-agnostic in SPEC-018.
 
 ## Phase 1 — Admin (MER-155)
 
@@ -28,7 +28,7 @@ the category surface.
 ### Backend (`@mercurjs/core`)
 
 - **Link** `links/media-product-collection-link.ts` — `productCollection →
-  image` (`isList`), analogous to the category link. Reuses the SPEC-011
+  image` (`isList`), analogous to the category link. Reuses the SPEC-018
   `Image` model unchanged.
 - **Workflows** `workflows/media/workflows/`:
   - `set-collection-images.ts` — `setCollectionImagesWorkflow`, applies the
@@ -119,12 +119,12 @@ Implemented 2026-06-17.
   has 2 failing tests (`Cannot resolve alias path "" that matches entity
   Product` from `vendor/products/route.ts:98`, hit during product creation in
   the test setup). Confirmed identical (2 failed / 7 passed) on clean `canary`
-  with all SPEC-012 changes stashed — unrelated to this work.
+  with all SPEC-020 changes stashed — unrelated to this work.
 
 ## Notes / decisions
 
-- **Reused the SPEC-011 `media` module unchanged** — only a second link +
-  collection-scoped workflows/UI were added, exactly as SPEC-011's *Deferred*
+- **Reused the SPEC-018 `media` module unchanged** — only a second link +
+  collection-scoped workflows/UI were added, exactly as SPEC-018's *Deferred*
   section anticipated.
 - **Why the middleware override was required** — Medusa's `zodValidator` forces
   `.strict()`, so core's collection create/update validator 400s on unknown
