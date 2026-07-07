@@ -24,7 +24,9 @@ jobs:
           node-version: "20"
           registry-url: "https://registry.npmjs.org"
 
-      - run: npx changelogithub
+      - name: Generate GitHub release changelog
+        continue-on-error: true
+        run: npx changelogithub
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
