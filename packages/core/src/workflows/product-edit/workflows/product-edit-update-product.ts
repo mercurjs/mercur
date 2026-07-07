@@ -1,10 +1,12 @@
 import { AdditionalData } from "@medusajs/framework/types"
 import { deepEqualObj } from "@medusajs/framework/utils"
 import {
+  createHook,
   createWorkflow,
+  type Hook,
+  type ReturnWorkflow,
   transform,
   WorkflowResponse,
-  type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import {
@@ -21,6 +23,17 @@ export type ProductEditUpdateProductWorkflowInput = {
   created_by?: string
   update: Record<string, unknown>
 } & AdditionalData
+
+export type ProductEditUpdateProductWorkflowHooks = [
+  Hook<
+    "productChangeCreated",
+    {
+      product_change: ProductChangeDTO
+      additional_data: Record<string, unknown> | undefined
+    },
+    unknown
+  >,
+]
 
 const DIFFABLE_FIELDS = [
   "title",
@@ -52,7 +65,7 @@ export const productEditUpdateProductWorkflowId = "product-edit-update-product"
 export const productEditUpdateProductWorkflow: ReturnWorkflow<
   ProductEditUpdateProductWorkflowInput,
   ProductChangeDTO,
-  []
+  ProductEditUpdateProductWorkflowHooks
 > = createWorkflow(
   productEditUpdateProductWorkflowId,
   function (input: ProductEditUpdateProductWorkflowInput) {
@@ -168,6 +181,13 @@ export const productEditUpdateProductWorkflow: ReturnWorkflow<
       })),
     })
 
-    return new WorkflowResponse(change)
+    const productChangeCreated = createHook("productChangeCreated", {
+      product_change: change,
+      additional_data: input.additional_data,
+    })
+
+    return new WorkflowResponse(change, {
+      hooks: [productChangeCreated],
+    })
   },
 )

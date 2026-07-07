@@ -323,14 +323,17 @@ export const VendorUpdateProductVariant = z
   })
   .strict()
 
-export type VendorCancelProductChangeType = z.infer<
-  typeof VendorCancelProductChange
->
-export const VendorCancelProductChange = z
+const CancelProductChange = z
   .object({
     internal_note: z.string().optional(),
   })
   .strict()
+
+export type VendorCancelProductChangeType = z.infer<
+  typeof CancelProductChange
+> &
+  AdditionalData
+export const VendorCancelProductChange = WithAdditionalData(CancelProductChange)
 
 const VendorBatchAttributeScalar = z.union([
   z.string(),

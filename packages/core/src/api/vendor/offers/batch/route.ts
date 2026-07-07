@@ -15,6 +15,8 @@ export const POST = async (
   const sellerId = req.seller_context!.seller_id
   const memberId = req.auth_context.actor_id
 
+  const { additional_data } = req.validatedBody
+
   const offers: CreateOfferDTO[] = req.validatedBody.offers.map((o) => ({
     seller_id: sellerId,
     created_by: memberId,
@@ -29,7 +31,7 @@ export const POST = async (
   }))
 
   const { result } = await createOffersWorkflow(req.scope).run({
-    input: { offers },
+    input: { offers, additional_data },
   })
 
   const offerIds = result.map((o) => o.id)
