@@ -101,7 +101,7 @@ const StoreSelectList = ({
               </div>
               <DisplayField
                 model="seller"
-                zone="store-select"
+                zone="seller-select"
                 id="status"
                 data={seller}
               >
@@ -111,7 +111,7 @@ const StoreSelectList = ({
               </DisplayField>
               <DisplayExtensionZone
                 model="seller"
-                zone="store-select"
+                zone="seller-select"
                 data={seller}
               />
               <ChevronRight className="text-ui-fg-muted" />

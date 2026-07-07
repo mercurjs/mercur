@@ -185,7 +185,7 @@ declare module "@mercurjs/dashboard-sdk" {
       displayZones: "general"
       displayFieldIds: "available_quantity" | "description" | "header" | "line_item_id" | "location" | "reserved_quantity" | "stocked_quantity"
     }
-    "store": {
+    "seller": {
       formZones: "create" | "edit"
       formTabs: { "create": "details" | "users" }
       displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "requests"

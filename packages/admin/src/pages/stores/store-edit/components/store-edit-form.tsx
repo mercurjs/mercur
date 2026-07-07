@@ -101,7 +101,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
 
   const form = useExtendableForm({
     schema: EditStoreSchema,
-    model: "store",
+    model: "seller",
     data: seller,
     defaultValues: {
       status: (seller.status as SellerStatus) ?? SellerStatus.OPEN,
@@ -179,6 +179,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
         is_premium: values.is_premium,
         logo: logoUrl,
         banner: bannerUrl,
+        additional_data: values.additional_data,
       },
       {
         onSuccess: () => {
@@ -454,7 +455,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
             </div>
           </div>
           <FormExtensionZone
-            model="store"
+            model="seller"
             zone="edit"
             control={form.control}
             data={seller}

@@ -94,7 +94,7 @@ export const StoreOrdersSection = ({ sellerId }: StoreOrdersSectionProps) => {
           icon: <ShoppingCart className="text-ui-fg-subtle" />,
         }}
       />
-      <DisplayExtensionZone model="store" zone="orders" data={sellerId} />
+      <DisplayExtensionZone model="seller" zone="orders" data={sellerId} />
     </Container>
   );
 };

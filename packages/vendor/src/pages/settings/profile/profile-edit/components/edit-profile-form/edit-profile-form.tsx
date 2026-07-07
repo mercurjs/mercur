@@ -1,8 +1,8 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Input, Select, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
+
+import { FormExtensionZone, useExtendableForm } from "@mercurjs/dashboard-shared"
 
 import { Form } from "../../../../../../components/common/form"
 import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
@@ -25,13 +25,15 @@ export const EditProfileForm = () => {
   const { seller_member } = useMe()
   const member = seller_member?.member
 
-  const form = useForm<zod.infer<typeof EditProfileSchema>>({
+  const form = useExtendableForm({
+    schema: EditProfileSchema,
+    model: "member",
+    data: member,
     defaultValues: {
       first_name: member?.first_name ?? "",
       last_name: member?.last_name ?? "",
       language: i18n.language,
     },
-    resolver: zodResolver(EditProfileSchema),
   })
 
   const sortedLanguages = languages.sort((a, b) =>
@@ -45,6 +47,7 @@ export const EditProfileForm = () => {
       {
         first_name: values.first_name || null,
         last_name: values.last_name || null,
+        additional_data: values.additional_data,
       },
       {
         onSuccess: async () => {
@@ -139,6 +142,12 @@ export const EditProfileForm = () => {
                   </div>
                 </Form.Item>
               )}
+            />
+            <FormExtensionZone
+              model="member"
+              zone="edit"
+              control={form.control}
+              data={member}
             />
           </div>
         </RouteDrawer.Body>

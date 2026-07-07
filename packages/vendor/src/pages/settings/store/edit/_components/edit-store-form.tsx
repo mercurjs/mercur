@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
 import { InformationCircleSolid } from "@medusajs/icons";
 import {
@@ -10,10 +9,12 @@ import {
   Textarea,
   toast,
 } from "@medusajs/ui";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 import { useCallback } from "react";
+
+import { FormExtensionZone, useExtendableForm } from "@mercurjs/dashboard-shared";
 
 import { FileType, FileUpload } from "@components/common/file-upload";
 import { Form } from "@components/common/form";
@@ -90,7 +91,10 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
-  const form = useForm<zod.infer<typeof EditStoreSchema>>({
+  const form = useExtendableForm({
+    schema: EditStoreSchema,
+    model: "seller",
+    data: seller,
     defaultValues: {
       name: seller.name ?? "",
       handle: seller.handle ?? "",
@@ -105,7 +109,6 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
         ? [{ id: "existing-banner", url: seller.banner, isThumbnail: false, file: null }]
         : [],
     },
-    resolver: zodResolver(EditStoreSchema),
   });
 
   const { fields: logoFields } = useFieldArray({
@@ -164,6 +167,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
         website_url: ensureWebsiteProtocol(values.website_url),
         logo: logoUrl,
         banner: bannerUrl,
+        additional_data: values.additional_data,
       },
       {
         onSuccess: () => {
@@ -402,6 +406,12 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
               </div>
             </div>
           </div>
+          <FormExtensionZone
+            model="seller"
+            zone="edit"
+            control={form.control}
+            data={seller}
+          />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
           <div className="flex items-center justify-end gap-x-2">

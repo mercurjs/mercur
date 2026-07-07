@@ -57,7 +57,7 @@ export const StoreConfigurationSection = ({
           message={t("store.timeOff.empty.message")}
         />
       )}
-      <DisplayExtensionZone model="store" zone="configuration" data={seller} />
+      <DisplayExtensionZone model="seller" zone="configuration" data={seller} />
     </Container>
   );
 };

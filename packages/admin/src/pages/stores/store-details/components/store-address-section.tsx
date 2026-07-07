@@ -82,7 +82,7 @@ export const StoreAddressSection = ({ seller }: StoreAddressSectionProps) => {
           </Text>
         </div>
       )}
-      <DisplayExtensionZone model="store" zone="address" data={seller} />
+      <DisplayExtensionZone model="seller" zone="address" data={seller} />
     </Container>
   );
 };

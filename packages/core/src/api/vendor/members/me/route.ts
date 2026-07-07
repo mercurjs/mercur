@@ -55,8 +55,10 @@ export const POST = async (
     )
   }
 
+  const { additional_data, ...update } = req.validatedBody
+
   await updateMemberWorkflow(req.scope).run({
-    input: { selector: { id: memberId }, update: req.validatedBody },
+    input: { selector: { id: memberId }, update, additional_data },
   })
 
   const { data: sellerMembers } = await query.graph({

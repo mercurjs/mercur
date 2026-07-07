@@ -19,6 +19,8 @@ await approveSellerWorkflow(container).run({
 
 <ParamField body="seller_id" type="string" required>Id of the seller to approve.</ParamField>
 
+<ParamField body="additional_data" type="object">Custom data passed through to the workflow hooks.</ParamField>
+
 ## Result
 
 <ResponseField name="result" type="void">Nothing is returned.</ResponseField>
