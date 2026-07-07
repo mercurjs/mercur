@@ -15,6 +15,7 @@ import {
   vendorOrderQueryConfig,
 } from "./query-config"
 import {
+  VendorCancelFulfillment,
   VendorCreateFulfillment,
   VendorCreateShipment,
   VendorGetOrderChangesParams,
@@ -104,6 +105,7 @@ export const vendorOrdersMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/vendor/orders/:id/fulfillments/:fulfillment_id/cancel",
     middlewares: [
+      validateAndTransformBody(VendorCancelFulfillment),
       validateAndTransformQuery(
         VendorGetOrderParams,
         vendorOrderQueryConfig.retrieve

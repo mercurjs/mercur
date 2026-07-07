@@ -35,9 +35,12 @@ export const POST = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  const { additional_data, ...sellerData } = req.validatedBody
+
   const { result } = await createSellersWorkflow(req.scope).run({
     input: {
-      sellers: [req.validatedBody],
+      sellers: [sellerData],
+      additional_data,
     },
   })
 

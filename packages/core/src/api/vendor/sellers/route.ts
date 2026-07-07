@@ -55,6 +55,7 @@ export const POST = async (
     member_email,
     first_name,
     last_name,
+    additional_data,
     ...sellerData
   } = req.validatedBody
 
@@ -78,6 +79,7 @@ export const POST = async (
       address,
       professional_details,
       payment_details,
+      additional_data,
     },
   })
 

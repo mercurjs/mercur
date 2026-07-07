@@ -3,7 +3,9 @@ import {
   createFindParams,
   createOperatorMap,
   createSelectParams,
+  WithAdditionalData,
 } from "@medusajs/medusa/api/utils/validators"
+import { AdditionalData } from "@medusajs/framework/types"
 
 export type VendorGetOrderParamsType = z.infer<typeof VendorGetOrderParams>
 export const VendorGetOrderParams = createSelectParams()
@@ -33,8 +35,7 @@ export type VendorGetOrderChangesParamsType = z.infer<
 >
 export const VendorGetOrderChangesParams = createSelectParams()
 
-export type VendorCreateFulfillmentType = z.infer<typeof VendorCreateFulfillment>
-export const VendorCreateFulfillment = z.object({
+const CreateFulfillment = z.object({
   items: z.array(
     z.object({
       id: z.string(),
@@ -44,6 +45,20 @@ export const VendorCreateFulfillment = z.object({
   requires_shipping: z.boolean(),
   location_id: z.string(),
 })
+
+export type VendorCreateFulfillmentType = z.infer<typeof CreateFulfillment> &
+  AdditionalData
+export const VendorCreateFulfillment = WithAdditionalData(CreateFulfillment)
+
+const CancelFulfillment = z
+  .object({
+    no_notification: z.boolean().optional(),
+  })
+  .strict()
+
+export type VendorCancelFulfillmentType = z.infer<typeof CancelFulfillment> &
+  AdditionalData
+export const VendorCancelFulfillment = WithAdditionalData(CancelFulfillment)
 
 export type VendorCreateShipmentType = z.infer<typeof VendorCreateShipment>
 export const VendorCreateShipment = z.object({

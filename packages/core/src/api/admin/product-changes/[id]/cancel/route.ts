@@ -20,6 +20,7 @@ export const POST = async (
     input: {
       id: req.params.id,
       canceled_by: req.auth_context?.actor_id,
+      additional_data: req.validatedBody?.additional_data,
     },
   })
 

@@ -11,6 +11,7 @@ import {
   useQueryGraphStep,
 } from "@medusajs/medusa/core-flows"
 import { ProductChangeActionType } from "@mercurjs/types"
+import { AdditionalData } from "@medusajs/framework/types"
 
 import { ProductWorkflowEvents } from "../events"
 import { validateProductsStatusStep } from "../steps/validate-products-status"
@@ -22,7 +23,7 @@ type RejectProductWorkflowInput = {
   product_id: string
   message?: string
   actor_id?: string
-}
+} & AdditionalData
 
 export const rejectProductWorkflow = createWorkflow(
   rejectProductWorkflowId,
@@ -76,6 +77,7 @@ export const rejectProductWorkflow = createWorkflow(
     const productRejected = createHook("productRejected", {
       product_id: input.product_id,
       message: input.message,
+      additional_data: input.additional_data,
     })
 
     return new WorkflowResponse(void 0, { hooks: [productRejected] })

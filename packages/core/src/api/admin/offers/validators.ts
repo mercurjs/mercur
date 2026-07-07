@@ -3,8 +3,10 @@ import {
   createFindParams,
   createOperatorMap,
   createSelectParams,
+  WithAdditionalData,
 } from "@medusajs/medusa/api/utils/validators"
 import { booleanString } from "@medusajs/medusa/api/utils/common-validators/common"
+import { AdditionalData } from "@medusajs/framework/types"
 
 export type AdminGetOfferParamsType = z.infer<typeof AdminGetOfferParams>
 export const AdminGetOfferParams = createSelectParams()
@@ -75,10 +77,12 @@ const AdminCreateOffersBatchItem = z
   })
   .strict()
 
-export type AdminCreateOffersBatchType = z.infer<typeof AdminCreateOffersBatch>
-export const AdminCreateOffersBatch = z
+const CreateOffersBatch = z
   .object({
     seller_id: z.string().min(1),
     offers: z.array(AdminCreateOffersBatchItem).min(1).max(100),
   })
   .strict()
+export type AdminCreateOffersBatchType = z.infer<typeof CreateOffersBatch> &
+  AdditionalData
+export const AdminCreateOffersBatch = WithAdditionalData(CreateOffersBatch)

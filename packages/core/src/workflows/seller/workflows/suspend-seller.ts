@@ -5,6 +5,7 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
+import { AdditionalData } from "@medusajs/framework/types"
 import { SellerStatus } from "@mercurjs/types"
 
 import { validateSuspendSellerStep, updateSellersStep } from "../steps"
@@ -15,7 +16,7 @@ export const suspendSellerWorkflowId = "suspend-seller"
 type SuspendSellerWorkflowInput = {
   seller_id: string
   reason?: string
-}
+} & AdditionalData
 
 export const suspendSellerWorkflow = createWorkflow(
   suspendSellerWorkflowId,
@@ -49,6 +50,7 @@ export const suspendSellerWorkflow = createWorkflow(
 
     const sellerSuspended = createHook("sellerSuspended", {
       seller_id: input.seller_id,
+      additional_data: input.additional_data,
     })
 
     return new WorkflowResponse(void 0, { hooks: [sellerSuspended] })

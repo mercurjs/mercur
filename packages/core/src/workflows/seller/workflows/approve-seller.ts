@@ -5,6 +5,7 @@ import {
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import { useQueryGraphStep, emitEventStep } from "@medusajs/medusa/core-flows"
+import { AdditionalData } from "@medusajs/framework/types"
 import { SellerStatus } from "@mercurjs/types"
 
 import { validateApproveSellerStep, updateSellersStep } from "../steps"
@@ -14,7 +15,7 @@ export const approveSellerWorkflowId = "approve-seller"
 
 type ApproveSellerWorkflowInput = {
   seller_id: string
-}
+} & AdditionalData
 
 export const approveSellerWorkflow = createWorkflow(
   approveSellerWorkflowId,
@@ -48,6 +49,7 @@ export const approveSellerWorkflow = createWorkflow(
 
     const sellerApproved = createHook("sellerApproved", {
       seller_id: input.seller_id,
+      additional_data: input.additional_data,
     })
 
     return new WorkflowResponse(void 0, { hooks: [sellerApproved] })
