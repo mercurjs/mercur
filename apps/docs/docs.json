@@ -77,8 +77,6 @@
                       "rc/resources/tutorials/add-a-widget",
                       "rc/resources/tutorials/extend-forms-and-tables",
                       "rc/resources/tutorials/customize-navigation",
-                      "rc/resources/tutorials/recompose-a-page",
-                      "rc/resources/tutorials/replace-panel-components",
                       "rc/resources/tutorials/custom-api-route"
                     ]
                   },

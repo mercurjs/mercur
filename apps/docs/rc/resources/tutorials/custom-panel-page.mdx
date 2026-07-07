@@ -6,7 +6,7 @@ description: "Add a page to the vendor portal with file-based routing — the da
 Adding a page to the admin panel or vendor portal takes one file. The dashboard SDK scans `src/routes/` at build time, registers the route, and — if you export a `config` — adds it to the sidebar with a label and icon. No route table, no registration call.
 
 <Info>
-  **Adding vs changing.** This tutorial *adds* a brand-new page — the right move for new features. To *change* an existing page, don't rebuild it: add a [widget](/rc/resources/tutorials/add-a-widget) or a [custom field](/rc/resources/tutorials/extend-forms-and-tables) to inject into it, or [re-compose the built-in page's slots](/rc/resources/tutorials/recompose-a-page) to restructure it. The [decision guide](/rc/resources/customization/extending-panels#choosing-your-extension-mechanism) compares every extension mechanism.
+  **Adding vs changing.** This tutorial *adds* a brand-new page — the right move for new features. To *change* an existing page, don't rebuild it: add a [widget](/rc/resources/tutorials/add-a-widget) or a [custom field](/rc/resources/tutorials/extend-forms-and-tables) to inject into it. The [decision guide](/rc/resources/customization/extending-panels#choosing-your-extension-mechanism) compares every extension mechanism.
 </Info>
 
 ## What you'll build
@@ -73,6 +73,6 @@ A `/reviews` page in the vendor portal with a sidebar entry — from a single fi
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Re-compose a built-in page" href="/rc/resources/tutorials/recompose-a-page" />
+  <Card title="Add a widget" href="/rc/resources/tutorials/add-a-widget" />
   <Card title="Add a custom API route" href="/rc/resources/tutorials/custom-api-route" />
 </CardGroup>

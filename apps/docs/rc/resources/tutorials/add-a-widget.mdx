@@ -1,12 +1,12 @@
 ---
 title: "Add a widget"
-description: "Inject a React component at a named zone on a built-in panel page with defineWidgetConfig — no forking, no re-composition."
+description: "Inject a React component at a named zone on a built-in panel page with defineWidgetConfig — no forking."
 ---
 
 A **widget** is a React component attached to a named zone on a built-in page. You drop one file under `src/widgets/`, and the SDK renders it at that zone while the rest of the page — its data fetching, filters, pagination — stays exactly as shipped. This is the lightest way to add UI to a page you don't own.
 
 <Info>
-  **Additive, not a replacement.** Unlike a drop-in route (which owns the whole page) or a component override (which swaps global chrome), a widget layers your component onto the built-in page at a documented zone. Reach for this first when you just want to *add* something to an existing screen.
+  **Additive, not a replacement.** Unlike a drop-in route (which owns the whole page), a widget layers your component onto the built-in page at a documented zone. Reach for this first when you just want to *add* something to an existing screen.
 </Info>
 
 ## What you'll build
@@ -91,9 +91,6 @@ The full, valid set is typed as `WidgetZoneId` and generated into `@mercurjs/ven
   </Accordion>
   <Accordion title="Can a block ship widgets?">
     Yes. A [block](/rc/learn/blocks) can include `src/widgets/` files in its `vendor_ui` / `admin_ui` entry, and they're aggregated just like the host app's — installing the block adds the widget with no wiring.
-  </Accordion>
-  <Accordion title="What's the difference between a widget and re-composing the page?">
-    A widget injects into a fixed zone additively. [Re-composition](/rc/resources/tutorials/recompose-a-page) hands you the whole page as a compound component to restructure. Use a widget to *add* to a page; re-compose to *rewire* it.
   </Accordion>
   <Accordion title="Does the admin panel have widget zones too?">
     The zone set is per panel and generated from each panel's pages. Today the mounted zones live in the vendor portal (`product.list.*`, `login.*`); the admin panel exposes navigation and product custom fields. Check `@mercurjs/admin/extension-targets` for its current zones.
