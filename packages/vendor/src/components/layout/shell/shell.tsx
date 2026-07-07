@@ -278,5 +278,5 @@ const StoreSetupWidget = () => {
     return null
   }
 
-  return <WidgetZone id="store.setup" data={seller} />
+  return <WidgetZone id="seller.setup" data={seller} />
 }

@@ -1,5 +1,7 @@
 import { ReactNode, Children } from "react";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
+
 import { SingleColumnPage } from "../../../components/layout/pages";
 import {
   AttributeListView,
@@ -12,7 +14,9 @@ import {
 const Root = ({ children }: { children?: ReactNode }) => {
   return (
     <SingleColumnPage showMetadata={false} showJSON={false} hasOutlet>
-      {Children.count(children) > 0 ? children : <AttributeListView />}
+      <WidgetZone id="attributes.list">
+        {Children.count(children) > 0 ? children : <AttributeListView />}
+      </WidgetZone>
     </SingleColumnPage>
   );
 };

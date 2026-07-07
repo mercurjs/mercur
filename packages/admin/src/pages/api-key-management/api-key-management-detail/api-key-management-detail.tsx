@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useApiKey } from "../../../hooks/api/api-keys"
@@ -46,8 +47,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
       data={api_key}
       data-testid={`${api_key.type}-api-key-detail-page`}
     >
-      <ApiKeyGeneralSection apiKey={api_key} />
-      {isPublishable && <ApiKeySalesChannelSection apiKey={api_key} />}
+      <WidgetZone id="api-keys.detail.main" data={api_key}>
+        <ApiKeyGeneralSection apiKey={api_key} />
+        {isPublishable && <ApiKeySalesChannelSection apiKey={api_key} />}
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

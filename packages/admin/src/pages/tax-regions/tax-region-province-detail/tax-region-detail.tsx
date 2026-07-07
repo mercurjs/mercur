@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useTaxRegion } from "../../../hooks/api/tax-regions"
 import { TaxRegionProvinceDetailSection } from "./components/tax-region-province-detail-section"
@@ -37,8 +38,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage data={taxRegion} showJSON>
-      <TaxRegionProvinceDetailSection taxRegion={taxRegion} />
-      <TaxRegionProvinceOverrideSection taxRegion={taxRegion} />
+      <WidgetZone id="tax-regions.province.detail.main" data={taxRegion}>
+        <TaxRegionProvinceDetailSection taxRegion={taxRegion} />
+        <TaxRegionProvinceOverrideSection taxRegion={taxRegion} />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

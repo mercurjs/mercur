@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useStore } from "../../../hooks/api/store"
@@ -29,8 +30,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage data={store} hasOutlet showMetadata showJSON>
-      <MarketplaceGeneralSection store={store} />
-      <MarketplaceCurrencySection store={store} />
+      <WidgetZone id="marketplace.detail.main" data={store}>
+        <MarketplaceGeneralSection store={store} />
+        <MarketplaceCurrencySection store={store} />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

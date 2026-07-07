@@ -6,6 +6,7 @@ import { useLoaderData } from "react-router-dom";
 
 import { SidebarLink } from "@components/common/sidebar-link/sidebar-link";
 import { TwoColumnPage } from "@components/layout/pages";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { useStockLocations } from "@hooks/api/stock-locations";
 
 import LocationListItem from "./_components/location-list-item";
@@ -62,12 +63,14 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <TwoColumnPage>
           <TwoColumnPage.Main>
-            <LocationListHeader />
-            <div className="flex flex-col gap-3 lg:col-span-2">
-              {stockLocations.map((location) => (
-                <LocationListItem key={location.id} location={location} />
-              ))}
-            </div>
+            <WidgetZone id="locations.list">
+              <LocationListHeader />
+              <div className="flex flex-col gap-3 lg:col-span-2">
+                {stockLocations.map((location) => (
+                  <LocationListItem key={location.id} location={location} />
+                ))}
+              </div>
+            </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
             <LinksSection />

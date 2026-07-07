@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { useStockLocation } from "@hooks/api/stock-locations";
 
 import { LocationGeneralSection } from "./_components/location-general-section";
@@ -45,10 +46,14 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <TwoColumnPage data={location} hasOutlet>
           <TwoColumnPage.Main>
-            <LocationGeneralSection location={location} />
+            <WidgetZone id="locations.detail.main" data={location}>
+              <LocationGeneralSection location={location} />
+            </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <LocationsFulfillmentProvidersSection location={location} />
+            <WidgetZone id="locations.detail.side" data={location}>
+              <LocationsFulfillmentProvidersSection location={location} />
+            </WidgetZone>
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}

@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react";
 import { ShoppingBag, TruckFast } from "@medusajs/icons";
 import { Container, Heading } from "@medusajs/ui";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
 
 import { useStockLocations } from "../../../hooks/api/stock-locations";
@@ -128,7 +129,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage showJSON>
       <TwoColumnPage.Main>
-        <LocationListContent />
+        <WidgetZone id="locations.list">
+          <LocationListContent />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
         <LinksSection />

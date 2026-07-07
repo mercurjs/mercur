@@ -1,5 +1,7 @@
 import { ReactNode, Children } from "react"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { useMe } from "../../../hooks/api/users"
 import { ProfileGeneralSection } from "./components/profile-general-section"
 
@@ -22,7 +24,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage data-testid="profile-detail-page">
-      <ProfileGeneralSection user={user} />
+      <WidgetZone id="profile.detail.main" data={user}>
+        <ProfileGeneralSection user={user} />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

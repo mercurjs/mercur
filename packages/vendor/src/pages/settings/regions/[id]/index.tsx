@@ -1,5 +1,7 @@
 import { useLoaderData, useParams } from "react-router-dom";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
+
 import { useRegion } from "@hooks/api/regions";
 import { RegionCountrySection } from "./_components/region-country-section";
 import { RegionGeneralSection } from "./_components/region-general-section";
@@ -56,11 +58,13 @@ const RegionDetail = () => {
 
   return (
     <SingleColumnPage data={region} showMetadata showJSON>
-      <RegionGeneralSection
-        region={region}
-        pricePreferences={pricePreferences ?? []}
-      />
-      <RegionCountrySection region={region} />
+      <WidgetZone id="regions.detail.main" data={region}>
+        <RegionGeneralSection
+          region={region}
+          pricePreferences={pricePreferences ?? []}
+        />
+        <RegionCountrySection region={region} />
+      </WidgetZone>
     </SingleColumnPage>
   );
 };

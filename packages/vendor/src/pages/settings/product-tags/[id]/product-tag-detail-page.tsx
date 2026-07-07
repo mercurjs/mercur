@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { SingleColumnPageSkeleton } from "@components/common/skeleton";
 import { SingleColumnPage } from "@components/layout/pages";
+import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { useProductTag } from "@hooks/api";
 
 import { ProductTagGeneralSection } from "./_components/product-tag-general-section";
@@ -38,10 +39,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <>
+        <WidgetZone id="product-tags.detail.main" data={product_tag}>
           <ProductTagGeneralSection productTag={product_tag} />
           <ProductTagProductSection productTag={product_tag} />
-        </>
+        </WidgetZone>
       )}
     </SingleColumnPage>
   );
