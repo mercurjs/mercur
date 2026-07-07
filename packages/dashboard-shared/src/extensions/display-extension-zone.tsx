@@ -74,6 +74,48 @@ export const DisplayField = ({
   return <Fragment>{children}</Fragment>
 }
 
+export type DisplaySectionField = {
+  /** Stable id of the built-in field (matches a `displays[].fields[].id`). */
+  id: string
+  /** The built-in default rendering (e.g. a `<SectionRow />`). */
+  render: ReactNode
+}
+
+export type DisplaySectionProps = {
+  model: string
+  zone: string
+  data?: unknown
+  /** Built-in fields of this section, each overridable/removable by id. */
+  fields: DisplaySectionField[]
+}
+
+/**
+ * One-line helper for a row-style detail section: renders each built-in field
+ * through `<DisplayField>` (so `displays[].fields` can replace/remove it) and
+ * appends the section's added fields + actions via `<DisplayExtensionZone>`,
+ * deriving `builtInFieldIds` from `fields`.
+ */
+export const DisplaySection = ({
+  model,
+  zone,
+  data,
+  fields,
+}: DisplaySectionProps) => (
+  <>
+    {fields.map(({ id, render }) => (
+      <DisplayField key={id} model={model} zone={zone} id={id} data={data}>
+        {render}
+      </DisplayField>
+    ))}
+    <DisplayExtensionZone
+      model={model}
+      zone={zone}
+      data={data}
+      builtInFieldIds={fields.map((f) => f.id)}
+    />
+  </>
+)
+
 /**
  * For a built-in detail section to honor a `displays[].fields` override of one
  * of its own fields: returns `{ overridden, Component }`. `overridden && !

@@ -1,14 +1,13 @@
-import "@mercurjs/vendor/extension-targets"
-import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
-import { createFormHelper } from "@mercurjs/dashboard-shared"
-import { Text } from "@medusajs/ui"
+import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk";
+import { createFormHelper } from "@mercurjs/dashboard-shared";
+import { Text } from "@medusajs/ui";
 
-type ProductWithMeta = { metadata?: Record<string, unknown> }
+type ProductWithMeta = { metadata?: Record<string, unknown> };
 
-const form = createFormHelper<ProductWithMeta>()
+const form = createFormHelper<ProductWithMeta>();
 
 const erpId = (data: unknown) =>
-  ((data as ProductWithMeta)?.metadata?.erp_id as string) ?? "-"
+  ((data as ProductWithMeta)?.metadata?.erp_id as string) ?? "-";
 
 export default defineCustomFieldsConfig({
   model: "product",
@@ -56,6 +55,13 @@ export default defineCustomFieldsConfig({
     },
   ],
   list: {
-    columns: [{ id: "erp_id", header: "ERP", component: ({ row }) => erpId(row) }],
+    // ADD a column; OVERRIDE an existing column keyed by id
+    columns: [
+      { id: "erp_id", header: "ERP", component: ({ row }) => erpId(row) },
+    ],
+    viewDefaults: {
+      columnVisibility: { collection: false }, // HIDE the built-in collection column
+      columnOrder: ["product", "erp_id", "status"], // reorder
+    },
   },
-})
+});

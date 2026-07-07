@@ -440,6 +440,28 @@ fails `tsc` instead of silently no-op'ing at runtime.
   `extension-targets.d.ts` and any hand-written augmentation **merge** into one
   union — the panel owns the built-in keys, the developer adds their own.
 
+- **Registering the targets globally — once per host app, not per file.** The
+  panel-shipped `extension-targets.d.ts` is a purely ambient
+  `declare module "@mercurjs/dashboard-sdk"` augmentation (its `.js` is
+  `export {}` — no runtime effect); it exists only so the registry interfaces
+  merge into the developer's program. A per-file
+  `import "@mercurjs/{admin,vendor}/extension-targets"` at the top of every
+  `widgets/` / `custom-fields/` file works but is boilerplate. Because ambient
+  declaration merging applies program-wide once TypeScript sees the file,
+  register it **once** with a single ambient `.d.ts` in the host app's `src`
+  (already covered by the app tsconfig's `include`):
+
+  ```ts
+  // apps/vendor/src/extension-targets.d.ts (admin: reference @mercurjs/admin/…)
+  /// <reference types="@mercurjs/vendor/extension-targets" />
+  ```
+
+  With this file present, the typed zone/model/nav ids are available in every
+  extension file with **no per-file import** — authors drop a
+  `defineWidgetConfig` / `defineCustomFieldsConfig` file under the well-known
+  folder and the targets type-check automatically. This is the recommended
+  wiring; the per-file side-effect import remains valid but redundant.
+
 - **Runtime singleton.** At app root each panel constructs a single
   `ExtensionRegistry` (mirror Medusa's `DashboardApp`,
   `dashboard/src/dashboard-app/dashboard-app.tsx`) from the aggregated
@@ -691,14 +713,30 @@ thin `createConfigHelper` wrapper — copy Medusa's
   `<DisplayField model zone id>` host that consults `getDisplays(model, zone)` and
   replaces (`component`) or removes (`component: null`) that field in place; a
   `<DisplayExtensionZone model zone builtInFieldIds>` renders the *added* fields
-  (unknown ids) and the `{ rank?, component }` section `ActionMenu` actions. Wire
+  (unknown ids) and the `{ rank?, component }` section `ActionMenu` actions. The
+  reusable `<DisplaySection model zone fields data>` helper wires both for a
+  row-style section in one line (deriving `builtInFieldIds` from `fields`). Wire
   the product-detail general section in **both** admin and vendor
-  (`product-general-section.tsx`). The `<DisplayField>` hosts also feed the
-  generated `displayFieldIds` union (§6).
-- **List extension:** apply `list.columns` / `bulkActions` / `filters` /
-  `viewDefaults` on the product-list `DataTable`. Respect the vendor curated-field
-  constraint — the fetch derived from `link` must merge with `+`/`-`, never bare
-  fields (`useProductTableQuery`; gotcha `vendor-products-default-fields-500`).
+  (`product-general-section.tsx`); other sections adopt `<DisplaySection>` the same
+  way. The `<DisplayField>` hosts also feed the generated `displayFieldIds`
+  union (§6).
+- **List extension:** the shared `useExtendableTable({ model, columns })` hook
+  (mirrors `useExtendableForm` for tables) applies a model's `list` block to a
+  table's base columns — override by id, add unknown ids, hide via
+  `viewDefaults.columnVisibility`, reorder via `viewDefaults.columnOrder` — and
+  returns the extra `filters` / `bulkActions` for the caller to render. Wired into
+  the **admin and vendor** product-list `DataTable` (`use…ProductTableColumns`).
+  Respect the vendor curated-field constraint — the fetch derived from `link` must
+  merge with `+`/`-`, never bare fields (`useProductTableQuery`; gotcha
+  `vendor-products-default-fields-500`). Bulk-action *rendering* is deferred; the
+  `bulkActions` are surfaced but not yet mounted.
+- **Link fetching:** a model's `link` relations are merged into the built-in fetch
+  via the shared `withLinkFields(fields, links)` helper (`+link.*`). The list query
+  and detail page read links from the registry with `useExtension().getLinks(model)`
+  (React); **loaders** — which can't call hooks — read them with the module-level
+  `getExtensionRegistry()?.getLinks(model)`. The product list gets a prefetch
+  loader in both panels (admin already had one; vendor's is new) whose result is
+  passed as `initialData`, and the detail loader merges links the same way.
 - **Persistence:** out of scope for the MVP — no core API changes. Custom fields
   render/validate/display only; a built-in write path is deferred to a later spec.
 

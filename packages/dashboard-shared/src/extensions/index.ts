@@ -12,6 +12,7 @@ export {
 export {
   ExtensionProvider,
   useExtension,
+  getExtensionRegistry,
   type ExtensionProviderProps,
 } from "./context"
 export { WidgetZone, type WidgetZoneProps } from "./widget-zone"
@@ -23,10 +24,19 @@ export {
 export {
   DisplayExtensionZone,
   DisplayField,
+  DisplaySection,
   useDisplayFieldOverride,
   type DisplayExtensionZoneProps,
   type DisplayFieldProps,
+  type DisplaySectionProps,
+  type DisplaySectionField,
 } from "./display-extension-zone"
+export {
+  useExtendableTable,
+  type UseExtendableTableProps,
+  type ExtendableTable,
+} from "./use-extendable-table"
+export { withLinkFields } from "./links"
 export {
   createFormHelper,
   buildAdditionalDataSchema,

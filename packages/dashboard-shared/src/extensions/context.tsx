@@ -15,16 +15,27 @@ export type ExtensionProviderProps = {
   children: ReactNode
 }
 
+let activeRegistry: ExtensionRegistry | null = null
+
+/**
+ * Reads the panel's extension registry outside React (e.g. in a react-router
+ * `loader`, which can't call hooks). Returns null until `ExtensionProvider` has
+ * mounted; callers should fall back to built-in behavior when null.
+ */
+export const getExtensionRegistry = (): ExtensionRegistry | null =>
+  activeRegistry
+
 export const ExtensionProvider = ({
   widgets,
   navigation,
   customFields,
   children,
 }: ExtensionProviderProps) => {
-  const registry = useMemo(
-    () => new ExtensionRegistry({ widgets, navigation, customFields }),
-    [widgets, navigation, customFields]
-  )
+  const registry = useMemo(() => {
+    const next = new ExtensionRegistry({ widgets, navigation, customFields })
+    activeRegistry = next
+    return next
+  }, [widgets, navigation, customFields])
 
   return (
     <ExtensionContext.Provider value={registry}>
