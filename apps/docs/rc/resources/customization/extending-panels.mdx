@@ -6,7 +6,7 @@ description: "Add pages, inject widgets, customize navigation, extend forms and 
 Both the admin panel and vendor portal use the same SDK (`@mercurjs/dashboard-sdk`). Customization is **file-based and convention-driven** — you add pages, widgets, and field extensions by dropping files under `src/`, configure navigation through a single file, and override global chrome through the plugin config. Nothing is registered by hand; the SDK crawls your `src/` at build time and wires everything in.
 
 <Info>
-  **Coming from Medusa?** The extension model is deliberately Medusa-shaped. The helpers you know — `defineWidgetConfig`, `defineRouteConfig`, `defineCustomFieldsConfig`, `createFormHelper` — all exist here, re-exported from `@mercurjs/dashboard-sdk` (without Medusa's `unstable_` prefix). What's different: Mercur ships **two** panels (admin *and* vendor) from one framework, so a file only ever targets the panel it lives in (there is no `surface` field), and widget zones carry a `before | after | replace` placement suffix on the zone id. Everything is additive by default — your contribution augments the built-in page instead of replacing it.
+  **Coming from Medusa?** The extension model is deliberately Medusa-shaped. The helpers you know — `defineWidgetConfig`, `defineRouteConfig`, `defineCustomFieldsConfig`, `createFormHelper` — all exist here, re-exported from `@mercurjs/dashboard-sdk` (without Medusa's `unstable_` prefix). What's different: Mercur ships **two** panels (admin *and* vendor) from one framework, so a file only ever targets the panel it lives in (there is no `surface` field), and widget zones carry a `before | after` placement suffix on the zone id. Everything is additive by default — your contribution augments the built-in page instead of replacing it.
 </Info>
 
 ## The extension mechanisms
@@ -128,13 +128,12 @@ export default function ProductListBanner() {
 The zone id is `<domain>.<view>.<placement>`. The placement is the last segment:
 
 - `before` / `after` — stack your widget before or after the built-in content (multiple widgets stack in registration order).
-- `replace` — swap the built-in content of that zone entirely.
 
 Zones mounted today (**vendor portal**):
 
 | Zone id | Where it renders |
 |---------|------------------|
-| `product.list.before` / `.after` / `.replace` | Vendor product list page |
+| `product.list.before` / `.after` | Vendor product list page |
 | `login.logo.*` / `login.before.*` / `login.after.*` | The public login screen (rendered before authentication) |
 
 The full set of valid zones is typed as `WidgetZoneId` and generated into each panel's `extension-targets.d.ts` — your editor autocompletes them, and an unknown zone fails `tsc`. Walk through it end to end in [Add a widget](/rc/resources/tutorials/add-a-widget).
@@ -366,7 +365,7 @@ The [Replace components](/rc/resources/tutorials/replace-panel-components) tutor
 
 <AccordionGroup>
   <Accordion title="Can I use Medusa's defineWidgetConfig and widget zones?">
-    Yes. `defineWidgetConfig` is re-exported from `@mercurjs/dashboard-sdk` and drives file-based widgets under `src/widgets/`. The difference from Medusa is the `before | after | replace` placement suffix on the zone id and that each panel ships its own typed zone set. See [Add a widget](/rc/resources/tutorials/add-a-widget).
+    Yes. `defineWidgetConfig` is re-exported from `@mercurjs/dashboard-sdk` and drives file-based widgets under `src/widgets/`. The difference from Medusa is the `before | after` placement suffix on the zone id and that each panel ships its own typed zone set. See [Add a widget](/rc/resources/tutorials/add-a-widget).
   </Accordion>
   <Accordion title="How do I add a field to a built-in form or detail page?">
     Use `defineCustomFieldsConfig` in `src/custom-fields/<model>.tsx` — `forms[]` adds validated fields to create/edit forms, and `displays[]` adds/replaces/removes fields in detail sections. See [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables).

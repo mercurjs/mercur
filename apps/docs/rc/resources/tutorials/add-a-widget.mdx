@@ -55,9 +55,8 @@ Projects from `create-mercur-app` already ship this file. With it present, an in
     |-----------|--------|
     | `before` | Renders before the built-in content of the zone |
     | `after` | Renders after the built-in content |
-    | `replace` | Replaces the built-in content of the zone |
 
-    Multiple `before` / `after` widgets on the same zone stack in registration order. A single `replace` widget swaps the built-in content.
+    Multiple `before` / `after` widgets on the same zone stack in registration order.
   </Step>
   <Step title="Reload the panel">
     Start the project (`bun run dev`) and open the vendor portal. Widget files hot-reload — the banner appears above the product list, and the table below it works exactly as before.
@@ -70,7 +69,7 @@ Zones mounted today in the **vendor portal**:
 
 | Zone | Where it renders |
 |------|------------------|
-| `product.list.before` / `.after` / `.replace` | Vendor product list page |
+| `product.list.before` / `.after` | Vendor product list page |
 | `login.logo.*` | The logo slot on the public login screen |
 | `login.before.*` / `login.after.*` | Around the login form (rendered before authentication) |
 
