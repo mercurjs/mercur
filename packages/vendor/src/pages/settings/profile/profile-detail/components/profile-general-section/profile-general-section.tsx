@@ -68,7 +68,12 @@ export const ProfileGeneralSection = () => {
           </Text>
         </div>
       </DisplayField>
-      <DisplayExtensionZone model="member" zone="general" data={member} />
+      <DisplayExtensionZone
+        model="member"
+        zone="general"
+        data={member}
+        builtInFieldIds={["first_name", "last_name", "language"]}
+      />
     </Container>
   )
 }
