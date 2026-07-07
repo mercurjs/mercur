@@ -320,9 +320,14 @@ array / object / null / nullable / coerce` (Medusa's surface, no `unstable_`).
   but no core-side write path. A developer who needs to persist a value wires their
   own backend (route/workflow) for it. A built-in persistence channel is deferred.
 - `displays` is the model's read/section surface:
-  - `fields`: add a new read-only field, replace a built-in field's render, or
-    remove it by rendering nothing (`component: null`), keyed by field `id`. There
-    is no separate `hidden` flag — a `null` component is the removal.
+  - `fields`: replace, remove, or add a field keyed by `id`. When `id` matches a
+    **built-in** field the entry overrides it in place — `component` replaces its
+    render, `component: null` removes it (no separate `hidden` flag); when `id` is
+    not a built-in field the entry adds a new read-only row. Built-in fields are
+    the ones each detail section wraps in a `<DisplayField model zone id>` host
+    (which consults the override); those hosts are the source of truth for the
+    generated `displayFieldIds` union (§6, Typed targets), so built-in ids
+    autocomplete while unknown ids (adds) still type-check.
   - `actions`: add entries to that section's `ActionMenu` (this is §4, folded
     in). Each entry is `{ rank?, component }` — the **same api as list
     `bulkActions`**, no `hidden`/`id` — with the `component` owning its own label,
@@ -377,7 +382,9 @@ fails `tsc` instead of silently no-op'ing at runtime.
   a small generator **script** (e.g. `packages/vendor/scripts/generate-extension-targets.ts`,
   and the admin equivalent) wired as a prebuild step in that package's `build`
   (before `tsup`). It scans `packages/{admin,vendor}/src/pages/**` for the
-  `<WidgetZone id>` / display / form host usages plus the `useCoreRoutes()` nav ids
+  `<WidgetZone id>` hosts, the `<FormExtensionZone>` / `<DisplayExtensionZone>`
+  model/zone hosts, the `<DisplayField model zone id>` field hosts (→
+  `displayFieldIds`), plus the `useCoreRoutes()` nav ids
   (reusing the dashboard-sdk babel helpers — `parse`/`traverse`, `crawlRoutes`) and
   writes `src/extension-targets.d.ts`, shipped in the package types as
   `@mercurjs/{admin,vendor}/extension-targets.d.ts`. It seeds the built-in ids into
@@ -401,6 +408,7 @@ fails `tsc` instead of silently no-op'ing at runtime.
         formZones: "create" | "edit" | "organize" | "attributes"
         formTabs: { create: "general" | "organize"; edit: never }
         displayZones: "general" | "organize" | "attributes"
+        displayFieldIds: "title" | "status" | "description" | "handle" | "discountable"
       }
     }
   }
@@ -679,10 +687,14 @@ thin `createConfigHelper` wrapper — copy Medusa's
   `dashboard-app/forms/form-extension-zone/form-extension-zone.tsx`). Mount it in
   the vendor product create `TabbedForm` tabs and the product edit `RouteDrawer`.
   Values live in form state only; there is no core-side submission for the MVP.
-- **Display injection:** a `getDisplays(model, zone)` registry drives adding,
-  replacing (`component`), or removing (`component: null`) section fields, plus the
-  `{ rank?, component }` section `ActionMenu` actions, inside the product-detail
-  section containers.
+- **Display injection:** each built-in field in a detail section is wrapped in a
+  `<DisplayField model zone id>` host that consults `getDisplays(model, zone)` and
+  replaces (`component`) or removes (`component: null`) that field in place; a
+  `<DisplayExtensionZone model zone builtInFieldIds>` renders the *added* fields
+  (unknown ids) and the `{ rank?, component }` section `ActionMenu` actions. Wire
+  the product-detail general section in **both** admin and vendor
+  (`product-general-section.tsx`). The `<DisplayField>` hosts also feed the
+  generated `displayFieldIds` union (§6).
 - **List extension:** apply `list.columns` / `bulkActions` / `filters` /
   `viewDefaults` on the product-list `DataTable`. Respect the vendor curated-field
   constraint — the fetch derived from `link` must merge with `+`/`-`, never bare

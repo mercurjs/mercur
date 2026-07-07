@@ -32,11 +32,23 @@ export default defineCustomFieldsConfig({
     {
       zone: "general",
       fields: [
+        // ADD — unknown id appends a new read-only row
         {
           id: "erp_id",
           component: ({ data }) => (
             <Text size="small" className="text-ui-fg-subtle px-6 py-4">
               ERP ID: {erpId(data)}
+            </Text>
+          ),
+        },
+        // REMOVE — built-in id + null hides the field
+        { id: "subtitle", component: null },
+        // REPLACE — built-in id + component overrides its render
+        {
+          id: "handle",
+          component: ({ data }) => (
+            <Text size="small" className="text-ui-fg-subtle px-6 py-4">
+              /{(data as { handle?: string })?.handle}
             </Text>
           ),
         },

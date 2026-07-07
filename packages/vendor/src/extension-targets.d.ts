@@ -48,6 +48,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formZones: "edit"
       formTabs: Record<string, string>
       displayZones: "general"
+      displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
     }
   }
 }

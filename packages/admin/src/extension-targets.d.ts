@@ -35,5 +35,12 @@ declare module "@mercurjs/dashboard-sdk" {
     "stores": true
   }
 
-  interface CustomFieldsRegistry {}
+  interface CustomFieldsRegistry {
+    "product": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "general"
+      displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
+    }
+  }
 }

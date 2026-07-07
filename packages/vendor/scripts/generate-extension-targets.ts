@@ -83,20 +83,32 @@ function collectNav(mainLayout: string): { items: Set<string>; parents: Set<stri
   return { items, parents }
 }
 
-type ModelZones = { formZones: Set<string>; displayZones: Set<string> }
+type ModelZones = {
+  formZones: Set<string>
+  displayZones: Set<string>
+  // built-in overridable field ids per display zone (from <DisplayField> hosts)
+  displayFieldIds: Map<string, Set<string>>
+}
 
 function collectCustomFields(files: string[]): Map<string, ModelZones> {
   const models = new Map<string, ModelZones>()
   const ensure = (model: string): ModelZones => {
     let m = models.get(model)
     if (!m) {
-      m = { formZones: new Set(), displayZones: new Set() }
+      m = {
+        formZones: new Set(),
+        displayZones: new Set(),
+        displayFieldIds: new Map(),
+      }
       models.set(model, m)
     }
     return m
   }
   const attrs = (tag: string) =>
     new RegExp(`<${tag}\\b[^>]*?model=["'\`]([^"'\`]+)["'\`][^>]*?zone=["'\`]([^"'\`]+)["'\`]`, "gs")
+  // <DisplayField model=… zone=… id=…> — captures the built-in field id
+  const fieldRe =
+    /<DisplayField\b[^>]*?model=["'`]([^"'`]+)["'`][^>]*?zone=["'`]([^"'`]+)["'`][^>]*?id=["'`]([^"'`]+)["'`]/gs
 
   for (const file of files) {
     const code = fs.readFileSync(file, "utf-8")
@@ -105,6 +117,16 @@ function collectCustomFields(files: string[]): Map<string, ModelZones> {
     while ((m = formRe.exec(code))) ensure(m[1]).formZones.add(m[2])
     const dispRe = attrs("DisplayExtensionZone")
     while ((m = dispRe.exec(code))) ensure(m[1]).displayZones.add(m[2])
+    while ((m = fieldRe.exec(code))) {
+      const model = ensure(m[1])
+      model.displayZones.add(m[2])
+      let ids = model.displayFieldIds.get(m[2])
+      if (!ids) {
+        ids = new Set()
+        model.displayFieldIds.set(m[2], ids)
+      }
+      ids.add(m[3])
+    }
   }
   return models
 }
@@ -120,13 +142,17 @@ function customFieldsBlock(models: Map<string, ModelZones>): string {
   }
   const entries = [...models.entries()]
     .sort(([a], [b]) => a.localeCompare(b))
-    .map(
-      ([model, z]) => `    ${JSON.stringify(model)}: {
+    .map(([model, z]) => {
+      const allFieldIds = new Set<string>()
+      for (const ids of z.displayFieldIds.values())
+        for (const id of ids) allFieldIds.add(id)
+      return `    ${JSON.stringify(model)}: {
       formZones: ${union(z.formZones)}
       formTabs: Record<string, string>
       displayZones: ${union(z.displayZones)}
+      displayFieldIds: ${union(allFieldIds)}
     }`
-    )
+    })
     .join("\n")
   return `  interface CustomFieldsRegistry {\n${entries}\n  }`
 }

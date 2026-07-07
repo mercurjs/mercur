@@ -33,6 +33,7 @@ type DefaultModelShape = {
   formZones: string
   formTabs: Record<string, string>
   displayZones: string
+  displayFieldIds: string
 }
 
 export type CustomFieldModel = keyof CustomFieldsRegistry extends never
@@ -64,9 +65,14 @@ export type CustomFormEntry<TModel> = {
   fields: Record<string, CustomFormField>
 }
 
-/** ADD (component), REPLACE (component), or REMOVE (component: null) a field. */
-export type CustomDisplayField = {
-  id: string
+/**
+ * ADD (unknown id + component), REPLACE (built-in id + component), or REMOVE
+ * (built-in id + `component: null`) a section field. Built-in ids autocomplete
+ * from the model's generated `displayFieldIds`; any other string adds a new row.
+ */
+export type CustomDisplayField<TModel = unknown> = {
+  // eslint-disable-next-line @typescript-eslint/ban-types
+  id: ModelShape<TModel>["displayFieldIds"] | (string & {})
   component: ComponentType<{ data?: unknown }> | null
 }
 
@@ -78,7 +84,7 @@ export type SectionAction = {
 
 export type CustomDisplayEntry<TModel> = {
   zone: ModelShape<TModel>["displayZones"]
-  fields?: CustomDisplayField[]
+  fields?: CustomDisplayField<TModel>[]
   actions?: SectionAction[]
 }
 

@@ -22,8 +22,10 @@ export {
 } from "./form-extension-zone"
 export {
   DisplayExtensionZone,
+  DisplayField,
   useDisplayFieldOverride,
   type DisplayExtensionZoneProps,
+  type DisplayFieldProps,
 } from "./display-extension-zone"
 export {
   createFormHelper,
