@@ -3,6 +3,8 @@ import { CheckCircleSolid, PencilSquare } from "@medusajs/icons";
 import { Avatar, Heading, StatusBadge, Tooltip } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
+import { DisplayField } from "@mercurjs/dashboard-shared";
+
 import { ActionMenu } from "@components/common/action-menu";
 import { HttpTypes } from "@mercurjs/types";
 import { SellerStatus } from "@mercurjs/types";
@@ -95,9 +97,16 @@ export const StoreDetailActions = ({
         children
       ) : (
         <>
-          <StatusBadge color={getStatusColor(seller.status)}>
-            {getStatusLabel(seller.status, t)}
-          </StatusBadge>
+          <DisplayField
+            model="seller"
+            zone="general"
+            id="status"
+            data={seller}
+          >
+            <StatusBadge color={getStatusColor(seller.status)}>
+              {getStatusLabel(seller.status, t)}
+            </StatusBadge>
+          </DisplayField>
           <StoreDetailEditButton />
         </>
       )}

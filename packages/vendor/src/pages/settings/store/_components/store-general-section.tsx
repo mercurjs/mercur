@@ -2,7 +2,10 @@ import { Children, ReactNode } from "react";
 import { Badge, Container, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
-import { DisplayField } from "@mercurjs/dashboard-shared";
+import {
+  DisplayExtensionZone,
+  DisplayField,
+} from "@mercurjs/dashboard-shared";
 import { HttpTypes } from "@mercurjs/types";
 
 import { StoreDetailHeader } from "./store-detail-header";
@@ -128,6 +131,20 @@ export const StoreGeneralSection = ({
               </div>
             </div>
           </DisplayField>
+          <DisplayExtensionZone
+            model="seller"
+            zone="general"
+            data={seller}
+            builtInFieldIds={[
+              "status",
+              "description",
+              "handle",
+              "email",
+              "phone",
+              "website_url",
+              "currency_code",
+            ]}
+          />
         </>
       )}
     </Container>

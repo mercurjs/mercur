@@ -113,6 +113,7 @@ const StoreSelectList = ({
                 model="seller"
                 zone="seller-select"
                 data={seller}
+                builtInFieldIds={["status"]}
               />
               <ChevronRight className="text-ui-fg-muted" />
             </button>
