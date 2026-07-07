@@ -30,3 +30,7 @@ export {
   buildAdditionalDataSchema,
   buildAdditionalDataDefaults,
 } from "./custom-fields-form"
+export {
+  useExtendableForm,
+  type UseExtendableFormProps,
+} from "./use-extendable-form"

@@ -12,13 +12,8 @@ import { useFeatureFlags, useUpdateProduct } from "@hooks/api";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import {
   FormExtensionZone,
-  buildAdditionalDataDefaults,
-  buildAdditionalDataSchema,
-  useExtension,
+  useExtendableForm,
 } from "@mercurjs/dashboard-shared";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useMemo } from "react";
 
 type EditProductFormProps = {
   product: ExtendedAdminProduct;
@@ -35,32 +30,22 @@ const EditProductSchema = zod.object({
 export const EditProductForm = ({ product }: EditProductFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
-  const extension = useExtension();
 
   const { feature_flags } = useFeatureFlags();
   const isProductRequestEnabled =
     !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST];
 
-  const schema = useMemo(
-    () =>
-      EditProductSchema.extend({
-        additional_data: buildAdditionalDataSchema(extension, "product")
-          .partial()
-          .optional(),
-      }),
-    [extension],
-  );
-
-  const form = useForm({
+  const form = useExtendableForm({
+    schema: EditProductSchema,
+    model: "product",
+    data: product,
     defaultValues: {
       title: product.title,
       subtitle: product.subtitle || "",
       handle: product.handle || "",
       description: product.description || "",
       discountable: product.discountable,
-      additional_data: buildAdditionalDataDefaults(extension, "product", product),
     },
-    resolver: zodResolver(schema),
   });
 
   const { mutateAsync, isPending } = useUpdateProduct(product.id);

@@ -9,8 +9,10 @@
  *     `<DisplayExtensionZone model zone>`
  *
  * A zone that no page renders as a host can never be targeted and never enters
- * the types. This runs before `tsup` in the package `build`. Mirrors the CLI
- * route codegen's crawl→template→write shape.
+ * the types. This runs after `tsup` in the package `build`: it writes the source
+ * declaration and, when `dist` exists, ships it there (tsup's own dts build would
+ * otherwise prune a standalone augmentation not imported by an entry). Mirrors the
+ * CLI route codegen's crawl→template→write shape.
  */
 import fs from "fs"
 import path from "path"
@@ -177,6 +179,15 @@ ${customFieldsBlock(models)}
 `
 
   fs.writeFileSync(OUT, contents)
+
+  // Ship to dist when it exists (i.e. running after `tsup`), so the shipped
+  // `@mercurjs/<panel>/extension-targets` entry resolves to the fresh declaration.
+  const distDir = path.join(SRC, "..", "dist")
+  if (fs.existsSync(distDir)) {
+    fs.copyFileSync(OUT, path.join(distDir, "extension-targets.d.ts"))
+    fs.writeFileSync(path.join(distDir, "extension-targets.js"), "export {}\n")
+  }
+
   console.log(
     `extension-targets.d.ts: ${zoneIds.size} widget zones, ${nav.items.size} nav items, ${nav.parents.size} nav parents, ${models.size} custom-field models`
   )

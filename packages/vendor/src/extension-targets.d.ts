@@ -16,9 +16,6 @@ declare module "@mercurjs/dashboard-sdk" {
     "product.list.after": true
     "product.list.before": true
     "product.list.replace": true
-    "topbar.after": true
-    "topbar.before": true
-    "topbar.replace": true
   }
 
   interface NavItemRegistry {

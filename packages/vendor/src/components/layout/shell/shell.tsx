@@ -13,7 +13,6 @@ import {
   useNavigation,
 } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
 import components from "virtual:mercur/components"
 import { KeybindProvider } from "../../../providers/keybind-provider"
 import { useGlobalShortcuts } from "../../../providers/keybind-provider/hooks"
@@ -205,7 +204,6 @@ const Topbar = () => {
         <Breadcrumbs />
       </div>
       <div className="flex items-center justify-end gap-x-3">
-        <WidgetZone id="topbar" />
         {TopbarActions && <TopbarActions />}
       </div>
     </div>

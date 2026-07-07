@@ -62,7 +62,7 @@ export function generatePluginEntryModule(srcDir: string): string {
         index
     )
 
-    // custom-fields + commands (aggregate default exports)
+    // custom-fields (aggregate default exports)
     const cfFiles = crawlModuleFiles(path.join(srcDir, "custom-fields"))
     const cfImports = cfFiles.map(
         (file, i) => `import __cf${i} from "${normalizePath(file)}"`

@@ -168,9 +168,8 @@ export default ProductListBanner;
   the MVP) — see the Typed-targets subsection under §6.
 - `replace` swaps the built-in content of that zone; multiple `before`/`after`
   widgets stack in registration order (ties broken deterministically).
-- **Subsumes** the old standalone Login and Toolbar surfaces: global topbar
-  controls are widgets in the `topbar` zone; login logo/before/after content are
-  widgets in `login.logo` / `login.before` / `login.after` zones (public,
+- **Subsumes** the old standalone Login surface: login logo/before/after content
+  are widgets in `login.logo` / `login.before` / `login.after` zones (public,
   rendered before authentication).
 
 ### 3. List Tables — via `defineCustomFieldsConfig` (model-scoped)
@@ -233,8 +232,8 @@ belong to a model's detail sections, action contributions ride inside the model'
 `onClick`; `rank` positions it within the section's `ActionMenu`. See the
 expanded `displays` shape in §8.
 
-Page-level action bars that are not tied to a model (e.g. a global topbar button)
-remain widgets via the `topbar` zone in §2.
+Page-level action bars that are not tied to a model use the page's own widget
+zones (§2), not a model's `displays`.
 
 ### 5. Commands (searchbar) — post-MVP
 
@@ -316,13 +315,10 @@ array / object / null / nullable / coerce` (Medusa's surface, no `unstable_`).
 - Form fields render through the mandated `Form.Field` → `Form.Item` primitive
   chain (no raw `Controller`) and participate in the existing
   `TabbedForm`/`RouteDrawer` submit + validation flow.
-- **Submission via `additional_data`.** Custom field values are not spread onto
-  the entity payload; they are collected under the request's `additional_data`
-  bag (Medusa's convention), so the built-in create/edit route accepts them
-  without knowing about them. The linked module's workflow hook reads
-  `additional_data.<field>` and persists it. This keeps custom fields decoupled
-  from the core validators — no "Unrecognized fields" rejection on the built-in
-  route.
+- **Persistence is out of scope for the MVP.** The MVP delivers the UI surface —
+  custom fields render, validate, and display through the built-in forms/sections —
+  but no core-side write path. A developer who needs to persist a value wires their
+  own backend (route/workflow) for it. A built-in persistence channel is deferred.
 - `displays` is the model's read/section surface:
   - `fields`: add a new read-only field, replace a built-in field's render, or
     remove it by rendering nothing (`component: null`), keyed by field `id`. There
@@ -337,9 +333,9 @@ array / object / null / nullable / coerce` (Medusa's surface, no `unstable_`).
   seller/store model's multi-step form, so extending it is not a separate helper:
   use `zone: "onboarding"` on the relevant model (`seller`/`store`) with `tab`
   set to the wizard **step id** to inject validated fields into an existing step.
-  This runs through the same `additional_data` submission + workflow-hook
-  persistence path and must respect the wizard's existing state machine and
-  completion gating. Adding a brand-new step with fully custom content is a widget
+  It must respect the wizard's existing state machine and completion gating (fields
+  render/validate only; persistence is out of scope, as above). Adding a brand-new
+  step with fully custom content is a widget
   in the onboarding zone (§2), not a field-map entry. Vendor app only.
 - **Statuses are just fields.** There is no separate status-remapping surface. A
   status (order, seller, payout, etc.) is an ordinary field: relabel/recolor is a
@@ -347,10 +343,9 @@ array / object / null / nullable / coerce` (Medusa's surface, no `unstable_`).
   the selectable set is a `forms` field `component` override. The status field's
   underlying values and transition machine stay backend-owned — the panel API
   only replaces how the field is rendered and edited (see Non-Goals).
-- Persistence: the submitted `additional_data` is consumed by a workflow hook on
-  the linked module(s) named in `link`, which writes the values. The exact hook
-  (e.g. `productsCreated` / update hooks) is a per-model design decision to be
-  resolved in the sub-spec; start with `product` only.
+- Persistence: **out of scope for the MVP** (see above). Custom fields are a
+  render/validate/display surface only; a built-in write path is deferred to a
+  later spec.
 
 ### Typed targets — panel-generated `extension-targets.d.ts` + runtime registry
 
@@ -396,7 +391,7 @@ fails `tsc` instead of silently no-op'ing at runtime.
     interface WidgetZoneRegistry {
       "product.list.before": true
       "product.list.after": true
-      "topbar.before": true
+      "product.detail.side.before": true
       "login.logo.replace": true
     }
     interface NavItemRegistry { orders: true; products: true; categories: true; campaigns: true /* … */ }
@@ -648,9 +643,8 @@ thin `createConfigHelper` wrapper — copy Medusa's
   child (or the single `.replace` widget) → `.after` widgets. Reference
   render path: Medusa `components/layout-composer/layout-composer.tsx`.
 - **Placement:** mount hosts on one page family first (vendor product list +
-  detail), plus the `topbar` zone (near the `TopbarActions` slot in
-  `main-layout.tsx`) and the public `login.*` zones (the login route rendered
-  under `PublicLayout`, before auth).
+  detail), plus the public `login.*` zones (the login route rendered under
+  `PublicLayout`, before auth).
 
 ### Slice 2 — Navigation
 
@@ -680,10 +674,11 @@ thin `createConfigHelper` wrapper — copy Medusa's
   `generate-virtual-form-module` / `generate-virtual-display-module`). Wire the
   virtual module + `customFieldsModule` block spread.
 - **Form injection:** a `<FormExtensionZone model zone tab form />` that renders
-  extra fields through the mandated `Form.Field → Form.Item` chain under RHF name
-  **`additional_data.<field>`** (mirror Medusa
+  extra fields through the mandated `Form.Field → Form.Item` chain under a
+  `custom_fields.<field>` RHF namespace (mirror Medusa
   `dashboard-app/forms/form-extension-zone/form-extension-zone.tsx`). Mount it in
   the vendor product create `TabbedForm` tabs and the product edit `RouteDrawer`.
+  Values live in form state only; there is no core-side submission for the MVP.
 - **Display injection:** a `getDisplays(model, zone)` registry drives adding,
   replacing (`component`), or removing (`component: null`) section fields, plus the
   `{ rank?, component }` section `ActionMenu` actions, inside the product-detail
@@ -692,21 +687,14 @@ thin `createConfigHelper` wrapper — copy Medusa's
   `viewDefaults` on the product-list `DataTable`. Respect the vendor curated-field
   constraint — the fetch derived from `link` must merge with `+`/`-`, never bare
   fields (`useProductTableQuery`; gotcha `vendor-products-default-fields-500`).
-- **Persistence (`additional_data`):** the built-in vendor product create/update
-  routes destructure `additional_data` and pass it into the workflow; register a
-  create/update **workflow hook** in `@mercurjs/core` that reads
-  `additional_data.<field>` and writes to the `link`ed module. Reference:
-  Medusa `packages/medusa/src/api/admin/products/[id]/route.ts` +
-  `registerHook("...Product.after")`. Custom-field values are never spread onto
-  the core entity payload, so the built-in validators don't reject them (see the
-  `override-core-medusa-admin-route` gotcha for the validation caveat). Add vendor
-  integration tests under `integration-tests/http/product/vendor/`.
+- **Persistence:** out of scope for the MVP — no core API changes. Custom fields
+  render/validate/display only; a built-in write path is deferred to a later spec.
 
 ### Slice 4 — Onboarding fields (vendor)
 
 No new helper: `zone: "onboarding"` on the `seller`/`store` model with `tab` = the
-wizard **step id**, reusing Slice 3's form injection + `additional_data` path,
-mounted into the vendor onboarding wizard
+wizard **step id**, reusing Slice 3's form injection (render/validate only, no
+core-side persistence), mounted into the vendor onboarding wizard
 (`packages/vendor/src/components/onboarding-wizard/…`) and respecting its existing
 state machine + completion gating. The seller/store onboarding zone and step ids
 enter `CustomFieldsRegistry` through the panel's build-time scan of the wizard's
@@ -726,8 +714,7 @@ the aggregated commands into the panel `SearchProvider` / command palette.
   the rest of the page unchanged (run `./scripts/dev-worktree.sh`; API :9000,
   admin :7000, vendor :7001).
 - A deliberately-wrong `zone`/`model`/nav `id` must fail `bun run lint` (tsc).
-- `bun run build` passes; Slice 3 adds `additional_data` round-trip integration
-  tests (`bun run test:integration:http -- <pattern>`).
+- `bun run build` passes.
 
 ## Non-Goals
 
@@ -747,7 +734,7 @@ Each can land independently and flip to `passing` on its own:
 
 1. Widget injection zones + `defineWidgetConfig` (`before|after|replace`) with a
    published zone registry for one page family (e.g. product list/detail),
-   including the `topbar` and `login.*` zones.
+   including the `login.*` zones.
 2. Navigation reorder/hide/relabel API — single host-owned `src/_navigation.ts`
    file + `defineNavigationConfig` (single-file discovery like `i18n`, no block
    merge).
@@ -755,7 +742,8 @@ Each can land independently and flip to `passing` on its own:
    forms, section `displays` (fields add/replace/remove + `{ rank?, component }`
    actions), and the
    model-scoped `list` block (columns, cells, bulk actions, filters, view
-   defaults; linked data fetched via `link`), plus `additional_data` persistence.
+   defaults; linked data fetched via `link`). Render/validate/display only — no
+   core-side persistence in the MVP.
    Includes the per-model `CustomFieldsRegistry` interface shipped in the panel's
    generated `extension-targets.d.ts` (hand `declare module` augmentation for a
    developer's own models/zones) so invalid targets fail type-check.
@@ -776,7 +764,7 @@ a panel package:
 
 - Reorder, hide, and relabel sidebar items.
 - Inject React components before/after/replacing content at documented zones on
-  built-in pages (including the topbar and login screen).
+  built-in pages (including the login screen).
 - Add/override/remove columns, filters, and bulk actions on a model's built-in
   list table, with linked-module data available via `link`.
 - Add/replace/remove fields and actions in a model's detail sections.
@@ -805,8 +793,8 @@ Delivered slices (each its own `passing` sub-spec):
 - **Slice 1 — Widgets:** [SPEC-022](./SPEC-022-panel-widgets.md) (`passing`).
   `defineWidgetConfig` + `before|after|replace`, `virtual:mercur/widgets` crawl,
   `ExtensionRegistry`/`ExtensionProvider`/`useExtension`/`<WidgetZone>` runtime in
-  `@mercurjs/dashboard-shared`, mounted on the vendor product list and both
-  panels' topbar. Panel-generated `extension-targets.d.ts` types the zone ids.
+  `@mercurjs/dashboard-shared`, mounted on the vendor product list/detail.
+  Panel-generated `extension-targets.d.ts` types the zone ids.
 - **Slice 2 — Navigation:** [SPEC-023](./SPEC-023-panel-navigation.md)
   (`passing`). Single host-owned `src/_navigation.ts` +
   `defineNavigationConfig`, `virtual:mercur/navigation`, `applyNavOverrides`
@@ -815,10 +803,10 @@ Delivered slices (each its own `passing` sub-spec):
   [SPEC-024](./SPEC-024-panel-custom-fields.md) (`passing`).
   `defineCustomFieldsConfig` + `createFormHelper`, `virtual:mercur/custom-fields`,
   `<FormExtensionZone>` / `<DisplayExtensionZone>` runtime, mounted on the vendor
-  product edit drawer + detail section, with `additional_data` → `product.metadata`
-  persistence and a generated `CustomFieldsRegistry`.
+  product edit drawer + detail section, and a generated `CustomFieldsRegistry`.
+  Render/validate/display only — no core-side persistence.
 - Widget zones now also cover the public `login.*` slots (login page) alongside
-  `topbar` and `product.list`.
+  `product.list` / `product.detail`.
 
 Foundation shared by all future slices: `packages/dashboard-sdk/src/config/`
 (helpers + open registry interfaces), the repeatable virtual-module recipe

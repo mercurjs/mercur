@@ -2,7 +2,7 @@ import { Fragment, type ReactNode } from "react"
 import { useExtension } from "./context"
 
 export type WidgetZoneProps = {
-  /** Stable slot id, e.g. `product.list` or `topbar`. Placement suffixes
+  /** Stable slot id, e.g. `product.list` or `product.detail`. Placement suffixes
    * (`before | after | replace`) are matched against it at render time. */
   id: string
   /** Optional data passed to each widget component (e.g. the detail entity). */

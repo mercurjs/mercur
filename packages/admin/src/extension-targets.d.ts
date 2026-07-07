@@ -4,9 +4,7 @@ import "@mercurjs/dashboard-sdk"
 
 declare module "@mercurjs/dashboard-sdk" {
   interface WidgetZoneRegistry {
-    "topbar.after": true
-    "topbar.before": true
-    "topbar.replace": true
+
   }
 
   interface NavItemRegistry {

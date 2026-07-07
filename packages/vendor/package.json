@@ -30,7 +30,7 @@
   "scripts": {
     "dev": "tsup --watch",
     "generate:targets": "bun run scripts/generate-extension-targets.ts",
-    "build": "bun run generate:targets && tsup && bun run scripts/ship-extension-targets.ts",
+    "build": "tsup && bun run generate:targets",
     "lint": "oxlint --max-warnings 0"
   },
   "dependencies": {
