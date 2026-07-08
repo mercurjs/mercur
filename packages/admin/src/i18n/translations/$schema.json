@@ -3356,6 +3356,18 @@
         "updateSuccess": {
           "type": "string"
         },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "titleRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "titleRequired"
+          ],
+          "additionalProperties": false
+        },
         "editCollection": {
           "type": "string"
         },
@@ -3651,6 +3663,7 @@
         "createSuccess",
         "deleteSuccess",
         "updateSuccess",
+        "validation",
         "editCollection",
         "handleTooltip",
         "deleteWarning",
