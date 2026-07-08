@@ -30,6 +30,7 @@ export const StoreProfessionalDetailsForm = ({
   const form = useExtendableForm({
     schema: StoreProfessionalDetailsSchema,
     model: "seller",
+    zone: "professional-details",
     data: seller,
     defaultValues: {
       corporate_name: details?.corporate_name ?? "",

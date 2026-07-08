@@ -1,39 +1,12 @@
-import { useEffect } from "react";
-
 import { assetUrl } from "../../utils/asset-url";
 
-type WizardPreviewProps = {
-  currentStep: number;
-};
-
-const STEP_IMAGES: Record<number, string> = {
-  0: assetUrl("/onboarding/1.png"),
-  1: assetUrl("/onboarding/2.png"),
-  2: assetUrl("/onboarding/3.png"),
-  3: assetUrl("/onboarding/4.png"),
-};
-
-const preloadImages = () => {
-  Object.values(STEP_IMAGES).forEach((src) => {
-    const img = new Image();
-    img.src = src;
-  });
-};
-
-export const WizardPreview = ({ currentStep }: WizardPreviewProps) => {
-  useEffect(preloadImages, []);
-
-  const image = STEP_IMAGES[currentStep];
-
+export const WizardPreview = () => {
   return (
-    <div
-      className="hidden lg:flex flex-1 relative overflow-hidden items-center justify-center"
-      style={{ backgroundImage: `url(${assetUrl("/onboarding/bg.svg")})`, backgroundSize: "cover", backgroundPosition: "center" }}
-    >
+    <div className="hidden lg:flex flex-1 relative overflow-hidden">
       <img
-        src={image}
+        src={assetUrl("/onboarding/illustration.svg")}
         alt=""
-        className="w-[75%] max-h-[75%] object-contain"
+        className="h-full w-full object-cover"
       />
     </div>
   );

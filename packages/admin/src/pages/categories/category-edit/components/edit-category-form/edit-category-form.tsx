@@ -34,6 +34,7 @@ export const EditCategoryForm = ({ category }: EditCategoryFormProps) => {
   const form = useExtendableForm({
     schema: EditCategorySchema,
     model: "category",
+    zone: "edit",
     data: category,
     defaultValues: {
       name: category.name,

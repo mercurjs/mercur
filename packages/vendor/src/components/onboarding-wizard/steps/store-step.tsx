@@ -44,6 +44,8 @@ export const StoreStep = ({ onSubmit, isPending }: StoreStepProps) => {
   const form = useExtendableForm({
     schema: StoreStepSchema,
     model: "seller",
+    zone: "onboarding",
+    tab: "store",
     data: store,
     defaultValues: {
       name: "",

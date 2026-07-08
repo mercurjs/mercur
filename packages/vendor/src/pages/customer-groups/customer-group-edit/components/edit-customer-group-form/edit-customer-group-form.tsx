@@ -33,6 +33,7 @@ export const EditCustomerGroupForm = ({
   const form = useExtendableForm({
     schema: EditCustomerGroupSchema,
     model: "customer_group",
+    zone: "edit",
     data: group,
     defaultValues: {
       name: group.name || "",

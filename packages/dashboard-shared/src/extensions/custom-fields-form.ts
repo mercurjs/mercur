@@ -30,10 +30,15 @@ export function createFormHelper<TData>() {
  */
 export function buildAdditionalDataSchema(
   registry: ExtensionRegistry,
-  model: string
+  model: string,
+  zone?: string,
+  tab?: string
 ): z.ZodObject<Record<string, z.ZodTypeAny>> {
   const shape: Record<string, z.ZodTypeAny> = {}
-  for (const { name, field } of registry.getAllFormFields(model)) {
+  const fields = zone
+    ? registry.getFormFields(model, zone, tab)
+    : registry.getAllFormFields(model)
+  for (const { name, field } of fields) {
     shape[name] = field.validation as unknown as z.ZodTypeAny
   }
   return z.object(shape)
@@ -43,10 +48,15 @@ export function buildAdditionalDataSchema(
 export function buildAdditionalDataDefaults(
   registry: ExtensionRegistry,
   model: string,
-  data?: unknown
+  data?: unknown,
+  zone?: string,
+  tab?: string
 ): Record<string, unknown> {
   const defaults: Record<string, unknown> = {}
-  for (const { name, field } of registry.getAllFormFields(model)) {
+  const fields = zone
+    ? registry.getFormFields(model, zone, tab)
+    : registry.getAllFormFields(model)
+  for (const { name, field } of fields) {
     if (typeof field.defaultValue === "function") {
       defaults[name] = (field.defaultValue as (d: unknown) => unknown)(data)
     } else if (field.defaultValue !== undefined) {

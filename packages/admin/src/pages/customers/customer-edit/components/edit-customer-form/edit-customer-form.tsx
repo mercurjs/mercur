@@ -34,6 +34,7 @@ export const EditCustomerForm = ({ customer }: EditCustomerFormProps) => {
   const form = useExtendableForm({
     schema: EditCustomerSchema,
     model: "customer",
+    zone: "edit",
     data: customer,
     defaultValues: {
       email: customer.email || "",

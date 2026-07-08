@@ -65,6 +65,7 @@ export const EditReservationForm = ({
   const form = useExtendableForm({
     schema: EditReservationSchema,
     model: "reservation",
+    zone: "edit",
     data: reservation,
     defaultValues: getDefaultValues(reservation),
   })

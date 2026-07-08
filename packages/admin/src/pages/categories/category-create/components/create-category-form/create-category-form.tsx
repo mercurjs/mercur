@@ -78,11 +78,7 @@ export const CreateCategoryForm = ({
       },
       {
         onSuccess: ({ product_category }) => {
-          toast.success(
-            t("categories.create.successToast", {
-              name: product_category.name,
-            })
-          )
+          toast.success(t("categories.create.successToast"))
 
           handleSuccess(`/categories/${product_category.id}`)
         },
