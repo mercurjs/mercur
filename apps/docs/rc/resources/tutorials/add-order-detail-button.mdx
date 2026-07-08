@@ -11,16 +11,6 @@ This tutorial adds a **"Copy link"** button to the order detail sidebar that cop
   **Additive, not a replacement.** A widget layers your component onto a built-in page at a documented zone. Reach for it first whenever you just want to *add* something to an existing screen.
 </Info>
 
-## Register the typed targets (once)
-
-Widget zones are typed ids the vendor panel generates from its own pages and ships as `@mercurjs/vendor/extension-targets`. Register them once with a single ambient reference in your app's `src`:
-
-```typescript apps/vendor/src/extension-targets.d.ts
-/// <reference types="@mercurjs/vendor/extension-targets" />
-```
-
-Projects from `create-mercur-app` already ship this file. With it present, an invalid zone fails `tsc` instead of silently doing nothing.
-
 ## Add the button
 
 <Steps>
