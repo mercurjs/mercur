@@ -1,4 +1,5 @@
 import { Heading } from "@medusajs/ui";
+import { useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
@@ -10,7 +11,9 @@ export const StoreEdit = () => {
   const { id } = useParams();
   const { t } = useTranslation();
 
-  const { seller, isLoading, isError, error } = useSeller(id!);
+  const query = useLinkQuery("seller");
+
+  const { seller, isLoading, isError, error } = useSeller(id!, query);
 
   if (isError) {
     throw error;

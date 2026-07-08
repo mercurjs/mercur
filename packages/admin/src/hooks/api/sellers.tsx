@@ -38,7 +38,7 @@ export const useSeller = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.sellers.$id.query({ $id: id, ...query }),
-    queryKey: sellersQueryKeys.detail(id),
+    queryKey: sellersQueryKeys.detail(id, query),
     ...options,
   });
 

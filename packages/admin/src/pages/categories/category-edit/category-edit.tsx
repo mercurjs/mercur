@@ -1,4 +1,5 @@
 import { Heading } from "@medusajs/ui"
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
 
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
@@ -10,8 +11,11 @@ export const CategoryEdit = () => {
   const { id } = useParams()
   const { t } = useTranslation()
 
+  const linkQuery = useLinkQuery("category")
+
   const { product_category, isPending, isError, error } = useProductCategory(
-    id!
+    id!,
+    linkQuery
   )
 
   const ready = !isPending && !!product_category

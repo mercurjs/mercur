@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Heading, Input, Text, toast } from "@medusajs/ui"
+import i18n from "i18next"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -33,7 +34,9 @@ const CollectionIconSchema = zod.object({
 })
 
 const CreateCollectionSchema = zod.object({
-  title: zod.string().min(1),
+  title: zod
+    .string()
+    .min(1, { message: i18n.t("collections.validation.titleRequired") }),
   handle: zod.string().optional(),
   media: zod.array(CollectionMediaSchema).optional(),
   icon: CollectionIconSchema.nullable().optional(),

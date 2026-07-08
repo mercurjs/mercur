@@ -1,5 +1,5 @@
 import { Button, Container, Heading, Text } from "@medusajs/ui"
-import { useExtendableTable } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import type { ColumnDef } from "@tanstack/react-table"
 
 import { Children, ReactNode, useMemo } from "react"
@@ -68,6 +68,7 @@ export const ReservationListDataTable = () => {
   const { reservations, count, isPending, isError, error } =
     useReservationItems({
       ...searchParams,
+      ...useLinkQuery("reservation"),
     })
 
   const baseFilters = useReservationTableFilters()

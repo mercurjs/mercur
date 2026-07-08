@@ -2,7 +2,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { ExtendedPriceList } from "@custom-types/price-list";
 import { _DataTable } from "@components/table/data-table";
 import { usePriceLists } from "@hooks/api/price-lists";
@@ -20,8 +20,9 @@ export const PriceListListDataTable = () => {
   const { searchParams, raw } = usePricingTableQuery({
     pageSize: PAGE_SIZE,
   });
+  const linkQuery = useLinkQuery("price_list");
   const { price_lists, count, isLoading, isError, error } = usePriceLists(
-    searchParams,
+    { ...searchParams, ...linkQuery },
     {
       placeholderData: keepPreviousData,
     },

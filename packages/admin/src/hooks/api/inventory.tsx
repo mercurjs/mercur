@@ -61,7 +61,7 @@ export const useInventoryItem = (
   const { data, ...rest } = useQuery({
     queryFn: () =>
       sdk.admin.inventoryItems.$id.query({ $id: id, ...query }) as Promise<ExtendedAdminInventoryItemResponse>,
-    queryKey: inventoryItemsQueryKeys.detail(id),
+    queryKey: inventoryItemsQueryKeys.detail(id, query),
     ...options,
   })
 

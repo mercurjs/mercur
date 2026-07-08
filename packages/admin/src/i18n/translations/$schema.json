@@ -3350,8 +3350,37 @@
         "createSuccess": {
           "type": "string"
         },
+        "deleteSuccess": {
+          "type": "string"
+        },
+        "updateSuccess": {
+          "type": "string"
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "titleRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "titleRequired"
+          ],
+          "additionalProperties": false
+        },
         "editCollection": {
           "type": "string"
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "titleRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "titleRequired"
+          ]
         },
         "handleTooltip": {
           "type": "string"
@@ -3643,7 +3672,11 @@
         "createCollection",
         "createCollectionHint",
         "createSuccess",
+        "deleteSuccess",
+        "updateSuccess",
+        "validation",
         "editCollection",
+        "validation",
         "handleTooltip",
         "deleteWarning",
         "removeSingleProductWarning",
@@ -4832,6 +4865,38 @@
                 "successToast"
               ],
               "additionalProperties": false
+            },
+            "delete": {
+              "type": "object",
+              "properties": {
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "successToast"
+              ],
+              "additionalProperties": false
+            },
+            "validation": {
+              "type": "object",
+              "properties": {
+                "addressNameRequired": {
+                  "type": "string"
+                },
+                "addressRequired": {
+                  "type": "string"
+                },
+                "countryRequired": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "addressNameRequired",
+                "addressRequired",
+                "countryRequired"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
@@ -4840,7 +4905,9 @@
             "emptyMessage",
             "fields",
             "create",
-            "edit"
+            "edit",
+            "delete",
+            "validation"
           ],
           "additionalProperties": false
         }

@@ -2,7 +2,7 @@ import { PencilSquare, Trash } from "@medusajs/icons";
 import { HttpTypes } from "@medusajs/types";
 import { usePrompt } from "@medusajs/ui";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Outlet, useNavigate } from "react-router-dom";
@@ -26,6 +26,7 @@ export const PromotionListDataTable = () => {
   const { searchParams, raw } = usePromotionTableQuery({
     pageSize: PAGE_SIZE,
   });
+  const linkQuery = useLinkQuery("promotion", "+status");
   const {
     promotions: data,
     count,
@@ -33,7 +34,7 @@ export const PromotionListDataTable = () => {
     isError,
     error,
   } = usePromotions({
-    fields: "+status",
+    ...linkQuery,
     ...searchParams,
   });
 
