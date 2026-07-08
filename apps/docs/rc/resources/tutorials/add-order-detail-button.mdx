@@ -1,0 +1,122 @@
+---
+title: "Add a button to order details"
+description: "Drop a 'Copy link' button onto the vendor order detail page with a widget — no forking, no page override."
+---
+
+The order detail page is a built-in panel screen you don't own. To add a small piece of UI to it — a button, a badge, a note — you don't copy the page. You drop a **widget** at one of its zones, and the SDK renders your component there while the rest of the page keeps working exactly as shipped.
+
+This tutorial adds a **"Copy link"** button to the order detail sidebar that copies a link to the order.
+
+<Info>
+  **Additive, not a replacement.** A widget layers your component onto a built-in page at a documented zone. Reach for it first whenever you just want to *add* something to an existing screen.
+</Info>
+
+## Register the typed targets (once)
+
+Widget zones are typed ids the vendor panel generates from its own pages and ships as `@mercurjs/vendor/extension-targets`. Register them once with a single ambient reference in your app's `src`:
+
+```typescript apps/vendor/src/extension-targets.d.ts
+/// <reference types="@mercurjs/vendor/extension-targets" />
+```
+
+Projects from `create-mercur-app` already ship this file. With it present, an invalid zone fails `tsc` instead of silently doing nothing.
+
+## Add the button
+
+<Steps>
+  <Step title="Create the widget file">
+    Drop a file under `src/widgets/`. Export the component as the **default** and a `config` built with `defineWidgetConfig`. Target `orders.detail.side.before` — your component renders at the top of the order detail sidebar and receives the loaded order as `data`.
+
+    ```tsx apps/vendor/src/widgets/order-copy-link.tsx
+    import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
+    import type { HttpTypes } from "@medusajs/types"
+    import { Button, Container, toast } from "@medusajs/ui"
+
+    export const config = defineWidgetConfig({
+      zone: "orders.detail.side.before",
+    })
+
+    const OrderCopyLink = ({ data: order }: { data?: HttpTypes.AdminOrder }) => {
+      if (!order) return null
+
+      const orderLink = `${window.location.origin}/orders/${order.id}`
+
+      const handleCopy = async () => {
+        try {
+          await navigator.clipboard.writeText(orderLink)
+          toast.success("Link copied")
+        } catch {
+          toast.error("Couldn't copy the link")
+        }
+      }
+
+      return (
+        <Container className="flex items-center justify-end p-3">
+          <Button size="small" variant="secondary" onClick={handleCopy}>
+            Copy link
+          </Button>
+        </Container>
+      )
+    }
+
+    export default OrderCopyLink
+    ```
+  </Step>
+  <Step title="Understand the zone id">
+    A zone id is `<domain>.<view>.<slot>.<placement>`. The last segment is the placement:
+
+    | Placement | Effect |
+    |-----------|--------|
+    | `before` | Renders before the built-in content of the zone |
+    | `after` | Renders after the built-in content |
+
+    Multiple `before` / `after` widgets on the same zone stack in registration order.
+  </Step>
+  <Step title="Reload the panel">
+    Start the project (`bun run dev`) and open any order in the vendor portal. Widget files hot-reload — the "Copy link" button appears at the top of the sidebar, and the rest of the page is untouched.
+  </Step>
+</Steps>
+
+## Order detail zones
+
+Zones mounted on the vendor order detail page:
+
+| Zone | Where it renders |
+|------|------------------|
+| `orders.detail.main.before` / `.after` | Around the main column (summary, payment, fulfillment) |
+| `orders.detail.side.before` / `.after` | Around the sidebar (customer, activity) |
+
+Each is passed the loaded `order` as `data`. The full, valid set is typed as `WidgetZoneId` and generated from the panel's own zone hosts — let your editor autocomplete `zone:` to see every option. A zone no page renders can't be targeted and won't type-check.
+
+## Verify
+
+1. Open an order — the "Copy link" button renders at the top of the sidebar.
+2. Click it — the link is copied and a toast appears.
+3. Change the zone to `orders.detail.main.after` and reload — the button moves below the main column.
+4. Set `zone: "not.a.zone"` — `tsc` (`bun run lint`) fails with a "not assignable to `WidgetZoneId`" error.
+5. Delete the file — the button disappears; nothing else changed.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="What can I read from the order?">
+    The zone passes the loaded order as `data` (`HttpTypes.AdminOrder`) — id, display id, totals, items, `payment_collections`, customer, and more. Build the link (or any UI) from it.
+  </Accordion>
+  <Accordion title="Can a block ship this instead of the host app?">
+    Yes. Put the same file in a [block](/rc/learn/blocks)'s `vendor_ui` entry under `src/widgets/`; installing the block adds the button with no wiring.
+  </Accordion>
+  <Accordion title="Can I render more than a button?">
+    The zone renders any React component — a badge, an action menu, a whole section. You have the full order in `data`.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a widget" href="/rc/resources/tutorials/add-a-widget">
+    The general widget model and the full list of zones.
+  </Card>
+  <Card title="Extend forms and tables" href="/rc/resources/tutorials/extend-forms-and-tables">
+    Add validated fields and columns with defineCustomFieldsConfig.
+  </Card>
+</CardGroup>
