@@ -37,7 +37,7 @@ export const usePriceList = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.priceLists.$id.query({ $id: id, ...query }),
-    queryKey: priceListsQueryKeys.detail(id),
+    queryKey: priceListsQueryKeys.detail(id, query),
     ...options,
   })
 

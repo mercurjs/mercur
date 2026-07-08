@@ -1,3 +1,5 @@
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
+
 import { useQueryParams } from "../../../hooks/use-query-params"
 
 const OFFER_LIST_FIELDS = [
@@ -61,6 +63,8 @@ export const useOfferTableQuery = ({
     q,
   } = raw
 
+  const { fields } = useLinkQuery("offer", OFFER_LIST_FIELDS)
+
   const searchParams: Record<string, unknown> = {
     limit: pageSize,
     offset: offset ? parseInt(offset, 10) : 0,
@@ -75,7 +79,7 @@ export const useOfferTableQuery = ({
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     group_by_seller: "true",
-    fields: OFFER_LIST_FIELDS,
+    fields,
   }
 
   return {

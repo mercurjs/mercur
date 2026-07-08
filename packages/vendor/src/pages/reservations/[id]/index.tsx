@@ -4,7 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import { UIMatch } from "react-router-dom"
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
 import { useDashboardExtension } from "@/extensions"
 import { useReservationItem } from "@hooks/api/reservations"
 import { useInventoryItem } from "@hooks/api"
@@ -36,12 +36,15 @@ export const Breadcrumb = (props: ReservationDetailBreadcrumbProps) => {
 export const Component = () => {
   const { id } = useParams()
 
-  const { reservation, isLoading } = useReservationItem(id!)
+  const { reservation, isLoading } = useReservationItem(
+    id!,
+    useLinkQuery("reservation")
+  )
 
   // TEMP: fetch directly since the fields are not populated with reservation call
   const { inventory_item } = useInventoryItem(
     reservation?.inventory_item?.id,
-    { fields: "*location_levels" }
+    useLinkQuery("inventory_item", "*location_levels")
   )
 
   const { getWidgets } = useDashboardExtension()

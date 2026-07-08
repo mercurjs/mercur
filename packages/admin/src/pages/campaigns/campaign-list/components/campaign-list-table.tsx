@@ -3,7 +3,7 @@ import { AdminCampaign } from "@medusajs/types"
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
-import { useExtendableTable } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { Children, ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -68,6 +68,7 @@ export const CampaignListHeader = ({ children }: { children?: ReactNode }) => {
 export const CampaignListDataTable = () => {
   const { t } = useTranslation()
   const { raw, searchParams } = useCampaignTableQuery({ pageSize: PAGE_SIZE })
+  const linkQuery = useLinkQuery("campaign")
 
   const {
     campaigns,
@@ -75,9 +76,12 @@ export const CampaignListDataTable = () => {
     isPending: isLoading,
     isError,
     error,
-  } = useCampaigns(searchParams, {
-    placeholderData: keepPreviousData,
-  })
+  } = useCampaigns(
+    { ...searchParams, ...linkQuery },
+    {
+      placeholderData: keepPreviousData,
+    }
+  )
 
   const columns = useColumns()
 

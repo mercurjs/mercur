@@ -32,7 +32,7 @@ export const useCollection = (
   >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: collectionsQueryKeys.detail(id),
+    queryKey: collectionsQueryKeys.detail(id, query),
     queryFn: () => sdk.admin.collections.$id.query({ $id: id, ...query }),
     ...options,
   });

@@ -1,4 +1,5 @@
 import { Heading } from "@medusajs/ui"
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
@@ -10,7 +11,8 @@ export const PromotionEditDetails = () => {
   const { id } = useParams()
   const { t } = useTranslation()
 
-  const { promotion, isLoading, isError, error } = usePromotion(id!)
+  const linkQuery = useLinkQuery("promotion")
+  const { promotion, isLoading, isError, error } = usePromotion(id!, linkQuery)
 
   if (isError) {
     throw error

@@ -1,6 +1,6 @@
 import { keepPreviousData } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { AdminProductCategoryResponse } from "@medusajs/types";
 
@@ -17,16 +17,25 @@ export const CategoryListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
+  const ancestorsLinkQuery = useLinkQuery(
+    "category",
+    "id,name,handle,is_active,is_internal,parent_category",
+  );
+  const descendantsLinkQuery = useLinkQuery(
+    "category",
+    "id,name,category_children,handle,is_internal,is_active",
+  );
+
   const query = raw.q
     ? {
         include_ancestors_tree: true,
-        fields: "id,name,handle,is_active,is_internal,parent_category",
+        ...ancestorsLinkQuery,
         ...searchParams,
       }
     : {
         include_descendants_tree: true,
         parent_category_id: "null",
-        fields: "id,name,category_children,handle,is_internal,is_active",
+        ...descendantsLinkQuery,
         ...searchParams,
       };
 

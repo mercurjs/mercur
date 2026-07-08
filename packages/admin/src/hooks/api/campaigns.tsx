@@ -35,7 +35,7 @@ export const useCampaign = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: campaignsQueryKeys.detail(id),
+    queryKey: campaignsQueryKeys.detail(id, query),
     queryFn: () => sdk.admin.campaigns.$id.query({ $id: id, ...query }),
     ...options,
   })
