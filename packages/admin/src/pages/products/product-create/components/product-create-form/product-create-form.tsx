@@ -204,6 +204,7 @@ export const ProductCreateForm = ({
           </RouteFocusModal.Close>
           <Button
             data-name={SAVE_DRAFT_BUTTON}
+            variant="secondary"
             size="small"
             type="submit"
             isLoading={isLoading}

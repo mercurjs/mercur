@@ -567,9 +567,9 @@
         "valuePlaceholder": "Enter values",
         "enterValuePlaceholder": "Enter value",
         "selectValuePlaceholder": "Select value",
-        "requiredTooltip": "This attribute is required by the Marketplace and can't be deselected.",
+        "requiredTooltip": "This attribute is required by the marketplace and can't be deselected.",
         "noAttributesTitle": "No product attributes yet",
-        "noAttributesDescription": "There are no attributes defined by the Marketplace.",
+        "noAttributesDescription": "There are no attributes defined by the marketplace.",
         "errors": {
           "titleRequired": "Please enter a title",
           "valuesRequired": "Please enter at least one value"
@@ -831,7 +831,7 @@
       },
       "primaryCategory": {
         "label": "Primary Category",
-        "tooltip": "Category could define attributes that apply to this product. Attributes are created by the Admin when setting up the marketplace."
+        "tooltip": "Category could define attributes that apply to this product. Attributes are created by the admin when setting up the marketplace."
       }
     },
     "variant": {
@@ -4085,6 +4085,7 @@
   "attributes": {
     "fields": {
       "name": "Name",
+      "productAttribute": "Product Attribute",
       "handle": "Handle",
       "required": "Required",
       "type": "Type",
