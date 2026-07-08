@@ -40,6 +40,7 @@ export const promotionsQueryKeys = {
 
 export const usePromotion = (
   id: string,
+  query?: HttpTypes.AdminGetPromotionParams,
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminPromotionResponse,
@@ -51,8 +52,8 @@ export const usePromotion = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: promotionsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.promotions.$id.query({ $id: id }),
+    queryKey: promotionsQueryKeys.detail(id, query),
+    queryFn: async () => sdk.admin.promotions.$id.query({ $id: id, ...query }),
     ...options,
   })
 

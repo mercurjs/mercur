@@ -1,4 +1,4 @@
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
@@ -19,9 +19,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
     ReturnType<typeof categoryLoader>
   >
 
+  const linkQuery = useLinkQuery("category")
+
   const { product_category, isLoading, isError, error } = useProductCategory(
     id!,
-    undefined,
+    linkQuery,
     {
       initialData,
     }

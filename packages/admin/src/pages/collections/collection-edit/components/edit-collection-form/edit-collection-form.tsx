@@ -1,4 +1,4 @@
-import { Button, Input, Text } from "@medusajs/ui"
+import { Button, Input, Text, toast } from "@medusajs/ui"
 import i18n from "i18next"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -43,7 +43,11 @@ export const EditCollectionForm = ({ collection }: EditCollectionFormProps) => {
   const handleSubmit = form.handleSubmit(async (data) => {
     await mutateAsync(data, {
       onSuccess: () => {
+        toast.success(t("collections.updateSuccess"))
         handleSuccess()
+      },
+      onError: (error) => {
+        toast.error(error.message)
       },
     })
   })

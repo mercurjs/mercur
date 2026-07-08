@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useCampaign } from "@hooks/api/campaigns";
 import { usePromotionTableQuery } from "@hooks/table/query/use-promotion-table-query";
 
@@ -20,9 +20,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { id } = useParams();
   const { searchParams } = usePromotionTableQuery({});
+  const linkQuery = useLinkQuery("campaign", CAMPAIGN_DETAIL_FIELDS);
   const { campaign, isLoading, isError, error } = useCampaign(
     id!,
-    { ...searchParams, fields: CAMPAIGN_DETAIL_FIELDS },
+    { ...searchParams, ...linkQuery },
     {
       placeholderData: initialData,
     },

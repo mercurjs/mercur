@@ -2,7 +2,11 @@ import { Button, Input, Select, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
 
-import { FormExtensionZone, useExtendableForm } from "@mercurjs/dashboard-shared"
+import {
+  FormExtensionZone,
+  useExtendableForm,
+  useExtension,
+} from "@mercurjs/dashboard-shared"
 
 import { Form } from "../../../../../../components/common/form"
 import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
@@ -22,7 +26,12 @@ export const EditProfileForm = () => {
   const { handleSuccess } = useRouteModal()
   const direction = useDocumentDirection()
 
-  const { seller_member } = useMe()
+  const memberLinks = useExtension().getLinks("member")
+  const meQuery = memberLinks.length
+    ? { fields: memberLinks.map((link) => `+member.${link}.*`).join(",") }
+    : undefined
+
+  const { seller_member } = useMe(meQuery)
   const member = seller_member?.member
 
   const form = useExtendableForm({

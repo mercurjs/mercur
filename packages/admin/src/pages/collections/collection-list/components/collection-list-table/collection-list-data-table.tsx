@@ -1,7 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
-import { useExtendableTable } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -20,7 +20,7 @@ export const CollectionListDataTable = () => {
   const { collections, count, isError, error, isLoading } = useCollections(
     {
       ...searchParams,
-      fields: "+products.id",
+      ...useLinkQuery("collection", "+products.id"),
     },
     {
       placeholderData: keepPreviousData,

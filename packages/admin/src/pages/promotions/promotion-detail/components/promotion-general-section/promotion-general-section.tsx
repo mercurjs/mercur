@@ -14,7 +14,11 @@ import { useNavigate } from "react-router-dom"
 
 import { useParams } from "react-router-dom"
 
-import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
+import {
+  DisplayExtensionZone,
+  DisplayField,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useDeletePromotion, usePromotion } from "../../../../../hooks/api/promotions"
@@ -66,7 +70,8 @@ export const PromotionGeneralSection = ({
   const prompt = usePrompt()
   const navigate = useNavigate()
   const { id } = useParams()
-  const { promotion: fetched } = usePromotion(id!, {
+  const linkQuery = useLinkQuery("promotion")
+  const { promotion: fetched } = usePromotion(id!, linkQuery, {
     enabled: !promotionProp,
   })
   const promotion = promotionProp ?? fetched
