@@ -4828,6 +4828,38 @@
                 "successToast"
               ],
               "additionalProperties": false
+            },
+            "delete": {
+              "type": "object",
+              "properties": {
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "successToast"
+              ],
+              "additionalProperties": false
+            },
+            "validation": {
+              "type": "object",
+              "properties": {
+                "addressNameRequired": {
+                  "type": "string"
+                },
+                "addressRequired": {
+                  "type": "string"
+                },
+                "countryRequired": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "addressNameRequired",
+                "addressRequired",
+                "countryRequired"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
@@ -4836,7 +4868,9 @@
             "emptyMessage",
             "fields",
             "create",
-            "edit"
+            "edit",
+            "delete",
+            "validation"
           ],
           "additionalProperties": false
         }

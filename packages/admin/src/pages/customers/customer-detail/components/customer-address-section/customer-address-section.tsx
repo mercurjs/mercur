@@ -41,9 +41,7 @@ export const CustomerAddressSection = ({
 
     await deleteAddress(address.id, {
       onSuccess: () => {
-        toast.success(
-          t("general.success", { name: address.address_name ?? "address" })
-        )
+        toast.success(t("customers.addresses.delete.successToast"))
 
         navigate(`/customers/${customer.id}`, { replace: true })
       },
