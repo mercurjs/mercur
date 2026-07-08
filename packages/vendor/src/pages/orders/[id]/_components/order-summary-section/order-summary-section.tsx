@@ -32,10 +32,9 @@ import {
   StatusBadge,
   Text,
   Tooltip,
-  toast,
 } from "@medusajs/ui"
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, WidgetZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import {
   useOrderCommissionLines,
@@ -223,7 +222,7 @@ export const OrderSummarySection = ({
         </div>
       )}
 
-      <OutstandingActions order={order} />
+      <WidgetZone id="orders.detail.summary" data={order} />
       <DisplayExtensionZone model="order" zone="summary" data={order} />
     </Container>
   )
@@ -996,50 +995,3 @@ const Total = ({ order }: { order: AdminOrder }) => {
   )
 }
 
-const OutstandingActions = ({ order }: { order: HttpTypes.AdminOrder }) => {
-  const { t } = useTranslation()
-
-  const unpaidCollection = order.payment_collections?.find(
-    (pc) => pc.status !== "captured" && pc.status !== "canceled"
-  )
-
-  const pendingDifference = order.summary?.pending_difference || 0
-  const isOutstanding =
-    pendingDifference > 0.005 &&
-    order.status !== "canceled" &&
-    !!unpaidCollection
-
-  if (!isOutstanding || !unpaidCollection) {
-    return null
-  }
-
-  const paymentLink =
-    (
-      unpaidCollection.payment_sessions?.[0]?.data as
-        | { url?: string }
-        | undefined
-    )?.url ?? null
-
-  if (!paymentLink) {
-    return null
-  }
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(paymentLink)
-      toast.success(t("orders.payment.copyLinkSuccess"))
-    } catch {
-      toast.error(t("orders.payment.copyLinkError"))
-    }
-  }
-
-  return (
-    <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
-      <Button size="small" variant="secondary" onClick={handleCopyLink}>
-        {t("orders.payment.copyPaymentLink", {
-          amount: getStylizedAmount(pendingDifference, order.currency_code),
-        })}
-      </Button>
-    </div>
-  )
-}
