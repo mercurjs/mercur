@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
@@ -13,7 +13,8 @@ import { PriceListProductSection } from "./components/price-list-product-section
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
 
-  const { price_list, isLoading, isError, error } = usePriceList(id!)
+  const linkQuery = useLinkQuery("price_list")
+  const { price_list, isLoading, isError, error } = usePriceList(id!, linkQuery)
 
   if (isLoading || !price_list) {
     return (

@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared"
 
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
@@ -20,7 +20,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams();
   const { collection, isLoading, isError, error } = useCollection(
     id!,
-    {},
+    useLinkQuery("collection"),
     {
       initialData,
     },

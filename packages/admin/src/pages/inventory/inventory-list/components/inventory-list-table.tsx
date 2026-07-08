@@ -2,7 +2,7 @@ import { InventoryTypes, ProductVariantDTO } from "@medusajs/types"
 import { Button, Container, Heading, Text } from "@medusajs/ui"
 
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
-import { useExtendableTable } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { Children, ReactNode, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, useNavigate } from "react-router-dom"
@@ -91,6 +91,7 @@ export const InventoryListDataTable = () => {
     error,
   } = useInventoryItems({
     ...searchParams,
+    ...useLinkQuery("inventory_item"),
   })
 
   const baseFilters = useInventoryTableFilters()

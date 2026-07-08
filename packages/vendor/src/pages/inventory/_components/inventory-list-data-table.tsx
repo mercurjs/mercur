@@ -1,6 +1,6 @@
 import { InventoryTypes } from "@medusajs/types";
 
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
 import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
@@ -35,6 +35,7 @@ export const InventoryListDataTable = () => {
   } = useInventoryItems(
     {
       ...searchParams,
+      ...useLinkQuery("inventory_item"),
     },
     {
       placeholderData: keepPreviousData,

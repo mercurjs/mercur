@@ -3,7 +3,7 @@ import { HttpTypes } from "@medusajs/types";
 import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { Children, ReactNode, useCallback, useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet } from "react-router-dom";
@@ -86,12 +86,17 @@ export const CustomerGroupListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
+  const linkQuery = useLinkQuery(
+    "customer_group",
+    "id,name,created_at,updated_at,customers.id",
+  );
+
   const { customer_groups, count, isPending, isError, error } =
     useCustomerGroups(
       {
         ...searchParams,
         order: searchParams.order || "name",
-        fields: "id,name,created_at,updated_at,customers.id",
+        ...linkQuery,
       },
       {
         placeholderData: keepPreviousData,

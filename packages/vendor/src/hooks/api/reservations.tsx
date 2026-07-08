@@ -35,7 +35,7 @@ export const useReservationItem = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: reservationItemsQueryKeys.detail(id),
+    queryKey: reservationItemsQueryKeys.detail(id, query),
     queryFn: async () => sdk.vendor.reservations.$id.query({ $id: id, ...query }),
     ...options,
   });

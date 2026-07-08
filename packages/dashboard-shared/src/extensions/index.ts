@@ -36,7 +36,7 @@ export {
   type UseExtendableTableProps,
   type ExtendableTable,
 } from "./use-extendable-table"
-export { withLinkFields } from "./links"
+export { withLinkFields, linkFields, getLinkQuery, useLinkQuery } from "./links"
 export {
   createFormHelper,
   buildAdditionalDataSchema,

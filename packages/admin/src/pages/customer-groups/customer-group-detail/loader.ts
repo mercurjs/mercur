@@ -1,17 +1,21 @@
 import { LoaderFunctionArgs } from "react-router-dom"
-import { productsQueryKeys } from "../../../hooks/api/products"
+import { getLinkQuery } from "@mercurjs/dashboard-shared"
+import { customerGroupsQueryKeys } from "../../../hooks/api/customer-groups"
 import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 import { CUSTOMER_GROUP_DETAIL_FIELDS } from "./constants"
 
-const customerGroupDetailQuery = (id: string) => ({
-  queryKey: productsQueryKeys.detail(id),
-  queryFn: async () =>
-    sdk.admin.customerGroups.$id.query({
-      $id: id,
-      fields: CUSTOMER_GROUP_DETAIL_FIELDS,
-    }),
-})
+const customerGroupDetailQuery = (id: string) => {
+  const query = getLinkQuery("customer_group", CUSTOMER_GROUP_DETAIL_FIELDS)
+  return {
+    queryKey: customerGroupsQueryKeys.detail(id, query),
+    queryFn: async () =>
+      sdk.admin.customerGroups.$id.query({
+        $id: id,
+        ...query,
+      }),
+  }
+}
 
 export const customerGroupLoader = async ({ params }: LoaderFunctionArgs) => {
   const id = params.id

@@ -39,7 +39,7 @@ export const useCustomerGroup = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.admin.customerGroups.$id.query({ $id: id, ...query }),
-    queryKey: customerGroupsQueryKeys.detail(id),
+    queryKey: customerGroupsQueryKeys.detail(id, query),
     ...options,
   })
 

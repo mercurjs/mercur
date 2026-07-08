@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { type ColumnDef } from "@tanstack/react-table";
 import { HttpTypes } from "@medusajs/types";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 
 import { _DataTable } from "@components/table/data-table/data-table";
 import { useOrders } from "@hooks/api/orders";
@@ -19,8 +19,9 @@ export const OrderListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
-  const { orders, count, isError, error, isLoading } = useOrders({
-    fields: [
+  const linkQuery = useLinkQuery(
+    "order",
+    [
       "id",
       "status",
       "created_at",
@@ -34,6 +35,10 @@ export const OrderListDataTable = () => {
       "*customer",
       "*payment_collections",
     ].join(","),
+  );
+
+  const { orders, count, isError, error, isLoading } = useOrders({
+    ...linkQuery,
     ...searchParams,
   });
 

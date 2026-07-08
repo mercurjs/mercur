@@ -45,6 +45,10 @@ export const promotionsQueryKeys = {
 
 export const usePromotion = (
   id: string,
+  query?: Omit<
+    InferClientInput<typeof sdk.vendor.promotions.$id.query>,
+    "$id"
+  >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
@@ -52,8 +56,8 @@ export const usePromotion = (
   >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: promotionsQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.promotions.$id.query({ $id: id }),
+    queryKey: promotionsQueryKeys.detail(id, query),
+    queryFn: async () => sdk.vendor.promotions.$id.query({ $id: id, ...query }),
     ...options,
   });
 

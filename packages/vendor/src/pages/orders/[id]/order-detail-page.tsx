@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
 import { useOrder, useOrderPreview } from "@hooks/api/orders";
 
 import { ActiveOrderClaimSection } from "./_components/active-order-claim-section";
@@ -25,11 +25,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { id } = useParams();
 
+  const query = useLinkQuery("order", DEFAULT_FIELDS);
+
   const { order, isLoading, isError, error } = useOrder(
     id!,
-    {
-      fields: DEFAULT_FIELDS,
-    },
+    query,
     {
       initialData,
     },

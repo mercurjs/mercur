@@ -1,3 +1,4 @@
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
 import { RouteDrawer } from "@components/modals"
 import { useInventoryItem } from "@hooks/api"
 import { Heading } from "@medusajs/ui"
@@ -14,7 +15,7 @@ export const InventoryItemEdit = () => {
     isPending: isLoading,
     isError,
     error,
-  } = useInventoryItem(id!)
+  } = useInventoryItem(id!, useLinkQuery("inventory_item"))
 
   const ready = !isLoading && inventoryItem
 
