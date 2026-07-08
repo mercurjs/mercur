@@ -118,18 +118,11 @@ export const Invite = () => {
           )}
         </AnimatePresence>
       </div>
-      <div
-        className="hidden lg:flex flex-1 relative overflow-hidden items-center justify-center"
-        style={{
-          backgroundImage: `url(${assetUrl("/onboarding/bg.svg")})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
+      <div className="hidden lg:flex flex-1 relative overflow-hidden">
         <img
-          src={assetUrl("/onboarding/0.png")}
+          src={assetUrl("/onboarding/illustration.svg")}
           alt=""
-          className="w-[75%] max-h-[75%] object-contain"
+          className="h-full w-full object-cover"
         />
       </div>
     </div>
