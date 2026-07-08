@@ -37,15 +37,10 @@ const ADD_ATTRIBUTES_FILTER_IDS = [
   "type",
 ] as const
 
-// Medusa's fill layout force-adds a bottom border to every row; on the header
-// row that doubles with its shadow, and on the last row it doubles with the
-// table frame. Drop those two forced borders so a single divider remains
-// (`:last-of-type` inside the selector keeps the specificity high enough to win
-// over Medusa's `!important` rule). Required attributes cannot be deselected, so
-// their row checkbox is disabled — muting those rows makes the disabled state
-// legible, while checked-but-editable rows get a highlight. The select/first
-// cells are sticky with an opaque background, so the row colour is re-applied to
-// the cells as well.
+// The :last-of-type overrides must out-specify Medusa's fill-layout !important
+// rule that borders every row, which otherwise doubles the header/last-row
+// dividers. Sticky select/first cells carry their own background, so the
+// selected-row colour is re-applied at the cell level.
 const ATTRIBUTE_TABLE_ROW_STYLES = clx(
   "[&_thead_tr:last-of-type]:!border-b-0",
   "[&_tbody_tr:last-of-type]:!border-b-0",
