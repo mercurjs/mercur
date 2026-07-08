@@ -893,6 +893,7 @@
     "removeProductsWarning_other": "You are about to remove {{count}} products from the collection. This action cannot be undone.",
     "products": {
       "list": {
+        "noRecordsTitle": "No products yet",
         "noRecordsMessage": "There are no products in the collection."
       },
       "add": {
