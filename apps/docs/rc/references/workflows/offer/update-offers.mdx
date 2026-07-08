@@ -24,7 +24,9 @@ const { result } = await updateOffersWorkflow(container).run({
 
 ## Input
 
-<ParamField body="offers" type="object[]" required>Offer updates, keyed by ID.
+<ParamField body="offers" type="object[]" required>
+  Offer updates, keyed by ID.
+
   <Expandable title="properties">
     <ParamField body="id" type="string" required>The offer to update; fails if not found.</ParamField>
     <ParamField body="sku" type="string">New SKU.</ParamField>

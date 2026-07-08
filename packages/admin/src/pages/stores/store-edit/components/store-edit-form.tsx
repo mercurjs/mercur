@@ -76,7 +76,9 @@ const SUPPORTED_FORMATS_FILE_EXTENSIONS = [
 const stripWebsiteProtocol = (url: string | null | undefined): string =>
   url ? url.replace(/^https?:\/\//i, "") : "";
 
-const getFileNameFromUrl = (url: string | null | undefined): string | undefined => {
+const getFileNameFromUrl = (
+  url: string | null | undefined,
+): string | undefined => {
   if (!url || url.startsWith("blob:")) return undefined;
   try {
     const pathname = new URL(url).pathname;
@@ -113,10 +115,24 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       website_url: stripWebsiteProtocol(seller.website_url),
       is_premium: seller.is_premium ?? false,
       media: seller.logo
-        ? [{ id: "existing-logo", url: seller.logo, isThumbnail: false, file: null }]
+        ? [
+            {
+              id: "existing-logo",
+              url: seller.logo,
+              isThumbnail: false,
+              file: null,
+            },
+          ]
         : [],
       bannerMedia: seller.banner
-        ? [{ id: "existing-banner", url: seller.banner, isThumbnail: false, file: null }]
+        ? [
+            {
+              id: "existing-banner",
+              url: seller.banner,
+              isThumbnail: false,
+              file: null,
+            },
+          ]
         : [],
     },
   });
@@ -184,7 +200,9 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       {
         onSuccess: () => {
           toast.success(
-            t("stores.edit.successToast", { name: values.name ?? values.email }),
+            t("stores.edit.successToast", {
+              name: values.name ?? values.email,
+            }),
           );
           handleSuccess();
         },

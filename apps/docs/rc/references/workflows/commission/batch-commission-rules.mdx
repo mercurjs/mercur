@@ -23,13 +23,17 @@ const { result } = await batchCommissionRulesWorkflow(container).run({
 ## Input
 
 <ParamField body="commission_rate_id" type="string" required>The commission rate the rules belong to.</ParamField>
-<ParamField body="create" type="object[]">Rules to create.
+<ParamField body="create" type="object[]">
+  Rules to create.
+
   <Expandable title="properties">
     <ParamField body="reference" type="string" required>Entity type the rule targets (e.g. `seller`, `product_category`, `product_type`).</ParamField>
     <ParamField body="reference_id" type="string" required>ID of the referenced entity.</ParamField>
   </Expandable>
 </ParamField>
-<ParamField body="update" type="object[]">Rules to update.
+<ParamField body="update" type="object[]">
+  Rules to update.
+
   <Expandable title="properties">
     <ParamField body="id" type="string" required>The rule to update.</ParamField>
     <ParamField body="reference" type="string">New reference type.</ParamField>

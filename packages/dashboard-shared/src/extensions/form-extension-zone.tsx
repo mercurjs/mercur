@@ -88,7 +88,7 @@ export const FormExtensionZone = ({
   if (fields.length === 0) return null
 
   return (
-    <>
+    <div className="flex flex-col gap-y-4">
       {fields.map(({ name, field }) => (
         <ExtensionField
           key={name}
@@ -98,6 +98,6 @@ export const FormExtensionZone = ({
           data={data}
         />
       ))}
-    </>
+    </div>
   )
 }

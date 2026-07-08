@@ -23,13 +23,17 @@ const { result } = await batchOfferInventoryItemsWorkflow(container).run({
 ## Input
 
 <ParamField body="offer_id" type="string" required>The offer whose inventory links are managed; fails if not found.</ParamField>
-<ParamField body="create" type="object[]">Links to create; the inventory items must exist and not appear in `update`/`delete`.
+<ParamField body="create" type="object[]">
+  Links to create; the inventory items must exist and not appear in `update`/`delete`.
+
   <Expandable title="properties">
     <ParamField body="inventory_item_id" type="string" required>The inventory item to link.</ParamField>
     <ParamField body="required_quantity" type="number">Units consumed per offer unit; defaults to `1`.</ParamField>
   </Expandable>
 </ParamField>
-<ParamField body="update" type="object[]">Existing links to update.
+<ParamField body="update" type="object[]">
+  Existing links to update.
+
   <Expandable title="properties">
     <ParamField body="inventory_item_id" type="string" required>The linked inventory item.</ParamField>
     <ParamField body="required_quantity" type="number" required>New units consumed per offer unit.</ParamField>
