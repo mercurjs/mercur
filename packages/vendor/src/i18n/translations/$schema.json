@@ -6097,6 +6097,9 @@
             "createRefundWrongQuantity": {
               "type": "string"
             },
+            "enterAmount": {
+              "type": "string"
+            },
             "refundAmount": {
               "type": "string"
             },
@@ -6128,6 +6131,7 @@
             "createRefund",
             "refundPaymentSuccess",
             "createRefundWrongQuantity",
+            "enterAmount",
             "refundAmount",
             "paymentLink",
             "selectPaymentToRefund",
