@@ -4085,6 +4085,7 @@
   "attributes": {
     "fields": {
       "name": "Name",
+      "productAttribute": "Product Attribute",
       "handle": "Handle",
       "required": "Required",
       "type": "Type",

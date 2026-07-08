@@ -1,21 +1,21 @@
 import { ProductAttributeDTO } from "@mercurjs/types"
+import { Badge, Button, Checkbox } from "@medusajs/ui"
+import { keepPreviousData } from "@tanstack/react-query"
 import {
-  Badge,
-  Button,
-  clx,
-  createDataTableColumnHelper,
-  DataTableFilter,
-  DataTableRowSelectionState,
-} from "@medusajs/ui"
+  createColumnHelper,
+  OnChangeFn,
+  RowSelectionState,
+} from "@tanstack/react-table"
 import { useEffect, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { keepPreviousData } from "@tanstack/react-query"
 
-import { DataTable } from "@components/data-table"
 import { StackedFocusModal, useStackedModal } from "@components/modals"
+import { _DataTable } from "@components/table/data-table"
 import { useTabbedForm } from "@components/tabbed-form/tabbed-form"
 import { useProductAttributes } from "@hooks/api"
-import { useQueryParams } from "@hooks/use-query-params"
+import { useAttributeTableFilters } from "@hooks/table/filters/use-attribute-table-filters"
+import { useAttributeTableQuery } from "@hooks/table/query/use-attribute-table-query"
+import { useDataTable } from "@hooks/use-data-table"
 
 import { ProductCreateSchemaType } from "../../types"
 
@@ -31,23 +31,14 @@ const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
   text: "attributes.type.text_area",
 }
 
-const ADD_ATTRIBUTES_FILTER_IDS = [
-  "is_required",
-  "is_variant_axis",
-  "type",
-] as const
-
-// The :last-of-type overrides must out-specify Medusa's fill-layout !important
-// rule that borders every row, which otherwise doubles the header/last-row
-// dividers. Sticky select/first cells carry their own background, so the
-// selected-row colour is re-applied at the cell level.
-const ATTRIBUTE_TABLE_ROW_STYLES = clx(
-  "[&_thead_tr:last-of-type]:!border-b-0",
-  "[&_tbody_tr:last-of-type]:!border-b-0",
-  "[&_tbody_tr:has(button[data-state=checked])_td]:bg-ui-bg-highlight",
-  "[&_tbody_tr:has(button:disabled)_td]:!bg-ui-bg-base",
-  "[&_tbody_tr:has(button:disabled)]:text-ui-fg-muted"
-)
+type SelectedAttribute = {
+  id: string
+  name: string
+  values: string[]
+  is_variant_axis: boolean
+  type: string
+  available_values: { id: string; name: string }[]
+}
 
 export const ProductCreateAddAttributesModal = () => {
   const form = useTabbedForm<ProductCreateSchemaType>()
@@ -55,23 +46,15 @@ export const ProductCreateAddAttributesModal = () => {
   const { getValues, setValue } = form
   const { setIsOpen, getIsOpen } = useStackedModal()
 
-  const [rowSelection, setRowSelection] = useState<DataTableRowSelectionState>(
-    {}
-  )
-  const [state, setState] = useState<
-    {
-      id: string
-      name: string
-      values: string[]
-      is_variant_axis: boolean
-      type: string
-      available_values: { id: string; name: string }[]
-    }[]
-  >([])
+  const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
+  const [selected, setSelected] = useState<SelectedAttribute[]>([])
 
   const categoryId = form.watch("category_id")
 
-  const searchParams = useAddAttributesQuery()
+  const { searchParams, raw } = useAttributeTableQuery({
+    pageSize: PAGE_SIZE,
+    prefix: ADD_ATTRIBUTES_MODAL_ID,
+  })
   const attributesQuery = useMemo(
     () => ({ ...searchParams, category_id: categoryId || undefined }),
     [searchParams, categoryId]
@@ -91,17 +74,16 @@ export const ProductCreateAddAttributesModal = () => {
     const attributes = getValues("attributes") ?? []
     const existing = attributes.filter((a) => a.attribute_id)
 
-    const selection: DataTableRowSelectionState = {}
-    const stateEntries: typeof state = []
+    const selection: RowSelectionState = {}
+    const entries: SelectedAttribute[] = []
 
-    // Add form-existing attributes
     for (const a of existing) {
       if (a.attribute_id) {
         selection[a.attribute_id] = true
         const apiAttr = product_attributes?.find(
           (pa: ProductAttributeDTO) => pa.id === a.attribute_id
         )
-        stateEntries.push({
+        entries.push({
           id: a.attribute_id,
           name: a.title,
           values: Array.isArray(a.values)
@@ -122,12 +104,11 @@ export const ProductCreateAddAttributesModal = () => {
       }
     }
 
-    // Force-select required attributes
     if (product_attributes) {
       for (const attr of product_attributes as ProductAttributeDTO[]) {
         if (attr.is_required && !selection[attr.id]) {
           selection[attr.id] = true
-          stateEntries.push({
+          entries.push({
             id: attr.id,
             name: attr.name,
             values: [],
@@ -141,45 +122,43 @@ export const ProductCreateAddAttributesModal = () => {
     }
 
     setRowSelection(selection)
-    setState(stateEntries)
+    setSelected(entries)
   }, [open, getValues, product_attributes])
 
-  const onRowSelectionChange = (next: DataTableRowSelectionState) => {
-    // Enforce required attributes stay selected
+  const updater: OnChangeFn<RowSelectionState> = (fn) => {
+    const next = typeof fn === "function" ? fn(rowSelection) : fn
+
+    // Required attributes can never be deselected.
     if (product_attributes) {
-      for (const attr of product_attributes) {
+      for (const attr of product_attributes as ProductAttributeDTO[]) {
         if (attr.is_required) {
           next[attr.id] = true
         }
       }
     }
 
-    const ids = Object.keys(next)
-
-    const addedIdsSet = new Set(
-      ids.filter((id) => next[id] && !rowSelection[id])
+    const addedIds = new Set(
+      Object.keys(next).filter((id) => next[id] && !rowSelection[id])
     )
 
-    let addedAttributes: typeof state = []
+    const addedAttributes: SelectedAttribute[] =
+      addedIds.size > 0
+        ? (product_attributes
+            ?.filter((attr: ProductAttributeDTO) => addedIds.has(attr.id))
+            .map((attr: ProductAttributeDTO) => ({
+              id: attr.id,
+              name: attr.name,
+              values: [],
+              is_variant_axis: attr.is_variant_axis,
+              type: attr.type,
+              available_values:
+                attr.values?.map((v) => ({ id: v.id, name: v.name })) ?? [],
+            })) ?? [])
+        : []
 
-    if (addedIdsSet.size > 0) {
-      addedAttributes =
-        product_attributes
-          ?.filter((attr: ProductAttributeDTO) => addedIdsSet.has(attr.id))
-          .map((attr: ProductAttributeDTO) => ({
-            id: attr.id,
-            name: attr.name,
-            values: [],
-            is_variant_axis: attr.is_variant_axis,
-            type: attr.type,
-            available_values:
-              attr.values?.map((v) => ({ id: v.id, name: v.name })) ?? [],
-          })) ?? []
-    }
-
-    setState((prev) => {
-      const filteredPrev = prev.filter((a) => next[a.id])
-      return Array.from(new Set([...filteredPrev, ...addedAttributes]))
+    setSelected((prev) => {
+      const kept = prev.filter((a) => next[a.id])
+      return Array.from(new Set([...kept, ...addedAttributes]))
     })
     setRowSelection(next)
   }
@@ -194,7 +173,7 @@ export const ProductCreateAddAttributesModal = () => {
         .map((a: ProductAttributeDTO) => a.id) ?? []
     )
 
-    const selectedAttributes = state.map((a) => ({
+    const selectedAttributes = selected.map((a) => ({
       attribute_id: a.id,
       title: a.name,
       values: a.values,
@@ -212,8 +191,20 @@ export const ProductCreateAddAttributesModal = () => {
     setIsOpen(ADD_ATTRIBUTES_MODAL_ID, false)
   }
 
-  const filters = useAddAttributesFilters()
+  const filters = useAttributeTableFilters()
   const columns = useColumns()
+
+  const { table } = useDataTable({
+    data: product_attributes ?? [],
+    columns,
+    count,
+    getRowId: (row) => row.id,
+    pageSize: PAGE_SIZE,
+    enablePagination: true,
+    enableRowSelection: (row) => !row.original.is_required,
+    rowSelection: { state: rowSelection, updater },
+    prefix: ADD_ATTRIBUTES_MODAL_ID,
+  })
 
   if (isError) {
     throw error
@@ -222,38 +213,27 @@ export const ProductCreateAddAttributesModal = () => {
   return (
     <StackedFocusModal.Content className="flex flex-col overflow-hidden">
       <StackedFocusModal.Header />
-      <StackedFocusModal.Body
-        className={clx(
-          "flex-1 overflow-hidden",
-          ATTRIBUTE_TABLE_ROW_STYLES
-        )}
-      >
-        <DataTable
-          data={product_attributes}
+      <StackedFocusModal.Body className="flex size-full flex-col overflow-hidden">
+        <_DataTable
+          table={table}
           columns={columns}
-          filters={filters}
-          rowCount={count}
+          count={count}
           pageSize={PAGE_SIZE}
-          getRowId={(row) => row.id}
-          rowSelection={{
-            state: rowSelection,
-            onRowSelectionChange,
-            enableRowSelection: (row) => !row.original.is_required,
-          }}
           isLoading={isLoading}
-          layout="fill"
+          filters={filters}
+          orderBy={[
+            { key: "name", label: t("attributes.fields.name") },
+            { key: "created_at", label: t("fields.createdAt") },
+            { key: "updated_at", label: t("fields.updatedAt") },
+          ]}
+          queryObject={raw}
           prefix={ADD_ATTRIBUTES_MODAL_ID}
-          emptyState={{
-            empty: {
-              heading: t("products.create.attributes.noAttributesTitle"),
-              description: t(
-                "products.create.attributes.noAttributesDescription"
-              ),
-            },
-            filtered: {
-              heading: t("general.noResultsTitle"),
-              description: t("general.noResultsMessage"),
-            },
+          layout="fill"
+          pagination
+          search
+          noRecords={{
+            title: t("products.create.attributes.noAttributesTitle"),
+            message: t("products.create.attributes.noAttributesDescription"),
           }}
         />
       </StackedFocusModal.Body>
@@ -273,18 +253,38 @@ export const ProductCreateAddAttributesModal = () => {
   )
 }
 
-const columnHelper = createDataTableColumnHelper<ProductAttributeDTO>()
+const columnHelper = createColumnHelper<ProductAttributeDTO>()
 
 const useColumns = () => {
   const { t } = useTranslation()
 
   return useMemo(
     () => [
-      columnHelper.select(),
+      columnHelper.display({
+        id: "select",
+        header: ({ table }) => (
+          <Checkbox
+            checked={
+              table.getIsSomePageRowsSelected()
+                ? "indeterminate"
+                : table.getIsAllPageRowsSelected()
+            }
+            onCheckedChange={(value) =>
+              table.toggleAllPageRowsSelected(!!value)
+            }
+          />
+        ),
+        cell: ({ row }) => (
+          <Checkbox
+            checked={row.getIsSelected()}
+            disabled={!row.getCanSelect()}
+            onCheckedChange={(value) => row.toggleSelected(!!value)}
+            onClick={(e) => e.stopPropagation()}
+          />
+        ),
+      }),
       columnHelper.accessor("name", {
-        header: t("attributes.fields.name"),
-        enableSorting: true,
-        sortLabel: t("attributes.fields.name"),
+        header: t("attributes.fields.productAttribute"),
       }),
       columnHelper.accessor("handle", {
         header: t("attributes.fields.handle"),
@@ -292,17 +292,11 @@ const useColumns = () => {
           const handle = info.getValue()
           return handle ? `/${handle}` : "-"
         },
-        enableSorting: true,
-        sortLabel: t("attributes.fields.handle"),
       }),
       columnHelper.accessor("is_required", {
         header: t("attributes.fields.required"),
         cell: (info) =>
-          info.getValue()
-            ? t("filters.radio.yes")
-            : t("filters.radio.no"),
-        enableSorting: true,
-        sortLabel: t("attributes.fields.required"),
+          info.getValue() ? t("filters.radio.yes") : t("filters.radio.no"),
       }),
       columnHelper.accessor("type", {
         header: t("attributes.fields.type"),
@@ -311,17 +305,11 @@ const useColumns = () => {
           const labelKey = ATTRIBUTE_TYPE_LABELS[type]
           return labelKey ? t(labelKey) : type
         },
-        enableSorting: true,
-        sortLabel: t("attributes.fields.type"),
       }),
       columnHelper.accessor("is_variant_axis", {
         header: t("attributes.fields.variantAxis"),
         cell: (info) =>
-          info.getValue()
-            ? t("filters.radio.yes")
-            : t("filters.radio.no"),
-        enableSorting: true,
-        sortLabel: t("attributes.fields.variantAxis"),
+          info.getValue() ? t("filters.radio.yes") : t("filters.radio.no"),
       }),
       columnHelper.display({
         id: "values",
@@ -353,77 +341,4 @@ const useColumns = () => {
     ],
     [t]
   )
-}
-
-const parseFilterValue = (value?: string) => {
-  if (value === undefined) {
-    return undefined
-  }
-  try {
-    return JSON.parse(value)
-  } catch {
-    return value
-  }
-}
-
-const toBoolean = (value: unknown) => {
-  if (value === undefined) {
-    return undefined
-  }
-  return value === true || value === "true"
-}
-
-const useAddAttributesQuery = () => {
-  const raw = useQueryParams(
-    ["offset", "q", "order", ...ADD_ATTRIBUTES_FILTER_IDS],
-    ADD_ATTRIBUTES_MODAL_ID
-  )
-
-  return useMemo(() => {
-    const type = parseFilterValue(raw.type)
-
-    return {
-      limit: PAGE_SIZE,
-      offset: raw.offset ? Number(raw.offset) : 0,
-      q: raw.q || undefined,
-      order: raw.order || undefined,
-      is_required: toBoolean(parseFilterValue(raw.is_required)),
-      is_variant_axis: toBoolean(parseFilterValue(raw.is_variant_axis)),
-      type: type || undefined,
-    }
-  }, [raw])
-}
-
-const useAddAttributesFilters = (): DataTableFilter[] => {
-  const { t } = useTranslation()
-
-  return useMemo(() => {
-    const yesNoOptions = [
-      { label: t("filters.radio.yes"), value: "true" },
-      { label: t("filters.radio.no"), value: "false" },
-    ]
-
-    return [
-      {
-        id: "is_required",
-        type: "radio",
-        label: t("attributes.fields.required"),
-        options: yesNoOptions,
-      },
-      {
-        id: "is_variant_axis",
-        type: "radio",
-        label: t("attributes.fields.variantAxis"),
-        options: yesNoOptions,
-      },
-      {
-        id: "type",
-        type: "radio",
-        label: t("attributes.fields.type"),
-        options: Object.entries(ATTRIBUTE_TYPE_LABELS).map(
-          ([value, labelKey]) => ({ label: t(labelKey), value })
-        ),
-      },
-    ]
-  }, [t])
 }
