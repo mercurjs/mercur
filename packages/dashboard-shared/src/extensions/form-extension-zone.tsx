@@ -4,9 +4,37 @@ import type { CustomFormField } from "@mercurjs/dashboard-sdk"
 import { Form } from "../components/common/form"
 import { useExtension } from "./context"
 
-function zodType(field: CustomFormField): string {
-  const def = (field.validation as unknown as { def?: { type?: string } })?.def
-  return def?.type ?? "string"
+type FieldControlType = "boolean" | "number" | "string" | "textarea"
+
+// Zod wrappers that carry the base schema on `def.innerType` — unwrap them so an
+// `optional()`/`nullable()`/`default()` field maps to its underlying control.
+const ZOD_WRAPPER_TYPES = new Set([
+  "optional",
+  "nullable",
+  "default",
+  "prefault",
+  "nonoptional",
+  "readonly",
+  "catch",
+])
+
+type ZodDef = { type?: string; innerType?: { def?: ZodDef } }
+
+function zodType(field: CustomFormField): FieldControlType {
+  let def = (field.validation as unknown as { def?: ZodDef })?.def
+
+  while (def && ZOD_WRAPPER_TYPES.has(def.type ?? "")) {
+    def = def.innerType?.def
+  }
+
+  switch (def?.type) {
+    case "boolean":
+    case "number":
+    case "string":
+      return def.type
+    default:
+      return "textarea"
+  }
 }
 
 type FieldProps = {
