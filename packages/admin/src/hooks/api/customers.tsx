@@ -297,7 +297,7 @@ export const useCustomerAddress = (
         $id: id,
         $addressId: addressId,
       }),
-    queryKey: customerAddressesQueryKeys.detail(id),
+    queryKey: customerAddressesQueryKeys.detail(addressId),
     ...options,
   })
 
