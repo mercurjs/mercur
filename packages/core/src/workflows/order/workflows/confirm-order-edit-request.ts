@@ -13,31 +13,13 @@ import {
 import { confirmOrderEditRequestWorkflow as baseConfirmOrderEditRequestWorkflow } from "@medusajs/medusa/core-flows"
 
 /**
- * Mercur wrapper around Medusa's `confirmOrderEditRequestWorkflow`.
- *
- * Mercur pins `variant.manage_inventory = false` on every product
- * variant (see `update-products.ts`), so Medusa's
- * `prepareConfirmInventoryInput` skips every cart item and
- * `reserveInventoryStep` runs as a no-op inside Medusa's confirm. That
- * means newly added items in an order edit get **no reservation at
- * all** from the base workflow, and existing items with their qty
- * bumped still hold the old reservation Medusa just deleted.
- *
- * This wrapper runs Medusa's confirm workflow as a step (so order-
- * change application, payment-collection sync, and the
- * `order-edit.confirmed` event all fire normally), then re-syncs the
- * per-line reservation set from the offer side. For every order item
- * with an `offer.inventory_item_link`, it computes the target
- * reservation set and replaces the existing one. Items without an
- * offer link are left alone.
- *
- * Crucially, each reservation is placed at a stock location that
- * actually has enough availability — keeping the reservation where it
- * already lives when possible, otherwise the first location with
- * sufficient stock. Reserving blindly at the inventory item's first
- * stock level (the previous behavior) made confirm fail with "Not
- * enough stock available for item … at location …" whenever that first
- * level wasn't where the stock was (MER-211).
+ * Mercur pins `variant.manage_inventory = false` on every variant, so
+ * Medusa's `reserveInventoryStep` is a no-op inside its confirm: added
+ * items get no reservation and bumped items keep the stale one Medusa
+ * just deleted. This wrapper re-syncs the per-line reservation set from
+ * the offer side after Medusa's confirm runs, placing each reservation
+ * at a location that actually has availability (not blindly the
+ * inventory item's first stock level).
  */
 
 type OfferLevelRow = {
@@ -57,11 +39,7 @@ type OfferLinkRow = {
   } | null
 }
 
-/**
- * Available units at a level: stocked − reserved. Prefer the raw
- * BigNumber values when present so we don't lose precision on large
- * quantities.
- */
+// Prefer the raw BigNumber values so precision survives large quantities.
 const levelAvailable = (lvl: OfferLevelRow): number =>
   Number(
     MathBN.sub(
@@ -138,9 +116,6 @@ const adjustOrderEditReservationsForOffersStep = createStep(
         continue
       }
 
-      // Normalize each offer link to its inventory item + required qty,
-      // keeping every stock level (with availability) so we can reserve at a
-      // location that actually has stock — not blindly the first level.
       const normalizedLinks = links
         .map((link) => ({
           inventory_item_id:
@@ -165,10 +140,8 @@ const adjustOrderEditReservationsForOffersStep = createStep(
         continue
       }
 
-      // For inventory items whose levels didn't come back on the offer link
-      // (e.g. the nested relation wasn't expanded), fall back to the
-      // inventory module so we still know where stock lives and how much is
-      // available there.
+      // Fall back to the inventory module when the nested location_levels
+      // relation didn't come back expanded on the offer link.
       const inventoryItemIdsMissingLevels = normalizedLinks
         .filter((l) => l.levels.length === 0)
         .map((l) => l.inventory_item_id)
@@ -216,11 +189,8 @@ const adjustOrderEditReservationsForOffersStep = createStep(
         )
       }
 
-      // Pick the stock location to reserve `desired` units of an inventory
-      // item at. Deleting this line's existing reservation frees its units
-      // back, so add them back when scoring its current location. Prefer
-      // keeping the reservation where it already sits, then any location
-      // with enough availability, then a best-effort fallback.
+      // This line's existing reservation is deleted below, freeing its units
+      // back, so credit them when scoring its current location.
       const pickLocation = (
         link: { inventory_item_id: string; levels: OfferLevelRow[] },
         desired: number
