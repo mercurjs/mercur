@@ -209,6 +209,44 @@ medusaIntegrationTestRunner({
                     expect(response.data.product_category).toBeDefined()
                 })
 
+                it("should keep a product in exactly one category when reassigned", async () => {
+                    const [categoryA, categoryB] = await productModuleService.createProductCategories([
+                        { name: "Category A", is_active: true },
+                        { name: "Category B", is_active: true },
+                    ])
+
+                    const productResponse = await api.post(
+                        `/vendor/products`,
+                        {
+                            title: "Single Category Product",
+                            options: [{ title: "Default", values: ["Default"] }],
+                        },
+                        sellerHeaders
+                    )
+
+                    const productId = productResponse.data.product.id
+
+                    await api.post(
+                        `/vendor/product-categories/${categoryA.id}/products`,
+                        { add: [productId] },
+                        sellerHeaders
+                    )
+
+                    await api.post(
+                        `/vendor/product-categories/${categoryB.id}/products`,
+                        { add: [productId] },
+                        sellerHeaders
+                    )
+
+                    const [product] = await productModuleService.listProducts(
+                        { id: [productId] },
+                        { relations: ["categories"] }
+                    )
+
+                    expect(product.categories).toHaveLength(1)
+                    expect(product.categories?.[0].id).toEqual(categoryB.id)
+                })
+
                 it("should not allow seller to add another seller's product to category", async () => {
                     const [category] = await productModuleService.createProductCategories([
                         { name: "Category for Auth Test", is_active: true },
