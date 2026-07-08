@@ -1,12 +1,11 @@
 import { useMutation } from "@tanstack/react-query"
 
 import { UniqueIdentifier } from "@dnd-kit/core"
-import { Spinner } from "@medusajs/icons"
 import { ClientError } from "@mercurjs/client"
-import { HttpTypes } from "@medusajs/types"
-import { toast } from "@medusajs/ui"
+import { Button, toast } from "@medusajs/ui"
 import { useState } from "react"
-import { RouteFocusModal } from "../../../../../components/modals"
+import { useTranslation } from "react-i18next"
+import { RouteFocusModal, useRouteModal } from "../../../../../components/modals"
 import {
   categoriesQueryKeys,
   useProductCategories,
@@ -23,7 +22,16 @@ const QUERY = {
   limit: 9999,
 }
 
+type RankChange = {
+  id: string
+  parent_category_id: string | null
+  rank: number
+}
+
 export const OrganizeCategoryForm = () => {
+  const { t } = useTranslation()
+  const { handleSuccess } = useRouteModal()
+
   const {
     product_categories,
     isPending,
@@ -31,65 +39,30 @@ export const OrganizeCategoryForm = () => {
     error: fetchError,
   } = useProductCategories(QUERY)
 
-  const [snapshot, setSnapshot] = useState<CategoryTreeItem[]>([])
+  const [items, setItems] = useState<CategoryTreeItem[] | null>(null)
+  const [changes, setChanges] = useState<RankChange[]>([])
 
-  const { mutateAsync, isPending: isMutating } = useMutation({
-    mutationFn: async ({
-      value,
-    }: {
-      value: {
-        id: string
-        parent_category_id: string | null
-        rank: number | null
-      }
-      arr: CategoryTreeItem[]
-    }) => {
-      await sdk.admin.productCategories.$id.mutate({
-        $id: value.id,
-        rank: value.rank ?? 0,
-        parent_category_id: value.parent_category_id,
-      })
-    },
-    onMutate: async (update) => {
-      // Cancel any outgoing refetches (so they don't overwrite our optimistic update)
-      await queryClient.cancelQueries({
-        queryKey: categoriesQueryKeys.list(QUERY),
-      })
-
-      // Snapshot the previous value
-      const previousValue:
-        | HttpTypes.AdminProductCategoryListResponse
-        | undefined = queryClient.getQueryData(categoriesQueryKeys.list(QUERY))
-
-      const nextValue = {
-        ...previousValue,
-        product_categories: update.arr,
-      }
-
-      // Optimistically update to the new value
-      queryClient.setQueryData(categoriesQueryKeys.list(QUERY), nextValue)
-
-      return {
-        previousValue,
+  const { mutateAsync, isPending: isSaving } = useMutation({
+    mutationFn: async (pending: RankChange[]) => {
+      for (const change of pending) {
+        await sdk.admin.productCategories.$id.mutate({
+          $id: change.id,
+          rank: change.rank,
+          parent_category_id: change.parent_category_id,
+        })
       }
     },
-    onError: (error: ClientError, _newValue, context) => {
-      // Roll back to the previous value
-      queryClient.setQueryData(
-        categoriesQueryKeys.list(QUERY),
-        context?.previousValue
-      )
-
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: categoriesQueryKeys.all })
+      toast.success(t("categories.organize.successToast"))
+      handleSuccess()
+    },
+    onError: (error: ClientError) => {
       toast.error(error.message)
-    },
-    onSettled: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: categoriesQueryKeys.all,
-      })
     },
   })
 
-  const handleRankChange = async (
+  const handleRankChange = (
     value: {
       id: UniqueIdentifier
       parentId: UniqueIdentifier | null
@@ -97,17 +70,24 @@ export const OrganizeCategoryForm = () => {
     },
     arr: CategoryTreeItem[]
   ) => {
-    const val = {
-      id: value.id as string,
-      parent_category_id: value.parentId as string | null,
-      rank: value.index,
-    }
-
-    setSnapshot(arr)
-    await mutateAsync({ value: val, arr })
+    setItems(arr)
+    setChanges((prev) => [
+      ...prev,
+      {
+        id: value.id as string,
+        parent_category_id: value.parentId as string | null,
+        rank: value.index,
+      },
+    ])
   }
 
-  const loading = isPending || isMutating
+  const handleSave = async () => {
+    if (!changes.length) {
+      return
+    }
+
+    await mutateAsync(changes)
+  }
 
   if (isError) {
     throw fetchError
@@ -115,18 +95,38 @@ export const OrganizeCategoryForm = () => {
 
   return (
     <div className="flex h-full flex-col overflow-hidden">
-      <RouteFocusModal.Header>
-        <div className="flex items-center justify-end">
-          {loading && <Spinner className="animate-spin" />}
-        </div>
-      </RouteFocusModal.Header>
+      <RouteFocusModal.Header />
       <RouteFocusModal.Body className="bg-ui-bg-subtle flex flex-1 flex-col overflow-y-auto">
         <CategoryTree
           renderValue={(item) => item.name}
-          value={loading ? snapshot : product_categories || []}
+          value={items ?? product_categories ?? []}
           onChange={handleRankChange}
+          isLoading={isPending}
         />
       </RouteFocusModal.Body>
+      <RouteFocusModal.Footer>
+        <div className="flex items-center justify-end gap-x-2">
+          <RouteFocusModal.Close asChild>
+            <Button
+              size="small"
+              variant="secondary"
+              data-testid="category-organize-cancel-button"
+            >
+              {t("actions.cancel")}
+            </Button>
+          </RouteFocusModal.Close>
+          <Button
+            size="small"
+            type="button"
+            onClick={handleSave}
+            isLoading={isSaving}
+            disabled={!changes.length}
+            data-testid="category-organize-save-button"
+          >
+            {t("actions.save")}
+          </Button>
+        </div>
+      </RouteFocusModal.Footer>
     </div>
   )
 }
