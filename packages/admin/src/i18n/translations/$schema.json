@@ -3350,6 +3350,12 @@
         "createSuccess": {
           "type": "string"
         },
+        "deleteSuccess": {
+          "type": "string"
+        },
+        "updateSuccess": {
+          "type": "string"
+        },
         "editCollection": {
           "type": "string"
         },
@@ -3643,6 +3649,8 @@
         "createCollection",
         "createCollectionHint",
         "createSuccess",
+        "deleteSuccess",
+        "updateSuccess",
         "editCollection",
         "handleTooltip",
         "deleteWarning",
