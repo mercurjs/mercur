@@ -130,6 +130,7 @@ export const CollectionProductSection = ({
           { key: "created_at", label: t("fields.createdAt") },
           { key: "updated_at", label: t("fields.updatedAt") },
         ]}
+        defaultOrder={searchParams.order}
         queryObject={raw}
         commands={[
           {
