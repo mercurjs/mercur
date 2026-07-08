@@ -140,6 +140,8 @@ export const CollectionProductSection = ({
           },
         ]}
         noRecords={{
+          icon: null,
+          title: t("collections.products.list.noRecordsTitle"),
           message: t("collections.products.list.noRecordsMessage"),
         }}
       />
