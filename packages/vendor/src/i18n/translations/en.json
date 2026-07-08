@@ -1808,7 +1808,8 @@
       "error": {
         "wrongQuantity": "Only one item is available for fulfillment",
         "wrongQuantity_other": "Quantity should be a number between 1 and {{number}}",
-        "noItems": "No items to fulfill.",
+        "noItems": "There are no items to fulfill.",
+        "exceedsReservedQuantity": "The quantity you want to fulfill exceeds the reserved quantity for items. Please review your fulfillment.",
         "noShippingOption": "Shipping option is required",
         "noLocation": "Location is required"
       },
