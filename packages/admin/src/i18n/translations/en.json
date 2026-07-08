@@ -879,6 +879,9 @@
     "createSuccess": "Collection was successfully created.",
     "deleteSuccess": "Collection was successfully deleted.",
     "updateSuccess": "Collection was successfully updated.",
+    "validation": {
+      "titleRequired": "Please enter a title"
+    },
     "editCollection": "Edit Collection",
     "validation": {
       "titleRequired": "Please enter a title"
