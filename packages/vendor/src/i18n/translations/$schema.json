@@ -6418,6 +6418,25 @@
             "activeChangeError": {
               "type": "string"
             },
+            "emptyState": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description"
+              ],
+              "additionalProperties": false
+            },
+            "emptyItemsError": {
+              "type": "string"
+            },
             "cancel": {
               "type": "object",
               "properties": {
@@ -6605,6 +6624,8 @@
             "damagedItemReceived",
             "damagedItemsReturned",
             "activeChangeError",
+            "emptyState",
+            "emptyItemsError",
             "cancel",
             "placeholders",
             "receive",
