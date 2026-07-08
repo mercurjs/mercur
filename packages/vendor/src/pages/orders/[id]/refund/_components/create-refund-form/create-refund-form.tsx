@@ -8,14 +8,14 @@ import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useSearchParams } from "react-router-dom"
+import { formatValue } from "react-currency-input-field"
 import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 import {
   Button,
+  CurrencyInput,
   Heading,
-  Input,
   Select,
-  Text,
   Textarea,
   toast,
 } from "@medusajs/ui"
@@ -23,19 +23,13 @@ import { HttpTypes } from "@medusajs/types"
 
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { Form } from "@components/common/form"
+import DisplayId from "@components/common/display-id/display-id"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useRefundPayment } from "@hooks/api/payments"
 import { useRefundReasons } from "@hooks/api/refund-reasons"
 import { useDocumentDirection } from "@hooks/use-document-direction"
-import { getStylizedAmount } from "@lib/money-amount-helpers"
-
-const RefundSchema = z.object({
-  amount: z.coerce.number().positive(),
-  refund_reason_id: z.string().optional(),
-  note: z.string().optional(),
-})
-
-type RefundFormValues = z.infer<typeof RefundSchema>
+import { currencies } from "@lib/data/currencies"
+import { getDecimalDigits, getLocaleAmount } from "@lib/money-amount-helpers"
 
 type CreateRefundFormProps = {
   order: HttpTypes.AdminOrder
@@ -88,24 +82,58 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
     return Math.max(0, (payment.amount as number) - refundedAmount)
   }, [payment, refundedAmount])
 
+  const currency = useMemo(
+    () => currencies[order.currency_code.toUpperCase()],
+    [order.currency_code]
+  )
+
+  const decimalDigits = getDecimalDigits(order.currency_code)
+
+  // Mirror getStylizedAmount's rounding so the field and the paid line agree.
+  const getRoundedAmount = (amount: number) =>
+    amount.toLocaleString("en-US", {
+      minimumFractionDigits: decimalDigits,
+      maximumFractionDigits: decimalDigits,
+      useGrouping: false,
+    })
+
+  const RefundSchema = useMemo(
+    () =>
+      z.object({
+        amount: z
+          .object({
+            value: z.union([z.string(), z.number()]),
+            float: z.number().nullable(),
+          })
+          .refine((v) => v.float !== null && v.float > 0, {
+            message: t("orders.payment.enterAmount"),
+          }),
+        refund_reason_id: z.string().optional(),
+        note: z.string().optional(),
+      }),
+    [t]
+  )
+
+  type RefundFormValues = z.infer<typeof RefundSchema>
+
   const refundPayment = useRefundPayment(order.id, paymentId)
 
   const form = useForm<RefundFormValues>({
     resolver: zodResolver(RefundSchema),
     defaultValues: {
-      amount: remaining,
-      refund_reason_id: undefined,
-      note: "",
-    },
-    values: {
-      amount: remaining,
+      amount: {
+        value: getRoundedAmount(remaining),
+        float: remaining,
+      },
       refund_reason_id: undefined,
       note: "",
     },
   })
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    if (values.amount > remaining) {
+    const amount = values.amount.float ?? 0
+
+    if (amount > remaining) {
       form.setError("amount", {
         message: t("orders.payment.createRefundWrongQuantity", {
           number: remaining,
@@ -116,7 +144,7 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
 
     await refundPayment.mutateAsync(
       {
-        amount: values.amount,
+        amount,
         refund_reason_id: values.refund_reason_id,
         note: values.note?.trim() ? values.note.trim() : undefined,
       },
@@ -124,7 +152,7 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
         onSuccess: () => {
           toast.success(
             t("orders.payment.refundPaymentSuccess", {
-              amount: getStylizedAmount(values.amount, order.currency_code),
+              amount: getLocaleAmount(amount, order.currency_code),
             })
           )
           handleSuccess(`/orders/${order.id}`)
@@ -145,57 +173,46 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
       <KeyboundForm onSubmit={handleSubmit} className="flex flex-1 flex-col">
         <RouteDrawer.Body>
           <div className="flex flex-col gap-y-4">
-            <div className="bg-ui-bg-component shadow-elevation-card-rest rounded-lg p-3">
-              <div className="flex items-center justify-between">
-                <Text size="small" className="text-ui-fg-subtle">
-                  {t("orders.payment.totalPaidByCustomer")}
-                </Text>
-                <Text size="small" weight="plus">
-                  {getStylizedAmount(
-                    payment.amount as number,
-                    order.currency_code
-                  )}
-                </Text>
-              </div>
-              {refundedAmount > 0 && (
-                <div className="flex items-center justify-between pt-1">
-                  <Text size="small" className="text-ui-fg-subtle">
-                    {t("orders.payment.totalRefunded")}
-                  </Text>
-                  <Text size="small" weight="plus">
-                    {getStylizedAmount(refundedAmount, order.currency_code)}
-                  </Text>
-                </div>
-              )}
+            <div className="text-ui-fg-base flex items-center gap-x-1 text-sm">
+              <span>
+                {getLocaleAmount(
+                  payment.amount as number,
+                  order.currency_code
+                )}
+              </span>
+              <span>-</span>
+              <span>
+                (<DisplayId id={payment.id} />)
+              </span>
             </div>
 
             <Form.Field
               control={form.control}
               name="amount"
-              render={({ field }) => (
+              render={({ field: { onChange, ...field } }) => (
                 <Form.Item>
                   <Form.Label>{t("fields.amount")}</Form.Label>
                   <Form.Control>
-                    <Input
-                      type="number"
-                      step="0.01"
-                      min={0}
-                      max={remaining}
-                      data-testid="refund-amount-input"
+                    <CurrencyInput
                       {...field}
-                      value={field.value ?? ""}
-                      onChange={(e) =>
-                        field.onChange(
-                          e.target.value === "" ? "" : Number(e.target.value)
-                        )
+                      min={0}
+                      placeholder={formatValue({
+                        value: "0",
+                        decimalScale: currency.decimal_digits,
+                      })}
+                      decimalScale={currency.decimal_digits}
+                      symbol={currency.symbol_native}
+                      code={currency.code}
+                      value={field.value.value}
+                      onValueChange={(_value, _name, values) =>
+                        onChange({
+                          value: values?.value ?? "",
+                          float: values?.float ?? null,
+                        })
                       }
+                      data-testid="refund-amount-input"
                     />
                   </Form.Control>
-                  <Form.Hint>
-                    {t("orders.payment.refundAmount", {
-                      amount: getStylizedAmount(remaining, order.currency_code),
-                    })}
-                  </Form.Hint>
                   <Form.ErrorMessage />
                 </Form.Item>
               )}
@@ -253,7 +270,7 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
         </RouteDrawer.Body>
 
         <RouteDrawer.Footer>
-          <div className="flex items-center gap-x-2">
+          <div className="flex items-center justify-end gap-x-2">
             <RouteDrawer.Close asChild>
               <Button size="small" variant="secondary">
                 {t("actions.cancel")}
@@ -265,7 +282,7 @@ export const CreateRefundForm = ({ order }: CreateRefundFormProps) => {
               isLoading={refundPayment.isPending}
               data-testid="refund-submit-button"
             >
-              {t("actions.confirm")}
+              {t("actions.save")}
             </Button>
           </div>
         </RouteDrawer.Footer>

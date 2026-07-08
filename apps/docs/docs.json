@@ -75,6 +75,7 @@
                     "pages": [
                       "rc/resources/tutorials/custom-panel-page",
                       "rc/resources/tutorials/add-a-widget",
+                      "rc/resources/tutorials/add-order-detail-button",
                       "rc/resources/tutorials/extend-forms-and-tables",
                       "rc/resources/tutorials/extend-onboarding",
                       "rc/resources/tutorials/store-setup-checklist",
