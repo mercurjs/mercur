@@ -620,21 +620,21 @@
       },
       "confirmPrompt": {
         "title": "Confirm request",
-        "description": "You are about to confirm this product request. Once confirmed, the product will appear on the storefront. Only products with stock levels and prices set will be visible.",
-        "noteLabel": "Notes for store",
+        "description": "You are about to confirm this product update request. Once confirmed, any offers created for this product will appear on the storefront. Only offers with stock levels and prices set will be visible.",
+        "noteLabel": "Note for store",
         "notePlaceholder": "Specify changes you made or additional requests"
       },
       "requestUpdatePrompt": {
         "title": "Request update",
-        "description": "Request update to this product before publishing. Add notes to explain what needs to be updated.",
-        "noteLabel": "Notes for store",
+        "description": "Request update to this product before publishing. Add note to explain what needs to be updated.",
+        "noteLabel": "Note for store",
         "notePlaceholder": "Describe what needs to be updated (e.g., missing images, incorrect price, incomplete description)",
         "send": "Send"
       },
       "rejectPrompt": {
         "title": "Reject request",
         "description": "You are about to reject this product request.",
-        "noteLabel": "Notes for store",
+        "noteLabel": "Note for store",
         "notePlaceholder": "Explain why you reject the request",
         "confirm": "Reject"
       },
@@ -654,16 +654,16 @@
         "reject": "Reject"
       },
       "confirmPrompt": {
-        "title": "Confirm update request",
-        "description": "You are about to confirm this product update request. Once confirmed, the changes will be applied to the product and published on the storefront.",
-        "noteLabel": "Notes for store",
-        "notePlaceholder": "Add an optional note for the store"
+        "title": "Confirm request",
+        "description": "You are about to confirm this product update request. Once confirmed, the product will be updated on the storefront.",
+        "noteLabel": "Note for store",
+        "notePlaceholder": "Specify changes you made or additional requests"
       },
       "rejectPrompt": {
-        "title": "Reject update request",
-        "description": "You are about to reject this product update request. The requested changes will be discarded.",
-        "noteLabel": "Notes for store",
-        "notePlaceholder": "Explain why you reject the update request",
+        "title": "Reject request",
+        "description": "You are about to reject this product request.",
+        "noteLabel": "Note for store",
+        "notePlaceholder": "Explain why you reject the request or suggest changes",
         "confirm": "Reject"
       },
       "toast": {
