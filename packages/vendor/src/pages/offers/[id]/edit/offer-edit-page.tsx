@@ -2,6 +2,8 @@ import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
+
 import { RouteDrawer } from "../../../../components/modals"
 import { useOffer } from "../../../../hooks/api/offers"
 import { OFFER_DETAIL_FIELDS } from "../../common/constants"
@@ -16,7 +18,7 @@ export const OfferEditPage = () => {
     isPending,
     isError,
     error,
-  } = useOffer(id!, { fields: OFFER_DETAIL_FIELDS })
+  } = useOffer(id!, useLinkQuery("offer", OFFER_DETAIL_FIELDS))
 
   if (isError) throw error
 

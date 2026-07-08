@@ -30,7 +30,7 @@ export const useCustomer = (
   >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: customersQueryKeys.detail(id),
+    queryKey: customersQueryKeys.detail(id, query),
     queryFn: async () => sdk.vendor.customers.$id.query({ $id: id, ...query }),
     ...options,
   });

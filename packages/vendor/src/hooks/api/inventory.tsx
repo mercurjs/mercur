@@ -57,7 +57,7 @@ export const useInventoryItem = (
 ) => {
   const { data, ...rest } = useQuery({
     queryFn: () => sdk.vendor.inventoryItems.$id.query({ $id: id, ...query }),
-    queryKey: inventoryItemsQueryKeys.detail(id),
+    queryKey: inventoryItemsQueryKeys.detail(id, query),
     ...options,
   });
 

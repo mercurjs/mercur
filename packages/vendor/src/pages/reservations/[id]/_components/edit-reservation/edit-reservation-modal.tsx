@@ -2,6 +2,7 @@ import { InventoryTypes } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
 import { RouteDrawer } from "@components/modals"
 import {
   useInventoryItem,
@@ -15,7 +16,10 @@ export const ReservationEdit = () => {
   const { id } = useParams()
   const { t } = useTranslation()
 
-  const { reservation, isPending, isError, error } = useReservationItem(id!)
+  const { reservation, isPending, isError, error } = useReservationItem(
+    id!,
+    useLinkQuery("reservation")
+  )
   const { inventory_item: inventoryItem } = useInventoryItem(
     reservation?.inventory_item_id,
     undefined,

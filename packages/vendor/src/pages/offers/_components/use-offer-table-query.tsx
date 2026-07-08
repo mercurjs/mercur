@@ -1,4 +1,5 @@
 import { InferClientInput } from "@mercurjs/client"
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
 
 import { sdk } from "../../../lib/client"
 import { useQueryParams } from "../../../hooks/use-query-params"
@@ -49,6 +50,8 @@ export const useOfferTableQuery = ({
     q,
   } = raw
 
+  const { fields } = useLinkQuery("offer", OFFER_PRODUCT_LIST_FIELDS)
+
   const searchParams = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
@@ -62,7 +65,7 @@ export const useOfferTableQuery = ({
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     has_offer: "true",
-    fields: OFFER_PRODUCT_LIST_FIELDS,
+    fields,
   } as ProductQuery
 
   return {

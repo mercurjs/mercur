@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useCustomer } from "@hooks/api/customers";
 
 import { CustomerAddressSection } from "./_components/customer-address-section";
@@ -16,11 +16,10 @@ import type { loader } from "./loader";
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams();
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
-  const { customer, isLoading, isError, error } = useCustomer(
-    id!,
-    {},
-    { initialData },
-  );
+  const query = useLinkQuery("customer", "*groups, *groups.customers");
+  const { customer, isLoading, isError, error } = useCustomer(id!, query, {
+    initialData,
+  });
 
   if (isLoading || !customer) {
     return <TwoColumnPageSkeleton mainSections={3} sidebarSections={1} />;

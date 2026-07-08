@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
@@ -29,9 +29,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
     error,
   } = useInventoryItem(
     id!,
-    {
-      fields: INVENTORY_DETAIL_FIELDS,
-    },
+    useLinkQuery("inventory_item", INVENTORY_DETAIL_FIELDS),
     {
       initialData,
     }
