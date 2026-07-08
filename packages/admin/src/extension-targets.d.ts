@@ -232,7 +232,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "order": {
       formZones: never
       formTabs: Record<string, string>
-      displayZones: "activity" | "commission" | "customer" | "general" | "order-group" | "payment" | "summary"
+      displayZones: "activity" | "customer" | "general" | "order-group" | "payment" | "summary"
       displayFieldIds: "created_at" | "display_id" | "fulfillment_status" | "payment_status" | "status"
     }
     "price_list": {

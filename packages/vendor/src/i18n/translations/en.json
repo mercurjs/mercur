@@ -1490,6 +1490,7 @@
       "createRefund": "Create Refund",
       "refundPaymentSuccess": "Refund of amount {{amount}} successful",
       "createRefundWrongQuantity": "Quantity should be a number between 1 and {{number}}",
+      "enterAmount": "Please enter an amount",
       "refundAmount": "Refund {{ amount }}",
       "paymentLink": "Copy payment link for {{ amount }}",
       "copyPaymentLink": "Copy payment link for {{ amount }}",

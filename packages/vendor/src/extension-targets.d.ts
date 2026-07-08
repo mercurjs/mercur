@@ -203,7 +203,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "order": {
       formZones: never
       formTabs: Record<string, string>
-      displayZones: "active-claim" | "active-edit" | "active-exchange" | "active-return" | "activity" | "commission" | "customer" | "fulfillment" | "general" | "payment" | "summary"
+      displayZones: "active-claim" | "active-edit" | "active-exchange" | "active-return" | "activity" | "customer" | "fulfillment" | "general" | "payment" | "summary"
       displayFieldIds: "display_id" | "fulfillment_status" | "payment_status" | "status"
     }
     "payout": {
