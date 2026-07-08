@@ -36,6 +36,7 @@ export const EditInventoryItemForm = ({ item }: EditInventoryItemFormProps) => {
   const form = useExtendableForm({
     schema: EditInventoryItemSchema,
     model: "inventory_item",
+    zone: "edit",
     data: item,
     defaultValues: getDefaultValues(item),
   })

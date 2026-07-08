@@ -31,6 +31,7 @@ export const EditCollectionForm = ({ collection }: EditCollectionFormProps) => {
   const form = useExtendableForm({
     schema: EditCollectionSchema,
     model: "collection",
+    zone: "edit",
     data: collection,
     defaultValues: {
       title: collection.title,

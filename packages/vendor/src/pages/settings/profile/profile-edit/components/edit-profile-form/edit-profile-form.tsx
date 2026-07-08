@@ -37,6 +37,7 @@ export const EditProfileForm = () => {
   const form = useExtendableForm({
     schema: EditProfileSchema,
     model: "member",
+    zone: "edit",
     data: member,
     defaultValues: {
       first_name: member?.first_name ?? "",

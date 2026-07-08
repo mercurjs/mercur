@@ -27,6 +27,7 @@ export const EditOfferForm = ({ offer }: Props) => {
   const form = useExtendableForm({
     schema: EditOfferSchema,
     model: "offer",
+    zone: "edit",
     data: offer,
     defaultValues: {
       sku: offer.sku ?? "",

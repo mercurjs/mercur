@@ -38,6 +38,7 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
   const form = useExtendableForm({
     schema: EditProductSchema,
     model: "product",
+    zone: "edit",
     data: product,
     defaultValues: {
       title: product.title,

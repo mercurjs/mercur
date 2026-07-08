@@ -30,6 +30,7 @@ export const EditCampaignForm = ({ campaign }: EditCampaignFormProps) => {
   const form = useExtendableForm({
     schema: EditCampaignSchema,
     model: "campaign",
+    zone: "edit",
     data: campaign,
     defaultValues: {
       name: campaign.name || "",

@@ -39,6 +39,7 @@ export const StoreAddressForm = ({ seller }: StoreAddressFormProps) => {
   const form = useExtendableForm({
     schema: StoreAddressSchema,
     model: "seller",
+    zone: "address",
     data: seller,
     defaultValues: {
       name: address?.name ?? "",
