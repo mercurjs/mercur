@@ -5,7 +5,7 @@ import { SellerDTO } from "@mercurjs/types"
 import StoreSetup from "../components/store-setup/store-setup"
 
 export const config = defineWidgetConfig({
-  zone: "store.setup.before",
+  zone: "seller.setup.before",
 })
 
 const StoreSetupWidget = ({ data }: { data?: SellerDTO }) => {

@@ -1,3 +1,4 @@
+import { linkFields, useExtension } from "@mercurjs/dashboard-shared";
 import { useQueryParams } from "@hooks/use-query-params";
 import { SellerStatus } from "@mercurjs/types";
 
@@ -16,6 +17,7 @@ export const useSellersTableQuery = ({
   prefix,
   pageSize = 20,
 }: UseSellersTableQueryProps) => {
+  const links = useExtension().getLinks("seller");
   const queryObject = useQueryParams(
     ["offset", "q", "created_at", "updated_at", "status", "is_premium", "order"],
     prefix,
@@ -32,6 +34,7 @@ export const useSellersTableQuery = ({
     is_premium: is_premium ? is_premium === "true" : undefined,
     q,
     order: order ? order : "-created_at",
+    ...(links.length ? { fields: linkFields(links) } : {}),
   };
 
   return {

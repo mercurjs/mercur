@@ -6,7 +6,11 @@ import { IconButton, clx } from "@medusajs/ui";
 import { TriangleRightMini } from "@medusajs/icons";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import {
+  useExtendableTable,
+  useExtension,
+  withLinkFields,
+} from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -113,10 +117,12 @@ export const OrderListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
+  const links = useExtension().getLinks("order");
+
   const { order_groups, count, isError, error, isLoading } = useOrderGroups(
     {
       ...searchParams,
-      fields: DEFAULT_FIELDS,
+      fields: withLinkFields(DEFAULT_FIELDS, links),
     },
     {
       placeholderData: keepPreviousData,
