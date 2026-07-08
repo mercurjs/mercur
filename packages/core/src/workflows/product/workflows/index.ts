@@ -1,3 +1,4 @@
+export * from "./assign-products-to-category"
 export * from "./link-sellers-to-product-category"
 export * from "./link-sellers-to-product"
 export * from "./create-products"
