@@ -10,6 +10,7 @@ import {
 import {
   ChangeActionType,
   MathBN,
+  MedusaError,
   Modules,
   OrderChangeStatus,
   OrderWorkflowEvents,
@@ -152,8 +153,9 @@ function prepareInventoryUpdate({
   }
 
   if (hasManagedInventory && !hasStockLocation) {
-    throw new Error(
-      `Cannot receive the Return at location ${orderReturn.location_id}`,
+    throw new MedusaError(
+      MedusaError.Types.NOT_ALLOWED,
+      `Cannot receive the return at location ${orderReturn.location_id}: none of the returned items' inventory is stocked at this location.`,
     )
   }
 

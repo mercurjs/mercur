@@ -11,7 +11,6 @@ import { ActiveOrderExchangeSection } from "./_components/active-order-exchange-
 import { ActiveOrderReturnSection } from "./_components/active-order-return-section";
 import { OrderActiveEditSection } from "./_components/order-active-edit-section";
 import { OrderActivitySection } from "./_components/order-activity-section";
-import { OrderCommissionSection } from "./_components/order-commission-section";
 import { OrderCustomerSection } from "./_components/order-customer-section";
 import { OrderFulfillmentSection } from "./_components/order-fulfillment-section";
 import { OrderGeneralSection } from "./_components/order-general-section";
@@ -81,7 +80,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
               )}
               <OrderGeneralSection order={order} />
               <OrderSummarySection order={order} />
-              <OrderCommissionSection order={order} />
               <OrderPaymentSection order={order} />
               <OrderFulfillmentSection order={order} />
             </WidgetZone>
