@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
-import { Button, Input } from "@medusajs/ui"
+import { Button, Input, toast } from "@medusajs/ui"
+import i18n from "i18next"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -12,10 +13,17 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useUpdateCustomerAddress } from "../../../../../hooks/api/customers"
 
 const EditCustomerAddressSchema = zod.object({
-  address_name: zod.string().min(1),
-  address_1: zod.string().min(1),
+  address_name: zod.string().min(1, {
+    message: i18n.t("customers.addresses.validation.addressNameRequired"),
+  }),
+  address_1: zod.string().min(1, {
+    message: i18n.t("customers.addresses.validation.addressRequired"),
+  }),
   address_2: zod.string().optional(),
-  country_code: zod.string().min(2).max(2),
+  country_code: zod
+    .string()
+    .min(2, { message: i18n.t("customers.addresses.validation.countryRequired") })
+    .max(2),
   city: zod.string().optional(),
   postal_code: zod.string().optional(),
   province: zod.string().optional(),
@@ -56,7 +64,12 @@ export const EditCustomerAddressForm = ({
   const handleSubmit = form.handleSubmit(async (values) => {
     await mutateAsync(values, {
       onSuccess: () => {
+        toast.success(t("customers.addresses.edit.successToast"))
+
         handleSuccess(`/customers/${customerId}`)
+      },
+      onError: (e) => {
+        toast.error(e.message)
       },
     })
   })

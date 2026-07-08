@@ -1234,6 +1234,14 @@
         "header": "Edit Address",
         "hint": "Edit the customer's address.",
         "successToast": "Address was successfully updated."
+      },
+      "delete": {
+        "successToast": "Address was successfully deleted."
+      },
+      "validation": {
+        "addressNameRequired": "Please enter an address name",
+        "addressRequired": "Please enter an address",
+        "countryRequired": "Please select a country"
       }
     }
   },
