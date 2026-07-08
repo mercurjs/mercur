@@ -25,21 +25,14 @@ export const assignProductsToCategoryWorkflow = createWorkflow(
   (
     input: WorkflowData<AssignProductsToCategoryWorkflowInput>
   ): WorkflowData<void> => {
-    when({ input }, ({ input }) => (input.add ?? []).length > 0).then(() => {
-      updateProductsWorkflow.runAsStep({
-        input: transform({ input }, ({ input }) => ({
-          selector: { id: input.add ?? [] },
-          update: { category_ids: [input.id] },
-        })),
-      })
-    })
+    const products = transform({ input }, ({ input }) => [
+      ...(input.add ?? []).map((id) => ({ id, category_ids: [input.id] })),
+      ...(input.remove ?? []).map((id) => ({ id, category_ids: [] as string[] })),
+    ])
 
-    when({ input }, ({ input }) => (input.remove ?? []).length > 0).then(() => {
+    when({ products }, ({ products }) => products.length > 0).then(() => {
       updateProductsWorkflow.runAsStep({
-        input: transform({ input }, ({ input }) => ({
-          selector: { id: input.remove ?? [] },
-          update: { category_ids: [] as string[] },
-        })),
+        input: transform({ products }, ({ products }) => ({ products })),
       })
     })
   }
