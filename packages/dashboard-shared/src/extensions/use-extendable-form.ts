@@ -29,6 +29,14 @@ export interface UseExtendableFormProps<
   model: string
   /** Loaded entity, used to resolve custom-field default values. */
   data?: TData
+  /**
+   * Form zone (and optional tab) this form renders. When set, only custom
+   * fields registered for that zone extend the schema/defaults — so a required
+   * field defined for another zone (e.g. onboarding) doesn't block this form.
+   * Omit to include every field for the model (legacy behaviour).
+   */
+  zone?: string
+  tab?: string
 }
 
 /**
@@ -47,6 +55,8 @@ export const useExtendableForm = <
   defaultValues: baseDefaultValues,
   model,
   data,
+  zone,
+  tab,
   ...props
 }: UseExtendableFormProps<TSchema, TContext>) => {
   const extension = useExtension()
@@ -54,19 +64,25 @@ export const useExtendableForm = <
   const schema = useMemo(
     () =>
       baseSchema.extend({
-        additional_data: buildAdditionalDataSchema(extension, model)
+        additional_data: buildAdditionalDataSchema(extension, model, zone, tab)
           .partial()
           .optional(),
       }),
-    [baseSchema, extension, model]
+    [baseSchema, extension, model, zone, tab]
   )
 
   const defaultValues = useMemo(
     () => ({
       ...baseDefaultValues,
-      additional_data: buildAdditionalDataDefaults(extension, model, data),
+      additional_data: buildAdditionalDataDefaults(
+        extension,
+        model,
+        data,
+        zone,
+        tab
+      ),
     }),
-    [baseDefaultValues, extension, model, data]
+    [baseDefaultValues, extension, model, data, zone, tab]
   )
 
   return useForm<

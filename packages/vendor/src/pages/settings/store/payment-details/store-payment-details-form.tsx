@@ -43,6 +43,7 @@ export const StorePaymentDetailsForm = ({
   const form = useExtendableForm({
     schema: StorePaymentDetailsSchema,
     model: "seller",
+    zone: "payment-details",
     data: seller,
     defaultValues: {
       country_code: details?.country_code ?? "",

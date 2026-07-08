@@ -39,6 +39,7 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
   const form = useExtendableForm({
     schema: PriceListEditSchema,
     model: "price_list",
+    zone: "edit",
     data: priceList,
     defaultValues: {
       type: priceList.type as PriceListType,

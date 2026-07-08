@@ -74,6 +74,7 @@ export const EditPromotionDetailsForm = ({
   const form = useExtendableForm({
     schema: EditPromotionSchema,
     model: "promotion",
+    zone: "edit",
     data: promotion,
     defaultValues: {
       is_automatic: promotion.is_automatic!.toString(),
