@@ -21,12 +21,16 @@ await addSellerShippingMethodToCartWorkflow(container).run({
 ## Input
 
 <ParamField body="cart_id" type="string" required>The cart to add shipping methods to.</ParamField>
-<ParamField body="options" type="object[]" required>Shipping options to add as methods.
+
+<ParamField body="options" type="object[]" required>
+  Shipping options to add as methods.
+
   <Expandable title="properties">
     <ParamField body="id" type="string" required>The shipping option ID; must have a calculated price for the cart.</ParamField>
     <ParamField body="data" type="object">Custom method data validated by the fulfillment provider.</ParamField>
   </Expandable>
 </ParamField>
+
 <ParamField body="additional_data" type="object">Custom data passed through to the workflow hooks.</ParamField>
 
 ## Result

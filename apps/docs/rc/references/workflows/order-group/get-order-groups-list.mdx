@@ -21,7 +21,9 @@ const { result } = await getOrderGroupsListWorkflow(container).run({
 ## Input
 
 <ParamField body="fields" type="string[]" required>Fields to retrieve; merged with the defaults needed for status aggregation.</ParamField>
-<ParamField body="variables" type="object">Query filters plus pagination.
+<ParamField body="variables" type="object">
+  Query filters plus pagination.
+
   <Expandable title="properties">
     <ParamField body="skip" type="number">Number of groups to skip.</ParamField>
     <ParamField body="take" type="number">Number of groups to return.</ParamField>

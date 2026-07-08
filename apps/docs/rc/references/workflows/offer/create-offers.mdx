@@ -31,7 +31,9 @@ const { result } = await createOffersWorkflow(container).run({
 
 ## Input
 
-<ParamField body="offers" type="object[]" required>Offers to create.
+<ParamField body="offers" type="object[]" required>
+  Offers to create.
+
   <Expandable title="properties">
     <ParamField body="seller_id" type="string" required>The seller that owns the offer.</ParamField>
     <ParamField body="created_by" type="string" required>ID of the member creating the offer.</ParamField>
