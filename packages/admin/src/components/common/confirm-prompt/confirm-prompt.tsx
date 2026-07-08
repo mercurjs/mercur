@@ -92,7 +92,7 @@ export const ConfirmPrompt = ({
   return (
     <Prompt open={open} onOpenChange={handleOpenChange} variant={variant}>
       <Prompt.Content>
-        <Prompt.Header>
+        <Prompt.Header className={showNoteField ? "pb-6" : undefined}>
           <Prompt.Title>{title}</Prompt.Title>
           {description ? (
             <Prompt.Description>{description}</Prompt.Description>
@@ -100,7 +100,7 @@ export const ConfirmPrompt = ({
         </Prompt.Header>
 
         {showNoteField ? (
-          <div className="flex flex-col gap-y-2 px-6 py-4">
+          <div className="border-ui-border-base flex flex-col gap-y-2 border-y px-6 py-4">
             <Label size="small" weight="plus">
               {noteLabel}
               {noteOptional ? (
