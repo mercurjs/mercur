@@ -1,6 +1,6 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { Container, Heading, Text, usePrompt } from "@medusajs/ui"
+import { Container, Heading, Text, toast, usePrompt } from "@medusajs/ui"
 import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -33,7 +33,14 @@ export const CollectionGeneralSection = ({
       return
     }
 
-    await mutateAsync()
+    await mutateAsync(undefined, {
+      onSuccess: () => {
+        toast.success(t("collections.deleteSuccess"))
+      },
+      onError: (error) => {
+        toast.error(error.message)
+      },
+    })
     navigate("../", { replace: true })
   }
 
