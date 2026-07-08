@@ -1,6 +1,7 @@
 import { AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
 
+import { linkFields, useExtension } from "@mercurjs/dashboard-shared";
 import { useLogout, useSellers } from "@hooks/api";
 import { queryClient } from "@lib/query-client";
 import { WizardSidebar } from "./wizard-sidebar";
@@ -19,7 +20,10 @@ type OnboardingWizardProps = {
 export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
   const navigate = useNavigate();
   const { mutateAsync: logoutMutation } = useLogout();
-  const { seller_members } = useSellers();
+  const links = useExtension().getLinks("seller");
+  const { seller_members } = useSellers(
+    links.length ? { fields: linkFields(links) } : undefined,
+  );
   const hasStores = (seller_members?.length ?? 0) > 0;
 
   const {
