@@ -2,13 +2,14 @@ import { ReactNode, Children, useState } from "react";
 import { useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
 
 import { TwoColumnPageSkeleton } from "../../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../../components/layout/pages";
 import { useSeller } from "@/hooks/api";
 import { SellerStatus } from "@mercurjs/types";
 
+import { STORE_DETAIL_FIELDS } from "../loader";
 import { StoreGeneralSection } from "./store-general-section";
 import { StorePaymentDetailsSection } from "./store-payment-details-section";
 import { StoreCompanyDetailsSection } from "./store-company-details-section";
@@ -83,7 +84,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams();
   const [activeTab, setActiveTab] = useState<Tab>("orders");
 
-  const { seller, isLoading, isError, error } = useSeller(id!);
+  const query = useLinkQuery("seller", STORE_DETAIL_FIELDS);
+  const { seller, isLoading, isError, error } = useSeller(id!, query);
 
   if (isLoading || !seller) {
     return <TwoColumnPageSkeleton mainSections={3} sidebarSections={3} />;

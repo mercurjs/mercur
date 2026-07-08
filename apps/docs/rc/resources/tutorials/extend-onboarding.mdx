@@ -3,10 +3,10 @@ title: "Extend the onboarding flow"
 description: "Add a field to the vendor store-setup surface, submit it through additional_data, and persist it durably from a workflow hook — end to end, without forking."
 ---
 
-The vendor **store-setup / onboarding** surface is a widget zone (`store.setup`) that renders the full `seller` object as its `data`. That makes onboarding a full extension seam: drop a widget to add UI, carry the new value to the API on the built-in seller routes through `additional_data`, and persist it from a workflow hook — the same three layers you'd wire in plain Medusa, kept intact by Mercur.
+The vendor **store-setup / onboarding** surface is a widget zone (`seller.setup`) that renders the full `seller` object as its `data`. That makes onboarding a full extension seam: drop a widget to add UI, carry the new value to the API on the built-in seller routes through `additional_data`, and persist it from a workflow hook — the same three layers you'd wire in plain Medusa, kept intact by Mercur.
 
 <Info>
-  **Three layers, one flow.** The panel (a `store.setup` widget) *renders and collects*. The vendor seller route *carries* the value through `additional_data` — no core schema change. A `sellersUpdated` workflow hook *persists* it. Each layer is additive: nothing built-in is replaced.
+  **Three layers, one flow.** The panel (a `seller.setup` widget) *renders and collects*. The vendor seller route *carries* the value through `additional_data` — no core schema change. A `sellersUpdated` workflow hook *persists* it. Each layer is additive: nothing built-in is replaced.
 </Info>
 
 ## What you'll build
@@ -21,13 +21,13 @@ Widget zones are typed ids the vendor panel generates from its own pages and shi
 /// <reference types="@mercurjs/vendor/extension-targets" />
 ```
 
-With it present, `store.setup` autocompletes and an invalid zone fails `tsc` instead of silently doing nothing.
+With it present, `seller.setup` autocompletes and an invalid zone fails `tsc` instead of silently doing nothing.
 
 ## 1 — Render on the onboarding surface
 
 <Steps>
   <Step title="Add the store-setup widget">
-    Drop a file under `src/widgets/`. Export the component as the **default** and a `config` with `zone: "store.setup.before"`. The zone hands your component the `seller` as `data`:
+    Drop a file under `src/widgets/`. Export the component as the **default** and a `config` with `zone: "seller.setup.before"`. The zone hands your component the `seller` as `data`:
 
     ```tsx apps/vendor/src/widgets/tax-id-setup.tsx
     import "@mercurjs/vendor/extension-targets"
@@ -40,7 +40,7 @@ With it present, `store.setup` autocompletes and an invalid zone fails `tsc` ins
     import { client } from "../lib/client"
 
     export const config = defineWidgetConfig({
-      zone: "store.setup.before",
+      zone: "seller.setup.before",
     })
 
     const TaxIdSetup = ({ data: seller }: { data?: SellerDTO }) => {
@@ -94,14 +94,14 @@ With it present, `store.setup` autocompletes and an invalid zone fails `tsc` ins
     ```
   </Step>
   <Step title="Understand where it renders">
-    `store.setup` is hosted in two places, both passing the same `seller` as `data`:
+    `seller.setup` is hosted in two places, both passing the same `seller` as `data`:
 
     | Host | When it shows |
     |------|---------------|
     | The vendor shell (above the page outlet) | On top-level routes — the dashboard "home" onboarding banner |
     | The store settings detail page | Always, above the store status banner |
 
-    A single widget file covers both. Multiple `store.setup.before` / `.after` widgets stack in registration order.
+    A single widget file covers both. Multiple `seller.setup.before` / `.after` widgets stack in registration order.
   </Step>
 </Steps>
 
@@ -203,7 +203,7 @@ That is the whole "wiring" step: your `{ tax_id }` payload arrives in the workfl
 ## How the layers connect
 
 ```
-store.setup widget  →  client.vendor.sellers.$id.mutate({ additional_data })
+seller.setup widget  →  client.vendor.sellers.$id.mutate({ additional_data })
         │
         ▼
 POST /vendor/sellers/:id  →  updateSellersWorkflow({ update, additional_data })
