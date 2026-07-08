@@ -1,7 +1,7 @@
 import { keepPreviousData } from "@tanstack/react-query";
 import { type ColumnDef } from "@tanstack/react-table";
 import { HttpTypes } from "@medusajs/types";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -21,9 +21,11 @@ export const CustomerListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
+  const linkQuery = useLinkQuery("customer");
   const { customers, count, isLoading, isError, error } = useCustomers(
     {
       ...searchParams,
+      ...linkQuery,
     },
     {
       placeholderData: keepPreviousData,

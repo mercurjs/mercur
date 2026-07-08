@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { useCampaign } from "../../../hooks/api/campaigns"
 import { CampaignBudget } from "./components/campaign-budget"
 import { CampaignConfigurationSection } from "./components/campaign-configuration-section"
@@ -19,9 +19,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
   >
 
   const { id } = useParams()
+  const query = useLinkQuery("campaign", CAMPAIGN_DETAIL_FIELDS)
   const { campaign, isLoading, isError, error } = useCampaign(
     id!,
-    { fields: CAMPAIGN_DETAIL_FIELDS },
+    query,
     { initialData }
   )
 

@@ -2,7 +2,7 @@ import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Button, Container, Heading, usePrompt } from "@medusajs/ui"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
-import { useExtendableTable } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { Children, ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom"
@@ -72,8 +72,9 @@ export const PromotionListDataTable = () => {
     useLoaderData() as HttpTypes.AdminPromotionListResponse | undefined
 
   const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE })
+  const linkQuery = useLinkQuery("promotion")
   const { promotions, count, isLoading, isError, error } = usePromotions(
-    { ...searchParams },
+    { ...searchParams, ...linkQuery },
     {
       initialData,
       placeholderData: keepPreviousData,

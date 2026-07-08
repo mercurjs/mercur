@@ -40,7 +40,7 @@ export const useReservationItem = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: reservationItemsQueryKeys.detail(id),
+    queryKey: reservationItemsQueryKeys.detail(id, query),
     queryFn: () => sdk.admin.reservations.$id.query({ $id: id, ...query }),
     ...options,
   })

@@ -1,7 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
-import { useExtendableTable } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -46,8 +46,9 @@ export const PriceListListDataTable = () => {
   const { searchParams, raw } = usePricingTableQuery({
     pageSize: PAGE_SIZE,
   })
+  const linkQuery = useLinkQuery("price_list")
   const { price_lists, count, isLoading, isError, error } = usePriceLists(
-    searchParams,
+    { ...searchParams, ...linkQuery },
     {
       placeholderData: keepPreviousData,
     }

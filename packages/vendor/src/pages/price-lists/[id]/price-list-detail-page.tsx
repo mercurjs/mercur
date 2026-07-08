@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
 import { usePriceList } from "@hooks/api/price-lists";
 
 import { PriceListConfigurationSection } from "./_components/price-list-configuration-section";
@@ -16,7 +16,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { id } = useParams();
 
-  const { price_list, isLoading, isError, error } = usePriceList(id!, undefined, {
+  const linkQuery = useLinkQuery("price_list");
+  const { price_list, isLoading, isError, error } = usePriceList(id!, linkQuery, {
     placeholderData: initialData,
   });
 
