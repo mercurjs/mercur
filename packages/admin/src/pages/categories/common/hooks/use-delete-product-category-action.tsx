@@ -29,11 +29,7 @@ export const useDeleteProductCategoryAction = (
 
     await mutateAsync(undefined, {
       onSuccess: () => {
-        toast.success(
-          t("categories.delete.successToast", {
-            name: category.name,
-          })
-        )
+        toast.success(t("categories.delete.successToast"))
 
         navigate("/categories", {
           replace: true,
