@@ -1,6 +1,6 @@
 ---
 name: linear-task
-description: Pick up a Linear issue from a URL or identifier, drive it end-to-end (read → implement → verify → PR to `canary`), and manage the Linear status columns ("In Progress" → "Waiting For Review", or "Blocked") along the way. Trigger whenever the user pastes a Linear URL (e.g. https://linear.app/rigbyjs/issue/MER-130/...) or a bare identifier like `MER-130`, or says things like "work on", "pick up", "implement", "take this ticket", "do this Linear task", or "ship this issue". Also trigger when the user describes the workflow in their own words ("move it to in progress, do the work, then open a PR") even without naming Linear. Prefer this skill over implementing-and-then-asking-about-status, because the column transitions are the contract: the rest of the team relies on them.
+description: Pick up a Linear issue from a URL or identifier, drive it end-to-end (read → implement → verify → PR to `main`), and manage the Linear status columns ("In Progress" → "Waiting For Review", or "Blocked") along the way. Trigger whenever the user pastes a Linear URL (e.g. https://linear.app/rigbyjs/issue/MER-130/...) or a bare identifier like `MER-130`, or says things like "work on", "pick up", "implement", "take this ticket", "do this Linear task", or "ship this issue". Also trigger when the user describes the workflow in their own words ("move it to in progress, do the work, then open a PR") even without naming Linear. Prefer this skill over implementing-and-then-asking-about-status, because the column transitions are the contract: the rest of the team relies on them.
 ---
 
 # linear-task
@@ -39,10 +39,10 @@ You do *not* switch branches in the user's current working tree. The user may be
 - `bun install`, builds, and the dev server run in the worktree without colliding with their main checkout.
 - After the PR merges, the worktree is removed in one command and nothing in the main tree changed.
 
-Before creating the worktree, just confirm `origin/canary` is fresh:
+Before creating the worktree, just confirm `origin/main` is fresh:
 
 ```bash
-git fetch origin canary
+git fetch origin main
 ```
 
 You don't need to check `git status` of the main tree — you're not going to write to it.
@@ -59,7 +59,7 @@ The worktree lives as a sibling directory to the main repo, named after the issu
 
 ```bash
 WORKTREE="../mercur-MER-NNN"        # sibling of the current repo dir
-git worktree add "$WORKTREE" -b <gitBranchName> origin/canary
+git worktree add "$WORKTREE" -b <gitBranchName> origin/main
 cd "$WORKTREE"
 bun install                          # node_modules is per-worktree; install before building
 ```
@@ -68,7 +68,7 @@ Use Linear's `gitBranchName` verbatim (the team greps PRs by it).
 
 Existing-state cases — handle them, don't paper over them:
 
-- **Worktree path already exists** (`mercur-MER-NNN` is there from a previous attempt): cd into it, `git fetch origin canary && git rebase origin/canary`, and reuse it. Don't blow it away — it may already contain progress.
+- **Worktree path already exists** (`mercur-MER-NNN` is there from a previous attempt): cd into it, `git fetch origin main && git rebase origin/main`, and reuse it. Don't blow it away — it may already contain progress.
 - **Branch with `gitBranchName` already exists** but no worktree: `git worktree add "$WORKTREE" <gitBranchName>` (without `-b`) attaches the existing branch. Then rebase as above.
 - **Both already exist and the branch has commits you didn't make**: stop and ask the user before doing anything destructive. Someone else may have been working on this ticket.
 
@@ -81,7 +81,7 @@ This is the part that varies by ticket. Anchor on:
 - **`CLAUDE.md`, `docs/PRODUCT.md`, `docs/ARCHITECTURE.md`, `docs/UI-ARCHITECTURE.md`** — already in your context. The team's conventions live there; follow them.
 - **Existing skills** — if the ticket touches admin pages, forms, or tabs, the `admin-page-ui` / `admin-form-ui` / `admin-tab-ui` / `medusa-ui-conformance` skills already encode the rules. Use them; don't re-derive.
 - **Tests** — per `CLAUDE.md`: bug fixes and new features must include tests. For a reproducible bug, write the failing test first.
-- **Conventional Commits & branch conventions** — follow the rules in `@CLAUDE.md` (Conventional Commits: `feat(scope):`, `fix(scope):`, `docs:`, `chore:`, `refactor(scope):`; `!` for breaking changes; PRs target `canary`). The scope usually matches the Mercur area (e.g. `orders`, `admin`, `vendor`, `core`). For the branch name itself, use Linear's `gitBranchName` verbatim (see step 4).
+- **Conventional Commits & branch conventions** — follow the rules in `@CLAUDE.md` (Conventional Commits: `feat(scope):`, `fix(scope):`, `docs:`, `chore:`, `refactor(scope):`; `!` for breaking changes; PRs target `main`). The scope usually matches the Mercur area (e.g. `orders`, `admin`, `vendor`, `core`). For the branch name itself, use Linear's `gitBranchName` verbatim (see step 4).
 
 If during implementation you hit something you can't resolve without input — credentials you don't have, an ambiguous spec where two valid interpretations would produce different UX, a dependency on work in another repo — that's a real blocker. Go to step 7b.
 
@@ -119,7 +119,7 @@ Co-Authored-By: Claude Opus 4.7 (1M context) <noreply@anthropic.com>"
 
 git push -u origin <gitBranchName>
 
-gh pr create --base canary --title "<same as commit subject>" --body "$(cat <<'EOF'
+gh pr create --base main --title "<same as commit subject>" --body "$(cat <<'EOF'
 ## Summary
 <1-3 bullets — what changed and why>
 
@@ -183,7 +183,7 @@ Auto mode is fine for the happy path, but these warrant a confirmation:
 
 ## Mercur-specific defaults
 
-- **Base branch:** `canary`. Never target `main` directly from this skill.
+- **Base branch:** `main`. All PRs from this skill target `main`.
 - **Repo:** `mercurjs/mercur`.
 - **Linear team:** `MER`.
 - **Status names** are exact: `In Progress`, `Waiting For Review`, `Blocked`. They're case-sensitive in Linear's UI but `save_issue` matches by name; if a lookup fails, list statuses with `mcp__claude_ai_Linear__list_issue_statuses` and use the ID instead.
