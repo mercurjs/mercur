@@ -1,0 +1,169 @@
+---
+title: "Add an outstanding-payment action to orders"
+description: "Ship a 'copy payment link' button on the vendor order summary with a widget — provider-specific link logic that stays out of the core panel."
+---
+
+When a vendor edits an order and adds an item the customer still owes for, the order carries a **positive outstanding amount**. You often want to hand the customer a payment link to settle it. But *where that link comes from* depends on your payment provider — a hosted-checkout provider exposes a URL, an offline/manual provider has none, another stashes it under a different key.
+
+That provider-specific knowledge shouldn't live in the panel. So the vendor panel stays provider-agnostic: it shows the outstanding amount and exposes a **widget zone** in the order summary (`orders.detail.summary`), and *you* contribute the action that turns an unpaid payment session into a link.
+
+<Info>
+  **Why a widget and not a core change?** The panel can't know how any given provider encodes a payment link. A widget keeps that decision in your app (or a block), so the shipped panel makes no assumption about `session.data` — and marketplaces on different providers each drop in their own resolver.
+</Info>
+
+## What you'll build
+
+A **"Copy payment link for {amount}"** button in the order summary footer, shown only when the order has a real outstanding balance and your provider can produce a link.
+
+## Register the typed targets (once)
+
+Widget zones are typed ids the vendor panel generates from its own pages and ships as `@mercurjs/vendor/extension-targets`. Register them once with a single ambient reference in your app's `src`:
+
+```typescript apps/vendor/src/extension-targets.d.ts
+/// <reference types="@mercurjs/vendor/extension-targets" />
+```
+
+Projects from `create-mercur-app` already ship this file. With it present, an invalid zone fails `tsc` instead of silently doing nothing.
+
+## Add the widget
+
+<Steps>
+  <Step title="Create the widget file">
+    Drop a file under `src/widgets/`. Export the component as the **default** and a `config` built with `defineWidgetConfig` targeting `orders.detail.summary.after` — the summary section renders your component in its footer, receiving the order as `data`.
+
+    ```tsx apps/vendor/src/widgets/order-outstanding-payment.tsx
+    import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
+    import type { HttpTypes } from "@medusajs/types"
+    import { Button, toast } from "@medusajs/ui"
+    import { useTranslation } from "react-i18next"
+
+    export const config = defineWidgetConfig({
+      zone: "orders.detail.summary.after",
+    })
+
+    type PaymentSession = NonNullable<
+      HttpTypes.AdminPaymentCollection["payment_sessions"]
+    >[number]
+
+    // Turning an unpaid session into a link is provider-specific. Branch on
+    // `provider_id` for the providers your marketplace actually uses.
+    const resolvePaymentLink = (session?: PaymentSession): string | null => {
+      if (!session) return null
+      const data = session.data as { url?: string } | undefined
+
+      switch (session.provider_id) {
+        case "pp_stripe_stripe":
+          return data?.url ?? null
+        default:
+          return data?.url ?? null
+      }
+    }
+
+    const formatAmount = (amount: number, currencyCode: string) =>
+      new Intl.NumberFormat([], {
+        style: "currency",
+        currencyDisplay: "narrowSymbol",
+        currency: currencyCode,
+      }).format(amount)
+
+    const OrderOutstandingPayment = ({
+      data: order,
+    }: {
+      data?: HttpTypes.AdminOrder
+    }) => {
+      const { t } = useTranslation()
+      if (!order) return null
+
+      const unpaidCollection = order.payment_collections?.find(
+        (pc) => pc.status !== "captured" && pc.status !== "canceled"
+      )
+
+      const pendingDifference = order.summary?.pending_difference ?? 0
+      const isOutstanding =
+        pendingDifference > 0.005 &&
+        order.status !== "canceled" &&
+        !!unpaidCollection
+
+      if (!isOutstanding || !unpaidCollection) return null
+
+      const paymentLink = resolvePaymentLink(
+        unpaidCollection.payment_sessions?.[0]
+      )
+      if (!paymentLink) return null
+
+      const handleCopyLink = async () => {
+        try {
+          await navigator.clipboard.writeText(paymentLink)
+          toast.success(t("orders.payment.copyLinkSuccess"))
+        } catch {
+          toast.error(t("orders.payment.copyLinkError"))
+        }
+      }
+
+      return (
+        <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
+          <Button size="small" variant="secondary" onClick={handleCopyLink}>
+            {t("orders.payment.copyPaymentLink", {
+              amount: formatAmount(pendingDifference, order.currency_code),
+            })}
+          </Button>
+        </div>
+      )
+    }
+
+    export default OrderOutstandingPayment
+    ```
+  </Step>
+  <Step title="Adapt the resolver to your provider">
+    `resolvePaymentLink` is the only provider-specific part. The `default` branch reads a `url` off the session data (the common hosted-checkout shape); add a `case` per `provider_id` you support, and return `null` for providers that can't produce a link — the button simply won't render.
+  </Step>
+  <Step title="Reload the panel">
+    Start the project (`bun run dev`) and open an order with a positive outstanding amount in the vendor portal. Widget files hot-reload — the button appears in the summary footer. The rest of the summary (totals, returns, refunds) is untouched.
+  </Step>
+</Steps>
+
+## How it stays provider-agnostic
+
+The panel owns only what's true for every provider:
+
+- The **outstanding amount** row in the order `Total` (always rendered).
+- The **`orders.detail.summary` zone**, which renders nothing by default.
+
+Your widget owns the provider-specific decision. Ship no widget and the panel simply shows the amount with no action — no broken assumption, no dead button.
+
+<Note>
+  The `orders.payment.copyPaymentLink`, `copyLinkSuccess`, and `copyLinkError` i18n keys ship with `@mercurjs/vendor`, so `useTranslation()` resolves them from a host-app widget. Add your own keys the same way for custom copy.
+</Note>
+
+## Verify
+
+1. Open an order with a positive outstanding amount — the "Copy payment link" button renders in the summary footer.
+2. Click it — the provider link is copied and a success toast appears.
+3. Open a fully-paid order — no button (the outstanding check fails).
+4. Return `null` from `resolvePaymentLink` — the button disappears, everything else stays.
+5. Set `zone: "not.a.zone"` — `tsc` (`bun run lint`) fails with a "not assignable to `WidgetZoneId`" error.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Can a block ship this instead of the host app?">
+    Yes. Put the same file in a [block](/rc/learn/blocks)'s `vendor_ui` entry under `src/widgets/`; installing the block adds the action with no wiring — handy if several marketplaces share one provider integration.
+  </Accordion>
+  <Accordion title="Where do the payment sessions come from?">
+    The order's `payment_collections` carry `payment_sessions`; an unpaid collection is one whose `status` is neither `captured` nor `canceled`. The widget reads them straight off the `order` passed as `data`.
+  </Accordion>
+  <Accordion title="Can I add more than a copy button?">
+    The zone renders any React component. Swap the button for a dropdown (email the link, open a hosted page, mark as paid) — you have the full order in `data`.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Add a widget" href="/rc/resources/tutorials/add-a-widget">
+    The general widget model and the full list of zones.
+  </Card>
+  <Card title="Extend forms and tables" href="/rc/resources/tutorials/extend-forms-and-tables">
+    Add validated fields and columns with defineCustomFieldsConfig.
+  </Card>
+</CardGroup>
