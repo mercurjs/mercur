@@ -3353,6 +3353,17 @@
         "editCollection": {
           "type": "string"
         },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "titleRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "titleRequired"
+          ]
+        },
         "handleTooltip": {
           "type": "string"
         },
@@ -3644,6 +3655,7 @@
         "createCollectionHint",
         "createSuccess",
         "editCollection",
+        "validation",
         "handleTooltip",
         "deleteWarning",
         "removeSingleProductWarning",
