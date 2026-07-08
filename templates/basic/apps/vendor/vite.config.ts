@@ -1,6 +1,11 @@
 import { defineConfig, loadEnv } from 'vite'
 import react from '@vitejs/plugin-react'
-import { mercurDashboardPlugin } from '@mercurjs/dashboard-sdk/vite'
+import { createRequire } from 'node:module'
+
+// createRequire (not a static import): the plugin's ESM build can't dynamic-require
+// medusa-config.ts, so it silently falls back to base "/" and 404s panel assets.
+const require = createRequire(import.meta.url)
+const { mercurDashboardPlugin } = require('@mercurjs/dashboard-sdk/vite')
 
 // https://vite.dev/config/
 export default defineConfig(({ mode }) => {
