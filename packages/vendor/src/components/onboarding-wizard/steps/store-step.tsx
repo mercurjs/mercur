@@ -45,6 +45,7 @@ export const StoreStep = ({ onSubmit, isPending }: StoreStepProps) => {
     schema: StoreStepSchema,
     model: "seller",
     zone: "onboarding",
+    tab: "store",
     data: store,
     defaultValues: {
       name: "",
