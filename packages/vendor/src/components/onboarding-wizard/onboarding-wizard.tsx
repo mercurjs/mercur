@@ -108,7 +108,7 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
       >
         <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
       </WizardSidebar>
-      <WizardPreview currentStep={currentStep} />
+      <WizardPreview />
     </div>
   );
 };

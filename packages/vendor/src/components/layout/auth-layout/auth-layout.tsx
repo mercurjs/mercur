@@ -14,18 +14,11 @@ export const AuthLayout = ({ children }: AuthLayoutProps) => {
           {children}
         </div>
       </div>
-      <div
-        className="relative hidden flex-1 items-center justify-center overflow-hidden lg:flex"
-        style={{
-          backgroundImage: `url(${assetUrl("/onboarding/bg.svg")})`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
+      <div className="relative hidden flex-1 overflow-hidden lg:flex">
         <img
-          src={assetUrl("/onboarding/0.png")}
+          src={assetUrl("/onboarding/illustration.svg")}
           alt=""
-          className="max-h-[75%] w-[75%] object-contain"
+          className="h-full w-full object-cover"
         />
       </div>
     </div>
