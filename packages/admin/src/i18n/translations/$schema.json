@@ -3831,11 +3831,15 @@
             },
             "action": {
               "type": "string"
+            },
+            "successToast": {
+              "type": "string"
             }
           },
           "required": [
             "header",
-            "action"
+            "action",
+            "successToast"
           ],
           "additionalProperties": false
         },
