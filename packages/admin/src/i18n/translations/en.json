@@ -101,7 +101,7 @@
   },
   "actions": {
     "save": "Save",
-    "saveAsDraft": "Save as draft",
+    "saveAsDraft": "Save draft",
     "copy": "Copy",
     "copied": "Copied",
     "duplicate": "Duplicate",

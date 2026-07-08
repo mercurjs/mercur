@@ -2,7 +2,9 @@ import { ProductAttributeDTO } from "@mercurjs/types"
 import {
   Badge,
   Button,
+  clx,
   createDataTableColumnHelper,
+  DataTableFilter,
   DataTableRowSelectionState,
 } from "@medusajs/ui"
 import { useEffect, useMemo, useState } from "react"
@@ -13,8 +15,7 @@ import { DataTable } from "@components/data-table"
 import { StackedFocusModal, useStackedModal } from "@components/modals"
 import { useTabbedForm } from "@components/tabbed-form/tabbed-form"
 import { useProductAttributes } from "@hooks/api"
-import { useAttributeTableQuery } from "@hooks/table/query/use-attribute-table-query"
-import { useAttributeTableFilters } from "@hooks/table/filters/use-attribute-table-filters"
+import { useQueryParams } from "@hooks/use-query-params"
 
 import { ProductCreateSchemaType } from "../../types"
 
@@ -29,6 +30,29 @@ const ATTRIBUTE_TYPE_LABELS: Record<string, string> = {
   toggle: "attributes.type.toggle",
   text: "attributes.type.text_area",
 }
+
+const ADD_ATTRIBUTES_FILTER_IDS = [
+  "is_required",
+  "is_variant_axis",
+  "type",
+] as const
+
+// Medusa's fill layout force-adds a bottom border to every row; on the header
+// row that doubles with its shadow, and on the last row it doubles with the
+// table frame. Drop those two forced borders so a single divider remains
+// (`:last-of-type` inside the selector keeps the specificity high enough to win
+// over Medusa's `!important` rule). Required attributes cannot be deselected, so
+// their row checkbox is disabled — muting those rows makes the disabled state
+// legible, while checked-but-editable rows get a highlight. The select/first
+// cells are sticky with an opaque background, so the row colour is re-applied to
+// the cells as well.
+const ATTRIBUTE_TABLE_ROW_STYLES = clx(
+  "[&_thead_tr:last-of-type]:!border-b-0",
+  "[&_tbody_tr:last-of-type]:!border-b-0",
+  "[&_tbody_tr:has(button[data-state=checked])_td]:bg-ui-bg-highlight",
+  "[&_tbody_tr:has(button:disabled)_td]:!bg-ui-bg-base",
+  "[&_tbody_tr:has(button:disabled)]:text-ui-fg-muted"
+)
 
 export const ProductCreateAddAttributesModal = () => {
   const form = useTabbedForm<ProductCreateSchemaType>()
@@ -52,10 +76,7 @@ export const ProductCreateAddAttributesModal = () => {
 
   const categoryId = form.watch("category_id")
 
-  const { searchParams } = useAttributeTableQuery({
-    pageSize: PAGE_SIZE,
-    prefix: ADD_ATTRIBUTES_MODAL_ID,
-  })
+  const searchParams = useAddAttributesQuery()
   const attributesQuery = useMemo(
     () => ({ ...searchParams, category_id: categoryId || undefined }),
     [searchParams, categoryId]
@@ -196,7 +217,7 @@ export const ProductCreateAddAttributesModal = () => {
     setIsOpen(ADD_ATTRIBUTES_MODAL_ID, false)
   }
 
-  const filters = useAttributeTableFilters()
+  const filters = useAddAttributesFilters()
   const columns = useColumns()
 
   if (isError) {
@@ -206,7 +227,12 @@ export const ProductCreateAddAttributesModal = () => {
   return (
     <StackedFocusModal.Content className="flex flex-col overflow-hidden">
       <StackedFocusModal.Header />
-      <StackedFocusModal.Body className="flex-1 overflow-hidden">
+      <StackedFocusModal.Body
+        className={clx(
+          "flex-1 overflow-hidden",
+          ATTRIBUTE_TABLE_ROW_STYLES
+        )}
+      >
         <DataTable
           data={product_attributes}
           columns={columns}
@@ -222,6 +248,18 @@ export const ProductCreateAddAttributesModal = () => {
           isLoading={isLoading}
           layout="fill"
           prefix={ADD_ATTRIBUTES_MODAL_ID}
+          emptyState={{
+            empty: {
+              heading: t("products.create.attributes.noAttributesTitle"),
+              description: t(
+                "products.create.attributes.noAttributesDescription"
+              ),
+            },
+            filtered: {
+              heading: t("general.noResultsTitle"),
+              description: t("general.noResultsMessage"),
+            },
+          }}
         />
       </StackedFocusModal.Body>
       <StackedFocusModal.Footer>
@@ -250,7 +288,8 @@ const useColumns = () => {
       columnHelper.select(),
       columnHelper.accessor("name", {
         header: t("attributes.fields.name"),
-        enableSorting: false,
+        enableSorting: true,
+        sortLabel: t("attributes.fields.name"),
       }),
       columnHelper.accessor("handle", {
         header: t("attributes.fields.handle"),
@@ -258,7 +297,8 @@ const useColumns = () => {
           const handle = info.getValue()
           return handle ? `/${handle}` : "-"
         },
-        enableSorting: false,
+        enableSorting: true,
+        sortLabel: t("attributes.fields.handle"),
       }),
       columnHelper.accessor("is_required", {
         header: t("attributes.fields.required"),
@@ -266,7 +306,8 @@ const useColumns = () => {
           info.getValue()
             ? t("filters.radio.yes")
             : t("filters.radio.no"),
-        enableSorting: false,
+        enableSorting: true,
+        sortLabel: t("attributes.fields.required"),
       }),
       columnHelper.accessor("type", {
         header: t("attributes.fields.type"),
@@ -275,7 +316,8 @@ const useColumns = () => {
           const labelKey = ATTRIBUTE_TYPE_LABELS[type]
           return labelKey ? t(labelKey) : type
         },
-        enableSorting: false,
+        enableSorting: true,
+        sortLabel: t("attributes.fields.type"),
       }),
       columnHelper.accessor("is_variant_axis", {
         header: t("attributes.fields.variantAxis"),
@@ -283,7 +325,8 @@ const useColumns = () => {
           info.getValue()
             ? t("filters.radio.yes")
             : t("filters.radio.no"),
-        enableSorting: false,
+        enableSorting: true,
+        sortLabel: t("attributes.fields.variantAxis"),
       }),
       columnHelper.display({
         id: "values",
@@ -315,4 +358,77 @@ const useColumns = () => {
     ],
     [t]
   )
+}
+
+const parseFilterValue = (value?: string) => {
+  if (value === undefined) {
+    return undefined
+  }
+  try {
+    return JSON.parse(value)
+  } catch {
+    return value
+  }
+}
+
+const toBoolean = (value: unknown) => {
+  if (value === undefined) {
+    return undefined
+  }
+  return value === true || value === "true"
+}
+
+const useAddAttributesQuery = () => {
+  const raw = useQueryParams(
+    ["offset", "q", "order", ...ADD_ATTRIBUTES_FILTER_IDS],
+    ADD_ATTRIBUTES_MODAL_ID
+  )
+
+  return useMemo(() => {
+    const type = parseFilterValue(raw.type)
+
+    return {
+      limit: PAGE_SIZE,
+      offset: raw.offset ? Number(raw.offset) : 0,
+      q: raw.q || undefined,
+      order: raw.order || undefined,
+      is_required: toBoolean(parseFilterValue(raw.is_required)),
+      is_variant_axis: toBoolean(parseFilterValue(raw.is_variant_axis)),
+      type: type || undefined,
+    }
+  }, [raw])
+}
+
+const useAddAttributesFilters = (): DataTableFilter[] => {
+  const { t } = useTranslation()
+
+  return useMemo(() => {
+    const yesNoOptions = [
+      { label: t("filters.radio.yes"), value: "true" },
+      { label: t("filters.radio.no"), value: "false" },
+    ]
+
+    return [
+      {
+        id: "is_required",
+        type: "radio",
+        label: t("attributes.fields.required"),
+        options: yesNoOptions,
+      },
+      {
+        id: "is_variant_axis",
+        type: "radio",
+        label: t("attributes.fields.variantAxis"),
+        options: yesNoOptions,
+      },
+      {
+        id: "type",
+        type: "radio",
+        label: t("attributes.fields.type"),
+        options: Object.entries(ATTRIBUTE_TYPE_LABELS).map(
+          ([value, labelKey]) => ({ label: t(labelKey), value })
+        ),
+      },
+    ]
+  }, [t])
 }
