@@ -4,7 +4,7 @@ import { Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+import { DisplayExtensionZone, useLinkQuery } from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { DateRangeDisplay } from "../../../../../components/common/date-range-display"
@@ -45,7 +45,8 @@ export const CampaignSection = ({
 }) => {
   const { t } = useTranslation()
   const { id } = useParams()
-  const { promotion } = usePromotion(id!, {
+  const linkQuery = useLinkQuery("promotion")
+  const { promotion } = usePromotion(id!, linkQuery, {
     enabled: campaignProp === undefined,
   })
   const campaign = campaignProp !== undefined ? campaignProp : (promotion?.campaign ?? null)

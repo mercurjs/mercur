@@ -3,7 +3,7 @@ import { AdminCampaign } from "@medusajs/types";
 import { toast, usePrompt } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
-import { useExtendableTable } from "@mercurjs/dashboard-shared";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -22,6 +22,7 @@ const PAGE_SIZE = 20;
 export const CampaignListDataTable = () => {
   const { t } = useTranslation();
   const { raw, searchParams } = useCampaignTableQuery({ pageSize: PAGE_SIZE });
+  const linkQuery = useLinkQuery("campaign");
 
   const {
     campaigns,
@@ -29,9 +30,12 @@ export const CampaignListDataTable = () => {
     isPending: isLoading,
     isError,
     error,
-  } = useCampaigns(searchParams, {
-    placeholderData: keepPreviousData,
-  });
+  } = useCampaigns(
+    { ...searchParams, ...linkQuery },
+    {
+      placeholderData: keepPreviousData,
+    },
+  );
 
   const { columns } = useColumns();
 

@@ -38,7 +38,7 @@ export const useCustomer = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: customersQueryKeys.detail(id),
+    queryKey: customersQueryKeys.detail(id, query),
     queryFn: () => sdk.admin.customers.$id.query({ $id: id, ...query }),
     ...options,
   })
@@ -297,7 +297,7 @@ export const useCustomerAddress = (
         $id: id,
         $addressId: addressId,
       }),
-    queryKey: customerAddressesQueryKeys.detail(id),
+    queryKey: customerAddressesQueryKeys.detail(addressId),
     ...options,
   })
 

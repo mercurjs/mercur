@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { useCustomer } from "../../../hooks/api/customers"
@@ -17,11 +17,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
     ReturnType<typeof customerLoader>
   >
-  const { customer, isLoading, isError, error } = useCustomer(
-    id!,
-    { fields: "+*addresses" },
-    { initialData }
-  )
+  const query = useLinkQuery("customer", "+*addresses")
+  const { customer, isLoading, isError, error } = useCustomer(id!, query, {
+    initialData,
+  })
 
   if (isLoading || !customer) {
     return <SingleColumnPageSkeleton sections={2} showJSON showMetadata />

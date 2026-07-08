@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
@@ -21,7 +21,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const { reservation, isLoading, isError, error } = useReservationItem(
     id!,
-    undefined,
+    useLinkQuery("reservation"),
     {
       initialData,
     },
@@ -30,7 +30,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   // TEMP: fetch directly since the fields are not populated with reservation call
   const { inventory_item } = useInventoryItem(
     reservation?.inventory_item?.id!,
-    undefined,
+    useLinkQuery("inventory_item"),
     { enabled: !!reservation?.inventory_item?.id },
   );
 

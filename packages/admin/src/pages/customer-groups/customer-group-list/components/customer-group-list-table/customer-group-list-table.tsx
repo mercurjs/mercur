@@ -7,7 +7,7 @@ import {
   toast,
   usePrompt,
 } from "@medusajs/ui"
-import { useExtendableTable } from "@mercurjs/dashboard-shared"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { Children, ReactNode, useCallback, useMemo } from "react"
@@ -78,12 +78,16 @@ export const CustomerGroupListDataTable = () => {
 
   const { searchParams, raw } = useCustomerGroupTableQuery({ pageSize: PAGE_SIZE })
 
+  const linkQuery = useLinkQuery(
+    "customer_group",
+    "id,name,created_at,updated_at,customers.id,seller.id,seller.name",
+  )
+
   const { customer_groups, count, isPending, isError, error } =
     useCustomerGroups(
       {
         ...searchParams,
-        fields:
-          "id,name,created_at,updated_at,customers.id,seller.id,seller.name",
+        ...linkQuery,
       },
       {
         placeholderData: keepPreviousData,

@@ -876,8 +876,16 @@
     "subtitle": "Organize products into collections.",
     "createCollection": "Create Collection",
     "createCollectionHint": "Create a new collection to organize your products.",
-    "createSuccess": "Collection created successfully.",
+    "createSuccess": "Collection was successfully created.",
+    "deleteSuccess": "Collection was successfully deleted.",
+    "updateSuccess": "Collection was successfully updated.",
+    "validation": {
+      "titleRequired": "Please enter a title"
+    },
     "editCollection": "Edit Collection",
+    "validation": {
+      "titleRequired": "Please enter a title"
+    },
     "handleTooltip": "The handle is used to reference the collection in your storefront. If not specified, the handle will be generated from the collection title.",
     "deleteWarning": "You are about to delete the collection {{title}}. This action cannot be undone.",
     "removeSingleProductWarning": "You are about to remove the product {{title}} from the collection. This action cannot be undone.",
@@ -992,7 +1000,8 @@
     },
     "organize": {
       "header": "Organize",
-      "action": "Edit ranking"
+      "action": "Edit ranking",
+      "successToast": "Category ranking was updated successfully."
     },
     "media": {
       "label": "Media",
@@ -1234,6 +1243,14 @@
         "header": "Edit Address",
         "hint": "Edit the customer's address.",
         "successToast": "Address was successfully updated."
+      },
+      "delete": {
+        "successToast": "Address was successfully deleted."
+      },
+      "validation": {
+        "addressNameRequired": "Please enter an address name",
+        "addressRequired": "Please enter an address",
+        "countryRequired": "Please select a country"
       }
     }
   },

@@ -31,6 +31,26 @@ export const useCurrentSeller = () => {
   };
 };
 
+export const useSeller = (
+  id: string,
+  query?: Omit<InferClientInput<typeof sdk.vendor.sellers.$id.query>, "$id">,
+  options?: Omit<
+    UseQueryOptions<
+      InferClientOutput<typeof sdk.vendor.sellers.$id.query>,
+      ClientError
+    >,
+    "queryFn" | "queryKey"
+  >,
+) => {
+  const { data, ...rest } = useQuery({
+    queryKey: sellersQueryKeys.detail(id, query),
+    queryFn: () => sdk.vendor.sellers.$id.query({ $id: id, ...query }),
+    ...options,
+  });
+
+  return { ...data, ...rest };
+};
+
 export const useSellers = (
   query?: InferClientInput<typeof sdk.vendor.sellers.query>,
   options?: Omit<

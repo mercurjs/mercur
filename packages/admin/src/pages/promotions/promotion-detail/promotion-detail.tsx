@@ -1,7 +1,7 @@
 import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
 
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
@@ -17,7 +17,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
   >;
 
   const { id } = useParams();
-  const { promotion, isLoading } = usePromotion(id!, { initialData });
+  const linkQuery = useLinkQuery("promotion");
+  const { promotion, isLoading } = usePromotion(id!, linkQuery, {
+    initialData,
+  });
   const query: Record<string, string> = {};
 
   if (promotion?.type === "buyget") {

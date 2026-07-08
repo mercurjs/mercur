@@ -24,6 +24,10 @@ export const collectionsQueryKeys = queryKeysFactory(COLLECTION_QUERY_KEY);
 
 export const useCollection = (
   id: string,
+  query?: Omit<
+    InferClientInput<typeof sdk.vendor.collections.$id.query>,
+    "$id"
+  >,
   options?: UseQueryOptions<
     unknown,
     ClientError,
@@ -31,8 +35,8 @@ export const useCollection = (
   >,
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: collectionsQueryKeys.detail(id),
-    queryFn: async () => sdk.vendor.collections.$id.query({ $id: id }),
+    queryKey: collectionsQueryKeys.detail(id, query),
+    queryFn: async () => sdk.vendor.collections.$id.query({ $id: id, ...query }),
     ...options,
   });
 

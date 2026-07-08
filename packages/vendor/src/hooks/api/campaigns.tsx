@@ -30,7 +30,7 @@ export const useCampaign = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: campaignsQueryKeys.detail(id),
+    queryKey: campaignsQueryKeys.detail(id, query),
     queryFn: async () => sdk.vendor.campaigns.$id.query({ $id: id, ...query }),
     ...options,
   });

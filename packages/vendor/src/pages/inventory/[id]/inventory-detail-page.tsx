@@ -3,7 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { WidgetZone } from "@mercurjs/dashboard-shared";
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
 import { useInventoryItem } from "@hooks/api/inventory";
 
 import { InventoryItemAttributeSection } from "./_components/inventory-item-attributes/attributes-section";
@@ -19,7 +19,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { inventory_item, isPending: isLoading } = useInventoryItem(
     id!,
-    { fields: INVENTORY_DETAIL_FIELDS },
+    useLinkQuery("inventory_item", INVENTORY_DETAIL_FIELDS),
     { initialData },
   );
 
