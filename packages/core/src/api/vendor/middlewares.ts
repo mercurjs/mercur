@@ -40,7 +40,7 @@ import { vendorShippingProfilesMiddlewares } from "./shipping-profiles/middlewar
 import { vendorStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { vendorStoresMiddlewares } from "./stores/middlewares"
 import { vendorUploadsMiddlewares } from "./uploads/middlewares"
-import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
+import { applyVendorLocale, ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
 import { vendorProductAttributesMiddlewares } from "./product-attributes/middlewares"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
 
@@ -76,6 +76,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
     matcher: "/vendor/*",
     middlewares: [
       vendorCorsMiddleware,
+      applyVendorLocale,
       unlessBaseUrl(
         unauthenticatedRoutes,
         authenticate("member", ["session", "bearer"], {

@@ -17,12 +17,15 @@ export const GET = async (
     field.includes("products")
   )
 
-  const { data: collections, metadata } = await query.graph({
-    entity: "product_collection",
-    fields: req.queryConfig.fields.filter(field => !field.includes("products")),
-    filters: req.filterableFields,
-    pagination: req.queryConfig.pagination,
-  })
+  const { data: collections, metadata } = await query.graph(
+    {
+      entity: "product_collection",
+      fields: req.queryConfig.fields.filter(field => !field.includes("products")),
+      filters: req.filterableFields,
+      pagination: req.queryConfig.pagination,
+    },
+    { locale: req.locale }
+  )
 
   if (withProducts) {
     await wrapCollectionsWithProducts(collections, req)

@@ -16,11 +16,14 @@ export const GET = async (
 
   const {
     data: [product_category],
-  } = await query.graph({
-    entity: "product_category",
-    fields: req.queryConfig.fields,
-    filters: { id: req.params.id },
-  })
+  } = await query.graph(
+    {
+      entity: "product_category",
+      fields: req.queryConfig.fields,
+      filters: { id: req.params.id },
+    },
+    { locale: req.locale }
+  )
 
   if (!product_category) {
     throw new MedusaError(
