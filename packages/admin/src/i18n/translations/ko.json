@@ -1687,7 +1687,7 @@
       "title": "환불 생성",
       "sendNotificationHint": "생성된 환불에 대해 고객에게 알립니다.",
       "systemPayment": "시스템 결제",
-      "systemPaymentDesc": "결제 중 하나 이상이 시스템 결제입니다. 이러한 결제의 경우 캡처 및 환불은 Medusa에서 처리되지 않습니다.",
+      "systemPaymentDesc": "결제 중 하나 이상이 시스템 결제입니다. 이러한 결제의 경우 캡처 및 환불은 Mercur에서 처리되지 않습니다.",
       "error": {
         "amountToLarge": "원래 주문 금액보다 더 많이 환불할 수 없습니다.",
         "amountNegative": "환불 금액은 양수여야 합니다.",
@@ -2780,7 +2780,7 @@
       "header": "프로필 편집",
       "languageHint": "관리자 대시보드에서 사용할 언어입니다. 이는 스토어의 언어를 변경하지 않습니다.",
       "languagePlaceholder": "언어 선택",
-      "usageInsightsHint": "사용 인사이트를 공유하고 Medusa를 개선하는 데 도움을 주세요. 우리가 수집하는 내용과 그 사용 방법에 대한 자세한 내용은 <0>문서</0>에서 확인할 수 있습니다."
+      "usageInsightsHint": "사용 인사이트를 공유하고 Mercur를 개선하는 데 도움을 주세요. 우리가 수집하는 내용과 그 사용 방법에 대한 자세한 내용은 <0>문서</0>에서 확인할 수 있습니다."
     },
     "toast": {
       "edit": "프로필 변경 사항이 저장되었습니다"
@@ -3136,7 +3136,7 @@
       "createPublishableHeader": "공개 API 키 생성",
       "createPublishableHint": "요청 범위를 특정 판매 채널로 제한하기 위한 새 공개 API 키를 생성합니다.",
       "createSecretHeader": "비밀 API 키 생성",
-      "createSecretHint": "인증된 관리자 사용자로 Medusa API에 접근하기 위한 새 비밀 API 키를 생성합니다.",
+      "createSecretHint": "인증된 관리자 사용자로 Mercur API에 접근하기 위한 새 비밀 API 키를 생성합니다.",
       "secretKeyCreatedHeader": "비밀 키 생성됨",
       "secretKeyCreatedHint": "새 비밀 키가 생성되었습니다. 지금 복사하여 안전하게 보관하세요. 이 키는 한 번만 표시됩니다.",
       "copySecretTokenSuccess": "비밀 키가 클립보드에 복사되었습니다.",
@@ -3234,12 +3234,12 @@
   },
   "login": {
     "forgotPassword": "비밀번호를 잊으셨나요? - <0>재설정</0>",
-    "title": "Medusa에 오신 것을 환영합니다",
+    "title": "Mercur에 오신 것을 환영합니다",
     "hint": "계정 영역에 접근하려면 로그인하세요",
     "sessionExpired": "세션이 만료되었습니다"
   },
   "invite": {
-    "title": "Medusa에 오신 것을 환영합니다",
+    "title": "Mercur에 오신 것을 환영합니다",
     "hint": "아래에서 계정을 생성하세요",
     "backToLogin": "로그인으로 돌아가기",
     "createAccount": "계정 생성",
@@ -3247,8 +3247,8 @@
     "emailTooltip": "이메일은 변경할 수 없습니다. 다른 이메일을 사용하고 싶다면 새 초대장을 보내야 합니다.",
     "invalidInvite": "초대장이 유효하지 않거나 만료되었습니다.",
     "successTitle": "계정이 등록되었습니다",
-    "successHint": "지금 바로 Medusa 관리자를 시작하세요.",
-    "successAction": "Medusa 관리자 시작",
+    "successHint": "지금 바로 Mercur 관리자를 시작하세요.",
+    "successAction": "Mercur 관리자 시작",
     "invalidTokenTitle": "초대 토큰이 유효하지 않습니다",
     "invalidTokenHint": "새 초대 링크를 요청해 보세요.",
     "passwordMismatch": "비밀번호가 일치하지 않습니다",
@@ -3281,7 +3281,7 @@
   },
   "workflowExecutions": {
     "domain": "워크플로우",
-    "subtitle": "Medusa 애플리케이션의 워크플로우 실행을 보고 추적합니다.",
+    "subtitle": "Mercur 애플리케이션의 워크플로우 실행을 보고 추적합니다.",
     "transactionIdLabel": "트랜잭션 ID",
     "workflowIdLabel": "워크플로우 ID",
     "progressLabel": "진행 상황",
@@ -3372,7 +3372,7 @@
       "description": "현재 알림이 없습니다. 알림이 생기면 여기에 표시됩니다."
     },
     "accessibility": {
-      "description": "Medusa 활동에 대한 알림이 여기에 나열됩니다."
+      "description": "Mercur 활동에 대한 알림이 여기에 나열됩니다."
     }
   },
   "errors": {

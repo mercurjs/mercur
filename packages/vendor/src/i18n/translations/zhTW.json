@@ -1745,7 +1745,7 @@
       "title": "建立退款",
       "sendNotificationHint": "通知顧客有關已建立的退款。",
       "systemPayment": "系統付款",
-      "systemPaymentDesc": "您的一個或多個付款是系統付款。請注意，此類付款的收取和退款不由 Medusa 處理。",
+      "systemPaymentDesc": "您的一個或多個付款是系統付款。請注意，此類付款的收取和退款不由 Mercur 處理。",
       "error": {
         "amountToLarge": "無法退款超過原始訂單金額。",
         "amountNegative": "退款金額必須為正數。",
@@ -2809,7 +2809,7 @@
       "header": "編輯個人資料",
       "languageHint": "您在管理儀表板中要使用的語言。此設定不會更改您商店的語言。",
       "languagePlaceholder": "選擇語言",
-      "usageInsightsHint": "分享使用情況並幫助我們改進 Medusa。您可以在我們的<0>說明文件</0>中閱讀更多關於我們收集的內容以及如何使用的資訊。"
+      "usageInsightsHint": "分享使用情況並幫助我們改進 Mercur。您可以在我們的<0>說明文件</0>中閱讀更多關於我們收集的內容以及如何使用的資訊。"
     },
     "toast": {
       "edit": "個人資料變更已儲存"
@@ -3231,7 +3231,7 @@
       "createPublishableHeader": "建立可發佈 API 金鑰",
       "createPublishableHint": "建立新的可發佈 API 金鑰以將請求範圍限制在特定銷售管道。",
       "createSecretHeader": "建立私密 API 金鑰",
-      "createSecretHint": "建立新的私密 API 金鑰以作為已驗證管理員存取 Medusa API。",
+      "createSecretHint": "建立新的私密 API 金鑰以作為已驗證管理員存取 Mercur API。",
       "secretKeyCreatedHeader": "私密金鑰已建立",
       "secretKeyCreatedHint": "新的私密金鑰已產生。請立即複製並安全儲存，之後將無法再次顯示。",
       "copySecretTokenSuccess": "私密金鑰已複製到剪貼簿。",
@@ -3363,7 +3363,7 @@
   },
   "login": {
     "forgotPassword": "忘記密碼？ - <0>重設</0>",
-    "title": "歡迎使用 Medusa",
+    "title": "歡迎使用 Mercur",
     "hint": "登入以存取帳戶區域",
     "submit": "登入",
     "sessionExpired": "工作階段已過期",
@@ -3375,7 +3375,7 @@
     }
   },
   "invite": {
-    "title": "歡迎使用 Medusa",
+    "title": "歡迎使用 Mercur",
     "hint": "在下方建立您的帳戶",
     "backToLogin": "返回登入",
     "createAccount": "建立帳戶",
@@ -3383,8 +3383,8 @@
     "emailTooltip": "您的電子郵件無法變更。如果您想使用其他電子郵件，必須發送新的邀請。",
     "invalidInvite": "邀請無效或已過期。",
     "successTitle": "您的帳戶已註冊",
-    "successHint": "立即開始使用 Medusa 管理後臺。",
-    "successAction": "啟動 Medusa 管理後臺",
+    "successHint": "立即開始使用 Mercur 管理後臺。",
+    "successAction": "啟動 Mercur 管理後臺",
     "invalidTokenTitle": "您的邀請令牌無效",
     "invalidTokenHint": "請嘗試請求新的邀請連結。",
     "passwordMismatch": "密碼不符合",
@@ -3420,7 +3420,7 @@
   },
   "workflowExecutions": {
     "domain": "工作流程",
-    "subtitle": "檢視並追蹤您 Medusa 應用程式中的工作流程執行情況。",
+    "subtitle": "檢視並追蹤您 Mercur 應用程式中的工作流程執行情況。",
     "transactionIdLabel": "交易 ID",
     "workflowIdLabel": "工作流程 ID",
     "progressLabel": "進度",
@@ -3535,7 +3535,7 @@
       "description": "您目前沒有任何通知，但一旦有通知，它們將會顯示在此處。"
     },
     "accessibility": {
-      "description": "有關 Medusa 活動的通知將列在此處。"
+      "description": "有關 Mercur 活動的通知將列在此處。"
     }
   },
   "errors": {
@@ -3978,7 +3978,7 @@
       "manageEntities": "管理實體",
       "manageLocales": "管理語系"
     },
-    "subtitle": "管理您在 Medusa 中資料的翻譯",
+    "subtitle": "管理您在 Mercur 中資料的翻譯",
     "list": {
       "metrics": "已翻譯 {{translated}} / {{total}} 項"
     },

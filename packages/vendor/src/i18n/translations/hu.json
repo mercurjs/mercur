@@ -1708,7 +1708,7 @@
       "title": "Visszatérítés létrehozása",
       "sendNotificationHint": "Értesítse a vásárlókat a létrehozott visszatérítésről.",
       "systemPayment": "Rendszerfizetés",
-      "systemPaymentDesc": "Az Ön fizetései közül egy vagy több rendszerfizetés. Vegye figyelembe, hogy a beszedéseket és visszatérítéseket a Medusa nem kezeli az ilyen fizetések esetében.",
+      "systemPaymentDesc": "Az Ön fizetései közül egy vagy több rendszerfizetés. Vegye figyelembe, hogy a beszedéseket és visszatérítéseket a Mercur nem kezeli az ilyen fizetések esetében.",
       "error": {
         "amountToLarge": "Nem lehet többet visszatéríteni, mint az eredeti rendelési összeg.",
         "amountNegative": "A visszatérítési összegnek pozitív számnak kell lennie.",
@@ -3234,7 +3234,7 @@
       "createPublishableHeader": "Publikus API Kulcs Létrehozása",
       "createPublishableHint": "Hozzon létre egy új publikus API kulcsot, hogy korlátozza a kérések hatókörét meghatározott értékesítési csatornákra.",
       "createSecretHeader": "Titkos API Kulcs Létrehozása",
-      "createSecretHint": "Hozzon létre egy új titkos API kulcsot, hogy hozzáférjen a Medusa API-hoz hitelesített adminisztrátorként.",
+      "createSecretHint": "Hozzon létre egy új titkos API kulcsot, hogy hozzáférjen a Mercur API-hoz hitelesített adminisztrátorként.",
       "secretKeyCreatedHeader": "Titkos Kulcs Létrehozva",
       "secretKeyCreatedHint": "Az új titkos kulcs létrehozva. Másolja és tárolja biztonságosan most. Ez az egyetlen alkalom, amikor megjelenik.",
       "copySecretTokenSuccess": "A titkos kulcs sikeresen másolva a vágólapra.",
@@ -3351,8 +3351,8 @@
     "emailTooltip": "Az email cím nem módosítható. Ha másik email címet szeretne használni, új meghívót kell küldeni.",
     "invalidInvite": "A meghívó érvénytelen vagy lejárt.",
     "successTitle": "Fiókja regisztrálva lett",
-    "successHint": "Kezdje el azonnal használni a Medusa Admin-t.",
-    "successAction": "Medusa Admin indítása",
+    "successHint": "Kezdje el azonnal használni a Mercur Admin-t.",
+    "successAction": "Mercur Admin indítása",
     "invalidTokenTitle": "Meghívó tokenje érvénytelen",
     "invalidTokenHint": "Próbáljon új meghívó linket kérni.",
     "passwordMismatch": "A jelszavak nem egyeznek",
@@ -3388,7 +3388,7 @@
   },
   "workflowExecutions": {
     "domain": "Munkafolyamatok",
-    "subtitle": "Tekintse meg és kövesse nyomon a munkafolyamat végrehajtásokat a Medusa alkalmazásában.",
+    "subtitle": "Tekintse meg és kövesse nyomon a munkafolyamat végrehajtásokat a Mercur alkalmazásában.",
     "transactionIdLabel": "Tranzakció Azonosító",
     "workflowIdLabel": "Munkafolyamat Azonosító",
     "progressLabel": "Haladás",
@@ -3481,7 +3481,7 @@
       "description": "Jelenleg nincsenek értesítései, de amint lesznek, itt fognak megjelenni."
     },
     "accessibility": {
-      "description": "értesítések a Medusa tevékenységeiről itt lesznek felsorolva."
+      "description": "értesítések a Mercur tevékenységeiről itt lesznek felsorolva."
     }
   },
   "errors": {

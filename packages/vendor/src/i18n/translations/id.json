@@ -1708,7 +1708,7 @@
       "title": "Buat Pengembalian Dana",
       "sendNotificationHint": "Beritahu pelanggan tentang pengembalian dana yang dibuat.",
       "systemPayment": "Pembayaran sistem",
-      "systemPaymentDesc": "Satu atau lebih pembayaran Anda adalah pembayaran sistem. Perlu diketahui, pengambilan dan pengembalian dana tidak ditangani oleh Medusa untuk pembayaran tersebut.",
+      "systemPaymentDesc": "Satu atau lebih pembayaran Anda adalah pembayaran sistem. Perlu diketahui, pengambilan dan pengembalian dana tidak ditangani oleh Mercur untuk pembayaran tersebut.",
       "error": {
         "amountToLarge": "Tidak dapat mengembalikan dana lebih dari jumlah pesanan awal.",
         "amountNegative": "Jumlah pengembalian dana harus berupa angka positif.",
@@ -2809,7 +2809,7 @@
       "header": "Edit Profil",
       "languageHint": "Bahasa yang ingin Anda gunakan di dasbor admin. Ini tidak mengubah bahasa toko Anda.",
       "languagePlaceholder": "Pilih bahasa",
-      "usageInsightsHint": "Bagikan wawasan penggunaan dan bantu kami meningkatkan Medusa. Anda dapat membaca lebih lanjut tentang apa yang kami kumpulkan dan bagaimana kami menggunakannya di <0>dokumentasi</0> kami."
+      "usageInsightsHint": "Bagikan wawasan penggunaan dan bantu kami meningkatkan Mercur. Anda dapat membaca lebih lanjut tentang apa yang kami kumpulkan dan bagaimana kami menggunakannya di <0>dokumentasi</0> kami."
     },
     "toast": {
       "edit": "Perubahan profil tersimpan"
@@ -3231,7 +3231,7 @@
       "createPublishableHeader": "Buat Kunci API yang Dapat Dipublikasikan",
       "createPublishableHint": "Buat kunci API yang dapat dipublikasikan baru untuk membatasi cakupan permintaan ke saluran penjualan tertentu.",
       "createSecretHeader": "Buat Kunci API Rahasia",
-      "createSecretHint": "Buat kunci API rahasia baru untuk mengakses Medusa API sebagai pengguna admin terautentikasi.",
+      "createSecretHint": "Buat kunci API rahasia baru untuk mengakses Mercur API sebagai pengguna admin terautentikasi.",
       "secretKeyCreatedHeader": "Kunci Rahasia Dibuat",
       "secretKeyCreatedHint": "Kunci rahasia baru Anda telah dibuat. Salin dan simpan dengan aman sekarang. Ini adalah satu-satunya saat akan ditampilkan.",
       "copySecretTokenSuccess": "Kunci rahasia berhasil disalin ke papan klip.",
@@ -3328,7 +3328,7 @@
   },
   "login": {
     "forgotPassword": "Lupa kata sandi? - <0>Setel ulang</0>",
-    "title": "Selamat datang di Medusa",
+    "title": "Selamat datang di Mercur",
     "hint": "Masuk untuk mengakses area akun",
     "submit": "Masuk",
     "sessionExpired": "Sesi berakhir",
@@ -3340,7 +3340,7 @@
     }
   },
   "invite": {
-    "title": "Selamat datang di Medusa",
+    "title": "Selamat datang di Mercur",
     "hint": "Buat akun Anda di bawah",
     "backToLogin": "Kembali ke login",
     "createAccount": "Buat akun",
@@ -3348,8 +3348,8 @@
     "emailTooltip": "Alamat email Anda tidak dapat diubah. Jika Anda ingin menggunakan email lain, undangan baru harus dikirim.",
     "invalidInvite": "Undangan tidak valid atau sudah kedaluwarsa.",
     "successTitle": "Akun Anda telah terdaftar",
-    "successHint": "Mulai gunakan Medusa Admin sekarang juga.",
-    "successAction": "Mulai Medusa Admin",
+    "successHint": "Mulai gunakan Mercur Admin sekarang juga.",
+    "successAction": "Mulai Mercur Admin",
     "invalidTokenTitle": "Token undangan Anda tidak valid",
     "invalidTokenHint": "Coba minta tautan undangan baru.",
     "passwordMismatch": "Kata sandi tidak cocok",
@@ -3385,7 +3385,7 @@
   },
   "workflowExecutions": {
     "domain": "Alur Kerja",
-    "subtitle": "Lihat dan pantau eksekusi alur kerja di aplikasi Medusa Anda.",
+    "subtitle": "Lihat dan pantau eksekusi alur kerja di aplikasi Mercur Anda.",
     "transactionIdLabel": "ID Transaksi",
     "workflowIdLabel": "ID Alur Kerja",
     "progressLabel": "Kemajuan",
@@ -3478,7 +3478,7 @@
       "description": "Anda belum memiliki notifikasi saat ini, tetapi setelah ada, akan muncul di sini."
     },
     "accessibility": {
-      "description": "Notifikasi tentang aktivitas Medusa akan dicantumkan di sini."
+      "description": "Notifikasi tentang aktivitas Mercur akan dicantumkan di sini."
     }
   },
   "errors": {
@@ -3887,7 +3887,7 @@
       "manageEntities": "Kelola entitas",
       "manageLocales": "Kelola lokal"
     },
-    "subtitle": "Kelola terjemahan data Anda di Medusa",
+    "subtitle": "Kelola terjemahan data Anda di Mercur",
     "list": {
       "metrics": "{{translated}} dari {{total}} terjemahan"
     },

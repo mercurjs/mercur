@@ -1708,7 +1708,7 @@
       "title": "צור החזר",
       "sendNotificationHint": "הודע ללקוחות על ההחזר שנוצר.",
       "systemPayment": "תשלום מערכת",
-      "systemPaymentDesc": "אחד או יותר מהתשלומים שלך הוא תשלום מערכת. שים לב, תפיסות והחזרים אינם מנוהלים על ידי Medusa עבור תשלומים אלו.",
+      "systemPaymentDesc": "אחד או יותר מהתשלומים שלך הוא תשלום מערכת. שים לב, תפיסות והחזרים אינם מנוהלים על ידי Mercur עבור תשלומים אלו.",
       "error": {
         "amountToLarge": "לא ניתן להחזיר יותר מסכום ההזמנה המקורי.",
         "amountNegative": "סכום ההחזר חייב להיות מספר חיובי.",
@@ -2809,7 +2809,7 @@
       "header": "ערוך פרופיל",
       "languageHint": "השפה שברצונך להשתמש בלוח הבקרה של המנהל. זה לא משנה את שפת החנות שלך.",
       "languagePlaceholder": "בחר שפה",
-      "usageInsightsHint": "שתף תובנות שימוש ועזור לנו לשפר את Medusa. ניתן לקרוא עוד על מה אנו אוספים ואיך אנו משתמשים בזה ב<0>התיעוד</0> שלנו."
+      "usageInsightsHint": "שתף תובנות שימוש ועזור לנו לשפר את Mercur. ניתן לקרוא עוד על מה אנו אוספים ואיך אנו משתמשים בזה ב<0>התיעוד</0> שלנו."
     },
     "toast": {
       "edit": "השינויים בפרופיל נשמרו"
@@ -3231,7 +3231,7 @@
       "createPublishableHeader": "צור מפתח API לפרסום",
       "createPublishableHint": "צור מפתח API חדש לפרסום כדי להגביל את היקף הבקשות לערוצי מכירה ספציפיים.",
       "createSecretHeader": "צור מפתח API סודי",
-      "createSecretHint": "צור מפתח API סודי חדש לגישה ל-Medusa API כמשתמש מנהל מאומת.",
+      "createSecretHint": "צור מפתח API סודי חדש לגישה ל-Mercur API כמשתמש מנהל מאומת.",
       "secretKeyCreatedHeader": "מפתח סודי נוצר",
       "secretKeyCreatedHint": "המפתח הסודי החדש שלך נוצר. העתק ואחסן אותו בצורה מאובטחת עכשיו. זו הפעם היחידה שהוא יוצג.",
       "copySecretTokenSuccess": "המפתח הסודי הועתק ללוח.",
@@ -3328,7 +3328,7 @@
   },
   "login": {
     "forgotPassword": "שכחת סיסמה? - <0>איפוס</0>",
-    "title": "ברוכים הבאים ל-Medusa",
+    "title": "ברוכים הבאים ל-Mercur",
     "hint": "התחבר כדי לגשת לאזור החשבון",
     "submit": "התחבר",
     "sessionExpired": "הסשן פג",
@@ -3340,7 +3340,7 @@
     }
   },
   "invite": {
-    "title": "ברוכים הבאים ל-Medusa",
+    "title": "ברוכים הבאים ל-Mercur",
     "hint": "צור את החשבון שלך למטה",
     "backToLogin": "חזרה להתחברות",
     "createAccount": "צור חשבון",
@@ -3348,8 +3348,8 @@
     "emailTooltip": "לא ניתן לשנות את האימייל שלך. אם ברצונך להשתמש באימייל אחר, יש לשלוח הזמנה חדשה.",
     "invalidInvite": "ההזמנה אינה חוקית או פג תוקפה.",
     "successTitle": "החשבון שלך נרשם",
-    "successHint": "התחל להשתמש ב-Medusa Admin מיד.",
-    "successAction": "התחל עם Medusa Admin",
+    "successHint": "התחל להשתמש ב-Mercur Admin מיד.",
+    "successAction": "התחל עם Mercur Admin",
     "invalidTokenTitle": "אסימון ההזמנה שלך אינו תקף",
     "invalidTokenHint": "נסה לבקש קישור הזמנה חדש.",
     "passwordMismatch": "הסיסמאות אינן תואמות",
@@ -3385,7 +3385,7 @@
   },
   "workflowExecutions": {
     "domain": "תהליכי עבודה",
-    "subtitle": "צפה ועקוב אחר ביצועי תהליך העבודה באפליקציית Medusa שלך.",
+    "subtitle": "צפה ועקוב אחר ביצועי תהליך העבודה באפליקציית Mercur שלך.",
     "transactionIdLabel": "מזהה עסקה",
     "workflowIdLabel": "מזהה תהליך עבודה",
     "progressLabel": "התקדמות",
@@ -3478,7 +3478,7 @@
       "description": "אין לך התראות כרגע, אך ברגע שיהיו לך הן יופיעו כאן."
     },
     "accessibility": {
-      "description": "התראות על פעילויות Medusa יוצגו כאן."
+      "description": "התראות על פעילויות Mercur יוצגו כאן."
     }
   },
   "errors": {
@@ -3887,7 +3887,7 @@
       "manageEntities": "נהל ישויות",
       "manageLocales": "נהל אזורים"
     },
-    "subtitle": "נהל תרגומים של הנתונים שלך ב-Medusa",
+    "subtitle": "נהל תרגומים של הנתונים שלך ב-Mercur",
     "list": {
       "metrics": "{{translated}} מתוך {{total}} תרגומים"
     },

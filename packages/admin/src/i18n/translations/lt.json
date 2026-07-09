@@ -1688,7 +1688,7 @@
       "title": "Sukurti pinigų grąžinimą",
       "sendNotificationHint": "Praneškite klientui apie sukurtą pinigų grąžinimą.",
       "systemPayment": "Sisteminis mokėjimas",
-      "systemPaymentDesc": "Vienas ar daugiau jūsų mokėjimų yra sisteminiai. Atminkite, kad Medusa netvarko tokių mokėjimų užfiksavimo ir grąžinimo.",
+      "systemPaymentDesc": "Vienas ar daugiau jūsų mokėjimų yra sisteminiai. Atminkite, kad Mercur netvarko tokių mokėjimų užfiksavimo ir grąžinimo.",
       "error": {
         "amountToLarge": "Negalima grąžinti daugiau nei užsakymo suma.",
         "amountNegative": "Grąžinimo suma turi būti teigiamas skaičius.",
@@ -2783,7 +2783,7 @@
       "header": "Keisti paskyrą",
       "languageHint": "Kalba, kurią norite naudoti administravimo aplinkoje. Tai nekeičia jūsų parduotuvės kalbos.",
       "languagePlaceholder": "Pasirinkite kalbą",
-      "usageInsightsHint": "Pasidalinkite naudojimo įžvalgomis ir padėkite mums tobulinti Medusa. Daugiau apie tai, ką renkame ir kaip tai naudojame, galite perskaityti mūsų <0>dokumentacijoje</0>."
+      "usageInsightsHint": "Pasidalinkite naudojimo įžvalgomis ir padėkite mums tobulinti Mercur. Daugiau apie tai, ką renkame ir kaip tai naudojame, galite perskaityti mūsų <0>dokumentacijoje</0>."
     },
     "toast": {
       "edit": "Paskyros pakeitimai išsaugoti"
@@ -3140,7 +3140,7 @@
       "createPublishableHeader": "Sukurti viešą API raktą",
       "createPublishableHint": "Sukurkite viešą API raktą, kad apriboti užklausų apimtį iki konkrečių pardavimo kanalų.",
       "createSecretHeader": "Sukurti slaptą API raktą",
-      "createSecretHint": "Sukurkite slaptą API raktą, kad pasiekti Medusa API kaip autentifikuotas administratorius.",
+      "createSecretHint": "Sukurkite slaptą API raktą, kad pasiekti Mercur API kaip autentifikuotas administratorius.",
       "secretKeyCreatedHeader": "Slaptas raktas sukurtas",
       "secretKeyCreatedHint": "Jūsų slaptas raktas sugeneruotas. Nusikopijuokite jį dabar ir saugiai išsisaugokite. Tai vienintelis kartas, kai jis bus rodomas.",
       "copySecretTokenSuccess": "Slaptas raktas nukopijuotas į atmintį.",
@@ -3238,12 +3238,12 @@
   },
   "login": {
     "forgotPassword": "Pamiršote slaptažodį? - <0>Atstatyti</0>",
-    "title": "Sveiki atvykę į Medusa",
+    "title": "Sveiki atvykę į Mercur",
     "hint": "Prisijunkite, kad pasiektumėte paskyrą",
     "sessionExpired": "Sesijos galiojimas baigėsi"
   },
   "invite": {
-    "title": "Sveiki atvykę į Medusa",
+    "title": "Sveiki atvykę į Mercur",
     "hint": "Sukurkite savo paskyrą žemiau",
     "backToLogin": "Atgal į prisijungimą",
     "createAccount": "Sukurti paskyrą",
@@ -3251,8 +3251,8 @@
     "emailTooltip": "Jūsų el. pašto adresas negali būti pakeistas. Jei norite naudoti kitą el. pašto adresą, turite gauti naują kvietimą.",
     "invalidInvite": "Kvietimas neteisingas arba pasibaigęs.",
     "successTitle": "Jūsų paskyra sukurta",
-    "successHint": "Pradėkite naudotis Medusa administravimo aplinka nedelsiant.",
-    "successAction": "Paleisti Medusa administravimo aplinką",
+    "successHint": "Pradėkite naudotis Mercur administravimo aplinka nedelsiant.",
+    "successAction": "Paleisti Mercur administravimo aplinką",
     "invalidTokenTitle": "Jūsų kvietimo prieigos raktas neteisingas",
     "invalidTokenHint": "Pabandykite paprašyti naujos kvietimo nuorodos.",
     "passwordMismatch": "Slptažodžiai nesutampa",
@@ -3285,7 +3285,7 @@
   },
   "workflowExecutions": {
     "domain": "Darbo eigos",
-    "subtitle": "Peržiūrėkite ir sekite darbo eigų vykdymą savo Medusa programoje.",
+    "subtitle": "Peržiūrėkite ir sekite darbo eigų vykdymą savo Mercur programoje.",
     "transactionIdLabel": "Transakcijos ID",
     "workflowIdLabel": "Darbo eigos ID",
     "progressLabel": "Progresas",
@@ -3376,7 +3376,7 @@
       "description": "Šiuo metu neturite jokių pranešimų, bet kai tik gausite, jie bus čia."
     },
     "accessibility": {
-      "description": "Čia bus pateikti pranešimai apie Medusa veiklą"
+      "description": "Čia bus pateikti pranešimai apie Mercur veiklą"
     }
   },
   "errors": {

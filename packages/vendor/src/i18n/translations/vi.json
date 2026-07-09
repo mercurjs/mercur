@@ -1733,7 +1733,7 @@
       "title": "Tạo hoàn tiền",
       "sendNotificationHint": "Thông báo cho khách hàng về hoàn tiền đã tạo.",
       "systemPayment": "Thanh toán hệ thống",
-      "systemPaymentDesc": "Một hoặc nhiều khoản thanh toán của bạn là thanh toán hệ thống. Lưu ý rằng việc ghi nhận và hoàn tiền không được Medusa xử lý cho các khoản thanh toán này.",
+      "systemPaymentDesc": "Một hoặc nhiều khoản thanh toán của bạn là thanh toán hệ thống. Lưu ý rằng việc ghi nhận và hoàn tiền không được Mercur xử lý cho các khoản thanh toán này.",
       "error": {
         "amountToLarge": "Không thể hoàn tiền nhiều hơn số tiền đơn hàng ban đầu.",
         "amountNegative": "Số tiền hoàn lại phải là một số dương.",
@@ -2809,7 +2809,7 @@
       "header": "Chỉnh sửa hồ sơ",
       "languageHint": "Ngôn ngữ bạn muốn sử dụng trong bảng điều khiển quản trị. Điều này không thay đổi ngôn ngữ của cửa hàng.",
       "languagePlaceholder": "Chọn ngôn ngữ",
-      "usageInsightsHint": "Chia sẻ thông tin sử dụng để giúp chúng tôi cải thiện Medusa. Bạn có thể đọc thêm về những gì chúng tôi thu thập và cách sử dụng trong <0>tài liệu</0> của chúng tôi."
+      "usageInsightsHint": "Chia sẻ thông tin sử dụng để giúp chúng tôi cải thiện Mercur. Bạn có thể đọc thêm về những gì chúng tôi thu thập và cách sử dụng trong <0>tài liệu</0> của chúng tôi."
     },
     "toast": {
       "edit": "Thay đổi hồ sơ đã được lưu"
@@ -3231,7 +3231,7 @@
       "createPublishableHeader": "Tạo khóa API công khai",
       "createPublishableHint": "Tạo một khóa API công khai mới để giới hạn phạm vi yêu cầu cho các kênh bán hàng cụ thể.",
       "createSecretHeader": "Tạo khóa API bí mật",
-      "createSecretHint": "Tạo một khóa API bí mật mới để truy cập API Medusa với tư cách người dùng quản trị đã xác thực.",
+      "createSecretHint": "Tạo một khóa API bí mật mới để truy cập API Mercur với tư cách người dùng quản trị đã xác thực.",
       "secretKeyCreatedHeader": "Khóa bí mật đã được tạo",
       "secretKeyCreatedHint": "Khóa bí mật mới của bạn đã được tạo. Sao chép và lưu trữ an toàn ngay bây giờ. Đây là lần duy nhất nó sẽ được hiển thị.",
       "copySecretTokenSuccess": "Khóa bí mật đã được sao chép vào bộ nhớ tạm.",
@@ -3328,7 +3328,7 @@
   },
   "login": {
     "forgotPassword": "Quên mật khẩu? - <0>Đặt lại</0>",
-    "title": "Chào mừng đến với Medusa",
+    "title": "Chào mừng đến với Mercur",
     "hint": "Đăng nhập để truy cập khu vực tài khoản",
     "submit": "Đăng nhập",
     "sessionExpired": "Phiên đăng nhập đã hết hạn",
@@ -3340,7 +3340,7 @@
     }
   },
   "invite": {
-    "title": "Chào mừng đến với Medusa",
+    "title": "Chào mừng đến với Mercur",
     "hint": "Tạo tài khoản của bạn dưới đây",
     "backToLogin": "Quay lại đăng nhập",
     "createAccount": "Tạo tài khoản",
@@ -3348,8 +3348,8 @@
     "emailTooltip": "Email của bạn không thể thay đổi. Nếu muốn dùng email khác, cần gửi một lời mời mới.",
     "invalidInvite": "Lời mời không hợp lệ hoặc đã hết hạn.",
     "successTitle": "Tài khoản của bạn đã được đăng ký",
-    "successHint": "Bắt đầu ngay với Medusa Admin.",
-    "successAction": "Khởi động Medusa Admin",
+    "successHint": "Bắt đầu ngay với Mercur Admin.",
+    "successAction": "Khởi động Mercur Admin",
     "invalidTokenTitle": "Mã mời của bạn không hợp lệ",
     "invalidTokenHint": "Hãy thử yêu cầu một liên kết mời mới.",
     "passwordMismatch": "Mật khẩu không khớp",
@@ -3385,7 +3385,7 @@
   },
   "workflowExecutions": {
     "domain": "Luồng công việc",
-    "subtitle": "Xem và theo dõi các lần thực thi luồng công việc trong ứng dụng Medusa của bạn.",
+    "subtitle": "Xem và theo dõi các lần thực thi luồng công việc trong ứng dụng Mercur của bạn.",
     "transactionIdLabel": "ID giao dịch",
     "workflowIdLabel": "ID luồng công việc",
     "progressLabel": "Tiến độ",
@@ -3478,7 +3478,7 @@
       "description": "Hiện tại bạn không có thông báo nào, nhưng khi có, chúng sẽ xuất hiện ở đây."
     },
     "accessibility": {
-      "description": "Thông báo về các hoạt động của Medusa sẽ được liệt kê ở đây."
+      "description": "Thông báo về các hoạt động của Mercur sẽ được liệt kê ở đây."
     }
   },
   "errors": {
@@ -3887,7 +3887,7 @@
       "manageEntities": "Quản lý đối tượng",
       "manageLocales": "Quản lý ngôn ngữ"
     },
-    "subtitle": "Quản lý bản dịch dữ liệu của bạn trong Medusa",
+    "subtitle": "Quản lý bản dịch dữ liệu của bạn trong Mercur",
     "list": {
       "metrics": "{{translated}} trên {{total}} bản dịch"
     },

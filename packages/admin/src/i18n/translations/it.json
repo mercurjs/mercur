@@ -1678,7 +1678,7 @@
       "title": "Crea Rimborso",
       "sendNotificationHint": "Notifica i clienti riguardo al rimborso creato.",
       "systemPayment": "Pagamento di sistema",
-      "systemPaymentDesc": "Uno o più dei tuoi pagamenti è un pagamento di sistema. Tieni presente che le catt ure e i rimborsi non sono gestiti da Medusa per tali pagamenti.",
+      "systemPaymentDesc": "Uno o più dei tuoi pagamenti è un pagamento di sistema. Tieni presente che le catt ure e i rimborsi non sono gestiti da Mercur per tali pagamenti.",
       "error": {
         "amountToLarge": "Non è possibile rimborsare più dell'importo originale dell'ordine.",
         "amountNegative": "L'importo del rimborso deve essere un numero positivo.",
@@ -2784,7 +2784,7 @@
       "header": "Modifica Profilo",
       "languageHint": "La lingua che desideri utilizzare nel pannello di amministrazione. Questo non cambia la lingua del tuo negozio.",
       "languagePlaceholder": "Seleziona lingua",
-      "usageInsightsHint": "Condividi analisi sull'utilizzo e aiutaci a migliorare Medusa. Puoi leggere di più su cosa raccogliamo e come lo utilizziamo nella <0>documentazione</0>."
+      "usageInsightsHint": "Condividi analisi sull'utilizzo e aiutaci a migliorare Mercur. Puoi leggere di più su cosa raccogliamo e come lo utilizziamo nella <0>documentazione</0>."
     },
     "toast": {
       "edit": "Modifiche al profilo salvate"
@@ -3141,7 +3141,7 @@
       "createPublishableHeader": "Crea Chiave API Pubblicabile",
       "createPublishableHint": "Crea una nuova chiave API pubblicabile per limitare l'ambito delle richieste a specifici canali di vendita.",
       "createSecretHeader": "Crea Chiave API Segreta",
-      "createSecretHint": "Crea una nuova chiave API segreta per accedere all'API Medusa come utente amministratore autenticato.",
+      "createSecretHint": "Crea una nuova chiave API segreta per accedere all'API Mercur come utente amministratore autenticato.",
       "secretKeyCreatedHeader": "Chiave Segreta Creata",
       "secretKeyCreatedHint": "La tua nuova chiave segreta è stata generata. Copiala e conservala in modo sicuro. Questa è l'unica volta che verrà visualizzata.",
       "copySecretTokenSuccess": "Chiave segreta copiata negli appunti.",
@@ -3239,12 +3239,12 @@
   },
   "login": {
     "forgotPassword": "Hai dimenticato la password? - <0>Reimposta</0>",
-    "title": "Benvenuto in Medusa",
+    "title": "Benvenuto in Mercur",
     "hint": "Accedi per accedere all'area account",
     "sessionExpired": "Sessione scaduta"
   },
   "invite": {
-    "title": "Benvenuto in Medusa",
+    "title": "Benvenuto in Mercur",
     "hint": "Crea il tuo account qui sotto",
     "backToLogin": "Torna al login",
     "createAccount": "Crea account",
@@ -3252,8 +3252,8 @@
     "emailTooltip": "La tua email non può essere cambiata. Se desideri utilizzare un'altra email, deve essere inviato un nuovo invito.",
     "invalidInvite": "L'invito non è valido o è scaduto.",
     "successTitle": "Il tuo account è stato registrato",
-    "successHint": "Inizia subito con Medusa Admin.",
-    "successAction": "Inizia Medusa Admin",
+    "successHint": "Inizia subito con Mercur Admin.",
+    "successAction": "Inizia Mercur Admin",
     "invalidTokenTitle": "Il tuo token di invito non è valido",
     "invalidTokenHint": "Prova a richiedere un nuovo link di invito.",
     "passwordMismatch": "Le password non corrispondono",
@@ -3286,7 +3286,7 @@
   },
   "workflowExecutions": {
     "domain": "Flussi di lavoro",
-    "subtitle": "Visualizza e tieni traccia delle esecuzioni dei flussi di lavoro nella tua applicazione Medusa.",
+    "subtitle": "Visualizza e tieni traccia delle esecuzioni dei flussi di lavoro nella tua applicazione Mercur.",
     "transactionIdLabel": "ID Transazione",
     "workflowIdLabel": "ID Flusso di lavoro",
     "progressLabel": "Progresso",
@@ -3377,7 +3377,7 @@
       "description": "Non hai notifiche al momento, ma una volta che ne avrai, saranno qui."
     },
     "accessibility": {
-      "description": "Le notifiche sulle attività di Medusa saranno elencate qui."
+      "description": "Le notifiche sulle attività di Mercur saranno elencate qui."
     }
   },
   "errors": {
