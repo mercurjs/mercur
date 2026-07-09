@@ -387,7 +387,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
     fields: ["id", "fulfillment_sets.id"],
     filters: { id: sellerStockLocation.id },
   });
-  const sellerFulfillmentSetId = locationWithSet.fulfillment_sets[0].id;
+  const sellerFulfillmentSetId = locationWithSet.fulfillment_sets![0].id;
 
   const { result: sellerServiceZones } = await createServiceZonesWorkflow(
     container
@@ -468,10 +468,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info("Finished seeding demo seller.");
 
   logger.info("Seeding product data...");
-  const productPrices = [
-    { amount: 10, currency_code: "eur" },
-    { amount: 15, currency_code: "usd" },
-  ];
 
   await createProductsWorkflow(container).run({
     input: {
@@ -500,14 +496,14 @@ export default async function seedDemoData({ container }: ExecArgs) {
             { title: "Color", values: ["Black", "White"], is_variant_axis: true },
           ],
           variants: [
-            { title: "S / Black", sku: "SHIRT-S-BLACK", options: { Size: "S", Color: "Black" }, prices: productPrices },
-            { title: "S / White", sku: "SHIRT-S-WHITE", options: { Size: "S", Color: "White" }, prices: productPrices },
-            { title: "M / Black", sku: "SHIRT-M-BLACK", options: { Size: "M", Color: "Black" }, prices: productPrices },
-            { title: "M / White", sku: "SHIRT-M-WHITE", options: { Size: "M", Color: "White" }, prices: productPrices },
-            { title: "L / Black", sku: "SHIRT-L-BLACK", options: { Size: "L", Color: "Black" }, prices: productPrices },
-            { title: "L / White", sku: "SHIRT-L-WHITE", options: { Size: "L", Color: "White" }, prices: productPrices },
-            { title: "XL / Black", sku: "SHIRT-XL-BLACK", options: { Size: "XL", Color: "Black" }, prices: productPrices },
-            { title: "XL / White", sku: "SHIRT-XL-WHITE", options: { Size: "XL", Color: "White" }, prices: productPrices },
+            { title: "S / Black", sku: "SHIRT-S-BLACK", options: { Size: "S", Color: "Black" } },
+            { title: "S / White", sku: "SHIRT-S-WHITE", options: { Size: "S", Color: "White" } },
+            { title: "M / Black", sku: "SHIRT-M-BLACK", options: { Size: "M", Color: "Black" } },
+            { title: "M / White", sku: "SHIRT-M-WHITE", options: { Size: "M", Color: "White" } },
+            { title: "L / Black", sku: "SHIRT-L-BLACK", options: { Size: "L", Color: "Black" } },
+            { title: "L / White", sku: "SHIRT-L-WHITE", options: { Size: "L", Color: "White" } },
+            { title: "XL / Black", sku: "SHIRT-XL-BLACK", options: { Size: "XL", Color: "Black" } },
+            { title: "XL / White", sku: "SHIRT-XL-WHITE", options: { Size: "XL", Color: "White" } },
           ],
           sales_channels: [{ id: defaultSalesChannel[0].id }],
         },
@@ -531,10 +527,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
             { title: "Size", values: ["S", "M", "L", "XL"], is_variant_axis: true },
           ],
           variants: [
-            { title: "S", sku: "SWEATSHIRT-S", options: { Size: "S" }, prices: productPrices },
-            { title: "M", sku: "SWEATSHIRT-M", options: { Size: "M" }, prices: productPrices },
-            { title: "L", sku: "SWEATSHIRT-L", options: { Size: "L" }, prices: productPrices },
-            { title: "XL", sku: "SWEATSHIRT-XL", options: { Size: "XL" }, prices: productPrices },
+            { title: "S", sku: "SWEATSHIRT-S", options: { Size: "S" } },
+            { title: "M", sku: "SWEATSHIRT-M", options: { Size: "M" } },
+            { title: "L", sku: "SWEATSHIRT-L", options: { Size: "L" } },
+            { title: "XL", sku: "SWEATSHIRT-XL", options: { Size: "XL" } },
           ],
           sales_channels: [{ id: defaultSalesChannel[0].id }],
         },
@@ -558,10 +554,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
             { title: "Size", values: ["S", "M", "L", "XL"], is_variant_axis: true },
           ],
           variants: [
-            { title: "S", sku: "SWEATPANTS-S", options: { Size: "S" }, prices: productPrices },
-            { title: "M", sku: "SWEATPANTS-M", options: { Size: "M" }, prices: productPrices },
-            { title: "L", sku: "SWEATPANTS-L", options: { Size: "L" }, prices: productPrices },
-            { title: "XL", sku: "SWEATPANTS-XL", options: { Size: "XL" }, prices: productPrices },
+            { title: "S", sku: "SWEATPANTS-S", options: { Size: "S" } },
+            { title: "M", sku: "SWEATPANTS-M", options: { Size: "M" } },
+            { title: "L", sku: "SWEATPANTS-L", options: { Size: "L" } },
+            { title: "XL", sku: "SWEATPANTS-XL", options: { Size: "XL" } },
           ],
           sales_channels: [{ id: defaultSalesChannel[0].id }],
         },
@@ -585,10 +581,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
             { title: "Size", values: ["S", "M", "L", "XL"], is_variant_axis: true },
           ],
           variants: [
-            { title: "S", sku: "SHORTS-S", options: { Size: "S" }, prices: productPrices },
-            { title: "M", sku: "SHORTS-M", options: { Size: "M" }, prices: productPrices },
-            { title: "L", sku: "SHORTS-L", options: { Size: "L" }, prices: productPrices },
-            { title: "XL", sku: "SHORTS-XL", options: { Size: "XL" }, prices: productPrices },
+            { title: "S", sku: "SHORTS-S", options: { Size: "S" } },
+            { title: "M", sku: "SHORTS-M", options: { Size: "M" } },
+            { title: "L", sku: "SHORTS-L", options: { Size: "L" } },
+            { title: "XL", sku: "SHORTS-XL", options: { Size: "XL" } },
           ],
           sales_channels: [{ id: defaultSalesChannel[0].id }],
         },
@@ -607,7 +603,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   });
 
   const offers = seededProducts.flatMap((product) =>
-    product.variants.map((variant: { id: string; sku: string }) => ({
+    product.variants.map((variant: { id: string; sku: string | null }) => ({
       seller_id: demoSeller.id,
       created_by: demoSellerMemberId,
       sku: `OFFER-${variant.sku}`,
