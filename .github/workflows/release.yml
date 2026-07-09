@@ -26,7 +26,13 @@ jobs:
 
       - name: Generate GitHub release changelog
         continue-on-error: true
-        run: npx changelogithub
+        run: |
+          PREV_TAG=$(git describe --tags --abbrev=0 "${GITHUB_REF_NAME}^" 2>/dev/null || true)
+          if [ -n "$PREV_TAG" ]; then
+            npx changelogithub --from "$PREV_TAG" --to "${GITHUB_REF_NAME}"
+          else
+            npx changelogithub
+          fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
