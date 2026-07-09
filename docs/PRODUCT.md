@@ -13,35 +13,52 @@ The product has three audiences:
 ## Core Features
 
 ### Multi-Vendor Sellers
-- Seller account creation, approval, suspension, unsuspend, and termination workflows.
+- Seller account creation, approval, suspension, unsuspend, and termination workflows. Account status is one of `pending_approval`, `open`, `suspended`, or `terminated`.
 - Seller profile with name, slug, description, address, professional details, payment details, and metadata.
-- Seller team members and role-based invitations (`invite-seller`, `accept-member-invite`).
+- **Scheduled closures** — a seller can set `closed_from` / `closed_to` to temporarily go offline (storefront unavailable, no new orders) without changing account status; the store auto-resumes once `closed_to` passes.
+- **Premium sellers** — an operator-only `is_premium` flag used by the storefront for featured placement, badges, and priority curation (vendors cannot self-designate).
+- **Members are many-to-many** — multiple members per seller, and one user can belong to multiple sellers and switch between them via a store switcher (fully isolated access per store). Every seller must have at least one admin member; member email is unique within a single seller. Invitations via `invite-seller` / `accept-member-invite`.
 - Public seller storefronts exposed through the Store API.
 
 ### Commission Management
-- Configurable commission rules and rates (flat, percentage, per-category, default).
+- Configurable commission rules and rates: fixed (per-currency amounts, falling back to a default `value`) or percentage.
+- Rules match across five dimensions — `product`, `product_type`, `product_collection`, `product_category`, `seller`. Resolution is most-specific-wins (AND across dimensions, OR within a dimension); ties break to the oldest rate. Only the global rate may commission shipping (`include_shipping`).
+- All commission arithmetic uses BigNumber (arbitrary precision) for financial accuracy.
 - Bulk batch updates via `batch-commission-rules`.
 - Per-order commission lines generated automatically during checkout (`refresh-order-commission-lines`).
 - Commission visibility for both marketplace operators and individual vendors.
 
 ### Vendor Payouts
 - Pluggable payout provider interface; **Stripe Connect** ships out of the box.
-- Payout account creation and onboarding flows (`create-payout-account`, `create-onboarding`).
-- Automatic payout generation tied to settled orders.
+- Payout account creation and onboarding flows (`create-payout-account`, `create-onboarding`). Each account carries an onboarding record holding provider-specific data (e.g. Stripe Connect links).
+- Payout account lifecycle: `PENDING` → `ACTIVE`, then `ACTIVE` ↔ `RESTRICTED` (provider flagged, e.g. missing KYC) or `ACTIVE` → `REJECTED`, driven by provider webhooks.
+- **Automated payout pipeline**: a capture-check job (every 15 min) finds orders ready for capture; a subscriber captures authorized payments; a daily job (1 AM UTC) emits `payout.requested` for eligible orders; a subscriber runs `createPayoutWorkflow` to transfer funds. Tunable in `medusa-config.ts` via `authorizationWindowMs` (7d), `sellerActionWindowMs` (72h), `captureSafetyBufferMs` (24h), `requiredFulfillmentStatus` (`"fulfilled"`).
 - Webhook processing for provider events (`process-payout-for-webhook`).
 - Vendor-side onboarding status and payout history in the Vendor Portal.
 
 ### Order Splitting & Order Groups
 - A single customer cart spanning multiple sellers is split into per-seller orders.
-- Order Group entity aggregates child orders, payment, and status for the shopper.
+- Order Group entity aggregates child orders, payment, and status for the shopper. It exposes a human-readable auto-incrementing `display_id` and a read-only `cart_id` link to the originating cart (carts are immutable after checkout). `seller_count` and `total` are computed at query time, not stored.
 - Admin gets platform-wide order visibility; vendors see only their slice.
 - Independent fulfillment, returns, and refunds per child order.
 
-### Catalog & Inventory (Vendor-Scoped)
-- Vendor-owned products, variants, collections, categories, tags, and types.
-- Custom **attributes** module with vendor-level overrides on top of Medusa's product schema.
+### Master Products & Offers
+- **Master products** form a single shared catalog — products are *not* seller-owned. Creating a product adds it to the shared catalog; the creator only gets attribution on unreviewed submissions.
+- A **product–seller link** acts as an allowlist controlling which sellers may sell which products.
+- Product status lifecycle: `draft` → `proposed` → `published`, or → `rejected`. Vendor-created products default to `proposed`. Visibility: vendors see their own submissions (any status) plus published products not allowlisted to others; admins see everything; the store sees published products of visible sellers.
+- **Offers** are how a seller sells against a master product. An offer carries the seller's own SKU (unique per seller), price (offer-scoped pricing rule), inventory (offer-scoped, not variant-scoped), and shipping profile. Cart/order line items record which offer was purchased.
+
+### Product Requests & Change Pipeline
+- All product edits flow through a review pipeline of immutable `ProductChange` records — a full audit trail of who changed what and who approved it.
+- `ProductChangeAction` types: `UPDATE`, `VARIANT_ADD` / `VARIANT_UPDATE` / `VARIANT_REMOVE`, `ATTRIBUTE_ADD` / `ATTRIBUTE_UPDATE` / `ATTRIBUTE_REMOVE`, `STATUS_CHANGE`, `PRODUCT_ADD`, `PRODUCT_DELETE`.
+- Status lifecycle: `pending` → `confirmed` / `declined` / `canceled`, or `requires_action` when a revision is requested. Low-risk edits auto-confirm without operator review.
+- Vendors see their own pending edits and revision requests on product pages.
+
+### Catalog & Inventory
+- Marketplace-wide master products, variants, collections, categories, tags, and types; sellers list via offers (see above), which carry vendor-scoped price, inventory, and shipping.
+- **Product attributes** — an operator-managed, typed attribute catalog with five types: `multi_select`, `single_select`, `text`, `unit`, `toggle`. A `multi_select` attribute marked `is_variant_axis` generates product variants (backed by native Medusa `ProductOption`). Attributes can be global (shared catalog) or inline/product-scoped (one-off); an `is_filterable` flag exposes them as storefront filters. Products attach attributes through a single batch endpoint.
 - Price lists and price preferences per vendor and region.
-- Inventory items and stock locations scoped to the vendor.
+- Inventory items and stock locations (offer-scoped stock).
 - Bulk product CSV import / export.
 
 ### Shipping & Fulfillment
@@ -82,7 +99,8 @@ The product has three audiences:
 - View every order, fulfillment, and return across sellers.
 
 ### Vendor Portal Capabilities
-- Manage products, variants, collections, categories, tags, types, and attributes.
+- Manage offers against master products (SKU, price, inventory, shipping); submit product edits through the change-request pipeline and track their approval status.
+- Manage variants, collections, categories, tags, types, and attributes.
 - View, fulfill, and refund orders; process returns.
 - Configure shipping profiles, fulfillment, and return reasons.
 - Create promotions and campaigns scoped to their catalog.
@@ -113,6 +131,11 @@ The product has three audiences:
 - Installed as a standard Medusa plugin and provides every marketplace module, link, workflow, API route, and subscriber.
 - Extended through Medusa's normal extension model: custom modules, module links, workflow hooks, subscribers, and additional API routes inside the consuming project.
 
+### Blocks & Registry
+- **Blocks** are the primary way marketplace features ship — distributed as **source code**, not packages. The CLI copies files directly into the project, so you own every line (no hidden abstractions or version conflicts). A block can bundle modules, workflows, API routes, links, and vendor/admin UI extensions; installation may require registering a module, adding middlewares, running migrations, and codegen.
+- Updates are explicit: `bunx @mercurjs/cli@rc diff <block>` shows upstream changes; re-install with `--overwrite`.
+- **Registries** catalog blocks via a `registry.json` (file types `registry:module` / `:workflow` / `:api` / `:link` / `:vendor` / `:admin` / `:lib`, with dependencies). `bunx @mercurjs/cli@rc build` embeds file contents into JSON, which can be hosted on any static host (GitHub Pages, S3, …). Custom registries can be added to `blocks.json` with optional auth headers.
+
 ### Templates
 - **basic** — full-stack marketplace monorepo (API, admin, vendor) with Turborepo, ready for production.
 - **plugin** — npm-publishable Mercur plugin scaffold for sharing modules, providers, workflows, and UI.
@@ -133,8 +156,9 @@ The product has three audiences:
 | Admin Panel    (port 7000)        ─ Admin API  (/admin/*)     |
 +---------------------------------------------------------------+
 |                  Mercur Core Plugin (@mercurjs/core)          |
-|  Modules: Seller · Commission · Payout · Attribute ·          |
-|           Vendor Product Attribute · Custom Fields ·          |
+|  Modules: Seller · Commission · Offer · Payout ·              |
+|           Product Attribute · Product Edit (change pipeline) · |
+|           Order Group · Media · Search · Custom Fields ·      |
 |           Admin UI · Vendor UI · Codegen                      |
 +---------------------------------------------------------------+
 |                    Medusa Framework (core commerce)           |
