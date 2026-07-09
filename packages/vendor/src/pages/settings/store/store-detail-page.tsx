@@ -4,11 +4,7 @@ import { useTranslation } from "react-i18next";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import {
-  WidgetZone,
-  useExtension,
-  useLinkQuery,
-} from "@mercurjs/dashboard-shared";
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useMe, useSeller } from "@/hooks/api";
 import { SellerStatus } from "@mercurjs/types";
 
@@ -37,8 +33,8 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const meSeller = seller_member?.seller;
 
-  const needsLinks = useExtension().getLinks("seller").length > 0;
   const query = useLinkQuery("seller", SELLER_DETAIL_FIELDS);
+  const needsLinks = !!useLinkQuery("seller").fields;
 
   const { seller: linkedSeller, isPending: linkedPending } = useSeller(
     meSeller?.id ?? "",
