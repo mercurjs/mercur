@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/types",
-  "version": "2.2.0-rc.1",
+  "version": "2.2.0-canary.52",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -39,7 +39,7 @@
     "@medusajs/types": "2.17.2"
   },
   "devDependencies": {
-    "typescript": "7.0.2"
+    "typescript": "5.9.3"
   },
   "engines": {
     "node": ">=20"

@@ -1,5 +1,5 @@
 import { LoaderFunctionArgs } from "react-router-dom";
-import { getExtensionRegistry, withLinkFields } from "@mercurjs/dashboard-shared";
+import { getLinkQuery } from "@mercurjs/dashboard-shared";
 
 import { productsQueryKeys } from "@hooks/api/products";
 import { sdk } from "@lib/client";
@@ -7,12 +7,8 @@ import { queryClient } from "@lib/query-client";
 import { PRODUCT_DETAIL_QUERY } from "../common/constants";
 
 /** Custom-fields `link` relations merged into the detail query (`+link.*`). */
-export const productDetailQueryWithLinks = () => ({
-  fields: withLinkFields(
-    PRODUCT_DETAIL_QUERY.fields,
-    getExtensionRegistry()?.getLinks("product") ?? [],
-  ),
-});
+export const productDetailQueryWithLinks = () =>
+  getLinkQuery("product", PRODUCT_DETAIL_QUERY.fields);
 
 const productDetailQuery = (id: string) => {
   const query = productDetailQueryWithLinks();
