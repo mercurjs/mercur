@@ -163,12 +163,14 @@ const LoginForm = () => {
 };
 
 const LoginFooter = () => {
+  const { t } = useTranslation();
   const { feature_flags } = useFeatureFlags();
 
   return (
     <div className="mt-auto flex flex-col gap-y-2">
       <span className="text-ui-fg-muted txt-small">
         <Trans
+          t={t}
           i18nKey="login.forgotPassword"
           components={[
             <Link
@@ -182,6 +184,7 @@ const LoginFooter = () => {
       {feature_flags?.[MercurFeatureFlags.SELLER_REGISTRATION] && (
         <span className="text-ui-fg-muted txt-small">
           <Trans
+            t={t}
             i18nKey="login.notSellerYet"
             components={[
               <Link

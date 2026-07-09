@@ -148,10 +148,13 @@ const RegisterForm = () => {
 }
 
 const RegisterFooter = () => {
+  const { t } = useTranslation()
+
   return (
     <div className="mt-auto">
       <span className="text-ui-fg-muted txt-small">
         <Trans
+          t={t}
           i18nKey="register.alreadySeller"
           components={[
             <Link
