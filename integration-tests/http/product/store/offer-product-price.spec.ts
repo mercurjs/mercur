@@ -15,9 +15,12 @@ import {
     assignProductsToSeller,
 } from "../../../helpers/create-product"
 import {
+    adminHeaders,
+    createAdminUser,
     generatePublishableKey,
     generateStoreHeaders,
 } from "../../../helpers/create-admin-user"
+import { waitFor } from "../../../helpers/wait-for"
 
 const approveSeller = async (container: MedusaContainer, sellerId: string) => {
     const sellerModule: any = container.resolve(MercurModules.SELLER)
@@ -30,7 +33,7 @@ const approveSeller = async (container: MedusaContainer, sellerId: string) => {
 jest.setTimeout(120000)
 
 medusaIntegrationTestRunner({
-    testSuite: ({ getContainer, api }) => {
+    testSuite: ({ getContainer, api, dbConnection }) => {
         describe("Store - Products cheapest offer price", () => {
             let appContainer: MedusaContainer
             let storeHeaders: any
@@ -294,6 +297,39 @@ medusaIntegrationTestRunner({
                     expect(variant.calculated_price.calculated_amount).toEqual(
                         1500
                     )
+                })
+            })
+
+            describe("GET /admin/products?has_offer=true", () => {
+                it("includes products that have an offer and excludes those that do not", async () => {
+                    await createAdminUser(dbConnection, adminHeaders, appContainer)
+
+                    const seeded = await seedSellerOffer({
+                        email: "has-offer-incl@test.com",
+                        name: "Has Offer Incl Store",
+                        offerPrice: 2000,
+                    })
+
+                    const noOffer = await createVendorProduct(api, seeded.headers, {
+                        title: `No Offer Product ${Date.now()}`,
+                        sku: `no-offer-${Date.now()}`,
+                    })
+
+                    const res = await waitFor(
+                        () =>
+                            api.get(
+                                "/admin/products?has_offer=true&limit=200",
+                                adminHeaders
+                            ),
+                        (r) =>
+                            r.data.products.some(
+                                (p: { id: string }) => p.id === seeded.productId
+                            )
+                    )
+
+                    const ids = res.data.products.map((p: { id: string }) => p.id)
+                    expect(ids).toContain(seeded.productId)
+                    expect(ids).not.toContain(noOffer.id)
                 })
             })
         })

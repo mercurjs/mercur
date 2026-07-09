@@ -264,18 +264,40 @@ fallback only for index-unsupported filters (Medusa's own convention).
   list immediately after create use a new `integration-tests/helpers/wait-for.ts`
   poll (mirrors Medusa's `waitForIndexedEntities`).
 
-## Notes on the delivered approach
+## Relation-filter follow-up — prefetches eliminated
 
-- Seller scoping is done by resolving a product-**id** set rather than a
-  `filters: { seller: { id } }` link filter. The index schema in this build
-  *does* index `Seller`, so a filterable product↔seller link (`{ seller: { id } }`)
-  is a viable future simplification, but id-scoping is engine-agnostic and was
-  chosen to keep the graph fallback and exact-count paths identical. Trade-off:
-  the visible-seller id set can grow large for big catalogs.
+The product↔seller link is not read-only, so it is registered in the index and
+`{ seller: { id } }` is filterable; the offer↔variant link likewise exposes a
+filterable `variants.offers` relation. This let us drop the id-prefetch middleware
+in favor of declarative relation filters (verified `product.variants.prices`-style
+nesting, `$ne: null`, `$is: null` per the index query-builder):
+
+- **Store visibility** — `applyVisibleSellerProductScope` now sets
+  `filterableFields.seller = { id: visibleSellerIds }` (one seller fetch for the
+  closure-window logic on non-indexed date fields, then the relation join happens
+  in the main query). Removed the second `product_seller` fetch.
+- **`has_offer`** — `applyOfferedProductsFilter` sets
+  `{ variants: { offers: seller_id ? { seller_id } : { id: { $ne: null } } } }`
+  instead of fetching all offer variant ids. Verified inclusion + exclusion in
+  `offer-product-price.spec.ts`.
+- **Vendor scoping** — `applySellerProductLinkFilter` replaced the
+  restricted-ids prefetch with
+  `status: PUBLISHED, $or: [{ seller: { id: { $is: null } } }, { seller: { id } }]`
+  (published product is visible when unrestricted or restricted to this seller).
+  The **authorship** half stays a prefetch: it derives from
+  `product_change_action`, which the index does not index. `product_change` is
+  the only non-indexable input left in the product-list path.
+
+## Notes
+
 - Enabling `index_engine` by default means every downstream Mercur app must have
   `@medusajs/index` installed and an event bus for sync; without the dependency
   the app fails to boot (`Cannot resolve module '@medusajs/index'`). This is now
   wired into the starter template.
+- Remaining id-prefetch outside the three migrated list routes:
+  `admin/sellers/[id]/products/route.ts` still resolves `product_seller` →
+  product ids (a separate list route, not in this migration's scope). It could
+  adopt the same `{ seller: { id } }` relation filter as a follow-up.
 
 ## Notes
 

@@ -121,26 +121,14 @@ export const applyOfferedProductsFilter = async (
     delete req.filterableFields.seller_id
   }
 
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
-  const { data: offers } = await query.graph({
-    entity: "offer",
-    fields: ["variant_id"],
-    filters: sellerId ? { seller_id: sellerId } : {},
-  })
-
-  const variantIds = Array.from(
-    new Set(
-      offers
-        .map((offer: { variant_id: string | null }) => offer.variant_id)
-        .filter((id: string | null): id is string => Boolean(id))
-    )
-  )
+  const offerFilter = sellerId
+    ? { seller_id: sellerId }
+    : { id: { $ne: null } }
 
   const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
   req.filterableFields.$and = [
     ...existingAnd,
-    { variants: { id: variantIds.length ? variantIds : ["__none__"] } },
+    { variants: { offers: offerFilter } },
   ]
 
   return next()

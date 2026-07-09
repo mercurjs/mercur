@@ -28,37 +28,22 @@ export const resolveVisibleSellerIds = async (
   return visibleSellers.map((s: { id: string }) => s.id)
 }
 
-// Scope by product `id` rather than joining across the product_seller link:
-// unlike the old maybeApplyLinkFilter join, an id filter is expressible on both
-// the index engine and query.graph.
+// Scope products to visible sellers via the product↔seller relation on the main
+// query — both engines join it, so no separate product_seller prefetch is
+// needed. seller.id is indexed; the closure-window check stays on the seller
+// fetch since those date fields are not.
 export const applyVisibleSellerProductScope = async (
   req: MedusaRequest,
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const visibleSellerIds = await resolveVisibleSellerIds(req.scope)
 
-  const { data: links } = await query.graph({
-    entity: "product_seller",
-    fields: ["product_id"],
-    filters: { seller_id: visibleSellerIds },
-  })
-
-  const productIds = Array.from(
-    new Set(
-      (links as { product_id: string | null }[])
-        .map((link) => link.product_id)
-        .filter((id): id is string => Boolean(id))
-    )
-  )
-
   req.filterableFields ??= {}
-  const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
-  req.filterableFields.$and = [
-    ...existingAnd,
-    { id: productIds.length ? productIds : ["__none__"] },
-  ]
+  req.filterableFields.seller = {
+    ...((req.filterableFields.seller as object) ?? {}),
+    id: visibleSellerIds.length ? visibleSellerIds : ["__none__"],
+  }
 
   next()
 }

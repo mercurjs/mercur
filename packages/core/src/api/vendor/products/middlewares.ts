@@ -11,10 +11,7 @@ import {
 import { ProductStatus } from "@medusajs/framework/utils"
 
 import { applyOfferedProductsFilter } from "../../utils"
-import {
-  getProductIdsRestrictedFromSeller,
-  getSellerOwnedProductIds,
-} from "./helpers"
+import { getSellerOwnedProductIds } from "./helpers"
 import {
   vendorProductQueryConfig,
   vendorProductVariantQueryConfig,
@@ -31,7 +28,6 @@ import {
   VendorUpdateProduct,
   VendorUpdateProductVariant,
 } from "./validators"
-import { promiseAll } from "@medusajs/framework/utils"
 
 const applySellerProductLinkFilter = async (
   req: AuthenticatedMedusaRequest,
@@ -40,10 +36,11 @@ const applySellerProductLinkFilter = async (
 ) => {
   const sellerId = req.seller_context!.seller_id
 
-  const [ownProductIds, restrictedFromSellerIds] = await promiseAll([
-    getSellerOwnedProductIds(req.scope, sellerId),
-    getProductIdsRestrictedFromSeller(req.scope, sellerId),
-  ])
+  // Authorship is derived from the product-edit change pipeline, which is not
+  // indexed, so it stays a prefetch. "Restricted to other sellers" is expressed
+  // as a product↔seller relation filter instead: a published product is visible
+  // when it has no seller restriction or is restricted to this seller.
+  const ownProductIds = await getSellerOwnedProductIds(req.scope, sellerId)
 
   req.filterableFields ??= {}
   const existingAnd = (req.filterableFields.$and as object[] | undefined) ?? []
@@ -54,7 +51,10 @@ const applySellerProductLinkFilter = async (
         { id: ownProductIds },
         {
           status: ProductStatus.PUBLISHED,
-          id: { $nin: restrictedFromSellerIds },
+          $or: [
+            { seller: { id: { $is: null } } },
+            { seller: { id: sellerId } },
+          ],
         },
       ],
     },
