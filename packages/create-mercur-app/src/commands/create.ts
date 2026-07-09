@@ -103,24 +103,26 @@ export const create = new Command()
 
       let template = opts.template;
       if (!template) {
-        const { selectedTemplate } = await prompts({
-          type: "select",
-          name: "selectedTemplate",
-          message: `Which ${highlighter.info(
-            "template"
-          )} would you like to use?`,
-          choices: Object.entries(CREATE_TEMPLATES).map(([key, tmpl]) => ({
-            title: key,
-            value: key,
-            description: tmpl.description,
-          })),
-        });
-
-        if (!selectedTemplate) {
-          process.exit(0);
-        }
-
-        template = selectedTemplate;
+        // todo: re-enable template selection once more templates are ready
+        // const { selectedTemplate } = await prompts({
+        //   type: "select",
+        //   name: "selectedTemplate",
+        //   message: `Which ${highlighter.info(
+        //     "template"
+        //   )} would you like to use?`,
+        //   choices: Object.entries(CREATE_TEMPLATES).map(([key, tmpl]) => ({
+        //     title: key,
+        //     value: key,
+        //     description: tmpl.description,
+        //   })),
+        // });
+        //
+        // if (!selectedTemplate) {
+        //   process.exit(0);
+        // }
+        //
+        // template = selectedTemplate;
+        template = "basic";
       }
 
       if (!opts.skipEmail) {
