@@ -64,6 +64,6 @@
     "@types/fs-extra": "^11.0.4",
     "@types/prompts": "^2.4.9",
     "tsup": "^8.5.0",
-    "typescript": "7.0.2"
+    "typescript": "5.9.3"
   }
 }
