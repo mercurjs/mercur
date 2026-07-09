@@ -1,5 +1,5 @@
 import type { ProductStatus } from "@mercurjs/types";
-import { useExtension, withLinkFields } from "@mercurjs/dashboard-shared";
+import { useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useQueryParams } from "@hooks/use-query-params";
 
 type UseProductTableQueryProps = {
@@ -14,7 +14,7 @@ export const useProductTableQuery = ({
   prefix,
   pageSize = 20,
 }: UseProductTableQueryProps) => {
-  const links = useExtension().getLinks("product");
+  const linkQuery = useLinkQuery("product", DEFAULT_FIELDS);
   const queryObject = useQueryParams(
     [
       "offset",
@@ -57,7 +57,7 @@ export const useProductTableQuery = ({
     type_id: type_id?.split(","),
     status: status?.split(",") as ProductStatus[],
     q,
-    fields: withLinkFields(DEFAULT_FIELDS, links),
+    fields: linkQuery.fields,
   };
 
   return {

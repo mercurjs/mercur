@@ -2,7 +2,7 @@ import { Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
-import { useExtension, withLinkFields } from "@mercurjs/dashboard-shared";
+import { useLinkQuery } from "@mercurjs/dashboard-shared";
 
 import { RouteDrawer } from "../../../components/modals";
 import { useProduct } from "../../../hooks/api/products";
@@ -13,10 +13,8 @@ export const ProductEdit = () => {
   const { id } = useParams();
   const { t } = useTranslation();
 
-  const links = useExtension().getLinks("product");
-  const { product, isLoading, isError, error } = useProduct(id!, {
-    fields: withLinkFields(PRODUCT_DETAIL_QUERY.fields, links),
-  });
+  const query = useLinkQuery("product", PRODUCT_DETAIL_QUERY.fields);
+  const { product, isLoading, isError, error } = useProduct(id!, query);
 
   if (isError) {
     throw error;

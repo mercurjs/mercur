@@ -1,5 +1,5 @@
 import { Heading } from "@medusajs/ui";
-import { useExtension, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useTranslation } from "react-i18next";
 import { RouteDrawer } from "@components/modals";
 import { useMe, useSeller } from "@hooks/api";
@@ -11,8 +11,8 @@ const StoreEdit = () => {
 
   const meSeller = seller_member?.seller;
 
-  const needsLinks = useExtension().getLinks("seller").length > 0;
   const query = useLinkQuery("seller");
+  const needsLinks = !!query.fields;
 
   const { seller: linkedSeller, isPending: linkedPending } = useSeller(
     meSeller?.id ?? "",

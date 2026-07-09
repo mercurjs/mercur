@@ -8,8 +8,7 @@ import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import {
   useExtendableTable,
-  useExtension,
-  withLinkFields,
+  useLinkQuery,
 } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
@@ -117,12 +116,12 @@ export const OrderListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
-  const links = useExtension().getLinks("order");
+  const linkQuery = useLinkQuery("order", DEFAULT_FIELDS);
 
   const { order_groups, count, isError, error, isLoading } = useOrderGroups(
     {
       ...searchParams,
-      fields: withLinkFields(DEFAULT_FIELDS, links),
+      fields: linkQuery.fields,
     },
     {
       placeholderData: keepPreviousData,
