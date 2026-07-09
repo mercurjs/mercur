@@ -1,0 +1,286 @@
+---
+title: "Frontend"
+description: "Build panel UI the right way — @medusajs/ui usage, custom-field extensions (forms, tables, read-only section fields), and new pages, with the correct imports."
+---
+
+The Admin and Vendor panels share one design system. The three things you'll actually do — style with `@medusajs/ui`, extend built-in screens with **custom fields**, and add **new pages** — all have an established shape and, importantly, a set of **correct imports**. This page is that short list. The full reference is the [UI architecture](/rc/references/panel-extension-api).
+
+## Use `@medusajs/ui` — and only it
+
+<Warning>
+  Never introduce a second UI library, and never restyle Medusa UI components with custom CSS. Build on the primitives; don't work around them.
+</Warning>
+
+- **Components** come from `@medusajs/ui`, **icons** from `@medusajs/icons`, and colours/spacing/type from Medusa UI **tokens** (`text-ui-fg-*`, `bg-ui-bg-*`, `border-ui-border-*`) — never hex, `rgb()`, or `text-gray-500`.
+
+```tsx
+import { Container, Heading, Text, Button, Badge, StatusBadge, toast } from "@medusajs/ui"
+import { PencilSquare, Trash, EllipsisHorizontal } from "@medusajs/icons"
+```
+
+- A **section** is a `Container` with the standard shell — a divided card with a header row:
+
+```tsx
+<Container className="divide-y p-0">
+  <div className="flex items-center justify-between px-6 py-4">
+    <Heading level="h2">Details</Heading>
+    <Button size="small" variant="secondary">Edit</Button>
+  </div>
+  <div className="px-6 py-4">
+    <Text size="small" className="text-ui-fg-subtle">Body</Text>
+  </div>
+</Container>
+```
+
+## Extend built-in screens with custom fields
+
+The primary way to customise an existing entity's screens (product, order, customer…) is a **custom-fields config** — one file per model that contributes form fields, table columns, and read-only section fields. See [Custom fields](/rc/resources/best-practices/custom-fields) for the full backend↔frontend loop; here's the frontend surface with the right imports.
+
+<Note>
+  The two imports you need — and where each lives:
+
+  ```tsx
+  import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"   // the config helper
+  import { createFormHelper } from "@mercurjs/dashboard-shared"        // typed form fields (zod)
+  ```
+
+  `defineCustomFieldsConfig` is build-time config (SDK, zod-free); `createFormHelper` is the runtime form surface (dashboard-shared). Don't cross them over.
+</Note>
+
+### Add form fields (edit / create)
+
+Contribute inputs into a built-in form `zone`. Values submit under `additional_data`:
+
+```tsx title="apps/vendor/src/custom-fields/product.tsx"
+import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
+import { createFormHelper } from "@mercurjs/dashboard-shared"
+
+const form = createFormHelper<{ custom_fields?: { is_featured?: boolean } }>()
+
+export default defineCustomFieldsConfig({
+  model: "product",
+  link: "custom_fields",
+  forms: [
+    {
+      zone: "edit",
+      fields: {
+        is_featured: form.define({
+          validation: form.boolean().optional(),
+          label: "Featured",
+          defaultValue: (data) => Boolean(data?.custom_fields?.is_featured),
+        }),
+      },
+    },
+  ],
+})
+```
+
+### Change the list table
+
+Add or override a column (and add bulk actions) on the model's built-in list:
+
+```tsx
+list: {
+  columns: [
+    { id: "is_featured", header: "Featured", component: ({ row }) => (row.custom_fields?.is_featured ? "★" : "") },
+  ],
+},
+```
+
+### Read-only fields in detail sections — e.g. surface (or change) a status
+
+`displays` add read-only rows into an existing detail-page section, keyed by `id` (unknown id **adds**, built-in id **replaces**, `component: null` **hides**). A read-only field can render a `StatusBadge`, and a section `action` can trigger a status change through a mutation:
+
+```tsx title="apps/vendor/src/custom-fields/product.tsx"
+import { StatusBadge, Button, toast } from "@medusajs/ui"
+
+// inside defineCustomFieldsConfig(...)
+displays: [
+  {
+    zone: "general",
+    fields: [
+      {
+        id: "review_status",
+        component: ({ data }) => (
+          <div className="flex items-center justify-between px-6 py-4">
+            <StatusBadge color={data.custom_fields?.approved ? "green" : "orange"}>
+              {data.custom_fields?.approved ? "Approved" : "Pending"}
+            </StatusBadge>
+            <Button
+              size="small"
+              variant="secondary"
+              onClick={async () => {
+                await sdk.vendor.products.$id.mutate({
+                  $id: data.id,
+                  additional_data: { approved: true },
+                })
+                toast.success("Approved")
+              }}
+            >
+              Approve
+            </Button>
+          </div>
+        ),
+      },
+    ],
+  },
+],
+```
+
+<Tip>
+  Read-only displays are the idiomatic way to expose (and act on) an entity's state — an approval flag, a moderation status, an internal tag — without rebuilding the detail page. The mutation still goes through the typed SDK and rides `additional_data` into a [workflow hook](/rc/resources/best-practices/custom-fields#the-full-override-flow-additional_data--route--workflow-hook), never a direct write.
+</Tip>
+
+## Add a new page
+
+A brand-new screen is one file: drop a `page.tsx` under the host app's `src/routes/`. The SDK registers the route from the file path and builds the sidebar entry from an exported `config`.
+
+```tsx title="apps/vendor/src/routes/reviews/page.tsx"
+import { Container, Heading } from "@medusajs/ui"
+import { Star } from "@medusajs/icons"
+import type { RouteConfig } from "@mercurjs/dashboard-sdk"
+
+export const config: RouteConfig = {
+  label: "Reviews",
+  icon: Star,
+}
+
+export default function ReviewsPage() {
+  return (
+    <Container className="divide-y p-0">
+      <div className="px-6 py-4">
+        <Heading>Reviews</Heading>
+      </div>
+    </Container>
+  )
+}
+```
+
+<Note>
+  Correct imports for a page: UI from `@medusajs/ui`, icons from `@medusajs/icons`, and the `RouteConfig` **type** from `@mercurjs/dashboard-sdk`. Dynamic segments use brackets — `src/routes/reviews/[id]/page.tsx` → `/reviews/:id`. See [Extending panels](/rc/resources/customization/extending-panels#routing-conventions).
+</Note>
+
+## Compose a full page: layout, table, sections, edit
+
+For a real screen you assemble the same primitives the built-in pages use — all re-exported from `@mercurjs/dashboard-shared`, so you import from **one** place instead of Medusa internals.
+
+```tsx
+import {
+  SingleColumnPage,
+  TwoColumnPage,
+  DataTable,
+  useDataTable,
+  SectionRow,
+  RouteDrawer,
+  Form,
+  ActionMenu,
+} from "@mercurjs/dashboard-shared"
+import { Container, Heading, Text, Button, Input, toast } from "@medusajs/ui"
+import { createColumnHelper } from "@tanstack/react-table"
+```
+
+### Layout + list table
+
+Pick a layout — `SingleColumnPage` for lists/simple pages, `TwoColumnPage` for a detail with a sidebar — and mount a `DataTable` inside the standard section shell. Build columns with `createColumnHelper`, wire the table with `useDataTable`, page size 20, and `keepPreviousData` for smooth pagination:
+
+```tsx title="apps/vendor/src/routes/reviews/page.tsx"
+const columnHelper = createColumnHelper<Review>()
+
+const columns = [
+  columnHelper.accessor("title", { header: "Title" }),
+  columnHelper.accessor("rating", { header: "Rating" }),
+  columnHelper.display({
+    id: "actions",
+    cell: ({ row }) => (
+      <ActionMenu groups={[{ actions: [{ label: "Edit", to: `${row.original.id}/edit` }] }]} />
+    ),
+  }),
+]
+
+export default function ReviewsPage() {
+  const { reviews = [], count = 0, isLoading } = useReviews()
+  const { table } = useDataTable({ data: reviews, columns, count, pageSize: 20, getRowId: (r) => r.id })
+
+  return (
+    <SingleColumnPage>
+      <Container className="divide-y p-0">
+        <div className="flex items-center justify-between px-6 py-4">
+          <Heading>Reviews</Heading>
+        </div>
+        <DataTable table={table} columns={columns} count={count} pageSize={20} isLoading={isLoading} navigateTo={(row) => row.id} pagination search />
+      </Container>
+    </SingleColumnPage>
+  )
+}
+```
+
+### General section (label / value rows)
+
+On a detail page, a "general" section is a `Container` header row plus `SectionRow` label/value pairs — the canonical way Medusa renders read-only entity data:
+
+```tsx
+<Container className="divide-y p-0">
+  <div className="flex items-center justify-between px-6 py-4">
+    <Heading>{review.title}</Heading>
+    <ActionMenu groups={[{ actions: [{ label: "Edit", to: "edit" }] }]} />
+  </div>
+  <SectionRow title="Rating" value={`${review.rating} / 5`} />
+  <SectionRow title="Status" value={review.approved ? "Approved" : "Pending"} />
+</Container>
+```
+
+For a detail page with a sidebar, wrap sections in `TwoColumnPage` and place them under `TwoColumnPage.Main` / `TwoColumnPage.Sidebar` (each stacked with `gap-y-3`).
+
+### Edit page (drawer)
+
+Quick edits live in a routed `RouteDrawer` with `Form` (React Hook Form + Zod). Gate the form until the entity has loaded, and use `useRouteModal().handleSuccess()` to close on save:
+
+```tsx title="apps/vendor/src/routes/reviews/[id]/edit/page.tsx"
+export default function EditReviewPage() {
+  return (
+    <RouteDrawer>
+      <RouteDrawer.Header>
+        <RouteDrawer.Title asChild>
+          <Heading>Edit review</Heading>
+        </RouteDrawer.Title>
+      </RouteDrawer.Header>
+      {/* <EditReviewForm /> — RouteDrawer.Form + KeyboundForm, gated on !isPending && !!review */}
+    </RouteDrawer>
+  )
+}
+```
+
+<Warning>
+  Import these primitives from `@mercurjs/dashboard-shared`, **not** from deep Medusa dashboard paths like `../../../components/table/data-table`. The shared package is the public, stable surface; relative Medusa-internal imports are not available to consumer apps and break on upgrade.
+</Warning>
+
+## Data only through the typed SDK
+
+<Warning>
+  Never call `fetch` directly from a page. All HTTP goes through the typed SDK — `sdk.admin.*` in the admin panel, `sdk.vendor.*` in the vendor panel — wrapped in TanStack Query hooks.
+</Warning>
+
+```ts title="src/hooks/api/reviews.tsx"
+import { useQuery } from "@tanstack/react-query"
+import { sdk } from "../../lib/client"
+import { queryKeysFactory } from "@mercurjs/dashboard-shared"
+
+const reviewKeys = queryKeysFactory("reviews")
+
+export const useReviews = (query?: Record<string, unknown>) =>
+  useQuery({
+    queryKey: reviewKeys.list(query),
+    queryFn: () => sdk.vendor.reviews.query({ ...query }),
+  })
+```
+
+Invalidate `lists()` / `details()` / `detail(id)` in mutations, throw on `isError` so the route `ErrorBoundary` catches it, and show a `Skeleton` while loading.
+
+## Checklist for panel work
+
+- Built only from `@medusajs/ui` + `@medusajs/icons`; Medusa UI tokens only, no custom CSS.
+- Extending an existing screen → a `defineCustomFieldsConfig` file (`@mercurjs/dashboard-sdk`) with `createFormHelper` (`@mercurjs/dashboard-shared`); forms submit under `additional_data`.
+- Read-only state (status/flags) surfaced via `displays`; changes go through the typed SDK + a workflow hook, not a direct write.
+- New screen → a `page.tsx` under `src/routes/` with a typed `RouteConfig`; compose it from `SingleColumnPage`/`TwoColumnPage`, `DataTable`, `SectionRow`, and `RouteDrawer` — all imported from `@mercurjs/dashboard-shared`, never Medusa-internal paths.
+- Data via `sdk.admin.*` / `sdk.vendor.*` in TanStack Query hooks; no raw `fetch`; mutations invalidate the right keys.
+- Every visible string translated; every interactive element has a `data-testid`.
