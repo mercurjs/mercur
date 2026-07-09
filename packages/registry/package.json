@@ -18,7 +18,7 @@
     "@medusajs/icons": "2.17.2",
     "@tanstack/react-query": "5.64.2",
     "react-i18next": "17.0.8",
-    "react-router-dom": "6.30.3",
+    "react-router-dom": "7.18.1",
     "@tanstack/react-table": "8.20.5",
     "@mercurjs/client": "2.2.0-rc.1",
     "zod": "4.4.3",
