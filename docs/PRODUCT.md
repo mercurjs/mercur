@@ -158,7 +158,7 @@ The product has three audiences:
 |                  Mercur Core Plugin (@mercurjs/core)          |
 |  Modules: Seller · Commission · Offer · Payout ·              |
 |           Product Attribute · Product Edit (change pipeline) · |
-|           Order Group · Media · Search · Custom Fields ·      |
+|           Order Group · Media · Custom Fields ·               |
 |           Admin UI · Vendor UI · Codegen                      |
 +---------------------------------------------------------------+
 |                    Medusa Framework (core commerce)           |

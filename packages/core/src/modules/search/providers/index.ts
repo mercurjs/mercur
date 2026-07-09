@@ -1,1 +1,0 @@
-export { OramaSearchProvider } from "./orama"
