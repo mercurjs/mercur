@@ -2,7 +2,7 @@ import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
 import { TwoColumnPageSkeleton } from "../../../../../components/common/skeleton"
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared"
 
 import { TwoColumnPage } from "../../../../../components/layout/pages"
 import { useOffer } from "../../../../../hooks/api/offers"
@@ -21,16 +21,14 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const { offer_id } = useParams()
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>
 
+  const query = useLinkQuery("offer", OFFER_VARIANT_DETAIL_FIELDS)
+
   const {
     offer,
     isPending: isLoading,
     isError,
     error,
-  } = useOffer(
-    offer_id!,
-    { fields: OFFER_VARIANT_DETAIL_FIELDS },
-    { initialData },
-  )
+  } = useOffer(offer_id!, query, { initialData })
 
   if (isError) {
     throw error

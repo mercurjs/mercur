@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/client",
-  "version": "2.2.0-canary.52",
+  "version": "2.2.0-canary.53",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -42,7 +42,7 @@
     "@medusajs/framework": "2.17.2",
     "@types/qs": "^6.9.18",
     "tsup": "^8.5.0",
-    "typescript": "7.0.2"
+    "typescript": "5.9.3"
   },
   "peerDependencies": {
     "typescript": ">=4.8.0"

@@ -15,7 +15,7 @@
         "pg-god": "^1.0.12",
         "prettier": "^3.7.4",
         "turbo": "^2.7.4",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
         "typescript-eslint": "^8.53.0",
       },
     },
@@ -56,7 +56,7 @@
         "prettier": "^3.7.4",
         "ts-node": "^10.9.2",
         "turbo": "^2.7.4",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
         "typescript-eslint": "^8.46.4",
         "vite": "^8.1.3",
       },
@@ -128,7 +128,7 @@
         "prettier": "^3.7.4",
         "ts-node": "^10.9.2",
         "turbo": "^2.7.4",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
         "typescript-eslint": "^8.46.4",
         "vite": "^8.1.3",
       },
@@ -161,7 +161,7 @@
     },
     "packages/admin": {
       "name": "@mercurjs/admin",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -215,7 +215,7 @@
         "postcss": "^8.4.49",
         "tailwindcss": "^4.3.2",
         "tsup": "^8.0.2",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
       },
       "peerDependencies": {
         "react": "^18.0.0",
@@ -224,7 +224,7 @@
     },
     "packages/cli": {
       "name": "@mercurjs/cli",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "bin": {
         "mercurjs": "./dist/index.js",
       },
@@ -255,12 +255,12 @@
         "@types/fs-extra": "^11.0.4",
         "@types/prompts": "^2.4.9",
         "tsup": "^8.5.0",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
       },
     },
     "packages/client": {
       "name": "@mercurjs/client",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "dependencies": {
         "@tanstack/react-query": "^5.64.2",
         "qs": "^6.12.1",
@@ -269,7 +269,7 @@
         "@medusajs/framework": "2.17.2",
         "@types/qs": "^6.9.18",
         "tsup": "^8.5.0",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
       },
       "peerDependencies": {
         "typescript": ">=4.8.0",
@@ -277,7 +277,7 @@
     },
     "packages/core": {
       "name": "@mercurjs/core",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "dependencies": {
         "@orama/orama": "^3.1.18",
         "pkg-dir": "4",
@@ -310,7 +310,7 @@
         "react-dom": "^18.2.0",
         "ts-node": "^10.9.2",
         "tsx": "^4.19.2",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
         "yalc": "^1.0.0-pre.53",
         "zod": "4.4.3",
       },
@@ -326,7 +326,7 @@
     },
     "packages/create-mercur-app": {
       "name": "create-mercur-app",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "bin": {
         "create-mercur-app": "./dist/index.js",
       },
@@ -353,12 +353,12 @@
         "@types/validate-npm-package-name": "^4.0.2",
         "@types/wait-on": "^5.3.4",
         "tsup": "^8.5.0",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
       },
     },
     "packages/dashboard-sdk": {
       "name": "@mercurjs/dashboard-sdk",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "dependencies": {
         "@babel/parser": "7.25.6",
         "@babel/traverse": "7.25.6",
@@ -369,13 +369,13 @@
         "@types/node": "^26.1.0",
         "@types/react": "^19.2.17",
         "tsup": "^8.0.2",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
         "vite": "^8.1.3",
       },
     },
     "packages/dashboard-shared": {
       "name": "@mercurjs/dashboard-shared",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -424,16 +424,16 @@
         "@types/react": "^19.2.17",
         "@types/react-dom": "^18.2.22",
         "tsup": "^8.0.2",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
       },
     },
     "packages/docs": {
       "name": "@mercurjs/docs",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
     },
     "packages/providers/payout-stripe-connect": {
       "name": "@mercurjs/payout-stripe-connect",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "dependencies": {
         "stripe": "^15.5.0",
       },
@@ -448,7 +448,7 @@
     },
     "packages/registry": {
       "name": "@mercurjs/registry",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "dependencies": {
         "@hookform/resolvers": "3.4.2",
         "@medusajs/core-flows": "2.17.2",
@@ -491,17 +491,17 @@
     },
     "packages/types": {
       "name": "@mercurjs/types",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "dependencies": {
         "@medusajs/types": "2.17.2",
       },
       "devDependencies": {
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
       },
     },
     "packages/vendor": {
       "name": "@mercurjs/vendor",
-      "version": "2.2.0-canary.52",
+      "version": "2.2.0-canary.53",
       "dependencies": {
         "@ariakit/react": "^0.4.15",
         "@babel/runtime": "^7.26.10",
@@ -555,7 +555,7 @@
         "postcss": "^8.4.49",
         "tailwindcss": "^4.3.2",
         "tsup": "^8.0.2",
-        "typescript": "7.0.2",
+        "typescript": "5.9.3",
       },
       "peerDependencies": {
         "react": "^18.0.0",
@@ -3349,7 +3349,7 @@
 
     "typedarray-to-buffer": ["typedarray-to-buffer@3.1.5", "", { "dependencies": { "is-typedarray": "^1.0.0" } }, "sha512-zdu8XMNEDepKKR+XYOXAVPtWui0ly0NtohUscw+UmaHiAWT8hrV1rr//H6V+0DvJ3OQ19S979M0laLfX8rm82Q=="],
 
-    "typescript": ["typescript@7.0.2", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.2", "@typescript/typescript-darwin-arm64": "7.0.2", "@typescript/typescript-darwin-x64": "7.0.2", "@typescript/typescript-freebsd-arm64": "7.0.2", "@typescript/typescript-freebsd-x64": "7.0.2", "@typescript/typescript-linux-arm": "7.0.2", "@typescript/typescript-linux-arm64": "7.0.2", "@typescript/typescript-linux-loong64": "7.0.2", "@typescript/typescript-linux-mips64el": "7.0.2", "@typescript/typescript-linux-ppc64": "7.0.2", "@typescript/typescript-linux-riscv64": "7.0.2", "@typescript/typescript-linux-s390x": "7.0.2", "@typescript/typescript-linux-x64": "7.0.2", "@typescript/typescript-netbsd-arm64": "7.0.2", "@typescript/typescript-netbsd-x64": "7.0.2", "@typescript/typescript-openbsd-arm64": "7.0.2", "@typescript/typescript-openbsd-x64": "7.0.2", "@typescript/typescript-sunos-x64": "7.0.2", "@typescript/typescript-win32-arm64": "7.0.2", "@typescript/typescript-win32-x64": "7.0.2" }, "bin": { "tsc": "bin/tsc" } }, "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA=="],
+    "typescript": ["typescript@5.9.3", "", { "bin": { "tsc": "bin/tsc", "tsserver": "bin/tsserver" } }, "sha512-jl1vZzPDinLr9eUt3J/t7V6FgNEw9QjvBPdysz9KfQDD41fQrC2Y4vKQdiaUpFT4bXlb1RHhLpp8wtm6M5TgSw=="],
 
     "typescript-eslint": ["typescript-eslint@8.60.0", "", { "dependencies": { "@typescript-eslint/eslint-plugin": "8.60.0", "@typescript-eslint/parser": "8.60.0", "@typescript-eslint/typescript-estree": "8.60.0", "@typescript-eslint/utils": "8.60.0" }, "peerDependencies": { "eslint": "^8.57.0 || ^9.0.0 || ^10.0.0", "typescript": ">=4.8.4 <6.1.0" } }, "sha512-9f65qWLZdAW9m1JaxBDUHcqRUfL8bkxxXL7XxEfI+F09q56PkBvIfCjLF3yInsDM/BBmwkqmCQdCZe/RYlIWEw=="],
 
@@ -3776,6 +3776,8 @@
     "@mercurjs/core/pkg-dir": ["pkg-dir@4.2.0", "", { "dependencies": { "find-up": "^4.0.0" } }, "sha512-HRDzbaKjC+AOWVXxAU/x54COGeIv9eb+6CkDSQoNTt4XyWoIJvuPsXizxu/Fr23EiekbtZwmh1IcIG/l/a10GQ=="],
 
     "@mercurjs/dashboard-shared/react-jwt": ["react-jwt@1.3.0", "", { "optionalDependencies": { "fsevents": "^2.3.2" }, "peerDependencies": { "react": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-aC+X6q8pi63zoO7A060/4mfF5jM6Ay+4YyY4QgdD8dDOqp89sPcg0IhWEHyPACnVETMjBWzmxMPgIPosQNeYyw=="],
+
+    "@mercurjs/integration-tests/typescript": ["typescript@7.0.2", "", { "optionalDependencies": { "@typescript/typescript-aix-ppc64": "7.0.2", "@typescript/typescript-darwin-arm64": "7.0.2", "@typescript/typescript-darwin-x64": "7.0.2", "@typescript/typescript-freebsd-arm64": "7.0.2", "@typescript/typescript-freebsd-x64": "7.0.2", "@typescript/typescript-linux-arm": "7.0.2", "@typescript/typescript-linux-arm64": "7.0.2", "@typescript/typescript-linux-loong64": "7.0.2", "@typescript/typescript-linux-mips64el": "7.0.2", "@typescript/typescript-linux-ppc64": "7.0.2", "@typescript/typescript-linux-riscv64": "7.0.2", "@typescript/typescript-linux-s390x": "7.0.2", "@typescript/typescript-linux-x64": "7.0.2", "@typescript/typescript-netbsd-arm64": "7.0.2", "@typescript/typescript-netbsd-x64": "7.0.2", "@typescript/typescript-openbsd-arm64": "7.0.2", "@typescript/typescript-openbsd-x64": "7.0.2", "@typescript/typescript-sunos-x64": "7.0.2", "@typescript/typescript-win32-arm64": "7.0.2", "@typescript/typescript-win32-x64": "7.0.2" }, "bin": { "tsc": "bin/tsc" } }, "sha512-8FYau96o3NKOhbjKi/qNvG/W5jhzxkbdm5sj9AbZ/5T5sWqn3hJgLfGx27sRKZWTvyzCP8dLRBTf5tBTSRVUNA=="],
 
     "@mercurjs/registry/react-jwt": ["react-jwt@2.0.0", "", { "optionalDependencies": { "fsevents": "^2.3.3" }, "peerDependencies": { "react": "^16.0.0 || ^17.0.0 || ^18.0.0 || ^19.0.0" } }, "sha512-3TL+KTT51VLHNzXzM89UpKALtgnJrS5+jfo1p48CU1IpPwf62F/P1U+VKZTuQs+kCirPduT9TacrV5lvXqIH5Q=="],
 
