@@ -130,6 +130,8 @@ Here's what you need to run Mercur.
    - Admin Panel: `http://localhost:9000/dashboard`
    - Vendor Panel: `http://localhost:9000/seller`
 
+   Your marketplace comes seeded with a demo store out of the box — a ready-to-go seller (`seller@mercur.dev` / `supersecret`) with a full catalog of products and offers, so you can explore the admin and vendor panels immediately. Sign in to the Vendor Panel with those credentials, or manage everything from the Admin Panel.
+
 ## Professional services
 
 Mercur is built and maintained by [Rigby](https://rigbyjs.com), a team that has designed, built, and launched multi-vendor marketplaces in production. If you'd rather not do it alone, we work alongside your engineers — from architecture reviews and integrating Mercur with your existing stack to hardening, scaling, and getting your marketplace live on schedule. [Talk to our team](https://www.mercurjs.com/contact).
