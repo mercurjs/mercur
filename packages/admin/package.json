@@ -69,7 +69,7 @@
     "react-currency-input-field": "^3.6.11",
     "react-helmet-async": "^2.0.5",
     "react-hook-form": "7.49.1",
-    "react-i18next": "13.5.0",
+    "react-i18next": "17.0.8",
     "react-jwt": "^1.2.0",
     "react-router-dom": "6.30.3",
     "zod": "4.4.3"
