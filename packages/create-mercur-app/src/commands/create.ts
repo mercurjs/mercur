@@ -14,7 +14,7 @@ import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
 import waitOn from "wait-on";
 
-import packageJson from "../../package.json";
+// import packageJson from "../../package.json";
 import {
   sendTelemetryEvent,
   setTelemetryEmail,
@@ -31,8 +31,7 @@ import { logger } from "../utils/logger";
 import { manageEnvFiles } from "../utils/manage-env-files";
 import { spinner } from "../utils/spinner";
 
-const IS_CANARY = packageJson.version?.includes("-canary");
-const DEFAULT_BRANCH = IS_CANARY ? "canary" : "main";
+const DEFAULT_BRANCH = "main";
 const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
