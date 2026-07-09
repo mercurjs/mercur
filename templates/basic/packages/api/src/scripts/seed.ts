@@ -507,7 +507,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
             { title: "XL / Black", sku: "SHIRT-XL-BLACK", options: { Size: "XL", Color: "Black" } },
             { title: "XL / White", sku: "SHIRT-XL-WHITE", options: { Size: "XL", Color: "White" } },
           ],
-          sales_channels: [{ id: defaultSalesChannel[0].id }],
         },
         {
           title: "Basic Sweatshirt",
@@ -533,7 +532,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
             { title: "L", sku: "SWEATSHIRT-L", options: { Size: "L" } },
             { title: "XL", sku: "SWEATSHIRT-XL", options: { Size: "XL" } },
           ],
-          sales_channels: [{ id: defaultSalesChannel[0].id }],
         },
         {
           title: "Basic Sweatpants",
@@ -559,7 +557,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
             { title: "L", sku: "SWEATPANTS-L", options: { Size: "L" } },
             { title: "XL", sku: "SWEATPANTS-XL", options: { Size: "XL" } },
           ],
-          sales_channels: [{ id: defaultSalesChannel[0].id }],
         },
         {
           title: "Basic Shorts",
@@ -585,7 +582,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
             { title: "L", sku: "SHORTS-L", options: { Size: "L" } },
             { title: "XL", sku: "SHORTS-XL", options: { Size: "XL" } },
           ],
-          sales_channels: [{ id: defaultSalesChannel[0].id }],
         },
       ],
     },
