@@ -1,6 +1,6 @@
 {
   "name": "create-mercur-app",
-  "version": "2.2.0-rc.1",
+  "version": "2.2.0-canary.52",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -39,7 +39,7 @@
   },
   "dependencies": {
     "@antfu/ni": "^27.0.1",
-    "commander": "^14.0.2",
+    "commander": "^15.0.0",
     "execa": "^9.6.0",
     "fs-extra": "^11.3.2",
     "kleur": "^4.1.5",
@@ -60,7 +60,7 @@
     "@types/validate-npm-package-name": "^4.0.2",
     "@types/wait-on": "^5.3.4",
     "tsup": "^8.5.0",
-    "typescript": "5.9.3"
+    "typescript": "7.0.2"
   },
   "engines": {
     "node": ">=20"
