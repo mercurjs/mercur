@@ -28,7 +28,7 @@ The repository is a Turborepo monorepo managed with Bun. It contains the framewo
 +-----------------------------------------------------------------+
 |                     @mercurjs/core (Medusa plugin)               |
 |  modules:    seller, commission, offer, payout, order-group,     |
-|              product-attribute, product-edit, media, search,     |
+|              product-attribute, product-edit, media,             |
 |              shipping-profile, price-list, promotion, ...        |
 |  workflows:  seller lifecycle, payouts, commissions,             |
 |              order-group split, cart, fulfilment, ...            |
@@ -58,7 +58,7 @@ Dashboards (separate Vite apps that talk to the API above):
 ### `packages/core` — marketplace plugin
 The Medusa plugin that holds all marketplace business logic. Wired into the API via `withMercur()` in `apps/api/medusa-config.ts`.
 
-- **Modules** (`src/modules/`): `seller` (registration, profiles, members, order groups), `commission` (rates, rules, calculation), `offer` (seller listings against master products), `payout` (accounts, onboarding, payouts), `product-attribute` (typed attribute catalog), `product-edit` (product change-request pipeline), `order-group`, `media`, `search`, `custom-fields`, `inventory-item`, `stock-location`, `shipping-profile`, `shipping-option`, `price-list`, `promotion`, `campaign`.
+- **Modules** (`src/modules/`): `seller` (registration, profiles, members, order groups), `commission` (rates, rules, calculation), `offer` (seller listings against master products), `payout` (accounts, onboarding, payouts), `product-attribute` (typed attribute catalog), `product-edit` (product change-request pipeline), `order-group`, `media`, `custom-fields`, `inventory-item`, `stock-location`, `shipping-profile`, `shipping-option`, `price-list`, `promotion`, `campaign`.
 - **Workflows** (`src/workflows/`): 22+ workflow groups for seller lifecycle (create / approve / suspend), member invites, commissions, payouts, multi-vendor cart and order split, offers, product change-requests, fulfilment. Workflows support compensation (automatic rollback on failure) and expose hooks as extension points; steps return `StepResponse` and compose into a `WorkflowResponse`.
 - **Modules never reference each other directly** — cross-module communication happens only through **links** and **workflows**. Links are relationships defined separately (e.g. `product-seller-link`, `offer-product-link`, `offer-variant-link`, `order-group-order-link`); dozens of them wire the marketplace layer into the commerce layer.
 - **Scheduled jobs + subscribers**: jobs run on intervals (e.g. payout capture-check every 15 min, daily payouts at 1 AM UTC) and emit events; subscribers listen and fire async side effects (notifications, webhook calls, payout transfers).
