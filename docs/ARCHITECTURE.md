@@ -27,8 +27,8 @@ The repository is a Turborepo monorepo managed with Bun. It contains the framewo
                               v
 +-----------------------------------------------------------------+
 |                     @mercurjs/core (Medusa plugin)               |
-|  modules:    seller, commission, payout, order-group,            |
-|              attribute, product-attribute,                       |
+|  modules:    seller, commission, offer, payout, order-group,     |
+|              product-attribute, product-edit, media, search,     |
 |              shipping-profile, price-list, promotion, ...        |
 |  workflows:  seller lifecycle, payouts, commissions,             |
 |              order-group split, cart, fulfilment, ...            |
@@ -58,8 +58,10 @@ Dashboards (separate Vite apps that talk to the API above):
 ### `packages/core` — marketplace plugin
 The Medusa plugin that holds all marketplace business logic. Wired into the API via `withMercur()` in `apps/api/medusa-config.ts`.
 
-- **Modules** (`src/modules/`): `seller`, `commission`, `payout`, `attribute`, `product-attribute`, `vendor-product-attribute`, `order-group`, `custom-fields`, `inventory-item`, `stock-location`, `shipping-profile`, `shipping-option`, `price-list`, `promotion`, `campaign`.
-- **Workflows** (`src/workflows/`): 22+ workflow groups for seller lifecycle (create / approve / suspend), member invites, commissions, payouts, multi-vendor cart and order split, fulfilment.
+- **Modules** (`src/modules/`): `seller` (registration, profiles, members, order groups), `commission` (rates, rules, calculation), `offer` (seller listings against master products), `payout` (accounts, onboarding, payouts), `product-attribute` (typed attribute catalog), `product-edit` (product change-request pipeline), `order-group`, `media`, `search`, `custom-fields`, `inventory-item`, `stock-location`, `shipping-profile`, `shipping-option`, `price-list`, `promotion`, `campaign`.
+- **Workflows** (`src/workflows/`): 22+ workflow groups for seller lifecycle (create / approve / suspend), member invites, commissions, payouts, multi-vendor cart and order split, offers, product change-requests, fulfilment. Workflows support compensation (automatic rollback on failure) and expose hooks as extension points; steps return `StepResponse` and compose into a `WorkflowResponse`.
+- **Modules never reference each other directly** — cross-module communication happens only through **links** and **workflows**. Links are relationships defined separately (e.g. `product-seller-link`, `offer-product-link`, `offer-variant-link`, `order-group-order-link`); dozens of them wire the marketplace layer into the commerce layer.
+- **Scheduled jobs + subscribers**: jobs run on intervals (e.g. payout capture-check every 15 min, daily payouts at 1 AM UTC) and emit events; subscribers listen and fire async side effects (notifications, webhook calls, payout transfers).
 - **API routes** (`src/api/`): `admin/*` (marketplace operator), `vendor/*` (seller-scoped), plus hooks, middlewares, query configs, and validators.
 - **Auth/RBAC**: `withMercur()` auto-registers a roles module so vendor scoping works out of the box.
 
@@ -115,13 +117,16 @@ Stripe Connect implementation for the `payout` module: creates connected account
 
 ## Core Domain Concepts
 
-- **Seller** — the marketplace vendor entity. Has handle, contact, address, payment details, status (`pending` / `approved` / `rejected` / `suspended`).
-- **Member** — a user belonging to a seller, with roles. Invited via member-invite workflows.
-- **Order-Group** — wrapper that lets a single customer cart contain items from multiple sellers. On placement, the cart is split into per-seller orders linked to a parent group.
-- **Commission** — per-seller or per-category fee structure applied during order placement, deducted from payouts.
-- **Payout** — settlement to a seller's connected account (default provider: Stripe Connect). States: `pending` / `completed` / `cancelled`.
-- **Attributes / Product-Attributes** — extended product schema editable by vendors.
-- **Blocks** — installable feature packages (UI + workflows + routes) discovered via `blocks.json` and added with `mercurjs add`.
+- **Seller** — the marketplace vendor entity. Has handle, contact, address, payment details, account status (`pending_approval` / `open` / `suspended` / `terminated`), an operator-only `is_premium` flag, and optional scheduled-closure window (`closed_from` / `closed_to`).
+- **Member** — a user belonging to a seller, with roles. The relationship is many-to-many (a user can belong to several sellers and switch between them); every seller needs at least one admin member. Invited via member-invite workflows.
+- **Master Product** — products live in a single shared catalog, not owned by any seller. A **product-seller link** allowlists which sellers may sell a product. Status: `draft` / `proposed` / `published` / `rejected`.
+- **Offer** — the central node of seller commerce: a seller's listing against a master product/variant, carrying the seller's own SKU, offer-scoped price (via a pricing rule), offer-scoped inventory item, and shipping profile. Cart/order line items link to the purchased offer.
+- **Product Change** — an immutable record in the product change-request pipeline (`product-edit` module). Captures every product edit as typed actions (`UPDATE`, `VARIANT_*`, `ATTRIBUTE_*`, `STATUS_CHANGE`, `PRODUCT_ADD/DELETE`); status `pending` → `confirmed` / `declined` / `canceled` / `requires_action`. Low-risk edits auto-confirm.
+- **Order-Group** — wrapper that lets a single customer cart contain items from multiple sellers. On placement, the cart is split into per-seller orders linked to a parent group. Has a serial `display_id`, read-only `cart_id`, and query-time computed `seller_count` / `total`.
+- **Commission** — fee structure applied during order placement, deducted from payouts. Rules match across `product` / `product_type` / `product_collection` / `product_category` / `seller`; most-specific wins (AND across dimensions, OR within), ties to oldest. Fixed rates support per-currency amounts; only the global rate may include shipping. Arithmetic uses BigNumber.
+- **Payout** — settlement to a seller's connected account (default provider: Stripe Connect). Account lifecycle `PENDING` → `ACTIVE` ↔ `RESTRICTED` / → `REJECTED`, driven by provider webhooks; each account has an onboarding record with provider `data`. Payout transfer is automated via a daily job (1 AM UTC) emitting `payout.requested` + a subscriber running `createPayoutWorkflow`.
+- **Product Attributes** — an operator-managed, typed attribute catalog (`multi_select`, `single_select`, `text`, `unit`, `toggle`). A `multi_select` axis attribute (`is_variant_axis`) maps to a native Medusa `ProductOption` and generates variants; `is_filterable` exposes it as a storefront filter.
+- **Blocks** — feature packages distributed as **source code** (not npm packages): the CLI copies files into the project so you own them. Discovered via `blocks.json`, added with `mercurjs add`, updated via `mercurjs diff` + `--overwrite`.
 
 ## Request Flow Examples
 
@@ -131,7 +136,8 @@ Vendor UI (apps/vendor) form submit
   -> @mercurjs/client: sdk.vendor.products.mutate(payload)
     -> POST /vendor/products on apps/api
       -> packages/core: vendor route + middleware (scopes to seller)
-        -> createProductWorkflow (vendor variant) + linkProductToSeller
+        -> createProductWorkflow (vendor variant) — product enters `proposed`,
+           a ProductChange record captures the submission for operator review
           -> Medusa product service + Postgres
             -> response normalised by core query config
               -> dashboard refetches via TanStack Query
@@ -149,12 +155,14 @@ Admin UI (apps/admin-test) action
 
 ### Customer places a multi-vendor order
 ```
-Storefront cart contains items from sellers A and B
+Storefront cart contains offers from sellers A and B
   -> completeCartWorkflow (Medusa) + Mercur order-group steps
     -> create parent OrderGroup
     -> split items by seller -> create Order per seller
-    -> apply commissions per seller
-    -> schedule payouts (pending) per seller
+    -> calculate commission lines per seller (rule matching + specificity)
+    -> split payment proportionally across seller orders
+    -> credit each seller order to its payout account (after commission)
+    -> later: daily job emits payout.requested -> subscriber transfers via provider
 ```
 
 ## Extension Points
