@@ -1,6 +1,7 @@
 import type * as Vite from "vite";
 import path from "path";
 import fs from "fs";
+import { createRequire } from "module";
 import { getFileExports } from "./utils";
 import {
     RESOLVED_ROUTES_MODULE,
@@ -56,6 +57,22 @@ const MEDUSA_VIRTUAL_MODULES = [
 
 function isMedusaVirtualModule(id: string): boolean {
     return MEDUSA_VIRTUAL_MODULES.includes(id);
+}
+
+// Only force-prebundle deps that actually resolve from the app. Consuming apps
+// (e.g. templates) may not declare optional deps like `i18next` or
+// `@medusajs/dashboard` directly, and Vite warns for every unresolved entry in
+// `optimizeDeps.include`.
+function filterResolvableDeps(specifiers: string[], fromDir: string): string[] {
+    const require = createRequire(path.join(fromDir, "noop.js"));
+    return specifiers.filter((specifier) => {
+        try {
+            require.resolve(specifier);
+            return true;
+        } catch {
+            return false;
+        }
+    });
 }
 
 function resolveMedusaVirtualModule(id: string): string {
@@ -289,18 +306,21 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                         "virtual:mercur/custom-fields",
                         ...MEDUSA_VIRTUAL_MODULES,
                     ],
-                    include: [
-                        "react",
-                        "react/jsx-runtime",
-                        "react-dom/client",
-                        "react-router-dom",
-                        "react-i18next",
-                        "i18next",
-                        "@medusajs/ui",
-                        "@medusajs/dashboard",
-                        "@mercurjs/client",
-                        "@tanstack/react-query",
-                    ],
+                    include: filterResolvableDeps(
+                        [
+                            "react",
+                            "react/jsx-runtime",
+                            "react-dom/client",
+                            "react-router-dom",
+                            "react-i18next",
+                            "i18next",
+                            "@medusajs/ui",
+                            "@medusajs/dashboard",
+                            "@mercurjs/client",
+                            "@tanstack/react-query",
+                        ],
+                        root,
+                    ),
                 },
             };
         },
