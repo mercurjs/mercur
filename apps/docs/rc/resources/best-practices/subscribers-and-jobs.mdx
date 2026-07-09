@@ -1,0 +1,133 @@
+---
+title: "Subscribers & jobs"
+description: "React to events and run periodic work safely — fetch from { id }, mutate via workflows, log-don't-throw, idempotency and loop guards, cron jobs."
+---
+
+Subscribers and scheduled jobs are the two ways work happens *outside* a request. Both follow the same core rule as everything else: **they never mutate directly — they run a [workflow](/rc/resources/best-practices/workflows).**
+
+## Subscribers — react to events
+
+A subscriber listens for a domain event (emitted by a workflow via `emitEventStep`) and runs an asynchronous side effect: send a notification, sync a search index, create a link. It lives in `src/subscribers/` and exports a handler plus a `config` naming the event.
+
+```ts title="src/subscribers/brand-created.ts"
+import { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+
+export default async function brandCreatedHandler({
+  event,
+  container,
+}: SubscriberArgs<{ id: string }>) {
+  const { id } = event.data
+  // ...fetch, then run a workflow
+}
+
+export const config: SubscriberConfig = {
+  event: "brand.created",
+}
+```
+
+### Fetch full data from `{ id }`
+
+<Warning>
+  Event payloads carry **ids, not entities.** A subscriber receives `{ id }` (sometimes a couple of ids) and must fetch the full record it needs via Query. Never rely on a fat event payload — it goes stale and couples the emitter to every consumer's needs.
+</Warning>
+
+```ts
+const query = container.resolve(ContainerRegistrationKeys.QUERY)
+const { data: [brand] } = await query.graph({
+  entity: "brand",
+  fields: ["id", "name", "products.*"],
+  filters: { id: event.data.id },
+})
+```
+
+### Mutate via workflows, never directly
+
+If the subscriber needs to change data, it runs a workflow — same as a route would. The subscriber is the trigger; the workflow is the work.
+
+```ts
+await createBrandNotificationWorkflow(container).run({
+  input: { brand_id: brand.id },
+})
+```
+
+### Log, don't throw
+
+<Warning>
+  A subscriber runs detached from the request. Throwing doesn't surface to a user — it just fails silently or spams retries. **Catch errors and log them** (resolve the `logger`), then decide explicitly whether to rethrow for a retry or swallow.
+</Warning>
+
+```ts
+const logger = container.resolve("logger")
+try {
+  await doWork()
+} catch (e) {
+  logger.error(`brand-created subscriber failed for ${event.data.id}: ${e}`)
+}
+```
+
+### Idempotency and loop guards
+
+Events can be delivered more than once, and a subscriber that mutates data can re-trigger the very event it listens to. Two defences:
+
+- **Idempotency** — make the handler safe to run twice. Check current state before acting (e.g. "is this product already linked to a brand?" before creating the link), or clear the marker that triggered the work so a redelivered event finds nothing left to do.
+- **Loop guards** — if handling event X causes a mutation that emits X again, gate on a condition that becomes false after the first run, or key off a marker you set. Never emit the same event unconditionally from its own subscriber.
+
+<Tip>
+  A good idempotency check reads the current state through Query first and returns early if the work is already done. This makes redelivery harmless and removes the need for exactly-once guarantees.
+</Tip>
+
+## Scheduled jobs — periodic work
+
+A scheduled job runs on a cron interval to do time-based work: poll for records that became ready, reconcile drifted counters, emit a "settle now" event. It lives in `src/jobs/`, exports a handler taking the container, and a `config` with a `name` and a cron `schedule`.
+
+```ts title="src/jobs/deactivate-stale-brands.ts"
+import { MedusaContainer } from "@medusajs/framework/types"
+
+export default async function deactivateStaleBrands(container: MedusaContainer) {
+  const logger = container.resolve("logger")
+  const query = container.resolve(ContainerRegistrationKeys.QUERY)
+
+  const { data: stale } = await query.graph({
+    entity: "brand",
+    fields: ["id"],
+    filters: { is_active: true /* + your staleness condition */ },
+  })
+
+  // pass all ids at once — the workflow handles the batch, not the job
+  await deactivateBrandsWorkflow(container).run({
+    input: { ids: stale.map((b) => b.id) },
+  })
+
+  logger.info(`deactivated ${stale.length} stale brands`)
+}
+
+export const config = {
+  name: "deactivate-stale-brands",
+  schedule: "0 1 * * *", // daily at 01:00 UTC
+}
+```
+
+### When to use a job vs a subscriber
+
+| Trigger | Use |
+| --- | --- |
+| "Something happened" (a workflow emitted an event) | **Subscriber** |
+| "It's time" / "poll for anything that became ready" | **Scheduled job** |
+
+A time-based pipeline often combines both: a daily job finds records that became eligible and emits an event (say `brand.review_due`), and a *subscriber* turns each event into a workflow run. Polling for "what's ready" is the job; reacting to each item is the subscriber.
+
+### Job best practices
+
+- **Do the work in batches** and bound result sets — a job that `SELECT`s an unbounded table will eventually time out. Page through with `LIMIT`/`OFFSET` or a cursor.
+- **Idempotent by design** — a job re-runs on every tick; it must only act on records still needing action (filter on the not-yet-processed state).
+- **Mutations run workflows**, reads run Query — same as everywhere.
+- **Log a summary** each run (how many processed) so drift is visible.
+
+## Checklist
+
+- Subscriber `config.event` names a real emitted event; handler fetches full data from `{ id }` via Query.
+- Subscriber mutations run a workflow; errors are caught and logged, not thrown blindly.
+- Handler is idempotent and can't retrigger its own event without a guard.
+- Job exports `{ name, schedule }`; cron is correct (UTC).
+- Job filters to records still needing work, batches large sets, and logs a summary.
+- Neither a subscriber nor a job writes to the database outside a workflow.

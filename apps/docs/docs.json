@@ -125,6 +125,20 @@
                 ]
               },
               {
+                "group": "Best practices",
+                "pages": [
+                  "rc/resources/best-practices/overview",
+                  "rc/resources/best-practices/modules",
+                  "rc/resources/best-practices/module-links",
+                  "rc/resources/best-practices/workflows",
+                  "rc/resources/best-practices/api-routes",
+                  "rc/resources/best-practices/subscribers-and-jobs",
+                  "rc/resources/best-practices/types",
+                  "rc/resources/best-practices/custom-fields",
+                  "rc/resources/best-practices/frontend"
+                ]
+              },
+              {
                 "group": "Deployment",
                 "pages": [
                   "rc/resources/deployment/medusa-cloud"
