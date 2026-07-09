@@ -12,13 +12,13 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^9.39.2",
+    "eslint": "^10.6.0",
     "globals": "^17.0.0",
     "oxlint": "^1.64.0",
     "pg-god": "^1.0.12",
     "prettier": "^3.7.4",
     "turbo": "^2.7.4",
-    "typescript": "5.9.3",
+    "typescript": "7.0.2",
     "typescript-eslint": "^8.53.0"
   },
   "engines": {
