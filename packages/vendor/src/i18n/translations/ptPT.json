@@ -1733,7 +1733,7 @@
       "title": "Criar Reembolso",
       "sendNotificationHint": "Notificar clientes sobre o reembolso criado.",
       "systemPayment": "Pagamento do sistema",
-      "systemPaymentDesc": "Um ou mais dos teus pagamentos é um pagamento de sistema. Atenção que capturas e reembolsos não são tratados pelo Medusa para esses pagamentos.",
+      "systemPaymentDesc": "Um ou mais dos teus pagamentos é um pagamento de sistema. Atenção que capturas e reembolsos não são tratados pelo Mercur para esses pagamentos.",
       "error": {
         "amountToLarge": "Não é possível reembolsar mais do que o montante original da encomenda.",
         "amountNegative": "O montante do reembolso deve ser um número positivo.",
@@ -2809,7 +2809,7 @@
       "header": "Editar Perfil",
       "languageHint": "O idioma que queres usar no painel de administração. Isto não altera o idioma da tua loja.",
       "languagePlaceholder": "Selecionar idioma",
-      "usageInsightsHint": "Partilha informações de utilização e ajuda-nos a melhorar o Medusa. Podes saber mais sobre o que recolhemos e como usamos na nossa <0>documentação</0>."
+      "usageInsightsHint": "Partilha informações de utilização e ajuda-nos a melhorar o Mercur. Podes saber mais sobre o que recolhemos e como usamos na nossa <0>documentação</0>."
     },
     "toast": {
       "edit": "Alterações de perfil guardadas"
@@ -3231,7 +3231,7 @@
       "createPublishableHeader": "Criar Chave de API Publicável",
       "createPublishableHint": "Cria uma nova chave publicável para limitar o âmbito dos pedidos a canais de venda específicos.",
       "createSecretHeader": "Criar Chave de API Secreta",
-      "createSecretHint": "Cria uma nova chave secreta para aceder à API do Medusa como admin autenticado.",
+      "createSecretHint": "Cria uma nova chave secreta para aceder à API do Mercur como admin autenticado.",
       "secretKeyCreatedHeader": "Chave Secreta Criada",
       "secretKeyCreatedHint": "A tua nova chave secreta foi gerada. Copia e guarda-a em segurança agora. Esta é a única vez que será mostrada.",
       "copySecretTokenSuccess": "Chave secreta copiada para a área de transferência.",
@@ -3363,7 +3363,7 @@
   },
   "login": {
     "forgotPassword": "Esqueceste-te da palavra-passe? - <0>Repor</0>",
-    "title": "Bem-vindo ao Medusa",
+    "title": "Bem-vindo ao Mercur",
     "hint": "Inicia sessão para aceder à área da conta",
     "submit": "Iniciar sessão",
     "sessionExpired": "Sessão expirada",
@@ -3375,7 +3375,7 @@
     }
   },
   "invite": {
-    "title": "Bem-vindo ao Medusa",
+    "title": "Bem-vindo ao Mercur",
     "hint": "Cria a tua conta abaixo",
     "backToLogin": "Voltar ao login",
     "createAccount": "Criar conta",
@@ -3383,8 +3383,8 @@
     "emailTooltip": "O teu email não pode ser alterado. Se quiseres usar outro email, tem de ser enviado um novo convite.",
     "invalidInvite": "O convite é inválido ou expirou.",
     "successTitle": "A tua conta foi registada",
-    "successHint": "Começa já a usar o Medusa Admin.",
-    "successAction": "Iniciar Medusa Admin",
+    "successHint": "Começa já a usar o Mercur Admin.",
+    "successAction": "Iniciar Mercur Admin",
     "invalidTokenTitle": "O teu token de convite é inválido",
     "invalidTokenHint": "Tenta pedir um novo link de convite.",
     "passwordMismatch": "As palavras-passe não coincidem",
@@ -3420,7 +3420,7 @@
   },
   "workflowExecutions": {
     "domain": "Workflows",
-    "subtitle": "Vê e acompanha execuções de workflows na tua aplicação Medusa.",
+    "subtitle": "Vê e acompanha execuções de workflows na tua aplicação Mercur.",
     "transactionIdLabel": "ID da transação",
     "workflowIdLabel": "ID do workflow",
     "progressLabel": "Progresso",
@@ -3535,7 +3535,7 @@
       "description": "De momento não tens notificações, mas quando tiveres vão aparecer aqui."
     },
     "accessibility": {
-      "description": "Notificações sobre atividades do Medusa serão listadas aqui."
+      "description": "Notificações sobre atividades do Mercur serão listadas aqui."
     }
   },
   "errors": {
@@ -3978,7 +3978,7 @@
       "manageEntities": "Gerir entidades",
       "manageLocales": "Gerir idiomas"
     },
-    "subtitle": "Faça a gestão das traduções dos seus dados no Medusa",
+    "subtitle": "Faça a gestão das traduções dos seus dados no Mercur",
     "list": {
       "metrics": "{{translated}} de {{total}} traduções"
     },

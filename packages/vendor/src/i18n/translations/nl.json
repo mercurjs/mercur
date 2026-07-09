@@ -1708,7 +1708,7 @@
       "title": "Terugbetaling aanmaken",
       "sendNotificationHint": "Informeer klanten over de aangemaakte terugbetaling.",
       "systemPayment": "Systeembetaling",
-      "systemPaymentDesc": "Een of meer van uw betalingen is een systeembetaling. Houd er rekening mee dat incasso's en terugbetalingen niet door Medusa worden afgehandeld voor dergelijke betalingen.",
+      "systemPaymentDesc": "Een of meer van uw betalingen is een systeembetaling. Houd er rekening mee dat incasso's en terugbetalingen niet door Mercur worden afgehandeld voor dergelijke betalingen.",
       "error": {
         "amountToLarge": "Kan niet meer terugbetalen dan het oorspronkelijke bestelbedrag.",
         "amountNegative": "Terug te betalen bedrag moet een positief getal zijn.",
@@ -2811,7 +2811,7 @@
       "header": "Profiel bewerken",
       "languageHint": "De taal die u wilt gebruiken in het admin dashboard. Dit verandert niet de taal van uw winkel.",
       "languagePlaceholder": "Selecteer taal",
-      "usageInsightsHint": "Deel gebruiksstatistieken en help ons Medusa te verbeteren. U kunt meer lezen over wat we verzamelen en hoe we het gebruiken in onze <0>documentatie</0>."
+      "usageInsightsHint": "Deel gebruiksstatistieken en help ons Mercur te verbeteren. U kunt meer lezen over wat we verzamelen en hoe we het gebruiken in onze <0>documentatie</0>."
     },
     "toast": {
       "edit": "Profielwijzigingen opgeslagen"
@@ -3234,7 +3234,7 @@
       "createPublishableHeader": "Publiceerbare API-sleutel aanmaken",
       "createPublishableHint": "Maak een nieuwe publiceerbare API-sleutel aan om het bereik van verzoeken te beperken tot specifieke verkoopkanalen.",
       "createSecretHeader": "Geheime API-sleutel aanmaken",
-      "createSecretHint": "Maak een nieuwe geheime API-sleutel aan om toegang te krijgen tot de Medusa API als een geauthenticeerde admin gebruiker.",
+      "createSecretHint": "Maak een nieuwe geheime API-sleutel aan om toegang te krijgen tot de Mercur API als een geauthenticeerde admin gebruiker.",
       "secretKeyCreatedHeader": "Geheime sleutel aangemaakt",
       "secretKeyCreatedHint": "Uw nieuwe geheime sleutel is gegenereerd. Kopieer en bewaar deze nu veilig. Dit is de enige keer dat deze wordt weergegeven.",
       "copySecretTokenSuccess": "Geheime sleutel is gekopieerd naar het klembord.",
@@ -3331,7 +3331,7 @@
   },
   "login": {
     "forgotPassword": "Wachtwoord vergeten? - <0>Resetten</0>",
-    "title": "Welkom bij Medusa",
+    "title": "Welkom bij Mercur",
     "hint": "Log in om toegang te krijgen tot het accountgebied",
     "submit": "Inloggen",
     "sessionExpired": "Sessie verlopen",
@@ -3343,7 +3343,7 @@
     }
   },
   "invite": {
-    "title": "Welkom bij Medusa",
+    "title": "Welkom bij Mercur",
     "hint": "Maak hieronder uw account aan",
     "backToLogin": "Terug naar inloggen",
     "createAccount": "Account aanmaken",
@@ -3351,8 +3351,8 @@
     "emailTooltip": "Uw e-mail kan niet worden gewijzigd. Als u een andere e-mail wilt gebruiken, moet een nieuwe uitnodiging worden verzonden.",
     "invalidInvite": "De uitnodiging is ongeldig of verlopen.",
     "successTitle": "Uw account is geregistreerd",
-    "successHint": "Begin meteen met Medusa Admin.",
-    "successAction": "Start Medusa Admin",
+    "successHint": "Begin meteen met Mercur Admin.",
+    "successAction": "Start Mercur Admin",
     "invalidTokenTitle": "Uw uitnodigingstoken is ongeldig",
     "invalidTokenHint": "Probeer een nieuwe uitnodigingslink aan te vragen.",
     "passwordMismatch": "Wachtwoorden komen niet overeen",
@@ -3388,7 +3388,7 @@
   },
   "workflowExecutions": {
     "domain": "Workflows",
-    "subtitle": "Bekijk en houd workflow-uitvoeringen in uw Medusa-applicatie bij.",
+    "subtitle": "Bekijk en houd workflow-uitvoeringen in uw Mercur-applicatie bij.",
     "transactionIdLabel": "Transactie-ID",
     "workflowIdLabel": "Workflow-ID",
     "progressLabel": "Voortgang",
@@ -3481,7 +3481,7 @@
       "description": "U heeft momenteel geen notificaties, maar zodra u die heeft, verschijnen ze hier."
     },
     "accessibility": {
-      "description": "Notificaties over Medusa-activiteiten worden hier vermeld."
+      "description": "Notificaties over Mercur-activiteiten worden hier vermeld."
     }
   },
   "errors": {
@@ -3890,7 +3890,7 @@
       "manageEntities": "Entiteiten beheren",
       "manageLocales": "Landinstellingen beheren"
     },
-    "subtitle": "Beheer vertalingen van je gegevens in Medusa",
+    "subtitle": "Beheer vertalingen van je gegevens in Mercur",
     "list": {
       "metrics": "{{translated}} van {{total}} vertalingen"
     },

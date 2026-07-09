@@ -3891,7 +3891,7 @@
       "manageEntities": "مدیریت موجودیت‌ها",
       "manageLocales": "مدیریت زبان‌ها"
     },
-    "subtitle": "ترجمه‌های داده‌های خود در Medusa را مدیریت کنید",
+    "subtitle": "ترجمه‌های داده‌های خود در Mercur را مدیریت کنید",
     "list": {
       "metrics": "{{translated}} از {{total}} ترجمه"
     },

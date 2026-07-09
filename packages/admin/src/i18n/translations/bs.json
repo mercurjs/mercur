@@ -1687,7 +1687,7 @@
       "title": "Kreiraj povrat",
       "sendNotificationHint": "Obavijestite kupce o kreiranom povratu.",
       "systemPayment": "Sistemska uplata",
-      "systemPaymentDesc": "Jedna ili više vaših uplata je sistenska uplata. Budite svjesni da Medusa ne upravlja obradom uplata i povrata za takve uplate.",
+      "systemPaymentDesc": "Jedna ili više vaših uplata je sistenska uplata. Budite svjesni da Mercur ne upravlja obradom uplata i povrata za takve uplate.",
       "error": {
         "amountToLarge": "Nije moguće vratiti više od originalnog iznosa narudžbe.",
         "amountNegative": "Iznos povrata mora biti pozitivan broj.",
@@ -3138,7 +3138,7 @@
       "createPublishableHeader": "Kreiraj javni API ključ",
       "createPublishableHint": "Kreirajte novi javni API ključ kako biste ograničili opseg zahtjeva na određene prodajne kanale.",
       "createSecretHeader": "Kreiraj tajni API ključ",
-      "createSecretHint": "Kreirajte novi tajni API ključ za pristup Medusa API-ju kao autentifikovani administrativni korisnik.",
+      "createSecretHint": "Kreirajte novi tajni API ključ za pristup Mercur API-ju kao autentifikovani administrativni korisnik.",
       "secretKeyCreatedHeader": "Tajni ključ kreiran",
       "secretKeyCreatedHint": "Vaš novi tajni ključ je generisan. Kopirajte ga i sigurno sačuvajte sada. Ovo je jedini put kada će biti prikazan.",
       "copySecretTokenSuccess": "Tajni ključ je uspješno kopiran u međuspremnik.",
@@ -3236,12 +3236,12 @@
   },
   "login": {
     "forgotPassword": "Zaboravili ste lozinku? - <0>Poništi</0>",
-    "title": "Dobrodošli u Medusa",
+    "title": "Dobrodošli u Mercur",
     "hint": "Prijavite se da biste pristupili korisničkom području",
     "sessionExpired": "Sesija je istekla"
   },
   "invite": {
-    "title": "Dobrodošli u Medusa",
+    "title": "Dobrodošli u Mercur",
     "hint": "Kreirajte svoj račun ispod",
     "backToLogin": "Povratak na prijavu",
     "createAccount": "Kreiraj račun",
@@ -3249,8 +3249,8 @@
     "emailTooltip": "Vaš email se ne može mijenjati. Ako želite koristiti drugi email, mora se poslati nova pozivnica.",
     "invalidInvite": "Pozivnica je nevažeća ili je istekao rok.",
     "successTitle": "Vaš račun je registriran",
-    "successHint": "Počnite odmah s Medusa Admin.",
-    "successAction": "Započnite Medusa Admin",
+    "successHint": "Počnite odmah s Mercur Admin.",
+    "successAction": "Započnite Mercur Admin",
     "invalidTokenTitle": "Vaš pozivni token je nevažeći",
     "invalidTokenHint": "Pokušajte zatražiti novi pozivni link.",
     "passwordMismatch": "Lozinke se ne podudaraju",
@@ -3283,7 +3283,7 @@
   },
   "workflowExecutions": {
     "domain": "Radni tokovi",
-    "subtitle": "Pregledajte i pratite izvršenja radnih tokova u vašoj Medusa aplikaciji.",
+    "subtitle": "Pregledajte i pratite izvršenja radnih tokova u vašoj Mercur aplikaciji.",
     "transactionIdLabel": "ID transakcije",
     "workflowIdLabel": "ID radnog toka",
     "progressLabel": "Napredak",
@@ -3374,7 +3374,7 @@
       "description": "Nemate obavijesti u ovom trenutku, ali kada ih budete imali, bit će ovdje."
     },
     "accessibility": {
-      "description": "Obavijesti o Medusa aktivnostima bit će ovdje prikazane."
+      "description": "Obavijesti o Mercur aktivnostima bit će ovdje prikazane."
     }
   },
   "errors": {

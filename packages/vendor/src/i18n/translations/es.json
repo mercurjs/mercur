@@ -1760,7 +1760,7 @@
       "title": "Crear Reembolso",
       "sendNotificationHint": "Notificar a los clientes sobre el reembolso creado.",
       "systemPayment": "Pago del sistema",
-      "systemPaymentDesc": "Uno o más de tus pagos son pagos del sistema. Ten en cuenta que Medusa no maneja las capturas y reembolsos para dichos pagos.",
+      "systemPaymentDesc": "Uno o más de tus pagos son pagos del sistema. Ten en cuenta que Mercur no maneja las capturas y reembolsos para dichos pagos.",
       "error": {
         "amountToLarge": "No se puede reembolsar más que el monto original del pedido.",
         "amountNegative": "El monto del reembolso debe ser un número positivo.",
@@ -2831,7 +2831,7 @@
       "header": "Editar Perfil",
       "languageHint": "El idioma que deseas usar en el panel de administración. Esto no cambia el idioma de tu tienda.",
       "languagePlaceholder": "Selecciona idioma",
-      "usageInsightsHint": "Comparte información de uso y ayúdanos a mejorar Medusa. Puedes leer más sobre lo que recopilamos y cómo lo usamos en nuestra <0>documentación</0>."
+      "usageInsightsHint": "Comparte información de uso y ayúdanos a mejorar Mercur. Puedes leer más sobre lo que recopilamos y cómo lo usamos en nuestra <0>documentación</0>."
     },
     "toast": {
       "edit": "Cambios en el perfil guardados"
@@ -2901,7 +2901,7 @@
       "manageLocales": "Gestionar idiomas"
     },
     "title": "Traducción de dominios",
-    "subtitle": "Gestiona las traducciones de tus datos en Medusa",
+    "subtitle": "Gestiona las traducciones de tus datos en Mercur",
     "bulk": {
       "header": "Editor de Traducciones en Masa",
       "locale": "Idioma",
@@ -3294,7 +3294,7 @@
       "createPublishableHeader": "Crear Clave API Publicable",
       "createPublishableHint": "Crea una nueva clave API publicable para limitar el alcance de las solicitudes a canales de venta específicos.",
       "createSecretHeader": "Crear Clave API Secreta",
-      "createSecretHint": "Crea una nueva clave API secreta para acceder a la API de Medusa como usuario administrador autenticado.",
+      "createSecretHint": "Crea una nueva clave API secreta para acceder a la API de Mercur como usuario administrador autenticado.",
       "secretKeyCreatedHeader": "Clave Secreta Creada",
       "secretKeyCreatedHint": "Tu nueva clave secreta ha sido generada. Cópiala y guárdala de manera segura ahora. Esta es la única vez que se mostrará.",
       "copySecretTokenSuccess": "Clave secreta copiada al portapapeles.",
@@ -3391,7 +3391,7 @@
   },
   "login": {
     "forgotPassword": "¿Olvidaste la contraseña? - <0>Restablecer</0>",
-    "title": "Bienvenido a Medusa",
+    "title": "Bienvenido a Mercur",
     "hint": "Inicia sesión para acceder a la área de cuentas",
     "submit": "Iniciar sesión",
     "sessionExpired": "Sesión caducada",
@@ -3403,7 +3403,7 @@
     }
   },
   "invite": {
-    "title": "Bienvenido a Medusa",
+    "title": "Bienvenido a Mercur",
     "hint": "Crea tu cuenta a continuación",
     "backToLogin": "Volver al login",
     "createAccount": "Crear cuenta",
@@ -3411,8 +3411,8 @@
     "emailTooltip": "Tu correo electrónico no puede ser cambiado. Si deseas usar otro correo, debe enviarse una nueva invitación.",
     "invalidInvite": "La invitación es inválida o ha expirado.",
     "successTitle": "Tu cuenta ha sido registrada",
-    "successHint": "Comienza a usar Medusa Admin de inmediato.",
-    "successAction": "Iniciar Medusa Admin",
+    "successHint": "Comienza a usar Mercur Admin de inmediato.",
+    "successAction": "Iniciar Mercur Admin",
     "invalidTokenTitle": "Tu token de invitación es inválido",
     "invalidTokenHint": "Intenta solicitar un nuevo enlace de invitación.",
     "passwordMismatch": "Las contraseñas no coinciden",
@@ -3448,7 +3448,7 @@
   },
   "workflowExecutions": {
     "domain": "Flujos de trabajo",
-    "subtitle": "Visualiza y realiza un seguimiento de las ejecuciones de flujos de trabajo en tu aplicación Medusa.",
+    "subtitle": "Visualiza y realiza un seguimiento de las ejecuciones de flujos de trabajo en tu aplicación Mercur.",
     "transactionIdLabel": "ID de Transacción",
     "workflowIdLabel": "ID de Flujo de Trabajo",
     "progressLabel": "Progreso",
@@ -3541,7 +3541,7 @@
       "description": "No tienes notificaciones por el momento, pero una vez las tengas aparecerán aquí."
     },
     "accessibility": {
-      "description": "Las notificaciones sobre las actividades de Medusa se mostrarán aquí."
+      "description": "Las notificaciones sobre las actividades de Mercur se mostrarán aquí."
     }
   },
   "errors": {

@@ -1705,7 +1705,7 @@
       "title": "Create Refund",
       "sendNotificationHint": "Notify customers about the created refund.",
       "systemPayment": "System payment",
-      "systemPaymentDesc": "One or more of your payments is a system payment. Be aware, that captures and refunds are not handled by Medusa for such payments.",
+      "systemPaymentDesc": "One or more of your payments is a system payment. Be aware, that captures and refunds are not handled by Mercur for such payments.",
       "error": {
         "amountToLarge": "Cannot refund more than the original order amount.",
         "amountNegative": "Refund amount must be a positive number.",
@@ -2774,7 +2774,7 @@
       "header": "Edit Profile",
       "languageHint": "The language you want to use in the admin dashboard. This doesn't change the language of your store.",
       "languagePlaceholder": "Select language",
-      "usageInsightsHint": "Share usage insights and help us improve Medusa. You can read more about what we collect and how we use it in our <0>documentation</0>."
+      "usageInsightsHint": "Share usage insights and help us improve Mercur. You can read more about what we collect and how we use it in our <0>documentation</0>."
     },
     "toast": {
       "edit": "Profiles changes saved"
@@ -3136,7 +3136,7 @@
       "createPublishableHeader": "Create Publishable API Key",
       "createPublishableHint": "Create a new publishable API key to limit the scope of requests to specific sales channels.",
       "createSecretHeader": "Create Secret API Key",
-      "createSecretHint": "Create a new secret API key to access the Medusa API as an authenticated admin user.",
+      "createSecretHint": "Create a new secret API key to access the Mercur API as an authenticated admin user.",
       "secretKeyCreatedHeader": "Secret Key Created",
       "secretKeyCreatedHint": "Your new secret key has been generated. Copy and securely store it now. This is the only time it will be displayed.",
       "copySecretTokenSuccess": "Secret key was copied to clipboard.",
@@ -3386,8 +3386,8 @@
     "emailTooltip": "Your email cannot be changed. If you would like to use another email, a new invite must be sent.",
     "invalidInvite": "The invite is invalid or has expired.",
     "successTitle": "Your account has been registered",
-    "successHint": "Get started with Medusa Admin right away.",
-    "successAction": "Start Medusa Admin",
+    "successHint": "Get started with Mercur Admin right away.",
+    "successAction": "Start Mercur Admin",
     "invalidTokenTitle": "Your invite token is invalid",
     "invalidTokenHint": "Try requesting a new invite link.",
     "passwordMismatch": "Passwords do not match",
@@ -3420,7 +3420,7 @@
   },
   "workflowExecutions": {
     "domain": "Workflows",
-    "subtitle": "View and keep track of workflow executions in your Medusa application.",
+    "subtitle": "View and keep track of workflow executions in your Mercur application.",
     "transactionIdLabel": "Transaction ID",
     "workflowIdLabel": "Workflow ID",
     "progressLabel": "Progress",
@@ -3533,7 +3533,7 @@
       "description": "You don't have any notifications at the moment, but once you do they will live here."
     },
     "accessibility": {
-      "description": "Notifications about Medusa activities will be listed here."
+      "description": "Notifications about Mercur activities will be listed here."
     }
   },
   "errors": {

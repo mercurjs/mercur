@@ -1678,7 +1678,7 @@
       "title": "Criar Reembolso",
       "sendNotificationHint": "Notificar os clientes sobre o reembolso criado.",
       "systemPayment": "Pagamento do sistema",
-      "systemPaymentDesc": "Um ou mais dos seus pagamentos é um pagamento do sistema. Observe que capturas e reembolsos não são tratados pela Medusa para esses pagamentos.",
+      "systemPaymentDesc": "Um ou mais dos seus pagamentos é um pagamento do sistema. Observe que capturas e reembolsos não são tratados pela Mercur para esses pagamentos.",
       "error": {
         "amountToLarge": "Não é possível reembolsar mais do que o valor original do pedido.",
         "amountNegative": "O valor do reembolso deve ser um número positivo.",
@@ -2784,7 +2784,7 @@
       "header": "Editar Perfil",
       "languageHint": "O idioma que você deseja usar no painel de administração. Isso não altera o idioma da sua loja.",
       "languagePlaceholder": "Selecione o idioma",
-      "usageInsightsHint": "Compartilhe informações de uso e nos ajude a melhorar o Medusa. Você pode ler mais sobre o que coletamos e como usamos na nossa <0>documentação</0>."
+      "usageInsightsHint": "Compartilhe informações de uso e nos ajude a melhorar o Mercur. Você pode ler mais sobre o que coletamos e como usamos na nossa <0>documentação</0>."
     },
     "toast": {
       "edit": "Alterações no perfil salvas"
@@ -3141,7 +3141,7 @@
       "createPublishableHeader": "Criar Chave de API Publicável",
       "createPublishableHint": "Crie uma nova chave de API publicável para limitar o escopo das solicitações a canais de vendas específicos.",
       "createSecretHeader": "Criar Chave de API Secreta",
-      "createSecretHint": "Crie uma nova chave de API secreta para acessar a API Medusa como um usuário administrativo autenticado.",
+      "createSecretHint": "Crie uma nova chave de API secreta para acessar a API Mercur como um usuário administrativo autenticado.",
       "secretKeyCreatedHeader": "Chave Secreta Criada",
       "secretKeyCreatedHint": "Sua nova chave secreta foi gerada. Copie e armazene-a com segurança agora. Este é o único momento em que ela será exibida.",
       "copySecretTokenSuccess": "Chave secreta copiada para a área de transferência.",
@@ -3239,12 +3239,12 @@
   },
   "login": {
     "forgotPassword": "Esqueceu a senha? - <0>Redefinir</0>",
-    "title": "Bem-vindo ao Medusa",
+    "title": "Bem-vindo ao Mercur",
     "hint": "Faça login para acessar a área da conta",
     "sessionExpired": "Sessão expirada"
   },
   "invite": {
-    "title": "Bem-vindo ao Medusa",
+    "title": "Bem-vindo ao Mercur",
     "hint": "Crie sua conta abaixo",
     "backToLogin": "Voltar para o login",
     "createAccount": "Criar conta",
@@ -3252,8 +3252,8 @@
     "emailTooltip": "Seu e-mail não pode ser alterado. Se desejar usar outro e-mail, um novo convite deve ser enviado.",
     "invalidInvite": "O convite é inválido ou expirou.",
     "successTitle": "Sua conta foi registrada",
-    "successHint": "Comece a usar o Medusa Admin imediatamente.",
-    "successAction": "Iniciar Medusa Admin",
+    "successHint": "Comece a usar o Mercur Admin imediatamente.",
+    "successAction": "Iniciar Mercur Admin",
     "invalidTokenTitle": "Seu token de convite é inválido",
     "invalidTokenHint": "Tente solicitar um novo link de convite.",
     "passwordMismatch": "As senhas não correspondem",
@@ -3286,7 +3286,7 @@
   },
   "workflowExecutions": {
     "domain": "Fluxos de Trabalho",
-    "subtitle": "Visualize e acompanhe as execuções de fluxos de trabalho em sua aplicação Medusa.",
+    "subtitle": "Visualize e acompanhe as execuções de fluxos de trabalho em sua aplicação Mercur.",
     "transactionIdLabel": "ID da Transação",
     "workflowIdLabel": "ID do Fluxo de Trabalho",
     "progressLabel": "Progresso",
@@ -3377,7 +3377,7 @@
       "description": "Você não tem nenhuma notificação no momento, mas quando tiver, elas aparecerão aqui."
     },
     "accessibility": {
-      "description": "Notificações sobre atividades do Medusa serão listadas aqui."
+      "description": "Notificações sobre atividades do Mercur serão listadas aqui."
     }
   },
   "errors": {
