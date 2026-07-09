@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
+    "notAvailable": "ไม่มีข้อมูล",
     "ascending": "เรียงจากน้อยไปมาก",
     "descending": "เรียงจากมากไปน้อย",
     "add": "เพิ่ม",
@@ -92,6 +94,11 @@
     }
   },
   "validation": {
+    "requiredField": "ช่องที่จำเป็นต้องกรอก",
+    "valueRequired": "จำเป็นต้องระบุค่า",
+    "atLeastOnePrice": "ต้องเพิ่มราคาอย่างน้อยหนึ่งรายการ",
+    "currencyCodeNotFound": "ไม่พบรหัสสกุลเงิน",
+    "shippingOptionIdMissing": "ไม่มีพารามิเตอร์ ID ตัวเลือกการจัดส่ง",
     "mustBeInt": "ค่าต้องเป็นตัวเลขจำนวนเต็ม",
     "mustBePositive": "ค่าต้องเป็นตัวเลขที่เป็นบวก"
   },
@@ -1768,6 +1775,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "ส่วนลดเป็นเปอร์เซ็นต์สำหรับสินค้า",
+        "description": "ลดราคาเป็นเปอร์เซ็นต์สำหรับสินค้าที่เลือก"
+      }
+    },
     "domain": "โปรโมชั่น",
     "sections": {
       "details": "รายละเอียดโปรโมชั่น"

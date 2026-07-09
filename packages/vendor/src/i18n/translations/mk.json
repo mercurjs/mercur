@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Настана непозната грешка",
+    "notAvailable": "Н/Д",
     "ascending": "Растечки",
     "descending": "Опаѓачки",
     "add": "Додадете",
@@ -92,6 +94,11 @@
     }
   },
   "validation": {
+    "requiredField": "Задолжително поле",
+    "valueRequired": "Потребна е вредност",
+    "atLeastOnePrice": "Мора да се додаде барем една цена.",
+    "currencyCodeNotFound": "Кодот на валутата не е пронајден",
+    "shippingOptionIdMissing": "Недостасува параметарот ID на опцијата за испорака",
     "mustBeInt": "Вредноста мора да биде цел број.",
     "mustBePositive": "Вредноста мора да биде позитивен број."
   },
@@ -1871,6 +1878,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Процентуален попуст на производ",
+        "description": "Процентуален попуст на избрани производи"
+      }
+    },
     "domain": "Промоции",
     "sections": {
       "details": "Детали за промоција"

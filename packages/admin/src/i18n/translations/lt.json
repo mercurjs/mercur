@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Rodinys sukurtas",
+      "createFailed": "Nepavyko sukurti rodinio",
+      "updateActiveFailed": "Nepavyko atnaujinti aktyvaus rodinio",
+      "updated": "Rodinys atnaujintas",
+      "updateFailed": "Nepavyko atnaujinti rodinio",
+      "deleted": "Rodinys sėkmingai ištrintas",
+      "deleteFailed": "Nepavyko ištrinti rodinio"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Taisyklės pavadinimas",
+      "attribute": "Atributas",
+      "fee": "Mokestis"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Įvyko nežinoma klaida",
+    "notAvailable": "N/A",
     "ascending": "Didėjančia tvarka",
     "descending": "Mažėjančia tvarka",
     "add": "Pridėti",
@@ -93,6 +113,10 @@
     }
   },
   "validation": {
+    "requiredField": "Privalomas laukas",
+    "valueRequired": "Reikšmė yra privaloma",
+    "currencyCodeNotFound": "Valiutos kodas nerastas",
+    "shippingOptionIdMissing": "Trūksta pristatymo būdo ID parametro",
     "mustBeInt": "Reikšmė turi būti sveikasis skaičius.",
     "mustBePositive": "Reikšmė turi būti teigiamas skaičius."
   },
@@ -1949,6 +1973,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Nuolaida produktams",
+        "description": "Nuolaida konkretiems produktams arba produktų grupei"
+      },
+      "amountOffOrder": {
+        "title": "Nuolaida užsakymui",
+        "description": "Nuolaida nuo bendros užsakymo sumos"
+      },
+      "percentageOffProduct": {
+        "title": "Procentinė nuolaida produktui",
+        "description": "Procentinė nuolaida pasirinktiems produktams"
+      },
+      "percentageOffOrder": {
+        "title": "Procentinė nuolaida užsakymui",
+        "description": "Procentinė nuolaida nuo bendros užsakymo sumos"
+      },
+      "buyGet": {
+        "title": "Pirk X, gauk Y",
+        "description": "Pirk X produktą (-ų), gauk Y produktą (-ų)"
+      },
+      "freeShipping": {
+        "title": "Nemokamas pristatymas",
+        "description": "Pritaiko 100% nuolaidą pristatymo mokesčiams"
+      }
+    },
     "domain": "Akcijos",
     "sections": {
       "details": "Akcijos nustatymai"
@@ -2373,6 +2423,12 @@
     "invite": "Pakvietimas"
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Uždarymo pradžios data yra privaloma",
+        "closedFromInPast": "Uždarymo pradžios data negali būti praeityje"
+      }
+    },
     "domain": "Parduotuvė",
     "manageYourStoresDetails": "Tvarkykite savo parduotuvės nustatymus",
     "editStore": "Keisti parduotuvę",

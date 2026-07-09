@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Произошла неизвестная ошибка",
+    "notAvailable": "Н/Д",
     "ascending": "По возрастанию",
     "descending": "По убыванию",
     "add": "Добавить",
@@ -92,6 +94,11 @@
     }
   },
   "validation": {
+    "requiredField": "Обязательное поле",
+    "valueRequired": "Необходимо указать значение",
+    "atLeastOnePrice": "Необходимо добавить хотя бы одну цену.",
+    "currencyCodeNotFound": "Код валюты не найден",
+    "shippingOptionIdMissing": "Отсутствует параметр ID способа доставки",
     "mustBeInt": "Значение должно быть целым числом.",
     "mustBePositive": "Значение должно быть положительным числом."
   },
@@ -1871,6 +1878,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Процент скидки на товар",
+        "description": "Процентная скидка на выбранные товары"
+      }
+    },
     "domain": "Акции",
     "sections": {
       "details": "Детали акции"

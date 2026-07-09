@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Възникна неизвестна грешка",
+    "notAvailable": "Н/П",
     "ascending": "Възходящо",
     "descending": "Низходящо",
     "add": "Добави",
@@ -92,6 +94,11 @@
     }
   },
   "validation": {
+    "requiredField": "Задължително поле",
+    "valueRequired": "Изисква се стойност",
+    "atLeastOnePrice": "Трябва да се добави поне една цена.",
+    "currencyCodeNotFound": "Кодът на валутата не е намерен",
+    "shippingOptionIdMissing": "Липсва параметър ID на метод за доставка",
     "mustBeInt": "Стойността трябва да е цяло число.",
     "mustBePositive": "Стойността трябва да е положително число."
   },
@@ -1909,6 +1916,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Процентна отстъпка от продукт",
+        "description": "Процентна отстъпка от избрани продукти"
+      }
+    },
     "domain": "Промоции",
     "sections": {
       "details": "Детайли за промоцията"

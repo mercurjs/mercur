@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Er is een onbekende fout opgetreden",
+    "notAvailable": "N/A",
     "ascending": "Oplopend",
     "descending": "Aflopend",
     "add": "Toevoegen",
@@ -93,6 +95,11 @@
     }
   },
   "validation": {
+    "requiredField": "Verplicht veld",
+    "valueRequired": "Waarde is verplicht",
+    "atLeastOnePrice": "Er moet minstens één prijs worden toegevoegd.",
+    "currencyCodeNotFound": "Valutacode niet gevonden",
+    "shippingOptionIdMissing": "Parameter voor verzendoptie-ID ontbreekt",
     "mustBeInt": "De waarde moet een geheel getal zijn.",
     "mustBePositive": "De waarde moet een positief getal zijn."
   },
@@ -1930,6 +1937,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Percentage korting op product",
+        "description": "Geeft een percentage korting op geselecteerde producten"
+      }
+    },
     "domain": "Promoties",
     "sections": {
       "details": "Promotiedetails"

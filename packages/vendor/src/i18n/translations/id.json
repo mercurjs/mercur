@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Terjadi kesalahan yang tidak diketahui",
+    "notAvailable": "T/A",
     "ascending": "Menaik",
     "descending": "Menurun",
     "add": "Tambah",
@@ -93,6 +95,11 @@
     }
   },
   "validation": {
+    "requiredField": "Kolom wajib diisi",
+    "valueRequired": "Nilai wajib diisi",
+    "atLeastOnePrice": "Setidaknya satu harga harus ditambahkan.",
+    "currencyCodeNotFound": "Kode mata uang tidak ditemukan",
+    "shippingOptionIdMissing": "Parameter ID Opsi Pengiriman tidak ada",
     "mustBeInt": "Nilai harus berupa bilangan bulat.",
     "mustBePositive": "Nilai harus berupa bilangan positif."
   },
@@ -1943,6 +1950,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Diskon persentase produk",
+        "description": "Diskon persentase untuk produk yang dipilih"
+      }
+    },
     "domain": "Promosi",
     "sections": {
       "details": "Detail Promosi"

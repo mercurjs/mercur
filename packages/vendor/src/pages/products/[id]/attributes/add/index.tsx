@@ -24,6 +24,7 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { keepPreviousData } from "@tanstack/react-query"
 import { zodResolver } from "@hookform/resolvers/zod"
+import i18n from "i18next"
 import * as zod from "zod"
 
 import { DataTable } from "@components/data-table"
@@ -65,7 +66,7 @@ const AttributeValueSchema = zod.object({
         if (Array.isArray(val)) return val.length > 0
         return val.length > 0
       },
-      { message: "Value is required" }
+      { message: i18n.t("validation.valueRequired") }
     ),
 })
 

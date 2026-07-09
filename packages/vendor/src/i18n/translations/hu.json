@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Ismeretlen hiba történt",
+    "notAvailable": "N/A",
     "ascending": "Növekvő",
     "descending": "Csökkenő",
     "add": "Hozzáadás",
@@ -93,6 +95,11 @@
     }
   },
   "validation": {
+    "requiredField": "Kötelező mező",
+    "valueRequired": "Az érték megadása kötelező",
+    "atLeastOnePrice": "Legalább egy árat meg kell adni.",
+    "currencyCodeNotFound": "A pénznemkód nem található",
+    "shippingOptionIdMissing": "Hiányzik a szállítási mód azonosító paramétere",
     "mustBeInt": "Az értéknek egész számnak kell lennie.",
     "mustBePositive": "Az értéknek pozitívnak kell lennie."
   },
@@ -1930,6 +1937,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Százalékos kedvezmény termékre",
+        "description": "Százalékos kedvezmény a kiválasztott termékekre"
+      }
+    },
     "domain": "Promóciók",
     "sections": {
       "details": "Promóció Részletei"

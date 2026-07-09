@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { useReservationItem, useUpdateReservationItem } from "@hooks/api";
 import { MetadataForm } from "@components/forms/metadata-form";
@@ -6,6 +7,7 @@ import { RouteDrawer } from "@components/modals";
 import { ClientError } from "@mercurjs/client";
 
 export const ReservationMetadata = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
 
   const { reservation, isPending, isError, error } = useReservationItem(id!);
@@ -31,7 +33,7 @@ export const ReservationMetadata = () => {
       return result;
     } catch (error) {
       const message =
-        error instanceof ClientError ? error.message : "An error occurred";
+        error instanceof ClientError ? error.message : t("errorBoundary.defaultTitle");
       callbacks.onError?.(message);
       throw error;
     }

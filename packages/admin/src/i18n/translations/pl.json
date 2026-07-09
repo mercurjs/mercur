@@ -1,6 +1,15 @@
 {
+  "commissions": {
+    "rulesTable": {
+      "name": "Nazwa reguły",
+      "attribute": "Atrybut",
+      "fee": "Opłata"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Wystąpił nieznany błąd",
+    "notAvailable": "N/A",
     "ascending": "Rosnąco",
     "descending": "Malejąco",
     "add": "Dodaj",
@@ -104,6 +113,10 @@
     "numberOfKeys_many": "{{count}} kluczy"
   },
   "validation": {
+    "requiredField": "Pole wymagane",
+    "valueRequired": "Wartość jest wymagana",
+    "currencyCodeNotFound": "Nie znaleziono kodu waluty",
+    "shippingOptionIdMissing": "Brak parametru ID opcji wysyłki",
     "mustBeInt": "Wartość musi być liczbą całkowitą.",
     "mustBePositive": "Wartość musi być liczbą dodatnią."
   },
@@ -2213,6 +2226,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Zniżka kwotowa na produkty",
+        "description": "Rabat na wybrane produkty lub kolekcję produktów"
+      },
+      "amountOffOrder": {
+        "title": "Zniżka kwotowa na zamówienie",
+        "description": "Rabat od łącznej kwoty zamówienia"
+      },
+      "percentageOffProduct": {
+        "title": "Zniżka procentowa na produkt",
+        "description": "Rabat procentowy na wybrane produkty"
+      },
+      "percentageOffOrder": {
+        "title": "Zniżka procentowa na zamówienie",
+        "description": "Rabat procentowy od łącznej kwoty zamówienia"
+      },
+      "buyGet": {
+        "title": "Kup X Odbierz Y",
+        "description": "Kup X produkt(ów), odbierz Y produkt(ów)"
+      },
+      "freeShipping": {
+        "title": "Darmowa wysyłka",
+        "description": "Nalicza 100% rabatu na koszty wysyłki"
+      }
+    },
     "domain": "Promocje",
     "sections": {
       "details": "Szczegóły promocji"
@@ -2776,6 +2815,10 @@
       }
     },
     "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Data rozpoczęcia zamknięcia jest wymagana",
+        "closedFromInPast": "Data rozpoczęcia zamknięcia nie może być w przeszłości"
+      },
       "header": "Zaplanowane zamknięcie",
       "edit": {
         "header": "Zaplanuj zamknięcie sklepu",
@@ -3626,6 +3669,15 @@
     "seconds_many": "Sekund"
   },
   "views": {
+    "toasts": {
+      "created": "Widok utworzony",
+      "createFailed": "Nie udało się utworzyć widoku",
+      "updateActiveFailed": "Nie udało się zaktualizować aktywnego widoku",
+      "updated": "Widok zaktualizowany",
+      "updateFailed": "Nie udało się zaktualizować widoku",
+      "deleted": "Widok został pomyślnie usunięty",
+      "deleteFailed": "Nie udało się usunąć widoku"
+    },
     "save": "Zapisz",
     "saveAsNew": "Zapisz jako nowy widok",
     "updateDefaultForEveryone": "Zaktualizuj domyślny dla wszystkich",

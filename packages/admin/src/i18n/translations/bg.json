@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Изгледът е създаден",
+      "createFailed": "Неуспешно създаване на изглед",
+      "updateActiveFailed": "Неуспешно обновяване на активния изглед",
+      "updated": "Изгледът е обновен",
+      "updateFailed": "Неуспешно обновяване на изглед",
+      "deleted": "Изгледът е изтрит успешно",
+      "deleteFailed": "Неуспешно изтриване на изглед"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Име на правилото",
+      "attribute": "Атрибут",
+      "fee": "Такса"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Възникна неизвестна грешка",
+    "notAvailable": "Н/П",
     "ascending": "Възходящо",
     "descending": "Низходящо",
     "add": "Добави",
@@ -92,6 +112,10 @@
     }
   },
   "validation": {
+    "requiredField": "Задължително поле",
+    "valueRequired": "Изисква се стойност",
+    "currencyCodeNotFound": "Кодът на валутата не е намерен",
+    "shippingOptionIdMissing": "Липсва параметър ID на метод за доставка",
     "mustBeInt": "Стойността трябва да е цяло число.",
     "mustBePositive": "Стойността трябва да е положително число."
   },
@@ -1926,6 +1950,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Отстъпка от продукти",
+        "description": "Отстъпка за конкретни продукти или група продукти"
+      },
+      "amountOffOrder": {
+        "title": "Отстъпка от поръчка",
+        "description": "Отстъпка от общата сума на поръчката"
+      },
+      "percentageOffProduct": {
+        "title": "Процентна отстъпка от продукт",
+        "description": "Процентна отстъпка от избрани продукти"
+      },
+      "percentageOffOrder": {
+        "title": "Процентна отстъпка от поръчка",
+        "description": "Процентна отстъпка от общата сума на поръчката"
+      },
+      "buyGet": {
+        "title": "Купи X, вземи Y",
+        "description": "Купи X продукт(а), вземи Y продукт(а)"
+      },
+      "freeShipping": {
+        "title": "Безплатна доставка",
+        "description": "Прилага 100% отстъпка върху таксите за доставка"
+      }
+    },
     "domain": "Промоции",
     "sections": {
       "details": "Детайли за промоцията"
@@ -2350,6 +2400,12 @@
     "invite": "Покани"
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Изисква се начална дата на затваряне",
+        "closedFromInPast": "Началната дата на затваряне не може да бъде в миналото"
+      }
+    },
     "domain": "Магазин",
     "manageYourStoresDetails": "Управлявайте детайлите на вашия магазин",
     "editStore": "Редактиране на магазин",

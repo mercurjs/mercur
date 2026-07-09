@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Bilinmeyen bir hata oluştu",
+    "notAvailable": "Yok",
     "ascending": "Artan",
     "descending": "Azalan",
     "add": "Ekle",
@@ -92,6 +94,11 @@
     }
   },
   "validation": {
+    "requiredField": "Zorunlu alan",
+    "valueRequired": "Değer zorunludur",
+    "atLeastOnePrice": "En az bir fiyat eklenmelidir.",
+    "currencyCodeNotFound": "Para birimi kodu bulunamadı",
+    "shippingOptionIdMissing": "Kargo Seçeneği ID parametresi eksik",
     "mustBeInt": "Değer tam sayı olmalıdır.",
     "mustBePositive": "Değer pozitif bir sayı olmalıdır."
   },
@@ -1893,6 +1900,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Üründe yüzde indirimi",
+        "description": "Seçili ürünlerde yüzde indirimi uygular"
+      }
+    },
     "domain": "Promosyonlar",
     "sections": {
       "details": "Promosyon Detayları"

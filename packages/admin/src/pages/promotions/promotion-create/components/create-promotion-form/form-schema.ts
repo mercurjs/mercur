@@ -1,15 +1,16 @@
+import i18n from "i18next"
 import { z } from "zod"
 import { CreateCampaignSchema } from "../../../../campaigns/campaign-create/components/create-campaign-form"
 
 const RuleSchema = z.array(
   z.object({
     id: z.string().optional(),
-    attribute: z.string().min(1, { message: "Required field" }),
-    operator: z.string().min(1, { message: "Required field" }),
+    attribute: z.string().min(1, { message: i18n.t("validation.requiredField") }),
+    operator: z.string().min(1, { message: i18n.t("validation.requiredField") }),
     values: z.union([
-      z.number().min(1, { message: "Required field" }),
-      z.string().min(1, { message: "Required field" }),
-      z.array(z.string()).min(1, { message: "Required field" }),
+      z.number().min(1, { message: i18n.t("validation.requiredField") }),
+      z.string().min(1, { message: i18n.t("validation.requiredField") }),
+      z.array(z.string()).min(1, { message: i18n.t("validation.requiredField") }),
     ]),
     required: z.boolean().optional(),
     disguised: z.boolean().optional(),
@@ -50,7 +51,7 @@ export const CreatePromotionSchema = z
     },
     {
       path: ["application_method.max_quantity"],
-      message: `required field`,
+      message: i18n.t("validation.requiredField"),
     }
   )
 

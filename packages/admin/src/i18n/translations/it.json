@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Vista creata",
+      "createFailed": "Impossibile creare la vista",
+      "updateActiveFailed": "Impossibile aggiornare la vista attiva",
+      "updated": "Vista aggiornata",
+      "updateFailed": "Impossibile aggiornare la vista",
+      "deleted": "Vista eliminata con successo",
+      "deleteFailed": "Impossibile eliminare la vista"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Nome della regola",
+      "attribute": "Attributo",
+      "fee": "Commissione"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Si è verificato un errore sconosciuto",
+    "notAvailable": "N/A",
     "ascending": "Crescente",
     "descending": "Decrescente",
     "add": "Aggiungi",
@@ -92,6 +112,10 @@
     }
   },
   "validation": {
+    "requiredField": "Campo obbligatorio",
+    "valueRequired": "Il valore è obbligatorio",
+    "currencyCodeNotFound": "Codice valuta non trovato",
+    "shippingOptionIdMissing": "Il parametro ID dell'opzione di spedizione è mancante",
     "mustBeInt": "Il valore deve essere un numero intero.",
     "mustBePositive": "Il valore deve essere un numero positivo."
   },
@@ -1813,6 +1837,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Importo di sconto sui prodotti",
+        "description": "Sconto su prodotti specifici o una raccolta di prodotti"
+      },
+      "amountOffOrder": {
+        "title": "Importo di sconto sull'ordine",
+        "description": "Sconta l'importo totale dell'ordine"
+      },
+      "percentageOffProduct": {
+        "title": "Percentuale di sconto sul prodotto",
+        "description": "Sconta una percentuale sui prodotti selezionati"
+      },
+      "percentageOffOrder": {
+        "title": "Percentuale di sconto sull'ordine",
+        "description": "Sconta una percentuale dell'importo totale dell'ordine"
+      },
+      "buyGet": {
+        "title": "Compra X, ottieni Y",
+        "description": "Compra X prodotto/i, ottieni Y prodotto/i"
+      },
+      "freeShipping": {
+        "title": "Spedizione gratuita",
+        "description": "Applica uno sconto del 100% sulle spese di spedizione"
+      }
+    },
     "domain": "Promozioni",
     "sections": {
       "details": "Dettagli Promozione"
@@ -2214,6 +2264,12 @@
     "invite": "Invita"
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "La data di inizio della chiusura è obbligatoria",
+        "closedFromInPast": "La data di inizio della chiusura non può essere nel passato"
+      }
+    },
     "domain": "Negozio",
     "manageYourStoresDetails": "Gestisci i dettagli del tuo negozio",
     "editStore": "Modifica negozio",

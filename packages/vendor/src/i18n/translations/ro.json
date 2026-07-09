@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "A apărut o eroare necunoscută",
+    "notAvailable": "N/A",
     "ascending": "Ascendent",
     "descending": "Descendent",
     "add": "Adăuga",
@@ -92,6 +94,11 @@
     "numberOfKeys_other": "{{count}} chei"
   },
   "validation": {
+    "requiredField": "Câmp obligatoriu",
+    "valueRequired": "Valoarea este obligatorie",
+    "atLeastOnePrice": "Trebuie adăugat cel puțin un preț.",
+    "currencyCodeNotFound": "Codul valutei nu a fost găsit",
+    "shippingOptionIdMissing": "Parametrul ID-ul opțiunii de livrare lipsește",
     "mustBeInt": "Valoarea trebuie să fie un număr întreg.",
     "mustBePositive": "Valoarea trebuie să fie un număr pozitiv."
   },
@@ -1871,6 +1878,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Reducere procentuală la produs",
+        "description": "Aplică o reducere procentuală la produsele selectate"
+      }
+    },
     "domain": "Promoții",
     "sections": {
       "details": "Detalii de promovare"

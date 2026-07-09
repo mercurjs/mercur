@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "אירעה שגיאה לא ידועה",
+    "notAvailable": "לא זמין",
     "ascending": "סדר עולה",
     "descending": "סדר יורד",
     "add": "הוסף",
@@ -93,6 +95,11 @@
     }
   },
   "validation": {
+    "requiredField": "שדה חובה",
+    "valueRequired": "ערך נדרש",
+    "atLeastOnePrice": "יש להוסיף לפחות מחיר אחד.",
+    "currencyCodeNotFound": "קוד המטבע לא נמצא",
+    "shippingOptionIdMissing": "פרמטר מזהה אפשרות המשלוח חסר",
     "mustBeInt": "הערך חייב להיות מספר שלם.",
     "mustBePositive": "הערך חייב להיות מספר חיובי."
   },
@@ -1943,6 +1950,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "הנחת אחוזים על מוצר",
+        "description": "הנחה באחוזים על מוצרים נבחרים"
+      }
+    },
     "domain": "מבצעים",
     "sections": {
       "details": "פרטי מבצע"

@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Įvyko nežinoma klaida",
+    "notAvailable": "N/A",
     "ascending": "Didėjančia tvarka",
     "descending": "Mažėjančia tvarka",
     "add": "Pridėti",
@@ -93,6 +95,11 @@
     }
   },
   "validation": {
+    "requiredField": "Privalomas laukas",
+    "valueRequired": "Reikšmė yra privaloma",
+    "atLeastOnePrice": "Turi būti pridėta bent viena kaina.",
+    "currencyCodeNotFound": "Valiutos kodas nerastas",
+    "shippingOptionIdMissing": "Trūksta pristatymo būdo ID parametro",
     "mustBeInt": "Reikšmė turi būti sveikasis skaičius.",
     "mustBePositive": "Reikšmė turi būti teigiamas skaičius."
   },
@@ -1932,6 +1939,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Procentinė nuolaida produktui",
+        "description": "Procentinė nuolaida pasirinktiems produktams"
+      }
+    },
     "domain": "Akcijos",
     "sections": {
       "details": "Akcijos nustatymai"

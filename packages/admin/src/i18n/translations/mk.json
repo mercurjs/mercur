@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Прегледот е создаден",
+      "createFailed": "Неуспешно создавање на преглед",
+      "updateActiveFailed": "Неуспешно ажурирање на активниот преглед",
+      "updated": "Прегледот е ажуриран",
+      "updateFailed": "Неуспешно ажурирање на преглед",
+      "deleted": "Прегледот е успешно избришан",
+      "deleteFailed": "Неуспешно бришење на преглед"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Име на правило",
+      "attribute": "Атрибут",
+      "fee": "Провизија"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Настана непозната грешка",
+    "notAvailable": "Н/Д",
     "ascending": "Растечки",
     "descending": "Опаѓачки",
     "add": "Додадете",
@@ -92,6 +112,10 @@
     }
   },
   "validation": {
+    "requiredField": "Задолжително поле",
+    "valueRequired": "Потребна е вредност",
+    "currencyCodeNotFound": "Кодот на валутата не е пронајден",
+    "shippingOptionIdMissing": "Недостасува параметарот ID на опцијата за испорака",
     "mustBeInt": "Вредноста мора да биде цел број.",
     "mustBePositive": "Вредноста мора да биде позитивен број."
   },
@@ -1888,6 +1912,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Попуст на производи",
+        "description": "Попуст на одредени производи или група производи"
+      },
+      "amountOffOrder": {
+        "title": "Попуст на нарачка",
+        "description": "Попуст на вкупниот износ на нарачката"
+      },
+      "percentageOffProduct": {
+        "title": "Процентуален попуст на производ",
+        "description": "Процентуален попуст на избрани производи"
+      },
+      "percentageOffOrder": {
+        "title": "Процентуален попуст на нарачка",
+        "description": "Процентуален попуст на вкупниот износ на нарачката"
+      },
+      "buyGet": {
+        "title": "Купи X, добиј Y",
+        "description": "Купи X производ(и), добиј Y производ(и)"
+      },
+      "freeShipping": {
+        "title": "Бесплатна испорака",
+        "description": "Применува 100% попуст на трошоците за испорака"
+      }
+    },
     "domain": "Промоции",
     "sections": {
       "details": "Детали за промоција"
@@ -2302,6 +2352,12 @@
     "invite": "Покани"
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Потребна е датумот на почеток на затворање",
+        "closedFromInPast": "Датумот на почеток на затворање не може да биде во минатото"
+      }
+    },
     "domain": "Продавница",
     "manageYourStoresDetails": "Управувајте со деталите на вашата продавница",
     "editStore": "Уреди продавница",

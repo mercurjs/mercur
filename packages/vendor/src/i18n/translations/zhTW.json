@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "發生未知錯誤",
+    "notAvailable": "N/A",
     "ascending": "升序",
     "descending": "降序",
     "add": "新增",
@@ -94,6 +96,11 @@
     }
   },
   "validation": {
+    "requiredField": "必填欄位",
+    "valueRequired": "此值為必填",
+    "atLeastOnePrice": "必須至少新增一個價格。",
+    "currencyCodeNotFound": "找不到貨幣代碼",
+    "shippingOptionIdMissing": "缺少配送選項 ID 參數",
     "mustBeInt": "此值必須是整數。",
     "mustBePositive": "此值必須是正數。"
   },
@@ -2035,6 +2042,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "商品折扣",
+        "description": "對所選商品按百分比折扣"
+      }
+    },
     "domain": "促銷",
     "sections": {
       "details": "促銷詳情"

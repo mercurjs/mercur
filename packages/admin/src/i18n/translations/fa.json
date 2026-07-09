@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "نما ایجاد شد",
+      "createFailed": "ایجاد نما ناموفق بود",
+      "updateActiveFailed": "به‌روزرسانی نمای فعال ناموفق بود",
+      "updated": "نما به‌روزرسانی شد",
+      "updateFailed": "به‌روزرسانی نما ناموفق بود",
+      "deleted": "نما با موفقیت حذف شد",
+      "deleteFailed": "حذف نما ناموفق بود"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "نام قاعده",
+      "attribute": "ویژگی",
+      "fee": "کارمزد"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "خطای ناشناخته‌ای رخ داد",
+    "notAvailable": "موجود نیست",
     "ascending": "صعودی",
     "descending": "نزولی",
     "add": "اضافه کردن",
@@ -92,6 +112,10 @@
     }
   },
   "validation": {
+    "requiredField": "فیلد الزامی",
+    "valueRequired": "مقدار الزامی است",
+    "currencyCodeNotFound": "کد ارز یافت نشد",
+    "shippingOptionIdMissing": "پارامتر شناسه گزینه ارسال موجود نیست",
     "mustBeInt": "مقدار باید یک عدد صحیح باشد.",
     "mustBePositive": "مقدار باید یک عدد مثبت باشد."
   },
@@ -1888,6 +1912,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "تخفیف مبلغی روی محصولات",
+        "description": "تخفیف روی محصولات مشخص یا مجموعه‌ای از محصولات"
+      },
+      "amountOffOrder": {
+        "title": "تخفیف مبلغی روی سفارش",
+        "description": "تخفیف روی مبلغ کل سفارش"
+      },
+      "percentageOffProduct": {
+        "title": "تخفیف درصدی روی محصول",
+        "description": "تخفیف درصدی روی محصولات انتخاب‌شده"
+      },
+      "percentageOffOrder": {
+        "title": "تخفیف درصدی روی سفارش",
+        "description": "تخفیف درصدی از مبلغ کل سفارش"
+      },
+      "buyGet": {
+        "title": "X بخر Y بگیر",
+        "description": "X محصول بخرید، Y محصول بگیرید"
+      },
+      "freeShipping": {
+        "title": "ارسال رایگان",
+        "description": "تخفیف ۱۰۰٪ روی هزینه ارسال اعمال می‌کند"
+      }
+    },
     "domain": "تبلیغات",
     "sections": {
       "details": "جزئیات تبلیغات"
@@ -2312,6 +2362,12 @@
     "invite": "دعوت"
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "تاریخ شروع تعطیلی الزامی است",
+        "closedFromInPast": "تاریخ شروع تعطیلی نمی‌تواند در گذشته باشد"
+      }
+    },
     "domain": "فروشگاه",
     "manageYourStoresDetails": "جزئیات فروشگاه خود را مدیریت کنید",
     "editStore": "ویرایش فروشگاه",

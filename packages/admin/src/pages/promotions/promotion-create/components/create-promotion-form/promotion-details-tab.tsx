@@ -32,7 +32,7 @@ type AllocationMode = "each" | "across" | "once"
 type PromotionDetailsTabProps = {
   currentTemplate?: {
     id: string
-    title: string
+    titleKey: string
     hiddenFields: string[]
   }
 }
@@ -87,7 +87,7 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
         >
           {t(`promotions.sections.details`)}
 
-          {currentTemplate?.title && (
+          {currentTemplate?.titleKey && (
             <Badge
               className="ml-2 align-middle"
               color="grey"
@@ -95,7 +95,7 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
               rounded="full"
               data-testid="promotion-create-form-promotion-template-badge"
             >
-              {currentTemplate?.title}
+              {t(currentTemplate.titleKey)}
             </Badge>
           )}
         </Heading>

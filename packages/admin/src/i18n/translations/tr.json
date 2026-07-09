@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Görünüm oluşturuldu",
+      "createFailed": "Görünüm oluşturulamadı",
+      "updateActiveFailed": "Aktif görünüm güncellenemedi",
+      "updated": "Görünüm güncellendi",
+      "updateFailed": "Görünüm güncellenemedi",
+      "deleted": "Görünüm başarıyla silindi",
+      "deleteFailed": "Görünüm silinemedi"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Kural Adı",
+      "attribute": "Özellik",
+      "fee": "Ücret"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Bilinmeyen bir hata oluştu",
+    "notAvailable": "Yok",
     "ascending": "Artan",
     "descending": "Azalan",
     "add": "Ekle",
@@ -92,6 +112,10 @@
     }
   },
   "validation": {
+    "requiredField": "Zorunlu alan",
+    "valueRequired": "Değer zorunludur",
+    "currencyCodeNotFound": "Para birimi kodu bulunamadı",
+    "shippingOptionIdMissing": "Kargo Seçeneği ID parametresi eksik",
     "mustBeInt": "Değer tam sayı olmalıdır.",
     "mustBePositive": "Değer pozitif bir sayı olmalıdır."
   },
@@ -1910,6 +1934,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Ürünlerde tutar indirimi",
+        "description": "Belirli ürünlerde veya ürün koleksiyonunda indirim uygular"
+      },
+      "amountOffOrder": {
+        "title": "Siparişte tutar indirimi",
+        "description": "Toplam sipariş tutarında indirim uygular"
+      },
+      "percentageOffProduct": {
+        "title": "Üründe yüzde indirimi",
+        "description": "Seçili ürünlerde yüzde indirimi uygular"
+      },
+      "percentageOffOrder": {
+        "title": "Siparişte yüzde indirimi",
+        "description": "Toplam sipariş tutarında yüzde indirimi uygular"
+      },
+      "buyGet": {
+        "title": "X Al Y Kazan",
+        "description": "X ürün al, Y ürün kazan"
+      },
+      "freeShipping": {
+        "title": "Ücretsiz kargo",
+        "description": "Kargo ücretlerine %100 indirim uygular"
+      }
+    },
     "domain": "Promosyonlar",
     "sections": {
       "details": "Promosyon Detayları"
@@ -2334,6 +2384,12 @@
     "deleteUserSuccess": "Kullanıcı {{name}} başarıyla silindi"
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Kapanış başlangıç tarihi zorunludur",
+        "closedFromInPast": "Kapanış başlangıç tarihi geçmişte olamaz"
+      }
+    },
     "domain": "Mağaza",
     "manageYourStoresDetails": "Mağazanızın detaylarını yönetin",
     "editStore": "Mağazayı Düzenle",

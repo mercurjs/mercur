@@ -8,6 +8,12 @@
     "general": {
       "type": "object",
       "properties": {
+          "unknownError": {
+            "type": "string"
+          },
+          "notAvailable": {
+            "type": "string"
+          },
         "ascending": {
           "type": "string"
         },
@@ -385,6 +391,18 @@
     "validation": {
       "type": "object",
       "properties": {
+          "requiredField": {
+            "type": "string"
+          },
+          "valueRequired": {
+            "type": "string"
+          },
+          "currencyCodeNotFound": {
+            "type": "string"
+          },
+          "shippingOptionIdMissing": {
+            "type": "string"
+          },
         "mustBeInt": {
           "type": "string"
         },
@@ -9376,6 +9394,77 @@
     "promotions": {
       "type": "object",
       "properties": {
+          "templates": {
+            "type": "object",
+            "properties": {
+              "amountOffProducts": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "amountOffOrder": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "percentageOffProduct": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "percentageOffOrder": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "buyGet": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "freeShipping": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
         "domain": {
           "type": "string"
         },
@@ -11505,6 +11594,17 @@
         "scheduledClosure": {
           "type": "object",
           "properties": {
+            "validation": {
+              "type": "object",
+              "properties": {
+                "closedFromRequired": {
+                  "type": "string"
+                },
+                "closedFromInPast": {
+                  "type": "string"
+                }
+              }
+            },
             "header": {
               "type": "string"
             },
@@ -14507,6 +14607,32 @@
     "views": {
       "type": "object",
       "properties": {
+          "toasts": {
+            "type": "object",
+            "properties": {
+              "created": {
+                "type": "string"
+              },
+              "createFailed": {
+                "type": "string"
+              },
+              "updateActiveFailed": {
+                "type": "string"
+              },
+              "updated": {
+                "type": "string"
+              },
+              "updateFailed": {
+                "type": "string"
+              },
+              "deleted": {
+                "type": "string"
+              },
+              "deleteFailed": {
+                "type": "string"
+              }
+            }
+          },
         "save": {
           "type": "string"
         },
@@ -14826,6 +14952,20 @@
     "commissions": {
       "type": "object",
       "properties": {
+          "rulesTable": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "attribute": {
+                "type": "string"
+              },
+              "fee": {
+                "type": "string"
+              }
+            }
+          },
         "domain": {
           "type": "string"
         },

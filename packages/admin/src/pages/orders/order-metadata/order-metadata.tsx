@@ -1,9 +1,11 @@
 import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { MetadataForm } from "@components/forms/metadata-form/metadata-form"
 import { useOrder, useUpdateOrder } from "@hooks/api"
 import { ClientError } from "@mercurjs/client"
 
 export const OrderMetadata = () => {
+  const { t } = useTranslation()
   const { id } = useParams()
 
   const { order, isPending, isError, error } = useOrder(id!, {
@@ -28,7 +30,7 @@ export const OrderMetadata = () => {
 
       return result
     } catch (error) {
-      const message = error instanceof ClientError ? error.message : 'An error occurred'
+      const message = error instanceof ClientError ? error.message : t("errorBoundary.defaultTitle")
       callbacks.onError?.(message)
       throw error
     }
