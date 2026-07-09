@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 import { MetadataForm } from "@components/forms/metadata-form/metadata-form"
 import {
   useShippingProfile,
@@ -7,6 +8,7 @@ import {
 import { ClientError } from "@mercurjs/client"
 
 export const ShippingProfileMetadata = () => {
+  const { t } = useTranslation()
   const { shipping_profile_id } = useParams()
 
   const { shipping_profile, isPending, isError, error } = useShippingProfile(
@@ -32,7 +34,7 @@ export const ShippingProfileMetadata = () => {
 
       return result
     } catch (error) {
-      const message = error instanceof ClientError ? error.message : 'An error occurred'
+      const message = error instanceof ClientError ? error.message : t("errorBoundary.defaultTitle")
       callbacks.onError?.(message)
       throw error
     }

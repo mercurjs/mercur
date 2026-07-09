@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "حدث خطأ غير معروف",
+    "notAvailable": "غير متاح",
     "ascending": "تصاعدي",
     "descending": "تنازلي",
     "add": "إضافة",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "حقل مطلوب",
+    "valueRequired": "القيمة مطلوبة",
+    "atLeastOnePrice": "يجب إضافة سعر واحد على الأقل.",
+    "currencyCodeNotFound": "رمز العملة غير موجود",
+    "shippingOptionIdMissing": "معرّف خيار الشحن مفقود",
     "mustBeInt": "يجب أن تكون القيمة عددًا صحيحًا.",
     "mustBePositive": "يجب أن تكون القيمة عددًا موجبًا.",
     "rules": {
@@ -2364,6 +2371,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "خصم نسبة مئوية على المنتج",
+        "description": "خصم نسبة مئوية على منتجات محددة"
+      }
+    },
     "domain": "العروض الترويجية",
     "sections": {
       "details": "تفاصيل العرض الترويجي"

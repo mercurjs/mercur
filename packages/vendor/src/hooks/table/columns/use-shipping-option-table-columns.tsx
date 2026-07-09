@@ -21,7 +21,7 @@ export const useShippingOptionTableColumns = () => {
       columnHelper.accessor("shipping_profile", {
         header: () => t("fields.shippingProfile"),
         cell: ({ row }) => (
-          <TextCell text={row.original.shipping_profile?.name || "N/A"} />
+          <TextCell text={row.original.shipping_profile?.name || t("general.notAvailable")} />
         ),
       }),
       columnHelper.display({
@@ -41,14 +41,14 @@ export const useShippingOptionTableColumns = () => {
         cell: ({ row }) => {
           const serviceZoneName = row.original.service_zone?.name
 
-          return <TextCell text={serviceZoneName || "N/A"} />
+          return <TextCell text={serviceZoneName || t("general.notAvailable")} />
         },
       }),
       columnHelper.display({
         id: "enabled_in_store",
         header: () => t("fields.enabledInStore"),
         cell: ({ row }) => {
-          let text = "N/A"
+          let text = t("general.notAvailable")
           const val = row.original.rules?.find(
             (r) => r.attribute === "enabled_in_store"
           )
@@ -64,7 +64,7 @@ export const useShippingOptionTableColumns = () => {
         id: "is_return",
         header: () => t("fields.isReturn"),
         cell: ({ row }) => {
-          let text = "N/A"
+          let text = t("general.notAvailable")
           const val = row.original.rules?.find(
             (r) => r.attribute === "is_return"
           )

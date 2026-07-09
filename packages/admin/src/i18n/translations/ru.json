@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Представление создано",
+      "createFailed": "Не удалось создать представление",
+      "updateActiveFailed": "Не удалось обновить активное представление",
+      "updated": "Представление обновлено",
+      "updateFailed": "Не удалось обновить представление",
+      "deleted": "Представление успешно удалено",
+      "deleteFailed": "Не удалось удалить представление"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Название правила",
+      "attribute": "Атрибут",
+      "fee": "Комиссия"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Произошла неизвестная ошибка",
+    "notAvailable": "Н/Д",
     "ascending": "По возрастанию",
     "descending": "По убыванию",
     "add": "Добавить",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Обязательное поле",
+    "valueRequired": "Необходимо указать значение",
+    "currencyCodeNotFound": "Код валюты не найден",
+    "shippingOptionIdMissing": "Отсутствует параметр ID способа доставки",
     "mustBeInt": "Значение должно быть целым числом.",
     "mustBePositive": "Значение должно быть положительным числом."
   },
@@ -2318,6 +2342,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Скидка на товары",
+        "description": "Скидка на определённые товары или группу товаров"
+      },
+      "amountOffOrder": {
+        "title": "Скидка на заказ",
+        "description": "Скидка на общую сумму заказа"
+      },
+      "percentageOffProduct": {
+        "title": "Процент скидки на товар",
+        "description": "Процентная скидка на выбранные товары"
+      },
+      "percentageOffOrder": {
+        "title": "Процент скидки на заказ",
+        "description": "Процентная скидка на общую сумму заказа"
+      },
+      "buyGet": {
+        "title": "Купи X — получи Y",
+        "description": "Купи X товар(ов), получи Y товар(ов)"
+      },
+      "freeShipping": {
+        "title": "Бесплатная доставка",
+        "description": "Применяет 100% скидку на стоимость доставки"
+      }
+    },
     "domain": "Акции",
     "sections": {
       "details": "Детали акции"
@@ -2786,6 +2836,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Укажите дату начала закрытия",
+        "closedFromInPast": "Дата начала закрытия не может быть в прошлом"
+      }
+    },
     "domain": "Магазин",
     "manageYourStoresDetails": "Управляйте данными вашего магазина",
     "editStore": "Редактировать магазин",

@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Vue créée",
+      "createFailed": "Échec de la création de la vue",
+      "updateActiveFailed": "Échec de la mise à jour de la vue active",
+      "updated": "Vue mise à jour",
+      "updateFailed": "Échec de la mise à jour de la vue",
+      "deleted": "Vue supprimée avec succès",
+      "deleteFailed": "Échec de la suppression de la vue"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Nom de la règle",
+      "attribute": "Attribut",
+      "fee": "Frais"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Une erreur inconnue s'est produite",
+    "notAvailable": "N/A",
     "ascending": "Ascendant",
     "descending": "Descendant",
     "add": "Ajouter",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Champ obligatoire",
+    "valueRequired": "La valeur est obligatoire",
+    "currencyCodeNotFound": "Code de devise introuvable",
+    "shippingOptionIdMissing": "Le paramètre ID de l'option de livraison est manquant",
     "mustBeInt": "La valeur doit être un nombre entier.",
     "mustBePositive": "La valeur doit être un nombre positif."
   },
@@ -2318,6 +2342,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Montant de réduction sur les produits",
+        "description": "Remise sur des produits spécifiques ou une collection de produits"
+      },
+      "amountOffOrder": {
+        "title": "Montant de réduction sur la commande",
+        "description": "Remise sur le montant total de la commande"
+      },
+      "percentageOffProduct": {
+        "title": "Pourcentage de réduction sur le produit",
+        "description": "Remise d'un pourcentage sur les produits sélectionnés"
+      },
+      "percentageOffOrder": {
+        "title": "Pourcentage de réduction sur la commande",
+        "description": "Remise d'un pourcentage sur le montant total de la commande"
+      },
+      "buyGet": {
+        "title": "Achetez X, obtenez Y",
+        "description": "Achetez X produit(s), obtenez Y produit(s)"
+      },
+      "freeShipping": {
+        "title": "Livraison gratuite",
+        "description": "Applique une réduction de 100% sur les frais de livraison"
+      }
+    },
     "domain": "Promotions",
     "sections": {
       "details": "Détails de la promotion"
@@ -2787,6 +2837,12 @@
     "deleteUserSuccess": "L'utilisateur {{name}} a été supprimé avec succès."
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "La date de début de fermeture est obligatoire",
+        "closedFromInPast": "La date de début de fermeture ne peut pas être dans le passé"
+      }
+    },
     "domain": "Boutique",
     "manageYourStoresDetails": "Gérer les détails de votre boutique.",
     "editStore": "Modifier la boutique",

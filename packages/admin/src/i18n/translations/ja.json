@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "ビューを作成しました",
+      "createFailed": "ビューの作成に失敗しました",
+      "updateActiveFailed": "アクティブなビューの更新に失敗しました",
+      "updated": "ビューを更新しました",
+      "updateFailed": "ビューの更新に失敗しました",
+      "deleted": "ビューを削除しました",
+      "deleteFailed": "ビューの削除に失敗しました"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "ルール名",
+      "attribute": "属性",
+      "fee": "手数料"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "不明なエラーが発生しました",
+    "notAvailable": "N/A",
     "ascending": "昇順",
     "descending": "降順",
     "add": "追加",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "必須項目です",
+    "valueRequired": "値を入力してください",
+    "currencyCodeNotFound": "通貨コードが見つかりません",
+    "shippingOptionIdMissing": "配送オプションIDパラメータがありません",
     "mustBeInt": "値は数値でなければなりません。",
     "mustBePositive": "値は正の数値でなければなりません。"
   },
@@ -2318,6 +2342,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "商品の割引額",
+        "description": "特定の商品または商品コレクションを割引します"
+      },
+      "amountOffOrder": {
+        "title": "注文の割引額",
+        "description": "注文合計金額を割引します"
+      },
+      "percentageOffProduct": {
+        "title": "商品の割引率",
+        "description": "選択した商品を割引率で割引します"
+      },
+      "percentageOffOrder": {
+        "title": "注文の割引率",
+        "description": "注文合計金額を割引率で割引します"
+      },
+      "buyGet": {
+        "title": "X個購入でY個獲得",
+        "description": "商品をX個購入すると、Y個獲得できます"
+      },
+      "freeShipping": {
+        "title": "送料無料",
+        "description": "送料に100%の割引を適用します"
+      }
+    },
     "domain": "プロモーション",
     "sections": {
       "details": "プロモーションの詳細"
@@ -2787,6 +2837,12 @@
     "deleteUserSuccess": "ユーザー {{name}} を削除しました。"
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "閉店開始日を入力してください",
+        "closedFromInPast": "閉店開始日を過去の日付にすることはできません"
+      }
+    },
     "domain": "ストア",
     "manageYourStoresDetails": "ストアの詳細を管理します。",
     "editStore": "ストアを編集",

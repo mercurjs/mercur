@@ -1,10 +1,12 @@
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { useCustomerGroup, useUpdateCustomerGroup } from "@hooks/api";
 import { MetadataForm } from "@components/forms/metadata-form";
 import { ClientError } from "@mercurjs/client";
 
 export const CustomerGroupMetadata = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
 
   const { customer_group, isPending, isError, error } = useCustomerGroup(id!);
@@ -30,7 +32,7 @@ export const CustomerGroupMetadata = () => {
       return result;
     } catch (error) {
       const message =
-        error instanceof ClientError ? error.message : "An error occurred";
+        error instanceof ClientError ? error.message : t("errorBoundary.defaultTitle");
       callbacks.onError?.(message);
       throw error;
     }

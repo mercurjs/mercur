@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "An unknown error occurred",
+    "notAvailable": "N/A",
     "fullList": "All",
     "ascending": "Ascending",
     "descending": "Descending",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "Required field",
+    "valueRequired": "Value is required",
+    "atLeastOnePrice": "At least one price must be added.",
+    "currencyCodeNotFound": "Currency code not found",
+    "shippingOptionIdMissing": "Shipping Option ID parameter is missing",
     "rules": {
       "lower": "At least one lowercase letter",
       "upper": "At least one uppercase letter",
@@ -2464,6 +2471,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Percentage off product",
+        "description": "Discounts a percentage off selected products"
+      }
+    },
     "domain": "Promotions",
     "sections": {
       "details": "Promotion Details"

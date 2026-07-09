@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Prikaz je kreiran",
+      "createFailed": "Kreiranje prikaza nije uspjelo",
+      "updateActiveFailed": "Ažuriranje aktivnog prikaza nije uspjelo",
+      "updated": "Prikaz je ažuriran",
+      "updateFailed": "Ažuriranje prikaza nije uspjelo",
+      "deleted": "Prikaz je uspješno obrisan",
+      "deleteFailed": "Brisanje prikaza nije uspjelo"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Naziv pravila",
+      "attribute": "Atribut",
+      "fee": "Provizija"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Došlo je do nepoznate greške",
+    "notAvailable": "N/D",
     "ascending": "Rastuće",
     "descending": "Opadajuće",
     "add": "Dodaj",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Obavezno polje",
+    "valueRequired": "Vrijednost je obavezna",
+    "currencyCodeNotFound": "Kod valute nije pronađen",
+    "shippingOptionIdMissing": "Nedostaje parametar ID opcije dostave",
     "mustBeInt": "Vrijednost mora biti cijeli broj.",
     "mustBePositive": "Vrijednost mora biti pozitivan broj."
   },
@@ -2317,6 +2341,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Popust na proizvode",
+        "description": "Popust na određene proizvode ili grupu proizvoda"
+      },
+      "amountOffOrder": {
+        "title": "Popust na narudžbu",
+        "description": "Popust na ukupan iznos narudžbe"
+      },
+      "percentageOffProduct": {
+        "title": "Procentualni popust na proizvod",
+        "description": "Procentualni popust na odabrane proizvode"
+      },
+      "percentageOffOrder": {
+        "title": "Procentualni popust na narudžbu",
+        "description": "Procentualni popust na ukupan iznos narudžbe"
+      },
+      "buyGet": {
+        "title": "Kupi X, dobij Y",
+        "description": "Kupi X proizvod(a), dobij Y proizvod(a)"
+      },
+      "freeShipping": {
+        "title": "Besplatna dostava",
+        "description": "Primjenjuje 100% popust na troškove dostave"
+      }
+    },
     "domain": "Promocije",
     "sections": {
       "details": "Detalji promocije"
@@ -2785,6 +2835,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Datum početka zatvaranja je obavezan",
+        "closedFromInPast": "Datum početka zatvaranja ne može biti u prošlosti"
+      }
+    },
     "domain": "Trgovina",
     "manageYourStoresDetails": "Upravljajte podacima svoje trgovine",
     "editStore": "Uredi trgovinu",

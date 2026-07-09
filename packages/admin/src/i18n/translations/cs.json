@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Zobrazení vytvořeno",
+      "createFailed": "Nepodařilo se vytvořit zobrazení",
+      "updateActiveFailed": "Nepodařilo se aktualizovat aktivní zobrazení",
+      "updated": "Zobrazení aktualizováno",
+      "updateFailed": "Nepodařilo se aktualizovat zobrazení",
+      "deleted": "Zobrazení bylo úspěšně smazáno",
+      "deleteFailed": "Nepodařilo se smazat zobrazení"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Název pravidla",
+      "attribute": "Atribut",
+      "fee": "Poplatek"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Došlo k neznámé chybě",
+    "notAvailable": "N/A",
     "ascending": "Vzestupně",
     "descending": "Sestupně",
     "add": "Přidat",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Povinné pole",
+    "valueRequired": "Hodnota je povinná",
+    "currencyCodeNotFound": "Kód měny nebyl nalezen",
+    "shippingOptionIdMissing": "Chybí parametr ID možnosti dopravy",
     "mustBeInt": "Hodnota musí být celé číslo.",
     "mustBePositive": "Hodnota musí být kladné číslo."
   },
@@ -2315,6 +2339,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Sleva v hodnotě na produkty",
+        "description": "Sleva na konkrétní produkty nebo kolekci produktů"
+      },
+      "amountOffOrder": {
+        "title": "Sleva v hodnotě na objednávku",
+        "description": "Sleva z celkové částky objednávky"
+      },
+      "percentageOffProduct": {
+        "title": "Procentuální sleva na produkt",
+        "description": "Procentuální sleva na vybrané produkty"
+      },
+      "percentageOffOrder": {
+        "title": "Procentuální sleva na objednávku",
+        "description": "Procentuální sleva z celkové částky objednávky"
+      },
+      "buyGet": {
+        "title": "Kup X Získej Y",
+        "description": "Kup X produkt(ů), získej Y produkt(ů)"
+      },
+      "freeShipping": {
+        "title": "Doprava zdarma",
+        "description": "Uplatní 100% slevu na poplatky za dopravu"
+      }
+    },
     "domain": "Propagace",
     "sections": {
       "details": "Detaily propagace"
@@ -2783,6 +2833,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Datum zahájení uzavření je povinné",
+        "closedFromInPast": "Datum zahájení uzavření nemůže být v minulosti"
+      }
+    },
     "domain": "Obchod",
     "manageYourStoresDetails": "Spravujte detaily svého obchodu",
     "editStore": "Upravit obchod",

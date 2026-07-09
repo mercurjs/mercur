@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Nézet létrehozva",
+      "createFailed": "A nézet létrehozása nem sikerült",
+      "updateActiveFailed": "Az aktív nézet frissítése nem sikerült",
+      "updated": "Nézet frissítve",
+      "updateFailed": "A nézet frissítése nem sikerült",
+      "deleted": "Nézet sikeresen törölve",
+      "deleteFailed": "A nézet törlése nem sikerült"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Szabály neve",
+      "attribute": "Attribútum",
+      "fee": "Díj"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Ismeretlen hiba történt",
+    "notAvailable": "N/A",
     "ascending": "Növekvő",
     "descending": "Csökkenő",
     "add": "Hozzáadás",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Kötelező mező",
+    "valueRequired": "Az érték megadása kötelező",
+    "currencyCodeNotFound": "A pénznemkód nem található",
+    "shippingOptionIdMissing": "Hiányzik a szállítási mód azonosító paramétere",
     "mustBeInt": "Az értéknek egész számnak kell lennie.",
     "mustBePositive": "Az értéknek pozitívnak kell lennie."
   },
@@ -2317,6 +2341,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Kedvezmény termékekre",
+        "description": "Kedvezmény adott termékekre vagy termékcsoportra"
+      },
+      "amountOffOrder": {
+        "title": "Kedvezmény a rendelésre",
+        "description": "Kedvezmény a rendelés teljes összegéből"
+      },
+      "percentageOffProduct": {
+        "title": "Százalékos kedvezmény termékre",
+        "description": "Százalékos kedvezmény a kiválasztott termékekre"
+      },
+      "percentageOffOrder": {
+        "title": "Százalékos kedvezmény a rendelésre",
+        "description": "Százalékos kedvezmény a rendelés teljes összegéből"
+      },
+      "buyGet": {
+        "title": "Vegyél X-et, kapsz Y-t",
+        "description": "Vegyél X terméket, kapsz Y terméket"
+      },
+      "freeShipping": {
+        "title": "Ingyenes szállítás",
+        "description": "100%-os kedvezményt alkalmaz a szállítási díjra"
+      }
+    },
     "domain": "Promóciók",
     "sections": {
       "details": "Promóció Részletei"
@@ -2785,6 +2835,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "A zárás kezdő dátuma kötelező",
+        "closedFromInPast": "A zárás kezdő dátuma nem lehet a múltban"
+      }
+    },
     "domain": "Áruház",
     "manageYourStoresDetails": "Kezelje áruházának részleteit",
     "editStore": "Áruház szerkesztése",

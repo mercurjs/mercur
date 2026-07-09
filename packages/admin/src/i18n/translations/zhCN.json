@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "视图已创建",
+      "createFailed": "创建视图失败",
+      "updateActiveFailed": "更新当前视图失败",
+      "updated": "视图已更新",
+      "updateFailed": "更新视图失败",
+      "deleted": "视图已成功删除",
+      "deleteFailed": "删除视图失败"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "规则名称",
+      "attribute": "属性",
+      "fee": "费用"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "发生未知错误",
+    "notAvailable": "N/A",
     "ascending": "升序",
     "descending": "降序",
     "add": "添加",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "必填项",
+    "valueRequired": "此值为必填项",
+    "currencyCodeNotFound": "未找到货币代码",
+    "shippingOptionIdMissing": "缺少配送选项 ID 参数",
     "mustBeInt": "值必须是整数。",
     "mustBePositive": "值必须是正数。"
   },
@@ -2315,6 +2339,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "商品减价",
+        "description": "对特定商品或商品系列进行折扣"
+      },
+      "amountOffOrder": {
+        "title": "订单减价",
+        "description": "对订单总金额进行折扣"
+      },
+      "percentageOffProduct": {
+        "title": "商品折扣",
+        "description": "对所选商品按百分比折扣"
+      },
+      "percentageOffOrder": {
+        "title": "订单折扣",
+        "description": "对订单总金额按百分比折扣"
+      },
+      "buyGet": {
+        "title": "买 X 赠 Y",
+        "description": "购买 X 件商品，赠送 Y 件商品"
+      },
+      "freeShipping": {
+        "title": "免运费",
+        "description": "对运费应用 100% 折扣"
+      }
+    },
     "domain": "促销活动",
     "sections": {
       "details": "促销详情"
@@ -2783,6 +2833,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "必须填写关闭开始日期",
+        "closedFromInPast": "关闭开始日期不能是过去的日期"
+      }
+    },
     "domain": "商店",
     "manageYourStoresDetails": "管理您的商店详细信息",
     "editStore": "编辑商店",

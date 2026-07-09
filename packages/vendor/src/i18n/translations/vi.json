@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Đã xảy ra lỗi không xác định",
+    "notAvailable": "Không có",
     "ascending": "Tăng dần",
     "descending": "Giảm dần",
     "add": "Thêm",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "Trường bắt buộc",
+    "valueRequired": "Giá trị là bắt buộc",
+    "atLeastOnePrice": "Phải thêm ít nhất một mức giá.",
+    "currencyCodeNotFound": "Không tìm thấy mã tiền tệ",
+    "shippingOptionIdMissing": "Thiếu tham số ID tùy chọn vận chuyển",
     "mustBeInt": "Giá trị phải là số nguyên.",
     "mustBePositive": "Giá trị phải là số dương.",
     "rules": {
@@ -2361,6 +2368,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Giảm phần trăm cho sản phẩm",
+        "description": "Giảm giá theo phần trăm cho các sản phẩm đã chọn"
+      }
+    },
     "domain": "Khuyến mãi",
     "sections": {
       "details": "Chi tiết khuyến mãi"

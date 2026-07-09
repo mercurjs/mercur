@@ -5,6 +5,12 @@
     "general": {
       "type": "object",
       "properties": {
+          "unknownError": {
+            "type": "string"
+          },
+          "notAvailable": {
+            "type": "string"
+          },
         "fullList": {
           "type": "string"
         },
@@ -442,6 +448,21 @@
     "validation": {
       "type": "object",
       "properties": {
+          "requiredField": {
+            "type": "string"
+          },
+          "valueRequired": {
+            "type": "string"
+          },
+          "atLeastOnePrice": {
+            "type": "string"
+          },
+          "currencyCodeNotFound": {
+            "type": "string"
+          },
+          "shippingOptionIdMissing": {
+            "type": "string"
+          },
         "rules": {
           "type": "object",
           "properties": {
@@ -9955,6 +9976,22 @@
     "promotions": {
       "type": "object",
       "properties": {
+          "templates": {
+            "type": "object",
+            "properties": {
+              "percentageOffProduct": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
         "domain": {
           "type": "string"
         },

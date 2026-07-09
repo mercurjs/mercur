@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "خطای ناشناخته‌ای رخ داد",
+    "notAvailable": "موجود نیست",
     "ascending": "صعودی",
     "descending": "نزولی",
     "add": "اضافه کردن",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "فیلد الزامی",
+    "valueRequired": "مقدار الزامی است",
+    "atLeastOnePrice": "حداقل یک قیمت باید افزوده شود.",
+    "currencyCodeNotFound": "کد ارز یافت نشد",
+    "shippingOptionIdMissing": "پارامتر شناسه گزینه ارسال موجود نیست",
     "mustBeInt": "مقدار باید یک عدد صحیح باشد.",
     "mustBePositive": "مقدار باید یک عدد مثبت باشد.",
     "rules": {
@@ -2364,6 +2371,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "تخفیف درصدی روی محصول",
+        "description": "تخفیف درصدی روی محصولات انتخاب‌شده"
+      }
+    },
     "domain": "تبلیغات",
     "sections": {
       "details": "جزئیات تبلیغات"

@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Došlo je do nepoznate greške",
+    "notAvailable": "N/D",
     "ascending": "Rastuće",
     "descending": "Opadajuće",
     "add": "Dodaj",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "Obavezno polje",
+    "valueRequired": "Vrijednost je obavezna",
+    "atLeastOnePrice": "Mora se dodati najmanje jedna cijena.",
+    "currencyCodeNotFound": "Kod valute nije pronađen",
+    "shippingOptionIdMissing": "Nedostaje parametar ID opcije dostave",
     "mustBeInt": "Vrijednost mora biti cijeli broj.",
     "mustBePositive": "Vrijednost mora biti pozitivan broj.",
     "rules": {
@@ -2363,6 +2370,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Procentualni popust na proizvod",
+        "description": "Procentualni popust na odabrane proizvode"
+      }
+    },
     "domain": "Promocije",
     "sections": {
       "details": "Detalji promocije"

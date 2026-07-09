@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Došlo k neznámé chybě",
+    "notAvailable": "N/A",
     "ascending": "Vzestupně",
     "descending": "Sestupně",
     "add": "Přidat",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "Povinné pole",
+    "valueRequired": "Hodnota je povinná",
+    "atLeastOnePrice": "Musí být přidána alespoň jedna cena.",
+    "currencyCodeNotFound": "Kód měny nebyl nalezen",
+    "shippingOptionIdMissing": "Chybí parametr ID možnosti dopravy",
     "mustBeInt": "Hodnota musí být celé číslo.",
     "mustBePositive": "Hodnota musí být kladné číslo.",
     "rules": {
@@ -2361,6 +2368,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Procentuální sleva na produkt",
+        "description": "Procentuální sleva na vybrané produkty"
+      }
+    },
     "domain": "Propagace",
     "sections": {
       "details": "Detaily propagace"

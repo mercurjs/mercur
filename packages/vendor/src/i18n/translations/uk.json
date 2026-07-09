@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Сталася невідома помилка",
+    "notAvailable": "Н/Д",
     "ascending": "По зростанню",
     "descending": "По спаданню",
     "add": "Додати",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "Обов'язкове поле",
+    "valueRequired": "Потрібно вказати значення",
+    "atLeastOnePrice": "Потрібно додати щонайменше одну ціну.",
+    "currencyCodeNotFound": "Код валюти не знайдено",
+    "shippingOptionIdMissing": "Відсутній параметр ID способу доставки",
     "mustBeInt": "Значення повинно бути цілим числом.",
     "mustBePositive": "Значення повинно бути додатнім числом.",
     "rules": {
@@ -2364,6 +2371,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Відсоток знижки на товар",
+        "description": "Відсоткова знижка на вибрані товари"
+      }
+    },
     "domain": "Акції",
     "sections": {
       "details": "Деталі акції"

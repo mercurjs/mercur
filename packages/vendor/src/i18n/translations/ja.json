@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "不明なエラーが発生しました",
+    "notAvailable": "N/A",
     "ascending": "昇順",
     "descending": "降順",
     "add": "追加",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "必須項目です",
+    "valueRequired": "値を入力してください",
+    "atLeastOnePrice": "価格を1つ以上追加してください。",
+    "currencyCodeNotFound": "通貨コードが見つかりません",
+    "shippingOptionIdMissing": "配送オプションIDパラメータがありません",
     "mustBeInt": "値は数値でなければなりません。",
     "mustBePositive": "値は正の数値でなければなりません。",
     "rules": {
@@ -2364,6 +2371,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "商品の割引率",
+        "description": "選択した商品を割引率で割引します"
+      }
+    },
     "domain": "プロモーション",
     "sections": {
       "details": "プロモーションの詳細"

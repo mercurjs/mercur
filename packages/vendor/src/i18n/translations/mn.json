@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Тодорхойгүй алдаа гарлаа",
+    "notAvailable": "Байхгүй",
     "ascending": "Өсөх",
     "descending": "Буурах",
     "add": "Нэмэх",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "Заавал бөглөх талбар",
+    "valueRequired": "Утга оруулах шаардлагатай",
+    "atLeastOnePrice": "Дор хаяж нэг үнэ нэмэх шаардлагатай.",
+    "currencyCodeNotFound": "Валютын код олдсонгүй",
+    "shippingOptionIdMissing": "Хүргэлтийн сонголтын ID параметр байхгүй байна",
     "mustBeInt": "Утга нь бүтэн тоо байх ёстой.",
     "mustBePositive": "Утга нь эерэг тоо байх ёстой.",
     "rules": {
@@ -2364,6 +2371,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Бүтээгдэхүүний хувийн хөнгөлөлт",
+        "description": "Сонгосон бүтээгдэхүүнд хувийн хөнгөлөлт үзүүлэх"
+      }
+    },
     "domain": "Урамшууллууд",
     "sections": {
       "details": "Урамшууллын дэлгэрэнгүй"

@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "สร้างมุมมองแล้ว",
+      "createFailed": "ไม่สามารถสร้างมุมมองได้",
+      "updateActiveFailed": "ไม่สามารถอัปเดตมุมมองที่ใช้งานอยู่ได้",
+      "updated": "อัปเดตมุมมองแล้ว",
+      "updateFailed": "ไม่สามารถอัปเดตมุมมองได้",
+      "deleted": "ลบมุมมองสำเร็จแล้ว",
+      "deleteFailed": "ไม่สามารถลบมุมมองได้"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "ชื่อกฎ",
+      "attribute": "คุณลักษณะ",
+      "fee": "ค่าธรรมเนียม"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "เกิดข้อผิดพลาดที่ไม่ทราบสาเหตุ",
+    "notAvailable": "ไม่มีข้อมูล",
     "ascending": "เรียงจากน้อยไปมาก",
     "descending": "เรียงจากมากไปน้อย",
     "add": "เพิ่ม",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "ช่องที่จำเป็นต้องกรอก",
+    "valueRequired": "จำเป็นต้องระบุค่า",
+    "currencyCodeNotFound": "ไม่พบรหัสสกุลเงิน",
+    "shippingOptionIdMissing": "ไม่มีพารามิเตอร์ ID ตัวเลือกการจัดส่ง",
     "mustBeInt": "ค่าต้องเป็นตัวเลขจำนวนเต็ม",
     "mustBePositive": "ค่าต้องเป็นตัวเลขที่เป็นบวก"
   },
@@ -2318,6 +2342,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "ส่วนลดสำหรับสินค้า",
+        "description": "ลดราคาสินค้าเฉพาะรายการหรือกลุ่มสินค้า"
+      },
+      "amountOffOrder": {
+        "title": "ส่วนลดสำหรับคำสั่งซื้อ",
+        "description": "ลดราคาจากยอดรวมของคำสั่งซื้อ"
+      },
+      "percentageOffProduct": {
+        "title": "ส่วนลดเป็นเปอร์เซ็นต์สำหรับสินค้า",
+        "description": "ลดราคาเป็นเปอร์เซ็นต์สำหรับสินค้าที่เลือก"
+      },
+      "percentageOffOrder": {
+        "title": "ส่วนลดเป็นเปอร์เซ็นต์สำหรับคำสั่งซื้อ",
+        "description": "ลดราคาเป็นเปอร์เซ็นต์จากยอดรวมของคำสั่งซื้อ"
+      },
+      "buyGet": {
+        "title": "ซื้อ X รับ Y",
+        "description": "ซื้อสินค้า X ชิ้น รับสินค้า Y ชิ้น"
+      },
+      "freeShipping": {
+        "title": "จัดส่งฟรี",
+        "description": "ใช้ส่วนลด 100% กับค่าจัดส่ง"
+      }
+    },
     "domain": "โปรโมชั่น",
     "sections": {
       "details": "รายละเอียดโปรโมชั่น"
@@ -2787,6 +2837,12 @@
     "deleteUserSuccess": "ลบผู้ใช้ {{name}} สำเร็จแล้ว"
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "จำเป็นต้องระบุวันที่เริ่มปิดร้าน",
+        "closedFromInPast": "วันที่เริ่มปิดร้านต้องไม่เป็นวันที่ผ่านมาแล้ว"
+      }
+    },
     "domain": "ร้านค้า",
     "manageYourStoresDetails": "จัดการรายละเอียดร้านค้าของคุณ",
     "editStore": "แก้ไขร้านค้า",

@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Weergave aangemaakt",
+      "createFailed": "Aanmaken van weergave mislukt",
+      "updateActiveFailed": "Bijwerken van actieve weergave mislukt",
+      "updated": "Weergave bijgewerkt",
+      "updateFailed": "Bijwerken van weergave mislukt",
+      "deleted": "Weergave succesvol verwijderd",
+      "deleteFailed": "Verwijderen van weergave mislukt"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Regelnaam",
+      "attribute": "Attribuut",
+      "fee": "Vergoeding"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Er is een onbekende fout opgetreden",
+    "notAvailable": "N/A",
     "ascending": "Oplopend",
     "descending": "Aflopend",
     "add": "Toevoegen",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Verplicht veld",
+    "valueRequired": "Waarde is verplicht",
+    "currencyCodeNotFound": "Valutacode niet gevonden",
+    "shippingOptionIdMissing": "Parameter voor verzendoptie-ID ontbreekt",
     "mustBeInt": "De waarde moet een geheel getal zijn.",
     "mustBePositive": "De waarde moet een positief getal zijn."
   },
@@ -2317,6 +2341,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Bedrag korting op producten",
+        "description": "Korting op specifieke producten of een productcollectie"
+      },
+      "amountOffOrder": {
+        "title": "Bedrag korting op bestelling",
+        "description": "Geeft korting op het totale bestelbedrag"
+      },
+      "percentageOffProduct": {
+        "title": "Percentage korting op product",
+        "description": "Geeft een percentage korting op geselecteerde producten"
+      },
+      "percentageOffOrder": {
+        "title": "Percentage korting op bestelling",
+        "description": "Geeft een percentage korting op het totale bestelbedrag"
+      },
+      "buyGet": {
+        "title": "Koop X, krijg Y",
+        "description": "Koop X product(en), krijg Y product(en)"
+      },
+      "freeShipping": {
+        "title": "Gratis verzending",
+        "description": "Past 100% korting toe op verzendkosten"
+      }
+    },
     "domain": "Promoties",
     "sections": {
       "details": "Promotiedetails"
@@ -2785,6 +2835,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Startdatum van sluiting is verplicht",
+        "closedFromInPast": "Startdatum van sluiting mag niet in het verleden liggen"
+      }
+    },
     "domain": "Winkel",
     "manageYourStoresDetails": "Beheer de gegevens van uw winkel",
     "editStore": "Winkel bewerken",

@@ -40,8 +40,8 @@ export const templates = [
   {
     id: "percentage_off_product",
     type: "standard",
-    title: "Percentage off product",
-    description: "Discounts a percentage off selected products",
+    titleKey: "promotions.templates.percentageOffProduct.title",
+    descriptionKey: "promotions.templates.percentageOffProduct.description",
     hiddenFields: [...commonHiddenFields],
     defaults: {
       is_automatic: "false",

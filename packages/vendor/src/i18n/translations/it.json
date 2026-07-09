@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Si è verificato un errore sconosciuto",
+    "notAvailable": "N/A",
     "ascending": "Crescente",
     "descending": "Decrescente",
     "add": "Aggiungi",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "Campo obbligatorio",
+    "valueRequired": "Il valore è obbligatorio",
+    "atLeastOnePrice": "È necessario aggiungere almeno un prezzo.",
+    "currencyCodeNotFound": "Codice valuta non trovato",
+    "shippingOptionIdMissing": "Il parametro ID dell'opzione di spedizione è mancante",
     "mustBeInt": "Il valore deve essere un numero intero.",
     "mustBePositive": "Il valore deve essere un numero positivo.",
     "rules": {
@@ -2364,6 +2371,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Percentuale di sconto sul prodotto",
+        "description": "Sconta una percentuale sui prodotti selezionati"
+      }
+    },
     "domain": "Promozioni",
     "sections": {
       "details": "Dettagli Promozione"

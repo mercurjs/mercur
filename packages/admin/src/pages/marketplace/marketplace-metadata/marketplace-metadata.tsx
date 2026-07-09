@@ -1,9 +1,12 @@
+import { useTranslation } from "react-i18next"
+
 import { MetadataForm } from "@components/forms/metadata-form"
 import { RouteDrawer } from "@components/modals"
 import { useStore, useUpdateStore } from "@hooks/api"
 import { ClientError } from "@mercurjs/client"
 
 export const MarketplaceMetadata = () => {
+  const { t } = useTranslation()
   const { store, isPending, isError, error } = useStore()
 
   const { mutateAsync, isPending: isMutating } = useUpdateStore(store?.id ?? '')
@@ -30,7 +33,7 @@ export const MarketplaceMetadata = () => {
 
       return result
     } catch (error) {
-      const message = error instanceof ClientError ? error.message : 'An error occurred'
+      const message = error instanceof ClientError ? error.message : t("errorBoundary.defaultTitle")
       callbacks.onError?.(message)
       throw error
     }

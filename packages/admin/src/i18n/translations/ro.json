@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Vizualizare creată",
+      "createFailed": "Crearea vizualizării a eșuat",
+      "updateActiveFailed": "Actualizarea vizualizării active a eșuat",
+      "updated": "Vizualizare actualizată",
+      "updateFailed": "Actualizarea vizualizării a eșuat",
+      "deleted": "Vizualizarea a fost ștearsă cu succes",
+      "deleteFailed": "Ștergerea vizualizării a eșuat"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Numele regulii",
+      "attribute": "Atribut",
+      "fee": "Comision"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "A apărut o eroare necunoscută",
+    "notAvailable": "N/A",
     "ascending": "Ascendent",
     "descending": "Descendent",
     "add": "Adăuga",
@@ -96,6 +116,10 @@
     "numberOfKeys_other": "{{count}} chei"
   },
   "validation": {
+    "requiredField": "Câmp obligatoriu",
+    "valueRequired": "Valoarea este obligatorie",
+    "currencyCodeNotFound": "Codul valutei nu a fost găsit",
+    "shippingOptionIdMissing": "Parametrul ID-ul opțiunii de livrare lipsește",
     "mustBeInt": "Valoarea trebuie să fie un număr întreg.",
     "mustBePositive": "Valoarea trebuie să fie un număr pozitiv."
   },
@@ -2318,6 +2342,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Reducere valorică la produse",
+        "description": "Reduce prețul unor produse specifice sau al unei colecții de produse"
+      },
+      "amountOffOrder": {
+        "title": "Reducere valorică la comandă",
+        "description": "Reduce valoarea totală a comenzii"
+      },
+      "percentageOffProduct": {
+        "title": "Reducere procentuală la produs",
+        "description": "Aplică o reducere procentuală la produsele selectate"
+      },
+      "percentageOffOrder": {
+        "title": "Reducere procentuală la comandă",
+        "description": "Aplică o reducere procentuală la valoarea totală a comenzii"
+      },
+      "buyGet": {
+        "title": "Cumperi X Primești Y",
+        "description": "Cumperi X produs(e), primești Y produs(e)"
+      },
+      "freeShipping": {
+        "title": "Livrare gratuită",
+        "description": "Aplică o reducere de 100% la taxele de livrare"
+      }
+    },
     "domain": "Promoții",
     "sections": {
       "details": "Detalii de promovare"
@@ -2786,6 +2836,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Data de început a închiderii este obligatorie",
+        "closedFromInPast": "Data de început a închiderii nu poate fi în trecut"
+      }
+    },
     "domain": "Magazin",
     "manageYourStoresDetails": "Gestionați detaliile magazinului dvs",
     "editStore": "Editează magazinul",

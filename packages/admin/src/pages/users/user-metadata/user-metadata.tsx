@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 
 import { MetadataForm } from "@components/forms/metadata-form";
 import { RouteDrawer } from "@components/modals";
@@ -6,6 +7,7 @@ import { useUpdateUser, useUser } from "@hooks/api";
 import { ClientError } from "@mercurjs/client";
 
 export const UserMetadata = () => {
+  const { t } = useTranslation();
   const { id } = useParams();
 
   const { user, isPending, isError, error } = useUser(id!);
@@ -31,7 +33,7 @@ export const UserMetadata = () => {
       return result;
     } catch (error) {
       const message =
-        error instanceof ClientError ? error.message : "An error occurred";
+        error instanceof ClientError ? error.message : t("errorBoundary.defaultTitle");
       callbacks.onError?.(message);
       throw error;
     }

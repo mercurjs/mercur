@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Visualização criada",
+      "createFailed": "Falha ao criar visualização",
+      "updateActiveFailed": "Falha ao atualizar a visualização ativa",
+      "updated": "Visualização atualizada",
+      "updateFailed": "Falha ao atualizar visualização",
+      "deleted": "Visualização excluída com sucesso",
+      "deleteFailed": "Falha ao excluir visualização"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Nome da regra",
+      "attribute": "Atributo",
+      "fee": "Taxa"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Ocorreu um erro desconhecido",
+    "notAvailable": "N/A",
     "ascending": "Ascendente",
     "descending": "Descendente",
     "add": "Adicionar",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Campo obrigatório",
+    "valueRequired": "O valor é obrigatório",
+    "currencyCodeNotFound": "Código da moeda não encontrado",
+    "shippingOptionIdMissing": "O parâmetro ID da opção de envio está ausente",
     "mustBeInt": "O valor deve ser um número inteiro.",
     "mustBePositive": "O valor deve ser um número positivo."
   },
@@ -2318,6 +2342,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Valor de desconto em produtos",
+        "description": "Aplica desconto a produtos específicos ou a uma coleção de produtos"
+      },
+      "amountOffOrder": {
+        "title": "Valor de desconto no pedido",
+        "description": "Aplica desconto sobre o valor total do pedido"
+      },
+      "percentageOffProduct": {
+        "title": "Percentual de desconto no produto",
+        "description": "Aplica um desconto percentual sobre os produtos selecionados"
+      },
+      "percentageOffOrder": {
+        "title": "Percentual de desconto no pedido",
+        "description": "Aplica um desconto percentual sobre o valor total do pedido"
+      },
+      "buyGet": {
+        "title": "Compre X Ganhe Y",
+        "description": "Compre X produto(s), ganhe Y produto(s)"
+      },
+      "freeShipping": {
+        "title": "Frete grátis",
+        "description": "Aplica 100% de desconto nas taxas de envio"
+      }
+    },
     "domain": "Promoções",
     "sections": {
       "details": "Detalhes da Promoção"
@@ -2787,6 +2837,12 @@
     "deleteUserSuccess": "O usuário {{name}} foi removido com sucesso."
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "A data de início do fechamento é obrigatória",
+        "closedFromInPast": "A data de início do fechamento não pode estar no passado"
+      }
+    },
     "domain": "Loja",
     "manageYourStoresDetails": "Gerencie os detalhes da sua loja",
     "editStore": "Editar loja",

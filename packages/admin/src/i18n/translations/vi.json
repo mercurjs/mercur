@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Đã tạo chế độ xem",
+      "createFailed": "Không thể tạo chế độ xem",
+      "updateActiveFailed": "Không thể cập nhật chế độ xem đang hoạt động",
+      "updated": "Đã cập nhật chế độ xem",
+      "updateFailed": "Không thể cập nhật chế độ xem",
+      "deleted": "Đã xóa chế độ xem thành công",
+      "deleteFailed": "Không thể xóa chế độ xem"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Tên quy tắc",
+      "attribute": "Thuộc tính",
+      "fee": "Phí"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Đã xảy ra lỗi không xác định",
+    "notAvailable": "Không có",
     "ascending": "Tăng dần",
     "descending": "Giảm dần",
     "add": "Thêm",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Trường bắt buộc",
+    "valueRequired": "Giá trị là bắt buộc",
+    "currencyCodeNotFound": "Không tìm thấy mã tiền tệ",
+    "shippingOptionIdMissing": "Thiếu tham số ID tùy chọn vận chuyển",
     "mustBeInt": "Giá trị phải là số nguyên.",
     "mustBePositive": "Giá trị phải là số dương."
   },
@@ -2315,6 +2339,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Giảm số tiền cho sản phẩm",
+        "description": "Giảm giá cho sản phẩm cụ thể hoặc bộ sưu tập sản phẩm"
+      },
+      "amountOffOrder": {
+        "title": "Giảm số tiền cho đơn hàng",
+        "description": "Giảm giá tổng số tiền của đơn hàng"
+      },
+      "percentageOffProduct": {
+        "title": "Giảm phần trăm cho sản phẩm",
+        "description": "Giảm giá theo phần trăm cho các sản phẩm đã chọn"
+      },
+      "percentageOffOrder": {
+        "title": "Giảm phần trăm cho đơn hàng",
+        "description": "Giảm giá theo phần trăm trên tổng số tiền của đơn hàng"
+      },
+      "buyGet": {
+        "title": "Mua X Tặng Y",
+        "description": "Mua X sản phẩm, tặng Y sản phẩm"
+      },
+      "freeShipping": {
+        "title": "Miễn phí vận chuyển",
+        "description": "Áp dụng giảm giá 100% cho phí vận chuyển"
+      }
+    },
     "domain": "Khuyến mãi",
     "sections": {
       "details": "Chi tiết khuyến mãi"
@@ -2783,6 +2833,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Ngày bắt đầu đóng cửa là bắt buộc",
+        "closedFromInPast": "Ngày bắt đầu đóng cửa không thể ở trong quá khứ"
+      }
+    },
     "domain": "Cửa hàng",
     "manageYourStoresDetails": "Quản lý chi tiết cửa hàng của bạn",
     "editStore": "Chỉnh sửa cửa hàng",

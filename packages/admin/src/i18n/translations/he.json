@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "התצוגה נוצרה",
+      "createFailed": "יצירת התצוגה נכשלה",
+      "updateActiveFailed": "עדכון התצוגה הפעילה נכשל",
+      "updated": "התצוגה עודכנה",
+      "updateFailed": "עדכון התצוגה נכשל",
+      "deleted": "התצוגה נמחקה בהצלחה",
+      "deleteFailed": "מחיקת התצוגה נכשלה"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "שם הכלל",
+      "attribute": "מאפיין",
+      "fee": "עמלה"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "אירעה שגיאה לא ידועה",
+    "notAvailable": "לא זמין",
     "ascending": "סדר עולה",
     "descending": "סדר יורד",
     "add": "הוסף",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "שדה חובה",
+    "valueRequired": "ערך נדרש",
+    "currencyCodeNotFound": "קוד המטבע לא נמצא",
+    "shippingOptionIdMissing": "פרמטר מזהה אפשרות המשלוח חסר",
     "mustBeInt": "הערך חייב להיות מספר שלם.",
     "mustBePositive": "הערך חייב להיות מספר חיובי."
   },
@@ -2315,6 +2339,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "הנחת סכום על מוצרים",
+        "description": "הנחה על מוצרים מסוימים או אוסף מוצרים"
+      },
+      "amountOffOrder": {
+        "title": "הנחת סכום על הזמנה",
+        "description": "הנחה על סכום ההזמנה הכולל"
+      },
+      "percentageOffProduct": {
+        "title": "הנחת אחוזים על מוצר",
+        "description": "הנחה באחוזים על מוצרים נבחרים"
+      },
+      "percentageOffOrder": {
+        "title": "הנחת אחוזים על הזמנה",
+        "description": "הנחה באחוזים מסכום ההזמנה הכולל"
+      },
+      "buyGet": {
+        "title": "קנה X קבל Y",
+        "description": "קנה X מוצר(ים), קבל Y מוצר(ים)"
+      },
+      "freeShipping": {
+        "title": "משלוח חינם",
+        "description": "מחיל הנחה של 100% על דמי המשלוח"
+      }
+    },
     "domain": "מבצעים",
     "sections": {
       "details": "פרטי מבצע"
@@ -2783,6 +2833,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "תאריך תחילת הסגירה נדרש",
+        "closedFromInPast": "תאריך תחילת הסגירה לא יכול להיות בעבר"
+      }
+    },
     "domain": "חנות",
     "manageYourStoresDetails": "נהל את פרטי החנות שלך",
     "editStore": "ערוך חנות",

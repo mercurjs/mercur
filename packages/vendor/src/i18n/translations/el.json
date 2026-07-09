@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Παρουσιάστηκε άγνωστο σφάλμα",
+    "notAvailable": "Μη διαθέσιμο",
     "ascending": "Αύξουσα",
     "descending": "Φθίνουσα",
     "add": "Προσθήκη",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "Υποχρεωτικό πεδίο",
+    "valueRequired": "Απαιτείται τιμή",
+    "atLeastOnePrice": "Πρέπει να προστεθεί τουλάχιστον μία τιμή.",
+    "currencyCodeNotFound": "Ο κωδικός νομίσματος δεν βρέθηκε",
+    "shippingOptionIdMissing": "Λείπει η παράμετρος ID επιλογής αποστολής",
     "mustBeInt": "Η τιμή πρέπει να είναι ακέραιος αριθμός.",
     "mustBePositive": "Η τιμή πρέπει να είναι θετικός αριθμός.",
     "rules": {
@@ -2364,6 +2371,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Ποσοστιαία έκπτωση σε προϊόν",
+        "description": "Ποσοστιαία έκπτωση σε επιλεγμένα προϊόντα"
+      }
+    },
     "domain": "Προωθήσεις",
     "sections": {
       "details": "Λεπτομέρειες προώθησης"

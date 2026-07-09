@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "发生未知错误",
+    "notAvailable": "N/A",
     "ascending": "升序",
     "descending": "降序",
     "add": "添加",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "必填项",
+    "valueRequired": "此值为必填项",
+    "atLeastOnePrice": "必须至少添加一个价格。",
+    "currencyCodeNotFound": "未找到货币代码",
+    "shippingOptionIdMissing": "缺少配送选项 ID 参数",
     "mustBeInt": "值必须是整数。",
     "mustBePositive": "值必须是正数。",
     "rules": {
@@ -2361,6 +2368,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "商品折扣",
+        "description": "对所选商品按百分比折扣"
+      }
+    },
     "domain": "促销活动",
     "sections": {
       "details": "促销详情"

@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Tampilan dibuat",
+      "createFailed": "Gagal membuat tampilan",
+      "updateActiveFailed": "Gagal memperbarui tampilan aktif",
+      "updated": "Tampilan diperbarui",
+      "updateFailed": "Gagal memperbarui tampilan",
+      "deleted": "Tampilan berhasil dihapus",
+      "deleteFailed": "Gagal menghapus tampilan"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Nama Aturan",
+      "attribute": "Atribut",
+      "fee": "Biaya"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Terjadi kesalahan yang tidak diketahui",
+    "notAvailable": "T/A",
     "ascending": "Menaik",
     "descending": "Menurun",
     "add": "Tambah",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Kolom wajib diisi",
+    "valueRequired": "Nilai wajib diisi",
+    "currencyCodeNotFound": "Kode mata uang tidak ditemukan",
+    "shippingOptionIdMissing": "Parameter ID Opsi Pengiriman tidak ada",
     "mustBeInt": "Nilai harus berupa bilangan bulat.",
     "mustBePositive": "Nilai harus berupa bilangan positif."
   },
@@ -2315,6 +2339,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Potongan harga produk",
+        "description": "Diskon untuk produk tertentu atau koleksi produk"
+      },
+      "amountOffOrder": {
+        "title": "Potongan harga pesanan",
+        "description": "Diskon dari total jumlah pesanan"
+      },
+      "percentageOffProduct": {
+        "title": "Diskon persentase produk",
+        "description": "Diskon persentase untuk produk yang dipilih"
+      },
+      "percentageOffOrder": {
+        "title": "Diskon persentase pesanan",
+        "description": "Diskon persentase dari total jumlah pesanan"
+      },
+      "buyGet": {
+        "title": "Beli X Dapat Y",
+        "description": "Beli X produk, dapat Y produk"
+      },
+      "freeShipping": {
+        "title": "Gratis ongkos kirim",
+        "description": "Menerapkan diskon 100% untuk biaya pengiriman"
+      }
+    },
     "domain": "Promosi",
     "sections": {
       "details": "Detail Promosi"
@@ -2783,6 +2833,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Tanggal mulai penutupan wajib diisi",
+        "closedFromInPast": "Tanggal mulai penutupan tidak boleh di masa lalu"
+      }
+    },
     "domain": "Toko",
     "manageYourStoresDetails": "Kelola detail toko Anda",
     "editStore": "Edit toko",

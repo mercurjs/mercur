@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Харагдац үүслээ",
+      "createFailed": "Харагдац үүсгэж чадсангүй",
+      "updateActiveFailed": "Идэвхтэй харагдацыг шинэчилж чадсангүй",
+      "updated": "Харагдац шинэчлэгдлээ",
+      "updateFailed": "Харагдацыг шинэчилж чадсангүй",
+      "deleted": "Харагдац амжилттай устгагдлаа",
+      "deleteFailed": "Харагдацыг устгаж чадсангүй"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Дүрмийн нэр",
+      "attribute": "Атрибут",
+      "fee": "Шимтгэл"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Тодорхойгүй алдаа гарлаа",
+    "notAvailable": "Байхгүй",
     "ascending": "Өсөх",
     "descending": "Буурах",
     "add": "Нэмэх",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Заавал бөглөх талбар",
+    "valueRequired": "Утга оруулах шаардлагатай",
+    "currencyCodeNotFound": "Валютын код олдсонгүй",
+    "shippingOptionIdMissing": "Хүргэлтийн сонголтын ID параметр байхгүй байна",
     "mustBeInt": "Утга нь бүтэн тоо байх ёстой.",
     "mustBePositive": "Утга нь эерэг тоо байх ёстой."
   },
@@ -2318,6 +2342,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Бүтээгдэхүүний хөнгөлөлт",
+        "description": "Тодорхой бүтээгдэхүүн эсвэл бүтээгдэхүүний багцад хөнгөлөлт үзүүлэх"
+      },
+      "amountOffOrder": {
+        "title": "Захиалгын хөнгөлөлт",
+        "description": "Захиалгын нийт дүнгээс хөнгөлөлт үзүүлэх"
+      },
+      "percentageOffProduct": {
+        "title": "Бүтээгдэхүүний хувийн хөнгөлөлт",
+        "description": "Сонгосон бүтээгдэхүүнд хувийн хөнгөлөлт үзүүлэх"
+      },
+      "percentageOffOrder": {
+        "title": "Захиалгын хувийн хөнгөлөлт",
+        "description": "Захиалгын нийт дүнгээс хувийн хөнгөлөлт үзүүлэх"
+      },
+      "buyGet": {
+        "title": "X аваад Y ав",
+        "description": "X бүтээгдэхүүн аваад Y бүтээгдэхүүн ав"
+      },
+      "freeShipping": {
+        "title": "Үнэгүй хүргэлт",
+        "description": "Хүргэлтийн төлбөрт 100% хөнгөлөлт үзүүлнэ"
+      }
+    },
     "domain": "Урамшууллууд",
     "sections": {
       "details": "Урамшууллын дэлгэрэнгүй"
@@ -2786,6 +2836,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Хаах эхлэх огноо заавал шаардлагатай",
+        "closedFromInPast": "Хаах эхлэх огноо өнгөрсөн хугацаанд байж болохгүй"
+      }
+    },
     "domain": "Дэлгүүр",
     "manageYourStoresDetails": "Таны дэлгүүрийн дэлгэрэнгүй мэдээллийг удирдах",
     "editStore": "Дэлгүүрийг засах",

@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "تم إنشاء العرض",
+      "createFailed": "فشل إنشاء العرض",
+      "updateActiveFailed": "فشل تحديث العرض النشط",
+      "updated": "تم تحديث العرض",
+      "updateFailed": "فشل تحديث العرض",
+      "deleted": "تم حذف العرض بنجاح",
+      "deleteFailed": "فشل حذف العرض"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "اسم القاعدة",
+      "attribute": "السمة",
+      "fee": "الرسوم"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "حدث خطأ غير معروف",
+    "notAvailable": "غير متاح",
     "ascending": "تصاعدي",
     "descending": "تنازلي",
     "add": "إضافة",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "حقل مطلوب",
+    "valueRequired": "القيمة مطلوبة",
+    "currencyCodeNotFound": "رمز العملة غير موجود",
+    "shippingOptionIdMissing": "معرّف خيار الشحن مفقود",
     "mustBeInt": "يجب أن تكون القيمة عددًا صحيحًا.",
     "mustBePositive": "يجب أن تكون القيمة عددًا موجبًا."
   },
@@ -2318,6 +2342,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "خصم مبلغ على المنتجات",
+        "description": "خصم على منتجات محددة أو مجموعة من المنتجات"
+      },
+      "amountOffOrder": {
+        "title": "خصم مبلغ على الطلب",
+        "description": "خصم على إجمالي مبلغ الطلب"
+      },
+      "percentageOffProduct": {
+        "title": "خصم نسبة مئوية على المنتج",
+        "description": "خصم نسبة مئوية على منتجات محددة"
+      },
+      "percentageOffOrder": {
+        "title": "خصم نسبة مئوية على الطلب",
+        "description": "خصم نسبة مئوية من إجمالي مبلغ الطلب"
+      },
+      "buyGet": {
+        "title": "اشترِ X واحصل على Y",
+        "description": "اشترِ X منتج (منتجات)، واحصل على Y منتج (منتجات)"
+      },
+      "freeShipping": {
+        "title": "شحن مجاني",
+        "description": "يطبّق خصمًا بنسبة 100% على رسوم الشحن"
+      }
+    },
     "domain": "العروض الترويجية",
     "sections": {
       "details": "تفاصيل العرض الترويجي"
@@ -2786,6 +2836,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "تاريخ بدء الإغلاق مطلوب",
+        "closedFromInPast": "لا يمكن أن يكون تاريخ بدء الإغلاق في الماضي"
+      }
+    },
     "domain": "المتجر",
     "manageYourStoresDetails": "إدارة تفاصيل متجرك",
     "editStore": "تحرير المتجر",

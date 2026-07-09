@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "An unknown error occurred",
+    "notAvailable": "N/A",
     "ascending": "Ascending",
     "descending": "Descending",
     "add": "Add",
@@ -96,6 +98,10 @@
     }
   },
   "validation": {
+    "requiredField": "Required field",
+    "valueRequired": "Value is required",
+    "currencyCodeNotFound": "Currency code not found",
+    "shippingOptionIdMissing": "Shipping Option ID parameter is missing",
     "mustBeInt": "The value must be a whole number.",
     "mustBePositive": "The value must be a positive number."
   },
@@ -2329,6 +2335,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Amount off products",
+        "description": "Discount specific products or collection of products"
+      },
+      "amountOffOrder": {
+        "title": "Amount off order",
+        "description": "Discounts the total order amount"
+      },
+      "percentageOffProduct": {
+        "title": "Percentage off product",
+        "description": "Discounts a percentage off selected products"
+      },
+      "percentageOffOrder": {
+        "title": "Percentage off order",
+        "description": "Discounts a percentage of the total order amount"
+      },
+      "buyGet": {
+        "title": "Buy X Get Y",
+        "description": "Buy X product(s), get Y product(s)"
+      },
+      "freeShipping": {
+        "title": "Free shipping",
+        "description": "Applies a 100% discount to shipping fees"
+      }
+    },
     "domain": "Promotions",
     "sections": {
       "details": "Promotion Details"
@@ -2897,6 +2929,10 @@
       }
     },
     "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Close from date is required",
+        "closedFromInPast": "Close from date cannot be in the past"
+      },
       "header": "Scheduled Closure",
       "edit": {
         "header": "Schedule Store Closure",
@@ -3740,6 +3776,15 @@
     "seconds_other": "Seconds"
   },
   "views": {
+    "toasts": {
+      "created": "View created",
+      "createFailed": "Failed to create view",
+      "updateActiveFailed": "Failed to update active view",
+      "updated": "View updated",
+      "updateFailed": "Failed to update view",
+      "deleted": "View deleted successfully",
+      "deleteFailed": "Failed to delete view"
+    },
     "save": "Save",
     "saveAsNew": "Save as new view",
     "saveAsSystemDefault": "Save as system default",
@@ -3948,6 +3993,11 @@
     "domain": "Commission Lines"
   },
   "commissions": {
+    "rulesTable": {
+      "name": "Rule Name",
+      "attribute": "Attribute",
+      "fee": "Fee"
+    },
     "domain": "Commissions",
     "create": {
       "header": "Create Commission Rule",

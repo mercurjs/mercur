@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Vista creada",
+      "createFailed": "Error al crear la vista",
+      "updateActiveFailed": "Error al actualizar la vista activa",
+      "updated": "Vista actualizada",
+      "updateFailed": "Error al actualizar la vista",
+      "deleted": "Vista eliminada correctamente",
+      "deleteFailed": "Error al eliminar la vista"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Nombre de la regla",
+      "attribute": "Atributo",
+      "fee": "Comisión"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Se ha producido un error desconocido",
+    "notAvailable": "N/A",
     "ascending": "Ascendente",
     "descending": "Descendente",
     "add": "Agregar",
@@ -118,6 +138,10 @@
     }
   },
   "validation": {
+    "requiredField": "Campo obligatorio",
+    "valueRequired": "El valor es obligatorio",
+    "currencyCodeNotFound": "Código de moneda no encontrado",
+    "shippingOptionIdMissing": "Falta el parámetro de ID de la opción de envío",
     "mustBeInt": "El valor debe ser un número entero.",
     "mustBePositive": "El valor debe ser un número positivo."
   },
@@ -2337,6 +2361,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Importe de descuento en productos",
+        "description": "Descuento en productos específicos o en una colección de productos"
+      },
+      "amountOffOrder": {
+        "title": "Importe de descuento en el pedido",
+        "description": "Descuenta el importe total del pedido"
+      },
+      "percentageOffProduct": {
+        "title": "Porcentaje de descuento en el producto",
+        "description": "Descuenta un porcentaje de los productos seleccionados"
+      },
+      "percentageOffOrder": {
+        "title": "Porcentaje de descuento en el pedido",
+        "description": "Descuenta un porcentaje del importe total del pedido"
+      },
+      "buyGet": {
+        "title": "Compra X y llévate Y",
+        "description": "Compra X producto(s) y llévate Y producto(s)"
+      },
+      "freeShipping": {
+        "title": "Envío gratis",
+        "description": "Aplica un descuento del 100% en los gastos de envío"
+      }
+    },
     "domain": "Promociones",
     "sections": {
       "details": "Detalles de la Promoción"
@@ -2803,6 +2853,12 @@
     }
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "La fecha de inicio del cierre es obligatoria",
+        "closedFromInPast": "La fecha de inicio del cierre no puede estar en el pasado"
+      }
+    },
     "domain": "Tienda",
     "manageYourStoresDetails": "Gestiona los detalles de tu tienda",
     "editStore": "Editar tienda",

@@ -107,6 +107,8 @@ export const OrderRemainingOrdersGroupSection = () => {
 const columnHelper = createColumnHelper<HttpTypes.AdminOrder>()
 
 const useColumns = () => {
+  const { t } = useTranslation()
+
   return useMemo(
     () => [
       columnHelper.accessor("display_id", {
@@ -115,7 +117,7 @@ const useColumns = () => {
       }),
       columnHelper.display({
         id: "seller",
-        header: () => <TextHeader text="Store" />,
+        header: () => <TextHeader text={t("fields.store")} />,
         cell: ({ row }) => {
           const seller = (row.original as any).seller
           return <TextCell text={seller?.name ?? "-"} />
@@ -143,6 +145,6 @@ const useColumns = () => {
         ),
       }),
     ],
-    []
+    [t]
   )
 }

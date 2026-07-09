@@ -1,6 +1,26 @@
 {
+  "views": {
+    "toasts": {
+      "created": "Подання створено",
+      "createFailed": "Не вдалося створити подання",
+      "updateActiveFailed": "Не вдалося оновити активне подання",
+      "updated": "Подання оновлено",
+      "updateFailed": "Не вдалося оновити подання",
+      "deleted": "Подання успішно видалено",
+      "deleteFailed": "Не вдалося видалити подання"
+    }
+  },
+  "commissions": {
+    "rulesTable": {
+      "name": "Назва правила",
+      "attribute": "Атрибут",
+      "fee": "Комісія"
+    }
+  },
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Сталася невідома помилка",
+    "notAvailable": "Н/Д",
     "ascending": "По зростанню",
     "descending": "По спаданню",
     "add": "Додати",
@@ -96,6 +116,10 @@
     }
   },
   "validation": {
+    "requiredField": "Обов'язкове поле",
+    "valueRequired": "Потрібно вказати значення",
+    "currencyCodeNotFound": "Код валюти не знайдено",
+    "shippingOptionIdMissing": "Відсутній параметр ID способу доставки",
     "mustBeInt": "Значення повинно бути цілим числом.",
     "mustBePositive": "Значення повинно бути додатнім числом."
   },
@@ -2318,6 +2342,32 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Знижка на товари",
+        "description": "Знижка на певні товари або групу товарів"
+      },
+      "amountOffOrder": {
+        "title": "Знижка на замовлення",
+        "description": "Знижка на загальну суму замовлення"
+      },
+      "percentageOffProduct": {
+        "title": "Відсоток знижки на товар",
+        "description": "Відсоткова знижка на вибрані товари"
+      },
+      "percentageOffOrder": {
+        "title": "Відсоток знижки на замовлення",
+        "description": "Відсоткова знижка на загальну суму замовлення"
+      },
+      "buyGet": {
+        "title": "Купи X — отримай Y",
+        "description": "Купи X товар(ів), отримай Y товар(ів)"
+      },
+      "freeShipping": {
+        "title": "Безкоштовна доставка",
+        "description": "Застосовує 100% знижку на вартість доставки"
+      }
+    },
     "domain": "Акції",
     "sections": {
       "details": "Деталі акції"
@@ -2787,6 +2837,12 @@
     "deleteUserSuccess": "Користувача {{name}} успішно видалено."
   },
   "store": {
+    "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Вкажіть дату початку закриття",
+        "closedFromInPast": "Дата початку закриття не може бути в минулому"
+      }
+    },
     "domain": "Магазин",
     "manageYourStoresDetails": "Керуйте деталями вашого магазину",
     "editStore": "Редагувати магазин",

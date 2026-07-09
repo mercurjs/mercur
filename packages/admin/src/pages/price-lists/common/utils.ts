@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { TFunction } from "i18next"
+import i18n, { TFunction } from "i18next"
 import { castNumber } from "../../../lib/cast-number"
 import { PriceListDateStatus, PriceListStatus } from "./constants"
 import {
@@ -81,7 +81,7 @@ const extractPricesFromVariants = (
 
     if (!currencyCode) {
       throw new Response(
-        JSON.stringify({ message: "Currency code not found" }),
+        JSON.stringify({ message: i18n.t("validation.currencyCodeNotFound") }),
         { status: 400, headers: { "Content-Type": "application/json" } }
       )
     }
