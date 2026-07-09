@@ -4,7 +4,7 @@ import { fileURLToPath } from "node:url"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PKG_DIR = path.resolve(__dirname, "..")
-const SOURCE_DIR = path.resolve(__dirname, "../../../apps/docs/rc")
+const SOURCE_DIR = path.resolve(__dirname, "../../../apps/docs/2.2.0")
 const CONTENT_DIR = path.resolve(PKG_DIR, "content")
 const INDEX_FILE = path.resolve(PKG_DIR, "llms.txt")
 
