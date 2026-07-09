@@ -387,7 +387,10 @@ export default async function seedDemoData({ container }: ExecArgs) {
     fields: ["id", "fulfillment_sets.id"],
     filters: { id: sellerStockLocation.id },
   });
-  const sellerFulfillmentSetId = locationWithSet.fulfillment_sets![0].id;
+  const sellerFulfillmentSetId = locationWithSet?.fulfillment_sets?.[0]?.id;
+  if (!sellerFulfillmentSetId) {
+    throw new Error("Seller fulfillment set was not created");
+  }
 
   const { result: sellerServiceZones } = await createServiceZonesWorkflow(
     container
@@ -483,7 +486,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
           handle: "t-shirt",
           weight: 400,
           status: ProductStatus.PUBLISHED,
-          shipping_profile_id: sellerShippingProfileId,
           seller_ids: [demoSeller.id],
           images: [
             { url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/tee-black-front.png" },
@@ -517,7 +519,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
           handle: "sweatshirt",
           weight: 400,
           status: ProductStatus.PUBLISHED,
-          shipping_profile_id: sellerShippingProfileId,
           seller_ids: [demoSeller.id],
           images: [
             { url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatshirt-vintage-front.png" },
@@ -544,7 +545,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
           handle: "sweatpants",
           weight: 400,
           status: ProductStatus.PUBLISHED,
-          shipping_profile_id: sellerShippingProfileId,
           seller_ids: [demoSeller.id],
           images: [
             { url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/sweatpants-gray-front.png" },
@@ -571,7 +571,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
           handle: "shorts",
           weight: 400,
           status: ProductStatus.PUBLISHED,
-          shipping_profile_id: sellerShippingProfileId,
           seller_ids: [demoSeller.id],
           images: [
             { url: "https://medusa-public-images.s3.eu-west-1.amazonaws.com/shorts-vintage-front.png" },
