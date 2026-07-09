@@ -2,6 +2,10 @@ import { PencilSquare } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import {
+  DisplayExtensionZone,
+  DisplayField,
+} from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { languages } from "../../../../../i18n/languages"
 
@@ -38,31 +42,43 @@ export const ProfileGeneralSection = ({ user }: ProfileGeneralSectionProps) => {
           data-testid="profile-general-section-action-menu"
         />
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="profile-general-section-name-row">
-        <Text size="small" leading="compact" weight="plus" data-testid="profile-general-section-name-label">
-          {t("fields.name")}
-        </Text>
-        <Text size="small" leading="compact" data-testid="profile-general-section-name-value">
-          {name || "-"}
-        </Text>
-      </div>
-      <div className="grid grid-cols-2 items-center px-6 py-4" data-testid="profile-general-section-email-row">
-        <Text size="small" leading="compact" weight="plus" data-testid="profile-general-section-email-label">
-          {t("fields.email")}
-        </Text>
-        <Text size="small" leading="compact" data-testid="profile-general-section-email-value">
-          {user.email}
-        </Text>
-      </div>
-      <div className="grid grid-cols-2 items-center px-6 py-4" data-testid="profile-general-section-language-row">
-        <Text size="small" leading="compact" weight="plus" data-testid="profile-general-section-language-label">
-          {t("profile.fields.languageLabel")}
-        </Text>
-        <Text size="small" leading="compact" data-testid="profile-general-section-language-value">
-          {languages.find((lang) => lang.code === i18n.language)
-            ?.display_name || "-"}
-        </Text>
-      </div>
+      <DisplayField model="user" zone="general" id="name" data={user}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="profile-general-section-name-row">
+          <Text size="small" leading="compact" weight="plus" data-testid="profile-general-section-name-label">
+            {t("fields.name")}
+          </Text>
+          <Text size="small" leading="compact" data-testid="profile-general-section-name-value">
+            {name || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayField model="user" zone="general" id="email" data={user}>
+        <div className="grid grid-cols-2 items-center px-6 py-4" data-testid="profile-general-section-email-row">
+          <Text size="small" leading="compact" weight="plus" data-testid="profile-general-section-email-label">
+            {t("fields.email")}
+          </Text>
+          <Text size="small" leading="compact" data-testid="profile-general-section-email-value">
+            {user.email}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayField model="user" zone="general" id="language" data={user}>
+        <div className="grid grid-cols-2 items-center px-6 py-4" data-testid="profile-general-section-language-row">
+          <Text size="small" leading="compact" weight="plus" data-testid="profile-general-section-language-label">
+            {t("profile.fields.languageLabel")}
+          </Text>
+          <Text size="small" leading="compact" data-testid="profile-general-section-language-value">
+            {languages.find((lang) => lang.code === i18n.language)
+              ?.display_name || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayExtensionZone
+        model="user"
+        zone="general"
+        data={user}
+        builtInFieldIds={["name", "email", "language"]}
+      />
       {/* TODO: Do we want to implement usage insights in V2? */}
       {/* <div className="grid grid-cols-2 items-center px-6 py-4">
         <Text size="small" leading="compact" weight="plus">

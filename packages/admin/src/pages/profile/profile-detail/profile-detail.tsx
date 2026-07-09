@@ -1,6 +1,6 @@
 import { ReactNode, Children } from "react"
 
-import { WidgetZone } from "@mercurjs/dashboard-shared"
+import { WidgetZone, useExtension } from "@mercurjs/dashboard-shared"
 
 import { useMe } from "../../../hooks/api/users"
 import { ProfileGeneralSection } from "./components/profile-general-section"
@@ -8,7 +8,12 @@ import { ProfileGeneralSection } from "./components/profile-general-section"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 const Root = ({ children }: { children?: ReactNode }) => {
-  const { user, isPending: isLoading, isError, error } = useMe()
+  const userLinks = useExtension().getLinks("user")
+  const meQuery = userLinks.length
+    ? { fields: userLinks.map((link) => `+${link}.*`).join(",") }
+    : undefined
+
+  const { user, isPending: isLoading, isError, error } = useMe(meQuery)
 
   if (isLoading || !user) {
     return <SingleColumnPageSkeleton sections={1} />

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next"
 import {
   DisplayExtensionZone,
   DisplayField,
+  useExtension,
 } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "../../../../../../components/common/action-menu"
 import { useMe } from "../../../../../../hooks/api"
@@ -11,7 +12,13 @@ import { languages } from "../../../../../../i18n/languages"
 
 export const ProfileGeneralSection = () => {
   const { i18n, t } = useTranslation()
-  const { seller_member } = useMe()
+
+  const memberLinks = useExtension().getLinks("member")
+  const meQuery = memberLinks.length
+    ? { fields: memberLinks.map((link) => `+member.${link}.*`).join(",") }
+    : undefined
+
+  const { seller_member } = useMe(meQuery)
   const member = seller_member?.member
 
   return (
