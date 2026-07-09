@@ -44,7 +44,7 @@
     "prettier": "^3.7.4",
     "ts-node": "^10.9.2",
     "turbo": "^2.7.4",
-    "typescript": "7.0.2",
+    "typescript": "5.9.3",
     "@types/node": "^26.1.0",
     "@mercurjs/types": "workspace:*"
   }

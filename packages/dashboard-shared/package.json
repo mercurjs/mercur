@@ -67,7 +67,7 @@
     "@mercurjs/core": "2.2.0-canary.52",
     "@mercurjs/dashboard-sdk": "2.2.0-canary.52",
     "tsup": "^8.0.2",
-    "typescript": "7.0.2",
+    "typescript": "5.9.3",
     "@types/lodash.debounce": "^4.0.8",
     "@types/react": "^19.2.17",
     "@types/react-dom": "^18.2.22"
