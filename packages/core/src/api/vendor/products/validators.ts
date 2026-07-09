@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { MercurFeatureFlags, ProductStatus } from "@mercurjs/types"
+import { MercurFeatureFlags } from "@mercurjs/types"
 import {
   createFindParams,
   createOperatorMap,
@@ -11,7 +11,7 @@ import {
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
 import { AdditionalData, OperatorMap } from "@medusajs/framework/types"
-import { FeatureFlag, isPresent } from "@medusajs/framework/utils"
+import { FeatureFlag, isPresent, ProductStatus } from "@medusajs/framework/utils"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 

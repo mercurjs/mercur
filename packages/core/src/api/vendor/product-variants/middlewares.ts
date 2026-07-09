@@ -5,7 +5,7 @@ import {
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
-import { ProductStatus } from "@mercurjs/types"
+import { ProductStatus } from "@medusajs/framework/utils"
 
 import {
   getProductIdsRestrictedFromSeller,

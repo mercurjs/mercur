@@ -1,4 +1,5 @@
 import { AdditionalData } from "@medusajs/framework/types"
+import { ProductStatus } from "@medusajs/framework/utils"
 import {
   createWorkflow,
   transform,
@@ -9,7 +10,6 @@ import { useQueryGraphStep } from "@medusajs/medusa/core-flows"
 import {
   ProductChangeActionType,
   ProductChangeDTO,
-  ProductStatus,
 } from "@mercurjs/types"
 
 import { validateNoPendingProductChangeStep } from "../steps"

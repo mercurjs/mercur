@@ -34,6 +34,7 @@
     "@medusajs/framework": "2.17.2",
     "@medusajs/dashboard": "2.17.2",
     "@medusajs/admin-shared": "2.17.2",
+    "@medusajs/index": "2.17.2",
     "@medusajs/medusa": "2.17.2",
     "@medusajs/draft-order": "2.17.2",
     "@mercurjs/core": "2.2.0-rc.1",

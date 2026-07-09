@@ -9,6 +9,7 @@ import { HttpTypes } from "@mercurjs/types"
 import { createProductsWorkflow } from "../../../workflows/product/workflows/create-products"
 import {
   enrichProductAttributes,
+  listProducts,
   wrapProductVariantsWithOffers,
 } from "../../utils"
 import { AdminCreateProductType, AdminGetProductsParamsType } from "./validators"
@@ -17,8 +18,6 @@ export const GET = async (
   req: AuthenticatedMedusaRequest<AdminGetProductsParamsType>,
   res: MedusaResponse<HttpTypes.AdminProductListResponse>
 ) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
   const withOffers = req.queryConfig.fields.some((field) =>
     field.includes("variants.offers")
   )
@@ -28,8 +27,9 @@ export const GET = async (
     )
   }
 
-  const { data: products, metadata } = await query.graph({
-    entity: "product",
+  const { products, count, offset, limit } = await listProducts<
+    HttpTypes.AdminProductListResponse["products"][number]
+  >(req.scope, {
     fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
@@ -44,12 +44,7 @@ export const GET = async (
     )
   }
 
-  res.json({
-    products,
-    count: metadata?.count ?? 0,
-    offset: metadata?.skip ?? 0,
-    limit: metadata?.take ?? 0,
-  })
+  res.json({ products, count, offset, limit })
 }
 
 export const POST = async (

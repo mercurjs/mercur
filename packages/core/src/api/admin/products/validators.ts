@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { ProductStatus } from "@mercurjs/types"
+import { ProductStatus } from "@medusajs/framework/utils"
 import {
   createFindParams,
   createOperatorMap,

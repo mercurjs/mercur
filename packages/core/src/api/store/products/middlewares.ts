@@ -20,8 +20,11 @@ import {
   StoreGetProductParams,
   StoreGetProductsParams,
 } from "./validators"
-import { ProductStatus } from "@mercurjs/types"
-import { resolveVisibleSellerIds } from "../../utils/sellers"
+import { ProductStatus } from "@medusajs/framework/utils"
+import {
+  applyVisibleSellerProductScope,
+  resolveVisibleSellerIds,
+} from "../../utils/sellers"
 
 /**
  * Apply the store-facing defaults that vanilla Medusa applies on its own
@@ -81,12 +84,7 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
         storeProductQueryConfig.list
       ),
       applyProductFilters,
-      applyVisibleSellerIdsFilter,
-      maybeApplyLinkFilter({
-        entryPoint: "product_seller",
-        resourceId: "product_id",
-        filterableField: "seller_id",
-      }),
+      applyVisibleSellerProductScope,
       ...pricingMiddlewares,
     ],
   },

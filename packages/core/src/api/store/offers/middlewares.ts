@@ -8,7 +8,7 @@ import {
 } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
-import { ProductStatus } from "@mercurjs/types"
+import { ProductStatus } from "@medusajs/framework/utils"
 import {
   normalizeDataForContext,
   setPricingContext,

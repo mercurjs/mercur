@@ -2,17 +2,15 @@ import {
   MedusaResponse,
   MedusaStoreRequest,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import {
   enrichProductAttributes,
+  listProducts,
   wrapProductVariantsWithOfferPrice,
 } from "../../utils"
 import { splitComputedVariantFields } from "./helpers"
 
 export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
-
   // `variants.calculated_price` / `variants.offer_id` are computed from the
   // cheapest offer post-query, not graph columns — strip them before the read.
   const { fields, withCalculatedPrice } = splitComputedVariantFields(
@@ -20,18 +18,21 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
   )
   req.queryConfig.fields = fields
 
-  // region_id / currency_code are consumed by setPricingContext only.
-  // The Product entity has neither column, so passing them through to
-  // query.graph raises `Trying to query by not existing property
-  // Product.region_id`.
+  // Pricing-context keys (region_id / currency_code / country_code / province /
+  // cart_id) are populated by the pricing middlewares for the offer-price wrap,
+  // not product columns. query.graph silently ignored them; the index engine
+  // rejects any non-indexed key (`Field country_code is not indexed`), so strip
+  // them all before the read.
   const {
     region_id: _r,
     currency_code: _c,
+    country_code: _cc,
+    province: _p,
+    cart_id: _cart,
     ...productFilters
   } = (req.filterableFields ?? {}) as Record<string, unknown>
 
-  const { data: products, metadata } = await query.graph({
-    entity: "product",
+  const { products, count, offset, limit } = await listProducts(req.scope, {
     fields: req.queryConfig.fields,
     filters: productFilters,
     pagination: req.queryConfig.pagination,
@@ -43,10 +44,5 @@ export const GET = async (req: MedusaStoreRequest, res: MedusaResponse) => {
     await wrapProductVariantsWithOfferPrice(req, products as any[])
   }
 
-  res.json({
-    products,
-    count: metadata?.count ?? 0,
-    offset: metadata?.skip ?? 0,
-    limit: metadata?.take ?? 0,
-  })
+  res.json({ products, count, offset, limit })
 }

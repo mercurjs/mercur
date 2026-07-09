@@ -11,6 +11,8 @@ import {
   adminHeaders,
   createAdminUser,
 } from "../../../helpers/create-admin-user"
+import { createSellerUser } from "../../../helpers/create-seller-user"
+import { waitFor } from "../../../helpers/wait-for"
 
 jest.setTimeout(60000)
 
@@ -917,6 +919,113 @@ medusaIntegrationTestRunner({
         expect(scopedNames).toEqual(expect.arrayContaining(["Size", "Weight"]))
         expect(await optionAttached(productId, "Multi Select")).toBe(true)
         expect(await optionAttached(productId, "Size")).toBe(true)
+      })
+    })
+
+    describe("Admin - product list", () => {
+      let appContainer: MedusaContainer
+
+      beforeAll(() => {
+        appContainer = getContainer()
+      })
+
+      beforeEach(async () => {
+        await createAdminUser(dbConnection, adminHeaders, appContainer)
+      })
+
+      const createProduct = async (
+        title: string,
+        status: "draft" | "proposed" | "published",
+        sellerIds?: string[],
+      ) => {
+        const { result } = await createProductsWorkflow(appContainer).run({
+          input: {
+            products: [{ title, status, seller_ids: sellerIds } as any],
+          },
+        })
+        return (result as { id: string }[])[0].id
+      }
+
+      it("lists products of every status, unscoped by seller", async () => {
+        const seller = await createSellerUser(appContainer, {
+          email: "admin-list-scope@test.com",
+          name: "Admin List Scope Store",
+        })
+
+        const draft = await createProduct("Admin Draft", "draft")
+        const restricted = await createProduct("Admin Restricted", "published", [
+          seller.seller.id,
+        ])
+        const global = await createProduct("Admin Global", "published")
+
+        const res = await waitFor(
+          () => api.get("/admin/products?limit=200", adminHeaders),
+          (r) => {
+            const ids = r.data.products.map((p: { id: string }) => p.id)
+            return [draft, restricted, global].every((id) => ids.includes(id))
+          },
+        )
+        expect(res.status).toEqual(200)
+        const ids = res.data.products.map((p: { id: string }) => p.id)
+        expect(ids).toEqual(
+          expect.arrayContaining([draft, restricted, global]),
+        )
+      })
+
+      it("returns pagination metadata and honors limit/offset", async () => {
+        const ids = [
+          await createProduct("Page A", "published"),
+          await createProduct("Page B", "published"),
+          await createProduct("Page C", "published"),
+        ]
+
+        // Wait for all three to be indexed so paging is deterministic.
+        await waitFor(
+          () => api.get("/admin/products?limit=200", adminHeaders),
+          (r) => {
+            const indexed = r.data.products.map((p: { id: string }) => p.id)
+            return ids.every((id) => indexed.includes(id))
+          },
+        )
+
+        const first = await api.get("/admin/products?limit=1&offset=0", adminHeaders)
+        expect(first.status).toEqual(200)
+        expect(first.data.products).toHaveLength(1)
+        expect(first.data.limit).toEqual(1)
+        expect(first.data.offset).toEqual(0)
+        expect(first.data.count).toBeGreaterThanOrEqual(3)
+
+        const second = await api.get("/admin/products?limit=1&offset=1", adminHeaders)
+        expect(second.status).toEqual(200)
+        expect(second.data.products).toHaveLength(1)
+        expect(second.data.offset).toEqual(1)
+        expect(second.data.products[0].id).not.toEqual(
+          first.data.products[0].id,
+        )
+      })
+
+      it("filters to products with an offer when has_offer=true", async () => {
+        const product = await createProduct("Admin No Offer", "published")
+
+        const withoutFilter = await waitFor(
+          () => api.get("/admin/products?limit=200", adminHeaders),
+          (r) =>
+            r.data.products.some((p: { id: string }) => p.id === product),
+        )
+        const allIds = withoutFilter.data.products.map(
+          (p: { id: string }) => p.id,
+        )
+        expect(allIds).toContain(product)
+
+        const withFilter = await api.get(
+          "/admin/products?has_offer=true&limit=200",
+          adminHeaders,
+        )
+        expect(withFilter.status).toEqual(200)
+        const filteredIds = withFilter.data.products.map(
+          (p: { id: string }) => p.id,
+        )
+        expect(filteredIds).not.toContain(product)
       })
     })
   },

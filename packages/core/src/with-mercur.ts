@@ -30,18 +30,23 @@ export function withMercur(config: MercurInputConfig = {}): InputConfigWithArray
   const featureFlags = {
     ...config.featureFlags,
     rbac: true,
+    index_engine: true,
   }
+
+  const hasModule = (resolve: string) =>
+    (config.modules ?? []).some(
+      (m) =>
+        typeof m === "object" && "resolve" in m && m.resolve === resolve
+    )
 
   const modules = [
     ...(config.modules ?? []),
-    ...((config.modules ?? []).some(
-      (m) =>
-        typeof m === "object" &&
-        "resolve" in m &&
-        m.resolve === "@medusajs/medusa/rbac"
-    )
+    ...(hasModule("@medusajs/medusa/rbac")
       ? []
       : [{ resolve: "@medusajs/medusa/rbac" as const }]),
+    ...(hasModule("@medusajs/index")
+      ? []
+      : [{ resolve: "@medusajs/index" as const }]),
   ]
 
   const plugins = [

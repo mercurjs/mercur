@@ -8,7 +8,7 @@ import {
   validateAndTransformBody,
   validateAndTransformQuery,
 } from "@medusajs/framework"
-import { ProductStatus } from "@mercurjs/types"
+import { ProductStatus } from "@medusajs/framework/utils"
 
 import { applyOfferedProductsFilter } from "../../utils"
 import {

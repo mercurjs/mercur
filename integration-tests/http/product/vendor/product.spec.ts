@@ -12,6 +12,7 @@ import {
   createAdminUser,
 } from "../../../helpers/create-admin-user"
 import { createSellerUser } from "../../../helpers/create-seller-user"
+import { waitFor } from "../../../helpers/wait-for"
 import {
   AttributeType,
   MercurModules,
@@ -327,7 +328,13 @@ medusaIntegrationTestRunner({
         const proposedByA = await createProduct("A Proposed", "proposed", sellerA.id)
         const published = await createProduct("Global Published", "published", "other-actor")
 
-        const listAsA = await api.get("/vendor/products?limit=100", headersA)
+        const listAsA = await waitFor(
+          () => api.get("/vendor/products?limit=100", headersA),
+          (r) => {
+            const ids = r.data.products.map((p: { id: string }) => p.id)
+            return [proposedByA, published].every((id) => ids.includes(id))
+          },
+        )
         const idsA = listAsA.data.products.map((p: { id: string }) => p.id)
         expect(idsA).toEqual(expect.arrayContaining([proposedByA, published]))
 
@@ -346,13 +353,40 @@ medusaIntegrationTestRunner({
           [sellerA.id]
         )
 
-        const listAsA = await api.get("/vendor/products?limit=100", headersA)
+        const listAsA = await waitFor(
+          () => api.get("/vendor/products?limit=100", headersA),
+          (r) =>
+            r.data.products.some(
+              (p: { id: string }) => p.id === restrictedToA
+            ),
+        )
         const idsA = listAsA.data.products.map((p: { id: string }) => p.id)
         expect(idsA).toContain(restrictedToA)
 
         const listAsB = await api.get("/vendor/products?limit=100", headersB)
         const idsB = listAsB.data.products.map((p: { id: string }) => p.id)
         expect(idsB).not.toContain(restrictedToA)
+      })
+
+      it("hides another seller's unpublished product from everyone but its author", async () => {
+        // Proposed (not published) and authored by seller A: only A may see it.
+        const proposedByA = await createProduct(
+          "A Only Proposed",
+          "proposed",
+          sellerA.id
+        )
+
+        const listAsA = await waitFor(
+          () => api.get("/vendor/products?limit=100", headersA),
+          (r) =>
+            r.data.products.some((p: { id: string }) => p.id === proposedByA),
+        )
+        const idsA = listAsA.data.products.map((p: { id: string }) => p.id)
+        expect(idsA).toContain(proposedByA)
+
+        const listAsB = await api.get("/vendor/products?limit=100", headersB)
+        const idsB = listAsB.data.products.map((p: { id: string }) => p.id)
+        expect(idsB).not.toContain(proposedByA)
       })
     })
 
