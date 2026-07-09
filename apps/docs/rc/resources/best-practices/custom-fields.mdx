@@ -43,10 +43,10 @@ Register the Custom Fields module and describe the field in `medusa-config.ts`. 
 }
 ```
 
-The value now lives in the module's own `custom_fields` side table — linked to the product, queryable through `query.graph`, and written through `additional_data` on the entity's create/update route.
+The value now lives in the module's own `custom_fields` side table — linked to the product, readable alongside it through `query.graph`, and written through `additional_data` on the entity's create/update route. (Filtering products *by* a custom-field value is cross-module and needs the [Index Module](/rc/resources/best-practices/module-links#filtering-by-a-linked-field--the-index-module), not `query.graph`.)
 
 <Warning>
-  **Prefer the `custom_fields` link over stuffing values into `metadata`.** `metadata` is an untyped JSON bag with no schema, no queryable columns, and no clean extension point — it turns into a dumping ground. The Custom Fields module gives you a real linked table (`custom_fields.*`) with typed columns you can query and filter, while still being config-only. Reach for `metadata` only for genuinely throwaway, never-queried scratch data.
+  **Prefer the `custom_fields` link over stuffing values into `metadata`.** `metadata` is an untyped JSON bag with no schema, no queryable columns, and no clean extension point — it turns into a dumping ground. The Custom Fields module gives you a real linked table (`custom_fields.*`) with typed columns you can read and (via the Index Module) filter on, while still being config-only. Reach for `metadata` only for genuinely throwaway, never-queried scratch data.
 </Warning>
 
 <Tip>

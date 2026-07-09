@@ -112,55 +112,46 @@ createRemoteLinkStep(productBrandLinks)
   Because `createRemoteLinkStep` already knows how to compensate, links created this way are torn down automatically if a later step in the workflow throws. This is the whole reason to link inside a workflow rather than in a route.
 </Tip>
 
-## Filtering by links
+## Reading vs filtering across a link
 
-A link isn't just for reading nested data — you can **filter and scope queries by it**. A common case: list only the products that belong to a given brand.
+This is the distinction that trips people up:
 
-Because the `product ↔ brand` link exists, you can filter products by a field on the linked brand in a single `query.graph` call — no join to write, no second query:
+- **Reading** linked data — fetching `brand.*` alongside a product — works with `query.graph`. Query aggregates the two modules' data to build the result.
+- **Filtering** by a linked module's field — "give me products *where* `brand.id = X`" — does **not** work with `query.graph`.
 
-```ts title="Filter products by their linked brand"
-const { data: products } = await query.graph({
+<Warning>
+  `query.graph` **cannot filter by a linked (cross-module) field.** Because modules are isolated and Query aggregates their data after the fact, there's no join to filter on. Passing `filters: { brand: { id } }` to `query.graph` will not scope products by brand.
+</Warning>
+
+You can still filter by a field that lives on the entity's **own** module (a plain column like `product.status` or `offer.seller_id`) — that's a normal `query.graph` filter. It's only *linked-module* fields that need a different tool.
+
+### Filtering by a linked field — the Index Module
+
+Cross-module filtering is what the [Index Module](https://docs.medusajs.com/learn/fundamentals/module-links/index-module) (`@medusajs/index`) exists for. It ingests data models into a single relational store on startup, so you can filter one entity by another's fields. Install it, make sure both models are ingested, and query with `query.index` instead of `query.graph`:
+
+```ts title="Filter products by their linked brand — query.index, not query.graph"
+const { data: products, metadata } = await query.index({
   entity: "product",
   fields: ["id", "title", "brand.name"],
   filters: {
     brand: {
-      id: brandId, // only products linked to this brand
+      id: brandId, // ✅ cross-module filter — resolved by the Index Module
     },
   },
 })
 ```
 
-The idiomatic way to apply such a filter on a route is a small **middleware** that injects it onto `req.filterableFields`, so the handler stays ignorant of the scoping rule and every route on the resource is filtered by construction:
+<Note>
+  By default Medusa ingests only `Product`, `ProductVariant`, `Price`, `PriceSet`, and `SalesChannel`. To filter products by a **custom** module like Brand, you must [ingest that model](https://docs.medusajs.com/learn/fundamentals/module-links/index-module#how-to-ingest-custom-data-models) into the Index Module first. The Index Module is still marked experimental, though it powers filtering in the Medusa Admin.
+</Note>
 
-```ts title="src/api/admin/products/middlewares.ts"
-const filterByBrand = (
-  req: MedusaRequest,
-  _res: MedusaResponse,
-  next: MedusaNextFunction
-) => {
-  if (req.query.brand_id) {
-    req.filterableFields.brand = { id: req.query.brand_id }
-  }
-  next()
-}
-```
-
-```ts title="Handler just forwards the filters"
-const { data: products, metadata } = await query.graph({
-  entity: "product",
-  fields: req.queryConfig.fields,
-  filters: req.filterableFields, // brand filter already injected
-  pagination: req.queryConfig.pagination,
-})
-```
-
-The [middlewares-as-filters](/rc/resources/best-practices/api-routes#middlewares-as-filters) section covers this pattern in full.
+`query.index` takes the same shape as `query.graph` (entity, fields, filters, pagination), so a route handler can forward `req.filterableFields` to it exactly the same way — the only change is `graph` → `index`.
 
 ## Checklist for a link
 
 - Declared in its own file under `src/links/`, using `defineLink`.
 - Argument order reflects the natural reading direction; `isList` set on the many side(s).
 - Migration generated and run (`medusa db:migrate`).
-- Cross-module reads go through `query.graph`, never a service-to-service call.
+- Cross-module **reads** go through `query.graph`, never a service-to-service call.
+- Cross-module **filters** go through `query.index` (Index Module, with the model ingested) — `query.graph` can't filter by a linked field.
 - Links are created/removed only inside workflows via `createRemoteLinkStep` / `dismissRemoteLinkStep`.
-- Filtering/scoping by a linked field is applied as a `filterableFields` middleware, not inlined in each handler.

@@ -174,41 +174,43 @@ const { data: brands, metadata } = await query.graph({
 
 ## Middlewares as filters
 
-Middlewares aren't only for validation — they're where you inject **scoping filters** so handlers stay ignorant of the rule. A small middleware writes onto `req.filterableFields`; because the handler already forwards that to Query, the scope is applied without the handler knowing. For example, let `GET /admin/products?brand_id=…` filter products by their linked brand:
+Middlewares aren't only for validation — they're where you inject **scoping filters** so handlers stay ignorant of the rule. A small middleware writes onto `req.filterableFields`; because the handler already forwards that to Query, the scope is applied without the handler knowing. For example, force `GET /admin/brands` to only ever return active rows:
 
-```ts title="src/api/admin/products/middlewares.ts"
+```ts title="src/api/admin/brands/middlewares.ts"
 import {
   MedusaRequest,
   MedusaResponse,
   MedusaNextFunction,
 } from "@medusajs/framework/http"
 
-const filterByBrand = (
+const onlyActive = (
   req: MedusaRequest,
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  if (req.query.brand_id) {
-    req.filterableFields.brand = { id: req.query.brand_id }
-  }
+  req.filterableFields.is_active = true // a column on the brand module itself
   next()
 }
 
-export const adminProductsMiddlewares = [
+export const adminBrandsMiddlewares = [
   {
     method: ["GET"],
-    matcher: "/admin/products",
+    matcher: "/admin/brands",
     middlewares: [
-      validateAndTransformQuery(AdminGetProductsParams, adminProductQueryConfig.list),
-      filterByBrand,
+      validateAndTransformQuery(AdminGetBrandsParams, adminBrandQueryConfig.list),
+      onlyActive,
     ],
   },
 ]
 ```
 
 <Tip>
-  Filtering by a **linked** field (like `brand`) works because the [module link](/rc/resources/best-practices/module-links#filtering-by-links) exists — Query resolves the relation. Applying it in middleware means a new route on the same resource is scoped correctly by construction, not by remembering to add a filter.
+  Injecting a filter in middleware means a new route on the same resource is scoped by construction, not by remembering to add a filter. This works with `query.graph` because `is_active` lives on the **brand's own module**.
 </Tip>
+
+<Warning>
+  You can only filter this way on a field that belongs to the entity's **own module**. Filtering by a **linked** module's field (e.g. products by their `brand`) does **not** work with `query.graph` — Query aggregates modules after the fact, so there's no join to filter on. Cross-module filtering requires the [Index Module](/rc/resources/best-practices/module-links#filtering-by-a-linked-field--the-index-module) and `query.index`.
+</Warning>
 
 ## Trust the auth middleware
 
