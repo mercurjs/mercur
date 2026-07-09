@@ -76,7 +76,10 @@
     "unsavedChangesDescription": "저장되지 않은 변경 사항이 있으며, 이 양식을 나가면 변경 사항이 손실됩니다.",
     "includesTaxTooltip": "이 열의 가격은 세금이 포함된 금액입니다.",
     "excludesTaxTooltip": "이 열의 가격은 세금이 제외된 금액입니다.",
-    "noMoreData": "더 이상 데이터가 없습니다"
+    "noMoreData": "더 이상 데이터가 없습니다",
+    "yes": "예",
+    "no": "아니오",
+    "noRecordsMessageFiltered": "필터와 일치하는 표시할 항목이 없습니다"
   },
   "json": {
     "header": "JSON",
@@ -162,7 +165,8 @@
     "hide": "숨기기",
     "export": "내보내기",
     "import": "가져오기",
-    "cannotUndo": "이 작업은 취소할 수 없습니다"
+    "cannotUndo": "이 작업은 취소할 수 없습니다",
+    "send": "보내기"
   },
   "operators": {
     "in": "포함"
@@ -208,7 +212,8 @@
         "publishableApiKey": "공개 API 키",
         "secretApiKey": "비밀 API 키",
         "command": "명령",
-        "navigation": "탐색"
+        "navigation": "탐색",
+        "seller": "스토어"
       }
     },
     "keyboardShortcuts": {
@@ -227,7 +232,9 @@
         "goToReservations": "예약",
         "goToPriceLists": "가격 목록",
         "goToPromotions": "프로모션",
-        "goToCampaigns": "캠페인"
+        "goToCampaigns": "캠페인",
+        "goToSellers": "스토어",
+        "goToPayouts": "정산"
       },
       "settings": {
         "goToSettings": "설정",
@@ -276,7 +283,9 @@
       },
       "main": {
         "store": "스토어",
-        "storeSettings": "스토어 설정"
+        "storeSettings": "스토어 설정",
+        "marketplace": "마켓플레이스",
+        "marketplaceSettings": "마켓플레이스 설정"
       },
       "settings": {
         "header": "설정",
@@ -438,12 +447,20 @@
         "details": "상세 정보",
         "organize": "분류",
         "variants": "변형",
-        "inventory": "재고 키트"
+        "inventory": "재고 키트",
+        "attributes": "속성"
       },
       "errors": {
         "variants": "최소 하나의 변형을 선택해주세요.",
         "options": "최소 하나의 옵션을 생성해주세요.",
-        "uniqueSku": "SKU는 고유해야 합니다."
+        "uniqueSku": "SKU는 고유해야 합니다.",
+        "requiredAttribute": "이 속성은 필수입니다.",
+        "requiredAttributeSelect": "이 속성은 마켓플레이스에서 필수로 지정되었습니다. 값을 선택해 주세요.",
+        "requiredAttributeEnter": "이 속성은 마켓플레이스에서 필수로 지정되었습니다. 값을 입력해 주세요.",
+        "requiredAttributeMultiSelect": "이 속성은 마켓플레이스에서 필수로 지정되었습니다. 하나 이상의 값을 선택해 주세요.",
+        "requiredStore": "하나 이상의 스토어를 선택해 주세요",
+        "requiredTitle": "제목을 입력해 주세요",
+        "requiredCategory": "카테고리를 선택해 주세요"
       },
       "inventory": {
         "heading": "구성 상품",
@@ -465,14 +482,41 @@
           "label": "제품 변형",
           "hint": "이 순위는 스토어프론트에서 변형의 순서에 영향을 미칩니다.",
           "alert": "변형을 생성하려면 옵션을 추가하세요.",
-          "tip": "체크 해제된 변형은 생성되지 않습니다. 나중에 언제든지 변형을 생성하고 편집할 수 있지만 이 목록은 제품 옵션의 변형에 맞춰져 있습니다."
+          "tip": "체크 해제된 변형은 생성되지 않습니다. 나중에 언제든지 변형을 생성하고 편집할 수 있지만 이 목록은 제품 옵션의 변형에 맞춰져 있습니다.",
+          "noAxes": "옵션을 생성하려면 속성 단계에서 \"옵션으로 사용\"으로 표시하세요."
         },
         "productOptions": {
           "label": "제품 옵션",
           "hint": "색상, 크기 등과 같은 제품 옵션을 정의합니다."
         }
       },
-      "successToast": "제품 {{title}}이(가) 성공적으로 생성되었습니다."
+      "successToast": "제품 {{title}}이(가) 성공적으로 생성되었습니다.",
+      "attributes": {
+        "header": "속성",
+        "description": "색상, 사이즈, 브랜드 등 상품의 속성과 옵션을 관리하세요.\n마켓플레이스에서 정의한 속성 중에서 선택하거나 직접 만들 수 있습니다.",
+        "addExisting": "기존 항목 추가",
+        "createNew": "새로 만들기",
+        "title": "제목",
+        "titlePlaceholder": "예: 색상",
+        "values": "값",
+        "selectValues": "값 선택",
+        "valuePlaceholder": "값 입력",
+        "enterValuePlaceholder": "값 입력",
+        "selectValuePlaceholder": "값 선택",
+        "requiredAttributes": "필수 속성",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "useForVariants": "옵션으로 사용",
+        "useForVariantsDescription": "선택하면 이 속성을 사용하여 옵션을 만들 수 있습니다. 선택하지 않으면 이 속성은 정보 제공 목적으로만 사용됩니다.",
+        "tip": "팁",
+        "variantAxisTip": "이 속성은 옵션을 생성합니다. 다음 단계에서 정의할 수 있습니다.",
+        "editVariantAxisTip": "이 속성을 사용하여 옵션을 만들 수 있습니다.",
+        "warning": "경고",
+        "editWarning": "이 속성을 변경하면 기존 상품 옵션이나 상세 정보에 영향을 줄 수 있습니다. 저장 후 옵션 및 상품 상세 정보를 확인해 주세요.",
+        "errors": {
+          "titleRequired": "제목을 입력해 주세요",
+          "valuesRequired": "하나 이상의 값을 입력해 주세요"
+        }
+      }
     },
     "export": {
       "header": "제품 목록 내보내기",
@@ -548,7 +592,8 @@
         "description": "스토어프론트에서 제품을 선보이기 위해 미디어를 추가하세요.",
         "action": "미디어 추가"
       },
-      "successToast": "미디어가 성공적으로 업데이트되었습니다."
+      "successToast": "미디어가 성공적으로 업데이트되었습니다.",
+      "fileTooLarge": "하나 이상의 파일이 최대 파일 크기 {{size}}를 초과했습니다: {{name}}"
     },
     "discountableHint": "체크 해제 시 이 제품은 할인 대상에서 제외됩니다.",
     "noSalesChannels": "어떤 판매 채널에서도 사용할 수 없음",
@@ -559,7 +604,9 @@
       "draft": "초안",
       "published": "게시됨",
       "proposed": "제안됨",
-      "rejected": "거부됨"
+      "rejected": "거부됨",
+      "requires_action": "Changes required",
+      "accepted": "수락됨"
     },
     "fields": {
       "title": {
@@ -641,6 +688,13 @@
       },
       "hs_code": {
         "label": "HS 코드"
+      },
+      "stores": {
+        "label": "스토어"
+      },
+      "globally_available": {
+        "label": "전역으로 사용 가능",
+        "hint": "선택 해제하면 선택한 스토어만 이 상품을 판매할 수 있습니다"
       }
     },
     "variant": {
@@ -740,6 +794,105 @@
           "header": "제품 삭제 실패"
         }
       }
+    },
+    "associatedStore": "연결된 스토어",
+    "bulkEdit": {
+      "title": "상품 일괄 편집",
+      "description": "선택한 상품의 상태 및 할인 가능 설정을 업데이트합니다.",
+      "action": "편집",
+      "successToast_one": "{{count}}개 상품이 성공적으로 업데이트되었습니다.",
+      "successToast_other": "{{count}}개 상품이 성공적으로 업데이트되었습니다."
+    },
+    "bulkDelete": {
+      "warning_one": "{{count}}개 상품을 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "warning_other": "{{count}}개 상품을 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "successToast_one": "{{count}}개 상품이 성공적으로 삭제되었습니다.",
+      "successToast_other": "{{count}}개 상품이 성공적으로 삭제되었습니다."
+    },
+    "attributeVariations": "옵션",
+    "attributeVariantsDescription": "옵션에 사용되는 속성",
+    "attributeProductInformation": "상품 정보",
+    "attributeProductInformationDescription": "정보 제공 목적으로 사용되는 속성",
+    "attributeRequiredByMarketplace": "이 속성은 마켓플레이스에서 필수로 지정되었습니다.",
+    "attributeRequiredDeleteDisabledTooltip": "필수 속성은 삭제할 수 없습니다.",
+    "addAttribute": "속성 추가",
+    "deleteAttributeWarning": "\"{{title}}\" 속성을 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+    "editAttribute": "속성 편집",
+    "editAttributeHint": "상품에서 이 속성에 선택된 값을 업데이트합니다.",
+    "request": {
+      "panel": {
+        "title": "상품 요청",
+        "description": "{{store}}에서 상품 요청을 제출했습니다. 세부 정보를 검토하고 필요한 사항을 업데이트한 후, 상품을 확정하여 게시할지, 업데이트를 요청할지, 요청을 거부할지 선택하세요."
+      },
+      "fallbackStore": "해당 스토어",
+      "actions": {
+        "requestUpdate": "업데이트 요청",
+        "reject": "거부"
+      },
+      "confirmPrompt": {
+        "title": "요청 확인",
+        "description": "이 상품 업데이트 요청을 확정하려고 합니다. 확정되면 이 상품에 대해 생성된 모든 오퍼가 스토어프론트에 표시됩니다. 재고 수량과 가격이 설정된 오퍼만 표시됩니다.",
+        "noteLabel": "스토어에 대한 메모",
+        "notePlaceholder": "변경한 사항이나 추가 요청 사항을 입력하세요"
+      },
+      "requestUpdatePrompt": {
+        "title": "업데이트 요청",
+        "description": "게시하기 전에 이 상품에 대한 업데이트를 요청하세요. 업데이트가 필요한 부분을 설명하는 메모를 추가하세요.",
+        "noteLabel": "스토어에 대한 메모",
+        "notePlaceholder": "업데이트가 필요한 내용을 설명하세요 (예: 이미지 누락, 잘못된 가격, 불완전한 설명)",
+        "send": "보내기"
+      },
+      "rejectPrompt": {
+        "title": "요청 거부",
+        "description": "이 상품 요청을 거부하려고 합니다.",
+        "noteLabel": "스토어에 대한 메모",
+        "notePlaceholder": "요청을 거부하는 이유를 설명해 주세요",
+        "confirm": "거부"
+      },
+      "toast": {
+        "publishedSuccessfully": "상품이 확정되어 게시되었습니다",
+        "updateRequestedSuccessfully": "업데이트 요청이 스토어로 전송되었습니다",
+        "rejectedSuccessfully": "상품 요청이 거부되었습니다"
+      }
+    },
+    "edits": {
+      "panel": {
+        "title": "상품 업데이트 요청",
+        "description": "{{store}}에서 상품 업데이트 요청을 제출했습니다. 요청된 변경 사항을 검토하고 업데이트를 확정하여 게시할지 요청을 거부할지 선택하세요.",
+        "deleteRequested": "상품 삭제가 승인 대기 중입니다."
+      },
+      "actions": {
+        "reject": "거부"
+      },
+      "confirmPrompt": {
+        "title": "요청 확인",
+        "description": "이 상품 업데이트 요청을 확정하려고 합니다. 확정되면 스토어프론트에서 상품이 업데이트됩니다.",
+        "noteLabel": "스토어에 대한 메모",
+        "notePlaceholder": "변경한 사항이나 추가 요청 사항을 입력하세요"
+      },
+      "rejectPrompt": {
+        "title": "요청 거부",
+        "description": "이 상품 요청을 거부하려고 합니다.",
+        "noteLabel": "스토어에 대한 메모",
+        "notePlaceholder": "요청을 거부하는 이유나 변경 제안을 설명해 주세요",
+        "confirm": "거부"
+      },
+      "toast": {
+        "confirmedSuccessfully": "상품 업데이트 요청이 확정되었습니다",
+        "rejectedSuccessfully": "상품 업데이트 요청이 거부되었습니다"
+      }
+    },
+    "columns": {
+      "product_display": "제품",
+      "variants_count": "변형",
+      "sales_channels_display": "판매 채널",
+      "collection": "컬렉션",
+      "status": "상태",
+      "thumbnail": "썸네일",
+      "title": "제목",
+      "handle": "핸들",
+      "created_at": "생성됨",
+      "updated_at": "업데이트일"
     }
   },
   "collections": {
@@ -756,7 +909,8 @@
     "removeProductsWarning_other": "컬렉션에서 {{count}}개의 제품을 제거하려고 합니다. 이 작업은 취소할 수 없습니다.",
     "products": {
       "list": {
-        "noRecordsMessage": "컬렉션에 제품이 없습니다."
+        "noRecordsMessage": "컬렉션에 제품이 없습니다.",
+        "noRecordsTitle": "아직 상품이 없습니다"
       },
       "add": {
         "successToast_one": "제품이 컬렉션에 성공적으로 추가되었습니다.",
@@ -765,6 +919,62 @@
       "remove": {
         "successToast_one": "제품이 컬렉션에서 성공적으로 제거되었습니다.",
         "successToast_other": "제품이 컬렉션에서 성공적으로 제거되었습니다."
+      }
+    },
+    "deleteSuccess": "컬렉션이 성공적으로 삭제되었습니다.",
+    "updateSuccess": "컬렉션이 성공적으로 업데이트되었습니다.",
+    "validation": {
+      "titleRequired": "제목을 입력해 주세요"
+    },
+    "media": {
+      "label": "미디어",
+      "thumbnail": "썸네일",
+      "banner": "배너",
+      "galleryLabel": "갤러리",
+      "editHint": "스토어프론트에 표시할 미디어를 컬렉션에 추가하세요.",
+      "deleteWarning": "이 이미지를 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "empty": {
+        "header": "아직 미디어 없음",
+        "description": "스토어프론트에 표시할 미디어를 추가하세요."
+      },
+      "upload": {
+        "title": "이미지 업로드",
+        "hint": "이미지를 여기에 끌어다 놓거나 클릭하여 업로드하세요."
+      },
+      "tooltips": {
+        "thumbnail": "홈페이지에서 컬렉션 썸네일로 표시됩니다.",
+        "banner": "컬렉션 목록에서 컬렉션 배너로 표시됩니다."
+      },
+      "actions": {
+        "setThumbnail": "썸네일로 설정",
+        "removeThumbnail": "썸네일 삭제",
+        "setBanner": "배너로 지정",
+        "removeBanner": "배너 삭제"
+      },
+      "edit": {
+        "header": "미디어 편집",
+        "description": "이미지를 업로드하고 스토어프론트에 표시할 썸네일과 배너를 선택하세요.",
+        "successToast": "컬렉션 미디어가 성공적으로 업데이트되었습니다."
+      }
+    },
+    "icon": {
+      "label": "아이콘",
+      "empty": {
+        "header": "아직 아이콘이 없습니다",
+        "description": "스토어프론트의 컬렉션 라벨 옆에 표시할 아이콘을 추가하세요."
+      },
+      "tip": {
+        "label": "팁:",
+        "text": "이 아이콘은 스토어프론트의 컬렉션 라벨 옆에 표시됩니다."
+      },
+      "upload": {
+        "title": "파일 업로드",
+        "hint": "파일을 여기로 드래그 앤 드롭하거나 클릭하여 업로드하세요."
+      },
+      "edit": {
+        "header": "아이콘 편집",
+        "description": "스토어프론트의 컬렉션 라벨 옆에 표시할 아이콘 하나를 업로드하세요.",
+        "successToast": "컬렉션 아이콘이 성공적으로 업데이트되었습니다."
       }
     }
   },
@@ -802,12 +1012,14 @@
         "successToast_other": "{{count}}개 제품이 카테고리에서 제거되었습니다."
       },
       "list": {
-        "noRecordsMessage": "카테고리에 제품이 없습니다."
+        "noRecordsMessage": "카테고리에 제품이 없습니다.",
+        "noRecordsTitle": "아직 상품이 없습니다"
       }
     },
     "organize": {
       "header": "구성",
-      "action": "순위 편집"
+      "action": "순위 편집",
+      "successToast": "순위가 성공적으로 업데이트되었습니다."
     },
     "fields": {
       "visibility": {
@@ -829,6 +1041,61 @@
       },
       "new": {
         "label": "신규"
+      }
+    },
+    "handleTooltip": "핸들은 스토어프론트에서 카테고리를 참조하는 데 사용됩니다. 지정하지 않으면 카테고리 제목에서 자동으로 생성됩니다.",
+    "validation": {
+      "titleRequired": "제목을 입력해 주세요"
+    },
+    "media": {
+      "label": "미디어",
+      "thumbnail": "썸네일",
+      "banner": "배너",
+      "galleryLabel": "갤러리",
+      "editHint": "스토어프론트에 표시할 미디어를 카테고리에 추가하세요.",
+      "deleteWarning": "이 이미지를 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "empty": {
+        "header": "아직 미디어 없음",
+        "description": "스토어프론트에 표시할 미디어를 추가하세요."
+      },
+      "upload": {
+        "title": "이미지 업로드",
+        "hint": "이미지를 여기에 끌어다 놓거나 클릭하여 업로드하세요."
+      },
+      "tooltips": {
+        "thumbnail": "홈페이지에서 카테고리 썸네일로 표시됩니다.",
+        "banner": "카테고리 목록에서 카테고리 배너로 표시됩니다."
+      },
+      "actions": {
+        "setThumbnail": "썸네일로 설정",
+        "removeThumbnail": "썸네일 삭제",
+        "setBanner": "배너로 지정",
+        "removeBanner": "배너 삭제"
+      },
+      "edit": {
+        "header": "미디어 편집",
+        "description": "이미지를 업로드하고 스토어프론트에 표시할 썸네일과 배너를 선택하세요.",
+        "successToast": "카테고리 미디어가 성공적으로 업데이트되었습니다."
+      }
+    },
+    "icon": {
+      "label": "아이콘",
+      "empty": {
+        "header": "아직 아이콘이 없습니다",
+        "description": "스토어프론트의 카테고리 라벨 옆에 표시할 아이콘을 추가하세요."
+      },
+      "tip": {
+        "label": "팁:",
+        "text": "이 아이콘은 스토어프론트의 카테고리 라벨 옆에 표시됩니다."
+      },
+      "upload": {
+        "title": "파일 업로드",
+        "hint": "파일을 여기로 드래그 앤 드롭하거나 클릭하여 업로드하세요."
+      },
+      "edit": {
+        "header": "아이콘 편집",
+        "description": "스토어프론트의 카테고리 라벨 옆에 표시할 아이콘 하나를 업로드하세요.",
+        "successToast": "카테고리 아이콘이 성공적으로 업데이트되었습니다."
       }
     }
   },
@@ -852,7 +1119,8 @@
       "attributes": "속성",
       "requiresShipping": "배송 필요",
       "requiresShippingHint": "이 상품은 배송이 필요합니까?",
-      "successToast": "재고 상품이 성공적으로 등록되었습니다."
+      "successToast": "재고 상품이 성공적으로 등록되었습니다.",
+      "descriptionPlaceholder": "품목 설명"
     },
     "reservation": {
       "header": "{{itemName}}의 예약",
@@ -874,7 +1142,8 @@
       "deleteSuccessToast": "예약이 성공적으로 삭제되었습니다.",
       "errors": {
         "noAvaliableQuantity": "해당 위치에 사용 가능한 재고가 없습니다.",
-        "quantityOutOfRange": "최소 수량은 1이고 최대 수량은 {{max}}입니다"
+        "quantityOutOfRange": "최소 수량은 1이고 최대 수량은 {{max}}입니다",
+        "idRequired": "재고 품목 ID는 필수입니다"
       }
     },
     "adjustInventory": {
@@ -896,7 +1165,8 @@
       "disablePrompt_other": "{{count}}개의 위치 수준을 비활성화하려고 합니다. 이 작업은 취소할 수 없습니다.",
       "disabledToggleTooltip": "비활성화할 수 없음: 비활성화하기 전에 들어오는 수량 및/또는 예약된 수량을 지우세요.",
       "successToast": "재고 수준이 성공적으로 업데이트되었습니다."
-    }
+    },
+    "levelDeleted": "재고 수준이 성공적으로 삭제되었습니다."
   },
   "giftCards": {
     "domain": "기프트 카드",
@@ -932,20 +1202,26 @@
       "removeMany": "고객을 다음 고객 그룹에서 제거하시겠습니까: {{groups}}?",
       "alreadyAddedTooltip": "고객이 이미 이 고객 그룹에 있습니다.",
       "list": {
-        "noRecordsMessage": "이 고객은 어떤 그룹에도 속하지 않습니다."
+        "noRecordsMessage": "이 고객은 어떤 그룹에도 속하지 않습니다.",
+        "emptyTitle": "고객 그룹 없음"
       },
       "add": {
         "success": "고객이 다음에 추가되었습니다: {{groups}}.",
         "list": {
           "noRecordsMessage": "먼저 고객 그룹을 생성하세요."
-        }
+        },
+        "successOne": "고객이 {{groups}} 그룹에 성공적으로 추가되었습니다.",
+        "successMany": "고객이 {{groups}} 그룹에 성공적으로 추가되었습니다."
       },
       "removed": {
         "success": "고객이 다음에서 제거되었습니다: {{groups}}.",
         "list": {
           "noRecordsMessage": "먼저 고객 그룹을 생성하세요."
-        }
-      }
+        },
+        "successOne": "고객이 {{groups}} 그룹에서 성공적으로 제거되었습니다.",
+        "successMany": "고객이 {{groups}} 그룹에서 성공적으로 제거되었습니다."
+      },
+      "removeTitle": "고객 제거"
     },
     "edit": {
       "header": "고객 편집",
@@ -984,6 +1260,21 @@
         "header": "주소 생성",
         "hint": "고객을 위한 새 주소를 생성합니다.",
         "successToast": "주소가 성공적으로 생성되었습니다."
+      },
+      "emptyTitle": "아직 주소가 없습니다",
+      "emptyMessage": "이 고객은 등록된 주소가 없습니다",
+      "edit": {
+        "header": "주소 편집",
+        "hint": "고객의 주소를 편집합니다.",
+        "successToast": "주소가 성공적으로 업데이트되었습니다."
+      },
+      "delete": {
+        "successToast": "주소가 성공적으로 삭제되었습니다."
+      },
+      "validation": {
+        "addressNameRequired": "주소 이름을 입력해 주세요",
+        "addressRequired": "주소를 입력해주세요",
+        "countryRequired": "국가를 선택해주세요"
       }
     }
   },
@@ -1043,7 +1334,9 @@
     "orderCanceled": "주문이 성공적으로 취소되었습니다",
     "onDateFromSalesChannel": "{{date}} {{salesChannel}}에서",
     "list": {
-      "noRecordsMessage": "주문이 이곳에 표시됩니다."
+      "noRecordsMessage": "주문이 이곳에 표시됩니다.",
+      "expandAll": "모든 행 펼치기",
+      "collapseAll": "모든 행 접기"
     },
     "status": {
       "not_paid": "미결제",
@@ -1067,7 +1360,8 @@
       "itemSubtotal": "상품 소계",
       "shippingSubtotal": "배송 소계",
       "discountSubtotal": "할인 소계",
-      "taxTotal": "세금 합계"
+      "taxTotal": "세금 합계",
+      "totalAfterDiscount": "할인 적용 후 합계"
     },
     "transfer": {
       "title": "소유권 이전",
@@ -1109,7 +1403,8 @@
       "createRefundWrongQuantity": "수량은 1에서 {{number}} 사이의 숫자여야 합니다",
       "refundAmount": "{{ amount }} 환불",
       "paymentLink": "{{ amount }}에 대한 결제 링크 복사",
-      "selectPaymentToRefund": "환불할 결제 선택"
+      "selectPaymentToRefund": "환불할 결제 선택",
+      "totalPending": "미결제 합계"
     },
     "edits": {
       "title": "주문 편집",
@@ -1139,7 +1434,8 @@
       },
       "validation": {
         "quantityLowerThanFulfillment": "수량을 이행된 수량보다 적거나 같게 설정할 수 없습니다"
-      }
+      },
+      "duplicateItemErrorToast": "품목을 복제할 수 없습니다: 옵션 ID가 없습니다"
     },
     "edit": {
       "email": {
@@ -1231,7 +1527,8 @@
       "panel": {
         "title": "반품 시작됨",
         "description": "완료해야 할 미처리 반품 요청이 있습니다"
-      }
+      },
+      "restockPreview": "{{quantity}} × {{offerSku}} 입고 → {{location}}의 {{inventoryItem}}에 +{{delta}}"
     },
     "claims": {
       "create": "클레임 생성",
@@ -1313,7 +1610,8 @@
       "consistsOf": "{{num}}개의 개별 상품으로 구성됨",
       "requires": "변형당 {{num}}개 필요",
       "toast": {
-        "created": "상품이 성공적으로 할당되었습니다"
+        "created": "상품이 성공적으로 할당되었습니다",
+        "error": "다음 품목을 할당하지 못했습니다: {{items}}"
       },
       "error": {
         "quantityNotAllocated": "할당되지 않은 상품이 있습니다."
@@ -1368,7 +1666,10 @@
         "partiallyReturned": "부분 반품됨",
         "returned": "반품됨",
         "canceled": "취소됨",
-        "requiresAction": "조치 필요"
+        "requiresAction": "조치 필요",
+        "awaitingPickup": "픽업 대기 중",
+        "awaitingShipping": "배송 대기 중",
+        "awaitingDelivery": "배송 완료 대기 중"
       },
       "toast": {
         "created": "배송 준비가 완료되었습니다",
@@ -1379,7 +1680,8 @@
       },
       "trackingLabel": "추적",
       "shippingFromLabel": "출발지",
-      "itemsLabel": "상품"
+      "itemsLabel": "상품",
+      "labelLink": "라벨"
     },
     "refund": {
       "title": "환불 생성",
@@ -1479,7 +1781,47 @@
     "fields": {
       "displayId": "표시 ID",
       "refundableAmount": "환불 가능 금액",
-      "returnableQuantity": "반품 가능 수량"
+      "returnableQuantity": "반품 가능 수량",
+      "groupId": "그룹 ID",
+      "orderIds": "주문 ID",
+      "vendor": "스토어",
+      "vendorsCount_one": "{{count}}개 스토어",
+      "vendorsCount_other": "{{count}}개 스토어"
+    },
+    "group": {
+      "heading": "그룹 내 주문",
+      "noOtherOrders": "이 그룹에는 다른 주문이 없습니다"
+    },
+    "commission": {
+      "total": "합계"
+    },
+    "giftCardsStoreCreditLines": "기프트카드 및 크레딧 라인",
+    "creditLines": {
+      "title": "크레딧 라인",
+      "total": "모든 크레딧 라인의 합계",
+      "creditOrDebit": "적립 / 차감",
+      "createCreditLine": "크레딧 라인 생성",
+      "createCreditLineSuccess": "크레딧 라인이 성공적으로 생성되었습니다",
+      "createCreditLineError": "크레딧 라인 생성 중 오류가 발생했습니다",
+      "createCreditLineDescription": "금액 {{amount}}에 대한 크레딧 라인 생성",
+      "operation": "작업",
+      "credit": "적립",
+      "creditDescription": "주문에 양의 금액을 추가합니다",
+      "debit": "차감",
+      "debitDescription": "주문에서 음의 금액을 차감합니다"
+    },
+    "balanceSettlement": {
+      "title": "잔액 정산",
+      "settlementType": "정산 유형",
+      "settlementTypes": {
+        "paymentMethod": "결제 수단",
+        "paymentMethodDescription": "결제 수단으로 금액 환불",
+        "creditLine": "스토어 크레딧",
+        "creditLineDescription": "스토어 크레딧으로 금액 환불"
+      }
+    },
+    "actions": {
+      "cancelDisabledFulfilled": "이미 처리된 품목이 있는 주문은 취소할 수 없습니다."
     }
   },
   "draftOrders": {
@@ -1528,7 +1870,10 @@
   "stockLocations": {
     "domain": "위치 및 배송",
     "list": {
-      "description": "스토어의 재고 위치 및 배송 옵션을 관리합니다."
+      "description": "스토어의 재고 위치 및 배송 옵션을 관리합니다.",
+      "noRecordsMessage": "데이터 없음",
+      "noRecordsMessageEmpty": "위치를 찾을 수 없음",
+      "noRecordsMessageFiltered": "필터와 일치하는 위치가 없습니다"
     },
     "create": {
       "header": "재고 위치 생성",
@@ -1541,7 +1886,8 @@
       "successToast": "위치 {{name}}이(가) 성공적으로 업데이트되었습니다."
     },
     "delete": {
-      "confirmation": "재고 위치 \"{{name}}\"을(를) 삭제하려고 합니다. 이 작업은 취소할 수 없습니다."
+      "confirmation": "재고 위치 \"{{name}}\"을(를) 삭제하려고 합니다. 이 작업은 취소할 수 없습니다.",
+      "successToast": "위치 \"{{name}}\"이(가) 성공적으로 삭제되었습니다."
     },
     "fulfillmentProviders": {
       "header": "배송 업체",
@@ -1574,6 +1920,10 @@
       "shippingProfiles": {
         "label": "배송 프로필",
         "description": "배송 요구 사항별로 제품을 그룹화"
+      },
+      "shippingOptionTypes": {
+        "label": "배송 옵션 유형",
+        "description": "배송 옵션을 유형별로 그룹화"
       }
     },
     "salesChannels": {
@@ -1691,7 +2041,8 @@
         },
         "provider": "배송 업체",
         "profile": "배송 프로필",
-        "fulfillmentOption": "배송 옵션"
+        "fulfillmentOption": "배송 옵션",
+        "type": "배송 옵션 유형"
       }
     },
     "serviceZones": {
@@ -1903,7 +2254,8 @@
           "productCollection": "제품 컬렉션",
           "productTag": "제품 태그",
           "productType": "제품 유형",
-          "customerGroup": "고객 그룹"
+          "customerGroup": "고객 그룹",
+          "shippingOption": "배송 옵션"
         },
         "operators": {
           "in": "포함",
@@ -1915,14 +2267,16 @@
           "productCollection": "제품 컬렉션 검색",
           "productTag": "제품 태그 검색",
           "productType": "제품 유형 검색",
-          "customerGroup": "고객 그룹 검색"
+          "customerGroup": "고객 그룹 검색",
+          "shippingOption": "배송 옵션 검색"
         },
         "tags": {
           "product": "제품",
           "productCollection": "제품 컬렉션",
           "productTag": "제품 태그",
           "productType": "제품 유형",
-          "customerGroup": "고객 그룹"
+          "customerGroup": "고객 그룹",
+          "shippingOption": "배송 옵션"
         },
         "modal": {
           "header": "대상 추가"
@@ -2040,7 +2394,19 @@
         },
         "target-rules": {
           "title": "어떤 항목에 프로모션이 적용되나요?",
-          "description": "프로모션은 다음 조건과 일치하는 항목에 적용됩니다."
+          "description": "프로모션은 다음 조건과 일치하는 항목에 적용됩니다.",
+          "order": {
+            "title": "어떤 항목에 프로모션이 적용되나요?",
+            "description": "프로모션은 다음 조건과 일치하는 항목에 적용됩니다."
+          },
+          "shipping_methods": {
+            "title": "프로모션이 어떤 배송 방법에 적용됩니까?",
+            "description": "다음 조건에 일치하는 배송 방법에 프로모션이 적용됩니다."
+          },
+          "items": {
+            "title": "어떤 항목에 프로모션이 적용되나요?",
+            "description": "프로모션은 다음 조건과 일치하는 항목에 적용됩니다."
+          }
         },
         "buy-rules": {
           "title": "프로모션을 활성화하기 위해 장바구니에 무엇이 필요한가요?",
@@ -2095,7 +2461,8 @@
           "placeholder": {
             "title": "기존 캠페인 없음",
             "desc": "여러 프로모션을 추적하고 예산 제한을 설정하기 위해 하나를 생성할 수 있습니다."
-          }
+          },
+          "currencyHint": "이 프로모션에 통화가 설정되어 있지 않아 예산 통화가 있는 캠페인은 비활성화됩니다. 먼저 프로모션에 통화를 설정해 주세요."
         },
         "new": {
           "title": "새 캠페인",
@@ -2165,7 +2532,8 @@
         "description": "고객이 결제 중에 입력할 코드입니다."
       },
       "value": {
-        "title": "프로모션 값"
+        "title": "프로모션 값",
+        "invalid": "유효하지 않은 프로모션 값"
       },
       "value_type": {
         "fixed": {
@@ -2180,7 +2548,8 @@
       "taxInclusive": {
         "title": "프로모션에 세금이 포함되나요?",
         "description": "세금 후에 프로모션을 적용하려면 이 필드를 활성화하세요"
-      }
+      },
+      "selectOperator": "연산자 선택"
     },
     "deleteWarning": "프로모션 {{code}}을(를) 삭제하려고 합니다. 이 작업은 취소할 수 없습니다.",
     "createPromotionTitle": "프로모션 생성",
@@ -2190,6 +2559,11 @@
       "list": {
         "noRecordsMessage": "프로모션이 적용되는 항목을 제한하기 위한 조건을 추가하세요."
       }
+    },
+    "campaignSection": {
+      "noRecordsTitle": "캠페인에 포함되지 않음",
+      "noRecordsMessage": "이 프로모션을 기존 캠페인에 추가하세요",
+      "addToCampaign": "캠페인에 추가"
     }
   },
   "campaigns": {
@@ -2235,7 +2609,8 @@
       "budget_limit": "예산 한도",
       "campaign_id": {
         "hint": "프로모션과 동일한 통화 코드를 가진 캠페인만 이 목록에 표시됩니다."
-      }
+      },
+      "totalUsedByAttribute": "총 사용량"
     },
     "budget": {
       "create": {
@@ -2247,7 +2622,10 @@
         "type": "유형",
         "currency": "통화",
         "limit": "한도",
-        "used": "사용됨"
+        "used": "사용됨",
+        "budgetAttribute": "다음 기준으로 사용 제한",
+        "budgetAttributeTooltip": "특정 고객 또는 이메일이 프로모션을 사용할 수 있는 횟수를 지정하세요.",
+        "totalUsedByAttribute": "예산 제한 기준: {{attribute}}"
       },
       "type": {
         "spend": {
@@ -2257,6 +2635,10 @@
         "usage": {
           "title": "사용량",
           "description": "프로모션이 사용될 수 있는 횟수에 제한을 설정합니다."
+        },
+        "useByAttribute": {
+          "title": "속성별 사용 (고객 ID, 이메일 등)",
+          "description": "특정 속성 값이 프로모션을 사용할 수 있는 횟수에 제한을 설정하세요."
         }
       },
       "edit": {
@@ -2334,7 +2716,9 @@
         "successToast_other": "{{count}}개 제품의 가격이 성공적으로 삭제되었습니다."
       },
       "add": {
-        "successToast": "가격이 가격 목록에 성공적으로 추가되었습니다."
+        "successToast": "가격이 가격 목록에 성공적으로 추가되었습니다.",
+        "alreadyInPriceList": "이 상품은 이미 가격표에 포함되어 있습니다",
+        "noVariants": "이 상품에는 옵션이 없습니다"
       },
       "edit": {
         "successToast": "가격이 성공적으로 업데이트되었습니다."
@@ -2423,7 +2807,12 @@
     "roles": {
       "admin": "관리자",
       "developer": "개발자",
-      "member": "멤버"
+      "member": "멤버",
+      "administration": "스토어 관리",
+      "inventoryManagement": "재고 관리",
+      "orderManagement": "주문 관리",
+      "accounting": "회계",
+      "support": "고객 지원"
     },
     "list": {
       "empty": {
@@ -2437,7 +2826,11 @@
     },
     "deleteUserWarning": "사용자 {{name}}을(를) 삭제하려고 합니다. 이 작업은 취소할 수 없습니다.",
     "deleteUserSuccess": "사용자 {{name}}이(가) 성공적으로 삭제되었습니다",
-    "invite": "초대"
+    "invite": "초대",
+    "status": {
+      "active": "활성",
+      "pending": "대기 중"
+    }
   },
   "store": {
     "scheduledClosure": {
@@ -2471,6 +2864,92 @@
       "currenciesUpdated": "통화가 성공적으로 업데이트되었습니다",
       "currenciesRemoved": "스토어에서 통화가 성공적으로 제거되었습니다",
       "updatedTaxInclusivitySuccessfully": "세금 포함 가격이 성공적으로 업데이트되었습니다"
+    },
+    "logo": "로고",
+    "banner": "배너",
+    "address": {
+      "header": "주소",
+      "defaultName": "본사",
+      "nameLabel": "이름",
+      "apartmentLabel": "아파트, 호수 등",
+      "empty": {
+        "title": "주소 없음",
+        "message": "표시할 데이터가 없습니다"
+      },
+      "edit": {
+        "header": "주소 편집",
+        "description": "이 스토어의 주소를 업데이트하세요.",
+        "successToast": "주소가 성공적으로 업데이트되었습니다."
+      },
+      "validation": {
+        "nameRequired": "이름을 입력해 주세요",
+        "countryRequired": "국가를 선택해주세요"
+      }
+    },
+    "paymentDetails": {
+      "header": "결제 정보",
+      "empty": {
+        "title": "결제 정보 없음",
+        "message": "표시할 데이터가 없습니다"
+      },
+      "edit": {
+        "header": "결제 정보 편집",
+        "description": "이 스토어의 결제 정보를 업데이트하세요.",
+        "successToast": "결제 정보가 성공적으로 업데이트되었습니다."
+      },
+      "fields": {
+        "countryCode": "국가",
+        "holderName": "계좌 예금주명",
+        "bankName": "은행명",
+        "iban": "IBAN",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
+        "routingNumber": "은행 코드",
+        "achRoutingNumber": "ACH 은행 코드",
+        "accountNumber": "계좌 번호"
+      },
+      "validation": {
+        "countryRequired": "국가를 선택해주세요",
+        "accountNameRequired": "계좌 예금주명을 입력해 주세요"
+      }
+    },
+    "professionalDetails": {
+      "header": "회사 정보",
+      "empty": {
+        "title": "회사 정보 없음",
+        "message": "표시할 데이터가 없습니다"
+      },
+      "edit": {
+        "header": "회사 정보 편집",
+        "description": "이 스토어의 회사 정보를 업데이트하세요.",
+        "successToast": "회사 정보가 성공적으로 업데이트되었습니다."
+      },
+      "fields": {
+        "corporateName": "회사",
+        "registrationNumber": "사업자 등록번호",
+        "taxId": "세금 ID"
+      }
+    },
+    "timeOff": {
+      "header": "휴무",
+      "empty": {
+        "title": "예정된 휴무가 없습니다",
+        "message": "이 스토어는 예정된 휴무가 없습니다",
+        "action": "생성"
+      }
+    },
+    "scheduledClosure": {
+      "header": "예정된 휴점",
+      "edit": {
+        "header": "스토어 휴점 예약",
+        "description": "이 스토어의 예정된 휴점 날짜를 설정하세요.",
+        "successToast": "예정된 휴점이 업데이트되었습니다"
+      },
+      "fields": {
+        "closedFrom": "휴점 시작일",
+        "closedTo": "휴점 종료일",
+        "closedToHint": "비워두면 스토어는 무기한 휴점 상태로 유지됩니다."
+      }
     }
   },
   "regions": {
@@ -2713,7 +3192,8 @@
       "lastUsedAtLabel": "마지막 사용 시간",
       "revokedByLabel": "취소자",
       "revokedAtLabel": "취소 시간",
-      "createdByLabel": "생성자"
+      "createdByLabel": "생성자",
+      "tokenLabel": "토큰"
     }
   },
   "returnReasons": {
@@ -2755,7 +3235,8 @@
   "login": {
     "forgotPassword": "비밀번호를 잊으셨나요? - <0>재설정</0>",
     "title": "Medusa에 오신 것을 환영합니다",
-    "hint": "계정 영역에 접근하려면 로그인하세요"
+    "hint": "계정 영역에 접근하려면 로그인하세요",
+    "sessionExpired": "세션이 만료되었습니다"
   },
   "invite": {
     "title": "Medusa에 오신 것을 환영합니다",
@@ -2917,7 +3398,10 @@
     "from": "시작",
     "to": "종료",
     "beaware": "주의",
-    "loading": "로딩 중"
+    "loading": "로딩 중",
+    "updated": "업데이트일",
+    "selectValue": "값 선택",
+    "selectValues": "값 선택"
   },
   "fields": {
     "amount": "금액",
@@ -3075,7 +3559,44 @@
     "startDate": "시작일",
     "endDate": "종료일",
     "draft": "임시 저장",
-    "values": "값"
+    "values": "값",
+    "yes": "예",
+    "no": "아니오",
+    "commission": "수수료",
+    "reference": "참조",
+    "reference_id": "참조 ID",
+    "owner": "소유자",
+    "selectPlaceholder": "선택",
+    "enabledInStore": "스토어에서 활성화됨",
+    "isReturn": "반품 여부",
+    "store": "스토어",
+    "promotionCode": "프로모션 코드",
+    "serviceZone": "서비스 지역",
+    "website": "웹사이트",
+    "premium": "추천 스토어",
+    "professional": "사업자",
+    "creditTotal": "크레딧 라인 합계",
+    "is_giftcard": "기프트카드",
+    "origin_country": "원산지 국가",
+    "hs_code": "HS 코드",
+    "mid_code": "MID 코드",
+    "external_id": "외부 ID",
+    "is_restricted": "제한됨",
+    "tag_ids": "태그",
+    "category_ids": "카테고리",
+    "allow_backorder": "품절 주문 허용",
+    "manage_inventory": "재고 관리",
+    "variant_rank": "옵션 순위",
+    "attribute_values": "속성 값",
+    "isbn": "ISBN",
+    "asin": "ASIN",
+    "gtin": "GTIN",
+    "inventory_quantity": "재고 수량",
+    "requires_shipping": "배송 필요",
+    "variant_attributes": "옵션 속성",
+    "product_attributes": "상품 속성",
+    "type_id": "유형",
+    "collection_id": "컬렉션"
   },
   "dateTime": {
     "years_one": "년",
@@ -3092,5 +3613,609 @@
     "minutes_other": "분",
     "seconds_one": "초",
     "seconds_other": "초"
+  },
+  "payouts": {
+    "domain": "정산",
+    "list": {
+      "empty": "정산 내역이 없습니다"
+    },
+    "status": {
+      "paid": "지급 완료",
+      "processing": "처리 중",
+      "pending": "대기 중",
+      "failed": "실패",
+      "canceled": "취소됨"
+    }
+  },
+  "marketplace": {
+    "domain": "마켓플레이스",
+    "manageMarketplaceDetails": "마켓플레이스의 세부 정보를 관리하세요",
+    "edit": {
+      "header": "마켓플레이스 편집",
+      "namePlaceholder": "ACME"
+    }
+  },
+  "attributes": {
+    "domain": "상품 속성",
+    "subtitle": "상품 속성과 가능한 값을 관리하세요.",
+    "editRanking": {
+      "successToast": "순위가 성공적으로 업데이트되었습니다."
+    },
+    "possibleValues": {
+      "editRanking": "순위 편집",
+      "noRecordsTitle": "생성된 값이 없습니다",
+      "noRecordsMessage": "상품을 정리할 속성을 만드세요"
+    },
+    "list": {
+      "title": "상품 속성",
+      "noRecordsMessage": "아직 생성된 상품 속성이 없습니다."
+    },
+    "create": {
+      "header": "속성 생성",
+      "subtitle": "새 상품 속성을 정의하세요.",
+      "tabs": {
+        "details": "상세 정보",
+        "type": "유형"
+      },
+      "titleRequired": "제목을 입력해 주세요",
+      "possibleValuesRequired": "하나 이상의 값을 추가해 주세요",
+      "categoriesRequired": "하나 이상의 카테고리를 선택해 주세요",
+      "successToast": "속성 \"{{name}}\"이(가) 성공적으로 생성되었습니다."
+    },
+    "edit": {
+      "header": "속성 편집",
+      "subtitle": "속성 세부 정보를 업데이트하세요.",
+      "successToast": "속성 \"{{name}}\"이(가) 성공적으로 업데이트되었습니다."
+    },
+    "editPossibleValue": {
+      "header": "가능한 값 편집",
+      "subtitle": "가능한 값의 세부 정보를 업데이트하세요.",
+      "successToast": "가능한 값 \"{{value}}\"이(가) 성공적으로 업데이트되었습니다."
+    },
+    "createPossibleValues": {
+      "header": "값 생성",
+      "subtitle": "\"{{name}}\" 속성에 추가 값을 만드세요.",
+      "tabs": {
+        "values": "값",
+        "organizeRanking": "순위 구성"
+      },
+      "addValue": "값 추가",
+      "enterValue": "값 입력",
+      "successToast": "값이 성공적으로 생성되었습니다."
+    },
+    "deletePossibleValue": {
+      "title": "값 삭제",
+      "confirmation": "가능한 값 \"{{value}}\"을(를) 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "successToast": "가능한 값 \"{{value}}\"이(가) 성공적으로 삭제되었습니다.",
+      "inUseMessage": "값 {{value}}은(는) 하나 이상의 벤더가 상품 옵션에서 사용 중이므로 삭제할 수 없습니다. 편집하려면 먼저 해당 벤더에게 상품 업데이트를 요청하세요."
+    },
+    "delete": {
+      "title": "속성 삭제",
+      "confirmation": "속성 \"{{name}}\"을(를) 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "successToast": "속성 \"{{name}}\"이(가) 성공적으로 삭제되었습니다.",
+      "inUseMessage": "속성 {{name}}은(는) 하나 이상의 벤더가 상품 옵션에서 사용 중이므로 삭제할 수 없습니다. 삭제하려면 먼저 해당 벤더에게 상품 업데이트를 요청하세요.",
+      "gotIt": "확인했습니다"
+    },
+    "fields": {
+      "name": "이름",
+      "handle": "핸들",
+      "description": "설명",
+      "type": "유형",
+      "filterable": "필터 가능",
+      "required": "필수",
+      "global": "전역",
+      "category": "카테고리",
+      "categories": "카테고리",
+      "productAttribute": "상품 속성",
+      "values": "값",
+      "possibleValues": "가능한 값",
+      "value": "값",
+      "variantAxis": "옵션으로 사용",
+      "rank": "순위",
+      "metadata": "메타데이터",
+      "isRequired": "필수 속성",
+      "isRequiredHint": "선택하면 이 속성에 값을 설정해야 합니다.",
+      "isFilterable": "필터 가능 속성",
+      "isFilterableHint": "선택하면 고객이 이 속성을 사용하여 상품을 필터링할 수 있습니다.",
+      "isGlobal": "전역 속성",
+      "isGlobalHint": "선택하면 이 속성이 모든 카테고리의 모든 상품에 적용됩니다.",
+      "isVariantAxis": "Use for Variations",
+      "isVariantAxisHint": "선택하면 이 속성이 상품 옵션(예: 사이즈, 색상)을 정의합니다."
+    },
+    "type": {
+      "select": "단일 선택",
+      "multivalue": "다중 선택",
+      "unit": "단위",
+      "toggle": "토글",
+      "text_area": "텍스트 영역"
+    },
+    "selectCategory": {
+      "title": "카테고리 선택",
+      "description": "이 속성이 적용될 카테고리를 선택해 주세요.",
+      "placeholder": "카테고리 선택"
+    },
+    "hints": {
+      "global": "활성화하면 이 속성은 카테고리와 관계없이 모든 상품에 적용됩니다.",
+      "categoryInheritance": "하위 카테고리는 이 속성을 상속받습니다."
+    }
+  },
+  "refundReasons": {
+    "domain": "환불 사유",
+    "subtitle": "환불 발행 사유를 관리하세요.",
+    "calloutHint": "환불을 분류할 사유를 관리하세요.",
+    "editReason": "환불 사유 편집",
+    "create": {
+      "header": "환불 사유 추가",
+      "subtitle": "가장 일반적인 환불 사유를 지정하세요.",
+      "hint": "환불을 분류할 새로운 사유를 만드세요.",
+      "successToast": "환불 사유 {{label}}이(가) 성공적으로 생성되었습니다."
+    },
+    "edit": {
+      "header": "환불 사유 편집",
+      "subtitle": "환불 사유의 값을 편집하세요.",
+      "successToast": "환불 사유 {{label}}이(가) 성공적으로 업데이트되었습니다."
+    },
+    "delete": {
+      "confirmation": "환불 사유 \"{{label}}\"을(를) 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "successToast": "환불 사유가 성공적으로 삭제되었습니다."
+    },
+    "fields": {
+      "label": {
+        "label": "라벨",
+        "placeholder": "고객 만족을 위한 서비스"
+      },
+      "code": {
+        "label": "코드",
+        "placeholder": "gesture_of_goodwill"
+      },
+      "description": {
+        "label": "설명",
+        "placeholder": "고객이 불만족스러운 쇼핑 경험을 했습니다"
+      }
+    }
+  },
+  "shippingOptionTypes": {
+    "domain": "배송 옵션 유형",
+    "subtitle": "배송 옵션을 유형별로 정리하세요.",
+    "create": {
+      "header": "배송 옵션 유형 생성",
+      "hint": "배송 옵션을 분류할 새로운 배송 옵션 유형을 만드세요.",
+      "successToast": "배송 옵션 유형 {{label}}이(가) 성공적으로 생성되었습니다."
+    },
+    "edit": {
+      "header": "배송 옵션 유형 편집",
+      "successToast": "배송 옵션 유형 {{label}}이(가) 성공적으로 업데이트되었습니다."
+    },
+    "delete": {
+      "confirmation": "배송 옵션 유형 \"{{label}}\"을(를) 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "successToast": "배송 옵션 유형 \"{{label}}\"이(가) 성공적으로 삭제되었습니다."
+    },
+    "fields": {
+      "label": "라벨",
+      "code": "코드",
+      "description": "설명"
+    }
+  },
+  "views": {
+    "save": "저장",
+    "saveAsNew": "새 보기로 저장",
+    "saveAsSystemDefault": "시스템 기본값으로 저장",
+    "updateDefaultForEveryone": "모두를 위한 기본값 업데이트",
+    "updateViewName": "보기 업데이트",
+    "updateNamed": "\"{{name}}\" 업데이트",
+    "prompts": {
+      "updateDefault": {
+        "title": "기본 보기 업데이트",
+        "description": "모든 사용자의 기본 보기가 업데이트됩니다. 계속하시겠습니까?",
+        "confirmText": "모두를 위해 업데이트",
+        "cancelText": "취소"
+      },
+      "updateView": {
+        "title": "보기 업데이트",
+        "description": "\"{{name}}\"을(를) 업데이트하시겠습니까?",
+        "confirmText": "업데이트",
+        "cancelText": "취소"
+      },
+      "saveAsDefault": {
+        "title": "시스템 기본값으로 저장",
+        "description": "현재 설정이 시스템 기본값으로 저장됩니다. 개인 보기를 따로 설정하지 않은 모든 사용자는 이 설정을 기본값으로 보게 됩니다. 계속하시겠습니까?",
+        "confirmText": "기본값으로 저장",
+        "cancelText": "취소"
+      },
+      "updateExisting": {
+        "title": "기존 보기 업데이트",
+        "description": "현재 설정으로 \"{{name}}\"을(를) 업데이트하시겠습니까?",
+        "confirmText": "업데이트",
+        "cancelText": "취소"
+      }
+    }
+  },
+  "requests": {
+    "domain": "요청",
+    "seller": "스토어",
+    "product": "제품",
+    "review-remove": "리뷰 삭제",
+    "return": "주문 반품",
+    "product-collection": "상품 컬렉션",
+    "product-category": "상품 카테고리",
+    "product-tag": "상품 태그",
+    "product-type": "상품 유형",
+    "product-update": "상품 업데이트"
+  },
+  "stores": {
+    "domain": "스토어",
+    "handleTooltip": "핸들은 스토어의 URL 슬러그로 사용됩니다. 비워두면 이름에서 자동으로 생성됩니다.",
+    "emptyStates": {
+      "users": {
+        "title": "아직 사용자가 없습니다"
+      },
+      "products": {
+        "title": "아직 상품이 없습니다"
+      },
+      "orders": {
+        "title": "아직 주문이 없습니다"
+      }
+    },
+    "fields": {
+      "name": "이름",
+      "handle": "핸들",
+      "email": "이메일",
+      "phone": "전화번호",
+      "logo": "로고",
+      "cover_image": "커버 이미지",
+      "address": "주소",
+      "address_1": "주소 1",
+      "address_2": "주소 2",
+      "postal_code": "우편번호",
+      "city": "도시",
+      "province": "주/도",
+      "country_code": "국가 코드",
+      "seller": "스토어",
+      "premium": "추천"
+    },
+    "status": {
+      "open": "활성",
+      "pending_approval": "대기 중",
+      "pendingApproval": "대기 중",
+      "suspended": "비활성",
+      "terminated": "종료됨"
+    },
+    "premium": {
+      "yes": "예",
+      "no": "아니오",
+      "description": "선택하면 스토어가 내부 사용이나 프로모션 목적의 특별 배지로 강조 표시됩니다."
+    },
+    "invite": {
+      "button": "초대",
+      "header": "스토어 초대",
+      "hint": "마켓플레이스에 새로운 스토어를 초대하세요",
+      "successToast": "{{email}}로 초대장을 보냈습니다",
+      "errorToast": "초대장 전송에 실패했습니다"
+    },
+    "members": {
+      "mainAdmin": "관리자",
+      "addUser": {
+        "header": "사용자 추가",
+        "action": "추가",
+        "hint": "이 스토어를 관리할 새 사용자를 추가하세요. 기존 사용자를 선택하거나 새 사용자를 초대할 수 있습니다.",
+        "addedToast": "사용자가 성공적으로 추가되었습니다.",
+        "invitedToast": "사용자가 성공적으로 초대되었습니다.",
+        "validation": {
+          "roleRequired": "역할을 선택해 주세요"
+        }
+      },
+      "invite": {
+        "resendSuccess": "{{email}}로 초대장을 성공적으로 재전송했습니다",
+        "deleteSuccess": "{{email}}에 대한 초대가 삭제되었습니다",
+        "linkCopied": "초대 링크가 클립보드에 성공적으로 복사되었습니다.",
+        "copyFailed": "초대 링크 복사에 실패했습니다",
+        "noVendorUrl": "백엔드에 벤더 URL이 설정되지 않았습니다 (MERCUR_VENDOR_URL)"
+      }
+    },
+    "edit": {
+      "header": "스토어 편집",
+      "mediaHeading": "미디어",
+      "mediaTipLabel": "팁:",
+      "mediaTipBody": "이 미디어는 스토어프론트에 표시됩니다.",
+      "uploadLogoLabel": "로고 업로드",
+      "uploadLogoHint": "로고를 여기로 드래그 앤 드롭하거나 클릭하여 업로드하세요.",
+      "uploadBannerLabel": "배너 업로드",
+      "uploadBannerHint": "배너를 여기로 드래그 앤 드롭하거나 클릭하여 업로드하세요.",
+      "successToast": "스토어 {{name}}이(가) 성공적으로 업데이트되었습니다."
+    },
+    "create": {
+      "tabs": {
+        "details": "상세 정보",
+        "users": "관리자"
+      },
+      "header": "상세 정보",
+      "usersHeader": "관리자",
+      "usersHint": "이 스토어를 관리할 관리자를 지정하세요. 기존 사용자를 선택하거나 새 사용자를 초대할 수 있습니다.",
+      "usersHintSecondary": "스토어가 생성되면 선택한 사용자에게 참여 초대장이 발송됩니다.",
+      "ownerEmail": "소유자 이메일",
+      "ownerEmailHint": "소유자에게 스토어 관리 역할이 부여됩니다.",
+      "successToast": "스토어가 성공적으로 생성되었습니다.",
+      "validation": {
+        "nameRequired": "이름을 입력해 주세요",
+        "emailRequired": "이메일을 입력해 주세요",
+        "emailInvalid": "유효한 이메일을 입력해 주세요",
+        "currencyRequired": "통화를 선택해 주세요"
+      }
+    },
+    "request": {
+      "title": "스토어 요청",
+      "description": "{{requester}}에서 스토어 요청을 제출했습니다. 세부 정보를 검토하고 필요한 사항을 업데이트한 후, 스토어를 확정하여 게시할지 요청을 거부할지 선택하세요.",
+      "confirm": "확인",
+      "reject": "거부",
+      "confirmTitle": "요청 확인",
+      "confirmDescription": "이 스토어 요청을 확정하려고 합니다.",
+      "rejectTitle": "요청 거부",
+      "rejectDescription": "이 스토어 요청을 거부하려고 합니다.",
+      "noteLabel": "벤더에 대한 메모",
+      "notePlaceholder": "변경한 사항이나 추가 요청 사항을 입력하세요",
+      "confirmNotePlaceholder": "변경한 사항이나 추가 요청 사항을 입력하세요",
+      "rejectNotePlaceholder": "요청을 거부하는 이유나 변경 제안을 설명해 주세요",
+      "confirmSuccess": "스토어 요청이 성공적으로 확정되었습니다.",
+      "rejectSuccess": "스토어 요청이 성공적으로 거부되었습니다."
+    },
+    "actions": {
+      "approve": {
+        "label": "승인",
+        "title": "스토어 승인",
+        "description": "이 스토어를 승인하시겠습니까?",
+        "success": "스토어가 승인되었습니다"
+      },
+      "reject": {
+        "label": "거부",
+        "title": "스토어 거부",
+        "description": "이 스토어를 거부하시겠습니까?",
+        "success": "스토어가 거부되었습니다"
+      },
+      "edit": {
+        "label": "편집"
+      },
+      "delete": {
+        "label": "삭제",
+        "title": "스토어 삭제",
+        "description": "이 스토어를 삭제하시겠습니까? 이 작업은 되돌릴 수 없습니다.",
+        "success": "스토어가 삭제되었습니다",
+        "successToast": "{{count}}개 스토어가 삭제되었습니다",
+        "errorToast": "스토어 삭제에 실패했습니다"
+      }
+    },
+    "bulkEdit": {
+      "successToast": "{{count}}개 스토어가 업데이트되었습니다",
+      "emptyHeading": "선택된 스토어가 없습니다",
+      "emptyDescription": "목록에서 스토어를 선택하여 여기서 편집하세요."
+    }
+  },
+  "messages": {
+    "domain": "메시지"
+  },
+  "configuration": {
+    "domain": "상품 카탈로그 설정"
+  },
+  "algolia": {
+    "domain": "Algolia 검색 엔진"
+  },
+  "commission": {
+    "domain": "수수료 설정"
+  },
+  "commissionLines": {
+    "domain": "수수료 내역"
+  },
+  "commissions": {
+    "domain": "수수료",
+    "create": {
+      "header": "수수료 규칙 생성",
+      "details": "상세 정보",
+      "commission": "수수료",
+      "successToast": "수수료 규칙이 성공적으로 생성되었습니다."
+    },
+    "edit": {
+      "header": "수수료 규칙 편집",
+      "successToast": "수수료 규칙이 성공적으로 업데이트되었습니다."
+    },
+    "commissionEdit": {
+      "header": "수수료 편집",
+      "successToast": "수수료가 성공적으로 업데이트되었습니다."
+    },
+    "delete": {
+      "title": "수수료 규칙 삭제",
+      "description": "수수료 규칙 {{name}}을(를) 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "successToast": "수수료 규칙이 성공적으로 삭제되었습니다."
+    },
+    "fields": {
+      "code": "코드",
+      "value": "값",
+      "status": "상태",
+      "enabled": "활성화됨",
+      "enabledHint": "이 수수료 규칙을 활성화하거나 비활성화하세요.",
+      "stores": "스토어",
+      "productTypes": "제품 유형",
+      "categories": "카테고리",
+      "taxIncluded": "세금 포함",
+      "taxIncludedHint": "선택하면 세금을 포함한 총액을 기준으로 수수료가 계산됩니다. 선택 해제하면 세금은 제외되어 전액 스토어에 귀속됩니다.",
+      "shippingIncluded": "배송비 포함",
+      "shippingIncludedHint": "선택하면 배송비를 포함한 총액을 기준으로 수수료가 계산됩니다. 선택 해제하면 배송비는 전액 스토어에 귀속됩니다.",
+      "type": {
+        "label": "유형",
+        "percentage": "퍼센트",
+        "fixed": "고정",
+        "percentageHint": "주문 총액의 일정 비율을 청구합니다.",
+        "fixedHint": "주문당 고정 금액을 청구합니다."
+      },
+      "scopeType": {
+        "label": "유형",
+        "store": "스토어",
+        "productType": "상품 유형",
+        "category": "카테고리",
+        "storeProductType": "스토어 + 상품 유형",
+        "storeCategory": "스토어 + 카테고리",
+        "storeHint": "특정 스토어에 적용합니다.",
+        "productTypeHint": "특정 상품 유형에 적용합니다.",
+        "categoryHint": "특정 카테고리에 적용합니다.",
+        "storeProductTypeHint": "특정 스토어 내 상품 유형에 적용합니다.",
+        "storeCategoryHint": "특정 스토어 내 카테고리에 적용합니다."
+      }
+    },
+    "global": {
+      "title": "전역 수수료",
+      "code": "코드",
+      "type": "유형",
+      "value": "값",
+      "tax": "세금",
+      "shipping": "배송",
+      "included": "수수료에 포함됨",
+      "notIncluded": "수수료에 포함되지 않음",
+      "edit": {
+        "header": "전역 수수료 편집",
+        "successToast": "전역 수수료가 성공적으로 업데이트되었습니다."
+      }
+    },
+    "rules": {
+      "title": "수수료 규칙",
+      "columns": {
+        "rule": "규칙",
+        "scope": "범위",
+        "type": "유형",
+        "value": "값",
+        "status": "상태"
+      },
+      "empty": {
+        "heading": "아직 수수료 규칙이 없습니다",
+        "description": "특정 스토어, 상품 유형 또는 카테고리에 대해\n전역 수수료를 재정의할 수수료 규칙을 생성하세요."
+      }
+    },
+    "status": {
+      "enabled": "활성",
+      "disabled": "비활성"
+    },
+    "validation": {
+      "titleRequired": "제목을 입력해 주세요",
+      "codeRequired": "코드를 입력해 주세요",
+      "value": "값을 입력해 주세요",
+      "storesRequired": "하나 이상의 스토어를 선택해 주세요",
+      "productTypesRequired": "하나 이상의 상품 유형을 선택해 주세요",
+      "categoriesRequired": "하나 이상의 카테고리를 선택해 주세요"
+    }
+  },
+  "commissionRates": {
+    "domain": "수수료율",
+    "description": "마켓플레이스의 수수료율과 규칙을 관리하세요.",
+    "create": {
+      "header": "수수료율 생성",
+      "description": "마켓플레이스에 새로운 수수료율을 설정하세요.",
+      "successToast": "수수료율이 성공적으로 생성되었습니다"
+    },
+    "edit": {
+      "header": "수수료율 편집",
+      "successToast": "수수료율이 성공적으로 업데이트되었습니다"
+    },
+    "delete": {
+      "description": "수수료율 \"{{name}}\"을(를) 삭제하시겠습니까?",
+      "successToast": "수수료율이 성공적으로 삭제되었습니다"
+    },
+    "rules": {
+      "empty": "설정된 규칙이 없습니다"
+    },
+    "fields": {
+      "name": "이름",
+      "code": "코드",
+      "type": {
+        "label": "유형",
+        "percentage": "퍼센트",
+        "fixed": "고정"
+      },
+      "target": {
+        "label": "대상",
+        "item": "항목",
+        "shipping": "배송"
+      },
+      "currencyCode": "통화 코드",
+      "currencyPlaceholder": "통화 선택",
+      "rate": "비율",
+      "minAmount": "최소 금액",
+      "priority": "우선순위",
+      "enabled": "활성화됨",
+      "enabledHint": "이 수수료율을 활성화하거나 비활성화하세요.",
+      "includeTax": "세금 포함",
+      "includeTaxHint": "수수료 계산에 세금을 포함합니다."
+    },
+    "status": {
+      "enabled": "활성화됨",
+      "disabled": "비활성화됨"
+    },
+    "toggle": {
+      "enabledToast": "수수료율이 성공적으로 활성화되었습니다",
+      "disabledToast": "수수료율이 성공적으로 비활성화되었습니다"
+    }
+  },
+  "offers": {
+    "domain": "오퍼",
+    "empty": {
+      "heading": "아직 오퍼가 없습니다",
+      "description": "아직 이 마켓플레이스에 오퍼를 게시한 스토어가 없습니다.",
+      "storeDescription": "이 스토어는 등록된 오퍼가 없습니다"
+    },
+    "filtered": {
+      "heading": "일치하는 오퍼가 없습니다",
+      "description": "필터나 검색어를 조정해 보세요."
+    },
+    "actions": {
+      "openStore": "스토어 열기",
+      "bulkDelete": "선택 항목 삭제"
+    },
+    "fields": {
+      "store": "스토어",
+      "sku": "SKU",
+      "variant": "마스터 옵션",
+      "ean": "EAN",
+      "upc": "UPC",
+      "shippingProfile": "배송 프로필",
+      "requiredQuantity": "필요 수량",
+      "stockStatus": "재고 상태",
+      "variants": "변형",
+      "variantsCount_one": "{{count}}개 변형",
+      "variantsCount_other": "{{count}}개 변형"
+    },
+    "detail": {
+      "offerLabel": "오퍼",
+      "productVariant": "상품 옵션",
+      "store": "스토어",
+      "inventoryItems": "재고 상품",
+      "goToInventoryItem": "재고 상품으로 이동",
+      "manageKit": "재고 키트",
+      "noInventoryItems": "이 오퍼에는 연결된 재고 품목이 없습니다.",
+      "associatedProduct": "연결된 상품",
+      "offerVariant": "오퍼 옵션",
+      "shippingConfiguration": "배송 구성"
+    },
+    "delete": {
+      "description": "오퍼 {{sku}}을(를) 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "successToast": "오퍼가 성공적으로 삭제되었습니다."
+    },
+    "bulkDelete": {
+      "description": "{{storeName}}의 오퍼 {{count}}개를 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "successToast": "{{count}}개 오퍼가 삭제되었습니다",
+      "errorToast": "일괄 삭제에 실패했습니다: {{message}}",
+      "crossStoreWarning": "한 번에 한 스토어의 오퍼만 선택하세요. 일괄 삭제는 스토어별로 적용됩니다.",
+      "crossStoreTooltip": "일괄 삭제는 한 스토어 내에서만 작동합니다."
+    },
+    "bulkDeleteAll": {
+      "description": "{{storeName}}의 모든 오퍼를 삭제하려고 합니다. 이 작업은 되돌릴 수 없습니다.",
+      "actionLabel": "카탈로그 삭제"
+    },
+    "sellerSection": {
+      "heading": "오퍼",
+      "viewAll": "전체 보기",
+      "bulkDeleteAll": "카탈로그 삭제",
+      "empty": "이 스토어는 아직 오퍼가 없습니다."
+    },
+    "stockStatus": {
+      "in_stock": "재고 있음",
+      "low_stock": "재고 부족",
+      "out_of_stock": "품절"
+    }
   }
 }

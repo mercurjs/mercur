@@ -75,7 +75,11 @@
     "unsavedChangesDescription": "Kaydedilmemiş değişiklikleriniz kaybolacak.",
     "includesTaxTooltip": "Bu sütundaki fiyatlar vergiler dahil fiyatlardır.",
     "excludesTaxTooltip": "Bu sütundaki fiyatlar vergiler hariç fiyatlardır.",
-    "noMoreData": "Daha fazla veri yok"
+    "noMoreData": "Daha fazla veri yok",
+    "areYouSureDescription": "{{entity}} {{title}} silinmek üzere. Bu işlem geri alınamaz.",
+    "yes": "Evet",
+    "no": "Hayır",
+    "noRecordsMessageFiltered": "Filtrelerle eşleşen kayıt bulunamadı"
   },
   "json": {
     "header": "JSON",
@@ -161,7 +165,8 @@
     "hide": "Gizle",
     "export": "Dışa Aktar",
     "import": "İçe Aktar",
-    "cannotUndo": "Bu işlem geri alınamaz"
+    "cannotUndo": "Bu işlem geri alınamaz",
+    "send": "Gönder"
   },
   "operators": {
     "in": "İçinde"
@@ -207,7 +212,8 @@
         "publishableApiKey": "Yayınlanabilir API Anahtarları",
         "secretApiKey": "Gizli API Anahtarları",
         "command": "Komutlar",
-        "navigation": "Navigasyon"
+        "navigation": "Navigasyon",
+        "seller": "Mağazalar"
       }
     },
     "keyboardShortcuts": {
@@ -226,7 +232,9 @@
         "goToReservations": "Rezervasyonlar",
         "goToPriceLists": "Fiyat Listeleri",
         "goToPromotions": "Promosyonlar",
-        "goToCampaigns": "Kampanyalar"
+        "goToCampaigns": "Kampanyalar",
+        "goToSellers": "Mağazalar",
+        "goToPayouts": "Ödemeler"
       },
       "settings": {
         "goToSettings": "Ayarlar",
@@ -275,7 +283,9 @@
       },
       "main": {
         "store": "Mağaza",
-        "storeSettings": "Mağaza Ayarları"
+        "storeSettings": "Mağaza Ayarları",
+        "marketplace": "Pazar Yeri",
+        "marketplaceSettings": "Pazar yeri ayarları"
       },
       "settings": {
         "header": "Ayarlar",
@@ -387,7 +397,8 @@
       "sameAsShipping": "Teslimat adresi ile aynı"
     },
     "contactHeading": "İletişim",
-    "locationHeading": "Konum"
+    "locationHeading": "Konum",
+    "title": "Adresler"
   },
   "email": {
     "editHeader": "E-postayı Düzenle",
@@ -436,12 +447,20 @@
         "details": "Detaylar",
         "organize": "Organize Et",
         "variants": "Varyantlar",
-        "inventory": "Envanter Kitleri"
+        "inventory": "Envanter Kitleri",
+        "attributes": "Öznitelikler"
       },
       "errors": {
         "variants": "Lütfen en az bir varyant seçin.",
         "options": "Lütfen en az bir seçenek oluşturun.",
-        "uniqueSku": "SKU benzersiz olmalıdır."
+        "uniqueSku": "SKU benzersiz olmalıdır.",
+        "requiredAttribute": "Bu özellik zorunludur.",
+        "requiredAttributeSelect": "Bu özellik pazar yeri tarafından zorunlu kılınmıştır. Lütfen bir değer seçin.",
+        "requiredAttributeEnter": "Bu özellik pazar yeri tarafından zorunlu kılınmıştır. Lütfen bir değer girin.",
+        "requiredAttributeMultiSelect": "Bu özellik pazar yeri tarafından zorunlu kılınmıştır. Lütfen en az bir değer seçin.",
+        "requiredStore": "Lütfen en az bir mağaza seçin",
+        "requiredTitle": "Lütfen bir başlık girin",
+        "requiredCategory": "Lütfen bir kategori seçin"
       },
       "inventory": {
         "heading": "Envanter Kitleri",
@@ -463,14 +482,41 @@
           "label": "Ürün varyantları",
           "hint": "Bu sıralama, varyantların mağazanızdaki sırasını etkileyecektir.",
           "alert": "Varyantlar oluşturmak için seçenekler ekleyin.",
-          "tip": "İşaretlenmeyen varyantlar oluşturulmayacaktır. Ürün seçeneklerinizdeki varyasyonları bu listeye uyacak şekilde oluşturup düzenleyebilirsiniz."
+          "tip": "İşaretlenmeyen varyantlar oluşturulmayacaktır. Ürün seçeneklerinizdeki varyasyonları bu listeye uyacak şekilde oluşturup düzenleyebilirsiniz.",
+          "noAxes": "Varyant oluşturmak için Özellikler adımında özellikleri \"Varyasyonlar için kullan\" olarak işaretleyin."
         },
         "productOptions": {
           "label": "Ürün seçenekleri",
           "hint": "Ürün için seçenekleri belirleyin, örneğin renk, boyut vb."
         }
       },
-      "successToast": "Ürün {{title}} başarıyla oluşturuldu."
+      "successToast": "Ürün {{title}} başarıyla oluşturuldu.",
+      "attributes": {
+        "header": "Öznitelikler",
+        "description": "Ürününüz için özellikleri ve varyasyonları yönetin, ör. renk, beden, marka vb.\nPazar yeri tarafından tanımlanan özelliklerden seçin veya kendi özelliğinizi oluşturun.",
+        "addExisting": "Mevcut olanı ekle",
+        "createNew": "Yeni oluştur",
+        "title": "Başlık",
+        "titlePlaceholder": "ör. Renk",
+        "values": "Değerler",
+        "selectValues": "Değerleri seçin",
+        "valuePlaceholder": "Değerleri girin",
+        "enterValuePlaceholder": "Değer girin",
+        "selectValuePlaceholder": "Değer seçin",
+        "requiredAttributes": "Zorunlu özellikler",
+        "requiredAttributesHint": "These attributes are required by the Marketplace. Select them before proceeding.",
+        "useForVariants": "Varyasyonlar için kullan",
+        "useForVariantsDescription": "İşaretlenirse, bu özelliği kullanarak varyant oluşturabilirsiniz. İşaretlenmezse özellik yalnızca bilgi amaçlı kullanılır.",
+        "tip": "İpucu",
+        "variantAxisTip": "Bu özellik varyantlar oluşturacaktır. Bunları bir sonraki adımda tanımlayabilirsiniz.",
+        "editVariantAxisTip": "Bu özelliği kullanarak varyant oluşturabileceksiniz.",
+        "warning": "Uyarı",
+        "editWarning": "Bu özellikteki değişiklikler mevcut ürün varyantlarını veya detaylarını etkileyebilir. Kaydettikten sonra varyantlarınızı ve ürün detaylarınızı gözden geçirin.",
+        "errors": {
+          "titleRequired": "Lütfen bir başlık girin",
+          "valuesRequired": "Lütfen en az bir değer girin"
+        }
+      }
     },
     "export": {
       "header": "Ürün Listesini Dışa Aktar",
@@ -546,7 +592,8 @@
         "description": "Ürünü mağazanızda sergilemek için medya ekleyin.",
         "action": "Medya ekle"
       },
-      "successToast": "Medya başarıyla güncellendi."
+      "successToast": "Medya başarıyla güncellendi.",
+      "fileTooLarge": "Bir veya daha fazla dosya {{size}} olan maksimum dosya boyutunu aşıyor: {{name}}"
     },
     "discountableHint": "İşaretlenmediğinde, bu ürüne indirim uygulanmayacaktır.",
     "noSalesChannels": "Hiçbir satış kanalında mevcut değil",
@@ -557,7 +604,9 @@
       "draft": "Taslak",
       "published": "Yayınlandı",
       "proposed": "Önerildi",
-      "rejected": "Reddedildi"
+      "rejected": "Reddedildi",
+      "requires_action": "Changes required",
+      "accepted": "Kabul edildi"
     },
     "fields": {
       "title": {
@@ -639,6 +688,13 @@
       "shipping_profile": {
         "label": "Kargo profili",
         "hint": "Ürünü bir kargo profili ile ilişkilendirin"
+      },
+      "stores": {
+        "label": "Mağazalar"
+      },
+      "globally_available": {
+        "label": "Genel olarak kullanılabilir",
+        "hint": "İşaret kaldırıldığında, bu ürünü yalnızca seçilen mağazalar sunabilir"
       }
     },
     "variant": {
@@ -738,6 +794,105 @@
           "required": "Kargo yapılandırması gereklidir"
         }
       }
+    },
+    "associatedStore": "İlişkili Mağaza",
+    "bulkEdit": {
+      "title": "Ürünleri toplu düzenle",
+      "description": "Seçili ürünlerin durumunu ve indirim ayarlarını güncelleyin.",
+      "action": "Düzenle",
+      "successToast_one": "{{count}} ürün başarıyla güncellendi.",
+      "successToast_other": "{{count}} ürün başarıyla güncellendi."
+    },
+    "bulkDelete": {
+      "warning_one": "{{count}} ürün silinmek üzere. Bu işlem geri alınamaz.",
+      "warning_other": "{{count}} ürün silinmek üzere. Bu işlem geri alınamaz.",
+      "successToast_one": "{{count}} ürün başarıyla silindi.",
+      "successToast_other": "{{count}} ürün başarıyla silindi."
+    },
+    "attributeVariations": "Varyasyonlar",
+    "attributeVariantsDescription": "Varyantlar için kullanılan özellikler",
+    "attributeProductInformation": "Ürün Bilgisi",
+    "attributeProductInformationDescription": "Bilgi amaçlı kullanılan özellikler",
+    "attributeRequiredByMarketplace": "Bu özellik pazar yeri tarafından zorunlu kılınmıştır.",
+    "attributeRequiredDeleteDisabledTooltip": "Zorunlu özellikler kaldırılamaz.",
+    "addAttribute": "Özellik Ekle",
+    "deleteAttributeWarning": "\"{{title}}\" özelliğini silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+    "editAttribute": "Özelliği Düzenle",
+    "editAttributeHint": "Üründe bu özellik için seçilen değerleri güncelleyin.",
+    "request": {
+      "panel": {
+        "title": "Ürün talebi",
+        "description": "{{store}} bir ürün talebi gönderdi. Detayları inceleyin, gerekli güncellemeleri yapın ve ürünü onaylayıp yayınlamak, güncelleme talep etmek veya talebi reddetmek arasında seçim yapın."
+      },
+      "fallbackStore": "Mağaza",
+      "actions": {
+        "requestUpdate": "Güncelleme talep et",
+        "reject": "Reddet"
+      },
+      "confirmPrompt": {
+        "title": "Talebi onayla",
+        "description": "Bu ürün güncelleme talebini onaylamak üzeresiniz. Onaylandığında, bu ürün için oluşturulan teklifler mağaza vitrininde görünecektir. Yalnızca stok seviyesi ve fiyatı ayarlanmış teklifler görünür olacaktır.",
+        "noteLabel": "Mağaza için not",
+        "notePlaceholder": "Yaptığınız değişiklikleri veya ek talepleri belirtin"
+      },
+      "requestUpdatePrompt": {
+        "title": "Güncelleme talep et",
+        "description": "Yayınlamadan önce bu ürün için güncelleme talep edin. Nelerin güncellenmesi gerektiğini açıklayan bir not ekleyin.",
+        "noteLabel": "Mağaza için not",
+        "notePlaceholder": "Nelerin güncellenmesi gerektiğini açıklayın (ör. eksik görseller, hatalı fiyat, eksik açıklama)",
+        "send": "Gönder"
+      },
+      "rejectPrompt": {
+        "title": "Talebi reddet",
+        "description": "Bu ürün talebini reddetmek üzeresiniz.",
+        "noteLabel": "Mağaza için not",
+        "notePlaceholder": "Talebi neden reddettiğinizi açıklayın",
+        "confirm": "Reddet"
+      },
+      "toast": {
+        "publishedSuccessfully": "Ürün onaylandı ve yayınlandı",
+        "updateRequestedSuccessfully": "Güncelleme talebi mağazaya gönderildi",
+        "rejectedSuccessfully": "Ürün talebi reddedildi"
+      }
+    },
+    "edits": {
+      "panel": {
+        "title": "Ürün güncelleme talebi",
+        "description": "{{store}} bir ürün güncelleme talebi gönderdi. Talep edilen değişiklikleri inceleyin ve güncellemeleri onaylayıp yayınlamak veya bu talebi reddetmek arasında seçim yapın.",
+        "deleteRequested": "Ürün silme işlemi onay bekliyor."
+      },
+      "actions": {
+        "reject": "Reddet"
+      },
+      "confirmPrompt": {
+        "title": "Talebi onayla",
+        "description": "Bu ürün güncelleme talebini onaylamak üzeresiniz. Onaylandığında ürün mağaza vitrininde güncellenecektir.",
+        "noteLabel": "Mağaza için not",
+        "notePlaceholder": "Yaptığınız değişiklikleri veya ek talepleri belirtin"
+      },
+      "rejectPrompt": {
+        "title": "Talebi reddet",
+        "description": "Bu ürün talebini reddetmek üzeresiniz.",
+        "noteLabel": "Mağaza için not",
+        "notePlaceholder": "Talebi neden reddettiğinizi veya hangi değişiklikleri önerdiğinizi açıklayın",
+        "confirm": "Reddet"
+      },
+      "toast": {
+        "confirmedSuccessfully": "Ürün güncelleme talebi onaylandı",
+        "rejectedSuccessfully": "Ürün güncelleme talebi reddedildi"
+      }
+    },
+    "columns": {
+      "product_display": "Ürün",
+      "variants_count": "Varyantlar",
+      "sales_channels_display": "Satış Kanalları",
+      "collection": "Koleksiyon",
+      "status": "Durum",
+      "thumbnail": "Küçük resim",
+      "title": "Başlık",
+      "handle": "Tutamak",
+      "created_at": "Oluşturuldu",
+      "updated_at": "Güncellenme"
     }
   },
   "collections": {
@@ -754,7 +909,8 @@
     "removeProductsWarning_other": "{{count}} ürünü koleksiyondan kaldırmak üzeresiniz. Bu işlem geri alınamaz.",
     "products": {
       "list": {
-        "noRecordsMessage": "Koleksiyonda ürün yok."
+        "noRecordsMessage": "Koleksiyonda ürün yok.",
+        "noRecordsTitle": "Henüz ürün yok"
       },
       "add": {
         "successToast_one": "Ürün koleksiyona başarıyla eklendi.",
@@ -763,6 +919,62 @@
       "remove": {
         "successToast_one": "Ürün koleksiyondan başarıyla kaldırıldı.",
         "successToast_other": "Ürünler koleksiyondan başarıyla kaldırıldı."
+      }
+    },
+    "deleteSuccess": "Koleksiyon başarıyla silindi.",
+    "updateSuccess": "Koleksiyon başarıyla güncellendi.",
+    "validation": {
+      "titleRequired": "Lütfen bir başlık girin"
+    },
+    "media": {
+      "label": "Medya",
+      "thumbnail": "Küçük resim",
+      "banner": "Banner",
+      "galleryLabel": "Galeri",
+      "editHint": "Mağaza vitrininde sergilemek için koleksiyona medya ekleyin.",
+      "deleteWarning": "Bu görseli silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "empty": {
+        "header": "Henüz medya yok",
+        "description": "Mağaza vitrininde sergilemek için medya ekleyin."
+      },
+      "upload": {
+        "title": "Resimleri yükle",
+        "hint": "Resimleri buraya sürükleyip bırakın veya yüklemek için tıklayın."
+      },
+      "tooltips": {
+        "thumbnail": "Ana sayfada koleksiyon küçük resmi olarak gösterilir.",
+        "banner": "Koleksiyon listesinde koleksiyon banner'ı olarak gösterilir."
+      },
+      "actions": {
+        "setThumbnail": "Küçük resim yap",
+        "removeThumbnail": "Küçük resmi kaldır",
+        "setBanner": "Banner yap",
+        "removeBanner": "Banner'ı kaldır"
+      },
+      "edit": {
+        "header": "Medyayı Düzenle",
+        "description": "Görselleri yükleyin ve mağaza vitrininde gösterilecek küçük resmi ve banner'ı seçin.",
+        "successToast": "Koleksiyon medyası başarıyla güncellendi."
+      }
+    },
+    "icon": {
+      "label": "Simge",
+      "empty": {
+        "header": "Henüz simge yok",
+        "description": "Mağaza vitrininde koleksiyon etiketinin yanında sergilemek için simge ekleyin."
+      },
+      "tip": {
+        "label": "İpucu:",
+        "text": "Bu simge mağaza vitrininde koleksiyon etiketinin yanında görünecektir."
+      },
+      "upload": {
+        "title": "Dosya yükle",
+        "hint": "Dosyayı buraya sürükleyip bırakın veya yüklemek için tıklayın."
+      },
+      "edit": {
+        "header": "Simgeyi Düzenle",
+        "description": "Mağaza vitrininde koleksiyon etiketinin yanında gösterilecek tek bir simge yükleyin.",
+        "successToast": "Koleksiyon simgesi başarıyla güncellendi."
       }
     }
   },
@@ -800,12 +1012,14 @@
         "successToast_other": "{{count}} ürün kategoriden kaldırıldı."
       },
       "list": {
-        "noRecordsMessage": "Kategoride ürün yok."
+        "noRecordsMessage": "Kategoride ürün yok.",
+        "noRecordsTitle": "Henüz ürün yok"
       }
     },
     "organize": {
       "header": "Organize Et",
-      "action": "Sıralamayı Düzenle"
+      "action": "Sıralamayı Düzenle",
+      "successToast": "Sıralama başarıyla güncellendi."
     },
     "fields": {
       "visibility": {
@@ -828,6 +1042,61 @@
       "new": {
         "label": "Yeni"
       }
+    },
+    "handleTooltip": "Handle, mağaza vitrininde kategoriye referans vermek için kullanılır. Belirtilmezse, handle kategori başlığından oluşturulur.",
+    "validation": {
+      "titleRequired": "Lütfen bir başlık girin"
+    },
+    "media": {
+      "label": "Medya",
+      "thumbnail": "Küçük resim",
+      "banner": "Banner",
+      "galleryLabel": "Galeri",
+      "editHint": "Mağaza vitrininde sergilemek için kategoriye medya ekleyin.",
+      "deleteWarning": "Bu görseli silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "empty": {
+        "header": "Henüz medya yok",
+        "description": "Mağaza vitrininde sergilemek için medya ekleyin."
+      },
+      "upload": {
+        "title": "Resimleri yükle",
+        "hint": "Resimleri buraya sürükleyip bırakın veya yüklemek için tıklayın."
+      },
+      "tooltips": {
+        "thumbnail": "Ana sayfada kategori küçük resmi olarak gösterilir.",
+        "banner": "Kategori listesinde kategori banner'ı olarak gösterilir."
+      },
+      "actions": {
+        "setThumbnail": "Küçük resim yap",
+        "removeThumbnail": "Küçük resmi kaldır",
+        "setBanner": "Banner yap",
+        "removeBanner": "Banner'ı kaldır"
+      },
+      "edit": {
+        "header": "Medyayı Düzenle",
+        "description": "Görselleri yükleyin ve mağaza vitrininde gösterilecek küçük resmi ve banner'ı seçin.",
+        "successToast": "Kategori medyası başarıyla güncellendi."
+      }
+    },
+    "icon": {
+      "label": "Simge",
+      "empty": {
+        "header": "Henüz simge yok",
+        "description": "Mağaza vitrininde kategori etiketinin yanında sergilemek için simge ekleyin."
+      },
+      "tip": {
+        "label": "İpucu:",
+        "text": "Bu simge mağaza vitrininde kategori etiketinin yanında görünecektir."
+      },
+      "upload": {
+        "title": "Dosya yükle",
+        "hint": "Dosyayı buraya sürükleyip bırakın veya yüklemek için tıklayın."
+      },
+      "edit": {
+        "header": "Simgeyi Düzenle",
+        "description": "Mağaza vitrininde kategori etiketinin yanında gösterilecek tek bir simge yükleyin.",
+        "successToast": "Kategori simgesi başarıyla güncellendi."
+      }
     }
   },
   "inventory": {
@@ -848,7 +1117,8 @@
       "attributes": "Öznitelikler",
       "requiresShipping": "Kargo Gerektirir",
       "requiresShippingHint": "Envanter öğesi kargo gerektiriyor mu?",
-      "successToast": "Envanter öğesi başarıyla oluşturuldu."
+      "successToast": "Envanter öğesi başarıyla oluşturuldu.",
+      "descriptionPlaceholder": "Ürün açıklaması"
     },
     "reservation": {
       "header": "{{itemName}} için Rezervasyon",
@@ -870,7 +1140,8 @@
       "deleteSuccessToast": "Rezervasyon başarıyla silindi.",
       "errors": {
         "noAvaliableQuantity": "Stok konumunda mevcut miktar yok.",
-        "quantityOutOfRange": "Minimum miktar 1 ve maksimum miktar {{max}}"
+        "quantityOutOfRange": "Minimum miktar 1 ve maksimum miktar {{max}}",
+        "idRequired": "Envanter kalemi ID'si zorunludur"
       }
     },
     "toast": {
@@ -892,7 +1163,10 @@
       "disablePrompt_other": "{{count}} konum seviyesini devre dışı bırakmak üzeresiniz. Bu işlem geri alınamaz.",
       "disabledToggleTooltip": "Devre dışı bırakılamaz: devre dışı bırakmadan önce gelen ve/veya rezerve edilmiş miktarı temizleyin.",
       "successToast": "Stok seviyeleri başarıyla güncellendi."
-    }
+    },
+    "manageLocationQuantity": "Lokasyon miktarını yönet",
+    "quantityAcrossLocations": "{{locations}} lokasyonda toplam {{quantity}}",
+    "levelDeleted": "Envanter seviyesi başarıyla silindi."
   },
   "giftCards": {
     "domain": "Hediye Kartları",
@@ -928,20 +1202,26 @@
       "removeMany": "Müşteriyi aşağıdaki müşteri gruplarından kaldırmak istediğinizden emin misiniz: {{groups}}?",
       "alreadyAddedTooltip": "Müşteri zaten bu müşteri grubunda.",
       "list": {
-        "noRecordsMessage": "Bu müşteri herhangi bir gruba ait değil."
+        "noRecordsMessage": "Bu müşteri herhangi bir gruba ait değil.",
+        "emptyTitle": "Müşteri grubu bulunamadı"
       },
       "add": {
         "success": "Müşteri eklendi: {{groups}}.",
         "list": {
           "noRecordsMessage": "Lütfen önce bir müşteri grubu oluşturun."
-        }
+        },
+        "successOne": "Müşteri {{groups}} gruba başarıyla eklendi.",
+        "successMany": "Müşteri {{groups}} gruba başarıyla eklendi."
       },
       "removed": {
         "success": "Müşteri çıkarıldı: {{groups}}.",
         "list": {
           "noRecordsMessage": "Lütfen önce bir müşteri grubu oluşturun."
-        }
-      }
+        },
+        "successOne": "Müşteri {{groups}} gruptan başarıyla çıkarıldı.",
+        "successMany": "Müşteri {{groups}} gruptan başarıyla çıkarıldı."
+      },
+      "removeTitle": "Müşteriyi kaldır"
     },
     "edit": {
       "header": "Müşteriyi Düzenle",
@@ -960,7 +1240,43 @@
     },
     "registered": "Kayıtlı",
     "guest": "Misafir",
-    "hasAccount": "Hesabı var"
+    "hasAccount": "Hesabı var",
+    "addresses": {
+      "title": "Adresler",
+      "emptyTitle": "Henüz adres yok",
+      "emptyMessage": "Bu müşterinin herhangi bir adresi yok",
+      "fields": {
+        "addressName": "Adres adı",
+        "address1": "Adres 1",
+        "address2": "Adres 2",
+        "city": "Şehir",
+        "province": "İl",
+        "postalCode": "Posta kodu",
+        "country": "Ülke",
+        "phone": "Telefon",
+        "company": "Şirket",
+        "countryCode": "Ülke kodu",
+        "provinceCode": "İl/eyalet kodu"
+      },
+      "create": {
+        "header": "Adres Oluştur",
+        "hint": "Müşteri için yeni bir adres oluşturun.",
+        "successToast": "Adres başarıyla oluşturuldu."
+      },
+      "edit": {
+        "header": "Adresi Düzenle",
+        "hint": "Müşterinin adresini düzenleyin.",
+        "successToast": "Adres başarıyla güncellendi."
+      },
+      "delete": {
+        "successToast": "Adres başarıyla silindi."
+      },
+      "validation": {
+        "addressNameRequired": "Lütfen bir adres adı girin",
+        "addressRequired": "Lütfen bir adres girin",
+        "countryRequired": "Lütfen bir ülke seçin"
+      }
+    }
   },
   "customerGroups": {
     "domain": "Müşteri Grupları",
@@ -1017,7 +1333,9 @@
     "cancelWarning": "{{id}} numaralı siparişi iptal etmek üzeresiniz. Bu işlem geri alınamaz.",
     "onDateFromSalesChannel": "{{date}} tarihinde {{salesChannel}} üzerinden",
     "list": {
-      "noRecordsMessage": "Siparişleriniz burada görünecektir."
+      "noRecordsMessage": "Siparişleriniz burada görünecektir.",
+      "expandAll": "Tüm satırları genişlet",
+      "collapseAll": "Tüm satırları daralt"
     },
     "summary": {
       "requestReturn": "İade talebi",
@@ -1032,7 +1350,8 @@
       "itemSubtotal": "Ürün Ara Toplamı",
       "shippingSubtotal": "Kargo Ara Toplamı",
       "discountSubtotal": "İndirim Ara Toplamı",
-      "taxTotal": "Vergi Toplamı"
+      "taxTotal": "Vergi Toplamı",
+      "totalAfterDiscount": "İndirim Sonrası Toplam"
     },
     "transfer": {
       "title": "Mülkiyeti Devret",
@@ -1073,7 +1392,9 @@
       "createRefundWrongQuantity": "Miktar 1 ile {{number}} arasında bir sayı olmalıdır",
       "refundAmount": "{{ amount }} tutarını iade et",
       "paymentLink": "{{ amount }} için ödeme bağlantısını kopyala",
-      "selectPaymentToRefund": "İade edilecek ödemeyi seçin"
+      "selectPaymentToRefund": "İade edilecek ödemeyi seçin",
+      "totalPending": "Bekleyen toplam",
+      "totalStoreCreditRefunds": "Toplam mağaza kredisi iadesi"
     },
     "edits": {
       "title": "Siparişi düzenle",
@@ -1103,7 +1424,8 @@
       },
       "validation": {
         "quantityLowerThanFulfillment": "Miktar, tamamlanan miktardan daha az veya eşit olamaz"
-      }
+      },
+      "duplicateItemErrorToast": "Ürün kopyalanamaz: varyant ID'si eksik"
     },
     "returns": {
       "create": "İade Oluştur",
@@ -1173,7 +1495,9 @@
       "panel": {
         "title": "İade başlatıldı",
         "description": "Tamamlanması gereken açık bir iade talebi var"
-      }
+      },
+      "restockPreview": "{{location}} konumundaki {{inventoryItem}} için {{quantity}} × {{offerSku}} teslim alınıyor → +{{delta}}",
+      "estDifference": "Tahmini fark"
     },
     "claims": {
       "create": "Talep Oluştur",
@@ -1255,7 +1579,8 @@
       "consistsOf": "{{num}}x envanter öğesinden oluşur",
       "requires": "Her bir varyant için {{num}} gerektirir",
       "toast": {
-        "created": "Ürünler başarıyla tahsis edildi"
+        "created": "Ürünler başarıyla tahsis edildi",
+        "error": "Şu ürünler tahsis edilemedi: {{items}}"
       },
       "error": {
         "quantityNotAllocated": "Tahsis edilmemiş ürünler var."
@@ -1307,19 +1632,25 @@
         "partiallyReturned": "Kısmen iade edildi",
         "returned": "İade edildi",
         "canceled": "İptal edildi",
-        "requiresAction": "Eylem gerekli"
+        "requiresAction": "Eylem gerekli",
+        "awaitingPickup": "Teslim alınması bekleniyor",
+        "awaitingShipping": "Kargoya verilmesi bekleniyor",
+        "awaitingDelivery": "Teslimat bekleniyor"
       },
       "toast": {
         "created": "Tamamlama başarıyla oluşturuldu",
         "canceled": "Tamamlama başarıyla iptal edildi",
         "fulfillmentShipped": "Gönderilmiş bir tamamlamayı iptal edemezsiniz",
-        "fulfillmentDelivered": "Tamamlama başarıyla teslim edildi olarak işaretlendi"
+        "fulfillmentDelivered": "Tamamlama başarıyla teslim edildi olarak işaretlendi",
+        "fulfillmentPickedUp": "Sipariş karşılama başarıyla teslim alındı olarak işaretlendi"
       },
       "trackingLabel": "Takip",
       "shippingFromLabel": "Gönderen",
       "itemsLabel": "Ürünler",
       "differentOptionSelected": "Seçilen kargo seçeneği müşterinin seçtiğinden farklı.",
-      "disabledItemTooltip": "Seçtiğiniz kargo seçeneği bu ürünün tamamlanmasına izin vermiyor"
+      "disabledItemTooltip": "Seçtiğiniz kargo seçeneği bu ürünün tamamlanmasına izin vermiyor",
+      "markAsPickedUp": "Teslim alındı olarak işaretle",
+      "labelLink": "Etiket"
     },
     "refund": {
       "title": "İade Oluştur",
@@ -1419,7 +1750,12 @@
     "fields": {
       "displayId": "Görüntüleme Kimliği",
       "refundableAmount": "İade edilebilir tutar",
-      "returnableQuantity": "İade edilebilir miktar"
+      "returnableQuantity": "İade edilebilir miktar",
+      "groupId": "Grup ID",
+      "orderIds": "Sipariş ID",
+      "vendor": "Mağaza",
+      "vendorsCount_one": "{{count}} mağaza",
+      "vendorsCount_other": "{{count}} mağaza"
     },
     "orderCanceled": "Sipariş başarıyla iptal edildi",
     "status": {
@@ -1452,6 +1788,41 @@
           "countryRequired": "Lütfen bir ülke seçin"
         }
       }
+    },
+    "group": {
+      "heading": "Gruptaki siparişler",
+      "noOtherOrders": "Bu grupta başka sipariş yok"
+    },
+    "commission": {
+      "total": "Toplam"
+    },
+    "giftCardsStoreCreditLines": "Hediye kartları ve kredi hatları",
+    "creditLines": {
+      "title": "Kredi hatları",
+      "total": "Tüm kredi hatlarının toplamı",
+      "creditOrDebit": "Alacak / Borç",
+      "createCreditLine": "Kredi hattı oluştur",
+      "createCreditLineSuccess": "Kredi hattı başarıyla oluşturuldu",
+      "createCreditLineError": "Kredi hattı oluşturulurken hata oluştu",
+      "createCreditLineDescription": "{{amount}} tutarında bir kredi hattı oluşturun",
+      "operation": "İşlem",
+      "credit": "Alacak",
+      "creditDescription": "Siparişe pozitif bir tutar ekler",
+      "debit": "Borç",
+      "debitDescription": "Siparişten negatif bir tutar çıkarır"
+    },
+    "balanceSettlement": {
+      "title": "Bakiye mahsuplaşması",
+      "settlementType": "Mahsuplaşma türü",
+      "settlementTypes": {
+        "paymentMethod": "Ödeme yöntemi",
+        "paymentMethodDescription": "Tutarı ödeme yöntemine iade et",
+        "creditLine": "Mağaza kredisi",
+        "creditLineDescription": "Tutarı mağaza kredisi olarak iade et"
+      }
+    },
+    "actions": {
+      "cancelDisabledFulfilled": "Tamamlanmış ürünleri olan bir sipariş iptal edilemez."
     }
   },
   "draftOrders": {
@@ -1500,7 +1871,10 @@
   "stockLocations": {
     "domain": "Konumlar ve teslimat",
     "list": {
-      "description": "Mağazanızın stok konumlarını ve teslimat seçeneklerini yönetin."
+      "description": "Mağazanızın stok konumlarını ve teslimat seçeneklerini yönetin.",
+      "noRecordsMessage": "Kayıt Yok",
+      "noRecordsMessageEmpty": "Hiçbir konum bulunamadı",
+      "noRecordsMessageFiltered": "Filtrelerle eşleşen lokasyon bulunamadı"
     },
     "create": {
       "header": "Stok Konumu Oluştur",
@@ -1513,7 +1887,8 @@
       "successToast": "Konum {{name}} başarıyla güncellendi."
     },
     "delete": {
-      "confirmation": "Stok konumu {{name}} silinmek üzere. Bu işlem geri alınamaz."
+      "confirmation": "Stok konumu {{name}} silinmek üzere. Bu işlem geri alınamaz.",
+      "successToast": "\"{{name}}\" lokasyonu başarıyla silindi."
     },
     "fulfillmentProviders": {
       "header": "Tamamlama Sağlayıcıları",
@@ -1546,6 +1921,10 @@
       "shippingProfiles": {
         "label": "Teslimat Profilleri",
         "description": "Ürünleri teslimat gereksinimlerine göre gruplayın"
+      },
+      "shippingOptionTypes": {
+        "label": "Kargo Seçeneği Türleri",
+        "description": "Kargo seçeneklerini türlere göre grupla"
       }
     },
     "salesChannels": {
@@ -1554,7 +1933,8 @@
       "connectedTo": "{{total}} satış kanalından {{count}}'ine bağlı",
       "noChannels": "Konum hiçbir satış kanalına bağlı değil.",
       "action": "Satış kanallarını bağla",
-      "successToast": "Satış kanalları başarıyla güncellendi."
+      "successToast": "Satış kanalları başarıyla güncellendi.",
+      "hint": "Bu lokasyona bağlı satış kanallarını yönetin."
     },
     "shippingOptions": {
       "conditionalPrices": {
@@ -1609,7 +1989,13 @@
           "details": "Detaylar",
           "prices": "Fiyatlar"
         },
-        "action": "Seçenek oluştur"
+        "action": "Seçenek oluştur",
+        "pickup": {
+          "header": "{{zone}} için Teslim Alma Seçeneği Oluştur",
+          "hint": "Ürünlerin bu lokasyondan nasıl teslim alınacağını tanımlamak için yeni bir teslim alma seçeneği oluşturun.",
+          "label": "Teslim alma seçenekleri",
+          "successToast": "{{name}} teslim alma seçeneği başarıyla oluşturuldu."
+        }
       },
       "delete": {
         "confirmation": "Kargo seçeneği {{name}} silinmek üzere. Bu işlem geri alınamaz.",
@@ -1628,7 +2014,9 @@
           "shipping_one": "{{count}} kargo seçeneği",
           "shipping_other": "{{count}} kargo seçeneği",
           "returns_one": "{{count}} iade seçeneği",
-          "returns_other": "{{count}} iade seçeneği"
+          "returns_other": "{{count}} iade seçeneği",
+          "pickup_one": "{{count}} teslim alma seçeneği",
+          "pickup_other": "{{count}} teslim alma seçeneği"
         },
         "priceType": {
           "label": "Fiyat türü",
@@ -1649,7 +2037,8 @@
         },
         "provider": "Tamamlama sağlayıcısı",
         "profile": "Kargo profili",
-        "fulfillmentOption": "Tamamlama seçeneği"
+        "fulfillmentOption": "Tamamlama seçeneği",
+        "type": "Kargo seçeneği türü"
       }
     },
     "serviceZones": {
@@ -1677,6 +2066,11 @@
       "fields": {
         "noRecords": "Ekleyebileceğiniz teslimat seçeneklerine sahip hizmet bölgeleri yok.",
         "tip": "Bir hizmet bölgesi, coğrafi bölgeler veya alanlardan oluşur. Bu, belirli konumlara sunulabilir teslimat seçeneklerini sınırlamak için kullanılır."
+      }
+    },
+    "pickupOptions": {
+      "edit": {
+        "header": "Teslim Alma Seçeneğini Düzenle"
       }
     }
   },
@@ -1711,7 +2105,9 @@
       "hint": "Belirli bir ülke için vergi oranlarını tanımlamak üzere yeni bir vergi bölgesi oluşturun.",
       "errors": {
         "rateIsRequired": "Varsayılan bir vergi oranı oluştururken vergi oranı gereklidir.",
-        "nameIsRequired": "Varsayılan bir vergi oranı oluştururken isim gereklidir."
+        "nameIsRequired": "Varsayılan bir vergi oranı oluştururken isim gereklidir.",
+        "missingProvider": "Vergi bölgesi oluştururken sağlayıcı zorunludur.",
+        "missingCountry": "Vergi bölgesi oluştururken ülke zorunludur."
       },
       "successToast": "Vergi bölgesi başarıyla oluşturuldu."
     },
@@ -1855,7 +2251,8 @@
           "productCollection": "Ürün koleksiyonları",
           "productTag": "Ürün etiketleri",
           "productType": "Ürün türleri",
-          "customerGroup": "Müşteri grupları"
+          "customerGroup": "Müşteri grupları",
+          "shippingOption": "Kargo seçenekleri"
         },
         "operators": {
           "in": "içinde",
@@ -1867,14 +2264,16 @@
           "productCollection": "Ürün koleksiyonlarını ara",
           "productTag": "Ürün etiketlerini ara",
           "productType": "Ürün türlerini ara",
-          "customerGroup": "Müşteri gruplarını ara"
+          "customerGroup": "Müşteri gruplarını ara",
+          "shippingOption": "Kargo seçeneklerini ara"
         },
         "tags": {
           "product": "Ürün",
           "productCollection": "Ürün koleksiyonu",
           "productTag": "Ürün etiketi",
           "productType": "Ürün türü",
-          "customerGroup": "Müşteri grubu"
+          "customerGroup": "Müşteri grubu",
+          "shippingOption": "teslimat seçeneği"
         },
         "modal": {
           "header": "Hedef ekle"
@@ -1930,7 +2329,16 @@
       "noDefaultRate": {
         "label": "Varsayılan oran yok",
         "tooltip": "Bu vergi bölgesinde varsayılan bir vergi oranı bulunmuyor. Örneğin, bir ülkenin standart KDV'si gibi bir oran varsa, lütfen bu bölgeye ekleyin."
-      }
+      },
+      "taxProvider": "Vergi sağlayıcı"
+    },
+    "edit": {
+      "header": "Vergi Bölgesini Düzenle",
+      "hint": "Vergi bölgesi detaylarını düzenleyin.",
+      "successToast": "Vergi bölgesi başarıyla güncellendi."
+    },
+    "provider": {
+      "header": "Vergi Sağlayıcısı"
     }
   },
   "promotions": {
@@ -1988,13 +2396,26 @@
         },
         "target-rules": {
           "title": "Promosyon hangi ürünlere uygulanacak?",
-          "description": "Promosyon, aşağıdaki koşulları karşılayan ürünlere uygulanacaktır."
+          "description": "Promosyon, aşağıdaki koşulları karşılayan ürünlere uygulanacaktır.",
+          "order": {
+            "title": "Promosyon hangi ürünlere uygulanacak?",
+            "description": "Promosyon, aşağıdaki koşulları karşılayan ürünlere uygulanacaktır."
+          },
+          "shipping_methods": {
+            "title": "Promosyon hangi kargo yöntemlerine uygulanacak?",
+            "description": "Promosyon, aşağıdaki koşullarla eşleşen kargo yöntemlerine uygulanacaktır."
+          },
+          "items": {
+            "title": "Promosyon hangi ürünlere uygulanacak?",
+            "description": "Promosyon, aşağıdaki koşulları karşılayan ürünlere uygulanacaktır."
+          }
         },
         "buy-rules": {
           "title": "Promosyonu açmak için sepette ne olmalı?",
           "description": "Bu koşullar sağlandığında, hedef ürünlerde promosyon etkinleştirilir."
         }
-      }
+      },
+      "taxInclusive": "Vergi Dahil"
     },
     "tooltips": {
       "campaignType": "Bir harcama bütçesi belirlemek için promosyonda para birimi kodu seçilmelidir."
@@ -2043,7 +2464,8 @@
           "placeholder": {
             "title": "Mevcut kampanya yok",
             "desc": "Birden fazla promosyonu izlemek ve bütçe sınırları belirlemek için bir tane oluşturabilirsiniz."
-          }
+          },
+          "currencyHint": "Bütçe para birimi olan kampanyalar devre dışıdır çünkü bu promosyonda para birimi ayarlanmamış. Önce promosyona bir para birimi ayarlayın."
         },
         "new": {
           "title": "Yeni Kampanya",
@@ -2098,7 +2520,8 @@
         "description": "Müşterilerinizin ödeme sırasında gireceği kod."
       },
       "value": {
-        "title": "Promosyon Değeri"
+        "title": "Promosyon Değeri",
+        "invalid": "Geçersiz promosyon değeri"
       },
       "value_type": {
         "fixed": {
@@ -2124,6 +2547,11 @@
           "title": "Pasif",
           "description": "Promosyon devre dışı bırakıldı."
         }
+      },
+      "selectOperator": "Operatör Seç",
+      "taxInclusive": {
+        "title": "Promosyon vergileri kapsıyor mu?",
+        "description": "Promosyonu vergilerden sonra uygulamak için bu alanı etkinleştirin"
       }
     },
     "deleteWarning": "Promosyon {{code}}'u silmek üzeresiniz. Bu işlem geri alınamaz.",
@@ -2134,6 +2562,11 @@
       "list": {
         "noRecordsMessage": "Promosyonun uygulanacağı ürünleri kısıtlamak için bir şart ekleyin."
       }
+    },
+    "campaignSection": {
+      "noRecordsTitle": "Bir kampanyanın parçası değil",
+      "noRecordsMessage": "Bu promosyonu mevcut bir kampanyaya ekleyin",
+      "addToCampaign": "Kampanyaya Ekle"
     }
   },
   "campaigns": {
@@ -2179,7 +2612,8 @@
       "budget_limit": "Bütçe limiti",
       "campaign_id": {
         "hint": "Sadece promosyon ile aynı para birimine sahip kampanyalar bu listede gösterilir."
-      }
+      },
+      "totalUsedByAttribute": "Toplam kullanılan"
     },
     "budget": {
       "create": {
@@ -2191,7 +2625,10 @@
         "type": "Tür",
         "currency": "Para birimi",
         "limit": "Limit",
-        "used": "Kullanıldı"
+        "used": "Kullanıldı",
+        "budgetAttribute": "Şuna göre kullanımı sınırla",
+        "budgetAttributeTooltip": "Promosyonun belirli bir müşteri veya e-posta tarafından kaç kez kullanılabileceğini tanımlayın.",
+        "totalUsedByAttribute": "Şuna göre bütçe limiti: {{attribute}}"
       },
       "type": {
         "spend": {
@@ -2201,6 +2638,10 @@
         "usage": {
           "title": "Kullanım",
           "description": "Promosyonun kaç kez kullanılabileceğine bir sınır koyun."
+        },
+        "useByAttribute": {
+          "title": "Özelliğe göre kullanım (müşteri id'si, e-posta vb.)",
+          "description": "Promosyonun belirli bir özellik değeri tarafından kaç kez kullanılabileceğine bir sınır koyun."
         }
       },
       "edit": {
@@ -2278,7 +2719,9 @@
         "successToast_other": "{{count}} ürün için fiyatlar başarıyla silindi."
       },
       "add": {
-        "successToast": "Fiyatlar başarıyla fiyat listesine eklendi."
+        "successToast": "Fiyatlar başarıyla fiyat listesine eklendi.",
+        "alreadyInPriceList": "Bu ürün zaten fiyat listesinde",
+        "noVariants": "Bu ürünün varyantı yok"
       },
       "edit": {
         "successToast": "Fiyatlar başarıyla güncellendi."
@@ -2367,7 +2810,12 @@
     "roles": {
       "admin": "Yönetici",
       "developer": "Geliştirici",
-      "member": "Üye"
+      "member": "Üye",
+      "administration": "Mağaza Yönetimi",
+      "inventoryManagement": "Envanter Yönetimi",
+      "orderManagement": "Sipariş Yönetimi",
+      "accounting": "Muhasebe",
+      "support": "Destek"
     },
     "deleteUserWarning": "{{name}} kullanıcısını silmek üzeresiniz. Bu işlem geri alınamaz.",
     "invite": "Davet Et",
@@ -2381,7 +2829,11 @@
         "description": "Hiçbir kullanıcı mevcut filtre kriterlerine uymuyor."
       }
     },
-    "deleteUserSuccess": "Kullanıcı {{name}} başarıyla silindi"
+    "deleteUserSuccess": "Kullanıcı {{name}} başarıyla silindi",
+    "status": {
+      "active": "Aktif",
+      "pending": "Beklemede"
+    }
   },
   "store": {
     "scheduledClosure": {
@@ -2415,7 +2867,93 @@
       "updatedTaxInclusivitySuccessfully": "Vergi dahil fiyatlandırma başarıyla güncellendi"
     },
     "defaultSalesChannel": "Varsayılan satış kanalı",
-    "defaultLocation": "Varsayılan konum"
+    "defaultLocation": "Varsayılan konum",
+    "logo": "Logo",
+    "banner": "Banner",
+    "address": {
+      "header": "Adres",
+      "defaultName": "Merkez Ofis",
+      "nameLabel": "Ad",
+      "apartmentLabel": "Daire, apartman vb.",
+      "empty": {
+        "title": "Adres yok",
+        "message": "Gösterilecek kayıt yok"
+      },
+      "edit": {
+        "header": "Adresi Düzenle",
+        "description": "Bu mağazanın adresini güncelleyin.",
+        "successToast": "Adres başarıyla güncellendi."
+      },
+      "validation": {
+        "nameRequired": "Lütfen bir ad girin",
+        "countryRequired": "Lütfen bir ülke seçin"
+      }
+    },
+    "paymentDetails": {
+      "header": "Ödeme Detayları",
+      "empty": {
+        "title": "Ödeme detayı yok",
+        "message": "Gösterilecek kayıt yok"
+      },
+      "edit": {
+        "header": "Ödeme Detaylarını Düzenle",
+        "description": "Bu mağazanın ödeme detaylarını güncelleyin.",
+        "successToast": "Ödeme detayları başarıyla güncellendi."
+      },
+      "fields": {
+        "countryCode": "Ülke",
+        "holderName": "Hesap adı",
+        "bankName": "Banka adı",
+        "iban": "IBAN",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
+        "routingNumber": "Routing numarası",
+        "achRoutingNumber": "ACH routing numarası",
+        "accountNumber": "Hesap numarası"
+      },
+      "validation": {
+        "countryRequired": "Lütfen bir ülke seçin",
+        "accountNameRequired": "Lütfen bir hesap adı girin"
+      }
+    },
+    "professionalDetails": {
+      "header": "Şirket Detayları",
+      "empty": {
+        "title": "Şirket detayı yok",
+        "message": "Gösterilecek kayıt yok"
+      },
+      "edit": {
+        "header": "Şirket Detaylarını Düzenle",
+        "description": "Bu mağazanın şirket detaylarını güncelleyin.",
+        "successToast": "Şirket detayları başarıyla güncellendi."
+      },
+      "fields": {
+        "corporateName": "Şirket",
+        "registrationNumber": "Sicil numarası",
+        "taxId": "Vergi Kimlik No"
+      }
+    },
+    "timeOff": {
+      "header": "İzin",
+      "empty": {
+        "title": "Henüz izin yok",
+        "message": "Bu mağazanın planlanmış izni yok",
+        "action": "Oluştur"
+      }
+    },
+    "scheduledClosure": {
+      "header": "Planlanmış Kapanış",
+      "edit": {
+        "header": "Mağaza Kapanışı Planla",
+        "description": "Bu mağaza için planlanmış kapanış tarihlerini yapılandırın.",
+        "successToast": "Planlanmış kapanış güncellendi"
+      },
+      "fields": {
+        "closedFrom": "Kapanış başlangıcı",
+        "closedTo": "Kapanış bitişi",
+        "closedToHint": "Boş bırakılırsa, mağaza süresiz olarak kapalı kalacaktır."
+      }
+    }
   },
   "regions": {
     "domain": "Bölgeler",
@@ -2569,6 +3107,16 @@
     },
     "tooltip": {
       "cannotDeleteDefault": "Varsayılan satış kanalı silinemez"
+    },
+    "list": {
+      "empty": {
+        "heading": "Satış kanalı bulunamadı",
+        "description": "Bir satış kanalı oluşturulduğunda burada görünecektir."
+      },
+      "filtered": {
+        "heading": "Sonuç Yok",
+        "description": "Mevcut filtre kriterleriyle eşleşen satış kanalı yok."
+      }
     }
   },
   "apiKeyManagement": {
@@ -2648,7 +3196,8 @@
       "lastUsedAtLabel": "Son kullanıldığı zaman",
       "revokedByLabel": "İptal eden",
       "revokedAtLabel": "İptal zamanı",
-      "createdByLabel": "Oluşturan"
+      "createdByLabel": "Oluşturan",
+      "tokenLabel": "Token"
     }
   },
   "returnReasons": {
@@ -2690,7 +3239,8 @@
   "login": {
     "forgotPassword": "Şifrenizi mi unuttunuz? - <0>Sıfırla</0>",
     "title": "Medusa'ya Hoş Geldiniz",
-    "hint": "Hesap alanına erişmek için oturum açın"
+    "hint": "Hesap alanına erişmek için oturum açın",
+    "sessionExpired": "Oturum süresi doldu"
   },
   "invite": {
     "title": "Medusa'ya Hoş Geldiniz",
@@ -2852,7 +3402,10 @@
     "from": "Kimden",
     "to": "Kime",
     "beaware": "Dikkat",
-    "loading": "Yükleniyor"
+    "loading": "Yükleniyor",
+    "updated": "Güncellenme",
+    "selectValue": "Değer Seç",
+    "selectValues": "Değerleri Seç"
   },
   "fields": {
     "amount": "Miktar",
@@ -3010,7 +3563,44 @@
     "endDate": "Bitiş Tarihi",
     "draft": "Taslak",
     "values": "Değerler",
-    "by": "Tarafından"
+    "by": "Tarafından",
+    "yes": "Evet",
+    "no": "Hayır",
+    "commission": "Komisyon",
+    "reference": "Referans",
+    "reference_id": "Referans ID",
+    "owner": "Sahip",
+    "selectPlaceholder": "Seç",
+    "enabledInStore": "Mağazada etkin",
+    "isReturn": "İade mi",
+    "store": "Mağaza",
+    "promotionCode": "Promosyon Kodu",
+    "serviceZone": "Hizmet Bölgesi",
+    "website": "Web Sitesi",
+    "premium": "Öne Çıkan Mağaza",
+    "professional": "Profesyonel",
+    "creditTotal": "Kredi Hatları Toplamı",
+    "is_giftcard": "Hediye kartı",
+    "origin_country": "Menşe Ülke",
+    "hs_code": "HS kodu",
+    "mid_code": "MID kodu",
+    "external_id": "Harici ID",
+    "is_restricted": "Kısıtlı",
+    "tag_ids": "Etiketler",
+    "category_ids": "Kategoriler",
+    "allow_backorder": "Ön siparişe izin ver",
+    "manage_inventory": "Envanteri yönet",
+    "variant_rank": "Varyant sırası",
+    "attribute_values": "Özellik değerleri",
+    "isbn": "ISBN",
+    "asin": "ASIN",
+    "gtin": "GTIN",
+    "inventory_quantity": "Envanter miktarı",
+    "requires_shipping": "Kargo Gerektirir",
+    "variant_attributes": "Varyant özellikleri",
+    "product_attributes": "Ürün özellikleri",
+    "type_id": "Tür",
+    "collection_id": "Koleksiyon"
   },
   "dateTime": {
     "years_one": "Yıl",
@@ -3027,5 +3617,609 @@
     "minutes_other": "Dakikalar",
     "seconds_one": "Saniye",
     "seconds_other": "Saniyeler"
+  },
+  "payouts": {
+    "domain": "Ödemeler",
+    "list": {
+      "empty": "Ödeme bulunamadı"
+    },
+    "status": {
+      "paid": "Ödendi",
+      "processing": "İşleniyor",
+      "pending": "Beklemede",
+      "failed": "Başarısız",
+      "canceled": "İptal edildi"
+    }
+  },
+  "marketplace": {
+    "domain": "Pazar Yeri",
+    "manageMarketplaceDetails": "Pazar yerinizin detaylarını yönetin",
+    "edit": {
+      "header": "Pazar Yerini Düzenle",
+      "namePlaceholder": "ACME"
+    }
+  },
+  "attributes": {
+    "domain": "Ürün Özellikleri",
+    "subtitle": "Ürün özelliklerini ve olası değerlerini yönetin.",
+    "editRanking": {
+      "successToast": "Sıralama başarıyla güncellendi."
+    },
+    "possibleValues": {
+      "editRanking": "Sıralamayı Düzenle",
+      "noRecordsTitle": "Oluşturulmuş değer yok",
+      "noRecordsMessage": "Ürünlerinizi düzenlemek için özellik oluşturun"
+    },
+    "list": {
+      "title": "Ürün Özellikleri",
+      "noRecordsMessage": "Henüz hiç ürün özelliği oluşturulmadı."
+    },
+    "create": {
+      "header": "Özellik Oluştur",
+      "subtitle": "Yeni bir ürün özelliği tanımlayın.",
+      "tabs": {
+        "details": "Detaylar",
+        "type": "Tür"
+      },
+      "titleRequired": "Lütfen bir başlık girin",
+      "possibleValuesRequired": "Lütfen en az bir değer ekleyin",
+      "categoriesRequired": "Lütfen en az bir kategori seçin",
+      "successToast": "\"{{name}}\" özelliği başarıyla oluşturuldu."
+    },
+    "edit": {
+      "header": "Özelliği Düzenle",
+      "subtitle": "Özellik detaylarını güncelleyin.",
+      "successToast": "\"{{name}}\" özelliği başarıyla güncellendi."
+    },
+    "editPossibleValue": {
+      "header": "Olası Değeri Düzenle",
+      "subtitle": "Olası değer detaylarını güncelleyin.",
+      "successToast": "\"{{value}}\" olası değeri başarıyla güncellendi."
+    },
+    "createPossibleValues": {
+      "header": "Değerler oluştur",
+      "subtitle": "\"{{name}}\" özelliğine ek değerler oluşturun.",
+      "tabs": {
+        "values": "Değerler",
+        "organizeRanking": "Sıralamayı Düzenle"
+      },
+      "addValue": "Değer ekle",
+      "enterValue": "Değer girin",
+      "successToast": "Değerler başarıyla oluşturuldu."
+    },
+    "deletePossibleValue": {
+      "title": "Değeri sil",
+      "confirmation": "\"{{value}}\" olası değerini silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "successToast": "\"{{value}}\" olası değeri başarıyla silindi.",
+      "inUseMessage": "{{value}} değeri, bir veya daha fazla satıcı tarafından ürün varyantlarında kullanıldığı için silinemiyor. Düzenlemek için önce satıcılardan ürünlerini güncellemelerini isteyin."
+    },
+    "delete": {
+      "title": "Özelliği sil",
+      "confirmation": "\"{{name}}\" özelliğini silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "successToast": "\"{{name}}\" özelliği başarıyla silindi.",
+      "inUseMessage": "{{name}} özelliği, bir veya daha fazla satıcı tarafından ürün varyantlarında kullanıldığı için silinemiyor. Silmek için önce satıcılardan ürünlerini güncellemelerini isteyin.",
+      "gotIt": "Anladım"
+    },
+    "fields": {
+      "name": "Ad",
+      "handle": "Tutamak",
+      "description": "Açıklama",
+      "type": "Tür",
+      "filterable": "Filtrelenebilir",
+      "required": "Zorunlu",
+      "global": "Genel",
+      "category": "Kategori",
+      "categories": "Kategoriler",
+      "productAttribute": "Ürün Özelliği",
+      "values": "Değerler",
+      "possibleValues": "Olası değerler",
+      "value": "Değer",
+      "variantAxis": "Varyantlar için kullan",
+      "rank": "Sıra",
+      "metadata": "Meta Veriler",
+      "isRequired": "Zorunlu özellik",
+      "isRequiredHint": "İşaretlenirse, bu özelliğe bir değer atanmalıdır.",
+      "isFilterable": "Filtrelenebilir özellik",
+      "isFilterableHint": "İşaretlenirse, müşteriler bu özelliği kullanarak ürünleri filtreleyebilir.",
+      "isGlobal": "Genel özellik",
+      "isGlobalHint": "İşaretlenirse, bu özellik tüm kategorilerdeki tüm ürünler için geçerlidir.",
+      "isVariantAxis": "Use for Variations",
+      "isVariantAxisHint": "İşaretlenirse, bu özellik ürün varyantlarını tanımlayacaktır (ör. beden, renk)."
+    },
+    "type": {
+      "select": "Tekli Seçim",
+      "multivalue": "Çoklu Seçim",
+      "unit": "Birim",
+      "toggle": "Anahtar",
+      "text_area": "Metin Alanı"
+    },
+    "selectCategory": {
+      "title": "Kategori seç",
+      "description": "Lütfen bu özelliğin uygulandığı kategoriyi seçin.",
+      "placeholder": "Kategori seç"
+    },
+    "hints": {
+      "global": "Etkinleştirildiğinde, bu özellik kategoriden bağımsız olarak tüm ürünler için geçerlidir.",
+      "categoryInheritance": "Alt kategoriler bu özelliği devralacaktır."
+    }
+  },
+  "refundReasons": {
+    "domain": "İade Nedenleri",
+    "subtitle": "İade verme nedenlerini yönetin.",
+    "calloutHint": "İadeleri kategorize etmek için nedenleri yönetin.",
+    "editReason": "İade Nedenini Düzenle",
+    "create": {
+      "header": "İade Nedeni Ekle",
+      "subtitle": "İadeler için en yaygın nedenleri belirtin.",
+      "hint": "İadeleri kategorize etmek için yeni bir iade nedeni oluşturun.",
+      "successToast": "{{label}} iade nedeni başarıyla oluşturuldu."
+    },
+    "edit": {
+      "header": "İade Nedenini Düzenle",
+      "subtitle": "İade nedeninin değerini düzenleyin.",
+      "successToast": "{{label}} iade nedeni başarıyla güncellendi."
+    },
+    "delete": {
+      "confirmation": "\"{{label}}\" iade nedenini silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "successToast": "İade nedeni başarıyla silindi."
+    },
+    "fields": {
+      "label": {
+        "label": "Etiket",
+        "placeholder": "İyi niyet jesti"
+      },
+      "code": {
+        "label": "Kod",
+        "placeholder": "iyi_niyet_jesti"
+      },
+      "description": {
+        "label": "Açıklama",
+        "placeholder": "Müşteri kötü bir alışveriş deneyimi yaşadı"
+      }
+    }
+  },
+  "shippingOptionTypes": {
+    "domain": "Kargo Seçeneği Türleri",
+    "subtitle": "Kargo seçeneklerinizi türlere göre düzenleyin.",
+    "create": {
+      "header": "Kargo Seçeneği Türü Oluştur",
+      "hint": "Kargo seçeneklerinizi kategorize etmek için yeni bir kargo seçeneği türü oluşturun.",
+      "successToast": "{{label}} kargo seçeneği türü başarıyla oluşturuldu."
+    },
+    "edit": {
+      "header": "Kargo Seçeneği Türünü Düzenle",
+      "successToast": "{{label}} kargo seçeneği türü başarıyla güncellendi."
+    },
+    "delete": {
+      "confirmation": "\"{{label}}\" kargo seçeneği türünü silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "successToast": "\"{{label}}\" kargo seçeneği türü başarıyla silindi."
+    },
+    "fields": {
+      "label": "Etiket",
+      "code": "Kod",
+      "description": "Açıklama"
+    }
+  },
+  "views": {
+    "save": "Kaydet",
+    "saveAsNew": "Yeni görünüm olarak kaydet",
+    "saveAsSystemDefault": "Sistem varsayılanı olarak kaydet",
+    "updateDefaultForEveryone": "Herkes için varsayılanı güncelle",
+    "updateViewName": "Görünümü güncelle",
+    "updateNamed": "\"{{name}}\" güncelle",
+    "prompts": {
+      "updateDefault": {
+        "title": "Varsayılan görünümü güncelle",
+        "description": "Bu işlem tüm kullanıcılar için varsayılan görünümü güncelleyecek. Emin misiniz?",
+        "confirmText": "Herkes için güncelle",
+        "cancelText": "İptal"
+      },
+      "updateView": {
+        "title": "Görünümü güncelle",
+        "description": "\"{{name}}\" öğesini güncellemek istediğinizden emin misiniz?",
+        "confirmText": "Güncelle",
+        "cancelText": "İptal"
+      },
+      "saveAsDefault": {
+        "title": "Sistem varsayılanı olarak kaydet",
+        "description": "Bu işlem mevcut yapılandırmayı sistem varsayılanı olarak kaydedecek. Kendi kişisel görünümleri olmadığı sürece tüm kullanıcılar varsayılan olarak bu yapılandırmayı görecek. Emin misiniz?",
+        "confirmText": "Varsayılan olarak kaydet",
+        "cancelText": "İptal"
+      },
+      "updateExisting": {
+        "title": "Mevcut görünümü güncelle",
+        "description": "\"{{name}}\" mevcut yapılandırma ile güncellensin mi?",
+        "confirmText": "Güncelle",
+        "cancelText": "İptal"
+      }
+    }
+  },
+  "requests": {
+    "domain": "Talepler",
+    "seller": "Mağaza",
+    "product": "Ürün",
+    "review-remove": "İncelemeyi Kaldır",
+    "return": "Sipariş İadesi",
+    "product-collection": "Ürün Koleksiyonu",
+    "product-category": "Ürün Kategorisi",
+    "product-tag": "Ürün Etiketi",
+    "product-type": "Ürün Türü",
+    "product-update": "Ürün Güncellemesi"
+  },
+  "stores": {
+    "domain": "Mağazalar",
+    "handleTooltip": "Handle, mağaza için URL slug'ı olarak kullanılır. Addan otomatik oluşturmak için boş bırakın.",
+    "emptyStates": {
+      "users": {
+        "title": "Henüz kullanıcı yok"
+      },
+      "products": {
+        "title": "Henüz ürün yok"
+      },
+      "orders": {
+        "title": "Henüz sipariş yok"
+      }
+    },
+    "fields": {
+      "name": "Ad",
+      "handle": "Tutamak",
+      "email": "E-posta",
+      "phone": "Telefon",
+      "logo": "Logo",
+      "cover_image": "Kapak Görseli",
+      "address": "Adres",
+      "address_1": "Adres Satırı 1",
+      "address_2": "Adres Satırı 2",
+      "postal_code": "Posta Kodu",
+      "city": "Şehir",
+      "province": "İl",
+      "country_code": "Ülke Kodu",
+      "seller": "Mağaza",
+      "premium": "Öne Çıkan"
+    },
+    "status": {
+      "open": "Aktif",
+      "pending_approval": "Beklemede",
+      "pendingApproval": "Beklemede",
+      "suspended": "Pasif",
+      "terminated": "Sonlandırıldı"
+    },
+    "premium": {
+      "yes": "Evet",
+      "no": "Hayır",
+      "description": "İşaretlenirse, mağaza dahili kullanım veya tanıtım amaçlı özel bir rozetle vurgulanır."
+    },
+    "invite": {
+      "button": "Davet Et",
+      "header": "Mağaza Davet Et",
+      "hint": "Pazar yerinize yeni bir mağaza davet edin",
+      "successToast": "Davet {{email}} adresine gönderildi",
+      "errorToast": "Davet gönderilemedi"
+    },
+    "members": {
+      "mainAdmin": "Yönetici",
+      "addUser": {
+        "header": "Kullanıcı Ekle",
+        "action": "Ekle",
+        "hint": "Bu mağazayı yönetmek için yeni bir kullanıcı ekleyin. Mevcut bir kullanıcı seçebilir veya yenisini davet edebilirsiniz.",
+        "addedToast": "Kullanıcı başarıyla eklendi.",
+        "invitedToast": "Kullanıcı başarıyla davet edildi.",
+        "validation": {
+          "roleRequired": "Lütfen bir rol seçin"
+        }
+      },
+      "invite": {
+        "resendSuccess": "Davet {{email}} adresine başarıyla yeniden gönderildi",
+        "deleteSuccess": "{{email}} için davet silindi",
+        "linkCopied": "Davet bağlantısı panoya başarıyla kopyalandı.",
+        "copyFailed": "Davet bağlantısı kopyalanamadı",
+        "noVendorUrl": "Satıcı URL'si backend'de yapılandırılmamış (MERCUR_VENDOR_URL)"
+      }
+    },
+    "edit": {
+      "header": "Mağazayı Düzenle",
+      "mediaHeading": "Medya",
+      "mediaTipLabel": "İpucu:",
+      "mediaTipBody": "Bu medya mağaza vitrininde görünür olacaktır.",
+      "uploadLogoLabel": "Logo yükle",
+      "uploadLogoHint": "Logonuzu buraya sürükleyip bırakın veya yüklemek için tıklayın.",
+      "uploadBannerLabel": "Banner yükle",
+      "uploadBannerHint": "Banner'ınızı buraya sürükleyip bırakın veya yüklemek için tıklayın.",
+      "successToast": "{{name}} mağazası başarıyla güncellendi."
+    },
+    "create": {
+      "tabs": {
+        "details": "Detaylar",
+        "users": "Yönetici"
+      },
+      "header": "Detaylar",
+      "usersHeader": "Yönetici",
+      "usersHint": "Bu mağazayı yönetmek için bir yönetici atayın. Mevcut bir kullanıcı seçin veya yenisini davet edin.",
+      "usersHintSecondary": "Mağaza oluşturulduğunda, seçilen kullanıcıya katılmak için bir davet gönderilecektir.",
+      "ownerEmail": "Sahip e-postası",
+      "ownerEmailHint": "Sahibe Mağaza Yönetimi rolü verilecektir.",
+      "successToast": "Mağaza başarıyla oluşturuldu.",
+      "validation": {
+        "nameRequired": "Lütfen bir ad girin",
+        "emailRequired": "Lütfen bir e-posta girin",
+        "emailInvalid": "Lütfen geçerli bir e-posta girin",
+        "currencyRequired": "Lütfen bir para birimi seçin"
+      }
+    },
+    "request": {
+      "title": "Mağaza talebi",
+      "description": "{{requester}} bir mağaza talebi gönderdi. Detayları inceleyin, gerekli güncellemeleri yapın ve mağazayı onaylayıp yayınlamak veya talebi reddetmek arasında seçim yapın.",
+      "confirm": "Onayla",
+      "reject": "Reddet",
+      "confirmTitle": "Talebi onayla",
+      "confirmDescription": "Bu mağaza talebini onaylamak üzeresiniz.",
+      "rejectTitle": "Talebi reddet",
+      "rejectDescription": "Bu mağaza talebini reddetmek üzeresiniz.",
+      "noteLabel": "Satıcı için notlar",
+      "notePlaceholder": "Yaptığınız değişiklikleri veya ek talepleri belirtin",
+      "confirmNotePlaceholder": "Yaptığınız değişiklikleri veya ek talepleri belirtin",
+      "rejectNotePlaceholder": "Talebi neden reddettiğinizi veya hangi değişiklikleri önerdiğinizi açıklayın",
+      "confirmSuccess": "Mağaza talebi başarıyla onaylandı.",
+      "rejectSuccess": "Mağaza talebi başarıyla reddedildi."
+    },
+    "actions": {
+      "approve": {
+        "label": "Onayla",
+        "title": "Mağazayı onayla",
+        "description": "Bu mağazayı onaylamak istediğinizden emin misiniz?",
+        "success": "Mağaza onaylandı"
+      },
+      "reject": {
+        "label": "Reddet",
+        "title": "Mağazayı reddet",
+        "description": "Bu mağazayı reddetmek istediğinizden emin misiniz?",
+        "success": "Mağaza reddedildi"
+      },
+      "edit": {
+        "label": "Düzenle"
+      },
+      "delete": {
+        "label": "Sil",
+        "title": "Mağazayı sil",
+        "description": "Bu mağazayı silmek istediğinizden emin misiniz? Bu işlem geri alınamaz.",
+        "success": "Mağaza silindi",
+        "successToast": "{{count}} mağaza silindi",
+        "errorToast": "Mağaza(lar) silinemedi"
+      }
+    },
+    "bulkEdit": {
+      "successToast": "{{count}} mağaza güncellendi",
+      "emptyHeading": "Mağaza seçilmedi",
+      "emptyDescription": "Burada düzenlemek için listeden mağazalar seçin."
+    }
+  },
+  "messages": {
+    "domain": "Mesajlar"
+  },
+  "configuration": {
+    "domain": "Ürün Kataloğu Ayarları"
+  },
+  "algolia": {
+    "domain": "Algolia Arama Motoru"
+  },
+  "commission": {
+    "domain": "Komisyon Ayarları"
+  },
+  "commissionLines": {
+    "domain": "Komisyon Satırları"
+  },
+  "commissions": {
+    "domain": "Komisyonlar",
+    "create": {
+      "header": "Komisyon Kuralı Oluştur",
+      "details": "Detaylar",
+      "commission": "Komisyon",
+      "successToast": "Komisyon kuralı başarıyla oluşturuldu."
+    },
+    "edit": {
+      "header": "Komisyon Kuralını Düzenle",
+      "successToast": "Komisyon kuralı başarıyla güncellendi."
+    },
+    "commissionEdit": {
+      "header": "Komisyonu Düzenle",
+      "successToast": "Komisyon başarıyla güncellendi."
+    },
+    "delete": {
+      "title": "Komisyon kuralını sil",
+      "description": "{{name}} komisyon kuralını silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "successToast": "Komisyon kuralı başarıyla silindi."
+    },
+    "fields": {
+      "code": "Kod",
+      "value": "Değer",
+      "status": "Durum",
+      "enabled": "Etkin",
+      "enabledHint": "Bu komisyon kuralını etkinleştirin veya devre dışı bırakın.",
+      "stores": "Mağazalar",
+      "productTypes": "Ürün Tipleri",
+      "categories": "Kategoriler",
+      "taxIncluded": "Vergi dahil",
+      "taxIncludedHint": "İşaretlenirse, komisyon vergi dahil toplam üzerinden hesaplanır. İşaretlenmezse, vergi hariç tutulur ve tamamen mağazaya gider.",
+      "shippingIncluded": "Kargo dahil",
+      "shippingIncludedHint": "İşaretlenirse, komisyon kargo dahil toplam üzerinden hesaplanır. İşaretlenmezse, kargo ücretleri tamamen mağazaya gider.",
+      "type": {
+        "label": "Tür",
+        "percentage": "Promosyon Değeri",
+        "fixed": "Sabit",
+        "percentageHint": "Sipariş toplamının bir yüzdesini tahsil edin.",
+        "fixedHint": "Sipariş başına sabit bir tutar tahsil edin."
+      },
+      "scopeType": {
+        "label": "Tür",
+        "store": "Mağaza",
+        "productType": "Ürün Türü",
+        "category": "Kategori",
+        "storeProductType": "Mağaza + Ürün Türü",
+        "storeCategory": "Mağaza + Kategori",
+        "storeHint": "Belirli mağazalara uygula.",
+        "productTypeHint": "Belirli ürün türlerine uygula.",
+        "categoryHint": "Belirli kategorilere uygula.",
+        "storeProductTypeHint": "Belirli mağazalar içindeki ürün türlerine uygula.",
+        "storeCategoryHint": "Belirli mağazalar içindeki kategorilere uygula."
+      }
+    },
+    "global": {
+      "title": "Genel Komisyon",
+      "code": "Kod",
+      "type": "Tür",
+      "value": "Değer",
+      "tax": "Vergi",
+      "shipping": "Teslimat",
+      "included": "Komisyona dahil",
+      "notIncluded": "Komisyona dahil değil",
+      "edit": {
+        "header": "Genel Komisyonu Düzenle",
+        "successToast": "Genel komisyon başarıyla güncellendi."
+      }
+    },
+    "rules": {
+      "title": "Komisyon Kuralları",
+      "columns": {
+        "rule": "Kural",
+        "scope": "Kapsam",
+        "type": "Tür",
+        "value": "Değer",
+        "status": "Durum"
+      },
+      "empty": {
+        "heading": "Henüz komisyon kuralı yok",
+        "description": "Belirli mağazalar, ürün türleri veya kategoriler için\ngenel komisyonu geçersiz kılmak üzere bir komisyon kuralı oluşturun."
+      }
+    },
+    "status": {
+      "enabled": "Aktif",
+      "disabled": "Pasif"
+    },
+    "validation": {
+      "titleRequired": "Lütfen bir başlık girin",
+      "codeRequired": "Lütfen bir kod girin",
+      "value": "Lütfen bir değer girin",
+      "storesRequired": "Lütfen en az bir mağaza seçin",
+      "productTypesRequired": "Lütfen en az bir ürün türü seçin",
+      "categoriesRequired": "Lütfen en az bir kategori seçin"
+    }
+  },
+  "commissionRates": {
+    "domain": "Komisyon Oranları",
+    "description": "Pazar yeriniz için komisyon oranlarını ve kurallarını yönetin.",
+    "create": {
+      "header": "Komisyon Oranı Oluştur",
+      "description": "Pazar yeriniz için yeni bir komisyon oranı yapılandırın.",
+      "successToast": "Komisyon oranı başarıyla oluşturuldu"
+    },
+    "edit": {
+      "header": "Komisyon Oranını Düzenle",
+      "successToast": "Komisyon oranı başarıyla güncellendi"
+    },
+    "delete": {
+      "description": "\"{{name}}\" komisyon oranını silmek istediğinizden emin misiniz?",
+      "successToast": "Komisyon oranı başarıyla silindi"
+    },
+    "rules": {
+      "empty": "Yapılandırılmış kural yok"
+    },
+    "fields": {
+      "name": "Ad",
+      "code": "Kod",
+      "type": {
+        "label": "Tür",
+        "percentage": "Promosyon Değeri",
+        "fixed": "Sabit"
+      },
+      "target": {
+        "label": "Hedef",
+        "item": "Öğe",
+        "shipping": "Teslimat"
+      },
+      "currencyCode": "Para Birimi Kodu",
+      "currencyPlaceholder": "Para birimi seç",
+      "rate": "Oran",
+      "minAmount": "Minimum Tutar",
+      "priority": "Öncelik",
+      "enabled": "Etkin",
+      "enabledHint": "Bu komisyon oranını etkinleştirin veya devre dışı bırakın.",
+      "includeTax": "Vergi Dahil Et",
+      "includeTaxHint": "Komisyon hesaplamasına vergiyi dahil edin."
+    },
+    "status": {
+      "enabled": "Etkin",
+      "disabled": "Devre Dışı"
+    },
+    "toggle": {
+      "enabledToast": "Komisyon oranı başarıyla etkinleştirildi",
+      "disabledToast": "Komisyon oranı başarıyla devre dışı bırakıldı"
+    }
+  },
+  "offers": {
+    "domain": "Teklifler",
+    "empty": {
+      "heading": "Henüz teklif yok",
+      "description": "Mağazalar bu pazar yerinde henüz herhangi bir teklif yayınlamadı.",
+      "storeDescription": "Bu mağazanın herhangi bir teklifi yok"
+    },
+    "filtered": {
+      "heading": "Eşleşen teklif yok",
+      "description": "Filtreleri veya arama terimlerini ayarlayın."
+    },
+    "actions": {
+      "openStore": "Mağazayı aç",
+      "bulkDelete": "Seçilenleri sil"
+    },
+    "fields": {
+      "store": "Mağaza",
+      "sku": "SKU",
+      "variant": "Ana varyant",
+      "ean": "EAN",
+      "upc": "UPC",
+      "shippingProfile": "Kargo profili",
+      "requiredQuantity": "Gerekli miktar",
+      "stockStatus": "Stok durumu",
+      "variants": "Varyantlar",
+      "variantsCount_one": "{{count}} varyant",
+      "variantsCount_other": "{{count}} varyant"
+    },
+    "detail": {
+      "offerLabel": "Teklif",
+      "productVariant": "Ürün varyantı",
+      "store": "Mağaza",
+      "inventoryItems": "Envanter öğeleri",
+      "goToInventoryItem": "Envanter öğesine git",
+      "manageKit": "Envanter kiti",
+      "noInventoryItems": "Bu teklife bağlı envanter kalemi yok.",
+      "associatedProduct": "İlişkili ürün",
+      "offerVariant": "Teklif Varyantı",
+      "shippingConfiguration": "Kargo yapılandırması"
+    },
+    "delete": {
+      "description": "{{sku}} teklifini silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "successToast": "Teklif başarıyla silindi."
+    },
+    "bulkDelete": {
+      "description": "{{storeName}} mağazasından {{count}} teklif silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "successToast": "{{count}} teklif silindi",
+      "errorToast": "Toplu silme başarısız oldu: {{message}}",
+      "crossStoreWarning": "Aynı anda tek bir mağazadan teklif seçin. Toplu silme mağaza bazında kapsamlıdır.",
+      "crossStoreTooltip": "Toplu silme yalnızca tek bir mağaza içinde çalışır."
+    },
+    "bulkDeleteAll": {
+      "description": "{{storeName}} için tüm teklifleri silmek üzeresiniz. Bu işlem geri alınamaz.",
+      "actionLabel": "Kataloğu sil"
+    },
+    "sellerSection": {
+      "heading": "Teklifler",
+      "viewAll": "Tümünü görüntüle",
+      "bulkDeleteAll": "Kataloğu sil",
+      "empty": "Bu mağazanın henüz teklifi yok."
+    },
+    "stockStatus": {
+      "in_stock": "Stokta",
+      "low_stock": "Düşük stok",
+      "out_of_stock": "Stokta yok"
+    }
   }
 }
