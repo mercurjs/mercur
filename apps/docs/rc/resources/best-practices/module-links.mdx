@@ -1,0 +1,166 @@
+---
+title: "Module links"
+description: "Relate modules without coupling them — defineLink, the link-direction rule, built-in link steps, and filtering by links."
+---
+
+Modules are isolated: a module never imports another module's service or points a foreign key at another module's table (see [Modules](/rc/resources/best-practices/modules)). Relationships between modules are declared **outside** the modules, as **links**, and read through **Query**. This is what keeps each module independently migratable and upgrade-safe.
+
+<Note>
+  Links are a [Medusa framework primitive](https://docs.medusajs.com/learn/fundamentals/module-links). The examples below link a custom **Brand** module to Medusa's built-in **Product** module — the kind of relationship you'd add in your own project.
+</Note>
+
+## `defineLink`
+
+A link is a small file that associates two linkable data models. Define it once and sync it to the database with a migration.
+
+```ts title="src/links/product-brand.ts"
+import { defineLink } from "@medusajs/framework/utils"
+import ProductModule from "@medusajs/medusa/product"
+import BrandModule from "../modules/brand"
+
+export default defineLink(
+  ProductModule.linkable.product,
+  BrandModule.linkable.brand
+)
+```
+
+After adding or changing a link, generate and run the migration so the link table exists:
+
+```bash
+npx medusa db:migrate
+```
+
+Once linked, you read across the boundary with Query — never by calling the other module's service:
+
+```ts
+const { data: products } = await query.graph({
+  entity: "product",
+  fields: ["id", "title", "brand.*"], // follows the product ↔ brand link
+})
+```
+
+## The link-direction rule
+
+The **order of arguments to `defineLink` is meaningful** and cardinality is controlled with `isList`. Read it left-to-right as "the left model links to the right model".
+
+- `defineLink(A.linkable.a, B.linkable.b)` — one `a` ↔ one `b`.
+- Wrap a side in `{ linkable, isList: true }` to make it the "many" side.
+
+If one brand has many products but each product belongs to a single brand, mark the **product** side as the list:
+
+```ts title="src/links/product-brand.ts — one brand, many products"
+import { defineLink } from "@medusajs/framework/utils"
+import ProductModule from "@medusajs/medusa/product"
+import BrandModule from "../modules/brand"
+
+export default defineLink(
+  {
+    linkable: ProductModule.linkable.product,
+    isList: true,
+  },
+  BrandModule.linkable.brand
+)
+```
+
+For a many-to-many relationship (a product can carry many brands *and* a brand spans many products) mark both sides as lists and pin an explicit table name:
+
+```ts title="src/links/product-brand.ts — many-to-many"
+export default defineLink(
+  { linkable: ProductModule.linkable.product, isList: true },
+  { linkable: BrandModule.linkable.brand, isList: true },
+  {
+    database: {
+      table: "product_brand",
+    },
+  }
+)
+```
+
+<Warning>
+  Direction determines the generated relation names and the shape of the link table. Getting it backwards produces a link that "works" but exposes the wrong nesting (`brand.products` vs `product.brands`) and is painful to migrate away from. Decide the natural reading direction first, then set `isList` on the many side(s).
+</Warning>
+
+## Built-in link steps — create links inside workflows
+
+Links are **data**, so creating or removing one is a mutation and must happen inside a [workflow](/rc/resources/best-practices/workflows) through the built-in link steps — never by writing to the link table directly.
+
+- `createRemoteLinkStep` — create links (and it compensates by removing them on failure).
+- `dismissRemoteLinkStep` — remove links.
+
+Build the link definitions with `transform` (never inline logic in the composition function), then pass them to the step. Each entry names the two modules and the ids to associate:
+
+```ts title="Linking a product to a brand inside a workflow"
+import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
+import { Modules } from "@medusajs/framework/utils"
+import { LinkDefinition } from "@medusajs/framework/types"
+import { BRAND_MODULE } from "../modules/brand"
+
+const productBrandLinks = transform(
+  { productId, brandId },
+  ({ productId, brandId }): LinkDefinition[] => [
+    {
+      [Modules.PRODUCT]: { product_id: productId },
+      [BRAND_MODULE]: { brand_id: brandId },
+    },
+  ]
+)
+
+createRemoteLinkStep(productBrandLinks)
+```
+
+<Tip>
+  Because `createRemoteLinkStep` already knows how to compensate, links created this way are torn down automatically if a later step in the workflow throws. This is the whole reason to link inside a workflow rather than in a route.
+</Tip>
+
+## Filtering by links
+
+A link isn't just for reading nested data — you can **filter and scope queries by it**. A common case: list only the products that belong to a given brand.
+
+Because the `product ↔ brand` link exists, you can filter products by a field on the linked brand in a single `query.graph` call — no join to write, no second query:
+
+```ts title="Filter products by their linked brand"
+const { data: products } = await query.graph({
+  entity: "product",
+  fields: ["id", "title", "brand.name"],
+  filters: {
+    brand: {
+      id: brandId, // only products linked to this brand
+    },
+  },
+})
+```
+
+The idiomatic way to apply such a filter on a route is a small **middleware** that injects it onto `req.filterableFields`, so the handler stays ignorant of the scoping rule and every route on the resource is filtered by construction:
+
+```ts title="src/api/admin/products/middlewares.ts"
+const filterByBrand = (
+  req: MedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  if (req.query.brand_id) {
+    req.filterableFields.brand = { id: req.query.brand_id }
+  }
+  next()
+}
+```
+
+```ts title="Handler just forwards the filters"
+const { data: products, metadata } = await query.graph({
+  entity: "product",
+  fields: req.queryConfig.fields,
+  filters: req.filterableFields, // brand filter already injected
+  pagination: req.queryConfig.pagination,
+})
+```
+
+The [middlewares-as-filters](/rc/resources/best-practices/api-routes#middlewares-as-filters) section covers this pattern in full.
+
+## Checklist for a link
+
+- Declared in its own file under `src/links/`, using `defineLink`.
+- Argument order reflects the natural reading direction; `isList` set on the many side(s).
+- Migration generated and run (`medusa db:migrate`).
+- Cross-module reads go through `query.graph`, never a service-to-service call.
+- Links are created/removed only inside workflows via `createRemoteLinkStep` / `dismissRemoteLinkStep`.
+- Filtering/scoping by a linked field is applied as a `filterableFields` middleware, not inlined in each handler.

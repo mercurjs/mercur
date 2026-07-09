@@ -1,0 +1,241 @@
+---
+title: "Custom fields"
+description: "The full loop — add a custom field in core, render it in the panels with defineCustomFieldsConfig, pull linked data with the link property, and type it end-to-end."
+---
+
+Custom Fields attach extra data to an existing entity (a product, customer, order…) through configuration — no hand-written model or migration. What makes them powerful is the **full loop across the stack**: you declare the field in core, render it in the panels with `defineCustomFieldsConfig`, optionally pull in [linked-module](/rc/resources/best-practices/module-links) data with the `link` property, and [type it end-to-end](/rc/resources/best-practices/types) so every SDK call carries it.
+
+This page is the best-practices view. For the full storage-side setup see [Custom Fields](/rc/resources/customization/custom-fields).
+
+## Reach for a custom field vs a module
+
+The decision is about the **shape and lifecycle** of the data, not its size.
+
+<CardGroup cols={2}>
+  <Card title="Use a custom field when…" icon="circle-check">
+    The data is a plain property of one existing record: `is_featured` on a product, `tier` on a customer, `source` on an order. One row per parent, no lifecycle of its own, read alongside the parent.
+  </Card>
+  <Card title="Build a module when…" icon="cube">
+    The data has its own lifecycle, relates to more than one entity, has many rows per parent, or carries business logic and its own routes. Reviews, tickets, subscriptions.
+  </Card>
+</CardGroup>
+
+<Warning>
+  Custom Fields is strictly **one row per parent entity**. Forcing a one-to-many or stateful concept into it works until you need a second row or a state transition. If in doubt, model it as a [module](/rc/resources/best-practices/modules).
+</Warning>
+
+## The full loop
+
+### 1. Declare the field in core
+
+Register the Custom Fields module and describe the field in `medusa-config.ts`. The module generates the side table, the link, and the schema on `db:migrate`:
+
+```ts title="medusa-config.ts"
+{
+  resolve: "@mercurjs/core/modules/custom-fields",
+  options: {
+    customFields: {
+      Product: {
+        is_featured: { type: "boolean", nullable: true },
+      },
+    },
+  },
+}
+```
+
+The value now lives in the module's own `custom_fields` side table — linked to the product, queryable through `query.graph`, and written through `additional_data` on the entity's create/update route.
+
+<Warning>
+  **Prefer the `custom_fields` link over stuffing values into `metadata`.** `metadata` is an untyped JSON bag with no schema, no queryable columns, and no clean extension point — it turns into a dumping ground. The Custom Fields module gives you a real linked table (`custom_fields.*`) with typed columns you can query and filter, while still being config-only. Reach for `metadata` only for genuinely throwaway, never-queried scratch data.
+</Warning>
+
+<Tip>
+  Mutations still go through workflows. The panel submits custom-field values under **`additional_data`** on the parent's create/update route — and `additional_data` is exactly what [workflow hooks](/rc/resources/best-practices/workflows#hooks--let-others-extend-your-workflow) receive. So the same values you enter in the panel can be consumed by a `productsCreated` / `productUpdated` hook to run follow-up logic, persist to the linked table, or trigger side effects. Never write a custom-field value with a direct route write.
+</Tip>
+
+### 2. Render it in the panel with `defineCustomFieldsConfig`
+
+Drop one file per model under the panel's `src/custom-fields/`. A single config contributes **form fields** (edit drawer, submitted under `additional_data`), read-only **displays** (detail sections), and **list columns**. Declare `link: "custom_fields"` so the module's data is fetched alongside the product and available to your fields and displays:
+
+```tsx title="apps/vendor/src/custom-fields/product.tsx"
+import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"
+import { createFormHelper } from "@mercurjs/dashboard-shared"
+
+type ProductWithCustomFields = { custom_fields?: { is_featured?: boolean } }
+
+const form = createFormHelper<ProductWithCustomFields>()
+
+export default defineCustomFieldsConfig({
+  model: "product",
+  link: "custom_fields", // fetch custom_fields.* with the product — no hand-written field list
+  forms: [
+    {
+      zone: "edit",
+      fields: {
+        is_featured: form.define({
+          validation: form.boolean().optional(),
+          label: "Featured",
+          // read the current value from the linked table, not metadata
+          defaultValue: (data) => Boolean(data?.custom_fields?.is_featured),
+        }),
+      },
+    },
+  ],
+  displays: [
+    {
+      zone: "general",
+      fields: [
+        {
+          id: "is_featured",
+          component: ({ data }) => (data.custom_fields?.is_featured ? "Featured" : "—"),
+        },
+      ],
+    },
+  ],
+})
+```
+
+<Note>
+  The `zone` values are typed — the panel's codegen scans the host `<FormExtensionZone>` / `<DisplayExtensionZone>` usages and emits the valid zones per model into `extension-targets.d.ts`. `zone: "nope"` fails `tsc`. You don't hand-maintain that list.
+</Note>
+
+The `displays` fields follow an add / replace / remove convention keyed by `id`:
+
+- **unknown id** → appends a new read-only row,
+- **built-in id + component** → replaces that field's render,
+- **built-in id + `component: null`** → hides the field.
+
+## The extension API `link` property
+
+A custom-field config can also declare **module links to fetch alongside the entity** with the `link` property. This is how you surface data from a linked module (e.g. a `brand`) in the product's columns and displays without wiring a second query:
+
+```tsx title="apps/vendor/src/custom-fields/product.tsx"
+export default defineCustomFieldsConfig({
+  model: "product",
+  link: "brand", // fetch brand.* with each product — one or an array of links
+  list: {
+    columns: [
+      // linked data is available on the row, no extra fetch
+      { id: "brand_name", header: "Brand", component: ({ row }) => row.brand?.name },
+    ],
+  },
+  displays: [
+    {
+      zone: "general",
+      fields: [{ id: "brand", component: ({ data }) => data.brand?.name ?? "-" }],
+    },
+  ],
+})
+```
+
+<Tip>
+  `link` replaces the old "remember to add the fields to every fetch" chore. Under the hood the panel reads the registry's links (`getLinks(model)`) and merges them into the built-in list, detail, and edit fetches with `withLinkFields(fields, links)` (`+brand.*`) — so the linked data is present in **all three** places automatically. There's no `extendFields`: declaring the `link` is what makes its fields available to both columns and displays.
+</Tip>
+
+<Warning>
+  The link must actually exist as a [module link](/rc/resources/best-practices/module-links) and, in the vendor panel, respect the curated-field constraint — the fetch derived from `link` runs against the vendor product query, which rejects arbitrary `*`-relation overrides. Declare the link, then reference only its real fields.
+</Warning>
+
+## 3. Type it end-to-end
+
+The rendered value comes back from the API, but the panel's `ProductDTO` doesn't know about `is_featured` yet. Close the gap with a one-line declaration-merging `.d.ts` so **every** SDK endpoint is typed — no per-call casts:
+
+```ts title="apps/vendor/src/types/custom-fields.d.ts"
+import "@medusajs/types"
+
+declare module "@medusajs/types" {
+  interface ProductDTO {
+    custom_fields?: { is_featured?: boolean }
+  }
+}
+```
+
+Now `product.custom_fields?.is_featured` is typed on every `sdk.vendor.products.*` response — the runtime value is delivered by the `link` / registry merge above, not a hand-added `+field.*` (the vendor product query rejects arbitrary `*`-relation overrides). The mechanics — why merging into the upstream interface flows through — are covered in [Types & augmentation](/rc/resources/best-practices/types#the-scenario-a-custom-field-typed-end-to-end).
+
+## The full override flow: `additional_data` → route → workflow hook
+
+Rendering and typing a field is only half the story. The reason custom fields submit under **`additional_data`** is that it's the framework's built-in extension channel: values entered in the panel travel through the entity's existing API route into the workflow's **hooks**, where your own code consumes them — **without forking the route or the workflow**. This is exactly what a Mercur override looks like.
+
+The flow has three links in the chain.
+
+### 1. The panel submits under `additional_data`
+
+You already did this — a `defineCustomFieldsConfig` `edit`/`create` field is submitted as `additional_data.<field>` on the entity's create/update request. Nothing else to wire on the frontend.
+
+### 2. The route accepts it via `additionalDataValidator`
+
+The vendor/admin product routes accept an `additional_data` body param, but each key must be **declared** or it's rejected. Register the allowed keys with `additionalDataValidator` in a middleware — no need to touch the route handler:
+
+```ts title="src/api/middlewares.ts"
+import { defineMiddlewares } from "@medusajs/framework/http"
+import { z } from "@medusajs/framework/zod"
+
+export default defineMiddlewares({
+  routes: [
+    {
+      method: "POST",
+      matcher: "/vendor/products",
+      additionalDataValidator: {
+        brand_id: z.string().optional(),
+      },
+    },
+  ],
+})
+```
+
+### 3. A workflow hook consumes it
+
+Mercur's product create workflow — `createProductsWorkflow` from `@mercurjs/core/workflows` (id `mercur-create-products`) — is what the vendor route runs, and it exposes a `productsCreated` **hook** that runs after the products are created, receiving both the created records and your `additional_data`. Consume it to perform the real work — here, [linking](/rc/resources/best-practices/module-links) the product to a brand — with a compensation function so a failure rolls the link back:
+
+```ts title="src/workflows/hooks/created-product.ts"
+import { createProductsWorkflow } from "@mercurjs/core/workflows"
+import { StepResponse } from "@medusajs/framework/workflows-sdk"
+import { Modules } from "@medusajs/framework/utils"
+import { LinkDefinition } from "@medusajs/framework/types"
+import { BRAND_MODULE } from "../../modules/brand"
+
+createProductsWorkflow.hooks.productsCreated(
+  async ({ products, additional_data }, { container }) => {
+    if (!additional_data?.brand_id) {
+      return new StepResponse([], [])
+    }
+
+    const link = container.resolve("link")
+    const links: LinkDefinition[] = products.map((product) => ({
+      [Modules.PRODUCT]: { product_id: product.id },
+      [BRAND_MODULE]: { brand_id: additional_data.brand_id },
+    }))
+
+    await link.create(links)
+    return new StepResponse(links, links)
+  },
+  // compensation — undo the links if a later step fails
+  async (links, { container }) => {
+    if (!links?.length) {
+      return
+    }
+    await container.resolve("link").dismiss(links)
+  }
+)
+```
+
+<Note>
+  Mercur's `createProductsWorkflow` wraps Medusa's stock create-products flow and adds the marketplace layer (seller association, attributes, audit trail). Because it re-exposes the `validate` and `productsCreated` hooks, you extend the **Mercur** flow the same way you would a plain Medusa one — consume its hook, don't fork it.
+</Note>
+
+<Tip>
+  This is the **override pattern** in one sentence: the panel writes to `additional_data`, the route lets it through via `additionalDataValidator`, and a `hooks.<name>` consumer turns it into real behaviour — all additively, without copying or replacing any built-in code. It's how you extend a Mercur (or Medusa) flow instead of forking it. See [Workflows → hooks](/rc/resources/best-practices/workflows#hooks--let-others-extend-your-workflow).
+</Tip>
+
+<Warning>
+  The hook runs **inside** the workflow, so its mutation still obeys the [one-mutation-per-step + compensation](/rc/resources/best-practices/workflows#one-mutation-per-step--compensation) rule — always pair `link.create` with a `link.dismiss` compensation. Never do the work in a route handler after the workflow returns; put it in the hook.
+</Warning>
+
+## Checklist
+
+- Data is genuinely one-row-per-parent with no lifecycle → custom field; otherwise a module.
+- Field registered in `medusa-config.ts`; `db:migrate` run; writes go through `additional_data` on a workflow.
+- Panel: one `defineCustomFieldsConfig` per model contributes forms / displays / list, with typed `zone`s.
+- Linked-module data pulled in with the `link` property (not a hand-written second fetch); the link exists and respects vendor field constraints.
+- Extended fields typed once via a `.d.ts` merging into the framework DTO, and requested with `+…*` so they arrive.
+- The override chain is complete: panel → `additional_data` → `additionalDataValidator` declares the key → a `hooks.<name>` consumer does the work inside the workflow, with compensation. No route/workflow forked.
