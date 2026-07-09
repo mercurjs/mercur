@@ -12,7 +12,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
-    "eslint": "^9.39.2",
+    "eslint": "^10.6.0",
     "globals": "^17.0.0",
     "oxlint": "^1.64.0",
     "pg-god": "^1.0.12",
