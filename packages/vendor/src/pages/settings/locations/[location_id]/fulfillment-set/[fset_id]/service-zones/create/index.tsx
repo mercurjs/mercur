@@ -1,4 +1,4 @@
-import { json, useParams } from "react-router-dom"
+import { useParams } from "react-router-dom"
 
 import { RouteFocusModal } from "@components/modals"
 import { useStockLocation } from "@hooks/api/stock-locations"
@@ -23,9 +23,11 @@ function LocationCreateServiceZone() {
       : FulfillmentSetType.Shipping
 
   if (!isPending && !isFetching && !fulfillmentSet) {
-    throw json(
-      { message: `Fulfillment set with ID: ${fset_id} was not found.` },
-      404
+    throw new Response(
+      JSON.stringify({
+        message: `Fulfillment set with ID: ${fset_id} was not found.`,
+      }),
+      { status: 404, headers: { "Content-Type": "application/json" } }
     )
   }
 
