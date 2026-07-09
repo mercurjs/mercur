@@ -7,11 +7,12 @@ import { Trans, useTranslation } from "react-i18next";
 import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import * as z from "zod";
 
+import { MercurFeatureFlags } from "@mercurjs/types";
 import { WidgetZone } from "@mercurjs/dashboard-shared";
 import { Form } from "@components/common/form";
 import AvatarBox from "@components/common/logo-box/avatar-box";
 import { AuthLayout } from "@components/layout/auth-layout";
-import { useSignInWithEmailPass } from "@hooks/api";
+import { useFeatureFlags, useSignInWithEmailPass } from "@hooks/api";
 import { isFetchError } from "@lib/is-fetch-error";
 import config from "virtual:mercur/config";
 
@@ -162,6 +163,8 @@ const LoginForm = () => {
 };
 
 const LoginFooter = () => {
+  const { feature_flags } = useFeatureFlags();
+
   return (
     <div className="mt-auto flex flex-col gap-y-2">
       <span className="text-ui-fg-muted txt-small">
@@ -176,7 +179,7 @@ const LoginFooter = () => {
           ]}
         />
       </span>
-      {config.enableSellerRegistration && (
+      {feature_flags?.[MercurFeatureFlags.SELLER_REGISTRATION] && (
         <span className="text-ui-fg-muted txt-small">
           <Trans
             i18nKey="login.notSellerYet"
