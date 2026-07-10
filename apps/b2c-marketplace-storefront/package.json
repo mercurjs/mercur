@@ -1,0 +1,71 @@
+{
+  "name": "b2c-storefront",
+  "version": "1.5.4",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@headlessui/react": "^2.2.1",
+    "@hookform/resolvers": "^3.10.0",
+    "@medusajs/js-sdk": "^2.12.5",
+    "@medusajs/ui": "^4.0.33",
+    "@stripe/react-stripe-js": "^3.7.0",
+    "@stripe/stripe-js": "^7.1.0",
+    "@talkjs/react": "^0.1.11",
+    "@types/js-cookie": "^3.0.6",
+    "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
+    "embla-carousel-react": "^8.5.2",
+    "i18next": "^25.2.1",
+    "i18next-browser-languagedetector": "^8.1.0",
+    "js-cookie": "^3.0.5",
+    "lodash": "^4.17.21",
+    "next": "15.5.9",
+    "next-intl": "^3.26.3",
+    "react": "^19.2.1",
+    "react-country-flag": "^3.1.0",
+    "react-dom": "^19.0.0",
+    "react-hook-form": "^7.54.2",
+    "react-i18next": "^15.5.2",
+    "tailwind-merge": "^2.6.0",
+    "talkjs": "^0.37.0",
+    "uuid": "^11.0.5",
+    "zod": "^3.24.1"
+  },
+  "devDependencies": {
+    "@chromatic-com/storybook": "^3.2.3",
+    "@eslint/eslintrc": "^3",
+    "@ianvs/prettier-plugin-sort-imports": "^4.7.0",
+    "@storybook/addon-essentials": "^8.4.7",
+    "@storybook/addon-interactions": "^8.4.7",
+    "@storybook/addon-onboarding": "^8.4.7",
+    "@storybook/blocks": "^8.4.7",
+    "@storybook/nextjs": "^8.4.7",
+    "@storybook/react": "^8.4.7",
+    "@storybook/test": "^8.4.7",
+    "@types/lodash": "^4.17.15",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "15.5.7",
+    "eslint-plugin-storybook": "^0.11.2",
+    "postcss": "^8",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.13",
+    "storybook": "^8.4.7",
+    "storybook-next-intl": "^1.2.4",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5"
+  },
+  "eslintConfig": {
+    "extends": [
+      "plugin:storybook/recommended"
+    ]
+  },
+  "packageManager": "yarn@1.22.22"
+}

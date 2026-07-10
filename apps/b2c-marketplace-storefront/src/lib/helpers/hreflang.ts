@@ -1,0 +1,32 @@
+export const toHreflang = (code: string): string => {
+  const map: Record<string, string> = {
+    us: "en-US",
+    gb: "en-GB",
+    au: "en-AU",
+    ca: "en-CA",
+    ie: "en-IE",
+    pl: "pl-PL",
+    de: "de-DE",
+    fr: "fr-FR",
+    es: "es-ES",
+    it: "it-IT",
+    nl: "nl-NL",
+    se: "sv-SE",
+    no: "nb-NO",
+    dk: "da-DK",
+    cz: "cs-CZ",
+    sk: "sk-SK",
+    pt: "pt-PT",
+    br: "pt-BR",
+    at: "de-AT",
+    ch: "de-CH",
+    cn: "zh-CN",
+    jp: "ja-JP",
+    kr: "ko-KR",
+    tw: "zh-TW",
+    hk: "zh-HK",
+    sg: "en-SG",
+    my: "ms-MY",
+  }
+  return map[code] || code
+}
