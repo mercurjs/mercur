@@ -7,7 +7,7 @@
   <h3 align="center">Mercur</h3>
 
   <p align="center">
-   The open-source marketplace platform.
+   The open-source marketplace platform. A Mirakl alternative.
     <br />
     <a href="https://mercurjs.com/"><strong>Website</strong></a>
     <br />
