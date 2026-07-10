@@ -1,0 +1,88 @@
+---
+title: "Mercur — an open-source Mirakl alternative"
+description: "How Mercur compares to Mirakl and other marketplace platforms: open-source, self-hosted, no GMV fees, full code ownership."
+---
+
+If you're evaluating [Mirakl](https://www.mirakl.com/) — or any hosted, enterprise marketplace SaaS - Mercur is the open-source alternative built for teams that want to own their marketplace outright instead of renting it.
+
+Mirakl is a mature, capable platform. It's also closed-source, priced as a percentage of the GMV that flows through it, and delivered as a hosted service you don't control. Mercur takes the opposite position: MIT-licensed core, self-hosted on your own infrastructure, no per-transaction cut, and full access to every line of code.
+
+This page is an honest comparison. Mirakl is the right choice for some teams; Mercur is the right choice for others. The goal here is to help you tell which one you are.
+
+## At a glance
+
+|                               | **Mercur**                                                                         | **Mirakl**                              |
+| ----------------------------- | ---------------------------------------------------------------------------------- | --------------------------------------- |
+| **License**                   | Open source (MIT core)                                                             | Proprietary / closed source             |
+| **Hosting**                   | Self-host anywhere, or fully managed (Medusa Cloud / Rigby-hosted)                 | Vendor-hosted SaaS only                 |
+| **Pricing model**             | No GMV fees, no per-transaction cut                                                | Percentage of GMV + platform fees       |
+| **Code ownership**            | Full source access; fork or modify freely                                          | No source access                        |
+| **Customization**             | Extend/override workflows, APIs, and UI without forking                            | Configuration within platform limits    |
+| **Data ownership**            | Your database, your infrastructure                                                 | Vendor-controlled                       |
+| **Tech stack**                | TypeScript, Node.js, React, PostgreSQL                                             | Proprietary                             |
+| **Extensibility**             | Composable blocks, typed API client, workflow hooks, Dashboard SDK                 | Connectors and APIs within the platform |
+| **AI-native development**     | Introspectable, typed, monorepo — built for AI coding tools                        | Not designed for this                   |
+| **Storefront**                | Bring your own (headless, API-first)                                               | Integrated / connector-based            |
+| **Enterprise features**       | Mercur Enterprise: Buy Box, dedup, master-data governance, KYC — on your own infra | Included in the platform                |
+| **Support & SLAs**            | Contractual SLAs and named contact via Mercur Enterprise                           | Vendor support contract                 |
+| **Delivery help**             | Rigby builds/launches marketplaces with you                                        | Sales-led onboarding                    |
+| **Time to first marketplace** | `bun create mercur-app` in minutes                                                 | Sales-led onboarding                    |
+
+## Where Mercur is the better fit
+
+- **You want to own your marketplace, not rent it.** No percentage of GMV, no per-transaction cut, no vendor lock-in. Your data, customers, and roadmap stay yours.
+- **You have (or want) an engineering team.** Mercur is code you control end-to-end. If you plan to customize deeply — bespoke commission logic, custom vendor onboarding, non-standard order flows — an open, hackable core is a decisive advantage over a configuration-bound SaaS.
+- **You need to control where data lives.** Self-host on your own cloud, on-prem, or inside an air-gapped network. There's no proprietary runtime to adopt and no hosting tier you're forced onto.
+- **You're building with AI.** Mercur's typed API client, composable workflows, and monorepo layout give AI coding tools structured contracts to extend rather than guess at.
+- **You want to avoid platform risk.** MIT license means the core can never be taken away from you, re-priced out from under you, or discontinued.
+
+## Enterprise-grade, without giving up ownership
+
+The features that usually pull teams toward Mirakl — a winning-offer engine, product deduplication, master-data governance, multi-channel stock sync, vendor KYC — aren't a reason to accept closed source and GMV fees. **[Mercur Enterprise](https://www.mercurjs.com/enterprise)** delivers that same enterprise surface area as a licensed module suite you deploy and run on your own infrastructure, exactly like the open-source core:
+
+- **Buy Box / winning-offer engine** — pick the winning offer across competing sellers, the way large marketplaces do.
+- **EAN matching & deduplication** — collapse duplicate seller submissions into a single master product.
+- **Master-data governance** — controlled, auditable catalog data across thousands of vendors.
+- **Multi-channel stock sync** — keep inventory consistent across sales channels and feeds.
+- **Automated split payouts & vendor KYC** — compliant onboarding and settlement at scale.
+
+…and more, with new modules added over time.
+
+Everything is maintained, tested, and upgraded by the core team, and backed by a direct support relationship: a dedicated support channel, contractual SLAs with guaranteed response times, prioritized bug fixes and security patches, and hands-on onboarding and architecture guidance. Higher tiers add priority escalation and a named technical contact.
+
+The difference from Mirakl: you still own the code, host it yourself, and pay no percentage of GMV.
+
+## Don't want to build it yourself? We'll build it with you
+
+Mercur is built and maintained by [Rigby](https://rigbyjs.com), a team that has designed, built, and launched multi-vendor marketplaces in production. If you'd rather not staff the whole project, we work alongside your team — architecture reviews, integrating Mercur with your existing stack, hardening, scaling, and getting your marketplace live on schedule.
+
+This closes the usual "we don't have engineering capacity" gap that sends teams to a fully managed SaaS: you get a done-with-you (or done-for-you) delivery path _and_ keep an open-source core you own. [Talk to our team](https://www.mercurjs.com/contact).
+
+### Don't want to run the infrastructure either?
+
+You don't have to. Not wanting to manage servers is not a reason to accept closed source and GMV fees — Mercur runs as a fully managed deployment too. Ship it to [Medusa Cloud](https://medusajs.com/pricing/) with push-to-deploy and auto-scaling, or have Rigby deploy, host, and operate it for you. Either way you get the zero-ops experience of a SaaS while keeping the open-source core, your data, and no percentage of GMV.
+
+## Migrating from Mirakl
+
+Already live on Mirakl? Rigby helps you move — porting your catalog, sellers, offers, orders, and commission structure onto Mercur, then hardening and cutting over without disrupting your marketplace. [Talk to our team](https://www.mercurjs.com/contact) to scope a migration.
+
+## What Mercur gives you
+
+Built on the [Medusa](https://medusajs.com) commerce framework, Mercur adds the marketplace layer on top:
+
+- **Multi-vendor sellers** — onboarding, approval, suspension, and member management.
+- **Master products & offers** — a shared catalog where multiple sellers list offers (SKU, price, inventory, shipping) against the same product.
+- **Commissions** — configurable fixed or percentage rules matching across product, type, collection, category, and seller.
+- **Automated vendor payouts** — a pluggable payout pipeline with Stripe Connect out of the box.
+- **Order splitting** — a single customer cart spanning multiple sellers splits into per-seller orders under an order group.
+- **Admin and Vendor panels** — role-specific dashboards, plus a headless Store API for any storefront.
+
+See [Concepts](/rc/learn/concepts) and [Architecture](/rc/learn/architecture) for the full picture, or jump straight to [Installation](/rc/learn/installation) to spin up a marketplace locally.
+
+## Get started
+
+```sh
+bun create mercur-app@latest my-marketplace
+```
+
+Then head to the [Installation guide](/rc/learn/installation) to run it locally, or [talk to our team](https://www.mercurjs.com/contact) if you're migrating from an existing platform.
