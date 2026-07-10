@@ -11,18 +11,15 @@ import { listProductsWithSort } from "@/lib/data/products"
 export const ProductListing = async ({
   category_id,
   collection_id,
-  seller_id,
   showSidebar = false,
   locale = process.env.NEXT_PUBLIC_DEFAULT_REGION || "pl",
 }: {
   category_id?: string
   collection_id?: string
-  seller_id?: string
   showSidebar?: boolean
   locale?: string
 }) => {
   const { response } = await listProductsWithSort({
-    seller_id,
     category_id,
     collection_id,
     countryCode: locale,

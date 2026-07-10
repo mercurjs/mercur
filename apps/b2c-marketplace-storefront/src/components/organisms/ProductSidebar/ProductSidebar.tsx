@@ -71,12 +71,9 @@ export const ProductSidebar = () => {
             onClick={() => setFilterModal(false)}
             data-testid="sidebar-view-listings-button"
           >
-            View 222 listings
+            View listings
           </Button>
         </div>
-      </div>
-      <div className="heading-md absolute top-4 z-10 w-full rounded-lg bg-primary p-8 text-center shadow-md">
-        Set your Algolia ID and configure filters to enable product filtering
       </div>
     </aside>
   );

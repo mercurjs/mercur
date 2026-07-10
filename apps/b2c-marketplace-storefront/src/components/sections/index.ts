@@ -8,7 +8,7 @@ import { ProductListing } from "./ProductListing/ProductListing"
 import { SellerPageHeader } from "./SellerPageHeader/SellerPageHeader"
 import { Cart } from "./Cart/Cart"
 import { ProductDetailsPage } from "./ProductDetailsPage/ProductDetailsPage"
-import { AlgoliaProductsListing } from "./ProductListing/AlgoliaProductsListing"
+import { SearchProductsListing } from "./ProductListing/SearchProductsListing"
 import { OrdersPagination } from "../organisms/OrdersPagination/OrdersPagination"
 
 export {
@@ -22,6 +22,6 @@ export {
   SellerPageHeader,
   Cart,
   ProductDetailsPage,
-  AlgoliaProductsListing,
+  SearchProductsListing,
   OrdersPagination,
 }

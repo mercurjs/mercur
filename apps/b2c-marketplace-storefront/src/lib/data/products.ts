@@ -159,32 +159,133 @@ export const getProductByHandle = async (handle: string, regionId: string) => {
   ).then(({ products }) => products[0]);
 };
 
+export type SearchFacetBucket = { value: string; count: number };
+
+export type SearchPriceRangeBucket = {
+  gte: number | null;
+  lte: number | null;
+  count: number;
+};
+
+export type SearchFacets = {
+  categories: SearchFacetBucket[];
+  collections: SearchFacetBucket[];
+  types: SearchFacetBucket[];
+  tags: SearchFacetBucket[];
+  attributes: Record<string, SearchFacetBucket[]>;
+  price_ranges: SearchPriceRangeBucket[];
+};
+
+type SearchHit = { product_id: string };
+
+const SEARCH_ORDER: Record<SortOptions, string> = {
+  price_asc: 'price',
+  price_desc: '-price',
+  created_at: '-created_at',
+};
+
 /**
- * TODO: reimplement search against the new search module.
- * The previous implementation queried Algolia via `/store/products/search`,
- * which is being removed. Returns an empty result set until the search module
- * lands.
+ * Full-text + faceted search backed by the Postgres search module
+ * (`GET /store/search`). The search index returns product ids and facet
+ * buckets; product cards are hydrated from `/store/products` so they carry
+ * variants and calculated prices.
  */
-export const searchProducts = async (params: {
+export const searchProducts = async ({
+  query,
+  countryCode,
+  regionId,
+  category_id,
+  collection_id,
+  seller_id,
+  type_id,
+  tag_id,
+  attributes,
+  min_price,
+  max_price,
+  page = 1,
+  limit = 12,
+  sortBy,
+}: {
   query?: string;
+  countryCode?: string;
+  regionId?: string;
+  category_id?: string | string[];
+  collection_id?: string | string[];
+  seller_id?: string | string[];
+  type_id?: string | string[];
+  tag_id?: string | string[];
+  attributes?: Record<string, string | string[]>;
+  min_price?: number;
+  max_price?: number;
   page?: number;
-  hitsPerPage?: number;
+  limit?: number;
+  sortBy?: SortOptions;
 }): Promise<{
   products: HttpTypes.StoreProduct[];
-  nbHits: number;
-  page: number;
-  nbPages: number;
-  hitsPerPage: number;
-  facets: Record<string, unknown>;
-  processingTimeMS: number;
+  count: number;
+  facets: SearchFacets;
+  nextPage: number | null;
 }> => {
-  return {
-    products: [],
-    nbHits: 0,
-    page: params.page || 0,
-    nbPages: 0,
-    hitsPerPage: params.hitsPerPage || 12,
-    facets: {},
-    processingTimeMS: 0,
+  const region = countryCode ? await getRegion(countryCode) : { id: regionId };
+
+  const emptyFacets: SearchFacets = {
+    categories: [],
+    collections: [],
+    types: [],
+    tags: [],
+    attributes: {},
+    price_ranges: [],
   };
+
+  if (!region?.id) {
+    return { products: [], count: 0, facets: emptyFacets, nextPage: null };
+  }
+
+  const offset = Math.max(page - 1, 0) * limit;
+  const order = sortBy ? SEARCH_ORDER[sortBy] : query ? 'relevance' : '-created_at';
+
+  const { hits, count, facets } = await (sdk.store.search.query({
+    q: query || undefined,
+    region_id: region.id,
+    category_id,
+    collection_id,
+    seller_id,
+    type_id,
+    tag_id,
+    attributes,
+    min_price,
+    max_price,
+    offset,
+    limit,
+    order,
+    fetchOptions: { headers: { ...(await getAuthHeaders()) }, cache: 'no-cache' },
+  } as never) as unknown as Promise<{
+    products: SearchHit[];
+    count: number;
+    facets: SearchFacets;
+  }>)
+    .then(res => ({ hits: res.products, count: res.count, facets: res.facets }))
+    .catch(() => ({ hits: [] as SearchHit[], count: 0, facets: emptyFacets }));
+
+  const nextPage = count > offset + limit ? page + 1 : null;
+  const ids = hits.map(hit => hit.product_id);
+
+  if (!ids.length) {
+    return { products: [], count, facets, nextPage };
+  }
+
+  const {
+    response: { products },
+  } = await listProducts({
+    pageParam: 1,
+    regionId: region.id,
+    queryParams: { id: ids, limit } as unknown as HttpTypes.StoreProductParams,
+  });
+
+  const byId = new Map(products.map(product => [product.id, product]));
+  const ordered = ids
+    .map(id => byId.get(id))
+    .filter((product): product is HttpTypes.StoreProduct => Boolean(product));
+
+  return { products: ordered, count, facets, nextPage };
 };

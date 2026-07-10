@@ -4,12 +4,12 @@ import { Suspense } from "react"
 
 import type { Metadata } from "next"
 import { Breadcrumbs } from "@/components/atoms"
-import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
+import { SearchProductsListing, ProductListing } from "@/components/sections"
 import { notFound } from "next/navigation"
 import isBot from "@/lib/helpers/isBot"
 import { headers } from "next/headers"
 import Script from "next/script"
-import { getRegion, listRegions } from "@/lib/data/regions"
+import { listRegions } from "@/lib/data/regions"
 import { listProducts } from "@/lib/data/products"
 import { toHreflang } from "@/lib/helpers/hreflang"
 
@@ -76,9 +76,6 @@ export async function generateMetadata({
   }
 }
 
-const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
-const ALGOLIA_SEARCH_KEY = process.env.NEXT_PUBLIC_ALGOLIA_SEARCH_KEY
-
 async function Category({
   params,
 }: {
@@ -94,7 +91,6 @@ async function Category({
   if (!category) {
     return notFound()
   }
-  const currency_code = (await getRegion(locale))?.currency_code || "usd"
   const ua = (await headers()).get("user-agent") || ""
   const bot = isBot(ua)
 
@@ -163,14 +159,10 @@ async function Category({
       <h1 className="heading-xl uppercase">{category.name}</h1>
 
       <Suspense fallback={<div data-testid="category-page-loading"><ProductListingSkeleton /></div>}>
-        {bot || !ALGOLIA_ID || !ALGOLIA_SEARCH_KEY ? (
+        {bot ? (
           <ProductListing category_id={category.id} showSidebar locale={locale} />
         ) : (
-          <AlgoliaProductsListing
-            category_id={category.id}
-            locale={locale}
-            currency_code={currency_code}
-          />
+          <SearchProductsListing category_id={category.id} locale={locale} />
         )}
       </Suspense>
     </main>

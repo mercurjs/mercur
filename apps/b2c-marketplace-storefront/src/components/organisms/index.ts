@@ -18,7 +18,7 @@ import { CartItems } from "./CartItems/CartItems"
 import { HomeProductsCarousel } from "./HomeProductsCarousel/HomeProductsCarousel"
 import { ProductGallery } from "./ProductGallery/ProductGallery"
 import { ProductDetails } from "./ProductDetails/ProductDetails"
-import { AlgoliaProductSidebar } from "./ProductSidebar/AlgoliaProductSidebar"
+import { ProductSearchSidebar } from "./ProductSidebar/ProductSearchSidebar"
 import { Addresses } from "./Addressess/Addresses"
 import { CartEmpty } from "./CartEmpty/CartEmpty"
 
@@ -43,7 +43,7 @@ export {
   HomeProductsCarousel,
   ProductGallery,
   ProductDetails,
-  AlgoliaProductSidebar,
+  ProductSearchSidebar,
   Addresses,
   CartEmpty,
 }

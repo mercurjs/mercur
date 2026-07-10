@@ -2,89 +2,73 @@
 
 import { HttpTypes } from "@medusajs/types"
 import {
-  AlgoliaProductSidebar,
   ProductListingActiveFilters,
   ProductsPagination,
 } from "@/components/organisms"
+import { ProductSearchSidebar } from "@/components/organisms/ProductSidebar/ProductSearchSidebar"
 import {
   ProductListingLoadingView,
   ProductListingNoResultsView,
   ProductListingProductsView,
 } from "@/components/molecules"
 import { useSearchParams } from "next/navigation"
-import { getFacedFilters } from "@/lib/helpers/get-faced-filters"
 import { PRODUCT_LIMIT } from "@/const"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { useEffect, useMemo, useState } from "react"
-import { searchProducts } from "@/lib/data/products"
-import { FacetModel } from "@/components/organisms/ProductSidebar/AlgoliaProductSidebar"
+import { useEffect, useState } from "react"
+import { searchProducts, type SearchFacets } from "@/lib/data/products"
+import type { SortOptions } from "@/types/product"
 
-export const AlgoliaProductsListing = ({
+const RESERVED_KEYS = new Set([
+  "query",
+  "page",
+  "min_price",
+  "max_price",
+  "sortBy",
+  "sale",
+  "products[page]",
+])
+
+const EMPTY_FACETS: SearchFacets = {
+  categories: [],
+  collections: [],
+  types: [],
+  tags: [],
+  attributes: {},
+  price_ranges: [],
+}
+
+export const SearchProductsListing = ({
   category_id,
   collection_id,
-  seller_handle,
+  seller_id,
   locale = process.env.NEXT_PUBLIC_DEFAULT_REGION,
-  currency_code,
 }: {
   category_id?: string
   collection_id?: string
+  seller_id?: string
   locale?: string
-  seller_handle?: string
-  currency_code: string
 }) => {
   const searchParams = useSearchParams()
 
-  const facetFilters: string = getFacedFilters(searchParams)
-  const query: string = searchParams.get("query") || ""
-  const page: number = +(searchParams.get("page") || 1)
+  const query = searchParams.get("query") || ""
+  const page = +(searchParams.get("page") || 1)
+  const minPrice = searchParams.get("min_price") || ""
+  const maxPrice = searchParams.get("max_price") || ""
+  const sortBy = (searchParams.get("sortBy") as SortOptions | null) || undefined
 
-  const filters = `${
-    seller_handle
-      ? `NOT seller:null AND seller.handle:${seller_handle} AND `
-      : "NOT seller:null AND "
-  }NOT seller.store_status:SUSPENDED AND supported_countries:${locale} AND variants.prices.currency_code:${currency_code} AND variants.prices.amount > 0${
-    category_id
-      ? ` AND categories.id:${category_id}${
-          collection_id !== undefined
-            ? ` AND collections.id:${collection_id}`
-            : ""
-        } ${facetFilters}`
-      : ` ${facetFilters}`
-  }`
+  const attributes: Record<string, string | string[]> = {}
+  searchParams.forEach((value, key) => {
+    if (RESERVED_KEYS.has(key)) return
+    const parts = value.split(",").filter(Boolean)
+    attributes[key] = parts.length > 1 ? parts : parts[0] ?? value
+  })
 
-  return (
-      <ProductsListing
-        locale={locale}
-        currency_code={currency_code}
-        filters={filters}
-        query={query}
-        page={page}
-      />
-  )
-}
-
-const ProductsListing = ({
-  locale,
-  currency_code,
-  filters,
-  query,
-  page,
-}: {
-  locale?: string
-  currency_code: string
-  filters: string
-  query: string
-  page: number
-}) => {
-  const [products, setProducts] = useState<
-    (HttpTypes.StoreProduct & { seller?: any })[]
-  >([])
-  const [facets, setFacets] = useState<Record<string, FacetModel[]>>({})
-  const [isLoading, setIsLoading] = useState(true)
+  const [products, setProducts] = useState<HttpTypes.StoreProduct[]>([])
+  const [facets, setFacets] = useState<SearchFacets>(EMPTY_FACETS)
   const [count, setCount] = useState(0)
-  const [pages, setPages] = useState(1)
+  const [isLoading, setIsLoading] = useState(true)
 
-  const searchParams = useSearchParams()
+  const attributesKey = JSON.stringify(attributes)
 
   useEffect(() => {
     async function fetchProducts() {
@@ -94,31 +78,48 @@ const ProductsListing = ({
         setIsLoading(true)
         const result = await searchProducts({
           query: query || undefined,
-          page: page - 1,
-          hitsPerPage: PRODUCT_LIMIT,
-          filters,
-          currency_code,
           countryCode: locale,
+          category_id,
+          collection_id,
+          seller_id,
+          attributes,
+          min_price: minPrice ? Number(minPrice) : undefined,
+          max_price: maxPrice ? Number(maxPrice) : undefined,
+          page,
+          limit: PRODUCT_LIMIT,
+          sortBy,
         })
 
         setProducts(result.products)
         setFacets(result.facets)
-        setCount(result.nbHits)
-        setPages(result.nbPages)
+        setCount(result.count)
       } catch (error) {
         setProducts([])
-        setFacets({})
+        setFacets(EMPTY_FACETS)
         setCount(0)
-        setPages(0)
       } finally {
         setIsLoading(false)
       }
     }
 
     fetchProducts()
-  }, [locale, filters, query, page, currency_code])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [
+    locale,
+    category_id,
+    collection_id,
+    seller_id,
+    query,
+    page,
+    minPrice,
+    maxPrice,
+    sortBy,
+    attributesKey,
+  ])
 
   if (isLoading && products.length === 0) return <ProductListingSkeleton />
+
+  const pages = Math.ceil(count / PRODUCT_LIMIT) || 1
 
   return (
     <div className="min-h-[70vh]">
@@ -130,7 +131,7 @@ const ProductsListing = ({
       </div>
       <div className="md:flex gap-4">
         <div className="w-[280px] flex-shrink-0 hidden md:block">
-          <AlgoliaProductSidebar facets={facets} />
+          <ProductSearchSidebar facets={facets} />
         </div>
         <div className="w-full flex flex-col">
           {isLoading && <ProductListingLoadingView />}
