@@ -5,7 +5,7 @@ import {
   Plus,
   Swatch,
   Trash,
-} from "@medusajs/icons"
+} from "@medusajs/icons";
 import {
   Badge,
   Container,
@@ -13,41 +13,41 @@ import {
   Text,
   Tooltip,
   usePrompt,
-} from "@medusajs/ui"
-import { ProductAttributeDTO } from "@mercurjs/types"
-import { useTranslation } from "react-i18next"
+} from "@medusajs/ui";
+import { ProductAttributeDTO } from "@mercurjs/types";
+import { useTranslation } from "react-i18next";
 
-import { ActionMenu } from "../../common/action-menu"
-import { IconAvatar } from "../../common/icon-avatar"
-import { DisplayExtensionZone } from "../../../extensions"
+import { ActionMenu } from "../../common/action-menu";
+import { IconAvatar } from "../../common/icon-avatar";
+import { DisplayExtensionZone } from "../../../extensions";
 
 type ProductWithAttributes = {
-  id: string
-  attributes?: ProductAttributeDTO[] | null
-}
+  id: string;
+  attributes?: ProductAttributeDTO[] | null;
+};
 
 export type ProductAttributeSectionProps = {
-  product: ProductWithAttributes
-  requiredAttributes?: ProductAttributeDTO[]
-  onDeleteAttribute: (attribute: ProductAttributeDTO) => Promise<void>
-  getEditHref?: (attribute: ProductAttributeDTO) => string
-  addExistingHref?: string
-  createNewHref?: string
-}
+  product: ProductWithAttributes;
+  requiredAttributes?: ProductAttributeDTO[];
+  onDeleteAttribute: (attribute: ProductAttributeDTO) => Promise<void>;
+  getEditHref?: (attribute: ProductAttributeDTO) => string;
+  addExistingHref?: string;
+  createNewHref?: string;
+};
 
 type AttributeActionsProps = {
-  attribute: ProductAttributeDTO
-  editHref: string
-  onDelete: (attribute: ProductAttributeDTO) => Promise<void>
-}
+  attribute: ProductAttributeDTO;
+  editHref: string;
+  onDelete: (attribute: ProductAttributeDTO) => Promise<void>;
+};
 
 const AttributeActions = ({
   attribute,
   editHref,
   onDelete,
 }: AttributeActionsProps) => {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
+  const { t } = useTranslation();
+  const prompt = usePrompt();
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -57,14 +57,14 @@ const AttributeActions = ({
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
-    await onDelete(attribute)
-  }
+    await onDelete(attribute);
+  };
 
   return (
     <ActionMenu
@@ -93,12 +93,12 @@ const AttributeActions = ({
             ]),
       ]}
     />
-  )
-}
+  );
+};
 
 const AttributeValue = ({ attribute }: { attribute: ProductAttributeDTO }) => {
-  const { t } = useTranslation()
-  const values = attribute.values?.map((v) => v.name) ?? []
+  const { t } = useTranslation();
+  const values = attribute.values?.map((v) => v.name) ?? [];
 
   if (attribute.is_required && !values.length) {
     return (
@@ -110,7 +110,7 @@ const AttributeValue = ({ attribute }: { attribute: ProductAttributeDTO }) => {
       >
         {t("products.missingRequiredAttributesHint")}
       </Text>
-    )
+    );
   }
 
   if (["single_select", "multi_select"].includes(attribute.type)) {
@@ -126,7 +126,7 @@ const AttributeValue = ({ attribute }: { attribute: ProductAttributeDTO }) => {
           </Badge>
         ))}
       </div>
-    )
+    );
   }
 
   const textValue =
@@ -134,7 +134,7 @@ const AttributeValue = ({ attribute }: { attribute: ProductAttributeDTO }) => {
       ? values
           .map((val) => (val === "true" ? t("general.yes") : t("general.no")))
           .join(", ") || "-"
-      : values.join(", ") || "-"
+      : values.join(", ") || "-";
 
   return (
     <Tooltip content={<span className="break-all">{textValue}</span>}>
@@ -146,17 +146,17 @@ const AttributeValue = ({ attribute }: { attribute: ProductAttributeDTO }) => {
         {textValue}
       </Text>
     </Tooltip>
-  )
-}
+  );
+};
 
 type AttributeGroupProps = {
-  icon: React.ReactNode
-  title: string
-  description: string
-  attributes: ProductAttributeDTO[]
-  getEditHref: (attribute: ProductAttributeDTO) => string
-  onDelete: (attribute: ProductAttributeDTO) => Promise<void>
-}
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  attributes: ProductAttributeDTO[];
+  getEditHref: (attribute: ProductAttributeDTO) => string;
+  onDelete: (attribute: ProductAttributeDTO) => Promise<void>;
+};
 
 const AttributeGroup = ({
   icon,
@@ -166,10 +166,10 @@ const AttributeGroup = ({
   getEditHref,
   onDelete,
 }: AttributeGroupProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   if (!attributes.length) {
-    return null
+    return null;
   }
 
   return (
@@ -198,7 +198,7 @@ const AttributeGroup = ({
                     : ""
                 }
               >
-                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_28px] items-center gap-4 px-4 py-3 bg-ui-bg-component">
+                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_28px] items-center gap-4 px-3 py-2 bg-ui-bg-component">
                   <div className="flex items-center gap-x-2 text-ui-fg-subtle">
                     <Text size="small" weight="plus" leading="compact">
                       {attr.name}
@@ -230,16 +230,16 @@ const AttributeGroup = ({
                   />
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const defaultEditHref = (attribute: ProductAttributeDTO) =>
-  `attributes/${attribute.id}/edit`
+  `attributes/${attribute.id}/edit`;
 
 export const ProductAttributeSection = ({
   product,
@@ -249,10 +249,10 @@ export const ProductAttributeSection = ({
   addExistingHref = "attributes/add",
   createNewHref = "attributes/create",
 }: ProductAttributeSectionProps) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const attributes = product.attributes ?? []
-  const attachedIds = new Set(attributes.map((a) => a.id))
+  const attributes = product.attributes ?? [];
+  const attachedIds = new Set(attributes.map((a) => a.id));
 
   const missing = (requiredAttributes ?? [])
     .filter((required) => !attachedIds.has(required.id))
@@ -263,13 +263,13 @@ export const ProductAttributeSection = ({
           values: [],
           is_required: true,
         }) as unknown as ProductAttributeDTO,
-    )
+    );
 
-  const allAttributes = [...attributes, ...missing]
-  const variantAttributes = allAttributes.filter((a) => a.is_variant_axis)
-  const infoAttributes = allAttributes.filter((a) => !a.is_variant_axis)
+  const allAttributes = [...attributes, ...missing];
+  const variantAttributes = allAttributes.filter((a) => a.is_variant_axis);
+  const infoAttributes = allAttributes.filter((a) => !a.is_variant_axis);
 
-  const isEmpty = !variantAttributes.length && !infoAttributes.length
+  const isEmpty = !variantAttributes.length && !infoAttributes.length;
 
   return (
     <Container className="p-0">
@@ -324,5 +324,5 @@ export const ProductAttributeSection = ({
       )}
       <DisplayExtensionZone model="product" zone="attributes" data={product} />
     </Container>
-  )
-}
+  );
+};
