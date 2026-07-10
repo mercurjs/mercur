@@ -265,5 +265,11 @@ declare module "@mercurjs/dashboard-sdk" {
       displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "requests"
       displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "website_url"
     }
+    "user": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "general"
+      displayFieldIds: "email" | "language" | "name"
+    }
   }
 }
