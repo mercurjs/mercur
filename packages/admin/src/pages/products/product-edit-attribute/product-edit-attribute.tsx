@@ -1,12 +1,16 @@
-import { Heading } from "@medusajs/ui";
+import { Heading, toast } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
-import { RouteDrawer } from "../../../components/modals";
-import { useProduct } from "../../../hooks/api/products";
+import {
+  EditAttributeForm,
+  ProductAttributeBatchPayload,
+  RouteDrawer,
+} from "@mercurjs/dashboard-shared";
+
+import { useBatchProductAttributes, useProduct } from "../../../hooks/api/products";
 import { useProductAttribute } from "../../../hooks/api/product-attributes";
 import { PRODUCT_DETAIL_QUERY } from "../constants";
-import { EditAttributeForm } from "./components/edit-attribute-form";
 
 export const ProductEditAttribute = () => {
   const { id, attribute_id } = useParams();
@@ -29,6 +33,8 @@ export const ProductEditAttribute = () => {
   } = useProductAttribute(attribute_id!, undefined, {
     enabled: !!attribute_id && !isLoading && !attached,
   });
+
+  const { mutateAsync, isPending } = useBatchProductAttributes(id!);
 
   if (isError) {
     throw error;
@@ -60,6 +66,12 @@ export const ProductEditAttribute = () => {
   const ready =
     !isLoading && !!product && !!attribute && (!!attached || !isCatalogLoading);
 
+  const onSubmit = async (payload: ProductAttributeBatchPayload) => {
+    await mutateAsync(payload, {
+      onError: (error) => toast.error(error.message),
+    });
+  };
+
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
@@ -72,9 +84,10 @@ export const ProductEditAttribute = () => {
       </RouteDrawer.Header>
       {ready && (
         <EditAttributeForm
-          productId={id!}
           attribute={attribute}
           isAttached={isAttached}
+          isPending={isPending}
+          onSubmit={onSubmit}
         />
       )}
     </RouteDrawer>

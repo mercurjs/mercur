@@ -1,15 +1,21 @@
 // Route: /products/:id/attributes/:attribute_id/edit
-import { Heading } from "@medusajs/ui";
+import { Heading, toast } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
-import { useLinkQuery } from "@mercurjs/dashboard-shared";
+import {
+  EditAttributeAttribute,
+  EditAttributeForm,
+  ProductAttributeBatchPayload,
+  RouteDrawer,
+  useLinkQuery,
+} from "@mercurjs/dashboard-shared";
+import { MercurFeatureFlags } from "@mercurjs/types";
 
-import { RouteDrawer } from "@components/modals";
-import { useProduct } from "@hooks/api/products";
+import { useFeatureFlags } from "@hooks/api";
+import { useBatchProductAttributes, useProduct } from "@hooks/api/products";
 import { useProductAttribute } from "@hooks/api/product-attributes";
 import { PRODUCT_DETAIL_QUERY } from "../../../../common/constants";
-import { EditAttributeForm } from "./components/edit-attribute-form";
 
 export const Component = () => {
   const { id, attribute_id } = useParams();
@@ -28,6 +34,12 @@ export const Component = () => {
   } = useProductAttribute(attribute_id!, undefined, {
     enabled: !!attribute_id && !isLoading && !attached,
   });
+
+  const { feature_flags } = useFeatureFlags();
+  const isProductRequestEnabled =
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST];
+
+  const { mutateAsync, isPending } = useBatchProductAttributes(id!);
 
   if (isError) {
     throw error;
@@ -59,6 +71,19 @@ export const Component = () => {
   const ready =
     !isLoading && !!product && !!attribute && (!!attached || !isCatalogLoading);
 
+  const onSubmit = async (payload: ProductAttributeBatchPayload) => {
+    await mutateAsync(payload, {
+      onSuccess: () => {
+        toast.success(
+          isProductRequestEnabled
+            ? t("products.edit.requestSuccessToast")
+            : t("products.edit.attributes.updateSuccessToast"),
+        );
+      },
+      onError: (error) => toast.error(error.message),
+    });
+  };
+
   return (
     <RouteDrawer>
       <RouteDrawer.Header>
@@ -71,9 +96,10 @@ export const Component = () => {
       </RouteDrawer.Header>
       {ready && (
         <EditAttributeForm
-          productId={id!}
-          attribute={attribute}
+          attribute={attribute as unknown as EditAttributeAttribute}
           isAttached={isAttached}
+          isPending={isPending}
+          onSubmit={onSubmit}
         />
       )}
     </RouteDrawer>
