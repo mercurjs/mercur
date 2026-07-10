@@ -2602,6 +2602,12 @@
         "attributeRequiredByMarketplace": {
           "type": "string"
         },
+        "attributeRequiredDeleteDisabledTooltip": {
+          "type": "string"
+        },
+        "missingRequiredAttributesHint": {
+          "type": "string"
+        },
         "addAttribute": {
           "type": "string"
         },
@@ -3740,6 +3746,8 @@
         "attributeProductInformation",
         "attributeProductInformationDescription",
         "attributeRequiredByMarketplace",
+        "attributeRequiredDeleteDisabledTooltip",
+        "missingRequiredAttributesHint",
         "addAttribute",
         "deleteAttributeWarning",
         "attributesSection",

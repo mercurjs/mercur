@@ -2,6 +2,7 @@ import { AdditionalData } from "@medusajs/framework/types"
 import {
   createHook,
   createWorkflow,
+  transform,
   when,
   WorkflowResponse,
   type Hook,
@@ -44,9 +45,22 @@ export const createAndLinkProductAttributesToProductWorkflow: ReturnWorkflow<
   function (input: CreateAndLinkProductAttributesWorkflowInput) {
     const validate = createHook("validate", { input })
 
+    const removeInput = transform({ input }, ({ input }) => {
+      const addIds = new Set(
+        (input.add ?? [])
+          .map((a) => ("id" in a ? a.id : undefined))
+          .filter((id): id is string => !!id),
+      )
+      return {
+        product_id: input.product_id,
+        remove: input.remove ?? [],
+        readd: (input.remove ?? []).filter((id) => addIds.has(id)),
+      }
+    })
+
     when({ input }, ({ input }) => !!input.remove?.length).then(() =>
       removeProductAttributesFromProductWorkflow.runAsStep({
-        input: { product_id: input.product_id, remove: input.remove ?? [] },
+        input: removeInput,
       }),
     )
 

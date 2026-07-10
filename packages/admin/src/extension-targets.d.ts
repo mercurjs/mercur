@@ -244,7 +244,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "product": {
       formZones: "create"
       formTabs: { "create": "attributes" | "details" | "organize" | "variants" }
-      displayZones: "attributes" | "general" | "media" | "organize" | "request" | "variants"
+      displayZones: "general" | "media" | "organize" | "request" | "variants"
       displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
     }
     "promotion": {
@@ -264,6 +264,12 @@ declare module "@mercurjs/dashboard-sdk" {
       formTabs: { "create": "details" | "users" }
       displayZones: "address" | "company-details" | "configuration" | "general" | "members" | "offers" | "orders" | "payment-details" | "requests"
       displayFieldIds: "currency_code" | "description" | "email" | "handle" | "phone" | "website_url"
+    }
+    "user": {
+      formZones: never
+      formTabs: Record<string, string>
+      displayZones: "general"
+      displayFieldIds: "email" | "language" | "name"
     }
   }
 }

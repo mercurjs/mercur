@@ -223,7 +223,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "product": {
       formZones: "create" | "edit"
       formTabs: { "create": "attributes" | "details" | "organize" | "variants" }
-      displayZones: "attributes" | "general" | "media" | "organize" | "sales-channels" | "shipping-profile" | "variants"
+      displayZones: "general" | "media" | "organize" | "sales-channels" | "shipping-profile" | "variants"
       displayFieldIds: "description" | "discountable" | "handle" | "status" | "subtitle" | "title"
     }
     "promotion": {

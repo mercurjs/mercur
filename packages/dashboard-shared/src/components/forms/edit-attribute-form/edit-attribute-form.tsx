@@ -1,52 +1,58 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Button, InlineTip, Input, Label, toast } from "@medusajs/ui";
-import { AttributeType } from "@mercurjs/types";
-import { useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-import * as zod from "zod";
+import { zodResolver } from "@hookform/resolvers/zod"
+import { Button, InlineTip, Input, Label } from "@medusajs/ui"
+import {
+  AttributeType,
+  ProductAttributeBatchInput,
+} from "@mercurjs/types"
+import { useForm } from "react-hook-form"
+import { useTranslation } from "react-i18next"
+import * as zod from "zod"
 
-import { AttributeValueInput } from "../../../../../components/inputs/attribute-value-input";
-import { ChipInput } from "../../../../../components/inputs/chip-input";
-import { Form } from "../../../../../components/common/form";
-import { RouteDrawer, useRouteModal } from "../../../../../components/modals";
-import { KeyboundForm } from "../../../../../components/utilities/keybound-form";
-import { useBatchProductAttributes } from "../../../../../hooks/api/products";
+import { Form } from "../../common/form"
+import { AttributeValueInput } from "../../inputs/attribute-value-input"
+import { ChipInput } from "../../inputs/chip-input"
+import { RouteDrawer, useRouteModal } from "../../modals"
+import { KeyboundForm } from "../../utilities/keybound-form"
 
-type AttributeValue = { id: string; name: string };
+export type ProductAttributeBatchPayload = Omit<
+  ProductAttributeBatchInput,
+  "product_id"
+>
 
-type EditAttributeAttribute = {
-  id: string;
-  name: string;
-  type: AttributeType | string;
-  description?: string;
-  is_required?: boolean;
-  is_variant_axis?: boolean;
-  is_scoped?: boolean;
-  values?: AttributeValue[];
-  all_values?: AttributeValue[];
-};
+type AttributeValue = { id: string; name: string }
 
-type EditAttributeFormProps = {
-  productId: string;
-  attribute: EditAttributeAttribute;
-};
+export type EditAttributeAttribute = {
+  id: string
+  name: string
+  type: AttributeType | string
+  description?: string
+  is_required?: boolean
+  is_variant_axis?: boolean
+  is_scoped?: boolean
+  values?: AttributeValue[]
+  all_values?: AttributeValue[]
+}
+
+export type EditAttributeFormProps = {
+  attribute: EditAttributeAttribute
+  isAttached?: boolean
+  isPending: boolean
+  onSubmit: (payload: ProductAttributeBatchPayload) => Promise<void>
+}
 
 const isVariantAxis = (attribute: EditAttributeAttribute) =>
-  attribute.type === AttributeType.MULTI_SELECT || !!attribute.is_variant_axis;
+  attribute.type === AttributeType.MULTI_SELECT || !!attribute.is_variant_axis
 
-export const EditAttributeForm = ({
-  productId,
-  attribute,
-}: EditAttributeFormProps) => {
-  if (attribute.is_scoped) {
-    return <EditScopedAttributeForm productId={productId} attribute={attribute} />;
+export const EditAttributeForm = (props: EditAttributeFormProps) => {
+  if (props.attribute.is_scoped) {
+    return <EditScopedAttributeForm {...props} />
   }
 
-  return <EditCatalogAttributeForm productId={productId} attribute={attribute} />;
-};
+  return <EditCatalogAttributeForm {...props} />
+}
 
 const AttributeWarning = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
     <InlineTip
@@ -55,33 +61,34 @@ const AttributeWarning = () => {
     >
       {t("products.create.attributes.editWarning")}
     </InlineTip>
-  );
-};
+  )
+}
 
 const VariantAxisTip = () => {
-  const { t } = useTranslation();
+  const { t } = useTranslation()
 
   return (
     <InlineTip label={t("products.create.attributes.tip")}>
       {t("products.create.attributes.editVariantAxisTip")}
     </InlineTip>
-  );
-};
+  )
+}
 
 type ScopedFormValues = {
-  title: string;
-  values: string | string[];
-};
+  title: string
+  values: string | string[]
+}
 
 const EditScopedAttributeForm = ({
-  productId,
   attribute,
+  isPending,
+  onSubmit,
 }: EditAttributeFormProps) => {
-  const { t } = useTranslation();
-  const { handleSuccess } = useRouteModal();
+  const { t } = useTranslation()
+  const { handleSuccess } = useRouteModal()
 
-  const isAxis = isVariantAxis(attribute);
-  const currentValues = attribute.values ?? attribute.all_values ?? [];
+  const isAxis = isVariantAxis(attribute)
+  const currentValues = attribute.values ?? attribute.all_values ?? []
 
   const schema = zod.object({
     title: zod
@@ -94,7 +101,7 @@ const EditScopedAttributeForm = ({
         (v) => (Array.isArray(v) ? v.length > 0 : v.trim().length > 0),
         { message: t("products.create.attributes.errors.valuesRequired") },
       ),
-  });
+  })
 
   const form = useForm<ScopedFormValues>({
     defaultValues: {
@@ -104,44 +111,44 @@ const EditScopedAttributeForm = ({
         : currentValues[0]?.name ?? "",
     },
     resolver: zodResolver(schema),
-  });
-
-  const { mutateAsync, isPending } = useBatchProductAttributes(productId);
+  })
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const title =
-      data.title.trim() !== attribute.name ? data.title.trim() : undefined;
+      data.title.trim() !== attribute.name ? data.title.trim() : undefined
 
-    let payload: Parameters<typeof mutateAsync>[0];
+    let payload: ProductAttributeBatchPayload
 
     if (isAxis) {
       const newNames = (Array.isArray(data.values) ? data.values : [])
         .map((v) => v.trim())
-        .filter(Boolean);
-      const byName = new Map(currentValues.map((v) => [v.name, v.id]));
+        .filter(Boolean)
+      const byName = new Map(currentValues.map((v) => [v.name, v.id]))
       const add = newNames
         .filter((name) => !byName.has(name))
-        .map((value) => ({ value }));
+        .map((value) => ({ value }))
       const remove = currentValues
         .filter((v) => !newNames.includes(v.name))
-        .map((v) => v.id);
+        .map((v) => v.id)
       payload = {
         update: [{ id: attribute.id, title, add, remove }],
-      };
+      }
     } else {
       const value = Array.isArray(data.values)
         ? data.values[0] ?? ""
-        : data.values;
+        : data.values
       payload = {
         update: [{ id: attribute.id, title, value }],
-      };
+      }
     }
 
-    await mutateAsync(payload, {
-      onSuccess: () => handleSuccess(),
-      onError: (error) => toast.error(error.message),
-    });
-  });
+    try {
+      await onSubmit(payload)
+      handleSuccess()
+    } catch {
+      // The caller is responsible for surfacing the error.
+    }
+  })
 
   return (
     <RouteDrawer.Form form={form}>
@@ -252,39 +259,41 @@ const EditScopedAttributeForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  );
-};
+  )
+}
 
 type CatalogFormValues = {
-  values: string | string[];
-};
+  values: string | string[]
+}
 
 const EditCatalogAttributeForm = ({
-  productId,
   attribute,
+  isAttached = true,
+  isPending,
+  onSubmit,
 }: EditAttributeFormProps) => {
-  const { t } = useTranslation();
-  const { handleSuccess } = useRouteModal();
+  const { t } = useTranslation()
+  const { handleSuccess } = useRouteModal()
 
-  const isAxis = isVariantAxis(attribute);
+  const isAxis = isVariantAxis(attribute)
 
   const hasPresetValues =
     attribute.type === AttributeType.SINGLE_SELECT ||
-    attribute.type === AttributeType.MULTI_SELECT;
+    attribute.type === AttributeType.MULTI_SELECT
 
   const labelTooltip =
     attribute.description ||
     (attribute.is_required
       ? t("products.attributeRequiredByMarketplace")
-      : undefined);
+      : undefined)
 
   const initialValues = (() => {
-    const selected = attribute.values ?? [];
+    const selected = attribute.values ?? []
     if (attribute.type === AttributeType.MULTI_SELECT) {
-      return selected.map((v) => v.name);
+      return selected.map((v) => v.name)
     }
-    return selected[0]?.name ?? "";
-  })();
+    return selected[0]?.name ?? ""
+  })()
 
   const schema = zod.object({
     values: zod
@@ -293,57 +302,56 @@ const EditCatalogAttributeForm = ({
         (v) => (Array.isArray(v) ? v.length > 0 : v.trim().length > 0),
         { message: t("products.create.attributes.errors.valuesRequired") },
       ),
-  });
+  })
 
   const form = useForm<CatalogFormValues>({
     defaultValues: { values: initialValues },
     resolver: zodResolver(schema),
-  });
-
-  const { mutateAsync, isPending } = useBatchProductAttributes(productId);
+  })
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const vals = Array.isArray(data.values)
       ? data.values
-      : [data.values].filter((s) => s.trim().length > 0);
+      : [data.values].filter((s) => s.trim().length > 0)
 
-    let payload: Parameters<typeof mutateAsync>[0];
+    let payload: ProductAttributeBatchPayload
+
+    const scalarValue =
+      attribute.type === AttributeType.TOGGLE ? vals[0] === "true" : vals[0]
 
     if (hasPresetValues) {
       const selectedIds = (attribute.all_values ?? [])
         .filter((v) => vals.includes(v.name))
-        .map((v) => v.id);
+        .map((v) => v.id)
 
-      if (attribute.is_variant_axis) {
-        const currentIds = (attribute.values ?? []).map((v) => v.id);
-        const add = selectedIds.filter((id) => !currentIds.includes(id));
-        const remove = currentIds.filter((id) => !selectedIds.includes(id));
-        payload = { update: [{ id: attribute.id, add, remove }] };
+      if (!isAttached) {
+        payload = { add: [{ id: attribute.id, value_ids: selectedIds }] }
+      } else if (attribute.is_variant_axis) {
+        const currentIds = (attribute.values ?? []).map((v) => v.id)
+        const add = selectedIds.filter((id) => !currentIds.includes(id))
+        const remove = currentIds.filter((id) => !selectedIds.includes(id))
+        payload = { update: [{ id: attribute.id, add, remove }] }
       } else {
         payload = {
           remove: [attribute.id],
           add: [{ id: attribute.id, value_ids: selectedIds }],
-        };
+        }
       }
+    } else if (!isAttached) {
+      payload = { add: [{ id: attribute.id, value: scalarValue }] }
     } else {
       payload = {
-        update: [
-          {
-            id: attribute.id,
-            value:
-              attribute.type === AttributeType.TOGGLE
-                ? vals[0] === "true"
-                : vals[0],
-          },
-        ],
-      };
+        update: [{ id: attribute.id, value: scalarValue }],
+      }
     }
 
-    await mutateAsync(payload, {
-      onSuccess: () => handleSuccess(),
-      onError: (error) => toast.error(error.message),
-    });
-  });
+    try {
+      await onSubmit(payload)
+      handleSuccess()
+    } catch {
+      // The caller is responsible for surfacing the error.
+    }
+  })
 
   return (
     <RouteDrawer.Form form={form}>
@@ -393,5 +401,5 @@ const EditCatalogAttributeForm = ({
         </RouteDrawer.Footer>
       </KeyboundForm>
     </RouteDrawer.Form>
-  );
-};
+  )
+}
