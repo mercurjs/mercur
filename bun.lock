@@ -88,7 +88,7 @@
         "yalc": "^1.0.0-pre.53",
       },
     },
-    "apps/b2c-marketplace-storefront": {
+    "apps/storefront": {
       "name": "b2c-storefront",
       "version": "1.5.4",
       "dependencies": {
@@ -2485,7 +2485,7 @@
 
     "axobject-query": ["axobject-query@4.1.0", "", {}, "sha512-qIj0G9wZbMGNLjLmg1PT6v2mE9AH2zlnADJD/2tC6E00hgmhUOfEB6greHPAfLRSufHqROIUTkw6E+M3lH0PTQ=="],
 
-    "b2c-storefront": ["b2c-storefront@workspace:apps/b2c-marketplace-storefront"],
+    "b2c-storefront": ["b2c-storefront@workspace:apps/storefront"],
 
     "babel-jest": ["babel-jest@30.4.1", "", { "dependencies": { "@jest/transform": "30.4.1", "@types/babel__core": "^7.20.5", "babel-plugin-istanbul": "^7.0.1", "babel-preset-jest": "30.4.0", "chalk": "^4.1.2", "graceful-fs": "^4.2.11", "slash": "^3.0.0" }, "peerDependencies": { "@babel/core": "^7.11.0 || ^8.0.0-0" } }, "sha512-fATAbM8piYxkiXQp3RBXmZHxZVNJZAVXXfyeyCN2Tida3+qJ8ea9UxhiJ2y4fLO90ZImKt6k9FlcH2+rLkJGhw=="],
 
