@@ -2,11 +2,11 @@ import { OrderAddresses } from "@/components/organisms/OrderAddresses/OrderAddre
 import { OrderParcels } from "@/components/organisms/OrderParcels/OrderParcels"
 import { OrderTotals } from "@/components/organisms/OrderTotals/OrderTotals"
 
-export const OrderDetailsSection = ({ orderSet }: { orderSet: any }) => {
+export const OrderDetailsSection = ({ orderGroup }: { orderGroup: any }) => {
   return (
     <div>
-      <OrderParcels orders={orderSet.orders} />
-      <OrderTotals orderSet={orderSet} />
+      <OrderParcels orders={orderGroup.orders} />
+      <OrderTotals orderGroup={orderGroup} />
       {/* <OrderAddresses /> */}
     </div>
   )

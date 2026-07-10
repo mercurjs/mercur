@@ -1,12 +1,12 @@
 import { Card, Divider } from "@/components/atoms"
 import { convertToLocale } from "@/lib/helpers/money"
 
-export const OrderTotals = ({ orderSet }: { orderSet: any }) => {
-  const delivery = orderSet.shipping_total
-  const subtotal = orderSet.total - delivery
-  const total = orderSet.total
+export const OrderTotals = ({ orderGroup }: { orderGroup: any }) => {
+  const delivery = orderGroup.shipping_total
+  const subtotal = orderGroup.total - delivery
+  const total = orderGroup.total
 
-  const currency_code = orderSet.payment_collection.currency_code
+  const currency_code = orderGroup.payment_collection.currency_code
 
   return (
     <Card className="mb-8 p-4">

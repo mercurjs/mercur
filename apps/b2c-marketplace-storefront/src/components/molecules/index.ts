@@ -27,7 +27,6 @@ import { ProfileDetails } from './ProfileDetails/ProfileDetails';
 import { RegisterForm } from './RegisterForm/RegisterForm';
 import { ReportListingForm } from './ReportListingForm/ReportListingForm';
 import { ReportSellerForm } from './ReportSellerForm/ReportSellerForm';
-import { ReviewForm } from './ReviewForm/ReviewForm';
 import { SelectField } from './SelectField/SelectField';
 import { SellerInfo } from './SellerInfo/SellerInfo';
 import { SellerInfoHeader } from './SellerInfoHeader/SellerInfoHeader';
@@ -73,7 +72,6 @@ export {
   UserNavigation,
   ParcelAccordion,
   AddressForm,
-  ReviewForm,
   ProfileDetails,
   ProductListingLoadingView,
   ProductListingNoResultsView,

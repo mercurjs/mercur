@@ -4,7 +4,7 @@ import { HttpTypes } from '@medusajs/types';
 import { revalidateTag } from 'next/cache';
 import { redirect } from 'next/navigation';
 
-import { sdk } from '../config';
+import { sdk } from '../client';
 import {
   getAuthHeaders,
   getCacheOptions,
@@ -27,16 +27,11 @@ export const retrieveCustomer = async (): Promise<HttpTypes.StoreCustomer | null
     ...(await getCacheOptions('customers'))
   };
 
-  return await sdk.client
-    .fetch<{ customer: HttpTypes.StoreCustomer }>(`/store/customers/me`, {
-      method: 'GET',
-      query: {
-        fields: '*orders'
-      },
-      headers,
-      next,
-      cache: 'force-cache'
-    })
+  return await (sdk.store.customers.me
+    .query({
+      fields: '*orders',
+      fetchOptions: { headers, next, cache: 'force-cache' }
+    } as never) as unknown as Promise<{ customer: HttpTypes.StoreCustomer }>)
     .then(({ customer }) => customer ?? null)
     .catch(() => null);
 };
@@ -46,8 +41,8 @@ export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
     ...(await getAuthHeaders())
   };
 
-  const updateRes = await sdk.store.customer
-    .update(body, {}, headers)
+  const updateRes = await sdk.store.customers.me
+    .mutate({ ...body, fetchOptions: { headers } })
     .then(({ customer }) => customer)
     .catch(err => {
       throw new Error(err.message);
@@ -69,10 +64,14 @@ export async function signup(formData: FormData) {
   };
 
   try {
-    const token = await sdk.auth.register('customer', 'emailpass', {
-      email: customerForm.email,
-      password: password
-    });
+    const token = await (sdk.auth.$actorType.$authProvider.register
+      .mutate({
+        $actorType: 'customer',
+        $authProvider: 'emailpass',
+        email: customerForm.email,
+        password: password
+      } as never) as unknown as Promise<{ token: string }>)
+      .then(({ token }) => token);
 
     await setAuthToken(token as string);
 
@@ -80,16 +79,19 @@ export async function signup(formData: FormData) {
       ...(await getAuthHeaders())
     };
 
-    const { customer: createdCustomer } = await sdk.store.customer.create(
-      customerForm,
-      {},
-      headers
-    );
+    const { customer: createdCustomer } = await (sdk.store.customers.mutate({
+      ...customerForm,
+      fetchOptions: { headers }
+    } as never) as unknown as Promise<{ customer: HttpTypes.StoreCustomer }>);
 
-    const loginToken = await sdk.auth.login('customer', 'emailpass', {
-      email: customerForm.email,
-      password
-    });
+    const loginToken = await (sdk.auth.$actorType.$authProvider
+      .mutate({
+        $actorType: 'customer',
+        $authProvider: 'emailpass',
+        email: customerForm.email,
+        password
+      } as never) as unknown as Promise<{ token: string }>)
+      .then(({ token }) => token);
 
     await setAuthToken(loginToken as string);
 
@@ -109,7 +111,9 @@ export async function login(formData: FormData) {
   const password = formData.get('password') as string;
 
   try {
-    const token = await sdk.auth.login('customer', 'emailpass', { email, password });
+    const token = await (sdk.auth.$actorType.$authProvider
+      .mutate({ $actorType: 'customer', $authProvider: 'emailpass', email, password } as never) as unknown as Promise<{ token: string }>)
+      .then(({ token }) => token);
     await setAuthToken(token as string);
     const customerCacheTag = await getCacheTag('customers');
     revalidateTag(customerCacheTag);
@@ -124,8 +128,6 @@ export async function login(formData: FormData) {
 }
 
 export async function signout() {
-  await sdk.auth.logout();
-
   await removeAuthToken();
 
   const customerCacheTag = await getCacheTag('customers');
@@ -147,7 +149,7 @@ export async function transferCart() {
 
   const headers = await getAuthHeaders();
 
-  await sdk.store.cart.transferCart(cartId, {}, headers);
+  await sdk.store.carts.$id.customer.mutate({ $id: cartId, fetchOptions: { headers } });
 
   const cartCacheTag = await getCacheTag('carts');
   revalidateTag(cartCacheTag);
@@ -173,9 +175,9 @@ export const addCustomerAddress = async (formData: FormData): Promise<any> => {
     ...(await getAuthHeaders())
   };
 
-  return sdk.store.customer
-    .createAddress(address, {}, headers)
-    .then(async ({ customer }) => {
+  return (sdk.store.customers.me.addresses
+    .mutate({ ...address, fetchOptions: { headers } } as never) as unknown as Promise<unknown>)
+    .then(async () => {
       const customerCacheTag = await getCacheTag('customers');
       revalidateTag(customerCacheTag);
       return { success: true, error: null };
@@ -190,8 +192,8 @@ export const deleteCustomerAddress = async (addressId: string): Promise<void> =>
     ...(await getAuthHeaders())
   };
 
-  await sdk.store.customer
-    .deleteAddress(addressId, headers)
+  await (sdk.store.customers.me.addresses.$addressId
+    .delete({ $addressId: addressId, fetchOptions: { headers } } as never) as unknown as Promise<unknown>)
     .then(async () => {
       const customerCacheTag = await getCacheTag('customers');
       revalidateTag(customerCacheTag);
@@ -232,8 +234,8 @@ export const updateCustomerAddress = async (formData: FormData): Promise<any> =>
     ...(await getAuthHeaders())
   };
 
-  return sdk.store.customer
-    .updateAddress(addressId, address, {}, headers)
+  return (sdk.store.customers.me.addresses.$addressId
+    .mutate({ $addressId: addressId, ...address, fetchOptions: { headers } } as never) as unknown as Promise<unknown>)
     .then(async () => {
       const customerCacheTag = await getCacheTag('customers');
       revalidateTag(customerCacheTag);
@@ -245,14 +247,13 @@ export const updateCustomerAddress = async (formData: FormData): Promise<any> =>
 };
 
 export const updateCustomerPassword = async (password: string, token: string): Promise<any> => {
-  const res = await fetch(`${process.env.MEDUSA_BACKEND_URL}/auth/customer/emailpass/update`, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${token}`
-    },
-    body: JSON.stringify({ password })
-  })
+  const res = await (sdk.auth.$actorType.$authProvider.update
+    .mutate({
+      $actorType: 'customer',
+      $authProvider: 'emailpass',
+      password,
+      fetchOptions: { headers: { authorization: `Bearer ${token}` } }
+    } as never) as unknown as Promise<unknown>)
     .then(async () => {
       await removeAuthToken();
       const customerCacheTag = await getCacheTag('customers');
@@ -267,10 +268,12 @@ export const updateCustomerPassword = async (password: string, token: string): P
 };
 
 export const sendResetPasswordEmail = async (email: string) => {
-  const res = await sdk.auth
-    .resetPassword('customer', 'emailpass', {
+  const res = await (sdk.auth.$actorType.$authProvider.resetPassword
+    .mutate({
+      $actorType: 'customer',
+      $authProvider: 'emailpass',
       identifier: email
-    })
+    } as never) as unknown as Promise<unknown>)
     .then(() => {
       return { success: true, error: null };
     })

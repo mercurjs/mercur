@@ -2,7 +2,6 @@ import { Suspense } from "react"
 import { ProductListingSkeleton } from "../ProductListingSkeleton/ProductListingSkeleton"
 import { AlgoliaProductsListing, ProductListing } from "@/components/sections"
 import { TabsContent, TabsList } from "@/components/molecules"
-import { SellerReviewTab } from "@/components/cells"
 import { getRegion } from "@/lib/data/regions"
 
 const ALGOLIA_ID = process.env.NEXT_PUBLIC_ALGOLIA_ID
@@ -23,10 +22,6 @@ export const SellerTabs = ({
 }) => {
   const tabsList = [
     { label: "products", link: `/sellers/${seller_handle}/` },
-    {
-      label: "reviews",
-      link: `/sellers/${seller_handle}/reviews`,
-    },
   ]
 
   return (
@@ -43,11 +38,6 @@ export const SellerTabs = ({
               currency_code={currency_code}
             />
           )}
-        </Suspense>
-      </TabsContent>
-      <TabsContent value="reviews" activeTab={tab}>
-        <Suspense fallback={<div data-testid="seller-tabs-reviews-loading">Loading...</div>}>
-          <SellerReviewTab seller_handle={seller_handle} />
         </Suspense>
       </TabsContent>
     </div>

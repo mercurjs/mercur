@@ -15,14 +15,11 @@ import { SellerFooter } from "./SellerFooter/SellerFooter"
 import { SellerTabs } from "./SellerTabs/SellerTabs"
 import { CartSummary } from "./CartSummary/CartSummary"
 import { CartItems } from "./CartItems/CartItems"
-import { WishlistTabs } from "./WishlistTabs/WishlistTabs"
 import { HomeProductsCarousel } from "./HomeProductsCarousel/HomeProductsCarousel"
 import { ProductGallery } from "./ProductGallery/ProductGallery"
 import { ProductDetails } from "./ProductDetails/ProductDetails"
 import { AlgoliaProductSidebar } from "./ProductSidebar/AlgoliaProductSidebar"
 import { Addresses } from "./Addressess/Addresses"
-import { ReviewsToWrite } from "./Reviews/ReviewsToWrite"
-import { ReviewsWritten } from "./Reviews/ReviewsWritten"
 import { CartEmpty } from "./CartEmpty/CartEmpty"
 
 export {
@@ -43,13 +40,10 @@ export {
   SellerTabs,
   CartSummary,
   CartItems,
-  WishlistTabs,
   HomeProductsCarousel,
   ProductGallery,
   ProductDetails,
   AlgoliaProductSidebar,
   Addresses,
-  ReviewsToWrite,
-  ReviewsWritten,
   CartEmpty,
 }

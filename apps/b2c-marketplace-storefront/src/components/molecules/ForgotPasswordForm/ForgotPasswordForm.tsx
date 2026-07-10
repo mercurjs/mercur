@@ -3,7 +3,7 @@
 import { useState } from 'react';
 
 import { zodResolver } from '@hookform/resolvers/zod';
-import { FetchError } from '@medusajs/js-sdk';
+import { ClientError } from '@mercurjs/client';
 import Link from 'next/link';
 import { FieldError, FormProvider, useForm, useFormContext } from 'react-hook-form';
 

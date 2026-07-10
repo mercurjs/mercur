@@ -55,8 +55,6 @@ export const UserDropdown = ({
             </NavigationItem>
             <NavigationItem href="/user/returns">Returns</NavigationItem>
             <NavigationItem href="/user/addresses">Addresses</NavigationItem>
-            <NavigationItem href="/user/reviews">Reviews</NavigationItem>
-            <NavigationItem href="/user/wishlist">Wishlist</NavigationItem>
             <Divider />
             <NavigationItem href="/user/settings">Settings</NavigationItem>
             <LogoutButton />

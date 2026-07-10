@@ -27,9 +27,7 @@ import { ProductDetailsShipping } from './ProductDetailsShipping/ProductDetailsS
 import { ProductFilter } from './ProductFilter/ProductFilter';
 import { ProductPageDetails } from './ProductPageDetails/ProductPageDetails';
 import { SellerRatingFilter } from './SellerRatingFilter/SellerRatingFilter';
-import { SellerReviewTab } from './SellerReviewTab/SellerReviewTab';
 import { SizeFilter } from './SizeFilter/SizeFilter';
-import { WishlistItem } from './WishlistItem/WishlistItem';
 
 export {
   Navbar,
@@ -52,7 +50,6 @@ export {
   ProductDetailsSellerReviews,
   ProductDetailsFooter,
   ProductCarousel,
-  SellerReviewTab,
   CartItemsHeader,
   CartItemsFooter,
   CartItemsProducts,
@@ -62,6 +59,5 @@ export {
   OrderAddresses,
   OrderProductListItem,
   OrderTimeline,
-  WishlistItem,
   ProductAdditionalAttributes
 };

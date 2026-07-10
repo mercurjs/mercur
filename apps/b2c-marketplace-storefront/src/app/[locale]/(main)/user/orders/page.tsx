@@ -24,33 +24,33 @@ export default async function UserPage({
   const currentPage = +page || 1;
   const offset = (+currentPage - 1) * LIMIT;
 
-  const orderSetsGrouped = orders.reduce(
+  const orderGroupsGrouped = orders.reduce(
     (acc, order) => {
-      const orderSetId = (order as any).order_set.id;
-      if (!acc[orderSetId]) {
-        acc[orderSetId] = [];
+      const orderGroupId = (order as any).order_group.id;
+      if (!acc[orderGroupId]) {
+        acc[orderGroupId] = [];
       }
-      acc[orderSetId].push(order);
+      acc[orderGroupId].push(order);
       return acc;
     },
     {} as Record<string, typeof orders>
   );
 
-  const orderSets = Object.entries(orderSetsGrouped).map(([orderSetId, orders]) => {
+  const orderGroups = Object.entries(orderGroupsGrouped).map(([orderGroupId, orders]) => {
     const firstOrder = orders[0];
-    const orderSet = (firstOrder as any).order_set;
+    const orderGroup = (firstOrder as any).order_group;
 
     return {
-      id: orderSetId,
+      id: orderGroupId,
       orders: orders,
-      created_at: orderSet.created_at,
-      display_id: orderSet.display_id,
+      created_at: orderGroup.created_at,
+      display_id: orderGroup.display_id,
       total: orders.reduce((sum, order) => sum + order.total, 0),
       currency_code: firstOrder.currency_code
     };
   });
 
-  const processedOrders = orderSets.slice(offset, offset + LIMIT);
+  const processedOrders = orderGroups.slice(offset, offset + LIMIT);
 
   return (
     <main
@@ -88,15 +88,15 @@ export default async function UserPage({
                 className="w-full max-w-full"
                 data-testid="orders-list"
               >
-                {processedOrders.map(orderSet => (
+                {processedOrders.map(orderGroup => (
                   <ParcelAccordion
-                    key={orderSet.id}
-                    orderId={orderSet.id}
-                    orderDisplayId={`#${orderSet.display_id}`}
-                    createdAt={orderSet.created_at}
-                    total={orderSet.total}
-                    orders={orderSet.orders || []}
-                    currency_code={orderSet.currency_code}
+                    key={orderGroup.id}
+                    orderId={orderGroup.id}
+                    orderDisplayId={`#${orderGroup.display_id}`}
+                    createdAt={orderGroup.created_at}
+                    total={orderGroup.total}
+                    orders={orderGroup.orders || []}
+                    currency_code={orderGroup.currency_code}
                   />
                 ))}
               </div>

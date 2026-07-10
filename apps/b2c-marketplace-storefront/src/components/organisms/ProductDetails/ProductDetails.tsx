@@ -8,10 +8,8 @@ import {
 } from "@/components/cells"
 
 import { retrieveCustomer } from "@/lib/data/customer"
-import { getUserWishlists } from "@/lib/data/wishlist"
 import { AdditionalAttributeProps } from "@/types/product"
 import { SellerProps } from "@/types/seller"
-import { Wishlist } from "@/types/wishlist"
 import { HttpTypes } from "@medusajs/types"
 
 export const ProductDetails = async ({
@@ -26,18 +24,12 @@ export const ProductDetails = async ({
 }) => {
   const user = await retrieveCustomer()
 
-  let wishlist: Wishlist = {products: []}
-  if (user) {
-    wishlist = await getUserWishlists({countryCode: locale})
-  }
-
   return (
     <div>
       <ProductDetailsHeader
         product={product}
         locale={locale}
         user={user}
-        wishlist={wishlist}
       />
       <ProductPageDetails details={product?.description || ""} />
       <ProductAdditionalAttributes

@@ -5,7 +5,7 @@ import LocalizedClientLink from "@/components/molecules/LocalizedLink/LocalizedL
 import { ArrowLeftIcon } from "@/icons"
 import { redirect } from "next/navigation"
 import { format } from "date-fns"
-import { retrieveOrderSet } from "@/lib/data/orders"
+import { retrieveOrderGroup } from "@/lib/data/orders"
 import { OrderDetailsSection } from "@/components/sections/OrderDetailsSection/OrderDetailsSection"
 
 export default async function UserPage({
@@ -16,7 +16,7 @@ export default async function UserPage({
   const { id } = await params
 
   const user = await retrieveCustomer()
-  const orderSet = await retrieveOrderSet(id)
+  const orderGroup = (await retrieveOrderGroup(id)) as any
 
   if (!user) return redirect("/login")
 
@@ -36,16 +36,16 @@ export default async function UserPage({
           </LocalizedClientLink>
           <div className="sm:flex items-center justify-between">
             <h1 className="heading-md uppercase my-8">
-              Order set #{orderSet.display_id}
+              Order set #{orderGroup.display_id}
             </h1>
             <p className="label-md text-secondary">
               Order date:{" "}
               <span className="text-primary">
-                {format(orderSet.created_at || "", "yyyy-MM-dd")}
+                {format(orderGroup.created_at || "", "yyyy-MM-dd")}
               </span>
             </p>
           </div>
-          <OrderDetailsSection orderSet={orderSet} />
+          <OrderDetailsSection orderGroup={orderGroup} />
         </div>
       </div>
     </main>

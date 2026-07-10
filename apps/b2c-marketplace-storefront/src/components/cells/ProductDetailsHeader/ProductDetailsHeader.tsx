@@ -7,8 +7,6 @@ import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
 import { Chat } from "@/components/organisms/Chat/Chat"
 import { SellerProps } from "@/types/seller"
-import { WishlistButton } from "../WishlistButton/WishlistButton"
-import { Wishlist } from "@/types/wishlist"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
 
@@ -32,12 +30,10 @@ export const ProductDetailsHeader = ({
   product,
   locale,
   user,
-  wishlist,
 }: {
   product: HttpTypes.StoreProduct & { seller?: SellerProps }
   locale: string
   user: HttpTypes.StoreCustomer | null
-  wishlist?: Wishlist
 }) => {
   const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
   const { allSearchParams } = useGetAllSearchParams()
@@ -149,14 +145,6 @@ export const ProductDetailsHeader = ({
               </span>
             )}
           </div>
-        </div>
-        <div>
-          {/* Add to Wishlist */}
-          <WishlistButton
-            productId={product.id}
-            wishlist={wishlist}
-            user={user}
-          />
         </div>
       </div>
       {/* Product Variants */}

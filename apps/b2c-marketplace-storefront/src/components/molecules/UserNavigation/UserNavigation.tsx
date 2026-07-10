@@ -26,14 +26,6 @@ const navigationItems = [
     label: "Addresses",
     href: "/user/addresses",
   },
-  {
-    label: "Reviews",
-    href: "/user/reviews",
-  },
-  {
-    label: "Wishlist",
-    href: "/user/wishlist",
-  },
 ]
 
 export const UserNavigation = () => {
