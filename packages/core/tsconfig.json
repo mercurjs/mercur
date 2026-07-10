@@ -31,6 +31,8 @@
     ".medusa/server",
     ".medusa/admin",
     "src/admin",
-    ".cache"
+    ".cache",
+    "**/__tests__/**",
+    "**/*.spec.ts"
   ]
 }
