@@ -147,11 +147,9 @@ moduleIntegrationTestRunner<SearchModuleService>({
           region_id: REGION_EU,
           filters: { tag_ids: ["tag_sale"] },
         })
-        // tag facet ignores its own tag filter, so both tags stay visible...
         const tags = new Map(facets.tags.map((b) => [b.value, b.count]))
         expect(tags.get("tag_new")).toBe(2)
         expect(tags.get("tag_sale")).toBe(1)
-        // ...but the category facet respects the tag filter (only the boot).
         const category = new Map(
           facets.categories.map((b) => [b.value, b.count])
         )

@@ -104,21 +104,6 @@ export type PriceRangeFacetBucket = {
   count: number
 }
 
-// Raw query-field shape (e.g. from an HTTP route's filterable fields) that the
-// module maps into structured SearchFilters / SearchSort.
-export type SearchQueryFilters = {
-  q?: string
-  region_id: string
-  category_id?: string | string[]
-  collection_id?: string | string[]
-  type_id?: string | string[]
-  tag_id?: string | string[]
-  seller_id?: string | string[]
-  attributes?: Record<string, string | string[]>
-  min_price?: number
-  max_price?: number
-}
-
 export type FacetParams = {
   q?: string
   region_id: string

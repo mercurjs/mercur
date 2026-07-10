@@ -97,9 +97,9 @@ medusaIntegrationTestRunner({
         ])
       })
 
-      it("returns facet counts when requested", async () => {
+      it("always returns facet counts", async () => {
         const res = await api.get(
-          `/store/search?region_id=${REGION}&facets=true`,
+          `/store/search?region_id=${REGION}`,
           storeHeaders
         )
 

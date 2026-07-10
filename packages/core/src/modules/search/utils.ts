@@ -1,11 +1,7 @@
 import { MedusaError } from "@medusajs/framework/utils"
 
-import {
-  SearchFilters,
-  SearchQueryFilters,
-  SearchSort,
-  SearchSortField,
-} from "./types"
+import { SearchFilters, SearchSort, SearchSortField } from "./types"
+import { SearchQueryFilters } from "./validators"
 
 const ALLOWED_SORT_FIELDS: Record<string, SearchSortField> = {
   price: "price",

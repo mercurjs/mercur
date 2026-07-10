@@ -43,11 +43,8 @@ const arrayLiteral = (values: string[], bindings: Binding[]): string => {
   return `array[${placeholders}]::text[]`
 }
 
-/**
- * Builds the shared WHERE fragment for the `search_product sp` /
- * `search_product_price pr` join. `omit` drops a single dimension so facet
- * drill-down counts exclude the user's own selection on that dimension.
- */
+// `omit` drops a single dimension so a facet's own selection is excluded from
+// its own drill-down counts.
 const buildWhere = (
   params: { q?: string; filters?: SearchFilters },
   omit?: FilterDimension

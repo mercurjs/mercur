@@ -16,9 +16,8 @@ import {
   SearchResult,
 } from "./types"
 
-// The generated MedusaService input types model `model.json()` columns as
-// `Record<string, unknown>`; our jsonb columns hold arrays/maps, so the create
-// and update payloads are cast through this shape at the call sites.
+// MedusaService types model.json() columns as Record<string, unknown>; our
+// jsonb columns hold arrays/maps, so write payloads are cast through this shape.
 type SearchProductWritePayload = Record<string, unknown>
 
 class SearchModuleService extends MedusaService({
