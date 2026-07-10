@@ -20,8 +20,12 @@ import { ActionMenu } from "../../../../../components/common/action-menu";
 import { ProductAttributeDTO, ProductDTO } from "@mercurjs/types";
 import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { useRemoveAttributeFromProduct } from "../../../../../hooks/api/products";
+import { useProductAttributes } from "../../../../../hooks/api";
 
-type ProductWithAttributes = Pick<ProductDTO, "id" | "attributes">;
+type ProductWithAttributes = Pick<
+  ProductDTO,
+  "id" | "attributes" | "categories"
+>;
 
 const AttributeActions = ({
   productId,
@@ -92,6 +96,19 @@ const AttributeValue = ({
 }) => {
   const { t } = useTranslation();
   const values = attribute.values?.map((v) => v.name) ?? [];
+
+  if (attribute.is_required && !values.length) {
+    return (
+      <Text
+        size="small"
+        leading="compact"
+        className="text-ui-fg-error"
+        data-testid={`product-missing-required-attribute-${attribute.id}`}
+      >
+        {t("products.missingRequiredAttributesHint")}
+      </Text>
+    );
+  }
 
   if (["single_select", "multi_select"].includes(attribute.type)) {
     return (
@@ -210,6 +227,36 @@ const AttributeGroup = ({
   );
 };
 
+const useMergedAttributes = (
+  product: ProductWithAttributes,
+): ProductAttributeDTO[] => {
+  const categoryId = product.categories?.[0]?.id;
+
+  const { product_attributes } = useProductAttributes(
+    {
+      category_id: categoryId,
+      is_required: true,
+    },
+    { enabled: !!categoryId },
+  );
+
+  const attributes = product.attributes ?? [];
+  const attachedIds = new Set(attributes.map((a) => a.id));
+
+  const missing = (product_attributes ?? [])
+    .filter((required) => !attachedIds.has(required.id))
+    .map(
+      (required) =>
+        ({
+          ...required,
+          values: [],
+          is_required: true,
+        }) as unknown as ProductAttributeDTO,
+    );
+
+  return [...attributes, ...missing];
+};
+
 export const ProductAttributeSection = ({
   product,
 }: {
@@ -217,7 +264,7 @@ export const ProductAttributeSection = ({
 }) => {
   const { t } = useTranslation();
 
-  const allAttributes = product.attributes ?? [];
+  const allAttributes = useMergedAttributes(product);
   const variantAttributes = allAttributes.filter((a) => a.is_variant_axis);
   const infoAttributes = allAttributes.filter((a) => !a.is_variant_axis);
 

@@ -5,7 +5,7 @@ import {
   DropCap,
   InformationCircleSolid,
   PencilSquare,
-} from "@medusajs/icons"
+} from "@medusajs/icons";
 import {
   Badge,
   Container,
@@ -14,34 +14,41 @@ import {
   toast,
   Tooltip,
   usePrompt,
-} from "@medusajs/ui"
-import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
-import { useTranslation } from "react-i18next"
+} from "@medusajs/ui";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+import { useTranslation } from "react-i18next";
 
-import { ActionMenu } from "@components/common/action-menu"
+import { ActionMenu } from "@components/common/action-menu";
+import { IconAvatar } from "@components/common/icon-avatar";
 import {
   MercurFeatureFlags,
   ProductAttributeDTO,
   ProductDTO,
-} from "@mercurjs/types"
-import { useFeatureFlags } from "@hooks/api"
-import { useRemoveAttributeFromProduct } from "@hooks/api/products"
+} from "@mercurjs/types";
+import { useFeatureFlags, useProductAttributes } from "@hooks/api";
+import { useRemoveAttributeFromProduct } from "@hooks/api/products";
 
-type ProductWithAttributes = Pick<ProductDTO, "id" | "attributes">
+type ProductWithAttributes = Pick<
+  ProductDTO,
+  "id" | "attributes" | "categories"
+>;
 
 const AttributeActions = ({
   productId,
   attribute,
 }: {
-  productId: string
-  attribute: ProductAttributeDTO
+  productId: string;
+  attribute: ProductAttributeDTO;
 }) => {
-  const { t } = useTranslation()
-  const prompt = usePrompt()
-  const { feature_flags } = useFeatureFlags()
+  const { t } = useTranslation();
+  const prompt = usePrompt();
+  const { feature_flags } = useFeatureFlags();
   const isProductRequestEnabled =
-    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST]
-  const { mutateAsync } = useRemoveAttributeFromProduct(productId, attribute.id)
+    !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST];
+  const { mutateAsync } = useRemoveAttributeFromProduct(
+    productId,
+    attribute.id,
+  );
 
   const handleDelete = async () => {
     const res = await prompt({
@@ -51,10 +58,10 @@ const AttributeActions = ({
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
-    })
+    });
 
     if (!res) {
-      return
+      return;
     }
 
     await mutateAsync(undefined, {
@@ -66,10 +73,10 @@ const AttributeActions = ({
         );
       },
       onError: (error) => {
-        toast.error(error.message)
+        toast.error(error.message);
       },
-    })
-  }
+    });
+  };
 
   return (
     <ActionMenu
@@ -98,16 +105,25 @@ const AttributeActions = ({
             ]),
       ]}
     />
-  )
-}
+  );
+};
 
-const AttributeValue = ({
-  attribute,
-}: {
-  attribute: ProductAttributeDTO
-}) => {
-  const { t } = useTranslation()
-  const values = attribute.values?.map((v) => v.name) ?? []
+const AttributeValue = ({ attribute }: { attribute: ProductAttributeDTO }) => {
+  const { t } = useTranslation();
+  const values = attribute.values?.map((v) => v.name) ?? [];
+
+  if (attribute.is_required && !values.length) {
+    return (
+      <Text
+        size="small"
+        leading="compact"
+        className="text-ui-fg-error"
+        data-testid={`product-missing-required-attribute-${attribute.id}`}
+      >
+        {t("products.missingRequiredAttributesHint")}
+      </Text>
+    );
+  }
 
   if (["single_select", "multi_select"].includes(attribute.type)) {
     return (
@@ -122,7 +138,7 @@ const AttributeValue = ({
           </Badge>
         ))}
       </div>
-    )
+    );
   }
 
   const textValue =
@@ -130,7 +146,7 @@ const AttributeValue = ({
       ? values
           .map((val) => (val === "true" ? t("general.yes") : t("general.no")))
           .join(", ") || "-"
-      : values.join(", ") || "-"
+      : values.join(", ") || "-";
 
   return (
     <Tooltip content={<span className="break-all">{textValue}</span>}>
@@ -142,8 +158,8 @@ const AttributeValue = ({
         {textValue}
       </Text>
     </Tooltip>
-  )
-}
+  );
+};
 
 const AttributeGroup = ({
   icon,
@@ -152,24 +168,22 @@ const AttributeGroup = ({
   attributes,
   productId,
 }: {
-  icon: React.ReactNode
-  title: string
-  description: string
-  attributes: ProductAttributeDTO[]
-  productId: string
+  icon: React.ReactNode;
+  title: string;
+  description: string;
+  attributes: ProductAttributeDTO[];
+  productId: string;
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
   if (!attributes.length) {
-    return null
+    return null;
   }
 
   return (
     <div className="flex flex-col gap-y-4 px-3 py-4">
       <div className="flex items-center gap-x-3 px-3">
-        <div className="text-ui-fg-muted flex h-8 w-8 items-center justify-center rounded-lg border border-ui-border-base bg-ui-bg-component">
-          {icon}
-        </div>
+        <IconAvatar>{icon}</IconAvatar>
         <div>
           <Text size="small" weight="plus" leading="compact">
             {title}
@@ -192,7 +206,7 @@ const AttributeGroup = ({
                     : ""
                 }
               >
-                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_28px] items-center gap-4 px-4 py-3 bg-ui-bg-component">
+                <div className="grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_28px] items-center gap-4 px-3 py-2 bg-ui-bg-component">
                   <div className="flex items-center gap-x-2 text-ui-fg-subtle">
                     <Text size="small" weight="plus" leading="compact">
                       {attr.name}
@@ -205,7 +219,9 @@ const AttributeGroup = ({
                       </Tooltip>
                     )}
                     {attr.is_required && (
-                      <Tooltip content={t("products.attributeRequiredByMarketplace")}>
+                      <Tooltip
+                        content={t("products.attributeRequiredByMarketplace")}
+                      >
                         <span className="text-ui-fg-muted flex items-center">
                           <InformationCircleSolid />
                         </span>
@@ -218,26 +234,56 @@ const AttributeGroup = ({
                   <AttributeActions productId={productId} attribute={attr} />
                 </div>
               </div>
-            )
+            );
           })}
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
+
+const useMergedAttributes = (
+  product: ProductWithAttributes,
+): ProductAttributeDTO[] => {
+  const categoryId = product.categories?.[0]?.id;
+
+  const { product_attributes } = useProductAttributes(
+    {
+      category_id: categoryId,
+      is_required: true,
+    },
+    { enabled: !!categoryId },
+  );
+
+  const attributes = product.attributes ?? [];
+  const attachedIds = new Set(attributes.map((a) => a.id));
+
+  const missing = (product_attributes ?? [])
+    .filter((required) => !attachedIds.has(required.id))
+    .map(
+      (required) =>
+        ({
+          ...required,
+          values: [],
+          is_required: true,
+        }) as unknown as ProductAttributeDTO,
+    );
+
+  return [...attributes, ...missing];
+};
 
 export const ProductAttributeSection = ({
   product,
 }: {
-  product: ProductWithAttributes
+  product: ProductWithAttributes;
 }) => {
-  const { t } = useTranslation()
+  const { t } = useTranslation();
 
-  const allAttributes = product.attributes ?? []
-  const variantAttributes = allAttributes.filter((a) => a.is_variant_axis)
-  const infoAttributes = allAttributes.filter((a) => !a.is_variant_axis)
+  const allAttributes = useMergedAttributes(product);
+  const variantAttributes = allAttributes.filter((a) => a.is_variant_axis);
+  const infoAttributes = allAttributes.filter((a) => !a.is_variant_axis);
 
-  const isEmpty = !variantAttributes.length && !infoAttributes.length
+  const isEmpty = !variantAttributes.length && !infoAttributes.length;
 
   return (
     <Container className="p-0">
@@ -290,5 +336,5 @@ export const ProductAttributeSection = ({
       )}
       <DisplayExtensionZone model="product" zone="attributes" data={product} />
     </Container>
-  )
-}
+  );
+};

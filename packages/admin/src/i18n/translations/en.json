@@ -570,6 +570,7 @@
     "attributeProductInformationDescription": "Attributes used for informational purposes",
     "attributeRequiredByMarketplace": "This attribute is required by the marketplace.",
     "attributeRequiredDeleteDisabledTooltip": "Required attributes cannot be removed.",
+    "missingRequiredAttributesHint": "Please provide the required information",
     "addAttribute": "Add Attribute",
     "deleteAttributeWarning": "Are you sure you want to delete the attribute \"{{title}}\"? This action cannot be undone.",
     "editAttributes": "Edit Attributes",

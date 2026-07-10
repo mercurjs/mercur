@@ -30,6 +30,7 @@ type EditAttributeAttribute = {
 type EditAttributeFormProps = {
   productId: string
   attribute: EditAttributeAttribute
+  isAttached?: boolean
 }
 
 const isVariantAxis = (attribute: EditAttributeAttribute) =>
@@ -38,12 +39,19 @@ const isVariantAxis = (attribute: EditAttributeAttribute) =>
 export const EditAttributeForm = ({
   productId,
   attribute,
+  isAttached = true,
 }: EditAttributeFormProps) => {
   if (attribute.is_scoped) {
     return <EditScopedAttributeForm productId={productId} attribute={attribute} />
   }
 
-  return <EditCatalogAttributeForm productId={productId} attribute={attribute} />
+  return (
+    <EditCatalogAttributeForm
+      productId={productId}
+      attribute={attribute}
+      isAttached={isAttached}
+    />
+  )
 }
 
 const AttributeWarning = () => {
@@ -263,6 +271,7 @@ type CatalogFormValues = {
 const EditCatalogAttributeForm = ({
   productId,
   attribute,
+  isAttached = true,
 }: EditAttributeFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
@@ -314,12 +323,17 @@ const EditCatalogAttributeForm = ({
 
     let payload: Parameters<typeof mutateAsync>[0]
 
+    const scalarValue =
+      attribute.type === AttributeType.TOGGLE ? vals[0] === "true" : vals[0]
+
     if (hasPresetValues) {
       const selectedIds = (attribute.all_values ?? [])
         .filter((v) => vals.includes(v.name))
         .map((v) => v.id)
 
-      if (attribute.is_variant_axis) {
+      if (!isAttached) {
+        payload = { add: [{ id: attribute.id, value_ids: selectedIds }] }
+      } else if (attribute.is_variant_axis) {
         const currentIds = (attribute.values ?? []).map((v) => v.id)
         const add = selectedIds.filter((id) => !currentIds.includes(id))
         const remove = currentIds.filter((id) => !selectedIds.includes(id))
@@ -330,17 +344,11 @@ const EditCatalogAttributeForm = ({
           add: [{ id: attribute.id, value_ids: selectedIds }],
         }
       }
+    } else if (!isAttached) {
+      payload = { add: [{ id: attribute.id, value: scalarValue }] }
     } else {
       payload = {
-        update: [
-          {
-            id: attribute.id,
-            value:
-              attribute.type === AttributeType.TOGGLE
-                ? vals[0] === "true"
-                : vals[0],
-          },
-        ],
+        update: [{ id: attribute.id, value: scalarValue }],
       }
     }
 
