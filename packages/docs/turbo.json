@@ -3,7 +3,11 @@
   "extends": ["//"],
   "tasks": {
     "build": {
-      "inputs": ["scripts/**", "../../apps/docs/2.2.0/**"],
+      "inputs": [
+        "scripts/**",
+        "../../apps/docs/**/*.mdx",
+        "!../../apps/docs/v1/**"
+      ],
       "outputs": ["content/**", "llms.txt"]
     }
   }
