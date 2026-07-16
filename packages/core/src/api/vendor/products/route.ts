@@ -2,7 +2,11 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { ContainerRegistrationKeys, ProductStatus } from "@medusajs/framework/utils"
+import {
+  ContainerRegistrationKeys,
+  MedusaError,
+  ProductStatus,
+} from "@medusajs/framework/utils"
 import { AdditionalData } from "@medusajs/framework/types"
 import { HttpTypes } from "@mercurjs/types"
 
@@ -10,6 +14,7 @@ import {
   createProductsWorkflow,
   type CreateProductsWorkflowInput,
 } from "../../../workflows/product/workflows/create-products"
+import { resolveRequireProductApproval } from "../../../utils/require-product-approval"
 import {
   enrichProductAttributes,
   wrapProductVariantsWithOffers,
@@ -64,6 +69,20 @@ export const POST = async (
   const sellerId = req.seller_context!.seller_id
 
   const { additional_data, ...payload } = req.validatedBody
+
+  const requireApproval = await resolveRequireProductApproval(req.scope)
+
+  if (
+    payload.status !== undefined &&
+    requireApproval &&
+    payload.status !== ProductStatus.DRAFT &&
+    payload.status !== ProductStatus.PROPOSED
+  ) {
+    throw new MedusaError(
+      MedusaError.Types.INVALID_DATA,
+      `When admin approval is required, product status must be one of: ${ProductStatus.DRAFT}, ${ProductStatus.PROPOSED}.`
+    )
+  }
 
   const productInput = {
     ...payload,

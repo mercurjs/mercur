@@ -22,6 +22,30 @@ Newest first. One entry per session, kept to a few lines: goal, what landed,
 how it was verified, what's owed/next. Move durable facts into
 `docs/specs/SPEC-*.md` Evidence or into memory — not here.
 
+### Session: 2026-07-15 -- SPEC-025 admin product-approval toggle (#1238)
+
+- **Goal.** Let operators toggle vendor-product approval at runtime from Admin.
+- **Landed.**
+  - Runtime setting backed by `store.metadata.require_product_approval`;
+    new helper `packages/core/src/utils/require-product-approval.ts`
+    (store metadata overrides `PRODUCT_REQUEST` flag as fallback).
+  - Site A: `resolveRequireProductApprovalStep` + reworked `when` in
+    `auto-confirm-product-change.ts` (no longer reads the static flag).
+  - Site B: removed the sync `superRefine` flag check from vendor products
+    `validators.ts`; enforced in async `vendor/products` POST `route.ts`.
+  - Admin UI: `MarketplaceApprovalSection` (SwitchBox → `useUpdateStore`)
+    on Settings → Marketplace; i18n keys under `marketplace.productApproval`
+    (+ `$schema.json`).
+  - Tests: `integration-tests/http/product/vendor/product-approval-setting.spec.ts`
+    (both sites, both states).
+- **Verified.** `bun run build` passes for all packages (vendor needs
+  `NODE_OPTIONS=--max-old-space-size=8192` due to an env JS-heap OOM, not a
+  code issue). Integration tests are WRITTEN but NOT yet executed this run
+  (need Postgres/Redis): `bun run test:integration:http -- product-approval-setting`.
+- **Owed/next.** Run the new integration spec; then flip SPEC-025 to
+  `passing` and record evidence. Other locale JSONs not updated (English
+  canonical).
+
 ### Template
 
 ### Session NN: YYYY-MM-DD -- <spec / short title>

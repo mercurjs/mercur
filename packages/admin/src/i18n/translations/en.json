@@ -2833,6 +2833,13 @@
     "edit": {
       "header": "Edit Marketplace",
       "namePlaceholder": "ACME"
+    },
+    "productApproval": {
+      "title": "Product approval",
+      "subtitle": "Control how vendor-submitted products are reviewed",
+      "label": "Require admin approval for vendor products",
+      "description": "If disabled, vendor-submitted products will be automatically approved.",
+      "successToast": "Product approval setting updated"
     }
   },
   "store": {

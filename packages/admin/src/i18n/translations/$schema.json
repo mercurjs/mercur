@@ -5,6 +5,48 @@
     "$schema": {
       "type": "string"
     },
+    "marketplace": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "manageMarketplaceDetails": {
+          "type": "string"
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "namePlaceholder": {
+              "type": "string"
+            }
+          }
+        },
+        "productApproval": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
     "general": {
       "type": "object",
       "properties": {

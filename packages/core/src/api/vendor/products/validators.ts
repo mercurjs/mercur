@@ -1,5 +1,5 @@
 import { z } from "zod"
-import { MercurFeatureFlags, ProductStatus } from "@mercurjs/types"
+import { ProductStatus } from "@mercurjs/types"
 import {
   createFindParams,
   createOperatorMap,
@@ -11,7 +11,7 @@ import {
   booleanString,
 } from "@medusajs/medusa/api/utils/common-validators/common"
 import { AdditionalData, OperatorMap } from "@medusajs/framework/types"
-import { FeatureFlag, isPresent } from "@medusajs/framework/utils"
+import { isPresent } from "@medusajs/framework/utils"
 
 const statusEnum = z.nativeEnum(ProductStatus)
 
@@ -179,26 +179,9 @@ const CreateProduct = z
     metadata: z.record(z.unknown()).optional(),
   })
   .strict()
-export const VendorCreateProduct = WithAdditionalData(CreateProduct, (schema) =>
-  // `WithAdditionalData`'s modifyCallback is typed to return a `ZodObject`
-  // (Medusa 2.16 moved its framework zod to v4); `.superRefine` yields a
-  // `ZodEffects`. The schema object is still a valid validator at runtime
-  // (it exposes `.parse`), so bridge the v3/v4 instance mismatch here.
-  schema.superRefine((data, ctx) => {
-    if (
-      data.status !== undefined &&
-      FeatureFlag.isFeatureEnabled(MercurFeatureFlags.PRODUCT_REQUEST) &&
-      data.status !== ProductStatus.DRAFT &&
-      data.status !== ProductStatus.PROPOSED
-    ) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["status"],
-        message: `When the product request flow is enabled, status must be one of: ${ProductStatus.DRAFT}, ${ProductStatus.PROPOSED}.`,
-      })
-    }
-  }) as unknown as typeof CreateProduct
-)
+// The status restriction is enforced in the POST route, which can resolve the
+// runtime approval setting; a zod schema is sync and has no container access.
+export const VendorCreateProduct = WithAdditionalData(CreateProduct)
 
 export type VendorUpdateProductType = z.infer<typeof UpdateProduct> &
   AdditionalData
