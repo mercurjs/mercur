@@ -25,6 +25,31 @@
             }
           }
         },
+        "vendorProducts": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "subtitle": {
+              "type": "string"
+            },
+            "allowCreation": {
+              "type": "object",
+              "properties": {
+                "label": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "successToast": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
         "productApproval": {
           "type": "object",
           "properties": {

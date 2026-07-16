@@ -2834,6 +2834,15 @@
       "header": "Edit Marketplace",
       "namePlaceholder": "ACME"
     },
+    "vendorProducts": {
+      "title": "Vendor products",
+      "subtitle": "Control whether vendors can create products and how they are reviewed",
+      "allowCreation": {
+        "label": "Allow vendors to create products",
+        "description": "If disabled, vendors cannot create new products.",
+        "successToast": "Vendor product creation setting updated"
+      }
+    },
     "productApproval": {
       "title": "Product approval",
       "subtitle": "Control how vendor-submitted products are reviewed",

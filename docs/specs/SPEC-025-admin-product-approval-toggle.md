@@ -1,17 +1,30 @@
 ---
-status: in_progress
+status: passing
 canonical: false
 priority: 2
 area: admin/marketplace
 created: 2026-07-15
-last_updated: 2026-07-15
+last_updated: 2026-07-16
 ---
 
-# SPEC-025 Admin Product-Approval Toggle
+# SPEC-025 Admin Vendor-Product Controls
 
-Issue **#1238** â€” let operators decide, at runtime from the Admin panel,
-whether vendor-submitted products require operator approval or are
-auto-approved.
+Issue **#1238** — give operators two runtime marketplace controls from the
+Admin panel:
+
+1. **Allow vendors to create products** (`allow_vendor_product_creation`) —
+   when off, vendors cannot create products at all.
+2. **Require admin approval for vendor products**
+   (`require_product_approval`) — when off, vendor submissions are
+   auto-approved; when on, they wait for operator review.
+
+Together they cover the three behaviours from the issue:
+
+| Vendor creation | Approval required | Behaviour                                        |
+| --------------- | ----------------- | ------------------------------------------------ |
+| Disabled        | N/A               | Vendors cannot create products.                  |
+| Enabled         | Yes               | Vendors propose products; operator must approve. |
+| Enabled         | No                | Vendor products are auto-accepted.               |
 
 ## Why this is not "just a toggle wired to a feature flag"
 
@@ -23,7 +36,7 @@ Medusa **feature flag** (`packages/core/src/feature-flags/product-request.ts`):
   on a global in-memory router
   (`packages/core/src/modules/seller/loaders/register-feature-flags.ts`).
 - `FeatureFlag.isFeatureEnabled(...)` is read **synchronously** from that
-  singleton â€” there is no setter, no persistence, and no admin route.
+  singleton — there is no setter, no persistence, and no admin route.
 
 So a runtime admin toggle cannot mutate the feature flag: a write would be
 per-process, lost on restart, and not shared across workers. The toggle must
@@ -32,8 +45,8 @@ config.
 
 ## Decision
 
-- **Persistence:** a boolean on the Store entity â€”
-  `store.metadata.require_product_approval` â€” reusing the existing admin
+- **Persistence:** a boolean on the Store entity —
+  `store.metadata.require_product_approval` — reusing the existing admin
   marketplace page and `sdk.admin.stores.$id.mutate` update path (no new
   module or migration).
 - **Flag relationship:** the persisted setting **overrides** the feature
@@ -45,51 +58,72 @@ config.
 
 ## User-Visible Behavior
 
-- The Admin **Settings â†’ Marketplace** page shows a "Product approval"
-  section with a switch: **"Require admin approval for vendor products"**,
-  description **"If disabled, vendor-submitted products will be
-  automatically approved."**
-- Toggling it persists immediately to store metadata.
-- When **OFF**: vendor product edits auto-confirm without operator review,
-  and vendors may submit a product directly in a published state.
-- When **ON**: vendor product edits stay `pending` until an operator
-  confirms, and vendors may only create with `draft` / `proposed` status.
+- The Admin **Settings â†’ Marketplace** page shows a "Vendor products"
+  section with up to two switches:
+  - **"Allow vendors to create products"** — description **"If disabled,
+    vendors cannot create new products."**
+  - **"Require admin approval for vendor products"** (only shown while
+    creation is enabled) — description **"If disabled, vendor-submitted
+    products will be automatically approved."**
+- Toggling either persists immediately to store metadata.
+- When **creation is OFF**: `POST /vendor/products` is rejected with a `FORBIDDEN` (HTTP 403) error and the approval switch is hidden (N/A).
+- When approval is **OFF**: vendor product edits auto-confirm without
+  operator review, and vendors may submit a product directly in a published
+  state.
+- When approval is **ON**: vendor product edits stay `pending` until an
+  operator confirms, and vendors may only create with `draft` / `proposed`
+  status.
 
 ## Consumption sites changed
 
-- **Site A â€” auto-confirm** (`auto-confirm-product-change.ts`): the `when`
+- **Site A — auto-confirm** (`auto-confirm-product-change.ts`): the `when`
   condition now reads a resolved store setting via a workflow step instead
   of the static flag.
-- **Site B â€” create status restriction** (`vendor/products` validator): the
+- **Site B — create status restriction** (`vendor/products` validator): the
   synchronous `zod.superRefine` flag check is moved into the async
   `POST /vendor/products` route handler, where the container is available to
   resolve the persisted setting.
+- **Site C — create gate** (`POST /vendor/products` route): when
+  `allow_vendor_product_creation` resolves to `false`, the handler throws a
+  `FORBIDDEN` error (HTTP 403) before running the create workflow. Absent
+  metadata defaults to `true` (`resolveAllowVendorProductCreation`),
+  preserving legacy behaviour.
 
 ## Verification
 
-1. `POST /vendor/products` with `status: "published"` is rejected when
+1. `POST /vendor/products` is rejected with **403** when
+   `allow_vendor_product_creation` is `false`, and accepted when `true`
+   (Site C, integration test).
+2. `POST /vendor/products` with `status: "published"` is rejected when
    `require_product_approval` is `true` and accepted when `false`
-   (integration test, `integration-tests/http/product/vendor/`).
-2. `POST /vendor/products/:id` (edit) produces a `pending` product change
+   (Site B, integration test).
+3. `POST /vendor/products/:id` (edit) produces a `pending` product change
    when the setting is `true` and a `confirmed` change when `false`,
-   overriding the test-env `MEDUSA_FF_PRODUCT_REQUEST=false`.
-3. Admin marketplace page renders the toggle, reflects current metadata, and
-   persists changes via `useUpdateStore`.
-4. `bun run build` passes.
+   overriding the test-env `MEDUSA_FF_PRODUCT_REQUEST=false` (Site A).
+4. Admin marketplace page renders both toggles, reflects current metadata,
+   and persists changes via `useUpdateStore`; the approval toggle is hidden
+   while creation is disabled.
+5. `bun run build` passes.
 
 ## Evidence
 
-- Implemented 2026-07-15. `bun run build` passes for all packages (core +
-  admin verified green; vendor builds with
-  `NODE_OPTIONS=--max-old-space-size=8192` â€” the default failure was a JS-heap
-  OOM in the build env, not a code error, and no vendor files were touched).
-- Integration spec written:
+- `bun run build` passes for `@mercurjs/core` and `@mercurjs/admin` (admin
+  ESM + DTS green with `NODE_OPTIONS=--max-old-space-size=8192`; the default
+  heap size OOMs in this env after a successful ESM build, not a code error).
+- Integration spec
   `integration-tests/http/product/vendor/product-approval-setting.spec.ts`
-  covering Site A (edit change `pending` vs `confirmed`) and Site B (create
-  `published` rejected vs allowed). **Not yet executed** this session â€”
-  run `bun run test:integration:http -- product-approval-setting` against a
-  live Postgres/Redis and record the result here before flipping to
-  `passing`.
+  executed 2026-07-16 against a local Postgres — **6/6 passing** (Site A
+  pending/confirmed, Site B published rejected/allowed, Site C creation
+  403/allowed):
+
+  ```
+  Test Suites: 1 passed, 1 total
+  Tests:       6 passed, 6 total
+  ```
+- The spec's original run surfaced a real test-harness defect: the direct
+  `storeService.updateStores({ id, metadata })` call did not persist
+  metadata (store read back `metadata: null`). Fixed by driving the update
+  through `updateStoresWorkflow` — the same path the admin route uses.
 
 ## Notes
 

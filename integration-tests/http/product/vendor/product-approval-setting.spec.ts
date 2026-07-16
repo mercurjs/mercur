@@ -1,6 +1,7 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
 import { MedusaContainer } from "@medusajs/framework/types"
-import { ContainerRegistrationKeys, Modules } from "@medusajs/framework/utils"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { updateStoresWorkflow } from "@medusajs/medusa/core-flows"
 import { ProductChangeStatus } from "@mercurjs/types"
 
 import { createSellerUser } from "../../../helpers/create-seller-user"
@@ -34,18 +35,56 @@ medusaIntegrationTestRunner({
         storeId = store.id
       })
 
-      const setRequireApproval = async (value: boolean) => {
-        const storeService: any = container.resolve(Modules.STORE)
-        await storeService.updateStores({
-          id: storeId,
-          metadata: { require_product_approval: value },
+      const setStoreMetadata = async (
+        metadata: Record<string, unknown>
+      ) => {
+        await updateStoresWorkflow(container).run({
+          input: { selector: { id: storeId }, update: { metadata } },
         })
       }
+
+      const setRequireApproval = (value: boolean) =>
+        setStoreMetadata({ require_product_approval: value })
+
+      const setAllowCreation = (value: boolean) =>
+        setStoreMetadata({ allow_vendor_product_creation: value })
 
       const createVendorProduct = async (title: string): Promise<string> => {
         const res = await api.post(`/vendor/products`, { title }, sellerHeaders)
         return res.data.product.id
       }
+
+      describe("POST /vendor/products creation gate (Site C)", () => {
+        it("rejects creation when vendor product creation is disabled", async () => {
+          await setAllowCreation(false)
+
+          const res = await api
+            .post(
+              `/vendor/products`,
+              { title: "Blocked Product" },
+              sellerHeaders,
+            )
+            .catch((e) => e.response)
+
+          expect(res.status).toBe(403)
+          expect(res.data.message).toContain(
+            "Vendor product creation is disabled",
+          )
+        })
+
+        it("allows creation when vendor product creation is enabled", async () => {
+          await setAllowCreation(true)
+
+          const res = await api.post(
+            `/vendor/products`,
+            { title: "Allowed Product" },
+            sellerHeaders,
+          )
+
+          expect(res.status).toBe(201)
+          expect(res.data.product.id).toBeTruthy()
+        })
+      })
 
       describe("POST /vendor/products status restriction (Site B)", () => {
         it("rejects a published status when approval is required", async () => {

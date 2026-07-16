@@ -14,6 +14,7 @@ import {
   createProductsWorkflow,
   type CreateProductsWorkflowInput,
 } from "../../../workflows/product/workflows/create-products"
+import { resolveAllowVendorProductCreation } from "../../../utils/allow-vendor-product-creation"
 import { resolveRequireProductApproval } from "../../../utils/require-product-approval"
 import {
   enrichProductAttributes,
@@ -69,6 +70,15 @@ export const POST = async (
   const sellerId = req.seller_context!.seller_id
 
   const { additional_data, ...payload } = req.validatedBody
+
+  const allowCreation = await resolveAllowVendorProductCreation(req.scope)
+
+  if (!allowCreation) {
+    throw new MedusaError(
+      MedusaError.Types.FORBIDDEN,
+      "Vendor product creation is disabled for this marketplace."
+    )
+  }
 
   const requireApproval = await resolveRequireProductApproval(req.scope)
 
