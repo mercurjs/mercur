@@ -5,6 +5,7 @@ import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useStore } from "../../../hooks/api/store"
+import { MarketplaceApprovalSection } from "./components/marketplace-approval-section"
 import { MarketplaceCurrencySection } from "./components/marketplace-currency-section"
 import { MarketplaceGeneralSection } from "./components/marketplace-general-section"
 import { storeLoader } from "./loader"
@@ -33,6 +34,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <WidgetZone id="marketplace.detail.main" data={store}>
         <MarketplaceGeneralSection store={store} />
         <MarketplaceCurrencySection store={store} />
+        <MarketplaceApprovalSection store={store} />
       </WidgetZone>
     </SingleColumnPage>
   )
@@ -41,4 +43,5 @@ const Root = ({ children }: { children?: ReactNode }) => {
 export const MarketplaceDetailPage = Object.assign(Root, {
   GeneralSection: MarketplaceGeneralSection,
   CurrencySection: MarketplaceCurrencySection,
+  ApprovalSection: MarketplaceApprovalSection,
 })

@@ -1,4 +1,3 @@
-import { FeatureFlag } from "@medusajs/framework/utils"
 import {
   createWorkflow,
   transform,
@@ -6,8 +5,8 @@ import {
   WorkflowResponse,
   type ReturnWorkflow,
 } from "@medusajs/framework/workflows-sdk"
-import { MercurFeatureFlags } from "@mercurjs/types"
 
+import { resolveRequireProductApprovalStep } from "../steps"
 import { confirmProductChangeWorkflow } from "./confirm-product-change"
 
 export type AutoConfirmProductChangeWorkflowInput = {
@@ -25,11 +24,12 @@ export const autoConfirmProductChangeWorkflow: ReturnWorkflow<
 > = createWorkflow(
   autoConfirmProductChangeWorkflowId,
   function (input: AutoConfirmProductChangeWorkflowInput) {
+    const requireApproval = resolveRequireProductApprovalStep()
+
     when(
-      { input },
-      ({ input }) =>
-        Boolean(input.force) ||
-        !FeatureFlag.isFeatureEnabled(MercurFeatureFlags.PRODUCT_REQUEST),
+      { input, requireApproval },
+      ({ input, requireApproval }) =>
+        Boolean(input.force) || !requireApproval,
     ).then(() => {
       confirmProductChangeWorkflow.runAsStep({
         input: transform({ input }, ({ input }) => ({
