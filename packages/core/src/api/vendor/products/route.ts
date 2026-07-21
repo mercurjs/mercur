@@ -31,12 +31,15 @@ export const GET = async (
     )
   }
 
-  const { data: products, metadata } = await query.graph({
-    entity: "product",
-    fields: req.queryConfig.fields,
-    filters: req.filterableFields,
-    pagination: req.queryConfig.pagination,
-  })
+  const { data: products, metadata } = await query.graph(
+    {
+      entity: "product",
+      fields: req.queryConfig.fields,
+      filters: req.filterableFields,
+      pagination: req.queryConfig.pagination,
+    },
+    { locale: req.locale }
+  )
 
   await enrichProductAttributes(req.scope, products as any[])
 

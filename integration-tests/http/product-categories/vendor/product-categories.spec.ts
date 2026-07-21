@@ -144,6 +144,45 @@ medusaIntegrationTestRunner({
                 })
             })
 
+            describe("locale resolution", () => {
+                it("should accept a ?locale query param without leaking it into filters", async () => {
+                    await productModuleService.createProductCategories([
+                        { name: "Localised Category", is_active: true },
+                    ])
+
+                    const response = await api
+                        .get(
+                            `/vendor/product-categories?locale=ar&name=Localised Category`,
+                            sellerHeaders
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.product_categories).toHaveLength(1)
+                    expect(response.data.product_categories[0].name).toEqual(
+                        "Localised Category"
+                    )
+                })
+
+                it("should accept the x-medusa-locale header on the detail route", async () => {
+                    const [category] = await productModuleService.createProductCategories([
+                        { name: "Header Locale Category", is_active: true },
+                    ])
+
+                    const response = await api
+                        .get(`/vendor/product-categories/${category.id}`, {
+                            headers: {
+                                ...sellerHeaders.headers,
+                                "x-medusa-locale": "ar",
+                            },
+                        })
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.product_category.id).toEqual(category.id)
+                })
+            })
+
             describe("POST /vendor/product-categories/:id/products", () => {
                 it("should add products to a category", async () => {
                     const [category] = await productModuleService.createProductCategories([
