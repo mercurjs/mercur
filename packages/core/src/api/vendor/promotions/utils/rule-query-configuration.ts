@@ -24,6 +24,11 @@ export const ruleQueryConfigurations: Record<string, { entryPoint: string; label
     labelAttr: "display_name",
     valueAttr: "iso_2",
   },
+  offer: {
+    entryPoint: "offer",
+    labelAttr: "sku",
+    valueAttr: "id",
+  },
   product: {
     entryPoint: "product",
     labelAttr: "title",

@@ -2473,9 +2473,17 @@
   },
   "promotions": {
     "templates": {
+      "amountOffOffers": {
+        "title": "Amount off offers",
+        "description": "Discount selected offers"
+      },
       "percentageOffProduct": {
-        "title": "Percentage off product",
-        "description": "Discounts a percentage off selected products"
+        "title": "Percentage off items",
+        "description": "Discounts a percentage off selected items"
+      },
+      "buyGet": {
+        "title": "Buy X Get Y",
+        "description": "Buy X item(s), get Y item(s)"
       }
     },
     "domain": "Promotions",

@@ -14,7 +14,7 @@ import {
   usePromotionRuleAttributes,
   usePromotionRules,
 } from "../../../../../../hooks/api";
-import { CreatePromotionSchemaType } from "../../../../promotion-create/components/create-promotion-form/form-schema";
+import { CreatePromotionSchemaType } from "../../../../create/create-promotion-form/form-schema";
 import { generateRuleAttributes } from "../edit-rules-form/utils";
 import { RuleValueFormField } from "../rule-value-form-field";
 import { requiredProductRule } from "./constants";
@@ -40,10 +40,13 @@ export const RulesFormField = ({
 }: RulesFormFieldType) => {
   const { t } = useTranslation();
   const formData = form.getValues();
-  const { attributes } = usePromotionRuleAttributes(ruleType, formData.type);
+  const { attributes } = usePromotionRuleAttributes(
+    ruleType,
+    formData.type,
+    formData.application_method?.target_type,
+  );
 
-  const filteredAttributes =
-    attributes?.filter(({ id }) => id === "country" || id === "product") || [];
+  const filteredAttributes = attributes || [];
 
   const { fields, append, remove, update, replace } = useFieldArray({
     control: form.control,

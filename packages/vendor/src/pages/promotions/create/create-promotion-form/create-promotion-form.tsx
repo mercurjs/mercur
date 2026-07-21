@@ -21,6 +21,7 @@ import {
   ProgressStatus,
   ProgressTabs,
   RadioGroup,
+  Switch,
   Text,
   toast
 } from '@medusajs/ui';
@@ -50,6 +51,7 @@ const defaultValues = {
   code: '',
   type: 'standard' as PromotionTypeValues,
   status: 'draft' as PromotionStatusValues,
+  is_tax_inclusive: false,
   rules: [],
   application_method: {
     allocation: 'each' as ApplicationMethodAllocationValues,
@@ -143,8 +145,9 @@ export const CreatePromotionForm = () => {
           application_method: {
             ...applicationMethodData,
             ...applicationMethodRuleData,
+            value: Number(applicationMethodData.value),
             target_rules: buildRulesData(targetRulesData),
-            type: 'percentage'
+            buy_rules: buildRulesData(buyRulesData)
           },
           is_automatic: is_automatic === 'true'
         },
@@ -290,6 +293,10 @@ export const CreatePromotionForm = () => {
   useEffect(() => {
     if (watchAllocation === 'across') {
       setValue('application_method.max_quantity', null);
+    }
+
+    if (watchAllocation === 'once') {
+      setValue('application_method.max_quantity', 1);
     }
   }, [watchAllocation, setValue]);
 
@@ -597,6 +604,38 @@ export const CreatePromotionForm = () => {
                     />
                   </div>
 
+                  {!currentTemplate?.hiddenFields?.includes('is_tax_inclusive') && (
+                    <Form.Field
+                      control={form.control}
+                      name="is_tax_inclusive"
+                      render={({ field: { onChange, value, ...field } }) => {
+                        return (
+                          <Form.Item>
+                            <div className="flex items-center justify-between">
+                              <div className="block">
+                                <Form.Label>
+                                  {t('promotions.form.taxInclusive.title')}
+                                </Form.Label>
+                                <Form.Hint className="!mt-1">
+                                  {t('promotions.form.taxInclusive.description')}
+                                </Form.Hint>
+                              </div>
+                              <Form.Control className="mr-2 self-center">
+                                <Switch
+                                  className="mt-[2px]"
+                                  checked={!!value}
+                                  onCheckedChange={onChange}
+                                  {...field}
+                                />
+                              </Form.Control>
+                            </div>
+                            <Form.ErrorMessage />
+                          </Form.Item>
+                        );
+                      }}
+                    />
+                  )}
+
                   {!currentTemplate?.hiddenFields?.includes('type') && (
                     <Form.Field
                       control={form.control}
@@ -816,6 +855,13 @@ export const CreatePromotionForm = () => {
                                     value={'across'}
                                     label={t('promotions.form.allocation.across.title')}
                                     description={t('promotions.form.allocation.across.description')}
+                                    className={clx('basis-1/2')}
+                                  />
+
+                                  <RadioGroup.ChoiceBox
+                                    value={'once'}
+                                    label={t('promotions.form.allocation.once.title')}
+                                    description={t('promotions.form.allocation.once.description')}
                                     className={clx('basis-1/2')}
                                   />
                                 </RadioGroup>
