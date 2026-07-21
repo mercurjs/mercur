@@ -18,6 +18,68 @@ session detail aggressively. The per-spec source of truth lives in
 
 ## Session Log
 
+### Session: 2026-07-21 -- Vendor offer-targeted promotions (PR #1268)
+
+- **Goal.** Port the Medusa promotion-create form into the vendor panel and add
+  offer-level targeting so a vendor's "Amount off offers" promotion actually
+  discounts the vendor's offers at checkout. Branch `feat/vendor-offer-promotions`.
+
+- **Key decision — how an offer is targeted.** `ApplicationMethodTargetType`
+  (`order`/`items`/`shipping_methods`) is a hardcoded Medusa enum; **offer is NOT
+  a new target type**. An offer *is* a line item, so target stays `items` and
+  "offer" is a new **rule attribute** with value path **`items.metadata.offer_id`**.
+  The store add-to-cart route already writes `metadata.offer_id` onto the cart
+  line; the promotion engine reads item-scope rules via `pickValueFromObject`, so
+  matching needs no engine change — just the attribute + the metadata present in
+  the compute context. `offer` replaces `product` in the vendor items-attributes
+  (Figma dropdown = Offer/Category/Collection/Type/Tag). Rule-value dropdown uses
+  `labelAttr: "sku"` (Offer has no `title`); seller-scoped via the `offer.seller_id`
+  column (there is **no `offer_seller` pivot** — the link is read-only on the column).
+
+- **Landed (backend, packages/core).** `rule-attributes-map.ts` (offer attr),
+  `rule-query-configuration.ts` (offer→sku), `rule-value-options/.../route.ts`
+  (offer branch: filter offers by `seller_id`), `validators.ts` (allow `once`
+  allocation), `workflows/cart/utils/fields.ts` (add `items.metadata` to
+  `cartFieldsForRefreshSteps` so rules see it), and the root-cause fix in
+  `workflows/cart/steps/prepare-adjustments-from-promotion-actions.ts`.
+
+- **Bug found + fixed (affected ALL seller promotions).** The seller-scoping of
+  computed line-item adjustments compared `promotion.seller.id` to
+  `lineItem.variant.product.seller.id`. Master products are not seller-owned, so
+  that value is empty and every seller-scoped line discount was **silently
+  dropped**. Now resolved from **`lineItem.offer.seller_id`**. This is why offer
+  promotions produced 0 discount even though rule + metadata were correct.
+
+- **Landed (vendor panel).** `templates.ts` → 3 Figma types (Amount off offers /
+  Percentage off items / Buy X Get Y); submit handler no longer hard-codes
+  `application_method.type: 'percentage'` and now sends `buy_rules`; added
+  `is_tax_inclusive` switch + `once` allocation; schema `value` accepts
+  string|number; removed the `country`/`product` attribute hard-filter in
+  `rules-form-field.tsx`, passed `target_type` to the attributes hook, fixed a
+  stale `promotion-create/...` import → `create/...`; offer-based
+  `requiredProductRule`; i18n keys.
+
+- **What was NOT done / owed.** (1) Buy X Get Y is wired at the type/template
+  level but its buy-quantity UX wasn't deeply exercised — verify buy_rules +
+  apply_to_quantity flow. (2) Update-promotion / edit-rules drawer wasn't
+  re-audited for the offer attribute. (3) The Confluence promotions doc still
+  omits "Amount off offers" — not updated. (4) No automatic-promotion (non-code)
+  cart test; only code-applied. (5) Vendor promotions area has ~11 pre-existing
+  tsc errors (tsup/esbuild ships anyway) — left as baseline.
+
+- **Also in the PR (not my work, per user request to commit all).**
+  `apps/vendor/.../store-setup.tsx` (pre-existing), `query-config.ts`
+  (`limit`/`used` fields) and `create-seller-promotions.ts` (campaign linking) —
+  unrelated, uncovered by these tests.
+
+- **Verified.** Core + vendor builds clean. `test:integration:http` —
+  promotions store+vendor 37/37 pass (incl. cart E2E: targeted offer discounted
+  500 / discount_total 500; non-matching offer 0), offer/cart 8 pass (2 skipped),
+  no regression.
+
+- **Next.** Address owed items above; consider splitting the two unrelated files
+  into their own PR.
+
 Newest first. One entry per session, kept to a few lines: goal, what landed,
 how it was verified, what's owed/next. Move durable facts into
 `docs/specs/SPEC-*.md` Evidence or into memory — not here.
