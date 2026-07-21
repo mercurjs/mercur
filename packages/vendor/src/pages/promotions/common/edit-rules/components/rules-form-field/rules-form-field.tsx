@@ -310,6 +310,9 @@ export const RulesFormField = ({
                     fieldRule={fieldRule}
                     attributes={attributes || []}
                     ruleType={ruleType}
+                    applicationMethodTargetType={
+                      formData.application_method?.target_type
+                    }
                   />
                 </div>
               </div>
