@@ -34,9 +34,9 @@
     "lint": "oxlint --max-warnings 0"
   },
   "dependencies": {
-    "@babel/parser": "7.25.6",
+    "@babel/parser": "8.0.4",
     "@babel/traverse": "7.25.6",
-    "@babel/types": "7.25.6",
+    "@babel/types": "8.0.4",
     "esbuild-register": "^3.6.0"
   },
   "devDependencies": {
