@@ -79,6 +79,7 @@ export const PromotionListDataTable = () => {
           action: { to: "create", label: t("actions.create") },
         }}
         navigateTo={(row) => `${row.original.id}`}
+        defaultOrderBy="-created_at"
         orderBy={[
           {
             key: "created_at",
