@@ -38,7 +38,7 @@
     "build": "tsup"
   },
   "dependencies": {
-    "@antfu/ni": "^27.0.1",
+    "@antfu/ni": "^30.3.0",
     "commander": "^15.0.0",
     "execa": "^9.6.0",
     "fs-extra": "^11.3.2",
