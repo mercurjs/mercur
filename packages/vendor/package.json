@@ -61,7 +61,7 @@
     "i18next-http-backend": "2.4.2",
     "lodash.debounce": "^4.0.8",
     "lodash.isequal": "^4.5.0",
-    "match-sorter": "^6.3.4",
+    "match-sorter": "^8.3.0",
     "motion": "^11.15.0",
     "qs": "^6.12.1",
     "radix-ui": "1.1.2",
