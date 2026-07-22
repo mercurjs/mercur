@@ -1,4 +1,4 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
+import { PencilSquare, ReceiptPercent, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Button, Container, Heading, usePrompt } from "@medusajs/ui"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
@@ -112,6 +112,12 @@ export const PromotionListDataTable = () => {
       pagination
       isLoading={isLoading}
       queryObject={raw}
+      noRecords={{
+        icon: <ReceiptPercent className="text-ui-fg-subtle" />,
+        title: t("promotions.list.noRecords.title"),
+        message: t("promotions.list.noRecords.message"),
+        action: { to: "create", label: t("actions.create") },
+      }}
       navigateTo={(row) => `${row.original.id}`}
       orderBy={[
         { key: "created_at", label: t("fields.createdAt") },

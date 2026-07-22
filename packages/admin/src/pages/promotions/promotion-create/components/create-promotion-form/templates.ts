@@ -21,13 +21,6 @@ const buyGetHiddenFields = [
   "is_tax_inclusive",
 ]
 
-const freeShippingHiddenFields = [
-  ...commonHiddenFields,
-  "application_method.value",
-  "application_method.allocation",
-  "is_tax_inclusive",
-]
-
 export const templates = [
   {
     id: "amount_off_products",
@@ -107,23 +100,6 @@ export const templates = [
         value: 100,
         apply_to_quantity: 1,
         max_quantity: 1,
-      },
-    },
-  },
-  {
-    id: "shipping_discount",
-    type: "standard",
-    titleKey: "promotions.templates.freeShipping.title",
-    descriptionKey: "promotions.templates.freeShipping.description",
-    hiddenFields: freeShippingHiddenFields,
-    defaults: {
-      is_automatic: "false",
-      type: "standard",
-      application_method: {
-        allocation: "across",
-        target_type: "shipping_methods",
-        type: "percentage",
-        value: 100,
       },
     },
   },

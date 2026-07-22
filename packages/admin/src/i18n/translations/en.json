@@ -2338,7 +2338,7 @@
   "promotions": {
     "templates": {
       "amountOffProducts": {
-        "title": "Amount off products",
+        "title": "Amount off items",
         "description": "Discount specific products or collection of products"
       },
       "amountOffOrder": {
@@ -2346,7 +2346,7 @@
         "description": "Discounts the total order amount"
       },
       "percentageOffProduct": {
-        "title": "Percentage off product",
+        "title": "Percentage off items",
         "description": "Discounts a percentage off selected products"
       },
       "percentageOffOrder": {
@@ -2356,10 +2356,12 @@
       "buyGet": {
         "title": "Buy X Get Y",
         "description": "Buy X product(s), get Y product(s)"
-      },
-      "freeShipping": {
-        "title": "Free shipping",
-        "description": "Applies a 100% discount to shipping fees"
+      }
+    },
+    "list": {
+      "noRecords": {
+        "title": "No promotions yet",
+        "message": "Create promotions to offer discounts"
       }
     },
     "domain": "Promotions",
@@ -2373,6 +2375,14 @@
     },
     "fields": {
       "type": "Type",
+      "typeLabels": {
+        "percentageItems": "Percentage off items",
+        "percentageShipping": "Percentage off shipping",
+        "percentageOrder": "Percentage off order",
+        "amountItems": "Amount off items",
+        "amountShipping": "Amount off shipping",
+        "amountOrder": "Amount off order"
+      },
       "value_type": "Value Type",
       "value": "Value",
       "campaign": "Campaign",

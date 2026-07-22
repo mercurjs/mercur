@@ -9451,20 +9451,25 @@
                     "type": "string"
                   }
                 }
-              },
-              "freeShipping": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
-                }
               }
             }
           },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecords": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
         "domain": {
           "type": "string"
         },
@@ -9505,6 +9510,29 @@
           "properties": {
             "type": {
               "type": "string"
+            },
+            "typeLabels": {
+              "type": "object",
+              "properties": {
+                "percentageItems": {
+                  "type": "string"
+                },
+                "percentageShipping": {
+                  "type": "string"
+                },
+                "percentageOrder": {
+                  "type": "string"
+                },
+                "amountItems": {
+                  "type": "string"
+                },
+                "amountShipping": {
+                  "type": "string"
+                },
+                "amountOrder": {
+                  "type": "string"
+                }
+              }
             },
             "value_type": {
               "type": "string"

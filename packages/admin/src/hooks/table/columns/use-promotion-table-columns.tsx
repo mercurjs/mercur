@@ -12,6 +12,7 @@ import {
   TextHeader,
 } from "../../../components/table/table-cells/common/text-cell"
 import { StatusCell } from "../../../components/table/table-cells/promotion/status-cell"
+import { getPromotionType } from "../../../lib/promotions"
 
 const columnHelper = createColumnHelper<HttpTypes.AdminPromotion>()
 
@@ -27,6 +28,12 @@ export const usePromotionTableColumns = () => {
       }),
 
       columnHelper.display({
+        id: "type",
+        header: () => <TextHeader text={t("promotions.fields.type")} />,
+        cell: ({ row }) => <TextCell text={getPromotionType(row.original)} />,
+      }),
+
+      columnHelper.display({
         id: "method",
         header: () => <TextHeader text={t("promotions.fields.method")} />,
         cell: ({ row }) => {
@@ -36,6 +43,14 @@ export const usePromotionTableColumns = () => {
 
           return <TextCell text={text} />
         },
+      }),
+
+      columnHelper.display({
+        id: "campaign",
+        header: () => <TextHeader text={t("promotions.fields.campaign")} />,
+        cell: ({ row }) => (
+          <TextCell text={row.original.campaign?.name ?? "-"} />
+        ),
       }),
 
       columnHelper.display({
