@@ -9,7 +9,7 @@
     "preview": "vite preview --port 7001"
   },
   "dependencies": {
-    "@hookform/resolvers": "3.4.2",
+    "@hookform/resolvers": "5.4.0",
     "@medusajs/icons": "2.17.2",
     "@medusajs/ui": "4.1.19",
     "@mercurjs/client": "*",
