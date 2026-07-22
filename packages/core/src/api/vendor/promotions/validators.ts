@@ -11,6 +11,7 @@ import {
   createOperatorMap,
   createSelectParams,
 } from "@medusajs/medusa/api/utils/validators"
+import { VendorCreateCampaign } from "../campaigns/validators"
 
 export type VendorGetPromotionParamsType = z.infer<
   typeof VendorGetPromotionParams
@@ -26,9 +27,14 @@ export const VendorGetPromotionsParamsFields = z.object({
     .union([z.string(), z.array(z.string()), createOperatorMap()])
     .optional(),
   campaign_id: z.union([z.string(), z.array(z.string())]).optional(),
+  is_automatic: z
+    .union([z.boolean(), z.enum(["true", "false"])])
+    .transform((value) => (typeof value === "string" ? value === "true" : value))
+    .optional(),
   application_method: z
     .object({
       currency_code: z.union([z.string(), z.array(z.string())]).optional(),
+      type: z.union([z.string(), z.array(z.string())]).optional(),
     })
     .optional(),
   created_at: createOperatorMap().optional(),
@@ -114,7 +120,7 @@ export const VendorCreateApplicationMethod = z
     max_quantity: z.number().nullish(),
     type: z.nativeEnum(ApplicationMethodType),
     target_type: z.nativeEnum(ApplicationMethodTargetType),
-    allocation: z.enum(["each", "across"]).optional(),
+    allocation: z.enum(["each", "across", "once"]).optional(),
     target_rules: z.array(VendorCreatePromotionRule).optional(),
     buy_rules: z.array(VendorCreatePromotionRule).optional(),
     apply_to_quantity: z.number().nullish(),
@@ -133,13 +139,13 @@ export const VendorUpdateApplicationMethod = z
     currency_code: z.string().optional(),
     type: z.nativeEnum(ApplicationMethodType).optional(),
     target_type: z.nativeEnum(ApplicationMethodTargetType).optional(),
-    allocation: z.enum(["each", "across"]).optional(),
+    allocation: z.enum(["each", "across", "once"]).optional(),
     apply_to_quantity: z.number().nullish(),
     buy_rules_min_quantity: z.number().nullish(),
   })
   .strict()
 
-const promoRefinement = (promo: any) => {
+const buygetRefinement = (promo: any) => {
   if (promo.campaign && promo.campaign_id) {
     return false
   }
@@ -156,6 +162,10 @@ const promoRefinement = (promo: any) => {
   return true
 }
 
+const automaticLimitRefinement = (promo: any) => {
+  return !(promo.is_automatic && promo.limit !== undefined && promo.limit !== null)
+}
+
 export type VendorCreatePromotionType = z.infer<typeof VendorCreatePromotion>
 export const VendorCreatePromotion = z
   .object({
@@ -165,13 +175,20 @@ export const VendorCreatePromotion = z
     is_tax_inclusive: z.boolean().optional(),
     status: z.nativeEnum(PromotionStatus).default(PromotionStatus.DRAFT),
     campaign_id: z.string().optional(),
+    campaign: VendorCreateCampaign.optional(),
+    limit: z.number().int().min(1).nullish(),
     application_method: VendorCreateApplicationMethod,
     rules: z.array(VendorCreatePromotionRule).optional(),
+    additional_data: z.record(z.unknown()).nullish(),
   })
   .strict()
-  .refine(promoRefinement, {
+  .refine(buygetRefinement, {
     message:
       "Buyget promotions require at least one buy rule and quantities to be defined",
+  })
+  .refine(automaticLimitRefinement, {
+    message: "Automatic promotions cannot have a usage limit",
+    path: ["limit"],
   })
 
 export type VendorUpdatePromotionType = z.infer<typeof VendorUpdatePromotion>
@@ -183,10 +200,12 @@ export const VendorUpdatePromotion = z
     type: z.nativeEnum(PromotionType).optional(),
     status: z.nativeEnum(PromotionStatus).optional(),
     campaign_id: z.string().nullish(),
+    limit: z.number().int().min(1).nullish(),
     application_method: VendorUpdateApplicationMethod.optional(),
+    additional_data: z.record(z.unknown()).nullish(),
   })
   .strict()
-  .refine(promoRefinement, {
-    message:
-      "Buyget promotions require at least one buy rule and quantities to be defined",
+  .refine(automaticLimitRefinement, {
+    message: "Automatic promotions cannot have a usage limit",
+    path: ["limit"],
   })
