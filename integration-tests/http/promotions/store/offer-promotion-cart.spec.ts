@@ -112,7 +112,8 @@ medusaIntegrationTestRunner({
         headers: any,
         code: string,
         offerId: string,
-        value: number
+        value: number,
+        type: "fixed" | "percentage" = "fixed"
       ) =>
         (
           await api.post(
@@ -122,11 +123,11 @@ medusaIntegrationTestRunner({
               type: "standard",
               status: "active",
               application_method: {
-                type: "fixed",
+                type,
                 target_type: "items",
                 allocation: "each",
                 value,
-                currency_code: "usd",
+                ...(type === "fixed" ? { currency_code: "usd" } : {}),
                 max_quantity: 1,
                 target_rules: [
                   {
@@ -196,6 +197,108 @@ medusaIntegrationTestRunner({
         expect(line.adjustments).toHaveLength(1)
         expect(line.adjustments[0].amount).toEqual(500)
         expect(response.data.cart.discount_total).toEqual(500)
+        expect(response.data.cart.item_subtotal).toEqual(2000)
+        expect(response.data.cart.total).toEqual(1500)
+      })
+
+      it("applies a percentage discount and reduces the cart total", async () => {
+        const seed = await seedSellerOffer({
+          email: "cart-pct@test.com",
+          name: "Cart Pct",
+          offerPrice: 2000,
+          offerSku: "CART-PCT-OFFER",
+        })
+
+        await createOfferPromotion(
+          seed.headers,
+          "OFFERPCT",
+          seed.offer.id,
+          10,
+          "percentage"
+        )
+
+        const cart = await createCart()
+
+        await api.post(
+          `/store/carts/${cart.id}/line-items`,
+          { offer_id: seed.offer.id, quantity: 1 },
+          storeHeaders
+        )
+
+        const response = await api.post(
+          `/store/carts/${cart.id}/promotions`,
+          { promo_codes: ["OFFERPCT"] },
+          storeHeaders
+        )
+
+        expect(response.status).toEqual(200)
+        const line = response.data.cart.items[0]
+        expect(line.adjustments).toHaveLength(1)
+        expect(line.adjustments[0].amount).toEqual(200)
+        expect(response.data.cart.discount_total).toEqual(200)
+        expect(response.data.cart.item_subtotal).toEqual(2000)
+        expect(response.data.cart.total).toEqual(1800)
+      })
+
+      it("discounts only the promoting seller's offer in a multi-seller cart", async () => {
+        const sellerA = await seedSellerOffer({
+          email: "cart-multi-a@test.com",
+          name: "Cart Multi A",
+          offerPrice: 2000,
+          offerSku: "CART-MULTI-A-OFFER",
+        })
+
+        const sellerB = await seedSellerOffer({
+          email: "cart-multi-b@test.com",
+          name: "Cart Multi B",
+          offerPrice: 3000,
+          offerSku: "CART-MULTI-B-OFFER",
+        })
+
+        // Seller A creates a promotion targeting only their own offer.
+        await createOfferPromotion(
+          sellerA.headers,
+          "OFFERMULTI",
+          sellerA.offer.id,
+          500
+        )
+
+        const cart = await createCart()
+
+        await api.post(
+          `/store/carts/${cart.id}/line-items`,
+          { offer_id: sellerA.offer.id, quantity: 1 },
+          storeHeaders
+        )
+        await api.post(
+          `/store/carts/${cart.id}/line-items`,
+          { offer_id: sellerB.offer.id, quantity: 1 },
+          storeHeaders
+        )
+
+        const response = await api.post(
+          `/store/carts/${cart.id}/promotions`,
+          { promo_codes: ["OFFERMULTI"] },
+          storeHeaders
+        )
+
+        expect(response.status).toEqual(200)
+
+        const items = response.data.cart.items
+        const lineA = items.find(
+          (i: any) => i.metadata?.offer_id === sellerA.offer.id
+        )
+        const lineB = items.find(
+          (i: any) => i.metadata?.offer_id === sellerB.offer.id
+        )
+
+        expect(lineA.adjustments).toHaveLength(1)
+        expect(lineA.adjustments[0].amount).toEqual(500)
+        expect(lineB.adjustments ?? []).toHaveLength(0)
+
+        expect(response.data.cart.discount_total).toEqual(500)
+        expect(response.data.cart.item_subtotal).toEqual(5000)
+        expect(response.data.cart.total).toEqual(4500)
       })
 
       it("does not discount an offer the promotion is not targeting", async () => {
