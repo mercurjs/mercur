@@ -25,6 +25,28 @@ export const promotionStatusMap: StatusMap = {
   ],
 }
 
+export const getPromotionType = (promotion: HttpTypes.AdminPromotion) => {
+  const applicationMethod = promotion.application_method
+
+  if (!applicationMethod?.type) {
+    return "-"
+  }
+
+  const base =
+    applicationMethod.type === "fixed"
+      ? "promotions.fields.typeLabels.amount"
+      : "promotions.fields.typeLabels.percentage"
+
+  const targetSuffix =
+    applicationMethod.target_type === "shipping_methods"
+      ? "Shipping"
+      : applicationMethod.target_type === "order"
+        ? "Order"
+        : "Items"
+
+  return i18n.t(`${base}${targetSuffix}`)
+}
+
 export const getPromotionStatus = (promotion: HttpTypes.AdminPromotion) => {
   const date = new Date()
   const campaign = promotion.campaign

@@ -15,6 +15,7 @@ export const cartFieldsForRefreshSteps = [
     "sales_channel_id",
     "region.*",
     "items.*",
+    "items.metadata",
     "items.product.id",
     "items.product.is_giftcard",
     "items.product.collection_id",

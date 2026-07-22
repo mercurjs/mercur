@@ -55,7 +55,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
             <WidgetZone id="promotions.detail.side" data={promotion}>
-              <CampaignSection campaign={promotion.campaign!} />
+              <CampaignSection
+                campaign={promotion.campaign!}
+                promotion={promotion}
+              />
             </WidgetZone>
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>

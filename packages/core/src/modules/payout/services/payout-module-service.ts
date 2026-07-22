@@ -92,7 +92,16 @@ export default class PayoutModuleService extends MedusaService({
                 sharedContext
             )
         } catch (error) {
-            if (payoutAccount?.id) {
+            if (providerAccount && payoutAccount?.id) {
+                await this.updatePayoutAccounts(
+                    {
+                        id: payoutAccount.id,
+                        data: providerAccount.data,
+                        status: providerAccount.status,
+                    },
+                    sharedContext
+                ).catch(() => null)
+            } else if (payoutAccount?.id) {
                 await this.deletePayoutAccounts(payoutAccount.id, sharedContext)
             }
             throw error

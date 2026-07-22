@@ -54,9 +54,9 @@ const ruleAttributes = [
 
 const itemsAttributes = [
   {
-    id: "product",
-    value: "items.product.id",
-    label: "Product",
+    id: "offer",
+    value: "items.metadata.offer_id",
+    label: "Offer",
     required: false,
     field_type: "multiselect",
     operators: Object.values(operatorsMap),

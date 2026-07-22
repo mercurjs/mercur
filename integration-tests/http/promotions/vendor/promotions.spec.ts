@@ -364,6 +364,93 @@ medusaIntegrationTestRunner({
                     expect(response.data.offset).toEqual(0)
                 })
 
+                it("should filter promotions by is_automatic", async () => {
+                    await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "AUTO_FILTER_PROMO",
+                            type: "standard",
+                            is_automatic: true,
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 10,
+                            },
+                        },
+                        seller1Headers
+                    )
+
+                    await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "CODE_FILTER_PROMO",
+                            type: "standard",
+                            is_automatic: false,
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 10,
+                            },
+                        },
+                        seller1Headers
+                    )
+
+                    const response = await api.get(
+                        `/vendor/promotions?is_automatic=true`,
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.promotions.length).toBeGreaterThanOrEqual(1)
+                    expect(
+                        response.data.promotions.every((p: any) => p.is_automatic === true)
+                    ).toBe(true)
+                })
+
+                it("should filter promotions by application method type", async () => {
+                    await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "FIXED_FILTER_PROMO",
+                            type: "standard",
+                            application_method: {
+                                type: "fixed",
+                                target_type: "order",
+                                value: 1500,
+                                currency_code: "usd",
+                            },
+                        },
+                        seller1Headers
+                    )
+
+                    await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "PERCENT_FILTER_PROMO",
+                            type: "standard",
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 10,
+                            },
+                        },
+                        seller1Headers
+                    )
+
+                    const response = await api.get(
+                        `/vendor/promotions?application_method[type]=fixed`,
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.promotions.length).toBeGreaterThanOrEqual(1)
+                    expect(
+                        response.data.promotions.every(
+                            (p: any) => p.application_method.type === "fixed"
+                        )
+                    ).toBe(true)
+                })
+
                 it("should not list another seller's promotions", async () => {
                     await api.post(
                         `/vendor/promotions`,
@@ -516,6 +603,88 @@ medusaIntegrationTestRunner({
 
                     expect(response.status).toEqual(200)
                     expect(response.data.promotion.code).toEqual("UPDATED_CODE")
+                })
+
+                it("should create a promotion with a usage limit", async () => {
+                    const response = await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "USAGE_LIMIT_PROMO",
+                            type: "standard",
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 10,
+                            },
+                            limit: 100,
+                        },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.promotion.limit).toEqual(100)
+                })
+
+                it("should reject a usage limit on an automatic promotion", async () => {
+                    const response = await api
+                        .post(
+                            `/vendor/promotions`,
+                            {
+                                code: "AUTO_LIMIT_PROMO",
+                                type: "standard",
+                                is_automatic: true,
+                                application_method: {
+                                    type: "percentage",
+                                    target_type: "order",
+                                    value: 10,
+                                },
+                                limit: 5,
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+
+                it("should update value type, allocation and tax inclusivity", async () => {
+                    const createResponse = await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "EDIT_DETAILS_PROMO",
+                            type: "standard",
+                            application_method: {
+                                type: "percentage",
+                                target_type: "items",
+                                allocation: "each",
+                                value: 10,
+                                max_quantity: 1,
+                            },
+                        },
+                        seller1Headers
+                    )
+
+                    const promotionId = createResponse.data.promotion.id
+
+                    const response = await api.post(
+                        `/vendor/promotions/${promotionId}`,
+                        {
+                            is_tax_inclusive: true,
+                            application_method: {
+                                type: "fixed",
+                                value: 500,
+                                allocation: "once",
+                                max_quantity: 1,
+                            },
+                        },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.promotion.is_tax_inclusive).toEqual(true)
+                    expect(response.data.promotion.application_method.type).toEqual("fixed")
+                    expect(response.data.promotion.application_method.value).toEqual(500)
+                    expect(response.data.promotion.application_method.allocation).toEqual("once")
                 })
 
                 it("should update promotion status", async () => {
