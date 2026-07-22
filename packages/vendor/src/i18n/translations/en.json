@@ -2592,7 +2592,11 @@
     "campaignSection": {
       "noRecordsTitle": "Not part of a campaign",
       "noRecordsMessage": "Add this promotion to an existing campaign",
-      "addToCampaign": "Add to Campaign"
+      "addToCampaign": "Add to Campaign",
+      "warnings": {
+        "promotionExpires": "The promotion will expire when campaign expires.",
+        "promotionMustBeActive": "The promotion must have an Active status for the campaign to work."
+      }
     },
     "form": {
       "required": "Required",
