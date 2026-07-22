@@ -17,7 +17,7 @@ import {
 import { CreatePromotionSchemaType } from "../../../../create/create-promotion-form/form-schema";
 import { generateRuleAttributes } from "../edit-rules-form/utils";
 import { RuleValueFormField } from "../rule-value-form-field";
-import { requiredProductRule } from "./constants";
+import { requiredCurrencyRule, requiredProductRule } from "./constants";
 
 type RulesFormFieldType = {
   promotion?: HttpTypes.AdminPromotion;
@@ -74,11 +74,11 @@ export const RulesFormField = ({
     : {};
 
   const { rules, isLoading } = usePromotionRules(
-    promotion?.id,
+    promotion?.id ?? null,
     ruleType,
     query,
     {
-      enabled: !!promotion?.id || (!!promotionType && !!applicationMethodType),
+      enabled: !!promotion?.id,
     },
   );
 
@@ -96,7 +96,16 @@ export const RulesFormField = ({
     if (ruleType === "rules" && !fields.length) {
       form.resetField("rules");
 
-      const formRules = generateRuleAttributes(rules);
+      const apiRules = rules || [];
+      const needsCurrency =
+        !promotion?.id &&
+        applicationMethodType === "fixed" &&
+        !apiRules.some((rule) => rule.attribute === "currency_code");
+      const seededRules = needsCurrency
+        ? [...apiRules, requiredCurrencyRule]
+        : apiRules;
+
+      const formRules = generateRuleAttributes(seededRules);
       replace(formRules);
       rulesLoadedRef.current = true;
     }
@@ -133,7 +142,26 @@ export const RulesFormField = ({
     replace,
     rules,
     promotion?.id,
+    applicationMethodType,
   ]);
+
+  useEffect(() => {
+    if (ruleType !== "rules" || !rulesLoadedRef.current || promotion?.id) {
+      return;
+    }
+
+    const currentRules =
+      (form.getValues(scope) as { attribute?: string }[]) || [];
+    const currencyIndex = currentRules.findIndex(
+      (rule) => rule.attribute === "currency_code",
+    );
+
+    if (applicationMethodType === "fixed" && currencyIndex === -1) {
+      append(generateRuleAttributes([requiredCurrencyRule])[0]);
+    } else if (applicationMethodType !== "fixed" && currencyIndex !== -1) {
+      remove(currencyIndex);
+    }
+  }, [applicationMethodType, ruleType, scope, form, append, remove, promotion?.id]);
 
   return (
     <div className="flex flex-col">
@@ -172,11 +200,23 @@ export const RulesFormField = ({
                         (ao) => ao.id === e,
                       );
 
-                      update(index, {
+                      const fieldRuleOverrides = {
                         ...fieldRule,
-                        values: [],
                         disguised: currentAttributeOption?.disguised || false,
-                      });
+                      };
+
+                      if (currentAttributeOption?.operators?.length === 1) {
+                        fieldRuleOverrides.operator =
+                          currentAttributeOption.operators[0].value;
+                      }
+
+                      if (fieldRuleOverrides.operator === "eq") {
+                        fieldRuleOverrides.values = "";
+                      } else {
+                        fieldRuleOverrides.values = [];
+                      }
+
+                      update(index, fieldRuleOverrides);
                       onChange(e);
                     };
 

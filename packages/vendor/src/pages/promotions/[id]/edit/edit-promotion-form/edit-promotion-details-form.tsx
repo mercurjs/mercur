@@ -4,9 +4,9 @@ import { AdminPromotion } from '@medusajs/types';
 import {
   Button,
   CurrencyInput,
+  Divider,
   Input,
   RadioGroup,
-  Switch,
   Text,
 } from '@medusajs/ui';
 import { useWatch } from 'react-hook-form';
@@ -19,6 +19,7 @@ import {
 } from "@mercurjs/dashboard-shared"
 
 import { Form } from "@components/common/form"
+import { SwitchBox } from "@components/common/switch-box"
 import { DeprecatedPercentageInput } from "@components/inputs/percentage-input"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
@@ -38,7 +39,8 @@ const EditPromotionSchema = zod.object({
   value: zod.number().min(0).or(zod.string().min(1)),
   allocation: zod.enum(['each', 'across', 'once']),
   target_type: zod.enum(['order', 'shipping_methods', 'items']),
-  max_quantity: zod.number().min(1).optional().nullable()
+  max_quantity: zod.number().min(1).optional().nullable(),
+  limit: zod.number().int().min(1).optional().nullable()
 });
 
 export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) => {
@@ -65,7 +67,8 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
         | 'order'
         | 'shipping_methods'
         | 'items',
-      max_quantity: promotion.application_method?.max_quantity ?? 1
+      max_quantity: promotion.application_method?.max_quantity ?? 1,
+      limit: promotion.limit ?? null
     }
   });
 
@@ -83,7 +86,6 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
   });
 
   const currencyCode = promotion.application_method?.currency_code;
-  const originalAllocation = promotion.application_method?.allocation;
   const isTargetTypeShipping =
     promotion.application_method?.target_type === 'shipping_methods';
   const canBeTaxInclusive =
@@ -111,6 +113,7 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
         code: data.code,
         status: data.status,
         is_tax_inclusive: data.is_tax_inclusive,
+        limit: data.is_automatic === 'true' ? undefined : data.limit,
         application_method: {
           value,
           type: data.value_type,
@@ -134,6 +137,38 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
       >
         <RouteDrawer.Body className="flex flex-1 flex-col gap-y-8 overflow-y-auto">
           <div className="flex flex-col gap-y-8">
+            <Form.Field
+              control={form.control}
+              name="is_automatic"
+              render={({ field }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label>{t('promotions.form.method.label')}</Form.Label>
+                    <Form.Control>
+                      <RadioGroup
+                        className="flex-col gap-y-3"
+                        {...field}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <RadioGroup.ChoiceBox
+                          value={'false'}
+                          label={t('promotions.form.method.code.title')}
+                          description={t('promotions.form.method.code.description')}
+                        />
+                        <RadioGroup.ChoiceBox
+                          value={'true'}
+                          label={t('promotions.form.method.automatic.title')}
+                          description={t('promotions.form.method.automatic.description')}
+                        />
+                      </RadioGroup>
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
+            />
+
             <Form.Field
               control={form.control}
               name="status"
@@ -173,67 +208,12 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
               }}
             />
 
-            <Form.Field
-              control={form.control}
-              name="is_automatic"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Label>{t('promotions.form.method.label')}</Form.Label>
-                    <Form.Control>
-                      <RadioGroup
-                        className="flex-col gap-y-3"
-                        {...field}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <RadioGroup.ChoiceBox
-                          value={'false'}
-                          label={t('promotions.form.method.code.title')}
-                          description={t('promotions.form.method.code.description')}
-                        />
-                        <RadioGroup.ChoiceBox
-                          value={'true'}
-                          label={t('promotions.form.method.automatic.title')}
-                          description={t('promotions.form.method.automatic.description')}
-                        />
-                      </RadioGroup>
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                );
-              }}
-            />
-
             {canBeTaxInclusive && (
-              <Form.Field
+              <SwitchBox
                 control={form.control}
                 name="is_tax_inclusive"
-                render={({ field: { onChange, value, ...field } }) => {
-                  return (
-                    <Form.Item>
-                      <div className="flex items-center justify-between">
-                        <div className="block">
-                          <Form.Label>
-                            {t('promotions.form.taxInclusive.title')}
-                          </Form.Label>
-                          <Form.Hint className="!mt-1">
-                            {t('promotions.form.taxInclusive.description')}
-                          </Form.Hint>
-                        </div>
-                        <Form.Control className="mr-2 self-center">
-                          <Switch
-                            className="mt-[2px]"
-                            checked={!!value}
-                            onCheckedChange={onChange}
-                            {...field}
-                          />
-                        </Form.Control>
-                      </div>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  );
-                }}
+                label={t('promotions.form.taxInclusive.title')}
+                description={t('promotions.form.taxInclusive.description')}
               />
             )}
 
@@ -303,56 +283,6 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
 
                 <Form.Field
                   control={form.control}
-                  name="value"
-                  render={({ field: { onChange, value, ...field } }) => {
-                    return (
-                      <Form.Item>
-                        <Form.Label>
-                          {isFixedValueType
-                            ? t('promotions.form.value.title')
-                            : t('fields.percentage')}
-                        </Form.Label>
-                        <Form.Control>
-                          {isFixedValueType ? (
-                            <CurrencyInput
-                              {...field}
-                              min={0}
-                              onValueChange={val => {
-                                onChange(val ? parseInt(val) : '');
-                              }}
-                              code={currencyCode || 'USD'}
-                              symbol={
-                                currencyCode
-                                  ? getCurrencySymbol(currencyCode)
-                                  : '$'
-                              }
-                              value={value}
-                            />
-                          ) : (
-                            <DeprecatedPercentageInput
-                              key="amount"
-                              min={0}
-                              max={100}
-                              {...field}
-                              value={value || ''}
-                              onChange={e => {
-                                onChange(
-                                  e.target.value === ''
-                                    ? null
-                                    : parseInt(e.target.value)
-                                );
-                              }}
-                            />
-                          )}
-                        </Form.Control>
-                        <Form.ErrorMessage />
-                      </Form.Item>
-                    );
-                  }}
-                />
-
-                <Form.Field
-                  control={form.control}
                   name="allocation"
                   render={({ field }) => {
                     return (
@@ -367,22 +297,11 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
                           >
                             <RadioGroup.ChoiceBox
                               value={'each'}
-                              disabled={originalAllocation === 'across'}
                               label={t('promotions.form.allocation.each.title')}
                               description={t('promotions.form.allocation.each.description')}
                             />
                             <RadioGroup.ChoiceBox
-                              value={'across'}
-                              disabled={
-                                originalAllocation === 'each' ||
-                                originalAllocation === 'once'
-                              }
-                              label={t('promotions.form.allocation.across.title')}
-                              description={t('promotions.form.allocation.across.description')}
-                            />
-                            <RadioGroup.ChoiceBox
                               value={'once'}
-                              disabled={originalAllocation === 'across'}
                               label={t('promotions.form.allocation.once.title')}
                               description={t('promotions.form.allocation.once.description')}
                             />
@@ -394,43 +313,134 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
                   }}
                 />
 
-                {(watchAllocation === 'each' || watchAllocation === 'once') && (
+                <div className="flex flex-col gap-y-8">
                   <Form.Field
                     control={form.control}
-                    name="max_quantity"
-                    render={() => {
+                    name="value"
+                    render={({ field: { onChange, value, ...field } }) => {
                       return (
                         <Form.Item>
-                          <Form.Label>{t('promotions.form.max_quantity.title')}</Form.Label>
+                          <Form.Label>
+                            {isFixedValueType
+                              ? t('promotions.form.value.title')
+                              : t('fields.percentage')}
+                          </Form.Label>
                           <Form.Control>
-                            <Input
-                              {...form.register('max_quantity', {
-                                valueAsNumber: true
-                              })}
-                              type="number"
-                              min={1}
-                              placeholder="999"
-                            />
+                            {isFixedValueType ? (
+                              <CurrencyInput
+                                {...field}
+                                min={0}
+                                onValueChange={val => {
+                                  onChange(val ? parseInt(val) : '');
+                                }}
+                                code={currencyCode || 'USD'}
+                                symbol={
+                                  currencyCode
+                                    ? getCurrencySymbol(currencyCode)
+                                    : '$'
+                                }
+                                value={value}
+                              />
+                            ) : (
+                              <DeprecatedPercentageInput
+                                key="amount"
+                                min={0}
+                                max={100}
+                                {...field}
+                                value={value || ''}
+                                onChange={e => {
+                                  onChange(
+                                    e.target.value === ''
+                                      ? null
+                                      : parseInt(e.target.value)
+                                  );
+                                }}
+                              />
+                            )}
                           </Form.Control>
-                          <Text
-                            size="small"
-                            leading="compact"
-                            className="text-ui-fg-subtle"
-                          >
-                            <Trans
-                              t={t}
-                              i18nKey="promotions.form.max_quantity.description"
-                              components={[<br key="break" />]}
-                            />
-                          </Text>
                           <Form.ErrorMessage />
                         </Form.Item>
                       );
                     }}
                   />
-                )}
+
+                  {(watchAllocation === 'each' || watchAllocation === 'once') && (
+                    <Form.Field
+                      control={form.control}
+                      name="max_quantity"
+                      render={() => {
+                        return (
+                          <Form.Item>
+                            <Form.Label>{t('promotions.form.max_quantity.title')}</Form.Label>
+                            <Form.Control>
+                              <Input
+                                {...form.register('max_quantity', {
+                                  valueAsNumber: true
+                                })}
+                                type="number"
+                                min={1}
+                                placeholder="999"
+                              />
+                            </Form.Control>
+                            <Text
+                              size="small"
+                              leading="compact"
+                              className="text-ui-fg-subtle"
+                            >
+                              <Trans
+                                t={t}
+                                i18nKey="promotions.form.max_quantity.description"
+                                components={[<br key="break" />]}
+                              />
+                            </Text>
+                            <Form.ErrorMessage />
+                          </Form.Item>
+                        );
+                      }}
+                    />
+                  )}
+                </div>
               </>
             )}
+
+            <Divider />
+
+            <Form.Field
+              control={form.control}
+              name="limit"
+              render={({ field: { onChange, value, ...field } }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label optional>
+                      {t('promotions.form.usageLimit.title')}
+                    </Form.Label>
+                    <Form.Control>
+                      <Input
+                        type="number"
+                        min={1}
+                        {...field}
+                        value={value ?? ''}
+                        onChange={e => {
+                          onChange(
+                            e.target.value === ''
+                              ? null
+                              : parseInt(e.target.value)
+                          );
+                        }}
+                      />
+                    </Form.Control>
+                    <Text
+                      size="small"
+                      leading="compact"
+                      className="text-ui-fg-subtle"
+                    >
+                      {t('promotions.form.usageLimit.description')}
+                    </Text>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
+            />
 
             <FormExtensionZone
               model="promotion"

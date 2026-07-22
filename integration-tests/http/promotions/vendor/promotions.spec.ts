@@ -605,6 +605,48 @@ medusaIntegrationTestRunner({
                     expect(response.data.promotion.code).toEqual("UPDATED_CODE")
                 })
 
+                it("should create a promotion with a usage limit", async () => {
+                    const response = await api.post(
+                        `/vendor/promotions`,
+                        {
+                            code: "USAGE_LIMIT_PROMO",
+                            type: "standard",
+                            application_method: {
+                                type: "percentage",
+                                target_type: "order",
+                                value: 10,
+                            },
+                            limit: 100,
+                        },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.promotion.limit).toEqual(100)
+                })
+
+                it("should reject a usage limit on an automatic promotion", async () => {
+                    const response = await api
+                        .post(
+                            `/vendor/promotions`,
+                            {
+                                code: "AUTO_LIMIT_PROMO",
+                                type: "standard",
+                                is_automatic: true,
+                                application_method: {
+                                    type: "percentage",
+                                    target_type: "order",
+                                    value: 10,
+                                },
+                                limit: 5,
+                            },
+                            seller1Headers
+                        )
+                        .catch((e) => e.response)
+
+                    expect(response.status).toEqual(400)
+                })
+
                 it("should update value type, allocation and tax inclusivity", async () => {
                     const createResponse = await api.post(
                         `/vendor/promotions`,

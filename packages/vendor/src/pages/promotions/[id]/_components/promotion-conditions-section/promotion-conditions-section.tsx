@@ -93,7 +93,6 @@ export const PromotionConditionsSection = ({
               to: `${ruleType}/edit`,
               label: t("promotions.conditions.add"),
             }}
-            buttonVariant="transparentIconLeft"
           />
         )}
 

@@ -86,7 +86,6 @@ export const CampaignSection = ({
             to: `/promotions/${id}/add-to-campaign`,
             label: t("promotions.campaignSection.addToCampaign"),
           }}
-          buttonVariant="transparentIconLeft"
         />
       )}
 

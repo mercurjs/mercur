@@ -11,3 +11,15 @@ export const requiredProductRule: ExtendedPromotionRule = {
   field_type: "select",
   disguised: false,
 }
+
+export const requiredCurrencyRule: ExtendedPromotionRule = {
+  id: "currency_code",
+  attribute: "currency_code",
+  attribute_label: "Currency Code",
+  operator: "eq",
+  operator_label: "Equal",
+  values: [],
+  required: true,
+  field_type: "select",
+  disguised: true,
+}

@@ -27,9 +27,14 @@ export const VendorGetPromotionsParamsFields = z.object({
     .union([z.string(), z.array(z.string()), createOperatorMap()])
     .optional(),
   campaign_id: z.union([z.string(), z.array(z.string())]).optional(),
+  is_automatic: z
+    .union([z.boolean(), z.enum(["true", "false"])])
+    .transform((value) => (typeof value === "string" ? value === "true" : value))
+    .optional(),
   application_method: z
     .object({
       currency_code: z.union([z.string(), z.array(z.string())]).optional(),
+      type: z.union([z.string(), z.array(z.string())]).optional(),
     })
     .optional(),
   created_at: createOperatorMap().optional(),

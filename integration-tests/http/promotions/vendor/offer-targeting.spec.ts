@@ -162,6 +162,24 @@ medusaIntegrationTestRunner({
           )
         ).toBe(true)
       })
+
+      it("returns global rule value options for non seller-scoped attributes", async () => {
+        const { headers } = await seedSellerOffer({
+          email: "global-rule-seller@test.com",
+          name: "Global Rule Seller",
+          offerSku: "GLOBAL-RULE-OFFER",
+        })
+
+        for (const attribute of ["region", "currency_code", "sales_channel"]) {
+          const response = await api.get(
+            `/vendor/promotions/rule-value-options/rules/${attribute}?limit=10&offset=0&application_method_target_type=items`,
+            headers
+          )
+
+          expect(response.status).toEqual(200)
+          expect(Array.isArray(response.data.values)).toBe(true)
+        }
+      })
     })
   },
 })

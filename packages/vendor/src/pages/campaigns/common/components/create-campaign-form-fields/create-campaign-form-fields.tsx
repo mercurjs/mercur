@@ -56,16 +56,12 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
   useEffect(() => {
     form.resetField(`${fieldScope}budget.limit` as Path<T>)
 
-    if (fieldScope) {
+    if (fieldScope && promotionCurrencyValue) {
       const currencyPath = `campaign.budget.currency_code` as Path<T>
-      
-      if (isTypeSpend && promotionCurrencyValue) {
-        const currencyValue = promotionCurrencyValue as PathValue<T, typeof currencyPath>
-        form.setValue(currencyPath, currencyValue)
-      } else if (watchValueType === "usage") {
-        const nullValue = null as PathValue<T, typeof currencyPath>
-        form.setValue(currencyPath, nullValue)
-      }
+      form.setValue(
+        currencyPath,
+        promotionCurrencyValue as PathValue<T, typeof currencyPath>
+      )
     }
   }, [watchValueType, fieldScope, form, isTypeSpend, promotionCurrencyValue])
 

@@ -47,18 +47,20 @@ export const GET = async (
 
   const sellerScopedFilters = { seller_id: req.seller_context!.seller_id }
 
-  let idFilter: Record<string, unknown>
-  if (queryConfig.entryPoint === "offer") {
-    idFilter = sellerScopedFilters
-  } else {
-    const { data: sellerResources } = await query.graph({
-      entity: `${queryConfig.entryPoint}_seller`,
-      fields: [`${queryConfig.entryPoint}_id`],
-      filters: sellerScopedFilters,
-    })
+  let idFilter: Record<string, unknown> = {}
+  if (queryConfig.sellerScoped) {
+    if (queryConfig.entryPoint === "offer") {
+      idFilter = sellerScopedFilters
+    } else {
+      const { data: sellerResources } = await query.graph({
+        entity: `${queryConfig.entryPoint}_seller`,
+        fields: [`${queryConfig.entryPoint}_id`],
+        filters: sellerScopedFilters,
+      })
 
-    idFilter = {
-      id: sellerResources.map(r => r[`${queryConfig.entryPoint}_id`]),
+      idFilter = {
+        id: sellerResources.map(r => r[`${queryConfig.entryPoint}_id`]),
+      }
     }
   }
 

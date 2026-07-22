@@ -230,7 +230,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formZones: "edit"
       formTabs: Record<string, string>
       displayZones: "campaign" | "general"
-      displayFieldIds: "allocation" | "code" | "code_value" | "is_automatic" | "status" | "type" | "value"
+      displayFieldIds: "allocation" | "code" | "code_value" | "is_automatic" | "status" | "tax_inclusive" | "type" | "usage_limit" | "value"
     }
     "reservation": {
       formZones: "edit"

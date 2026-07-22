@@ -1,4 +1,7 @@
-export const ruleQueryConfigurations: Record<string, { entryPoint: string; labelAttr: string; valueAttr: string }> = {
+export const ruleQueryConfigurations: Record<
+  string,
+  { entryPoint: string; labelAttr: string; valueAttr: string; sellerScoped?: boolean }
+> = {
   region: {
     entryPoint: "region",
     labelAttr: "name",
@@ -13,6 +16,7 @@ export const ruleQueryConfigurations: Record<string, { entryPoint: string; label
     entryPoint: "customer_group",
     labelAttr: "name",
     valueAttr: "id",
+    sellerScoped: true,
   },
   sales_channel: {
     entryPoint: "sales_channel",
@@ -28,16 +32,19 @@ export const ruleQueryConfigurations: Record<string, { entryPoint: string; label
     entryPoint: "offer",
     labelAttr: "sku",
     valueAttr: "id",
+    sellerScoped: true,
   },
   product: {
     entryPoint: "product",
     labelAttr: "title",
     valueAttr: "id",
+    sellerScoped: true,
   },
   product_category: {
     entryPoint: "product_category",
     labelAttr: "name",
     valueAttr: "id",
+    sellerScoped: true,
   },
   product_collection: {
     entryPoint: "product_collection",

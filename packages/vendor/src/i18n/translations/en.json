@@ -2474,8 +2474,8 @@
   "promotions": {
     "templates": {
       "amountOffOffers": {
-        "title": "Amount off offers",
-        "description": "Discount selected offers"
+        "title": "Amount off items",
+        "description": "Discount selected items"
       },
       "percentageOffProduct": {
         "title": "Percentage off items",
@@ -2495,8 +2495,22 @@
       "details": "Details",
       "campaign": "Campaign"
     },
+    "list": {
+      "noRecords": {
+        "title": "No promotions yet",
+        "message": "Create promotions for offer discounts"
+      }
+    },
     "fields": {
       "type": "Type",
+      "typeLabels": {
+        "percentageItems": "Percentage off items",
+        "percentageShipping": "Percentage off shipping",
+        "percentageOrder": "Percentage off order",
+        "amountItems": "Amount off items",
+        "amountShipping": "Amount off shipping",
+        "amountOrder": "Amount off order"
+      },
       "value_type": "Value Type",
       "value": "Value",
       "campaign": "Campaign",
@@ -2505,8 +2519,9 @@
       "allocationTooltip": "Each enforces the quantity limit per item, while Once enforces the quantity limit across the entire cart",
       "addCondition": "Add condition",
       "clearAll": "Clear all",
-      "taxInclusive": "Tax Inclusive",
+      "taxInclusive": "Taxes Included",
       "usageLimit": "Usage Limit",
+      "unlimited": "Unlimited",
       "usage": "Usage",
       "amount": {
         "tooltip": "Select the currency code to enable setting the amount"
@@ -2636,6 +2651,10 @@
         "title": "Maximum Quantity",
         "description": "Maximum quantity of items this promotion applies to."
       },
+      "usageLimit": {
+        "title": "Usage Limit",
+        "description": "Maximum number of times this promotion can be used across all orders. Leave empty for unlimited usage."
+      },
       "type": {
         "standard": {
           "title": "Standard",
@@ -2649,7 +2668,7 @@
       "allocation": {
         "each": {
           "title": "Each",
-          "description": "Applies value on each item"
+          "description": "Applies the promotion to every eligible item separately"
         },
         "across": {
           "title": "Across",
@@ -2657,12 +2676,12 @@
         },
         "once": {
           "title": "Once",
-          "description": "Applies value to a limited number of items"
+          "description": "Applies the promotion to a limited total number of eligible items across the entire cart"
         }
       },
       "code": {
         "title": "Code",
-        "description": "The code your customers will enter during checkout."
+        "description": "The code your customers will enter during checkout. If a promotion is automatic, it will be applied automatically."
       },
       "value": {
         "title": "Promotion Value",

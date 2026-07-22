@@ -34,6 +34,7 @@ export const CreatePromotionSchema = z
     type: z.enum(["buyget", "standard"]),
     status: z.enum(["draft", "active", "inactive"]),
     is_tax_inclusive: z.boolean().optional(),
+    limit: z.number().int().min(1).optional().nullable(),
     rules: RuleSchema,
     application_method: z.object({
       allocation: z.enum(["each", "across", "once"]),
