@@ -11,4 +11,5 @@ export enum MercurModules {
     ADMIN_UI = "admin_ui",
     CODEGEN = "codegen",
     SEARCH = "search",
+    PROMOTION_COST = "promotion_cost",
 }

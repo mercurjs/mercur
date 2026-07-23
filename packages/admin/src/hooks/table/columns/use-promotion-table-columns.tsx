@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { SellerDTO } from "@mercurjs/types"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -12,6 +13,7 @@ import {
   TextHeader,
 } from "../../../components/table/table-cells/common/text-cell"
 import { StatusCell } from "../../../components/table/table-cells/promotion/status-cell"
+import { getPromotionType } from "../../../lib/promotions"
 
 const columnHelper = createColumnHelper<HttpTypes.AdminPromotion>()
 
@@ -27,6 +29,12 @@ export const usePromotionTableColumns = () => {
       }),
 
       columnHelper.display({
+        id: "type",
+        header: () => <TextHeader text={t("promotions.fields.type")} />,
+        cell: ({ row }) => <TextCell text={getPromotionType(row.original)} />,
+      }),
+
+      columnHelper.display({
         id: "method",
         header: () => <TextHeader text={t("promotions.fields.method")} />,
         cell: ({ row }) => {
@@ -35,6 +43,32 @@ export const usePromotionTableColumns = () => {
             : t("promotions.form.method.code.title")
 
           return <TextCell text={text} />
+        },
+      }),
+
+      columnHelper.display({
+        id: "campaign",
+        header: () => <TextHeader text={t("promotions.fields.campaign")} />,
+        cell: ({ row }) => (
+          <TextCell text={row.original.campaign?.name ?? "-"} />
+        ),
+      }),
+
+      columnHelper.display({
+        id: "owner",
+        header: () => <TextHeader text={t("promotions.fields.owner")} />,
+        cell: ({ row }) => {
+          const promotion = row.original as HttpTypes.AdminPromotion & {
+            seller?: Pick<SellerDTO, "name"> | null
+          }
+
+          return (
+            <TextCell
+              text={
+                promotion.seller?.name ?? t("promotions.fields.platformOwner")
+              }
+            />
+          )
         },
       }),
 

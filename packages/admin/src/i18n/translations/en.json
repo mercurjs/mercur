@@ -2338,7 +2338,7 @@
   "promotions": {
     "templates": {
       "amountOffProducts": {
-        "title": "Amount off products",
+        "title": "Amount off items",
         "description": "Discount specific products or collection of products"
       },
       "amountOffOrder": {
@@ -2346,7 +2346,7 @@
         "description": "Discounts the total order amount"
       },
       "percentageOffProduct": {
-        "title": "Percentage off product",
+        "title": "Percentage off items",
         "description": "Discounts a percentage off selected products"
       },
       "percentageOffOrder": {
@@ -2356,10 +2356,12 @@
       "buyGet": {
         "title": "Buy X Get Y",
         "description": "Buy X product(s), get Y product(s)"
-      },
-      "freeShipping": {
-        "title": "Free shipping",
-        "description": "Applies a 100% discount to shipping fees"
+      }
+    },
+    "list": {
+      "noRecords": {
+        "title": "No promotions yet",
+        "message": "Create promotions to offer discounts"
       }
     },
     "domain": "Promotions",
@@ -2373,14 +2375,28 @@
     },
     "fields": {
       "type": "Type",
+      "typeLabels": {
+        "percentageItems": "Percentage off items",
+        "percentageShipping": "Percentage off shipping",
+        "percentageOrder": "Percentage off order",
+        "amountItems": "Amount off items",
+        "amountShipping": "Amount off shipping",
+        "amountOrder": "Amount off order"
+      },
       "value_type": "Value Type",
       "value": "Value",
+      "promotion_value": "Promotion Value",
       "campaign": "Campaign",
       "method": "Method",
+      "owner": "Owner",
+      "platformOwner": "Mercur",
+      "coverage": "Coverage",
       "allocation": "Allocation",
+      "usageLimit": "Usage limit",
+      "unlimited": "Unlimited",
       "addCondition": "Add condition",
       "clearAll": "Clear all",
-      "taxInclusive": "Tax Inclusive",
+      "taxInclusive": "Taxes Included",
       "amount": {
         "tooltip": "Select the currency code to enable setting the amount"
       },
@@ -2421,7 +2437,7 @@
     },
     "create": {},
     "edit": {
-      "title": "Edit Promotion Details",
+      "title": "Edit Promotions",
       "rules": {
         "title": "Edit usage conditions"
       },
@@ -2448,7 +2464,11 @@
     "campaignSection": {
       "noRecordsTitle": "Not part of a campaign",
       "noRecordsMessage": "Add this promotion to an existing campaign",
-      "addToCampaign": "Add to Campaign"
+      "addToCampaign": "Add to Campaign",
+      "warnings": {
+        "promotionMustBeActive": "This promotion is part of a campaign but is not active, so it won't apply at checkout.",
+        "promotionExpires": "This campaign has an end date. The promotion will stop applying once the campaign ends."
+      }
     },
     "form": {
       "required": "Required",
@@ -2477,6 +2497,38 @@
       "taxInclusive": {
         "title": "Does promotion include taxes?",
         "description": "Enable this field to apply the promotion after taxes"
+      },
+      "limit": {
+        "title": "Usage Limit",
+        "description": "Maximum number of times this promotion can be used across all orders. Leave empty for unlimited usage."
+      },
+      "storeOffers": {
+        "title": "Which store offers will the promotion be applied to?",
+        "description": "Choose the store whose offers this promotion applies to.",
+        "label": "Store",
+        "placeholder": "Select",
+        "required": "Please select a store"
+      },
+      "costBearer": {
+        "label": "Who will cover the cost of promotion?",
+        "description": "Select who is responsible for covering the discount applied by this promotion.",
+        "tip": "Changes to created promotion won't affect orders that are already in progress.",
+        "store": {
+          "title": "Store",
+          "description": "The discount is deducted from the store's earnings"
+        },
+        "marketplace": {
+          "title": "Marketplace",
+          "description": "The discount is deducted from the commission"
+        },
+        "shared": {
+          "title": "Shared",
+          "description": "The cost is split between the marketplace and store"
+        },
+        "sharedPercentage": {
+          "title": "Marketplace share",
+          "description": "Percentage of the discount covered by the marketplace. The store covers the rest."
+        }
       },
       "status": {
         "label": "Status",
@@ -2538,6 +2590,7 @@
       },
       "value": {
         "title": "Promotion Value",
+        "description": "The amount to be discounted. eg. 100",
         "invalid": "Invalid promotion value"
       },
       "value_type": {
@@ -2557,7 +2610,8 @@
     "conditions": {
       "add": "Add condition",
       "list": {
-        "noRecordsMessage": "Add a condition to restrict what items the promotion applies to."
+        "noRecordsTitle": "No conditions yet",
+        "noRecordsMessage": "Add a condition to restrict what items the promotion applies to"
       }
     }
   },

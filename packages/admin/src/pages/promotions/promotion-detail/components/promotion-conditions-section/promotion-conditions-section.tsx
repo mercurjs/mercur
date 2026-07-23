@@ -13,6 +13,7 @@ import { ActionMenu } from "../../../../../components/common/action-menu";
 import { BadgeListSummary } from "../../../../../components/common/badge-list-summary";
 import { NoRecords } from "../../../../../components/common/empty-table-content";
 import { usePromotion, usePromotionRules } from "../../../../../hooks/api/promotions";
+import { PROMOTION_DETAIL_BASE_FIELDS } from "../../loader";
 
 type RuleProps = {
   rule: HttpTypes.AdminPromotionRule;
@@ -61,7 +62,7 @@ export const PromotionConditionsSection = ({
 }: PromotionConditionsSectionProps) => {
   const { t } = useTranslation();
   const { id } = useParams();
-  const linkQuery = useLinkQuery("promotion");
+  const linkQuery = useLinkQuery("promotion", PROMOTION_DETAIL_BASE_FIELDS);
   const { promotion } = usePromotion(id!, linkQuery, {
     enabled: rulesProp === undefined,
   });
@@ -121,13 +122,13 @@ export const PromotionConditionsSection = ({
           >
             <NoRecords
               className="h-[180px]"
-              title={t("general.noRecordsTitle")}
+              icon={null}
+              title={t("promotions.conditions.list.noRecordsTitle")}
               message={t("promotions.conditions.list.noRecordsMessage")}
               action={{
                 to: `${ruleType}/edit`,
                 label: t("promotions.conditions.add"),
               }}
-              buttonVariant="transparentIconLeft"
               dataTestId={`promotion-conditions-section-add-condition-button-${ruleType}`}
             />
           </div>
