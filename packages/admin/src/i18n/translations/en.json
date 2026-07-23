@@ -2488,10 +2488,14 @@
         "title": "Does promotion include taxes?",
         "description": "Enable this field to apply the promotion after taxes"
       },
+      "limit": {
+        "title": "Usage Limit",
+        "description": "Maximum number of times this promotion can be used across all orders. Leave empty for unlimited usage."
+      },
       "costBearer": {
         "label": "Who will cover the cost of promotion?",
         "description": "Select who is responsible for covering the discount applied by this promotion.",
-        "tip": "Changes to a created promotion won't affect orders that are already in progress.",
+        "tip": "Changes to created promotion won't affect orders that are already in progress.",
         "store": {
           "title": "Store",
           "description": "The discount is deducted from the store's earnings"

@@ -29,6 +29,7 @@ export const CreatePromotionSchema = z
     status: z.enum(["draft", "active", "inactive"]),
     rules: RuleSchema,
     is_tax_inclusive: z.boolean().optional(),
+    limit: z.number().int().min(1).nullable().optional(),
     cost_bearer: z.enum(["store", "marketplace", "shared"]),
     shared_marketplace_percentage: z.number().min(0).max(100).nullable(),
     application_method: z.object({

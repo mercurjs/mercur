@@ -34,6 +34,7 @@ const PROMOTION_CREATE_DEFAULTS = {
   status: "draft" as PromotionStatusValues,
   rules: [],
   is_tax_inclusive: false,
+  limit: undefined,
   cost_bearer: "store" as const,
   shared_marketplace_percentage: null,
   application_method: {
