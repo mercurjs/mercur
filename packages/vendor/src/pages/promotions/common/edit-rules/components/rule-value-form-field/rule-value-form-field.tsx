@@ -88,9 +88,6 @@ export const RuleValueFormField = ({
       !isSellerLoading,
     getOptions: (data) => data.values,
     queryKey: ["rule-value-options", ruleType, attribute?.id],
-    // Keep already-selected values in the options list so adding another
-    // condition doesn't visually clear existing selections that fall outside
-    // the freshly-loaded page.
     defaultValue: watchValue,
     defaultValueKey: "value",
   });

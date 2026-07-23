@@ -15,11 +15,6 @@ import {
   validateRuleType,
 } from "../../utils"
 
-// Mercur exposes `offer` (attribute `items.metadata.offer_id`) as a promotion
-// rule attribute. Medusa's native `:id/:rule_type` handler builds its response
-// from Medusa's own rule-attribute map, which has no `offer` entry, so offer
-// rules are silently dropped from the promotion detail view. This override
-// mirrors the native handler but resolves rules against Mercur's rule maps.
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse
@@ -40,9 +35,6 @@ export const GET = async (
     fields: [...req.queryConfig.fields, "seller.id"],
   })
 
-  // A promotion is either marketplace-owned (no seller link) or store-owned
-  // (linked to a single seller). Offers are seller-scoped, so when a store
-  // owns the promotion its offer conditions must resolve against that store.
   const ownerSellerId = promotion?.seller?.id
 
   const ruleAttributes = getRuleAttributesMap({

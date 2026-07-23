@@ -44,15 +44,11 @@ const baseWithoutOverrides = capturedBase.filter((route) => {
   return true
 })
 
-// Mercur exposes `offer` as a rule attribute and scopes offer value-options to
-// a store; allow `seller_id` through the otherwise-strict native validator.
 const AdminGetPromotionsRuleValueWithSeller =
   AdminGetPromotionsRuleValueParams.merge(
     z.object({ seller_id: z.string().optional() })
   )
 
-// Mercur adds an "Owner" (seller) filter to the admin promotion list; allow
-// `seller_id` through the otherwise-strict native list validator.
 const AdminGetPromotionsWithSeller = AdminGetPromotionsParams.merge(
   z.object({
     seller_id: z.union([z.string(), z.array(z.string())]).optional(),

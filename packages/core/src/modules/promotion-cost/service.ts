@@ -1,25 +1,13 @@
 import { MedusaService } from "@medusajs/framework/utils"
+import { UpsertPromotionCostDTO } from "@mercurjs/types"
 
 import { PromotionCost } from "./models"
-
-type CostBearer = "store" | "marketplace" | "shared"
-
-type UpsertByPromotionIdInput = {
-  promotion_id: string
-  cost_bearer: CostBearer
-  shared_marketplace_percentage?: number | null
-  metadata?: Record<string, unknown> | null
-}
 
 class PromotionCostModuleService extends MedusaService({
   PromotionCost,
 }) {
-  // Native `upsertPromotionCosts` keys off the primary id. Promotion costs are
-  // one-per-promotion (enforced by a unique index on `promotion_id`), so
-  // callers only know the promotion id — resolve the existing row by
-  // `promotion_id` and create or update accordingly.
   async upsertPromotionCostsByPromotionId(
-    input: UpsertByPromotionIdInput | UpsertByPromotionIdInput[]
+    input: UpsertPromotionCostDTO | UpsertPromotionCostDTO[]
   ) {
     const data = Array.isArray(input) ? input : [input]
 
@@ -35,8 +23,8 @@ class PromotionCostModuleService extends MedusaService({
       existing.map((cost) => [cost.promotion_id, cost])
     )
 
-    const toCreate: UpsertByPromotionIdInput[] = []
-    const toUpdate: (UpsertByPromotionIdInput & { id: string })[] = []
+    const toCreate: UpsertPromotionCostDTO[] = []
+    const toUpdate: (UpsertPromotionCostDTO & { id: string })[] = []
 
     for (const entry of data) {
       const current = existingByPromotion.get(entry.promotion_id)

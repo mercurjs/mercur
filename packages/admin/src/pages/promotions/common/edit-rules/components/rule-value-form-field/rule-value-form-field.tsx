@@ -69,8 +69,6 @@ export const RuleValueFormField = ({
     name: name,
   });
 
-  // Offer options are seller-owned; scope them to the store selected in the
-  // details step. Offers can only be picked once a store is chosen.
   const isOfferAttribute = attribute?.id === "offer";
   const sellerId = useWatch({
     control: form.control,
@@ -107,9 +105,6 @@ export const RuleValueFormField = ({
   const prevOperatorRef = useRef(watchOperator);
 
   useEffect(() => {
-    // Only reset the values when the operator itself changes. Keying off
-    // dirtyFields wiped every field's values whenever the form became dirty
-    // (e.g. adding another condition), clearing existing selections.
     if (prevOperatorRef.current === watchOperator) {
       return;
     }

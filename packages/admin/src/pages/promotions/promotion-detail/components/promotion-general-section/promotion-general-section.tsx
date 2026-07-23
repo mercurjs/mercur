@@ -1,5 +1,6 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
+import { PromotionCostDTO } from "@mercurjs/types"
 import {
   Badge,
   Container,
@@ -111,7 +112,7 @@ export const PromotionGeneralSection = ({
 
   const costBearer = (
     promotion as HttpTypes.AdminPromotion & {
-      promotion_cost?: { cost_bearer?: string } | null
+      promotion_cost?: PromotionCostDTO | null
     }
   ).promotion_cost?.cost_bearer
 

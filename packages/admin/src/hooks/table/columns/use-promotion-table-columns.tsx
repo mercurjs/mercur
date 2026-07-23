@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
+import { SellerDTO } from "@mercurjs/types"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -58,7 +59,7 @@ export const usePromotionTableColumns = () => {
         header: () => <TextHeader text={t("promotions.fields.owner")} />,
         cell: ({ row }) => {
           const promotion = row.original as HttpTypes.AdminPromotion & {
-            seller?: { name?: string } | null
+            seller?: Pick<SellerDTO, "name"> | null
           }
 
           return (

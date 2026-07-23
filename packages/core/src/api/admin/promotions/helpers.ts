@@ -7,11 +7,6 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 const PLATFORM_OWNER = "platform"
 
-// The admin promotion list exposes an "Owner" filter: a promotion is either
-// marketplace-owned (no seller link) or store-owned (linked to a seller).
-// Owner is a cross-module link, so it can't be filtered on the promotion
-// entity directly — resolve it into a promotion-id filter here and let the
-// native list handler run with the narrowed set.
 export const applyPromotionSellerFilter = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,
