@@ -156,6 +156,18 @@ return
       return
     }
 
+    if (
+      isMercurOwned &&
+      data.cost_bearer === "shared" &&
+      typeof data.shared_marketplace_percentage !== "number"
+    ) {
+      form.setError("shared_marketplace_percentage", {
+        message: t("validation.requiredField"),
+      })
+
+      return
+    }
+
     await mutateAsync(
       {
         is_automatic: data.is_automatic === "true",

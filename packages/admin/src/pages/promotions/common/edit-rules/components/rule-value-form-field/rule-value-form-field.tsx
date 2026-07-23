@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import {
   ApplicationMethodTargetTypeValues,
@@ -104,15 +104,17 @@ export const RuleValueFormField = ({
     name: operator,
   });
 
-  useEffect(() => {
-    const hasDirtyRules = Object.keys(form.formState.dirtyFields).length > 0;
+  const prevOperatorRef = useRef(watchOperator);
 
-    /**
-     * Don't reset values if fileds didn't change - this is to prevent reset of form on initial render when editing an existing rule
-     */
-    if (!hasDirtyRules) {
+  useEffect(() => {
+    // Only reset the values when the operator itself changes. Keying off
+    // dirtyFields wiped every field's values whenever the form became dirty
+    // (e.g. adding another condition), clearing existing selections.
+    if (prevOperatorRef.current === watchOperator) {
       return;
     }
+
+    prevOperatorRef.current = watchOperator;
 
     if (watchOperator === "eq") {
       form.setValue(name, "");
@@ -121,7 +123,6 @@ export const RuleValueFormField = ({
     }
   }, [
 	watchOperator,
-	form.formState.dirtyFields,
 	name,
 	form
 ]);
