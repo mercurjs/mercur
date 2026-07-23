@@ -20,6 +20,7 @@ export const usePromotionTableQuery = ({
       "campaign_id",
       "is_automatic",
       "application_method_type",
+      "seller_id",
     ],
     prefix
   )
@@ -33,17 +34,21 @@ export const usePromotionTableQuery = ({
     campaign_id,
     is_automatic,
     application_method_type,
+    seller_id,
   } = queryObject
 
   const searchParams: HttpTypes.AdminGetPromotionsParams & {
     is_automatic?: boolean
     campaign_id?: string
     application_method?: { type?: string }
+    seller_id?: string
   } = {
     limit: pageSize,
+    fields: "+seller.id,+seller.name",
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     campaign_id: campaign_id || undefined,
+    seller_id: seller_id || undefined,
     is_automatic: is_automatic ? is_automatic === "true" : undefined,
     application_method: application_method_type
       ? { type: application_method_type }

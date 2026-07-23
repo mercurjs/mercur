@@ -116,6 +116,29 @@ medusaIntegrationTestRunner({
         expect(own.label).toEqual("ADMIN-VO-S1-OFFER")
       })
 
+      it("scopes offer value options to a store via seller_id", async () => {
+        const s1 = await seedSellerOffer({
+          email: "admin-scoped-seller1@test.com",
+          name: "Admin Scoped Seller One",
+          offerSku: "ADMIN-SCOPED-S1-OFFER",
+        })
+        const s2 = await seedSellerOffer({
+          email: "admin-scoped-seller2@test.com",
+          name: "Admin Scoped Seller Two",
+          offerSku: "ADMIN-SCOPED-S2-OFFER",
+        })
+
+        const response = await api.get(
+          `/admin/promotions/rule-value-options/target-rules/offer?seller_id=${s1.seller.id}`,
+          adminHeaders
+        )
+
+        expect(response.status).toEqual(200)
+        const values = response.data.values
+        expect(values.some((v: any) => v.value === s1.offer.id)).toBe(true)
+        expect(values.some((v: any) => v.value === s2.offer.id)).toBe(false)
+      })
+
       it("creates a promotion targeting a specific offer", async () => {
         const { offer } = await seedSellerOffer({
           email: "admin-create-seller@test.com",

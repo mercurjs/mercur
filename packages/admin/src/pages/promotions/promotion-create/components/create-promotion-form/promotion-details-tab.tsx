@@ -20,7 +20,10 @@ import { Form } from "../../../../../components/common/form";
 import { DeprecatedPercentageInput } from "../../../../../components/inputs/percentage-input";
 import { useTabbedForm } from "../../../../../components/tabbed-form/tabbed-form";
 import { defineTabMeta } from "../../../../../components/tabbed-form/types";
+import { Combobox } from "../../../../../components/inputs/combobox";
+import { useComboboxData } from "../../../../../hooks/use-combobox-data";
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction";
+import { sdk } from "../../../../../lib/client";
 import {
   currencies,
   getCurrencySymbol,
@@ -84,6 +87,17 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
     name: "cost_bearer",
   });
   const isSharedCost = watchCostBearer === "shared";
+
+  const stores = useComboboxData({
+    queryKey: ["promotion_stores"],
+    queryFn: (params) => sdk.admin.sellers.query({ ...params, fields: "id,name" }),
+    getOptions: (data) =>
+      data.sellers.map((seller: { id: string; name: string }) => ({
+        label: seller.name,
+        value: seller.id,
+      })),
+    enabled: isTypeBuyGet,
+  });
 
   return (
     <div className="flex size-full flex-col items-center">
@@ -679,6 +693,62 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
             />
           )}
         </div>
+
+        {isTypeBuyGet && (
+          <>
+            <Divider />
+            <div className="flex flex-col gap-y-4">
+              <div className="flex flex-col">
+                <Heading
+                  level="h2"
+                  className="mb-2"
+                  data-testid="promotion-create-form-store-offers-heading"
+                >
+                  {t("promotions.form.storeOffers.title")}
+                </Heading>
+                <Text
+                  className="txt-small text-ui-fg-subtle"
+                  data-testid="promotion-create-form-store-offers-description"
+                >
+                  {t("promotions.form.storeOffers.description")}
+                </Text>
+              </div>
+
+              <Form.Field
+                control={form.control}
+                name="seller_id"
+                render={({ field }) => {
+                  return (
+                    <Form.Item
+                      className="basis-1/2"
+                      data-testid="promotion-create-form-store-item"
+                    >
+                      <Form.Label data-testid="promotion-create-form-store-label">
+                        {t("promotions.form.storeOffers.label")}
+                      </Form.Label>
+
+                      <Form.Control data-testid="promotion-create-form-store-control">
+                        <Combobox
+                          {...field}
+                          value={field.value ?? ""}
+                          options={stores.options}
+                          searchValue={stores.searchValue}
+                          onSearchValueChange={stores.onSearchValueChange}
+                          fetchNextPage={stores.fetchNextPage}
+                          placeholder={t(
+                            "promotions.form.storeOffers.placeholder",
+                          )}
+                          data-testid="promotion-create-form-store-select"
+                        />
+                      </Form.Control>
+                      <Form.ErrorMessage data-testid="promotion-create-form-store-error" />
+                    </Form.Item>
+                  );
+                }}
+              />
+            </div>
+          </>
+        )}
 
         {!isTypeStandard && (
           <>

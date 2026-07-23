@@ -69,6 +69,14 @@ export const RuleValueFormField = ({
     name: name,
   });
 
+  // Offer options are seller-owned; scope them to the store selected in the
+  // details step. Offers can only be picked once a store is chosen.
+  const isOfferAttribute = attribute?.id === "offer";
+  const sellerId = useWatch({
+    control: form.control,
+    name: "seller_id",
+  }) as string | undefined;
+
   const comboboxData = useComboboxData({
     queryFn: async (params) => {
       return await sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
@@ -76,15 +84,17 @@ export const RuleValueFormField = ({
         $ruleAttributeId: attribute?.id,
         ...params,
         ...buildFilters(attribute?.id, store!),
+        ...(isOfferAttribute && sellerId ? { seller_id: sellerId } : {}),
         application_method_target_type: applicationMethodTargetType,
       });
     },
     enabled:
       !!attribute?.id &&
       ["select", "multiselect"].includes(attribute.field_type) &&
-      !isStoreLoading,
+      !isStoreLoading &&
+      (!isOfferAttribute || !!sellerId),
     getOptions: (data) => data.values,
-    queryKey: ["rule-value-options", ruleType, attribute?.id],
+    queryKey: ["rule-value-options", ruleType, attribute?.id, sellerId],
     defaultValue: watchValue,
     defaultValueKey: "value",
   });

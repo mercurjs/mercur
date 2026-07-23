@@ -54,6 +54,24 @@ export const usePromotionTableColumns = () => {
       }),
 
       columnHelper.display({
+        id: "owner",
+        header: () => <TextHeader text={t("promotions.fields.owner")} />,
+        cell: ({ row }) => {
+          const promotion = row.original as HttpTypes.AdminPromotion & {
+            seller?: { name?: string } | null
+          }
+
+          return (
+            <TextCell
+              text={
+                promotion.seller?.name ?? t("promotions.fields.platformOwner")
+              }
+            />
+          )
+        },
+      }),
+
+      columnHelper.display({
         id: "status",
         header: () => <TextHeader text={t("fields.status")} />,
         cell: ({ row }) => <StatusCell promotion={row.original} />,

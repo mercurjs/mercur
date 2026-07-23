@@ -3,11 +3,13 @@ import { useMemo } from "react"
 
 import { Filter } from "../../../components/table/data-table"
 import { useCampaigns } from "../../api/campaigns"
+import { useSellers } from "../../api/sellers"
 
 export const usePromotionTableFilters = (): Filter[] => {
   const { t } = useTranslation()
 
   const { campaigns } = useCampaigns({ limit: 100, fields: "id,name" })
+  const { sellers } = useSellers({ limit: 100, fields: "id,name" })
 
   return useMemo(() => {
     const typeFilter: Filter = {
@@ -50,11 +52,31 @@ export const usePromotionTableFilters = (): Filter[] => {
       })),
     }
 
+    const ownerFilter: Filter = {
+      key: "seller_id",
+      label: t("promotions.fields.owner"),
+      type: "select",
+      searchable: true,
+      options: [
+        { label: t("promotions.fields.platformOwner"), value: "platform" },
+        ...(sellers ?? []).map((seller) => ({
+          label: seller.name!,
+          value: seller.id,
+        })),
+      ],
+    }
+
     const dateFilters: Filter[] = [
       { label: t("fields.createdAt"), key: "created_at", type: "date" },
       { label: t("fields.updatedAt"), key: "updated_at", type: "date" },
     ]
 
-    return [typeFilter, methodFilter, campaignFilter, ...dateFilters]
-  }, [t, campaigns])
+    return [
+      typeFilter,
+      methodFilter,
+      campaignFilter,
+      ownerFilter,
+      ...dateFilters,
+    ]
+  }, [t, campaigns, sellers])
 }

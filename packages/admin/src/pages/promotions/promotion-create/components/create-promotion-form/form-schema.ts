@@ -29,6 +29,7 @@ export const CreatePromotionSchema = z
     status: z.enum(["draft", "active", "inactive"]),
     rules: RuleSchema,
     is_tax_inclusive: z.boolean().optional(),
+    seller_id: z.string().optional(),
     limit: z.number().int().min(1).nullable().optional(),
     cost_bearer: z.enum(["store", "marketplace", "shared"]),
     shared_marketplace_percentage: z.number().min(0).max(100).nullable(),
@@ -68,6 +69,19 @@ export const CreatePromotionSchema = z
     {
       path: ["shared_marketplace_percentage"],
       message: i18n.t("validation.requiredField"),
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.type !== "buyget") {
+        return true
+      }
+
+      return !!data.seller_id
+    },
+    {
+      path: ["seller_id"],
+      message: i18n.t("promotions.form.storeOffers.required"),
     }
   )
 

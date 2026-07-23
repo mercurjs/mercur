@@ -2,6 +2,7 @@ import { HttpTypes } from "@medusajs/types"
 import { useLinkQuery } from "@mercurjs/dashboard-shared"
 import { UIMatch } from "react-router-dom"
 import { usePromotion } from "../../../hooks/api"
+import { PROMOTION_DETAIL_BASE_FIELDS } from "./loader"
 
 type PromotionDetailBreadcrumbProps = UIMatch<HttpTypes.AdminPromotionResponse>
 

@@ -5,10 +5,13 @@ import PromotionCostModule from "../modules/promotion-cost"
 
 export default defineLink(
   {
-    linkable: PromotionCostModule.linkable.promotionCost,
-    field: "promotion_id",
+    linkable: PromotionModule.linkable.promotion,
+    field: "id",
   },
-  PromotionModule.linkable.promotion,
+  {
+    ...PromotionCostModule.linkable.promotionCost.id,
+    primaryKey: "promotion_id",
+  },
   {
     readOnly: true,
   }

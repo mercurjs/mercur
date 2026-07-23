@@ -10,6 +10,7 @@ import { ActionMenu } from "../../../../../components/common/action-menu"
 import { DateRangeDisplay } from "../../../../../components/common/date-range-display"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { usePromotion } from "../../../../../hooks/api/promotions"
+import { PROMOTION_DETAIL_BASE_FIELDS } from "../../loader"
 
 const CampaignDetailSection = ({
   campaign,
@@ -56,7 +57,7 @@ export const CampaignSection = ({
 }) => {
   const { t } = useTranslation()
   const { id } = useParams()
-  const linkQuery = useLinkQuery("promotion")
+  const linkQuery = useLinkQuery("promotion", PROMOTION_DETAIL_BASE_FIELDS)
   const { promotion: fetchedPromotion } = usePromotion(id!, linkQuery, {
     enabled: campaignProp === undefined,
   })
@@ -115,7 +116,6 @@ export const CampaignSection = ({
               to: `/promotions/${id}/add-to-campaign`,
               label: t("promotions.campaignSection.addToCampaign"),
             }}
-            buttonVariant="transparentIconLeft"
             dataTestId="promotion-campaign-section-add-to-campaign-button"
           />
         </div>

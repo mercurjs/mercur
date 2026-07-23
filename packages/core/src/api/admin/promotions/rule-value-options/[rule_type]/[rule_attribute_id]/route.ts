@@ -45,6 +45,12 @@ export const GET = async (
     delete filterableFields.application_method_target_type
   }
 
+  // Offers are seller-owned; scope them to a store when the admin picks one
+  // (offer carries `seller_id` as a read-only column).
+  if (queryConfig.entryPoint === "offer" && req.query.seller_id) {
+    filterableFields.seller_id = req.query.seller_id
+  }
+
   const { data: rows, metadata } = await query.graph({
     entity: queryConfig.entryPoint,
     filters: filterableFields,

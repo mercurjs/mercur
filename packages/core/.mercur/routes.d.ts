@@ -326,7 +326,7 @@ export type Routes = {
         };
         promotions: typeof import("@medusajs/medusa/api/admin/promotions/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/promotions/[id]/route") & {
-                $ruleType: typeof import("@medusajs/medusa/api/admin/promotions/[id]/[rule_type]/route");
+                $ruleType: typeof import("../src/api/admin/promotions/[id]/[rule_type]/route");
                 buyRules: {
                     batch: typeof import("@medusajs/medusa/api/admin/promotions/[id]/buy-rules/batch/route");
                 };
@@ -336,6 +336,7 @@ export type Routes = {
                 targetRules: {
                     batch: typeof import("@medusajs/medusa/api/admin/promotions/[id]/target-rules/batch/route");
                 };
+                cost: typeof import("../src/api/admin/promotions/[id]/cost/route");
             };
             ruleAttributeOptions: {
                 $ruleType: typeof import("../src/api/admin/promotions/rule-attribute-options/[rule_type]/route");

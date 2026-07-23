@@ -2385,14 +2385,18 @@
       },
       "value_type": "Value Type",
       "value": "Value",
+      "promotion_value": "Promotion Value",
       "campaign": "Campaign",
       "method": "Method",
+      "owner": "Owner",
+      "platformOwner": "Mercur",
+      "coverage": "Coverage",
       "allocation": "Allocation",
       "usageLimit": "Usage limit",
       "unlimited": "Unlimited",
       "addCondition": "Add condition",
       "clearAll": "Clear all",
-      "taxInclusive": "Tax Inclusive",
+      "taxInclusive": "Taxes Included",
       "amount": {
         "tooltip": "Select the currency code to enable setting the amount"
       },
@@ -2433,7 +2437,7 @@
     },
     "create": {},
     "edit": {
-      "title": "Edit Promotion Details",
+      "title": "Edit Promotions",
       "rules": {
         "title": "Edit usage conditions"
       },
@@ -2497,6 +2501,13 @@
       "limit": {
         "title": "Usage Limit",
         "description": "Maximum number of times this promotion can be used across all orders. Leave empty for unlimited usage."
+      },
+      "storeOffers": {
+        "title": "Which store offers will the promotion be applied to?",
+        "description": "Choose the store whose offers this promotion applies to.",
+        "label": "Store",
+        "placeholder": "Select",
+        "required": "Please select a store"
       },
       "costBearer": {
         "label": "Who will cover the cost of promotion?",
@@ -2579,6 +2590,7 @@
       },
       "value": {
         "title": "Promotion Value",
+        "description": "The amount to be discounted. eg. 100",
         "invalid": "Invalid promotion value"
       },
       "value_type": {
@@ -2598,7 +2610,8 @@
     "conditions": {
       "add": "Add condition",
       "list": {
-        "noRecordsMessage": "Add a condition to restrict what items the promotion applies to."
+        "noRecordsTitle": "No conditions yet",
+        "noRecordsMessage": "Add a condition to restrict what items the promotion applies to"
       }
     }
   },

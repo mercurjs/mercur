@@ -9,7 +9,7 @@ import { usePromotion, usePromotionRules } from "../../../hooks/api/promotions";
 import { CampaignSection } from "./components/campaign-section";
 import { PromotionConditionsSection } from "./components/promotion-conditions-section";
 import { PromotionGeneralSection } from "./components/promotion-general-section";
-import { promotionLoader } from "./loader";
+import { PROMOTION_DETAIL_BASE_FIELDS, promotionLoader } from "./loader";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -17,7 +17,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   >;
 
   const { id } = useParams();
-  const linkQuery = useLinkQuery("promotion");
+  const linkQuery = useLinkQuery("promotion", PROMOTION_DETAIL_BASE_FIELDS);
   const { promotion, isLoading } = usePromotion(id!, linkQuery, {
     initialData,
   });

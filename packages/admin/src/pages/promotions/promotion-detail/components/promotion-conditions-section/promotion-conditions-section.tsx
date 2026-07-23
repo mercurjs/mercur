@@ -121,13 +121,13 @@ export const PromotionConditionsSection = ({
           >
             <NoRecords
               className="h-[180px]"
-              title={t("general.noRecordsTitle")}
+              icon={null}
+              title={t("promotions.conditions.list.noRecordsTitle")}
               message={t("promotions.conditions.list.noRecordsMessage")}
               action={{
                 to: `${ruleType}/edit`,
                 label: t("promotions.conditions.add"),
               }}
-              buttonVariant="transparentIconLeft"
               dataTestId={`promotion-conditions-section-add-condition-button-${ruleType}`}
             />
           </div>
