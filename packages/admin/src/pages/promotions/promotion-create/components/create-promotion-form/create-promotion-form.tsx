@@ -34,6 +34,8 @@ const PROMOTION_CREATE_DEFAULTS = {
   status: "draft" as PromotionStatusValues,
   rules: [],
   is_tax_inclusive: false,
+  cost_bearer: "store" as const,
+  shared_marketplace_percentage: null,
   application_method: {
     allocation: "each" as ApplicationMethodAllocationValues,
     type: "fixed" as ApplicationMethodTypeValues,
@@ -83,6 +85,8 @@ export function CreatePromotionForm({
         campaign_choice: _campaignChoice,
         is_automatic,
         is_tax_inclusive,
+        cost_bearer,
+        shared_marketplace_percentage,
         template_id: _templateId,
         application_method,
         rules,
@@ -157,6 +161,13 @@ export function CreatePromotionForm({
           },
           is_tax_inclusive,
           is_automatic: is_automatic === "true",
+          ...({
+            additional_data: {
+              cost_bearer,
+              shared_marketplace_percentage:
+                cost_bearer === "shared" ? shared_marketplace_percentage : null,
+            },
+          } as Record<string, unknown>),
         },
         {
           onSuccess: ({ promotion }) => {

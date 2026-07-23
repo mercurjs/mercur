@@ -2488,6 +2488,27 @@
         "title": "Does promotion include taxes?",
         "description": "Enable this field to apply the promotion after taxes"
       },
+      "costBearer": {
+        "label": "Who will cover the cost of promotion?",
+        "description": "Select who is responsible for covering the discount applied by this promotion.",
+        "tip": "Changes to a created promotion won't affect orders that are already in progress.",
+        "store": {
+          "title": "Store",
+          "description": "The discount is deducted from the store's earnings"
+        },
+        "marketplace": {
+          "title": "Marketplace",
+          "description": "The discount is deducted from the commission"
+        },
+        "shared": {
+          "title": "Shared",
+          "description": "The cost is split between the marketplace and store"
+        },
+        "sharedPercentage": {
+          "title": "Marketplace share",
+          "description": "Percentage of the discount covered by the marketplace. The store covers the rest."
+        }
+      },
       "status": {
         "label": "Status",
         "draft": {

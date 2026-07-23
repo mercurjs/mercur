@@ -77,6 +77,12 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
 
   const isTargetTypeOrder = targetType === "order"
 
+  const watchCostBearer = useWatch({
+    control: form.control,
+    name: "cost_bearer",
+  })
+  const isSharedCost = watchCostBearer === "shared"
+
   return (
     <div className="flex size-full flex-col items-center">
       <div className="flex w-full max-w-[720px] flex-col gap-y-8 py-16">
@@ -289,6 +295,134 @@ const Root = ({ currentTemplate }: PromotionDetailsTabProps) => {
             </div>
           </>
         )}
+
+        <Divider />
+
+        <div className="flex flex-col gap-y-4">
+          <Form.Field
+            control={form.control}
+            name="cost_bearer"
+            render={({ field }) => {
+              return (
+                <Form.Item data-testid="promotion-create-form-cost-bearer-item">
+                  <Form.Label data-testid="promotion-create-form-cost-bearer-label">
+                    {t("promotions.form.costBearer.label")}
+                  </Form.Label>
+                  <Text
+                    size="small"
+                    leading="compact"
+                    className="text-ui-fg-subtle"
+                    data-testid="promotion-create-form-cost-bearer-description"
+                  >
+                    {t("promotions.form.costBearer.description")}
+                  </Text>
+
+                  <Form.Control data-testid="promotion-create-form-cost-bearer-control">
+                    <RadioGroup
+                      dir={direction}
+                      className="flex gap-y-3"
+                      {...field}
+                      value={field.value}
+                      onValueChange={field.onChange}
+                      data-testid="promotion-create-form-cost-bearer-radio-group"
+                    >
+                      <RadioGroup.ChoiceBox
+                        value="store"
+                        label={t("promotions.form.costBearer.store.title")}
+                        description={t(
+                          "promotions.form.costBearer.store.description"
+                        )}
+                        className={clx("basis-1/3")}
+                        data-testid="promotion-create-form-cost-bearer-option-store"
+                      />
+
+                      <RadioGroup.ChoiceBox
+                        value="marketplace"
+                        label={t(
+                          "promotions.form.costBearer.marketplace.title"
+                        )}
+                        description={t(
+                          "promotions.form.costBearer.marketplace.description"
+                        )}
+                        className={clx("basis-1/3")}
+                        data-testid="promotion-create-form-cost-bearer-option-marketplace"
+                      />
+
+                      <RadioGroup.ChoiceBox
+                        value="shared"
+                        label={t("promotions.form.costBearer.shared.title")}
+                        description={t(
+                          "promotions.form.costBearer.shared.description"
+                        )}
+                        className={clx("basis-1/3")}
+                        data-testid="promotion-create-form-cost-bearer-option-shared"
+                      />
+                    </RadioGroup>
+                  </Form.Control>
+                  <Form.ErrorMessage data-testid="promotion-create-form-cost-bearer-error" />
+                </Form.Item>
+              )
+            }}
+          />
+
+          {isSharedCost && (
+            <Form.Field
+              control={form.control}
+              name="shared_marketplace_percentage"
+              render={({ field: { onChange, value, ...field } }) => {
+                return (
+                  <Form.Item
+                    className="basis-1/2"
+                    data-testid="promotion-create-form-shared-percentage-item"
+                  >
+                    <Form.Label data-testid="promotion-create-form-shared-percentage-label">
+                      {t("promotions.form.costBearer.sharedPercentage.title")}
+                    </Form.Label>
+
+                    <Form.Control data-testid="promotion-create-form-shared-percentage-control">
+                      <DeprecatedPercentageInput
+                        key="shared-percentage"
+                        className="text-right"
+                        min={0}
+                        max={100}
+                        {...field}
+                        value={value ?? ""}
+                        onChange={(e) => {
+                          onChange(
+                            e.target.value === ""
+                              ? null
+                              : parseFloat(e.target.value)
+                          )
+                        }}
+                        data-testid="promotion-create-form-shared-percentage-input"
+                      />
+                    </Form.Control>
+
+                    <Text
+                      size="small"
+                      leading="compact"
+                      className="text-ui-fg-subtle"
+                      data-testid="promotion-create-form-shared-percentage-description"
+                    >
+                      {t(
+                        "promotions.form.costBearer.sharedPercentage.description"
+                      )}
+                    </Text>
+                    <Form.ErrorMessage data-testid="promotion-create-form-shared-percentage-error" />
+                  </Form.Item>
+                )
+              }}
+            />
+          )}
+
+          <Alert
+            variant="info"
+            dismissible={false}
+            data-testid="promotion-create-form-cost-bearer-tip"
+          >
+            {t("promotions.form.costBearer.tip")}
+          </Alert>
+        </div>
 
         {!currentTemplate?.hiddenFields?.includes("type") && (
           <Form.Field
@@ -637,6 +771,8 @@ Root._tabMeta = defineTabMeta<CreatePromotionSchemaType>({
     "status",
     "rules",
     "is_tax_inclusive",
+    "cost_bearer",
+    "shared_marketplace_percentage",
     "application_method",
   ],
 })

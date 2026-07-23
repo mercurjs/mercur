@@ -29,6 +29,8 @@ export const CreatePromotionSchema = z
     status: z.enum(["draft", "active", "inactive"]),
     rules: RuleSchema,
     is_tax_inclusive: z.boolean().optional(),
+    cost_bearer: z.enum(["store", "marketplace", "shared"]),
+    shared_marketplace_percentage: z.number().min(0).max(100).nullable(),
     application_method: z.object({
       allocation: z.enum(["each", "across", "once"]),
       value: z.number().min(0).or(z.string().min(1)),
@@ -51,6 +53,19 @@ export const CreatePromotionSchema = z
     },
     {
       path: ["application_method.max_quantity"],
+      message: i18n.t("validation.requiredField"),
+    }
+  )
+  .refine(
+    (data) => {
+      if (data.cost_bearer !== "shared") {
+        return true
+      }
+
+      return typeof data.shared_marketplace_percentage === "number"
+    },
+    {
+      path: ["shared_marketplace_percentage"],
       message: i18n.t("validation.requiredField"),
     }
   )
