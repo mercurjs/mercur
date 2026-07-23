@@ -56,9 +56,11 @@ Use components, not raw `<h*>` / `<p>` with sizes:
 - Help text → `<Hint>` (`info` default, `error` for form errors).
 - Subtle copy → `<Text className="text-ui-fg-subtle">` / `text-ui-fg-muted`.
 
-## Mapping Figma → tokens
+## Mapping Figma → tokens (from the screenshot)
 
-1. Read frame variables with `get_variable_defs`. If a Figma color variable already names a Medusa token, use that utility directly.
-2. Otherwise match by role (background vs text vs border vs status) to the nearest token above.
-3. Match spacing to the nearest scale value (`py-4`, `gap-y-4`, `px-6`, …) — don't introduce a new arbitrary value to hit an exact pixel.
-4. If nothing maps cleanly, ask the user; do not hardcode.
+You work from the `get_screenshot` image, not from exported variables. Decide tokens by role, not by exact pixel/hex:
+
+1. Identify each color's **role** in the screenshot (page/card background vs. body text vs. subtle/muted text vs. border/divider vs. status pill) and pick the nearest token above.
+2. Match spacing to the nearest **scale** value (`py-4`, `gap-y-4`, `px-6`, `gap-y-8`, …) — don't introduce a new arbitrary value to hit an exact pixel.
+3. Status colors come from the `StatusBadge` color set via `pages/<domain>/common/utils.ts` helpers, not a hand-picked hex.
+4. If a color or spacing clearly doesn't map onto any token/scale value, ask the user; do not hardcode a raw value.

@@ -21,14 +21,14 @@ For the full narrative version of these conventions, `docs/UI-ARCHITECTURE.md` i
 
 ### 1. Read the design from Figma — the screenshot is the source of truth
 
-Use the Figma MCP against the shared node/URL:
+Use the Figma MCP against the shared node/URL. **Only two tools are used, and the screenshot is the primary one:**
 
-- **`get_screenshot`** — this is the primary input. Read the rendered image directly to get the **content** (all visible text: headings, labels, field placeholders, button copy, column names, badge text, empty-state copy) and the **visual state** (which button is filled vs. outline, badge colors, emphasis, density, layout). You transcribe content and decide variants/spacing from what you see here.
-- `get_metadata` — a lightweight structural outline (layer names, nesting, sizes, which layers are hidden). Use it to confirm the archetype and reading order; don't rely on it for content.
-- `get_variable_defs` — the frame's bound design tokens (colors, spacing), so you can map them onto Medusa UI tokens (see `references/spacing.md`) rather than copying raw values.
-- `get_design_context` — only when you need Figma's own reference code/asset URLs; it requires loading Figma's design-to-code guidance first. The screenshot-driven flow above is enough for most dashboard screens.
+- **`get_screenshot`** — the source of truth. Read the rendered image directly to get the **content** (all visible text: headings, labels, field placeholders, button copy, column names, badge text, empty-state copy) and the **visual state** (which button is filled vs. outline, badge colors, emphasis, density, spacing, layout). You transcribe the content and decide component variants + spacing from what you see here. Request a larger `maxDimension` if you need to read fine detail.
+- **`get_metadata`** — a lightweight structural outline (layer names, nesting, sizes, which layers are `hidden`). Use it only to confirm the archetype and reading order (e.g. sidebar + table + footer ⇒ list page); don't rely on it for content — names can be generic or stale.
 
-If the user gave a URL but no specific node, ask which frame/screen to build. If the frame's **name** disagrees with what the **screenshot** shows (names can be stale), trust the screenshot and say so.
+Do **not** depend on `get_variable_defs` or `get_design_context` — they are not part of this flow. Map colors and spacing yourself from the screenshot onto Medusa UI tokens using `references/spacing.md`.
+
+If the user gave a URL but no specific node, ask which frame/screen to build. If the frame's **name** disagrees with what the **screenshot** shows (names can be stale — e.g. a frame named "Create Promotion" that actually renders the Promotions list), trust the screenshot and say so.
 
 ### 2. Decide the surface and the page archetype
 
