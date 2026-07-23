@@ -2388,6 +2388,8 @@
       "campaign": "Campaign",
       "method": "Method",
       "allocation": "Allocation",
+      "usageLimit": "Usage limit",
+      "unlimited": "Unlimited",
       "addCondition": "Add condition",
       "clearAll": "Clear all",
       "taxInclusive": "Tax Inclusive",
@@ -2458,7 +2460,11 @@
     "campaignSection": {
       "noRecordsTitle": "Not part of a campaign",
       "noRecordsMessage": "Add this promotion to an existing campaign",
-      "addToCampaign": "Add to Campaign"
+      "addToCampaign": "Add to Campaign",
+      "warnings": {
+        "promotionMustBeActive": "This promotion is part of a campaign but is not active, so it won't apply at checkout.",
+        "promotionExpires": "This campaign has an end date. The promotion will stop applying once the campaign ends."
+      }
     },
     "form": {
       "required": "Required",

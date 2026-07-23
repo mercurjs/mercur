@@ -338,11 +338,11 @@ export type Routes = {
                 };
             };
             ruleAttributeOptions: {
-                $ruleType: typeof import("@medusajs/medusa/api/admin/promotions/rule-attribute-options/[rule_type]/route");
+                $ruleType: typeof import("../src/api/admin/promotions/rule-attribute-options/[rule_type]/route");
             };
             ruleValueOptions: {
                 $ruleType: {
-                    $ruleAttributeId: typeof import("@medusajs/medusa/api/admin/promotions/rule-value-options/[rule_type]/[rule_attribute_id]/route");
+                    $ruleAttributeId: typeof import("../src/api/admin/promotions/rule-value-options/[rule_type]/[rule_attribute_id]/route");
                 };
             };
         };

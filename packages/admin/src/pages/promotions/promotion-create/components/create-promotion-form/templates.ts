@@ -3,12 +3,16 @@ const commonHiddenFields = [
   "application_method.type",
 ]
 
-const amountOfOrderHiddenFields = [...commonHiddenFields]
+const amountOfOrderHiddenFields = [
+  ...commonHiddenFields,
+  "application_method.allocation",
+]
 const amountOfProductHiddenFields = [...commonHiddenFields]
 
 const percentageOfOrderHiddenFields = [
   ...commonHiddenFields,
   "is_tax_inclusive",
+  "application_method.allocation",
 ]
 const percentageOfProductHiddenFields = [
   ...commonHiddenFields,

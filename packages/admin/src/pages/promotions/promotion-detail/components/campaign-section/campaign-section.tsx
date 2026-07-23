@@ -1,6 +1,6 @@
 import { ArrowUpRightOnBox, PencilSquare } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { Container, Heading, Text } from "@medusajs/ui"
+import { Container, Heading, InlineTip, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
@@ -13,9 +13,13 @@ import { usePromotion } from "../../../../../hooks/api/promotions"
 
 const CampaignDetailSection = ({
   campaign,
+  warning,
 }: {
   campaign: HttpTypes.AdminCampaign
+  warning?: string
 }) => {
+  const { t } = useTranslation()
+
   return (
     <div className="flex flex-col gap-y-3">
       <div className="text-ui-fg-muted flex items-center gap-x-1.5">
@@ -34,22 +38,37 @@ const CampaignDetailSection = ({
         endsAt={campaign.ends_at}
         showTime
       />
+      {warning && (
+        <InlineTip variant="warning" label={t("general.warning")}>
+          {warning}
+        </InlineTip>
+      )}
     </div>
   )
 }
 
 export const CampaignSection = ({
   campaign: campaignProp,
+  promotion: promotionProp,
 }: {
   campaign?: HttpTypes.AdminCampaign | null
+  promotion?: HttpTypes.AdminPromotion
 }) => {
   const { t } = useTranslation()
   const { id } = useParams()
   const linkQuery = useLinkQuery("promotion")
-  const { promotion } = usePromotion(id!, linkQuery, {
+  const { promotion: fetchedPromotion } = usePromotion(id!, linkQuery, {
     enabled: campaignProp === undefined,
   })
+  const promotion = promotionProp ?? fetchedPromotion
   const campaign = campaignProp !== undefined ? campaignProp : (promotion?.campaign ?? null)
+
+  const warning =
+    campaign && promotion?.status !== "active"
+      ? t("promotions.campaignSection.warnings.promotionMustBeActive")
+      : campaign?.ends_at
+        ? t("promotions.campaignSection.warnings.promotionExpires")
+        : undefined
 
   const actions = [
     {
@@ -84,7 +103,7 @@ export const CampaignSection = ({
 
       {campaign ? (
         <div data-testid="promotion-campaign-section-detail">
-          <CampaignDetailSection campaign={campaign} />
+          <CampaignDetailSection campaign={campaign} warning={warning} />
         </div>
       ) : (
         <div data-testid="promotion-campaign-section-no-records">

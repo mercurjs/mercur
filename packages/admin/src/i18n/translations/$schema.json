@@ -9549,6 +9549,12 @@
             "allocation": {
               "type": "string"
             },
+            "usageLimit": {
+              "type": "string"
+            },
+            "unlimited": {
+              "type": "string"
+            },
             "addCondition": {
               "type": "string"
             },
@@ -9680,11 +9686,50 @@
             "campaign",
             "method",
             "allocation",
+            "usageLimit",
+            "unlimited",
             "addCondition",
             "clearAll",
             "taxInclusive",
             "amount",
             "conditions"
+          ],
+          "additionalProperties": false
+        },
+        "campaignSection": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            },
+            "addToCampaign": {
+              "type": "string"
+            },
+            "warnings": {
+              "type": "object",
+              "properties": {
+                "promotionMustBeActive": {
+                  "type": "string"
+                },
+                "promotionExpires": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "promotionMustBeActive",
+                "promotionExpires"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage",
+            "addToCampaign",
+            "warnings"
           ],
           "additionalProperties": false
         },

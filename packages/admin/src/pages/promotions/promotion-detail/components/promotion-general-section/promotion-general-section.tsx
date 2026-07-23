@@ -24,7 +24,7 @@ import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useDeletePromotion, usePromotion } from "../../../../../hooks/api/promotions"
 import { formatCurrency } from "../../../../../lib/format-currency"
 import { formatPercentage } from "../../../../../lib/percentage-helpers"
-import { getPromotionStatus } from "../../../../../lib/promotions"
+import { getPromotionStatus, getPromotionType } from "../../../../../lib/promotions"
 
 type PromotionGeneralSectionProps = {
   promotion?: HttpTypes.AdminPromotion
@@ -39,6 +39,7 @@ const GENERAL_FIELD_IDS = [
   "value",
   "allocation",
   "is_tax_inclusive",
+  "usage_limit",
 ]
 
 function getDisplayValue(promotion: HttpTypes.AdminPromotion) {
@@ -117,7 +118,7 @@ export const PromotionGeneralSection = ({
           </DisplayField>
         </div>
 
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center gap-x-4">
           <DisplayField model="promotion" zone="general" id="status" data={promotion}>
             <StatusBadge color={color} data-testid="promotion-general-section-status">{text}</StatusBadge>
           </DisplayField>
@@ -191,8 +192,8 @@ export const PromotionGeneralSection = ({
           {t("promotions.fields.type")}
         </Text>
 
-        <Text size="small" leading="compact" className="text-pretty capitalize" data-testid="promotion-general-section-type-value">
-          {promotion.type}
+        <Text size="small" leading="compact" className="text-pretty" data-testid="promotion-general-section-type-value">
+          {getPromotionType(promotion)}
         </Text>
       </div>
       </DisplayField>
@@ -245,6 +246,18 @@ export const PromotionGeneralSection = ({
         </div>
         </DisplayField>
       )}
+
+      <DisplayField model="promotion" zone="general" id="usage_limit" data={promotion}>
+      <div className="text-ui-fg-subtle grid grid-cols-2 items-start px-6 py-4" data-testid="promotion-general-section-usage-limit">
+        <Text size="small" weight="plus" leading="compact" data-testid="promotion-general-section-usage-limit-label">
+          {t("promotions.fields.usageLimit")}
+        </Text>
+
+        <Text size="small" leading="compact" className="text-pretty" data-testid="promotion-general-section-usage-limit-value">
+          {promotion.limit ?? t("promotions.fields.unlimited")}
+        </Text>
+      </div>
+      </DisplayField>
 
       <DisplayExtensionZone
         model="promotion"
