@@ -49,7 +49,7 @@ export const ProductCard = ({
                 width={100}
                 height={100}
                 sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                className="object-cover aspect-square w-full object-center h-full lg:group-hover:-mt-14 transition-all duration-300 rounded-xs"
+                className="object-contain aspect-square w-full object-center h-full lg:group-hover:-mt-14 transition-all duration-300 rounded-xs"
                 data-testid="product-card-image"
               />
             ) : (

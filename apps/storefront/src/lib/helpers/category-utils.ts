@@ -90,13 +90,15 @@ export function filterCategoriesByParent(
   categories: HttpTypes.StoreProductCategory[],
   parentCategories: HttpTypes.StoreProductCategory[]
 ): HttpTypes.StoreProductCategory[] {
-  if (!activeParentHandle || !parentCategories) {
-    return categories
+  // With no active department (home, all-products), show the top-level
+  // categories rather than every sub-category flattened together.
+  if (!activeParentHandle || !parentCategories?.length) {
+    return parentCategories ?? categories
   }
 
   const activeParent = parentCategories.find((p) => p.handle === activeParentHandle)
   if (!activeParent) {
-    return categories
+    return parentCategories
   }
 
   return categories.filter((cat) => cat.parent_category_id === activeParent.id)

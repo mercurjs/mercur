@@ -1,11 +1,7 @@
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import {
-  ProductListingActiveFilters,
-  ProductsPagination,
-} from "@/components/organisms"
-import { ProductSearchSidebar } from "@/components/organisms/ProductSidebar/ProductSearchSidebar"
+import { ProductsPagination, ProductSearchSidebar } from "@/components/organisms"
 import {
   ProductListingLoadingView,
   ProductListingNoResultsView,
@@ -14,28 +10,15 @@ import {
 import { useSearchParams } from "next/navigation"
 import { PRODUCT_LIMIT } from "@/const"
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { useEffect, useState } from "react"
-import { searchProducts, type SearchFacets } from "@/lib/data/products"
+import { useEffect, useMemo, useState } from "react"
+import {
+  getSearchFacets,
+  searchProducts,
+  type SearchFacets,
+} from "@/lib/data/products"
 import type { SortOptions } from "@/types/product"
 
-const RESERVED_KEYS = new Set([
-  "query",
-  "page",
-  "min_price",
-  "max_price",
-  "sortBy",
-  "sale",
-  "products[page]",
-])
-
-const EMPTY_FACETS: SearchFacets = {
-  categories: [],
-  collections: [],
-  types: [],
-  tags: [],
-  attributes: {},
-  price_ranges: [],
-}
+const EMPTY_FACETS: SearchFacets = { attributes: {} }
 
 export const SearchProductsListing = ({
   category_id,
@@ -52,23 +35,37 @@ export const SearchProductsListing = ({
 
   const query = searchParams.get("query") || ""
   const page = +(searchParams.get("page") || 1)
-  const minPrice = searchParams.get("min_price") || ""
-  const maxPrice = searchParams.get("max_price") || ""
   const sortBy = (searchParams.get("sortBy") as SortOptions | null) || undefined
 
-  const attributes: Record<string, string | string[]> = {}
-  searchParams.forEach((value, key) => {
-    if (RESERVED_KEYS.has(key)) return
-    const parts = value.split(",").filter(Boolean)
-    attributes[key] = parts.length > 1 ? parts : parts[0] ?? value
-  })
-
-  const [products, setProducts] = useState<HttpTypes.StoreProduct[]>([])
   const [facets, setFacets] = useState<SearchFacets>(EMPTY_FACETS)
+  const [products, setProducts] = useState<HttpTypes.StoreProduct[]>([])
   const [count, setCount] = useState(0)
   const [isLoading, setIsLoading] = useState(true)
 
-  const attributesKey = JSON.stringify(attributes)
+  useEffect(() => {
+    getSearchFacets()
+      .then(setFacets)
+      .catch(() => setFacets(EMPTY_FACETS))
+  }, [])
+
+  // Turn the attribute handles known from the facets into an `attributes`
+  // filter object read straight off the URL (`?color=Red&size=42,43`).
+  const attributeHandles = useMemo(
+    () => Object.keys(facets.attributes),
+    [facets]
+  )
+  const searchParamsKey = searchParams.toString()
+  const attributes = useMemo(() => {
+    const selected: Record<string, string[]> = {}
+    for (const handle of attributeHandles) {
+      const raw = searchParams.get(handle)
+      if (raw) {
+        selected[handle] = raw.split(",").filter(Boolean)
+      }
+    }
+    return selected
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [attributeHandles, searchParamsKey])
 
   useEffect(() => {
     async function fetchProducts() {
@@ -83,19 +80,15 @@ export const SearchProductsListing = ({
           collection_id,
           seller_id,
           attributes,
-          min_price: minPrice ? Number(minPrice) : undefined,
-          max_price: maxPrice ? Number(maxPrice) : undefined,
           page,
           limit: PRODUCT_LIMIT,
           sortBy,
         })
 
         setProducts(result.products)
-        setFacets(result.facets)
         setCount(result.count)
       } catch (error) {
         setProducts([])
-        setFacets(EMPTY_FACETS)
         setCount(0)
       } finally {
         setIsLoading(false)
@@ -104,18 +97,7 @@ export const SearchProductsListing = ({
 
     fetchProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    locale,
-    category_id,
-    collection_id,
-    seller_id,
-    query,
-    page,
-    minPrice,
-    maxPrice,
-    sortBy,
-    attributesKey,
-  ])
+  }, [locale, category_id, collection_id, seller_id, query, page, sortBy, attributes])
 
   if (isLoading && products.length === 0) return <ProductListingSkeleton />
 
@@ -126,14 +108,11 @@ export const SearchProductsListing = ({
       <div className="flex justify-between w-full items-center">
         <div className="my-4 label-md">{`${count} listings`}</div>
       </div>
-      <div className="hidden md:block">
-        <ProductListingActiveFilters />
-      </div>
-      <div className="md:flex gap-4">
-        <div className="w-[280px] flex-shrink-0 hidden md:block">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+        <aside className="md:col-span-1">
           <ProductSearchSidebar facets={facets} />
-        </div>
-        <div className="w-full flex flex-col">
+        </aside>
+        <div className="md:col-span-3 w-full flex flex-col">
           {isLoading && <ProductListingLoadingView />}
 
           {!isLoading && !products.length && <ProductListingNoResultsView />}

@@ -6,6 +6,7 @@ import { ProductListingHeader } from "./ProductListingHeader/ProductListingHeade
 import { ProductsList } from "./ProductsList/ProductsList"
 import { ProductsPagination } from "./ProductsPagination/ProductsPagination"
 import { ProductSidebar } from "./ProductSidebar/ProductSidebar"
+import { ProductSearchSidebar } from "./ProductSearchSidebar/ProductSearchSidebar"
 import { ProductListingActiveFilters } from "./ProductListingActiveFilters/ProductListingActiveFilters"
 import { Header } from "./Header/Header"
 import { Footer } from "./Footer/Footer"
@@ -18,7 +19,6 @@ import { CartItems } from "./CartItems/CartItems"
 import { HomeProductsCarousel } from "./HomeProductsCarousel/HomeProductsCarousel"
 import { ProductGallery } from "./ProductGallery/ProductGallery"
 import { ProductDetails } from "./ProductDetails/ProductDetails"
-import { ProductSearchSidebar } from "./ProductSidebar/ProductSearchSidebar"
 import { Addresses } from "./Addressess/Addresses"
 import { CartEmpty } from "./CartEmpty/CartEmpty"
 
@@ -31,6 +31,7 @@ export {
   ProductsList,
   ProductsPagination,
   ProductSidebar,
+  ProductSearchSidebar,
   ProductListingActiveFilters,
   Header,
   Footer,
@@ -43,7 +44,6 @@ export {
   HomeProductsCarousel,
   ProductGallery,
   ProductDetails,
-  ProductSearchSidebar,
   Addresses,
   CartEmpty,
 }

@@ -21,7 +21,7 @@ const StoreGetProductsParamsFields = z.object({
   q: z.string().optional(),
   id: z.union([z.string(), z.array(z.string())]).optional(),
   title: z.string().optional(),
-  handle: z.string().optional(),
+  handle: z.union([z.string(), z.array(z.string())]).optional(),
   collection_id: z.union([z.string(), z.array(z.string())]).optional(),
   type_id: z.union([z.string(), z.array(z.string())]).optional(),
   category_id: z.union([z.string(), z.array(z.string())]).optional(),
@@ -31,6 +31,9 @@ const StoreGetProductsParamsFields = z.object({
   currency_code: z.string().optional(),
   created_at: createOperatorMap().optional(),
   updated_at: createOperatorMap().optional(),
+  attributes: z
+    .record(z.string(), z.union([z.string(), z.array(z.string())]))
+    .optional(),
 })
 
 export type StoreGetProductsParamsType = z.infer<typeof StoreGetProductsParams>

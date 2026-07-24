@@ -52,11 +52,14 @@ export const ProductSearchSidebar = ({ facets }: { facets: SearchFacets }) => {
         <Modal heading="Filters" onClose={() => setIsOpen(false)}>
           <div className="px-4">
             <ProductListingActiveFilters />
-            <PriceFilter
+            {/* TODO: price filter — native /store/products has no price filter
+                (calculated_price is computed post-query, schema is .strict()).
+                Needs a custom core endpoint or client-side filtering first. */}
+            {/* <PriceFilter
               defaultOpen={Boolean(
                 allSearchParams.min_price || allSearchParams.max_price
               )}
-            />
+            /> */}
             {renderAttributeFilters()}
           </div>
         </Modal>
@@ -64,7 +67,10 @@ export const ProductSearchSidebar = ({ facets }: { facets: SearchFacets }) => {
     </>
   ) : (
     <div>
-      <PriceFilter />
+      {/* TODO: price filter — native /store/products has no price filter
+          (calculated_price is computed post-query, schema is .strict()).
+          Needs a custom core endpoint or client-side filtering first. */}
+      {/* <PriceFilter /> */}
       {renderAttributeFilters()}
     </div>
   )
