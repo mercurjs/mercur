@@ -1,6 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { getPromotionStatus } from "../../../../../lib/promotions"
-import { StatusCell as StatusCell_ } from "../../common/status-cell"
+import { DataTableStatusCell } from "@/components/data-table/components/data-table-status-cell/data-table-status-cell"
 
 type PromotionCellProps = {
   promotion: HttpTypes.AdminPromotion
@@ -9,5 +9,5 @@ type PromotionCellProps = {
 export const StatusCell = ({ promotion }: PromotionCellProps) => {
   const [color, text] = getPromotionStatus(promotion)
 
-  return <StatusCell_ color={color}>{text}</StatusCell_>
+  return <DataTableStatusCell color={color}>{text}</DataTableStatusCell>
 }

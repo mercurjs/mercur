@@ -3,12 +3,16 @@ const commonHiddenFields = [
   "application_method.type",
 ]
 
-const amountOfOrderHiddenFields = [...commonHiddenFields]
+const amountOfOrderHiddenFields = [
+  ...commonHiddenFields,
+  "application_method.allocation",
+]
 const amountOfProductHiddenFields = [...commonHiddenFields]
 
 const percentageOfOrderHiddenFields = [
   ...commonHiddenFields,
   "is_tax_inclusive",
+  "application_method.allocation",
 ]
 const percentageOfProductHiddenFields = [
   ...commonHiddenFields,
@@ -18,13 +22,6 @@ const percentageOfProductHiddenFields = [
 const buyGetHiddenFields = [
   ...commonHiddenFields,
   "application_method.value",
-  "is_tax_inclusive",
-]
-
-const freeShippingHiddenFields = [
-  ...commonHiddenFields,
-  "application_method.value",
-  "application_method.allocation",
   "is_tax_inclusive",
 ]
 
@@ -107,23 +104,6 @@ export const templates = [
         value: 100,
         apply_to_quantity: 1,
         max_quantity: 1,
-      },
-    },
-  },
-  {
-    id: "shipping_discount",
-    type: "standard",
-    titleKey: "promotions.templates.freeShipping.title",
-    descriptionKey: "promotions.templates.freeShipping.description",
-    hiddenFields: freeShippingHiddenFields,
-    defaults: {
-      is_automatic: "false",
-      type: "standard",
-      application_method: {
-        allocation: "across",
-        target_type: "shipping_methods",
-        type: "percentage",
-        value: 100,
       },
     },
   },
