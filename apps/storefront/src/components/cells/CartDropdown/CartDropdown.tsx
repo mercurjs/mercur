@@ -91,9 +91,9 @@ export const CartDropdown = () => {
             {Boolean(cartItemsCount) ? (
               <div>
                 <div className="overflow-y-scroll max-h-[360px] no-scrollbar">
-                  {validItems.map((item) => (
+                  {validItems.map((item, index) => (
                     <CartDropdownItem
-                      key={item.id}
+                      key={item.id ?? index}
                       item={item}
                       currency_code={cart?.currency_code || "eur"}
                     />

@@ -45,8 +45,8 @@ export const CartDropdownItem = ({
       <div className="py-2">
         <h4 className="heading-xs">{item.product_title}</h4>
         <div className="label-md text-secondary">
-          {item.variant?.options?.map(({ option, id, value }) => (
-            <p key={id}>
+          {item.variant?.options?.map(({ option, id, value }, index) => (
+            <p key={id ?? index}>
               {option?.title}: <span className="text-primary">{value}</span>
             </p>
           ))}

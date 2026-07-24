@@ -16,7 +16,7 @@ import {
 } from "@/lib/helpers/buybox"
 import { Chat } from "@/components/organisms/Chat/Chat"
 import { CompareOffersModal } from "@/components/organisms/CompareOffersModal/CompareOffersModal"
-import { SellerProps } from "@/types/seller"
+import { SellerDTO } from "@mercurjs/types"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
 
@@ -47,7 +47,7 @@ export const ProductDetailsHeader = ({
   locale: string
   user: HttpTypes.StoreCustomer | null
   offers?: StoreOffer[]
-  seller?: SellerProps
+  seller?: SellerDTO
 }) => {
   const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
   const { allSearchParams } = useGetAllSearchParams()

@@ -2,7 +2,7 @@ import { SellerTabs } from "@/components/organisms"
 import { SellerPageHeader } from "@/components/sections"
 import { retrieveCustomer } from "@/lib/data/customer"
 import { getSellerByHandle } from "@/lib/data/seller"
-import { SellerProps } from "@/types/seller"
+import { SellerDTO } from "@mercurjs/types"
 
 export default async function SellerPage({
   params,
@@ -11,7 +11,7 @@ export default async function SellerPage({
 }) {
   const { handle, locale } = await params
 
-  const seller = (await getSellerByHandle(handle)) as SellerProps
+  const seller = (await getSellerByHandle(handle)) as SellerDTO
 
   const user = await retrieveCustomer()
 

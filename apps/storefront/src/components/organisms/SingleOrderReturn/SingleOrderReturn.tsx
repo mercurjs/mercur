@@ -113,7 +113,7 @@ export const SingleOrderReturn = ({
           <div className="p-4 flex justify-between">
             <div className="flex items-center gap-2">
               <Avatar
-                src={item.order.seller.photo || "/talkjs-placeholder.jpg"}
+                src={item.order.seller.logo || "/talkjs-placeholder.jpg"}
               />
               <p className="label-lg text-primary" data-testid={testIdPrefix ? `${testIdPrefix}-seller-name` : undefined}>{item.order.seller.name}</p>
             </div>

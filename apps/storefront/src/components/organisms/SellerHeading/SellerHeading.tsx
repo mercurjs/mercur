@@ -1,5 +1,5 @@
 import { SellerInfo } from "@/components/molecules"
-import { SellerProps } from "@/types/seller"
+import { SellerDTO } from "@mercurjs/types"
 import { Chat } from "../Chat/Chat"
 import { HttpTypes } from "@medusajs/types"
 import { Button } from "@medusajs/ui"
@@ -10,7 +10,7 @@ export const SellerHeading = ({
   header,
 }: {
   header: boolean
-  seller: SellerProps
+  seller: SellerDTO
   user: HttpTypes.StoreCustomer | null
 }) => {
   return (
@@ -34,7 +34,7 @@ export const SellerHeading = ({
       <div className="px-5 pb-5">
         <p
           dangerouslySetInnerHTML={{
-            __html: seller.description,
+            __html: seller.description ?? "",
           }}
           className="label-md"
         />

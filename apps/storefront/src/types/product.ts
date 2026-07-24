@@ -1,4 +1,4 @@
-import { SellerProps } from "./seller"
+import { SellerDTO } from "@mercurjs/types"
 
 export interface AdditionalAttributeProps {
   id: string
@@ -41,7 +41,7 @@ export interface SingleProductReview {
   image: string
   seller_note?: string
   updated_at: string
-  seller: SellerProps
+  seller: SellerDTO
 }
 
 export interface SingleProductSeller {

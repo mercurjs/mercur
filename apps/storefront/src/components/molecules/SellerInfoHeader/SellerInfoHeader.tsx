@@ -6,16 +6,16 @@ import clsx from "clsx"
 export const SellerInfoHeader = ({
   photo,
   name,
-  rating,
-  reviewCount,
+  rating = 0,
+  reviewCount = 0,
   showArrow,
   bottomBorder = false,
   showReviews = true,
 }: {
   photo: string
   name: string
-  rating: number
-  reviewCount: number
+  rating?: number
+  reviewCount?: number
   showArrow: boolean
   bottomBorder?: boolean
   showReviews?: boolean

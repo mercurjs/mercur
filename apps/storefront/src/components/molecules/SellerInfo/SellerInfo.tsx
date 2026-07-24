@@ -1,5 +1,4 @@
-import { SellerProps } from "@/types/seller"
-import { SellerReview } from "../SellerReview/SellerReview"
+import { SellerDTO } from "@mercurjs/types"
 import LocalizedClientLink from "../LocalizedLink/LocalizedLink"
 import { SellerInfoHeader } from "../SellerInfoHeader/SellerInfoHeader"
 
@@ -8,61 +7,37 @@ export const SellerInfo = ({
   header = false,
   showArrow = false,
   bottomBorder = false,
-  showReviews = true,
+  showReviews = false,
 }: {
-  seller: SellerProps
+  seller: SellerDTO
   header?: boolean
   showArrow?: boolean
   bottomBorder?: boolean
   showReviews?: boolean
 }) => {
-  const { photo, name, reviews } = seller
+  const { logo, name } = seller
 
-  const reviewCount = reviews
-    ? reviews?.filter((rev) => rev !== null).length
-    : 0
-
-  const rating =
-    reviews && reviews.length > 0
-      ? reviews
-          .filter((rev) => rev !== null)
-          .reduce((sum, r) => sum + r?.rating || 0, 0) / reviewCount
-      : 0
+  const headerContent = (
+    <SellerInfoHeader
+      photo={logo ?? ""}
+      name={name}
+      showArrow={showArrow}
+      bottomBorder={bottomBorder}
+      showReviews={showReviews}
+    />
+  )
 
   return (
     <div className="flex flex-col w-full">
       {showArrow ? (
-        <LocalizedClientLink href={`/sellers/${seller.handle}`} aria-label={`View ${name} seller`}>
-          <SellerInfoHeader
-            photo={photo}
-            name={name}
-            rating={rating}
-            reviewCount={reviewCount}
-            showArrow={showArrow}
-            bottomBorder={bottomBorder}
-            showReviews={showReviews}
-          />
+        <LocalizedClientLink
+          href={`/sellers/${seller.handle}`}
+          aria-label={`View ${name} seller`}
+        >
+          {headerContent}
         </LocalizedClientLink>
       ) : (
-        <SellerInfoHeader
-          photo={photo}
-          name={name}
-          rating={rating}
-          reviewCount={reviewCount}
-          showArrow={showArrow}
-          bottomBorder={bottomBorder}
-        />
-      )}
-      {!header && showReviews && (
-        <div className="flex flex-col gap-5 p-4">
-          <h3 className="heading-sm uppercase">Seller reviews</h3>
-          {reviews
-            ?.filter((rev) => rev !== null)
-            .slice(-3)
-            .map((review) => (
-              <SellerReview key={review.id} review={review} />
-            ))}
-        </div>
+        headerContent
       )}
     </div>
   )

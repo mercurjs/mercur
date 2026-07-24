@@ -34,7 +34,7 @@ export async function retrieveCart(cartId?: string) {
       $id: id,
       fields:
         '*items,*region, *items.product, *items.variant, *items.variant.options, items.variant.options.option.title,' +
-        '*items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.product.seller' +
+        '*items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name, *items.offer, *items.offer.seller' +
         '',
       fetchOptions: { headers, cache: 'no-cache' }
     })

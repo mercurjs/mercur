@@ -1,7 +1,7 @@
 import { SellerInfo } from "@/components/molecules"
-import { SellerProps } from "@/types/seller"
+import { SellerDTO } from "@mercurjs/types"
 
-export const ProductDetailsSeller = ({ seller }: { seller?: SellerProps }) => {
+export const ProductDetailsSeller = ({ seller }: { seller?: SellerDTO }) => {
   if (!seller) return null
 
   return (

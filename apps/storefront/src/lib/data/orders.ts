@@ -2,7 +2,7 @@
 
 import { HttpTypes } from '@medusajs/types';
 
-import { SellerProps } from '@/types/seller';
+import { SellerDTO } from '@mercurjs/types';
 
 import { sdk } from '../client';
 import medusaError from '../helpers/medusa-error';
@@ -46,7 +46,7 @@ export const retrieveOrder = async (id: string) => {
         cache: 'force-cache'
       }
     } as never) as unknown as Promise<
-      HttpTypes.StoreOrderResponse & { seller: SellerProps }
+      HttpTypes.StoreOrderResponse & { seller: SellerDTO }
     >
   )
     .then(({ order }) => order)

@@ -229,6 +229,8 @@ export const listSellerShippingOptionsForCartWorkflow = createWorkflow(
                 "prices.*",
                 "prices.price_rules.*",
                 'seller.id',
+                'seller.name',
+                'seller.handle',
             ])
         })
 

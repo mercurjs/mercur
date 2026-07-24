@@ -32,7 +32,7 @@ function groupItemsBySeller(cart: HttpTypes.StoreCart) {
   const groupedBySeller: any = {}
 
   cart.items?.forEach((item: any) => {
-    const seller = item.product?.seller
+    const seller = item.offer?.seller
     if (seller) {
       if (!groupedBySeller[seller.id]) {
         groupedBySeller[seller.id] = {

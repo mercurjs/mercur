@@ -8,7 +8,7 @@ import { Button } from '@/components/atoms';
 import { ChatBox } from '@/components/cells/ChatBox/ChatBox';
 import { Modal } from '@/components/molecules';
 import { MessageIcon } from '@/icons';
-import { SellerProps } from '@/types/seller';
+import { SellerDTO } from '@mercurjs/types';
 
 const TALKJS_APP_ID = process.env.NEXT_PUBLIC_TALKJS_APP_ID || '';
 
@@ -24,7 +24,7 @@ export const Chat = ({
   buttonSize = 'small'
 }: {
   user: HttpTypes.StoreCustomer | null;
-  seller: SellerProps;
+  seller: SellerDTO;
   buttonClassNames?: string;
   icon?: boolean;
   product?: HttpTypes.StoreProduct;
@@ -77,7 +77,7 @@ export const Chat = ({
                 id: seller.id,
                 name: sellerName,
                 email: seller.email,
-                photoUrl: seller.photo || '/talkjs-placeholder.jpg',
+                photoUrl: seller.logo || '/talkjs-placeholder.jpg',
                 role: 'seller'
               }}
             />

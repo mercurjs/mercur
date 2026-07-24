@@ -445,6 +445,18 @@ export default async function seedDemoData({ container }: ExecArgs) {
   ];
   const PRIMARY_SELLER_EMAIL = SELLER_CONFIGS[0].email;
 
+  const sellerSlug = (name: string) =>
+    name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+  // DiceBear renders a crisp initials avatar per seller name; Picsum returns a
+  // deterministic photo for the same seed, so re-seeding is stable.
+  const sellerLogo = (name: string) =>
+    `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(name)}`;
+  const sellerBanner = (name: string) =>
+    `https://picsum.photos/seed/${sellerSlug(name)}/1200/320`;
+
   const { data: existingSellers } = await query.graph({
     entity: "seller",
     fields: ["id"],
@@ -502,6 +514,8 @@ export default async function seedDemoData({ container }: ExecArgs) {
           email: sellerConfig.email,
           currency_code: "eur",
           description: `${sellerConfig.name} — a demo marketplace footwear seller.`,
+          logo: sellerLogo(sellerConfig.name),
+          banner: sellerBanner(sellerConfig.name),
         },
       },
     });
