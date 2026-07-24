@@ -251,7 +251,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formZones: "create" | "edit"
       formTabs: { "create": "campaign" | "promotion" | "type" }
       displayZones: "campaign" | "general"
-      displayFieldIds: "allocation" | "code" | "code_badge" | "is_automatic" | "is_tax_inclusive" | "status" | "type" | "value"
+      displayFieldIds: "allocation" | "code" | "code_badge" | "coverage" | "is_automatic" | "is_tax_inclusive" | "owner" | "status" | "type" | "usage_limit" | "value"
     }
     "reservation": {
       formZones: "edit"

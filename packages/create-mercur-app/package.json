@@ -40,7 +40,7 @@
   "dependencies": {
     "@antfu/ni": "^30.3.0",
     "commander": "^15.0.0",
-    "execa": "^9.6.0",
+    "execa": "^10.0.0",
     "fs-extra": "^11.3.2",
     "kleur": "^4.1.5",
     "open": "^11.0.0",
@@ -49,14 +49,14 @@
     "prompts": "^2.4.2",
     "tar": "^7.5.2",
     "terminal-link": "^5.0.0",
-    "validate-npm-package-name": "^7.0.2",
+    "validate-npm-package-name": "^8.0.0",
     "wait-on": "^9.0.3"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
     "@types/pg": "^8.16.0",
     "@types/prompts": "^2.4.9",
-    "@types/tar": "^6.1.13",
+    "@types/tar": "^7.0.87",
     "@types/validate-npm-package-name": "^4.0.2",
     "@types/wait-on": "^5.3.4",
     "tsup": "^8.5.0",

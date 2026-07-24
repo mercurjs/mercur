@@ -16,7 +16,7 @@ export const NoResults = ({ title, message, className }: NoResultsProps) => {
   return (
     <div
       className={clx(
-        "flex min-h-[400px] size-full items-center justify-center",
+        "flex h-[150px] w-full items-center justify-center",
         className
       )}
     >
@@ -38,6 +38,7 @@ type ActionProps = {
     to: string
     label: string
   }
+  dataTestId?: string
 }
 
 export type NoRecordsProps = {
@@ -48,19 +49,23 @@ export type NoRecordsProps = {
   icon?: React.ReactNode
 } & ActionProps
 
-const DefaultButton = ({ action }: ActionProps) =>
+const DefaultButton = ({ action, dataTestId }: ActionProps) =>
   action && (
     <Link to={action.to}>
-      <Button variant="secondary" size="small">
+      <Button variant="secondary" size="small" data-testid={dataTestId}>
         {action.label}
       </Button>
     </Link>
   )
 
-const TransparentIconLeftButton = ({ action }: ActionProps) =>
+const TransparentIconLeftButton = ({ action, dataTestId }: ActionProps) =>
   action && (
     <Link to={action.to}>
-      <Button variant="transparent" className="text-ui-fg-interactive">
+      <Button
+        variant="transparent"
+        className="text-ui-fg-interactive"
+        data-testid={dataTestId}
+      >
         <PlusMini /> {action.label}
       </Button>
     </Link>
@@ -72,6 +77,7 @@ export const NoRecords = ({
   action,
   className,
   buttonVariant = "default",
+  dataTestId,
   icon = <ExclamationCircle className="text-ui-fg-subtle" />,
 }: NoRecordsProps) => {
   const { t } = useTranslation()
@@ -79,7 +85,7 @@ export const NoRecords = ({
   return (
     <div
       className={clx(
-        "flex min-h-[400px] size-full flex-col items-center justify-center gap-y-4",
+        "flex h-[150px] w-full flex-col items-center justify-center gap-y-4",
         className
       )}
     >
@@ -100,9 +106,11 @@ export const NoRecords = ({
         </div>
       </div>
 
-      {buttonVariant === "default" && <DefaultButton action={action} />}
+      {buttonVariant === "default" && (
+        <DefaultButton action={action} dataTestId={dataTestId} />
+      )}
       {buttonVariant === "transparentIconLeft" && (
-        <TransparentIconLeftButton action={action} />
+        <TransparentIconLeftButton action={action} dataTestId={dataTestId} />
       )}
     </div>
   )
