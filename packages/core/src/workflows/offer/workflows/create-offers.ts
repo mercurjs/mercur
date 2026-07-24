@@ -157,6 +157,70 @@ export const createOffersWorkflow: ReturnWorkflow<
 
     const offers = createOffersStep(stripped)
 
+    // Link each offer's product to the offer's shipping profile. Medusa's
+    // cart-refresh keeps a shipping method only when its option's profile
+    // matches a profile on the cart's products (`item.variant.product
+    // .shipping_profile`); master products carry no profile of their own, so
+    // without this link multi-seller carts lose their shipping methods on
+    // refresh.
+    const offerProductIds = transform({ stripped }, ({ stripped }) =>
+      Array.from(
+        new Set(
+          stripped
+            .map((offer) => offer.product_id)
+            .filter((id): id is string => !!id),
+        ),
+      ),
+    )
+
+    const { data: productsWithProfiles } = useQueryGraphStep({
+      entity: "product",
+      fields: ["id", "shipping_profile.id"],
+      filters: { id: offerProductIds },
+    }).config({ name: "get-product-shipping-profiles" })
+
+    // Skip products already linked to that profile so re-adding an offer on an
+    // existing product is a no-op (createRemoteLinkStep would otherwise throw on
+    // a duplicate link). Deduped by product+profile within the batch too.
+    const productShippingProfileLinks = transform(
+      { stripped, productsWithProfiles },
+      ({ stripped, productsWithProfiles }) => {
+        const existing = new Set(
+          (
+            productsWithProfiles as {
+              id: string
+              shipping_profile?: { id?: string } | null
+            }[]
+          )
+            .filter((product) => product.shipping_profile?.id)
+            .map((product) => `${product.id}:${product.shipping_profile!.id}`),
+        )
+        const seen = new Set<string>()
+        const links: LinkDefinition[] = []
+        for (const offer of stripped) {
+          if (!offer.product_id || !offer.shipping_profile_id) {
+            continue
+          }
+          const key = `${offer.product_id}:${offer.shipping_profile_id}`
+          if (seen.has(key) || existing.has(key)) {
+            continue
+          }
+          seen.add(key)
+          links.push({
+            [Modules.PRODUCT]: { product_id: offer.product_id },
+            [Modules.FULFILLMENT]: {
+              shipping_profile_id: offer.shipping_profile_id,
+            },
+          })
+        }
+        return links
+      },
+    )
+
+    createRemoteLinkStep(productShippingProfileLinks).config({
+      name: "link-product-shipping-profile",
+    })
+
     const offerInventoryLinks = transform(
       { input, offers, inventoryItemsToCreate, createdInventoryItems },
       ({ input, offers, inventoryItemsToCreate, createdInventoryItems }) => {

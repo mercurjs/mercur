@@ -3,7 +3,8 @@
 import { OfferDTO } from '@mercurjs/types';
 
 import { sdk } from '../client';
-import { getAuthHeaders, getCacheOptions } from './cookies';
+import { getAuthHeaders } from './cookies';
+import { CACHE_TAGS, getGlobalCacheOptions } from './cache-tags';
 import { getRegion } from './regions';
 
 // All fields are `+`-prefixed so they MERGE with the route defaults instead of
@@ -37,7 +38,10 @@ export const listOffers = async ({
       ? await getRegion(countryCode)
       : null;
 
-  const next = { ...(await getCacheOptions('offers')) };
+  const next = getGlobalCacheOptions(
+    CACHE_TAGS.offers,
+    productId ? CACHE_TAGS.productOffers(productId) : undefined
+  );
 
   return (
     sdk.store.offers.query({
@@ -50,6 +54,7 @@ export const listOffers = async ({
       fields: OFFER_FIELDS,
       fetchOptions: {
         headers: { ...(await getAuthHeaders()) },
+        cache: 'force-cache',
         next,
       },
     } as never) as unknown as Promise<{ offers: OfferDTO[]; count: number }>
@@ -74,7 +79,11 @@ export const retrieveOffer = async (
       region_id: region?.id,
       country_code: countryCode,
       fields: OFFER_FIELDS,
-      fetchOptions: { headers: { ...(await getAuthHeaders()) } },
+      fetchOptions: {
+        headers: { ...(await getAuthHeaders()) },
+        cache: 'force-cache',
+        next: getGlobalCacheOptions(CACHE_TAGS.offers, CACHE_TAGS.offer(id)),
+      },
     } as never) as unknown as Promise<{ offer: OfferDTO }>
   )
     .then(({ offer }) => offer)

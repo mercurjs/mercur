@@ -6,7 +6,8 @@ import { sortProducts } from '@/lib/helpers/sort-products';
 import { SortOptions } from '@/types/product';
 
 import { sdk } from '../client';
-import { getAuthHeaders, getCacheOptions } from './cookies';
+import { getAuthHeaders } from './cookies';
+import { CACHE_TAGS, getGlobalCacheOptions } from './cache-tags';
 import { getRegion, retrieveRegion } from './regions';
 
 const PRODUCT_LIST_FIELDS =
@@ -68,7 +69,6 @@ export const listProducts = async ({
   regionId,
   category_id,
   collection_id,
-  forceCache = false,
 }: {
   pageParam?: number;
   queryParams?: HttpTypes.FindParams &
@@ -77,7 +77,6 @@ export const listProducts = async ({
   collection_id?: string;
   countryCode?: string;
   regionId?: string;
-  forceCache?: boolean;
 }): Promise<{
   response: { products: HttpTypes.StoreProduct[]; count: number };
   nextPage: number | null;
@@ -99,8 +98,6 @@ export const listProducts = async ({
     return { response: { products: [], count: 0 }, nextPage: null };
   }
 
-  const useCached = forceCache || (limit <= 8 && !category_id && !collection_id);
-
   return (
     sdk.store.products.query({
       category_id,
@@ -112,8 +109,8 @@ export const listProducts = async ({
       ...queryParams,
       fetchOptions: {
         headers: { ...(await getAuthHeaders()) },
-        next: useCached ? { revalidate: 60 } : undefined,
-        cache: useCached ? 'force-cache' : 'no-cache',
+        cache: 'force-cache',
+        next: getGlobalCacheOptions(CACHE_TAGS.products),
       },
     } as never) as unknown as Promise<{ products: HttpTypes.StoreProduct[]; count: number }>
   )
@@ -182,7 +179,10 @@ export const listProductsWithSort = async ({
 };
 
 export const getProductByHandle = async (handle: string, regionId: string) => {
-  const next = { ...(await getCacheOptions('products')) };
+  const next = getGlobalCacheOptions(
+    CACHE_TAGS.products,
+    CACHE_TAGS.product(handle)
+  );
 
   return (
     sdk.store.products.query({
@@ -191,6 +191,7 @@ export const getProductByHandle = async (handle: string, regionId: string) => {
       fields: PRODUCT_LIST_FIELDS,
       fetchOptions: {
         headers: { ...(await getAuthHeaders()) },
+        cache: 'force-cache',
         next,
       },
     } as never) as unknown as Promise<{ products: HttpTypes.StoreProduct[] }>

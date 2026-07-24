@@ -13,7 +13,6 @@ export async function generateMetadata({
   const prod = await listProducts({
     countryCode: locale,
     queryParams: { handle: [handle], limit: 1 },
-    forceCache: true,
   }).then(({ response }) => response.products[0])
 
   return generateProductMetadata(prod)

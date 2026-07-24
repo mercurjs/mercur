@@ -12,7 +12,6 @@ import {
   createProductsWorkflow,
   createSellerAccountWorkflow,
   createSellerShippingOptionsWorkflow,
-  createSellerShippingProfilesWorkflow,
   createSellerStockLocationsWorkflow,
 } from "@mercurjs/core/workflows";
 import {
@@ -27,6 +26,7 @@ import {
   createRegionsWorkflow,
   createSalesChannelsWorkflow,
   createServiceZonesWorkflow,
+  createShippingProfilesWorkflow,
   createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
   linkSalesChannelsToStockLocationWorkflow,
@@ -473,6 +473,27 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   const authModuleService = container.resolve(Modules.AUTH);
 
+  // One marketplace-wide shipping profile shared by every seller's shipping
+  // options and every offer. createOffersWorkflow links each offer's product to
+  // this profile, so the cart-refresh orphan-cleanup keeps per-seller shipping
+  // methods (it matches option profile against the product's profile).
+  let sharedShippingProfileId: string;
+  const { data: existingProfiles } = await query.graph({
+    entity: "shipping_profile",
+    fields: ["id"],
+    filters: { name: "Marketplace Shipping" },
+  });
+  if (existingProfiles[0]) {
+    sharedShippingProfileId = existingProfiles[0].id as string;
+  } else {
+    const {
+      result: [createdProfile],
+    } = await createShippingProfilesWorkflow(container).run({
+      input: { data: [{ name: "Marketplace Shipping", type: "default" }] },
+    });
+    sharedShippingProfileId = createdProfile.id;
+  }
+
   type SeededSeller = {
     id: string;
     name: string;
@@ -614,16 +635,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
     });
     const serviceZoneId = serviceZones[0].id;
 
-    const { result: shippingProfiles } =
-      await createSellerShippingProfilesWorkflow(container).run({
-        input: {
-          seller_id: seller.id,
-          shipping_profiles: [
-            { name: `${sellerConfig.name} Shipping`, type: "default" },
-          ],
-        },
-      });
-    const shippingProfileId = shippingProfiles[0].id;
+    const shippingProfileId = sharedShippingProfileId;
 
     await createSellerShippingOptionsWorkflow(container).run({
       input: {

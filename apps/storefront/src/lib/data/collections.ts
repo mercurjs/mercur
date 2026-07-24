@@ -1,13 +1,14 @@
 "use server"
 
 import { HttpTypes } from "@medusajs/types"
-import { getCacheOptions } from "./cookies"
+import { CACHE_TAGS, getGlobalCacheOptions } from "./cache-tags"
 import { sdk } from "../client"
 
 export const retrieveCollection = async (id: string) => {
-  const next = {
-    ...(await getCacheOptions("collections")),
-  }
+  const next = getGlobalCacheOptions(
+    CACHE_TAGS.collections,
+    CACHE_TAGS.collection(id)
+  )
 
   return (sdk.store.collections.$id
     .query({
@@ -20,9 +21,7 @@ export const retrieveCollection = async (id: string) => {
 export const listCollections = async (
   queryParams: Record<string, string> = {}
 ): Promise<{ collections: HttpTypes.StoreCollection[]; count: number }> => {
-  const next = {
-    ...(await getCacheOptions("collections")),
-  }
+  const next = getGlobalCacheOptions(CACHE_TAGS.collections)
 
   queryParams.limit = queryParams.limit || "100"
   queryParams.offset = queryParams.offset || "0"
@@ -38,9 +37,10 @@ export const listCollections = async (
 export const getCollectionByHandle = async (
   handle: string
 ): Promise<HttpTypes.StoreCollection> => {
-  const next = {
-    ...(await getCacheOptions("collections")),
-  }
+  const next = getGlobalCacheOptions(
+    CACHE_TAGS.collections,
+    CACHE_TAGS.collection(handle)
+  )
 
   return (sdk.store.collections
     .query({

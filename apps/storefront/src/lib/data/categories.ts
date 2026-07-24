@@ -1,6 +1,7 @@
 import { HttpTypes } from '@medusajs/types';
 
 import { sdk } from '@/lib/client';
+import { CACHE_TAGS, getGlobalCacheOptions } from './cache-tags';
 
 interface CategoriesProps {
   query?: Record<string, unknown>;
@@ -16,7 +17,10 @@ export const listCategories = async ({ query }: Partial<CategoriesProps> = {}) =
       include_ancestors_tree: true,
       limit,
       ...query,
-      fetchOptions: { cache: 'force-cache', next: { revalidate: 3600 } }
+      fetchOptions: {
+        cache: 'force-cache',
+        next: getGlobalCacheOptions(CACHE_TAGS.categories)
+      }
     } as never) as unknown as Promise<{ product_categories: HttpTypes.StoreProductCategory[] }>)
     .then(({ product_categories }) => product_categories);
 
@@ -48,7 +52,13 @@ export const getCategoryByHandle = async (categoryHandle: string) => {
     .query({
       fields: '*category_children',
       handle: categoryHandle,
-      fetchOptions: { cache: 'force-cache', next: { revalidate: 300 } }
+      fetchOptions: {
+        cache: 'force-cache',
+        next: getGlobalCacheOptions(
+          CACHE_TAGS.categories,
+          CACHE_TAGS.category(categoryHandle)
+        )
+      }
     } as never) as unknown as Promise<HttpTypes.StoreProductCategoryListResponse>)
     .then(({ product_categories }) => product_categories[0]);
 };

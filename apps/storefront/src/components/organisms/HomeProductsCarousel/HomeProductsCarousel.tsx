@@ -23,7 +23,6 @@ export const HomeProductsCarousel = async ({
         ? undefined
         : sellerProducts.map((product) => product.handle),
     },
-    forceCache: !home,
   })
 
   if (!products.length && !sellerProducts.length) return null
