@@ -44,7 +44,7 @@ export const ProductDetailsPage = async ({
       </div>
       <div className="my-8">
         <HomeProductSection
-          heading="More from this seller"
+          heading="Similar items"
           products={prod.seller?.products}
           locale={locale}
         />
