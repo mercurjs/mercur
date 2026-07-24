@@ -62,6 +62,11 @@ export const RuleValueFormField = ({
 
   const { currency_code, isPending: isSellerLoading } = useCurrentSeller();
 
+  const watchValue = useWatch({
+    control: form.control,
+    name,
+  });
+
   const comboboxData = useComboboxData({
     queryFn: async (params) => {
       return await sdk.vendor.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query(
@@ -83,6 +88,8 @@ export const RuleValueFormField = ({
       !isSellerLoading,
     getOptions: (data) => data.values,
     queryKey: ["rule-value-options", ruleType, attribute?.id],
+    defaultValue: watchValue,
+    defaultValueKey: "value",
   });
 
   const watchOperator = useWatch({
