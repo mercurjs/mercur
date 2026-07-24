@@ -9451,20 +9451,25 @@
                     "type": "string"
                   }
                 }
-              },
-              "freeShipping": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
-                }
               }
             }
           },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecords": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
         "domain": {
           "type": "string"
         },
@@ -9506,10 +9511,36 @@
             "type": {
               "type": "string"
             },
+            "typeLabels": {
+              "type": "object",
+              "properties": {
+                "percentageItems": {
+                  "type": "string"
+                },
+                "percentageShipping": {
+                  "type": "string"
+                },
+                "percentageOrder": {
+                  "type": "string"
+                },
+                "amountItems": {
+                  "type": "string"
+                },
+                "amountShipping": {
+                  "type": "string"
+                },
+                "amountOrder": {
+                  "type": "string"
+                }
+              }
+            },
             "value_type": {
               "type": "string"
             },
             "value": {
+              "type": "string"
+            },
+            "promotion_value": {
               "type": "string"
             },
             "campaign": {
@@ -9518,7 +9549,22 @@
             "method": {
               "type": "string"
             },
+            "owner": {
+              "type": "string"
+            },
+            "platformOwner": {
+              "type": "string"
+            },
+            "coverage": {
+              "type": "string"
+            },
             "allocation": {
+              "type": "string"
+            },
+            "usageLimit": {
+              "type": "string"
+            },
+            "unlimited": {
               "type": "string"
             },
             "addCondition": {
@@ -9649,14 +9695,57 @@
             "type",
             "value_type",
             "value",
+            "promotion_value",
             "campaign",
             "method",
+            "owner",
+            "platformOwner",
+            "coverage",
             "allocation",
+            "usageLimit",
+            "unlimited",
             "addCondition",
             "clearAll",
             "taxInclusive",
             "amount",
             "conditions"
+          ],
+          "additionalProperties": false
+        },
+        "campaignSection": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            },
+            "addToCampaign": {
+              "type": "string"
+            },
+            "warnings": {
+              "type": "object",
+              "properties": {
+                "promotionMustBeActive": {
+                  "type": "string"
+                },
+                "promotionExpires": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "promotionMustBeActive",
+                "promotionExpires"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage",
+            "addToCampaign",
+            "warnings"
           ],
           "additionalProperties": false
         },
@@ -9915,6 +10004,34 @@
               ],
               "additionalProperties": false
             },
+            "storeOffers": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description",
+                "label",
+                "placeholder",
+                "required"
+              ],
+              "additionalProperties": false
+            },
             "status": {
               "type": "object",
               "properties": {
@@ -10163,12 +10280,16 @@
                 "title": {
                   "type": "string"
                 },
+                "description": {
+                  "type": "string"
+                },
                 "invalid": {
                   "type": "string"
                 }
               },
               "required": [
                 "title",
+                "description",
                 "invalid"
               ],
               "additionalProperties": false
@@ -10251,11 +10372,15 @@
             "list": {
               "type": "object",
               "properties": {
+                "noRecordsTitle": {
+                  "type": "string"
+                },
                 "noRecordsMessage": {
                   "type": "string"
                 }
               },
               "required": [
+                "noRecordsTitle",
                 "noRecordsMessage"
               ],
               "additionalProperties": false

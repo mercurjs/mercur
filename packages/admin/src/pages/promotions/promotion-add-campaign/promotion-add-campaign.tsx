@@ -2,14 +2,18 @@ import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
+
 import { RouteDrawer } from "../../../components/modals"
 import { usePromotion } from "../../../hooks/api/promotions"
+import { PROMOTION_DETAIL_BASE_FIELDS } from "../promotion-detail/loader"
 import { AddCampaignPromotionForm } from "./components/add-campaign-promotion-form"
 
 export const PromotionAddCampaign = () => {
   const { id } = useParams()
   const { t } = useTranslation()
-  const { promotion, isPending, isError, error } = usePromotion(id!)
+  const linkQuery = useLinkQuery("promotion", PROMOTION_DETAIL_BASE_FIELDS)
+  const { promotion, isPending, isError, error } = usePromotion(id!, linkQuery)
 
   if (isError) {
     throw error
