@@ -1,0 +1,21 @@
+{
+  "files.watcherExclude": {
+    "**/node_modules/**": true,
+    "**/.turbo/**": true,
+    "**/.medusa/**": true,
+    "**/dist/**": true,
+    "**/.claude/worktrees/**": true,
+    "**/.git/**": true
+  },
+  "search.exclude": {
+    "**/node_modules": true,
+    "**/.turbo": true,
+    "**/.medusa": true,
+    "**/dist": true,
+    "**/.claude/worktrees": true
+  },
+  "typescript.tsserver.watchOptions": { "watchDirectory": "useFsEvents" },
+  "typescript.tsserver.maxTsServerMemory": 6144,
+  "typescript.tsdk": "node_modules/typescript/lib",
+  "editor.formatOnSave": false
+}
