@@ -9,9 +9,20 @@ import PaymentButton from './PaymentButton';
 const Review = ({ cart }: { cart: any }) => {
   const paidByGiftcard = cart?.gift_cards && cart?.gift_cards?.length > 0 && cart?.total === 0;
 
+  // Every seller in the cart must have a shipping method. The backend enforces
+  // one method per seller, so covering each seller means one method per seller.
+  const cartSellerCount = new Set(
+    (cart?.items ?? [])
+      .map((item: any) => item.offer?.seller_id)
+      .filter(Boolean)
+  ).size;
+  const allSellersHaveShipping =
+    cart.shipping_methods.length > 0 &&
+    cart.shipping_methods.length >= cartSellerCount;
+
   const previousStepsCompleted =
     cart.shipping_address &&
-    cart.shipping_methods.length > 0 &&
+    allSellersHaveShipping &&
     (cart.payment_collection || paidByGiftcard);
 
   return (

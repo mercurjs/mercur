@@ -45,7 +45,7 @@ export const UserDropdown = ({
               </h3>
             </div>
             <NavigationItem href="/user/orders">Orders</NavigationItem>
-            <NavigationItem href="/user/messages" className="relative">
+            {/* <NavigationItem href="/user/messages" className="relative">
               Messages
               {Boolean(unreads?.length) && (
                 <Badge className="absolute top-3 left-24 w-4 h-4 p-0">
@@ -53,7 +53,7 @@ export const UserDropdown = ({
                 </Badge>
               )}
             </NavigationItem>
-            <NavigationItem href="/user/returns">Returns</NavigationItem>
+            <NavigationItem href="/user/returns">Returns</NavigationItem> */}
             <NavigationItem href="/user/addresses">Addresses</NavigationItem>
             <Divider />
             <NavigationItem href="/user/settings">Settings</NavigationItem>

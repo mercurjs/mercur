@@ -31,7 +31,7 @@ function groupItemsBySeller(cart: HttpTypes.StoreCart) {
     if (seller) {
       if (!groupedBySeller[seller.id]) {
         groupedBySeller[seller.id] = {
-          seller: seller,
+          seller: { ...seller, photo: seller.photo ?? seller.logo },
           items: []
         };
       }

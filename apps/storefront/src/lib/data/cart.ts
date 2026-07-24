@@ -416,7 +416,11 @@ export async function placeOrder(cartId?: string) {
     revalidatePath('/user/reviews');
     revalidatePath('/user/orders');
     removeCartId();
-    redirect(`/order/${res.data.order_group.orders[0].id}/confirmed`);
+    // The completed cart splits into one order group (many per-seller orders).
+    // Send the shopper to the order-group detail page, which renders every
+    // child order + aggregated totals. `order_group.id` is always present;
+    // `orders[0].id` is not (the complete route omits `orders` from its fields).
+    redirect(`/user/orders/${res.data.order_group.id}`);
   }
 
   return res;

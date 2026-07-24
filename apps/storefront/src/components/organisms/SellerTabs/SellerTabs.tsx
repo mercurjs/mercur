@@ -1,6 +1,6 @@
 import { Suspense } from "react"
 import { ProductListingSkeleton } from "../ProductListingSkeleton/ProductListingSkeleton"
-import { SearchProductsListing } from "@/components/sections"
+import { SellerOffersListing } from "@/components/sections"
 import { TabsContent, TabsList } from "@/components/molecules"
 
 export const SellerTabs = ({
@@ -8,22 +8,27 @@ export const SellerTabs = ({
   seller_handle,
   seller_id,
   locale,
+  page = 1,
 }: {
   tab: string
   seller_handle: string
   seller_id: string
   locale: string
+  page?: number
 }) => {
   const tabsList = [
-    { label: "products", link: `/sellers/${seller_handle}/` },
+    { label: "Offers", link: `/sellers/${seller_handle}/` },
   ]
 
   return (
     <div className="mt-8">
       <TabsList list={tabsList} activeTab={tab} />
-      <TabsContent value="products" activeTab={tab}>
-        <Suspense fallback={<div data-testid="seller-tabs-products-loading"><ProductListingSkeleton /></div>}>
-          <SearchProductsListing seller_id={seller_id} locale={locale} />
+      <TabsContent value="offers" activeTab={tab}>
+        <Suspense
+          key={page}
+          fallback={<div data-testid="seller-tabs-products-loading"><ProductListingSkeleton /></div>}
+        >
+          <SellerOffersListing seller_id={seller_id} locale={locale} page={page} />
         </Suspense>
       </TabsContent>
     </div>

@@ -9,6 +9,7 @@ import { SellerPageHeader } from "./SellerPageHeader/SellerPageHeader"
 import { Cart } from "./Cart/Cart"
 import { ProductDetailsPage } from "./ProductDetailsPage/ProductDetailsPage"
 import { SearchProductsListing } from "./ProductListing/SearchProductsListing"
+import { SellerOffersListing } from "./SellerOffersListing/SellerOffersListing"
 import { OrdersPagination } from "../organisms/OrdersPagination/OrdersPagination"
 
 export {
@@ -23,5 +24,6 @@ export {
   Cart,
   ProductDetailsPage,
   SearchProductsListing,
+  SellerOffersListing,
   OrdersPagination,
 }

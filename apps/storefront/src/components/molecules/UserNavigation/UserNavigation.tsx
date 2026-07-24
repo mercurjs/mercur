@@ -14,14 +14,14 @@ const navigationItems = [
     label: "Orders",
     href: "/user/orders",
   },
-  {
-    label: "Messages",
-    href: "/user/messages",
-  },
-  {
-    label: "Returns",
-    href: "/user/returns",
-  },
+  // {
+  //   label: "Messages",
+  //   href: "/user/messages",
+  // },
+  // {
+  //   label: "Returns",
+  //   href: "/user/returns",
+  // },
   {
     label: "Addresses",
     href: "/user/addresses",

@@ -1,4 +1,5 @@
 import { ProductCard } from "./ProductCard/ProductCard"
+import { OfferCard } from "./OfferCard/OfferCard"
 import { BrandCard } from "./BrandCard/BrandCard"
 import { CategoryCard } from "./CategoryCard/CategoryCard"
 import { BlogCard } from "./BlogCard/BlogCard"
@@ -48,4 +49,5 @@ export {
   CompareOffersModal,
   Addresses,
   CartEmpty,
+  OfferCard,
 }

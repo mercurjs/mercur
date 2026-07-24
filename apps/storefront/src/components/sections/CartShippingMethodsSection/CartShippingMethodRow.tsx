@@ -9,17 +9,21 @@ import { Text } from "@medusajs/ui"
 
 export const CartShippingMethodRow = ({
   method,
+  sellerName,
   currency_code,
   onRemoveShippingMethod,
 }: {
   method: HttpTypes.StoreCartShippingMethod
+  sellerName?: string
   currency_code: string
   onRemoveShippingMethod: (methodId: string) => void
 }) => {
   return (
     <div className="mb-4 border rounded-md p-4 flex items-center justify-between">
       <div>
-        <Text className="txt-medium-plus text-ui-fg-base mb-1">Method</Text>
+        <Text className="txt-medium-plus text-ui-fg-base mb-1">
+          {sellerName ?? "Method"}
+        </Text>
         <Text className="txt-medium text-ui-fg-subtle">
           {method?.name}{" "}
           {convertToLocale({

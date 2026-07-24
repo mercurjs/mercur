@@ -2,11 +2,20 @@ import { Card, Divider } from "@/components/atoms"
 import { convertToLocale } from "@/lib/helpers/money"
 
 export const OrderTotals = ({ orderGroup }: { orderGroup: any }) => {
-  const delivery = orderGroup.shipping_total
-  const subtotal = orderGroup.total - delivery
-  const total = orderGroup.total
+  // The order group only exposes a computed `total`; per-seller monetary
+  // breakdowns live on its child orders, so aggregate them here.
+  const orders: any[] = orderGroup.orders ?? []
 
-  const currency_code = orderGroup.payment_collection.currency_code
+  const delivery = orders.reduce(
+    (sum, order) => sum + (order.shipping_total ?? 0),
+    0
+  )
+  const total =
+    orderGroup.total ?? orders.reduce((sum, order) => sum + (order.total ?? 0), 0)
+  const subtotal = total - delivery
+
+  const currency_code =
+    orders[0]?.currency_code ?? orderGroup.currency_code ?? ""
 
   return (
     <Card className="mb-8 p-4">

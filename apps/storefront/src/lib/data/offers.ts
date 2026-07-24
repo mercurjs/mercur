@@ -6,19 +6,30 @@ import { sdk } from '../client';
 import { getAuthHeaders, getCacheOptions } from './cookies';
 import { getRegion } from './regions';
 
+// All fields are `+`-prefixed so they MERGE with the route defaults instead of
+// replacing them. The defaults carry `product_variant.price_set.id` and the
+// `inventory_item_link.*.location_levels` fields that the computed
+// `calculated_price` / `inventory_quantity` depend on — dropping them (via an
+// unprefixed field) silently yields null prices and zero stock.
 const OFFER_FIELDS =
-  '*seller,*product_variant,*prices,+calculated_price,+inventory_quantity';
+  '+seller.logo,+seller.banner,+seller.is_premium,' +
+  '+calculated_price,+inventory_quantity,' +
+  '+product.id,+product.title,+product.handle,+product.thumbnail';
 
 export const listOffers = async ({
   productId,
   sellerId,
   countryCode,
   regionId,
+  limit,
+  offset,
 }: {
   productId?: string;
   sellerId?: string;
   countryCode?: string;
   regionId?: string;
+  limit?: number;
+  offset?: number;
 }): Promise<{ offers: OfferDTO[]; count: number }> => {
   const region = regionId
     ? { id: regionId }
@@ -34,6 +45,8 @@ export const listOffers = async ({
       seller_id: sellerId,
       region_id: region?.id,
       country_code: countryCode,
+      limit,
+      offset,
       fields: OFFER_FIELDS,
       fetchOptions: {
         headers: { ...(await getAuthHeaders()) },

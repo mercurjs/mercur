@@ -30,6 +30,7 @@ type CartItem = {
 
 export type StoreCardShippingMethod = HttpTypes.StoreCartShippingOption & {
   seller_id?: string;
+  seller_name?: string;
   service_zone?: {
     fulfillment_set: {
       type: string;
@@ -68,15 +69,6 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
   const _shippingMethods = availableShippingMethods?.filter(
     sm => sm.rules?.find((rule: any) => rule.attribute === 'is_return')?.value !== 'true'
   );
-
-  useEffect(() => {
-    const set = new Set<string>();
-    cart.items?.forEach(item => {
-      if (item?.product?.seller?.id) {
-        set.add(item.product.seller.id);
-      }
-    });
-  }, [cart]);
 
   useEffect(() => {
     if (_shippingMethods?.length) {
@@ -165,6 +157,28 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
     key => groupedBySellerId?.[key]?.[0]?.seller_name
   );
 
+  // The shipping method a seller currently has selected in the cart, matched by
+  // the option ids that belong to that seller.
+  const getSelectedMethodForSeller = (key: string) => {
+    const optionIds = new Set<string>(
+      (groupedBySellerId?.[key] ?? []).map((o: any) => o.id)
+    );
+    return cart.shipping_methods?.find(
+      method =>
+        !!method.shipping_option_id && optionIds.has(method.shipping_option_id)
+    );
+  };
+
+  // Payment is only reachable once every seller in the cart has a method.
+  const allSellersHaveMethod =
+    filteredGroupedBySellerId.length > 0 &&
+    filteredGroupedBySellerId.every(key => !!getSelectedMethodForSeller(key));
+
+  // Map each selected method back to its seller name for the summary rows.
+  const sellerNameByOptionId = new Map<string, string | undefined>(
+    (_shippingMethods ?? []).map((option: any) => [option.id, option.seller_name])
+  );
+
   return (
     <div className="bg-ui-bg-interactive rounded-sm border p-4">
       <div className="mb-6 flex flex-row items-center justify-between">
@@ -193,7 +207,10 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
               <div className="pb-8 pt-2 md:pt-0">
                 {filteredGroupedBySellerId.length === 0
                   ? 'No shipping options available'
-                  : filteredGroupedBySellerId.map(key => (
+                  : filteredGroupedBySellerId.map(key => {
+                      const selectedMethod = getSelectedMethodForSeller(key);
+
+                      return (
                       <div
                         key={key}
                         className="mb-4"
@@ -205,7 +222,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                           {groupedBySellerId[key][0].seller_name}
                         </Heading>
                         <Listbox
-                          value={cart.shipping_methods?.[0]?.id}
+                          value={selectedMethod?.shipping_option_id ?? null}
                           onChange={value => {
                             handleSetShippingMethod(value);
                           }}
@@ -218,7 +235,9 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                             >
                               {({ open }) => (
                                 <>
-                                  <span className="block truncate">Choose delivery option</span>
+                                  <span className="block truncate">
+                                    {selectedMethod?.name ?? 'Choose delivery option'}
+                                  </span>
                                   <ChevronUpDown
                                     className={clx('transition-rotate duration-200', {
                                       'rotate-180 transform': open
@@ -267,13 +286,19 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
                           </div>
                         </Listbox>
                       </div>
-                    ))}
+                      );
+                    })}
                 {!!cart?.shipping_methods?.length && (
                   <div className="flex flex-col">
                     {cart.shipping_methods?.map(method => (
                       <CartShippingMethodRow
                         key={method.id}
                         method={method}
+                        sellerName={
+                          method.shipping_option_id
+                            ? sellerNameByOptionId.get(method.shipping_option_id)
+                            : undefined
+                        }
                         currency_code={cart.currency_code}
                         onRemoveShippingMethod={handleRemoveShippingMethod}
                       />
@@ -291,7 +316,7 @@ const CartShippingMethodsSection: FC<ShippingProps> = ({ cart, availableShipping
             <Button
               onClick={handleSubmit}
               variant="tonal"
-              disabled={!cart.shipping_methods?.[0] || isPendingDeleteRow}
+              disabled={!allSellersHaveMethod || isPendingDeleteRow}
               loading={isLoadingPrices}
             >
               Continue to payment
