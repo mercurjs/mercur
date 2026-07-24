@@ -27,7 +27,9 @@ export const ActiveFilterElement = ({ filter }: { filter: string[] }) => {
   return (
     <div className="flex gap-2 items-center mb-4">
       <span className="label-md hidden md:inline-block">
-        {filtersLabels[filter[0] as keyof typeof filtersLabels]}:
+        {filtersLabels[filter[0] as keyof typeof filtersLabels] ??
+          filter[0].charAt(0).toUpperCase() + filter[0].slice(1)}
+        :
       </span>
       {activeFilters.map((element) => {
         const Element = () => {

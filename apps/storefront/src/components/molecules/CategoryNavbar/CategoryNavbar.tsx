@@ -45,13 +45,18 @@ export const CategoryNavbar = ({
     [category, categories]
   )
 
+  // At the top level (home / all-products) the departments are already shown by
+  // `ParentCategoryLinks`, so keep this row to just "All Products" and avoid the
+  // duplicate. Subcategories only appear once a department is active.
   const filteredCategories = useMemo(
     () =>
-      filterCategoriesByParent(
-        activeParentHandle,
-        categories,
-        parentCategories
-      ),
+      activeParentHandle
+        ? filterCategoriesByParent(
+            activeParentHandle,
+            categories,
+            parentCategories
+          )
+        : [],
     [activeParentHandle, parentCategories, categories]
   )
 

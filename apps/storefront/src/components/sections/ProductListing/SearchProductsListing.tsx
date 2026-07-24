@@ -1,7 +1,11 @@
 "use client"
 
 import { HttpTypes } from "@medusajs/types"
-import { ProductsPagination, ProductSearchSidebar } from "@/components/organisms"
+import {
+  ProductsPagination,
+  ProductSearchSidebar,
+  ProductListingActiveFilters,
+} from "@/components/organisms"
 import {
   ProductListingLoadingView,
   ProductListingNoResultsView,
@@ -19,6 +23,15 @@ import {
 import type { SortOptions } from "@/types/product"
 
 const EMPTY_FACETS: SearchFacets = { attributes: {} }
+
+// URL params that drive the listing itself rather than attribute filters.
+const RESERVED_PARAMS = new Set([
+  "query",
+  "page",
+  "sortBy",
+  "min_price",
+  "max_price",
+])
 
 export const SearchProductsListing = ({
   category_id,
@@ -48,24 +61,31 @@ export const SearchProductsListing = ({
       .catch(() => setFacets(EMPTY_FACETS))
   }, [])
 
-  // Turn the attribute handles known from the facets into an `attributes`
-  // filter object read straight off the URL (`?color=Red&size=42,43`).
-  const attributeHandles = useMemo(
-    () => Object.keys(facets.attributes),
-    [facets]
-  )
   const searchParamsKey = searchParams.toString()
-  const attributes = useMemo(() => {
+  // Build the `attributes` filter straight from the URL, treating every param
+  // that isn't a reserved listing key as an attribute handle
+  // (`?color=Red&size=42,43`). Deriving this from the URL rather than from the
+  // fetched facets means the very first product fetch is already filtered —
+  // otherwise the initial fetch runs unfiltered (facets not loaded yet) and the
+  // page shows all products before the filtered set arrives.
+  //
+  // Serializing to a string also keys the fetch effect on content, not object
+  // identity, so unrelated re-renders don't retrigger the fetch.
+  const attributesKey = useMemo(() => {
     const selected: Record<string, string[]> = {}
-    for (const handle of attributeHandles) {
-      const raw = searchParams.get(handle)
-      if (raw) {
-        selected[handle] = raw.split(",").filter(Boolean)
+    searchParams.forEach((raw, key) => {
+      if (RESERVED_PARAMS.has(key) || !raw) {
+        return
       }
-    }
-    return selected
+      selected[key] = raw.split(",").filter(Boolean)
+    })
+    return JSON.stringify(selected)
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [attributeHandles, searchParamsKey])
+  }, [searchParamsKey])
+  const attributes = useMemo(
+    () => JSON.parse(attributesKey) as Record<string, string[]>,
+    [attributesKey]
+  )
 
   useEffect(() => {
     async function fetchProducts() {
@@ -97,7 +117,7 @@ export const SearchProductsListing = ({
 
     fetchProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale, category_id, collection_id, seller_id, query, page, sortBy, attributes])
+  }, [locale, category_id, collection_id, seller_id, query, page, sortBy, attributesKey])
 
   if (isLoading && products.length === 0) return <ProductListingSkeleton />
 
@@ -107,6 +127,9 @@ export const SearchProductsListing = ({
     <div className="min-h-[70vh]">
       <div className="flex justify-between w-full items-center">
         <div className="my-4 label-md">{`${count} listings`}</div>
+      </div>
+      <div className="hidden md:block">
+        <ProductListingActiveFilters />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         <aside className="md:col-span-1">
