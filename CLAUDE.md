@@ -6,6 +6,10 @@
 @docs/ARCHITECTURE.md
 @docs/UI-ARCHITECTURE.md
 
+## Skills
+
+- **Design → code (Figma)**: when the task is turning a Figma design into dashboard UI code — the user shares a `figma.com` URL, selects a Figma node, or asks to "convert / implement / build this design / screen / mockup" in `packages/admin` or `packages/vendor` — load the `figma-ui` skill at `.claude/skills/figma-ui/SKILL.md` first. It reads the design from the Figma MCP (`get_screenshot` as the source of truth, `get_metadata` for structure) and maps it onto the design-system conventions in its `references/` (`components.md`, `spacing.md`, `patterns.md`) before writing JSX. Gate: `bun run lint` + `bun run build` stay green.
+
 ## Project Overview
 
 Mercur.js is open source marketplace platform repository built using Medusa.js + Typescript + React. It adds a marketplace layer on top of Medusa.js. This repository is designed for long-running coding-agent work. The goal is not to maximize raw code output. The goal is to leave the repo in a state where the next session can continue without guessing.

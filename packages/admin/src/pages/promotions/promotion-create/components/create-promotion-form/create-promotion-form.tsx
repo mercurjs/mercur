@@ -16,7 +16,10 @@ import { z } from "zod"
 
 import { useRouteModal } from "../../../../../components/modals"
 import { TabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
-import { useCreatePromotion } from "../../../../../hooks/api/promotions"
+import {
+  useCreatePromotion,
+  useUpsertPromotionCost,
+} from "../../../../../hooks/api/promotions"
 import { DEFAULT_CAMPAIGN_VALUES } from "../../../../campaigns/common/constants"
 import { CreatePromotionSchema, CreatePromotionSchemaType } from "./form-schema"
 import { PromotionCampaignTab } from "./promotion-campaign-tab"
@@ -34,6 +37,9 @@ const PROMOTION_CREATE_DEFAULTS = {
   status: "draft" as PromotionStatusValues,
   rules: [],
   is_tax_inclusive: false,
+  limit: undefined,
+  cost_bearer: "store" as const,
+  shared_marketplace_percentage: null,
   application_method: {
     allocation: "each" as ApplicationMethodAllocationValues,
     type: "fixed" as ApplicationMethodTypeValues,
@@ -70,6 +76,7 @@ export function CreatePromotionForm({
 
   const { mutateAsync: createPromotion, isPending: isLoading } =
     useCreatePromotion()
+  const { mutateAsync: upsertPromotionCost } = useUpsertPromotionCost()
 
   const handleSubmit = form.handleSubmit(
     async (data) => {
@@ -83,7 +90,10 @@ export function CreatePromotionForm({
         campaign_choice: _campaignChoice,
         is_automatic,
         is_tax_inclusive,
+        cost_bearer,
+        shared_marketplace_percentage,
         template_id: _templateId,
+        seller_id: _sellerId,
         application_method,
         rules,
         ...promotionData
@@ -159,7 +169,20 @@ export function CreatePromotionForm({
           is_automatic: is_automatic === "true",
         },
         {
-          onSuccess: ({ promotion }) => {
+          onSuccess: async ({ promotion }) => {
+            try {
+              await upsertPromotionCost({
+                id: promotion.id,
+                cost_bearer,
+                shared_marketplace_percentage:
+                  cost_bearer === "shared"
+                    ? shared_marketplace_percentage
+                    : null,
+              })
+            } catch (e) {
+              toast.error((e as Error).message)
+            }
+
             toast.success(
               t("promotions.toasts.promotionCreateSuccess", {
                 code: promotion.code,

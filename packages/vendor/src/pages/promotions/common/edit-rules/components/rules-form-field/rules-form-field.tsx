@@ -161,7 +161,15 @@ export const RulesFormField = ({
     } else if (applicationMethodType !== "fixed" && currencyIndex !== -1) {
       remove(currencyIndex);
     }
-  }, [applicationMethodType, ruleType, scope, form, append, remove, promotion?.id]);
+  }, [
+    applicationMethodType,
+    ruleType,
+    scope,
+    form,
+    append,
+    remove,
+    promotion?.id,
+  ]);
 
   return (
     <div className="flex flex-col">
@@ -311,7 +319,11 @@ export const RulesFormField = ({
                                   ref={ref}
                                   className="bg-ui-bg-base"
                                 >
-                                  <Select.Value placeholder={t('promotions.form.selectOperator')} />
+                                  <Select.Value
+                                    placeholder={t(
+                                      "promotions.form.selectOperator",
+                                    )}
+                                  />
                                 </Select.Trigger>
 
                                 <Select.Content>
