@@ -17,7 +17,6 @@ import { convertToLocale } from '@/lib/helpers/money';
 
 import { CartShippingMethodRow } from './CartShippingMethodRow';
 
-// Extended cart item product type to include seller
 type ExtendedStoreProduct = HttpTypes.StoreProduct & {
   seller?: {
     id: string;
@@ -25,10 +24,8 @@ type ExtendedStoreProduct = HttpTypes.StoreProduct & {
   };
 };
 
-// Cart item type definition
 type CartItem = {
   product?: ExtendedStoreProduct;
-  // Include other cart item properties as needed
 };
 
 export type StoreCardShippingMethod = HttpTypes.StoreCartShippingOption & {

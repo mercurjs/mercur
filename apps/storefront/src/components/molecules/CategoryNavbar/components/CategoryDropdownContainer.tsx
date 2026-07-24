@@ -25,7 +25,6 @@ export const CategoryDropdownContainer = ({
         className="fixed left-0 right-0 z-40 pointer-events-auto"
         style={{
           top: 'var(--navbar-height, 120px)',
-          // Gap height
           height: '10rem',
         }}
         onMouseEnter={onMouseEnter}

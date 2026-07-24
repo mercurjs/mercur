@@ -100,7 +100,6 @@ export default async function UserPage({
                   />
                 ))}
               </div>
-              {/* TODO - pagination */}
               <OrdersPagination pages={pages} />
             </>
           )}

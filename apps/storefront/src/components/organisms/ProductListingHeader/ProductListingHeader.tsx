@@ -24,15 +24,6 @@ export const ProductListingHeader = ({ total }: { total: number }) => {
       data-testid="product-listing-header"
     >
       <div data-testid="product-listing-total">{total} listings</div>
-      {/* <div className='hidden md:flex gap-2 items-center'>
-        Sort by:{' '}
-        <SelectField
-          className='min-w-[200px]'
-          options={selectOptions}
-          selectOption={selectOptionHandler}
-          data-testid="product-listing-sort-dropdown"
-        />
-      </div> */}
     </div>
   );
 };

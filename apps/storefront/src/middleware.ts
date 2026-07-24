@@ -41,7 +41,7 @@ async function getRegionMap(cacheId: string) {
   }
 
   if (!regionMap.keys().next().value || regionMapUpdated < Date.now() - 3600 * 1000) {
-    // Fetch regions from Medusa. We can't use the JS client here because middleware is running on Edge and the client needs a Node environment.
+    // We can't use the JS client here because middleware is running on Edge and the client needs a Node environment.
     const { regions } = await fetch(`${BACKEND_URL}/store/regions`, {
       headers: {
         'x-publishable-api-key': PUBLISHABLE_API_KEY!
@@ -65,7 +65,6 @@ async function getRegionMap(cacheId: string) {
       throw new Error('No regions found. Please set up regions in your Medusa Admin.');
     }
 
-    // Create a map of country codes to regions.
     regions.forEach((region: HttpTypes.StoreRegion) => {
       region.countries?.forEach(c => {
         regionMapCache.regionMap.set(c.iso_2 ?? '', region);
@@ -110,7 +109,6 @@ async function getCountryCode(
 }
 
 export async function middleware(request: NextRequest) {
-  // Short-circuit static assets
   if (request.nextUrl.pathname.includes('.')) {
     return NextResponse.next();
   }
@@ -132,25 +130,21 @@ export async function middleware(request: NextRequest) {
 
     const locale = looksLikeLocale ? urlSegment : DEFAULT_REGION;
 
-    // Not logged in before
     if (!jwtCookie) {
       return makeAuthRedirect(request, locale, 'sessionRequired');
     }
 
-    // Token exists but expired
     if (token && isTokenExpired(token)) {
       return makeAuthRedirect(request, locale, 'sessionExpired');
     }
   }
 
-  // Fast path: URL already has a locale segment and cache cookie exists
   if (looksLikeLocale && cacheIdCookie) {
     return NextResponse.next();
   }
 
   let response = NextResponse.next();
 
-  // Ensure cache id cookie exists (set without redirect)
   if (!cacheIdCookie) {
     response.cookies.set('_medusa_cache_id', cacheId, {
       maxAge: 60 * 60 * 24
@@ -161,7 +155,6 @@ export async function middleware(request: NextRequest) {
   const countryCode = regionMap && (await getCountryCode(request, regionMap));
   const urlHasCountryCode = countryCode && pathname.split('/')[1].includes(countryCode);
 
-  // If no country code in URL but we can resolve one, redirect to locale-prefixed path
   if (!urlHasCountryCode && countryCode) {
     const redirectPath = pathname === '/' ? '' : pathname;
     const queryString = request.nextUrl.search ? request.nextUrl.search : '';

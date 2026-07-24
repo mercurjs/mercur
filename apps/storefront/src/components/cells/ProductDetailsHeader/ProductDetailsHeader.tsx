@@ -1,11 +1,21 @@
 "use client"
 
+import { useState } from "react"
 import { Button } from "@/components/atoms"
 import { HttpTypes } from "@medusajs/types"
 import { ProductVariants } from "@/components/molecules"
 import useGetAllSearchParams from "@/hooks/useGetAllSearchParams"
 import { getProductPrice } from "@/lib/helpers/get-product-price"
+import { convertToLocale } from "@/lib/helpers/money"
+import {
+  getBuyboxWinner,
+  getOfferAmount,
+  getOfferStock,
+  getVariantOffers,
+  StoreOffer,
+} from "@/lib/helpers/buybox"
 import { Chat } from "@/components/organisms/Chat/Chat"
+import { CompareOffersModal } from "@/components/organisms/CompareOffersModal/CompareOffersModal"
 import { SellerProps } from "@/types/seller"
 import { toast } from "@/lib/helpers/toast"
 import { useCartContext } from "@/components/providers"
@@ -30,22 +40,25 @@ export const ProductDetailsHeader = ({
   product,
   locale,
   user,
+  offers = [],
+  seller,
 }: {
-  product: HttpTypes.StoreProduct & { seller?: SellerProps }
+  product: HttpTypes.StoreProduct
   locale: string
   user: HttpTypes.StoreCustomer | null
+  offers?: StoreOffer[]
+  seller?: SellerProps
 }) => {
   const { addToCart, onAddToCart, cart, isAddingItem } = useCartContext()
   const { allSearchParams } = useGetAllSearchParams()
+  const [isCompareOpen, setIsCompareOpen] = useState(false)
 
   const { cheapestVariant, cheapestPrice } = getProductPrice({
     product,
   })
 
-  // Check if product has any valid prices in current region
   const hasAnyPrice = cheapestPrice !== null && cheapestVariant !== null
 
-  // set default variant
   const selectedVariant = hasAnyPrice
     ? {
         ...optionsAsKeymap(cheapestVariant.options ?? null),
@@ -53,7 +66,6 @@ export const ProductDetailsHeader = ({
       }
     : allSearchParams
 
-  // get selected variant id
   const variantId =
     product.variants?.find(({ options }: { options: any }) =>
       options?.every((option: any) =>
@@ -63,29 +75,44 @@ export const ProductDetailsHeader = ({
       )
     )?.id || ""
 
-  // get variant price
   const { variantPrice } = getProductPrice({
     product,
     variantId,
   })
 
-  const variantStock =
-    product.variants?.find(({ id }) => id === variantId)?.inventory_quantity ||
-    0
+  // Buybox: the winning offer for the selected variant sets the price shown and
+  // the offer that add-to-cart uses. Products are sold through offers, not the
+  // variant's base price.
+  const variantOffers = getVariantOffers(offers, variantId)
+  const winnerOffer = getBuyboxWinner(variantOffers)
+  const otherOffersCount = Math.max(variantOffers.length - 1, 0)
 
-  const variantHasPrice = !!product.variants?.find(({ id }) => id === variantId)
-    ?.calculated_price
+  const offerAmount = winnerOffer ? getOfferAmount(winnerOffer) : null
+  const offerCurrency =
+    winnerOffer?.calculated_price?.currency_code ||
+    variantPrice?.currency_code ||
+    "eur"
+  const offerStock = winnerOffer ? getOfferStock(winnerOffer) : 0
+  const hasOffer = !!winnerOffer && offerAmount !== null
 
-  const isVariantStockMaxLimitReached =
-    (cart?.items?.find((item) => item.variant_id === variantId)?.quantity ??
-      0) >= variantStock
+  const displayPrice = hasOffer
+    ? convertToLocale({ amount: offerAmount as number, currency_code: offerCurrency })
+    : variantPrice?.calculated_price
 
-  // add the selected variant to the cart
+  const quantityInCart =
+    cart?.items?.find((item) => item.metadata?.offer_id === winnerOffer?.id)
+      ?.quantity ?? 0
+  const isStockMaxLimitReached = quantityInCart >= offerStock
+
+  const isAddToCartDisabled =
+    !hasOffer || !offerStock || isStockMaxLimitReached
+
   const handleAddToCart = async () => {
-    if (!variantId || !hasAnyPrice || isVariantStockMaxLimitReached) return
+    if (!winnerOffer || isAddToCartDisabled) return
 
-    const subtotal = +(variantPrice?.calculated_price_without_tax_number || 0)
-    const total = +(variantPrice?.calculated_price_number || 0)
+    const total = offerAmount as number
+    const subtotal =
+      winnerOffer.calculated_price?.calculated_amount_without_tax ?? total
 
     const storeCartLineItem = {
       thumbnail: product.thumbnail || "",
@@ -97,48 +124,39 @@ export const ProductDetailsHeader = ({
       variant_id: variantId,
       product_id: product.id,
       variant: product.variants?.find(({ id }) => id === variantId),
+      metadata: { offer_id: winnerOffer.id },
     }
 
-    // Optimistic update
-    onAddToCart(storeCartLineItem, variantPrice?.currency_code || "eur")
+    onAddToCart(storeCartLineItem, offerCurrency)
 
     try {
       await addToCart({
-        variantId: variantId,
+        offerId: winnerOffer.id,
         quantity: 1,
         countryCode: locale,
       })
     } catch (error) {
       toast.error({
         title: "Error adding to cart",
-        description: "Some variant does not have the required inventory",
+        description: "This offer does not have the required inventory",
       })
     }
   }
-
-  const isAddToCartDisabled = !variantStock || !variantHasPrice || !hasAnyPrice || isVariantStockMaxLimitReached
 
   return (
     <div className="border rounded-sm p-5" data-testid="product-details-header">
       <div className="flex justify-between">
         <div>
-          <h2 className="label-md text-secondary">
-            {/* {product?.brand || "No brand"} */}
-          </h2>
           <h1 className="heading-lg text-primary" data-testid="product-title">{product.title}</h1>
-          <div className="mt-2 flex gap-2 items-center" data-testid="product-price-container">
-            {hasAnyPrice && variantPrice ? (
-              <>
-                <span className="heading-md text-primary" data-testid="product-price-current">
-                  {variantPrice.calculated_price}
-                </span>
-                {variantPrice.calculated_price_number !==
-                  variantPrice.original_price_number && (
-                  <span className="label-md text-secondary line-through" data-testid="product-price-original">
-                    {variantPrice.original_price}
-                  </span>
-                )}
-              </>
+          <div className="mt-2 flex flex-col gap-1" data-testid="product-price-container">
+            {hasOffer ? (
+              <span className="heading-md text-primary" data-testid="product-price-current">
+                {displayPrice}
+              </span>
+            ) : hasAnyPrice && variantPrice ? (
+              <span className="heading-md text-primary" data-testid="product-price-current">
+                {variantPrice.calculated_price}
+              </span>
             ) : (
               <span className="label-md text-secondary pt-2 pb-4" data-testid="product-price-unavailable">
                 Not available in your region
@@ -147,11 +165,9 @@ export const ProductDetailsHeader = ({
           </div>
         </div>
       </div>
-      {/* Product Variants */}
       {hasAnyPrice && (
         <ProductVariants product={product} selectedVariant={selectedVariant} />
       )}
-      {/* Add to Cart */}
       <Button
         onClick={handleAddToCart}
         disabled={isAddToCartDisabled}
@@ -160,18 +176,37 @@ export const ProductDetailsHeader = ({
         size="large"
         data-testid="product-add-to-cart-button"
       >
-        {!hasAnyPrice
-          ? "NOT AVAILABLE IN YOUR REGION"
-          : variantStock && variantHasPrice
+        {!hasOffer
+          ? "NOT AVAILABLE"
+          : offerStock
           ? "ADD TO CART"
           : "OUT OF STOCK"}
       </Button>
-      {/* Seller message */}
-
-      {user && product.seller && (
+      {otherOffersCount > 0 && (
+        <Button
+          variant="tonal"
+          onClick={() => setIsCompareOpen(true)}
+          className="w-full uppercase mb-4"
+          data-testid="compare-offers-button"
+        >
+          {`Compare other ${otherOffersCount} offers`}
+        </Button>
+      )}
+      {isCompareOpen && (
+        <CompareOffersModal
+          offers={variantOffers}
+          locale={locale}
+          variantLabel={
+            product.variants?.find(({ id }) => id === variantId)?.title ||
+            undefined
+          }
+          onClose={() => setIsCompareOpen(false)}
+        />
+      )}
+      {user && seller && (
         <Chat
           user={user}
-          seller={product.seller}
+          seller={seller}
           buttonClassNames="w-full uppercase"
           product={product}
         />

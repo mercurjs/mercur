@@ -101,7 +101,6 @@ async function Category({
     },
   ]
 
-  // Small cached list for JSON-LD itemList
   const headersList = await headers()
   const host = headersList.get("host")
   const protocol = headersList.get("x-forwarded-proto") || "https"

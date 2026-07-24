@@ -10,6 +10,7 @@ export const SellerInfoHeader = ({
   reviewCount,
   showArrow,
   bottomBorder = false,
+  showReviews = true,
 }: {
   photo: string
   name: string
@@ -17,6 +18,7 @@ export const SellerInfoHeader = ({
   reviewCount: number
   showArrow: boolean
   bottomBorder?: boolean
+  showReviews?: boolean
 }) => (
   <div
     className={clsx(
@@ -29,10 +31,12 @@ export const SellerInfoHeader = ({
     </div>
     <div className="flex flex-col gap-1">
       <h3 className="heading-sm text-primary">{name}</h3>
-      <div className="flex items-center gap-2">
-        <StarRating starSize={14} rate={rating || 0} />
-        <span className="label-md text-secondary">{reviewCount} reviews</span>
-      </div>
+      {showReviews && (
+        <div className="flex items-center gap-2">
+          <StarRating starSize={14} rate={rating || 0} />
+          <span className="label-md text-secondary">{reviewCount} reviews</span>
+        </div>
+      )}
     </div>
     {showArrow && <CollapseIcon className="ml-auto -rotate-90" />}
   </div>

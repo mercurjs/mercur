@@ -8,11 +8,13 @@ export const SellerInfo = ({
   header = false,
   showArrow = false,
   bottomBorder = false,
+  showReviews = true,
 }: {
   seller: SellerProps
   header?: boolean
   showArrow?: boolean
   bottomBorder?: boolean
+  showReviews?: boolean
 }) => {
   const { photo, name, reviews } = seller
 
@@ -38,6 +40,7 @@ export const SellerInfo = ({
             reviewCount={reviewCount}
             showArrow={showArrow}
             bottomBorder={bottomBorder}
+            showReviews={showReviews}
           />
         </LocalizedClientLink>
       ) : (
@@ -50,7 +53,7 @@ export const SellerInfo = ({
           bottomBorder={bottomBorder}
         />
       )}
-      {!header && (
+      {!header && showReviews && (
         <div className="flex flex-col gap-5 p-4">
           <h3 className="heading-sm uppercase">Seller reviews</h3>
           {reviews

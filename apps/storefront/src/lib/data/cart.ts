@@ -18,11 +18,6 @@ import {
 } from './cookies';
 import { getRegion } from './regions';
 
-/**
- * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
- * @param cartId - optional - The ID of the cart to retrieve.
- * @returns The cart object if found, or null if not found.
- */
 export async function retrieveCart(cartId?: string) {
   const id = cartId || (await getCartId());
 
@@ -108,16 +103,16 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
 }
 
 export async function addToCart({
-  variantId,
+  offerId,
   quantity,
   countryCode
 }: {
-  variantId: string;
+  offerId: string;
   quantity: number;
   countryCode: string;
 }) {
-  if (!variantId) {
-    throw new Error('Missing variant ID when adding to cart');
+  if (!offerId) {
+    throw new Error('Missing offer ID when adding to cart');
   }
 
   const cart = await getOrSetCart(countryCode);
@@ -130,7 +125,12 @@ export async function addToCart({
     ...(await getAuthHeaders())
   };
 
-  const currentItem = cart.items?.find(item => item.variant_id === variantId);
+  // Line items are offer-scoped: the same variant sold by two sellers are two
+  // distinct offers and two distinct lines. Dedup by the offer stamped on
+  // `metadata.offer_id` (requested by `retrieveCart`).
+  const currentItem = cart.items?.find(
+    item => item.metadata?.offer_id === offerId
+  );
 
   if (currentItem) {
     await sdk.store.carts.$id.lineItems.$lineId
@@ -149,7 +149,7 @@ export async function addToCart({
     await (sdk.store.carts.$id.lineItems
       .mutate({
         $id: cart.id,
-        variant_id: variantId,
+        offer_id: offerId,
         quantity,
         fetchOptions: { headers }
       } as never) as unknown as Promise<{ cart: HttpTypes.StoreCart }>)
@@ -393,11 +393,6 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
   }
 }
 
-/**
- * Places an order for a cart. If no cart ID is provided, it will use the cart ID from the cookies.
- * @param cartId - optional - The ID of the cart to place an order for.
- * @returns The cart object if the order was successful, or null if not.
- */
 export async function placeOrder(cartId?: string) {
   const id = cartId || (await getCartId());
 
@@ -427,11 +422,6 @@ export async function placeOrder(cartId?: string) {
   return res;
 }
 
-/**
- * Updates the countrycode param and revalidates the regions cache
- * @param regionId
- * @param countryCode
- */
 export async function updateRegion(countryCode: string, currentPath: string) {
   const cartId = await getCartId();
   const region = await getRegion(countryCode);
@@ -455,14 +445,6 @@ export async function updateRegion(countryCode: string, currentPath: string) {
   redirect(`/${countryCode}${currentPath}`);
 }
 
-/**
- * Updates the region and returns removed items for notification
- * This is a wrapper around updateRegion that doesn't redirect
- * Uses error-driven approach: tries to update, catches price errors, removes problem items, retries
- * @param countryCode - The country code to update to
- * @param currentPath - The current path for redirect
- * @returns Array of removed item names and new path
- */
 export async function updateRegionWithValidation(
   countryCode: string,
   currentPath: string
@@ -484,21 +466,16 @@ export async function updateRegionWithValidation(
     try {
       await updateCart({ region_id: region.id });
     } catch (error: any) {
-      // Check if error is about variants not having prices
       if (!error?.message?.includes('do not have a price')) {
-        // Re-throw if it's a different error
         throw error;
       }
 
-      // Parse variant IDs from error message
       const problematicVariantIds = parseVariantIdsFromError(error.message);
 
-      // Early return if no variant IDs found
       if (!problematicVariantIds.length) {
         throw new Error('Failed to parse variant IDs from error');
       }
 
-      // Fetch cart with minimal fields to get items
       try {
         const { cart } = await sdk.store.carts.$id.query({
           $id: cartId,
@@ -506,7 +483,6 @@ export async function updateRegionWithValidation(
           fetchOptions: { headers, cache: 'no-cache' }
         });
 
-        // Iterate over problematic variants and remove corresponding items
         for (const variantId of problematicVariantIds) {
           const item = cart?.items?.find(item => item.variant_id === variantId);
           if (item) {
@@ -518,12 +494,11 @@ export async function updateRegionWithValidation(
               });
               removedItems.push(item.product_title || 'Unknown product');
             } catch (deleteError) {
-              // Silent failure - item removal failed but continue
+              // ignore individual delete failures and continue removing the rest
             }
           }
         }
 
-        // Retry region update after removing problematic items
         if (removedItems.length > 0) {
           await updateCart({ region_id: region.id });
         }
@@ -532,7 +507,6 @@ export async function updateRegionWithValidation(
       }
     }
 
-    // Revalidate caches
     const cartCacheTag = await getCacheTag('carts');
     revalidateTag(cartCacheTag);
   }

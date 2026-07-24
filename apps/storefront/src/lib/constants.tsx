@@ -1,7 +1,6 @@
 import React from "react"
 import { Cash, CreditCard } from "@medusajs/icons"
 
-/* Map of payment provider_id to their title and icon. Add in any payment providers you want to use. */
 export const paymentInfoMap: Record<
   string,
   { title: string; icon: React.JSX.Element }
@@ -30,7 +29,6 @@ export const paymentInfoMap: Record<
     title: "Manual Payment",
     icon: <Cash />,
   },
-  // Add more payment providers here
 }
 
 // This only checks if it is native stripe for card payments, it ignores the other stripe-based providers

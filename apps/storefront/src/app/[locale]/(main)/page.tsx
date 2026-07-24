@@ -25,7 +25,6 @@ export async function generateMetadata({
   const protocol = headersList.get("x-forwarded-proto") || "https"
   const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || `${protocol}://${host}`
 
-  // Build alternates based on available regions (locales)
   let languages: Record<string, string> = {}
   try {
     const regions = await listRegions()
@@ -44,7 +43,6 @@ export async function generateMetadata({
       return acc
     }, {})
   } catch {
-    // Fallback: only current locale
     languages = { [toHreflang(locale)]: `${baseUrl}/${locale}` }
   }
 
@@ -131,7 +129,6 @@ export default async function Home({
         imageSrcSet="/images/hero/Image.jpg 700w"
         imageSizes="(min-width: 1024px) 50vw, 100vw"
       />
-      {/* Organization JSON-LD */}
       <Script
         id="ld-org"
         type="application/ld+json"
@@ -145,7 +142,6 @@ export default async function Home({
           }),
         }}
       />
-      {/* WebSite JSON-LD */}
       <Script
         id="ld-website"
         type="application/ld+json"

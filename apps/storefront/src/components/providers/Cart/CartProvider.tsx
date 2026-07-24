@@ -114,11 +114,11 @@ export function CartProvider({ cart, children }: CartProviderProps) {
   };
 
   const addToCart = async ({
-    variantId,
+    offerId,
     quantity,
     countryCode
   }: {
-    variantId: string;
+    offerId: string;
     quantity: number;
     countryCode: string;
   }) => {
@@ -127,7 +127,7 @@ export function CartProvider({ cart, children }: CartProviderProps) {
 
     try {
       await apiAddToCart({
-        variantId,
+        offerId,
         quantity,
         countryCode
       });

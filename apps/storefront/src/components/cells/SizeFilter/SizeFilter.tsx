@@ -44,11 +44,6 @@ export const SizeFilter = () => {
   }
   return (
     <Accordion heading="Size" data-testid="filter-size">
-      {/* <SelectField
-        options={sizeType}
-        selected={size_region}
-        selectOption={selectSizeRegionHandler}
-      /> */}
       <ul className="grid grid-cols-3 mt-2 gap-2" data-testid="filter-size-options">
         {sizeOptions.map((option) => (
           <li key={option}>

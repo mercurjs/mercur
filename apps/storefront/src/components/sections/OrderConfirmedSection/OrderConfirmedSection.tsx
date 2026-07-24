@@ -37,12 +37,6 @@ export const OrderConfirmedSection = ({
               .
             </Text>
           </div>
-          {/* <OrderDetails order={order} />
-          <OrderItems order={order} />
-          <OrderTotals totals={order} />
-          <OrderShipping order={order} /> */}
-          {/*<PaymentDetails order={order} />
-          <Help /> */}
         </div>
       </div>
     </div>

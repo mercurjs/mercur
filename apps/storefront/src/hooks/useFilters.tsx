@@ -9,13 +9,11 @@ const useFilters = (key: string) => {
   const searchParams = useSearchParams();
   const router = useRouter();
 
-  // Get current filters
   const params = searchParams.get(key) || '';
   const filters = Array.from(
     new Set(params.split(',').filter(Boolean))
   );
 
-  // Set new value for filters
   const updateFilters = (value: string) => {
     const elementExists = Boolean(
       filters.find((el) => el === value)
@@ -36,7 +34,6 @@ const useFilters = (key: string) => {
     }
   };
 
-  // Check if filter is in array
   const isFilterActive = (value: string) => {
     const params = searchParams.get(key) || '';
     const filters = Array.from(
@@ -46,7 +43,6 @@ const useFilters = (key: string) => {
     return Boolean(filters.find((el) => el === value));
   };
 
-  // Clear all filters
   const clearAllFilters = () => {
     router.push(window.location.pathname, {
       scroll: false,

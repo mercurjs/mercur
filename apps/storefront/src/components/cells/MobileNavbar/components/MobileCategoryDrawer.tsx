@@ -41,7 +41,6 @@ export const MobileCategoryDrawer = ({
 
   return (
     <>
-      {/* Backdrop */}
       <div
         className={cn(
           "fixed inset-0 bg-primary/80 z-50 transition-opacity duration-300",
@@ -50,7 +49,6 @@ export const MobileCategoryDrawer = ({
         onClick={onClose}
       />
 
-      {/* Drawer */}
       <div
         className={cn(
           "fixed inset-0 z-50 bg-primary transition-transform duration-300 ease-in-out",
@@ -58,7 +56,6 @@ export const MobileCategoryDrawer = ({
         )}
       >
         <div className="flex flex-col h-full">
-          {/* Header */}
           <div className="flex items-center p-4 border-b gap-4">
             <IconButton
               icon={<ArrowLeftIcon size={20} />}
@@ -78,7 +75,6 @@ export const MobileCategoryDrawer = ({
             />
           </div>
 
-          {/* Content */}
           <div className="flex-1 overflow-y-auto p-4">
             <nav className="flex flex-col gap-2">
                 <LocalizedClientLink

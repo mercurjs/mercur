@@ -8,7 +8,7 @@ export const ProductDetailsSeller = ({ seller }: { seller?: SellerProps }) => {
     <div className="border rounded-sm">
       <div>
           <div className="flex justify-between">
-            <SellerInfo seller={seller} showArrow bottomBorder />
+            <SellerInfo seller={seller} showArrow bottomBorder showReviews={false} />
           </div>
       </div>
     </div>

@@ -18,7 +18,6 @@ export const CartItemsProducts = ({
   delete_item?: boolean;
   change_quantity?: boolean;
 }) => {
-  // Filter out items with invalid data (missing prices/variants)
   const validProducts = filterValidCartItems(products);
 
   return (

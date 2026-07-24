@@ -6,7 +6,6 @@ import { InfoIcon } from "@/icons"
 import { Divider, Heading } from "@medusajs/ui"
 import { useState } from "react"
 import { Modal } from "../Modal/Modal"
-// import { ProfilePasswordForm } from "../ProfilePasswordForm/ProfilePasswordForm"
 import { HttpTypes } from "@medusajs/types"
 import { sendResetPasswordEmail } from "@/lib/data/customer"
 
@@ -61,7 +60,6 @@ export const ProfilePassword = ({
               Send reset password email
             </Button>
           </div>
-          {/* <ProfilePasswordForm user={user} /> */}
         </Modal>
       )}
     </>

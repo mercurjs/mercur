@@ -14,7 +14,6 @@ export const ProductVariants = ({
 }) => {
   const updateSearchParams = useUpdateSearchParams()
 
-  // update the options when a variant is selected
   const setOptionValue = (optionId: string, value: string) => {
     if (value) updateSearchParams(optionId, value)
   }

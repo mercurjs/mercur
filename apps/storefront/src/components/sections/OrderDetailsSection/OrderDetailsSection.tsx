@@ -7,7 +7,6 @@ export const OrderDetailsSection = ({ orderGroup }: { orderGroup: any }) => {
     <div>
       <OrderParcels orders={orderGroup.orders} />
       <OrderTotals orderGroup={orderGroup} />
-      {/* <OrderAddresses /> */}
     </div>
   )
 }

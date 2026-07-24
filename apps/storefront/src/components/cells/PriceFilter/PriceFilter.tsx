@@ -65,13 +65,6 @@ export const PriceFilter = () => {
           <input type="submit" className="hidden" />
         </form>
       </div>
-      {/* <div className='px-4'>
-        <FilterCheckboxOption
-          checked={Boolean(selected)}
-          onCheck={selectHandler}
-          label={'On Sale'}
-        />
-      </div> */}
     </Accordion>
   )
 }

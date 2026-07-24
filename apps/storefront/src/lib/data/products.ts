@@ -30,10 +30,6 @@ type StoreProductAttribute = {
   values?: { name: string; rank?: number }[];
 };
 
-/**
- * Fetches the marketplace's filterable global product attributes and shapes
- * them into `SearchFacets` for the product-listing sidebar.
- */
 export const getSearchFacets = async (): Promise<SearchFacets> => {
   const { product_attributes } = await (
     sdk.store.productAttributes.query({
@@ -62,9 +58,8 @@ export const getSearchFacets = async (): Promise<SearchFacets> => {
 
 /**
  * Products in Mercur are master products from a single shared catalog — they are
- * not owned by a seller (see SPEC-015). Seller-scoped listings and per-seller
- * price/inventory come from offers, not from a product→seller relation; use
- * `lib/data/offers.ts` for that.
+ * not owned by a seller. Seller-scoped listings and per-seller price/inventory
+ * come from offers, not from a product→seller relation; use `lib/data/offers.ts`.
  */
 export const listProducts = async ({
   pageParam = 1,
@@ -138,10 +133,6 @@ export const listProducts = async ({
     }));
 };
 
-/**
- * Fetches up to 100 products into the Next.js cache and sorts them by `sortBy`,
- * then returns the page slice for `page`/`limit`.
- */
 export const listProductsWithSort = async ({
   page = 1,
   queryParams,
@@ -207,10 +198,8 @@ export const getProductByHandle = async (handle: string, regionId: string) => {
 };
 
 /**
- * Text search over `GET /store/products` using the `q` param. Products carry
- * their own variants and calculated prices, so no separate hydration step is
- * needed. Price sorts are applied client-side because `/store/products` can
- * only order by product columns.
+ * Price sorts are applied client-side because `/store/products` can only order
+ * by product columns.
  */
 export const searchProducts = async ({
   query,

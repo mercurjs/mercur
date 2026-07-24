@@ -35,7 +35,6 @@ export const UpdateCartItemButton = ({
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity < 1) return;
 
-    // Update UI immediately (optimistic update)
     setPendingQuantity(newQuantity);
 
     if (debounceTimerRef.current) {

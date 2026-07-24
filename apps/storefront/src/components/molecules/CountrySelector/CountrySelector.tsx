@@ -68,8 +68,7 @@ const CountrySelect = ({ regions }: CountrySelectProps) => {
           description: `${itemsList} ${result.removedItems.length === 1 ? "is" : "are"} not available in ${option.label} and ${result.removedItems.length === 1 ? "was" : "were"} removed from your cart.`,
         })
       }
-      
-      // Navigate to new region
+
       router.push(result.newPath)
       router.refresh()
     } catch (error: any) {

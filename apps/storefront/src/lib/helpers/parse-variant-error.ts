@@ -8,7 +8,6 @@ export function parseVariantIdsFromError(errorMessage: string): string[] {
     return []
   }
 
-  // Match all occurrences of variant_XXXXXXXXXX pattern
   const variantIdPattern = /variant_[A-Z0-9]+/g
   const matches = errorMessage.match(variantIdPattern)
 

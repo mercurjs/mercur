@@ -1,4 +1,3 @@
-// OrderTimeline.tsx
 import { cn } from "@/lib/utils"
 
 type OrderStatus = "received" | "preparing" | "shipped" | "delivered"
@@ -19,10 +18,8 @@ export const OrderTimeline = ({ currentStatus }: OrderTimelineProps) => {
   return (
     <div className="w-full pt-6 pb-4">
       <div className="relative flex items-center justify-around">
-        {/* Base line */}
         <div className="absolute left-0 right-0 h-0.5 bg-[#EEEEEE]" />
 
-        {/* Progress line */}
         <div
           className="absolute left-0 h-0.5 bg-[#1B1B1B] transition-all duration-300"
           style={{
@@ -33,7 +30,6 @@ export const OrderTimeline = ({ currentStatus }: OrderTimelineProps) => {
           }}
         />
 
-        {/* Status points */}
         {statuses.map((status, index) => {
           const isActive = index <= currentIndex
 

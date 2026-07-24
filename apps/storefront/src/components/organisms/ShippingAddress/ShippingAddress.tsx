@@ -35,7 +35,6 @@ const ShippingAddress = ({
     email: cart?.email || "",
   })
 
-  // check if customer has saved addresses that are in the current region
   const addressesInRegion = useMemo(
     () =>
       customer?.addresses.filter(

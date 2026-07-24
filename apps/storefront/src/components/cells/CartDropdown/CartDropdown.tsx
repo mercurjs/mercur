@@ -24,7 +24,6 @@ export const CartDropdown = () => {
   const cartItemsCount = (cart && getItemCount(cart)) || 0
   const pathname = usePathname()
 
-  // Filter out items with invalid data (missing prices/variants)
   const validItems = filterValidCartItems(cart?.items)
 
   const total = convertToLocale({
@@ -94,7 +93,7 @@ export const CartDropdown = () => {
                 <div className="overflow-y-scroll max-h-[360px] no-scrollbar">
                   {validItems.map((item) => (
                     <CartDropdownItem
-                      key={`${item.product_id}-${item.variant_id}`}
+                      key={item.id}
                       item={item}
                       currency_code={cart?.currency_code || "eur"}
                     />

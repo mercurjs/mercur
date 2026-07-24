@@ -19,6 +19,7 @@ import { CartItems } from "./CartItems/CartItems"
 import { HomeProductsCarousel } from "./HomeProductsCarousel/HomeProductsCarousel"
 import { ProductGallery } from "./ProductGallery/ProductGallery"
 import { ProductDetails } from "./ProductDetails/ProductDetails"
+import { CompareOffersModal } from "./CompareOffersModal/CompareOffersModal"
 import { Addresses } from "./Addressess/Addresses"
 import { CartEmpty } from "./CartEmpty/CartEmpty"
 
@@ -44,6 +45,7 @@ export {
   HomeProductsCarousel,
   ProductGallery,
   ProductDetails,
+  CompareOffersModal,
   Addresses,
   CartEmpty,
 }
