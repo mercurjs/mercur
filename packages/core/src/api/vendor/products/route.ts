@@ -14,6 +14,9 @@ import {
   createProductsWorkflow,
   type CreateProductsWorkflowInput,
 } from "../../../workflows/product/workflows/create-products"
+// Side-effect import: registers the auto-publish `productsCreated` hook on
+// createProductsWorkflow (this route is the only current caller of it).
+import "../../../workflows/product/hooks"
 import { resolveAllowVendorProductCreation } from "../../../utils/allow-vendor-product-creation"
 import { resolveRequireProductApproval } from "../../../utils/require-product-approval"
 import {

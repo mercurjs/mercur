@@ -114,6 +114,32 @@ medusaIntegrationTestRunner({
           expect(res.status).toBe(201)
           expect(res.data.product.status).toBe("published")
         })
+
+        it("keeps the default proposed status when no status is sent and approval is required", async () => {
+          await setRequireApproval(true)
+
+          const res = await api.post(
+            `/vendor/products`,
+            { title: "Default Status Gated Product" },
+            sellerHeaders,
+          )
+
+          expect(res.status).toBe(201)
+          expect(res.data.product.status).toBe("proposed")
+        })
+
+        it("auto-publishes the default proposed status via the productsCreated hook when approval is disabled", async () => {
+          await setRequireApproval(false)
+
+          const res = await api.post(
+            `/vendor/products`,
+            { title: "Default Status Auto Approved Product" },
+            sellerHeaders,
+          )
+
+          expect(res.status).toBe(201)
+          expect(res.data.product.status).toBe("published")
+        })
       })
 
       describe("Product edit auto-confirm gate (Site A)", () => {

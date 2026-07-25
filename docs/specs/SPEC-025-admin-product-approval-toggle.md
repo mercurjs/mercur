@@ -9,13 +9,13 @@ last_updated: 2026-07-16
 
 # SPEC-025 Admin Vendor-Product Controls
 
-Issue **#1238** — give operators two runtime marketplace controls from the
+Issue **#1238** ï¿½ give operators two runtime marketplace controls from the
 Admin panel:
 
-1. **Allow vendors to create products** (`allow_vendor_product_creation`) —
+1. **Allow vendors to create products** (`allow_vendor_product_creation`) ï¿½
    when off, vendors cannot create products at all.
 2. **Require admin approval for vendor products**
-   (`require_product_approval`) — when off, vendor submissions are
+   (`require_product_approval`) ï¿½ when off, vendor submissions are
    auto-approved; when on, they wait for operator review.
 
 Together they cover the three behaviours from the issue:
@@ -36,7 +36,7 @@ Medusa **feature flag** (`packages/core/src/feature-flags/product-request.ts`):
   on a global in-memory router
   (`packages/core/src/modules/seller/loaders/register-feature-flags.ts`).
 - `FeatureFlag.isFeatureEnabled(...)` is read **synchronously** from that
-  singleton — there is no setter, no persistence, and no admin route.
+  singleton ï¿½ there is no setter, no persistence, and no admin route.
 
 So a runtime admin toggle cannot mutate the feature flag: a write would be
 per-process, lost on restart, and not shared across workers. The toggle must
@@ -45,8 +45,8 @@ config.
 
 ## Decision
 
-- **Persistence:** a boolean on the Store entity —
-  `store.metadata.require_product_approval` — reusing the existing admin
+- **Persistence:** a boolean on the Store entity ï¿½
+  `store.metadata.require_product_approval` ï¿½ reusing the existing admin
   marketplace page and `sdk.admin.stores.$id.mutate` update path (no new
   module or migration).
 - **Flag relationship:** the persisted setting **overrides** the feature
@@ -60,34 +60,46 @@ config.
 
 - The Admin **Settings â†’ Marketplace** page shows a "Vendor products"
   section with up to two switches:
-  - **"Allow vendors to create products"** — description **"If disabled,
+  - **"Allow vendors to create products"** ï¿½ description **"If disabled,
     vendors cannot create new products."**
   - **"Require admin approval for vendor products"** (only shown while
-    creation is enabled) — description **"If disabled, vendor-submitted
+    creation is enabled) ï¿½ description **"If disabled, vendor-submitted
     products will be automatically approved."**
 - Toggling either persists immediately to store metadata.
 - When **creation is OFF**: `POST /vendor/products` is rejected with a `FORBIDDEN` (HTTP 403) error and the approval switch is hidden (N/A).
 - When approval is **OFF**: vendor product edits auto-confirm without
   operator review, and vendors may submit a product directly in a published
-  state.
+  state. A submission that omits `status` still defaults to `proposed`
+  (Site B) and is then elevated to `published` by the `productsCreated`
+  hook (Site D) ï¿½ the default itself never depends on the toggle.
 - When approval is **ON**: vendor product edits stay `pending` until an
   operator confirms, and vendors may only create with `draft` / `proposed`
   status.
 
 ## Consumption sites changed
 
-- **Site A — auto-confirm** (`auto-confirm-product-change.ts`): the `when`
+- **Site A ï¿½ auto-confirm** (`auto-confirm-product-change.ts`): the `when`
   condition now reads a resolved store setting via a workflow step instead
   of the static flag.
-- **Site B — create status restriction** (`vendor/products` validator): the
+- **Site B ï¿½ create status restriction** (`vendor/products` validator): the
   synchronous `zod.superRefine` flag check is moved into the async
   `POST /vendor/products` route handler, where the container is available to
-  resolve the persisted setting.
-- **Site C — create gate** (`POST /vendor/products` route): when
+  resolve the persisted setting. A `status`-less submission always defaults
+  to `proposed` here, regardless of the toggle.
+- **Site C ï¿½ create gate** (`POST /vendor/products` route): when
   `allow_vendor_product_creation` resolves to `false`, the handler throws a
   `FORBIDDEN` error (HTTP 403) before running the create workflow. Absent
   metadata defaults to `true` (`resolveAllowVendorProductCreation`),
   preserving legacy behaviour.
+- **Site D ï¿½ create auto-publish hook**
+  (`workflows/product/hooks/auto-publish-created-products.ts`): a
+  `createProductsWorkflow.hooks.productsCreated` handler that, when
+  `require_product_approval` resolves to `false`, updates any product left
+  in `proposed` status straight to `published` via the product module
+  service. This keeps the create route's default status computation
+  independent of the toggle (per reviewer feedback on PR #1263) while still
+  giving the "vendor products are auto-accepted" behaviour from the issue's
+  table.
 
 ## Verification
 
@@ -103,7 +115,10 @@ config.
 4. Admin marketplace page renders both toggles, reflects current metadata,
    and persists changes via `useUpdateStore`; the approval toggle is hidden
    while creation is disabled.
-5. `bun run build` passes.
+5. `POST /vendor/products` with no `status` in the body comes back
+   `proposed` when `require_product_approval` is `true`, and `published`
+   when `false` (Site D, integration test).
+6. `bun run build` passes.
 
 ## Evidence
 
@@ -112,7 +127,7 @@ config.
   heap size OOMs in this env after a successful ESM build, not a code error).
 - Integration spec
   `integration-tests/http/product/vendor/product-approval-setting.spec.ts`
-  executed 2026-07-16 against a local Postgres — **6/6 passing** (Site A
+  executed 2026-07-16 against a local Postgres ï¿½ **6/6 passing** (Site A
   pending/confirmed, Site B published rejected/allowed, Site C creation
   403/allowed):
 
@@ -123,7 +138,12 @@ config.
 - The spec's original run surfaced a real test-harness defect: the direct
   `storeService.updateStores({ id, metadata })` call did not persist
   metadata (store read back `metadata: null`). Fixed by driving the update
-  through `updateStoresWorkflow` — the same path the admin route uses.
+  through `updateStoresWorkflow` ï¿½ the same path the admin route uses.
+- Site D's two new cases (default-status proposed/auto-published) were added
+  to the same spec but have not been re-run against a local Postgres in this
+  session (no Docker/DB available in this environment) ï¿½ `tsc --noEmit` on
+  `@mercurjs/core` passes with the hook wired in; running the full
+  integration suite locally is the outstanding verification step.
 
 ## Notes
 
