@@ -1,43 +1,35 @@
-<!-- PROJECT LOGO -->
+<br>
 <p align="center">
   <a href="https://github.com/mercurjs/mercur">
-   <img src="https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png" alt="Mercur">
+    <img src="https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png" alt="Mercur">
   </a>
-
-  <h3 align="center">Mercur</h3>
-
-  <p align="center">
-   The open-source marketplace platform. A Mirakl alternative.
-    <br />
-    <a href="https://mercurjs.com/"><strong>Website</strong></a>
-    &middot;
-    <a href="https://docs.mercurjs.com"><strong>Docs</strong></a>
-    &middot;
-    <a href="https://demo.mercurjs.com/"><strong>Live Demo</strong></a>
-    &middot;
-    <a href="https://discord.gg/hnZBzc4NJU"><strong>Discord</strong></a>
-  </p>
 </p>
 
-<!-- ABOUT THE PROJECT -->
+<h1 align="center">
+  Mercur
+</h1>
 
 <div align="center">
-  <!-- Shields.io Badges -->
-  <a href="https://github.com/mercurjs/mercur/tree/main?tab=MIT-1-ov-file">
-    <img alt="License" src="https://img.shields.io/badge/license-MIT-blue.svg" />
-  </a>
-  <a href="https://github.com/mercurjs/mercur/issues/new/choose">
-    <img alt="PRs Welcome" src="https://img.shields.io/badge/PRs-welcome-brightgreen.svg" />
-  </a>
-  <a href="https://www.mercurjs.com/contact">
-    <img alt="Support" src="https://img.shields.io/badge/support-contact%20author-blueviolet.svg" />
-  </a>
-  <a href="https://discord.gg/hnZBzc4NJU">
-    <img alt="Discord" src="https://img.shields.io/badge/Discord-Join%20Chat-5865F2?logo=discord&logoColor=white" />
-  </a>
-  <a href="https://github.com/mercurjs/mercur/issues?q=is%3Aissue%20state%3Aclosed">
-    <img alt="GitHub closed issues" src="https://img.shields.io/github/issues-closed/mercurjs/mercur" />
-  </a>
+  <h3>The open-source marketplace platform. A Mirakl alternative.</h3>
+</div>
+
+<h4 align="center">
+  <a href="https://mercurjs.com/">Website</a> ·
+  <a href="https://docs.mercurjs.com">Documentation</a> ·
+  <a href="https://demo.mercurjs.com/">Live Demo</a> ·
+  <a href="https://discord.gg/hnZBzc4NJU">Discord</a>
+</h4>
+
+<div align="center">
+
+  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/mercurjs/mercur/tree/main?tab=MIT-1-ov-file)
+  [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](https://github.com/mercurjs/mercur/issues/new/choose)
+  [![Support](https://img.shields.io/badge/support-contact%20author-blueviolet.svg)](https://www.mercurjs.com/contact)
+  [![GitHub closed issues](https://img.shields.io/github/issues-closed/mercurjs/mercur)](https://github.com/mercurjs/mercur/issues?q=is%3Aissue%20state%3Aclosed)
+    <br>
+    <br>
+  [![Discord](https://img.shields.io/badge/Discord-Join%20Chat-5865F2?logo=discord&logoColor=white)](https://discord.gg/hnZBzc4NJU)
+
 </div>
 
 ## What is Mercur
