@@ -1,5 +1,6 @@
 import { TriangleRightMini } from "@medusajs/icons"
 import { Avatar, Container, Heading } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { SellerDTO } from "@mercurjs/types"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -67,6 +68,7 @@ export const OfferStoreSidebar = ({ seller }: Props) => {
           {Inner}
         </Link>
       </div>
+      <DisplayExtensionZone model="offer" zone="store" data={seller} />
     </Container>
   )
 }

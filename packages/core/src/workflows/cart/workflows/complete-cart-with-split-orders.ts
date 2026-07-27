@@ -477,9 +477,17 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                     }))
 
                     if (cart.promotions?.length) {
-                        cart.promotions.forEach((promotion: PromotionDTO & { seller: SellerDTO }) => {
+                        cart.promotions.forEach((promotion: PromotionDTO & { seller?: SellerDTO }) => {
+                            const orderId = promotion.seller?.id
+                                ? sellerOrdersMap[promotion.seller.id]
+                                : undefined
+                            // Sellerless (marketplace/admin) promotions are already
+                            // applied as cart adjustments; there is no seller order to link.
+                            if (!orderId) {
+                                return
+                            }
                             links.push({
-                                [Modules.ORDER]: { order_id: sellerOrdersMap[promotion.seller.id] },
+                                [Modules.ORDER]: { order_id: orderId },
                                 [Modules.PROMOTION]: { promotion_id: promotion.id },
                             })
                         })

@@ -1,6 +1,7 @@
 import { Channels, PencilSquare } from "@medusajs/icons"
 import { Container, Heading, Text, Tooltip } from "@medusajs/ui"
 import { Trans, useTranslation } from "react-i18next"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { useSalesChannels } from "@hooks/api/sales-channels"
 
@@ -97,6 +98,7 @@ export const ProductSalesChannelSection = ({
           />
         </Text>
       </div>
+      <DisplayExtensionZone model="product" zone="sales-channels" data={product} />
     </Container>
   )
 }

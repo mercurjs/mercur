@@ -1,8 +1,14 @@
 import type * as Vite from "vite";
 import path from "path";
 import fs from "fs";
+import { createRequire } from "module";
 import { getFileExports } from "./utils";
-import { RESOLVED_ROUTES_MODULE } from "./constants";
+import {
+    RESOLVED_ROUTES_MODULE,
+    RESOLVED_WIDGETS_MODULE,
+    RESOLVED_NAVIGATION_MODULE,
+    RESOLVED_CUSTOM_FIELDS_MODULE,
+} from "./constants";
 import {
     isVirtualModule,
     resolveVirtualModule,
@@ -13,6 +19,23 @@ import type { MercurConfig, BuiltMercurConfig } from "./types";
 function isRouteFile(file: string): boolean {
     const basename = path.basename(file, path.extname(file));
     return basename === "page";
+}
+
+function isWidgetFile(file: string): boolean {
+    return normalizeSep(file).includes("/src/widgets/");
+}
+
+function isNavigationFile(file: string): boolean {
+    const basename = path.basename(file, path.extname(file));
+    return basename === "_navigation";
+}
+
+function isCustomFieldFile(file: string): boolean {
+    return normalizeSep(file).includes("/src/custom-fields/");
+}
+
+function normalizeSep(file: string): string {
+    return file.replace(/\\/g, "/");
 }
 
 const UI_MODULE_KEYS = ["admin_ui", "vendor_ui"];
@@ -34,6 +57,22 @@ const MEDUSA_VIRTUAL_MODULES = [
 
 function isMedusaVirtualModule(id: string): boolean {
     return MEDUSA_VIRTUAL_MODULES.includes(id);
+}
+
+// Only force-prebundle deps that actually resolve from the app. Consuming apps
+// (e.g. templates) may not declare optional deps like `i18next` or
+// `@medusajs/dashboard` directly, and Vite warns for every unresolved entry in
+// `optimizeDeps.include`.
+function filterResolvableDeps(specifiers: string[], fromDir: string): string[] {
+    const require = createRequire(path.join(fromDir, "noop.js"));
+    return specifiers.filter((specifier) => {
+        try {
+            require.resolve(specifier);
+            return true;
+        } catch {
+            return false;
+        }
+    });
 }
 
 function resolveMedusaVirtualModule(id: string): string {
@@ -260,23 +299,28 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
                     exclude: [
                         "virtual:mercur/config",
                         "virtual:mercur/routes",
-                        "virtual:mercur/components",
                         "virtual:mercur/menu-items",
                         "virtual:mercur/i18n",
+                        "virtual:mercur/widgets",
+                        "virtual:mercur/navigation",
+                        "virtual:mercur/custom-fields",
                         ...MEDUSA_VIRTUAL_MODULES,
                     ],
-                    include: [
-                        "react",
-                        "react/jsx-runtime",
-                        "react-dom/client",
-                        "react-router-dom",
-                        "react-i18next",
-                        "i18next",
-                        "@medusajs/ui",
-                        "@medusajs/dashboard",
-                        "@mercurjs/client",
-                        "@tanstack/react-query",
-                    ],
+                    include: filterResolvableDeps(
+                        [
+                            "react",
+                            "react/jsx-runtime",
+                            "react-dom/client",
+                            "react-router-dom",
+                            "react-i18next",
+                            "i18next",
+                            "@medusajs/ui",
+                            "@medusajs/dashboard",
+                            "@mercurjs/client",
+                            "@tanstack/react-query",
+                        ],
+                        root,
+                    ),
                 },
             };
         },
@@ -296,29 +340,37 @@ export function mercurDashboardPlugin(pluginConfig: MercurConfig): Vite.Plugin {
             if (isResolvedMedusaVirtualModule(id)) {
                 return "export default {}";
             }
-            return loadVirtualModule({ cwd: root, id, mercurConfig: config });
+            return loadVirtualModule({ id, mercurConfig: config });
         },
         configureServer(server) {
-            const handleRouteChange = (file: string) => {
-                if (!isRouteFile(file)) return;
-
-                const mod = server.moduleGraph.getModuleById(RESOLVED_ROUTES_MODULE);
+            const invalidate = (moduleId: string, reload: boolean) => {
+                const mod = server.moduleGraph.getModuleById(moduleId);
                 if (mod) {
                     server.moduleGraph.invalidateModule(mod);
-                    server.ws.send({ type: "full-reload" });
+                    if (reload) server.ws.send({ type: "full-reload" });
                 }
             };
 
-            server.watcher.on("add", handleRouteChange);
-            server.watcher.on("unlink", handleRouteChange);
+            const handleChange = (file: string) => {
+                if (isRouteFile(file)) invalidate(RESOLVED_ROUTES_MODULE, true);
+                if (isWidgetFile(file)) invalidate(RESOLVED_WIDGETS_MODULE, true);
+                if (isNavigationFile(file)) invalidate(RESOLVED_NAVIGATION_MODULE, true);
+                if (isCustomFieldFile(file)) invalidate(RESOLVED_CUSTOM_FIELDS_MODULE, true);
+            };
+
+            server.watcher.on("add", handleChange);
+            server.watcher.on("unlink", handleChange);
         },
         handleHotUpdate({ file, server }) {
-            if (isRouteFile(file)) {
-                const mod = server.moduleGraph.getModuleById(RESOLVED_ROUTES_MODULE);
-                if (mod) {
-                    server.moduleGraph.invalidateModule(mod);
-                }
-            }
+            const invalidate = (moduleId: string) => {
+                const mod = server.moduleGraph.getModuleById(moduleId);
+                if (mod) server.moduleGraph.invalidateModule(mod);
+            };
+
+            if (isRouteFile(file)) invalidate(RESOLVED_ROUTES_MODULE);
+            if (isWidgetFile(file)) invalidate(RESOLVED_WIDGETS_MODULE);
+            if (isNavigationFile(file)) invalidate(RESOLVED_NAVIGATION_MODULE);
+            if (isCustomFieldFile(file)) invalidate(RESOLVED_CUSTOM_FIELDS_MODULE);
         },
     };
 }

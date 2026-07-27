@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { useOrder, useOrderPreview } from "../../../hooks/api/orders";
@@ -9,7 +10,6 @@ import { ActiveOrderExchangeSection } from "./components/active-order-exchange-s
 import { ActiveOrderReturnSection } from "./components/active-order-return-section";
 import { OrderActiveEditSection } from "./components/order-active-edit-section";
 import { OrderActivitySection } from "./components/order-activity-section";
-import { OrderCommissionSection } from "./components/order-commission-section";
 import { OrderCustomerSection } from "./components/order-customer-section";
 import { OrderFulfillmentSection } from "./components/order-fulfillment-section";
 import { OrderGeneralSection } from "./components/order-general-section";
@@ -26,11 +26,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
 
   const { id } = useParams();
 
+  const query = useLinkQuery("order", DEFAULT_FIELDS);
+
   const { order: rawOrder, isLoading, isError, error } = useOrder(
     id!,
-    {
-      fields: DEFAULT_FIELDS,
-    },
+    query,
     {
       initialData,
     },
@@ -85,20 +85,23 @@ const Root = ({ children }: { children?: ReactNode }) => {
       data-testid="order-detail-page"
     >
       <TwoColumnPage.Main data-testid="order-detail-main">
-        <OrderActiveEditSection order={order} />
-        <ActiveOrderClaimSection orderPreview={orderPreview!} />
-        <ActiveOrderExchangeSection orderPreview={orderPreview!} />
-        <ActiveOrderReturnSection orderPreview={orderPreview!} />
-        <OrderGeneralSection order={order} />
-        <OrderSummarySection order={order} />
-        <OrderCommissionSection order={order} />
-        <OrderPaymentSection order={order} />
-        <OrderFulfillmentSection order={order} />
+        <WidgetZone id="orders.detail.main" data={order}>
+          <OrderActiveEditSection order={order} />
+          <ActiveOrderClaimSection orderPreview={orderPreview!} />
+          <ActiveOrderExchangeSection orderPreview={orderPreview!} />
+          <ActiveOrderReturnSection orderPreview={orderPreview!} />
+          <OrderGeneralSection order={order} />
+          <OrderSummarySection order={order} />
+          <OrderPaymentSection order={order} />
+          <OrderFulfillmentSection order={order} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="order-detail-sidebar">
-        <OrderCustomerSection order={order} />
-        <OrderActivitySection order={order} />
-        <OrderRemainingOrdersGroupSection />
+        <WidgetZone id="orders.detail.side" data={order}>
+          <OrderCustomerSection order={order} />
+          <OrderActivitySection order={order} />
+          <OrderRemainingOrdersGroupSection />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );

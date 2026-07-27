@@ -2,6 +2,10 @@ import { Children, ReactNode } from "react";
 import { Badge, Container, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 
+import {
+  DisplayExtensionZone,
+  DisplayField,
+} from "@mercurjs/dashboard-shared";
 import { HttpTypes } from "@mercurjs/types";
 
 import { StoreDetailHeader } from "./store-detail-header";
@@ -47,59 +51,100 @@ export const StoreGeneralSection = ({
             )}
           </div>
           <StoreDetailHeader seller={seller} />
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.description")}
-            </Text>
-            <Text size="small" leading="compact">
-              {seller.description || "-"}
-            </Text>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.handle")}
-            </Text>
-            <Text size="small" leading="compact">
-              {seller.handle ? `/${seller.handle}` : "-"}
-            </Text>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.email")}
-            </Text>
-            <Text size="small" leading="compact">
-              {seller.email || "-"}
-            </Text>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.phone")}
-            </Text>
-            <Text size="small" leading="compact">
-              {seller.phone || "-"}
-            </Text>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.website")}
-            </Text>
-            <Text size="small" leading="compact">
-              {seller.website_url || "-"}
-            </Text>
-          </div>
-          <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.currency")}
-            </Text>
-            <div className="flex items-center gap-x-2">
-              <Badge size="2xsmall">
-                {seller.currency_code?.toUpperCase()}
-              </Badge>
+          <DisplayField
+            model="seller"
+            zone="general"
+            id="description"
+            data={seller}
+          >
+            <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+              <Text size="small" leading="compact" weight="plus">
+                {t("fields.description")}
+              </Text>
               <Text size="small" leading="compact">
-                {currencies[seller.currency_code?.toUpperCase()]?.name || "-"}
+                {seller.description || "-"}
               </Text>
             </div>
-          </div>
+          </DisplayField>
+          <DisplayField model="seller" zone="general" id="handle" data={seller}>
+            <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+              <Text size="small" leading="compact" weight="plus">
+                {t("fields.handle")}
+              </Text>
+              <Text size="small" leading="compact">
+                {seller.handle ? `/${seller.handle}` : "-"}
+              </Text>
+            </div>
+          </DisplayField>
+          <DisplayField model="seller" zone="general" id="email" data={seller}>
+            <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+              <Text size="small" leading="compact" weight="plus">
+                {t("fields.email")}
+              </Text>
+              <Text size="small" leading="compact">
+                {seller.email || "-"}
+              </Text>
+            </div>
+          </DisplayField>
+          <DisplayField model="seller" zone="general" id="phone" data={seller}>
+            <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+              <Text size="small" leading="compact" weight="plus">
+                {t("fields.phone")}
+              </Text>
+              <Text size="small" leading="compact">
+                {seller.phone || "-"}
+              </Text>
+            </div>
+          </DisplayField>
+          <DisplayField
+            model="seller"
+            zone="general"
+            id="website_url"
+            data={seller}
+          >
+            <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+              <Text size="small" leading="compact" weight="plus">
+                {t("fields.website")}
+              </Text>
+              <Text size="small" leading="compact">
+                {seller.website_url || "-"}
+              </Text>
+            </div>
+          </DisplayField>
+          <DisplayField
+            model="seller"
+            zone="general"
+            id="currency_code"
+            data={seller}
+          >
+            <div className="text-ui-fg-subtle grid grid-cols-2 px-6 py-4">
+              <Text size="small" leading="compact" weight="plus">
+                {t("fields.currency")}
+              </Text>
+              <div className="flex items-center gap-x-2">
+                <Badge size="2xsmall">
+                  {seller.currency_code?.toUpperCase()}
+                </Badge>
+                <Text size="small" leading="compact">
+                  {currencies[seller.currency_code?.toUpperCase()]?.name || "-"}
+                </Text>
+              </div>
+            </div>
+          </DisplayField>
+          <DisplayExtensionZone
+            model="seller"
+            zone="general"
+            data={seller}
+            builtInFieldIds={[
+              "status",
+              "description",
+              "handle",
+              "email",
+              "phone",
+              "website_url",
+              "currency_code",
+            ]}
+          />
         </>
       )}
     </Container>

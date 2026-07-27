@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Wystąpił nieznany błąd",
+    "notAvailable": "N/A",
     "ascending": "Rosnąco",
     "descending": "Malejąco",
     "add": "Dodaj",
@@ -117,6 +119,11 @@
     }
   },
   "validation": {
+    "requiredField": "Pole wymagane",
+    "valueRequired": "Wartość jest wymagana",
+    "atLeastOnePrice": "Należy dodać co najmniej jedną cenę.",
+    "currencyCodeNotFound": "Nie znaleziono kodu waluty",
+    "shippingOptionIdMissing": "Brak parametru ID opcji wysyłki",
     "mustBeInt": "Wartość musi być liczbą całkowitą.",
     "mustBePositive": "Wartość musi być liczbą dodatnią.",
     "rules": {
@@ -173,7 +180,8 @@
     "saveChanges": "Zapisz zmiany",
     "saveAndClose": "Zapisz i zamknij",
     "editVariantImages": "Edytuj obrazy wariantu",
-    "editImages": "Edytuj obrazy"
+    "editImages": "Edytuj obrazy",
+    "request": "Wniosek"
   },
   "operators": {
     "in": "W"
@@ -444,7 +452,8 @@
   "products": {
     "domain": "Produkty",
     "list": {
-      "noRecordsMessage": "Utwórz swój pierwszy produkt, aby rozpocząć sprzedaż."
+      "noRecordsMessage": "Utwórz swój pierwszy produkt, aby rozpocząć sprzedaż.",
+      "noRecordsTitle": "Brak produktów"
     },
     "edit": {
       "header": "Edytuj produkt",
@@ -461,12 +470,17 @@
         "useForVariationsDescription": "Zamień ten atrybut na opcję produktu generującą warianty.",
         "conversionWarning": "Zamiana tego atrybutu na wariant wpłynie na istniejące warianty produktu. Ta operacja może usunąć lub zmodyfikować warianty.",
         "editCustomValueTitle": "Wartość niestandardowa",
-        "editCustomValueDescription": "Zastąpienie tego wartością niestandardową wpłynie na sposób wyświetlania produktu w wyszukiwaniu i filtrach. Wartości niestandardowe nie są dostępne w wyszukiwaniu ani filtrach."
+        "editCustomValueDescription": "Zastąpienie tego wartością niestandardową wpłynie na sposób wyświetlania produktu w wyszukiwaniu i filtrach. Wartości niestandardowe nie są dostępne w wyszukiwaniu ani filtrach.",
+        "createSuccessToast": "Atrybut został pomyślnie utworzony.",
+        "addSuccessToast": "Atrybuty zostały pomyślnie dodane.",
+        "updateSuccessToast": "Atrybut został pomyślnie zaktualizowany.",
+        "deleteSuccessToast": "Atrybut został pomyślnie usunięty."
       },
       "informationalAttributes": {
         "header": "Informacje o produkcie",
         "description": "Atrybuty używane w celach informacyjnych"
-      }
+      },
+      "duplicateRequestErrorToast": "Masz już aktywny wniosek. Możesz mieć tylko jeden naraz."
     },
     "create": {
       "title": "Utwórz produkt",
@@ -491,7 +505,11 @@
         "primaryCategoryRequired": "Kategoria główna jest wymagana",
         "titleRequired": "Tytuł jest wymagany",
         "handleInvalidFormat": "Identyfikator może zawierać tylko małe litery, cyfry i myślniki",
-        "handleMustContainLetter": "Identyfikator musi zawierać co najmniej jedną literę"
+        "handleMustContainLetter": "Identyfikator musi zawierać co najmniej jedną literę",
+        "categoryRequired": "Wybierz kategorię",
+        "requiredAttributeSelect": "Ten atrybut jest wymagany przez marketplace. Wybierz wartość.",
+        "requiredAttributeEnter": "Ten atrybut jest wymagany przez marketplace. Wprowadź wartość.",
+        "requiredAttributeMultiSelect": "Ten atrybut jest wymagany przez marketplace. Wybierz co najmniej jedną wartość."
       },
       "attributes": {
         "header": "Atrybuty",
@@ -514,6 +532,18 @@
         "learnMore": {
           "label": "Dowiedz się więcej o atrybutach",
           "content": "Atrybuty pomagają klientom znajdować i filtrować Twoje produkty. Atrybuty zdefiniowane przez administratora pojawiają się w wynikach wyszukiwania."
+        },
+        "editVariantAxisTip": "Będziesz mógł tworzyć warianty za pomocą tego atrybutu.",
+        "warning": "Ostrzeżenie",
+        "editWarning": "Zmiany tego atrybutu mogą wpłynąć na istniejące warianty lub szczegóły produktu. Po zapisaniu sprawdź warianty i szczegóły produktu.",
+        "enterValuePlaceholder": "Wprowadź wartość",
+        "selectValuePlaceholder": "Wybierz wartość",
+        "requiredTooltip": "Ten atrybut jest wymagany przez marketplace i nie można go odznaczyć.",
+        "noAttributesTitle": "Brak atrybutów produktu",
+        "noAttributesDescription": "Marketplace nie zdefiniował żadnych atrybutów.",
+        "errors": {
+          "titleRequired": "Wprowadź tytuł",
+          "valuesRequired": "Wprowadź co najmniej jedną wartość"
         }
       },
       "variants": {
@@ -776,10 +806,12 @@
     "variant": {
       "edit": {
         "header": "Edytuj wariant",
-        "success": "Wariant produktu został pomyślnie edytowany"
+        "success": "Wariant produktu został pomyślnie edytowany",
+        "attributesTooltip": "Są to domyślne wartości opisujące pozycję. Nie są one zdefiniowane przez marketplace."
       },
       "create": {
-        "header": "Szczegóły wariantu"
+        "header": "Szczegóły wariantu",
+        "successToast": "Wariant został pomyślnie utworzony."
       },
       "deleteWarning": "Czy na pewno chcesz usunąć ten wariant?",
       "tableItemAvailable": "{{availableCount}} dostępnych",
@@ -807,6 +839,10 @@
           "updateLevel": "Poziom zapasów pomyślnie zaktualizowany.",
           "itemsManageSuccess": "Elementy magazynowe pomyślnie zaktualizowane."
         }
+      },
+      "validation": {
+        "titleRequired": "Wprowadź tytuł",
+        "optionRequired": "Wybierz wartość"
       }
     },
     "options": {
@@ -912,7 +948,11 @@
       "description": "Edytuj wiele produktów jednocześnie.",
       "noChanges": "Brak zmian do zapisania.",
       "success": "Produkty zostały pomyślnie zaktualizowane."
-    }
+    },
+    "attributeVariations": "Warianty",
+    "attributeRequiredDeleteDisabledTooltip": "Wymaganych atrybutów nie można usunąć.",
+    "editAttribute": "Edytuj atrybut",
+    "editAttributeHint": "Zaktualizuj wartości wybrane dla tego atrybutu w produkcie."
   },
   "collections": {
     "domain": "Kolekcje",
@@ -943,6 +983,23 @@
         "successToast_few": "Produkty został pomyślnie usunięte z kolekcji.",
         "successToast_many": "Produktów zostało pomyślnie usuniętych z kolekcji.",
         "successToast_other": "Produktów zostało pomyślnie usuniętych z kolekcji."
+      }
+    },
+    "requestSuccess": "Kolekcja została pomyślnie zgłoszona",
+    "media": {
+      "label": "Multimedia",
+      "thumbnail": "Miniatura",
+      "banner": "Baner",
+      "empty": {
+        "header": "Brak mediów",
+        "description": "Multimedia dodane przez operatora marketplace pojawią się tutaj."
+      }
+    },
+    "icon": {
+      "label": "Ikona",
+      "empty": {
+        "header": "Brak ikony",
+        "description": "Ikona dodana przez operatora marketplace pojawi się tutaj."
       }
     }
   },
@@ -1014,6 +1071,22 @@
       "new": {
         "label": "Nowa"
       }
+    },
+    "media": {
+      "label": "Multimedia",
+      "thumbnail": "Miniatura",
+      "banner": "Baner",
+      "empty": {
+        "header": "Brak mediów",
+        "description": "Multimedia dodane przez operatora marketplace pojawią się tutaj."
+      }
+    },
+    "icon": {
+      "label": "Ikona",
+      "empty": {
+        "header": "Brak ikony",
+        "description": "Ikona dodana przez operatora marketplace pojawi się tutaj."
+      }
     }
   },
   "inventory": {
@@ -1036,7 +1109,8 @@
       "attributes": "Atrybuty",
       "requiresShipping": "Wymaga wysyłki",
       "requiresShippingHint": "Czy element magazynowy wymaga wysyłki?",
-      "successToast": "Element magazynowy został pomyślnie utworzony."
+      "successToast": "Element magazynowy został pomyślnie utworzony.",
+      "descriptionPlaceholder": "Opis pozycji"
     },
     "reservation": {
       "header": "Rezerwacja {{itemName}}",
@@ -1099,7 +1173,9 @@
       "tabs": {
         "catalogue": "Katalog",
         "stockLevelsAndPrices": "Stany magazynowe i ceny"
-      }
+      },
+      "description": "Wybierz warianty oraz skonfiguruj stany magazynowe i ceny, aby utworzyć oferty.",
+      "tipLabel": "Wskazówka:"
     },
     "detail": {
       "offerLabel": "Oferta",
@@ -1107,7 +1183,10 @@
       "inventoryItems": "Pozycje magazynowe",
       "manageKit": "Zarządzaj zestawem magazynowym",
       "noInventoryItems": "Brak dołączonych pozycji magazynowych. Otwórz panel magazynu, aby je dołączyć.",
-      "goToInventoryItem": "Przejdź do pozycji magazynowej"
+      "goToInventoryItem": "Przejdź do pozycji magazynowej",
+      "offerVariant": "Wariant oferty",
+      "associatedProduct": "Powiązany produkt",
+      "shippingConfiguration": "Edytuj konfigurację wysyłki"
     },
     "edit": {
       "header": "Edytuj ofertę",
@@ -1145,7 +1224,9 @@
       "create": "Utwórz",
       "manage_prices": "Zarządzaj cenami",
       "manage_inventory": "Zarządzaj magazynem",
-      "bulkDelete": "Usuń zaznaczone"
+      "bulkDelete": "Usuń zaznaczone",
+      "edit_prices": "Edytuj ceny",
+      "edit_stock_levels": "Edytuj stany magazynowe"
     },
     "fields": {
       "sku": "SKU",
@@ -1197,7 +1278,16 @@
       "duplicateInventoryItem": "Ta pozycja magazynowa jest już dołączona.",
       "selectAtLeastOneVariant": "Wybierz co najmniej jeden wariant, aby kontynuować.",
       "noPublishableRows": "Dodaj SKU, włącz lokalizację magazynową lub ustaw cenę, aby opublikować.",
-      "duplicateBatchEntry": "Pozycja magazynowa może występować tylko w jednym koszyku (utwórz, aktualizuj lub usuń)."
+      "duplicateBatchEntry": "Pozycja magazynowa może występować tylko w jednym koszyku (utwórz, aktualizuj lub usuń).",
+      "shippingProfileRequired": "Wybierz profil wysyłki, aby opublikować ten wiersz."
+    },
+    "variant": {
+      "edit": {
+        "successToast": "Wariant oferty został pomyślnie zaktualizowany."
+      },
+      "shipping": {
+        "successToast": "Pomyślnie zaktualizowano profil wysyłki dla {{title}}."
+      }
     }
   },
   "giftCards": {
@@ -1234,20 +1324,26 @@
       "removeMany": "Czy na pewno chcesz usunąć klienta z następujących grup: {{groups}}?",
       "alreadyAddedTooltip": "Klient jest już w tej grupie.",
       "list": {
-        "noRecordsMessage": "Ten klient nie należy do żadnej grupy."
+        "noRecordsMessage": "Ten klient nie należy do żadnej grupy.",
+        "emptyTitle": "Brak grup klientów"
       },
       "add": {
         "success": "Klient dodany do: {{groups}}.",
         "list": {
           "noRecordsMessage": "Najpierw utwórz grupę klientów."
-        }
+        },
+        "successOne": "Klient został pomyślnie dodany do {{groups}} grupy.",
+        "successMany": "Klient został pomyślnie dodany do {{groups}} grup."
       },
       "removed": {
         "success": "Klient usunięty z: {{groups}}.",
         "list": {
           "noRecordsMessage": "Najpierw utwórz grupę klientów."
-        }
-      }
+        },
+        "successOne": "Klient został pomyślnie usunięty z {{groups}} grupy.",
+        "successMany": "Klient został pomyślnie usunięty z {{groups}} grup."
+      },
+      "removeTitle": "Usuń klienta z grupy"
     },
     "edit": {
       "header": "Edytuj klienta",
@@ -1286,7 +1382,9 @@
         "header": "Utwórz adres",
         "hint": "Utwórz adres dla klienta",
         "successToast": "Adres został pomyślnie utworzony"
-      }
+      },
+      "emptyTitle": "Brak adresów",
+      "emptyMessage": "Ten klient nie ma żadnych adresów"
     }
   },
   "customerGroups": {
@@ -1305,7 +1403,8 @@
     "create": {
       "header": "Utwórz grupę klientów",
       "hint": "Utwórz nową grupę klientów, aby segmentować swoich klientów.",
-      "successToast": "Grupa klientów {{name}} została pomyślnie utworzona."
+      "successToast": "Grupa klientów {{name}} została pomyślnie utworzona.",
+      "alreadyExistsToast": "Grupa klientów o nazwie {{name}} już istnieje."
     },
     "edit": {
       "header": "Edytuj grupę klientów",
@@ -1335,11 +1434,17 @@
         "description_one": "Zamierzasz usunąć {{count}} klienta z grupy klientów. Tej akcji nie można cofnąć.",
         "description_few": "Zamierzasz usunąć {{count}} klientów z grupy klientów. Tej akcji nie można cofnąć.",
         "description_many": "Zamierzasz usunąć {{count}} klientów z grupy klientów. Tej akcji nie można cofnąć.",
-        "description_other": "Zamierzasz usunąć {{count}} klientów z grupy klientów. Tej akcji nie można cofnąć."
+        "description_other": "Zamierzasz usunąć {{count}} klientów z grupy klientów. Tej akcji nie można cofnąć.",
+        "successToast_one": "Klient został pomyślnie usunięty z grupy.",
+        "successToast_other": "Klienci zostali pomyślnie usunięci z grupy."
       },
       "list": {
-        "noRecordsMessage": "Ta grupa nie ma klientów."
+        "noRecordsMessage": "Ta grupa nie ma klientów.",
+        "noRecordsTitle": "Brak klientów"
       }
+    },
+    "validation": {
+      "nameRequired": "Wprowadź nazwę"
     }
   },
   "refundReasons": {
@@ -1469,7 +1574,8 @@
         "partiallyCaptured": "Częściowo zapłacone",
         "refunded": "Zwrócone",
         "canceled": "Anulowane",
-        "requiresAction": "Wymaga działania"
+        "requiresAction": "Wymaga działania",
+        "pending": "Oczekujące"
       },
       "capturePayment": "Płatność w wysokości {{amount}} zostanie zrealizowana.",
       "capturePaymentSuccess": "Płatność w wysokości {{amount}} została pomyślnie zrealizowana",
@@ -1480,7 +1586,12 @@
       "createRefundWrongQuantity": "Ilość powinna być liczbą od 1 do {{number}}",
       "refundAmount": "Zwróć {{ amount }}",
       "paymentLink": "Kopiuj link do płatności dla {{ amount }}",
-      "selectPaymentToRefund": "Wybierz płatność do zwrotu"
+      "selectPaymentToRefund": "Wybierz płatność do zwrotu",
+      "enterAmount": "Wprowadź kwotę",
+      "copyPaymentLink": "Kopiuj link do płatności dla {{ amount }}",
+      "copyLinkSuccess": "Link do płatności skopiowany do schowka",
+      "copyLinkError": "Nie udało się skopiować linku do płatności",
+      "outstandingAmount": "Pozostało do zapłaty"
     },
     "edits": {
       "title": "Edytuj zamówienie",
@@ -1506,11 +1617,15 @@
       },
       "toast": {
         "canceledSuccessfully": "Edycja zamówienia anulowana",
-        "confirmedSuccessfully": "Edycja zamówienia potwierdzona"
+        "confirmedSuccessfully": "Edycja zamówienia potwierdzona",
+        "requestSent": "Wniosek o zmianę wysłany do klienta"
       },
       "validation": {
         "quantityLowerThanFulfillment": "Nie można ustawić ilości mniejszej lub równej ilości zrealizowanej"
-      }
+      },
+      "sendNotification": "Wyślij powiadomienie",
+      "sendNotificationHint": "Powiadom klienta o zmianie.",
+      "removeBlockedFulfilledOrReturned": "Nie można usunąć pozycji, które zostały zrealizowane lub zwrócone."
     },
     "edit": {
       "email": {
@@ -1594,7 +1709,16 @@
       "panel": {
         "title": "Inicjowany zwrot",
         "description": "Istnieje otwarty wniosek o zwrot do realizacji"
-      }
+      },
+      "policyHint": "Zwroty są przyjmowane w ciągu {{days}} dni od dostawy.",
+      "outOfPolicy": "Zwroty są przyjmowane w ciągu {{days}} dni od dostawy.",
+      "restockPreview": "Odbiór {{quantity}} × {{offerSku}} → +{{delta}} do {{inventoryItem}} w lokalizacji {{location}}",
+      "noItemsSelected": "Wybierz co najmniej jedną pozycję do zwrotu.",
+      "emptyState": {
+        "title": "Brak rekordów",
+        "description": "Dodaj co najmniej jedną pozycję z zamówienia, aby utworzyć zwrot"
+      },
+      "emptyItemsError": "Dodaj co najmniej jedną pozycję z zamówienia"
     },
     "claims": {
       "create": "Utwórz reklamację",
@@ -1627,7 +1751,35 @@
       "panel": {
         "title": "Inicjowana reklamacja",
         "description": "Istnieje otwarty wniosek o reklamację do realizacji"
-      }
+      },
+      "title": "Utwórz reklamację",
+      "description": "Wybierz typ reklamacji i pozycje, które klient chce zareklamować.",
+      "policyHint": "Reklamacje są przyjmowane w ciągu {{days}} dni od dostawy.",
+      "outOfPolicy": "Reklamacje są przyjmowane w ciągu {{days}} dni od dostawy.",
+      "location": "Lokalizacja",
+      "locationHint": "Lokalizacja magazynowa, w której zostaną przyjęte zwracane pozycje.",
+      "inboundShipping": "Wysyłka zwrotna (opcjonalnie)",
+      "inboundShippingHint": "Metoda wysyłki, której klient użyje do zwrotu pozycji.",
+      "typeLabel": "Typ reklamacji",
+      "typeRefund": "Zwrot pieniędzy — bez wysyłki zamiennej",
+      "typeReplace": "Wymiana — wyślij pozycje zamienne",
+      "typeLockedAfterStart": "Typ reklamacji jest zablokowany po rozpoczęciu wersji roboczej. Aby go zmienić, anuluj i otwórz ponownie.",
+      "claimItems": "Pozycje do reklamacji",
+      "noClaimableItems": "Brak pozycji do reklamacji w tym zamówieniu.",
+      "outboundItems": "Pozycje do wysłania",
+      "noOutboundItems": "Nie dodano jeszcze żadnych pozycji zamiennych.",
+      "addOutboundItems": "Dodaj przedmioty",
+      "addOutboundItemsDescription": "Wybierz warianty do wysłania jako zamienniki reklamowanych pozycji.",
+      "remainingQty": "{{count}} do reklamacji",
+      "reasonPlaceholder": "Wybierz powód",
+      "itemNotePlaceholder": "Dodaj notatkę (opcjonalnie)",
+      "reasons": {
+        "missing_item": "Brakująca pozycja",
+        "wrong_item": "Nieprawidłowa pozycja",
+        "production_failure": "Wada produkcyjna",
+        "other": "Inne"
+      },
+      "noteHint": "Dodaj wewnętrzną notatkę do tej reklamacji (widoczną tylko dla Twojego zespołu)."
     },
     "exchanges": {
       "create": "Utwórz wymianę",
@@ -1663,7 +1815,28 @@
       },
       "carryOverPromotion": "Przenieś promocje",
       "carryOverPromotionHint": "Zastosuj promocje zamówienia do przedmiotów wymiany",
-      "carryOverPromotionTooltip": "Tylko promocje typu Stała kwota z alokacją EACH oraz promocje procentowe z alokacją EACH lub ACROSS mogą być przeniesione na wychodzące przedmioty wymiany."
+      "carryOverPromotionTooltip": "Tylko promocje typu Stała kwota z alokacją EACH oraz promocje procentowe z alokacją EACH lub ACROSS mogą być przeniesione na wychodzące przedmioty wymiany.",
+      "title": "Utwórz wymianę",
+      "description": "Wybierz pozycje podlegające zwrotowi i potwierdź, aby utworzyć wniosek o wymianę.",
+      "policyHint": "Wymiany są przyjmowane w ciągu {{days}} dni od dostawy.",
+      "outOfPolicy": "Wymiany są przyjmowane w ciągu {{days}} dni od dostawy.",
+      "inboundItems": "Pozycje do zwrotu",
+      "noReturnableItems": "Brak pozycji podlegających zwrotowi w tym zamówieniu.",
+      "outboundItems": "Pozycje do wysłania",
+      "noOutboundItems": "Nie dodano jeszcze żadnych pozycji zamiennych.",
+      "addOutboundItems": "Dodaj przedmioty",
+      "addOutboundItemsDescription": "Wybierz warianty do wysłania jako zamienniki zwracanych pozycji.",
+      "location": "Lokalizacja zwrotu",
+      "locationHint": "Wybierz lokalizację, do której mają zostać wysłane zwracane pozycje.",
+      "locationPlaceholder": "Wybierz lokalizację",
+      "inboundShipping": "Wysyłka zwrotna (opcjonalnie)",
+      "inboundShippingHint": "Wybierz metodę, która zostanie użyta do przesyłki przychodzącej.",
+      "inboundShippingPlaceholder": "Wybierz opcję wysyłki",
+      "inboundShippingLockedPlaceholder": "Najpierw wybierz lokalizację",
+      "reasonPlaceholder": "Wybierz powód",
+      "itemNotePlaceholder": "Dodaj notatkę (opcjonalnie)",
+      "remainingQty": "{{count}} do zwrotu",
+      "noteHint": "Dodaj wewnętrzną notatkę do tej wymiany (widoczną tylko dla Twojego zespołu)."
     },
     "reservations": {
       "allocatedLabel": "Przydzielone",
@@ -1683,7 +1856,8 @@
         "error": "Wystąpił błąd podczas przydzielania produktów: {{items}}"
       },
       "error": {
-        "quantityNotAllocated": "Istnieją nieprzydzielone produkty."
+        "quantityNotAllocated": "Istnieją nieprzydzielone produkty.",
+        "noItemsSelected": "Wybierz co najmniej jedną pozycję do przydzielenia."
       }
     },
     "shipment": {
@@ -1726,7 +1900,8 @@
         "wrongQuantity_other": "Ilość powinna być liczbą od 1 do {{number}}",
         "noItems": "Brak produktów do realizacji.",
         "noShippingOption": "Opcja dostawy jest wymagana",
-        "noLocation": "Lokalizacja jest wymagana"
+        "noLocation": "Lokalizacja jest wymagana",
+        "exceedsReservedQuantity": "Ilość, którą chcesz zrealizować, przekracza zarezerwowaną ilość dla pozycji. Sprawdź realizację zamówienia."
       },
       "status": {
         "notFulfilled": "Niezrealizowane",
@@ -1753,7 +1928,11 @@
       },
       "trackingLabel": "Śledzenie przesyłki",
       "shippingFromLabel": "Wysyłka z",
-      "itemsLabel": "Produkty"
+      "itemsLabel": "Produkty",
+      "noInventoryLevel": {
+        "title": "Brak poziomu zapasów",
+        "description": "Wybrana lokalizacja nie ma poziomu zapasów dla wybranych pozycji. Aby kontynuować realizację, utwórz poziom zapasów dla wybranej lokalizacji."
+      }
     },
     "refund": {
       "title": "Utwórz zwrot",
@@ -1872,6 +2051,9 @@
         "title": "Filtry",
         "description": "Do eksportu zostaną zastosowane następujące filtry."
       }
+    },
+    "actions": {
+      "cancelDisabledFulfilled": "Nie można anulować zamówienia, które ma zrealizowane pozycje."
     }
   },
   "draftOrders": {
@@ -2409,6 +2591,12 @@
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Zniżka procentowa na produkt",
+        "description": "Rabat procentowy na wybrane produkty"
+      }
+    },
     "domain": "Promocje",
     "sections": {
       "details": "Szczegóły promocji"
@@ -2598,7 +2786,8 @@
       "limit": {
         "title": "Limit użycia",
         "description": "Maksymalna liczba użyć tej promocji we wszystkich zamówieniach. Pozostaw puste, aby nie ustawiać limitu."
-      }
+      },
+      "selectOperator": "Wybierz operator"
     },
     "deleteWarning": "Zamierzasz usunąć promocję {{code}}. Tej akcji nie można cofnąć.",
     "createPromotionTitle": "Utwórz promocję",
@@ -2608,6 +2797,11 @@
       "list": {
         "noRecordsMessage": "Dodaj warunek, aby ograniczyć przedmioty, których dotyczy promocja."
       }
+    },
+    "campaignSection": {
+      "noRecordsTitle": "Nie należy do żadnej kampanii",
+      "noRecordsMessage": "Dodaj tę promocję do istniejącej kampanii",
+      "addToCampaign": "Dodaj do kampanii"
     }
   },
   "campaigns": {
@@ -2771,10 +2965,17 @@
         "successToast_other": "Pomyślnie usunięto ceny dla {{count}} produktów."
       },
       "add": {
-        "successToast": "Ceny zostały pomyślnie dodane do cennika."
+        "successToast": "Ceny zostały pomyślnie dodane do cennika.",
+        "atLeastOnePrice": "Należy dodać co najmniej jedną cenę.",
+        "alreadyInPriceList": "Ten produkt znajduje się już na liście cen",
+        "noVariants": "Ten produkt nie ma wariantów",
+        "title": "Dodaj produkty do listy cen",
+        "description": "Dodaj produkty i ustaw ceny dla listy cen"
       },
       "edit": {
-        "successToast": "Ceny zostały pomyślnie zaktualizowane."
+        "successToast": "Ceny zostały pomyślnie zaktualizowane.",
+        "title": "Edytuj ceny dla {{title}}",
+        "description": "Zaktualizuj ceny produktów na liście cen"
       }
     },
     "fields": {
@@ -2917,7 +3118,8 @@
     "validation": {
       "nameRequired": "Wprowadź nazwę",
       "nameTooLong": "Nazwa może mieć maksymalnie 100 znaków",
-      "emailInvalid": "Wprowadź prawidłowy adres e-mail"
+      "emailInvalid": "Wprowadź prawidłowy adres e-mail",
+      "emailRequired": "Wprowadź adres e-mail"
     },
     "status": {
       "active": "Aktywny",
@@ -2957,7 +3159,14 @@
     "currencyAlreadyAdded": "Waluta została już dodana do Twojego sklepu.",
     "edit": {
       "header": "Edytuj sklep",
-      "websiteHint": "Musi zawierać protokół (np. https://)"
+      "websiteHint": "Musi zawierać protokół (np. https://)",
+      "mediaHeading": "Multimedia",
+      "mediaTipLabel": "Wskazówka:",
+      "mediaTipBody": "Te multimedia będą widoczne w sklepie internetowym.",
+      "uploadLogoLabel": "Prześlij logo",
+      "uploadLogoHint": "Przeciągnij i upuść logo tutaj lub kliknij, aby przesłać.",
+      "uploadBannerLabel": "Prześlij baner",
+      "uploadBannerHint": "Przeciągnij i upuść baner tutaj lub kliknij, aby przesłać."
     },
     "address": {
       "header": "Adres",
@@ -3052,7 +3261,10 @@
         "title": "Usuń przerwę",
         "description": "Czy na pewno chcesz usunąć ten okres przerwy?"
       },
-      "deleteSuccess": "Przerwa została usunięta"
+      "deleteSuccess": "Przerwa została usunięta",
+      "edit": {
+        "successToast": "Urlop został pomyślnie zaktualizowany."
+      }
     },
     "scheduledClosure": {
       "header": "Zaplanowana przerwa"
@@ -3275,7 +3487,7 @@
       "createPublishableHeader": "Utwórz klucz API do publikacji",
       "createPublishableHint": "Utwórz nowy publikowany klucz API, aby ograniczyć zakres żądań do określonych kanałów sprzedaży.",
       "createSecretHeader": "Utwórz tajny klucz API",
-      "createSecretHint": "Utwórz nowy tajny klucz API, aby uzyskać dostęp do API Medusa jako uwierzytelniony użytkownik administracyjny.",
+      "createSecretHint": "Utwórz nowy tajny klucz API, aby uzyskać dostęp do API Mercur jako uwierzytelniony użytkownik administracyjny.",
       "secretKeyCreatedHeader": "Utworzono tajny klucz",
       "secretKeyCreatedHint": "Twój nowy tajny klucz został wygenerowany. Skopiuj i bezpiecznie przechowuj teraz. Jest to jedyny raz, kiedy zostanie wyświetlony.",
       "copySecretTokenSuccess": "Tajny klucz został skopiowany do schowka.",
@@ -3536,7 +3748,7 @@
     "emailTooltip": "Nie można zmienić Twojego adresu e-mail. Jeśli chcesz skorzystać z innego adresu e-mail, należy wysłać nowe zaproszenie.",
     "invalidInvite": "Zaproszenie jest nieprawidłowe lub wygasło.",
     "successTitle": "Twoje konto zostało zarejestrowane",
-    "successHint": "Zacznij od razu z Medusa Admin.",
+    "successHint": "Zacznij od razu z Mercur Admin.",
     "successAction": "Uruchom administratora Meduzy",
     "invalidTokenTitle": "Twój token zaproszenia jest nieprawidłowy",
     "invalidTokenHint": "Spróbuj poprosić o nowy link z zaproszeniem.",
@@ -3573,7 +3785,7 @@
   },
   "workflowExecutions": {
     "domain": "Przepływy pracy",
-    "subtitle": "Przeglądaj i śledź wykonania przepływu pracy w aplikacji Medusa.",
+    "subtitle": "Przeglądaj i śledź wykonania przepływu pracy w aplikacji Mercur.",
     "transactionIdLabel": "Identyfikator transakcji",
     "workflowIdLabel": "Identyfikator przepływu pracy",
     "progressLabel": "Postęp",
@@ -3647,7 +3859,9 @@
     "create": {
       "header": "Utwórz typ produktu",
       "hint": "Utwórz nowy typ produktu, aby kategoryzować swoje produkty.",
-      "successToast": "Typ produktu {{value}} został pomyślnie utworzony."
+      "successToast": "Typ produktu {{value}} został pomyślnie utworzony.",
+      "requestHeader": "Zgłoś typ produktu",
+      "requestSuccessToast": "Typ produktu został pomyślnie zgłoszony"
     },
     "edit": {
       "header": "Edytuj typ produktu",
@@ -3948,7 +4162,8 @@
       "type": "Typ",
       "values": "Wartości",
       "variantAxis": "Użyj dla wariantów",
-      "filterable": "Filtrowalne"
+      "filterable": "Filtrowalne",
+      "productAttribute": "Atrybut produktu"
     },
     "type": {
       "select": "Lista jednokrotnego wyboru",
@@ -3972,7 +4187,7 @@
       "manageEntities": "Zarządzaj encjami",
       "manageLocales": "Zarządzaj językami"
     },
-    "subtitle": "Zarządzaj tłumaczeniami swoich danych w Medusa",
+    "subtitle": "Zarządzaj tłumaczeniami swoich danych w Mercur",
     "list": {
       "metrics": "{{translated}} z {{total}} tłumaczeń"
     },
@@ -4017,8 +4232,22 @@
         "description": "Czy na pewno chcesz zaktualizować \"{{name}}\"?",
         "confirmText": "Zaktualizuj",
         "cancelText": "Anuluj"
+      },
+      "saveAsDefault": {
+        "title": "Zapisz jako domyślne ustawienie systemowe",
+        "description": "Spowoduje to zapisanie bieżącej konfiguracji jako domyślnej dla systemu. Wszyscy użytkownicy będą domyślnie widzieć tę konfigurację, chyba że mają własne widoki. Czy na pewno chcesz kontynuować?",
+        "confirmText": "Zapisz jako domyślne",
+        "cancelText": "Anuluj"
+      },
+      "updateExisting": {
+        "title": "Zaktualizuj istniejący widok",
+        "description": "Zaktualizować „{{name}}” bieżącą konfiguracją?",
+        "confirmText": "Zaktualizuj",
+        "cancelText": "Anuluj"
       }
-    }
+    },
+    "saveAsSystemDefault": "Zapisz jako domyślne ustawienie systemowe",
+    "updateNamed": "Zaktualizuj „{{name}}”"
   },
   "auth": {
     "login": {

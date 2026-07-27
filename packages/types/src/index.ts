@@ -18,8 +18,8 @@ export * from "./payout"
 // Offer types
 export * from "./offer"
 
-// Search types
-export * from "./search"
+// Promotion cost types
+export * from "./promotion-cost"
 
 // Product types — explicit re-export overrides Medusa's product surface.
 // Mercur's runtime enums and Mercur-extended DTOs (Omit + intersection over

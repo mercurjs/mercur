@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { NoRecords } from "../../../../components/common/empty-table-content"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { getLocaleAmount } from "../../../../lib/money-amount-helpers"
 import { OfferDetail, OfferPrice } from "../../common/types"
 
@@ -75,6 +77,7 @@ export const OfferPricingSection = ({ offer }: Props) => {
           </Button>
         </div>
       )}
+      <DisplayExtensionZone model="offer" zone="prices" data={offer} />
     </Container>
   )
 }

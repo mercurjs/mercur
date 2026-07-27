@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
 import {
   Button,
@@ -8,9 +7,13 @@ import {
   Textarea,
   toast,
 } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
+
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared"
 
 import { Form } from "@components/common/form"
 import { RouteDrawer, useRouteModal } from "@components/modals"
@@ -33,20 +36,25 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const form = useForm<z.infer<typeof PriceListEditSchema>>({
+  const form = useExtendableForm({
+    schema: PriceListEditSchema,
+    model: "price_list",
+    zone: "edit",
+    data: priceList,
     defaultValues: {
       type: priceList.type as PriceListType,
       title: priceList.title,
       description: priceList.description,
       status: priceList.status as PriceListStatus,
     },
-    resolver: zodResolver(PriceListEditSchema),
   })
 
   const { mutateAsync, isPending } = useUpdatePriceList(priceList.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    await mutateAsync(values, {
+    const { status, type, title, description } = values
+
+    await mutateAsync({ status, type, title, description }, {
       onSuccess: ({ price_list }) => {
         toast.success(
           t("priceLists.edit.successToast", {
@@ -165,6 +173,12 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
               }}
             />
           </div>
+          <FormExtensionZone
+            model="price_list"
+            zone="edit"
+            control={form.control}
+            data={priceList}
+          />
         </RouteDrawer.Body>
         <RouteDrawer.Footer className="shrink-0">
           <div className="flex items-center justify-end gap-x-2">

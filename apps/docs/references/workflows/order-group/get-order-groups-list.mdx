@@ -1,0 +1,38 @@
+---
+title: "getOrderGroupsListWorkflow"
+description: "List order groups with pagination and per-order aggregated statuses."
+---
+
+Lists order groups with their child orders, computing each order's `payment_status` and `fulfillment_status` from payment collections and fulfillments. When `sellerId` is set, each group's `orders` array is filtered to that seller's orders — useful for vendor-scoped views. Payment collections and fulfillments are stripped unless the requested fields include them. Triggered by `GET /admin/order-groups`.
+
+## Usage
+
+```ts
+import { getOrderGroupsListWorkflow } from "@mercurjs/core/workflows"
+
+const { result } = await getOrderGroupsListWorkflow(container).run({
+  input: {
+    fields: ["display_id", "total"],
+    variables: { skip: 0, take: 20, order: { created_at: "DESC" } },
+  },
+})
+```
+
+## Input
+
+<ParamField body="fields" type="string[]" required>Fields to retrieve; merged with the defaults needed for status aggregation.</ParamField>
+<ParamField body="variables" type="object">
+  Query filters plus pagination.
+
+  <Expandable title="properties">
+    <ParamField body="skip" type="number">Number of groups to skip.</ParamField>
+    <ParamField body="take" type="number">Number of groups to return.</ParamField>
+    <ParamField body="order" type="object">Sort spec, e.g. `{ created_at: "DESC" }`.</ParamField>
+  </Expandable>
+</ParamField>
+<ParamField body="sellerId" type="string | string[]">Restrict each group's `orders` to the given seller(s).</ParamField>
+
+## Result
+
+<ResponseField name="result.rows" type="object[]">The order groups; each child order carries computed `payment_status` and `fulfillment_status`.</ResponseField>
+<ResponseField name="result.metadata" type="object">Pagination metadata (`count`, `skip`, `take`).</ResponseField>

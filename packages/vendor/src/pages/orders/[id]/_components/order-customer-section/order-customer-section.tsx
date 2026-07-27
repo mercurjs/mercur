@@ -1,5 +1,6 @@
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { CustomerInfo } from "@components/common/customer-info"
 import { HttpTypes } from "@medusajs/types"
 
@@ -15,6 +16,7 @@ export const OrderCustomerSection = ({ order }: OrderCustomerSectionProps) => {
       <CustomerInfo.Contact data={order} />
       <CustomerInfo.Company data={order} />
       <CustomerInfo.Addresses data={order} />
+      <DisplayExtensionZone model="order" zone="customer" data={order} />
     </Container>
   )
 }

@@ -6,11 +6,11 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { batchLinkProductsToCategoryWorkflow } from "@medusajs/medusa/core-flows"
 import { HttpTypes } from "@mercurjs/types"
 
 import { ensureSellerOwnsProduct } from "../../../products/helpers"
 import { VendorBatchLinkProductsToCategoryType } from "../../validators"
+import { assignProductsToCategoryWorkflow } from "../../../../../workflows/product/workflows/assign-products-to-category"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<VendorBatchLinkProductsToCategoryType>,
@@ -38,7 +38,7 @@ export const POST = async (
   const productIds = [...(add ?? []), ...(remove ?? [])]
   await ensureSellerOwnsProduct(req.scope, sellerId, productIds)
 
-  await batchLinkProductsToCategoryWorkflow(req.scope).run({
+  await assignProductsToCategoryWorkflow(req.scope).run({
     input: {
       id: req.params.id,
       add,

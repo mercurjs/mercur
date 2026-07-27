@@ -1,6 +1,8 @@
 import { ReactNode, Children } from "react"
 import { useParams } from "react-router-dom"
 
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { usePriceList } from "../../../hooks/api/price-lists"
@@ -11,7 +13,8 @@ import { PriceListProductSection } from "./components/price-list-product-section
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
 
-  const { price_list, isLoading, isError, error } = usePriceList(id!)
+  const linkQuery = useLinkQuery("price_list")
+  const { price_list, isLoading, isError, error } = usePriceList(id!, linkQuery)
 
   if (isLoading || !price_list) {
     return (
@@ -30,11 +33,15 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage data={price_list} showJSON data-testid="price-list-detail-page">
       <TwoColumnPage.Main>
-        <PriceListGeneralSection priceList={price_list} />
-        <PriceListProductSection priceList={price_list} />
+        <WidgetZone id="price-lists.detail.main" data={price_list}>
+          <PriceListGeneralSection priceList={price_list} />
+          <PriceListProductSection priceList={price_list} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <PriceListConfigurationSection priceList={price_list} />
+        <WidgetZone id="price-lists.detail.side" data={price_list}>
+          <PriceListConfigurationSection priceList={price_list} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   )

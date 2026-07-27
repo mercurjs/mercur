@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { usePayout } from "../../../hooks/api/payouts"
@@ -25,7 +26,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage data={payout} showJSON showMetadata>
-      <PayoutGeneralSection payout={payout} />
+      <WidgetZone id="payouts.detail.main" data={payout}>
+        <PayoutGeneralSection payout={payout} />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

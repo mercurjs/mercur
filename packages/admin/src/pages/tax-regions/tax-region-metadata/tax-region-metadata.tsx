@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import { useTaxRegion, useUpdateTaxRegion } from "@hooks/api"
 import { MetadataForm } from "@components/forms/metadata-form"
@@ -6,6 +7,7 @@ import { RouteDrawer } from "@components/modals"
 import { ClientError } from "@mercurjs/client"
 
 export const TaxRegionMetadata = () => {
+  const { t } = useTranslation()
   const { id } = useParams()
 
   const { tax_region, isPending, isError, error } = useTaxRegion(id!)
@@ -27,7 +29,7 @@ export const TaxRegionMetadata = () => {
 
       return result
     } catch (error) {
-      const message = error instanceof ClientError ? error.message : 'An error occurred'
+      const message = error instanceof ClientError ? error.message : t("errorBoundary.defaultTitle")
       callbacks.onError?.(message)
       throw error
     }

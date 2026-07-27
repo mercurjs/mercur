@@ -1,11 +1,11 @@
-import React, { Children, ReactNode } from "react";
+import { Children, ReactNode } from "react";
 import { Alert, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
-import components from "virtual:mercur/components";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
-import { useMe } from "@/hooks/api";
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { useMe, useSeller } from "@/hooks/api";
 import { SellerStatus } from "@mercurjs/types";
 
 import { StoreAddressSection } from "./_components/store-address-section";
@@ -20,18 +20,36 @@ import {
   StoreDetailEditButton,
 } from "./_components/store-detail-header";
 
+const ME_SELLER_FIELDS =
+  "+seller.*,+seller.address.*,+seller.payment_details.*,+seller.professional_details.*";
+const SELLER_DETAIL_FIELDS =
+  "+address.*,+payment_details.*,+professional_details.*";
+
 const Root = ({ children }: { children?: ReactNode }) => {
   const { t } = useTranslation();
-  const { seller_member, isPending, isError, error } = useMe();
+  const { seller_member, isPending, isError, error } = useMe({
+    fields: ME_SELLER_FIELDS,
+  });
 
-  const seller = seller_member?.seller;
+  const meSeller = seller_member?.seller;
 
-  if (isPending || !seller) {
-    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={3} />;
-  }
+  const query = useLinkQuery("seller", SELLER_DETAIL_FIELDS);
+  const needsLinks = !!useLinkQuery("seller").fields;
+
+  const { seller: linkedSeller, isPending: linkedPending } = useSeller(
+    meSeller?.id ?? "",
+    query,
+    { enabled: needsLinks && !!meSeller?.id },
+  );
+
+  const seller = needsLinks ? linkedSeller : meSeller;
 
   if (isError) {
     throw error;
+  }
+
+  if (isPending || !seller || (needsLinks && linkedPending)) {
+    return <TwoColumnPageSkeleton mainSections={3} sidebarSections={3} />;
   }
 
   const statusAlert = (() => {
@@ -48,13 +66,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
     }
   })();
 
-  const StoreSetup = components.StoreSetup as
-    | React.ComponentType<{ seller: any }>
-    | undefined;
-
   const StatusBanner = () => (
     <>
-      {StoreSetup && <StoreSetup seller={seller} />}
+      <WidgetZone id="seller.setup" data={seller} />
       {statusAlert && (
         <Alert variant={statusAlert.variant} dismissible className="p-5">
           <div className="text-ui-fg-subtle txt-small pb-2 font-medium leading-[20px]">

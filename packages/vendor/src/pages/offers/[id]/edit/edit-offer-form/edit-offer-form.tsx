@@ -1,7 +1,10 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Input, Select, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
+
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared"
 
 import { Form } from "../../../../../components/common/form"
 import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
@@ -10,7 +13,7 @@ import { useShippingProfiles } from "../../../../../hooks/api/shipping-profiles"
 import { useUpdateOffer } from "../../../../../hooks/api/offers"
 import { useDocumentDirection } from "../../../../../hooks/use-document-direction"
 import { OfferDetail } from "../../../common/types"
-import { EditOfferFormValues, EditOfferSchema } from "./schema"
+import { EditOfferSchema } from "./schema"
 
 type Props = { offer: OfferDetail }
 
@@ -21,13 +24,16 @@ export const EditOfferForm = ({ offer }: Props) => {
 
   const { shipping_profiles } = useShippingProfiles({ limit: 1000 })
 
-  const form = useForm<EditOfferFormValues>({
+  const form = useExtendableForm({
+    schema: EditOfferSchema,
+    model: "offer",
+    zone: "edit",
+    data: offer,
     defaultValues: {
       sku: offer.sku ?? "",
       shipping_profile_id: offer.shipping_profile_id ?? "",
       metadata: offer.metadata ?? null,
     },
-    resolver: zodResolver(EditOfferSchema),
   })
 
   const { mutateAsync, isPending } = useUpdateOffer(offer.id)
@@ -94,6 +100,13 @@ export const EditOfferForm = ({ offer }: Props) => {
                 <Form.ErrorMessage />
               </Form.Item>
             )}
+          />
+
+          <FormExtensionZone
+            model="offer"
+            zone="edit"
+            control={form.control}
+            data={offer}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

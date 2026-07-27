@@ -40,8 +40,8 @@ const Root = () => {
                         <RadioGroup.ChoiceBox
                           key={template.id}
                           value={template.id}
-                          label={template.title}
-                          description={template.description}
+                          label={t(template.titleKey)}
+                          description={t(template.descriptionKey)}
                           data-testid={`promotion-create-form-template-option-${template.id}`}
                         />
                       )

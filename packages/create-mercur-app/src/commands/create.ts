@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import os from "node:os";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import path from "path";
@@ -14,7 +15,7 @@ import terminalLink from "terminal-link";
 import validateProjectName from "validate-npm-package-name";
 import waitOn from "wait-on";
 
-import packageJson from "../../package.json";
+// import packageJson from "../../package.json";
 import {
   sendTelemetryEvent,
   setTelemetryEmail,
@@ -31,9 +32,7 @@ import { logger } from "../utils/logger";
 import { manageEnvFiles } from "../utils/manage-env-files";
 import { spinner } from "../utils/spinner";
 
-const IS_PRERELEASE =
-  packageJson.version?.includes("-canary") || packageJson.version?.includes("-rc");
-const DEFAULT_BRANCH = IS_PRERELEASE ? "canary" : "main";
+const DEFAULT_BRANCH = "main";
 const MIN_SUPPORTED_NODE_VERSION = 20;
 
 const CREATE_TEMPLATES = {
@@ -66,6 +65,7 @@ export const create = new Command()
     process.cwd()
   )
   .option("--no-deps", "skip installing dependencies.")
+  .option("--skip-storefront", "skip adding the Next.js storefront.", false)
   .option("--skip-db", "skip database configuration.", false)
   .option("--skip-email", "skip email prompt.", false)
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
@@ -105,24 +105,38 @@ export const create = new Command()
 
       let template = opts.template;
       if (!template) {
-        const { selectedTemplate } = await prompts({
-          type: "select",
-          name: "selectedTemplate",
-          message: `Which ${highlighter.info(
-            "template"
-          )} would you like to use?`,
-          choices: Object.entries(CREATE_TEMPLATES).map(([key, tmpl]) => ({
-            title: key,
-            value: key,
-            description: tmpl.description,
-          })),
+        // todo: re-enable template selection once more templates are ready
+        // const { selectedTemplate } = await prompts({
+        //   type: "select",
+        //   name: "selectedTemplate",
+        //   message: `Which ${highlighter.info(
+        //     "template"
+        //   )} would you like to use?`,
+        //   choices: Object.entries(CREATE_TEMPLATES).map(([key, tmpl]) => ({
+        //     title: key,
+        //     value: key,
+        //     description: tmpl.description,
+        //   })),
+        // });
+        //
+        // if (!selectedTemplate) {
+        //   process.exit(0);
+        // }
+        //
+        // template = selectedTemplate;
+        template = "basic";
+      }
+
+      let addStorefront = false;
+      if (template === "basic" && !opts.skipStorefront) {
+        const { wantsStorefront } = await prompts({
+          type: "confirm",
+          name: "wantsStorefront",
+          message: `Add a ${highlighter.info("Next.js storefront")}?`,
+          initial: true,
         });
 
-        if (!selectedTemplate) {
-          process.exit(0);
-        }
-
-        template = selectedTemplate;
+        addStorefront = Boolean(wantsStorefront);
       }
 
       if (!opts.skipEmail) {
@@ -152,11 +166,27 @@ export const create = new Command()
       await createOrFindProjectDir(projectDir);
 
       const downloadSpinner = spinner("Downloading template...").start();
-      await downloadTemplate({
-        projectDir,
-        template: template,
-      });
-      downloadSpinner.succeed("Template downloaded successfully.");
+      // Fetch the repo tarball once, then extract each subpath from it locally
+      // so opting into the storefront doesn't trigger a second network download.
+      const tarballPath = await downloadRepoTarball();
+      try {
+        await extractTemplate({ tarballPath, projectDir, template });
+        downloadSpinner.succeed("Template downloaded successfully.");
+
+        if (addStorefront) {
+          const storefrontSpinner = spinner("Adding Next.js storefront...").start();
+          try {
+            await extractStorefront({ tarballPath, projectDir });
+            storefrontSpinner.succeed("Next.js storefront added successfully.");
+          } catch (error) {
+            storefrontSpinner.fail(
+              `Failed to add storefront${error instanceof Error ? `: ${error.message}` : ""}.`
+            );
+          }
+        }
+      } finally {
+        await fs.remove(tarballPath).catch(() => null);
+      }
 
       const packageManager = await resolveProjectPackageManager();
       await updateRootPackageJson(projectDir, projectName, packageManager);
@@ -332,35 +362,88 @@ async function createOrFindProjectDir(projectDir: string): Promise<void> {
   }
 }
 
-async function downloadTemplate({
-  projectDir,
-  template,
-}: {
-  projectDir: string;
-  template: keyof typeof CREATE_TEMPLATES;
-}) {
+// Downloads the repo tarball once to a temp file. Callers then extract whichever
+// subpaths they need from it locally, avoiding a network fetch per directory.
+async function downloadRepoTarball(): Promise<string> {
   const url = `https://codeload.github.com/mercurjs/mercur/tar.gz/${DEFAULT_BRANCH}`;
-  const templatePath = CREATE_TEMPLATES[template].path;
-  const filter = `mercur-${DEFAULT_BRANCH.replace(/^v/, "").replaceAll("/", "-")}/templates/${templatePath}/`;
-
-  await pipeline(
-    await downloadTarStream(url),
-    x({
-      cwd: projectDir,
-      filter: (p) => p.includes(filter),
-      strip: 2 + templatePath.split("/").length,
-    })
-  );
-}
-
-async function downloadTarStream(url: string) {
   const res = await fetch(url);
 
   if (!res.body) {
     throw new Error(`Failed to download: ${url}`);
   }
 
-  return Readable.from(res.body as unknown as NodeJS.ReadableStream);
+  const tarballPath = path.join(os.tmpdir(), `mercur-${DEFAULT_BRANCH.replaceAll("/", "-")}-${process.pid}.tar.gz`);
+  await pipeline(
+    Readable.from(res.body as unknown as NodeJS.ReadableStream),
+    fs.createWriteStream(tarballPath)
+  );
+
+  return tarballPath;
+}
+
+// Extracts a single directory out of the local tarball. `strip` controls how many
+// leading path segments are removed so files land at the right place under `cwd`.
+async function extractRepoDir({
+  tarballPath,
+  cwd,
+  repoPath,
+  strip,
+}: {
+  tarballPath: string;
+  cwd: string;
+  repoPath: string;
+  strip: number;
+}) {
+  const branchDir = `mercur-${DEFAULT_BRANCH.replace(/^v/, "").replaceAll("/", "-")}`;
+  const filter = `${branchDir}/${repoPath}/`;
+
+  await x({
+    file: tarballPath,
+    cwd,
+    filter: (p) => p.includes(filter),
+    strip,
+  });
+}
+
+async function extractTemplate({
+  tarballPath,
+  projectDir,
+  template,
+}: {
+  tarballPath: string;
+  projectDir: string;
+  template: keyof typeof CREATE_TEMPLATES;
+}) {
+  const templatePath = CREATE_TEMPLATES[template].path;
+  const repoPath = `templates/${templatePath}`;
+
+  // Drop the branch dir + every segment of `repoPath` so the template root
+  // becomes the project root.
+  await extractRepoDir({
+    tarballPath,
+    cwd: projectDir,
+    repoPath,
+    strip: 1 + repoPath.split("/").length,
+  });
+}
+
+async function extractStorefront({
+  tarballPath,
+  projectDir,
+}: {
+  tarballPath: string;
+  projectDir: string;
+}) {
+  await fs.ensureDir(path.join(projectDir, "apps"));
+
+  // Drop only the branch dir so files keep their `apps/storefront/...` prefix
+  // and land alongside the other workspace apps.
+  await extractRepoDir({
+    tarballPath,
+    cwd: projectDir,
+    repoPath: "apps/storefront",
+    strip: 1,
+  });
 }
 
 async function installDeps({

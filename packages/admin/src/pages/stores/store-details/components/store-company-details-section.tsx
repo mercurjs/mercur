@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 import { ActionMenu } from "../../../../components/common/action-menu";
 import { IconAvatar } from "../../../../components/common/icon-avatar";
 import { InferClientOutput } from "@mercurjs/client";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { sdk } from "@lib/client";
 
 type Seller = InferClientOutput<typeof sdk.admin.sellers.$id.query>["seller"];
@@ -75,6 +76,7 @@ export const StoreCompanyDetailsSection = ({
           </Text>
         </div>
       )}
+      <DisplayExtensionZone model="seller" zone="company-details" data={seller} />
     </Container>
   );
 };

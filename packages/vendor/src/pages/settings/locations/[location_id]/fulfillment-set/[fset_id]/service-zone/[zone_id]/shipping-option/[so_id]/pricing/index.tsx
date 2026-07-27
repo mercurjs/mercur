@@ -1,17 +1,19 @@
-import { json, useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
+import { useParams } from "react-router-dom"
 
 import { RouteFocusModal } from "@components/modals"
 import { useShippingOption } from "@hooks/api/shipping-options"
 import { EditShippingOptionsPricingForm } from "./_components/edit-shipping-options-pricing-form"
 
 function LocationServiceZoneShippingOptionPricing() {
+  const { t } = useTranslation()
   const { so_id, location_id } = useParams()
 
   if (!so_id) {
-    throw json({
-      message: "Shipping Option ID paramater is missing",
-      status: 404,
-    })
+    throw new Response(
+      JSON.stringify({ message: t("validation.shippingOptionIdMissing") }),
+      { status: 404, headers: { "Content-Type": "application/json" } }
+    )
   }
 
   const {

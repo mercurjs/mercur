@@ -5,6 +5,8 @@ import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { z } from "zod"
 
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
+
 import { Form } from "../../../../../../components/common/form"
 import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
 import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
@@ -87,9 +89,8 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
 export const OfferVariantEditPage = () => {
   const { offer_id } = useParams()
   const { t } = useTranslation()
-  const { offer, isPending, isError, error } = useOffer(offer_id!, {
-    fields: OFFER_VARIANT_DETAIL_FIELDS,
-  })
+  const query = useLinkQuery("offer", OFFER_VARIANT_DETAIL_FIELDS)
+  const { offer, isPending, isError, error } = useOffer(offer_id!, query)
 
   if (isError) throw error
   const ready = !isPending && !!offer

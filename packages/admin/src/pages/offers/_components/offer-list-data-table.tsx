@@ -1,8 +1,9 @@
 import { keepPreviousData } from "@tanstack/react-query"
-import { RowSelectionState } from "@tanstack/react-table"
-import { useState } from "react"
+import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
+import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { OfferDTO } from "@mercurjs/types"
+import { useExtendableTable } from "@mercurjs/dashboard-shared"
 
 import { _DataTable } from "../../../components/table/data-table"
 import { useDataTable } from "../../../hooks/use-data-table"
@@ -28,8 +29,25 @@ export const OfferListDataTable = () => {
 
   const rows = (offers ?? []) as OfferDTO[]
 
-  const filters = useOfferTableFilters()
-  const columns = useOfferTableColumns()
+  const baseFilters = useOfferTableFilters()
+  const baseColumns = useOfferTableColumns()
+  const actionColumn = baseColumns[baseColumns.length - 1]
+  const { columns: extended, filters: extFilters } =
+    useExtendableTable<OfferDTO>({
+      model: "offer",
+      columns: baseColumns.slice(0, -1) as unknown as ColumnDef<
+        OfferDTO,
+        unknown
+      >[],
+    })
+  const columns = useMemo(
+    () => [...extended, actionColumn as (typeof extended)[number]],
+    [extended, actionColumn],
+  )
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  )
   const commands = useOfferTableCommands({
     onDeleted: () => setSelection({}),
   })

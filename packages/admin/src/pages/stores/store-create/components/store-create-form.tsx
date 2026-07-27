@@ -67,7 +67,7 @@ export const StoreCreateForm = ({ children }: StoreCreateFormProps) => {
   );
 
   return (
-    <TabbedForm form={form} onSubmit={handleSubmit} isLoading={isPending}>
+    <TabbedForm model="seller" zone="create" form={form} onSubmit={handleSubmit} isLoading={isPending}>
       {Children.count(children) > 0 ? children : defaultTabs}
     </TabbedForm>
   );

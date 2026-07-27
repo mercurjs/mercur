@@ -1,13 +1,15 @@
 import { ReactNode, Children } from "react";
 import { useLoaderData, useParams } from "react-router-dom";
 
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
+
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton";
 import { TwoColumnPage } from "../../../components/layout/pages";
 import { usePromotion, usePromotionRules } from "../../../hooks/api/promotions";
 import { CampaignSection } from "./components/campaign-section";
 import { PromotionConditionsSection } from "./components/promotion-conditions-section";
 import { PromotionGeneralSection } from "./components/promotion-general-section";
-import { promotionLoader } from "./loader";
+import { PROMOTION_DETAIL_BASE_FIELDS, promotionLoader } from "./loader";
 
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<
@@ -15,7 +17,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
   >;
 
   const { id } = useParams();
-  const { promotion, isLoading } = usePromotion(id!, { initialData });
+  const linkQuery = useLinkQuery("promotion", PROMOTION_DETAIL_BASE_FIELDS);
+  const { promotion, isLoading } = usePromotion(id!, linkQuery, {
+    initialData,
+  });
   const query: Record<string, string> = {};
 
   if (promotion?.type === "buyget") {
@@ -39,28 +44,32 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage data={promotion} hasOutlet showJSON data-testid="promotion-detail-page">
       <TwoColumnPage.Main>
-        <PromotionGeneralSection promotion={promotion} />
-        <PromotionConditionsSection
-          rules={rules || []}
-          ruleType={"rules"}
-        />
-        <PromotionConditionsSection
-          rules={targetRules || []}
-          ruleType={"target-rules"}
-          applicationMethodTargetType={
-            promotion.application_method?.target_type || "items"
-          }
-        />
-        {promotion.type === "buyget" && (
+        <WidgetZone id="promotions.detail.main" data={promotion}>
+          <PromotionGeneralSection promotion={promotion} />
           <PromotionConditionsSection
-            rules={buyRules || []}
-            ruleType={"buy-rules"}
-            applicationMethodTargetType={"items"}
+            rules={rules || []}
+            ruleType={"rules"}
           />
-        )}
+          <PromotionConditionsSection
+            rules={targetRules || []}
+            ruleType={"target-rules"}
+            applicationMethodTargetType={
+              promotion.application_method?.target_type || "items"
+            }
+          />
+          {promotion.type === "buyget" && (
+            <PromotionConditionsSection
+              rules={buyRules || []}
+              ruleType={"buy-rules"}
+              applicationMethodTargetType={"items"}
+            />
+          )}
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        <CampaignSection campaign={promotion.campaign!} />
+        <WidgetZone id="promotions.detail.side" data={promotion}>
+          <CampaignSection campaign={promotion.campaign!} promotion={promotion} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );

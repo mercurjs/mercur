@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
 import { usePromotion, usePromotionRules } from "@hooks/api/promotions";
 
 import { CampaignSection } from "./_components/campaign-section";
@@ -14,7 +15,10 @@ import type { loader } from "./loader";
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { id } = useParams();
-  const { promotion, isLoading } = usePromotion(id!, { initialData });
+  const linkQuery = useLinkQuery("promotion", "+status");
+  const { promotion, isLoading } = usePromotion(id!, linkQuery, {
+    initialData,
+  });
   const query: Record<string, string> = {};
   if (promotion?.type === "buyget") query.promotion_type = promotion.type;
 
@@ -34,21 +38,28 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <TwoColumnPage data={promotion} hasOutlet>
           <TwoColumnPage.Main>
-            <PromotionGeneralSection promotion={promotion} />
-            <PromotionConditionsSection rules={rules || []} ruleType="rules" />
-            <PromotionConditionsSection
-              rules={targetRules || []}
-              ruleType="target-rules"
-            />
-            {promotion.type === "buyget" && (
+            <WidgetZone id="promotions.detail.main" data={promotion}>
+              <PromotionGeneralSection promotion={promotion} />
+              <PromotionConditionsSection rules={rules || []} ruleType="rules" />
               <PromotionConditionsSection
-                rules={buyRules || []}
-                ruleType="buy-rules"
+                rules={targetRules || []}
+                ruleType="target-rules"
               />
-            )}
+              {promotion.type === "buyget" && (
+                <PromotionConditionsSection
+                  rules={buyRules || []}
+                  ruleType="buy-rules"
+                />
+              )}
+            </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <CampaignSection campaign={promotion.campaign!} />
+            <WidgetZone id="promotions.detail.side" data={promotion}>
+              <CampaignSection
+                campaign={promotion.campaign!}
+                promotion={promotion}
+              />
+            </WidgetZone>
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}

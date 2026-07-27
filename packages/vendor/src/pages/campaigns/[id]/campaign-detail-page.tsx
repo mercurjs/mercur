@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useCampaign } from "@hooks/api/campaigns";
 import { usePromotionTableQuery } from "@hooks/table/query/use-promotion-table-query";
 
@@ -19,9 +20,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { id } = useParams();
   const { searchParams } = usePromotionTableQuery({});
+  const linkQuery = useLinkQuery("campaign", CAMPAIGN_DETAIL_FIELDS);
   const { campaign, isLoading, isError, error } = useCampaign(
     id!,
-    { ...searchParams, fields: CAMPAIGN_DETAIL_FIELDS },
+    { ...searchParams, ...linkQuery },
     {
       placeholderData: initialData,
     },
@@ -42,13 +44,17 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <TwoColumnPage hasOutlet data={campaign}>
           <TwoColumnPage.Main>
-            <CampaignGeneralSection campaign={campaign} />
-            <CampaignPromotionSection campaign={campaign} />
+            <WidgetZone id="campaigns.detail.main" data={campaign}>
+              <CampaignGeneralSection campaign={campaign} />
+              <CampaignPromotionSection campaign={campaign} />
+            </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <CampaignConfigurationSection campaign={campaign} />
-            <CampaignSpend campaign={campaign} />
-            <CampaignBudget campaign={campaign} />
+            <WidgetZone id="campaigns.detail.side" data={campaign}>
+              <CampaignConfigurationSection campaign={campaign} />
+              <CampaignSpend campaign={campaign} />
+              <CampaignBudget campaign={campaign} />
+            </WidgetZone>
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}

@@ -2,9 +2,8 @@ import {
   AuthenticatedMedusaRequest,
   MedusaResponse,
 } from "@medusajs/framework/http"
-import { batchLinkProductsToCategoryWorkflow } from "@medusajs/medusa/core-flows"
-
 import { AdminBatchLinkProductsToCategoryType } from "../../validators"
+import { assignProductsToCategoryWorkflow } from "../../../../../workflows/product/workflows/assign-products-to-category"
 
 export const POST = async (
   req: AuthenticatedMedusaRequest<AdminBatchLinkProductsToCategoryType>,
@@ -12,7 +11,7 @@ export const POST = async (
 ) => {
   const { add, remove } = req.validatedBody
 
-  await batchLinkProductsToCategoryWorkflow(req.scope).run({
+  await assignProductsToCategoryWorkflow(req.scope).run({
     input: {
       id: req.params.id,
       add,

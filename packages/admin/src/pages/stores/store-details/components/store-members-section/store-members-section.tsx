@@ -2,6 +2,8 @@ import { Button, Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
+
 import { StoreMembersDataTable } from "./store-members-data-table";
 
 type StoreMembersSectionProps = {
@@ -22,6 +24,7 @@ export const StoreMembersSection = ({ sellerId }: StoreMembersSectionProps) => {
         </Link>
       </div>
       <StoreMembersDataTable sellerId={sellerId} />
+      <DisplayExtensionZone model="seller" zone="members" data={sellerId} />
     </Container>
   );
 };

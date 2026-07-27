@@ -1,0 +1,80 @@
+---
+title: "References"
+description: "Technical references for Mercur's modules, HTTP APIs, workflows, and configuration."
+---
+
+This section is the technical contract of the Mercur core plugin. Where the [Learn](/rc/learn/introduction) tab explains concepts, these pages document the exact surface: data models and their fields, module links, service methods, HTTP routes, workflow names, and configuration options.
+
+## Modules
+
+Every marketplace capability ships as a Medusa module inside `@mercurjs/core`. Each reference covers the module's data models, enums, links to Medusa core entities, service methods, and options.
+
+<CardGroup cols={3}>
+  <Card title="Seller" href="/rc/references/modules/seller">
+    Sellers, members, invites, and order groups.
+  </Card>
+  <Card title="Commission" href="/rc/references/modules/commission">
+    Commission rates, rules, and per-order commission lines.
+  </Card>
+  <Card title="Payout" href="/rc/references/modules/payout">
+    Payout accounts, onboarding, payouts, and the provider interface.
+  </Card>
+  <Card title="Offer" href="/rc/references/modules/offer">
+    Per-seller listings binding a variant to SKU, price, and inventory.
+  </Card>
+  <Card title="Product Attribute" href="/rc/references/modules/product-attribute">
+    Configurable attributes, values, and variant axes on native product options.
+  </Card>
+  <Card title="Product Edit" href="/rc/references/modules/product-edit">
+    Product change requests and the approval queue.
+  </Card>
+  <Card title="Media" href="/rc/references/modules/media">
+    Image galleries, thumbnails, banners, and icons for categories and collections.
+  </Card>
+  <Card title="Search" href="/rc/references/modules/search">
+    Provider-agnostic search with the built-in Orama provider.
+  </Card>
+  <Card title="Custom Fields" href="/rc/references/modules/custom-fields">
+    Extra columns on any entity without a custom module.
+  </Card>
+</CardGroup>
+
+## HTTP API
+
+Mercur extends the Medusa server with three route surfaces. Start with the conventions page — authentication, seller scoping, and pagination work the same way across all of them.
+
+<CardGroup cols={2}>
+  <Card title="API conventions" href="/rc/references/api/conventions">
+    Authentication, seller scoping, pagination, field selection, and webhooks.
+  </Card>
+  <Card title="Admin API" href="/rc/references/api/admin">
+    Operator routes under <code>/admin/*</code>.
+  </Card>
+  <Card title="Vendor API" href="/rc/references/api/vendor">
+    Seller-scoped routes under <code>/vendor/*</code>.
+  </Card>
+  <Card title="Store API" href="/rc/references/api/store">
+    Storefront routes under <code>/store/*</code>.
+  </Card>
+</CardGroup>
+
+## Panel extension API
+
+The file-based helpers for extending the admin and vendor panels without forking.
+
+<CardGroup cols={1}>
+  <Card title="Panel Extension API" href="/rc/references/panel-extension-api">
+    <code>defineWidgetConfig</code>, <code>defineNavigationConfig</code>, <code>defineCustomFieldsConfig</code>, and <code>createFormHelper</code> — config shapes and the exact props passed to every component you supply.
+  </Card>
+</CardGroup>
+
+## Workflows and configuration
+
+<CardGroup cols={2}>
+  <Card title="Workflows" href="/rc/references/workflows">
+    Every workflow exported by <code>@mercurjs/core</code>, grouped by domain.
+  </Card>
+  <Card title="Configuration" href="/rc/references/configuration">
+    <code>withMercur()</code>, environment variables, and provider options.
+  </Card>
+</CardGroup>

@@ -20,5 +20,6 @@ Paths in `llms.txt` are relative to this package
 
 ## Build
 
-`content/` and `llms.txt` are generated from `apps/docs/rc` by
+`content/` and `llms.txt` are generated from the root of `apps/docs`
+(archived versions such as `apps/docs/v1` are excluded) by
 `scripts/build.mjs` (run via `turbo run build`). They are not committed.

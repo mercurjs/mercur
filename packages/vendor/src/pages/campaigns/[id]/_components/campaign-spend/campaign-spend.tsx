@@ -2,6 +2,7 @@ import { CurrencyDollar } from "@medusajs/icons"
 import { AdminCampaign } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
 import { Trans, useTranslation } from "react-i18next"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 
 type CampaignSpendProps = {
   campaign: AdminCampaign
@@ -54,6 +55,8 @@ export const CampaignSpend = ({ campaign }: CampaignSpendProps) => {
           />
         </Text>
       </div>
+
+      <DisplayExtensionZone model="campaign" zone="spend" data={campaign} />
     </Container>
   )
 }

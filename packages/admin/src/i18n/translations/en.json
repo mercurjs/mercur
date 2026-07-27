@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "An unknown error occurred",
+    "notAvailable": "N/A",
     "ascending": "Ascending",
     "descending": "Descending",
     "add": "Add",
@@ -96,12 +98,16 @@
     }
   },
   "validation": {
+    "requiredField": "Required field",
+    "valueRequired": "Value is required",
+    "currencyCodeNotFound": "Currency code not found",
+    "shippingOptionIdMissing": "Shipping Option ID parameter is missing",
     "mustBeInt": "The value must be a whole number.",
     "mustBePositive": "The value must be a positive number."
   },
   "actions": {
     "save": "Save",
-    "saveAsDraft": "Save as draft",
+    "saveAsDraft": "Save draft",
     "copy": "Copy",
     "copied": "Copied",
     "duplicate": "Duplicate",
@@ -564,6 +570,7 @@
     "attributeProductInformationDescription": "Attributes used for informational purposes",
     "attributeRequiredByMarketplace": "This attribute is required by the marketplace.",
     "attributeRequiredDeleteDisabledTooltip": "Required attributes cannot be removed.",
+    "missingRequiredAttributesHint": "Please provide the required information",
     "addAttribute": "Add Attribute",
     "deleteAttributeWarning": "Are you sure you want to delete the attribute \"{{title}}\"? This action cannot be undone.",
     "editAttributes": "Edit Attributes",
@@ -620,21 +627,21 @@
       },
       "confirmPrompt": {
         "title": "Confirm request",
-        "description": "You are about to confirm this product request. Once confirmed, the product will appear on the storefront. Only products with stock levels and prices set will be visible.",
-        "noteLabel": "Notes for store",
+        "description": "You are about to confirm this product update request. Once confirmed, any offers created for this product will appear on the storefront. Only offers with stock levels and prices set will be visible.",
+        "noteLabel": "Note for store",
         "notePlaceholder": "Specify changes you made or additional requests"
       },
       "requestUpdatePrompt": {
         "title": "Request update",
-        "description": "Request update to this product before publishing. Add notes to explain what needs to be updated.",
-        "noteLabel": "Notes for store",
+        "description": "Request update to this product before publishing. Add note to explain what needs to be updated.",
+        "noteLabel": "Note for store",
         "notePlaceholder": "Describe what needs to be updated (e.g., missing images, incorrect price, incomplete description)",
         "send": "Send"
       },
       "rejectPrompt": {
         "title": "Reject request",
         "description": "You are about to reject this product request.",
-        "noteLabel": "Notes for store",
+        "noteLabel": "Note for store",
         "notePlaceholder": "Explain why you reject the request",
         "confirm": "Reject"
       },
@@ -654,16 +661,16 @@
         "reject": "Reject"
       },
       "confirmPrompt": {
-        "title": "Confirm update request",
-        "description": "You are about to confirm this product update request. Once confirmed, the changes will be applied to the product and published on the storefront.",
-        "noteLabel": "Notes for store",
-        "notePlaceholder": "Add an optional note for the store"
+        "title": "Confirm request",
+        "description": "You are about to confirm this product update request. Once confirmed, the product will be updated on the storefront.",
+        "noteLabel": "Note for store",
+        "notePlaceholder": "Specify changes you made or additional requests"
       },
       "rejectPrompt": {
-        "title": "Reject update request",
-        "description": "You are about to reject this product update request. The requested changes will be discarded.",
-        "noteLabel": "Notes for store",
-        "notePlaceholder": "Explain why you reject the update request",
+        "title": "Reject request",
+        "description": "You are about to reject this product request.",
+        "noteLabel": "Note for store",
+        "notePlaceholder": "Explain why you reject the request or suggest changes",
         "confirm": "Reject"
       },
       "toast": {
@@ -876,8 +883,16 @@
     "subtitle": "Organize products into collections.",
     "createCollection": "Create Collection",
     "createCollectionHint": "Create a new collection to organize your products.",
-    "createSuccess": "Collection created successfully.",
+    "createSuccess": "Collection was successfully created.",
+    "deleteSuccess": "Collection was successfully deleted.",
+    "updateSuccess": "Collection was successfully updated.",
+    "validation": {
+      "titleRequired": "Please enter a title"
+    },
     "editCollection": "Edit Collection",
+    "validation": {
+      "titleRequired": "Please enter a title"
+    },
     "handleTooltip": "The handle is used to reference the collection in your storefront. If not specified, the handle will be generated from the collection title.",
     "deleteWarning": "You are about to delete the collection {{title}}. This action cannot be undone.",
     "removeSingleProductWarning": "You are about to remove the product {{title}} from the collection. This action cannot be undone.",
@@ -885,6 +900,7 @@
     "removeProductsWarning_other": "You are about to remove {{count}} products from the collection. This action cannot be undone.",
     "products": {
       "list": {
+        "noRecordsTitle": "No products yet",
         "noRecordsMessage": "There are no products in the collection."
       },
       "add": {
@@ -962,7 +978,7 @@
         "details": "Details",
         "organize": "Organize Ranking"
       },
-      "successToast": "Category {{name}} was successfully created."
+      "successToast": "Category was successfully created."
     },
     "edit": {
       "header": "Edit Category",
@@ -971,19 +987,19 @@
     },
     "delete": {
       "confirmation": "You are about to delete the category {{name}}. This action cannot be undone.",
-      "successToast": "Category {{name}} was successfully deleted."
+      "successToast": "Category was successfully deleted."
     },
     "products": {
       "add": {
         "disabledTooltip": "The product is already in this category.",
-        "successToast_one": "Added {{count}} product to the category.",
-        "successToast_other": "Added {{count}} products to the category."
+        "successToast_one": "Product was successfully added to the category.",
+        "successToast_other": "Products were successfully added to the category."
       },
       "remove": {
         "confirmation_one": "You are about to remove {{count}} product from the category. This action cannot be undone.",
         "confirmation_other": "You are about to remove {{count}} products from the category. This action cannot be undone.",
-        "successToast_one": "Removed {{count}} product from the category.",
-        "successToast_other": "Removed {{count}} products from the category."
+        "successToast_one": "Product was successfully removed from the category.",
+        "successToast_other": "Products were successfully removed from the category."
       },
       "list": {
         "noRecordsTitle": "No products yet",
@@ -992,7 +1008,8 @@
     },
     "organize": {
       "header": "Organize",
-      "action": "Edit ranking"
+      "action": "Edit ranking",
+      "successToast": "Ranking was successfully updated."
     },
     "media": {
       "label": "Media",
@@ -1234,6 +1251,14 @@
         "header": "Edit Address",
         "hint": "Edit the customer's address.",
         "successToast": "Address was successfully updated."
+      },
+      "delete": {
+        "successToast": "Address was successfully deleted."
+      },
+      "validation": {
+        "addressNameRequired": "Please enter an address name",
+        "addressRequired": "Please enter an address",
+        "countryRequired": "Please select a country"
       }
     }
   },
@@ -1681,7 +1706,7 @@
       "title": "Create Refund",
       "sendNotificationHint": "Notify customers about the created refund.",
       "systemPayment": "System payment",
-      "systemPaymentDesc": "One or more of your payments is a system payment. Be aware, that captures and refunds are not handled by Medusa for such payments.",
+      "systemPaymentDesc": "One or more of your payments is a system payment. Be aware, that captures and refunds are not handled by Mercur for such payments.",
       "error": {
         "amountToLarge": "Cannot refund more than the original order amount.",
         "amountNegative": "Refund amount must be a positive number.",
@@ -2311,6 +2336,34 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffProducts": {
+        "title": "Amount off items",
+        "description": "Discount specific products or collection of products"
+      },
+      "amountOffOrder": {
+        "title": "Amount off order",
+        "description": "Discounts the total order amount"
+      },
+      "percentageOffProduct": {
+        "title": "Percentage off items",
+        "description": "Discounts a percentage off selected products"
+      },
+      "percentageOffOrder": {
+        "title": "Percentage off order",
+        "description": "Discounts a percentage of the total order amount"
+      },
+      "buyGet": {
+        "title": "Buy X Get Y",
+        "description": "Buy X product(s), get Y product(s)"
+      }
+    },
+    "list": {
+      "noRecords": {
+        "title": "No promotions yet",
+        "message": "Create promotions to offer discounts"
+      }
+    },
     "domain": "Promotions",
     "sections": {
       "details": "Promotion Details"
@@ -2322,14 +2375,28 @@
     },
     "fields": {
       "type": "Type",
+      "typeLabels": {
+        "percentageItems": "Percentage off items",
+        "percentageShipping": "Percentage off shipping",
+        "percentageOrder": "Percentage off order",
+        "amountItems": "Amount off items",
+        "amountShipping": "Amount off shipping",
+        "amountOrder": "Amount off order"
+      },
       "value_type": "Value Type",
       "value": "Value",
+      "promotion_value": "Promotion Value",
       "campaign": "Campaign",
       "method": "Method",
+      "owner": "Owner",
+      "platformOwner": "Mercur",
+      "coverage": "Coverage",
       "allocation": "Allocation",
+      "usageLimit": "Usage limit",
+      "unlimited": "Unlimited",
       "addCondition": "Add condition",
       "clearAll": "Clear all",
-      "taxInclusive": "Tax Inclusive",
+      "taxInclusive": "Taxes Included",
       "amount": {
         "tooltip": "Select the currency code to enable setting the amount"
       },
@@ -2366,11 +2433,13 @@
       "promotionTabError": "Fix errors in Promotion Tab before proceeding"
     },
     "toasts": {
-      "promotionCreateSuccess": "Promotion ({{code}}) was successfully created."
+      "promotionCreateSuccess": "Promotion ({{code}}) was successfully created.",
+      "promotionUpdateSuccess": "Promotion was successfully updated.",
+      "promotionDeleteSuccess": "Promotion was successfully deleted."
     },
     "create": {},
     "edit": {
-      "title": "Edit Promotion Details",
+      "title": "Edit Promotions",
       "rules": {
         "title": "Edit usage conditions"
       },
@@ -2397,7 +2466,11 @@
     "campaignSection": {
       "noRecordsTitle": "Not part of a campaign",
       "noRecordsMessage": "Add this promotion to an existing campaign",
-      "addToCampaign": "Add to Campaign"
+      "addToCampaign": "Add to Campaign",
+      "warnings": {
+        "promotionMustBeActive": "This promotion is part of a campaign but is not active, so it won't apply at checkout.",
+        "promotionExpires": "This campaign has an end date. The promotion will stop applying once the campaign ends."
+      }
     },
     "form": {
       "required": "Required",
@@ -2426,6 +2499,38 @@
       "taxInclusive": {
         "title": "Does promotion include taxes?",
         "description": "Enable this field to apply the promotion after taxes"
+      },
+      "limit": {
+        "title": "Usage Limit",
+        "description": "Maximum number of times this promotion can be used across all orders. Leave empty for unlimited usage."
+      },
+      "storeOffers": {
+        "title": "Which store offers will the promotion be applied to?",
+        "description": "Choose the store whose offers this promotion applies to.",
+        "label": "Store",
+        "placeholder": "Select",
+        "required": "Please select a store"
+      },
+      "costBearer": {
+        "label": "Who will cover the cost of promotion?",
+        "description": "Select who is responsible for covering the discount applied by this promotion.",
+        "tip": "Changes to created promotion won't affect orders that are already in progress.",
+        "store": {
+          "title": "Store",
+          "description": "The discount is deducted from the store's earnings"
+        },
+        "marketplace": {
+          "title": "Marketplace",
+          "description": "The discount is deducted from the commission"
+        },
+        "shared": {
+          "title": "Shared",
+          "description": "The cost is split between the marketplace and store"
+        },
+        "sharedPercentage": {
+          "title": "Marketplace share",
+          "description": "Percentage of the discount covered by the marketplace. The store covers the rest."
+        }
       },
       "status": {
         "label": "Status",
@@ -2487,6 +2592,7 @@
       },
       "value": {
         "title": "Promotion Value",
+        "description": "The amount to be discounted. eg. 100",
         "invalid": "Invalid promotion value"
       },
       "value_type": {
@@ -2506,7 +2612,8 @@
     "conditions": {
       "add": "Add condition",
       "list": {
-        "noRecordsMessage": "Add a condition to restrict what items the promotion applies to."
+        "noRecordsTitle": "No conditions yet",
+        "noRecordsMessage": "Add a condition to restrict what items the promotion applies to"
       }
     }
   },
@@ -2724,7 +2831,7 @@
       "header": "Edit Profile",
       "languageHint": "The language you want to use in the admin dashboard. This doesn't change the language of your store.",
       "languagePlaceholder": "Select language",
-      "usageInsightsHint": "Share usage insights and help us improve Medusa. You can read more about what we collect and how we use it in our <0>documentation</0>."
+      "usageInsightsHint": "Share usage insights and help us improve Mercur. You can read more about what we collect and how we use it in our <0>documentation</0>."
     },
     "toast": {
       "edit": "Profiles changes saved"
@@ -2879,6 +2986,10 @@
       }
     },
     "scheduledClosure": {
+      "validation": {
+        "closedFromRequired": "Close from date is required",
+        "closedFromInPast": "Close from date cannot be in the past"
+      },
       "header": "Scheduled Closure",
       "edit": {
         "header": "Schedule Store Closure",
@@ -3082,7 +3193,7 @@
       "createPublishableHeader": "Create Publishable API Key",
       "createPublishableHint": "Create a new publishable API key to limit the scope of requests to specific sales channels.",
       "createSecretHeader": "Create Secret API Key",
-      "createSecretHint": "Create a new secret API key to access the Medusa API as an authenticated admin user.",
+      "createSecretHint": "Create a new secret API key to access the Mercur API as an authenticated admin user.",
       "secretKeyCreatedHeader": "Secret Key Created",
       "secretKeyCreatedHint": "Your new secret key has been generated. Copy and securely store it now. This is the only time it will be displayed.",
       "copySecretTokenSuccess": "Secret key was copied to clipboard.",
@@ -3332,8 +3443,8 @@
     "emailTooltip": "Your email cannot be changed. If you would like to use another email, a new invite must be sent.",
     "invalidInvite": "The invite is invalid or has expired.",
     "successTitle": "Your account has been registered",
-    "successHint": "Get started with Medusa Admin right away.",
-    "successAction": "Start Medusa Admin",
+    "successHint": "Get started with Mercur Admin right away.",
+    "successAction": "Start Mercur Admin",
     "invalidTokenTitle": "Your invite token is invalid",
     "invalidTokenHint": "Try requesting a new invite link.",
     "passwordMismatch": "Passwords do not match",
@@ -3366,7 +3477,7 @@
   },
   "workflowExecutions": {
     "domain": "Workflows",
-    "subtitle": "View and keep track of workflow executions in your Medusa application.",
+    "subtitle": "View and keep track of workflow executions in your Mercur application.",
     "transactionIdLabel": "Transaction ID",
     "workflowIdLabel": "Workflow ID",
     "progressLabel": "Progress",
@@ -3479,7 +3590,7 @@
       "description": "You don't have any notifications at the moment, but once you do they will live here."
     },
     "accessibility": {
-      "description": "Notifications about Medusa activities will be listed here."
+      "description": "Notifications about Mercur activities will be listed here."
     }
   },
   "errors": {
@@ -3722,6 +3833,15 @@
     "seconds_other": "Seconds"
   },
   "views": {
+    "toasts": {
+      "created": "View created",
+      "createFailed": "Failed to create view",
+      "updateActiveFailed": "Failed to update active view",
+      "updated": "View updated",
+      "updateFailed": "Failed to update view",
+      "deleted": "View deleted successfully",
+      "deleteFailed": "Failed to delete view"
+    },
     "save": "Save",
     "saveAsNew": "Save as new view",
     "saveAsSystemDefault": "Save as system default",
@@ -3930,6 +4050,11 @@
     "domain": "Commission Lines"
   },
   "commissions": {
+    "rulesTable": {
+      "name": "Rule Name",
+      "attribute": "Attribute",
+      "fee": "Fee"
+    },
     "domain": "Commissions",
     "create": {
       "header": "Create Commission Rule",

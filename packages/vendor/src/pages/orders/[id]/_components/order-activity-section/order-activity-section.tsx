@@ -1,5 +1,6 @@
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { ExtendedAdminOrder } from "@custom-types/order"
 import { OrderTimeline } from "./order-timeline"
 
@@ -17,6 +18,7 @@ export const OrderActivitySection = ({ order }: OrderActivityProps) => {
         </div>
       </div>
       <OrderTimeline order={order} />
+      <DisplayExtensionZone model="order" zone="activity" data={order} />
     </Container>
   )
 }

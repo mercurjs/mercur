@@ -19,6 +19,7 @@ import { deleteProductAttributesWorkflow } from "./delete-product-attributes"
 export type RemoveProductAttributesFromProductWorkflowInput = {
   product_id: string
   remove: string[]
+  readd?: string[]
 } & AdditionalData
 
 export const removeProductAttributesFromProductWorkflowId =
@@ -42,13 +43,16 @@ export const removeProductAttributesFromProductWorkflow = createWorkflow(
     }).config({ name: "rm-pa-attributes" })
 
     validateProductAttributesNotRequiredStep(
-      transform({ attributesQuery }, ({ attributesQuery }) =>
-        ((attributesQuery.data ?? [])).map((a) => ({
-          id: a.id,
-          name: a.name,
-          is_required: !!a.is_required,
-        })),
-      ),
+      transform({ attributesQuery, input }, ({ attributesQuery, input }) => {
+        const readd = new Set(input.readd ?? [])
+        return (attributesQuery.data ?? [])
+          .filter((a) => !readd.has(a.id))
+          .map((a) => ({
+            id: a.id,
+            name: a.name,
+            is_required: !!a.is_required,
+          }))
+      }),
     )
 
     const productQuery = useQueryGraphStep({

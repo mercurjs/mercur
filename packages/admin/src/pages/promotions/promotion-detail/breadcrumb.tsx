@@ -1,6 +1,8 @@
 import { HttpTypes } from "@medusajs/types"
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
 import { UIMatch } from "react-router-dom"
 import { usePromotion } from "../../../hooks/api"
+import { PROMOTION_DETAIL_BASE_FIELDS } from "./loader"
 
 type PromotionDetailBreadcrumbProps = UIMatch<HttpTypes.AdminPromotionResponse>
 
@@ -9,7 +11,8 @@ export const PromotionDetailBreadcrumb = (
 ) => {
   const { id } = props.params || {}
 
-  const { promotion } = usePromotion(id!, {
+  const linkQuery = useLinkQuery("promotion", PROMOTION_DETAIL_BASE_FIELDS)
+  const { promotion } = usePromotion(id!, linkQuery, {
     initialData: props.data,
     enabled: Boolean(id),
   })

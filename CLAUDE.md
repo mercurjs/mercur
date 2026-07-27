@@ -6,6 +6,10 @@
 @docs/ARCHITECTURE.md
 @docs/UI-ARCHITECTURE.md
 
+## Skills
+
+- **Design → code (Figma)**: when the task is turning a Figma design into dashboard UI code — the user shares a `figma.com` URL, selects a Figma node, or asks to "convert / implement / build this design / screen / mockup" in `packages/admin` or `packages/vendor` — load the `figma-ui` skill at `.claude/skills/figma-ui/SKILL.md` first. It reads the design from the Figma MCP (`get_screenshot` as the source of truth, `get_metadata` for structure) and maps it onto the design-system conventions in its `references/` (`components.md`, `spacing.md`, `patterns.md`) before writing JSX. Gate: `bun run lint` + `bun run build` stay green.
+
 ## Project Overview
 
 Mercur.js is open source marketplace platform repository built using Medusa.js + Typescript + React. It adds a marketplace layer on top of Medusa.js. This repository is designed for long-running coding-agent work. The goal is not to maximize raw code output. The goal is to leave the repo in a state where the next session can continue without guessing.
@@ -76,7 +80,8 @@ When the user asks to test a worktree (e.g. "test this worktree", "run this work
 - DO NOT COMMIT unless the user explicitly asks
 - Conventional Commits: `feat(scope):`, `fix(scope):`, `docs:`, `chore:`. Use `!` for breaking changes (e.g. `feat(auth)!:`)
 - Create branches following the convention `<type>/<feature>`, where `<type>` matches the Conventional Commit types (`feat`, `fix`, `docs`, `chore`, etc.) and `<feature>` is a short kebab-case description of the work (e.g. `feat/vendor-payouts`, `fix/order-split-rounding`)
-- PRs target `canary`
+- NEVER name branches or worktrees after the coding agent (`claude`, `claude/...`, `codex`, etc.) or with random/auto-generated names. Branch AND worktree names MUST follow the `<type>/<feature>` convention above and describe the actual work
+- PRs target `main`
 - NEVER mention AI coding assistants (Claude, Claude Code, Codex, Copilot, Cursor, etc.) in commit messages, PR titles, or PR descriptions. No `Co-Authored-By: Claude` trailers, no "Generated with Claude Code" footers, no "🤖" markers. Commits and PRs must read as human-authored.
 
 ## Startup Workflow

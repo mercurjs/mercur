@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useShippingOptionType } from "../../../hooks/api"
@@ -32,9 +33,11 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage showJSON showMetadata data={shipping_option_type}>
-      <ShippingOptionTypeGeneralSection
-        shippingOptionType={shipping_option_type}
-      />
+      <WidgetZone id="shipping-option-types.detail.main" data={shipping_option_type}>
+        <ShippingOptionTypeGeneralSection
+          shippingOptionType={shipping_option_type}
+        />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

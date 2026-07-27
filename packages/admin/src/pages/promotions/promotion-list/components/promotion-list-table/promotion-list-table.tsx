@@ -1,7 +1,8 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
+import { PencilSquare, ReceiptPercent, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { Button, Container, Heading, usePrompt } from "@medusajs/ui"
-import { createColumnHelper } from "@tanstack/react-table"
+import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { Children, ReactNode, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom"
@@ -71,16 +72,21 @@ export const PromotionListDataTable = () => {
     useLoaderData() as HttpTypes.AdminPromotionListResponse | undefined
 
   const { searchParams, raw } = usePromotionTableQuery({ pageSize: PAGE_SIZE })
+  const linkQuery = useLinkQuery("promotion")
   const { promotions, count, isLoading, isError, error } = usePromotions(
-    { ...searchParams },
+    { ...searchParams, ...linkQuery },
     {
       initialData,
       placeholderData: keepPreviousData,
     }
   )
 
-  const filters = usePromotionTableFilters()
-  const columns = useColumns()
+  const baseFilters = usePromotionTableFilters()
+  const { columns, filters: extFilters } = useColumns()
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters]
+  )
 
   const { table } = useDataTable({
     data: promotions ?? [],
@@ -106,7 +112,14 @@ export const PromotionListDataTable = () => {
       pagination
       isLoading={isLoading}
       queryObject={raw}
+      noRecords={{
+        icon: <ReceiptPercent className="text-ui-fg-subtle" />,
+        title: t("promotions.list.noRecords.title"),
+        message: t("promotions.list.noRecords.message"),
+        action: { to: "create", label: t("actions.create") },
+      }}
       navigateTo={(row) => `${row.original.id}`}
+      defaultOrder="-created_at"
       orderBy={[
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
@@ -152,17 +165,15 @@ const PromotionActions = ({ promotion }: { promotion: HttpTypes.AdminPromotion }
       return
     }
 
-    try {
-      await mutateAsync(undefined, {
-        onSuccess: () => {
-          navigate("/promotions", { replace: true })
-        },
-      })
-    } catch {
-      throw new Error(
-        `Promotion with code ${promotion.code} could not be deleted`
-      )
-    }
+    await mutateAsync(undefined, {
+      onSuccess: () => {
+        toast.success(t("promotions.toasts.promotionDeleteSuccess"))
+        navigate("/promotions", { replace: true })
+      },
+      onError: (e) => {
+        toast.error((e as Error).message)
+      },
+    })
   }
 
   return (
@@ -192,10 +203,18 @@ const columnHelper = createColumnHelper<HttpTypes.AdminPromotion>()
 
 const useColumns = () => {
   const base = usePromotionTableColumns()
+  const { columns: extended, filters } =
+    useExtendableTable<HttpTypes.AdminPromotion>({
+      model: "promotion",
+      columns: base as unknown as ColumnDef<
+        HttpTypes.AdminPromotion,
+        unknown
+      >[],
+    })
 
-  return useMemo(
+  const columns = useMemo(
     () => [
-      ...base,
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
@@ -203,6 +222,8 @@ const useColumns = () => {
         },
       }),
     ],
-    [base]
+    [extended]
   )
+
+  return { columns, filters }
 }

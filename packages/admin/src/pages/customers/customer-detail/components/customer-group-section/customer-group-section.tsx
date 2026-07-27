@@ -12,6 +12,7 @@ import { t } from "i18next"
 import { useMemo, useState } from "react"
 
 import { PencilSquare, Trash } from "@medusajs/icons"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -163,6 +164,7 @@ export const CustomerGroupSection = ({
           icon: null,
         }}
       />
+      <DisplayExtensionZone model="customer" zone="groups" data={customer} />
     </Container>
   )
 }

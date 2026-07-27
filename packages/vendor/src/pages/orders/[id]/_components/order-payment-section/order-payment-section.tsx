@@ -1,4 +1,4 @@
-import { ArrowUturnLeft, DocumentText } from "@medusajs/icons"
+import { ArrowDownRightMini, DocumentText } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import {
   Badge,
@@ -11,7 +11,9 @@ import {
 
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
+import DisplayId from "@components/common/display-id/display-id"
 import { getLocaleAmount, getStylizedAmount } from "@lib/money-amount-helpers"
 import { getOrderPaymentStatus } from "@lib/order-helpers"
 import { getTotalCaptured, getTotalPending } from "@lib/payment"
@@ -40,16 +42,17 @@ export const OrderPaymentSection = ({ order }: OrderPaymentSectionProps) => {
   const payments = getPaymentsFromOrder(order) ?? []
 
   return (
-    <Container className="divide-y p-0">
+    <Container className="divide-y divide-dashed p-0">
       <Header order={order} />
       {payments.length > 0 && (
-        <ul className="divide-y">
+        <div className="divide-y divide-dashed">
           {payments.map((payment) => (
             <PaymentRow key={payment.id} order={order} payment={payment} />
           ))}
-        </ul>
+        </div>
       )}
       <Total order={order} />
+      <DisplayExtensionZone model="order" zone="payment" data={order} />
     </Container>
   )
 }
@@ -83,10 +86,6 @@ const Total = ({ order }: { order: HttpTypes.AdminOrder }) => {
   const paymentCollections = order.payment_collections
   const totalCaptured = getTotalCaptured(paymentCollections)
   const totalPending = getTotalPending(paymentCollections)
-  const totalRefunded = paymentCollections.reduce(
-    (acc, pc) => acc + ((pc.refunded_amount as number) || 0),
-    0
-  )
 
   return (
     <div>
@@ -99,18 +98,6 @@ const Total = ({ order }: { order: HttpTypes.AdminOrder }) => {
           {getStylizedAmount(totalCaptured, order.currency_code)}
         </Text>
       </div>
-
-      {totalRefunded > 0 && (
-        <div className="flex items-center justify-between px-6 py-4">
-          <Text size="small" weight="plus" leading="compact">
-            {t("orders.payment.totalRefunded")}
-          </Text>
-
-          <Text size="small" weight="plus" leading="compact">
-            {getStylizedAmount(totalRefunded, order.currency_code)}
-          </Text>
-        </div>
-      )}
 
       {order.status !== "canceled" && totalPending > 0 && (
         <div className="flex items-center justify-between px-6 py-4">
@@ -129,19 +116,9 @@ const Total = ({ order }: { order: HttpTypes.AdminOrder }) => {
 
 const getPaymentStatus = (
   payment: HttpTypes.AdminPayment
-): { labelKey: string; color: "green" | "orange" | "red" | "grey" } => {
-  const refundedAmount = (payment.refunds ?? []).reduce(
-    (acc: number, r: { amount?: number }) => acc + (r.amount ?? 0),
-    0
-  )
+): { labelKey: string; color: "green" | "orange" | "red" } => {
   if (payment.canceled_at) {
     return { labelKey: "orders.payment.status.canceled", color: "red" }
-  }
-  if (refundedAmount > 0 && refundedAmount >= (payment.amount as number)) {
-    return { labelKey: "orders.payment.status.refunded", color: "grey" }
-  }
-  if (refundedAmount > 0) {
-    return { labelKey: "orders.payment.status.partiallyRefunded", color: "orange" }
   }
   if (payment.captured_at) {
     return { labelKey: "orders.payment.status.captured", color: "green" }
@@ -160,77 +137,59 @@ const PaymentRow = ({
   const { getFullDate } = useDate()
 
   const status = getPaymentStatus(payment)
-  const refunds = (payment.refunds ?? []) as PaymentRefund[]
-  const refundedAmount = refunds.reduce(
-    (acc, r) => acc + (r.amount ?? 0),
-    0
-  )
+  const refunds = (payment.refunds ?? []) as unknown as PaymentRefund[]
+  const refundedAmount = refunds.reduce((acc, r) => acc + (r.amount ?? 0), 0)
   const isFullyRefunded =
     refundedAmount > 0 && refundedAmount >= (payment.amount as number)
   const canRefund =
     !!payment.captured_at && !payment.canceled_at && !isFullyRefunded
 
   return (
-    <li data-testid={`payment-row-${payment.id}`}>
-      <div className="flex items-center justify-between px-6 py-4">
-        <div className="flex min-w-0 flex-col">
-          <Tooltip content={payment.id}>
-            <Text
-              size="small"
-              weight="plus"
-              leading="compact"
-              className={
-                isFullyRefunded
-                  ? "text-ui-fg-muted truncate line-through"
-                  : "text-ui-fg-base truncate"
-              }
-            >
-              {`#${payment.id.slice(-7)}`}
-            </Text>
-          </Tooltip>
-          <Text
-            size="xsmall"
-            leading="compact"
-            className={
-              isFullyRefunded
-                ? "text-ui-fg-muted line-through"
-                : "text-ui-fg-subtle"
-            }
-          >
+    <div className="divide-y divide-dashed" data-testid={`payment-row-${payment.id}`}>
+      <div className="text-ui-fg-subtle grid grid-cols-[1fr_1fr_1fr_20px] items-center gap-x-4 px-6 py-4 sm:grid-cols-[1fr_1fr_1fr_1fr_20px]">
+        <div className="w-full min-w-[60px] overflow-hidden">
+          <Text size="small" leading="compact" weight="plus" className="truncate">
+            <DisplayId id={payment.id} />
+          </Text>
+          <Text size="small" leading="compact">
             {payment.created_at
               ? getFullDate({ date: payment.created_at, includeTime: true })
               : null}
           </Text>
         </div>
 
-        <div className="flex items-center gap-x-3">
+        <div className="hidden items-center justify-end sm:flex">
+          <Text size="small" leading="compact" className="capitalize">
+            {payment.provider_id}
+          </Text>
+        </div>
+
+        <div className="flex items-center justify-end">
           <StatusBadge color={status.color} className="text-nowrap">
             {t(status.labelKey)}
           </StatusBadge>
-          <Text
-            size="small"
-            weight="plus"
-            leading="compact"
-            className={isFullyRefunded ? "line-through" : undefined}
-          >
-            {getStylizedAmount(payment.amount as number, order.currency_code)}
-          </Text>
-
-          <ActionMenu
-            groups={[
-              {
-                actions: [
-                  {
-                    label: t("orders.payment.createRefund"),
-                    icon: <ArrowUturnLeft />,
-                    to: `/orders/${order.id}/refund?payment_id=${payment.id}`,
-                    disabled: !canRefund,
-                  },
-                ],
-              },
-            ]}
-          />
         </div>
+
+        <div className="flex items-center justify-end">
+          <Text size="small" leading="compact">
+            {getLocaleAmount(payment.amount as number, order.currency_code)}
+          </Text>
+        </div>
+
+        <ActionMenu
+          groups={[
+            {
+              actions: [
+                {
+                  label: t("orders.payment.createRefund"),
+                  icon: <ArrowDownRightMini />,
+                  to: `/orders/${order.id}/refund?payment_id=${payment.id}`,
+                  disabled: !canRefund,
+                },
+              ],
+            },
+          ]}
+        />
       </div>
 
       {refunds.map((refund) => (
@@ -240,7 +199,7 @@ const PaymentRow = ({
           currencyCode={order.currency_code}
         />
       ))}
-    </li>
+    </div>
   )
 }
 
@@ -258,36 +217,49 @@ const RefundRow = ({
 
   return (
     <div
-      className="flex items-center justify-between px-6 py-3 pl-12 bg-ui-bg-subtle"
+      className="bg-ui-bg-subtle text-ui-fg-subtle grid grid-cols-[1fr_1fr_1fr_20px] items-center gap-x-4 px-6 py-4"
       data-testid={`refund-row-${refund.id}`}
     >
-      <div className="flex min-w-0 flex-col">
-        <div className="flex items-center gap-x-2">
-          <Text size="small" leading="compact" className="text-ui-fg-subtle">
-            {t("orders.payment.refund")}
-          </Text>
-          {reasonLabel && (
-            <Badge size="2xsmall" rounded="full">
-              {reasonLabel}
-            </Badge>
-          )}
-          {refund.note && (
-            <Tooltip content={refund.note}>
-              <DocumentText className="text-ui-fg-subtle h-3 w-3" />
-            </Tooltip>
+      <div className="flex flex-row">
+        <div className="self-center pr-3">
+          <ArrowDownRightMini className="text-ui-fg-muted" />
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-x-1">
+            <Text size="small" leading="compact" weight="plus">
+              {t("orders.payment.refund")}
+            </Text>
+            {refund.note && (
+              <Tooltip content={refund.note}>
+                <DocumentText className="text-ui-tag-neutral-icon inline" />
+              </Tooltip>
+            )}
+          </div>
+          {refund.created_at && (
+            <Text size="small" leading="compact">
+              {getFullDate({ date: refund.created_at, includeTime: true })}
+            </Text>
           )}
         </div>
-        {refund.created_at && (
-          <Text size="xsmall" leading="compact" className="text-ui-fg-subtle">
-            {getFullDate({ date: refund.created_at, includeTime: true })}
-          </Text>
+      </div>
+
+      <div className="flex items-center justify-end">
+        {reasonLabel && (
+          <Badge
+            size="2xsmall"
+            className="cursor-default select-none capitalize"
+            rounded="full"
+          >
+            {reasonLabel}
+          </Badge>
         )}
       </div>
 
-      <Text size="small" weight="plus" leading="compact">
-        {`- ${getLocaleAmount(refund.amount ?? 0, currencyCode)}`}
-      </Text>
+      <div className="flex items-center justify-end">
+        <Text size="small" leading="compact">
+          {`- ${getLocaleAmount(refund.amount ?? 0, currencyCode)}`}
+        </Text>
+      </div>
     </div>
   )
 }
-

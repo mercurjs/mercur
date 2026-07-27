@@ -3,7 +3,6 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { DateCell } from "@components/table/table-cells/common/date-cell"
 import { PlaceholderCell } from "@components/table/table-cells/common/placeholder-cell"
-import { ReservationActions } from "./reservation-actions"
 import { ExtendedReservationItem } from "../../../../inventory/inventory-detail/components/reservations-table/use-reservation-list-table-columns"
 
 const columnHelper = createColumnHelper<ExtendedReservationItem>()
@@ -90,14 +89,6 @@ export const useReservationTableColumns = () => {
               <span className="truncate">{quantity}</span>
             </div>
           )
-        },
-      }),
-      columnHelper.display({
-        id: "actions",
-        cell: ({ row }) => {
-          const reservation = row.original
-
-          return <ReservationActions reservation={reservation} />
         },
       }),
     ],

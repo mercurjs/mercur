@@ -1,7 +1,12 @@
 import { useMemo } from "react";
 
 import { PencilSquare, Trash } from "@medusajs/icons";
-import { createDataTableColumnHelper, toast, usePrompt } from "@medusajs/ui";
+import {
+  createDataTableColumnHelper,
+  DataTableColumnDef,
+  toast,
+  usePrompt,
+} from "@medusajs/ui";
 
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
@@ -20,7 +25,8 @@ import { queryClient } from "@lib/query-client";
 
 const columnHelper = createDataTableColumnHelper<ExtendedInventoryItemLevel>();
 
-export const useLocationListTableColumns = () => {
+export const useLocationListTableColumns =
+  (): DataTableColumnDef<ExtendedInventoryItemLevel>[] => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 

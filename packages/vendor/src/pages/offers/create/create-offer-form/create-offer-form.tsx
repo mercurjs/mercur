@@ -239,7 +239,7 @@ export const CreateOfferForm = () => {
       toast.success(t("offers.create.successToast"));
       handleSuccess("/offers");
     } catch (err) {
-      const message = err instanceof Error ? err.message : "Unknown error";
+      const message = err instanceof Error ? err.message : t("general.unknownError");
       const attributed = attachErrorToRow(message, rows, form);
       if (!attributed) {
         toast.error(message);
@@ -259,6 +259,8 @@ export const CreateOfferForm = () => {
 
   return (
     <TabbedForm
+      model="offer"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isSubmitting}

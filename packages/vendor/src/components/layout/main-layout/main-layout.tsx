@@ -23,15 +23,32 @@ import { useMe, useSelectSeller, useSellers } from "../../../hooks/api";
 import { useSearch } from "../../../providers/search-provider";
 import { UserMenu } from "../user-menu";
 import { useDocumentDirection } from "../../../hooks/use-document-direction";
-import components from "virtual:mercur/components";
 import menuItemsModule from "virtual:mercur/menu-items";
+import {
+  applyNavOverrides,
+  useExtension,
+  type CoreNavItem,
+} from "@mercurjs/dashboard-shared";
 import { getMenuItemsByType, getNestedMenuItems } from "../../../utils/routes";
 
+const navId = (to: string) => to.replace(/^\//, "");
+
+const toCoreNavItem = (route: Omit<INavItem, "pathname">): CoreNavItem => ({
+  id: navId(route.to),
+  label: route.label,
+  to: route.to,
+  icon: route.icon,
+  items: route.items?.map((item) => ({
+    id: navId(item.to),
+    label: item.label,
+    to: item.to,
+  })),
+});
+
 export const MainLayout = () => {
-  const Sidebar = components.MainSidebar ? components.MainSidebar : MainSidebar;
   return (
     <Shell>
-      <Sidebar />
+      <MainSidebar />
     </Shell>
   );
 };
@@ -58,9 +75,13 @@ const addNestedItems = (
 
 const MainSidebar = () => {
   const coreRoutes = useCoreRoutes();
+  const navOverrides = useExtension().getNavOverrides();
   const customMenuItems = getMenuItemsByType(allMenuItems, "main");
 
-  const routesWithNested = coreRoutes.map((route) => ({
+  const routesWithNested = applyNavOverrides(
+    coreRoutes.map(toCoreNavItem),
+    navOverrides,
+  ).map((route) => ({
     ...route,
     items: addNestedItems(route.to, route.items),
   }));

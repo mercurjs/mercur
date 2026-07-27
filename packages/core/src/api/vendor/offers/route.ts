@@ -38,15 +38,18 @@ export const POST = async (
   const sellerId = req.seller_context!.seller_id
   const memberId = req.auth_context.actor_id
 
+  const { additional_data, ...offerData } = req.validatedBody
+
   const { result } = await createOffersWorkflow(req.scope).run({
     input: {
       offers: [
         {
-          ...req.validatedBody,
+          ...offerData,
           seller_id: sellerId,
           created_by: memberId,
         },
       ],
+      additional_data,
     },
   })
 

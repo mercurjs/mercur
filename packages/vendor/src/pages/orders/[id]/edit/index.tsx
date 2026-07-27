@@ -11,6 +11,8 @@ import { useEffect } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate, useParams } from "react-router-dom"
 
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
+
 import { RouteFocusModal } from "@components/modals"
 import { useCreateOrderEdit } from "@hooks/api/order-edits"
 import { useOrder, useOrderPreview } from "@hooks/api/orders"
@@ -28,14 +30,17 @@ export const Component = () => {
 
   const orderId = id ?? ""
 
-  const { order } = useOrder(orderId, {
-    // Use the `<rel>.*` suffix form. Combining `*foo` with `*foo.bar`
-    // (or the `+foo.bar.baz` form) makes Medusa's query parser try to
-    // look up a literal property called `*items` / `+items` on Order
-    // and 500. See packages/core/src/api/vendor/orders/query-config.ts
-    // for the matching guidance applied to the defaults.
-    fields: "currency_code,total,items.*,items.variant.*",
-  })
+  // Use the `<rel>.*` suffix form. Combining `*foo` with `*foo.bar`
+  // (or the `+foo.bar.baz` form) makes Medusa's query parser try to
+  // look up a literal property called `*items` / `+items` on Order
+  // and 500. See packages/core/src/api/vendor/orders/query-config.ts
+  // for the matching guidance applied to the defaults.
+  const query = useLinkQuery(
+    "order",
+    "currency_code,total,items.*,items.variant.*",
+  )
+
+  const { order } = useOrder(orderId, query)
 
   const { order: preview } = useOrderPreview(orderId)
   const { mutateAsync: createOrderEdit } = useCreateOrderEdit(orderId)

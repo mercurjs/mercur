@@ -12,6 +12,7 @@ import {
   Tooltip,
   usePrompt,
 } from "@medusajs/ui";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper } from "@tanstack/react-table";
 import { useTranslation } from "react-i18next";
@@ -108,6 +109,7 @@ export const ProductVariantSection = ({
           message: t("products.variants.empty.description"),
         }}
       />
+      <DisplayExtensionZone model="product" zone="variants" data={product} />
     </Container>
   );
 };

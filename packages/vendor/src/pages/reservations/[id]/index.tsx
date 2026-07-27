@@ -4,6 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import { UIMatch } from "react-router-dom"
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
 import { useDashboardExtension } from "@/extensions"
 import { useReservationItem } from "@hooks/api/reservations"
 import { useInventoryItem } from "@hooks/api"
@@ -35,12 +36,15 @@ export const Breadcrumb = (props: ReservationDetailBreadcrumbProps) => {
 export const Component = () => {
   const { id } = useParams()
 
-  const { reservation, isLoading } = useReservationItem(id!)
+  const { reservation, isLoading } = useReservationItem(
+    id!,
+    useLinkQuery("reservation")
+  )
 
   // TEMP: fetch directly since the fields are not populated with reservation call
   const { inventory_item } = useInventoryItem(
     reservation?.inventory_item?.id,
-    { fields: "*location_levels" }
+    useLinkQuery("inventory_item", "*location_levels")
   )
 
   const { getWidgets } = useDashboardExtension()
@@ -67,12 +71,16 @@ export const Component = () => {
       data={reservation}
     >
       <TwoColumnPage.Main>
-        <ReservationGeneralSection reservation={reservation} />
+        <WidgetZone id="reservations.detail.main" data={reservation}>
+          <ReservationGeneralSection reservation={reservation} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar>
-        {inventory_item && (
-          <InventoryItemGeneralSection inventoryItem={inventory_item!} />
-        )}
+        <WidgetZone id="reservations.detail.side" data={reservation}>
+          {inventory_item && (
+            <InventoryItemGeneralSection inventoryItem={inventory_item!} />
+          )}
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   )

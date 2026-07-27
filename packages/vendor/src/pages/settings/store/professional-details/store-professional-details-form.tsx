@@ -1,8 +1,8 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Input, toast } from "@medusajs/ui";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
+
+import { FormExtensionZone, useExtendableForm } from "@mercurjs/dashboard-shared";
 
 import { Form } from "@components/common/form";
 import { RouteDrawer, useRouteModal } from "@components/modals";
@@ -27,13 +27,16 @@ export const StoreProfessionalDetailsForm = ({
   const { handleSuccess } = useRouteModal();
   const details = seller.professional_details;
 
-  const form = useForm<zod.infer<typeof StoreProfessionalDetailsSchema>>({
+  const form = useExtendableForm({
+    schema: StoreProfessionalDetailsSchema,
+    model: "seller",
+    zone: "professional-details",
+    data: seller,
     defaultValues: {
       corporate_name: details?.corporate_name ?? "",
       registration_number: details?.registration_number ?? "",
       tax_id: details?.tax_id ?? "",
     },
-    resolver: zodResolver(StoreProfessionalDetailsSchema),
   });
 
   const { mutateAsync, isPending } = useUpdateSellerProfessionalDetails(
@@ -46,6 +49,7 @@ export const StoreProfessionalDetailsForm = ({
         corporate_name: values.corporate_name || null,
         registration_number: values.registration_number || null,
         tax_id: values.tax_id || null,
+        additional_data: values.additional_data,
       },
       {
         onSuccess: () => {
@@ -112,6 +116,12 @@ export const StoreProfessionalDetailsForm = ({
                 <Form.ErrorMessage />
               </Form.Item>
             )}
+          />
+          <FormExtensionZone
+            model="seller"
+            zone="professional-details"
+            control={form.control}
+            data={seller}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

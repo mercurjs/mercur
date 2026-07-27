@@ -3,6 +3,7 @@ import { Badge, Container, Heading, Tooltip } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { HttpTypes } from "@medusajs/types";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { SectionRow } from "../../../../../components/common/section";
 
@@ -98,6 +99,7 @@ export const ProductOrganizationSection = ({
         }
         data-testid="product-type-row"
       />
+      <DisplayExtensionZone model="product" zone="organize" data={product} />
     </Container>
   );
 };

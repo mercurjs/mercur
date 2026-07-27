@@ -28,7 +28,7 @@ export type CreateInventoryItemSchemaType = z.infer<typeof CreateInventoryItemSc
 type InventoryCreateFormProps = {
   locations: HttpTypes.AdminStockLocation[]
   children?: ReactNode
-  schema?: z.ZodType<CreateInventoryItemSchemaType>
+  schema?: typeof CreateInventoryItemSchema
   defaultValues?: DeepPartial<CreateInventoryItemSchemaType>
 }
 
@@ -127,6 +127,8 @@ export function InventoryCreateForm({
 
   return (
     <TabbedForm
+      model="inventory_item"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isLoading}

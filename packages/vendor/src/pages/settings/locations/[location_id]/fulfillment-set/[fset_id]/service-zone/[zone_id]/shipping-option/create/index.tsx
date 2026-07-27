@@ -1,4 +1,4 @@
-import { json, useParams, useSearchParams } from "react-router-dom"
+import { useParams, useSearchParams } from "react-router-dom"
 
 import { RouteFocusModal } from "@components/modals"
 import { useStockLocation } from "@hooks/api/stock-locations"
@@ -21,22 +21,22 @@ function LocationServiceZoneShippingOptionCreate() {
   )
 
   if (!isPending && !isFetching && !fulfillmentSet) {
-    throw json(
-      {
+    throw new Response(
+      JSON.stringify({
         message: `Fulfillment set with ID ${fset_id} was not found`,
-      },
-      404
+      }),
+      { status: 404, headers: { "Content-Type": "application/json" } }
     )
   }
 
   const zone = fulfillmentSet?.service_zones?.find((z) => z.id === zone_id)
 
   if (!isPending && !isFetching && !zone) {
-    throw json(
-      {
+    throw new Response(
+      JSON.stringify({
         message: `Service zone with ID ${zone_id} was not found`,
-      },
-      404
+      }),
+      { status: 404, headers: { "Content-Type": "application/json" } }
     )
   }
 

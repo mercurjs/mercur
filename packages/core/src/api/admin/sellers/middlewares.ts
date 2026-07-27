@@ -18,6 +18,9 @@ import {
   AdminUpdateSeller,
   AdminSuspendSeller,
   AdminTerminateSeller,
+  AdminApproveSeller,
+  AdminUnsuspendSeller,
+  AdminUnterminateSeller,
   AdminAddSellerMember,
   AdminInviteSellerMember,
   AdminUpsertSellerAddress,
@@ -83,6 +86,7 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/sellers/:id/unsuspend",
     middlewares: [
+      validateAndTransformBody(AdminUnsuspendSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
@@ -93,6 +97,7 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/sellers/:id/approve",
     middlewares: [
+      validateAndTransformBody(AdminApproveSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve
@@ -114,6 +119,7 @@ export const adminSellersMiddlewares: MiddlewareRoute[] = [
     method: ["POST"],
     matcher: "/admin/sellers/:id/unterminate",
     middlewares: [
+      validateAndTransformBody(AdminUnterminateSeller),
       validateAndTransformQuery(
         AdminGetSellerParams,
         adminSellerQueryConfig.retrieve

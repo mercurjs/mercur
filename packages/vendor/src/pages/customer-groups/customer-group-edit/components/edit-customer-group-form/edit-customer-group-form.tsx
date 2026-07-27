@@ -1,10 +1,13 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { HttpTypes } from "@medusajs/types";
 import { Button, Input, toast } from "@medusajs/ui";
 import i18n from "i18next";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as z from "zod";
+
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared";
 
 import { Form } from "@components/common/form";
 import { RouteDrawer, useRouteModal } from "@components/modals";
@@ -27,11 +30,14 @@ export const EditCustomerGroupForm = ({
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
-  const form = useForm<z.infer<typeof EditCustomerGroupSchema>>({
+  const form = useExtendableForm({
+    schema: EditCustomerGroupSchema,
+    model: "customer_group",
+    zone: "edit",
+    data: group,
     defaultValues: {
       name: group.name || "",
     },
-    resolver: zodResolver(EditCustomerGroupSchema),
   });
 
   const { mutateAsync, isPending } = useUpdateCustomerGroup(group.id);
@@ -79,6 +85,12 @@ export const EditCustomerGroupForm = ({
                 </Form.Item>
               );
             }}
+          />
+          <FormExtensionZone
+            model="customer_group"
+            zone="edit"
+            control={form.control}
+            data={group}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

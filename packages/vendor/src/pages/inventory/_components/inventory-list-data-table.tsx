@@ -1,7 +1,8 @@
 import { InventoryTypes } from "@medusajs/types";
 
-import { RowSelectionState } from "@tanstack/react-table";
-import { useState } from "react";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
+import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
+import { useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { _DataTable } from "@components/table/data-table";
@@ -34,14 +35,27 @@ export const InventoryListDataTable = () => {
   } = useInventoryItems(
     {
       ...searchParams,
+      ...useLinkQuery("inventory_item"),
     },
     {
       placeholderData: keepPreviousData,
     },
   );
 
-  const filters = useInventoryTableFilters();
-  const columns = useInventoryTableColumns();
+  const baseFilters = useInventoryTableFilters();
+  const baseColumns = useInventoryTableColumns();
+  const { columns, filters: extFilters } =
+    useExtendableTable<InventoryTypes.InventoryItemDTO>({
+      model: "inventory_item",
+      columns: baseColumns as unknown as ColumnDef<
+        InventoryTypes.InventoryItemDTO,
+        unknown
+      >[],
+    });
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  );
 
   const { table } = useDataTable({
     data: (inventory_items ?? []) as InventoryTypes.InventoryItemDTO[],

@@ -1,5 +1,7 @@
 import { ReactNode, Children } from "react"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { SingleColumnPage } from "../../../components/layout/pages"
 import {
   ApiKeyManagementListView,
@@ -15,7 +17,9 @@ const Root = ({ children }: { children?: ReactNode }) => {
       hasOutlet
       data-testid="publishable-api-keys-list-page"
     >
-      {Children.count(children) > 0 ? children : <ApiKeyManagementListView />}
+      <WidgetZone id="api-keys.list">
+        {Children.count(children) > 0 ? children : <ApiKeyManagementListView />}
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

@@ -56,6 +56,7 @@ const APP_PATHS = [
   { path: "packages/api" },
   { path: "apps/vendor" },
   { path: "apps/admin" },
+  { path: "apps/storefront" },
 ];
 
 export async function manageEnvFiles({

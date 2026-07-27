@@ -1,6 +1,7 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading, Text, toast, usePrompt } from "@medusajs/ui"
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
@@ -60,7 +61,9 @@ export const CustomerGroupGeneralSection = ({
   return (
     <Container className="divide-y p-0" data-testid="customer-group-general-section">
       <div className="flex items-center justify-between px-6 py-4" data-testid="customer-group-general-section-header">
-        <Heading data-testid="customer-group-general-section-name">{group.name}</Heading>
+        <DisplayField model="customer_group" zone="general" id="name" data={group}>
+          <Heading data-testid="customer-group-general-section-name">{group.name}</Heading>
+        </DisplayField>
         <ActionMenu
           data-testid="customer-group-general-section-action-menu"
           groups={[
@@ -85,22 +88,32 @@ export const CustomerGroupGeneralSection = ({
           ]}
         />
       </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-group-general-section-customers-row">
-        <Text size="small" leading="compact" weight="plus" data-testid="customer-group-general-section-customers-label">
-          {t("customers.domain")}
-        </Text>
-        <Text size="small" leading="compact" data-testid="customer-group-general-section-customers-value">
-          {group.customers?.length || "-"}
-        </Text>
-      </div>
-      <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-group-general-section-owner-row">
-        <Text size="small" leading="compact" weight="plus" data-testid="customer-group-general-section-owner-label">
-          {t("fields.owner")}
-        </Text>
-        <Text size="small" leading="compact" data-testid="customer-group-general-section-owner-value">
-          {group.seller?.name || "-"}
-        </Text>
-      </div>
+      <DisplayField model="customer_group" zone="general" id="customers" data={group}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-group-general-section-customers-row">
+          <Text size="small" leading="compact" weight="plus" data-testid="customer-group-general-section-customers-label">
+            {t("customers.domain")}
+          </Text>
+          <Text size="small" leading="compact" data-testid="customer-group-general-section-customers-value">
+            {group.customers?.length || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayField model="customer_group" zone="general" id="owner" data={group}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="customer-group-general-section-owner-row">
+          <Text size="small" leading="compact" weight="plus" data-testid="customer-group-general-section-owner-label">
+            {t("fields.owner")}
+          </Text>
+          <Text size="small" leading="compact" data-testid="customer-group-general-section-owner-value">
+            {group.seller?.name || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+      <DisplayExtensionZone
+        model="customer_group"
+        zone="general"
+        data={group}
+        builtInFieldIds={["name", "customers", "owner"]}
+      />
     </Container>
   )
 }

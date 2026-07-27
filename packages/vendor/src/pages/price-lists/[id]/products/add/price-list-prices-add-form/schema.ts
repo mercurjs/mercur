@@ -1,3 +1,4 @@
+import i18n from 'i18next';
 import { z } from 'zod';
 
 import { PriceListCreateProductsSchema } from "../../../../common/schemas"
@@ -65,7 +66,7 @@ export const PriceListPricesAddSchema = PriceListPricesAddBaseSchema.refine(
     return false;
   },
   {
-    message: 'At least one price must be added.',
+    message: i18n.t('validation.atLeastOnePrice'),
     path: ['products']
   }
 );

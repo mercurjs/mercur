@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslation } from "react-i18next";
 
 import { createColumnHelper } from "@tanstack/react-table";
 
@@ -17,38 +18,40 @@ export const useCommissionRulesTableColumns = ({
 }: {
   onSuccess?: () => void;
 }) => {
+  const { t } = useTranslation();
+
   return useMemo(
     () => [
       columnHelper.accessor("name", {
-        header: () => <TextHeader text="Rule Name" />,
+        header: () => <TextHeader text={t("commissions.rulesTable.name")} />,
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
       columnHelper.accessor("reference", {
-        header: () => <TextHeader text="Type" />,
+        header: () => <TextHeader text={t("fields.type")} />,
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
       columnHelper.accessor("ref_value", {
-        header: () => <TextHeader text="Attribute" />,
+        header: () => <TextHeader text={t("commissions.rulesTable.attribute")} />,
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
       columnHelper.accessor("fee_value", {
-        header: () => <TextHeader text="Fee" />,
+        header: () => <TextHeader text={t("commissions.rulesTable.fee")} />,
         cell: ({ getValue }) => <TextCell text={getValue()} />,
       }),
       columnHelper.accessor("is_active", {
-        header: () => <TextHeader text="Status" />,
+        header: () => <TextHeader text={t("fields.status")} />,
         cell: ({ getValue }) => {
           const value = getValue();
 
           return (
             <StatusCell color={value ? "green" : "grey"}>
-              {value ? "Enabled" : "Disabled"}
+              {value ? t("general.enabled") : t("general.disabled")}
             </StatusCell>
           );
         },
       }),
       columnHelper.accessor("id", {
-        header: () => <TextHeader text="Status" />,
+        header: () => <TextHeader text={t("fields.status")} />,
         cell: (props) => {
           return (
             <CommissionActionMenu
@@ -60,6 +63,6 @@ export const useCommissionRulesTableColumns = ({
         },
       }),
     ],
-    [onSuccess],
+    [onSuccess, t],
   );
 };

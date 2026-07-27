@@ -40,6 +40,7 @@ export const promotionsQueryKeys = {
 
 export const usePromotion = (
   id: string,
+  query?: HttpTypes.AdminGetPromotionParams,
   options?: Omit<
     UseQueryOptions<
       HttpTypes.AdminPromotionResponse,
@@ -51,12 +52,36 @@ export const usePromotion = (
   >
 ) => {
   const { data, ...rest } = useQuery({
-    queryKey: promotionsQueryKeys.detail(id),
-    queryFn: async () => sdk.admin.promotions.$id.query({ $id: id }),
+    queryKey: promotionsQueryKeys.detail(id, query),
+    queryFn: async () => sdk.admin.promotions.$id.query({ $id: id, ...query }),
     ...options,
   })
 
   return { ...data, ...rest }
+}
+
+type UpsertPromotionCostPayload = {
+  id: string
+  cost_bearer: "store" | "marketplace" | "shared"
+  shared_marketplace_percentage?: number | null
+}
+
+export const useUpsertPromotionCost = (
+  options?: UseMutationOptions<
+    { promotion_cost: unknown },
+    ClientError,
+    UpsertPromotionCostPayload
+  >
+) => {
+  return useMutation({
+    mutationFn: ({ id, ...payload }: UpsertPromotionCostPayload) =>
+      sdk.admin.promotions.$id.cost.mutate({ $id: id, ...payload }),
+    onSuccess: (data, variables, context) => {
+      queryClient.invalidateQueries({ queryKey: promotionsQueryKeys.detail(variables.id) })
+      options?.onSuccess?.(data, variables, context)
+    },
+    ...options,
+  })
 }
 
 export const usePromotionRules = (

@@ -12,10 +12,13 @@ export const POST = async (
   req: AuthenticatedMedusaRequest<AdminUpsertSellerPaymentDetailsType>,
   res: MedusaResponse<HttpTypes.AdminSellerResponse>
 ) => {
+  const { additional_data, ...data } = req.validatedBody
+
   await updateSellerPaymentDetailsWorkflow(req.scope).run({
     input: {
       seller_id: req.params.id,
-      data: req.validatedBody,
+      data,
+      additional_data,
     },
   })
 

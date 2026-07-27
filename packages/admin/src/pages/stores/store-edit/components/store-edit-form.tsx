@@ -1,4 +1,3 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
 import { InformationCircleSolid } from "@medusajs/icons";
 import {
@@ -10,7 +9,7 @@ import {
   Textarea,
   toast,
 } from "@medusajs/ui";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 import { useCallback } from "react";
@@ -21,6 +20,10 @@ import { SwitchBox } from "@components/common/switch-box";
 import { HandleInput } from "@components/inputs/handle-input";
 import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared";
 import { MediaSchema } from "@pages/products/product-create/constants";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
@@ -73,7 +76,9 @@ const SUPPORTED_FORMATS_FILE_EXTENSIONS = [
 const stripWebsiteProtocol = (url: string | null | undefined): string =>
   url ? url.replace(/^https?:\/\//i, "") : "";
 
-const getFileNameFromUrl = (url: string | null | undefined): string | undefined => {
+const getFileNameFromUrl = (
+  url: string | null | undefined,
+): string | undefined => {
   if (!url || url.startsWith("blob:")) return undefined;
   try {
     const pathname = new URL(url).pathname;
@@ -96,7 +101,11 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
-  const form = useForm<zod.infer<typeof EditStoreSchema>>({
+  const form = useExtendableForm({
+    schema: EditStoreSchema,
+    model: "seller",
+    zone: "edit",
+    data: seller,
     defaultValues: {
       status: (seller.status as SellerStatus) ?? SellerStatus.OPEN,
       name: seller.name ?? "",
@@ -107,13 +116,26 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       website_url: stripWebsiteProtocol(seller.website_url),
       is_premium: seller.is_premium ?? false,
       media: seller.logo
-        ? [{ id: "existing-logo", url: seller.logo, isThumbnail: false, file: null }]
+        ? [
+            {
+              id: "existing-logo",
+              url: seller.logo,
+              isThumbnail: false,
+              file: null,
+            },
+          ]
         : [],
       bannerMedia: seller.banner
-        ? [{ id: "existing-banner", url: seller.banner, isThumbnail: false, file: null }]
+        ? [
+            {
+              id: "existing-banner",
+              url: seller.banner,
+              isThumbnail: false,
+              file: null,
+            },
+          ]
         : [],
     },
-    resolver: zodResolver(EditStoreSchema),
   });
 
   const { fields: logoFields } = useFieldArray({
@@ -174,11 +196,14 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
         is_premium: values.is_premium,
         logo: logoUrl,
         banner: bannerUrl,
+        additional_data: values.additional_data,
       },
       {
         onSuccess: () => {
           toast.success(
-            t("stores.edit.successToast", { name: values.name ?? values.email }),
+            t("stores.edit.successToast", {
+              name: values.name ?? values.email,
+            }),
           );
           handleSuccess();
         },
@@ -448,6 +473,12 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
               </div>
             </div>
           </div>
+          <FormExtensionZone
+            model="seller"
+            zone="edit"
+            control={form.control}
+            data={seller}
+          />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
           <div className="flex items-center justify-end gap-x-2">

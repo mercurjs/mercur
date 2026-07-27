@@ -1,7 +1,8 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { AdminProductCategoryResponse } from "@medusajs/types"
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { keepPreviousData } from "@tanstack/react-query"
-import { createColumnHelper } from "@tanstack/react-table"
+import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
@@ -21,16 +22,25 @@ export const CategoryListDataTable = () => {
   const imageFields =
     "media_images.id,media_images.url,media_images.type,media_images.is_thumbnail,media_images.is_banner"
 
+  const ancestorsLinkQuery = useLinkQuery(
+    "category",
+    `id,name,handle,is_active,is_internal,parent_category,${imageFields}`
+  )
+  const descendantsLinkQuery = useLinkQuery(
+    "category",
+    `id,name,category_children,handle,is_internal,is_active,${imageFields}`
+  )
+
   const query = raw.q
     ? {
         include_ancestors_tree: true,
-        fields: `id,name,handle,is_active,is_internal,parent_category,${imageFields}`,
+        ...ancestorsLinkQuery,
         ...searchParams,
       }
     : {
         include_descendants_tree: true,
         parent_category_id: "null",
-        fields: `id,name,category_children,handle,is_internal,is_active,${imageFields}`,
+        ...descendantsLinkQuery,
         ...searchParams,
       }
 
@@ -112,12 +122,18 @@ const CategoryRowActions = ({
 const columnHelper =
   createColumnHelper<AdminProductCategoryResponse["product_category"]>()
 
+type CategoryRow = AdminProductCategoryResponse["product_category"]
+
 const useColumns = () => {
   const base = useCategoryTableColumns()
+  const { columns: extended } = useExtendableTable<CategoryRow>({
+    model: "category",
+    columns: base as unknown as ColumnDef<CategoryRow, unknown>[],
+  })
 
   return useMemo(
     () => [
-      ...base,
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => {
@@ -125,6 +141,6 @@ const useColumns = () => {
         },
       }),
     ],
-    [base]
+    [extended]
   )
 }

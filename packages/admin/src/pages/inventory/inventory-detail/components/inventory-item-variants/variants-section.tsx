@@ -1,5 +1,6 @@
 import { TriangleRightMini } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
@@ -68,6 +69,11 @@ export const InventoryItemVariantsSection = ({
           )
         })}
       </div>
+      <DisplayExtensionZone
+        model="inventory_item"
+        zone="variants"
+        data={variants}
+      />
     </Container>
   )
 }

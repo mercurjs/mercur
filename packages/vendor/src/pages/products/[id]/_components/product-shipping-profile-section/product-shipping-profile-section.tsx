@@ -2,6 +2,8 @@ import { PencilSquare, ShoppingBag } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { SidebarLink } from "@components/common/sidebar-link/sidebar-link"
 import { ActionMenu } from "@components/common/action-menu"
 
@@ -41,6 +43,7 @@ export const ProductShippingProfileSection = ({
           icon={<ShoppingBag />}
         />
       )}
+      <DisplayExtensionZone model="product" zone="shipping-profile" data={product} />
     </Container>
   )
 }

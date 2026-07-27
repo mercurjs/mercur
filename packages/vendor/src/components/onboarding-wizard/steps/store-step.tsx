@@ -1,10 +1,13 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import { Button, Heading, Input, Select, Textarea } from "@medusajs/ui";
 import i18n from "i18next";
-import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { useLoaderData } from "react-router-dom";
 import * as z from "zod";
+
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared";
 
 import { Form } from "@components/common/form";
 import { HandleInput } from "@components/inputs/handle-input";
@@ -22,8 +25,12 @@ const StoreStepSchema = z.object({
 
 type StoreStepValues = z.infer<typeof StoreStepSchema>;
 
+type StoreStepSubmitValues = StoreStepValues & {
+  additional_data?: Record<string, unknown>;
+};
+
 type StoreStepProps = {
-  onSubmit: (data: StoreStepValues) => Promise<void>;
+  onSubmit: (data: StoreStepSubmitValues) => Promise<void>;
   isPending?: boolean;
 };
 
@@ -34,8 +41,12 @@ export const StoreStep = ({ onSubmit, isPending }: StoreStepProps) => {
   >;
   const { store } = useStore(undefined, { initialData });
 
-  const form = useForm<StoreStepValues>({
-    resolver: zodResolver(StoreStepSchema),
+  const form = useExtendableForm({
+    schema: StoreStepSchema,
+    model: "seller",
+    zone: "onboarding",
+    tab: "store",
+    data: store,
     defaultValues: {
       name: "",
       email: "",
@@ -161,6 +172,13 @@ export const StoreStep = ({ onSubmit, isPending }: StoreStepProps) => {
                   <Form.ErrorMessage />
                 </Form.Item>
               )}
+            />
+            <FormExtensionZone
+              model="seller"
+              zone="onboarding"
+              tab="store"
+              control={form.control}
+              data={store}
             />
           </div>
           <Button type="submit" className="w-full" isLoading={isPending}>

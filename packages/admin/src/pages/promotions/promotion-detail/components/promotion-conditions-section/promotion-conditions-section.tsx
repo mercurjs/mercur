@@ -7,10 +7,13 @@ import { Badge, Container, Heading } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useParams } from "react-router-dom";
 
+import { DisplayExtensionZone, useLinkQuery } from "@mercurjs/dashboard-shared";
+
 import { ActionMenu } from "../../../../../components/common/action-menu";
 import { BadgeListSummary } from "../../../../../components/common/badge-list-summary";
 import { NoRecords } from "../../../../../components/common/empty-table-content";
 import { usePromotion, usePromotionRules } from "../../../../../hooks/api/promotions";
+import { PROMOTION_DETAIL_BASE_FIELDS } from "../../loader";
 
 type RuleProps = {
   rule: HttpTypes.AdminPromotionRule;
@@ -59,7 +62,8 @@ export const PromotionConditionsSection = ({
 }: PromotionConditionsSectionProps) => {
   const { t } = useTranslation();
   const { id } = useParams();
-  const { promotion } = usePromotion(id!, {
+  const linkQuery = useLinkQuery("promotion", PROMOTION_DETAIL_BASE_FIELDS);
+  const { promotion } = usePromotion(id!, linkQuery, {
     enabled: rulesProp === undefined,
   });
   const query: Record<string, string> = {};
@@ -118,13 +122,13 @@ export const PromotionConditionsSection = ({
           >
             <NoRecords
               className="h-[180px]"
-              title={t("general.noRecordsTitle")}
+              icon={null}
+              title={t("promotions.conditions.list.noRecordsTitle")}
               message={t("promotions.conditions.list.noRecordsMessage")}
               action={{
                 to: `${ruleType}/edit`,
                 label: t("promotions.conditions.add"),
               }}
-              buttonVariant="transparentIconLeft"
               dataTestId={`promotion-conditions-section-add-condition-button-${ruleType}`}
             />
           </div>
@@ -139,6 +143,12 @@ export const PromotionConditionsSection = ({
           </div>
         ))}
       </div>
+
+      <DisplayExtensionZone
+        model="promotion"
+        zone={`conditions-${ruleType}`}
+        data={rules}
+      />
     </Container>
   );
 };

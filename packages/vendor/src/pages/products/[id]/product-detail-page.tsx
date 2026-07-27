@@ -3,6 +3,7 @@ import { useLoaderData, useParams } from "react-router-dom";
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
+import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useProduct } from "@hooks/api";
 
 import { PRODUCT_DETAIL_QUERY } from "../common/constants";
@@ -21,13 +22,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
 
   const { id } = useParams();
-  const { product, isLoading, isError, error } = useProduct(
-    id!,
-    PRODUCT_DETAIL_QUERY,
-    {
-      initialData,
-    }
-  );
+  const query = useLinkQuery("product", PRODUCT_DETAIL_QUERY.fields);
+  const { product, isLoading, isError, error } = useProduct(id!, query, {
+    initialData,
+  });
 
   if (isLoading || !product) {
     return <TwoColumnPageSkeleton mainSections={4} sidebarSections={3} />;
@@ -44,14 +42,18 @@ const Root = ({ children }: { children?: ReactNode }) => {
   ) : (
     <TwoColumnPage data={product} data-testid="product-detail-page">
       <TwoColumnPage.Main data-testid="product-detail-main">
-        <ProductActiveEditSection product={product} />
-        <ProductGeneralSection product={product} />
-        <ProductMediaSection product={product} />
-        <ProductVariantSection product={product} />
+        <WidgetZone id="product.detail.main" data={product}>
+          <ProductActiveEditSection product={product} />
+          <ProductGeneralSection product={product} />
+          <ProductMediaSection product={product} />
+          <ProductVariantSection product={product} />
+        </WidgetZone>
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="product-detail-sidebar">
-        <ProductOrganizationSection product={product} />
-        <ProductAttributeSection product={product} />
+        <WidgetZone id="product.detail.side" data={product}>
+          <ProductOrganizationSection product={product} />
+          <ProductAttributeSection product={product} />
+        </WidgetZone>
       </TwoColumnPage.Sidebar>
     </TwoColumnPage>
   );

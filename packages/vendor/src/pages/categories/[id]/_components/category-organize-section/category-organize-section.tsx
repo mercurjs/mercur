@@ -1,6 +1,7 @@
 import { FolderIllustration, TriangleRightMini } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Badge, Container, Heading, Text, Tooltip } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
@@ -35,6 +36,7 @@ export const CategoryOrganizeSection = ({
         </Text>
         <ChildrenDisplay category={category} />
       </div>
+      <DisplayExtensionZone model="category" zone="organize" data={category} />
     </Container>
   )
 }

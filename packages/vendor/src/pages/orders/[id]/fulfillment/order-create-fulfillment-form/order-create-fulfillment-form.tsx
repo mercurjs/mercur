@@ -173,13 +173,25 @@ export function OrderCreateFulfillmentForm({
         })),
     }
 
+    if (!payload.items.length) {
+      toast.error(t("orders.fulfillment.error.noItems"))
+      return
+    }
+
     try {
       await createOrderFulfillment(payload)
 
       toast.success(t("orders.fulfillment.toast.created"))
       handleSuccess(`/orders/${order.id}`)
     } catch (e: any) {
-      toast.error(e.message)
+      const message: string = e?.message ?? ""
+
+      if (message.includes("exceeds the reserved quantity")) {
+        toast.error(t("orders.fulfillment.error.exceedsReservedQuantity"))
+        return
+      }
+
+      toast.error(message)
     }
   })
 

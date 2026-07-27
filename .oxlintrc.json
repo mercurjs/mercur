@@ -17,6 +17,7 @@
   },
   "ignorePatterns": [
     "**/node_modules/**",
+    "apps/storefront/**",
     "**/dist/**",
     "**/build/**",
     "**/.next/**",

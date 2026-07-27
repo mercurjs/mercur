@@ -5,10 +5,15 @@ const medusaUI = path.join(
   "**/*.{js,jsx,ts,tsx}"
 )
 
+const dashboardShared = path.join(
+  __dirname,
+  "../dashboard-shared/src/**/*.{js,jsx,ts,tsx}"
+)
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   presets: [require("@medusajs/ui-preset")],
-  content: ["./src/**/*.{js,ts,jsx,tsx}", medusaUI],
+  content: ["./src/**/*.{js,ts,jsx,tsx}", medusaUI, dashboardShared],
   darkMode: "class",
   theme: {
     extend: {},

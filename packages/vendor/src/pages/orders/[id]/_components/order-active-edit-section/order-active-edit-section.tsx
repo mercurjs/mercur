@@ -5,6 +5,7 @@ import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { Thumbnail } from "@components/common/thumbnail/thumbnail"
 import {
   useCancelOrderEdit,
@@ -210,6 +211,7 @@ export const OrderActiveEditSection = ({
             </Button>
           </div>
         </div>
+        <DisplayExtensionZone model="order" zone="active-edit" data={order} />
       </Container>
     </div>
   )

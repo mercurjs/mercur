@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import i18n from "i18next";
 import { Button, DatePicker, toast } from "@medusajs/ui";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -19,11 +20,13 @@ type StoreClosureFormProps = {
 
 const StoreClosureSchema = z
   .object({
-    closed_from: z.date({ required_error: "Close from date is required" }),
+    closed_from: z.date({
+      required_error: i18n.t("store.scheduledClosure.validation.closedFromRequired"),
+    }),
     closed_to: z.date().nullable(),
   })
   .refine((data) => data.closed_from >= new Date(new Date().toDateString()), {
-    message: "Close from date cannot be in the past",
+    message: i18n.t("store.scheduledClosure.validation.closedFromInPast"),
     path: ["closed_from"],
   });
 

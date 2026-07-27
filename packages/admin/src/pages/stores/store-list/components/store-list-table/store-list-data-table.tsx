@@ -6,7 +6,13 @@ import { Checkbox } from "@medusajs/ui"
 import { PencilSquare } from "@medusajs/icons"
 
 import { keepPreviousData } from "@tanstack/react-query"
-import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
+import {
+  RowSelectionState,
+  createColumnHelper,
+  type ColumnDef,
+} from "@tanstack/react-table"
+
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
@@ -29,17 +35,24 @@ export const StoreListDataTable = () => {
     pageSize: PAGE_SIZE,
   })
 
+  const linkQuery = useLinkQuery("seller")
+
   const { sellers, count, isLoading } = useSellers(
     {
       ...searchParams,
+      ...linkQuery,
     },
     {
       placeholderData: keepPreviousData,
     },
   )
 
-  const columns = useColumns()
-  const filters = useSellerTableFilters()
+  const { columns, filters: extFilters } = useColumns()
+  const baseFilters = useSellerTableFilters()
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  )
 
   const { table } = useDataTable({
     data: sellers ?? [],
@@ -112,8 +125,8 @@ const StoreActions = ({ seller }: { seller: SellerDTO }) => {
 const useColumns = () => {
   const base = useSellersTableColumns()
 
-  return useMemo(
-    () => [
+  const selectColumn = useMemo(
+    () =>
       columnHelper.display({
         id: "select",
         header: ({ table }) => {
@@ -142,12 +155,27 @@ const useColumns = () => {
           )
         },
       }),
-      ...base,
+    [],
+  )
+
+  const { columns: extended, filters } = useExtendableTable<SellerDTO>({
+    model: "seller",
+    columns: [selectColumn, ...base] as unknown as ColumnDef<
+      SellerDTO,
+      unknown
+    >[],
+  })
+
+  const columns = useMemo(
+    () => [
+      ...extended,
       columnHelper.display({
         id: "actions",
         cell: ({ row }) => <StoreActions seller={row.original} />,
       }),
     ],
-    [base],
+    [extended],
   )
+
+  return { columns, filters }
 }

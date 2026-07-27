@@ -1,8 +1,34 @@
+import fs from "fs"
+import path from "path"
 import type { ParserOptions } from "@babel/parser"
 import { traverse } from "./babel"
+import { VALID_FILE_EXTENSIONS } from "./constants"
 
 export function normalizePath(filePath: string): string {
     return filePath.replace(/\\/g, "/")
+}
+
+/**
+ * Recursively collect component/config files under a surface folder, skipping
+ * declaration files, barrels (`index.*`), and underscore-prefixed helpers.
+ */
+export function crawlModuleFiles(dir: string): string[] {
+    const files: string[] = []
+    if (!fs.existsSync(dir)) return files
+
+    for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+        const full = path.join(dir, entry.name)
+        if (entry.isDirectory()) {
+            files.push(...crawlModuleFiles(full))
+        } else if (entry.isFile()) {
+            const ext = path.extname(entry.name)
+            const base = path.basename(entry.name, ext)
+            if (base.endsWith(".d")) continue
+            if (base.startsWith("_") || base === "index") continue
+            if (VALID_FILE_EXTENSIONS.includes(ext)) files.push(full)
+        }
+    }
+    return files
 }
 
 export function getParserOptions(file: string): ParserOptions {

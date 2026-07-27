@@ -4,7 +4,10 @@ import { fileURLToPath } from "node:url"
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
 const PKG_DIR = path.resolve(__dirname, "..")
-const SOURCE_DIR = path.resolve(__dirname, "../../../apps/docs/rc")
+// Latest docs live at the root of apps/docs; archived versions sit in
+// their own folders and must not be bundled.
+const SOURCE_DIR = path.resolve(__dirname, "../../../apps/docs")
+const EXCLUDED_TOP_DIRS = new Set(["v1"])
 const CONTENT_DIR = path.resolve(PKG_DIR, "content")
 const INDEX_FILE = path.resolve(PKG_DIR, "llms.txt")
 
@@ -56,7 +59,12 @@ function main() {
   fs.rmSync(CONTENT_DIR, { recursive: true, force: true })
   fs.mkdirSync(CONTENT_DIR, { recursive: true })
 
-  const files = walk(SOURCE_DIR).sort()
+  const files = walk(SOURCE_DIR)
+    .filter((file) => {
+      const top = path.relative(SOURCE_DIR, file).split(path.sep)[0]
+      return !EXCLUDED_TOP_DIRS.has(top)
+    })
+    .sort()
   const groups = new Map()
 
   for (const file of files) {

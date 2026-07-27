@@ -1,6 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { TFunction } from "i18next"
-import { json } from "react-router-dom"
+import i18n, { TFunction } from "i18next"
 import { castNumber } from "@lib/cast-number"
 import { PriceListDateStatus, PriceListStatus } from "./constants"
 import {
@@ -82,7 +81,10 @@ const extractPricesFromVariants = (
         : regions.find((r) => r.id === id)?.currency_code
 
     if (!currencyCode) {
-      throw json({ message: "Currency code not found" }, 400)
+      throw new Response(
+        JSON.stringify({ message: i18n.t("validation.currencyCodeNotFound") }),
+        { status: 400, headers: { "Content-Type": "application/json" } }
+      )
     }
 
     return {

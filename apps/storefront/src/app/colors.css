@@ -1,0 +1,163 @@
+:root {
+    /* Neutral colors are the foundation of the color system. Almost everything in UI design — text, fields, backgrounds, dividers — are usually gray. */
+    --neutral-0: 255, 255, 255;
+    --neutral-25: 247, 247, 247;
+    --neutral-50: 238, 238, 238;
+    --neutral-100: 226, 226, 226;
+    --neutral-200: 198, 198, 198;
+    --neutral-300: 163, 163, 163;
+    --neutral-400: 115, 115, 115;
+    --neutral-500: 82, 82, 82;
+    --neutral-600: 64, 64, 64;
+    --neutral-700: 38, 38, 38;
+    --neutral-800: 27, 27, 27;
+    --neutral-900: 22, 22, 22;
+    --neutral-1000: 9, 9, 9;
+
+    /* Brand colors are used across all interactive elements such as buttons, links, inputs, etc. This color can define the overall feel and can elicit emotion. */
+    --brand-25: 247, 247, 247;
+    --brand-50: 238, 238, 238;
+    --brand-100: 226, 226, 226;
+    --brand-200: 198, 198, 198;
+    --brand-300: 163, 163, 163;
+    --brand-400: 115, 115, 115;
+    --brand-500: 82, 82, 82;
+    --brand-600: 64, 64, 64;
+    --brand-700: 27, 27, 27;
+    --brand-800: 22, 22, 22;
+    --brand-900: 9, 9, 9;
+    
+    /* Red colors are used across error states and in "destructive" actions. */
+    --red-25: 254, 243, 242;
+    --red-50: 254, 228, 226;
+    --red-100: 255, 205, 201;
+    --red-200: 253, 170, 164;
+    --red-300: 250, 121, 111;
+    --red-400: 241, 78, 66;
+    --red-500: 217, 45, 32;
+    --red-600: 187, 37, 26;
+    --red-700: 155, 34, 25;
+    --red-800: 128, 35, 28;
+    --red-900: 70, 13, 9;
+
+    /* Green colors communicate a positive action, positive trend, or a successful confirmation. */
+    --green-25: 239, 253, 244;
+    --green-50: 220, 252, 231;
+    --green-100: 187, 247, 208;
+    --green-200: 135, 239, 172;
+    --green-300: 73, 222, 128;
+    --green-400: 34, 197, 93;
+    --green-500: 23, 163, 74;
+    --green-600: 23, 128, 61;
+    --green-700: 22, 101, 52;
+    --green-800: 20, 83, 45;
+    --green-900: 5, 46, 22;
+
+    /* Yellow colors may indicate a problem or that an action is potentially destructive or "on-hold". */
+    --yellow-25: 255, 251, 237;
+    --yellow-50: 255, 247, 212;
+    --yellow-100: 255, 235, 168;
+    --yellow-200: 255, 218, 113;
+    --yellow-300: 255, 191, 56;
+    --yellow-400: 253, 167, 18;
+    --yellow-500: 247, 144, 9;
+    --yellow-600: 197, 106, 9;
+    --yellow-700: 157, 83, 15;
+    --yellow-800: 126, 69, 16;
+    --yellow-900: 68, 33, 6;
+
+    /* Blue colors are used to provide users with information about any actions or states of an application or system. */
+    --blue-25: 245, 250, 255;
+    --blue-50: 235, 244, 255;
+    --blue-100: 204, 228, 255;
+    --blue-200: 173, 211, 255;
+    --blue-300: 148, 198, 255;
+    --blue-400: 112, 179, 255;
+    --blue-500: 77, 160, 255;
+    --blue-600: 44, 138, 245;
+    --blue-700: 12, 102, 204;
+    --blue-800: 0, 67, 143;
+    --blue-900: 0, 24, 51;
+}
+
+:root {
+    --bg-primary: var(--neutral-0);
+    --bg-secondary: var(--neutral-25);
+    --bg-tertiary: var(--neutral-1000);
+
+    --bg-component-primary: var(--neutral-0);
+    --bg-component-primary-hover: var(--neutral-25);
+    --bg-component-primary-pressed: var(--neutral-50);
+    --bg-component-secondary: var(--neutral-25);
+    --bg-component-secondary-hover: var(--neutral-50);
+    --bg-component-secondary-pressed: var(--neutral-100);
+
+    --bg-action-primary: var(--brand-900);
+    --bg-action-primary-hover: var(--brand-800);
+    --bg-action-primary-pressed: var(--brand-700);
+    --bg-action-secondary: rgba(var(--neutral-1000), 0.05);
+    --bg-action-secondary-hover: rgba(var(--neutral-1000), 0.1);
+    --bg-action-secondary-pressed: rgba(var(--neutral-1000), 0.2);
+    --bg-action-tertiary: rgba(var(--neutral-1000), 0.05);
+    --bg-action-tertiary-hover: rgba(var(--neutral-1000), 0.1);
+    --bg-action-tertiary-pressed: rgba(var(--neutral-1000), 0.2);
+
+    --bg-negative-primary: var(--red-600);
+    --bg-negative-primary-hover: var(--red-700);
+    --bg-negative-primary-pressed: var(--red-800);
+    --bg-negative-secondary: var(--red-50);
+    --bg-negative-secondary-hover: var(--red-100);
+    --bg-negative-secondary-pressed: var(--red-200);
+
+    --bg-positive-primary: var(--green-700);
+    --bg-positive-primary-hover: var(--green-800);
+    --bg-positive-primary-pressed: var(--green-900);
+    --bg-positive-secondary: var(--green-50);
+    --bg-positive-secondary-hover: var(--green-100);
+    --bg-positive-secondary-pressed: var(--green-200);
+
+    --bg-warning-primary: var(--yellow-700);
+    --bg-warning-primary-hover: var(--yellow-800);
+    --bg-warning-primary-pressed: var(--yellow-900);
+    --bg-warning-secondary: var(--yellow-50);
+    --bg-warning-secondary-hover: var(--yellow-100);
+    --bg-warning-secondary-pressed: var(--yellow-200);
+
+    --bg-disabled: var(--neutral-200);
+
+    --content-primary: var(--neutral-1000);
+    --content-secondary: var(--neutral-500);
+    --content-tertiary: var(--neutral-0);
+
+    --content-action-primary: var(--brand-900);
+    --content-action-primary-hover: var(--brand-800);
+    --content-action-primary-pressed: var(--brand-700);
+    --content-action-on-primary: var(--brand-25);
+    --content-action-on-secondary: var(--neutral-1000);
+    --content-action-on-tertiary: var(--neutral-0);
+
+    --content-positive-primary: var(--green-800);
+    --content-positive-on-primary: var(--neutral-0);
+    --content-positive-on-secondary: var(--green-800);
+
+    --content-negative-primary: var(--red-700);
+    --content-negative-on-primary: var(--neutral-0);
+    --content-negative-on-secondary: var(--red-800);
+
+    --content-warning-primary: var(--yellow-800);
+    --content-warning-on-primary: var(--neutral-0);
+    --content-warning-on-secondary: var(--yellow-800);
+
+    --content-disabled: var(--neutral-400);
+
+    --border-primary: var(--neutral-50);
+    --border-secondary: var(--neutral-800);
+    --border-action: var(--brand-900);
+    --border-negative-primary: var(--red-700);
+    --border-negative-secondary: var(--red-200);
+    --border-positive-primary: var(--green-800);
+    --border-positive-secondary: var(--green-200);
+    --border-warning-primary: var(--yellow-800);
+    --border-warning-secondary: var(--yellow-50);
+    --border-disabled: var(--neutral-400);
+}

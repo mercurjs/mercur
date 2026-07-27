@@ -12,6 +12,8 @@ import { createColumnHelper } from "@tanstack/react-table"
 import { useCallback, useMemo } from "react"
 import { useTranslation } from "react-i18next"
 
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { Thumbnail } from "../../../../components/common/thumbnail"
 import { _DataTable, Filter } from "../../../../components/table/data-table"
@@ -400,6 +402,7 @@ export const OfferVariantsSection = ({
           message: t("offers.empty.description"),
         }}
       />
+      <DisplayExtensionZone model="offer" zone="variants" data={variants} />
     </Container>
   )
 }

@@ -20,6 +20,7 @@ export const POST = async (
       product_id: productId,
       message: req.validatedBody?.message,
       actor_id: req.auth_context?.actor_id,
+      additional_data: req.validatedBody?.additional_data,
     },
   })
 

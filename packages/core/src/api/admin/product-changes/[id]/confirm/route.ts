@@ -15,6 +15,7 @@ export const POST = async (
       ids: [req.params.id],
       confirmed_by: req.auth_context?.actor_id,
       internal_note: req.validatedBody?.internal_note,
+      additional_data: req.validatedBody?.additional_data,
     },
   })
 

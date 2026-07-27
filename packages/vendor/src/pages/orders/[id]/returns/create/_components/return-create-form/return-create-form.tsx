@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { PencilSquare } from "@medusajs/icons"
+import { PencilSquare, Tag } from "@medusajs/icons"
 import {
   AdminOrder,
   AdminOrderPreview,
@@ -7,8 +7,10 @@ import {
 } from "@medusajs/types"
 import {
   Button,
+  clx,
   CurrencyInput,
   Heading,
+  Hint,
   IconButton,
   Switch,
   Text,
@@ -307,9 +309,19 @@ export const ReturnCreateForm = ({
   }, [isShippingPriceEdit])
 
   const showPlaceholder = !items.length
+  const itemsError = form.formState.errors.items
   const locationId = form.watch("location_id")
   const shippingOptionId = form.watch("option_id")
   const prompt = usePrompt()
+
+  // Clear the "no items" validation error as soon as an item lands on the
+  // draft (items sync in from the preview refetch, not synchronously on Save).
+  useEffect(() => {
+    if (items.length) {
+      form.clearErrors("items")
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [items.length])
 
   const locationName = useMemo(() => {
     if (!locationId) return null
@@ -345,6 +357,14 @@ export const ReturnCreateForm = ({
     )
 
   const handleSubmit = form.handleSubmit(async (data) => {
+    if (!items.length) {
+      form.setError("items", {
+        type: "manual",
+        message: t("orders.returns.emptyItemsError"),
+      })
+      return
+    }
+
     try {
       const res = await prompt({
         title: t("general.areYouSure"),
@@ -450,15 +470,14 @@ export const ReturnCreateForm = ({
               <Heading level="h2">{t("orders.returns.inbound")}</Heading>
               <StackedFocusModal id="items">
                 <StackedFocusModal.Trigger asChild>
-                  {/* oxlint-disable-next-line jsx-a11y/anchor-is-valid */}
-                  <a
-                    href="#"
-                    onClick={(e) => e.preventDefault()}
-                    className="focus-visible:shadow-borders-focus transition-fg txt-compact-small-plus cursor-pointer text-blue-500 outline-none hover:text-blue-400"
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    size="small"
                     data-testid="return-create-add-items-trigger"
                   >
                     {t("actions.addItems")}
-                  </a>
+                  </Button>
                 </StackedFocusModal.Trigger>
                 <StackedFocusModal.Content>
                   <StackedFocusModal.Header />
@@ -508,13 +527,34 @@ export const ReturnCreateForm = ({
             </div>
 
             {showPlaceholder && (
-              <div
-                style={{
-                  background:
-                    "repeating-linear-gradient(-45deg, rgb(212, 212, 216, 0.15), rgb(212, 212, 216,.15) 10px, transparent 10px, transparent 20px)",
-                }}
-                className="bg-ui-bg-field mt-4 block h-[56px] w-full rounded-lg border border-dashed"
-              />
+              <div>
+                <div
+                  className={clx(
+                    "bg-ui-bg-field mt-4 flex w-full flex-col items-center justify-center gap-y-3 rounded-lg border px-6 py-8",
+                    { "border-ui-border-error": !!itemsError }
+                  )}
+                  data-testid="return-create-empty-state"
+                >
+                  <Tag className="text-ui-fg-subtle" />
+                  <div className="flex flex-col items-center gap-y-1">
+                    <Text size="small" leading="compact" weight="plus">
+                      {t("orders.returns.emptyState.title")}
+                    </Text>
+                    <Text size="small" className="text-ui-fg-subtle">
+                      {t("orders.returns.emptyState.description")}
+                    </Text>
+                  </div>
+                </div>
+                {itemsError && (
+                  <Hint
+                    variant="error"
+                    className="mt-2"
+                    data-testid="return-create-empty-state-error"
+                  >
+                    {itemsError.message}
+                  </Hint>
+                )}
+              </div>
             )}
 
             {items

@@ -3,10 +3,21 @@ import { Container, Heading, StatusBadge, toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useNavigate } from "react-router-dom"
 
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { SectionRow } from "../../../../components/common/section"
 import { useBulkDeleteOffers } from "../../../../hooks/api/offers"
 import { OfferProduct } from "../../common/types"
+
+const GENERAL_FIELD_IDS = [
+  "title",
+  "status",
+  "description",
+  "subtitle",
+  "handle",
+  "discountable",
+]
 
 /** Status → badge color, mirroring the admin product detail general section. */
 const productStatusColor = (status: string) => {
@@ -78,12 +89,21 @@ export const OfferDetailGeneralSection = ({
   return (
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
-        <Heading>{product.title}</Heading>
+        <DisplayField model="offer" zone="general" id="title" data={product}>
+          <Heading>{product.title}</Heading>
+        </DisplayField>
         <div className="flex items-center gap-x-4">
           {product.status && (
-            <StatusBadge color={productStatusColor(product.status)}>
-              {t(`products.productStatus.${product.status}`)}
-            </StatusBadge>
+            <DisplayField
+              model="offer"
+              zone="general"
+              id="status"
+              data={product}
+            >
+              <StatusBadge color={productStatusColor(product.status)}>
+                {t(`products.productStatus.${product.status}`)}
+              </StatusBadge>
+            </DisplayField>
           )}
           <ActionMenu
             groups={[
@@ -102,18 +122,35 @@ export const OfferDetailGeneralSection = ({
         </div>
       </div>
 
-      <SectionRow
-        title={t("fields.description")}
-        value={product.description || "-"}
-      />
-      <SectionRow title={t("fields.subtitle")} value={product.subtitle || "-"} />
-      <SectionRow
-        title={t("fields.handle")}
-        value={product.handle ? `/${product.handle}` : "-"}
-      />
-      <SectionRow
-        title={t("fields.discountable")}
-        value={product.discountable ? t("fields.true") : t("fields.false")}
+      <DisplayField model="offer" zone="general" id="description" data={product}>
+        <SectionRow
+          title={t("fields.description")}
+          value={product.description || "-"}
+        />
+      </DisplayField>
+      <DisplayField model="offer" zone="general" id="subtitle" data={product}>
+        <SectionRow
+          title={t("fields.subtitle")}
+          value={product.subtitle || "-"}
+        />
+      </DisplayField>
+      <DisplayField model="offer" zone="general" id="handle" data={product}>
+        <SectionRow
+          title={t("fields.handle")}
+          value={product.handle ? `/${product.handle}` : "-"}
+        />
+      </DisplayField>
+      <DisplayField model="offer" zone="general" id="discountable" data={product}>
+        <SectionRow
+          title={t("fields.discountable")}
+          value={product.discountable ? t("fields.true") : t("fields.false")}
+        />
+      </DisplayField>
+      <DisplayExtensionZone
+        model="offer"
+        zone="general"
+        data={product}
+        builtInFieldIds={GENERAL_FIELD_IDS}
       />
     </Container>
   )

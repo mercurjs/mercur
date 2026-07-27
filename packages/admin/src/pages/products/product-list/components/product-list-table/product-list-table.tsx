@@ -8,7 +8,12 @@ import {
   usePrompt,
 } from "@medusajs/ui";
 import { keepPreviousData } from "@tanstack/react-query";
-import { createColumnHelper, RowSelectionState } from "@tanstack/react-table";
+import {
+  createColumnHelper,
+  RowSelectionState,
+  type ColumnDef,
+} from "@tanstack/react-table";
+import { useExtendableTable } from "@mercurjs/dashboard-shared";
 import { ReactNode, useMemo, useState, Children } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, Outlet, useLoaderData, useNavigate } from "react-router-dom";
@@ -116,8 +121,12 @@ export const ProductListDataTable = () => {
     },
   );
 
-  const filters = useProductTableFilters();
-  const columns = useColumns();
+  const baseFilters = useProductTableFilters();
+  const { columns, filters: extFilters } = useColumns();
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  );
 
   const { table } = useDataTable({
     data: products ?? [],
@@ -300,6 +309,10 @@ const columnHelper = createColumnHelper<ProductDTO>();
 
 const useColumns = () => {
   const base = useProductTableColumns();
+  const { columns: extended, filters } = useExtendableTable<ProductDTO>({
+    model: "product",
+    columns: base as unknown as ColumnDef<ProductDTO, unknown>[],
+  });
 
   const columns = useMemo(
     () => [
@@ -327,7 +340,7 @@ const useColumns = () => {
           />
         ),
       }),
-      ...base,
+      ...extended,
       columnHelper.display({
         id: "actions",
         header: () => (
@@ -343,8 +356,8 @@ const useColumns = () => {
         },
       }),
     ],
-    [base],
+    [extended],
   );
 
-  return columns;
+  return { columns, filters };
 };

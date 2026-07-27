@@ -1,0 +1,253 @@
+---
+title: "Extend the onboarding flow"
+description: "Add a field to the vendor store-setup surface, submit it through additional_data, and persist it durably from a workflow hook — end to end, without forking."
+---
+
+The vendor **store-setup / onboarding** surface is a widget zone (`seller.setup`) that renders the full `seller` object as its `data`. That makes onboarding a full extension seam: drop a widget to add UI, carry the new value to the API on the built-in seller routes through `additional_data`, and persist it from a workflow hook — the same three layers you'd wire in plain Medusa, kept intact by Mercur.
+
+<Info>
+  **Three layers, one flow.** The panel (a `seller.setup` widget) *renders and collects*. The vendor seller route *carries* the value through `additional_data` — no core schema change. A `sellersUpdated` workflow hook *persists* it. Each layer is additive: nothing built-in is replaced.
+</Info>
+
+## What you'll build
+
+A "Tax ID" prompt on the vendor store-setup surface. The vendor types a VAT number; it rides `additional_data` to `POST /vendor/sellers/:id`, and a workflow hook stores it durably through the [Custom Fields module](/rc/resources/customization/custom-fields).
+
+## Register the typed targets (once)
+
+Widget zones are typed ids the vendor panel generates from its own pages and ships as `@mercurjs/vendor/extension-targets`. Register them once (shipped by `create-mercur-app`):
+
+```typescript apps/vendor/src/extension-targets.d.ts
+/// <reference types="@mercurjs/vendor/extension-targets" />
+```
+
+With it present, `seller.setup` autocompletes and an invalid zone fails `tsc` instead of silently doing nothing.
+
+## 1 — Render on the onboarding surface
+
+<Steps>
+  <Step title="Add the store-setup widget">
+    Drop a file under `src/widgets/`. Export the component as the **default** and a `config` with `zone: "seller.setup.before"`. The zone hands your component the `seller` as `data`:
+
+    ```tsx apps/vendor/src/widgets/tax-id-setup.tsx
+    import "@mercurjs/vendor/extension-targets"
+    import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
+    import { SellerDTO } from "@mercurjs/types"
+    import { Container, Heading, Input, Button, Text, toast } from "@medusajs/ui"
+    import { useMutation } from "@tanstack/react-query"
+    import { useState } from "react"
+
+    import { client } from "../lib/client"
+
+    export const config = defineWidgetConfig({
+      zone: "seller.setup.before",
+    })
+
+    const TaxIdSetup = ({ data: seller }: { data?: SellerDTO }) => {
+      const [taxId, setTaxId] = useState("")
+
+      const { mutate, isPending } = useMutation({
+        mutationFn: () =>
+          client.vendor.sellers.$id.mutate({
+            $id: seller!.id,
+            // additional_data is accepted on every vendor seller route —
+            // it never touches the built-in seller columns.
+            additional_data: { tax_id: taxId },
+          }),
+        onSuccess: () => toast.success("Tax ID saved"),
+        onError: () => toast.error("Could not save Tax ID"),
+      })
+
+      if (!seller) {
+        return null
+      }
+
+      return (
+        <Container className="mb-2 flex items-end gap-x-3">
+          <div className="flex-1">
+            <Heading level="h2">Complete your tax details</Heading>
+            <Text size="small" className="text-ui-fg-subtle">
+              Add your VAT / Tax ID to finish store setup.
+            </Text>
+            <Input
+              className="mt-3"
+              placeholder="VAT-000000"
+              value={taxId}
+              onChange={(e) => setTaxId(e.target.value)}
+              data-testid="tax-id-setup-input"
+            />
+          </div>
+          <Button
+            size="small"
+            isLoading={isPending}
+            disabled={!taxId}
+            onClick={() => mutate()}
+            data-testid="tax-id-setup-save"
+          >
+            Save
+          </Button>
+        </Container>
+      )
+    }
+
+    export default TaxIdSetup
+    ```
+  </Step>
+  <Step title="Understand where it renders">
+    `seller.setup` is hosted in two places, both passing the same `seller` as `data`:
+
+    | Host | When it shows |
+    |------|---------------|
+    | The vendor shell (above the page outlet) | On top-level routes — the dashboard "home" onboarding banner |
+    | The store settings detail page | Always, above the store status banner |
+
+    A single widget file covers both. Multiple `seller.setup.before` / `.after` widgets stack in registration order.
+  </Step>
+</Steps>
+
+<Note>
+  **`client` is your app's typed SDK.** `create-mercur-app` ships `apps/vendor/src/lib/client.ts` — a `createClient<Routes>()` instance. `client.vendor.sellers.$id.mutate(...)` is the typed `POST /vendor/sellers/:id`, so the request and response types match the backend route.
+</Note>
+
+## 2 — Carry the value through `additional_data`
+
+You don't touch the seller route or its validator. Every vendor and admin seller route already wraps its body with `WithAdditionalData`, so an unknown `additional_data` object is accepted and forwarded into the workflow untouched:
+
+```ts packages/core/src/api/vendor/sellers/[id]/route.ts (built-in — for reference)
+const { additional_data, ...update } = req.validatedBody
+
+await updateSellersWorkflow(req.scope).run({
+  input: {
+    selector: { id: req.params.id },
+    update,
+    additional_data, // ← forwarded to the workflow's hooks
+  },
+})
+```
+
+That is the whole "wiring" step: your `{ tax_id }` payload arrives in the workflow as `additional_data` without a schema change.
+
+## 3 — Persist it from a workflow hook
+
+`updateSellersWorkflow` exposes a `sellersUpdated` hook that runs after the update with `{ sellers, additional_data }`. Subscribe to it in your Medusa app and persist the value.
+
+<Steps>
+  <Step title="Declare a durable field">
+    Register a `Seller` custom field so the value gets a real, queryable column (no migration to hand-write):
+
+    ```ts apps/api/medusa-config.ts
+    module.exports = defineConfig({
+      // ...
+      modules: [
+        {
+          resolve: "@mercurjs/core/modules/custom-fields",
+          options: {
+            customFields: {
+              Seller: {
+                tax_id: { type: "string", nullable: true },
+              },
+            },
+          },
+        },
+      ],
+    })
+    ```
+
+    ```bash
+    bunx medusa db:migrate
+    ```
+  </Step>
+  <Step title="Subscribe to the hook">
+    Drop a file under `src/workflows/` in your Medusa app. Medusa imports everything under `src/workflows` at boot, so registering the hook is just defining it. Read `additional_data`, upsert through the Custom Fields service:
+
+    ```ts apps/api/src/workflows/hooks/seller-tax-id.ts
+    import { updateSellersWorkflow } from "@mercurjs/core/workflows"
+    import { MercurModules } from "@mercurjs/types"
+
+    updateSellersWorkflow.hooks.sellersUpdated(
+      async ({ sellers, additional_data }, { container }) => {
+        const taxId = additional_data?.tax_id
+        if (typeof taxId !== "string") {
+          return
+        }
+
+        const customFields = container.resolve(MercurModules.CUSTOM_FIELDS)
+
+        await customFields.upsert(
+          "seller",
+          sellers.map((seller) => ({ id: seller.id, tax_id: taxId })),
+        )
+      },
+    )
+    ```
+
+    <Tip>
+      The hook fires for **every** seller update, not only your widget's — always guard on the field being present (`typeof taxId !== "string"`) so unrelated edits (name, address, status) pass through untouched.
+    </Tip>
+  </Step>
+  <Step title="Read it back">
+    The value is now linked to the seller and queryable through Medusa's remote query:
+
+    ```ts
+    const { data: [seller] } = await query.graph({
+      entity: "seller",
+      fields: ["id", "name", "custom_fields.tax_id"],
+      filters: { id: sellerId },
+    })
+    ```
+
+    Add `custom_fields.*` to the `/vendor/sellers/me` query config if you want the widget to reflect the saved value on reload.
+  </Step>
+</Steps>
+
+## How the layers connect
+
+```
+seller.setup widget  →  client.vendor.sellers.$id.mutate({ additional_data })
+        │
+        ▼
+POST /vendor/sellers/:id  →  updateSellersWorkflow({ update, additional_data })
+        │
+        ▼
+hook: sellersUpdated({ sellers, additional_data })  →  customFields.upsert("seller", …)
+        │
+        ▼
+seller.custom_fields.tax_id  (durable, queryable)
+```
+
+## Verify
+
+1. Open the vendor portal — the Tax ID prompt renders on the dashboard home and on **Settings → Store**.
+2. Enter a value and save — the mutation succeeds (`toast.success`) and hits `POST /vendor/sellers/:id`.
+3. `query.graph({ entity: "seller", fields: ["custom_fields.tax_id"] })` returns the saved value.
+4. Edit an unrelated field (store name) — the seller update still works and the guard skips the upsert.
+5. Set `zone: "not.a.zone"` on the widget — `bun run lint` (tsc) fails against `WidgetZoneId`.
+6. Delete the widget file — the prompt disappears; the seller route and hook are unaffected.
+
+## FAQ
+
+<AccordionGroup>
+  <Accordion title="Why additional_data instead of adding a body field?">
+    The seller routes' validators are core-owned. `additional_data` is the sanctioned escape hatch — every vendor and admin route wraps its body with `WithAdditionalData`, so you carry extra context to the workflow hooks without patching the request schema or forking the route.
+  </Accordion>
+  <Accordion title="Which seller workflows expose hooks?">
+    `updateSellersWorkflow` exposes `sellersUpdated`, and `createSellerAccountWorkflow` (the `POST /vendor/sellers` onboarding submit) exposes `sellerAccountCreated` — both carry `{ additional_data }`. Use `sellerAccountCreated` to capture data at first registration and `sellersUpdated` for later edits. See the [workflow references](/rc/references/workflows/seller/update-sellers).
+  </Accordion>
+  <Accordion title="Can I store it on the seller's metadata instead?">
+    Yes — for a quick, non-queryable value, resolve the seller module in the hook and write to `seller.metadata`. Reach for the [Custom Fields module](/rc/resources/customization/custom-fields) when you want a typed, queryable column, which is what most onboarding data (tax IDs, compliance flags) needs.
+  </Accordion>
+  <Accordion title="Does the hook run inside the request?">
+    Yes — workflow hooks run as steps of the workflow the route invokes, with the same compensation/rollback semantics. If your hook throws, the seller update rolls back. Keep slow or best-effort work (external syncs) in a subscriber on the emitted `seller.updated` event instead.
+  </Accordion>
+</AccordionGroup>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Extend a workflow" href="/rc/resources/customization/extend-a-workflow">
+    The full hook + compensation model for Mercur workflows.
+  </Card>
+  <Card title="Custom Fields module" href="/rc/resources/customization/custom-fields">
+    Durable, queryable storage for the data your hook writes.
+  </Card>
+</CardGroup>

@@ -2,6 +2,7 @@ import { AdditionalData } from "@medusajs/framework/types"
 import {
   createHook,
   createWorkflow,
+  transform,
   when,
   WorkflowResponse,
   type Hook,
@@ -22,7 +23,14 @@ export type CreateAndLinkProductAttributesWorkflowHooks = [
     { input: CreateAndLinkProductAttributesWorkflowInput },
     unknown
   >,
-  Hook<"productAttributesLinked", { product_id: string }, unknown>,
+  Hook<
+    "productAttributesLinked",
+    {
+      product_id: string
+      additional_data: Record<string, unknown> | undefined
+    },
+    unknown
+  >,
 ]
 
 export const createAndLinkProductAttributesToProductWorkflowId =
@@ -37,9 +45,22 @@ export const createAndLinkProductAttributesToProductWorkflow: ReturnWorkflow<
   function (input: CreateAndLinkProductAttributesWorkflowInput) {
     const validate = createHook("validate", { input })
 
+    const removeInput = transform({ input }, ({ input }) => {
+      const addIds = new Set(
+        (input.add ?? [])
+          .map((a) => ("id" in a ? a.id : undefined))
+          .filter((id): id is string => !!id),
+      )
+      return {
+        product_id: input.product_id,
+        remove: input.remove ?? [],
+        readd: (input.remove ?? []).filter((id) => addIds.has(id)),
+      }
+    })
+
     when({ input }, ({ input }) => !!input.remove?.length).then(() =>
       removeProductAttributesFromProductWorkflow.runAsStep({
-        input: { product_id: input.product_id, remove: input.remove ?? [] },
+        input: removeInput,
       }),
     )
 
@@ -57,6 +78,7 @@ export const createAndLinkProductAttributesToProductWorkflow: ReturnWorkflow<
 
     const productAttributesLinked = createHook("productAttributesLinked", {
       product_id: input.product_id,
+      additional_data: input.additional_data,
     })
 
     return new WorkflowResponse(void 0, {

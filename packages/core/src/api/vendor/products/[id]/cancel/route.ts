@@ -9,9 +9,10 @@ import {
 import { ProductChangeDTO, ProductChangeStatus } from "@mercurjs/types"
 
 import { cancelProductChangeWorkflow } from "../../../../../workflows/product-edit/workflows/cancel-product-change"
+import { VendorCancelProductChangeType } from "../../validators"
 
 export const POST = async (
-  req: AuthenticatedMedusaRequest,
+  req: AuthenticatedMedusaRequest<VendorCancelProductChangeType>,
   res: MedusaResponse<{ product_change: ProductChangeDTO }>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
@@ -39,6 +40,7 @@ export const POST = async (
     input: {
       id: changes[0].id,
       canceled_by: sellerId,
+      additional_data: req.validatedBody.additional_data,
     },
   })
 

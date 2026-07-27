@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "An unknown error occurred",
+    "notAvailable": "N/A",
     "fullList": "All",
     "ascending": "Ascending",
     "descending": "Descending",
@@ -109,6 +111,11 @@
     }
   },
   "validation": {
+    "requiredField": "Required field",
+    "valueRequired": "Value is required",
+    "atLeastOnePrice": "At least one price must be added.",
+    "currencyCodeNotFound": "Currency code not found",
+    "shippingOptionIdMissing": "Shipping Option ID parameter is missing",
     "rules": {
       "lower": "At least one lowercase letter",
       "upper": "At least one uppercase letter",
@@ -567,9 +574,9 @@
         "valuePlaceholder": "Enter values",
         "enterValuePlaceholder": "Enter value",
         "selectValuePlaceholder": "Select value",
-        "requiredTooltip": "This attribute is required by the Marketplace and can't be deselected.",
+        "requiredTooltip": "This attribute is required by the marketplace and can't be deselected.",
         "noAttributesTitle": "No product attributes yet",
-        "noAttributesDescription": "There are no attributes defined by the Marketplace.",
+        "noAttributesDescription": "There are no attributes defined by the marketplace.",
         "errors": {
           "titleRequired": "Please enter a title",
           "valuesRequired": "Please enter at least one value"
@@ -638,6 +645,7 @@
     "attributeProductInformationDescription": "Attributes used for informational purposes",
     "attributeRequiredByMarketplace": "This attribute is required by the marketplace.",
     "attributeRequiredDeleteDisabledTooltip": "Required attributes cannot be removed.",
+    "missingRequiredAttributesHint": "Please provide the required information",
     "addAttribute": "Add Attribute",
     "deleteAttributeWarning": "Are you sure you want to delete the attribute \"{{title}}\"? This action cannot be undone.",
     "attributesSection": {
@@ -831,7 +839,7 @@
       },
       "primaryCategory": {
         "label": "Primary Category",
-        "tooltip": "Category could define attributes that apply to this product. Attributes are created by the Admin when setting up the marketplace."
+        "tooltip": "Category could define attributes that apply to this product. Attributes are created by the admin when setting up the marketplace."
       }
     },
     "variant": {
@@ -1490,6 +1498,7 @@
       "createRefund": "Create Refund",
       "refundPaymentSuccess": "Refund of amount {{amount}} successful",
       "createRefundWrongQuantity": "Quantity should be a number between 1 and {{number}}",
+      "enterAmount": "Please enter an amount",
       "refundAmount": "Refund {{ amount }}",
       "paymentLink": "Copy payment link for {{ amount }}",
       "copyPaymentLink": "Copy payment link for {{ amount }}",
@@ -1581,6 +1590,11 @@
       "damagedItemReceived": "Damaged items received",
       "damagedItemsReturned": "{{quantity}}x damaged items returned",
       "activeChangeError": "There is an active order change in progress on this order. Please finish or discard the change first.",
+      "emptyState": {
+        "title": "No records yet",
+        "description": "Add at least one item from the order to create the return"
+      },
+      "emptyItemsError": "Please add at least one item from the order",
       "cancel": {
         "title": "Cancel Return",
         "description": "Are you sure you want to cancel the return request?"
@@ -1802,7 +1816,8 @@
       "error": {
         "wrongQuantity": "Only one item is available for fulfillment",
         "wrongQuantity_other": "Quantity should be a number between 1 and {{number}}",
-        "noItems": "No items to fulfill.",
+        "noItems": "There are no items to fulfill.",
+        "exceedsReservedQuantity": "The quantity you want to fulfill exceeds the reserved quantity for items. Please review your fulfillment.",
         "noShippingOption": "Shipping option is required",
         "noLocation": "Location is required"
       },
@@ -1837,7 +1852,7 @@
       "title": "Create Refund",
       "sendNotificationHint": "Notify customers about the created refund.",
       "systemPayment": "System payment",
-      "systemPaymentDesc": "One or more of your payments is a system payment. Be aware, that captures and refunds are not handled by Medusa for such payments.",
+      "systemPaymentDesc": "One or more of your payments is a system payment. Be aware, that captures and refunds are not handled by Mercur for such payments.",
       "error": {
         "amountToLarge": "Cannot refund more than the original order amount.",
         "amountNegative": "Refund amount must be a positive number.",
@@ -2457,6 +2472,20 @@
     }
   },
   "promotions": {
+    "templates": {
+      "amountOffOffers": {
+        "title": "Amount off items",
+        "description": "Discount selected items"
+      },
+      "percentageOffProduct": {
+        "title": "Percentage off items",
+        "description": "Discounts a percentage off selected items"
+      },
+      "buyGet": {
+        "title": "Buy X Get Y",
+        "description": "Buy X item(s), get Y item(s)"
+      }
+    },
     "domain": "Promotions",
     "sections": {
       "details": "Promotion Details"
@@ -2466,8 +2495,22 @@
       "details": "Details",
       "campaign": "Campaign"
     },
+    "list": {
+      "noRecords": {
+        "title": "No promotions yet",
+        "message": "Create promotions for offer discounts"
+      }
+    },
     "fields": {
       "type": "Type",
+      "typeLabels": {
+        "percentageItems": "Percentage off items",
+        "percentageShipping": "Percentage off shipping",
+        "percentageOrder": "Percentage off order",
+        "amountItems": "Amount off items",
+        "amountShipping": "Amount off shipping",
+        "amountOrder": "Amount off order"
+      },
       "value_type": "Value Type",
       "value": "Value",
       "campaign": "Campaign",
@@ -2476,8 +2519,9 @@
       "allocationTooltip": "Each enforces the quantity limit per item, while Once enforces the quantity limit across the entire cart",
       "addCondition": "Add condition",
       "clearAll": "Clear all",
-      "taxInclusive": "Tax Inclusive",
+      "taxInclusive": "Taxes Included",
       "usageLimit": "Usage Limit",
+      "unlimited": "Unlimited",
       "usage": "Usage",
       "amount": {
         "tooltip": "Select the currency code to enable setting the amount"
@@ -2517,7 +2561,9 @@
       "promotionTabError": "Fix errors in Promotion Tab before proceeding"
     },
     "toasts": {
-      "promotionCreateSuccess": "Promotion ({{code}}) was successfully created."
+      "promotionCreateSuccess": "Promotion ({{code}}) was successfully created.",
+      "promotionUpdateSuccess": "Promotion was successfully updated.",
+      "promotionDeleteSuccess": "Promotion ({{code}}) was successfully deleted."
     },
     "create": {},
     "edit": {
@@ -2548,7 +2594,11 @@
     "campaignSection": {
       "noRecordsTitle": "Not part of a campaign",
       "noRecordsMessage": "Add this promotion to an existing campaign",
-      "addToCampaign": "Add to Campaign"
+      "addToCampaign": "Add to Campaign",
+      "warnings": {
+        "promotionExpires": "The promotion will expire when campaign expires.",
+        "promotionMustBeActive": "The promotion must have an Active status for the campaign to work."
+      }
     },
     "form": {
       "required": "Required",
@@ -2607,6 +2657,10 @@
         "title": "Maximum Quantity",
         "description": "Maximum quantity of items this promotion applies to."
       },
+      "usageLimit": {
+        "title": "Usage Limit",
+        "description": "Maximum number of times this promotion can be used across all orders. Leave empty for unlimited usage."
+      },
       "type": {
         "standard": {
           "title": "Standard",
@@ -2620,7 +2674,7 @@
       "allocation": {
         "each": {
           "title": "Each",
-          "description": "Applies value on each item"
+          "description": "Applies the promotion to every eligible item separately"
         },
         "across": {
           "title": "Across",
@@ -2628,12 +2682,12 @@
         },
         "once": {
           "title": "Once",
-          "description": "Applies value to a limited number of items"
+          "description": "Applies the promotion to a limited total number of eligible items across the entire cart"
         }
       },
       "code": {
         "title": "Code",
-        "description": "The code your customers will enter during checkout."
+        "description": "The code your customers will enter during checkout. If a promotion is automatic, it will be applied automatically."
       },
       "value": {
         "title": "Promotion Value",
@@ -2904,7 +2958,7 @@
       "header": "Edit Profile",
       "languageHint": "The language you want to use in the vendor dashboard. This doesn't change the language of your store.",
       "languagePlaceholder": "Select language",
-      "usageInsightsHint": "Share usage insights and help us improve Medusa. You can read more about what we collect and how we use it in our <0>documentation</0>."
+      "usageInsightsHint": "Share usage insights and help us improve Mercur. You can read more about what we collect and how we use it in our <0>documentation</0>."
     },
     "toast": {
       "edit": "Profiles changes saved"
@@ -2970,7 +3024,7 @@
       "manageEntities": "Manage entities",
       "manageLocales": "Manage locales"
     },
-    "subtitle": "Manage translations of your data in Medusa",
+    "subtitle": "Manage translations of your data in Mercur",
     "list": {
       "metrics": "{{translated}} of {{total}} translations"
     },
@@ -3364,7 +3418,7 @@
       "createPublishableHeader": "Create Publishable API Key",
       "createPublishableHint": "Create a new publishable API key to limit the scope of requests to specific sales channels.",
       "createSecretHeader": "Create Secret API Key",
-      "createSecretHint": "Create a new secret API key to access the Medusa API as an authenticated admin user.",
+      "createSecretHint": "Create a new secret API key to access the Mercur API as an authenticated admin user.",
       "secretKeyCreatedHeader": "Secret Key Created",
       "secretKeyCreatedHint": "Your new secret key has been generated. Copy and securely store it now. This is the only time it will be displayed.",
       "copySecretTokenSuccess": "Secret key was copied to clipboard.",
@@ -3689,7 +3743,7 @@
   },
   "workflowExecutions": {
     "domain": "Workflows",
-    "subtitle": "View and keep track of workflow executions in your Medusa application.",
+    "subtitle": "View and keep track of workflow executions in your Mercur application.",
     "transactionIdLabel": "Transaction ID",
     "workflowIdLabel": "Workflow ID",
     "progressLabel": "Progress",
@@ -3804,7 +3858,7 @@
       "description": "You don't have any notifications at the moment, but once you do they will live here."
     },
     "accessibility": {
-      "description": "Notifications about Medusa activities will be listed here."
+      "description": "Notifications about Mercur activities will be listed here."
     }
   },
   "errors": {
@@ -4085,6 +4139,7 @@
   "attributes": {
     "fields": {
       "name": "Name",
+      "productAttribute": "Product Attribute",
       "handle": "Handle",
       "required": "Required",
       "type": "Type",

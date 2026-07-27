@@ -1,19 +1,25 @@
 import { z } from "zod"
+import { WithAdditionalData } from "@medusajs/medusa/api/utils/validators"
+import { AdditionalData } from "@medusajs/framework/types"
 
+const ConfirmProductChange = z
+  .object({
+    internal_note: z.string().optional(),
+  })
+  .strict()
 export type AdminConfirmProductChangeType = z.infer<
-  typeof AdminConfirmProductChange
->
-export const AdminConfirmProductChange = z
-  .object({
-    internal_note: z.string().optional(),
-  })
-  .strict()
+  typeof ConfirmProductChange
+> &
+  AdditionalData
+export const AdminConfirmProductChange = WithAdditionalData(ConfirmProductChange)
 
-export type AdminCancelProductChangeType = z.infer<
-  typeof AdminCancelProductChange
->
-export const AdminCancelProductChange = z
+const CancelProductChange = z
   .object({
     internal_note: z.string().optional(),
   })
   .strict()
+export type AdminCancelProductChangeType = z.infer<
+  typeof CancelProductChange
+> &
+  AdditionalData
+export const AdminCancelProductChange = WithAdditionalData(CancelProductChange)

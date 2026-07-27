@@ -1,6 +1,7 @@
 import { AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router-dom";
 
+import { useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useLogout, useSellers } from "@hooks/api";
 import { queryClient } from "@lib/query-client";
 import { WizardSidebar } from "./wizard-sidebar";
@@ -19,7 +20,7 @@ type OnboardingWizardProps = {
 export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
   const navigate = useNavigate();
   const { mutateAsync: logoutMutation } = useLogout();
-  const { seller_members } = useSellers();
+  const { seller_members } = useSellers(useLinkQuery("seller"));
   const hasStores = (seller_members?.length ?? 0) > 0;
 
   const {
@@ -104,7 +105,7 @@ export const OnboardingWizard = ({ memberEmail }: OnboardingWizardProps) => {
       >
         <AnimatePresence mode="wait">{renderStep()}</AnimatePresence>
       </WizardSidebar>
-      <WizardPreview currentStep={currentStep} />
+      <WizardPreview />
     </div>
   );
 };

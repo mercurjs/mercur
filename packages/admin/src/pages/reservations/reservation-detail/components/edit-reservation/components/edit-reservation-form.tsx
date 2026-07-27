@@ -1,12 +1,13 @@
 import { HttpTypes } from "@medusajs/types"
 import { Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui"
-import * as zod from "zod"
 import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
 
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared"
 import { Form } from "../../../../../../components/common/form"
 import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
 import { useUpdateReservationItem } from "../../../../../../hooks/api/reservations"
@@ -61,9 +62,12 @@ export const EditReservationForm = ({
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
   const direction = useDocumentDirection()
-  const form = useForm<zod.infer<typeof EditReservationSchema>>({
+  const form = useExtendableForm({
+    schema: EditReservationSchema,
+    model: "reservation",
+    zone: "edit",
+    data: reservation,
     defaultValues: getDefaultValues(reservation),
-    resolver: zodResolver(EditReservationSchema),
   })
 
   const { mutateAsync } = useUpdateReservationItem(reservation.id)
@@ -195,6 +199,12 @@ export const EditReservationForm = ({
                 </Form.Item>
               )
             }}
+          />
+          <FormExtensionZone
+            model="reservation"
+            zone="edit"
+            control={form.control}
+            data={reservation}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

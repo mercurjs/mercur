@@ -1,0 +1,68 @@
+name: Deploy Pages
+
+on:
+  push:
+    branches: [main]
+    # registry.mercurjs.com only serves the two JSON Schema files below, so a
+    # deploy is only needed when they (or the CNAME) change.
+    paths:
+      - registry.json
+      - registry-item.json
+      - CNAME
+      - .github/workflows/pages.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Never cancel an in-flight deployment; let it finish so Pages doesn't get
+# left in a half-synced state.
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy registry schemas
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 1
+
+      # registry.mercurjs.com is only used as the $schema host for the registry
+      # (see packages/cli/src/registry/constants.ts). Publishing just these
+      # files keeps the Pages artifact tiny and symlink-free — the legacy build
+      # published the whole monorepo (node_modules and all), which is what made
+      # the "syncing_files" step fail intermittently.
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          cp registry.json registry-item.json CNAME _site/
+          touch _site/.nojekyll
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v5
+        with:
+          path: _site
+
+      # The deploy itself is reliable; what's flaky is the action's status
+      # poll — GitHub's Pages backend occasionally returns a transient error
+      # while still provisioning, which the action treats as terminal
+      # ("Deployment failed, try again later") even though the deploy then
+      # succeeds. A higher error_count rides through those transient errors
+      # instead of aborting on the first one.
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
+        with:
+          timeout: 600000
+          error_count: 25
+          reporting_interval: 5000

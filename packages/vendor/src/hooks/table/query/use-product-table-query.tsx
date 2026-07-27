@@ -1,4 +1,5 @@
 import { HttpTypes } from "@medusajs/types";
+import { useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useQueryParams } from "../../use-query-params";
 
 type UseProductTableQueryProps = {
@@ -6,7 +7,7 @@ type UseProductTableQueryProps = {
   pageSize?: number;
 };
 
-const DEFAULT_FIELDS =
+export const DEFAULT_FIELDS =
   // TODO: Remove exclusion once we avoid including unnecessary relations by default in the query config
   "id,title,handle,status,*collection,categories.id,categories.name,variants.id,thumbnail,-type,-tags,-images,-variants";
 
@@ -14,6 +15,7 @@ export const useProductTableQuery = ({
   prefix,
   pageSize = 20,
 }: UseProductTableQueryProps) => {
+  const linkQuery = useLinkQuery("product", DEFAULT_FIELDS);
   const queryObject = useQueryParams(
     [
       "offset",
@@ -62,7 +64,7 @@ export const useProductTableQuery = ({
     type_id: type_id?.split(","),
     status: status?.split(",") as HttpTypes.AdminProductStatus[],
     q,
-    fields: DEFAULT_FIELDS,
+    fields: linkQuery.fields,
   };
 
   return {

@@ -38,9 +38,12 @@ export const POST = async (
   const { id } = req.params
   await validateSellerOffer(req.scope, req.seller_context!.seller_id, id)
 
+  const { additional_data, ...update } = req.validatedBody
+
   await updateOffersWorkflow(req.scope).run({
     input: {
-      offers: [{ id, ...req.validatedBody }],
+      offers: [{ id, ...update }],
+      additional_data,
     },
   })
 

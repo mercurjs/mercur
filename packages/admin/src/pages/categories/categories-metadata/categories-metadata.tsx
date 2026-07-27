@@ -1,4 +1,5 @@
 import { useParams } from "react-router-dom"
+import { useTranslation } from "react-i18next"
 
 import {
   useProductCategory,
@@ -9,6 +10,7 @@ import { RouteDrawer } from "@components/modals"
 import { ClientError } from "@mercurjs/client"
 
 export const CategoriesMetadata = () => {
+  const { t } = useTranslation()
   const { id } = useParams()
 
   const { product_category, isPending, isError, error } = useProductCategory(id!)
@@ -30,7 +32,7 @@ export const CategoriesMetadata = () => {
 
       return result
     } catch (error) {
-      const message = error instanceof ClientError ? error.message : 'An error occured'
+      const message = error instanceof ClientError ? error.message : t("errorBoundary.defaultTitle")
       callbacks.onError?.(message)
       throw error
     }

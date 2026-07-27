@@ -7,7 +7,7 @@
   <h3 align="center">Mercur</h3>
 
   <p align="center">
-   The open-source marketplace platform.
+   The open-source marketplace platform. A Mirakl alternative.
     <br />
     <a href="https://mercurjs.com/"><strong>Website</strong></a>
     <br />
@@ -129,6 +129,8 @@ Here's what you need to run Mercur.
    - Backend API: `http://localhost:9000`
    - Admin Panel: `http://localhost:9000/dashboard`
    - Vendor Panel: `http://localhost:9000/seller`
+
+   Your marketplace comes seeded with a demo store out of the box — a ready-to-go seller (`seller@mercur.dev` / `supersecret`) with a full catalog of products and offers, so you can explore the admin and vendor panels immediately. Sign in to the Vendor Panel with those credentials, or manage everything from the Admin Panel.
 
 ## Professional services
 

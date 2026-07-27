@@ -153,7 +153,7 @@ export function OrderAllocateItemsForm({ order }: OrderAllocateItemsFormProps) {
       }
     } catch (e) {
       toast.error(t("general.error"), {
-        description: e instanceof Error ? e.message : "An unknown error occurred",
+        description: e instanceof Error ? e.message : t("general.unknownError"),
         dismissLabel: t("actions.close"),
       })
     }

@@ -1,5 +1,6 @@
 import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
 
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useCustomerGroup } from "../../../hooks/api/customer-groups"
@@ -16,11 +17,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
   >
 
   const { id } = useParams()
+  const query = useLinkQuery("customer_group", CUSTOMER_GROUP_DETAIL_FIELDS)
   const { customer_group, isLoading, isError, error } = useCustomerGroup(
     id!,
-    {
-      fields: CUSTOMER_GROUP_DETAIL_FIELDS,
-    },
+    query,
     { initialData },
   )
 
@@ -38,8 +38,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage showJSON showMetadata data={customer_group}>
-      <CustomerGroupGeneralSection group={customer_group} />
-      <CustomerGroupCustomerSection group={customer_group} />
+      <WidgetZone id="customer-groups.detail.main" data={customer_group}>
+        <CustomerGroupGeneralSection group={customer_group} />
+        <CustomerGroupCustomerSection group={customer_group} />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

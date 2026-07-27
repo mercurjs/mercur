@@ -1,6 +1,8 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { useProductVariant } from "@hooks/api/products"
 
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
@@ -38,10 +40,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
       {Children.count(children) > 0 ? (
         children
       ) : (
-        <>
+        <WidgetZone id="product-variants.detail.main" data={variant}>
           <VariantGeneralSection variant={variant} />
           <VariantMediaSection variant={variant} />
-        </>
+        </WidgetZone>
       )}
     </SingleColumnPage>
   )

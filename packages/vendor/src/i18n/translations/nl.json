@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "Er is een onbekende fout opgetreden",
+    "notAvailable": "N/A",
     "ascending": "Oplopend",
     "descending": "Aflopend",
     "add": "Toevoegen",
@@ -56,7 +58,23 @@
     "unsavedChangesDescription": "Je hebt niet-opgeslagen wijzigingen die verloren gaan als je dit formulier verlaat.",
     "includesTaxTooltip": "Prijzen in deze kolom zijn inclusief belasting.",
     "excludesTaxTooltip": "Prijzen in deze kolom zijn exclusief belasting.",
-    "noMoreData": "Geen verdere gegevens"
+    "noMoreData": "Geen verdere gegevens",
+    "fullList": "Alle",
+    "original": "Origineel",
+    "selectAll": "Alles selecteren",
+    "unselectAll": "Alles deselecteren",
+    "remaining": "Resterend",
+    "yes": "Ja",
+    "no": "Nee",
+    "noRecordsMessageFiltered": "Er zijn geen records die overeenkomen met de filters",
+    "searchOptions": "Opties zoeken...",
+    "noOptionsFound": "Geen opties gevonden",
+    "noOptionsAvailable": "Geen opties beschikbaar",
+    "selectValues": "Waarden selecteren...",
+    "true": "Waar",
+    "false": "Onwaar",
+    "decrement": "Verlagen",
+    "increment": "Verhogen"
   },
   "json": {
     "header": "JSON",
@@ -93,8 +111,20 @@
     }
   },
   "validation": {
+    "requiredField": "Verplicht veld",
+    "valueRequired": "Waarde is verplicht",
+    "atLeastOnePrice": "Er moet minstens één prijs worden toegevoegd.",
+    "currencyCodeNotFound": "Valutacode niet gevonden",
+    "shippingOptionIdMissing": "Parameter voor verzendoptie-ID ontbreekt",
     "mustBeInt": "De waarde moet een geheel getal zijn.",
-    "mustBePositive": "De waarde moet een positief getal zijn."
+    "mustBePositive": "De waarde moet een positief getal zijn.",
+    "rules": {
+      "lower": "Ten minste één kleine letter",
+      "upper": "Ten minste één hoofdletter",
+      "12chars": "Ten minste 12 tekens",
+      "digit": "Ten minste één cijfer",
+      "specialChar": "Ten minste één speciaal teken"
+    }
   },
   "actions": {
     "save": "Opslaan",
@@ -138,7 +168,12 @@
     "hide": "Verbergen",
     "export": "Exporteren",
     "import": "Importeren",
-    "cannotUndo": "Deze actie kan niet ongedaan worden gemaakt"
+    "cannotUndo": "Deze actie kan niet ongedaan worden gemaakt",
+    "saveChanges": "Wijzigingen opslaan",
+    "saveAndClose": "Opslaan en sluiten",
+    "request": "Aanvragen",
+    "editVariantImages": "Variantafbeeldingen bewerken",
+    "editImages": "Afbeeldingen bewerken"
   },
   "operators": {
     "in": "In"
@@ -298,6 +333,10 @@
       "fixError": "Los fout op",
       "count_one": "{{count}} fout",
       "count_other": "{{count}} fouten"
+    },
+    "toggle": {
+      "enabled": "Ingeschakeld",
+      "notEnabled": "Niet ingeschakeld"
     }
   },
   "filters": {
@@ -337,7 +376,10 @@
       "true": "Waar",
       "false": "Onwaar"
     },
-    "addFilter": "Filter toevoegen"
+    "addFilter": "Filter toevoegen",
+    "collapse": {
+      "all": "Alles samenvouwen"
+    }
   },
   "errorBoundary": {
     "badRequestTitle": "400 - Ongeldig verzoek",
@@ -400,12 +442,35 @@
   "products": {
     "domain": "Producten",
     "list": {
-      "noRecordsMessage": "Maak uw eerste product aan om te beginnen met verkopen."
+      "noRecordsMessage": "Maak uw eerste product aan om te beginnen met verkopen.",
+      "noRecordsTitle": "Nog geen producten"
     },
     "edit": {
       "header": "Product bewerken",
       "description": "Bewerk de productgegevens.",
-      "successToast": "Product {{title}} is succesvol bijgewerkt."
+      "successToast": "Product {{title}} is succesvol bijgewerkt.",
+      "requestSuccessToast": "Productupdate is succesvol aangevraagd. Zodra bevestigd door de beheerder, verschijnen de wijzigingen op de winkelwebsite.",
+      "duplicateRequestErrorToast": "Je hebt al een actieve aanvraag. Je kunt er slechts één tegelijk hebben.",
+      "attributes": {
+        "createSuccessToast": "Attribuut is succesvol aangemaakt.",
+        "addSuccessToast": "Attributen zijn succesvol toegevoegd.",
+        "updateSuccessToast": "Attribuut is succesvol bijgewerkt.",
+        "deleteSuccessToast": "Attribuut is succesvol verwijderd.",
+        "addAttribute": "Attribuut toevoegen",
+        "editHeader": "Attribuut bewerken",
+        "required": "Verplicht attribuut",
+        "valuesRequired": "Ten minste één waarde is verplicht",
+        "valuesPlaceholder": "Selecteer of voer een waarde in",
+        "useForVariations": "Gebruiken voor variaties",
+        "useForVariationsDescription": "Zet dit attribuut om in een productoptie die varianten genereert.",
+        "conversionWarning": "Het omzetten van dit attribuut naar een variatie beïnvloedt bestaande productvarianten. Deze actie kan varianten verwijderen of wijzigen.",
+        "editCustomValueTitle": "Aangepaste waarde",
+        "editCustomValueDescription": "Het vervangen hiervan door een aangepaste waarde beïnvloedt hoe je product verschijnt in zoekopdrachten en filters. Aangepaste waarden zijn niet doorzoekbaar of filterbaar."
+      },
+      "informationalAttributes": {
+        "header": "Productinformatie",
+        "description": "Attributen gebruikt ter informatie"
+      }
     },
     "create": {
       "title": "Product aanmaken",
@@ -414,13 +479,22 @@
       "tabs": {
         "details": "Details",
         "organize": "Organiseren",
-        "variants": "Varianten"
+        "variants": "Varianten",
+        "attributes": "Kenmerken"
       },
       "errors": {
         "variants": "Selecteer minimaal één variant.",
         "options": "Maak minimaal één optie aan.",
         "uniqueSku": "SKU moet uniek zijn.",
-        "requiredAttribute": "This attribute is required."
+        "requiredAttribute": "This attribute is required.",
+        "primaryCategoryRequired": "Primaire categorie is verplicht",
+        "categoryRequired": "Selecteer een categorie",
+        "titleRequired": "Titel is verplicht",
+        "handleInvalidFormat": "De handle mag alleen kleine letters, cijfers en koppeltekens bevatten",
+        "handleMustContainLetter": "De handle moet ten minste één letter bevatten",
+        "requiredAttributeSelect": "Dit attribuut is verplicht gesteld door de marketplace. Selecteer een waarde.",
+        "requiredAttributeEnter": "Dit attribuut is verplicht gesteld door de marketplace. Voer een waarde in.",
+        "requiredAttributeMultiSelect": "Dit attribuut is verplicht gesteld door de marketplace. Selecteer ten minste één waarde."
       },
       "variants": {
         "header": "Varianten",
@@ -436,12 +510,15 @@
           "label": "Productvarianten",
           "hint": "Deze rangschikking beïnvloedt de volgorde van varianten in uw winkel.",
           "alert": "Voeg opties toe om varianten aan te maken.",
-          "tip": "Varianten die niet zijn aangevinkt, worden niet aangemaakt. U kunt later altijd varianten aanmaken en bewerken, maar deze lijst past bij de variaties in uw productopties."
+          "tip": "Varianten die niet zijn aangevinkt, worden niet aangemaakt. U kunt later altijd varianten aanmaken en bewerken, maar deze lijst past bij de variaties in uw productopties.",
+          "searchPlaceholder": "Zoeken",
+          "media": "Media"
         },
         "productOptions": {
           "label": "Productopties",
           "hint": "Definieer de opties voor het product, zoals kleur, maat, etc."
-        }
+        },
+        "optionsHeader": "Opties"
       },
       "successToast": "Product {{title}} is succesvol aangemaakt.",
       "attributes": {
@@ -456,8 +533,35 @@
         "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
         "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
         "titlePlaceholder": "e.g. Color",
-        "valuePlaceholder": "Enter values"
-      }
+        "valuePlaceholder": "Enter values",
+        "description": "Beheer attributen en variaties voor je product, bijv. kleur, maat, merk enz. Kies uit attributen gedefinieerd door de marketplace of maak je eigen attribuut.",
+        "requiredHeading": "Verplichte attributen",
+        "requiredDescription": "Deze attributen zijn verplicht voor producten in deze categorie.",
+        "buttonLabel": "Attribuut",
+        "loading": "Attributen laden...",
+        "learnMore": {
+          "label": "Meer informatie over attributen",
+          "content": "Attributen helpen klanten je producten te vinden en filteren. Door de beheerder gedefinieerde attributen verschijnen in zoekresultaten."
+        },
+        "editVariantAxisTip": "Je kunt varianten aanmaken met dit attribuut.",
+        "warning": "Waarschuwing",
+        "editWarning": "Wijzigingen aan dit attribuut kunnen bestaande productvarianten of details beïnvloeden. Controleer je varianten en productdetails na het opslaan.",
+        "enterValuePlaceholder": "Waarde invoeren",
+        "selectValuePlaceholder": "Waarde selecteren",
+        "requiredTooltip": "Dit attribuut is verplicht gesteld door de marketplace en kan niet worden gedeselecteerd.",
+        "noAttributesTitle": "Nog geen productattributen",
+        "noAttributesDescription": "Er zijn geen attributen gedefinieerd door de marketplace.",
+        "errors": {
+          "titleRequired": "Voer een titel in",
+          "valuesRequired": "Voer ten minste één waarde in"
+        }
+      },
+      "defaults": {
+        "optionTitle": "Standaardoptie",
+        "optionValue": "Standaardoptiewaarde",
+        "variantTitle": "Standaardvariant"
+      },
+      "requestSuccessToast": "Product is succesvol aangevraagd. Je kunt nu aanbiedingen voor dit product aanmaken. Zodra het product is goedgekeurd door de beheerder, verschijnen je aanbiedingen op de winkelwebsite. Alleen aanbiedingen met ingestelde voorraadniveaus en prijzen zijn zichtbaar."
     },
     "export": {
       "header": "Productlijst exporteren",
@@ -506,6 +610,12 @@
       "filtered": {
         "heading": "Geen resultaten",
         "description": "Geen varianten voldoen aan de huidige filtercriteria."
+      },
+      "editStocksAndPrices": {
+        "header": "Voorraad en prijzen bewerken",
+        "description": "Beheer voorraadlocaties en prijzen voor alle varianten",
+        "action": "Voorraad en prijzen bewerken",
+        "successToast": "Voorraad en prijzen succesvol bijgewerkt"
       }
     },
     "attributes": "Kenmerken",
@@ -530,9 +640,20 @@
       "emptyState": {
         "header": "Nog geen media",
         "description": "Voeg media toe aan het product om het in uw winkel te tonen.",
-        "action": "Media toevoegen"
+        "action": "Media toevoegen",
+        "variantDescription": "Deze variant heeft geen afbeeldingen. Voeg afbeeldingen toe aan de variant."
       },
-      "successToast": "Media is succesvol bijgewerkt."
+      "successToast": "Media is succesvol bijgewerkt.",
+      "manageImageVariants": "Gekoppelde varianten beheren",
+      "fileTooLarge": "Een of meer bestanden overschrijden de maximale bestandsgrootte van {{size}}: {{name}}",
+      "variantImages": "Variantafbeeldingen",
+      "showAvailableImages": "Beschikbare afbeeldingen tonen",
+      "availableImages": "Afbeeldingen selecteren",
+      "selectToAdd": "Voeg productafbeeldingen toe aan de variant. Om nieuwe afbeeldingen toe te voegen, voeg ze eerst toe aan het product.",
+      "removeSelected": "Geselecteerde verwijderen",
+      "selectImages": "Afbeeldingen selecteren",
+      "selectImagesHint": "Klik op afbeeldingen om ze aan deze variant toe te voegen.",
+      "editLabel": "Bewerken"
     },
     "discountableHint": "Wanneer uitgeschakeld, worden kortingen niet toegepast op dit product.",
     "noSalesChannels": "Niet beschikbaar in verkoopkanalen",
@@ -549,18 +670,23 @@
     "fields": {
       "title": {
         "label": "Titel",
-        "hint": "Geef uw product een korte en duidelijke titel.<0/>50-60 tekens is de aanbevolen lengte voor zoekmachines."
+        "hint": "Geef uw product een korte en duidelijke titel.<0/>50-60 tekens is de aanbevolen lengte voor zoekmachines.",
+        "placeholder": "Winterjas",
+        "required": "Voer een titel in"
       },
       "subtitle": {
-        "label": "Ondertitel"
+        "label": "Ondertitel",
+        "placeholder": "Warm en gezellig"
       },
       "handle": {
         "label": "Handle",
-        "tooltip": "De handle wordt gebruikt om naar het product te verwijzen in uw winkel. Als niet opgegeven, wordt de handle gegenereerd op basis van de producttitel."
+        "tooltip": "De handle wordt gebruikt om naar het product te verwijzen in uw winkel. Als niet opgegeven, wordt de handle gegenereerd op basis van de producttitel.",
+        "placeholder": "winterjas"
       },
       "description": {
         "label": "Beschrijving",
-        "hint": "Geef uw product een korte en duidelijke beschrijving.<0/>120-160 tekens is de aanbevolen lengte voor zoekmachines."
+        "hint": "Geef uw product een korte en duidelijke beschrijving.<0/>120-160 tekens is de aanbevolen lengte voor zoekmachines.",
+        "placeholder": "Een warme en gezellige jas"
       },
       "discountable": {
         "label": "Korting mogelijk",
@@ -622,15 +748,51 @@
       },
       "hs_code": {
         "label": "HS code"
+      },
+      "attributes": {
+        "add": {
+          "title": {
+            "label": "Titel",
+            "placeholder": "Zoek of typ een attribuutnaam...",
+            "required": "Attribuuttitel is verplicht"
+          },
+          "values": {
+            "label": "Waarden",
+            "placeholder": "Typ waarden gescheiden door komma's",
+            "required": "Ten minste één waarde is verplicht"
+          }
+        },
+        "useForVariants": {
+          "label": "Gebruiken voor variaties",
+          "description": "Schakel dit in om productvarianten te maken op basis van dit attribuut.",
+          "editDescription": "Het wijzigen hiervan beïnvloedt bestaande productvarianten."
+        },
+        "validation": {
+          "required": "{{name}} is verplicht",
+          "requiredSelect": "Selecteer een waarde",
+          "requiredEnter": "Voer een waarde in",
+          "requiredSelectMultiple": "Selecteer ten minste één waarde"
+        },
+        "enterValuePlaceholder": "Waarde invoeren",
+        "selectValuePlaceholder": "Selecteer een waarde"
+      },
+      "secondaryCategories": {
+        "label": "Secundaire categorieën"
+      },
+      "primaryCategory": {
+        "label": "Primaire categorie",
+        "tooltip": "De categorie kan attributen definiëren die op dit product van toepassing zijn. Attributen worden door de beheerder aangemaakt bij het inrichten van de marketplace."
       }
     },
     "variant": {
       "edit": {
         "header": "Variant bewerken",
-        "success": "Productvariant succesvol bewerkt"
+        "success": "Productvariant succesvol bewerkt",
+        "attributesTooltip": "Dit zijn standaardwaarden die worden gebruikt om het artikel te beschrijven. Ze worden niet gedefinieerd door de marketplace."
       },
       "create": {
-        "header": "Variantdetails"
+        "header": "Variantdetails",
+        "successToast": "Variant is succesvol aangemaakt."
       },
       "deleteWarning": "Weet u zeker dat u deze variant wilt verwijderen?",
       "tableItemAvailable": "{{availableCount}} beschikbaar",
@@ -656,6 +818,10 @@
           "updateLevel": "Voorraadniveau succesvol bijgewerkt.",
           "itemsManageSuccess": "Voorraaditems succesvol bijgewerkt."
         }
+      },
+      "validation": {
+        "titleRequired": "Voer een titel in",
+        "optionRequired": "Selecteer een waarde"
       }
     },
     "options": {
@@ -668,7 +834,11 @@
         "header": "Optie aanmaken",
         "successToast": "Optie {{title}} is succesvol aangemaakt."
       },
-      "deleteWarning": "U staat op het punt de productoptie: {{title}} te verwijderen. Deze actie kan niet ongedaan worden gemaakt."
+      "deleteWarning": "U staat op het punt de productoptie: {{title}} te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
+      "variations": {
+        "label": "Variaties",
+        "description": "Attributen gebruikt om productvarianten te maken."
+      }
     },
     "organization": {
       "header": "Organiseren",
@@ -703,6 +873,66 @@
           "header": "Verwijderen van product mislukt"
         }
       }
+    },
+    "bulkDelete": {
+      "title": "Producten verwijderen",
+      "description": "Je staat op het punt {{count}} producten uit de catalogus te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
+      "success": "{{count}} producten succesvol verwijderd.",
+      "error": "Verwijderen van producten mislukt."
+    },
+    "edits": {
+      "panel": {
+        "title": "Productupdate-aanvraag",
+        "deleteRequested": "Verwijdering van product wacht op goedkeuring.",
+        "cancelTitle": "Updateaanvraag annuleren",
+        "cancelDescription": "Weet je zeker dat je deze productupdate-aanvraag wilt annuleren? Deze actie kan niet ongedaan worden gemaakt."
+      },
+      "toast": {
+        "canceledSuccessfully": "Productupdate-aanvraag is succesvol geannuleerd."
+      }
+    },
+    "attributeVariations": "Variaties",
+    "attributeVariantsDescription": "Attributen gebruikt voor varianten",
+    "attributeProductInformation": "Productinformatie",
+    "attributeProductInformationDescription": "Attributen gebruikt ter informatie",
+    "attributeRequiredByMarketplace": "Dit attribuut is verplicht gesteld door de marketplace.",
+    "attributeRequiredDeleteDisabledTooltip": "Verplichte attributen kunnen niet worden verwijderd.",
+    "addAttribute": "Attribuut toevoegen",
+    "deleteAttributeWarning": "Weet je zeker dat je het attribuut \"{{title}}\" wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt.",
+    "attributesSection": {
+      "removeWarning": "Je staat op het punt dit attribuut van het product te verwijderen. Deze actie kan niet ongedaan worden gemaakt."
+    },
+    "editAttribute": "Attribuut bewerken",
+    "editAttributeHint": "Werk de geselecteerde waarden voor dit attribuut op het product bij.",
+    "variantMedia": {
+      "label": "Variantmedia",
+      "manageVariants": "Varianten beheren",
+      "addToMultipleVariants": "Toevoegen aan meerdere varianten",
+      "manageVariantsDescription": "Beheer gekoppelde varianten voor de afbeelding",
+      "successToast": "Afbeeldingsvarianten succesvol bijgewerkt.",
+      "emptyState": {
+        "header": "Nog geen media",
+        "description": "Voeg media toe aan de variant om deze op je winkelwebsite te presenteren.",
+        "action": "Media toevoegen"
+      }
+    },
+    "columns": {
+      "product_display": "Product",
+      "variants_count": "Varianten",
+      "sales_channels_display": "Verkoopkanalen",
+      "collection": "Collectie",
+      "status": "Status",
+      "thumbnail": "Miniatuur",
+      "title": "Titel",
+      "handle": "Handle",
+      "created_at": "Aangemaakt",
+      "updated_at": "Bijgewerkt"
+    },
+    "bulkEdit": {
+      "title": "Producten in bulk bewerken",
+      "description": "Bewerk meerdere producten tegelijk.",
+      "noChanges": "Geen wijzigingen om op te slaan.",
+      "success": "Producten succesvol bijgewerkt."
     }
   },
   "collections": {
@@ -728,6 +958,23 @@
       "remove": {
         "successToast_one": "Product is succesvol verwijderd uit de collectie.",
         "successToast_other": "Producten zijn succesvol verwijderd uit de collectie."
+      }
+    },
+    "requestSuccess": "Collectie succesvol aangevraagd",
+    "media": {
+      "label": "Media",
+      "thumbnail": "Miniatuur",
+      "banner": "Banner",
+      "empty": {
+        "header": "Nog geen media",
+        "description": "Media toegevoegd door de marketplace-operator verschijnen hier."
+      }
+    },
+    "icon": {
+      "label": "Pictogram",
+      "empty": {
+        "header": "Nog geen pictogram",
+        "description": "Een pictogram toegevoegd door de marketplace-operator verschijnt hier."
       }
     }
   },
@@ -793,6 +1040,22 @@
       "new": {
         "label": "Nieuw"
       }
+    },
+    "media": {
+      "label": "Media",
+      "thumbnail": "Miniatuur",
+      "banner": "Banner",
+      "empty": {
+        "header": "Nog geen media",
+        "description": "Media toegevoegd door de marketplace-operator verschijnen hier."
+      }
+    },
+    "icon": {
+      "label": "Pictogram",
+      "empty": {
+        "header": "Nog geen pictogram",
+        "description": "Een pictogram toegevoegd door de marketplace-operator verschijnt hier."
+      }
     }
   },
   "inventory": {
@@ -815,7 +1078,8 @@
       "attributes": "Kenmerken",
       "requiresShipping": "Verzending vereist",
       "requiresShippingHint": "Heeft het voorraaditem verzending nodig?",
-      "successToast": "Voorraaditem is succesvol aangemaakt."
+      "successToast": "Voorraaditem is succesvol aangemaakt.",
+      "descriptionPlaceholder": "De artikelomschrijving"
     },
     "reservation": {
       "header": "Reservering van {{itemName}}",
@@ -859,7 +1123,8 @@
       "disablePrompt_other": "U staat op het punt {{count}} locatieniveaus uit te schakelen. Deze actie kan niet ongedaan worden gemaakt.",
       "disabledToggleTooltip": "Kan niet uitschakelen: maak inkomende en/of gereserveerde hoeveelheid leeg voordat u uitschakelt.",
       "successToast": "Voorraadniveaus succesvol bijgewerkt."
-    }
+    },
+    "levelDeleted": "Voorraadniveau succesvol verwijderd."
   },
   "giftCards": {
     "domain": "Cadeaubonnen",
@@ -895,20 +1160,26 @@
       "removeMany": "Weet u zeker dat u de klant uit de volgende klantengroepen wilt verwijderen: {{groups}}?",
       "alreadyAddedTooltip": "De klant zit al in deze klantengroep.",
       "list": {
-        "noRecordsMessage": "Deze klant behoort tot geen enkele groep."
+        "noRecordsMessage": "Deze klant behoort tot geen enkele groep.",
+        "emptyTitle": "Geen klantengroepen"
       },
       "add": {
         "success": "Klant toegevoegd aan: {{groups}}.",
         "list": {
           "noRecordsMessage": "Maak eerst een klantengroep aan."
-        }
+        },
+        "successOne": "Klant is succesvol toegevoegd aan {{groups}} groep.",
+        "successMany": "Klant is succesvol toegevoegd aan {{groups}} groepen."
       },
       "removed": {
         "success": "Klant verwijderd uit: {{groups}}.",
         "list": {
           "noRecordsMessage": "Maak eerst een klantengroep aan."
-        }
-      }
+        },
+        "successOne": "Klant is succesvol verwijderd uit {{groups}} groep.",
+        "successMany": "Klant is succesvol verwijderd uit {{groups}} groepen."
+      },
+      "removeTitle": "Klant verwijderen"
     },
     "edit": {
       "header": "Klant bewerken",
@@ -947,7 +1218,9 @@
         "header": "Adres aanmaken",
         "hint": "Maak een nieuw adres aan voor de klant.",
         "successToast": "Adres is succesvol aangemaakt."
-      }
+      },
+      "emptyTitle": "Nog geen adressen",
+      "emptyMessage": "Deze klant heeft geen adressen"
     }
   },
   "customerGroups": {
@@ -966,7 +1239,8 @@
     "create": {
       "header": "Klantengroep aanmaken",
       "hint": "Maak een nieuwe klantengroep aan om uw klanten te segmenteren.",
-      "successToast": "Klantengroep {{name}} is succesvol aangemaakt."
+      "successToast": "Klantengroep {{name}} is succesvol aangemaakt.",
+      "alreadyExistsToast": "Klantgroep met naam {{name}} bestaat al."
     },
     "edit": {
       "header": "Klantengroep bewerken",
@@ -990,11 +1264,17 @@
         "title_one": "Klant verwijderen",
         "title_other": "Klanten verwijderen",
         "description_one": "U staat op het punt {{count}} klant uit de klantengroep te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
-        "description_other": "U staat op het punt {{count}} klanten uit de klantengroep te verwijderen. Deze actie kan niet ongedaan worden gemaakt."
+        "description_other": "U staat op het punt {{count}} klanten uit de klantengroep te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
+        "successToast_one": "Klant is succesvol verwijderd uit de groep.",
+        "successToast_other": "Klanten zijn succesvol verwijderd uit de groep."
       },
       "list": {
-        "noRecordsMessage": "Deze groep heeft geen klanten."
+        "noRecordsMessage": "Deze groep heeft geen klanten.",
+        "noRecordsTitle": "Nog geen klanten"
       }
+    },
+    "validation": {
+      "nameRequired": "Voer een naam in"
     }
   },
   "orders": {
@@ -1030,7 +1310,8 @@
       "itemSubtotal": "Subtotaal items",
       "shippingSubtotal": "Subtotaal verzending",
       "discountSubtotal": "Subtotaal korting",
-      "taxTotal": "Totaal belasting"
+      "taxTotal": "Totaal belasting",
+      "totalAfterDiscount": "Totaal na korting"
     },
     "transfer": {
       "title": "Eigendom overdragen",
@@ -1060,7 +1341,8 @@
         "partiallyCaptured": "Gedeeltelijk geïncasseerd",
         "refunded": "Terugbetaald",
         "canceled": "Geannuleerd",
-        "requiresAction": "Actie vereist"
+        "requiresAction": "Actie vereist",
+        "pending": "In behandeling"
       },
       "capturePayment": "Betaling van {{amount}} wordt geïncasseerd.",
       "capturePaymentSuccess": "Betaling van {{amount}} succesvol geïncasseerd",
@@ -1071,7 +1353,15 @@
       "createRefundWrongQuantity": "Hoeveelheid moet een getal zijn tussen 1 en {{number}}",
       "refundAmount": "Terugbetalen {{ amount }}",
       "paymentLink": "Betaallink kopiëren voor {{ amount }}",
-      "selectPaymentToRefund": "Selecteer betaling om terug te betalen"
+      "selectPaymentToRefund": "Selecteer betaling om terug te betalen",
+      "totalPending": "Totaal in behandeling",
+      "totalRefunded": "Terugbetaald",
+      "totalStoreCreditRefunds": "Totaal winkeltegoed-terugbetalingen",
+      "enterAmount": "Voer een bedrag in",
+      "copyPaymentLink": "Betaallink kopiëren voor {{ amount }}",
+      "copyLinkSuccess": "Betaallink gekopieerd naar klembord",
+      "copyLinkError": "Kopiëren van betaallink mislukt",
+      "outstandingAmount": "Openstaand bedrag"
     },
     "edits": {
       "title": "Bestelling bewerken",
@@ -1097,11 +1387,15 @@
       },
       "toast": {
         "canceledSuccessfully": "Bestellingsbewerking geannuleerd",
-        "confirmedSuccessfully": "Bestellingsbewerking bevestigd"
+        "confirmedSuccessfully": "Bestellingsbewerking bevestigd",
+        "requestSent": "Wijzigingsverzoek verzonden naar klant"
       },
       "validation": {
         "quantityLowerThanFulfillment": "Kan hoeveelheid niet instellen op minder dan of gelijk aan vervulde hoeveelheid"
-      }
+      },
+      "sendNotification": "Notificatie versturen",
+      "sendNotificationHint": "Klant op de hoogte stellen van de wijziging.",
+      "removeBlockedFulfilledOrReturned": "Artikelen die zijn afgehandeld of geretourneerd, kunnen niet worden verwijderd."
     },
     "edit": {
       "email": {
@@ -1185,7 +1479,16 @@
       "panel": {
         "title": "Retour geïnitieerd",
         "description": "Er is een open retourverzoek dat moet worden voltooid"
-      }
+      },
+      "policyHint": "Retouren worden geaccepteerd binnen {{days}} dagen na levering.",
+      "outOfPolicy": "Retouren worden geaccepteerd binnen {{days}} dagen na levering.",
+      "restockPreview": "Ontvangst van {{quantity}} × {{offerSku}} → +{{delta}} naar {{inventoryItem}} bij {{location}}",
+      "noItemsSelected": "Selecteer ten minste één artikel om te retourneren.",
+      "emptyState": {
+        "title": "Nog geen records",
+        "description": "Voeg ten minste één artikel uit de bestelling toe om de retour aan te maken"
+      },
+      "emptyItemsError": "Voeg ten minste één artikel uit de bestelling toe"
     },
     "claims": {
       "create": "Claim aanmaken",
@@ -1218,7 +1521,35 @@
       "panel": {
         "title": "Claim geïnitieerd",
         "description": "Er is een open claimverzoek dat moet worden voltooid"
-      }
+      },
+      "title": "Claim aanmaken",
+      "description": "Kies het claimtype en selecteer de artikelen die de klant wil claimen.",
+      "policyHint": "Claims worden geaccepteerd binnen {{days}} dagen na levering.",
+      "outOfPolicy": "Claims worden geaccepteerd binnen {{days}} dagen na levering.",
+      "location": "Locatie",
+      "locationHint": "Voorraadlocatie waar de geretourneerde artikelen worden ontvangen.",
+      "inboundShipping": "Retourverzending (optioneel)",
+      "inboundShippingHint": "Verzendmethode die de klant gebruikt om de artikelen te retourneren.",
+      "typeLabel": "Claimtype",
+      "typeRefund": "Terugbetaling — geen vervangende zending",
+      "typeReplace": "Vervangen — vervangende artikelen verzenden",
+      "typeLockedAfterStart": "Het claimtype wordt vergrendeld zodra een concept is gestart. Annuleer en heropen om te wisselen.",
+      "claimItems": "Te claimen artikelen",
+      "noClaimableItems": "Geen claimbare artikelen in deze bestelling.",
+      "outboundItems": "Te verzenden artikelen",
+      "noOutboundItems": "Nog geen vervangende artikelen toegevoegd.",
+      "addOutboundItems": "Items toevoegen",
+      "addOutboundItemsDescription": "Kies varianten om als vervanging voor de geclaimde artikelen te verzenden.",
+      "remainingQty": "{{count}} claimbaar",
+      "reasonPlaceholder": "Kies een reden",
+      "itemNotePlaceholder": "Voeg een notitie toe (optioneel)",
+      "reasons": {
+        "missing_item": "Ontbrekend artikel",
+        "wrong_item": "Verkeerd artikel",
+        "production_failure": "Productiefout",
+        "other": "Overig"
+      },
+      "noteHint": "Voeg een interne notitie toe voor deze claim (alleen zichtbaar voor je team)."
     },
     "exchanges": {
       "create": "Omruiling aanmaken",
@@ -1251,7 +1582,31 @@
       "panel": {
         "title": "Omruiling geïnitieerd",
         "description": "Er is een open omruilingsverzoek dat moet worden voltooid"
-      }
+      },
+      "title": "Omruiling aanmaken",
+      "description": "Selecteer retourneerbare artikelen en bevestig om een ruilverzoek aan te maken.",
+      "policyHint": "Ruilingen worden geaccepteerd binnen {{days}} dagen na levering.",
+      "outOfPolicy": "Ruilingen worden geaccepteerd binnen {{days}} dagen na levering.",
+      "inboundItems": "Te retourneren artikelen",
+      "noReturnableItems": "Geen retourneerbare artikelen in deze bestelling.",
+      "outboundItems": "Te verzenden artikelen",
+      "noOutboundItems": "Nog geen vervangende artikelen toegevoegd.",
+      "addOutboundItems": "Items toevoegen",
+      "addOutboundItemsDescription": "Kies varianten om als vervanging voor de geretourneerde artikelen te verzenden.",
+      "location": "Retourlocatie",
+      "locationHint": "Kies naar welke locatie de geretourneerde artikelen moeten worden verzonden.",
+      "locationPlaceholder": "Kies een locatie",
+      "inboundShipping": "Retourverzending (optioneel)",
+      "inboundShippingHint": "Kies welke methode wordt gebruikt voor de inkomende zending.",
+      "inboundShippingPlaceholder": "Kies een verzendoptie",
+      "inboundShippingLockedPlaceholder": "Kies eerst een locatie",
+      "reasonPlaceholder": "Kies een reden",
+      "itemNotePlaceholder": "Voeg een notitie toe (optioneel)",
+      "remainingQty": "{{count}} retourneerbaar",
+      "noteHint": "Voeg een interne notitie toe voor deze ruiling (alleen zichtbaar voor je team).",
+      "carryOverPromotion": "Promoties overnemen",
+      "carryOverPromotionHint": "Pas de promoties van de bestelling toe op de ruilartikelen",
+      "carryOverPromotionTooltip": "Alleen promoties van het type vast met toewijzing PER STUK en promoties van het type percentage met toewijzing PER STUK of VERDEELD kunnen worden overgenomen naar uitgaande ruilartikelen."
     },
     "reservations": {
       "allocatedLabel": "Toegewezen",
@@ -1267,10 +1622,12 @@
       "consistsOf": "Bevat {{num}}x voorraaditems",
       "requires": "Vereist {{num}} per variant",
       "toast": {
-        "created": "Items succesvol toegewezen"
+        "created": "Items succesvol toegewezen",
+        "error": "Kan de volgende artikelen niet toewijzen: {{items}}"
       },
       "error": {
-        "quantityNotAllocated": "Er zijn niet-toegewezen items."
+        "quantityNotAllocated": "Er zijn niet-toegewezen items.",
+        "noItemsSelected": "Selecteer ten minste één artikel om toe te wijzen."
       }
     },
     "shipment": {
@@ -1279,7 +1636,11 @@
       "addTracking": "Trackingnummer toevoegen",
       "sendNotification": "Notificatie versturen",
       "sendNotificationHint": "Informeer de klant over deze verzending.",
-      "toastCreated": "Verzending succesvol aangemaakt."
+      "toastCreated": "Verzending succesvol aangemaakt.",
+      "trackingUrl": "Trackings-URL",
+      "labelUrl": "Label-URL",
+      "addTrackingUrl": "Trackings-URL toevoegen",
+      "trackingUrlPlaceholder": "https://www.dhl.com/shipment/1234567890"
     },
     "fulfillment": {
       "cancelWarning": "U staat op het punt een verzending te annuleren. Deze actie kan niet ongedaan worden gemaakt.",
@@ -1309,7 +1670,8 @@
         "wrongQuantity_other": "Hoeveelheid moet een getal zijn tussen 1 en {{number}}",
         "noItems": "Geen items om te verzenden.",
         "noShippingOption": "Verzendoptie is vereist",
-        "noLocation": "Locatie is vereist"
+        "noLocation": "Locatie is vereist",
+        "exceedsReservedQuantity": "De hoeveelheid die je wilt afhandelen overschrijdt de gereserveerde hoeveelheid voor artikelen. Controleer je afhandeling."
       },
       "status": {
         "notFulfilled": "Niet verzonden",
@@ -1322,7 +1684,10 @@
         "partiallyReturned": "Gedeeltelijk geretourneerd",
         "returned": "Geretourneerd",
         "canceled": "Geannuleerd",
-        "requiresAction": "Actie vereist"
+        "requiresAction": "Actie vereist",
+        "awaitingPickup": "Wacht op ophalen",
+        "awaitingShipping": "Wacht op verzending",
+        "awaitingDelivery": "Wacht op levering"
       },
       "toast": {
         "created": "Verzending succesvol aangemaakt",
@@ -1333,13 +1698,17 @@
       },
       "trackingLabel": "Tracking",
       "shippingFromLabel": "Verzonden vanaf",
-      "itemsLabel": "Items"
+      "itemsLabel": "Items",
+      "noInventoryLevel": {
+        "title": "Geen voorraadniveau",
+        "description": "De geselecteerde locatie heeft geen voorraadniveau voor de geselecteerde artikelen. Maak een voorraadniveau aan voor de geselecteerde locatie om door te gaan met afhandeling."
+      }
     },
     "refund": {
       "title": "Terugbetaling aanmaken",
       "sendNotificationHint": "Informeer klanten over de aangemaakte terugbetaling.",
       "systemPayment": "Systeembetaling",
-      "systemPaymentDesc": "Een of meer van uw betalingen is een systeembetaling. Houd er rekening mee dat incasso's en terugbetalingen niet door Medusa worden afgehandeld voor dergelijke betalingen.",
+      "systemPaymentDesc": "Een of meer van uw betalingen is een systeembetaling. Houd er rekening mee dat incasso's en terugbetalingen niet door Mercur worden afgehandeld voor dergelijke betalingen.",
       "error": {
         "amountToLarge": "Kan niet meer terugbetalen dan het oorspronkelijke bestelbedrag.",
         "amountNegative": "Terug te betalen bedrag moet een positief getal zijn.",
@@ -1434,6 +1803,46 @@
       "displayId": "Weergave-ID",
       "refundableAmount": "Terug te betalen bedrag",
       "returnableQuantity": "Retourneerbare hoeveelheid"
+    },
+    "giftCardsStoreCreditLines": "Cadeaubonnen & tegoedregels",
+    "creditLines": {
+      "title": "Tegoedregels",
+      "total": "Som van alle tegoedregels",
+      "creditOrDebit": "Credit / Debet",
+      "createCreditLine": "Tegoedregel aanmaken",
+      "createCreditLineSuccess": "Tegoedregel succesvol aangemaakt",
+      "createCreditLineError": "Fout bij aanmaken van tegoedregel",
+      "createCreditLineDescription": "Maak een tegoedregel aan voor bedrag {{amount}}",
+      "operation": "Bewerking",
+      "credit": "Credit",
+      "creditDescription": "Voegt een positief bedrag toe aan de bestelling",
+      "debit": "Debet",
+      "debitDescription": "Trekt een negatief bedrag af van de bestelling"
+    },
+    "balanceSettlement": {
+      "title": "Saldoverrekening",
+      "settlementType": "Verrekeningstype",
+      "settlementTypes": {
+        "paymentMethod": "Betaalmethode",
+        "paymentMethodDescription": "Bedrag terugbetalen naar de betaalmethode",
+        "creditLine": "Winkeltegoed",
+        "creditLineDescription": "Bedrag terugbetalen als winkeltegoed"
+      }
+    },
+    "actions": {
+      "cancelDisabledFulfilled": "Een bestelling met afgehandelde artikelen kan niet worden geannuleerd."
+    },
+    "export": {
+      "header": "Bestellijst exporteren",
+      "description": "Exporteer de bestellijst naar een CSV-bestand.",
+      "success": {
+        "title": "Export gestart",
+        "description": "Je ontvangt een melding zodra de export gereed is."
+      },
+      "filters": {
+        "title": "Filters",
+        "description": "De volgende filters worden toegepast op de export."
+      }
     }
   },
   "draftOrders": {
@@ -1477,12 +1886,23 @@
       "requiredEmailOrCustomer": "E-mail of klant is vereist.",
       "requiredItems": "Minstens één item is vereist.",
       "invalidEmail": "E-mail moet een geldig e-mailadres zijn."
+    },
+    "list": {
+      "noRecordsMessage": "Geen conceptbestellingen gevonden",
+      "description": "Maak een nieuwe conceptbestelling aan om te beginnen.",
+      "filtered": {
+        "heading": "Geen resultaten gevonden",
+        "description": "Geen conceptbestellingen komen overeen met je filtercriteria."
+      }
     }
   },
   "stockLocations": {
     "domain": "Locaties & Verzending",
     "list": {
-      "description": "Beheer de voorraadlocaties en verzendopties van uw winkel."
+      "description": "Beheer de voorraadlocaties en verzendopties van uw winkel.",
+      "noRecordsMessage": "Geen gegevens",
+      "noRecordsMessageEmpty": "Geen locaties gevonden",
+      "noRecordsMessageFiltered": "Geen locaties gevonden die overeenkomen met de filters"
     },
     "create": {
       "header": "Voorraadlocatie aanmaken",
@@ -1495,7 +1915,8 @@
       "successToast": "Locatie {{name}} is succesvol bijgewerkt."
     },
     "delete": {
-      "confirmation": "U staat op het punt de voorraadlocatie \"{{name}}\" te verwijderen. Deze actie kan niet ongedaan worden gemaakt."
+      "confirmation": "U staat op het punt de voorraadlocatie \"{{name}}\" te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
+      "successToast": "Locatie \"{{name}}\" is succesvol verwijderd."
     },
     "fulfillmentProviders": {
       "header": "Verzendproviders",
@@ -1528,6 +1949,10 @@
       "shippingProfiles": {
         "label": "Verzendprofielen",
         "description": "Groepeer producten op verzendvereisten"
+      },
+      "shippingOptionTypes": {
+        "label": "Verzendoptietypen",
+        "description": "Groepeer verzendopties op type"
       }
     },
     "salesChannels": {
@@ -1645,7 +2070,8 @@
         },
         "provider": "Verzendprovider",
         "profile": "Verzendprofiel",
-        "fulfillmentOption": "Verzendoptie"
+        "fulfillmentOption": "Verzendoptie",
+        "type": "Verzendoptietype"
       }
     },
     "serviceZones": {
@@ -1707,7 +2133,9 @@
       "hint": "Maak een nieuwe belastingregio aan om belastingtarieven voor een specifiek land te definiëren.",
       "errors": {
         "rateIsRequired": "Belastingtarief is vereist bij het aanmaken van een standaard belastingtarief.",
-        "nameIsRequired": "Naam is vereist bij het aanmaken van een standaard belastingtarief."
+        "nameIsRequired": "Naam is vereist bij het aanmaken van een standaard belastingtarief.",
+        "missingProvider": "Provider is verplicht bij het aanmaken van een belastingregio.",
+        "missingCountry": "Land is verplicht bij het aanmaken van een belastingregio."
       },
       "successToast": "De belastingregio is succesvol aangemaakt."
     },
@@ -1851,7 +2279,8 @@
           "productCollection": "Productcollecties",
           "productTag": "Producttags",
           "productType": "Producttypen",
-          "customerGroup": "Klantengroepen"
+          "customerGroup": "Klantengroepen",
+          "shippingOption": "Verzendopties"
         },
         "operators": {
           "in": "in",
@@ -1863,14 +2292,16 @@
           "productCollection": "Zoek naar productcollecties",
           "productTag": "Zoek naar producttags",
           "productType": "Zoek naar producttypen",
-          "customerGroup": "Zoek naar klantengroepen"
+          "customerGroup": "Zoek naar klantengroepen",
+          "shippingOption": "Zoek naar verzendopties"
         },
         "tags": {
           "product": "Product",
           "productCollection": "Productcollectie",
           "productTag": "Producttag",
           "productType": "Producttype",
-          "customerGroup": "Klantengroep"
+          "customerGroup": "Klantengroep",
+          "shippingOption": "Verzendoptie"
         },
         "modal": {
           "header": "Doelen toevoegen"
@@ -1926,10 +2357,25 @@
       "noDefaultRate": {
         "label": "Geen standaardtarief",
         "tooltip": "Deze belastingregio heeft geen standaard belastingtarief. Als er een standaardtarief is, zoals het BTW-tarief van een land, voeg dit dan toe aan deze regio."
-      }
+      },
+      "taxProvider": "Belastingprovider"
+    },
+    "edit": {
+      "header": "Belastingregio bewerken",
+      "hint": "Bewerk de gegevens van de belastingregio.",
+      "successToast": "De belastingregio is succesvol bijgewerkt."
+    },
+    "provider": {
+      "header": "Belastingprovider"
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "Percentage korting op product",
+        "description": "Geeft een percentage korting op geselecteerde producten"
+      }
+    },
     "domain": "Promoties",
     "sections": {
       "details": "Promotiedetails"
@@ -1958,13 +2404,29 @@
         },
         "target-rules": {
           "title": "Op welke items wordt de promotie toegepast?",
-          "description": "De promotie wordt toegepast op items die aan de volgende voorwaarden voldoen."
+          "description": "De promotie wordt toegepast op items die aan de volgende voorwaarden voldoen.",
+          "order": {
+            "title": "Op welke items wordt de promotie toegepast?",
+            "description": "De promotie wordt toegepast op items die aan de volgende voorwaarden voldoen."
+          },
+          "shipping_methods": {
+            "title": "Op welke verzendmethoden wordt de promotie toegepast?",
+            "description": "De promotie wordt toegepast op verzendmethoden die aan de volgende voorwaarden voldoen."
+          },
+          "items": {
+            "title": "Op welke items wordt de promotie toegepast?",
+            "description": "De promotie wordt toegepast op items die aan de volgende voorwaarden voldoen."
+          }
         },
         "buy-rules": {
           "title": "Wat moet er in de winkelwagen zitten om de promotie te ontgrendelen?",
           "description": "Als aan deze voorwaarden wordt voldaan, activeren we de promotie op de doelitems."
         }
-      }
+      },
+      "allocationTooltip": "Per stuk handhaaft de hoeveelheidslimiet per artikel, terwijl Eenmalig de hoeveelheidslimiet voor de hele winkelwagen handhaaft",
+      "taxInclusive": "Inclusief belasting",
+      "usageLimit": "Gebruikslimiet",
+      "usage": "Gebruik"
     },
     "tooltips": {
       "campaignType": "De valutacode moet in de promotie worden geselecteerd om een uitgavenbudget in te stellen."
@@ -2072,6 +2534,10 @@
         "across": {
           "title": "Over alles",
           "description": "Past waarde toe over alle items"
+        },
+        "once": {
+          "title": "Eenmalig",
+          "description": "Past de waarde toe op een beperkt aantal artikelen"
         }
       },
       "code": {
@@ -2079,7 +2545,8 @@
         "description": "De code die uw klanten tijdens het afrekenen zullen invoeren."
       },
       "value": {
-        "title": "Promotiewaarde"
+        "title": "Promotiewaarde",
+        "invalid": "Ongeldige promotiewaarde"
       },
       "value_type": {
         "fixed": {
@@ -2090,6 +2557,15 @@
           "title": "Percentage",
           "description": "Het percentage korting op het bedrag. Bijv. 8%"
         }
+      },
+      "selectOperator": "Operator selecteren",
+      "taxInclusive": {
+        "title": "Is belasting inbegrepen in de promotie?",
+        "description": "Schakel dit veld in om de promotie na belasting toe te passen"
+      },
+      "limit": {
+        "title": "Gebruikslimiet",
+        "description": "Maximum aantal keer dat deze promotie kan worden gebruikt over alle bestellingen. Laat leeg voor onbeperkt gebruik."
       }
     },
     "deleteWarning": "U staat op het punt de promotie {{code}} te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
@@ -2100,6 +2576,11 @@
       "list": {
         "noRecordsMessage": "Voeg een voorwaarde toe om te beperken op welke items de promotie van toepassing is."
       }
+    },
+    "campaignSection": {
+      "noRecordsTitle": "Geen onderdeel van een campagne",
+      "noRecordsMessage": "Voeg deze promotie toe aan een bestaande campagne",
+      "addToCampaign": "Toevoegen aan campagne"
     }
   },
   "campaigns": {
@@ -2145,7 +2626,8 @@
       "budget_limit": "Budgetlimiet",
       "campaign_id": {
         "hint": "Alleen campagnes met dezelfde valutacode als de promotie worden in deze lijst weergegeven."
-      }
+      },
+      "totalUsedByAttribute": "Totaal gebruikt"
     },
     "budget": {
       "create": {
@@ -2157,7 +2639,12 @@
         "type": "Type",
         "currency": "Valuta",
         "limit": "Limiet",
-        "used": "Gebruikt"
+        "used": "Gebruikt",
+        "budgetAttribute": "Gebruik beperken per",
+        "budgetAttributeTooltip": "Bepaal hoe vaak de promotie kan worden gebruikt per klant of e-mailadres.",
+        "totalUsedByAttribute": "Budgetlimiet per: {{attribute}}",
+        "totalUsedByAttributeCustomerId": "Budgetlimiet per klant",
+        "totalUsedByAttributeEmail": "Budgetlimiet per e-mailadres"
       },
       "type": {
         "spend": {
@@ -2167,10 +2654,20 @@
         "usage": {
           "title": "Gebruik",
           "description": "Stel een limiet in op hoe vaak de promotie kan worden gebruikt."
+        },
+        "useByAttribute": {
+          "title": "Gebruik op basis van attribuut (klant-ID, e-mail, enz.)",
+          "titleCustomerId": "Gebruik per klant",
+          "titleEmail": "Gebruik per e-mailadres",
+          "description": "Stel een limiet in voor het aantal keer dat de promotie kan worden gebruikt per specifieke attribuutwaarde."
         }
       },
       "edit": {
         "header": "Campagnebudget bewerken"
+      },
+      "attribute": {
+        "customer_id": "klant",
+        "customer_email": "e-mail"
       }
     },
     "promotions": {
@@ -2243,10 +2740,17 @@
         "successToast_other": "Prijzen voor {{count}} producten succesvol verwijderd."
       },
       "add": {
-        "successToast": "Prijzen zijn succesvol toegevoegd aan de prijslijst."
+        "successToast": "Prijzen zijn succesvol toegevoegd aan de prijslijst.",
+        "atLeastOnePrice": "Er moet ten minste één prijs worden toegevoegd.",
+        "alreadyInPriceList": "Dit product staat al in de prijslijst",
+        "noVariants": "Dit product heeft geen varianten",
+        "title": "Producten toevoegen aan prijslijst",
+        "description": "Voeg producten toe en stel prijzen in voor de prijslijst"
       },
       "edit": {
-        "successToast": "Prijzen zijn succesvol bijgewerkt."
+        "successToast": "Prijzen zijn succesvol bijgewerkt.",
+        "title": "Prijzen bewerken voor {{title}}",
+        "description": "Werk prijzen bij voor producten in de prijslijst"
       }
     },
     "fields": {
@@ -2299,13 +2803,15 @@
     "manageYourProfileDetails": "Beheer uw profielgegevens.",
     "fields": {
       "languageLabel": "Taal",
-      "usageInsightsLabel": "Gebruiksstatistieken"
+      "usageInsightsLabel": "Gebruiksstatistieken",
+      "firstName": "Voornaam",
+      "lastName": "Achternaam"
     },
     "edit": {
       "header": "Profiel bewerken",
       "languageHint": "De taal die u wilt gebruiken in het admin dashboard. Dit verandert niet de taal van uw winkel.",
       "languagePlaceholder": "Selecteer taal",
-      "usageInsightsHint": "Deel gebruiksstatistieken en help ons Medusa te verbeteren. U kunt meer lezen over wat we verzamelen en hoe we het gebruiken in onze <0>documentatie</0>."
+      "usageInsightsHint": "Deel gebruiksstatistieken en help ons Mercur te verbeteren. U kunt meer lezen over wat we verzamelen en hoe we het gebruiken in onze <0>documentatie</0>."
     },
     "toast": {
       "edit": "Profielwijzigingen opgeslagen"
@@ -2332,7 +2838,12 @@
     "roles": {
       "admin": "Beheerder",
       "developer": "Ontwikkelaar",
-      "member": "Lid"
+      "member": "Lid",
+      "administration": "Beheer",
+      "inventoryManagement": "Voorraadbeheer",
+      "orderManagement": "Orderbeheer",
+      "accounting": "Boekhouding",
+      "support": "Ondersteuning"
     },
     "list": {
       "empty": {
@@ -2346,7 +2857,14 @@
     },
     "deleteUserWarning": "U staat op het punt de gebruiker {{name}} te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
     "deleteUserSuccess": "Gebruiker {{name}} succesvol verwijderd",
-    "invite": "Uitnodigen"
+    "invite": "Uitnodigen",
+    "selectRole": "Selecteer een rol",
+    "inviteForm": {
+      "validation": {
+        "emailInvalid": "Voer een geldig e-mailadres in",
+        "roleRequired": "Selecteer een rol"
+      }
+    }
   },
   "store": {
     "domain": "Winkel",
@@ -2367,13 +2885,168 @@
     "removeCurrencyWarning_other": "U staat op het punt {{count}} valuta's uit uw winkel te verwijderen. Zorg ervoor dat u alle prijzen die de valuta's gebruiken hebt verwijderd voordat u doorgaat.",
     "currencyAlreadyAdded": "De valuta is al toegevoegd aan uw winkel.",
     "edit": {
-      "header": "Winkel bewerken"
+      "header": "Winkel bewerken",
+      "websiteHint": "Moet een protocol bevatten (bijv. https://)",
+      "mediaHeading": "Media",
+      "mediaTipLabel": "Tip:",
+      "mediaTipBody": "Deze media zijn zichtbaar op de winkelwebsite.",
+      "uploadLogoLabel": "Logo uploaden",
+      "uploadLogoHint": "Sleep je logo hierheen of klik om te uploaden.",
+      "uploadBannerLabel": "Banner uploaden",
+      "uploadBannerHint": "Sleep je banner hierheen of klik om te uploaden."
     },
     "toast": {
       "update": "Winkel succesvol bijgewerkt",
       "currenciesUpdated": "Valuta's succesvol bijgewerkt",
       "currenciesRemoved": "Valuta's succesvol uit de winkel verwijderd",
-      "updatedTaxInclusivitySuccessfully": "Belastinginclusieve prijzen succesvol bijgewerkt"
+      "updatedTaxInclusivitySuccessfully": "Belastinginclusieve prijzen succesvol bijgewerkt",
+      "localesUpdated": "Landinstellingen succesvol bijgewerkt",
+      "localesRemoved": "Landinstellingen succesvol verwijderd uit de winkel"
+    },
+    "handleTooltip": "De handle wordt de URL-slug voor je winkel. Laat leeg om automatisch te genereren op basis van de naam.",
+    "validation": {
+      "nameRequired": "Voer een naam in",
+      "emailRequired": "Voer een e-mailadres in",
+      "emailInvalid": "Voer een geldig e-mailadres in"
+    },
+    "profileCompletion": {
+      "title": "Winkelprofiel voltooien",
+      "steps": {
+        "storeDetails": "Winkelgegevens toevoegen",
+        "address": "Adres toevoegen",
+        "companyDetails": "Bedrijfsgegevens toevoegen",
+        "paymentDetails": "Betaalgegevens toevoegen"
+      }
+    },
+    "status": {
+      "active": "Actief",
+      "pendingApproval": "In behandeling",
+      "suspended": "Inactief",
+      "terminated": "Beëindigd"
+    },
+    "alert": {
+      "pendingApproval": {
+        "title": "Winkelaanvraag",
+        "description": "Winkelaanvraag is succesvol ingediend. Zodra de beheerder deze beoordeelt, ontvang je een melding in je paneel."
+      },
+      "suspended": {
+        "title": "Je winkel is opgeschort",
+        "description": "Je winkel is opgeschort door de platformbeheerder. Neem contact op met de ondersteuning voor meer informatie."
+      },
+      "terminated": {
+        "title": "Je winkel is beëindigd",
+        "description": "Je winkel is permanent beëindigd door de platformbeheerder. Neem contact op met de ondersteuning voor meer informatie."
+      }
+    },
+    "defaultLocale": "Standaard landinstelling",
+    "locales": "Landinstellingen",
+    "removeLocaleWarning_one": "Je staat op het punt {{count}} landinstelling uit je winkel te verwijderen. Alle vertalingen die deze landinstelling gebruiken, worden verwijderd.",
+    "removeLocaleWarning_other": "Je staat op het punt {{count}} landinstellingen uit je winkel te verwijderen. Alle vertalingen die deze landinstellingen gebruiken, worden verwijderd.",
+    "localeAlreadyAdded": "De landinstelling is al toegevoegd aan je winkel.",
+    "company": "Bedrijf",
+    "manageCompanyDetails": "Beheer je bedrijfsgegevens",
+    "logo": "Logo",
+    "banner": "Banner",
+    "editCompany": {
+      "header": "Bedrijf bewerken"
+    },
+    "address": {
+      "header": "Adres",
+      "defaultName": "Hoofdkantoor",
+      "nameLabel": "Naam",
+      "namePlaceholder": "Hoofdkantoor",
+      "empty": {
+        "title": "Geen adres",
+        "message": "Er zijn geen gegevens om weer te geven"
+      },
+      "edit": {
+        "header": "Adres bewerken",
+        "description": "Werk het adres van je winkel bij.",
+        "successToast": "Adres is succesvol bijgewerkt."
+      },
+      "validation": {
+        "nameRequired": "Voer een naam in",
+        "countryRequired": "Selecteer een land"
+      }
+    },
+    "paymentDetails": {
+      "header": "Betaalgegevens",
+      "empty": {
+        "title": "Geen betaalgegevens",
+        "message": "Er zijn geen gegevens om weer te geven"
+      },
+      "edit": {
+        "header": "Betaalgegevens bewerken",
+        "description": "Werk de betaalgegevens van je winkel bij.",
+        "successToast": "Betaalgegevens zijn succesvol bijgewerkt."
+      },
+      "fields": {
+        "countryCode": "Land",
+        "holderName": "Naam rekeninghouder",
+        "bankName": "Banknaam",
+        "iban": "IBAN",
+        "bic": "SWIFT / BIC",
+        "swiftBic": "SWIFT / BIC",
+        "routingNumber": "Routingnummer",
+        "achRoutingNumber": "ACH-routingnummer",
+        "accountNumber": "Rekeningnummer"
+      },
+      "validation": {
+        "countryRequired": "Selecteer een land",
+        "accountNameRequired": "Voer een naam voor de rekeninghouder in"
+      }
+    },
+    "professionalDetails": {
+      "header": "Bedrijfsgegevens",
+      "empty": {
+        "title": "Geen bedrijfsgegevens",
+        "message": "Er zijn geen gegevens om weer te geven"
+      },
+      "edit": {
+        "header": "Bedrijfsgegevens bewerken",
+        "description": "Werk de bedrijfsgegevens van je winkel bij.",
+        "successToast": "Bedrijfsgegevens zijn succesvol bijgewerkt."
+      },
+      "fields": {
+        "corporateName": "Bedrijf",
+        "registrationNumber": "Registratienummer",
+        "taxId": "Btw-nummer"
+      }
+    },
+    "timeOff": {
+      "header": "Vrije periode",
+      "columns": {
+        "firstDay": "Eerste dag",
+        "lastDay": "Laatste dag",
+        "note": "Notitie"
+      },
+      "validation": {
+        "firstDayRequired": "Voer een eerste dag in"
+      },
+      "empty": {
+        "title": "Nog geen vrije periode",
+        "message": "Deze winkel heeft geen geplande vrije periode",
+        "action": "Aanmaken"
+      },
+      "create": {
+        "header": "Vrije periode aanmaken",
+        "description": "Plan een vrije periode voor je winkel.",
+        "successToast": "Vrije periode is succesvol aangemaakt."
+      },
+      "edit": {
+        "successToast": "Vrije periode is succesvol bijgewerkt."
+      },
+      "fields": {
+        "firstDay": "Eerste dag",
+        "lastDay": "Laatste dag",
+        "lastDayHint": "Laat leeg om de winkel voor onbepaalde tijd gesloten te houden",
+        "note": "Notitie"
+      },
+      "deleteConfirm": {
+        "title": "Vrije periode verwijderen",
+        "description": "Weet je zeker dat je deze vrije periode wilt verwijderen?"
+      },
+      "deleteSuccess": "Vrije periode is succesvol verwijderd."
     }
   },
   "regions": {
@@ -2561,7 +3234,7 @@
       "createPublishableHeader": "Publiceerbare API-sleutel aanmaken",
       "createPublishableHint": "Maak een nieuwe publiceerbare API-sleutel aan om het bereik van verzoeken te beperken tot specifieke verkoopkanalen.",
       "createSecretHeader": "Geheime API-sleutel aanmaken",
-      "createSecretHint": "Maak een nieuwe geheime API-sleutel aan om toegang te krijgen tot de Medusa API als een geauthenticeerde admin gebruiker.",
+      "createSecretHint": "Maak een nieuwe geheime API-sleutel aan om toegang te krijgen tot de Mercur API als een geauthenticeerde admin gebruiker.",
       "secretKeyCreatedHeader": "Geheime sleutel aangemaakt",
       "secretKeyCreatedHint": "Uw nieuwe geheime sleutel is gegenereerd. Kopieer en bewaar deze nu veilig. Dit is de enige keer dat deze wordt weergegeven.",
       "copySecretTokenSuccess": "Geheime sleutel is gekopieerd naar het klembord.",
@@ -2658,11 +3331,19 @@
   },
   "login": {
     "forgotPassword": "Wachtwoord vergeten? - <0>Resetten</0>",
-    "title": "Welkom bij Medusa",
-    "hint": "Log in om toegang te krijgen tot het accountgebied"
+    "title": "Welkom bij Mercur",
+    "hint": "Log in om toegang te krijgen tot het accountgebied",
+    "submit": "Inloggen",
+    "sessionExpired": "Sessie verlopen",
+    "notSellerYet": "Heb je nog geen winkel? <0>Account aanmaken</0>",
+    "validation": {
+      "emailRequired": "Voer een e-mailadres in",
+      "emailInvalid": "Voer een geldig e-mailadres in",
+      "passwordRequired": "Voer je wachtwoord in"
+    }
   },
   "invite": {
-    "title": "Welkom bij Medusa",
+    "title": "Welkom bij Mercur",
     "hint": "Maak hieronder uw account aan",
     "backToLogin": "Terug naar inloggen",
     "createAccount": "Account aanmaken",
@@ -2670,14 +3351,17 @@
     "emailTooltip": "Uw e-mail kan niet worden gewijzigd. Als u een andere e-mail wilt gebruiken, moet een nieuwe uitnodiging worden verzonden.",
     "invalidInvite": "De uitnodiging is ongeldig of verlopen.",
     "successTitle": "Uw account is geregistreerd",
-    "successHint": "Begin meteen met Medusa Admin.",
-    "successAction": "Start Medusa Admin",
+    "successHint": "Begin meteen met Mercur Admin.",
+    "successAction": "Start Mercur Admin",
     "invalidTokenTitle": "Uw uitnodigingstoken is ongeldig",
     "invalidTokenHint": "Probeer een nieuwe uitnodigingslink aan te vragen.",
     "passwordMismatch": "Wachtwoorden komen niet overeen",
     "toast": {
       "accepted": "Uitnodiging succesvol geaccepteerd"
-    }
+    },
+    "existingMemberHint": "Log in met je bestaande account",
+    "signIn": "Inloggen",
+    "logIn": "Inloggen"
   },
   "resetPassword": {
     "title": "Wachtwoord resetten",
@@ -2704,7 +3388,7 @@
   },
   "workflowExecutions": {
     "domain": "Workflows",
-    "subtitle": "Bekijk en houd workflow-uitvoeringen in uw Medusa-applicatie bij.",
+    "subtitle": "Bekijk en houd workflow-uitvoeringen in uw Mercur-applicatie bij.",
     "transactionIdLabel": "Transactie-ID",
     "workflowIdLabel": "Workflow-ID",
     "progressLabel": "Voortgang",
@@ -2754,7 +3438,9 @@
     "create": {
       "header": "Producttype aanmaken",
       "hint": "Maak een nieuw producttype aan om uw producten te categoriseren.",
-      "successToast": "Producttype {{value}} is succesvol aangemaakt."
+      "successToast": "Producttype {{value}} is succesvol aangemaakt.",
+      "requestHeader": "Producttype aanvragen",
+      "requestSuccessToast": "Producttype succesvol aangevraagd"
     },
     "edit": {
       "header": "Producttype bewerken",
@@ -2795,7 +3481,7 @@
       "description": "U heeft momenteel geen notificaties, maar zodra u die heeft, verschijnen ze hier."
     },
     "accessibility": {
-      "description": "Notificaties over Medusa-activiteiten worden hier vermeld."
+      "description": "Notificaties over Mercur-activiteiten worden hier vermeld."
     }
   },
   "errors": {
@@ -2821,7 +3507,10 @@
     "from": "Van",
     "to": "Naar",
     "beaware": "Let op",
-    "loading": "Laden"
+    "loading": "Laden",
+    "updated": "Bijgewerkt",
+    "selectValue": "Waarde selecteren",
+    "selectValues": "Waarden selecteren"
   },
   "fields": {
     "amount": "Bedrag",
@@ -2980,7 +3669,40 @@
     "endDate": "Einddatum",
     "draft": "Concept",
     "values": "Waarden",
-    "brand": "Brand"
+    "brand": "Brand",
+    "reference": "Referentie",
+    "reference_id": "Referentie-ID",
+    "images": "Media",
+    "type_id": "Type",
+    "collection_id": "Collectie",
+    "enabledInStore": "Ingeschakeld in winkel",
+    "isReturn": "Is retour",
+    "promotionCode": "Promotiecode",
+    "website": "Website",
+    "serviceZone": "Servicezone",
+    "commission": "Commissie",
+    "creditTotal": "Totaal tegoedregels",
+    "premium": "Premium",
+    "professional": "Professioneel",
+    "is_giftcard": "Cadeaubon",
+    "origin_country": "Land van herkomst",
+    "hs_code": "HS-code",
+    "mid_code": "MID-code",
+    "external_id": "Extern ID",
+    "is_restricted": "Beperkt",
+    "tag_ids": "Tags",
+    "category_ids": "Categorieën",
+    "allow_backorder": "Backorders toestaan",
+    "manage_inventory": "Voorraad beheren",
+    "variant_rank": "Variantrangorde",
+    "attribute_values": "Attribuutwaarden",
+    "isbn": "ISBN",
+    "asin": "ASIN",
+    "gtin": "GTIN",
+    "inventory_quantity": "Voorraadhoeveelheid",
+    "requires_shipping": "Verzending vereist",
+    "variant_attributes": "Variantattributen",
+    "product_attributes": "Productattributen"
   },
   "dateTime": {
     "years_one": "Jaar",
@@ -3006,7 +3728,8 @@
       "type": "Type",
       "values": "Values",
       "variantAxis": "Use for Variants",
-      "filterable": "Filterable"
+      "filterable": "Filterable",
+      "productAttribute": "Productattribuut"
     },
     "type": {
       "select": "Single Select",
@@ -3014,6 +3737,419 @@
       "unit": "Unit",
       "toggle": "Toggle",
       "text_area": "Text Area"
+    }
+  },
+  "seller": {
+    "domain": "Winkel"
+  },
+  "offers": {
+    "domain": "Aanbiedingen",
+    "subtitle": "Beheer je catalogusvermeldingen",
+    "create": {
+      "header": "Aanbieding aanmaken",
+      "description": "Selecteer varianten en configureer voorraadniveaus en prijzen om aanbiedingen te maken.",
+      "successToast": "Aanbieding is succesvol gepubliceerd. Alleen aanbiedingen met ingestelde voorraadniveaus en prijzen zijn zichtbaar op de winkelwebsite.",
+      "publish": "Publiceren",
+      "tipLabel": "Tip:",
+      "tip": "Selecteer alle relevante producten die overeenkomen met je voorraad en maak eenvoudig aanbiedingen voor ze door je voorraadniveaus en prijzen toe te voegen.",
+      "addPrice": "Prijs toevoegen",
+      "addInventoryItem": "Voorraadartikel toevoegen",
+      "stockLevelsWarning": "Aanbiedingen aangemaakt, maar sommige voorraadniveaus konden niet worden opgeslagen: {{message}}",
+      "tabs": {
+        "catalogue": "Producten",
+        "stockLevelsAndPrices": "Voorraadniveaus en prijzen"
+      }
+    },
+    "detail": {
+      "offerLabel": "Aanbieding",
+      "productVariant": "Productvariant",
+      "offerVariant": "Aanbiedingsvariant",
+      "associatedProduct": "Gekoppeld product",
+      "shippingConfiguration": "Verzendconfiguratie",
+      "inventoryItems": "Voorraaditems",
+      "manageKit": "Voorraadset beheren",
+      "noInventoryItems": "Geen voorraadartikelen gekoppeld. Open het voorraadpaneel om er een te koppelen.",
+      "goToInventoryItem": "Ga naar voorraaditem"
+    },
+    "edit": {
+      "header": "Aanbieding bewerken",
+      "description": "Werk de identiteit, het verzendprofiel of de metadata van de aanbieding bij.",
+      "successToast": "Aanbieding bijgewerkt"
+    },
+    "variant": {
+      "edit": {
+        "successToast": "Aanbiedingsvariant is succesvol bijgewerkt."
+      },
+      "shipping": {
+        "successToast": "Het verzendprofiel voor {{title}} is succesvol bijgewerkt."
+      }
+    },
+    "pricing": {
+      "header": "Prijzen beheren",
+      "description": "Voeg prijzen toe, wijzig of verwijder ze in de prijsladder van deze aanbieding.",
+      "successToast": "Prijzen zijn succesvol bijgewerkt.",
+      "empty": "Geen prijzen geconfigureerd"
+    },
+    "inventory": {
+      "header": "Voorraaditems beheren",
+      "description": "Koppel, ontkoppel of wijzig de vereiste hoeveelheid per artikel.",
+      "successToast": "Voorraadniveaus zijn succesvol bijgewerkt.",
+      "empty": "Geen voorraadartikelen gekoppeld"
+    },
+    "delete": {
+      "description": "Je staat op het punt aanbieding {{sku}} te verwijderen. Dit kan niet ongedaan worden gemaakt.",
+      "successToast": "Aanbieding is succesvol verwijderd."
+    },
+    "bulkDelete": {
+      "description_one": "Je staat op het punt {{count}} aanbieding te verwijderen. Dit kan niet ongedaan worden gemaakt.",
+      "description_other": "Je staat op het punt {{count}} aanbiedingen te verwijderen. Dit kan niet ongedaan worden gemaakt.",
+      "successToast_one": "{{count}} aanbieding verwijderd",
+      "successToast_other": "{{count}} aanbiedingen verwijderd",
+      "partialToast": "{{succeeded}} van {{total}} aanbiedingen verwijderd; {{failed}} mislukt"
+    },
+    "actions": {
+      "create": "Aanmaken",
+      "manage_prices": "Prijzen beheren",
+      "manage_inventory": "Voorraad beheren",
+      "edit_prices": "Prijzen bewerken",
+      "edit_stock_levels": "Voorraadniveaus bewerken",
+      "bulkDelete": "Geselecteerde verwijderen"
+    },
+    "fields": {
+      "sku": "SKU",
+      "variant": "Hoofdvariant",
+      "shippingProfile": "Verzendprofiel",
+      "ean": "EAN",
+      "upc": "UPC",
+      "requiredQuantity": "Benodigde hoeveelheid",
+      "stockStatus": "Voorraadstatus",
+      "category": "Categorie",
+      "collection": "Collectie",
+      "variants": "Varianten",
+      "status": "Status",
+      "offer": "Aanbieding",
+      "minQuantity": "Min. aantal",
+      "maxQuantity": "Max. aantal",
+      "stockLocation": "Voorraadlocatie {{name}}",
+      "priceCurrency": "Prijs {{code}}",
+      "notEnabled": "Niet ingeschakeld",
+      "enabled": "Ingeschakeld",
+      "variantsCount_one": "{{count}} variant",
+      "variantsCount_other": "{{count}} varianten"
+    },
+    "status": {
+      "published": "Gepubliceerd",
+      "draft": "Concept",
+      "proposed": "Voorgesteld",
+      "rejected": "Afgewezen"
+    },
+    "stockStatus": {
+      "in_stock": "Op voorraad",
+      "low_stock": "Lage voorraad",
+      "out_of_stock": "Niet op voorraad"
+    },
+    "empty": {
+      "heading": "Nog geen aanbiedingen",
+      "description": "Maak aanbiedingen om te beginnen met verkopen op de marketplace"
+    },
+    "filtered": {
+      "heading": "Geen overeenkomende aanbiedingen",
+      "description": "Pas filters of zoektermen aan."
+    },
+    "validation": {
+      "skuRequired": "SKU is verplicht om deze rij te publiceren.",
+      "shippingProfileRequired": "Selecteer een verzendprofiel om deze rij te publiceren.",
+      "duplicateSku": "Een andere rij in deze indiening gebruikt deze SKU al.",
+      "duplicatePriceRule": "Een andere prijsrij heeft al deze combinatie van valuta, regio, klantgroep en hoeveelheidsgrenzen.",
+      "duplicateInventoryItem": "Dit voorraadartikel is al gekoppeld.",
+      "selectAtLeastOneVariant": "Selecteer ten minste één variant om door te gaan.",
+      "noPublishableRows": "Voeg een SKU toe, schakel een voorraadlocatie in of stel een prijs in om te publiceren.",
+      "duplicateBatchEntry": "Een voorraadartikel kan slechts in één groep voorkomen (aanmaken, bijwerken of verwijderen)."
+    }
+  },
+  "payouts": {
+    "domain": "Uitbetalingen",
+    "payout": "Uitbetaling",
+    "noRecords": "Geen uitbetalingen gevonden",
+    "status": {
+      "pending": "In behandeling",
+      "processing": "Wordt verwerkt",
+      "paid": "Betaald",
+      "failed": "Mislukt",
+      "canceled": "Geannuleerd"
+    }
+  },
+  "translations": {
+    "domain": "Vertalingen",
+    "settings": {
+      "header": "Vertaalbare entiteiten beheren",
+      "successToast": "Instellingen succesvol bijgewerkt"
+    },
+    "actions": {
+      "manage": "Vertalingen beheren",
+      "manageEntities": "Entiteiten beheren",
+      "manageLocales": "Landinstellingen beheren"
+    },
+    "subtitle": "Beheer vertalingen van je gegevens in Mercur",
+    "list": {
+      "metrics": "{{translated}} van {{total}} vertalingen"
+    },
+    "edit": {
+      "successToast": "Vertalingen succesvol bijgewerkt",
+      "unsavedChanges": {
+        "title": "Niet-opgeslagen vertalingen",
+        "description": "Verlies je werk niet. Je hebt wijzigingen die nog niet zijn opgeslagen"
+      }
+    },
+    "bulk": {
+      "header": "Vertalingen bulkeditor",
+      "mainColumn": "Landinstelling"
+    },
+    "activeLocales": {
+      "heading": "Talen",
+      "subtitle": "Geactiveerde vertalingen",
+      "noLocalesTip": "Configureer ten minste één taal om je gegevens te beginnen vertalen",
+      "noLocalesTipConfigureAction": "Configureren"
+    },
+    "completion": {
+      "heading": "Vertaalde velden",
+      "translated": "Vertaald",
+      "toTranslate": "Ontbrekend",
+      "footer": "Talen"
+    }
+  },
+  "refundReasons": {
+    "domain": "Terugbetalingsredenen",
+    "subtitle": "Beheer redenen voor het uitgeven van terugbetalingen.",
+    "calloutHint": "Beheer de redenen om terugbetalingen te categoriseren.",
+    "editReason": "Terugbetalingsreden bewerken",
+    "create": {
+      "header": "Terugbetalingsreden toevoegen",
+      "subtitle": "Geef de meest voorkomende redenen voor terugbetalingen op.",
+      "hint": "Maak een nieuwe terugbetalingsreden aan om terugbetalingen te categoriseren.",
+      "successToast": "Terugbetalingsreden {{label}} is succesvol aangemaakt."
+    },
+    "edit": {
+      "header": "Terugbetalingsreden bewerken",
+      "subtitle": "Bewerk de waarde van de terugbetalingsreden.",
+      "successToast": "Terugbetalingsreden {{label}} is succesvol bijgewerkt."
+    },
+    "delete": {
+      "confirmation": "Je staat op het punt de terugbetalingsreden \"{{label}}\" te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
+      "successToast": "Terugbetalingsreden is succesvol verwijderd."
+    },
+    "fields": {
+      "label": {
+        "label": "Label",
+        "placeholder": "Gebaar van goede wil"
+      },
+      "code": {
+        "label": "Code",
+        "placeholder": "gebaar_van_goede_wil"
+      },
+      "description": {
+        "label": "Beschrijving",
+        "placeholder": "Klant had een slechte winkelervaring"
+      }
+    }
+  },
+  "storeSelect": {
+    "title": "Selecteer een winkel",
+    "subtitle": "Kies een winkel om door te gaan.",
+    "pendingApproval": "In behandeling",
+    "addNewStore": "Nieuwe winkel toevoegen",
+    "status": {
+      "open": "Actief",
+      "pendingApproval": "In behandeling",
+      "suspended": "Inactief",
+      "terminated": "Beëindigd"
+    }
+  },
+  "register": {
+    "title": "Sluit je aan bij {{name}}!",
+    "hint": "Voer je gegevens in en maak een wachtwoord aan om je beheerdersaccount in te stellen.",
+    "companyName": "Bedrijfsnaam",
+    "confirmPassword": "Wachtwoord bevestigen",
+    "signUp": "Registreren",
+    "alreadySeller": "Heb je al een account? <0>Inloggen</0>",
+    "passwordMismatch": "Wachtwoorden komen niet overeen",
+    "emailTaken": "Opgegeven e-mailadres is al in gebruik",
+    "validation": {
+      "nameRequired": "Naam moet ten minste 2 tekens bevatten",
+      "firstNameRequired": "Voer je voornaam in",
+      "lastNameRequired": "Voer je achternaam in",
+      "emailInvalid": "Voer een geldig e-mailadres in",
+      "passwordMinLength": "Wachtwoord moet ten minste 8 tekens bevatten",
+      "passwordComplexity": "Wachtwoord moet één kleine letter, één hoofdletter en één cijfer of symbool bevatten",
+      "confirmPasswordRequired": "Bevestig je wachtwoord"
+    },
+    "firstName": "Voornaam",
+    "lastName": "Achternaam",
+    "passwordHint": "Je wachtwoord moet ten minste 8 tekens bevatten, één kleine letter, één hoofdletter, één cijfer of symbool",
+    "successTitle": "Bedankt voor je registratie!",
+    "successHint": "Mogelijk moet je wachten op autorisatie door de beheerder voordat je kunt inloggen. Er wordt binnenkort een bevestigingsmail naar je verzonden.",
+    "backToLogin": "Terug naar inloggen"
+  },
+  "onboarding": {
+    "step": "Stap {{current}} / {{total}}",
+    "organizationSetup": {
+      "title": "Stel je organisatie in",
+      "subtitle": "Geef de naam van je organisatie op",
+      "organizationName": "Organisatienaam",
+      "organizationNamePlaceholder": "Mijn organisatie"
+    },
+    "storeSetup": {
+      "title": "Stel je winkel in",
+      "subtitle": "Geef de gegevens van je winkel op",
+      "storeName": "Winkelnaam",
+      "storeNamePlaceholder": "Mijn winkel",
+      "storeEmail": "Winkel-e-mail",
+      "storeEmailHint": "Openbaar contact-e-mailadres voor je winkel",
+      "selectCurrency": "Selecteer een valuta",
+      "currencyHint": "Kan niet worden gewijzigd nadat de winkel is aangemaakt",
+      "descriptionPlaceholder": "Een beschrijving van je winkel"
+    },
+    "detailsSetup": {
+      "title": "Voltooi je profiel",
+      "subtitle": "Voeg je adres en bedrijfsgegevens toe",
+      "addressTitle": "Adres",
+      "addressSubtitle": "Je bedrijfsadres",
+      "professionalTitle": "Bedrijfsgegevens",
+      "professionalSubtitle": "Professionele winkelinformatie",
+      "isProfessional": "Professionele winkel",
+      "isProfessionalDescription": "Registreren als bedrijfsentiteit",
+      "corporateName": "Bedrijf",
+      "registrationNumber": "Registratienummer",
+      "taxId": "Btw-nummer",
+      "completeSetup": "Installatie voltooien"
+    },
+    "submitted": {
+      "title": "Aanvraag ingediend!",
+      "description": "Je winkelaccount is aangemaakt en wacht op goedkeuring. We stellen je op de hoogte via {{email}} zodra je winkel is beoordeeld.",
+      "hint": "In de tussentijd kun je je winkel selecteren en je installatie voltooien.",
+      "action": "Doorgaan naar dashboard"
+    },
+    "wizard": {
+      "stepOf": "Stap {{current}} van {{total}}",
+      "steps": {
+        "store": "Winkelgegevens",
+        "address": "Adres",
+        "company": "Bedrijfsgegevens",
+        "payment": "Betaalgegevens"
+      },
+      "store": {
+        "title": "Voer je winkelgegevens in",
+        "name": "Naam",
+        "email": "E-mail",
+        "handle": "Handle",
+        "handleTooltip": "De handle wordt de URL-slug voor je winkel. Laat leeg om automatisch te genereren op basis van de naam.",
+        "handlePlaceholder": "mijn-winkel",
+        "currency": "Valuta",
+        "selectCurrency": "Selecteer",
+        "currencyHint": "Kan niet worden gewijzigd nadat de winkel is aangemaakt"
+      },
+      "skip": "Overslaan",
+      "address": {
+        "title": "Voer je adres in",
+        "name": "Naam",
+        "namePlaceholder": "Hoofdkantoor",
+        "address": "Adres",
+        "address2": "Appartement, suite, etc.",
+        "postalCode": "Postcode",
+        "city": "Stad",
+        "country": "Land",
+        "state": "Staat"
+      },
+      "company": {
+        "title": "Voer je bedrijfsgegevens in",
+        "subtitle": "Professionele winkelinformatie",
+        "corporateName": "Bedrijf",
+        "registrationNumber": "Registratienummer",
+        "taxId": "Btw-nummer"
+      },
+      "payment": {
+        "title": "Voer je betaalgegevens in",
+        "subtitle": "Hoe je uitbetalingen wilt ontvangen",
+        "accountName": "Naam rekeninghouder",
+        "accountNumber": "Rekeningnummer",
+        "achRoutingNumber": "ACH-routingnummer",
+        "iban": "IBAN",
+        "swiftBic": "SWIFT / BIC"
+      },
+      "validation": {
+        "nameRequired": "Voer een naam in",
+        "emailInvalid": "Voer een e-mailadres in",
+        "currencyRequired": "Selecteer een valuta",
+        "countryRequired": "Selecteer een land",
+        "accountNameRequired": "Voer een naam voor de rekeninghouder in"
+      },
+      "preview": {
+        "title": "Welkom bij Mercur",
+        "description": "Je alles-in-één verkopersportaal voor het beheren van je winkel, producten, bestellingen en uitbetalingen.",
+        "placeholder": "App-voorbeeld"
+      }
+    }
+  },
+  "shippingOptionTypes": {
+    "domain": "Verzendoptietypen",
+    "subtitle": "Organiseer je verzendopties in typen.",
+    "create": {
+      "header": "Verzendoptietype aanmaken",
+      "hint": "Maak een nieuw verzendoptietype aan om je verzendopties te categoriseren.",
+      "successToast": "Verzendoptietype {{label}} is succesvol aangemaakt."
+    },
+    "edit": {
+      "header": "Verzendoptietype bewerken",
+      "successToast": "Verzendoptietype {{label}} is succesvol bijgewerkt."
+    },
+    "delete": {
+      "confirmation": "Je staat op het punt het verzendoptietype \"{{label}}\" te verwijderen. Deze actie kan niet ongedaan worden gemaakt.",
+      "successToast": "Verzendoptietype \"{{label}}\" is succesvol verwijderd."
+    },
+    "fields": {
+      "label": "Label",
+      "code": "Code",
+      "description": "Beschrijving"
+    }
+  },
+  "views": {
+    "save": "Opslaan",
+    "saveAsNew": "Opslaan als nieuwe weergave",
+    "saveAsSystemDefault": "Opslaan als systeemstandaard",
+    "updateDefaultForEveryone": "Standaard voor iedereen bijwerken",
+    "updateViewName": "Weergave bijwerken",
+    "updateNamed": "\"{{name}}\" bijwerken",
+    "prompts": {
+      "updateDefault": {
+        "title": "Standaardweergave bijwerken",
+        "description": "Dit werkt de standaardweergave voor alle gebruikers bij. Weet je het zeker?",
+        "confirmText": "Bijwerken voor iedereen",
+        "cancelText": "Annuleren"
+      },
+      "updateView": {
+        "title": "Weergave bijwerken",
+        "description": "Weet je zeker dat je \"{{name}}\" wilt bijwerken?",
+        "confirmText": "Bijwerken",
+        "cancelText": "Annuleren"
+      },
+      "saveAsDefault": {
+        "title": "Opslaan als systeemstandaard",
+        "description": "Dit slaat de huidige configuratie op als systeemstandaard. Alle gebruikers zien deze configuratie standaard, tenzij ze hun eigen persoonlijke weergaven hebben. Weet je het zeker?",
+        "confirmText": "Opslaan als standaard",
+        "cancelText": "Annuleren"
+      },
+      "updateExisting": {
+        "title": "Bestaande weergave bijwerken",
+        "description": "\"{{name}}\" bijwerken met de huidige configuratie?",
+        "confirmText": "Bijwerken",
+        "cancelText": "Annuleren"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "authenticationFailed": "Authenticatie mislukt",
+      "cloud": "Inloggen met Mercur"
     }
   }
 }

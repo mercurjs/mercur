@@ -1,6 +1,8 @@
 {
   "$schema": "./$schema.json",
   "general": {
+    "unknownError": "不明なエラーが発生しました",
+    "notAvailable": "N/A",
     "ascending": "昇順",
     "descending": "降順",
     "add": "追加",
@@ -55,7 +57,24 @@
     "unsavedChangesDescription": "保存されていない変更があります。このフォームを終了すると、これらの変更は失われます。",
     "includesTaxTooltip": "この列の価格は税込みです。",
     "excludesTaxTooltip": "この列の価格は税抜きです。",
-    "noMoreData": "これ以上データはありません"
+    "noMoreData": "これ以上データはありません",
+    "fullList": "すべて",
+    "original": "オリジナル",
+    "selectAll": "すべて選択",
+    "unselectAll": "選択をすべて解除",
+    "remaining": "残り",
+    "yes": "はい",
+    "no": "いいえ",
+    "areYouSureDescription": "{{entity}} {{title}} を削除しようとしています。この操作は元に戻せません。",
+    "noRecordsMessageFiltered": "フィルターに一致するレコードがありません",
+    "searchOptions": "オプションを検索...",
+    "noOptionsFound": "オプションが見つかりません",
+    "noOptionsAvailable": "利用可能なオプションがありません",
+    "selectValues": "値を選択...",
+    "true": "真",
+    "false": "偽",
+    "decrement": "減らす",
+    "increment": "増やす"
   },
   "json": {
     "header": "JSON",
@@ -92,8 +111,20 @@
     }
   },
   "validation": {
+    "requiredField": "必須項目です",
+    "valueRequired": "値を入力してください",
+    "atLeastOnePrice": "価格を1つ以上追加してください。",
+    "currencyCodeNotFound": "通貨コードが見つかりません",
+    "shippingOptionIdMissing": "配送オプションIDパラメータがありません",
     "mustBeInt": "値は数値でなければなりません。",
-    "mustBePositive": "値は正の数値でなければなりません。"
+    "mustBePositive": "値は正の数値でなければなりません。",
+    "rules": {
+      "lower": "小文字を1文字以上含める",
+      "upper": "大文字を1文字以上含める",
+      "12chars": "12文字以上",
+      "digit": "数字を1文字以上含める",
+      "specialChar": "特殊文字を1文字以上含める"
+    }
   },
   "actions": {
     "save": "保存",
@@ -137,7 +168,12 @@
     "hide": "非表示",
     "export": "エクスポート",
     "import": "インポート",
-    "cannotUndo": "この操作は元に戻せません"
+    "cannotUndo": "この操作は元に戻せません",
+    "saveChanges": "変更を保存",
+    "saveAndClose": "保存して閉じる",
+    "request": "リクエスト",
+    "editVariantImages": "バリアント画像を編集",
+    "editImages": "画像を編集"
   },
   "operators": {
     "in": "含む"
@@ -297,6 +333,10 @@
       "fixError": "エラーを修正",
       "count_one": "{{count}}個のエラー",
       "count_other": "{{count}}個のエラー"
+    },
+    "toggle": {
+      "enabled": "有効",
+      "notEnabled": "無効"
     }
   },
   "filters": {
@@ -308,7 +348,9 @@
       "lastTwelveMonths": "過去12ヶ月",
       "custom": "カスタム",
       "from": "開始日",
-      "to": "終了日"
+      "to": "終了日",
+      "starting": "開始",
+      "ending": "終了"
     },
     "compare": {
       "lessThan": "未満",
@@ -325,7 +367,19 @@
       "true": "真",
       "false": "偽"
     },
-    "addFilter": "フィルター追加"
+    "addFilter": "フィルター追加",
+    "sortLabel": "並べ替え",
+    "collapse": {
+      "all": "すべて折りたたむ"
+    },
+    "filterLabel": "フィルター",
+    "searchLabel": "検索",
+    "sorting": {
+      "alphabeticallyAsc": "A→Z",
+      "alphabeticallyDesc": "Z→A",
+      "dateAsc": "新しい順",
+      "dateDesc": "古い順"
+    }
   },
   "errorBoundary": {
     "badRequestTitle": "400 - 不正なリクエスト",
@@ -354,7 +408,8 @@
       "sameAsShipping": "配送先住所と同じ"
     },
     "contactHeading": "連絡先",
-    "locationHeading": "所在地"
+    "locationHeading": "所在地",
+    "title": "住所"
   },
   "email": {
     "editHeader": "Eメールを編集",
@@ -387,12 +442,35 @@
   "products": {
     "domain": "商品",
     "list": {
-      "noRecordsMessage": "最初の商品を作成して販売を開始しましょう。"
+      "noRecordsMessage": "最初の商品を作成して販売を開始しましょう。",
+      "noRecordsTitle": "商品がまだありません"
     },
     "edit": {
       "header": "商品を編集",
       "description": "商品の詳細を編集します。",
-      "successToast": "商品「{{title}}」が正常に更新されました。"
+      "successToast": "商品「{{title}}」が正常に更新されました。",
+      "requestSuccessToast": "商品の更新をリクエストしました。管理者が承認すると、変更がストアフロントに反映されます。",
+      "duplicateRequestErrorToast": "すでに進行中のリクエストがあります。同時に持てるリクエストは1件のみです。",
+      "attributes": {
+        "createSuccessToast": "属性を作成しました。",
+        "addSuccessToast": "属性を追加しました。",
+        "updateSuccessToast": "属性を更新しました。",
+        "deleteSuccessToast": "属性を削除しました。",
+        "addAttribute": "属性を追加",
+        "editHeader": "属性を編集",
+        "required": "必須属性",
+        "valuesRequired": "少なくとも1つの値が必要です",
+        "valuesPlaceholder": "値を選択または入力",
+        "useForVariations": "バリエーションに使用",
+        "useForVariationsDescription": "この属性をバリエーションを生成する商品オプションに変換します。",
+        "conversionWarning": "この属性をバリエーションに変換すると、既存の商品バリエーションに影響します。この操作によりバリアントが削除または変更される場合があります。",
+        "editCustomValueTitle": "カスタム値",
+        "editCustomValueDescription": "カスタム値に置き換えると、検索やフィルターでの商品の表示に影響します。カスタム値は検索やフィルターの対象になりません。"
+      },
+      "informationalAttributes": {
+        "header": "商品情報",
+        "description": "情報提供のために使用される属性"
+      }
     },
     "create": {
       "title": "商品を作成",
@@ -401,13 +479,22 @@
       "tabs": {
         "details": "詳細",
         "organize": "整理",
-        "variants": "バリエーション"
+        "variants": "バリエーション",
+        "attributes": "属性"
       },
       "errors": {
         "variants": "少なくとも1つのバリエーションを選択してください。",
         "options": "少なくとも1つのオプションを作成してください。",
         "uniqueSku": "SKUは一意である必要があります。",
-        "requiredAttribute": "This attribute is required."
+        "requiredAttribute": "This attribute is required.",
+        "primaryCategoryRequired": "主カテゴリーは必須です",
+        "categoryRequired": "カテゴリーを選択してください",
+        "titleRequired": "タイトルは必須です",
+        "handleInvalidFormat": "ハンドルには小文字、数字、ハイフンのみを使用してください",
+        "handleMustContainLetter": "ハンドルには少なくとも1文字のアルファベットを含めてください",
+        "requiredAttributeSelect": "この属性はマーケットプレイスで必須です。値を選択してください。",
+        "requiredAttributeEnter": "この属性はマーケットプレイスで必須です。値を入力してください。",
+        "requiredAttributeMultiSelect": "この属性はマーケットプレイスで必須です。少なくとも1つの値を選択してください。"
       },
       "variants": {
         "header": "バリエーション",
@@ -423,12 +510,15 @@
           "label": "商品バリエーション",
           "hint": "このランキングはストアフロントでのバリエーションの順序に影響します。",
           "alert": "バリエーションを作成するにはオプションを追加してください。",
-          "tip": "チェックをしていないバリエーションは作成されません。後でバリエーションを作成・編集できますが、このリストは商品オプションのバリエーションに適合します。"
+          "tip": "チェックをしていないバリエーションは作成されません。後でバリエーションを作成・編集できますが、このリストは商品オプションのバリエーションに適合します。",
+          "searchPlaceholder": "検索",
+          "media": "メディア"
         },
         "productOptions": {
           "label": "商品オプション",
           "hint": "色、サイズなど、商品のオプションを定義します。"
-        }
+        },
+        "optionsHeader": "オプション"
       },
       "successToast": "商品「{{title}}」が正常に作成されました。",
       "attributes": {
@@ -443,8 +533,35 @@
         "useForVariantsDescription": "If checked, you will be able to create variants using this attribute. If not, the attribute will be used for informational purposes only.",
         "variantAxisTip": "This attribute will create variants. You can define them in the next step.",
         "titlePlaceholder": "e.g. Color",
-        "valuePlaceholder": "Enter values"
-      }
+        "valuePlaceholder": "Enter values",
+        "description": "商品の属性とバリエーション（色、サイズ、ブランドなど）を管理します。マーケットプレイスで定義された属性から選択するか、独自の属性を作成してください。",
+        "requiredHeading": "必須属性",
+        "requiredDescription": "これらの属性はこのカテゴリーの商品に必須です。",
+        "buttonLabel": "属性",
+        "loading": "属性を読み込み中...",
+        "learnMore": {
+          "label": "属性について詳しく見る",
+          "content": "属性は顧客が商品を見つけたり絞り込んだりするのに役立ちます。管理者が定義した属性は検索結果に表示されます。"
+        },
+        "editVariantAxisTip": "この属性を使ってバリエーションを作成できます。",
+        "warning": "警告",
+        "editWarning": "この属性を変更すると、既存の商品バリエーションや詳細に影響する場合があります。保存後にバリエーションと商品詳細を確認してください。",
+        "enterValuePlaceholder": "値を入力",
+        "selectValuePlaceholder": "値を選択",
+        "requiredTooltip": "この属性はマーケットプレイスで必須のため、選択を解除できません。",
+        "noAttributesTitle": "商品属性がまだありません",
+        "noAttributesDescription": "マーケットプレイスで定義された属性がありません。",
+        "errors": {
+          "titleRequired": "タイトルを入力してください",
+          "valuesRequired": "少なくとも1つの値を入力してください"
+        }
+      },
+      "defaults": {
+        "optionTitle": "デフォルトオプション",
+        "optionValue": "デフォルトオプション値",
+        "variantTitle": "デフォルトバリアント"
+      },
+      "requestSuccessToast": "商品をリクエストしました。この商品に対してオファーを作成できるようになりました。管理者が商品を承認すると、オファーがストアフロントに表示されます。在庫数と価格が設定されているオファーのみが表示されます。"
     },
     "export": {
       "header": "商品リストをエクスポート",
@@ -493,6 +610,12 @@
       "filtered": {
         "heading": "結果はありません",
         "description": "現在のフィルター条件に一致するバリエーションはありません。"
+      },
+      "editStocksAndPrices": {
+        "header": "在庫と価格を編集",
+        "description": "すべてのバリアントの在庫ロケーションと価格を管理します",
+        "action": "在庫と価格を編集",
+        "successToast": "在庫と価格を更新しました"
       }
     },
     "attributes": "属性",
@@ -517,9 +640,20 @@
       "emptyState": {
         "header": "まだメディアはありません",
         "description": "ストアフロントで商品を展示するためにメディアを追加します。",
-        "action": "メディアを追加"
+        "action": "メディアを追加",
+        "variantDescription": "このバリアントには画像がありません。バリアントに画像を追加してください。"
       },
-      "successToast": "メディアは正常に更新されました。"
+      "successToast": "メディアは正常に更新されました。",
+      "manageImageVariants": "関連バリアントを管理",
+      "fileTooLarge": "1つ以上のファイルが最大サイズ {{size}} を超えています：{{name}}",
+      "variantImages": "バリアント画像",
+      "showAvailableImages": "利用可能な画像を表示",
+      "availableImages": "画像を選択",
+      "selectToAdd": "商品画像をバリアントに追加します。新しい画像を追加するには、先に商品に追加してください。",
+      "removeSelected": "選択項目を削除",
+      "selectImages": "画像を選択",
+      "selectImagesHint": "画像をクリックしてこのバリアントに追加してください。",
+      "editLabel": "編集"
     },
     "discountableHint": "チェックを外すと、この商品に割引は適用されません。",
     "noSalesChannels": "どの販売チャネルでも利用できません",
@@ -537,7 +671,8 @@
       "title": {
         "label": "タイトル",
         "hint": "商品に短く明確なタイトルを付けてください。<0/>検索エンジンには50〜60文字が推奨されています。",
-        "placeholder": "ウインタージャケット"
+        "placeholder": "ウインタージャケット",
+        "required": "タイトルを入力してください"
       },
       "subtitle": {
         "label": "サブタイトル",
@@ -609,15 +744,55 @@
       },
       "hs_code": {
         "label": "HSコード"
+      },
+      "shipping_profile": {
+        "label": "配送プロファイル",
+        "hint": "商品を配送プロフィールに関連付けます"
+      },
+      "attributes": {
+        "add": {
+          "title": {
+            "label": "タイトル",
+            "placeholder": "属性名を検索または入力...",
+            "required": "属性名は必須です"
+          },
+          "values": {
+            "label": "値",
+            "placeholder": "値をカンマ区切りで入力してください",
+            "required": "少なくとも1つの値が必要です"
+          }
+        },
+        "useForVariants": {
+          "label": "バリエーションに使用",
+          "description": "この属性に基づいて商品バリエーションを作成するには有効にしてください。",
+          "editDescription": "これを変更すると、既存の商品バリエーションに影響します。"
+        },
+        "validation": {
+          "required": "{{name}} は必須です",
+          "requiredSelect": "値を選択してください",
+          "requiredEnter": "値を入力してください",
+          "requiredSelectMultiple": "少なくとも1つの値を選択してください"
+        },
+        "enterValuePlaceholder": "値を入力",
+        "selectValuePlaceholder": "値を選択"
+      },
+      "secondaryCategories": {
+        "label": "副カテゴリー"
+      },
+      "primaryCategory": {
+        "label": "主カテゴリー",
+        "tooltip": "カテゴリーによって、この商品に適用される属性が定義される場合があります。属性はマーケットプレイスの設定時に管理者が作成します。"
       }
     },
     "variant": {
       "edit": {
         "header": "バリエーションを編集",
-        "success": "商品バリエーションが正常に編集されました"
+        "success": "商品バリエーションが正常に編集されました",
+        "attributesTooltip": "これらはアイテムを説明するためのデフォルト値です。マーケットプレイスによって定義されたものではありません。"
       },
       "create": {
-        "header": "バリエーション詳細"
+        "header": "バリエーション詳細",
+        "successToast": "バリアントを作成しました。"
       },
       "deleteWarning": "このバリエーションを削除してもよろしいですか？",
       "tableItemAvailable": "{{availableCount}}個利用可能",
@@ -643,6 +818,10 @@
           "updateLevel": "在庫レベルが正常に更新されました。",
           "itemsManageSuccess": "在庫アイテムが正常に更新されました。"
         }
+      },
+      "validation": {
+        "titleRequired": "タイトルを入力してください",
+        "optionRequired": "値を選択してください"
       }
     },
     "options": {
@@ -655,7 +834,11 @@
         "header": "オプションを作成",
         "successToast": "オプション「{{title}}」が正常に作成されました。"
       },
-      "deleteWarning": "商品オプション「{{title}}」を削除しようとしています。この操作は元に戻せません。"
+      "deleteWarning": "商品オプション「{{title}}」を削除しようとしています。この操作は元に戻せません。",
+      "variations": {
+        "label": "バリエーション",
+        "description": "商品バリエーションの作成に使用される属性。"
+      }
     },
     "organization": {
       "header": "整理",
@@ -676,6 +859,80 @@
           "header": "商品の削除に失敗しました"
         }
       }
+    },
+    "bulkDelete": {
+      "title": "商品を削除",
+      "description": "カタログから {{count}} 件の商品を削除しようとしています。この操作は元に戻せません。",
+      "success": "{{count}} 件の商品を削除しました。",
+      "error": "商品の削除に失敗しました。"
+    },
+    "edits": {
+      "panel": {
+        "title": "商品更新リクエスト",
+        "deleteRequested": "商品の削除は承認待ちです。",
+        "cancelTitle": "更新リクエストをキャンセル",
+        "cancelDescription": "この商品更新リクエストをキャンセルしてもよろしいですか？この操作は元に戻せません。"
+      },
+      "toast": {
+        "canceledSuccessfully": "商品更新リクエストをキャンセルしました。"
+      }
+    },
+    "attributeVariations": "バリエーション",
+    "attributeVariantsDescription": "バリエーションに使用される属性",
+    "attributeProductInformation": "商品情報",
+    "attributeProductInformationDescription": "情報提供のために使用される属性",
+    "attributeRequiredByMarketplace": "この属性はマーケットプレイスで必須です。",
+    "attributeRequiredDeleteDisabledTooltip": "必須属性は削除できません。",
+    "addAttribute": "属性を追加",
+    "deleteAttributeWarning": "属性「{{title}}」を削除してもよろしいですか？この操作は元に戻せません。",
+    "attributesSection": {
+      "removeWarning": "この商品からこの属性を削除しようとしています。この操作は元に戻せません。"
+    },
+    "editAttribute": "属性を編集",
+    "editAttributeHint": "この商品の属性に設定された値を更新します。",
+    "variantMedia": {
+      "label": "バリアントメディア",
+      "manageVariants": "バリアントを管理",
+      "addToMultipleVariants": "複数のバリアントに追加",
+      "manageVariantsDescription": "この画像に関連付けるバリアントを管理",
+      "successToast": "画像のバリアントを更新しました。",
+      "emptyState": {
+        "header": "まだメディアはありません",
+        "description": "ストアフロントに表示するメディアをバリアントに追加してください。",
+        "action": "メディアを追加"
+      }
+    },
+    "columns": {
+      "product_display": "商品",
+      "variants_count": "バリエーション",
+      "sales_channels_display": "販売チャネル",
+      "collection": "コレクション",
+      "status": "ステータス",
+      "thumbnail": "サムネイル",
+      "title": "タイトル",
+      "handle": "ハンドル",
+      "created_at": "作成日",
+      "updated_at": "更新日時"
+    },
+    "shippingProfile": {
+      "header": "配送設定",
+      "edit": {
+        "header": "配送設定",
+        "toasts": {
+          "success": "配送設定を更新しました。"
+        }
+      },
+      "create": {
+        "errors": {
+          "required": "配送プロフィールは必須です"
+        }
+      }
+    },
+    "bulkEdit": {
+      "title": "商品を一括編集",
+      "description": "複数の商品を一度に編集します。",
+      "noChanges": "保存する変更がありません。",
+      "success": "商品を更新しました。"
     }
   },
   "collections": {
@@ -701,6 +958,23 @@
       "remove": {
         "successToast_one": "商品がコレクションから正常に削除されました。",
         "successToast_other": "商品がコレクションから正常に削除されました。"
+      }
+    },
+    "requestSuccess": "コレクションをリクエストしました",
+    "media": {
+      "label": "メディア",
+      "thumbnail": "サムネイル",
+      "banner": "バナー",
+      "empty": {
+        "header": "まだメディアはありません",
+        "description": "マーケットプレイス運営者が追加したメディアがここに表示されます。"
+      }
+    },
+    "icon": {
+      "label": "アイコン",
+      "empty": {
+        "header": "アイコンがまだありません",
+        "description": "マーケットプレイス運営者が追加したアイコンがここに表示されます。"
       }
     }
   },
@@ -766,6 +1040,22 @@
       "new": {
         "label": "新規"
       }
+    },
+    "media": {
+      "label": "メディア",
+      "thumbnail": "サムネイル",
+      "banner": "バナー",
+      "empty": {
+        "header": "まだメディアはありません",
+        "description": "マーケットプレイス運営者が追加したメディアがここに表示されます。"
+      }
+    },
+    "icon": {
+      "label": "アイコン",
+      "empty": {
+        "header": "アイコンがまだありません",
+        "description": "マーケットプレイス運営者が追加したアイコンがここに表示されます。"
+      }
     }
   },
   "inventory": {
@@ -786,7 +1076,8 @@
       "attributes": "属性",
       "requiresShipping": "配送が必要",
       "requiresShippingHint": "この在庫アイテムは配送が必要ですか？",
-      "successToast": "在庫アイテムが正常に作成されました。"
+      "successToast": "在庫アイテムが正常に作成されました。",
+      "descriptionPlaceholder": "アイテムの説明"
     },
     "reservation": {
       "header": "{{itemName}}の予約",
@@ -820,6 +1111,19 @@
       "updateLocations": "拠点が正常に更新されました。",
       "updateLevel": "在庫レベルが正常に更新されました。",
       "updateItem": "在庫アイテムが正常に更新されました。"
+    },
+    "manageLocationQuantity": "ロケーション別の数量を管理",
+    "quantityAcrossLocations": "{{locations}} ロケーションで合計 {{quantity}}",
+    "levelDeleted": "在庫レベルを削除しました。",
+    "stock": {
+      "title": "在庫レベルを更新",
+      "description": "選択した在庫アイテムの在庫レベルを更新します。",
+      "action": "在庫数を編集",
+      "placeholder": "無効",
+      "disablePrompt_one": "{{count}} 件のロケーションレベルを無効にしようとしています。この操作は元に戻せません。",
+      "disablePrompt_other": "{{count}} 件のロケーションレベルを無効にしようとしています。この操作は元に戻せません。",
+      "disabledToggleTooltip": "無効化できません：無効にする前に入荷予定数と予約数をクリアしてください。",
+      "successToast": "在庫レベルを更新しました。"
     }
   },
   "giftCards": {
@@ -856,20 +1160,26 @@
       "removeMany": "顧客を以下の顧客グループから削除してもよろしいですか：{{groups}}？",
       "alreadyAddedTooltip": "顧客は既にこの顧客グループに所属しています。",
       "list": {
-        "noRecordsMessage": "この顧客はどのグループにも所属していません。"
+        "noRecordsMessage": "この顧客はどのグループにも所属していません。",
+        "emptyTitle": "顧客グループがまだありません"
       },
       "add": {
         "success": "顧客を追加しました：{{groups}}",
         "list": {
           "noRecordsMessage": "まず顧客グループを作成してください。"
-        }
+        },
+        "successOne": "顧客を {{groups}} グループに追加しました。",
+        "successMany": "顧客を {{groups}} グループに追加しました。"
       },
       "removed": {
         "success": "顧客を削除しました：{{groups}}",
         "list": {
           "noRecordsMessage": "まず顧客グループを作成してください。"
-        }
-      }
+        },
+        "successOne": "顧客を {{groups}} グループから削除しました。",
+        "successMany": "顧客を {{groups}} グループから削除しました。"
+      },
+      "removeTitle": "顧客を削除"
     },
     "edit": {
       "header": "顧客を編集",
@@ -888,7 +1198,30 @@
     },
     "registered": "登録済み",
     "guest": "ゲスト",
-    "hasAccount": "アカウントあり"
+    "hasAccount": "アカウントあり",
+    "addresses": {
+      "title": "住所",
+      "emptyTitle": "住所がまだありません",
+      "emptyMessage": "この顧客には住所が登録されていません",
+      "fields": {
+        "addressName": "住所名",
+        "address1": "住所1",
+        "address2": "住所2",
+        "city": "市区町村",
+        "province": "省",
+        "postalCode": "郵便番号",
+        "country": "国",
+        "phone": "電話番号",
+        "company": "会社",
+        "countryCode": "国コード",
+        "provinceCode": "都道府県コード"
+      },
+      "create": {
+        "header": "住所を作成",
+        "hint": "顧客の新しい住所を作成します。",
+        "successToast": "住所を作成しました。"
+      }
+    }
   },
   "customerGroups": {
     "domain": "顧客グループ",
@@ -896,7 +1229,8 @@
     "create": {
       "header": "顧客グループを作成",
       "hint": "顧客をセグメント化するための新しい顧客グループを作成します。",
-      "successToast": "顧客グループ「{{name}}」が正常に作成されました。"
+      "successToast": "顧客グループ「{{name}}」が正常に作成されました。",
+      "alreadyExistsToast": "名前が {{name}} の顧客グループはすでに存在します。"
     },
     "edit": {
       "header": "顧客グループを編集",
@@ -920,10 +1254,26 @@
         "title_one": "顧客を削除",
         "title_other": "顧客を削除",
         "description_one": "{{count}}人の顧客を顧客グループから削除しようとしています。この操作は元に戻せません。",
-        "description_other": "{{count}}人の顧客を顧客グループから削除しようとしています。この操作は元に戻せません。"
+        "description_other": "{{count}}人の顧客を顧客グループから削除しようとしています。この操作は元に戻せません。",
+        "successToast_one": "顧客をグループから削除しました。",
+        "successToast_other": "顧客をグループから削除しました。"
       },
       "list": {
-        "noRecordsMessage": "このグループには顧客がいません。"
+        "noRecordsMessage": "このグループには顧客がいません。",
+        "noRecordsTitle": "顧客がまだいません"
+      }
+    },
+    "validation": {
+      "nameRequired": "名前を入力してください"
+    },
+    "list": {
+      "empty": {
+        "heading": "顧客グループがまだありません",
+        "description": "顧客を整理するための顧客グループを作成してください"
+      },
+      "filtered": {
+        "heading": "結果なし",
+        "description": "現在のフィルター条件に一致する顧客グループがありません。"
       }
     }
   },
@@ -950,7 +1300,8 @@
       "itemSubtotal": "アイテム小計",
       "shippingSubtotal": "配送小計",
       "discountSubtotal": "割引小計",
-      "taxTotal": "税金合計"
+      "taxTotal": "税金合計",
+      "totalAfterDiscount": "割引後合計"
     },
     "transfer": {
       "title": "所有権の移転",
@@ -980,7 +1331,8 @@
         "partiallyCaptured": "一部支払い済み",
         "refunded": "返金済み",
         "canceled": "キャンセル済み",
-        "requiresAction": "対応が必要"
+        "requiresAction": "対応が必要",
+        "pending": "保留中"
       },
       "capturePayment": "{{amount}}の支払いが確定されます。",
       "capturePaymentSuccess": "{{amount}}の支払いが正常に確定されました",
@@ -991,7 +1343,15 @@
       "createRefundWrongQuantity": "数量は1から{{number}}の間の数字である必要があります",
       "refundAmount": "{{ amount }}を返金",
       "paymentLink": "{{ amount }}の支払いリンクをコピー",
-      "selectPaymentToRefund": "返金する支払いを選択"
+      "selectPaymentToRefund": "返金する支払いを選択",
+      "totalPending": "保留中の合計",
+      "totalRefunded": "返金済み",
+      "totalStoreCreditRefunds": "ストアクレジット返金合計",
+      "enterAmount": "金額を入力してください",
+      "copyPaymentLink": "{{ amount }}の支払いリンクをコピー",
+      "copyLinkSuccess": "支払いリンクをクリップボードにコピーしました",
+      "copyLinkError": "支払いリンクのコピーに失敗しました",
+      "outstandingAmount": "未払い金額"
     },
     "edits": {
       "title": "注文を編集",
@@ -1017,11 +1377,15 @@
       },
       "toast": {
         "canceledSuccessfully": "注文編集がキャンセルされました",
-        "confirmedSuccessfully": "注文編集が確認されました"
+        "confirmedSuccessfully": "注文編集が確認されました",
+        "requestSent": "変更リクエストを顧客に送信しました"
       },
       "validation": {
         "quantityLowerThanFulfillment": "数量を出荷済みの数量以下に設定することはできません"
-      }
+      },
+      "sendNotification": "通知を送信",
+      "sendNotificationHint": "変更を顧客に通知します。",
+      "removeBlockedFulfilledOrReturned": "発送済みまたは返品済みのアイテムは削除できません。"
     },
     "edit": {
       "email": {
@@ -1105,7 +1469,17 @@
       "panel": {
         "title": "返品が開始されました",
         "description": "完了する必要のある未処理の返品リクエストがあります"
-      }
+      },
+      "policyHint": "返品は配達から {{days}} 日以内に受け付けられます。",
+      "outOfPolicy": "返品は配達から {{days}} 日以内に受け付けられます。",
+      "restockPreview": "{{quantity}} × {{offerSku}} を受領 → {{location}} の {{inventoryItem}} に +{{delta}}",
+      "noItemsSelected": "返品するアイテムを少なくとも1つ選択してください。",
+      "estDifference": "見積もり差額",
+      "emptyState": {
+        "title": "レコードがまだありません",
+        "description": "返品を作成するには、注文から少なくとも1つのアイテムを追加してください"
+      },
+      "emptyItemsError": "注文から少なくとも1つのアイテムを追加してください"
     },
     "claims": {
       "create": "クレームを作成",
@@ -1138,7 +1512,35 @@
       "panel": {
         "title": "クレームが開始されました",
         "description": "完了する必要のある未処理のクレームリクエストがあります"
-      }
+      },
+      "title": "クレームを作成",
+      "description": "クレームタイプを選択し、顧客がクレームを希望するアイテムを選択してください。",
+      "policyHint": "クレームは配達から {{days}} 日以内に受け付けられます。",
+      "outOfPolicy": "クレームは配達から {{days}} 日以内に受け付けられます。",
+      "location": "所在地",
+      "locationHint": "返品アイテムを受け取るロケーション",
+      "inboundShipping": "返送方法（任意）",
+      "inboundShippingHint": "顧客がアイテムを返送する際に使用する配送方法",
+      "typeLabel": "クレームタイプ",
+      "typeRefund": "返金 — 交換品の発送なし",
+      "typeReplace": "交換 — 交換品を発送",
+      "typeLockedAfterStart": "下書きを開始すると、クレームタイプは変更できなくなります。変更するにはキャンセルして再度開いてください。",
+      "claimItems": "クレーム対象アイテム",
+      "noClaimableItems": "この注文にはクレーム可能なアイテムがありません。",
+      "outboundItems": "発送するアイテム",
+      "noOutboundItems": "交換品がまだ追加されていません。",
+      "addOutboundItems": "項目を追加",
+      "addOutboundItemsDescription": "クレーム対象アイテムの交換品として発送するバリアントを選択してください。",
+      "remainingQty": "クレーム可能：{{count}}",
+      "reasonPlaceholder": "理由を選択",
+      "itemNotePlaceholder": "メモを追加（任意）",
+      "reasons": {
+        "missing_item": "アイテム不足",
+        "wrong_item": "アイテム違い",
+        "production_failure": "製造不良",
+        "other": "その他"
+      },
+      "noteHint": "このクレームに社内メモを追加します（チーム内のみ表示）。"
     },
     "exchanges": {
       "create": "交換を作成",
@@ -1171,7 +1573,31 @@
       "panel": {
         "title": "交換が開始されました",
         "description": "完了する必要のある未処理の交換リクエストがあります"
-      }
+      },
+      "title": "交換を作成",
+      "description": "返品可能なアイテムを選択し、確定して交換リクエストを作成してください。",
+      "policyHint": "交換は配達から {{days}} 日以内に受け付けられます。",
+      "outOfPolicy": "交換は配達から {{days}} 日以内に受け付けられます。",
+      "inboundItems": "返品するアイテム",
+      "noReturnableItems": "この注文には返品可能なアイテムがありません。",
+      "outboundItems": "発送するアイテム",
+      "noOutboundItems": "交換品がまだ追加されていません。",
+      "addOutboundItems": "項目を追加",
+      "addOutboundItemsDescription": "返品アイテムの交換品として発送するバリアントを選択してください。",
+      "location": "返品先ロケーション",
+      "locationHint": "返品アイテムの発送先ロケーションを選択してください。",
+      "locationPlaceholder": "ロケーションを選択",
+      "inboundShipping": "返送方法（任意）",
+      "inboundShippingHint": "返送に使用する方法を選択してください。",
+      "inboundShippingPlaceholder": "配送オプションを選択",
+      "inboundShippingLockedPlaceholder": "先にロケーションを選択してください",
+      "reasonPlaceholder": "理由を選択",
+      "itemNotePlaceholder": "メモを追加（任意）",
+      "remainingQty": "返品可能：{{count}}",
+      "noteHint": "この交換に社内メモを追加します（チーム内のみ表示）。",
+      "carryOverPromotion": "プロモーションを引き継ぐ",
+      "carryOverPromotionHint": "注文のプロモーションを交換アイテムに適用します",
+      "carryOverPromotionTooltip": "EACH配分の固定額タイプ、およびEACHまたはACROSS配分の割合タイプのプロモーションのみ、発送する交換アイテムに引き継ぐことができます。"
     },
     "reservations": {
       "allocatedLabel": "割り当て済み",
@@ -1187,10 +1613,12 @@
       "consistsOf": "{{num}}個の在庫アイテムで構成",
       "requires": "バリエーションごとに{{num}}個必要",
       "toast": {
-        "created": "アイテムが正常に割り当てられました"
+        "created": "アイテムが正常に割り当てられました",
+        "error": "以下のアイテムの割り当てに失敗しました：{{items}}"
       },
       "error": {
-        "quantityNotAllocated": "割り当てられていないアイテムがあります。"
+        "quantityNotAllocated": "割り当てられていないアイテムがあります。",
+        "noItemsSelected": "割り当てるアイテムを少なくとも1つ選択してください。"
       }
     },
     "shipment": {
@@ -1199,7 +1627,11 @@
       "addTracking": "追跡番号を追加",
       "sendNotification": "通知を送信",
       "sendNotificationHint": "この出荷について顧客に通知します。",
-      "toastCreated": "出荷が正常に作成されました。"
+      "toastCreated": "出荷が正常に作成されました。",
+      "trackingUrl": "追跡URL",
+      "labelUrl": "ラベルURL",
+      "addTrackingUrl": "追跡URLを追加",
+      "trackingUrlPlaceholder": "https://www.dhl.com/shipment/1234567890"
     },
     "fulfillment": {
       "cancelWarning": "出荷をキャンセルしようとしています。この操作は元に戻せません。",
@@ -1224,7 +1656,10 @@
       "error": {
         "wrongQuantity": "出荷可能なアイテムは1つのみです",
         "wrongQuantity_other": "数量は1から{{number}}の間の数字である必要があります",
-        "noItems": "出荷するアイテムがありません。"
+        "noItems": "出荷するアイテムがありません。",
+        "exceedsReservedQuantity": "発送しようとしている数量がアイテムの予約数量を超えています。発送内容を見直してください。",
+        "noShippingOption": "配送オプションは必須です",
+        "noLocation": "ロケーションは必須です"
       },
       "status": {
         "notFulfilled": "未出荷",
@@ -1237,23 +1672,34 @@
         "partiallyReturned": "一部返品",
         "returned": "返品済み",
         "canceled": "キャンセル済み",
-        "requiresAction": "対応が必要"
+        "requiresAction": "対応が必要",
+        "awaitingPickup": "受け取り待ち",
+        "awaitingShipping": "発送待ち",
+        "awaitingDelivery": "配達待ち"
       },
       "toast": {
         "created": "出荷が正常に作成されました",
         "canceled": "出荷が正常にキャンセルされました",
         "fulfillmentShipped": "すでに配送された出荷をキャンセルすることはできません",
-        "fulfillmentDelivered": "出荷が正常に配達済みとしてマークされました"
+        "fulfillmentDelivered": "出荷が正常に配達済みとしてマークされました",
+        "fulfillmentPickedUp": "発送を受け取り済みにしました"
       },
       "trackingLabel": "追跡",
       "shippingFromLabel": "発送元",
-      "itemsLabel": "アイテム"
+      "itemsLabel": "アイテム",
+      "differentOptionSelected": "選択された配送オプションは、顧客が選択したものと異なります。",
+      "disabledItemTooltip": "選択したロケーションまたは配送オプションではこのアイテムを発送できません。",
+      "noInventoryLevel": {
+        "title": "在庫レベルなし",
+        "description": "選択したロケーションには、選択したアイテムの在庫レベルが設定されていません。発送を進めるには、選択したロケーションの在庫レベルを作成してください。"
+      },
+      "markAsPickedUp": "受け取り済みにする"
     },
     "refund": {
       "title": "返金を作成",
       "sendNotificationHint": "作成された返金について顧客に通知します。",
       "systemPayment": "システム支払い",
-      "systemPaymentDesc": "1つ以上の支払いがシステム支払いです。このような支払いの取り込みと返金はMedusaでは処理されないことに注意してください。",
+      "systemPaymentDesc": "1つ以上の支払いがシステム支払いです。このような支払いの取り込みと返金はMercurでは処理されないことに注意してください。",
       "error": {
         "amountToLarge": "元の注文金額を超えて返金することはできません。",
         "amountNegative": "返金額は正の数でなければなりません。",
@@ -1348,6 +1794,56 @@
       "displayId": "表示ID",
       "refundableAmount": "返金可能金額",
       "returnableQuantity": "返品可能数量"
+    },
+    "giftCardsStoreCreditLines": "ギフトカード・クレジットライン",
+    "creditLines": {
+      "title": "クレジットライン",
+      "total": "全クレジットラインの合計",
+      "creditOrDebit": "貸方／借方",
+      "createCreditLine": "クレジットラインを作成",
+      "createCreditLineSuccess": "クレジットラインを作成しました",
+      "createCreditLineError": "クレジットラインの作成中にエラーが発生しました",
+      "createCreditLineDescription": "{{amount}} のクレジットラインを作成",
+      "operation": "操作",
+      "credit": "貸方",
+      "creditDescription": "注文にプラスの金額を追加します",
+      "debit": "借方",
+      "debitDescription": "注文からマイナスの金額を差し引きます"
+    },
+    "balanceSettlement": {
+      "title": "残高精算",
+      "settlementType": "精算方法",
+      "settlementTypes": {
+        "paymentMethod": "支払い方法",
+        "paymentMethodDescription": "支払い方法に金額を返金します",
+        "creditLine": "ストアクレジット",
+        "creditLineDescription": "ストアクレジットとして金額を返金します"
+      }
+    },
+    "actions": {
+      "cancelDisabledFulfilled": "発送済みアイテムを含む注文はキャンセルできません。"
+    },
+    "orderCanceled": "注文をキャンセルしました",
+    "export": {
+      "header": "注文リストをエクスポート",
+      "description": "注文リストをCSVファイルにエクスポートします。",
+      "success": {
+        "title": "エクスポートを開始しました",
+        "description": "エクスポートの準備ができたら通知されます。"
+      },
+      "filters": {
+        "title": "フィルター",
+        "description": "以下のフィルターがエクスポートに適用されます。"
+      }
+    },
+    "status": {
+      "not_paid": "未払い",
+      "pending": "保留中",
+      "completed": "完了済み",
+      "draft": "下書き",
+      "archived": "アーカイブ済み",
+      "canceled": "キャンセル済み",
+      "requires_action": "対応が必要"
     }
   },
   "draftOrders": {
@@ -1391,12 +1887,23 @@
       "requiredEmailOrCustomer": "Eメールまたは顧客情報が必要です。",
       "requiredItems": "少なくとも1つの商品が必要です。",
       "invalidEmail": "有効なEメールを入力してください。"
+    },
+    "list": {
+      "noRecordsMessage": "下書き注文が見つかりません",
+      "description": "新しい下書き注文を作成して開始してください。",
+      "filtered": {
+        "heading": "結果が見つかりません",
+        "description": "フィルター条件に一致する下書き注文がありません。"
+      }
     }
   },
   "stockLocations": {
     "domain": "在庫拠点と配送",
     "list": {
-      "description": "店舗の在庫拠点と配送オプションを管理します。"
+      "description": "店舗の在庫拠点と配送オプションを管理します。",
+      "noRecordsMessage": "レコードなし",
+      "noRecordsMessageEmpty": "拠点が見つかりません",
+      "noRecordsMessageFiltered": "フィルターに一致するロケーションが見つかりません"
     },
     "create": {
       "header": "在庫拠点を作成",
@@ -1409,7 +1916,8 @@
       "successToast": "拠点「{{name}}」が正常に更新されました。"
     },
     "delete": {
-      "confirmation": "在庫拠点「{{name}}」を削除しようとしています。この操作は取り消せません。"
+      "confirmation": "在庫拠点「{{name}}」を削除しようとしています。この操作は取り消せません。",
+      "successToast": "ロケーション「{{name}}」を削除しました。"
     },
     "fulfillmentProviders": {
       "header": "フルフィルメントプロバイダー",
@@ -1442,6 +1950,10 @@
       "shippingProfiles": {
         "label": "配送プロファイル",
         "description": "配送要件ごとに商品をグループ化"
+      },
+      "shippingOptionTypes": {
+        "label": "配送オプションタイプ",
+        "description": "配送オプションをタイプ別にグループ化します"
       }
     },
     "salesChannels": {
@@ -1450,7 +1962,8 @@
       "connectedTo": "{{total}}個中{{count}}個の販売チャネルに接続済み",
       "noChannels": "この拠点は販売チャネルに接続されていません。",
       "action": "販売チャネルを接続",
-      "successToast": "販売チャネルが正常に更新されました。"
+      "successToast": "販売チャネルが正常に更新されました。",
+      "hint": "このロケーションに接続されている販売チャネルを管理します。"
     },
     "shippingOptions": {
       "create": {
@@ -1470,7 +1983,13 @@
           "details": "詳細",
           "prices": "価格"
         },
-        "action": "オプションを作成"
+        "action": "オプションを作成",
+        "pickup": {
+          "header": "{{zone}} の受け取りオプションを作成",
+          "hint": "このロケーションでの商品受け取り方法を定義する新しい受け取りオプションを作成します。",
+          "label": "受け取りオプション",
+          "successToast": "受け取りオプション {{name}} を作成しました。"
+        }
       },
       "delete": {
         "confirmation": "配送オプション「{{name}}」を削除しようとしています。この操作は取り消せません。",
@@ -1489,7 +2008,9 @@
           "shipping_one": "{{count}}個の配送オプション",
           "shipping_other": "{{count}}個の配送オプション",
           "returns_one": "{{count}}個の返品オプション",
-          "returns_other": "{{count}}個の返品オプション"
+          "returns_other": "{{count}}個の返品オプション",
+          "pickup_one": "{{count}} 件の受け取りオプション",
+          "pickup_other": "{{count}} 件の受け取りオプション"
         },
         "priceType": {
           "label": "価格タイプ",
@@ -1509,7 +2030,44 @@
           "hint": "顧客がチェックアウト時にこのオプションを使用できるかどうか。"
         },
         "provider": "フルフィルメントプロバイダー",
-        "profile": "配送プロファイル"
+        "profile": "配送プロファイル",
+        "type": "配送オプションタイプ",
+        "fulfillmentOption": "発送オプション"
+      },
+      "conditionalPrices": {
+        "header": "{{name}} の条件付き価格",
+        "description": "カートのアイテム合計金額に基づき、この配送オプションの条件付き価格を管理します。",
+        "attributes": {
+          "cartItemTotal": "カートのアイテム合計"
+        },
+        "summaries": {
+          "range": "<0>{{attribute}}</0> が <1>{{gte}}</1> から <2>{{lte}}</2> の間の場合",
+          "greaterThan": "<0>{{attribute}}</0> ≥ <1>{{gte}}</1> の場合",
+          "lessThan": "<0>{{attribute}}</0> ≤ <1>{{lte}}</1> の場合"
+        },
+        "actions": {
+          "addPrice": "価格を追加",
+          "manageConditionalPrices": "条件付き価格を管理"
+        },
+        "rules": {
+          "amount": "配送オプション価格",
+          "gte": "カートアイテム合計の最小値",
+          "lte": "カートアイテム合計の最大値"
+        },
+        "customRules": {
+          "label": "カスタムルール",
+          "tooltip": "この条件付き価格には、ダッシュボードで管理できないルールが含まれています。",
+          "eq": "カートアイテム合計が次の値と等しい",
+          "gt": "カートアイテム合計が次の値より大きい",
+          "lt": "カートアイテム合計が次の値より小さい"
+        },
+        "errors": {
+          "amountRequired": "配送オプション価格は必須です",
+          "minOrMaxRequired": "カートアイテム合計の最小値または最大値のいずれかを指定してください",
+          "minGreaterThanMax": "カートアイテム合計の最小値は最大値以下である必要があります",
+          "duplicateAmount": "配送オプション価格は条件ごとに一意である必要があります",
+          "overlappingConditions": "条件はすべての価格ルールで一意である必要があります"
+        }
       }
     },
     "serviceZones": {
@@ -1537,6 +2095,11 @@
       "fields": {
         "noRecords": "配送オプションを追加するサービスゾーンがありません。",
         "tip": "サービスゾーンは地理的ゾーンまたはエリアの集合です。定義された一連の拠点に利用可能な配送オプションを制限するために使用されます。"
+      }
+    },
+    "pickupOptions": {
+      "edit": {
+        "header": "受け取りオプションを編集"
       }
     }
   },
@@ -1571,7 +2134,9 @@
       "hint": "特定の国の税率を定義するための新しい税地域を作成します。",
       "errors": {
         "rateIsRequired": "デフォルトの税率を作成する際は税率が必要です。",
-        "nameIsRequired": "デフォルトの税率を作成する際は名前が必要です。"
+        "nameIsRequired": "デフォルトの税率を作成する際は名前が必要です。",
+        "missingProvider": "税地域を作成する際はプロバイダーが必須です。",
+        "missingCountry": "税地域を作成する際は国が必須です。"
       },
       "successToast": "税地域が正常に作成されました。"
     },
@@ -1715,7 +2280,8 @@
           "productCollection": "商品コレクション",
           "productTag": "商品タグ",
           "productType": "商品タイプ",
-          "customerGroup": "顧客グループ"
+          "customerGroup": "顧客グループ",
+          "shippingOption": "配送オプション"
         },
         "operators": {
           "in": "に含まれる",
@@ -1727,14 +2293,16 @@
           "productCollection": "商品コレクションを検索",
           "productTag": "商品タグを検索",
           "productType": "商品タイプを検索",
-          "customerGroup": "顧客グループを検索"
+          "customerGroup": "顧客グループを検索",
+          "shippingOption": "配送オプションを検索"
         },
         "tags": {
           "product": "商品",
           "productCollection": "商品コレクション",
           "productTag": "商品タグ",
           "productType": "商品タイプ",
-          "customerGroup": "顧客グループ"
+          "customerGroup": "顧客グループ",
+          "shippingOption": "配送オプション"
         },
         "modal": {
           "header": "対象を追加"
@@ -1790,10 +2358,25 @@
       "noDefaultRate": {
         "label": "デフォルト税率なし",
         "tooltip": "この税地域にはデフォルトの税率がありません。国のVATなど標準税率がある場合は、この地域に追加してください。"
-      }
+      },
+      "taxProvider": "税プロバイダー"
+    },
+    "edit": {
+      "header": "税地域を編集",
+      "hint": "税地域の詳細を編集します。",
+      "successToast": "税地域を更新しました。"
+    },
+    "provider": {
+      "header": "税プロバイダー"
     }
   },
   "promotions": {
+    "templates": {
+      "percentageOffProduct": {
+        "title": "商品の割引率",
+        "description": "選択した商品を割引率で割引します"
+      }
+    },
     "domain": "プロモーション",
     "sections": {
       "details": "プロモーションの詳細"
@@ -1822,13 +2405,29 @@
         },
         "target-rules": {
           "title": "プロモーションはどの商品に適用されますか？",
-          "description": "プロモーションは、次の条件に一致する商品に適用されます。"
+          "description": "プロモーションは、次の条件に一致する商品に適用されます。",
+          "order": {
+            "title": "プロモーションはどの商品に適用されますか？",
+            "description": "プロモーションは、次の条件に一致する商品に適用されます。"
+          },
+          "shipping_methods": {
+            "title": "プロモーションを適用する配送方法を選択してください",
+            "description": "以下の条件に一致する配送方法にプロモーションが適用されます。"
+          },
+          "items": {
+            "title": "プロモーションはどの商品に適用されますか？",
+            "description": "プロモーションは、次の条件に一致する商品に適用されます。"
+          }
         },
         "buy-rules": {
           "title": "プロモーションを有効にするためにカートに必要なものは？",
           "description": "これらの条件が一致した場合、ターゲット商品に対してプロモーションが有効になります。"
         }
-      }
+      },
+      "allocationTooltip": "「各アイテムごと」はアイテムごとに数量制限を適用し、「1回のみ」はカート全体に数量制限を適用します",
+      "taxInclusive": "税込",
+      "usageLimit": "使用制限",
+      "usage": "使用"
     },
     "tooltips": {
       "campaignType": "支出予算を設定するには、プロモーションで通貨コードを選択する必要があります。"
@@ -1889,7 +2488,20 @@
         }
       },
       "status": {
-        "title": "ステータス"
+        "title": "ステータス",
+        "label": "ステータス",
+        "draft": {
+          "title": "下書き",
+          "description": "顧客はまだこのコードを使用できません"
+        },
+        "active": {
+          "title": "アクティブ",
+          "description": "顧客はこのコードを使用できます"
+        },
+        "inactive": {
+          "title": "非アクティブ",
+          "description": "顧客はこのコードを使用できなくなります"
+        }
       },
       "method": {
         "label": "方法",
@@ -1924,6 +2536,10 @@
         "across": {
           "title": "全体",
           "description": "アイテム全体に値を適用します。"
+        },
+        "once": {
+          "title": "1回",
+          "description": "値を限られた数のアイテムに適用します"
         }
       },
       "code": {
@@ -1931,7 +2547,8 @@
         "description": "顧客がチェックアウト時に入力するコードです。"
       },
       "value": {
-        "title": "プロモーション値"
+        "title": "プロモーション値",
+        "invalid": "無効なプロモーション値です"
       },
       "value_type": {
         "fixed": {
@@ -1942,6 +2559,15 @@
           "title": "プロモーション値",
           "description": "金額から割引されるパーセンテージ。例：8%"
         }
+      },
+      "selectOperator": "演算子を選択",
+      "taxInclusive": {
+        "title": "プロモーションは税込ですか？",
+        "description": "税抜き後にプロモーションを適用するにはこの項目を有効にしてください"
+      },
+      "limit": {
+        "title": "使用制限",
+        "description": "このプロモーションが全注文で使用できる最大回数。無制限にする場合は空欄のままにしてください。"
       }
     },
     "deleteWarning": "プロモーション「{{code}}」を削除しようとしています。この操作は取り消せません。",
@@ -1952,6 +2578,11 @@
       "list": {
         "noRecordsMessage": "プロモーションが適用されるアイテムを制限する条件を追加してください。"
       }
+    },
+    "campaignSection": {
+      "noRecordsTitle": "キャンペーンに含まれていません",
+      "noRecordsMessage": "このプロモーションを既存のキャンペーンに追加します",
+      "addToCampaign": "キャンペーンに追加"
     }
   },
   "campaigns": {
@@ -1997,7 +2628,8 @@
       "budget_limit": "予算制限",
       "campaign_id": {
         "hint": "プロモーションと同じ通貨コードのキャンペーンのみがこのリストに表示されます。"
-      }
+      },
+      "totalUsedByAttribute": "使用合計"
     },
     "budget": {
       "create": {
@@ -2009,7 +2641,12 @@
         "type": "タイプ",
         "currency": "通貨",
         "limit": "制限",
-        "used": "使用済み"
+        "used": "使用済み",
+        "budgetAttribute": "使用制限の単位",
+        "budgetAttributeTooltip": "各顧客またはメールアドレスがプロモーションを使用できる回数を設定します。",
+        "totalUsedByAttribute": "予算上限（単位：{{attribute}}）",
+        "totalUsedByAttributeCustomerId": "顧客ごとの予算上限",
+        "totalUsedByAttributeEmail": "メールアドレスごとの予算上限"
       },
       "type": {
         "spend": {
@@ -2019,10 +2656,20 @@
         "usage": {
           "title": "使用",
           "description": "プロモーションが使用できる回数に制限を設定します。"
+        },
+        "useByAttribute": {
+          "title": "属性別の使用状況（顧客ID、メールアドレスなど）",
+          "titleCustomerId": "顧客ごとの使用状況",
+          "titleEmail": "メールアドレスごとの使用状況",
+          "description": "特定の属性値でプロモーションを使用できる回数の上限を設定します。"
         }
       },
       "edit": {
         "header": "キャンペーン予算を編集"
+      },
+      "attribute": {
+        "customer_id": "顧客",
+        "customer_email": "メールアドレス"
       }
     },
     "promotions": {
@@ -2095,10 +2742,17 @@
         "successToast_other": "{{count}}個の商品に対する価格が正常に削除されました。"
       },
       "add": {
-        "successToast": "価格が正常に価格リストに追加されました。"
+        "successToast": "価格が正常に価格リストに追加されました。",
+        "atLeastOnePrice": "少なくとも1つの価格を追加してください。",
+        "alreadyInPriceList": "この商品はすでに価格リストに含まれています",
+        "noVariants": "この商品にはバリエーションがありません",
+        "title": "価格リストに商品を追加",
+        "description": "価格リストに商品を追加し、価格を設定します"
       },
       "edit": {
-        "successToast": "価格が正常に更新されました。"
+        "successToast": "価格が正常に更新されました。",
+        "title": "{{title}} の価格を編集",
+        "description": "価格リスト内の商品の価格を更新します"
       }
     },
     "fields": {
@@ -2151,13 +2805,15 @@
     "manageYourProfileDetails": "プロフィールの詳細を管理します。",
     "fields": {
       "languageLabel": "言語",
-      "usageInsightsLabel": "使用状況のインサイト"
+      "usageInsightsLabel": "使用状況のインサイト",
+      "firstName": "名",
+      "lastName": "姓"
     },
     "edit": {
       "header": "プロフィールを編集",
       "languageHint": "管理ダッシュボードで使用する言語です。これにより、ストアの言語は変更されません。",
       "languagePlaceholder": "言語を選択",
-      "usageInsightsHint": "使用状況のインサイトを共有し、Medusaの改善にご協力ください。収集内容やその使用方法については、<0>ドキュメント</0>をご覧ください。"
+      "usageInsightsHint": "使用状況のインサイトを共有し、Mercurの改善にご協力ください。収集内容やその使用方法については、<0>ドキュメント</0>をご覧ください。"
     },
     "toast": {
       "edit": "プロフィールの変更が保存されました"
@@ -2184,10 +2840,33 @@
     "roles": {
       "admin": "管理者",
       "developer": "開発者",
-      "member": "メンバー"
+      "member": "メンバー",
+      "administration": "管理",
+      "inventoryManagement": "在庫管理",
+      "orderManagement": "注文管理",
+      "accounting": "経理",
+      "support": "サポート"
     },
     "deleteUserWarning": "{{name}}を削除しようとしています。この操作は取り消せません。",
-    "invite": "招待"
+    "invite": "招待",
+    "selectRole": "ロールを選択",
+    "list": {
+      "empty": {
+        "heading": "ユーザーが見つかりません",
+        "description": "ユーザーを招待すると、ここに表示されます。"
+      },
+      "filtered": {
+        "heading": "結果なし",
+        "description": "現在のフィルター条件に一致するユーザーがありません。"
+      }
+    },
+    "deleteUserSuccess": "ユーザー {{name}} を削除しました。",
+    "inviteForm": {
+      "validation": {
+        "emailInvalid": "有効なメールアドレスを入力してください",
+        "roleRequired": "ロールを選択してください"
+      }
+    }
   },
   "store": {
     "domain": "ストア",
@@ -2206,13 +2885,170 @@
     "removeCurrencyWarning_other": "{{count}}個の通貨をストアから削除しようとしています。進む前に、それらの通貨を使用しているすべての価格が削除されていることを確認してください。",
     "currencyAlreadyAdded": "この通貨はすでにストアに追加されています。",
     "edit": {
-      "header": "ストアを編集"
+      "header": "ストアを編集",
+      "websiteHint": "プロトコルを含めてください（例：https://）",
+      "mediaHeading": "メディア",
+      "mediaTipLabel": "ヒント：",
+      "mediaTipBody": "このメディアはストアフロントに表示されます。",
+      "uploadLogoLabel": "ロゴをアップロード",
+      "uploadLogoHint": "ここにロゴをドラッグ＆ドロップするか、クリックしてアップロードしてください。",
+      "uploadBannerLabel": "バナーをアップロード",
+      "uploadBannerHint": "ここにバナーをドラッグ＆ドロップするか、クリックしてアップロードしてください。"
     },
     "toast": {
       "update": "ストアが正常に更新されました。",
       "currenciesUpdated": "通貨が正常に更新されました。",
       "currenciesRemoved": "ストアから通貨が正常に削除されました。",
-      "updatedTaxInclusivitySuccessfully": "税込価格が正常に更新されました。"
+      "updatedTaxInclusivitySuccessfully": "税込価格が正常に更新されました。",
+      "localesUpdated": "ロケールを更新しました",
+      "localesRemoved": "ストアからロケールを削除しました"
+    },
+    "handleTooltip": "ハンドルはストアのURLスラッグになります。空欄の場合、名前から自動生成されます。",
+    "validation": {
+      "nameRequired": "名前を入力してください",
+      "emailRequired": "メールアドレスを入力してください",
+      "emailInvalid": "有効なメールアドレスを入力してください"
+    },
+    "profileCompletion": {
+      "title": "ストアプロフィールを完成させる",
+      "steps": {
+        "storeDetails": "ストア詳細を追加",
+        "address": "住所を追加",
+        "companyDetails": "会社情報を追加",
+        "paymentDetails": "支払い詳細を追加"
+      }
+    },
+    "status": {
+      "active": "アクティブ",
+      "pendingApproval": "保留中",
+      "suspended": "非アクティブ",
+      "terminated": "終了済み"
+    },
+    "alert": {
+      "pendingApproval": {
+        "title": "ストアリクエスト",
+        "description": "ストアリクエストを送信しました。管理者による確認後、パネル内に通知が届きます。"
+      },
+      "suspended": {
+        "title": "ストアが停止されました",
+        "description": "プラットフォーム管理者によりストアが停止されました。詳細はサポートまでお問い合わせください。"
+      },
+      "terminated": {
+        "title": "ストアが終了しました",
+        "description": "プラットフォーム管理者によりストアが永久に終了されました。詳細はサポートまでお問い合わせください。"
+      }
+    },
+    "defaultLocale": "デフォルトロケール",
+    "defaultSalesChannel": "デフォルトの販売チャネル",
+    "defaultLocation": "デフォルトのロケーション",
+    "locales": "ロケール",
+    "removeLocaleWarning_one": "ストアから {{count}} 件のロケールを削除しようとしています。このロケールを使用する翻訳はすべて削除されます。",
+    "removeLocaleWarning_other": "ストアから {{count}} 件のロケールを削除しようとしています。これらのロケールを使用する翻訳はすべて削除されます。",
+    "localeAlreadyAdded": "このロケールはすでにストアに追加されています。",
+    "company": "会社",
+    "manageCompanyDetails": "会社情報を管理します",
+    "logo": "ロゴ",
+    "banner": "バナー",
+    "editCompany": {
+      "header": "会社情報を編集"
+    },
+    "address": {
+      "header": "住所",
+      "defaultName": "本社",
+      "nameLabel": "名前",
+      "namePlaceholder": "本社",
+      "empty": {
+        "title": "住所がありません",
+        "message": "表示するレコードがありません"
+      },
+      "edit": {
+        "header": "住所を編集",
+        "description": "ストアの住所を更新します。",
+        "successToast": "住所を更新しました。"
+      },
+      "validation": {
+        "nameRequired": "名前を入力してください",
+        "countryRequired": "国を選択してください"
+      }
+    },
+    "paymentDetails": {
+      "header": "支払い詳細",
+      "empty": {
+        "title": "支払い詳細がありません",
+        "message": "表示するレコードがありません"
+      },
+      "edit": {
+        "header": "支払い詳細を編集",
+        "description": "ストアの支払い詳細を更新します。",
+        "successToast": "支払い詳細を更新しました。"
+      },
+      "fields": {
+        "countryCode": "国",
+        "holderName": "口座名義",
+        "bankName": "銀行名",
+        "iban": "IBAN",
+        "bic": "SWIFT／BIC",
+        "swiftBic": "SWIFT／BIC",
+        "routingNumber": "ルーティング番号",
+        "achRoutingNumber": "ACHルーティング番号",
+        "accountNumber": "口座番号"
+      },
+      "validation": {
+        "countryRequired": "国を選択してください",
+        "accountNameRequired": "口座名義を入力してください"
+      }
+    },
+    "professionalDetails": {
+      "header": "会社情報",
+      "empty": {
+        "title": "会社情報がありません",
+        "message": "表示するレコードがありません"
+      },
+      "edit": {
+        "header": "会社情報を編集",
+        "description": "ストアの会社情報を更新します。",
+        "successToast": "会社情報を更新しました。"
+      },
+      "fields": {
+        "corporateName": "会社",
+        "registrationNumber": "登録番号",
+        "taxId": "税番号"
+      }
+    },
+    "timeOff": {
+      "header": "休業期間",
+      "columns": {
+        "firstDay": "初日",
+        "lastDay": "最終日",
+        "note": "メモ"
+      },
+      "validation": {
+        "firstDayRequired": "初日を入力してください"
+      },
+      "empty": {
+        "title": "休業期間がまだありません",
+        "message": "このストアには予定された休業期間がありません",
+        "action": "作成"
+      },
+      "create": {
+        "header": "休業期間を作成",
+        "description": "ストアの休業期間を予定します。",
+        "successToast": "休業期間を作成しました。"
+      },
+      "edit": {
+        "successToast": "休業期間を更新しました。"
+      },
+      "fields": {
+        "firstDay": "初日",
+        "lastDay": "最終日",
+        "lastDayHint": "無期限に休業する場合は空欄のままにしてください",
+        "note": "メモ"
+      },
+      "deleteConfirm": {
+        "title": "休業期間を削除",
+        "description": "この休業期間を削除してもよろしいですか？"
+      },
+      "deleteSuccess": "休業期間を削除しました。"
     }
   },
   "regions": {
@@ -2367,6 +3203,16 @@
           "noRecordsMessage": "最初に商品を作成してください。"
         }
       }
+    },
+    "list": {
+      "empty": {
+        "heading": "販売チャネルが見つかりません",
+        "description": "販売チャネルを作成すると、ここに表示されます。"
+      },
+      "filtered": {
+        "heading": "結果なし",
+        "description": "現在のフィルター条件に一致する販売チャネルがありません。"
+      }
     }
   },
   "apiKeyManagement": {
@@ -2390,7 +3236,7 @@
       "createPublishableHeader": "公開可能なAPIキーを作成",
       "createPublishableHint": "特定の販売チャネルへのリクエストの範囲を制限するための新しい公開可能なAPIキーを作成します。",
       "createSecretHeader": "秘密のAPIキーを作成",
-      "createSecretHint": "認証された管理者ユーザーとしてMedusa APIにアクセスするための新しい秘密のAPIキーを作成します。",
+      "createSecretHint": "認証された管理者ユーザーとしてMercur APIにアクセスするための新しい秘密のAPIキーを作成します。",
       "secretKeyCreatedHeader": "秘密のキーが作成されました",
       "secretKeyCreatedHint": "新しい秘密のキーが生成されました。今すぐコピーして安全に保管してください。これが表示される唯一の機会です。",
       "copySecretTokenSuccess": "秘密のキーがクリップボードにコピーされました。",
@@ -2487,11 +3333,19 @@
   },
   "login": {
     "forgotPassword": "パスワードをお忘れですか？ - <0>リセット</0>",
-    "title": "Medusaへようこそ",
-    "hint": "アカウントエリアにアクセスするにはサインインしてください"
+    "title": "Mercurへようこそ",
+    "hint": "アカウントエリアにアクセスするにはサインインしてください",
+    "submit": "ログイン",
+    "sessionExpired": "セッションの有効期限が切れました",
+    "notSellerYet": "ストアをお持ちでないですか？<0>アカウントを作成</0>",
+    "validation": {
+      "emailRequired": "メールアドレスを入力してください",
+      "emailInvalid": "有効なメールアドレスを入力してください",
+      "passwordRequired": "パスワードを入力してください"
+    }
   },
   "invite": {
-    "title": "Medusaへようこそ",
+    "title": "Mercurへようこそ",
     "hint": "以下でアカウントを作成してください",
     "backToLogin": "ログインに戻る",
     "createAccount": "アカウントを作成",
@@ -2499,14 +3353,17 @@
     "emailTooltip": "Eメールは変更できません。別のEメールを使用したい場合は、新しい招待を送信する必要があります。",
     "invalidInvite": "招待が無効であるか、期限が切れています。",
     "successTitle": "アカウントが登録されました",
-    "successHint": "Medusa Adminをすぐに始めましょう。",
-    "successAction": "Medusa Adminを開始",
+    "successHint": "Mercur Adminをすぐに始めましょう。",
+    "successAction": "Mercur Adminを開始",
     "invalidTokenTitle": "招待トークンが無効です",
     "invalidTokenHint": "新しい招待リンクをリクエストしてみてください。",
     "passwordMismatch": "パスワードが一致しません",
     "toast": {
       "accepted": "招待が正常に受け入れられました"
-    }
+    },
+    "existingMemberHint": "既存のアカウントでサインイン",
+    "signIn": "サインイン",
+    "logIn": "ログイン"
   },
   "resetPassword": {
     "title": "パスワードをリセット",
@@ -2533,7 +3390,7 @@
   },
   "workflowExecutions": {
     "domain": "ワークフロー",
-    "subtitle": "Medusaアプリケーションでのワークフロー実行を表示し、追跡します。",
+    "subtitle": "Mercurアプリケーションでのワークフロー実行を表示し、追跡します。",
     "transactionIdLabel": "トランザクションID",
     "workflowIdLabel": "ワークフローID",
     "progressLabel": "進捗",
@@ -2583,7 +3440,9 @@
     "create": {
       "header": "商品タイプを作成",
       "hint": "商品を分類するための新しい商品タイプを作成します。",
-      "successToast": "商品タイプ「{{value}}」が正常に作成されました。"
+      "successToast": "商品タイプ「{{value}}」が正常に作成されました。",
+      "requestHeader": "商品タイプをリクエスト",
+      "requestSuccessToast": "商品タイプをリクエストしました"
     },
     "edit": {
       "header": "商品タイプを編集",
@@ -2624,7 +3483,7 @@
       "description": "現在通知はありませんが、通知が届くとここに表示されます。"
     },
     "accessibility": {
-      "description": "Medusaの活動に関する通知がここに表示されます。"
+      "description": "Mercurの活動に関する通知がここに表示されます。"
     }
   },
   "errors": {
@@ -2636,7 +3495,9 @@
     "expired": "期限切れ",
     "active": "アクティブ",
     "enabled": "有効",
-    "disabled": "無効"
+    "disabled": "無効",
+    "inactive": "非アクティブ",
+    "draft": "下書き"
   },
   "labels": {
     "productVariant": "商品バリエーション",
@@ -2646,7 +3507,12 @@
     "added": "追加済み",
     "removed": "削除済み",
     "from": "から",
-    "to": "へ"
+    "to": "へ",
+    "updated": "更新日時",
+    "beaware": "注意",
+    "loading": "読み込み中",
+    "selectValue": "値を選択",
+    "selectValues": "値を選択"
   },
   "fields": {
     "amount": "金額",
@@ -2805,7 +3671,40 @@
     "endDate": "終了日",
     "draft": "下書き",
     "values": "値",
-    "brand": "Brand"
+    "brand": "Brand",
+    "reference": "参照",
+    "reference_id": "参照ID",
+    "images": "メディア",
+    "type_id": "タイプ",
+    "collection_id": "コレクション",
+    "enabledInStore": "ストアで有効",
+    "isReturn": "返品対象",
+    "promotionCode": "プロモーションコード",
+    "website": "ウェブサイト",
+    "serviceZone": "サービスゾーン",
+    "commission": "手数料",
+    "creditTotal": "クレジットライン合計",
+    "premium": "プレミアム",
+    "professional": "法人",
+    "is_giftcard": "ギフトカード",
+    "origin_country": "原産国",
+    "hs_code": "HSコード",
+    "mid_code": "MIDコード",
+    "external_id": "外部ID",
+    "is_restricted": "制限あり",
+    "tag_ids": "タグ",
+    "category_ids": "カテゴリ",
+    "allow_backorder": "バックオーダー許可",
+    "manage_inventory": "在庫を管理",
+    "variant_rank": "バリアント順位",
+    "attribute_values": "属性値",
+    "isbn": "ISBN",
+    "asin": "ASIN",
+    "gtin": "GTIN",
+    "inventory_quantity": "在庫数量",
+    "requires_shipping": "配送が必要",
+    "variant_attributes": "バリアント属性",
+    "product_attributes": "商品属性"
   },
   "dateTime": {
     "years_one": "年",
@@ -2831,7 +3730,8 @@
       "type": "Type",
       "values": "Values",
       "variantAxis": "Use for Variants",
-      "filterable": "Filterable"
+      "filterable": "Filterable",
+      "productAttribute": "商品属性"
     },
     "type": {
       "select": "Single Select",
@@ -2839,6 +3739,419 @@
       "unit": "Unit",
       "toggle": "Toggle",
       "text_area": "Text Area"
+    }
+  },
+  "seller": {
+    "domain": "ストア"
+  },
+  "offers": {
+    "domain": "オファー",
+    "subtitle": "カタログの出品情報を管理します",
+    "create": {
+      "header": "オファーを作成",
+      "description": "バリアントを選択し、在庫数と価格を設定してオファーを作成します。",
+      "successToast": "オファーを公開しました。在庫数と価格が設定されているオファーのみがストアフロントに表示されます。",
+      "publish": "公開",
+      "tipLabel": "ヒント：",
+      "tip": "在庫に一致する商品をすべて選択し、在庫数と価格を追加するだけで簡単にオファーを作成できます。",
+      "addPrice": "価格を追加",
+      "addInventoryItem": "在庫アイテムを追加",
+      "stockLevelsWarning": "オファーは作成されましたが、一部の在庫数を保存できませんでした：{{message}}",
+      "tabs": {
+        "catalogue": "商品",
+        "stockLevelsAndPrices": "在庫数と価格"
+      }
+    },
+    "detail": {
+      "offerLabel": "オファー",
+      "productVariant": "商品バリエーション",
+      "offerVariant": "オファーバリアント",
+      "associatedProduct": "関連商品",
+      "shippingConfiguration": "配送設定",
+      "inventoryItems": "在庫アイテム",
+      "manageKit": "在庫キットを管理",
+      "noInventoryItems": "在庫アイテムが接続されていません。在庫パネルを開いて接続してください。",
+      "goToInventoryItem": "在庫アイテムに移動"
+    },
+    "edit": {
+      "header": "オファーを編集",
+      "description": "オファーの識別情報、配送プロフィール、メタデータを更新します。",
+      "successToast": "オファーを更新しました"
+    },
+    "variant": {
+      "edit": {
+        "successToast": "オファーバリアントを更新しました。"
+      },
+      "shipping": {
+        "successToast": "配送設定を更新しました。"
+      }
+    },
+    "pricing": {
+      "header": "価格を管理",
+      "description": "このオファーの価格帯の追加、変更、削除を行います。",
+      "successToast": "価格が正常に更新されました。",
+      "empty": "価格が設定されていません"
+    },
+    "inventory": {
+      "header": "在庫アイテムを管理",
+      "description": "アイテムごとの必要数量を接続、解除、変更します。",
+      "successToast": "在庫数を更新しました。",
+      "empty": "在庫アイテムが接続されていません"
+    },
+    "delete": {
+      "description": "オファー {{sku}} を削除しようとしています。この操作は元に戻せません。",
+      "successToast": "オファーを削除しました。"
+    },
+    "bulkDelete": {
+      "description_one": "{{count}} 件のオファーを削除しようとしています。この操作は元に戻せません。",
+      "description_other": "{{count}} 件のオファーを削除しようとしています。この操作は元に戻せません。",
+      "successToast_one": "{{count}} 件のオファーを削除しました",
+      "successToast_other": "{{count}} 件のオファーを削除しました",
+      "partialToast": "{{total}} 件中 {{succeeded}} 件のオファーを削除しました（失敗：{{failed}} 件）"
+    },
+    "actions": {
+      "create": "作成",
+      "manage_prices": "価格を管理",
+      "manage_inventory": "在庫を管理",
+      "edit_prices": "価格を編集",
+      "edit_stock_levels": "在庫数を編集",
+      "bulkDelete": "選択項目を削除"
+    },
+    "fields": {
+      "sku": "SKU",
+      "variant": "マスターバリアント",
+      "shippingProfile": "配送プロファイル",
+      "ean": "EAN",
+      "upc": "UPC",
+      "requiredQuantity": "必要数量",
+      "stockStatus": "在庫状況",
+      "category": "カテゴリー",
+      "collection": "コレクション",
+      "variants": "バリエーション",
+      "status": "ステータス",
+      "offer": "オファー",
+      "minQuantity": "最小数量",
+      "maxQuantity": "最大数量",
+      "stockLocation": "在庫ロケーション {{name}}",
+      "priceCurrency": "価格 {{code}}",
+      "notEnabled": "無効",
+      "enabled": "有効",
+      "variantsCount_one": "{{count}}個のバリエーション",
+      "variantsCount_other": "{{count}}個のバリエーション"
+    },
+    "status": {
+      "published": "公開済み",
+      "draft": "下書き",
+      "proposed": "提案済み",
+      "rejected": "却下"
+    },
+    "stockStatus": {
+      "in_stock": "在庫あり",
+      "low_stock": "在庫僅少",
+      "out_of_stock": "在庫切れ"
+    },
+    "empty": {
+      "heading": "オファーがまだありません",
+      "description": "マーケットプレイスでの販売を開始するにはオファーを作成してください"
+    },
+    "filtered": {
+      "heading": "一致するオファーがありません",
+      "description": "フィルターまたは検索語を調整してください。"
+    },
+    "validation": {
+      "skuRequired": "この行を公開するにはSKUが必須です。",
+      "shippingProfileRequired": "この行を公開するには配送プロフィールを選択してください。",
+      "duplicateSku": "この送信内の別の行ですでにこのSKUが使用されています。",
+      "duplicatePriceRule": "同じ通貨、地域、顧客グループ、数量範囲の組み合わせを持つ価格行がすでに存在します。",
+      "duplicateInventoryItem": "この在庫アイテムはすでに接続されています。",
+      "selectAtLeastOneVariant": "続けるには少なくとも1つのバリアントを選択してください。",
+      "noPublishableRows": "公開するにはSKUを追加するか、在庫ロケーションを有効にするか、価格を設定してください。",
+      "duplicateBatchEntry": "在庫アイテムは1つの区分（作成、更新、削除）にのみ含めることができます。"
+    }
+  },
+  "payouts": {
+    "domain": "支払い",
+    "payout": "支払い",
+    "noRecords": "支払いが見つかりません",
+    "status": {
+      "pending": "保留中",
+      "processing": "処理中",
+      "paid": "支払い済み",
+      "failed": "失敗",
+      "canceled": "キャンセル済み"
+    }
+  },
+  "translations": {
+    "domain": "翻訳",
+    "settings": {
+      "header": "翻訳可能なエンティティを管理",
+      "successToast": "設定を更新しました"
+    },
+    "actions": {
+      "manage": "翻訳を管理",
+      "manageEntities": "エンティティを管理",
+      "manageLocales": "ロケールを管理"
+    },
+    "subtitle": "Mercur内のデータの翻訳を管理します",
+    "list": {
+      "metrics": "{{total}} 件中 {{translated}} 件の翻訳"
+    },
+    "edit": {
+      "successToast": "翻訳を更新しました",
+      "unsavedChanges": {
+        "title": "未保存の翻訳",
+        "description": "保存されていない変更があります。変更内容を失わないようにしてください"
+      }
+    },
+    "bulk": {
+      "header": "翻訳一括編集",
+      "mainColumn": "ロケール"
+    },
+    "activeLocales": {
+      "heading": "言語",
+      "subtitle": "有効化された翻訳",
+      "noLocalesTip": "データの翻訳を開始するには、少なくとも1つの言語を設定してください",
+      "noLocalesTipConfigureAction": "設定する"
+    },
+    "completion": {
+      "heading": "翻訳済みフィールド",
+      "translated": "翻訳済み",
+      "toTranslate": "未翻訳",
+      "footer": "言語"
+    }
+  },
+  "refundReasons": {
+    "domain": "返金理由",
+    "subtitle": "返金理由を管理します。",
+    "calloutHint": "返金を分類するための理由を管理します。",
+    "editReason": "返金理由を編集",
+    "create": {
+      "header": "返金理由を追加",
+      "subtitle": "よくある返金理由を指定してください。",
+      "hint": "返金を分類するための新しい理由を作成します。",
+      "successToast": "返金理由 {{label}} を作成しました。"
+    },
+    "edit": {
+      "header": "返金理由を編集",
+      "subtitle": "返金理由の値を編集します。",
+      "successToast": "返金理由 {{label}} を更新しました。"
+    },
+    "delete": {
+      "confirmation": "返金理由「{{label}}」を削除しようとしています。この操作は元に戻せません。",
+      "successToast": "返金理由を削除しました。"
+    },
+    "fields": {
+      "label": {
+        "label": "ラベル",
+        "placeholder": "サービスとしての対応"
+      },
+      "code": {
+        "label": "コード",
+        "placeholder": "gesture_of_goodwill"
+      },
+      "description": {
+        "label": "説明",
+        "placeholder": "顧客の購入体験が良くなかった"
+      }
+    }
+  },
+  "storeSelect": {
+    "title": "ストアを選択",
+    "subtitle": "続けるにはストアを選択してください。",
+    "pendingApproval": "保留中",
+    "addNewStore": "新しいストアを追加",
+    "status": {
+      "open": "アクティブ",
+      "pendingApproval": "保留中",
+      "suspended": "非アクティブ",
+      "terminated": "終了済み"
+    }
+  },
+  "register": {
+    "title": "{{name}} に参加しましょう！",
+    "hint": "管理者アカウントを設定するために、詳細を入力しパスワードを作成してください。",
+    "companyName": "会社名",
+    "confirmPassword": "パスワード（確認）",
+    "signUp": "登録する",
+    "alreadySeller": "すでにアカウントをお持ちですか？<0>ログイン</0>",
+    "passwordMismatch": "パスワードが一致しません",
+    "emailTaken": "入力されたメールアドレスはすでに使用されています",
+    "validation": {
+      "nameRequired": "名前は2文字以上で入力してください",
+      "firstNameRequired": "名を入力してください",
+      "lastNameRequired": "姓を入力してください",
+      "emailInvalid": "有効なメールアドレスを入力してください",
+      "passwordMinLength": "パスワードは8文字以上で入力してください",
+      "passwordComplexity": "パスワードには小文字、大文字、数字または記号をそれぞれ1文字以上含めてください",
+      "confirmPasswordRequired": "パスワードを確認のため再入力してください"
+    },
+    "firstName": "名",
+    "lastName": "姓",
+    "passwordHint": "パスワードは8文字以上で、小文字、大文字、数字または記号をそれぞれ1文字以上含める必要があります",
+    "successTitle": "ご登録ありがとうございます！",
+    "successHint": "ログインには管理者の承認が必要な場合があります。確認メールが間もなく届きます。",
+    "backToLogin": "ログインに戻る"
+  },
+  "onboarding": {
+    "step": "ステップ {{current}} / {{total}}",
+    "organizationSetup": {
+      "title": "組織を設定",
+      "subtitle": "組織名を指定してください",
+      "organizationName": "組織名",
+      "organizationNamePlaceholder": "マイオーガニゼーション"
+    },
+    "storeSetup": {
+      "title": "ストアを設定",
+      "subtitle": "ストアの詳細を指定してください",
+      "storeName": "ストア名",
+      "storeNamePlaceholder": "マイストア",
+      "storeEmail": "ストアのメールアドレス",
+      "storeEmailHint": "ストアの公開連絡先メールアドレス",
+      "selectCurrency": "通貨を選択",
+      "currencyHint": "ストア作成後は変更できません",
+      "descriptionPlaceholder": "ストアの説明"
+    },
+    "detailsSetup": {
+      "title": "プロフィールを完成させる",
+      "subtitle": "住所と事業情報を追加してください",
+      "addressTitle": "住所",
+      "addressSubtitle": "事業所の住所",
+      "professionalTitle": "事業情報",
+      "professionalSubtitle": "法人ストア情報",
+      "isProfessional": "法人ストア",
+      "isProfessionalDescription": "法人として登録する",
+      "corporateName": "会社",
+      "registrationNumber": "登録番号",
+      "taxId": "税番号",
+      "completeSetup": "設定を完了"
+    },
+    "submitted": {
+      "title": "申請を送信しました！",
+      "description": "ストアアカウントが作成され、承認待ちの状態です。審査完了後、{{email}} 宛に通知します。",
+      "hint": "その間、ストアを選択して設定を完了することができます。",
+      "action": "ダッシュボードへ進む"
+    },
+    "wizard": {
+      "stepOf": "ステップ {{current}} / {{total}}",
+      "steps": {
+        "store": "ストア詳細",
+        "address": "住所",
+        "company": "会社情報",
+        "payment": "支払い詳細"
+      },
+      "store": {
+        "title": "ストアの詳細を入力してください",
+        "name": "名前",
+        "email": "Eメール",
+        "handle": "ハンドル",
+        "handleTooltip": "ハンドルはストアのURLスラッグになります。空欄の場合、名前から自動生成されます。",
+        "handlePlaceholder": "my-store",
+        "currency": "通貨",
+        "selectCurrency": "選択",
+        "currencyHint": "ストア作成後は変更できません"
+      },
+      "skip": "スキップ",
+      "address": {
+        "title": "住所を入力してください",
+        "name": "名前",
+        "namePlaceholder": "本社",
+        "address": "住所",
+        "address2": "アパート、部屋番号など",
+        "postalCode": "郵便番号",
+        "city": "市区町村",
+        "country": "国",
+        "state": "州"
+      },
+      "company": {
+        "title": "会社情報を入力してください",
+        "subtitle": "法人ストア情報",
+        "corporateName": "会社",
+        "registrationNumber": "登録番号",
+        "taxId": "税番号"
+      },
+      "payment": {
+        "title": "支払い詳細を入力してください",
+        "subtitle": "支払いの受け取り方法",
+        "accountName": "口座名義",
+        "accountNumber": "口座番号",
+        "achRoutingNumber": "ACHルーティング番号",
+        "iban": "IBAN",
+        "swiftBic": "SWIFT／BIC"
+      },
+      "validation": {
+        "nameRequired": "名前を入力してください",
+        "emailInvalid": "メールアドレスを入力してください",
+        "currencyRequired": "通貨を選択してください",
+        "countryRequired": "国を選択してください",
+        "accountNameRequired": "口座名義を入力してください"
+      },
+      "preview": {
+        "title": "Mercurへようこそ",
+        "description": "ストア、商品、注文、支払いを一元管理できるベンダーポータルです。",
+        "placeholder": "アプリプレビュー"
+      }
+    }
+  },
+  "shippingOptionTypes": {
+    "domain": "配送オプションタイプ",
+    "subtitle": "配送オプションをタイプ別に整理します。",
+    "create": {
+      "header": "配送オプションタイプを作成",
+      "hint": "配送オプションを分類するための新しいタイプを作成します。",
+      "successToast": "配送オプションタイプ {{label}} を作成しました。"
+    },
+    "edit": {
+      "header": "配送オプションタイプを編集",
+      "successToast": "配送オプションタイプ {{label}} を更新しました。"
+    },
+    "delete": {
+      "confirmation": "配送オプションタイプ「{{label}}」を削除しようとしています。この操作は元に戻せません。",
+      "successToast": "配送オプションタイプ「{{label}}」を削除しました。"
+    },
+    "fields": {
+      "label": "ラベル",
+      "code": "コード",
+      "description": "説明"
+    }
+  },
+  "views": {
+    "save": "保存",
+    "saveAsNew": "新しいビューとして保存",
+    "saveAsSystemDefault": "システムのデフォルトとして保存",
+    "updateDefaultForEveryone": "全員のデフォルトを更新",
+    "updateViewName": "ビューを更新",
+    "updateNamed": "「{{name}}」を更新",
+    "prompts": {
+      "updateDefault": {
+        "title": "デフォルトビューを更新",
+        "description": "すべてのユーザーのデフォルトビューが更新されます。よろしいですか？",
+        "confirmText": "全員に反映",
+        "cancelText": "キャンセル"
+      },
+      "updateView": {
+        "title": "ビューを更新",
+        "description": "「{{name}}」を更新してもよろしいですか？",
+        "confirmText": "更新",
+        "cancelText": "キャンセル"
+      },
+      "saveAsDefault": {
+        "title": "システムのデフォルトとして保存",
+        "description": "現在の設定がシステムのデフォルトとして保存されます。個人用ビューを持たないユーザーには、この設定がデフォルトで表示されます。よろしいですか？",
+        "confirmText": "デフォルトとして保存",
+        "cancelText": "キャンセル"
+      },
+      "updateExisting": {
+        "title": "既存のビューを更新",
+        "description": "現在の設定で「{{name}}」を更新しますか？",
+        "confirmText": "更新",
+        "cancelText": "キャンセル"
+      }
+    }
+  },
+  "auth": {
+    "login": {
+      "authenticationFailed": "認証に失敗しました",
+      "cloud": "Mercurでログイン"
     }
   }
 }

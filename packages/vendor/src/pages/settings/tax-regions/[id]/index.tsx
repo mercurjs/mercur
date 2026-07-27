@@ -1,5 +1,7 @@
 import { useLoaderData, useParams } from "react-router-dom";
 
+import { WidgetZone } from "@mercurjs/dashboard-shared";
+
 import { SingleColumnPage } from "@components/layout/pages";
 import { useTaxRegion } from "@hooks/api/tax-regions";
 import { TaxRegionDetailSection } from "./_components/tax-region-detail-section";
@@ -36,17 +38,19 @@ const TaxRegionDetail = () => {
 
   return (
     <SingleColumnPage data={taxRegion}>
-      <TaxRegionSublevelAlert
-        taxRegion={taxRegion}
-        showSublevelRegions={showSublevelRegions}
-        setShowSublevelRegions={setShowSublevelRegions}
-      />
-      <TaxRegionDetailSection taxRegion={taxRegion} />
-      <TaxRegionProvinceSection
-        taxRegion={taxRegion}
-        showSublevelRegions={showSublevelRegions}
-      />
-      <TaxRegionOverrideSection taxRegion={taxRegion} />
+      <WidgetZone id="tax-regions.detail.main" data={taxRegion}>
+        <TaxRegionSublevelAlert
+          taxRegion={taxRegion}
+          showSublevelRegions={showSublevelRegions}
+          setShowSublevelRegions={setShowSublevelRegions}
+        />
+        <TaxRegionDetailSection taxRegion={taxRegion} />
+        <TaxRegionProvinceSection
+          taxRegion={taxRegion}
+          showSublevelRegions={showSublevelRegions}
+        />
+        <TaxRegionOverrideSection taxRegion={taxRegion} />
+      </WidgetZone>
     </SingleColumnPage>
   );
 };

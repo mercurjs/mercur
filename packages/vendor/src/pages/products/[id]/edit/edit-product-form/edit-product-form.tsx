@@ -10,8 +10,10 @@ import { RouteDrawer, useRouteModal } from "@components/modals";
 import { useFeatureFlags, useUpdateProduct } from "@hooks/api";
 
 import { KeyboundForm } from "@components/utilities/keybound-form";
-import { useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared";
 
 type EditProductFormProps = {
   product: ExtendedAdminProduct;
@@ -33,7 +35,11 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
   const isProductRequestEnabled =
     !!feature_flags?.[MercurFeatureFlags.PRODUCT_REQUEST];
 
-  const form = useForm({
+  const form = useExtendableForm({
+    schema: EditProductSchema,
+    model: "product",
+    zone: "edit",
+    data: product,
     defaultValues: {
       title: product.title,
       subtitle: product.subtitle || "",
@@ -41,22 +47,27 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
       description: product.description || "",
       discountable: product.discountable,
     },
-    resolver: zodResolver(EditProductSchema),
   });
 
   const { mutateAsync, isPending } = useUpdateProduct(product.id);
 
   const handleSubmit = form.handleSubmit(async (data) => {
     const { description, discountable, handle, subtitle, title } = data;
+    const additional_data = data.additional_data;
+
+    const payload = {
+      description,
+      discountable,
+      handle,
+      subtitle: subtitle || null,
+      title,
+      ...(additional_data && Object.keys(additional_data).length
+        ? { additional_data }
+        : {}),
+    } as Parameters<typeof mutateAsync>[0];
 
     await mutateAsync(
-      {
-        description,
-        discountable,
-        handle,
-        subtitle: subtitle || null,
-        title,
-      },
+      payload,
       {
         onSuccess: () => {
           toast.success(
@@ -220,6 +231,12 @@ export const EditProductForm = ({ product }: EditProductFormProps) => {
               name="discountable"
               label={t("fields.discountable")}
               description={t("products.discountableHint")}
+            />
+            <FormExtensionZone
+              model="product"
+              zone="edit"
+              control={form.control}
+              data={product}
             />
           </div>
         </RouteDrawer.Body>

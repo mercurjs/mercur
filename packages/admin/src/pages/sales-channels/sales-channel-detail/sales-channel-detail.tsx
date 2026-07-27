@@ -1,6 +1,7 @@
 import { ReactNode, Children } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { WidgetZone } from "@mercurjs/dashboard-shared"
 import { SingleColumnPageSkeleton } from "../../../components/common/skeleton"
 import { SingleColumnPage } from "../../../components/layout/pages"
 import { useSalesChannel } from "../../../hooks/api/sales-channels"
@@ -28,8 +29,10 @@ const Root = ({ children }: { children?: ReactNode }) => {
     </SingleColumnPage>
   ) : (
     <SingleColumnPage showJSON showMetadata data={sales_channel}>
-      <SalesChannelGeneralSection salesChannel={sales_channel} />
-      <SalesChannelProductSection salesChannel={sales_channel} />
+      <WidgetZone id="sales-channels.detail.main" data={sales_channel}>
+        <SalesChannelGeneralSection salesChannel={sales_channel} />
+        <SalesChannelProductSection salesChannel={sales_channel} />
+      </WidgetZone>
     </SingleColumnPage>
   )
 }

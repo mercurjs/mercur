@@ -1,9 +1,11 @@
-import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
 import { Button, Input, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared"
 import { ConditionalTooltip } from "../../../../../components/common/conditional-tooltip/index.ts"
 import { Form } from "../../../../../components/common/form/index.ts"
 import {
@@ -29,7 +31,11 @@ export const EditCustomerForm = ({ customer }: EditCustomerFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
   
-  const form = useForm<zod.infer<typeof EditCustomerSchema>>({
+  const form = useExtendableForm({
+    schema: EditCustomerSchema,
+    model: "customer",
+    zone: "edit",
+    data: customer,
     defaultValues: {
       email: customer.email || "",
       first_name: customer.first_name || "",
@@ -37,7 +43,6 @@ export const EditCustomerForm = ({ customer }: EditCustomerFormProps) => {
       company_name: customer.company_name || "",
       phone: customer.phone || "",
     },
-    resolver: zodResolver(EditCustomerSchema),
   })
 
   const { mutateAsync, isPending } = useUpdateCustomer(customer.id)
@@ -152,6 +157,12 @@ export const EditCustomerForm = ({ customer }: EditCustomerFormProps) => {
                   </Form.Item>
                 )
               }}
+            />
+            <FormExtensionZone
+              model="customer"
+              zone="edit"
+              control={form.control}
+              data={customer}
             />
           </div>
         </RouteDrawer.Body>

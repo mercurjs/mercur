@@ -32,11 +32,14 @@ import {
   StatusBadge,
   Text,
   Tooltip,
-  toast,
 } from "@medusajs/ui"
 
+import { DisplayExtensionZone, WidgetZone } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
-import { useOrderPreview } from "../../../../../hooks/api/orders"
+import {
+  useOrderCommissionLines,
+  useOrderPreview,
+} from "../../../../../hooks/api/orders"
 import { useReservationItems } from "../../../../../hooks/api/reservations"
 import { useReturns } from "../../../../../hooks/api/returns"
 import {
@@ -219,7 +222,8 @@ export const OrderSummarySection = ({
         </div>
       )}
 
-      <OutstandingActions order={order} />
+      <WidgetZone id="orders.detail.summary" data={order} />
+      <DisplayExtensionZone model="order" zone="summary" data={order} />
     </Container>
   )
 }
@@ -682,6 +686,21 @@ const CostBreakdown = ({
   const { t } = useTranslation()
   const [isTaxOpen, setIsTaxOpen] = useState(false)
   const [isShippingOpen, setIsShippingOpen] = useState(false)
+  const [isCommissionOpen, setIsCommissionOpen] = useState(false)
+
+  const { commission_lines } = useOrderCommissionLines(order.id)
+  const hasCommission = commission_lines.length > 0
+  const commissionTotal = commission_lines.reduce(
+    (acc, line) => acc + (line.amount ?? 0),
+    0
+  )
+  const commissionItemTitleById = useMemo(() => {
+    const map = new Map<string, string>()
+    order.items?.forEach((item) => {
+      map.set(item.id, item.product_title ?? item.title)
+    })
+    return map
+  }, [order.items])
 
   const discountCodes = useMemo(() => {
     const codes = new Set()
@@ -861,6 +880,60 @@ const CostBreakdown = ({
           </div>
         )}
       </>
+
+      {hasCommission && (
+        <>
+          <div className="flex justify-between">
+            {/* oxlint-disable-next-line jsx-a11y/click-events-have-key-events, jsx-a11y/no-static-element-interactions */}
+            <div
+              onClick={() => setIsCommissionOpen((o) => !o)}
+              className="flex cursor-pointer items-center gap-1"
+            >
+              <span className="txt-small select-none">
+                {t("fields.commission")}
+              </span>
+              <TriangleDownMini
+                style={{
+                  transform: `rotate(${isCommissionOpen ? 0 : -90}deg)`,
+                }}
+              />
+            </div>
+
+            <div className="text-right">
+              <Text size="small" leading="compact">
+                {getLocaleAmount(commissionTotal, order.currency_code)}
+              </Text>
+            </div>
+          </div>
+          {isCommissionOpen && (
+            <div className="flex flex-col gap-1 pl-5">
+              {commission_lines.map((line) => {
+                const label = line.shipping_method_id
+                  ? t("fields.shipping")
+                  : commissionItemTitleById.get(line.item_id ?? "") ?? line.code
+                return (
+                  <div
+                    key={line.id}
+                    className="flex items-center justify-between gap-x-2"
+                  >
+                    <div>
+                      <span className="txt-small text-ui-fg-subtle font-medium">
+                        {label}
+                      </span>
+                    </div>
+                    <div className="relative flex-1">
+                      <div className="bottom-[calc(50% - 2px)] absolute h-[1px] w-full border-b border-dashed" />
+                    </div>
+                    <span className="txt-small text-ui-fg-muted">
+                      {getLocaleAmount(line.amount, order.currency_code)}
+                    </span>
+                  </div>
+                )
+              })}
+            </div>
+          )}
+        </>
+      )}
     </div>
   )
 }
@@ -922,50 +995,3 @@ const Total = ({ order }: { order: AdminOrder }) => {
   )
 }
 
-const OutstandingActions = ({ order }: { order: HttpTypes.AdminOrder }) => {
-  const { t } = useTranslation()
-
-  const unpaidCollection = order.payment_collections?.find(
-    (pc) => pc.status !== "captured" && pc.status !== "canceled"
-  )
-
-  const pendingDifference = order.summary?.pending_difference || 0
-  const isOutstanding =
-    pendingDifference > 0.005 &&
-    order.status !== "canceled" &&
-    !!unpaidCollection
-
-  if (!isOutstanding || !unpaidCollection) {
-    return null
-  }
-
-  const paymentLink =
-    (
-      unpaidCollection.payment_sessions?.[0]?.data as
-        | { url?: string }
-        | undefined
-    )?.url ?? null
-
-  if (!paymentLink) {
-    return null
-  }
-
-  const handleCopyLink = async () => {
-    try {
-      await navigator.clipboard.writeText(paymentLink)
-      toast.success(t("orders.payment.copyLinkSuccess"))
-    } catch {
-      toast.error(t("orders.payment.copyLinkError"))
-    }
-  }
-
-  return (
-    <div className="bg-ui-bg-subtle flex items-center justify-end gap-x-2 rounded-b-xl px-4 py-4">
-      <Button size="small" variant="secondary" onClick={handleCopyLink}>
-        {t("orders.payment.copyPaymentLink", {
-          amount: getStylizedAmount(pendingDifference, order.currency_code),
-        })}
-      </Button>
-    </div>
-  )
-}

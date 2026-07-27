@@ -5,6 +5,12 @@
     "general": {
       "type": "object",
       "properties": {
+          "unknownError": {
+            "type": "string"
+          },
+          "notAvailable": {
+            "type": "string"
+          },
         "fullList": {
           "type": "string"
         },
@@ -442,6 +448,21 @@
     "validation": {
       "type": "object",
       "properties": {
+          "requiredField": {
+            "type": "string"
+          },
+          "valueRequired": {
+            "type": "string"
+          },
+          "atLeastOnePrice": {
+            "type": "string"
+          },
+          "currencyCodeNotFound": {
+            "type": "string"
+          },
+          "shippingOptionIdMissing": {
+            "type": "string"
+          },
         "rules": {
           "type": "object",
           "properties": {
@@ -2581,6 +2602,12 @@
         "attributeRequiredByMarketplace": {
           "type": "string"
         },
+        "attributeRequiredDeleteDisabledTooltip": {
+          "type": "string"
+        },
+        "missingRequiredAttributesHint": {
+          "type": "string"
+        },
         "addAttribute": {
           "type": "string"
         },
@@ -3719,6 +3746,8 @@
         "attributeProductInformation",
         "attributeProductInformationDescription",
         "attributeRequiredByMarketplace",
+        "attributeRequiredDeleteDisabledTooltip",
+        "missingRequiredAttributesHint",
         "addAttribute",
         "deleteAttributeWarning",
         "attributesSection",
@@ -6097,6 +6126,9 @@
             "createRefundWrongQuantity": {
               "type": "string"
             },
+            "enterAmount": {
+              "type": "string"
+            },
             "refundAmount": {
               "type": "string"
             },
@@ -6128,6 +6160,7 @@
             "createRefund",
             "refundPaymentSuccess",
             "createRefundWrongQuantity",
+            "enterAmount",
             "refundAmount",
             "paymentLink",
             "selectPaymentToRefund",
@@ -6418,6 +6451,25 @@
             "activeChangeError": {
               "type": "string"
             },
+            "emptyState": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description"
+              ],
+              "additionalProperties": false
+            },
+            "emptyItemsError": {
+              "type": "string"
+            },
             "cancel": {
               "type": "object",
               "properties": {
@@ -6605,6 +6657,8 @@
             "damagedItemReceived",
             "damagedItemsReturned",
             "activeChangeError",
+            "emptyState",
+            "emptyItemsError",
             "cancel",
             "placeholders",
             "receive",
@@ -9930,6 +9984,38 @@
     "promotions": {
       "type": "object",
       "properties": {
+          "templates": {
+            "type": "object",
+            "properties": {
+              "percentageOffProduct": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecords": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
         "domain": {
           "type": "string"
         },
@@ -9970,6 +10056,29 @@
           "properties": {
             "type": {
               "type": "string"
+            },
+            "typeLabels": {
+              "type": "object",
+              "properties": {
+                "percentageItems": {
+                  "type": "string"
+                },
+                "percentageShipping": {
+                  "type": "string"
+                },
+                "percentageOrder": {
+                  "type": "string"
+                },
+                "amountItems": {
+                  "type": "string"
+                },
+                "amountShipping": {
+                  "type": "string"
+                },
+                "amountOrder": {
+                  "type": "string"
+                }
+              }
             },
             "value_type": {
               "type": "string"

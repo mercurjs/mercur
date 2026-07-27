@@ -4,6 +4,8 @@ import { Avatar, Heading, StatusBadge, Text } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import { useLocation, useNavigate } from "react-router-dom";
 
+import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared";
+
 import AvatarBox from "@components/common/logo-box/avatar-box";
 import { AuthLayout } from "@components/layout/auth-layout";
 import { useSelectSeller, useSellers } from "@hooks/api";
@@ -97,9 +99,22 @@ const StoreSelectList = ({
                   </Text>
                 ) : null}
               </div>
-              {badge ? (
-                <StatusBadge color={badge.color}>{badge.label}</StatusBadge>
-              ) : null}
+              <DisplayField
+                model="seller"
+                zone="seller-select"
+                id="status"
+                data={seller}
+              >
+                {badge ? (
+                  <StatusBadge color={badge.color}>{badge.label}</StatusBadge>
+                ) : null}
+              </DisplayField>
+              <DisplayExtensionZone
+                model="seller"
+                zone="seller-select"
+                data={seller}
+                builtInFieldIds={["status"]}
+              />
               <ChevronRight className="text-ui-fg-muted" />
             </button>
           );

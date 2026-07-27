@@ -5,6 +5,7 @@ import { useTranslation } from "react-i18next";
 
 import { HttpTypes } from "@medusajs/types";
 import { SellerDTO, ProductStatus } from "@mercurjs/types";
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared";
 import { ConfirmPrompt } from "../../../../../components/common/confirm-prompt";
 import {
   useConfirmProduct,
@@ -163,6 +164,7 @@ export const ProductActiveRequestSection = ({
         isLoading={isRejecting}
         onConfirm={handleReject}
       />
+      <DisplayExtensionZone model="product" zone="request" data={product} />
     </Container>
   );
 };

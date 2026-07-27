@@ -8,6 +8,12 @@
     "general": {
       "type": "object",
       "properties": {
+          "unknownError": {
+            "type": "string"
+          },
+          "notAvailable": {
+            "type": "string"
+          },
         "ascending": {
           "type": "string"
         },
@@ -385,6 +391,18 @@
     "validation": {
       "type": "object",
       "properties": {
+          "requiredField": {
+            "type": "string"
+          },
+          "valueRequired": {
+            "type": "string"
+          },
+          "currencyCodeNotFound": {
+            "type": "string"
+          },
+          "shippingOptionIdMissing": {
+            "type": "string"
+          },
         "mustBeInt": {
           "type": "string"
         },
@@ -3350,8 +3368,37 @@
         "createSuccess": {
           "type": "string"
         },
+        "deleteSuccess": {
+          "type": "string"
+        },
+        "updateSuccess": {
+          "type": "string"
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "titleRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "titleRequired"
+          ],
+          "additionalProperties": false
+        },
         "editCollection": {
           "type": "string"
+        },
+        "validation": {
+          "type": "object",
+          "properties": {
+            "titleRequired": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "titleRequired"
+          ]
         },
         "handleTooltip": {
           "type": "string"
@@ -3643,7 +3690,11 @@
         "createCollection",
         "createCollectionHint",
         "createSuccess",
+        "deleteSuccess",
+        "updateSuccess",
+        "validation",
         "editCollection",
+        "validation",
         "handleTooltip",
         "deleteWarning",
         "removeSingleProductWarning",
@@ -3831,11 +3882,15 @@
             },
             "action": {
               "type": "string"
+            },
+            "successToast": {
+              "type": "string"
             }
           },
           "required": [
             "header",
-            "action"
+            "action",
+            "successToast"
           ],
           "additionalProperties": false
         },
@@ -4828,6 +4883,38 @@
                 "successToast"
               ],
               "additionalProperties": false
+            },
+            "delete": {
+              "type": "object",
+              "properties": {
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "successToast"
+              ],
+              "additionalProperties": false
+            },
+            "validation": {
+              "type": "object",
+              "properties": {
+                "addressNameRequired": {
+                  "type": "string"
+                },
+                "addressRequired": {
+                  "type": "string"
+                },
+                "countryRequired": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "addressNameRequired",
+                "addressRequired",
+                "countryRequired"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
@@ -4836,7 +4923,9 @@
             "emptyMessage",
             "fields",
             "create",
-            "edit"
+            "edit",
+            "delete",
+            "validation"
           ],
           "additionalProperties": false
         }
@@ -9305,6 +9394,82 @@
     "promotions": {
       "type": "object",
       "properties": {
+          "templates": {
+            "type": "object",
+            "properties": {
+              "amountOffProducts": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "amountOffOrder": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "percentageOffProduct": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "percentageOffOrder": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              },
+              "buyGet": {
+                "type": "object",
+                "properties": {
+                  "title": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecords": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        },
         "domain": {
           "type": "string"
         },
@@ -9346,10 +9511,36 @@
             "type": {
               "type": "string"
             },
+            "typeLabels": {
+              "type": "object",
+              "properties": {
+                "percentageItems": {
+                  "type": "string"
+                },
+                "percentageShipping": {
+                  "type": "string"
+                },
+                "percentageOrder": {
+                  "type": "string"
+                },
+                "amountItems": {
+                  "type": "string"
+                },
+                "amountShipping": {
+                  "type": "string"
+                },
+                "amountOrder": {
+                  "type": "string"
+                }
+              }
+            },
             "value_type": {
               "type": "string"
             },
             "value": {
+              "type": "string"
+            },
+            "promotion_value": {
               "type": "string"
             },
             "campaign": {
@@ -9358,7 +9549,22 @@
             "method": {
               "type": "string"
             },
+            "owner": {
+              "type": "string"
+            },
+            "platformOwner": {
+              "type": "string"
+            },
+            "coverage": {
+              "type": "string"
+            },
             "allocation": {
+              "type": "string"
+            },
+            "usageLimit": {
+              "type": "string"
+            },
+            "unlimited": {
               "type": "string"
             },
             "addCondition": {
@@ -9489,14 +9695,57 @@
             "type",
             "value_type",
             "value",
+            "promotion_value",
             "campaign",
             "method",
+            "owner",
+            "platformOwner",
+            "coverage",
             "allocation",
+            "usageLimit",
+            "unlimited",
             "addCondition",
             "clearAll",
             "taxInclusive",
             "amount",
             "conditions"
+          ],
+          "additionalProperties": false
+        },
+        "campaignSection": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            },
+            "addToCampaign": {
+              "type": "string"
+            },
+            "warnings": {
+              "type": "object",
+              "properties": {
+                "promotionMustBeActive": {
+                  "type": "string"
+                },
+                "promotionExpires": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "promotionMustBeActive",
+                "promotionExpires"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage",
+            "addToCampaign",
+            "warnings"
           ],
           "additionalProperties": false
         },
@@ -9755,6 +10004,34 @@
               ],
               "additionalProperties": false
             },
+            "storeOffers": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "label": {
+                  "type": "string"
+                },
+                "placeholder": {
+                  "type": "string"
+                },
+                "required": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description",
+                "label",
+                "placeholder",
+                "required"
+              ],
+              "additionalProperties": false
+            },
             "status": {
               "type": "object",
               "properties": {
@@ -10003,12 +10280,16 @@
                 "title": {
                   "type": "string"
                 },
+                "description": {
+                  "type": "string"
+                },
                 "invalid": {
                   "type": "string"
                 }
               },
               "required": [
                 "title",
+                "description",
                 "invalid"
               ],
               "additionalProperties": false
@@ -10091,11 +10372,15 @@
             "list": {
               "type": "object",
               "properties": {
+                "noRecordsTitle": {
+                  "type": "string"
+                },
                 "noRecordsMessage": {
                   "type": "string"
                 }
               },
               "required": [
+                "noRecordsTitle",
                 "noRecordsMessage"
               ],
               "additionalProperties": false
@@ -11434,6 +11719,17 @@
         "scheduledClosure": {
           "type": "object",
           "properties": {
+            "validation": {
+              "type": "object",
+              "properties": {
+                "closedFromRequired": {
+                  "type": "string"
+                },
+                "closedFromInPast": {
+                  "type": "string"
+                }
+              }
+            },
             "header": {
               "type": "string"
             },
@@ -14436,6 +14732,32 @@
     "views": {
       "type": "object",
       "properties": {
+          "toasts": {
+            "type": "object",
+            "properties": {
+              "created": {
+                "type": "string"
+              },
+              "createFailed": {
+                "type": "string"
+              },
+              "updateActiveFailed": {
+                "type": "string"
+              },
+              "updated": {
+                "type": "string"
+              },
+              "updateFailed": {
+                "type": "string"
+              },
+              "deleted": {
+                "type": "string"
+              },
+              "deleteFailed": {
+                "type": "string"
+              }
+            }
+          },
         "save": {
           "type": "string"
         },
@@ -14755,6 +15077,20 @@
     "commissions": {
       "type": "object",
       "properties": {
+          "rulesTable": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "attribute": {
+                "type": "string"
+              },
+              "fee": {
+                "type": "string"
+              }
+            }
+          },
         "domain": {
           "type": "string"
         },

@@ -1,19 +1,22 @@
-import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
-import { InformationCircleSolid } from "@medusajs/icons";
 import {
   Button,
   Heading,
+  Hint,
   Input,
   Select,
-  Text,
   Textarea,
   toast,
 } from "@medusajs/ui";
-import { useFieldArray, useForm } from "react-hook-form";
+import { useFieldArray } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import * as zod from "zod";
 import { useCallback } from "react";
+
+import {
+  FormExtensionZone,
+  useExtendableForm,
+} from "@mercurjs/dashboard-shared";
 
 import { FileType, FileUpload } from "@components/common/file-upload";
 import { Form } from "@components/common/form";
@@ -90,7 +93,11 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
 
-  const form = useForm<zod.infer<typeof EditStoreSchema>>({
+  const form = useExtendableForm({
+    schema: EditStoreSchema,
+    model: "seller",
+    zone: "edit",
+    data: seller,
     defaultValues: {
       name: seller.name ?? "",
       handle: seller.handle ?? "",
@@ -99,13 +106,26 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
       description: seller.description ?? "",
       website_url: stripWebsiteProtocol(seller.website_url),
       media: seller.logo
-        ? [{ id: "existing-logo", url: seller.logo, isThumbnail: false, file: null }]
+        ? [
+            {
+              id: "existing-logo",
+              url: seller.logo,
+              isThumbnail: false,
+              file: null,
+            },
+          ]
         : [],
       bannerMedia: seller.banner
-        ? [{ id: "existing-banner", url: seller.banner, isThumbnail: false, file: null }]
+        ? [
+            {
+              id: "existing-banner",
+              url: seller.banner,
+              isThumbnail: false,
+              file: null,
+            },
+          ]
         : [],
     },
-    resolver: zodResolver(EditStoreSchema),
   });
 
   const { fields: logoFields } = useFieldArray({
@@ -164,6 +184,7 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
         website_url: ensureWebsiteProtocol(values.website_url),
         logo: logoUrl,
         banner: bannerUrl,
+        additional_data: values.additional_data,
       },
       {
         onSuccess: () => {
@@ -390,18 +411,14 @@ export const EditStoreForm = ({ seller }: EditStoreFormProps) => {
                 );
               }}
             />
-            <div className="bg-ui-bg-component shadow-elevation-card-rest flex items-start gap-x-2 rounded-lg px-4 py-3">
-              <InformationCircleSolid className="text-ui-fg-interactive mt-[2px]" />
-              <div className="flex flex-col gap-y-0.5">
-                <Text size="small" weight="plus" className="text-ui-fg-base">
-                  {t("store.edit.mediaTipLabel")}
-                </Text>
-                <Text size="small" className="text-ui-fg-subtle">
-                  {t("store.edit.mediaTipBody")}
-                </Text>
-              </div>
-            </div>
+            <Hint>{t("store.edit.mediaTipBody")}</Hint>
           </div>
+          <FormExtensionZone
+            model="seller"
+            zone="edit"
+            control={form.control}
+            data={seller}
+          />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>
           <div className="flex items-center justify-end gap-x-2">

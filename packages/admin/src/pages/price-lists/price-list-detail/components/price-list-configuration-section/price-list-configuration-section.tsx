@@ -2,6 +2,9 @@ import { PencilSquare } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
+
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { DateRangeDisplay } from "../../../../../components/common/date-range-display"
 import { ListSummary } from "../../../../../components/common/list-summary"
@@ -45,6 +48,12 @@ export const PriceListConfigurationSection = ({
         startsAt={priceList.starts_at}
         showTime
         data-testid="price-list-configuration-section-date-range"
+      />
+
+      <DisplayExtensionZone
+        model="price_list"
+        zone="configuration"
+        data={priceList}
       />
     </Container>
   )

@@ -1,18 +1,26 @@
 import { LoaderFunctionArgs } from "react-router-dom";
+import { getLinkQuery } from "@mercurjs/dashboard-shared";
 
 import { productsQueryKeys } from "@hooks/api/products";
 import { sdk } from "@lib/client";
 import { queryClient } from "@lib/query-client";
 import { PRODUCT_DETAIL_QUERY } from "../common/constants";
 
-const productDetailQuery = (id: string) => ({
-  queryKey: productsQueryKeys.detail(id, PRODUCT_DETAIL_QUERY),
-  queryFn: async () =>
-    sdk.vendor.products.$id.query({
-      $id: id,
-      ...PRODUCT_DETAIL_QUERY,
-    } as any),
-});
+/** Custom-fields `link` relations merged into the detail query (`+link.*`). */
+export const productDetailQueryWithLinks = () =>
+  getLinkQuery("product", PRODUCT_DETAIL_QUERY.fields);
+
+const productDetailQuery = (id: string) => {
+  const query = productDetailQueryWithLinks();
+  return {
+    queryKey: productsQueryKeys.detail(id, query),
+    queryFn: async () =>
+      sdk.vendor.products.$id.query({
+        $id: id,
+        ...query,
+      } as any),
+  };
+};
 
 export const loader = async ({ params }: LoaderFunctionArgs) => {
   const id = params.id;

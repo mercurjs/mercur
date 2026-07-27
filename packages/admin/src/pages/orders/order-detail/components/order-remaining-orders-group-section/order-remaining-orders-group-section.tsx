@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { Container, Heading } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
@@ -94,6 +95,11 @@ export const OrderRemainingOrdersGroupSection = () => {
           message: t("orders.group.noOtherOrders"),
         }}
       />
+      <DisplayExtensionZone
+        model="order"
+        zone="order-group"
+        data={order_group}
+      />
     </Container>
   )
 }
@@ -101,6 +107,8 @@ export const OrderRemainingOrdersGroupSection = () => {
 const columnHelper = createColumnHelper<HttpTypes.AdminOrder>()
 
 const useColumns = () => {
+  const { t } = useTranslation()
+
   return useMemo(
     () => [
       columnHelper.accessor("display_id", {
@@ -109,7 +117,7 @@ const useColumns = () => {
       }),
       columnHelper.display({
         id: "seller",
-        header: () => <TextHeader text="Store" />,
+        header: () => <TextHeader text={t("fields.store")} />,
         cell: ({ row }) => {
           const seller = (row.original as any).seller
           return <TextCell text={seller?.name ?? "-"} />
@@ -137,6 +145,6 @@ const useColumns = () => {
         ),
       }),
     ],
-    []
+    [t]
   )
 }

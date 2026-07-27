@@ -19,7 +19,7 @@ export type CreateCategorySchemaType = z.infer<typeof CreateCategorySchema>
 type CreateCategoryFormProps = {
   parentCategoryId: string | null
   children?: ReactNode
-  schema?: z.ZodType<CreateCategorySchemaType>
+  schema?: typeof CreateCategorySchema
   defaultValues?: DeepPartial<CreateCategorySchemaType>
 }
 
@@ -78,11 +78,7 @@ export const CreateCategoryForm = ({
       },
       {
         onSuccess: ({ product_category }) => {
-          toast.success(
-            t("categories.create.successToast", {
-              name: product_category.name,
-            })
-          )
+          toast.success(t("categories.create.successToast"))
 
           handleSuccess(`/categories/${product_category.id}`)
         },
@@ -105,6 +101,8 @@ export const CreateCategoryForm = ({
 
   return (
     <TabbedForm
+      model="category"
+      zone="create"
       form={form}
       onSubmit={handleSubmit}
       isLoading={isPending}

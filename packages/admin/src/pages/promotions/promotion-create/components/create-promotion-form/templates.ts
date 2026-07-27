@@ -3,12 +3,16 @@ const commonHiddenFields = [
   "application_method.type",
 ]
 
-const amountOfOrderHiddenFields = [...commonHiddenFields]
+const amountOfOrderHiddenFields = [
+  ...commonHiddenFields,
+  "application_method.allocation",
+]
 const amountOfProductHiddenFields = [...commonHiddenFields]
 
 const percentageOfOrderHiddenFields = [
   ...commonHiddenFields,
   "is_tax_inclusive",
+  "application_method.allocation",
 ]
 const percentageOfProductHiddenFields = [
   ...commonHiddenFields,
@@ -21,19 +25,12 @@ const buyGetHiddenFields = [
   "is_tax_inclusive",
 ]
 
-const freeShippingHiddenFields = [
-  ...commonHiddenFields,
-  "application_method.value",
-  "application_method.allocation",
-  "is_tax_inclusive",
-]
-
 export const templates = [
   {
     id: "amount_off_products",
     type: "standard",
-    title: "Amount off products",
-    description: "Discount specific products or collection of products",
+    titleKey: "promotions.templates.amountOffProducts.title",
+    descriptionKey: "promotions.templates.amountOffProducts.description",
     hiddenFields: amountOfProductHiddenFields,
     defaults: {
       is_automatic: "false",
@@ -48,8 +45,8 @@ export const templates = [
   {
     id: "amount_off_order",
     type: "standard",
-    title: "Amount off order",
-    description: "Discounts the total order amount",
+    titleKey: "promotions.templates.amountOffOrder.title",
+    descriptionKey: "promotions.templates.amountOffOrder.description",
     hiddenFields: amountOfOrderHiddenFields,
     defaults: {
       is_automatic: "false",
@@ -64,8 +61,8 @@ export const templates = [
   {
     id: "percentage_off_product",
     type: "standard",
-    title: "Percentage off product",
-    description: "Discounts a percentage off selected products",
+    titleKey: "promotions.templates.percentageOffProduct.title",
+    descriptionKey: "promotions.templates.percentageOffProduct.description",
     hiddenFields: percentageOfProductHiddenFields,
     defaults: {
       is_automatic: "false",
@@ -80,8 +77,8 @@ export const templates = [
   {
     id: "percentage_off_order",
     type: "standard",
-    title: "Percentage off order",
-    description: "Discounts a percentage of the total order amount",
+    titleKey: "promotions.templates.percentageOffOrder.title",
+    descriptionKey: "promotions.templates.percentageOffOrder.description",
     hiddenFields: percentageOfOrderHiddenFields,
     defaults: {
       is_automatic: "false",
@@ -96,8 +93,8 @@ export const templates = [
   {
     id: "buy_get",
     type: "buy_get",
-    title: "Buy X Get Y",
-    description: "Buy X product(s), get Y product(s)",
+    titleKey: "promotions.templates.buyGet.title",
+    descriptionKey: "promotions.templates.buyGet.description",
     hiddenFields: buyGetHiddenFields,
     defaults: {
       is_automatic: "false",
@@ -107,23 +104,6 @@ export const templates = [
         value: 100,
         apply_to_quantity: 1,
         max_quantity: 1,
-      },
-    },
-  },
-  {
-    id: "shipping_discount",
-    type: "standard",
-    title: "Free shipping",
-    description: "Applies a 100% discount to shipping fees",
-    hiddenFields: freeShippingHiddenFields,
-    defaults: {
-      is_automatic: "false",
-      type: "standard",
-      application_method: {
-        allocation: "across",
-        target_type: "shipping_methods",
-        type: "percentage",
-        value: 100,
       },
     },
   },

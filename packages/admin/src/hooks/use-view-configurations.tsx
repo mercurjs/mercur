@@ -1,4 +1,6 @@
 import { useMemo } from "react"
+import i18n from "i18next"
+import { useTranslation } from "react-i18next"
 import { toast } from "@medusajs/ui"
 import { ClientError } from "@mercurjs/client"
 import { useFeatureFlag } from "../providers/feature-flag-provider"
@@ -20,7 +22,7 @@ const handleError = (error: Error, message?: string) => {
     } else if (error.message) {
       errorMessage = error.message
     } else {
-      errorMessage = "An error occurred"
+      errorMessage = i18n.t("errorBoundary.defaultTitle")
     }
   }
 
@@ -28,6 +30,7 @@ const handleError = (error: Error, message?: string) => {
 }
 
 export const useViewConfigurations = (entity: string) => {
+  const { t } = useTranslation()
   const isViewConfigEnabled = useFeatureFlag("view_configurations")
 
   // List views
@@ -43,10 +46,10 @@ export const useViewConfigurations = (entity: string) => {
   // Create view mutation
   const createView = useCreateViewConfigurationBase(entity, {
     onSuccess: () => {
-      toast.success(`View created`)
+      toast.success(t("views.toasts.created"))
     },
     onError: (error) => {
-      handleError(error, "Failed to create view")
+      handleError(error, t("views.toasts.createFailed"))
     },
   })
 
@@ -55,7 +58,7 @@ export const useViewConfigurations = (entity: string) => {
     onSuccess: () => {
     },
     onError: (error) => {
-      handleError(error, "Failed to update active view")
+      handleError(error, t("views.toasts.updateActiveFailed"))
     },
   })
   
@@ -77,21 +80,23 @@ export const useViewConfigurations = (entity: string) => {
 
 // Hook for update/delete operations on a specific view
 export const useViewConfiguration = (entity: string, viewId: string) => {
+  const { t } = useTranslation()
+
   const updateView = useUpdateViewConfigurationBase(entity, viewId, {
     onSuccess: () => {
-      toast.success(`View updated`)
+      toast.success(t("views.toasts.updated"))
     },
     onError: (error) => {
-      handleError(error, "Failed to update view")
+      handleError(error, t("views.toasts.updateFailed"))
     },
   })
 
   const deleteView = useDeleteViewConfigurationBase(entity, viewId, {
     onSuccess: () => {
-      toast.success("View deleted successfully")
+      toast.success(t("views.toasts.deleted"))
     },
     onError: (error) => {
-      handleError(error, "Failed to delete view")
+      handleError(error, t("views.toasts.deleteFailed"))
     },
   })
 

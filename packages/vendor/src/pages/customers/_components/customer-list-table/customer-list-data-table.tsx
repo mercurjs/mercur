@@ -1,4 +1,7 @@
 import { keepPreviousData } from "@tanstack/react-query";
+import { type ColumnDef } from "@tanstack/react-table";
+import { HttpTypes } from "@medusajs/types";
+import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 
@@ -18,17 +21,23 @@ export const CustomerListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
+  const linkQuery = useLinkQuery("customer");
   const { customers, count, isLoading, isError, error } = useCustomers(
     {
       ...searchParams,
+      ...linkQuery,
     },
     {
       placeholderData: keepPreviousData,
     },
   );
 
-  const filters = useCustomerTableFilters();
-  const columns = useColumns();
+  const baseFilters = useCustomerTableFilters();
+  const { columns, filters: extFilters } = useColumns();
+  const filters = useMemo(
+    () => [...baseFilters, ...(extFilters as typeof baseFilters)],
+    [baseFilters, extFilters],
+  );
 
   const { table } = useDataTable({
     data: customers ?? [],
@@ -83,7 +92,11 @@ export const CustomerListDataTable = () => {
 };
 
 const useColumns = () => {
-  const columns = useCustomerTableColumns();
+  const base = useCustomerTableColumns();
+  const { columns, filters } = useExtendableTable<HttpTypes.AdminCustomer>({
+    model: "customer",
+    columns: base as unknown as ColumnDef<HttpTypes.AdminCustomer, unknown>[],
+  });
 
-  return useMemo(() => [...columns], [columns]);
+  return { columns: useMemo(() => [...columns], [columns]), filters };
 };

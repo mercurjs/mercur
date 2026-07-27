@@ -1,6 +1,8 @@
 import { Children, ReactNode } from "react"
 import { useLoaderData, useParams } from "react-router-dom"
 
+import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
+
 import { TwoColumnPageSkeleton } from "../../../components/common/skeleton"
 import { TwoColumnPage } from "../../../components/layout/pages"
 import { useProduct } from "../../../hooks/api/products"
@@ -15,12 +17,11 @@ import { loader } from "./loader"
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>
+  const query = useLinkQuery("offer", OFFER_PRODUCT_DETAIL_FIELDS)
 
-  const { product, isLoading, isError, error } = useProduct(
-    id!,
-    { fields: OFFER_PRODUCT_DETAIL_FIELDS },
-    { initialData },
-  )
+  const { product, isLoading, isError, error } = useProduct(id!, query, {
+    initialData,
+  })
 
   if (isError) {
     throw error
@@ -39,15 +40,19 @@ const Root = ({ children }: { children?: ReactNode }) => {
       ) : (
         <TwoColumnPage data={typed} hasOutlet>
           <TwoColumnPage.Main>
-            <OfferDetailGeneralSection product={typed} />
-            <ProductMediaSection product={typed} readOnly />
-            <OfferVariantsSection
-              variants={typed.variants}
-              thumbnail={typed.thumbnail}
-            />
+            <WidgetZone id="offers.detail.main" data={typed}>
+              <OfferDetailGeneralSection product={typed} />
+              <ProductMediaSection product={typed} readOnly />
+              <OfferVariantsSection
+                variants={typed.variants}
+                thumbnail={typed.thumbnail}
+              />
+            </WidgetZone>
           </TwoColumnPage.Main>
           <TwoColumnPage.Sidebar>
-            <OfferAssociatedProductSection product={typed} />
+            <WidgetZone id="offers.detail.side" data={typed}>
+              <OfferAssociatedProductSection product={typed} />
+            </WidgetZone>
           </TwoColumnPage.Sidebar>
         </TwoColumnPage>
       )}
