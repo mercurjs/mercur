@@ -2,35 +2,87 @@
 # Deploy Mercur to the VPS.
 # Runs locally; everything inside the heredoc executes on the remote host.
 #
+# Multiple independent instances live side by side on one host. Each has its
+# own deploy dir, systemd service, port, domain, Postgres database and Redis
+# db-index. Select one with MERCUR_INSTANCE (default 1 = the original deploy).
+# Instance 2 is bootstrapped on first deploy by cloning instance 1's host
+# artifacts (.env, systemd unit, Caddy vhost) and swapping the instance-scoped
+# bits — so a fresh `MERCUR_INSTANCE=2 ./deploy.sh` provisions everything.
+#
 # Usage:
-#   ./deploy.sh                       # default host
+#   ./deploy.sh                          # instance 1 (new.mercur.dev :9000)
+#   MERCUR_INSTANCE=2 ./deploy.sh        # instance 2 (demo.mercur.dev :9001)
 #   MERCUR_HOST=root@1.2.3.4 ./deploy.sh
 #   MERCUR_BRANCH=main ./deploy.sh
+#   MERCUR_BACKEND_URL=https://x.dev MERCUR_INSTANCE=2 ./deploy.sh  # override domain
 set -euo pipefail
 
 HOST="${MERCUR_HOST:-root@167.233.17.178}"
 BRANCH="${MERCUR_BRANCH:-main}"
-BACKEND_URL="${MERCUR_BACKEND_URL:-https://new.mercur.dev}"
+INSTANCE="${MERCUR_INSTANCE:-1}"
 
-echo "→ Deploying $BRANCH to $HOST (backend: $BACKEND_URL)"
+# Per-instance configuration. Everything instance-scoped is derived here and
+# passed to the remote over the ssh env line. Instance 1 keeps the original
+# values so `./deploy.sh` behaves exactly as before.
+case "$INSTANCE" in
+  1)
+    DEPLOY_DIR="/root/marketplace"
+    SERVICE="mercur-api"
+    PORT="9000"
+    BACKEND_URL="${MERCUR_BACKEND_URL:-https://new.mercur.dev}"
+    DB_NAME=""        # existing DB — leave the .env DATABASE_URL untouched
+    REDIS_DB=""       # existing Redis db-index — leave REDIS_URL untouched
+    ;;
+  2)
+    DEPLOY_DIR="/root/public-demo"
+    SERVICE="mercur-api-public-demo"
+    PORT="9001"
+    BACKEND_URL="${MERCUR_BACKEND_URL:-https://demo.mercur.dev}"
+    DB_NAME="public-demo"
+    REDIS_DB="1"
+    ;;
+  *)
+    echo "Unknown MERCUR_INSTANCE='$INSTANCE' (expected 1 or 2)" >&2
+    exit 1
+    ;;
+esac
+
+DOMAIN="${BACKEND_URL#https://}"
+DOMAIN="${DOMAIN#http://}"
+DOMAIN="${DOMAIN%/}"
+
+echo "→ Deploying $BRANCH to $HOST (instance $INSTANCE: $BACKEND_URL, :$PORT, $DEPLOY_DIR)"
 
 ssh -o ConnectTimeout=10 "$HOST" \
   BRANCH="$BRANCH" \
+  INSTANCE="$INSTANCE" \
+  DEPLOY_DIR="$DEPLOY_DIR" \
+  SERVICE="$SERVICE" \
+  PORT="$PORT" \
+  DOMAIN="$DOMAIN" \
   MERCUR_BACKEND_URL="$BACKEND_URL" \
+  DB_NAME="$DB_NAME" \
+  REDIS_DB="$REDIS_DB" \
   bash -s <<'REMOTE'
 set -euo pipefail
 
 SOURCE_DIR="/root/mercur"
-DEPLOY_DIR="/root/marketplace"
-SERVICE="mercur-api"
-LOCK="/tmp/mercur-deploy.lock"
+
+# Instance 1 is the canonical template every other instance clones from.
+BASE_DEPLOY_DIR="/root/marketplace"
+BASE_SERVICE="mercur-api"
+BASE_PORT="9000"
+BASE_DOMAIN="new.mercur.dev"
+BASE_ENV="$BASE_DEPLOY_DIR/packages/api/.env"
+
+LOCK="/tmp/mercur-deploy-$INSTANCE.lock"
 
 exec 9>"$LOCK"
-flock -n 9 || { echo "Another deploy is already running"; exit 1; }
+flock -n 9 || { echo "Another deploy for instance $INSTANCE is already running"; exit 1; }
 
-log() { echo "[$(date +'%F %T')] $*"; }
+log() { echo "[$(date +'%F %T')] [i$INSTANCE] $*"; }
 
-# 1. Pull upstream
+# 1. Pull upstream (shared source checkout — all instances build from it)
 log "Fetching $BRANCH"
 cd "$SOURCE_DIR"
 # Explicit refspec so the remote-tracking ref updates (a bare
@@ -39,7 +91,7 @@ git fetch --prune origin "+refs/heads/$BRANCH:refs/remotes/origin/$BRANCH"
 git reset --hard "origin/$BRANCH"
 log "Now at $(git rev-parse --short HEAD) — $(git log -1 --pretty=%s)"
 
-# 2. Sync templates/basic → /root/marketplace.
+# 2. Sync templates/basic → $DEPLOY_DIR.
 #    Preserve .env files, the lockfile shim, and build output across runs.
 log "Syncing templates/basic → $DEPLOY_DIR"
 rsync -a --delete \
@@ -52,6 +104,146 @@ rsync -a --delete \
   --exclude='packages/api/.env.local' \
   --exclude='yarn.lock' \
   "$SOURCE_DIR/templates/basic/" "$DEPLOY_DIR/"
+
+# 2.5 Provision instance-scoped host artifacts. All steps are idempotent and
+#     no-op for instance 1 (its DB/env/service/vhost already exist), so this
+#     block is safe to run on every deploy.
+ENV_FILE="$DEPLOY_DIR/packages/api/.env"
+
+# set_env FILE KEY VALUE — upsert a KEY=VALUE line.
+set_env() {
+  local f="$1" k="$2" v="$3"
+  if grep -q "^$k=" "$f"; then
+    sed -i "s#^$k=.*#$k=$v#" "$f"
+  else
+    printf '%s=%s\n' "$k" "$v" >> "$f"
+  fi
+}
+
+# (a) .env — clone instance 1's env, then swap the instance-scoped keys.
+if [ ! -f "$ENV_FILE" ]; then
+  log "Bootstrapping $ENV_FILE from $BASE_ENV"
+  mkdir -p "$(dirname "$ENV_FILE")"
+  cp "$BASE_ENV" "$ENV_FILE"
+
+  # DATABASE_URL: keep host/creds, swap the database name to $DB_NAME.
+  if [ -n "$DB_NAME" ]; then
+    DB_NAME="$DB_NAME" python3 - "$ENV_FILE" <<'PY'
+import os, re, sys
+path, db = sys.argv[1], os.environ["DB_NAME"]
+lines = open(path).read().splitlines()
+out = []
+for ln in lines:
+    if ln.startswith("DATABASE_URL="):
+        # scheme://user:pass@host:port/<db>[?params] -> swap <db>
+        ln = re.sub(r"(DATABASE_URL=.*?/)[^/?]+(\?.*)?$", lambda m: f"{m.group(1)}{db}{m.group(2) or ''}", ln)
+    out.append(ln)
+open(path, "w").write("\n".join(out) + "\n")
+PY
+  fi
+
+  # REDIS_URL: point at a dedicated db-index so instances don't share keys.
+  if [ -n "$REDIS_DB" ]; then
+    REDIS_DB="$REDIS_DB" python3 - "$ENV_FILE" <<'PY'
+import os, re, sys
+path, idx = sys.argv[1], os.environ["REDIS_DB"]
+lines = open(path).read().splitlines()
+out = []
+for ln in lines:
+    if ln.startswith("REDIS_URL="):
+        base = ln.split("=", 1)[1]
+        base = re.sub(r"/\d+$", "", base.rstrip("/"))
+        ln = f"REDIS_URL={base}/{idx}"
+    out.append(ln)
+open(path, "w").write("\n".join(out) + "\n")
+PY
+  fi
+
+  # Port + CORS + vendor URL for this instance's domain.
+  set_env "$ENV_FILE" PORT "$PORT"
+  set_env "$ENV_FILE" STORE_CORS  "https://$DOMAIN"
+  set_env "$ENV_FILE" ADMIN_CORS  "https://$DOMAIN"
+  set_env "$ENV_FILE" VENDOR_CORS "https://$DOMAIN"
+  set_env "$ENV_FILE" AUTH_CORS   "https://$DOMAIN"
+  set_env "$ENV_FILE" MERCUR_VENDOR_URL "https://$DOMAIN/seller"
+  log "Wrote instance .env (PORT=$PORT, DB=$DB_NAME, REDIS db $REDIS_DB)"
+else
+  # Existing instance: keep credentials, just ensure PORT matches.
+  set_env "$ENV_FILE" PORT "$PORT"
+fi
+
+# (b) Postgres database — create if missing, reusing instance 1's credentials.
+if [ -n "$DB_NAME" ] && command -v psql >/dev/null 2>&1; then
+  ADMIN_URL=$(DB_NAME="$DB_NAME" python3 - "$ENV_FILE" <<'PY'
+import re, sys
+path = sys.argv[1]
+url = ""
+for ln in open(path):
+    if ln.startswith("DATABASE_URL="):
+        url = ln.split("=", 1)[1].strip()
+# connect to the default `postgres` db to run CREATE DATABASE
+print(re.sub(r"(/)[^/?]+(\?.*)?$", lambda m: f"{m.group(1)}postgres{m.group(2) or ''}", url))
+PY
+  )
+  if ! psql "$ADMIN_URL" -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
+    log "Creating Postgres database $DB_NAME"
+    psql "$ADMIN_URL" -c "CREATE DATABASE \"$DB_NAME\""
+  else
+    log "Postgres database $DB_NAME already exists"
+  fi
+fi
+
+# (c) systemd unit — clone instance 1's unit, swap WorkingDirectory + PORT.
+UNIT="/etc/systemd/system/$SERVICE.service"
+if [ ! -f "$UNIT" ]; then
+  BASE_UNIT="/etc/systemd/system/$BASE_SERVICE.service"
+  log "Bootstrapping systemd unit $UNIT from $BASE_UNIT"
+  # Retarget WorkingDirectory, drop any inherited PORT= env, then pin our PORT.
+  sed -e "s#$BASE_DEPLOY_DIR#$DEPLOY_DIR#g" \
+      -e "/^Environment=PORT=/d" \
+      -e "/^Description=/s#\$# (instance $INSTANCE)#" \
+      "$BASE_UNIT" > "$UNIT"
+  # Insert a PORT env right after the [Service] header.
+  sed -i "/^\[Service\]/a Environment=PORT=$PORT" "$UNIT"
+  systemctl daemon-reload
+  systemctl enable "$SERVICE"
+fi
+
+# (d) Caddy vhost — clone instance 1's block, swap domain + upstream port.
+CADDYFILE="/etc/caddy/Caddyfile"
+if [ -f "$CADDYFILE" ] && ! grep -q "^[[:space:]]*$DOMAIN[[:space:]]*{" "$CADDYFILE"; then
+  log "Appending Caddy vhost for $DOMAIN → :$PORT"
+  DOMAIN="$DOMAIN" PORT="$PORT" BASE_DOMAIN="$BASE_DOMAIN" BASE_PORT="$BASE_PORT" \
+    python3 - "$CADDYFILE" <<'PY'
+import os, re, sys
+path = sys.argv[1]
+dom, port = os.environ["DOMAIN"], os.environ["PORT"]
+bdom, bport = os.environ["BASE_DOMAIN"], os.environ["BASE_PORT"]
+text = open(path).read()
+# Extract the base domain's top-level block by brace matching.
+start = re.search(rf"(?m)^\s*{re.escape(bdom)}\s*\{{", text)
+if not start:
+    sys.exit(f"base vhost {bdom} not found in Caddyfile")
+i = start.start()
+depth = 0
+j = i
+while j < len(text):
+    if text[j] == "{": depth += 1
+    elif text[j] == "}":
+        depth -= 1
+        if depth == 0:
+            j += 1
+            break
+    j += 1
+block = text[i:j]
+clone = block.replace(bdom, dom).replace(f":{bport}", f":{port}")
+open(path, "a").write("\n\n" + clone.strip() + "\n")
+PY
+  if command -v caddy >/dev/null 2>&1; then
+    caddy fmt --overwrite "$CADDYFILE" || true
+    systemctl reload caddy || systemctl restart caddy || true
+  fi
+fi
 
 # Re-seed the yarn lockfile shim (yarn refuses to install in templates/basic
 # without it because the parent of the original is a bun workspace).
@@ -291,13 +483,13 @@ rewrite_mercur_deps "$DEPLOY_DIR"
 # `.yarn/cache` so the next install re-fetches fresh metadata.
 log "Cleaning yarn cache"
 rm -rf "$DEPLOY_DIR/.yarn/cache" "$DEPLOY_DIR/.yarn/install-state.gz"
-yarn cache clean --all >/tmp/mercur-yarn-cache.log 2>&1 || true
+yarn cache clean --all >/tmp/mercur-yarn-cache-$INSTANCE.log 2>&1 || true
 
 log "yarn install (workspace)"
-yarn install >/tmp/mercur-yarn.log 2>&1 || { tail -n 40 /tmp/mercur-yarn.log; exit 1; }
+yarn install >/tmp/mercur-yarn-$INSTANCE.log 2>&1 || { tail -n 40 /tmp/mercur-yarn-$INSTANCE.log; exit 1; }
 
 log "yarn build"
-yarn build >/tmp/mercur-build.log 2>&1 || { tail -n 40 /tmp/mercur-build.log; exit 1; }
+yarn build >/tmp/mercur-build-$INSTANCE.log 2>&1 || { tail -n 40 /tmp/mercur-build-$INSTANCE.log; exit 1; }
 
 # 4. Prepare the compiled server (`.medusa/server` is recreated by `medusa build`)
 PROD_DIR="$DEPLOY_DIR/packages/api/.medusa/server"
@@ -311,7 +503,8 @@ cp "$DEPLOY_DIR/packages/api/.env" "$PROD_DIR/.env"
 # at /static; Caddy (the reverse proxy on the host) maps /dist/* onto that
 # /static/* route, so files resolve at $MERCUR_BACKEND_URL/dist/<key>.
 # That Caddy `handle_path /dist/*` rewrite is required for these URLs to
-# resolve — it is maintained in /etc/caddy/Caddyfile on the host, not here.
+# resolve — it is maintained in /etc/caddy/Caddyfile on the host (cloned
+# per-instance in step 2.5).
 FILE_BACKEND_URL="${MERCUR_BACKEND_URL%/}/dist"
 if grep -q '^FILE_BACKEND_URL=' "$PROD_DIR/.env"; then
   sed -i "s#^FILE_BACKEND_URL=.*#FILE_BACKEND_URL=${FILE_BACKEND_URL}#" "$PROD_DIR/.env"
@@ -329,10 +522,10 @@ rewrite_mercur_deps "$PROD_DIR"
 cd "$PROD_DIR"
 log "Cleaning yarn cache (prod)"
 rm -rf "$PROD_DIR/.yarn/cache" "$PROD_DIR/.yarn/install-state.gz"
-yarn cache clean --all >/tmp/mercur-yarn-cache-prod.log 2>&1 || true
+yarn cache clean --all >/tmp/mercur-yarn-cache-prod-$INSTANCE.log 2>&1 || true
 
 log "yarn install (prod)"
-yarn install >/tmp/mercur-yarn-prod.log 2>&1 || { tail -n 40 /tmp/mercur-yarn-prod.log; exit 1; }
+yarn install >/tmp/mercur-yarn-prod-$INSTANCE.log 2>&1 || { tail -n 40 /tmp/mercur-yarn-prod-$INSTANCE.log; exit 1; }
 
 # 5. Run DB migrations (idempotent)
 log "DB migrate"
@@ -345,8 +538,8 @@ systemctl restart "$SERVICE"
 
 # 7. Wait for it to become healthy
 for i in $(seq 1 20); do
-  if curl -fsS http://127.0.0.1:9000/health >/dev/null 2>&1; then
-    log "API healthy ✓ ($(curl -s http://127.0.0.1:9000/health))"
+  if curl -fsS "http://127.0.0.1:$PORT/health" >/dev/null 2>&1; then
+    log "API healthy ✓ ($(curl -s http://127.0.0.1:$PORT/health))"
     exit 0
   fi
   sleep 2
@@ -356,6 +549,6 @@ log "API did not become healthy in 40s — inspect: journalctl -u $SERVICE -n 10
 exit 1
 REMOTE
 
-echo "✓ Deploy finished"
-echo "  Admin:  https://new.mercur.dev/dashboard"
-echo "  Vendor: https://new.mercur.dev/seller"
+echo "✓ Deploy finished (instance $INSTANCE)"
+echo "  Admin:  $BACKEND_URL/dashboard"
+echo "  Vendor: $BACKEND_URL/seller"
