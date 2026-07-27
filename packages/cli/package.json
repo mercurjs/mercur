@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/cli",
-  "version": "2.2.1-canary.3",
+  "version": "2.2.1-canary.4",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -41,7 +41,7 @@
     "@antfu/ni": "^30.3.0",
     "@medusajs/admin-bundler": "2.17.2",
     "@medusajs/framework": "2.17.2",
-    "@mercurjs/dashboard-sdk": "2.2.1-canary.3",
+    "@mercurjs/dashboard-sdk": "2.2.1-canary.4",
     "@vitejs/plugin-react": "^6.0.3",
     "commander": "^15.0.0",
     "cosmiconfig": "^9.0.0",
