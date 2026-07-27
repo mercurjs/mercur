@@ -381,8 +381,6 @@ export const CreatePromotionForm = () => {
     }
   }
 
-  console.log(watchCurrencyRule, watchRules)
-
   return (
     <RouteFocusModal.Form form={form}>
       <KeyboundForm

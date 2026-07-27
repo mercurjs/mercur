@@ -1,6 +1,6 @@
 import { PencilSquare, ReceiptPercent, Trash } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { Button, Container, Heading, usePrompt } from "@medusajs/ui"
+import { Button, Container, Heading, toast, usePrompt } from "@medusajs/ui"
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table"
 import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { Children, ReactNode, useMemo } from "react"
@@ -165,17 +165,15 @@ const PromotionActions = ({ promotion }: { promotion: HttpTypes.AdminPromotion }
       return
     }
 
-    try {
-      await mutateAsync(undefined, {
-        onSuccess: () => {
-          navigate("/promotions", { replace: true })
-        },
-      })
-    } catch {
-      throw new Error(
-        `Promotion with code ${promotion.code} could not be deleted`
-      )
-    }
+    await mutateAsync(undefined, {
+      onSuccess: () => {
+        toast.success(t("promotions.toasts.promotionDeleteSuccess"))
+        navigate("/promotions", { replace: true })
+      },
+      onError: (e) => {
+        toast.error((e as Error).message)
+      },
+    })
   }
 
   return (

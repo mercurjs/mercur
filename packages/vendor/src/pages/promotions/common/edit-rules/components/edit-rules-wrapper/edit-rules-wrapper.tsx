@@ -4,6 +4,8 @@ import {
   PromotionRuleDTO,
   PromotionRuleResponse,
 } from "@medusajs/types";
+import { toast } from "@medusajs/ui";
+import { useTranslation } from "react-i18next";
 import { useRouteModal } from "../../../../../../components/modals";
 import {
   usePromotionAddRules,
@@ -26,6 +28,7 @@ export const EditRulesWrapper = ({
   rules,
   ruleType,
 }: EditPromotionFormProps) => {
+  const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const { mutateAsync: updatePromotion } = useUpdatePromotion(promotion.id);
   const { mutateAsync: addPromotionRules } = usePromotionAddRules(
@@ -72,43 +75,49 @@ export const EditRulesWrapper = ({
         (rule: { id: string }) => typeof rule.id === "string",
       );
 
-      if (Object.keys(applicationMethodData).length) {
-        await updatePromotion({
-          application_method: applicationMethodData,
-        } as any);
+      try {
+        if (Object.keys(applicationMethodData).length) {
+          await updatePromotion({
+            application_method: applicationMethodData,
+          } as any);
+        }
+
+        if (rulesToCreate.length) {
+          await addPromotionRules({
+            create: rulesToCreate.map((rule) => {
+              return {
+                attribute: rule.attribute,
+                operator: rule.operator,
+                values: rule.values,
+              } as any;
+            }),
+          });
+        }
+
+        if (rulesToRemove?.length) {
+          await removePromotionRules({
+            delete: rulesToRemove.map((r) => r.id).filter(Boolean),
+          });
+        }
+
+        if (rulesToUpdate.length) {
+          await updatePromotionRules({
+            update: rulesToUpdate.map((rule: PromotionRuleResponse) => {
+              return {
+                id: rule.id!,
+                attribute: rule.attribute,
+                operator: rule.operator,
+                values: rule.values as unknown as string | string[],
+              };
+            }),
+          });
+        }
+      } catch (e) {
+        toast.error((e as Error).message);
+        return;
       }
 
-      if (rulesToCreate.length) {
-        await addPromotionRules({
-          create: rulesToCreate.map((rule) => {
-            return {
-              attribute: rule.attribute,
-              operator: rule.operator,
-              values: rule.values,
-            } as any;
-          }),
-        });
-      }
-
-      if (rulesToRemove?.length) {
-        await removePromotionRules({
-          delete: rulesToRemove.map((r) => r.id).filter(Boolean),
-        });
-      }
-
-      if (rulesToUpdate.length) {
-        await updatePromotionRules({
-          update: rulesToUpdate.map((rule: PromotionRuleResponse) => {
-            return {
-              id: rule.id!,
-              attribute: rule.attribute,
-              operator: rule.operator,
-              values: rule.values as unknown as string | string[],
-            };
-          }),
-        });
-      }
-
+      toast.success(t("promotions.toasts.promotionUpdateSuccess"));
       handleSuccess();
     };
   };
