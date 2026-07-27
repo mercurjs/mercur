@@ -24,7 +24,6 @@ import { ProductCreateAttributesForm } from "../product-create-attributes-form";
 import { ProductCreateDetailsForm } from "../product-create-details-form";
 import { ProductCreateOrganizeForm } from "../product-create-organize-form";
 import { ProductCreateVariantsForm } from "../product-create-variants-form";
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { DeepPartial } from "react-hook-form";
 
@@ -32,7 +31,7 @@ const SAVE_DRAFT_BUTTON = "save-draft-button";
 
 type ProductCreateFormProps = {
   children?: ReactNode;
-  schema?: z.ZodType<ProductCreateSchemaType>;
+  schema?: typeof ProductCreateSchema;
   defaultValues?: DeepPartial<ProductCreateSchemaType>;
 };
 

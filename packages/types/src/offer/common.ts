@@ -2,6 +2,7 @@ import {
   InventoryItemDTO,
   MoneyAmountDTO,
   ShippingProfileDTO,
+  StoreCalculatedPrice,
 } from "@medusajs/types"
 
 import { ProductDTO, ProductVariantDTO } from "../product/common"
@@ -82,4 +83,10 @@ export interface OfferDTO {
   product_variant?: ProductVariantDTO
   /** The offer's shipping profile (joined through `offer ↔ shipping_profile`). */
   shipping_profile?: ShippingProfileDTO
+  /**
+   * Per-offer calculated price for the request's pricing context, populated by
+   * the store offers route when a pricing context is supplied. Absent on
+   * writes and on admin/vendor reads.
+   */
+  calculated_price?: StoreCalculatedPrice
 }

@@ -2,6 +2,7 @@ import type { HttpTypes } from "@medusajs/types"
 import { PencilSquare, Trash } from "@medusajs/icons"
 import {
   createDataTableColumnHelper,
+  DataTableColumnDef,
   StatusBadge,
   toast,
   usePrompt,
@@ -20,7 +21,8 @@ import { ListSummary } from "@components/common/list-summary"
 
 const columnHelper = createDataTableColumnHelper<HttpTypes.AdminStockLocation>()
 
-export const useLocationListTableColumns = () => {
+export const useLocationListTableColumns =
+  (): DataTableColumnDef<HttpTypes.AdminStockLocation>[] => {
   const { t } = useTranslation()
   const navigate = useNavigate()
   const prompt = usePrompt()

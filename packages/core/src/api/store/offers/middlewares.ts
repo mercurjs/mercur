@@ -25,7 +25,25 @@ async function applyVisibleSellerIdsFilter(
   next: MedusaNextFunction
 ) {
   req.filterableFields ??= {}
-  req.filterableFields.seller_id = await resolveVisibleSellerIds(req.scope)
+
+  const visibleSellerIds = await resolveVisibleSellerIds(req.scope)
+  const requested = req.filterableFields.seller_id as
+    | string
+    | string[]
+    | undefined
+
+  // Honor a client-supplied `seller_id` filter, but never let it widen scope
+  // beyond the visible sellers — intersect the two instead of overwriting.
+  if (requested) {
+    const requestedIds = Array.isArray(requested) ? requested : [requested]
+    const visibleSet = new Set(visibleSellerIds)
+    req.filterableFields.seller_id = requestedIds.filter((id) =>
+      visibleSet.has(id)
+    )
+  } else {
+    req.filterableFields.seller_id = visibleSellerIds
+  }
+
   next()
 }
 

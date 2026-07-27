@@ -1,6 +1,6 @@
 import { useMemo } from "react";
 
-import { createDataTableColumnHelper } from "@medusajs/ui";
+import { createDataTableColumnHelper, DataTableColumnDef } from "@medusajs/ui";
 
 import { useTranslation } from "react-i18next";
 
@@ -9,7 +9,8 @@ import { AdminRefundReason } from "../../../types/refund-reasons/common";
 
 const columnHelper = createDataTableColumnHelper<AdminRefundReason>();
 
-export const useRefundReasonTableColumns = () => {
+export const useRefundReasonTableColumns =
+  (): DataTableColumnDef<AdminRefundReason>[] => {
   const { t } = useTranslation();
 
   return useMemo(

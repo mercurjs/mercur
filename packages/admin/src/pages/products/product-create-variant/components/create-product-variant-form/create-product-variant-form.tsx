@@ -19,7 +19,7 @@ export type CreateProductVariantSchemaType = z.infer<
 type CreateProductVariantFormProps = {
   product: HttpTypes.AdminProduct;
   children?: ReactNode;
-  schema?: z.ZodType<CreateProductVariantSchemaType>;
+  schema?: typeof CreateProductVariantSchema;
   defaultValues?: DeepPartial<CreateProductVariantSchemaType>;
 };
 
