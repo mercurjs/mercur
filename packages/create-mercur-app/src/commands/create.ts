@@ -1,4 +1,5 @@
 import { spawn } from "node:child_process";
+import os from "node:os";
 import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import path from "path";
@@ -165,22 +166,26 @@ export const create = new Command()
       await createOrFindProjectDir(projectDir);
 
       const downloadSpinner = spinner("Downloading template...").start();
-      await downloadTemplate({
-        projectDir,
-        template: template,
-      });
-      downloadSpinner.succeed("Template downloaded successfully.");
+      // Fetch the repo tarball once, then extract each subpath from it locally
+      // so opting into the storefront doesn't trigger a second network download.
+      const tarballPath = await downloadRepoTarball();
+      try {
+        await extractTemplate({ tarballPath, projectDir, template });
+        downloadSpinner.succeed("Template downloaded successfully.");
 
-      if (addStorefront) {
-        const storefrontSpinner = spinner("Adding Next.js storefront...").start();
-        try {
-          await downloadStorefront({ projectDir });
-          storefrontSpinner.succeed("Next.js storefront added successfully.");
-        } catch (error) {
-          storefrontSpinner.fail(
-            `Failed to add storefront${error instanceof Error ? `: ${error.message}` : ""}.`
-          );
+        if (addStorefront) {
+          const storefrontSpinner = spinner("Adding Next.js storefront...").start();
+          try {
+            await extractStorefront({ tarballPath, projectDir });
+            storefrontSpinner.succeed("Next.js storefront added successfully.");
+          } catch (error) {
+            storefrontSpinner.fail(
+              `Failed to add storefront${error instanceof Error ? `: ${error.message}` : ""}.`
+            );
+          }
         }
+      } finally {
+        await fs.remove(tarballPath).catch(() => null);
       }
 
       const packageManager = await resolveProjectPackageManager();
@@ -357,35 +362,55 @@ async function createOrFindProjectDir(projectDir: string): Promise<void> {
   }
 }
 
-// Extracts a single directory out of the repo tarball. `strip` controls how many
+// Downloads the repo tarball once to a temp file. Callers then extract whichever
+// subpaths they need from it locally, avoiding a network fetch per directory.
+async function downloadRepoTarball(): Promise<string> {
+  const url = `https://codeload.github.com/mercurjs/mercur/tar.gz/${DEFAULT_BRANCH}`;
+  const res = await fetch(url);
+
+  if (!res.body) {
+    throw new Error(`Failed to download: ${url}`);
+  }
+
+  const tarballPath = path.join(os.tmpdir(), `mercur-${DEFAULT_BRANCH.replaceAll("/", "-")}-${process.pid}.tar.gz`);
+  await pipeline(
+    Readable.from(res.body as unknown as NodeJS.ReadableStream),
+    fs.createWriteStream(tarballPath)
+  );
+
+  return tarballPath;
+}
+
+// Extracts a single directory out of the local tarball. `strip` controls how many
 // leading path segments are removed so files land at the right place under `cwd`.
-async function downloadRepoDir({
+async function extractRepoDir({
+  tarballPath,
   cwd,
   repoPath,
   strip,
 }: {
+  tarballPath: string;
   cwd: string;
   repoPath: string;
   strip: number;
 }) {
-  const url = `https://codeload.github.com/mercurjs/mercur/tar.gz/${DEFAULT_BRANCH}`;
   const branchDir = `mercur-${DEFAULT_BRANCH.replace(/^v/, "").replaceAll("/", "-")}`;
   const filter = `${branchDir}/${repoPath}/`;
 
-  await pipeline(
-    await downloadTarStream(url),
-    x({
-      cwd,
-      filter: (p) => p.includes(filter),
-      strip,
-    })
-  );
+  await x({
+    file: tarballPath,
+    cwd,
+    filter: (p) => p.includes(filter),
+    strip,
+  });
 }
 
-async function downloadTemplate({
+async function extractTemplate({
+  tarballPath,
   projectDir,
   template,
 }: {
+  tarballPath: string;
   projectDir: string;
   template: keyof typeof CREATE_TEMPLATES;
 }) {
@@ -394,34 +419,31 @@ async function downloadTemplate({
 
   // Drop the branch dir + every segment of `repoPath` so the template root
   // becomes the project root.
-  await downloadRepoDir({
+  await extractRepoDir({
+    tarballPath,
     cwd: projectDir,
     repoPath,
     strip: 1 + repoPath.split("/").length,
   });
 }
 
-async function downloadStorefront({ projectDir }: { projectDir: string }) {
-  const appsDir = path.join(projectDir, "apps");
-  await fs.ensureDir(appsDir);
+async function extractStorefront({
+  tarballPath,
+  projectDir,
+}: {
+  tarballPath: string;
+  projectDir: string;
+}) {
+  await fs.ensureDir(path.join(projectDir, "apps"));
 
   // Drop only the branch dir so files keep their `apps/storefront/...` prefix
   // and land alongside the other workspace apps.
-  await downloadRepoDir({
+  await extractRepoDir({
+    tarballPath,
     cwd: projectDir,
     repoPath: "apps/storefront",
     strip: 1,
   });
-}
-
-async function downloadTarStream(url: string) {
-  const res = await fetch(url);
-
-  if (!res.body) {
-    throw new Error(`Failed to download: ${url}`);
-  }
-
-  return Readable.from(res.body as unknown as NodeJS.ReadableStream);
 }
 
 async function installDeps({
