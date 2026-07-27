@@ -22,7 +22,7 @@ type PriceListPricesAddFormProps = {
   regions: HttpTypes.AdminRegion[]
   pricePreferences: HttpTypes.AdminPricePreference[]
   children?: ReactNode
-  schema?: z.ZodType<PriceListPricesAddSchemaType>
+  schema?: typeof PriceListPricesAddSchema
   defaultValues?: DeepPartial<PriceListPricesAddSchemaType>
 }
 

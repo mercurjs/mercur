@@ -12,7 +12,6 @@ import type {
 import { toast } from "@medusajs/ui"
 import { DeepPartial, useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { z } from "zod"
 
 import { useRouteModal } from "../../../../../components/modals"
 import { TabbedForm } from "../../../../../components/tabbed-form/tabbed-form"
@@ -53,7 +52,7 @@ const PROMOTION_CREATE_DEFAULTS = {
 
 type CreatePromotionFormProps = {
   children?: ReactNode
-  schema?: z.ZodType<CreatePromotionSchemaType>
+  schema?: typeof CreatePromotionSchema
   defaultValues?: DeepPartial<CreatePromotionSchemaType>
 }
 

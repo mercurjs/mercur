@@ -3,7 +3,6 @@ import { Button, toast } from "@medusajs/ui"
 import { ReactNode, useEffect, useMemo, Children } from "react"
 import { useForm, useWatch, DeepPartial } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { z } from "zod"
 import { zodResolver } from "@hookform/resolvers/zod"
 
 import { RouteFocusModal, useRouteModal } from "@components/modals"
@@ -24,7 +23,7 @@ import { ProductCreateVariantsForm } from "../product-create-variants-form"
 
 type ProductCreateFormProps = {
   children?: ReactNode
-  schema?: z.ZodType<ProductCreateSchemaType>
+  schema?: typeof ProductCreateSchema
   defaultValues?: DeepPartial<ProductCreateSchemaType>
 }
 
