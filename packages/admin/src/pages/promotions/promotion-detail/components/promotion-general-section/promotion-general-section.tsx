@@ -8,6 +8,7 @@ import {
   Heading,
   StatusBadge,
   Text,
+  toast,
   usePrompt,
 } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
@@ -105,7 +106,11 @@ export const PromotionGeneralSection = ({
 
     await mutateAsync(undefined, {
       onSuccess: () => {
+        toast.success(t("promotions.toasts.promotionDeleteSuccess"))
         navigate("/promotions", { replace: true })
+      },
+      onError: (e) => {
+        toast.error((e as Error).message)
       },
     })
   }

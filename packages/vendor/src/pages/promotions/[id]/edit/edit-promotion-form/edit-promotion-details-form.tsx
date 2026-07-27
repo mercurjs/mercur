@@ -8,7 +8,9 @@ import {
   Input,
   RadioGroup,
   Text,
+  toast,
 } from '@medusajs/ui';
+import i18n from 'i18next';
 import { useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import * as zod from 'zod';
@@ -32,11 +34,14 @@ type EditPromotionFormProps = {
 
 const EditPromotionSchema = zod.object({
   is_automatic: zod.string().toLowerCase(),
-  code: zod.string().min(1),
+  code: zod.string().min(1, { message: i18n.t('validation.requiredField') }),
   is_tax_inclusive: zod.boolean().optional(),
   status: zod.enum(['active', 'inactive', 'draft']),
   value_type: zod.enum(['fixed', 'percentage']),
-  value: zod.number().min(0).or(zod.string().min(1)),
+  value: zod
+    .number()
+    .min(0, { message: i18n.t('validation.requiredField') })
+    .or(zod.string().min(1, { message: i18n.t('validation.requiredField') })),
   allocation: zod.enum(['each', 'across', 'once']),
   target_type: zod.enum(['order', 'shipping_methods', 'items']),
   max_quantity: zod.number().min(1).optional().nullable(),
@@ -123,7 +128,11 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
       },
       {
         onSuccess: () => {
+          toast.success(t('promotions.toasts.promotionUpdateSuccess'));
           handleSuccess();
+        },
+        onError: e => {
+          toast.error(e.message);
         }
       }
     );

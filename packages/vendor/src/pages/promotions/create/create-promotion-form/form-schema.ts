@@ -30,7 +30,7 @@ export const CreatePromotionSchema = z
     campaign_id: z.string().optional(),
     campaign_choice: z.enum(["none", "existing", "new"]).optional(),
     is_automatic: z.string().toLowerCase(),
-    code: z.string().min(1),
+    code: z.string().min(1, { message: i18n.t("validation.requiredField") }),
     type: z.enum(["buyget", "standard"]),
     status: z.enum(["draft", "active", "inactive"]),
     is_tax_inclusive: z.boolean().optional(),
@@ -38,7 +38,10 @@ export const CreatePromotionSchema = z
     rules: RuleSchema,
     application_method: z.object({
       allocation: z.enum(["each", "across", "once"]),
-      value: z.number().min(0).or(z.string().min(1)),
+      value: z
+        .number()
+        .min(0, { message: i18n.t("validation.requiredField") })
+        .or(z.string().min(1, { message: i18n.t("validation.requiredField") })),
       currency_code: z.string().optional(),
       max_quantity: z.number().optional().nullable(),
       target_rules: RuleSchema,

@@ -2433,7 +2433,9 @@
       "promotionTabError": "Fix errors in Promotion Tab before proceeding"
     },
     "toasts": {
-      "promotionCreateSuccess": "Promotion ({{code}}) was successfully created."
+      "promotionCreateSuccess": "Promotion ({{code}}) was successfully created.",
+      "promotionUpdateSuccess": "Promotion was successfully updated.",
+      "promotionDeleteSuccess": "Promotion was successfully deleted."
     },
     "create": {},
     "edit": {

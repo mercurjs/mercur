@@ -199,7 +199,11 @@ return
             }
           }
 
+          toast.success(t("promotions.toasts.promotionUpdateSuccess"))
           handleSuccess()
+        },
+        onError: (e) => {
+          toast.error((e as Error).message)
         },
       }
     )
