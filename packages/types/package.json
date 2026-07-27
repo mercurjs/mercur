@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/types",
-  "version": "2.2.0-rc.0",
+  "version": "2.2.1-canary.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
