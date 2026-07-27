@@ -61,15 +61,17 @@ export const useExtendableForm = <
 }: UseExtendableFormProps<TSchema, TContext>) => {
   const extension = useExtension()
 
-  const schema = useMemo(
-    () =>
-      baseSchema.extend({
-        additional_data: buildAdditionalDataSchema(extension, model, zone, tab)
-          .partial()
-          .optional(),
-      }),
-    [baseSchema, extension, model, zone, tab]
-  )
+  const schema = useMemo(() => {
+    const additionalData = buildAdditionalDataSchema(extension, model, zone, tab)
+      .partial()
+      .optional()
+
+    // `.extend` is ZodObject-only; a refined base schema needs intersection.
+    return typeof (baseSchema as ZodObject<Record<string, z.ZodTypeAny>>)
+      .extend === "function"
+      ? baseSchema.extend({ additional_data: additionalData })
+      : (baseSchema.and(z.object({ additional_data: additionalData })) as unknown as typeof baseSchema)
+  }, [baseSchema, extension, model, zone, tab])
 
   const defaultValues = useMemo(
     () => ({
