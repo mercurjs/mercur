@@ -162,6 +162,53 @@ medusaIntegrationTestRunner({
         expect(byName.Linen).toBeUndefined()
       })
 
+      it("values upsert: mirrors late-added values onto the global variant-axis option", async () => {
+        const query = appContainer.resolve(ContainerRegistrationKeys.QUERY)
+        const created = await api.post(
+          "/admin/product-attributes",
+          {
+            name: "Weight",
+            type: "multi_select",
+            is_variant_axis: true,
+            values: [{ name: "1g" }],
+          },
+          adminHeaders,
+        )
+        const attrId = created.data.product_attribute.id
+
+        const optionValues = async () => {
+          const {
+            data: [attr],
+          } = await query.graph({
+            entity: "product_attribute",
+            fields: ["product_option_id"],
+            filters: { id: attrId },
+          })
+          const { data } = await query.graph({
+            entity: "product_option",
+            fields: ["values.value"],
+            filters: { id: attr.product_option_id },
+          })
+          return ((data?.[0]?.values ?? []) as { value: string }[]).map(
+            (v) => v.value,
+          )
+        }
+
+        expect(await optionValues()).toEqual(expect.arrayContaining(["1g"]))
+
+        await api.post(
+          `/admin/product-attributes/${attrId}/values`,
+          { values: [{ name: "100g" }, { name: "250g" }] },
+          adminHeaders,
+        )
+
+        // The mirrored option must gain the late-added values, otherwise
+        // variant create fails "Option value 100g does not exist for option Weight".
+        expect(await optionValues()).toEqual(
+          expect.arrayContaining(["1g", "100g", "250g"]),
+        )
+      })
+
       it("value update + delete sub-routes", async () => {
         const created = await api.post(
           "/admin/product-attributes",

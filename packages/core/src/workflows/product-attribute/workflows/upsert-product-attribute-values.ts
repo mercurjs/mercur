@@ -4,9 +4,15 @@ import {
   createWorkflow,
   StepResponse,
   transform,
+  when,
   WorkflowResponse,
 } from "@medusajs/framework/workflows-sdk"
 import {
+  updateProductOptionsStep,
+  useQueryGraphStep,
+} from "@medusajs/medusa/core-flows"
+import {
+  AttributeType,
   MercurModules,
   ProductAttributeValueDTO,
   UpsertProductAttributeValueDTO,
@@ -25,7 +31,6 @@ type UpsertStepInput = (UpsertProductAttributeValueDTO & {
   attribute_id: string
 })[]
 
-// Known gap: rename-in-place does not re-sync the mirrored option.
 const upsertProductAttributeValuesStep = createStep(
   upsertProductAttributeValuesStepId,
   async (data: UpsertStepInput, { container }) => {
@@ -52,8 +57,67 @@ export const upsertProductAttributeValuesWorkflowId =
 export const upsertProductAttributeValuesWorkflow = createWorkflow(
   upsertProductAttributeValuesWorkflowId,
   function (input: UpsertProductAttributeValuesWorkflowInput) {
-    const rows = transform({ input }, ({ input }) =>
-      input.values.map((v) => ({ ...v, attribute_id: input.attribute_id })),
+    const attributeQuery = useQueryGraphStep({
+      entity: "product_attribute",
+      filters: { id: input.attribute_id },
+      fields: [
+        "id",
+        "name",
+        "type",
+        "is_variant_axis",
+        "product_option_id",
+        "values.name",
+      ],
+      options: { isList: false },
+    })
+
+    // Global variant-axis attributes back a shared Medusa ProductOption. Values
+    // added or renamed through this endpoint must be mirrored onto it, otherwise
+    // variant create fails with "Option value X does not exist for option Y".
+    const mirroredOption = when({ attributeQuery }, ({ attributeQuery }) => {
+      const attribute = attributeQuery.data
+      return (
+        attribute?.type === AttributeType.MULTI_SELECT &&
+        !!attribute?.is_variant_axis &&
+        !!attribute?.product_option_id
+      )
+    }).then(() => {
+      const optionUpdate = transform(
+        { attributeQuery, input },
+        ({ attributeQuery, input }) => {
+          const attribute = attributeQuery.data
+          const existing = (attribute.values ?? []).map(
+            (v: { name: string }) => v.name,
+          )
+          const incoming = input.values.map((v) => v.name)
+          return {
+            selector: { id: attribute.product_option_id },
+            update: { values: Array.from(new Set([...existing, ...incoming])) },
+          }
+        },
+      )
+
+      return updateProductOptionsStep(optionUpdate)
+    })
+
+    const rows = transform(
+      { input, mirroredOption },
+      ({ input, mirroredOption }) => {
+        const option = mirroredOption?.[0]
+        const idByValue = new Map<string, string>(
+          (option?.values ?? []).map((ov: { id: string; value: string }) => [
+            ov.value,
+            ov.id,
+          ]),
+        )
+        return input.values.map((v) => ({
+          ...v,
+          attribute_id: input.attribute_id,
+          ...(idByValue.has(v.name)
+            ? { product_option_value_id: idByValue.get(v.name) }
+            : {}),
+        }))
+      },
     )
 
     const values = upsertProductAttributeValuesStep(rows)
