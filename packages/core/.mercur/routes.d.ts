@@ -330,13 +330,13 @@ export type Routes = {
                 buyRules: {
                     batch: typeof import("@medusajs/medusa/api/admin/promotions/[id]/buy-rules/batch/route");
                 };
+                cost: typeof import("../src/api/admin/promotions/[id]/cost/route");
                 rules: {
                     batch: typeof import("@medusajs/medusa/api/admin/promotions/[id]/rules/batch/route");
                 };
                 targetRules: {
                     batch: typeof import("@medusajs/medusa/api/admin/promotions/[id]/target-rules/batch/route");
                 };
-                cost: typeof import("../src/api/admin/promotions/[id]/cost/route");
             };
             ruleAttributeOptions: {
                 $ruleType: typeof import("../src/api/admin/promotions/rule-attribute-options/[rule_type]/route");
@@ -629,7 +629,6 @@ export type Routes = {
             $id: typeof import("@medusajs/medusa/api/store/return-reasons/[id]/route");
         };
         returns: typeof import("@medusajs/medusa/api/store/returns/route");
-        search: typeof import("@mercurjs/core/api/store/search/route");
         sellers: typeof import("../src/api/store/sellers/route") & {
             $id: typeof import("../src/api/store/sellers/[id]/route");
         };
