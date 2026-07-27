@@ -11,6 +11,8 @@ type OfferProductActions = {
   offerIds: string[]
   /** The single store when the product is offered by exactly one seller. */
   sellerId: string | null
+  /** The store the row's offers belong to, shown in the delete prompt. */
+  storeName: string | null
 }
 
 /**
@@ -34,6 +36,7 @@ export const OfferActions = ({ product }: { product: OfferProductActions }) => {
       title: t("general.areYouSure"),
       description: t("offers.bulkDelete.description", {
         count: product.offerIds.length,
+        storeName: product.storeName ?? t("offers.fields.store"),
       }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),

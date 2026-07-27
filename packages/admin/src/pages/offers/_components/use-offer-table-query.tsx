@@ -9,6 +9,7 @@ const OFFER_LIST_FIELDS = [
   "variant_id",
   "sku",
   "variant_count",
+  "offer_ids",
   "created_at",
   "updated_at",
   "product.id",

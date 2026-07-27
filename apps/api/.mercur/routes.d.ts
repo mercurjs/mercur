@@ -326,10 +326,11 @@ export type Routes = {
         };
         promotions: typeof import("@medusajs/medusa/api/admin/promotions/route") & {
             $id: typeof import("@medusajs/medusa/api/admin/promotions/[id]/route") & {
-                $ruleType: typeof import("@medusajs/medusa/api/admin/promotions/[id]/[rule_type]/route");
+                $ruleType: typeof import("@mercurjs/core/api/admin/promotions/[id]/[rule_type]/route");
                 buyRules: {
                     batch: typeof import("@medusajs/medusa/api/admin/promotions/[id]/buy-rules/batch/route");
                 };
+                cost: typeof import("@mercurjs/core/api/admin/promotions/[id]/cost/route");
                 rules: {
                     batch: typeof import("@medusajs/medusa/api/admin/promotions/[id]/rules/batch/route");
                 };
@@ -338,11 +339,11 @@ export type Routes = {
                 };
             };
             ruleAttributeOptions: {
-                $ruleType: typeof import("@medusajs/medusa/api/admin/promotions/rule-attribute-options/[rule_type]/route");
+                $ruleType: typeof import("@mercurjs/core/api/admin/promotions/rule-attribute-options/[rule_type]/route");
             };
             ruleValueOptions: {
                 $ruleType: {
-                    $ruleAttributeId: typeof import("@medusajs/medusa/api/admin/promotions/rule-value-options/[rule_type]/[rule_attribute_id]/route");
+                    $ruleAttributeId: typeof import("@mercurjs/core/api/admin/promotions/rule-value-options/[rule_type]/[rule_attribute_id]/route");
                 };
             };
         };
@@ -629,7 +630,6 @@ export type Routes = {
             $id: typeof import("@medusajs/medusa/api/store/return-reasons/[id]/route");
         };
         returns: typeof import("@medusajs/medusa/api/store/returns/route");
-        search: typeof import("@mercurjs/core/api/store/search/route");
         sellers: typeof import("@mercurjs/core/api/store/sellers/route") & {
             $id: typeof import("@mercurjs/core/api/store/sellers/[id]/route");
         };

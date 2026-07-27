@@ -63,6 +63,12 @@ export interface OfferDTO {
    */
   variant_count?: number | null
   /**
+   * Every offer id in the grouped row's (product, seller) group, computed only
+   * when offers are grouped by seller (`group_by_seller`). Used by the admin
+   * offers list to delete all of a store's offers on a product at once.
+   */
+  offer_ids?: string[] | null
+  /**
    * Joined through the writable `offer ↔ price` list-link defined in
    * `packages/core/src/links/offer-price-link.ts`. Carries the offer's
    * Price rows on the variant's shared `PriceSet` (filtered by the

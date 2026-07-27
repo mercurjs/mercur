@@ -118,25 +118,30 @@ class OfferModuleService extends MedusaService({
     const rank = new Map(ids.map((id, index) => [id, index]))
     offers.sort((a, b) => (rank.get(a.id) ?? 0) - (rank.get(b.id) ?? 0))
 
-    const countRows = (await scoped()
-      .groupBy("product_id", "seller_id")
-      .select("product_id", "seller_id")
-      .count({ variant_count: "*" })) as Array<{
+    const groupRows = (await scoped()
+      .select("id", "product_id", "seller_id")
+      .orderBy("created_at", "desc")) as Array<{
+      id: string
       product_id: string
       seller_id: string
-      variant_count: string | number
     }>
 
-    const variantCountByGroup = new Map(
-      countRows.map((row) => [
-        `${row.product_id}:${row.seller_id}`,
-        Number(row.variant_count),
-      ])
-    )
+    const idsByGroup = new Map<string, string[]>()
+    for (const row of groupRows) {
+      const key = `${row.product_id}:${row.seller_id}`
+      const list = idsByGroup.get(key)
+      if (list) {
+        list.push(row.id)
+      } else {
+        idsByGroup.set(key, [row.id])
+      }
+    }
 
     for (const offer of offers) {
-      offer.variant_count =
-        variantCountByGroup.get(`${offer.product_id}:${offer.seller_id}`) ?? 0
+      const groupIds =
+        idsByGroup.get(`${offer.product_id}:${offer.seller_id}`) ?? []
+      offer.variant_count = groupIds.length
+      offer.offer_ids = groupIds
     }
 
     return [offers, count]

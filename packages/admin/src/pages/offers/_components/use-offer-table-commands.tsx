@@ -33,6 +33,7 @@ export const useOfferTableCommands = (options?: {
             title: t("general.areYouSure"),
             description: t("offers.bulkDelete.description", {
               count: offerIds.length,
+              storeName: t("offers.fields.store"),
             }),
             confirmText: t("actions.delete"),
             cancelText: t("actions.cancel"),
