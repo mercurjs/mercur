@@ -11,7 +11,7 @@
 #
 # Usage:
 #   ./deploy.sh                          # instance 1 (new.mercur.dev :9000)
-#   MERCUR_INSTANCE=2 ./deploy.sh        # instance 2 (demo.mercurjs.com :9001)
+#   MERCUR_INSTANCE=2 ./deploy.sh        # instance 2 (platform.mercurjs.com :9001)
 #   MERCUR_HOST=root@1.2.3.4 ./deploy.sh
 #   MERCUR_BRANCH=main ./deploy.sh
 #   MERCUR_BACKEND_URL=https://x.dev MERCUR_INSTANCE=2 ./deploy.sh  # override domain
@@ -37,7 +37,7 @@ case "$INSTANCE" in
     DEPLOY_DIR="/root/public-demo"
     SERVICE="mercur-api-public-demo"
     PORT="9001"
-    BACKEND_URL="${MERCUR_BACKEND_URL:-https://demo.mercurjs.com}"
+    BACKEND_URL="${MERCUR_BACKEND_URL:-https://platform.mercurjs.com}"
     DB_NAME="public-demo"
     REDIS_DB="1"
     ;;
