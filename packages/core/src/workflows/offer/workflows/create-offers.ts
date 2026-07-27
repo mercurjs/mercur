@@ -179,9 +179,12 @@ export const createOffersWorkflow: ReturnWorkflow<
       filters: { id: offerProductIds },
     }).config({ name: "get-product-shipping-profiles" })
 
-    // Skip products already linked to that profile so re-adding an offer on an
-    // existing product is a no-op (createRemoteLinkStep would otherwise throw on
-    // a duplicate link). Deduped by product+profile within the batch too.
+    // The product↔shipping-profile link is one-to-one, so a product can carry
+    // at most one profile. Skip any product that already has one — including
+    // when another seller's offer on the same master product supplies a
+    // different profile — otherwise createRemoteLinkStep throws "Cannot create
+    // multiple links between 'product' and 'fulfillment'". Deduped by product
+    // within the batch too, so the first offer's profile wins.
     const productShippingProfileLinks = transform(
       { stripped, productsWithProfiles },
       ({ stripped, productsWithProfiles }) => {
@@ -193,7 +196,7 @@ export const createOffersWorkflow: ReturnWorkflow<
             }[]
           )
             .filter((product) => product.shipping_profile?.id)
-            .map((product) => `${product.id}:${product.shipping_profile!.id}`),
+            .map((product) => product.id),
         )
         const seen = new Set<string>()
         const links: LinkDefinition[] = []
@@ -201,11 +204,10 @@ export const createOffersWorkflow: ReturnWorkflow<
           if (!offer.product_id || !offer.shipping_profile_id) {
             continue
           }
-          const key = `${offer.product_id}:${offer.shipping_profile_id}`
-          if (seen.has(key) || existing.has(key)) {
+          if (seen.has(offer.product_id) || existing.has(offer.product_id)) {
             continue
           }
-          seen.add(key)
+          seen.add(offer.product_id)
           links.push({
             [Modules.PRODUCT]: { product_id: offer.product_id },
             [Modules.FULFILLMENT]: {
