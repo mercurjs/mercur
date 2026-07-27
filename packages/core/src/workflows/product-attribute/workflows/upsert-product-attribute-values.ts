@@ -89,7 +89,9 @@ export const upsertProductAttributeValuesWorkflow = createWorkflow(
           const existing = (attribute.values ?? []).map(
             (v: { name: string }) => v.name,
           )
-          const incoming = input.values.map((v) => v.name)
+          const incoming = input.values
+            .map((v) => v.name)
+            .filter((name): name is string => !!name)
           return {
             selector: { id: attribute.product_option_id },
             update: { values: Array.from(new Set([...existing, ...incoming])) },
@@ -111,7 +113,9 @@ export const upsertProductAttributeValuesWorkflow = createWorkflow(
           ]),
         )
         return input.values.map((v) => {
-          const product_option_value_id = idByValue.get(v.name)
+          const product_option_value_id = v.name
+            ? idByValue.get(v.name)
+            : undefined
           return {
             ...v,
             attribute_id: input.attribute_id,
