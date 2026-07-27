@@ -1,7 +1,6 @@
 import {
   applyDefaultFilters,
   authenticate,
-  maybeApplyLinkFilter,
   MedusaNextFunction,
   MedusaRequest,
   MedusaResponse,
@@ -21,7 +20,6 @@ import {
   StoreGetProductsParams,
 } from "./validators"
 import { ProductStatus } from "@mercurjs/types"
-import { resolveVisibleSellerIds } from "../../utils/sellers"
 
 /**
  * Apply the store-facing defaults that vanilla Medusa applies on its own
@@ -44,17 +42,6 @@ const applyProductFilters = applyDefaultFilters({
     return { id: categoryIds, is_internal: false, is_active: true }
   },
 })
-
-async function applyVisibleSellerIdsFilter(
-  req: MedusaRequest,
-  _res: MedusaResponse,
-  next: MedusaNextFunction
-) {
-  req.filterableFields ??= {}
-  req.filterableFields.seller_id = await resolveVisibleSellerIds(req.scope)
-
-  next()
-}
 
 /**
  * Translate global product-attribute filters (`attributes[<handle>]=v1,v2`)
@@ -123,12 +110,6 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
       ),
       applyProductFilters,
       transformAttributeFilters,
-      applyVisibleSellerIdsFilter,
-      maybeApplyLinkFilter({
-        entryPoint: "product_seller",
-        resourceId: "product_id",
-        filterableField: "seller_id",
-      }),
       ...pricingMiddlewares,
     ],
   },
@@ -141,12 +122,6 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
         storeProductQueryConfig.retrieve
       ),
       applyProductFilters,
-      applyVisibleSellerIdsFilter,
-      maybeApplyLinkFilter({
-        entryPoint: "product_seller",
-        resourceId: "product_id",
-        filterableField: "seller_id",
-      }),
       ...pricingMiddlewares,
     ],
   },

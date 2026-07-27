@@ -85,10 +85,11 @@ medusaIntegrationTestRunner({
                 )
             })
 
-            // Products are master records: creation no longer links a seller.
-            // A product only appears in the store when it is assigned to a
-            // seller via the `product_seller` restriction link, so the test
-            // assigns each created product to the seller whose headers made it.
+            // Products are master records. The `product_seller` allowlist is
+            // opt-in (empty = open to every seller), so it no longer gates
+            // store visibility; the store lists any published product. The
+            // helper still assigns each product to the seller whose headers
+            // created it to mirror how vendors submit against a master product.
             const createProduct = async (
                 headers: any,
                 overrides: Record<string, any> = {}
@@ -166,7 +167,10 @@ medusaIntegrationTestRunner({
                     expect(ids).not.toContain(draftProduct.id)
                 })
 
-                it("should not return products from suspended sellers", async () => {
+                // The `product_seller` allowlist is opt-in and no longer gates
+                // store visibility, so a published product stays listed even
+                // when its assigned seller is suspended.
+                it("should still list published products from suspended sellers", async () => {
                     const product = await createProduct(
                         suspendedSellerHeaders,
                         { title: "Suspended Seller Product" }
@@ -184,10 +188,10 @@ medusaIntegrationTestRunner({
                     )
 
                     const ids = response.data.products.map((p: any) => p.id)
-                    expect(ids).not.toContain(product.id)
+                    expect(ids).toContain(product.id)
                 })
 
-                it("should not return products from sellers within closure window", async () => {
+                it("should still list published products from sellers within a closure window", async () => {
                     const product = await createProduct(approvedSellerHeaders, {
                         title: "Closed Seller Product",
                     })
@@ -215,7 +219,7 @@ medusaIntegrationTestRunner({
                     )
 
                     const ids = response.data.products.map((p: any) => p.id)
-                    expect(ids).not.toContain(product.id)
+                    expect(ids).toContain(product.id)
                 })
 
                 it("should filter products by id", async () => {
@@ -412,7 +416,9 @@ medusaIntegrationTestRunner({
                     expect(response.status).toEqual(404)
                 })
 
-                it("should return 404 for a product from a suspended seller", async () => {
+                // Suspending the assigned seller no longer hides a published
+                // product from the store detail route.
+                it("should still retrieve a published product from a suspended seller", async () => {
                     const product = await createProduct(
                         suspendedSellerHeaders,
                         { title: "Suspended Seller Product" }
@@ -424,11 +430,13 @@ medusaIntegrationTestRunner({
                         adminHeaders
                     )
 
-                    const response = await api
-                        .get(`/store/products/${product.id}`, storeHeaders)
-                        .catch((e) => e.response)
+                    const response = await api.get(
+                        `/store/products/${product.id}`,
+                        storeHeaders
+                    )
 
-                    expect(response.status).toEqual(404)
+                    expect(response.status).toEqual(200)
+                    expect(response.data.product.id).toEqual(product.id)
                 })
             })
         })
