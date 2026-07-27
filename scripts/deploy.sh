@@ -5,13 +5,13 @@
 # Multiple independent instances live side by side on one host. Each has its
 # own deploy dir, systemd service, port, domain, Postgres database and Redis
 # db-index. Select one with MERCUR_INSTANCE (default 1 = the original deploy).
-# Instance 2 is bootstrapped on first deploy by cloning instance 1's host
-# artifacts (.env, systemd unit, Caddy vhost) and swapping the instance-scoped
-# bits — so a fresh `MERCUR_INSTANCE=2 ./deploy.sh` provisions everything.
+# Instance 2 (public-demo) is bootstrapped on first deploy if its host
+# artifacts are missing — .env, Postgres DB, systemd unit and Caddy vhost.
+# Every bootstrap step is idempotent, so re-deploying is safe.
 #
 # Usage:
 #   ./deploy.sh                          # instance 1 (new.mercur.dev :9000)
-#   MERCUR_INSTANCE=2 ./deploy.sh        # instance 2 (demo.mercur.dev :9001)
+#   MERCUR_INSTANCE=2 ./deploy.sh        # instance 2 (demo.mercurjs.com :9001)
 #   MERCUR_HOST=root@1.2.3.4 ./deploy.sh
 #   MERCUR_BRANCH=main ./deploy.sh
 #   MERCUR_BACKEND_URL=https://x.dev MERCUR_INSTANCE=2 ./deploy.sh  # override domain
@@ -37,7 +37,7 @@ case "$INSTANCE" in
     DEPLOY_DIR="/root/public-demo"
     SERVICE="mercur-api-public-demo"
     PORT="9001"
-    BACKEND_URL="${MERCUR_BACKEND_URL:-https://demo.mercur.dev}"
+    BACKEND_URL="${MERCUR_BACKEND_URL:-https://demo.mercurjs.com}"
     DB_NAME="public-demo"
     REDIS_DB="1"
     ;;
@@ -70,9 +70,6 @@ SOURCE_DIR="/root/mercur"
 
 # Instance 1 is the canonical template every other instance clones from.
 BASE_DEPLOY_DIR="/root/marketplace"
-BASE_SERVICE="mercur-api"
-BASE_PORT="9000"
-BASE_DOMAIN="new.mercur.dev"
 BASE_ENV="$BASE_DEPLOY_DIR/packages/api/.env"
 
 LOCK="/tmp/mercur-deploy-$INSTANCE.lock"
@@ -128,37 +125,12 @@ if [ ! -f "$ENV_FILE" ]; then
 
   # DATABASE_URL: keep host/creds, swap the database name to $DB_NAME.
   if [ -n "$DB_NAME" ]; then
-    DB_NAME="$DB_NAME" python3 - "$ENV_FILE" <<'PY'
-import os, re, sys
-path, db = sys.argv[1], os.environ["DB_NAME"]
-lines = open(path).read().splitlines()
-out = []
-for ln in lines:
-    if ln.startswith("DATABASE_URL="):
-        # scheme://user:pass@host:port/<db>[?params] -> swap <db>
-        ln = re.sub(r"(DATABASE_URL=.*?/)[^/?]+(\?.*)?$", lambda m: f"{m.group(1)}{db}{m.group(2) or ''}", ln)
-    out.append(ln)
-open(path, "w").write("\n".join(out) + "\n")
-PY
+    sed -i -E "s#^(DATABASE_URL=.*/)[^/?]+(\?.*)?\$#\1${DB_NAME}\2#" "$ENV_FILE"
   fi
-
-  # REDIS_URL: point at a dedicated db-index so instances don't share keys.
+  # REDIS_URL: dedicated db-index so instances don't share keys.
   if [ -n "$REDIS_DB" ]; then
-    REDIS_DB="$REDIS_DB" python3 - "$ENV_FILE" <<'PY'
-import os, re, sys
-path, idx = sys.argv[1], os.environ["REDIS_DB"]
-lines = open(path).read().splitlines()
-out = []
-for ln in lines:
-    if ln.startswith("REDIS_URL="):
-        base = ln.split("=", 1)[1]
-        base = re.sub(r"/\d+$", "", base.rstrip("/"))
-        ln = f"REDIS_URL={base}/{idx}"
-    out.append(ln)
-open(path, "w").write("\n".join(out) + "\n")
-PY
+    sed -i -E "s#^(REDIS_URL=[^[:space:]]*?)(/[0-9]+)?\$#\1/${REDIS_DB}#" "$ENV_FILE"
   fi
-
   # Port + CORS + vendor URL for this instance's domain.
   set_env "$ENV_FILE" PORT "$PORT"
   set_env "$ENV_FILE" STORE_CORS  "https://$DOMAIN"
@@ -172,76 +144,73 @@ else
   set_env "$ENV_FILE" PORT "$PORT"
 fi
 
-# (b) Postgres database — create if missing, reusing instance 1's credentials.
+# (b) Postgres database — create if missing (owned by the same role as the
+#     base instance). Uses the local `postgres` superuser via sudo.
 if [ -n "$DB_NAME" ] && command -v psql >/dev/null 2>&1; then
-  ADMIN_URL=$(DB_NAME="$DB_NAME" python3 - "$ENV_FILE" <<'PY'
-import re, sys
-path = sys.argv[1]
-url = ""
-for ln in open(path):
-    if ln.startswith("DATABASE_URL="):
-        url = ln.split("=", 1)[1].strip()
-# connect to the default `postgres` db to run CREATE DATABASE
-print(re.sub(r"(/)[^/?]+(\?.*)?$", lambda m: f"{m.group(1)}postgres{m.group(2) or ''}", url))
-PY
-  )
-  if ! psql "$ADMIN_URL" -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
-    log "Creating Postgres database $DB_NAME"
-    psql "$ADMIN_URL" -c "CREATE DATABASE \"$DB_NAME\""
-  else
+  if sudo -u postgres psql -tAc "SELECT 1 FROM pg_database WHERE datname='$DB_NAME'" | grep -q 1; then
     log "Postgres database $DB_NAME already exists"
+  else
+    DB_OWNER=$(sed -nE 's#^DATABASE_URL=[a-z]+://([^:]+):.*#\1#p' "$ENV_FILE")
+    log "Creating Postgres database $DB_NAME (owner ${DB_OWNER:-mercur})"
+    sudo -u postgres createdb -O "${DB_OWNER:-mercur}" "$DB_NAME"
   fi
 fi
 
-# (c) systemd unit — clone instance 1's unit, swap WorkingDirectory + PORT.
+# (c) systemd unit — self-contained, matching the base instance's runtime
+#     (bun run start, EnvironmentFile=.env so PORT is read from it).
 UNIT="/etc/systemd/system/$SERVICE.service"
 if [ ! -f "$UNIT" ]; then
-  BASE_UNIT="/etc/systemd/system/$BASE_SERVICE.service"
-  log "Bootstrapping systemd unit $UNIT from $BASE_UNIT"
-  # Retarget WorkingDirectory, drop any inherited PORT= env, then pin our PORT.
-  sed -e "s#$BASE_DEPLOY_DIR#$DEPLOY_DIR#g" \
-      -e "/^Environment=PORT=/d" \
-      -e "/^Description=/s#\$# (instance $INSTANCE)#" \
-      "$BASE_UNIT" > "$UNIT"
-  # Insert a PORT env right after the [Service] header.
-  sed -i "/^\[Service\]/a Environment=PORT=$PORT" "$UNIT"
+  log "Bootstrapping systemd unit $UNIT"
+  cat > "$UNIT" <<UNITEOF
+[Unit]
+Description=Mercur Medusa API (instance $INSTANCE)
+After=network.target postgresql.service redis-server.service
+Requires=postgresql.service redis-server.service
+
+[Service]
+Type=simple
+WorkingDirectory=$DEPLOY_DIR/packages/api/.medusa/server
+EnvironmentFile=$DEPLOY_DIR/packages/api/.env
+ExecStart=/usr/local/bin/bun run start
+Restart=on-failure
+RestartSec=5
+StandardOutput=append:/var/log/$SERVICE.log
+StandardError=append:/var/log/$SERVICE.err.log
+
+[Install]
+WantedBy=multi-user.target
+UNITEOF
   systemctl daemon-reload
   systemctl enable "$SERVICE"
 fi
 
-# (d) Caddy vhost — clone instance 1's block, swap domain + upstream port.
+# (d) Caddy vhost — reverse-proxy the domain to this instance's port, with the
+#     /dist → /static rewrite the file provider depends on.
 CADDYFILE="/etc/caddy/Caddyfile"
-if [ -f "$CADDYFILE" ] && ! grep -q "^[[:space:]]*$DOMAIN[[:space:]]*{" "$CADDYFILE"; then
+if [ -f "$CADDYFILE" ] && ! grep -qE "^[[:space:]]*$DOMAIN[[:space:]]*\{" "$CADDYFILE"; then
   log "Appending Caddy vhost for $DOMAIN → :$PORT"
-  DOMAIN="$DOMAIN" PORT="$PORT" BASE_DOMAIN="$BASE_DOMAIN" BASE_PORT="$BASE_PORT" \
-    python3 - "$CADDYFILE" <<'PY'
-import os, re, sys
-path = sys.argv[1]
-dom, port = os.environ["DOMAIN"], os.environ["PORT"]
-bdom, bport = os.environ["BASE_DOMAIN"], os.environ["BASE_PORT"]
-text = open(path).read()
-# Extract the base domain's top-level block by brace matching.
-start = re.search(rf"(?m)^\s*{re.escape(bdom)}\s*\{{", text)
-if not start:
-    sys.exit(f"base vhost {bdom} not found in Caddyfile")
-i = start.start()
-depth = 0
-j = i
-while j < len(text):
-    if text[j] == "{": depth += 1
-    elif text[j] == "}":
-        depth -= 1
-        if depth == 0:
-            j += 1
-            break
-    j += 1
-block = text[i:j]
-clone = block.replace(bdom, dom).replace(f":{bport}", f":{port}")
-open(path, "a").write("\n\n" + clone.strip() + "\n")
-PY
-  if command -v caddy >/dev/null 2>&1; then
-    caddy fmt --overwrite "$CADDYFILE" || true
+  mkdir -p /var/log/caddy
+  cat >> "$CADDYFILE" <<CADDYEOF
+
+$DOMAIN {
+  encode gzip zstd
+
+  handle_path /dist/* {
+    rewrite * /static{uri}
+    reverse_proxy 127.0.0.1:$PORT
+  }
+
+  reverse_proxy 127.0.0.1:$PORT
+
+  log {
+    output file /var/log/caddy/$DOMAIN.log
+  }
+}
+CADDYEOF
+  if command -v caddy >/dev/null 2>&1 && caddy validate --config "$CADDYFILE" >/tmp/caddy-validate.log 2>&1; then
     systemctl reload caddy || systemctl restart caddy || true
+  else
+    log "Caddy validate failed — vhost appended but NOT reloaded; see /tmp/caddy-validate.log"
   fi
 fi
 
@@ -503,8 +472,7 @@ cp "$DEPLOY_DIR/packages/api/.env" "$PROD_DIR/.env"
 # at /static; Caddy (the reverse proxy on the host) maps /dist/* onto that
 # /static/* route, so files resolve at $MERCUR_BACKEND_URL/dist/<key>.
 # That Caddy `handle_path /dist/*` rewrite is required for these URLs to
-# resolve — it is maintained in /etc/caddy/Caddyfile on the host (cloned
-# per-instance in step 2.5).
+# resolve — it is maintained per-instance in the Caddy vhost (step 2.5).
 FILE_BACKEND_URL="${MERCUR_BACKEND_URL%/}/dist"
 if grep -q '^FILE_BACKEND_URL=' "$PROD_DIR/.env"; then
   sed -i "s#^FILE_BACKEND_URL=.*#FILE_BACKEND_URL=${FILE_BACKEND_URL}#" "$PROD_DIR/.env"

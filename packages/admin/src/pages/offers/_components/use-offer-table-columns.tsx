@@ -134,8 +134,12 @@ export const useOfferTableColumns = (options?: {
           <OfferActions
             product={{
               id: row.original.product_id,
-              offerIds: [row.original.id],
+              offerIds:
+                row.original.offer_ids?.length
+                  ? row.original.offer_ids
+                  : [row.original.id],
               sellerId: hideStoreAction ? null : row.original.seller_id ?? null,
+              storeName: row.original.seller?.name ?? null,
             }}
           />
         ),
