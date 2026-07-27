@@ -66,10 +66,7 @@ export const useExtendableForm = <
       .partial()
       .optional()
 
-    // `.extend` only exists on a plain ZodObject. A refined/wrapped base schema
-    // (e.g. one guarded by `.refine`/`.superRefine`) is a ZodEffects and would
-    // throw "baseSchema.extend is not a function"; compose via intersection so
-    // custom fields still validate.
+    // `.extend` is ZodObject-only; a refined base schema needs intersection.
     return typeof (baseSchema as ZodObject<Record<string, z.ZodTypeAny>>)
       .extend === "function"
       ? baseSchema.extend({ additional_data: additionalData })
