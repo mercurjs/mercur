@@ -11,7 +11,7 @@
     "@medusajs/medusa": "2.17.2",
     "@mercurjs/core": "*",
     "jsonwebtoken": "^9.0.2",
-    "scrypt-kdf": "^2.0.1",
+    "scrypt-kdf": "^4.0.0",
     "@medusajs/draft-order": "2.17.2",
     "meilisearch": "^0.59.0"
   },
@@ -21,7 +21,7 @@
     "@medusajs/test-utils": "2.17.2",
     "@swc/core": "^1.7.28",
     "@swc/jest": "^0.2.36",
-    "@types/jest": "^29.5.13",
+    "@types/jest": "^30.0.0",
     "@types/node": "^26.1.0",
     "jest": "^30.2.0",
     "typescript": "7.0.2",

@@ -51,7 +51,7 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
         ), query.graph(
             {
                 entity: "line_item",
-                fields: ['id', 'variant.id', 'variant.product.id', 'variant.product.seller.id'],
+                fields: ['id', 'offer.seller_id', 'variant.product.seller.id'],
                 filters: { id: actions.filter((a) => a.action === ComputedActions.ADD_ITEM_ADJUSTMENT).map((a) => (a as AddItemAdjustmentAction).item_id) },
             },
             { cache: { enable: true } },
@@ -81,7 +81,7 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
         const shippingOptionsMap = new Map<string, { id: string, seller?: { id: string } }>(
             shippingOptions.map((shippingOption) => [shippingOption.id!, shippingOption])
         )
-        const lineItemsMap = new Map<string, { id: string, variant: { id: string, product: { id: string, seller?: { id: string } } } }>(
+        const lineItemsMap = new Map<string, { id: string, offer?: { seller_id?: string }, variant?: { product?: { seller?: { id: string } } } }>(
             lineItems.map((lineItem) => [lineItem.id!, lineItem])
         )
 
@@ -101,7 +101,8 @@ export const prepareSellerAdjustmentsFromPromotionActionsStep = createStep(
 
                     if (promotion && lineItem) {
                         const promotionSellerId = promotion.seller?.id
-                        const itemSellerId = lineItem.variant?.product?.seller?.id
+                        const itemSellerId =
+                            lineItem.offer?.seller_id
 
                         if (!promotionSellerId || promotionSellerId === itemSellerId) {
                             lineItemAdjustmentsToCreate.push({

@@ -30,7 +30,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -38,7 +38,7 @@ jobs:
           bun-version: 1.3.8
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 20
 
@@ -146,7 +146,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v7
+        uses: actions/checkout@v7.0.1
 
       - name: Setup Bun
         uses: oven-sh/setup-bun@v2
@@ -154,7 +154,7 @@ jobs:
           bun-version: 1.3.8
 
       - name: Setup Node.js
-        uses: actions/setup-node@v6
+        uses: actions/setup-node@v7
         with:
           node-version: 20
 

@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import {
   ApplicationMethodTargetTypeValues,
@@ -69,6 +69,12 @@ export const RuleValueFormField = ({
     name: name,
   });
 
+  const isOfferAttribute = attribute?.id === "offer";
+  const sellerId = useWatch({
+    control: form.control,
+    name: "seller_id",
+  }) as string | undefined;
+
   const comboboxData = useComboboxData({
     queryFn: async (params) => {
       return await sdk.admin.promotions.ruleValueOptions.$ruleType.$ruleAttributeId.query({
@@ -76,15 +82,17 @@ export const RuleValueFormField = ({
         $ruleAttributeId: attribute?.id,
         ...params,
         ...buildFilters(attribute?.id, store!),
+        ...(isOfferAttribute && sellerId ? { seller_id: sellerId } : {}),
         application_method_target_type: applicationMethodTargetType,
       });
     },
     enabled:
       !!attribute?.id &&
       ["select", "multiselect"].includes(attribute.field_type) &&
-      !isStoreLoading,
+      !isStoreLoading &&
+      (!isOfferAttribute || !!sellerId),
     getOptions: (data) => data.values,
-    queryKey: ["rule-value-options", ruleType, attribute?.id],
+    queryKey: ["rule-value-options", ruleType, attribute?.id, sellerId],
     defaultValue: watchValue,
     defaultValueKey: "value",
   });
@@ -94,15 +102,14 @@ export const RuleValueFormField = ({
     name: operator,
   });
 
-  useEffect(() => {
-    const hasDirtyRules = Object.keys(form.formState.dirtyFields).length > 0;
+  const prevOperatorRef = useRef(watchOperator);
 
-    /**
-     * Don't reset values if fileds didn't change - this is to prevent reset of form on initial render when editing an existing rule
-     */
-    if (!hasDirtyRules) {
+  useEffect(() => {
+    if (prevOperatorRef.current === watchOperator) {
       return;
     }
+
+    prevOperatorRef.current = watchOperator;
 
     if (watchOperator === "eq") {
       form.setValue(name, "");
@@ -111,7 +118,6 @@ export const RuleValueFormField = ({
     }
   }, [
 	watchOperator,
-	form.formState.dirtyFields,
 	name,
 	form
 ]);

@@ -1,5 +1,15 @@
+import { useEffect } from 'react';
+
 import { AdminPromotion } from '@medusajs/types';
-import { Button, Input, RadioGroup, Text } from '@medusajs/ui';
+import {
+  Button,
+  CurrencyInput,
+  Divider,
+  Input,
+  RadioGroup,
+  Text,
+} from '@medusajs/ui';
+import { useWatch } from 'react-hook-form';
 import { Trans, useTranslation } from 'react-i18next';
 import * as zod from 'zod';
 
@@ -9,9 +19,11 @@ import {
 } from "@mercurjs/dashboard-shared"
 
 import { Form } from "@components/common/form"
+import { SwitchBox } from "@components/common/switch-box"
 import { DeprecatedPercentageInput } from "@components/inputs/percentage-input"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
+import { getCurrencySymbol } from "@lib/data/currencies"
 import { useUpdatePromotion } from "@hooks/api/promotions"
 
 type EditPromotionFormProps = {
@@ -21,10 +33,14 @@ type EditPromotionFormProps = {
 const EditPromotionSchema = zod.object({
   is_automatic: zod.string().toLowerCase(),
   code: zod.string().min(1),
+  is_tax_inclusive: zod.boolean().optional(),
   status: zod.enum(['active', 'inactive', 'draft']),
   value_type: zod.enum(['fixed', 'percentage']),
-  value: zod.number(),
-  max_quantity: zod.number().min(1).optional().nullable()
+  value: zod.number().min(0).or(zod.string().min(1)),
+  allocation: zod.enum(['each', 'across', 'once']),
+  target_type: zod.enum(['order', 'shipping_methods', 'items']),
+  max_quantity: zod.number().min(1).optional().nullable(),
+  limit: zod.number().int().min(1).optional().nullable()
 });
 
 export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) => {
@@ -38,24 +54,70 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
     data: promotion,
     defaultValues: {
       is_automatic: promotion.is_automatic!.toString(),
-      code: promotion.code,
-      status: promotion.status,
-      value: promotion.application_method!.value,
-      value_type: promotion.application_method!.type,
-      max_quantity: promotion.application_method?.max_quantity ?? 1
+      is_tax_inclusive: promotion.is_tax_inclusive ?? false,
+      code: promotion.code!,
+      status: promotion.status as 'active' | 'inactive' | 'draft',
+      value: promotion.application_method!.value as number,
+      value_type: promotion.application_method!.type as 'fixed' | 'percentage',
+      allocation: promotion.application_method!.allocation as
+        | 'each'
+        | 'across'
+        | 'once',
+      target_type: promotion.application_method!.target_type as
+        | 'order'
+        | 'shipping_methods'
+        | 'items',
+      max_quantity: promotion.application_method?.max_quantity ?? 1,
+      limit: promotion.limit ?? null
     }
   });
 
   const { mutateAsync, isPending } = useUpdatePromotion(promotion.id);
 
+  const watchValueType = useWatch({
+    control: form.control,
+    name: 'value_type'
+  });
+  const isFixedValueType = watchValueType === 'fixed';
+
+  const watchAllocation = useWatch({
+    control: form.control,
+    name: 'allocation'
+  });
+
+  const currencyCode = promotion.application_method?.currency_code;
+  const isTargetTypeShipping =
+    promotion.application_method?.target_type === 'shipping_methods';
+  const canBeTaxInclusive =
+    isFixedValueType && promotion.type === 'standard';
+
+  useEffect(() => {
+    if (!canBeTaxInclusive) {
+      form.setValue('is_tax_inclusive', false);
+    }
+  }, [canBeTaxInclusive, form]);
+
   const handleSubmit = form.handleSubmit(async data => {
+    const value = parseFloat(String(data.value));
+
+    if (isNaN(value) || value < 0) {
+      form.setError('value', {
+        message: t('promotions.form.value.invalid')
+      });
+      return;
+    }
+
     await mutateAsync(
       {
         is_automatic: data.is_automatic === 'true',
         code: data.code,
         status: data.status,
+        is_tax_inclusive: data.is_tax_inclusive,
+        limit: data.is_automatic === 'true' ? undefined : data.limit,
         application_method: {
-          value: data.value,
+          value,
+          type: data.value_type,
+          allocation: data.allocation,
           max_quantity: data.max_quantity
         }
       },
@@ -75,6 +137,38 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
       >
         <RouteDrawer.Body className="flex flex-1 flex-col gap-y-8 overflow-y-auto">
           <div className="flex flex-col gap-y-8">
+            <Form.Field
+              control={form.control}
+              name="is_automatic"
+              render={({ field }) => {
+                return (
+                  <Form.Item>
+                    <Form.Label>{t('promotions.form.method.label')}</Form.Label>
+                    <Form.Control>
+                      <RadioGroup
+                        className="flex-col gap-y-3"
+                        {...field}
+                        value={field.value}
+                        onValueChange={field.onChange}
+                      >
+                        <RadioGroup.ChoiceBox
+                          value={'false'}
+                          label={t('promotions.form.method.code.title')}
+                          description={t('promotions.form.method.code.description')}
+                        />
+                        <RadioGroup.ChoiceBox
+                          value={'true'}
+                          label={t('promotions.form.method.automatic.title')}
+                          description={t('promotions.form.method.automatic.description')}
+                        />
+                      </RadioGroup>
+                    </Form.Control>
+                    <Form.ErrorMessage />
+                  </Form.Item>
+                );
+              }}
+            />
+
             <Form.Field
               control={form.control}
               name="status"
@@ -114,37 +208,14 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
               }}
             />
 
-            <Form.Field
-              control={form.control}
-              name="is_automatic"
-              render={({ field }) => {
-                return (
-                  <Form.Item>
-                    <Form.Label>{t('promotions.form.method.label')}</Form.Label>
-                    <Form.Control>
-                      <RadioGroup
-                        className="flex-col gap-y-3"
-                        {...field}
-                        value={field.value}
-                        onValueChange={field.onChange}
-                      >
-                        <RadioGroup.ChoiceBox
-                          value={'false'}
-                          label={t('promotions.form.method.code.title')}
-                          description={t('promotions.form.method.code.description')}
-                        />
-                        <RadioGroup.ChoiceBox
-                          value={'true'}
-                          label={t('promotions.form.method.automatic.title')}
-                          description={t('promotions.form.method.automatic.description')}
-                        />
-                      </RadioGroup>
-                    </Form.Control>
-                    <Form.ErrorMessage />
-                  </Form.Item>
-                );
-              }}
-            />
+            {canBeTaxInclusive && (
+              <SwitchBox
+                control={form.control}
+                name="is_tax_inclusive"
+                label={t('promotions.form.taxInclusive.title')}
+                description={t('promotions.form.taxInclusive.description')}
+              />
+            )}
 
             <div className="flex flex-col gap-y-4">
               <Form.Field
@@ -176,66 +247,200 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
               </Text>
             </div>
 
+            {!isTargetTypeShipping && (
+              <>
+                <Form.Field
+                  control={form.control}
+                  name="value_type"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label>{t('promotions.fields.value_type')}</Form.Label>
+                        <Form.Control>
+                          <RadioGroup
+                            className="flex-col gap-y-3"
+                            {...field}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <RadioGroup.ChoiceBox
+                              value={'fixed'}
+                              label={t('promotions.form.value_type.fixed.title')}
+                              description={t('promotions.form.value_type.fixed.description')}
+                            />
+                            <RadioGroup.ChoiceBox
+                              value={'percentage'}
+                              label={t('promotions.form.value_type.percentage.title')}
+                              description={t('promotions.form.value_type.percentage.description')}
+                            />
+                          </RadioGroup>
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    );
+                  }}
+                />
+
+                <Form.Field
+                  control={form.control}
+                  name="allocation"
+                  render={({ field }) => {
+                    return (
+                      <Form.Item>
+                        <Form.Label>{t('promotions.fields.allocation')}</Form.Label>
+                        <Form.Control>
+                          <RadioGroup
+                            className="flex-col gap-y-3"
+                            {...field}
+                            value={field.value}
+                            onValueChange={field.onChange}
+                          >
+                            <RadioGroup.ChoiceBox
+                              value={'each'}
+                              label={t('promotions.form.allocation.each.title')}
+                              description={t('promotions.form.allocation.each.description')}
+                            />
+                            <RadioGroup.ChoiceBox
+                              value={'once'}
+                              label={t('promotions.form.allocation.once.title')}
+                              description={t('promotions.form.allocation.once.description')}
+                            />
+                          </RadioGroup>
+                        </Form.Control>
+                        <Form.ErrorMessage />
+                      </Form.Item>
+                    );
+                  }}
+                />
+
+                <div className="flex flex-col gap-y-8">
+                  <Form.Field
+                    control={form.control}
+                    name="value"
+                    render={({ field: { onChange, value, ...field } }) => {
+                      return (
+                        <Form.Item>
+                          <Form.Label>
+                            {isFixedValueType
+                              ? t('promotions.form.value.title')
+                              : t('fields.percentage')}
+                          </Form.Label>
+                          <Form.Control>
+                            {isFixedValueType ? (
+                              <CurrencyInput
+                                {...field}
+                                min={0}
+                                onValueChange={val => {
+                                  onChange(val ? parseInt(val) : '');
+                                }}
+                                code={currencyCode || 'USD'}
+                                symbol={
+                                  currencyCode
+                                    ? getCurrencySymbol(currencyCode)
+                                    : '$'
+                                }
+                                value={value}
+                              />
+                            ) : (
+                              <DeprecatedPercentageInput
+                                key="amount"
+                                min={0}
+                                max={100}
+                                {...field}
+                                value={value || ''}
+                                onChange={e => {
+                                  onChange(
+                                    e.target.value === ''
+                                      ? null
+                                      : parseInt(e.target.value)
+                                  );
+                                }}
+                              />
+                            )}
+                          </Form.Control>
+                          <Form.ErrorMessage />
+                        </Form.Item>
+                      );
+                    }}
+                  />
+
+                  {(watchAllocation === 'each' || watchAllocation === 'once') && (
+                    <Form.Field
+                      control={form.control}
+                      name="max_quantity"
+                      render={() => {
+                        return (
+                          <Form.Item>
+                            <Form.Label>{t('promotions.form.max_quantity.title')}</Form.Label>
+                            <Form.Control>
+                              <Input
+                                {...form.register('max_quantity', {
+                                  valueAsNumber: true
+                                })}
+                                type="number"
+                                min={1}
+                                placeholder="999"
+                              />
+                            </Form.Control>
+                            <Text
+                              size="small"
+                              leading="compact"
+                              className="text-ui-fg-subtle"
+                            >
+                              <Trans
+                                t={t}
+                                i18nKey="promotions.form.max_quantity.description"
+                                components={[<br key="break" />]}
+                              />
+                            </Text>
+                            <Form.ErrorMessage />
+                          </Form.Item>
+                        );
+                      }}
+                    />
+                  )}
+                </div>
+              </>
+            )}
+
+            <Divider />
+
             <Form.Field
               control={form.control}
-              name="value"
-              render={({ field: { onChange, ...field } }) => {
+              name="limit"
+              render={({ field: { onChange, value, ...field } }) => {
                 return (
                   <Form.Item>
-                    <Form.Label>{t('fields.percentage')}</Form.Label>
+                    <Form.Label optional>
+                      {t('promotions.form.usageLimit.title')}
+                    </Form.Label>
                     <Form.Control>
-                      <DeprecatedPercentageInput
-                        key="amount"
-                        min={0}
-                        max={100}
+                      <Input
+                        type="number"
+                        min={1}
                         {...field}
-                        value={field.value || ''}
+                        value={value ?? ''}
                         onChange={e => {
-                          onChange(e.target.value === '' ? null : parseInt(e.target.value));
+                          onChange(
+                            e.target.value === ''
+                              ? null
+                              : parseInt(e.target.value)
+                          );
                         }}
                       />
                     </Form.Control>
+                    <Text
+                      size="small"
+                      leading="compact"
+                      className="text-ui-fg-subtle"
+                    >
+                      {t('promotions.form.usageLimit.description')}
+                    </Text>
                     <Form.ErrorMessage />
                   </Form.Item>
                 );
               }}
             />
-
-            {promotion.application_method?.allocation === 'each' && (
-              <Form.Field
-                control={form.control}
-                name="max_quantity"
-                render={() => {
-                  return (
-                    <Form.Item>
-                      <Form.Label>{t('promotions.form.max_quantity.title')}</Form.Label>
-                      <Form.Control>
-                        <Input
-                          {...form.register('max_quantity', {
-                            valueAsNumber: true
-                          })}
-                          type="number"
-                          min={1}
-                          placeholder="999"
-                        />
-                      </Form.Control>
-                      <Text
-                        size="small"
-                        leading="compact"
-                        className="text-ui-fg-subtle"
-                      >
-                        <Trans
-                          t={t}
-                          i18nKey="promotions.form.max_quantity.description"
-                          components={[<br key="break" />]}
-                        />
-                      </Text>
-                      <Form.ErrorMessage />
-                    </Form.Item>
-                  );
-                }}
-              />
-            )}
 
             <FormExtensionZone
               model="promotion"

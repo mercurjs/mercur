@@ -11,18 +11,45 @@ export const usePromotionTableQuery = ({
   pageSize = 20,
 }: UsePromotionTableQueryProps) => {
   const queryObject = useQueryParams(
-    ["offset", "q", "order", "created_at", "updated_at"],
+    [
+      "offset",
+      "q",
+      "order",
+      "created_at",
+      "updated_at",
+      "campaign_id",
+      "is_automatic",
+      "application_method_type",
+    ],
     prefix
   )
 
-  const { offset, q, order, created_at, updated_at } = queryObject
+  const {
+    offset,
+    q,
+    order,
+    created_at,
+    updated_at,
+    campaign_id,
+    is_automatic,
+    application_method_type,
+  } = queryObject
 
-  const searchParams: HttpTypes.AdminGetPromotionsParams = {
+  const searchParams: HttpTypes.AdminGetPromotionsParams & {
+    is_automatic?: boolean
+    campaign_id?: string
+    application_method?: { type?: string }
+  } = {
     limit: pageSize,
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
+    campaign_id: campaign_id || undefined,
+    is_automatic: is_automatic ? is_automatic === "true" : undefined,
+    application_method: application_method_type
+      ? { type: application_method_type }
+      : undefined,
     offset: offset ? Number(offset) : 0,
-    order,
+    order: order || "-created_at",
     q,
   }
 

@@ -2,8 +2,11 @@ import { PromotionRuleDTO } from "@medusajs/types"
 import { Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
+import { useLinkQuery } from "@mercurjs/dashboard-shared"
+
 import { RouteDrawer } from "../../../../components/modals"
 import { usePromotion } from "../../../../hooks/api/promotions"
+import { PROMOTION_DETAIL_BASE_FIELDS } from "../../promotion-detail/loader"
 import { EditRulesWrapper } from "./components/edit-rules-wrapper"
 
 export enum RuleType {
@@ -29,7 +32,11 @@ export const EditRules = () => {
   const ruleType = params.ruleType as RuleTypeValues
   const id = params.id as string
   const rules: PromotionRuleDTO[] = []
-  const { promotion, isPending: isLoading, isError, error } = usePromotion(id)
+  const linkQuery = useLinkQuery("promotion", PROMOTION_DETAIL_BASE_FIELDS)
+  const { promotion, isPending: isLoading, isError, error } = usePromotion(
+    id,
+    linkQuery
+  )
 
   if (promotion) {
     if (ruleType === RuleType.RULES) {
