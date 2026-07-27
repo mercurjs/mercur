@@ -19,7 +19,7 @@ export type CreateCategorySchemaType = z.infer<typeof CreateCategorySchema>
 type CreateCategoryFormProps = {
   parentCategoryId: string | null
   children?: ReactNode
-  schema?: z.ZodType<CreateCategorySchemaType>
+  schema?: typeof CreateCategorySchema
   defaultValues?: DeepPartial<CreateCategorySchemaType>
 }
 

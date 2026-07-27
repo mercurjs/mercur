@@ -57,6 +57,47 @@ async function applyVisibleSellerIdsFilter(
 }
 
 /**
+ * Translate global product-attribute filters (`attributes[<handle>]=v1,v2`)
+ * into native variant-option filters. Every filterable global attribute is a
+ * variant axis backed by a Medusa `ProductOption`, so its selected values live
+ * on `variants.options.value`. Each attribute becomes its own `$and` clause
+ * (AND across attributes), while multiple values within one attribute are OR'd.
+ */
+function transformAttributeFilters(
+  req: MedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) {
+  const filters = (req.filterableFields ??= {}) as Record<string, unknown>
+  const attributes = filters.attributes as
+    | Record<string, string | string[]>
+    | undefined
+  delete filters.attributes
+
+  if (!attributes) {
+    return next()
+  }
+
+  const clauses = Object.values(attributes)
+    .map((value) =>
+      (Array.isArray(value) ? value : String(value).split(","))
+        .map((entry) => entry.trim())
+        .filter(Boolean)
+    )
+    .filter((values) => values.length > 0)
+    .map((values) => ({ variants: { options: { value: values } } }))
+
+  if (clauses.length > 0) {
+    const existing = Array.isArray(filters.$and)
+      ? (filters.$and as unknown[])
+      : []
+    filters.$and = [...existing, ...clauses]
+  }
+
+  next()
+}
+
+/**
  * Resolve the pricing/tax context consumed by the offer-price wrap. Reuses
  * Medusa's product-pricing middlewares so the gate matches vanilla
  * `/store/products`: prices compute only when the client requests
@@ -81,6 +122,7 @@ export const storeProductsMiddlewares: MiddlewareRoute[] = [
         storeProductQueryConfig.list
       ),
       applyProductFilters,
+      transformAttributeFilters,
       applyVisibleSellerIdsFilter,
       maybeApplyLinkFilter({
         entryPoint: "product_seller",

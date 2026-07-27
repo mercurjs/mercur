@@ -29,7 +29,7 @@ type CreateShippingOptionFormProps = {
   isReturn?: boolean
   type: FulfillmentSetType
   children?: ReactNode
-  schema?: z.ZodType<CreateShippingOptionSchemaType>
+  schema?: typeof CreateShippingOptionSchema
   defaultValues?: DeepPartial<CreateShippingOptionSchemaType>
 }
 

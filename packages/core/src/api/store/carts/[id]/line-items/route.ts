@@ -37,6 +37,7 @@ export const POST = async (
           ...item,
           variant_id: offer.variant_id,
           offer_id,
+          requires_shipping: true,
           metadata: { ...(metadata ?? {}), offer_id },
         },
       ],

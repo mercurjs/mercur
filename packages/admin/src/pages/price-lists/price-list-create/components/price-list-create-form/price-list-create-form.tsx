@@ -3,7 +3,6 @@ import { toast } from "@medusajs/ui"
 import { Children, ReactNode, useMemo } from "react"
 import { DeepPartial, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
-import { z } from "zod"
 
 import { HttpTypes, PriceListStatus, PriceListType } from "@medusajs/types"
 import { useRouteModal } from "../../../../../components/modals"
@@ -22,7 +21,7 @@ type PriceListCreateFormProps = {
   currencies: HttpTypes.AdminStoreCurrency[]
   pricePreferences: HttpTypes.AdminPricePreference[]
   children?: ReactNode
-  schema?: z.ZodType<PricingCreateSchemaType>
+  schema?: typeof PricingCreateSchema
   defaultValues?: DeepPartial<PricingCreateSchemaType>
 }
 
