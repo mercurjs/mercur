@@ -110,13 +110,14 @@ export const upsertProductAttributeValuesWorkflow = createWorkflow(
             ov.id,
           ]),
         )
-        return input.values.map((v) => ({
-          ...v,
-          attribute_id: input.attribute_id,
-          ...(idByValue.has(v.name)
-            ? { product_option_value_id: idByValue.get(v.name) }
-            : {}),
-        }))
+        return input.values.map((v) => {
+          const product_option_value_id = idByValue.get(v.name)
+          return {
+            ...v,
+            attribute_id: input.attribute_id,
+            ...(product_option_value_id ? { product_option_value_id } : {}),
+          }
+        })
       },
     )
 
