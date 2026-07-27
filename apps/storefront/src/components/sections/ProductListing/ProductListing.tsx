@@ -14,7 +14,7 @@ export const ProductListing = async ({
   showSidebar = false,
   locale = process.env.NEXT_PUBLIC_DEFAULT_REGION || "pl",
 }: {
-  category_id?: string
+  category_id?: string | string[]
   collection_id?: string
   showSidebar?: boolean
   locale?: string

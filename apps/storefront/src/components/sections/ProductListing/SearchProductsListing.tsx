@@ -39,12 +39,15 @@ export const SearchProductsListing = ({
   seller_id,
   locale = process.env.NEXT_PUBLIC_DEFAULT_REGION,
 }: {
-  category_id?: string
+  category_id?: string | string[]
   collection_id?: string
   seller_id?: string
   locale?: string
 }) => {
   const searchParams = useSearchParams()
+  const categoryKey = Array.isArray(category_id)
+    ? category_id.join(",")
+    : category_id
 
   const query = searchParams.get("query") || ""
   const page = +(searchParams.get("page") || 1)
@@ -62,15 +65,6 @@ export const SearchProductsListing = ({
   }, [])
 
   const searchParamsKey = searchParams.toString()
-  // Build the `attributes` filter straight from the URL, treating every param
-  // that isn't a reserved listing key as an attribute handle
-  // (`?color=Red&size=42,43`). Deriving this from the URL rather than from the
-  // fetched facets means the very first product fetch is already filtered —
-  // otherwise the initial fetch runs unfiltered (facets not loaded yet) and the
-  // page shows all products before the filtered set arrives.
-  //
-  // Serializing to a string also keys the fetch effect on content, not object
-  // identity, so unrelated re-renders don't retrigger the fetch.
   const attributesKey = useMemo(() => {
     const selected: Record<string, string[]> = {}
     searchParams.forEach((raw, key) => {
@@ -117,7 +111,7 @@ export const SearchProductsListing = ({
 
     fetchProducts()
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [locale, category_id, collection_id, seller_id, query, page, sortBy, attributesKey])
+  }, [locale, categoryKey, collection_id, seller_id, query, page, sortBy, attributesKey])
 
   if (isLoading && products.length === 0) return <ProductListingSkeleton />
 

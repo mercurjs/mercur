@@ -3,7 +3,12 @@ import {
   ContainerRegistrationKeys,
   Modules,
 } from "@medusajs/framework/utils";
-import { AttributeType, ProductStatus } from "@mercurjs/types";
+import {
+  AttributeType,
+  ProductStatus,
+  type CreateOfferDTO,
+  type CreateProductDTO,
+} from "@mercurjs/types";
 import { seedCatalog } from "./seed-catalog";
 import {
   approveSellerWorkflow,
@@ -78,7 +83,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
   });
 
   if (!defaultSalesChannel.length) {
-    // create the default sales channel
     const { result: salesChannelResult } = await createSalesChannelsWorkflow(
       container
     ).run({
@@ -120,7 +124,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info("Seeding region data...");
   const regionModuleService = container.resolve(Modules.REGION);
 
-  // Check if any of the countries are already assigned to a region
   const existingRegions = await regionModuleService.listRegions({}, {
     relations: ["countries"],
   });
@@ -136,13 +139,11 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   let region;
   if (unassignedCountries.length === 0) {
-    // All countries already assigned - find the region that has most of our countries
     region = existingRegions.find(r =>
       r.countries?.some(c => countries.includes(c.iso_2))
     ) || existingRegions[0];
     logger.info("Countries already assigned to a region, skipping region creation.");
   } else if (unassignedCountries.length < countries.length) {
-    // Some countries assigned, some not - only create with unassigned ones
     logger.info(`Some countries already assigned, creating region with: ${unassignedCountries.join(", ")}`);
     const { result: regionResult } = await createRegionsWorkflow(container).run({
       input: {
@@ -158,7 +159,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
     });
     region = regionResult[0];
   } else {
-    // No countries assigned - create full region
     const { result: regionResult } = await createRegionsWorkflow(container).run({
       input: {
         regions: [
@@ -223,7 +223,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
     publishableApiKey = publishableApiKeyResult
   }
 
-  // Link sales channel to API key (idempotent)
   try {
     await linkSalesChannelsToApiKeyWorkflow(container).run({
       input: {
@@ -243,9 +242,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info("Seeding product categories...");
   const productModule = container.resolve(Modules.PRODUCT);
 
-  // Top-level departments (shown as the storefront's top nav) mapped to their
-  // sub-categories (shown in the navbar bar / dropdown). Order here drives the
-  // nav order via `rank`.
+  // Departments (roots) and their sub-categories; array order sets nav `rank`.
   const CATEGORY_TREE: Record<string, string[]> = {
     Sandals: ["Slides", "Flip Flops", "Clogs"],
     Sneakers: ["Low Top", "High Top", "Retro"],
@@ -307,7 +304,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
   // Color/Condition to a single value each, so variant count stays size-driven.
   logger.info("Seeding global product attributes...");
 
-  // EU footwear sizing used as the size axis for every shoe product.
   const FOOTWEAR_SIZES = ["40", "41", "42", "43", "44", "45"];
   const COLOR_VALUES = [
     "Black",
@@ -379,7 +375,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
   const valueId = (attr: SeededAttribute, name: string) =>
     attr.values.find((v) => v.name === name)?.id;
 
-  // Fold a Shopify colorway string down to one of the base Color values.
   const COLOR_KEYWORDS: [string, string][] = [
     ["black", "Black"],
     ["white", "White"],
@@ -545,7 +540,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
       input: { seller_id: seller.id },
     });
 
-    const { data: members } = await query.graph({
+  const { data: members } = await query.graph({
       entity: "member",
       fields: ["id"],
       filters: { email: sellerConfig.email },
@@ -723,8 +718,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
     return handle;
   };
 
-  // Rotate products across each department's sub-categories so both the parent
-  // and child category pages have products.
   const childCursor: Record<string, number> = {};
   const nextChildId = (parent: string) => {
     const children = CATEGORY_TREE[parent];
@@ -733,7 +726,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
     return catByName.get(children[i])!.id;
   };
 
-  const products = catalog.map((item, index) => {
+  const products: CreateProductDTO[] = catalog.map((item, index) => {
     const handle = uniqueHandle(item.title);
     const skuBase = handle.toUpperCase().replace(/-/g, "");
     const images = item.images.map((url) => ({ url }));
@@ -782,21 +775,13 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
     return {
       title: item.title,
-      category_ids: [
-        catByName.get(item.category)!.id,
-        nextChildId(item.category),
-      ],
+      category_ids: [nextChildId(item.category)],
       description: item.description,
       handle,
       weight: item.footwear ? 1200 : 400,
       status: ProductStatus.PUBLISHED,
-      seller_ids: sellers.map((s) => s.id),
       thumbnail: images[0].url,
       images,
-      metadata: {
-        brand: item.brand,
-        colorway: item.colorway,
-      },
       attributes,
       variants,
     };
@@ -831,30 +816,18 @@ export default async function seedDemoData({ container }: ExecArgs) {
     entity: "product",
     fields: ["id", "handle", "variants.id", "variants.sku"],
     filters: {
-      handle: products.map((product) => product.handle),
+      handle: products
+        .map((product) => product.handle)
+        .filter((handle): handle is string => Boolean(handle)),
     },
   });
 
-  type OfferInput = {
-    seller_id: string;
-    created_by: string;
-    sku: string;
-    variant_id: string;
-    shipping_profile_id: string;
-    inventory_items: {
-      sku: string;
-      stock_levels: { location_id: string; stocked_quantity: number }[];
-    }[];
-    prices: { amount: number; currency_code: string }[];
-  };
-
-  const offers: OfferInput[] = [];
+  const offers: CreateOfferDTO[] = [];
 
   for (const product of seededProducts) {
     const basePrice = priceByHandle.get(product.handle) ?? 50;
 
-    // Pick a random, non-empty subset of sellers to carry this product, so some
-    // sellers list it and others don't (at least one always does).
+    // At least one seller always carries the product; the rest are random.
     const shuffledSellers = [...sellers].sort(() => rand() - 0.5);
     const participantCount = randInt(1, sellers.length);
     const participants = shuffledSellers.slice(0, participantCount);
@@ -864,7 +837,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
         id: string;
         sku: string | null;
       }[]) {
-        // A single seller may list the same variant more than once.
         const offerCount = randInt(1, 2);
         for (let o = 0; o < offerCount; o++) {
           const jitter = 1 + (rand() * 0.3 - 0.15); // ±15%
@@ -888,7 +860,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
                 ],
               },
             ],
-            prices: [
+           prices: [
               { amount: eur, currency_code: "eur" },
               { amount: usd, currency_code: "usd" },
             ],

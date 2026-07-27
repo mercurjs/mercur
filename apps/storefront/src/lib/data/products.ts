@@ -73,7 +73,7 @@ export const listProducts = async ({
   pageParam?: number;
   queryParams?: HttpTypes.FindParams &
     HttpTypes.StoreProductParams & { handle?: string[] };
-  category_id?: string;
+  category_id?: string | string[];
   collection_id?: string;
   countryCode?: string;
   regionId?: string;
@@ -142,7 +142,7 @@ export const listProductsWithSort = async ({
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams;
   sortBy?: SortOptions;
   countryCode: string;
-  category_id?: string;
+  category_id?: string | string[];
   collection_id?: string;
 }): Promise<{
   response: { products: HttpTypes.StoreProduct[]; count: number };

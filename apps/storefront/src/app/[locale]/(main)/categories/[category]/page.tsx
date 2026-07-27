@@ -1,5 +1,5 @@
 import { ProductListingSkeleton } from "@/components/organisms/ProductListingSkeleton/ProductListingSkeleton"
-import { getCategoryByHandle } from "@/lib/data/categories"
+import { getCategoryByHandle, collectCategorySubtreeIds } from "@/lib/data/categories"
 import { Suspense } from "react"
 
 import type { Metadata } from "next"
@@ -91,6 +91,10 @@ async function Category({
   if (!category) {
     return notFound()
   }
+
+  // Include the whole category subtree so a parent department page lists every
+  // product in its sub-categories, not just products attached to the parent.
+  const categoryIds = collectCategorySubtreeIds(category)
   const ua = (await headers()).get("user-agent") || ""
   const bot = isBot(ua)
 
@@ -110,7 +114,7 @@ async function Category({
   } = await listProducts({
     countryCode: locale,
     queryParams: { limit: 8, order: "created_at", fields: "id,title,handle" },
-    category_id: category.id,
+    category_id: categoryIds,
   })
 
   const itemList = jsonLdProducts.slice(0, 8).map((p, idx) => ({
@@ -159,9 +163,9 @@ async function Category({
 
       <Suspense fallback={<div data-testid="category-page-loading"><ProductListingSkeleton /></div>}>
         {bot ? (
-          <ProductListing category_id={category.id} showSidebar locale={locale} />
+          <ProductListing category_id={categoryIds} showSidebar locale={locale} />
         ) : (
-          <SearchProductsListing category_id={category.id} locale={locale} />
+          <SearchProductsListing category_id={categoryIds} locale={locale} />
         )}
       </Suspense>
     </main>
