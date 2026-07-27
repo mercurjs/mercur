@@ -202,8 +202,6 @@ medusaIntegrationTestRunner({
           adminHeaders,
         )
 
-        // The mirrored option must gain the late-added values, otherwise
-        // variant create fails "Option value 100g does not exist for option Weight".
         expect(await optionValues()).toEqual(
           expect.arrayContaining(["1g", "100g", "250g"]),
         )
