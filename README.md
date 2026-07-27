@@ -4,8 +4,6 @@
    <img src="https://cdn.prod.website-files.com/6790aeffc4b432ccaf1b56e5/67a225dc6fa298afc1cc4ae6_Mercur%20Cover.png" alt="Mercur">
   </a>
 
-  <h3 align="center">Mercur</h3>
-
   <p align="center">
    The open-source marketplace platform. A Mirakl alternative.
     <br />
