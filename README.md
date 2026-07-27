@@ -11,11 +11,11 @@
     <br />
     <a href="https://mercurjs.com/"><strong>Website</strong></a>
     &middot;
-    <a href="https://docs.mercurjs.com">Docs</a>
+    <a href="https://docs.mercurjs.com"><strong>Docs</strong></a>
     &middot;
-    <a href="https://demo.mercurjs.com/">Live Demo</a>
+    <a href="https://demo.mercurjs.com/"><strong>Live Demo</strong></a>
     &middot;
-    <a href="https://discord.gg/hnZBzc4NJU">Discord</a>
+    <a href="https://discord.gg/hnZBzc4NJU"><strong>Discord</strong></a>
   </p>
 </p>
 
