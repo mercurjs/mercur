@@ -60,7 +60,10 @@ export const OfferDetailGeneralSection = ({
 
     const confirmed = await prompt({
       title: t("general.areYouSure"),
-      description: t("offers.bulkDelete.description", { count: offerIds.length }),
+      description: t("offers.bulkDelete.description", {
+        count: offerIds.length,
+        storeName: t("offers.fields.store"),
+      }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
       variant: "danger",
