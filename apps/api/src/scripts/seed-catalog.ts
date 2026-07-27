@@ -1,5 +1,7 @@
-// Auto-generated from the Stadium Goods public Shopify feed (products.json).
-// Regenerate with scripts/gen-seed-catalog (see claude-progress notes). Do not hand-edit.
+// Demo catalog with fictional brands and generic product names. Titles, brands,
+// and colorways are invented for a trademark-safe marketplace demo — they do not
+// reference any real brand or protected product design. Product images are generic
+// AI-generated renders hosted from /static via the jsDelivr GitHub CDN.
 
 export type SeedCatalogItem = {
   title: string
@@ -14,619 +16,619 @@ export type SeedCatalogItem = {
 
 export const seedCatalog: SeedCatalogItem[] = [
   {
-    "title": "Birkenstock Arizona Big Buckle",
-    "brand": "Birkenstock",
+    "title": "Meridian Twin-Strap Buckle Sandal",
+    "brand": "Meridian",
     "colorway": "Black - Regular/Wide",
     "price": 155,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/c21g3y6q97397h1zy508zo8zbotl.png?v=1784818173"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/meridian-twin-strap-buckle-sandal-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "Birkenstock Arizona Big Buckle in Black - Regular/Wide."
+    "description": "Meridian Twin-Strap Buckle Sandal in Black - Regular/Wide."
   },
   {
-    "title": "Birkenstock Arizona Birko-Flor",
-    "brand": "Birkenstock",
-    "colorway": "Graceful Pearl White - Narrow",
+    "title": "Meridian Twin-Strap Sandal",
+    "brand": "Meridian",
+    "colorway": "Pearl White - Narrow",
     "price": 125,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/o6jtaffmw5nvpgeuxjjnjc52cim1.png?v=1784818082"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/meridian-twin-strap-sandal-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "Birkenstock Arizona Birko-Flor in Graceful Pearl White - Narrow."
+    "description": "Meridian Twin-Strap Sandal in Pearl White - Narrow."
   },
   {
-    "title": "Birkenstock Boston Felt",
-    "brand": "Birkenstock",
-    "colorway": "Concepts Anthracite",
+    "title": "Meridian Clog Slide",
+    "brand": "Meridian",
+    "colorway": "Anthracite",
     "price": 232,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/lblnwtrmnjmz5p9b7a505ax92b2p.png?v=1784818083"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/meridian-clog-slide-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "Birkenstock Boston Felt in Concepts Anthracite."
+    "description": "Meridian Clog Slide in Anthracite."
   },
   {
-    "title": "UGG GoldenGlow Slide",
-    "brand": "UGG",
+    "title": "Cloudpeak Golden Slide",
+    "brand": "Cloudpeak",
     "colorway": "Dark Sand",
     "price": 72,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/yzzejxa9ha0i3a2hdttbsoz2yv59.png?v=1784818112"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-golden-slide-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "UGG GoldenGlow Slide in Dark Sand."
+    "description": "Cloudpeak Golden Slide in Dark Sand."
   },
   {
-    "title": "Birkenstock London Wire Buckle",
-    "brand": "Birkenstock",
+    "title": "Meridian Wire Buckle Clog",
+    "brand": "Meridian",
     "colorway": "Vintage Wood Roast",
     "price": 226,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/63v80833jjnbn8hbwt5m78l4v2y5.png?v=1784818093"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/meridian-wire-buckle-clog-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "Birkenstock London Wire Buckle in Vintage Wood Roast."
+    "description": "Meridian Wire Buckle Clog in Vintage Wood Roast."
   },
   {
-    "title": "UGG GoldenGlow Sandal",
-    "brand": "UGG",
+    "title": "Cloudpeak Golden Sandal",
+    "brand": "Cloudpeak",
     "colorway": "Bay Fog",
     "price": 78,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/lf4ej5yzrak2wq850799grmw731i.png?v=1784818100"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-golden-sandal-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "UGG GoldenGlow Sandal in Bay Fog."
+    "description": "Cloudpeak Golden Sandal in Bay Fog."
   },
   {
-    "title": "Nike Kawa Slides",
-    "brand": "Nike",
+    "title": "Apex Pool Slides",
+    "brand": "Apex",
     "colorway": "Black",
     "price": 47,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/ib0gss4a7xhtj3lxcwksdybwjzja.png?v=1741693582",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/isfhuxtot50hg5lwvqt9wsthoxug.png?v=1741693582",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/tllaopeo9my2ji5xyt01zvyn771t.png?v=1741693582"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/apex-pool-slides-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/apex-pool-slides-2.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/apex-pool-slides-3.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "Nike Kawa Slides in Black."
+    "description": "Apex Pool Slides in Black."
   },
   {
-    "title": "Adidas Adimule Slides",
-    "brand": "Adidas",
+    "title": "Strive Mule Slides",
+    "brand": "Strive",
     "colorway": "Core Black Gum",
     "price": 106,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/v6tqmgyzc1mbzbyrkigd1xzpc599.png?v=1784818106"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-mule-slides-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "Adidas Adimule Slides in Core Black Gum."
+    "description": "Strive Mule Slides in Core Black Gum."
   },
   {
-    "title": "Crocs Classic Clog",
-    "brand": "Crocs",
+    "title": "Nimbus Classic Clog",
+    "brand": "Nimbus",
     "colorway": "Pond",
     "price": 60,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/lksy3og4e2cqljespw3fo37c9g29.png?v=1784818089"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/nimbus-classic-clog-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "Crocs Classic Clog in Pond."
+    "description": "Nimbus Classic Clog in Pond."
   },
   {
-    "title": "UGG Goldenstar Sandal",
-    "brand": "UGG",
+    "title": "Cloudpeak Starlet Sandal",
+    "brand": "Cloudpeak",
     "colorway": "Sand",
     "price": 83,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/uovlztxle5hx7rfzfc5ujrxhsbis.png?v=1784818141"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-starlet-sandal-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
-    "description": "UGG Goldenstar Sandal in Sand."
+    "description": "Cloudpeak Starlet Sandal in Sand."
   },
   {
-    "title": "Converse Chuck Taylor All Star Hi",
-    "brand": "Converse",
+    "title": "Cityline Canvas High Top",
+    "brand": "Cityline",
     "colorway": "Black Denim",
     "price": 82,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/eoxrfvfxvs7s27a0b2oddvvfeni5.png?v=1784882921"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cityline-canvas-high-top-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "Converse Chuck Taylor All Star Hi in Black Denim."
+    "description": "Cityline Canvas High Top in Black Denim."
   },
   {
-    "title": "NEW Balance 204L",
-    "brand": "NEW Balance",
+    "title": "Vantage 204 Runner",
+    "brand": "Vantage",
     "colorway": "Beige Brown",
     "price": 95,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/yqmv6sar8zehy8w6v7wot1jmm1p2.png?v=1784818179"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/vantage-204-runner-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "NEW Balance 204L in Beige Brown."
+    "description": "Vantage 204 Runner in Beige Brown."
   },
   {
-    "title": "Rhude Sherpa Runner",
-    "brand": "Rhude",
+    "title": "Halcyon Sherpa Runner",
+    "brand": "Halcyon",
     "colorway": "Cream",
     "price": 279,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/iyiprd47p6pzcojnznh9uvot69oy.png?v=1784818162"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/halcyon-sherpa-runner-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "Rhude Sherpa Runner in Cream."
+    "description": "Halcyon Sherpa Runner in Cream."
   },
   {
-    "title": "Adidas Rivalry Low",
-    "brand": "Adidas",
-    "colorway": "Demon Slayer Tanjiro",
+    "title": "Strive Rivalry Low",
+    "brand": "Strive",
+    "colorway": "Ember Red",
     "price": 119,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/hq72g9t09a2fmy3bed0bwv1nsymp.png?v=1784818123"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-rivalry-low-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "Adidas Rivalry Low in Demon Slayer Tanjiro."
+    "description": "Strive Rivalry Low in Ember Red."
   },
   {
-    "title": "Bape Sta Icon",
-    "brand": "Bape",
-    "colorway": "#2 Olive Drab Camo",
+    "title": "Comet Star Icon",
+    "brand": "Comet",
+    "colorway": "Olive Drab Camo",
     "price": 367,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/gb638e0la2iqf7n81s5es446q115.png?v=1784818072"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/comet-star-icon-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "Bape Sta Icon in #2 Olive Drab Camo."
+    "description": "Comet Star Icon in Olive Drab Camo."
   },
   {
-    "title": "Bape Sta",
-    "brand": "Bape",
-    "colorway": "#3 Brown Black Ostrich",
+    "title": "Comet Star",
+    "brand": "Comet",
+    "colorway": "Brown Black",
     "price": 367,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/611u76cu1rzh3l1rmpklh6xlmflr.png?v=1784818132"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/comet-star-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "Bape Sta in #3 Brown Black Ostrich."
+    "description": "Comet Star in Brown Black."
   },
   {
-    "title": "Bape Sta Icon Low",
-    "brand": "Bape",
-    "colorway": "#2 Green",
+    "title": "Comet Star Icon Low",
+    "brand": "Comet",
+    "colorway": "Green",
     "price": 367,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/gbr26w5n2b3is6tgyv9cbwvz457p.png?v=1784818144"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/comet-star-icon-low-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "Bape Sta Icon Low in #2 Green."
+    "description": "Comet Star Icon Low in Green."
   },
   {
-    "title": "UGG Disquette Slipper",
-    "brand": "UGG",
+    "title": "Cloudpeak Disc Slipper",
+    "brand": "Cloudpeak",
     "colorway": "Sand",
     "price": 113,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/neuzi5uy8r6himb4iqn3zibliedu.png?v=1784818131"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-disc-slipper-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "UGG Disquette Slipper in Sand."
+    "description": "Cloudpeak Disc Slipper in Sand."
   },
   {
-    "title": "Reebok SNS Twilight Zone Pump",
-    "brand": "Reebok",
+    "title": "Vector Twilight Pump",
+    "brand": "Vector",
     "colorway": "Neon Green",
     "price": 148,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/rGXHResyGVYtYfvr5KLpbCkP.png?v=1731545082",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/fEimyVfxD34uhZvCFPLjW3UD.png?v=1731545082",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/n4jvnuTKCBnUyRN2rqqmWNLx.png?v=1731545082"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/vector-twilight-pump-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/vector-twilight-pump-2.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/vector-twilight-pump-3.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "Reebok SNS Twilight Zone Pump in Neon Green."
+    "description": "Vector Twilight Pump in Neon Green."
   },
   {
-    "title": "Asics GT-1000 13",
-    "brand": "Asics",
-    "colorway": "Light Blue Light Sapphire",
+    "title": "Velocity Trail 1000 Runner",
+    "brand": "Velocity",
+    "colorway": "Light Blue Sapphire",
     "price": 131,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/0yuzlleisgqllnmplzbbs1t4icg1.png?v=1784818142"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/velocity-trail-1000-runner-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
-    "description": "Asics GT-1000 13 in Light Blue Light Sapphire."
+    "description": "Velocity Trail 1000 Runner in Light Blue Sapphire."
   },
   {
-    "title": "Adidas F50 Pro Mid-Cut Firm Ground Boots",
-    "brand": "Adidas",
-    "colorway": "Almost Blue / Semi Lucid Blue / Semi Solar Yellow",
+    "title": "Strive Pro Mid-Cut Firm Ground Cleats",
+    "brand": "Strive",
+    "colorway": "Aurora Blue Solar Yellow",
     "price": 250,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/xsdomrv0qq5cdhn1bqg0r0ucmv5h.png?v=1784818164"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-pro-mid-cut-firm-ground-cleats-1.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "Adidas F50 Pro Mid-Cut Firm Ground Boots in Almost Blue / Semi Lucid Blue / Semi Solar Yellow."
+    "description": "Strive Pro Mid-Cut Firm Ground Cleats in Aurora Blue Solar Yellow."
   },
   {
-    "title": "UGG Classic Mini Mod Boot",
-    "brand": "UGG",
+    "title": "Cloudpeak Classic Mini Boot",
+    "brand": "Cloudpeak",
     "colorway": "Black",
     "price": 155,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/cxjcm47nndlk9zfnmm3jzb6src8l.png?v=1784818084"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-classic-mini-boot-1.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "UGG Classic Mini Mod Boot in Black."
+    "description": "Cloudpeak Classic Mini Boot in Black."
   },
   {
-    "title": "UGG Classic Ultra Mini New Heights Boot",
-    "brand": "UGG",
+    "title": "Cloudpeak Ultra Mini Boot",
+    "brand": "Cloudpeak",
     "colorway": "Hickory",
     "price": 160,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/anucqw3c186l5tu0s6cwjmsq29yr.png?v=1784818145"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-ultra-mini-boot-1.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "UGG Classic Ultra Mini New Heights Boot in Hickory."
+    "description": "Cloudpeak Ultra Mini Boot in Hickory."
   },
   {
-    "title": "UGG Neumel II Boot",
-    "brand": "UGG",
+    "title": "Cloudpeak Chukka II Boot",
+    "brand": "Cloudpeak",
     "colorway": "Dusted Cocoa",
     "price": 149,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/8vf16518wz0k5yzbg7gce8eer3ul.png?v=1784818173"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-chukka-ii-boot-1.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "UGG Neumel II Boot in Dusted Cocoa."
+    "description": "Cloudpeak Chukka II Boot in Dusted Cocoa."
   },
   {
-    "title": "UGG Bailey Bow Boots",
-    "brand": "UGG",
+    "title": "Cloudpeak Bow Boots",
+    "brand": "Cloudpeak",
     "colorway": "Anemone",
     "price": 132,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/81rso23lpi5pfx0nzilclvdujka2.png?v=1784731307"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-bow-boots-1.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "UGG Bailey Bow Boots in Anemone."
+    "description": "Cloudpeak Bow Boots in Anemone."
   },
   {
-    "title": "Sorel Tivoli IV Tall Waterproof Boots",
-    "brand": "Sorel",
+    "title": "Tundra Tall Waterproof Boots",
+    "brand": "Tundra",
     "colorway": "Quarry",
     "price": 169,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/kk0ih9rzw4296cki8bg85htljqka.png?v=1784731423"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/tundra-tall-waterproof-boots-1.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "Sorel Tivoli IV Tall Waterproof Boots in Quarry."
+    "description": "Tundra Tall Waterproof Boots in Quarry."
   },
   {
-    "title": "UGG Bailey Button I Boots",
-    "brand": "UGG",
+    "title": "Cloudpeak Button Boots",
+    "brand": "Cloudpeak",
     "colorway": "Chocolate Brown",
     "price": 97,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/vldtjmaig6qcnziuybaz738222m9.png?v=1761786198"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-button-boots-1.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "UGG Bailey Button I Boots in Chocolate Brown."
+    "description": "Cloudpeak Button Boots in Chocolate Brown."
   },
   {
-    "title": "Timberland Heritage Boot",
-    "brand": "Timberland",
+    "title": "Redwood Heritage Boot",
+    "brand": "Redwood",
     "colorway": "Wheat Nubuck",
     "price": 155,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/ksbotfj9vvierc5d6hsioe012nu6.png?v=1759979769",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/1rf4k0g7qzyupg26cpofam5hink0.png?v=1759979767",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/xu833xk9vmhgmkxzns8tor5ogpk8.png?v=1759979767"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/redwood-heritage-boot-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/redwood-heritage-boot-2.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/redwood-heritage-boot-3.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "Timberland Heritage Boot in Wheat Nubuck."
+    "description": "Redwood Heritage Boot in Wheat Nubuck."
   },
   {
-    "title": "Clarks Wallabee Boot",
-    "brand": "Clarks",
-    "colorway": "Post Archive Faction - Grey",
+    "title": "Harlow Moccasin Boot",
+    "brand": "Harlow",
+    "colorway": "Grey",
     "price": 167,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/oydh5s34k6zf5s3r3wgknmb9za8z.png?v=1761277117"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/harlow-moccasin-boot-1.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "Clarks Wallabee Boot in Post Archive Faction - Grey."
+    "description": "Harlow Moccasin Boot in Grey."
   },
   {
-    "title": "UGG Shasta Mid Boots",
-    "brand": "UGG",
-    "colorway": "Chestnut / Black Waterproof",
+    "title": "Cloudpeak Summit Mid Boots",
+    "brand": "Cloudpeak",
+    "colorway": "Chestnut Black Waterproof",
     "price": 273,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/hiql9x4dp1bho4qayou8tyosdofy.png?v=1749556824"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-summit-mid-boots-1.png"
     ],
     "category": "Boots",
     "footwear": true,
-    "description": "UGG Shasta Mid Boots in Chestnut / Black Waterproof."
+    "description": "Cloudpeak Summit Mid Boots in Chestnut Black Waterproof."
   },
   {
-    "title": "Adidas F50 Pro FG",
-    "brand": "Adidas",
-    "colorway": "Turbo Aurora Black Platinum Metallic",
+    "title": "Strive Pro FG Cleats",
+    "brand": "Strive",
+    "colorway": "Aurora Black Platinum",
     "price": 131,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/jbisr636tunqzsizrrhbjh97w0l7.png?v=1784818188"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-pro-fg-cleats-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "Adidas F50 Pro FG in Turbo Aurora Black Platinum Metallic."
+    "description": "Strive Pro FG Cleats in Aurora Black Platinum."
   },
   {
-    "title": "Adidas Predator Pro FG",
-    "brand": "Adidas",
-    "colorway": "Players Pack",
+    "title": "Strive Talon Pro FG Cleats",
+    "brand": "Strive",
+    "colorway": "Midnight Navy",
     "price": 155,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/xkrq4h0vqi99ujor27e6uh91103b.png?v=1784818134"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-talon-pro-fg-cleats-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "Adidas Predator Pro FG in Players Pack."
+    "description": "Strive Talon Pro FG Cleats in Midnight Navy."
   },
   {
-    "title": "Adidas Taekwondo F50",
-    "brand": "Adidas",
-    "colorway": "Concepts Selene",
+    "title": "Strive Taekwondo Trainers",
+    "brand": "Strive",
+    "colorway": "Silver Lilac",
     "price": 119,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/5j4kdg3qe2yeluxxgmnf3r60k444.png?v=1784818132"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-taekwondo-trainers-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "Adidas Taekwondo F50 in Concepts Selene."
+    "description": "Strive Taekwondo Trainers in Silver Lilac."
   },
   {
-    "title": "Adidas Predator League FG",
-    "brand": "Adidas",
-    "colorway": "Almost Blue Lucid Pink Semi Lucid Blue",
+    "title": "Strive Talon League FG Cleats",
+    "brand": "Strive",
+    "colorway": "Blue Pink",
     "price": 108,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/vrgmegl6ffy2llg7okjfcpixqcta.png?v=1784818131"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-talon-league-fg-cleats-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "Adidas Predator League FG in Almost Blue Lucid Pink Semi Lucid Blue."
+    "description": "Strive Talon League FG Cleats in Blue Pink."
   },
   {
-    "title": "Adidas F50 League FG/MG",
-    "brand": "Adidas",
-    "colorway": "Messi Player Pack 1",
+    "title": "Strive League FG/MG Cleats",
+    "brand": "Strive",
+    "colorway": "Sky Blue",
     "price": 95,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/qqzc61o173ds54p2ecurxu6evhyg.png?v=1784818120"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-league-fg-mg-cleats-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "Adidas F50 League FG/MG in Messi Player Pack 1."
+    "description": "Strive League FG/MG Cleats in Sky Blue."
   },
   {
-    "title": "ON Running Cloudrift",
-    "brand": "ON Running",
+    "title": "Stride Drift Runner",
+    "brand": "Stride",
     "colorway": "White Cobalt",
     "price": 190,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/tpbfeslrzjp4hpofoyi0zs7v2t4w.png?v=1740750334"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/stride-drift-runner-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "ON Running Cloudrift in White Cobalt."
+    "description": "Stride Drift Runner in White Cobalt."
   },
   {
-    "title": "Adidas Taekwondo Mei Ballet",
-    "brand": "Adidas",
+    "title": "Strive Taekwondo Ballet Trainers",
+    "brand": "Strive",
     "colorway": "Maroon",
     "price": 140,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/sjb0hu28nramlez7fx31twryloxm.png?v=1784818142"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-taekwondo-ballet-trainers-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "Adidas Taekwondo Mei Ballet in Maroon."
+    "description": "Strive Taekwondo Ballet Trainers in Maroon."
   },
   {
-    "title": "Asics Gel-Kinetic Fluent",
-    "brand": "Asics",
+    "title": "Velocity Kinetic Runner",
+    "brand": "Velocity",
     "colorway": "White Truffle Grey",
     "price": 214,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/etzuxl832z6x1r08956xjkog5lmr.png?v=1784818108"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/velocity-kinetic-runner-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "Asics Gel-Kinetic Fluent in White Truffle Grey."
+    "description": "Velocity Kinetic Runner in White Truffle Grey."
   },
   {
-    "title": "Asics Gel-Kayano 32",
-    "brand": "Asics",
+    "title": "Velocity Motion 32 Runner",
+    "brand": "Velocity",
     "colorway": "Black Graphite Grey",
     "price": 196,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/u0md7j6tyiplsji3vhshfquythge.png?v=1784818131"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/velocity-motion-32-runner-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "Asics Gel-Kayano 32 in Black Graphite Grey."
+    "description": "Velocity Motion 32 Runner in Black Graphite Grey."
   },
   {
-    "title": "Nike Air Zoom Pegasus 41",
-    "brand": "Nike",
-    "colorway": "White / Hyper Turquoise / Concord / Black",
+    "title": "Apex Cloud Runner 41",
+    "brand": "Apex",
+    "colorway": "White Turquoise Concord Black",
     "price": 173,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/tbgqe2gsgu0ewmq1ehth26fcvo6s.png?v=1784818175"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/apex-cloud-runner-41-1.png"
     ],
     "category": "Sport",
     "footwear": true,
-    "description": "Nike Air Zoom Pegasus 41 in White / Hyper Turquoise / Concord / Black."
+    "description": "Apex Cloud Runner 41 in White Turquoise Concord Black."
   },
   {
-    "title": "Chrome Hearts CH Trucker Hat",
-    "brand": "Chrome Hearts",
+    "title": "Ironforge Trucker Hat",
+    "brand": "Ironforge",
     "colorway": "Honolulu",
     "price": 949,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/rdt369xxsz1oqn1yp4xsf7y7rj36.png?v=1753906530",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/ba1dvqk8ogj1kwsjf17hs9jd8csx.png?v=1753906530"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/ironforge-trucker-hat-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/ironforge-trucker-hat-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Chrome Hearts CH Trucker Hat in Honolulu."
+    "description": "Ironforge Trucker Hat in Honolulu."
   },
   {
-    "title": "Denim Tears CDG Watermelon Pouch",
-    "brand": "Denim Tears",
+    "title": "Cottonwood Watermelon Pouch",
+    "brand": "Cottonwood",
     "colorway": "Green",
     "price": 313,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/dywa9kddsbj06tj4mwn6bqsbbcjh.png?v=1784819126",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/nhfe46bd8cmc4nyai2kvfwgk82oo.png?v=1784819125"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-watermelon-pouch-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-watermelon-pouch-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Denim Tears CDG Watermelon Pouch in Green."
+    "description": "Cottonwood Watermelon Pouch in Green."
   },
   {
-    "title": "Denim Tears Union Jack Wallet",
-    "brand": "Denim Tears",
+    "title": "Cottonwood Flag Wallet",
+    "brand": "Cottonwood",
     "colorway": "Multicolor",
     "price": 313,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/pxqv3c2nr08noqlsk3tpsuco0a57.png?v=1784819102",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/h0t4wzxlw3699t10bo16b2zw67wh.png?v=1784819102"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-wallet-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-wallet-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Denim Tears Union Jack Wallet in Multicolor."
+    "description": "Cottonwood Flag Wallet in Multicolor."
   },
   {
-    "title": "Denim Tears Union Jack Zip Wallet",
-    "brand": "Denim Tears",
+    "title": "Cottonwood Flag Zip Wallet",
+    "brand": "Cottonwood",
     "colorway": "Multicolor",
     "price": 313,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/9bvlmgvc2p37dzrhpztuuk9697xm.png?v=1784819093",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/93079ttnrmclbin1u1p0ew2nqbvo.png?v=1784819093"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-zip-wallet-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-zip-wallet-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Denim Tears Union Jack Zip Wallet in Multicolor."
+    "description": "Cottonwood Flag Zip Wallet in Multicolor."
   },
   {
-    "title": "Denim Tears Union Jack Pouch",
-    "brand": "Denim Tears",
+    "title": "Cottonwood Flag Pouch",
+    "brand": "Cottonwood",
     "colorway": "Multicolor",
     "price": 313,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/judvvddzn9ll9qukrb6ej1zt3fz8.png?v=1784819076",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/f6m3cui559ktlm9n9jbctbb2m3s5.png?v=1784819076"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-pouch-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-pouch-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Denim Tears Union Jack Pouch in Multicolor."
+    "description": "Cottonwood Flag Pouch in Multicolor."
   },
   {
-    "title": "Kith Arwen Reversible Reflective Bucket Hat",
-    "brand": "Kith",
+    "title": "Union Standard Reversible Bucket Hat",
+    "brand": "Union Standard",
     "colorway": "Black",
     "price": 76,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/12m0soj2icw23dunkpp5y4378af2.png?v=1784819062",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/kves6t2zt9b9eknivtcr15m94gzm.png?v=1784819062"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/union-standard-reversible-bucket-hat-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/union-standard-reversible-bucket-hat-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Kith Arwen Reversible Reflective Bucket Hat in Black."
+    "description": "Union Standard Reversible Bucket Hat in Black."
   },
   {
-    "title": "Denim Tears New Era ADG Cap",
-    "brand": "Denim Tears",
+    "title": "Cottonwood Classic Cap",
+    "brand": "Cottonwood",
     "colorway": "Purple",
     "price": 73,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/c93shza0ovqecdn61aaezglnnozg.png?v=1784819058",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/0tdi6twwnsp30pi828nasy24xk1v.png?v=1784819057"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-classic-cap-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-classic-cap-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Denim Tears New Era ADG Cap in Purple."
+    "description": "Cottonwood Classic Cap in Purple."
   },
   {
-    "title": "Denim Tears Watermelon Wallet",
-    "brand": "Denim Tears",
+    "title": "Cottonwood Watermelon Wallet",
+    "brand": "Cottonwood",
     "colorway": "Green",
     "price": 313,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/jihrjvvymy2offh196w2kw352t8v.png?v=1784819053",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/hirmp5pg7cnp3nvvtcz1fj2n6165.png?v=1784819052"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-watermelon-wallet-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-watermelon-wallet-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Denim Tears Watermelon Wallet in Green."
+    "description": "Cottonwood Watermelon Wallet in Green."
   },
   {
-    "title": "Denim Tears Late Capitalism Trucker Hat",
-    "brand": "Denim Tears",
+    "title": "Cottonwood Slogan Trucker Hat",
+    "brand": "Cottonwood",
     "colorway": "Orange",
     "price": 66,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/kn03scfzp871ug0wdj5gzjrgpv8n.png?v=1784819049",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/d7tunu19okiz83qsubaeirej8qmc.png?v=1784819049"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-slogan-trucker-hat-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-slogan-trucker-hat-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Denim Tears Late Capitalism Trucker Hat in Orange."
+    "description": "Cottonwood Slogan Trucker Hat in Orange."
   },
   {
-    "title": "Denim Tears Mary Trucker Cap",
-    "brand": "Denim Tears",
+    "title": "Cottonwood Meadow Trucker Cap",
+    "brand": "Cottonwood",
     "colorway": "Yellow",
     "price": 66,
     "images": [
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/aqym4ncgze7lcwomzadci5j7t6bp.png?v=1784819038",
-      "https://cdn.shopify.com/s/files/1/0659/1168/5316/files/vtp647noei13jsswux3r3q6ctn93.png?v=1784819038"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-meadow-trucker-cap-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-meadow-trucker-cap-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
-    "description": "Denim Tears Mary Trucker Cap in Yellow."
+    "description": "Cottonwood Meadow Trucker Cap in Yellow."
   }
 ]
