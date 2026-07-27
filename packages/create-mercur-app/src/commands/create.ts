@@ -64,6 +64,7 @@ export const create = new Command()
     process.cwd()
   )
   .option("--no-deps", "skip installing dependencies.")
+  .option("--skip-storefront", "skip adding the Next.js storefront.", false)
   .option("--skip-db", "skip database configuration.", false)
   .option("--skip-email", "skip email prompt.", false)
   .option("--db-connection-string <string>", "PostgreSQL connection string.")
@@ -125,6 +126,18 @@ export const create = new Command()
         template = "basic";
       }
 
+      let addStorefront = false;
+      if (template === "basic" && !opts.skipStorefront) {
+        const { wantsStorefront } = await prompts({
+          type: "confirm",
+          name: "wantsStorefront",
+          message: `Add a ${highlighter.info("Next.js storefront")}?`,
+          initial: true,
+        });
+
+        addStorefront = Boolean(wantsStorefront);
+      }
+
       if (!opts.skipEmail) {
         const { wantsEmail } = await prompts({
           type: "confirm",
@@ -157,6 +170,18 @@ export const create = new Command()
         template: template,
       });
       downloadSpinner.succeed("Template downloaded successfully.");
+
+      if (addStorefront) {
+        const storefrontSpinner = spinner("Adding Next.js storefront...").start();
+        try {
+          await downloadStorefront({ projectDir });
+          storefrontSpinner.succeed("Next.js storefront added successfully.");
+        } catch (error) {
+          storefrontSpinner.fail(
+            `Failed to add storefront${error instanceof Error ? `: ${error.message}` : ""}.`
+          );
+        }
+      }
 
       const packageManager = await resolveProjectPackageManager();
       await updateRootPackageJson(projectDir, projectName, packageManager);
@@ -332,6 +357,31 @@ async function createOrFindProjectDir(projectDir: string): Promise<void> {
   }
 }
 
+// Extracts a single directory out of the repo tarball. `strip` controls how many
+// leading path segments are removed so files land at the right place under `cwd`.
+async function downloadRepoDir({
+  cwd,
+  repoPath,
+  strip,
+}: {
+  cwd: string;
+  repoPath: string;
+  strip: number;
+}) {
+  const url = `https://codeload.github.com/mercurjs/mercur/tar.gz/${DEFAULT_BRANCH}`;
+  const branchDir = `mercur-${DEFAULT_BRANCH.replace(/^v/, "").replaceAll("/", "-")}`;
+  const filter = `${branchDir}/${repoPath}/`;
+
+  await pipeline(
+    await downloadTarStream(url),
+    x({
+      cwd,
+      filter: (p) => p.includes(filter),
+      strip,
+    })
+  );
+}
+
 async function downloadTemplate({
   projectDir,
   template,
@@ -339,18 +389,29 @@ async function downloadTemplate({
   projectDir: string;
   template: keyof typeof CREATE_TEMPLATES;
 }) {
-  const url = `https://codeload.github.com/mercurjs/mercur/tar.gz/${DEFAULT_BRANCH}`;
   const templatePath = CREATE_TEMPLATES[template].path;
-  const filter = `mercur-${DEFAULT_BRANCH.replace(/^v/, "").replaceAll("/", "-")}/templates/${templatePath}/`;
+  const repoPath = `templates/${templatePath}`;
 
-  await pipeline(
-    await downloadTarStream(url),
-    x({
-      cwd: projectDir,
-      filter: (p) => p.includes(filter),
-      strip: 2 + templatePath.split("/").length,
-    })
-  );
+  // Drop the branch dir + every segment of `repoPath` so the template root
+  // becomes the project root.
+  await downloadRepoDir({
+    cwd: projectDir,
+    repoPath,
+    strip: 1 + repoPath.split("/").length,
+  });
+}
+
+async function downloadStorefront({ projectDir }: { projectDir: string }) {
+  const appsDir = path.join(projectDir, "apps");
+  await fs.ensureDir(appsDir);
+
+  // Drop only the branch dir so files keep their `apps/storefront/...` prefix
+  // and land alongside the other workspace apps.
+  await downloadRepoDir({
+    cwd: projectDir,
+    repoPath: "apps/storefront",
+    strip: 1,
+  });
 }
 
 async function downloadTarStream(url: string) {
