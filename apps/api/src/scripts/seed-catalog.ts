@@ -1,7 +1,7 @@
 // Demo catalog with fictional brands and generic product names. Titles, brands,
 // and colorways are invented for a trademark-safe marketplace demo — they do not
 // reference any real brand or protected product design. Product images are generic
-// AI-generated renders hosted from /static via the jsDelivr GitHub CDN.
+// AI-generated renders hosted from /static via the jsDelivr GitHub CDN (main branch).
 
 export type SeedCatalogItem = {
   title: string
@@ -21,7 +21,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Black - Regular/Wide",
     "price": 155,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/meridian-twin-strap-buckle-sandal-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-twin-strap-buckle-sandal-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -33,7 +33,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Pearl White - Narrow",
     "price": 125,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/meridian-twin-strap-sandal-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-twin-strap-sandal-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -45,7 +45,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Anthracite",
     "price": 232,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/meridian-clog-slide-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-clog-slide-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -57,7 +57,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Dark Sand",
     "price": 72,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-golden-slide-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-golden-slide-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -69,7 +69,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Vintage Wood Roast",
     "price": 226,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/meridian-wire-buckle-clog-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-wire-buckle-clog-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -81,7 +81,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Bay Fog",
     "price": 78,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-golden-sandal-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-golden-sandal-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -93,9 +93,9 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Black",
     "price": 47,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/apex-pool-slides-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/apex-pool-slides-2.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/apex-pool-slides-3.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/apex-pool-slides-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/apex-pool-slides-2.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/apex-pool-slides-3.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -107,7 +107,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Core Black Gum",
     "price": 106,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-mule-slides-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-mule-slides-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -119,7 +119,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Pond",
     "price": 60,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/nimbus-classic-clog-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/nimbus-classic-clog-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -131,7 +131,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Sand",
     "price": 83,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-starlet-sandal-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-starlet-sandal-1.png"
     ],
     "category": "Sandals",
     "footwear": true,
@@ -143,7 +143,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Black Denim",
     "price": 82,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cityline-canvas-high-top-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cityline-canvas-high-top-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -155,7 +155,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Beige Brown",
     "price": 95,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/vantage-204-runner-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/vantage-204-runner-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -167,7 +167,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Cream",
     "price": 279,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/halcyon-sherpa-runner-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/halcyon-sherpa-runner-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -179,7 +179,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Ember Red",
     "price": 119,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-rivalry-low-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-rivalry-low-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -191,7 +191,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Olive Drab Camo",
     "price": 367,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/comet-star-icon-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/comet-star-icon-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -203,7 +203,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Brown Black",
     "price": 367,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/comet-star-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/comet-star-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -215,7 +215,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Green",
     "price": 367,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/comet-star-icon-low-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/comet-star-icon-low-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -227,7 +227,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Sand",
     "price": 113,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-disc-slipper-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-disc-slipper-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -239,9 +239,9 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Neon Green",
     "price": 148,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/vector-twilight-pump-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/vector-twilight-pump-2.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/vector-twilight-pump-3.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/vector-twilight-pump-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/vector-twilight-pump-2.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/vector-twilight-pump-3.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -253,7 +253,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Light Blue Sapphire",
     "price": 131,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/velocity-trail-1000-runner-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/velocity-trail-1000-runner-1.png"
     ],
     "category": "Sneakers",
     "footwear": true,
@@ -265,7 +265,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Aurora Blue Solar Yellow",
     "price": 250,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-pro-mid-cut-firm-ground-cleats-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-pro-mid-cut-firm-ground-cleats-1.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -277,7 +277,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Black",
     "price": 155,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-classic-mini-boot-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-classic-mini-boot-1.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -289,7 +289,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Hickory",
     "price": 160,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-ultra-mini-boot-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-ultra-mini-boot-1.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -301,7 +301,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Dusted Cocoa",
     "price": 149,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-chukka-ii-boot-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-chukka-ii-boot-1.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -313,7 +313,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Anemone",
     "price": 132,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-bow-boots-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-bow-boots-1.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -325,7 +325,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Quarry",
     "price": 169,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/tundra-tall-waterproof-boots-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/tundra-tall-waterproof-boots-1.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -337,7 +337,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Chocolate Brown",
     "price": 97,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-button-boots-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-button-boots-1.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -349,9 +349,9 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Wheat Nubuck",
     "price": 155,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/redwood-heritage-boot-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/redwood-heritage-boot-2.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/redwood-heritage-boot-3.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/redwood-heritage-boot-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/redwood-heritage-boot-2.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/redwood-heritage-boot-3.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -363,7 +363,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Grey",
     "price": 167,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/harlow-moccasin-boot-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/harlow-moccasin-boot-1.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -375,7 +375,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Chestnut Black Waterproof",
     "price": 273,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cloudpeak-summit-mid-boots-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-summit-mid-boots-1.png"
     ],
     "category": "Boots",
     "footwear": true,
@@ -387,7 +387,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Aurora Black Platinum",
     "price": 131,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-pro-fg-cleats-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-pro-fg-cleats-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -399,7 +399,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Midnight Navy",
     "price": 155,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-talon-pro-fg-cleats-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-talon-pro-fg-cleats-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -411,7 +411,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Silver Lilac",
     "price": 119,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-taekwondo-trainers-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-taekwondo-trainers-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -423,7 +423,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Blue Pink",
     "price": 108,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-talon-league-fg-cleats-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-talon-league-fg-cleats-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -435,7 +435,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Sky Blue",
     "price": 95,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-league-fg-mg-cleats-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-league-fg-mg-cleats-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -447,7 +447,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "White Cobalt",
     "price": 190,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/stride-drift-runner-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/stride-drift-runner-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -459,7 +459,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Maroon",
     "price": 140,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/strive-taekwondo-ballet-trainers-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-taekwondo-ballet-trainers-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -471,7 +471,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "White Truffle Grey",
     "price": 214,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/velocity-kinetic-runner-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/velocity-kinetic-runner-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -483,7 +483,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Black Graphite Grey",
     "price": 196,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/velocity-motion-32-runner-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/velocity-motion-32-runner-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -495,7 +495,7 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "White Turquoise Concord Black",
     "price": 173,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/apex-cloud-runner-41-1.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/apex-cloud-runner-41-1.png"
     ],
     "category": "Sport",
     "footwear": true,
@@ -507,8 +507,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Honolulu",
     "price": 949,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/ironforge-trucker-hat-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/ironforge-trucker-hat-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/ironforge-trucker-hat-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/ironforge-trucker-hat-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
@@ -520,8 +520,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Green",
     "price": 313,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-watermelon-pouch-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-watermelon-pouch-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-watermelon-pouch-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-watermelon-pouch-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
@@ -533,8 +533,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Multicolor",
     "price": 313,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-wallet-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-wallet-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-flag-wallet-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-flag-wallet-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
@@ -546,8 +546,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Multicolor",
     "price": 313,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-zip-wallet-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-zip-wallet-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-flag-zip-wallet-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-flag-zip-wallet-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
@@ -559,8 +559,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Multicolor",
     "price": 313,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-pouch-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-flag-pouch-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-flag-pouch-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-flag-pouch-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
@@ -572,8 +572,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Black",
     "price": 76,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/union-standard-reversible-bucket-hat-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/union-standard-reversible-bucket-hat-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/union-standard-reversible-bucket-hat-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/union-standard-reversible-bucket-hat-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
@@ -585,8 +585,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Purple",
     "price": 73,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-classic-cap-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-classic-cap-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-classic-cap-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-classic-cap-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
@@ -598,8 +598,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Green",
     "price": 313,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-watermelon-wallet-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-watermelon-wallet-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-watermelon-wallet-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-watermelon-wallet-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
@@ -611,8 +611,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Orange",
     "price": 66,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-slogan-trucker-hat-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-slogan-trucker-hat-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-slogan-trucker-hat-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-slogan-trucker-hat-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
@@ -624,8 +624,8 @@ export const seedCatalog: SeedCatalogItem[] = [
     "colorway": "Yellow",
     "price": 66,
     "images": [
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-meadow-trucker-cap-1.png",
-      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@feat/b2c-storefront/static/cottonwood-meadow-trucker-cap-2.png"
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-meadow-trucker-cap-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cottonwood-meadow-trucker-cap-2.png"
     ],
     "category": "Accessories",
     "footwear": false,
