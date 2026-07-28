@@ -30,9 +30,6 @@ export const ProductListDataTable = () => {
     | Awaited<ReturnType<typeof productListLoader>>
     | undefined;
 
-  // The loader only prefetches the first page, so seeding it as `initialData`
-  // on later pages would make TanStack Query serve stale first-page rows for
-  // the whole `staleTime` window instead of fetching the requested offset.
   const initialData = searchParams.offset ? undefined : loaderData;
 
   const { products, count, isLoading, isError, error } = useProducts(
