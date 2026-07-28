@@ -1,6 +1,6 @@
 {
-  "name": "b2c-storefront",
-  "version": "1.5.4",
+  "name": "@mercurjs/storefront",
+  "version": "2.1.1",
   "private": true,
   "scripts": {
     "dev": "next dev --turbopack",
