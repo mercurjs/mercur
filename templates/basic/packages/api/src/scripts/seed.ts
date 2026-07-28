@@ -4,14 +4,19 @@ import {
   Modules,
   toHandle,
 } from "@medusajs/framework/utils";
-import { ProductStatus, type CreateOfferDTO } from "@mercurjs/types";
+import {
+  AttributeType,
+  ProductStatus,
+  type CreateOfferDTO,
+  type CreateProductDTO,
+} from "@mercurjs/types";
 import {
   approveSellerWorkflow,
   createOffersWorkflow,
+  createProductAttributesWorkflow,
   createProductsWorkflow,
   createSellerAccountWorkflow,
   createSellerShippingOptionsWorkflow,
-  createSellerShippingProfilesWorkflow,
   createSellerStockLocationsWorkflow,
 } from "@mercurjs/core/workflows";
 import {
@@ -26,12 +31,177 @@ import {
   createRegionsWorkflow,
   createSalesChannelsWorkflow,
   createServiceZonesWorkflow,
+  createShippingProfilesWorkflow,
   createTaxRegionsWorkflow,
   linkSalesChannelsToApiKeyWorkflow,
   linkSalesChannelsToStockLocationWorkflow,
   updateStoresStep,
   updateStoresWorkflow,
 } from "@medusajs/medusa/core-flows";
+
+// Demo catalog with fictional brands and generic product names. Titles, brands,
+// and colorways are invented for a trademark-safe marketplace demo — they do not
+// reference any real brand or protected product design. Product images are generic
+// AI-generated renders hosted from /static via the jsDelivr GitHub CDN (main branch).
+type SeedCatalogItem = {
+  title: string;
+  brand: string;
+  colorway: string;
+  category: "Sandals" | "Sneakers" | "Boots" | "Sport" | "Accessories";
+  price: number;
+  footwear: boolean;
+  description: string;
+  images: string[];
+};
+
+const seedCatalog: SeedCatalogItem[] = [
+  {
+    title: "Meridian Twin-Strap Buckle Sandal",
+    brand: "Meridian",
+    colorway: "Black - Regular/Wide",
+    price: 155,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-twin-strap-buckle-sandal-1.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Meridian Twin-Strap Buckle Sandal in Black - Regular/Wide.",
+  },
+  {
+    title: "Meridian Twin-Strap Sandal",
+    brand: "Meridian",
+    colorway: "Pearl White - Narrow",
+    price: 125,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-twin-strap-sandal-1.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Meridian Twin-Strap Sandal in Pearl White - Narrow.",
+  },
+  {
+    title: "Meridian Clog Slide",
+    brand: "Meridian",
+    colorway: "Anthracite",
+    price: 232,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-clog-slide-1.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Meridian Clog Slide in Anthracite.",
+  },
+  {
+    title: "Cloudpeak Golden Slide",
+    brand: "Cloudpeak",
+    colorway: "Dark Sand",
+    price: 72,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-golden-slide-1.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Cloudpeak Golden Slide in Dark Sand.",
+  },
+  {
+    title: "Meridian Wire Buckle Clog",
+    brand: "Meridian",
+    colorway: "Vintage Wood Roast",
+    price: 226,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-wire-buckle-clog-1.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Meridian Wire Buckle Clog in Vintage Wood Roast.",
+  },
+  {
+    title: "Cloudpeak Golden Sandal",
+    brand: "Cloudpeak",
+    colorway: "Bay Fog",
+    price: 78,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-golden-sandal-1.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Cloudpeak Golden Sandal in Bay Fog.",
+  },
+  {
+    title: "Apex Pool Slides",
+    brand: "Apex",
+    colorway: "Black",
+    price: 47,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/apex-pool-slides-1.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/apex-pool-slides-2.png",
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/apex-pool-slides-3.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Apex Pool Slides in Black.",
+  },
+  {
+    title: "Strive Mule Slides",
+    brand: "Strive",
+    colorway: "Core Black Gum",
+    price: 106,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-mule-slides-1.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Strive Mule Slides in Core Black Gum.",
+  },
+  {
+    title: "Nimbus Classic Clog",
+    brand: "Nimbus",
+    colorway: "Pond",
+    price: 60,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/nimbus-classic-clog-1.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Nimbus Classic Clog in Pond.",
+  },
+  {
+    title: "Cloudpeak Starlet Sandal",
+    brand: "Cloudpeak",
+    colorway: "Sand",
+    price: 83,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-starlet-sandal-1.png",
+    ],
+    category: "Sandals",
+    footwear: true,
+    description: "Cloudpeak Starlet Sandal in Sand.",
+  },
+  {
+    title: "Cityline Canvas High Top",
+    brand: "Cityline",
+    colorway: "Black Denim",
+    price: 82,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cityline-canvas-high-top-1.png",
+    ],
+    category: "Sneakers",
+    footwear: true,
+    description: "Cityline Canvas High Top in Black Denim.",
+  },
+  {
+    title: "Vantage 204 Runner",
+    brand: "Vantage",
+    colorway: "Beige Brown",
+    price: 95,
+    images: [
+      "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/vantage-204-runner-1.png",
+    ],
+    category: "Sneakers",
+    footwear: true,
+    description: "Vantage 204 Runner in Beige Brown.",
+  },
+];
 
 const updateStoreCurrencies = createWorkflow(
   "update-store-currencies",
@@ -77,7 +247,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
   });
 
   if (!defaultSalesChannel.length) {
-    // create the default sales channel
     const { result: salesChannelResult } = await createSalesChannelsWorkflow(
       container
     ).run({
@@ -119,7 +288,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
   logger.info("Seeding region data...");
   const regionModuleService = container.resolve(Modules.REGION);
 
-  // Check if any of the countries are already assigned to a region
   const existingRegions = await regionModuleService.listRegions({}, {
     relations: ["countries"],
   });
@@ -135,13 +303,11 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   let region;
   if (unassignedCountries.length === 0) {
-    // All countries already assigned - find the region that has most of our countries
     region = existingRegions.find(r =>
       r.countries?.some(c => countries.includes(c.iso_2))
     ) || existingRegions[0];
     logger.info("Countries already assigned to a region, skipping region creation.");
   } else if (unassignedCountries.length < countries.length) {
-    // Some countries assigned, some not - only create with unassigned ones
     logger.info(`Some countries already assigned, creating region with: ${unassignedCountries.join(", ")}`);
     const { result: regionResult } = await createRegionsWorkflow(container).run({
       input: {
@@ -157,7 +323,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
     });
     region = regionResult[0];
   } else {
-    // No countries assigned - create full region
     const { result: regionResult } = await createRegionsWorkflow(container).run({
       input: {
         regions: [
@@ -222,7 +387,6 @@ export default async function seedDemoData({ container }: ExecArgs) {
     publishableApiKey = publishableApiKeyResult
   }
 
-  // Link sales channel to API key (idempotent)
   try {
     await linkSalesChannelsToApiKeyWorkflow(container).run({
       input: {
@@ -256,10 +420,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
   const existingCats = await productModule.listProductCategories({
     name: [...parentNames, ...childNames],
   });
-  type SeededCategory = { id: string; name: string };
-  const catByName = new Map<string, SeededCategory>(
-    existingCats.map((c) => [c.name, { id: c.id, name: c.name }])
-  );
+  const catByName = new Map(existingCats.map((c) => [c.name, c]));
 
   const missingParents = parentNames.filter((name) => !catByName.has(name));
   if (missingParents.length) {
@@ -272,7 +433,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
         })),
       },
     });
-    result.forEach((c: SeededCategory) => catByName.set(c.name, c));
+    result.forEach((c) => catByName.set(c.name, c));
   }
 
   const childInputs: {
@@ -297,9 +458,141 @@ export default async function seedDemoData({ container }: ExecArgs) {
     const { result } = await createProductCategoriesWorkflow(container).run({
       input: { product_categories: childInputs },
     });
-    result.forEach((c: SeededCategory) => catByName.set(c.name, c));
+    result.forEach((c) => catByName.set(c.name, c));
   }
   logger.info("Finished seeding product categories.");
+
+  // Global product attributes (Mercur product-attribute module). Each is a
+  // multi_select variant axis so it maps to a native Medusa product option and
+  // powers `/store/products` filtering via `variants.options`. Products restrict
+  // Color/Condition to a single value each, so variant count stays size-driven.
+  logger.info("Seeding global product attributes...");
+
+  const FOOTWEAR_SIZES = ["40", "41", "42", "43", "44", "45"];
+  const COLOR_VALUES = [
+    "Black",
+    "White",
+    "Grey",
+    "Brown",
+    "Beige",
+    "Green",
+    "Blue",
+    "Red",
+    "Yellow",
+    "Orange",
+    "Purple",
+    "Pink",
+    "Multicolor",
+  ];
+  const CONDITION_VALUES = ["New", "Like New", "Used"];
+
+  const ATTRIBUTE_DEFS = [
+    { name: "Size", handle: "size", values: FOOTWEAR_SIZES },
+    { name: "Color", handle: "color", values: COLOR_VALUES },
+    { name: "Condition", handle: "condition", values: CONDITION_VALUES },
+  ];
+
+  type SeededAttribute = {
+    id: string;
+    handle: string;
+    values: { id: string; name: string }[];
+  };
+
+  const loadAttributes = async () => {
+    const { data } = await query.graph({
+      entity: "product_attribute",
+      fields: ["id", "handle", "values.id", "values.name"],
+      filters: {
+        handle: ATTRIBUTE_DEFS.map((a) => a.handle),
+        product_id: null,
+      },
+    });
+    return new Map(
+      (data as SeededAttribute[]).map((a) => [a.handle, a])
+    );
+  };
+
+  let attrByHandle = await loadAttributes();
+  const missingAttrs = ATTRIBUTE_DEFS.filter((a) => !attrByHandle.has(a.handle));
+
+  if (missingAttrs.length) {
+    await createProductAttributesWorkflow(container).run({
+      input: {
+        attributes: missingAttrs.map((attr, index) => ({
+          name: attr.name,
+          handle: attr.handle,
+          type: AttributeType.MULTI_SELECT,
+          is_variant_axis: true,
+          is_filterable: true,
+          rank: index,
+          values: attr.values.map((name, rank) => ({ name, rank })),
+        })),
+      },
+    });
+    attrByHandle = await loadAttributes();
+  }
+
+  const sizeAttr = attrByHandle.get("size")!;
+  const colorAttr = attrByHandle.get("color")!;
+  const conditionAttr = attrByHandle.get("condition")!;
+
+  const valueId = (attr: SeededAttribute, name: string) =>
+    attr.values.find((v) => v.name === name)?.id;
+
+  const COLOR_KEYWORDS: [string, string][] = [
+    ["black", "Black"],
+    ["white", "White"],
+    ["pearl", "White"],
+    ["cream", "Beige"],
+    ["sand", "Beige"],
+    ["beige", "Beige"],
+    ["wheat", "Beige"],
+    ["tan", "Beige"],
+    ["nubuck", "Beige"],
+    ["grey", "Grey"],
+    ["gray", "Grey"],
+    ["anthracite", "Grey"],
+    ["quarry", "Grey"],
+    ["graphite", "Grey"],
+    ["platinum", "Grey"],
+    ["brown", "Brown"],
+    ["chocolate", "Brown"],
+    ["cocoa", "Brown"],
+    ["wood", "Brown"],
+    ["hickory", "Brown"],
+    ["chestnut", "Brown"],
+    ["roast", "Brown"],
+    ["truffle", "Brown"],
+    ["olive", "Green"],
+    ["camo", "Green"],
+    ["neon", "Green"],
+    ["green", "Green"],
+    ["sapphire", "Blue"],
+    ["cobalt", "Blue"],
+    ["turquoise", "Blue"],
+    ["aurora", "Blue"],
+    ["blue", "Blue"],
+    ["maroon", "Red"],
+    ["red", "Red"],
+    ["yellow", "Yellow"],
+    ["orange", "Orange"],
+    ["purple", "Purple"],
+    ["pink", "Pink"],
+    ["multi", "Multicolor"],
+  ];
+  const mapColor = (colorway: string) => {
+    const c = colorway.toLowerCase();
+    for (const [keyword, color] of COLOR_KEYWORDS) {
+      if (c.includes(keyword)) {
+        return color;
+      }
+    }
+    return "Multicolor";
+  };
+  const conditionForIndex = (index: number) =>
+    ["New", "New", "New", "Like New", "Used"][index % 5];
+
+  logger.info("Finished seeding global product attributes.");
 
   const SELLER_PASSWORD = "supersecret";
   const SELLER_CONFIGS = [
@@ -308,6 +601,13 @@ export default async function seedDemoData({ container }: ExecArgs) {
     { name: "Trailhead Outfitters", email: "trailhead@mercur.dev", first_name: "Tara", last_name: "Head", city: "Munich", country_code: "DE", address_1: "Marienplatz 3" },
   ];
   const PRIMARY_SELLER_EMAIL = SELLER_CONFIGS[0].email;
+
+  // DiceBear renders a crisp initials avatar per seller name; Picsum returns a
+  // deterministic photo for the same seed, so re-seeding is stable.
+  const sellerLogo = (name: string) =>
+    `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(name)}`;
+  const sellerBanner = (name: string) =>
+    `https://picsum.photos/seed/${toHandle(name)}/1200/320`;
 
   const { data: existingSellers } = await query.graph({
     entity: "seller",
@@ -324,6 +624,27 @@ export default async function seedDemoData({ container }: ExecArgs) {
   }
 
   const authModuleService = container.resolve(Modules.AUTH);
+
+  // One marketplace-wide shipping profile shared by every seller's shipping
+  // options and every offer. createOffersWorkflow links each offer's product to
+  // this profile, so the cart-refresh orphan-cleanup keeps per-seller shipping
+  // methods (it matches option profile against the product's profile).
+  let sharedShippingProfileId: string;
+  const { data: existingProfiles } = await query.graph({
+    entity: "shipping_profile",
+    fields: ["id"],
+    filters: { name: "Marketplace Shipping" },
+  });
+  if (existingProfiles[0]) {
+    sharedShippingProfileId = existingProfiles[0].id as string;
+  } else {
+    const {
+      result: [createdProfile],
+    } = await createShippingProfilesWorkflow(container).run({
+      input: { data: [{ name: "Marketplace Shipping", type: "default" }] },
+    });
+    sharedShippingProfileId = createdProfile.id;
+  }
 
   type SeededSeller = {
     id: string;
@@ -365,7 +686,9 @@ export default async function seedDemoData({ container }: ExecArgs) {
           name: sellerConfig.name,
           email: sellerConfig.email,
           currency_code: "eur",
-          description: `${sellerConfig.name} — a demo marketplace seller.`,
+          description: `${sellerConfig.name} — a demo marketplace footwear seller.`,
+          logo: sellerLogo(sellerConfig.name),
+          banner: sellerBanner(sellerConfig.name),
         },
       },
     });
@@ -374,7 +697,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
       input: { seller_id: seller.id },
     });
 
-    const { data: members } = await query.graph({
+  const { data: members } = await query.graph({
       entity: "member",
       fields: ["id"],
       filters: { email: sellerConfig.email },
@@ -464,16 +787,7 @@ export default async function seedDemoData({ container }: ExecArgs) {
     });
     const serviceZoneId = serviceZones[0].id;
 
-    const { result: shippingProfiles } =
-      await createSellerShippingProfilesWorkflow(container).run({
-        input: {
-          seller_id: seller.id,
-          shipping_profiles: [
-            { name: `${sellerConfig.name} Shipping`, type: "default" },
-          ],
-        },
-      });
-    const shippingProfileId = shippingProfiles[0].id;
+    const shippingProfileId = sharedShippingProfileId;
 
     await createSellerShippingOptionsWorkflow(container).run({
       input: {
@@ -540,33 +854,27 @@ export default async function seedDemoData({ container }: ExecArgs) {
 
   logger.info("Seeding product data...");
 
-  // Trademark-safe demo catalog. Images are generic AI-generated renders hosted
-  // from /static via the jsDelivr GitHub CDN.
-  const FOOTWEAR_SIZES = ["41", "42", "43"];
+  const catalog = seedCatalog;
 
-  type SeedProduct = {
-    title: string;
-    category: string;
-    price: number;
-    description: string;
-    image: string;
+  const slugify = (value: string) =>
+    value
+      .toLowerCase()
+      .replace(/'/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+  const usedHandles = new Set<string>();
+  const uniqueHandle = (title: string) => {
+    const base = slugify(title);
+    let handle = base;
+    let n = 2;
+    while (usedHandles.has(handle)) {
+      handle = `${base}-${n++}`;
+    }
+    usedHandles.add(handle);
+    return handle;
   };
-  const SEED_PRODUCTS: SeedProduct[] = [
-    { title: "Cityline Canvas High Top", category: "Sneakers", price: 82, description: "Cityline Canvas High Top in Black Denim.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cityline-canvas-high-top-1.png" },
-    { title: "Vantage 204 Runner", category: "Sneakers", price: 95, description: "Vantage 204 Runner in Beige Brown.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/vantage-204-runner-1.png" },
-    { title: "Halcyon Sherpa Runner", category: "Sneakers", price: 279, description: "Halcyon Sherpa Runner in Cream.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/halcyon-sherpa-runner-1.png" },
-    { title: "Strive Pro Mid-Cut Firm Ground Cleats", category: "Boots", price: 250, description: "Strive Pro Mid-Cut Firm Ground Cleats in Aurora Blue Solar Yellow.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-pro-mid-cut-firm-ground-cleats-1.png" },
-    { title: "Cloudpeak Classic Mini Boot", category: "Boots", price: 155, description: "Cloudpeak Classic Mini Boot in Black.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-classic-mini-boot-1.png" },
-    { title: "Cloudpeak Ultra Mini Boot", category: "Boots", price: 160, description: "Cloudpeak Ultra Mini Boot in Hickory.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/cloudpeak-ultra-mini-boot-1.png" },
-    { title: "Meridian Twin-Strap Buckle Sandal", category: "Sandals", price: 155, description: "Meridian Twin-Strap Buckle Sandal in Black - Regular/Wide.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-twin-strap-buckle-sandal-1.png" },
-    { title: "Meridian Twin-Strap Sandal", category: "Sandals", price: 125, description: "Meridian Twin-Strap Sandal in Pearl White - Narrow.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-twin-strap-sandal-1.png" },
-    { title: "Meridian Clog Slide", category: "Sandals", price: 232, description: "Meridian Clog Slide in Anthracite.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/meridian-clog-slide-1.png" },
-    { title: "Strive Pro FG Cleats", category: "Sport", price: 131, description: "Strive Pro FG Cleats in Aurora Black Platinum.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-pro-fg-cleats-1.png" },
-    { title: "Strive Talon Pro FG Cleats", category: "Sport", price: 155, description: "Strive Talon Pro FG Cleats in Midnight Navy.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-talon-pro-fg-cleats-1.png" },
-    { title: "Strive Taekwondo Trainers", category: "Sport", price: 119, description: "Strive Taekwondo Trainers in Silver Lilac.", image: "https://cdn.jsdelivr.net/gh/mercurjs/mercur@main/static/strive-taekwondo-trainers-1.png" },
-  ];
 
-  // Round-robin each product into one of its department's sub-categories.
   const childCursor: Record<string, number> = {};
   const nextChildId = (parent: string) => {
     const children = CATEGORY_TREE[parent];
@@ -575,33 +883,72 @@ export default async function seedDemoData({ container }: ExecArgs) {
     return catByName.get(children[i])!.id;
   };
 
-  const priceByHandle = new Map<string, number>();
-  const products = SEED_PRODUCTS.map((item) => {
-    const handle = toHandle(item.title);
+  const products: CreateProductDTO[] = catalog.map((item, index) => {
+    const handle = uniqueHandle(item.title);
     const skuBase = handle.toUpperCase().replace(/-/g, "");
-    priceByHandle.set(handle, item.price);
+    const images = item.images.map((url) => ({ url }));
+
+    const color = mapColor(item.colorway);
+    const condition = conditionForIndex(index);
+
+    const attributes = [
+      ...(item.footwear
+        ? [
+            {
+              id: sizeAttr.id,
+              value_ids: FOOTWEAR_SIZES.map((size) =>
+                valueId(sizeAttr, size)
+              ).filter((id): id is string => Boolean(id)),
+            },
+          ]
+        : []),
+      {
+        id: colorAttr.id,
+        value_ids: [valueId(colorAttr, color)].filter(
+          (id): id is string => Boolean(id)
+        ),
+      },
+      {
+        id: conditionAttr.id,
+        value_ids: [valueId(conditionAttr, condition)].filter(
+          (id): id is string => Boolean(id)
+        ),
+      },
+    ];
+
+    const variants = item.footwear
+      ? FOOTWEAR_SIZES.map((size) => ({
+          title: `EU ${size}`,
+          sku: `${skuBase}-EU${size}`,
+          options: { Size: size, Color: color, Condition: condition },
+        }))
+      : [
+          {
+            title: "One Size",
+            sku: `${skuBase}-OS`,
+            options: { Color: color, Condition: condition },
+          },
+        ];
+
     return {
       title: item.title,
       category_ids: [nextChildId(item.category)],
       description: item.description,
       handle,
-      weight: 1200,
+      weight: item.footwear ? 1200 : 400,
       status: ProductStatus.PUBLISHED,
-      thumbnail: item.image,
-      images: [{ url: item.image }],
-      attributes: [
-        { title: "Size", values: FOOTWEAR_SIZES, is_variant_axis: true },
-      ],
-      variants: FOOTWEAR_SIZES.map((size) => ({
-        title: `EU ${size}`,
-        sku: `${skuBase}-EU${size}`,
-        options: { Size: size },
-      })),
+      thumbnail: images[0].url,
+      images,
+      attributes,
+      variants,
     };
   });
 
   await createProductsWorkflow(container).run({
-    input: { created_by: primarySeller.memberId, products },
+    input: {
+      created_by: primarySeller.memberId,
+      products,
+    },
   });
   logger.info(`Finished seeding ${products.length} products.`);
 
@@ -619,11 +966,16 @@ export default async function seedDemoData({ container }: ExecArgs) {
   const randInt = (min: number, max: number) =>
     min + Math.floor(rand() * (max - min + 1));
 
+  const priceByHandle = new Map(
+    products.map((product, index) => [product.handle, catalog[index].price])
+  );
   const { data: seededProducts } = await query.graph({
     entity: "product",
     fields: ["id", "handle", "variants.id", "variants.sku"],
     filters: {
-      handle: products.map((product) => product.handle),
+      handle: products
+        .map((product) => product.handle)
+        .filter((handle): handle is string => Boolean(handle)),
     },
   });
 
@@ -642,32 +994,35 @@ export default async function seedDemoData({ container }: ExecArgs) {
         id: string;
         sku: string | null;
       }[]) {
-        const jitter = 1 + (rand() * 0.3 - 0.15); // ±15%
-        const eur = Math.max(1, Math.round(basePrice * jitter));
-        const usd = Math.round(eur * 1.08);
-        const sku = `OFFER-${seller.id.slice(-4)}-${variant.sku}`;
-        offers.push({
-          seller_id: seller.id,
-          created_by: seller.memberId,
-          sku,
-          variant_id: variant.id,
-          shipping_profile_id: seller.shippingProfileId,
-          inventory_items: [
-            {
-              sku,
-              stock_levels: [
-                {
-                  location_id: seller.stockLocationId,
-                  stocked_quantity: 1000000,
-                },
-              ],
-            },
-          ],
-          prices: [
-            { amount: eur, currency_code: "eur" },
-            { amount: usd, currency_code: "usd" },
-          ],
-        });
+        const offerCount = randInt(1, 2);
+        for (let o = 0; o < offerCount; o++) {
+          const jitter = 1 + (rand() * 0.3 - 0.15); // ±15%
+          const eur = Math.max(1, Math.round(basePrice * jitter));
+          const usd = Math.round(eur * 1.08);
+          const sku = `OFFER-${seller.id.slice(-4)}-${variant.sku}-${o + 1}`;
+          offers.push({
+            seller_id: seller.id,
+            created_by: seller.memberId,
+            sku,
+            variant_id: variant.id,
+            shipping_profile_id: seller.shippingProfileId,
+            inventory_items: [
+              {
+                sku,
+                stock_levels: [
+                  {
+                    location_id: seller.stockLocationId,
+                    stocked_quantity: 1000000,
+                  },
+                ],
+              },
+            ],
+            prices: [
+              { amount: eur, currency_code: "eur" },
+              { amount: usd, currency_code: "usd" },
+            ],
+          });
+        }
       }
     }
   }
