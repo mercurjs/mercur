@@ -1,6 +1,6 @@
 {
   "name": "@acme/api",
-  "version": "2.2.0-canary.8",
+  "version": "2.2.1-canary.6",
   "description": "A starter for Medusa projects.",
   "author": "Medusa (https://medusajs.com)",
   "license": "MIT",
@@ -37,10 +37,10 @@
     "@medusajs/admin-shared": "2.17.2",
     "@medusajs/medusa": "2.17.2",
     "@medusajs/draft-order": "2.17.2",
-    "@mercurjs/core": "2.2.0",
-    "@mercurjs/types": "2.2.0",
+    "@mercurjs/core": "2.2.1-canary.6",
+    "@mercurjs/types": "2.2.1-canary.6",
     "http-proxy-middleware": "3.0.7",
-    "@mercurjs/cli": "2.2.0"
+    "@mercurjs/cli": "2.2.1-canary.6"
   },
   "devDependencies": {
     "@acme/admin": "*",
