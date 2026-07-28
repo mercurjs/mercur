@@ -2558,7 +2558,10 @@
     },
     "errors": {
       "requiredField": "Required field",
-      "promotionTabError": "Fix errors in Promotion Tab before proceeding"
+      "promotionTabError": "Fix errors in Promotion Tab before proceeding",
+      "applyToQuantityRequired": "Set the quantity of items the promotion applies to.",
+      "buyRulesMinQuantityRequired": "Set the minimum quantity of items to buy.",
+      "maxQuantityLowerThanApplyTo": "Max quantity must be greater than or equal to the quantity the promotion applies to."
     },
     "toasts": {
       "promotionCreateSuccess": "Promotion ({{code}}) was successfully created.",

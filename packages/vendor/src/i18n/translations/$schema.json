@@ -10274,11 +10274,23 @@
             },
             "promotionTabError": {
               "type": "string"
+            },
+            "applyToQuantityRequired": {
+              "type": "string"
+            },
+            "buyRulesMinQuantityRequired": {
+              "type": "string"
+            },
+            "maxQuantityLowerThanApplyTo": {
+              "type": "string"
             }
           },
           "required": [
             "requiredField",
-            "promotionTabError"
+            "promotionTabError",
+            "applyToQuantityRequired",
+            "buyRulesMinQuantityRequired",
+            "maxQuantityLowerThanApplyTo"
           ],
           "additionalProperties": false
         },

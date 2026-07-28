@@ -6,13 +6,9 @@ const RuleSchema = z.array(
   z.object({
     id: z.string().optional(),
     attribute: z.string().min(1, { message: i18n.t("validation.requiredField") }),
-    operator: z.preprocess(
-      (val) => (val === "" ? undefined : val),
-      z.enum(["gt", "lt", "eq", "ne", "in", "lte", "gte"], {
-        required_error: i18n.t("validation.requiredField"),
-        invalid_type_error: i18n.t("validation.requiredField"),
-      })
-    ),
+    operator: z
+      .string()
+      .min(1, { message: i18n.t("validation.requiredField") }),
     values: z.union([
       z.number().min(1, { message: i18n.t("validation.requiredField") }),
       z.string().min(1, { message: i18n.t("validation.requiredField") }),

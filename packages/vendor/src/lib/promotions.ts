@@ -28,6 +28,10 @@ export const promotionStatusMap: StatusMap = {
 export const getPromotionType = (promotion: HttpTypes.AdminPromotion) => {
   const applicationMethod = promotion.application_method
 
+  if (promotion.type === "buyget") {
+    return i18n.t("promotions.form.type.buyget.title")
+  }
+
   if (!applicationMethod?.type) {
     return "-"
   }
