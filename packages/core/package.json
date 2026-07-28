@@ -1,6 +1,6 @@
 {
   "name": "@mercurjs/core",
-  "version": "2.2.1-canary.4",
+  "version": "2.2.1-canary.5",
   "repository": {
     "type": "git",
     "url": "https://github.com/mercurjs/mercur",
@@ -60,7 +60,7 @@
     "@medusajs/medusa": "2.17.2",
     "@medusajs/test-utils": "2.17.2",
     "@medusajs/ui": "4.1.19",
-    "@mercurjs/types": "2.2.1-canary.4",
+    "@mercurjs/types": "2.2.1-canary.5",
     "@swc/core": "^1.7.28",
     "@types/cors": "^2.8.17",
     "@types/express": "^4.17.21",
@@ -80,7 +80,7 @@
     "multer": "^2.0.2",
     "http-proxy-middleware": "^3.0.3",
     "jsonwebtoken": "^9.0.2",
-    "@mercurjs/cli": "2.2.1-canary.4"
+    "@mercurjs/cli": "2.2.1-canary.5"
   },
   "peerDependencies": {
     "@medusajs/admin-sdk": ">=2.17.2",
