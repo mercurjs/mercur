@@ -24,6 +24,7 @@ export interface SetupDatabaseResult {
   connectionString: string | null;
   alreadyExists?: boolean;
   inviteToken?: string | null;
+  publishableKey?: string | null;
 }
 
 export async function setupDatabase(args: {
@@ -110,13 +111,48 @@ async function runPostDbSetup(args: DbSetupArgs & {
 
   const inviteToken = await createAdminInvite({ projectDir });
 
+  const publishableKey = await getPublishableKey({ connectionString });
+
+  // Now that the storefront .env exists, inject the seeded publishable key.
+  if (publishableKey) {
+    await manageEnvFiles({
+      projectDir,
+      databaseUri: connectionString,
+      publishableKey,
+    });
+  }
+
   return {
     success: true,
     dbName,
     connectionString,
     alreadyExists,
     inviteToken,
+    publishableKey,
   };
+}
+
+async function getPublishableKey({
+  connectionString,
+}: {
+  connectionString: string;
+}): Promise<string | null> {
+  const client = new pg.Client({ connectionString });
+
+  try {
+    await client.connect();
+    const result = await client.query(
+      `SELECT token FROM api_key WHERE type = 'publishable' AND revoked_at IS NULL AND deleted_at IS NULL ORDER BY created_at ASC LIMIT 1;`
+    );
+    return result.rows[0]?.token ?? null;
+  } catch (err) {
+    logger.error(
+      `Error reading publishable API key${err instanceof Error ? `: ${err.message}` : ""}.`
+    );
+    return null;
+  } finally {
+    await client.end().catch(() => {});
+  }
 }
 
 interface DbClientResult {

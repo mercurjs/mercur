@@ -52,6 +52,17 @@ const sanitizeEnv = ({
   return updatedEnv;
 };
 
+const setEnvValue = (contents: string, key: string, value: string): string => {
+  const line = `${key}=${value}`;
+  const pattern = new RegExp(`^${key}=.*$`, "m");
+
+  if (pattern.test(contents)) {
+    return contents.replace(pattern, line);
+  }
+
+  return `${contents}${contents.endsWith("\n") || contents === "" ? "" : "\n"}${line}`;
+};
+
 const APP_PATHS = [
   { path: "packages/api" },
   { path: "apps/vendor" },
@@ -62,9 +73,11 @@ const APP_PATHS = [
 export async function manageEnvFiles({
   projectDir,
   databaseUri,
+  publishableKey,
 }: {
   projectDir: string;
   databaseUri?: string;
+  publishableKey?: string;
 }): Promise<void> {
   try {
     await Promise.all(
@@ -79,10 +92,25 @@ export async function manageEnvFiles({
         const envPath = path.join(appDir, ".env");
 
         const isApi = appPath.includes("api");
+        const isStorefront = appPath.includes("storefront");
         // if not API, just copy the .env.template file
         if (!isApi) {
           if (fs.existsSync(envTemplatePath) && !fs.existsSync(envPath)) {
             await fs.copy(envTemplatePath, envPath);
+          }
+
+          // Inject the seeded publishable key into the storefront env so the
+          // storefront can talk to the Store API out of the box.
+          if (isStorefront && publishableKey && fs.existsSync(envPath)) {
+            const contents = await fs.readFile(envPath, "utf8");
+            await fs.writeFile(
+              envPath,
+              setEnvValue(
+                contents,
+                "NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY",
+                publishableKey
+              )
+            );
           }
           return;
         }
