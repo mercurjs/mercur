@@ -28,6 +28,7 @@ import { MediaSchema } from "@pages/products/product-create/constants";
 import { InferClientOutput } from "@mercurjs/client";
 import { sdk } from "@lib/client";
 import { useUpdateSeller } from "@hooks/api/sellers";
+import { useStore } from "@hooks/api/store";
 import { currencies } from "@/lib/data/currencies";
 import { SellerStatus } from "@mercurjs/types";
 
@@ -50,6 +51,9 @@ const EditStoreSchema = zod.object({
     .email({ message: i18n.t("stores.create.validation.emailInvalid") }),
   phone: zod.string().optional().or(zod.literal("")),
   website_url: zod.string().optional().or(zod.literal("")),
+  currency_code: zod
+    .string()
+    .min(1, { message: i18n.t("stores.create.validation.currencyRequired") }),
   is_premium: zod.boolean(),
   media: zod.array(MediaSchema).optional(),
   bannerMedia: zod.array(MediaSchema).optional(),
@@ -100,6 +104,7 @@ const ensureWebsiteProtocol = (url: string): string | null => {
 export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
+  const { store: marketplaceStore } = useStore();
 
   const form = useExtendableForm({
     schema: EditStoreSchema,
@@ -114,6 +119,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
       email: seller.email ?? "",
       phone: seller.phone ?? "",
       website_url: stripWebsiteProtocol(seller.website_url),
+      currency_code: seller.currency_code?.toLowerCase() ?? "",
       is_premium: seller.is_premium ?? false,
       media: seller.logo
         ? [
@@ -193,6 +199,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
         phone: values.phone || null,
         description: values.description || null,
         website_url: ensureWebsiteProtocol(values.website_url ?? ""),
+        currency_code: values.currency_code.toLowerCase(),
         is_premium: values.is_premium,
         logo: logoUrl,
         banner: bannerUrl,
@@ -255,8 +262,7 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
     form.setValue("bannerMedia", [{ ...files[0], isThumbnail: false }]);
   };
 
-  const currencyCode = seller.currency_code?.toUpperCase() ?? "";
-  const currencyName = currencies[currencyCode]?.name ?? currencyCode;
+  const supportedCurrencies = marketplaceStore?.supported_currencies ?? [];
 
   return (
     <RouteDrawer.Form form={form}>
@@ -374,19 +380,43 @@ export const StoreEditForm = ({ seller }: StoreEditFormProps) => {
                 </Form.Item>
               )}
             />
-            <Form.Item>
-              <Form.Label>{t("fields.currency")}</Form.Label>
-              <Select value={currencyCode} disabled>
-                <Select.Trigger>
-                  <Select.Value placeholder={currencyName}>
-                    {currencyName}
-                  </Select.Value>
-                </Select.Trigger>
-                <Select.Content>
-                  <Select.Item value={currencyCode}>{currencyName}</Select.Item>
-                </Select.Content>
-              </Select>
-            </Form.Item>
+            <Form.Field
+              control={form.control}
+              name="currency_code"
+              render={({ field: { onChange, ref, value, ...field } }) => (
+                <Form.Item>
+                  <Form.Label>{t("fields.currency")}</Form.Label>
+                  <Form.Control>
+                    <Select
+                      {...field}
+                      value={value}
+                      onValueChange={onChange}
+                    >
+                      <Select.Trigger ref={ref}>
+                        <Select.Value
+                          placeholder={t("fields.selectPlaceholder")}
+                        />
+                      </Select.Trigger>
+                      <Select.Content>
+                        {supportedCurrencies.map((sc) => {
+                          const code = sc.currency_code.toLowerCase();
+                          const label =
+                            currencies[code.toUpperCase()]?.name
+                              ? `${code.toUpperCase()} - ${currencies[code.toUpperCase()].name}`
+                              : code.toUpperCase();
+                          return (
+                            <Select.Item key={code} value={code}>
+                              {label}
+                            </Select.Item>
+                          );
+                        })}
+                      </Select.Content>
+                    </Select>
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
           </div>
           <SwitchBox
             control={form.control}

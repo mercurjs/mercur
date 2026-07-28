@@ -25,6 +25,7 @@ export interface UpdateSellerDTO {
   banner?: string | null
   website_url?: string | null
   external_id?: string | null
+  currency_code?: string
   status?: string
   status_reason?: string | null
   is_premium?: boolean

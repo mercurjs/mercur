@@ -74,6 +74,7 @@ export const UpdateSeller = z.object({
   logo: z.string().url().nullable().optional(),
   banner: z.string().url().nullable().optional(),
   website_url: z.string().nullable().optional(),
+  currency_code: z.string().optional(),
   closed_from: z.coerce.date().nullable().optional(),
   closed_to: z.coerce.date().nullable().optional(),
   closure_note: z.string().nullable().optional(),

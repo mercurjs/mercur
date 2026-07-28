@@ -85,6 +85,7 @@ export const UpdateSeller = z.object({
   banner: z.string().url().nullable().optional(),
   website_url: z.string().nullable().optional(),
   external_id: z.string().nullable().optional(),
+  currency_code: z.string().optional(),
   status: z.string().optional(),
   status_reason: z.string().nullable().optional(),
   is_premium: z.boolean().optional(),
