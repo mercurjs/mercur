@@ -26,9 +26,11 @@ export const ProductListDataTable = () => {
     pageSize: PAGE_SIZE,
   });
 
-  const initialData = useLoaderData() as
+  const loaderData = useLoaderData() as
     | Awaited<ReturnType<typeof productListLoader>>
     | undefined;
+
+  const initialData = searchParams.offset ? undefined : loaderData;
 
   const { products, count, isLoading, isError, error } = useProducts(
     searchParams,
