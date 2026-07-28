@@ -241,6 +241,17 @@ export function CreatePromotionForm({
       }
     }
 
+    // `across` allocation forbids max_quantity, but the reset above restores the
+    // default of 1; null it so the payload is valid for order-scoped templates.
+    const templateAllocation = (
+      currentTemplate.defaults?.application_method as
+        | { allocation?: string }
+        | undefined
+    )?.allocation
+    if (templateAllocation === "across") {
+      setValue("application_method.max_quantity", null)
+    }
+
     return currentTemplate
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [watchTemplateId, setValue, reset])

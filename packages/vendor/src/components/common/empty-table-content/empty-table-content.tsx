@@ -16,7 +16,7 @@ export const NoResults = ({ title, message, className }: NoResultsProps) => {
   return (
     <div
       className={clx(
-        "flex min-h-[400px] size-full items-center justify-center",
+        "flex h-[400px] w-full items-center justify-center",
         className
       )}
     >

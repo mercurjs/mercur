@@ -17,7 +17,12 @@ import {
 import { CreatePromotionSchemaType } from "../../../../create/create-promotion-form/form-schema";
 import { generateRuleAttributes } from "../edit-rules-form/utils";
 import { RuleValueFormField } from "../rule-value-form-field";
-import { requiredCurrencyRule, requiredProductRule } from "./constants";
+import {
+  applyToQuantityRule,
+  buyRulesMinQuantityRule,
+  requiredCurrencyRule,
+  requiredProductRule,
+} from "./constants";
 
 type RulesFormFieldType = {
   promotion?: HttpTypes.AdminPromotion;
@@ -84,6 +89,17 @@ export const RulesFormField = ({
 
   const rulesLoadedRef = useRef(false);
 
+  // Switching promotion template (standard <-> buyget) resets the form and
+  // requires re-seeding: e.g. target-rules stays mounted across the switch, so
+  // its seed guard must be cleared for the buyget quantity row to be seeded.
+  const prevPromotionTypeRef = useRef(promotionType);
+  useEffect(() => {
+    if (prevPromotionTypeRef.current !== promotionType) {
+      prevPromotionTypeRef.current = promotionType;
+      rulesLoadedRef.current = false;
+    }
+  }, [promotionType]);
+
   useEffect(() => {
     if (isLoading) {
       return;
@@ -115,7 +131,7 @@ export const RulesFormField = ({
       const apiRules =
         promotion?.id || promotionType === "standard"
           ? rules || []
-          : [...(rules || []), requiredProductRule];
+          : [...(rules || []), requiredProductRule, buyRulesMinQuantityRule];
 
       const formRules = generateRuleAttributes(apiRules);
       replace(formRules);
@@ -127,7 +143,7 @@ export const RulesFormField = ({
       const apiRules =
         promotion?.id || promotionType === "standard"
           ? rules || []
-          : [...(rules || []), requiredProductRule];
+          : [...(rules || []), requiredProductRule, applyToQuantityRule];
 
       const formRules = generateRuleAttributes(apiRules);
       replace(formRules);

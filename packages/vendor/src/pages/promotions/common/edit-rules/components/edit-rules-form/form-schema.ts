@@ -9,14 +9,11 @@ export const EditRules = z.object({
       attribute: z
         .string()
         .min(1, { message: i18n.t("promotions.form.required") }),
-      operator: z.preprocess(
-        (val) => (val === "" ? undefined : val),
-        z.enum(["gt", "lt", "eq", "ne", "in", "lte", "gte"], {
-          required_error: i18n.t("promotions.form.required"),
-          invalid_type_error: i18n.t("promotions.form.required"),
-        })
-      ),
+      operator: z
+        .string()
+        .min(1, { message: i18n.t("promotions.form.required") }),
       values: z.union([
+        z.number().min(1, { message: i18n.t("promotions.form.required") }),
         z.string().min(1, { message: i18n.t("promotions.form.required") }),
         z
           .array(z.string())
@@ -27,6 +24,9 @@ export const EditRules = z.object({
       field_type: z.string().optional(),
     })
   ),
+  application_method: z.object({
+    target_type: z.enum(["order", "shipping_methods", "items"]),
+  }),
 })
 
 export type EditRulesType = z.infer<typeof EditRules>

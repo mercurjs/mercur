@@ -124,7 +124,7 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
           type: data.value_type,
           allocation: data.allocation,
           max_quantity: data.max_quantity
-        }
+        },
       },
       {
         onSuccess: () => {
@@ -258,6 +258,7 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
 
             {!isTargetTypeShipping && (
               <>
+                {promotion.type !== 'buyget' && (
                 <Form.Field
                   control={form.control}
                   name="value_type"
@@ -289,6 +290,7 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
                     );
                   }}
                 />
+                )}
 
                 <Form.Field
                   control={form.control}
@@ -323,6 +325,7 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
                 />
 
                 <div className="flex flex-col gap-y-8">
+                  {promotion.type !== 'buyget' && (
                   <Form.Field
                     control={form.control}
                     name="value"
@@ -372,6 +375,7 @@ export const EditPromotionDetailsForm = ({ promotion }: EditPromotionFormProps) 
                       );
                     }}
                   />
+                  )}
 
                   {(watchAllocation === 'each' || watchAllocation === 'once') && (
                     <Form.Field

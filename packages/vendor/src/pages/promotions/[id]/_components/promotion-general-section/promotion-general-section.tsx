@@ -25,6 +25,10 @@ type PromotionGeneralSectionProps = {
 }
 
 function getTypeLabelKey(promotion: HttpTypes.AdminPromotion) {
+  if (promotion.type === "buyget") {
+    return "promotions.form.type.buyget.title"
+  }
+
   const method = promotion.application_method?.type
   const target = promotion.application_method?.target_type
 

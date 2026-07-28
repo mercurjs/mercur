@@ -138,6 +138,34 @@ export const CreatePromotionForm = () => {
           }));
       };
 
+      // Buyget promotions require both quantities and a max_quantity >=
+      // apply_to_quantity (enforced by the promotion module). Fail fast with a
+      // clear message instead of surfacing a raw backend 400.
+      if (data.type === 'buyget') {
+        const applyToQuantity = applicationMethodRuleData.apply_to_quantity;
+        const buyRulesMinQuantity =
+          applicationMethodRuleData.buy_rules_min_quantity;
+        const maxQuantity = applicationMethodData.max_quantity;
+
+        if (!applyToQuantity || applyToQuantity < 1) {
+          setTab(Tab.PROMOTION);
+          toast.error(t('promotions.errors.applyToQuantityRequired'));
+          return;
+        }
+
+        if (!buyRulesMinQuantity || buyRulesMinQuantity < 1) {
+          setTab(Tab.PROMOTION);
+          toast.error(t('promotions.errors.buyRulesMinQuantityRequired'));
+          return;
+        }
+
+        if (typeof maxQuantity !== 'number' || maxQuantity < applyToQuantity) {
+          setTab(Tab.PROMOTION);
+          toast.error(t('promotions.errors.maxQuantityLowerThanApplyTo'));
+          return;
+        }
+      }
+
       createPromotion(
         {
           ...promotionData,

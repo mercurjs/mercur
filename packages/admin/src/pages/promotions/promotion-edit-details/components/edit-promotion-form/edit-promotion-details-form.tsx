@@ -503,6 +503,7 @@ return (
                   }}
                 />
                 )}
+                {promotion.type !== "buyget" && (
                 <Form.Field
                   control={form.control}
                   name="value"
@@ -568,6 +569,7 @@ return (
                     )
                   }}
                 />
+                )}
 
             {!isOrderTargetType &&
               (watchAllocation === "each" || watchAllocation === "once") && (
