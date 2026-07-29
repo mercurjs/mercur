@@ -2730,8 +2730,8 @@
       "scheduled": "Scheduled"
     },
     "delete": {
-      "title": "Are you sure?",
-      "description": "You are about to delete the campaign '{{name}}'. This action cannot be undone.",
+      "title": "Delete campaign",
+      "description": "You are about to delete a campaign {{name}}. This action cannot be undone.",
       "successToast": "Campaign was successfully deleted."
     },
     "edit": {
@@ -2790,6 +2790,7 @@
       "fields": {
         "type": "Type",
         "currency": "Currency",
+        "selectCurrency": "Select currency",
         "limit": "Limit",
         "used": "Used",
         "budgetAttribute": "Limit usage per",
@@ -2824,7 +2825,7 @@
     },
     "promotions": {
       "remove": {
-        "title": "Remove promotion from campaign",
+        "title": "Remove promotions",
         "description": "You are about to remove {{count}} promotion(s) from the campaign. This action cannot be undone."
       },
       "alreadyAdded": "This promotion has already been added to the campaign.",
@@ -2843,7 +2844,8 @@
         }
       },
       "list": {
-        "noRecordsMessage": "There are no promotions in the campaign."
+        "noRecordsTitle": "No promotions yet",
+        "noRecordsMessage": "This campaign doesn't have any promotions"
       }
     },
     "deleteCampaignWarning": "You are about to delete the campaign {{name}}. This action cannot be undone.",

@@ -14,19 +14,29 @@ const BudgetRow = ({
   label,
   value,
   action,
+  divider,
 }: {
   label: string
   value: string
   action?: ReactNode
+  divider?: boolean
 }) => (
-  <div className="text-ui-fg-subtle grid grid-cols-[1fr_1fr_28px] items-center gap-x-4 px-6 py-4">
-    <Text size="small" leading="compact" weight="plus">
-      {label}
-    </Text>
-    <Text size="small" leading="compact">
-      {value}
-    </Text>
-    <div className="flex justify-end">{action}</div>
+  <div
+    className={
+      divider
+        ? "border-b border-ui-border-base"
+        : ""
+    }
+  >
+    <div className="bg-ui-bg-component text-ui-fg-subtle grid grid-cols-[minmax(0,1fr)_minmax(0,1fr)_28px] items-center gap-4 px-3 py-2">
+      <Text size="small" leading="compact" weight="plus">
+        {label}
+      </Text>
+      <Text size="small" leading="compact">
+        {value}
+      </Text>
+      <div className="flex justify-end">{action}</div>
+    </div>
   </div>
 )
 
@@ -49,12 +59,12 @@ export const CampaignBudget = ({ campaign }: CampaignBudgetProps) => {
     : "-"
 
   return (
-    <Container className="divide-y p-0">
+    <Container className="p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("campaigns.budget.details")}</Heading>
       </div>
 
-      <div className="flex items-start gap-x-3 px-6 py-4">
+      <div className="flex items-start gap-x-3 px-6 pb-4">
         <div className="text-ui-fg-subtle bg-ui-bg-component shadow-elevation-card-rest flex size-7 shrink-0 items-center justify-center rounded-md">
           {isSpend ? <CurrencyDollar /> : <ChartPie />}
         </div>
@@ -72,37 +82,43 @@ export const CampaignBudget = ({ campaign }: CampaignBudgetProps) => {
         </div>
       </div>
 
-      <BudgetRow
-        label={t("campaigns.fields.total_used")}
-        value={formatAmount(budget?.used ?? 0)}
-      />
-
-      <BudgetRow
-        label={t("campaigns.fields.budget_limit")}
-        value={budget?.limit != null ? formatAmount(budget.limit) : "-"}
-        action={
-          <ActionMenu
-            groups={[
-              {
-                actions: [
-                  {
-                    icon: <PencilSquare />,
-                    label: t("actions.edit"),
-                    to: "edit-budget",
-                  },
-                ],
-              },
-            ]}
+      <div className="px-3 pb-3">
+        <div className="overflow-hidden rounded-xl border border-ui-border-base">
+          <BudgetRow
+            label={t("campaigns.fields.total_used")}
+            value={formatAmount(budget?.used ?? 0)}
+            divider
           />
-        }
-      />
 
-      {!isSpend && (
-        <BudgetRow
-          label={t("campaigns.budget.fields.budgetAttribute")}
-          value={attributeLabel}
-        />
-      )}
+          <BudgetRow
+            label={t("campaigns.fields.budget_limit")}
+            value={budget?.limit != null ? formatAmount(budget.limit) : "-"}
+            divider={!isSpend}
+            action={
+              <ActionMenu
+                groups={[
+                  {
+                    actions: [
+                      {
+                        icon: <PencilSquare />,
+                        label: t("actions.edit"),
+                        to: "edit-budget",
+                      },
+                    ],
+                  },
+                ]}
+              />
+            }
+          />
+
+          {!isSpend && (
+            <BudgetRow
+              label={t("campaigns.budget.fields.budgetAttribute")}
+              value={attributeLabel}
+            />
+          )}
+        </div>
+      </div>
 
       <DisplayExtensionZone model="campaign" zone="spend" data={campaign} />
       <DisplayExtensionZone model="campaign" zone="budget" data={campaign} />
