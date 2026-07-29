@@ -3388,7 +3388,7 @@
       "store": "Store"
     },
     "edit": {
-      "header": "Edit review",
+      "header": "Edit Review",
       "description": "Edit the review's status and rating.",
       "successToast": "Review updated"
     },

@@ -6,6 +6,7 @@ export type ReviewStatus = "pending" | "published" | "rejected"
 
 export interface ReviewDTO {
   id: string
+  display_id: number
   reference: ReviewReference
   rating: number
   customer_note: string | null

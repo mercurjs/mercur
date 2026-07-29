@@ -22,5 +22,5 @@ export const ReviewDetailBreadcrumb = (props: ReviewDetailBreadcrumbProps) => {
     return null
   }
 
-  return <span>{review.id}</span>
+  return <span>#{review.display_id}</span>
 }

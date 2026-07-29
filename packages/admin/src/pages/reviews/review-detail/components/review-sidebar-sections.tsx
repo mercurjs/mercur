@@ -104,7 +104,7 @@ export const ReviewOrderSection = ({ review }: { review: AdminReview }) => {
   const date = order.created_at
     ? new Date(order.created_at).toLocaleString(undefined, {
         year: "numeric",
-        month: "long",
+        month: "short",
         day: "numeric",
         hour: "2-digit",
         minute: "2-digit",

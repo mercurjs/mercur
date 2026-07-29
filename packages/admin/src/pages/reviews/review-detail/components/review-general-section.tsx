@@ -24,7 +24,7 @@ export const ReviewGeneralSection = ({ review }: { review: AdminReview }) => {
 
   const createdAt = new Date(review.created_at).toLocaleString(undefined, {
     year: "numeric",
-    month: "long",
+    month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
@@ -34,7 +34,7 @@ export const ReviewGeneralSection = ({ review }: { review: AdminReview }) => {
     <Container className="divide-y p-0" data-testid="review-general-section">
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading>{review.id}</Heading>
+          <Heading>#{review.display_id}</Heading>
           <Text size="small" className="text-ui-fg-subtle">
             {createdAt}
           </Text>

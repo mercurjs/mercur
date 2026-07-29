@@ -75,11 +75,11 @@ const useColumns = () => {
 
   return useMemo(
     () => [
-      columnHelper.accessor("id", {
+      columnHelper.accessor("display_id", {
         header: t("reviews.fields.id"),
         cell: ({ getValue }) => (
           <Text size="small" leading="compact" className="truncate">
-            {getValue()}
+            #{getValue()}
           </Text>
         ),
       }),
