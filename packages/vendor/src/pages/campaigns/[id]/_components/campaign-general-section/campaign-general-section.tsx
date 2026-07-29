@@ -111,23 +111,6 @@ export const CampaignGeneralSection = ({
       <DisplayField
         model="campaign"
         zone="general"
-        id="campaign_identifier"
-        data={campaign}
-      >
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-          <Text size="small" leading="compact" weight="plus">
-            {t("campaigns.fields.identifier")}
-          </Text>
-
-          <Text size="small" leading="compact">
-            {campaign.campaign_identifier}
-          </Text>
-        </div>
-      </DisplayField>
-
-      <DisplayField
-        model="campaign"
-        zone="general"
         id="description"
         data={campaign}
       >
@@ -138,6 +121,23 @@ export const CampaignGeneralSection = ({
 
           <Text size="small" leading="compact">
             {campaign.description || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+
+      <DisplayField
+        model="campaign"
+        zone="general"
+        id="campaign_identifier"
+        data={campaign}
+      >
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+          <Text size="small" leading="compact" weight="plus">
+            {t("campaigns.fields.identifier")}
+          </Text>
+
+          <Text size="small" leading="compact">
+            {campaign.campaign_identifier}
           </Text>
         </div>
       </DisplayField>

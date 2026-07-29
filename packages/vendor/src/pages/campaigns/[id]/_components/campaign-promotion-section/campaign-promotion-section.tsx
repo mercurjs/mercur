@@ -1,6 +1,13 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { AdminCampaign, AdminPromotion } from "@medusajs/types"
-import { Button, Checkbox, Container, Heading, usePrompt } from "@medusajs/ui"
+import {
+  Button,
+  Checkbox,
+  Container,
+  Heading,
+  toast,
+  usePrompt,
+} from "@medusajs/ui"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -91,6 +98,10 @@ export const CampaignPromotionSection = ({
       queryKey: promotionsQueryKeys.all,
     })
 
+    toast.success(
+      t("campaigns.promotions.toast.removed", { count: keys.length })
+    )
+
     setRowSelection({})
   }
 
@@ -171,7 +182,12 @@ const PromotionActions = ({ promotion }: { promotion: AdminPromotion }) => {
       return
     }
 
-    await mutateAsync()
+    await mutateAsync(undefined, {
+      onSuccess: () => {
+        toast.success(t("campaigns.promotions.toast.removed", { count: 1 }))
+      },
+      onError: (error) => toast.error(error.message),
+    })
   }
 
   return (
