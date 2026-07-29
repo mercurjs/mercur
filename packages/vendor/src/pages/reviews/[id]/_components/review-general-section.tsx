@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Container, Heading, StatusBadge, Text } from "@medusajs/ui";
-import { ChatBubbleLeftRight, Flag } from "@medusajs/icons";
+import { ChatBubbleLeftRight, FlagMini } from "@medusajs/icons";
 
 import { ActionMenu } from "@components/common/action-menu";
 import type { ReviewDTO } from "@hooks/api/reviews";
@@ -46,7 +46,7 @@ export const ReviewGeneralSection = ({ review }: { review: ReviewDTO }) => {
                     disabledTooltip: t("reviews.respond.alreadyResponded"),
                   },
                   {
-                    icon: <Flag />,
+                    icon: <FlagMini />,
                     label: t("reviews.report.action"),
                     onClick: () => navigate("report"),
                   },

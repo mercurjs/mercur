@@ -2,8 +2,8 @@ import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
 import { StatusBadge, Text } from "@medusajs/ui";
-import { ChatBubbleLeftRight, Flag } from "@medusajs/icons";
-import { DateCell, DateHeader } from "@mercurjs/dashboard-shared";
+import { ChatBubbleLeftRight, FlagMini } from "@medusajs/icons";
+import { DateCell } from "@mercurjs/dashboard-shared";
 
 import { ActionMenu } from "@components/common/action-menu";
 import type { ReviewDTO } from "@hooks/api/reviews";
@@ -61,7 +61,7 @@ export const useReviewTableColumns = () => {
         ),
       }),
       columnHelper.accessor("created_at", {
-        header: () => <DateHeader />,
+        header: () => <span>{t("reviews.list.columns.date")}</span>,
         cell: ({ getValue }) => <DateCell date={new Date(getValue())} />,
       }),
       columnHelper.accessor("status", {
@@ -103,7 +103,7 @@ export const useReviewTableColumns = () => {
                       disabledTooltip: t("reviews.respond.alreadyResponded"),
                     },
                     {
-                      icon: <Flag />,
+                      icon: <FlagMini />,
                       label: t("reviews.report.action"),
                       to: `/reviews/${review.id}/report`,
                     },

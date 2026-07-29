@@ -3,8 +3,22 @@ import { useMemo } from "react";
 
 import type { Filter } from "@mercurjs/dashboard-shared";
 
+import { useCustomers } from "@hooks/api/customers";
+
+const customerLabel = (customer: {
+  first_name?: string | null;
+  last_name?: string | null;
+  email?: string | null;
+}) => {
+  const name = [customer.first_name, customer.last_name]
+    .filter(Boolean)
+    .join(" ");
+  return name || customer.email || "-";
+};
+
 export const useReviewTableFilters = (): Filter[] => {
   const { t } = useTranslation();
+  const { customers } = useCustomers({ limit: 100 });
 
   return useMemo(() => {
     const ratingFilter: Filter = {
@@ -16,6 +30,23 @@ export const useReviewTableFilters = (): Filter[] => {
         label: `${value}`,
         value: `${value}`,
       })),
+    };
+
+    const customerFilter: Filter = {
+      key: "customer_id",
+      label: t("reviews.list.columns.customer"),
+      type: "select",
+      multiple: true,
+      options: (customers ?? []).map((customer) => ({
+        label: customerLabel(customer),
+        value: customer.id,
+      })),
+    };
+
+    const createdFilter: Filter = {
+      key: "created_at",
+      label: t("fields.createdAt"),
+      type: "date",
     };
 
     const statusFilter: Filter = {
@@ -30,15 +61,6 @@ export const useReviewTableFilters = (): Filter[] => {
       ],
     };
 
-    const dateFilters: Filter[] = [
-      { label: t("fields.createdAt"), key: "created_at" },
-      { label: t("fields.updatedAt"), key: "updated_at" },
-    ].map((f) => ({
-      key: f.key,
-      label: f.label,
-      type: "date",
-    }));
-
-    return [ratingFilter, statusFilter, ...dateFilters];
-  }, [t]);
+    return [ratingFilter, customerFilter, createdFilter, statusFilter];
+  }, [t, customers]);
 };
