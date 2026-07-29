@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { Container, Heading, Text } from "@medusajs/ui"
+import { Container, Heading, InlineTip } from "@medusajs/ui"
 
 import { PencilSquare } from "@medusajs/icons"
 import { useTranslation } from "react-i18next"
@@ -39,14 +39,9 @@ export const CampaignConfigurationSection = ({
         endsAt={campaign.ends_at}
         showTime
       />
-      <div className="bg-ui-bg-component shadow-elevation-card-rest border-ui-tag-orange-icon flex rounded-lg border-l-2 px-3 py-2">
-        <Text size="small" leading="compact" className="text-ui-fg-subtle">
-          <span className="text-ui-fg-base txt-compact-small-plus">
-            {t("general.warning")}:
-          </span>{" "}
-          {t("campaigns.configuration.expiryWarning")}
-        </Text>
-      </div>
+      <InlineTip variant="warning" label={t("general.warning")}>
+        {t("campaigns.configuration.expiryWarning")}
+      </InlineTip>
       <DisplayExtensionZone
         model="campaign"
         zone="configuration"

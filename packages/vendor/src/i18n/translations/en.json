@@ -2786,7 +2786,7 @@
         "header": "Campaign Budget"
       },
       "noLimitHint": "If you don't set any limits, the campaign budget will have no limit.",
-      "details": "Campaign budget",
+      "details": "Budget",
       "fields": {
         "type": "Type",
         "currency": "Currency",
