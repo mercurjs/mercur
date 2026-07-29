@@ -10,5 +10,6 @@ export const DEFAULT_CAMPAIGN_VALUES = {
     type: "usage" as CampaignBudgetTypeValues,
     currency_code: null,
     limit: null,
+    attribute: null,
   },
 }

@@ -1,7 +1,6 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { AdminCampaignResponse } from "@medusajs/types"
 import {
-  Badge,
   Container,
   Heading,
   StatusBadge,
@@ -14,7 +13,6 @@ import { useNavigate } from "react-router-dom"
 import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "@components/common/action-menu"
 import { useDeleteCampaign } from "@hooks/api/campaigns"
-import { currencies } from "@lib/data/currencies"
 import {
   campaignStatus,
   statusColor,
@@ -111,23 +109,6 @@ export const CampaignGeneralSection = ({
       <DisplayField
         model="campaign"
         zone="general"
-        id="campaign_identifier"
-        data={campaign}
-      >
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-          <Text size="small" leading="compact" weight="plus">
-            {t("campaigns.fields.identifier")}
-          </Text>
-
-          <Text size="small" leading="compact">
-            {campaign.campaign_identifier}
-          </Text>
-        </div>
-      </DisplayField>
-
-      <DisplayField
-        model="campaign"
-        zone="general"
         id="description"
         data={campaign}
       >
@@ -142,27 +123,22 @@ export const CampaignGeneralSection = ({
         </div>
       </DisplayField>
 
-      {campaign?.budget && campaign.budget.type === "spend" && (
-        <DisplayField
-          model="campaign"
-          zone="general"
-          id="currency_code"
-          data={campaign}
-        >
-          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-            <Text size="small" leading="compact" weight="plus">
-              {t("fields.currency")}
-            </Text>
+      <DisplayField
+        model="campaign"
+        zone="general"
+        id="campaign_identifier"
+        data={campaign}
+      >
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
+          <Text size="small" leading="compact" weight="plus">
+            {t("campaigns.fields.identifier")}
+          </Text>
 
-            <div>
-              <Badge size="xsmall">{campaign?.budget.currency_code}</Badge>
-              <Text className="inline pl-3" size="small" leading="compact">
-                {currencies[campaign?.budget.currency_code?.toUpperCase()]?.name}
-              </Text>
-            </div>
-          </div>
-        </DisplayField>
-      )}
+          <Text size="small" leading="compact">
+            {campaign.campaign_identifier}
+          </Text>
+        </div>
+      </DisplayField>
 
       <DisplayExtensionZone
         model="campaign"
@@ -173,7 +149,6 @@ export const CampaignGeneralSection = ({
           "status",
           "campaign_identifier",
           "description",
-          "currency_code",
         ]}
       />
     </Container>

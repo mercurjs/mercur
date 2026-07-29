@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, toast } from "@medusajs/ui"
+import { useMemo } from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -21,8 +22,9 @@ export const CreateCampaignSchema = zod.object({
   starts_at: zod.date().nullable(),
   ends_at: zod.date().nullable(),
   budget: zod.object({
+    attribute: zod.string().nullish(),
     limit: zod.number().min(0).nullish(),
-    type: zod.enum(["spend", "usage"]),
+    type: zod.enum(["spend", "usage", "use_by_attribute"]),
     currency_code: zod.string().nullish(),
   }),
 })
@@ -32,12 +34,43 @@ export const CreateCampaignForm = () => {
   const { handleSuccess } = useRouteModal()
   const { mutateAsync, isPending } = useCreateCampaign()
 
+  const schema = useMemo(
+    () =>
+      zod
+        .object({
+          name: zod.string().min(1, t("campaigns.validation.name_required")),
+          description: zod.string().optional(),
+          campaign_identifier: zod
+            .string()
+            .min(1, t("campaigns.validation.identifier_required")),
+          starts_at: zod.date().nullable(),
+          ends_at: zod.date().nullable(),
+          budget: zod.object({
+            attribute: zod.string().nullish(),
+            limit: zod.number().min(0).nullish(),
+            type: zod.enum(["spend", "usage", "use_by_attribute"]),
+            currency_code: zod.string().nullish(),
+          }),
+        })
+        .refine(
+          (data) => data.budget.type !== "spend" || !!data.budget.currency_code,
+          {
+            message: t("campaigns.validation.currency_required"),
+            path: ["budget", "currency_code"],
+          }
+        ),
+    [t]
+  )
+
   const form = useForm<zod.infer<typeof CreateCampaignSchema>>({
     defaultValues: DEFAULT_CAMPAIGN_VALUES,
-    resolver: zodResolver(CreateCampaignSchema),
+    resolver: zodResolver(schema),
   })
 
   const handleSubmit = form.handleSubmit(async (data) => {
+    const attribute = data.budget.attribute || null
+    const type = attribute ? "use_by_attribute" : data.budget.type
+
     await mutateAsync(
       {
         name: data.name,
@@ -46,7 +79,8 @@ export const CreateCampaignForm = () => {
         starts_at: data.starts_at,
         ends_at: data.ends_at,
         budget: {
-          type: data.budget.type,
+          type,
+          attribute,
           limit: data.budget.limit ? data.budget.limit : undefined,
           currency_code: data.budget.currency_code,
         },

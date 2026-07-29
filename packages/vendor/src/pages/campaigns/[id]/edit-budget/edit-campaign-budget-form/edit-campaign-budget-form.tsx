@@ -68,7 +68,7 @@ export const EditCampaignBudgetForm = ({
               render={({ field: { onChange, value, ...field } }) => {
                 return (
                   <Form.Item className="basis-1/2">
-                    <Form.Label>
+                    <Form.Label optional>
                       {t("campaigns.budget.fields.limit")}
                     </Form.Label>
 

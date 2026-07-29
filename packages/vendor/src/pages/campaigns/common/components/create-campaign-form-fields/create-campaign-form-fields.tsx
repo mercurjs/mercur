@@ -1,6 +1,7 @@
 import {
   CurrencyInput,
   DatePicker,
+  Divider,
   Heading,
   Input,
   RadioGroup,
@@ -13,6 +14,7 @@ import { Path, PathValue, UseFormReturn, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "@components/common/form"
+import { Combobox } from "@components/inputs/combobox"
 import { useCurrentSeller } from "@hooks/api/sellers"
 import {
   currencies,
@@ -119,7 +121,9 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
             render={({ field }) => {
               return (
                 <Form.Item>
-                  <Form.Label>{t("campaigns.fields.identifier")}</Form.Label>
+                  <Form.Label tooltip={t("campaigns.fields.identifier_tooltip")}>
+                    {t("campaigns.fields.identifier")}
+                  </Form.Label>
 
                   <Form.Control>
                     <Input {...field} value={(field.value as string) ?? ""} />
@@ -203,7 +207,9 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
         />
       </div>
 
-      <div>
+      <Divider variant="dashed" data-testid="campaign-create-form-fields-budget-divider" />
+
+      <div data-testid="campaign-create-form-fields-budget-header">
         <Heading>{t("campaigns.budget.create.header")}</Heading>
         <Text size="small" className="text-ui-fg-subtle">
           {t("campaigns.budget.create.hint")}
@@ -228,7 +234,7 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
 
               <Form.Control>
                 <RadioGroup
-                  className="flex gap-y-3"
+                  className="grid grid-cols-2 gap-4"
                   {...field}
                   value={field.value as string}
                   onValueChange={field.onChange}
@@ -277,8 +283,10 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
                       onValueChange={onChange}
                       disabled={!!fieldScope?.length}
                     >
-                      <Select.Trigger ref={ref}>
-                        <Select.Value />
+                      <Select.Trigger ref={ref} className="w-full">
+                        <Select.Value
+                          placeholder={t("campaigns.budget.fields.selectCurrency")}
+                        />
                       </Select.Trigger>
 
                       <Select.Content>
@@ -312,8 +320,9 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
           name={`${fieldScope}budget.limit` as Path<T>}
           render={({ field: { onChange, value, ...field } }) => {
             return (
-              <Form.Item className="basis-1/2">
+              <Form.Item>
                 <Form.Label
+                  optional
                   tooltip={
                     !currency && isTypeSpend
                       ? t("promotions.fields.amount.tooltip")
@@ -360,7 +369,52 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
             )
           }}
         />
+
+        {!isTypeSpend && (
+          <Form.Field
+            control={form.control}
+            name={`${fieldScope}budget.attribute` as Path<T>}
+            render={({ field }) => {
+              return (
+                <Form.Item>
+                  <Form.Label
+                    optional
+                    tooltip={t("campaigns.budget.fields.budgetAttributeTooltip")}
+                  >
+                    {t("campaigns.budget.fields.budgetAttribute")}
+                  </Form.Label>
+
+                  <Form.Control>
+                    <Combobox
+                      className="w-full"
+                      key="attribute"
+                      {...field}
+                      value={(field.value as string | undefined) ?? undefined}
+                      onChange={(e) => {
+                        field.onChange(typeof e === "undefined" ? null : e)
+                      }}
+                      allowClear
+                      options={[
+                        { label: t("fields.customer"), value: "customer_id" },
+                        { label: t("fields.email"), value: "customer_email" },
+                        {
+                          label: t("fields.promotionCode"),
+                          value: "promotion_code",
+                        },
+                      ]}
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )
+            }}
+          />
+        )}
       </div>
+
+      <Text size="small" className="text-ui-fg-subtle">
+        {t("campaigns.budget.noLimitHint")}
+      </Text>
     </div>
   )
 }

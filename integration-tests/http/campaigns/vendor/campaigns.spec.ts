@@ -129,6 +129,27 @@ medusaIntegrationTestRunner({
                     expect(response.data.campaign.budget.limit).toEqual(100)
                 })
 
+                it("should create a use_by_attribute usage budget with an attribute", async () => {
+                    const response = await api.post(
+                        `/vendor/campaigns`,
+                        {
+                            name: "Per Customer Campaign",
+                            campaign_identifier: "per-customer-campaign",
+                            budget: {
+                                type: "use_by_attribute",
+                                attribute: "customer_id",
+                                limit: 5,
+                            },
+                        },
+                        seller1Headers
+                    )
+
+                    expect(response.status).toEqual(200)
+                    expect(response.data.campaign.budget).toBeDefined()
+                    expect(response.data.campaign.budget.type).toEqual("use_by_attribute")
+                    expect(response.data.campaign.budget.limit).toEqual(5)
+                })
+
                 it("should fail to create campaign without name", async () => {
                     const response = await api
                         .post(
@@ -312,6 +333,286 @@ medusaIntegrationTestRunner({
                     expect(
                         response.data.campaigns.every((c: any) => c.campaign_identifier !== "seller1-only-campaign")
                     ).toBe(true)
+                })
+
+                describe("filters (type & status)", () => {
+                    it("should filter campaigns by budget_type=spend", async () => {
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Spend Filter Campaign",
+                                campaign_identifier: "spend-filter-campaign",
+                                budget: { type: "spend", limit: 1000, currency_code: "usd" },
+                            },
+                            seller1Headers
+                        )
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Usage Filter Campaign",
+                                campaign_identifier: "usage-filter-campaign",
+                                budget: { type: "usage", limit: 50 },
+                            },
+                            seller1Headers
+                        )
+
+                        const response = await api.get(
+                            `/vendor/campaigns?budget_type=spend`,
+                            seller1Headers
+                        )
+
+                        expect(response.status).toEqual(200)
+                        expect(response.data.campaigns.length).toBeGreaterThanOrEqual(1)
+                        expect(
+                            response.data.campaigns.every((c: any) => c.budget?.type === "spend")
+                        ).toBe(true)
+                        expect(
+                            response.data.campaigns.some(
+                                (c: any) => c.campaign_identifier === "spend-filter-campaign"
+                            )
+                        ).toBe(true)
+                    })
+
+                    it("should filter campaigns by budget_type=usage", async () => {
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Usage Only Campaign",
+                                campaign_identifier: "usage-only-filter-campaign",
+                                budget: { type: "usage", limit: 25 },
+                            },
+                            seller1Headers
+                        )
+
+                        const response = await api.get(
+                            `/vendor/campaigns?budget_type=usage`,
+                            seller1Headers
+                        )
+
+                        expect(response.status).toEqual(200)
+                        expect(
+                            response.data.campaigns.every((c: any) => c.budget?.type === "usage")
+                        ).toBe(true)
+                        expect(
+                            response.data.campaigns.some(
+                                (c: any) => c.campaign_identifier === "usage-only-filter-campaign"
+                            )
+                        ).toBe(true)
+                    })
+
+                    it("should reject an invalid budget_type value", async () => {
+                        const response = await api
+                            .get(`/vendor/campaigns?budget_type=not-a-type`, seller1Headers)
+                            .catch((e) => e.response)
+
+                        expect(response.status).toEqual(400)
+                    })
+
+                    it("should filter campaigns by status=scheduled", async () => {
+                        const future = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+                        const laterFuture = new Date(Date.now() + 60 * 24 * 60 * 60 * 1000)
+
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Scheduled Campaign",
+                                campaign_identifier: "scheduled-status-campaign",
+                                starts_at: future.toISOString(),
+                                ends_at: laterFuture.toISOString(),
+                            },
+                            seller1Headers
+                        )
+
+                        const response = await api.get(
+                            `/vendor/campaigns?status=scheduled`,
+                            seller1Headers
+                        )
+
+                        expect(response.status).toEqual(200)
+                        expect(
+                            response.data.campaigns.every(
+                                (c: any) => c.starts_at && new Date(c.starts_at) > new Date()
+                            )
+                        ).toBe(true)
+                        expect(
+                            response.data.campaigns.some(
+                                (c: any) => c.campaign_identifier === "scheduled-status-campaign"
+                            )
+                        ).toBe(true)
+                    })
+
+                    it("should filter campaigns by status=expired", async () => {
+                        const past = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000)
+                        const recentPast = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Expired Campaign",
+                                campaign_identifier: "expired-status-campaign",
+                                starts_at: past.toISOString(),
+                                ends_at: recentPast.toISOString(),
+                            },
+                            seller1Headers
+                        )
+
+                        const response = await api.get(
+                            `/vendor/campaigns?status=expired`,
+                            seller1Headers
+                        )
+
+                        expect(response.status).toEqual(200)
+                        expect(
+                            response.data.campaigns.every(
+                                (c: any) => c.ends_at && new Date(c.ends_at) < new Date()
+                            )
+                        ).toBe(true)
+                        expect(
+                            response.data.campaigns.some(
+                                (c: any) => c.campaign_identifier === "expired-status-campaign"
+                            )
+                        ).toBe(true)
+                    })
+
+                    it("should filter campaigns by status=active", async () => {
+                        const past = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                        const future = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Active Dated Campaign",
+                                campaign_identifier: "active-dated-campaign",
+                                starts_at: past.toISOString(),
+                                ends_at: future.toISOString(),
+                            },
+                            seller1Headers
+                        )
+                        // A campaign with no dates is also active (open-ended).
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Active Open Campaign",
+                                campaign_identifier: "active-open-campaign",
+                            },
+                            seller1Headers
+                        )
+                        // A scheduled campaign must be excluded.
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Scheduled Excluded Campaign",
+                                campaign_identifier: "scheduled-excluded-campaign",
+                                starts_at: future.toISOString(),
+                            },
+                            seller1Headers
+                        )
+
+                        const response = await api.get(
+                            `/vendor/campaigns?status=active`,
+                            seller1Headers
+                        )
+
+                        expect(response.status).toEqual(200)
+                        const identifiers = response.data.campaigns.map(
+                            (c: any) => c.campaign_identifier
+                        )
+                        expect(identifiers).toContain("active-dated-campaign")
+                        expect(identifiers).toContain("active-open-campaign")
+                        expect(identifiers).not.toContain("scheduled-excluded-campaign")
+                    })
+
+                    it("should reject an invalid status value", async () => {
+                        const response = await api
+                            .get(`/vendor/campaigns?status=whenever`, seller1Headers)
+                            .catch((e) => e.response)
+
+                        expect(response.status).toEqual(400)
+                    })
+
+                    it("should keep seller scoping when filtering by budget_type", async () => {
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Seller 1 Spend Campaign",
+                                campaign_identifier: "seller1-spend-scoped",
+                                budget: { type: "spend", limit: 1000, currency_code: "usd" },
+                            },
+                            seller1Headers
+                        )
+
+                        // seller2 filtering by the same budget type must not see seller1's campaign
+                        const response = await api.get(
+                            `/vendor/campaigns?budget_type=spend`,
+                            seller2Headers
+                        )
+
+                        expect(response.status).toEqual(200)
+                        expect(
+                            response.data.campaigns.every(
+                                (c: any) => c.campaign_identifier !== "seller1-spend-scoped"
+                            )
+                        ).toBe(true)
+                    })
+
+                    it("should combine budget_type and status filters", async () => {
+                        const past = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                        const future = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+
+                        // active + spend -> should match
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Active Spend Campaign",
+                                campaign_identifier: "active-spend-combo",
+                                starts_at: past.toISOString(),
+                                ends_at: future.toISOString(),
+                                budget: { type: "spend", limit: 1000, currency_code: "usd" },
+                            },
+                            seller1Headers
+                        )
+                        // active + usage -> excluded by budget_type
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Active Usage Campaign",
+                                campaign_identifier: "active-usage-combo",
+                                starts_at: past.toISOString(),
+                                ends_at: future.toISOString(),
+                                budget: { type: "usage", limit: 10 },
+                            },
+                            seller1Headers
+                        )
+                        // scheduled + spend -> excluded by status
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Scheduled Spend Campaign",
+                                campaign_identifier: "scheduled-spend-combo",
+                                starts_at: future.toISOString(),
+                                budget: { type: "spend", limit: 1000, currency_code: "usd" },
+                            },
+                            seller1Headers
+                        )
+
+                        const response = await api.get(
+                            `/vendor/campaigns?budget_type=spend&status=active`,
+                            seller1Headers
+                        )
+
+                        expect(response.status).toEqual(200)
+                        const identifiers = response.data.campaigns.map(
+                            (c: any) => c.campaign_identifier
+                        )
+                        expect(identifiers).toContain("active-spend-combo")
+                        expect(identifiers).not.toContain("active-usage-combo")
+                        expect(identifiers).not.toContain("scheduled-spend-combo")
+                        expect(
+                            response.data.campaigns.every(
+                                (c: any) => c.budget?.type === "spend"
+                            )
+                        ).toBe(true)
+                    })
                 })
             })
 

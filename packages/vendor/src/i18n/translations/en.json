@@ -2730,21 +2730,22 @@
       "scheduled": "Scheduled"
     },
     "delete": {
-      "title": "Are you sure?",
-      "description": "You are about to delete the campaign '{{name}}'. This action cannot be undone.",
-      "successToast": "Campaign '{{name}}' was successfully deleted."
+      "title": "Delete campaign",
+      "description": "You are about to delete a campaign {{name}}. This action cannot be undone.",
+      "successToast": "Campaign was successfully deleted."
     },
     "edit": {
       "header": "Edit Campaign",
       "description": "Edit the details of the campaign.",
-      "successToast": "Campaign '{{name}}' was successfully updated."
+      "successToast": "Campaign was successfully updated."
     },
     "configuration": {
       "header": "Configuration",
+      "expiryWarning": "The promotion will expire when campaign expires.",
       "edit": {
         "header": "Edit Campaign Configuration",
         "description": "Edit the configuration of the campaign.",
-        "successToast": "Campaign configuration was successfully updated."
+        "successToast": "Campaign was successfully updated."
       }
     },
     "create": {
@@ -2752,11 +2753,18 @@
       "description": "Create a promotional campaign.",
       "hint": "Create a promotional campaign.",
       "header": "Create Campaign",
-      "successToast": "Campaign '{{name}}' was successfully created."
+      "successToast": "Campaign was successfully created."
+    },
+    "validation": {
+      "name_required": "Please enter a name",
+      "identifier_required": "Please enter an identifier",
+      "currency_required": "Please select a currency"
     },
     "fields": {
       "name": "Name",
       "identifier": "Identifier",
+      "identifier_tooltip": "The identifier is your business-friendly campaign code that you use for integrations, reporting, and easily recognizing the campaign – it is not the technical ID from the database.",
+      "type": "Type",
       "start_date": "Start date",
       "end_date": "End date",
       "total_spend": "Budget spent",
@@ -2770,16 +2778,19 @@
     "budget": {
       "attribute": {
         "customer_id": "customer",
-        "customer_email": "email"
+        "customer_email": "email",
+        "promotion_code": "promotion code"
       },
       "create": {
         "hint": "Create a budget for the campaign.",
         "header": "Campaign Budget"
       },
-      "details": "Campaign budget",
+      "noLimitHint": "If you don't set any limits, the campaign budget will have no limit.",
+      "details": "Budget",
       "fields": {
         "type": "Type",
         "currency": "Currency",
+        "selectCurrency": "Select currency",
         "limit": "Limit",
         "used": "Used",
         "budgetAttribute": "Limit usage per",
@@ -2797,6 +2808,10 @@
           "title": "Usage",
           "description": "Set a limit on how many times the promotion can be used."
         },
+        "use_by_attribute": {
+          "title": "Usage",
+          "description": "Set a limit on how many times the promotion can be used."
+        },
         "useByAttribute": {
           "title": "Usage by attribute (customer id, email, etc.)",
           "titleCustomerId": "Usage per customer",
@@ -2810,22 +2825,27 @@
     },
     "promotions": {
       "remove": {
-        "title": "Remove promotion from campaign",
+        "title": "Remove promotions",
         "description": "You are about to remove {{count}} promotion(s) from the campaign. This action cannot be undone."
       },
       "alreadyAdded": "This promotion has already been added to the campaign.",
       "alreadyAddedDiffCampaign": "This promotion has already been added to a different campaign ({{name}}).",
       "currencyMismatch": "Currency of the promotion and campaign doesn't match",
       "toast": {
-        "success": "Successfully added {{count}} promotion(s) to campaign"
+        "added_one": "Promotion was successfully added to campaign.",
+        "added_other": "Promotions were successfully added to campaign.",
+        "removed_one": "Promotion was successfully removed from campaign.",
+        "removed_other": "Promotions were successfully removed from campaign."
       },
       "add": {
+        "tip": "You can only add promotions that are not already in another campaign.",
         "list": {
           "noRecordsMessage": "Create a promotion first."
         }
       },
       "list": {
-        "noRecordsMessage": "There are no promotions in the campaign."
+        "noRecordsTitle": "No promotions yet",
+        "noRecordsMessage": "This campaign doesn't have any promotions"
       }
     },
     "deleteCampaignWarning": "You are about to delete the campaign {{name}}. This action cannot be undone.",
