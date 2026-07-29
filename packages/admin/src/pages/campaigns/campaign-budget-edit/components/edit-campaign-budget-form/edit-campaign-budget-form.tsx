@@ -41,12 +41,8 @@ export const EditCampaignBudgetForm = ({
         },
       },
       {
-        onSuccess: ({ campaign }) => {
-          toast.success(
-            t("campaigns.edit.successToast", {
-              name: campaign.name,
-            })
-          )
+        onSuccess: () => {
+          toast.success(t("campaigns.edit.successToast"))
 
           handleSuccess()
         },
@@ -68,7 +64,7 @@ export const EditCampaignBudgetForm = ({
               render={({ field: { onChange, value, ...field } }) => {
                 return (
                   <Form.Item className="basis-1/2" data-testid="campaign-edit-budget-form-limit-item">
-                    <Form.Label data-testid="campaign-edit-budget-form-limit-label">
+                    <Form.Label optional data-testid="campaign-edit-budget-form-limit-label">
                       {t("campaigns.budget.fields.limit")}
                     </Form.Label>
 

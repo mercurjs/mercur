@@ -1,6 +1,8 @@
 import { createColumnHelper } from "@tanstack/react-table"
 
 import { AdminCampaign } from "@medusajs/types"
+import { StatusBadge } from "@medusajs/ui"
+import { SellerDTO } from "@mercurjs/types"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
 import { DateCell } from "../../../components/table/table-cells/common/date-cell"
@@ -16,6 +18,10 @@ import {
   NameCell,
   NameHeader,
 } from "../../../components/table/table-cells/sales-channel/name-cell"
+import {
+  campaignStatus,
+  statusColor,
+} from "../../../pages/campaigns/common/utils/campaign-status"
 
 const columnHelper = createColumnHelper<AdminCampaign>()
 
@@ -37,6 +43,36 @@ export const useCampaignTableColumns = () => {
         cell: ({ getValue }) => {
           const value = getValue()
           return <TextCell text={value} />
+        },
+      }),
+      columnHelper.display({
+        id: "type",
+        header: () => <TextHeader text={t("campaigns.fields.type")} />,
+        cell: ({ row }) => {
+          const type = row.original.budget?.type
+
+          if (!type) {
+            return <TextCell text="-" />
+          }
+
+          return <TextCell text={t(`campaigns.budget.type.${type}.title`)} />
+        },
+      }),
+      columnHelper.display({
+        id: "owner",
+        header: () => <TextHeader text={t("campaigns.fields.owner")} />,
+        cell: ({ row }) => {
+          const campaign = row.original as AdminCampaign & {
+            seller?: Pick<SellerDTO, "name"> | null
+          }
+
+          return (
+            <TextCell
+              text={
+                campaign.seller?.name ?? t("campaigns.fields.platformOwner")
+              }
+            />
+          )
         },
       }),
       columnHelper.accessor("starts_at", {
@@ -65,6 +101,19 @@ export const useCampaignTableColumns = () => {
           const date = new Date(value)
 
           return <DateCell date={date} />
+        },
+      }),
+      columnHelper.display({
+        id: "status",
+        header: () => <TextHeader text={t("fields.status")} />,
+        cell: ({ row }) => {
+          const status = campaignStatus(row.original)
+
+          return (
+            <StatusBadge color={statusColor(status)}>
+              {t(`campaigns.status.${status}`)}
+            </StatusBadge>
+          )
         },
       }),
     ],
