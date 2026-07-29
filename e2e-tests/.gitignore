@@ -1,0 +1,6 @@
+.stack.json
+.medusa/
+test-results/
+playwright-report/
+node_modules/
+.mercur/
