@@ -3440,7 +3440,7 @@
     "validation": {
       "emailRequired": "Please enter an email",
       "emailInvalid": "Please enter a valid email",
-      "passwordRequired": "Please enter your password"
+      "passwordRequired": "Please enter a password"
     }
   },
   "invite": {
