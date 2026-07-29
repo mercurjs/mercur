@@ -7,25 +7,27 @@ import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 const PLATFORM_OWNER = "platform"
 
-type CampaignRow = {
-  id: string
-  starts_at: string | Date | null
-  ends_at: string | Date | null
-  budget?: { type?: string | null } | null
-}
+type Filter = Record<string, unknown>
 
-const resolveCampaignStatus = (campaign: CampaignRow) => {
-  const now = new Date()
-
-  if (campaign.ends_at && new Date(campaign.ends_at) < now) {
-    return "expired"
+const buildStatusFilter = (status: string, now: Date): Filter | undefined => {
+  switch (status) {
+    case "expired":
+      return { ends_at: { $lt: now } }
+    case "scheduled":
+      return {
+        starts_at: { $gt: now },
+        $or: [{ ends_at: null }, { ends_at: { $gte: now } }],
+      }
+    case "active":
+      return {
+        $and: [
+          { $or: [{ starts_at: null }, { starts_at: { $lte: now } }] },
+          { $or: [{ ends_at: null }, { ends_at: { $gte: now } }] },
+        ],
+      }
+    default:
+      return undefined
   }
-
-  if (campaign.starts_at && new Date(campaign.starts_at) > now) {
-    return "scheduled"
-  }
-
-  return "active"
 }
 
 export const applyCampaignFilters = async (
@@ -48,55 +50,130 @@ export const applyCampaignFilters = async (
   }
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const constraints: Filter[] = []
+  let noMatch = false
 
-  const { data: campaigns } = await query.graph({
-    entity: "campaign",
-    fields: ["id", "starts_at", "ends_at", "budget.type"],
-    pagination: { take: 10000 },
-  })
-
-  const { data: links } = await query.graph({
-    entity: "campaign_seller",
-    fields: ["campaign_id", "seller_id"],
-    pagination: { take: 10000 },
-  })
-
-  const sellersByCampaign = new Map<string, string[]>()
-  for (const link of links as { campaign_id: string; seller_id: string }[]) {
-    const owners = sellersByCampaign.get(link.campaign_id) ?? []
-    owners.push(link.seller_id)
-    sellersByCampaign.set(link.campaign_id, owners)
+  // budget_type -> resolve to campaign ids through the campaign_budget table
+  let budgetIds: string[] | undefined
+  if (budgetType) {
+    const { data } = await query.graph({
+      entity: "campaign_budget",
+      fields: ["campaign_id"],
+      filters: { type: budgetType },
+    })
+    budgetIds = data.map((b: { campaign_id: string }) => b.campaign_id)
+    if (!budgetIds.length) {
+      noMatch = true
+    }
   }
 
-  let rows = campaigns as CampaignRow[]
-
-  if (sellerId) {
+  // seller_id (incl. "platform" pseudo-owner) -> resolve through campaign_seller
+  let sellerConstraint: Filter | undefined
+  if (sellerId && !noMatch) {
     const requested = Array.isArray(sellerId) ? sellerId : [sellerId]
     const wantsPlatform = requested.includes(PLATFORM_OWNER)
     const requestedSellers = requested.filter((id) => id !== PLATFORM_OWNER)
 
-    rows = rows.filter((campaign) => {
-      const owners = sellersByCampaign.get(campaign.id) ?? []
-      const isPlatform = owners.length === 0
+    let sellerIds: string[] = []
+    if (requestedSellers.length) {
+      const { data } = await query.graph({
+        entity: "campaign_seller",
+        fields: ["campaign_id"],
+        filters: { seller_id: requestedSellers },
+      })
+      sellerIds = data.map((l: { campaign_id: string }) => l.campaign_id)
+    }
 
-      if (wantsPlatform && isPlatform) {
-        return true
+    let platformFilter: Filter | undefined
+    if (wantsPlatform) {
+      const { data } = await query.graph({
+        entity: "campaign_seller",
+        fields: ["campaign_id"],
+      })
+      const allLinkedIds = data.map((l: { campaign_id: string }) => l.campaign_id)
+      platformFilter = allLinkedIds.length
+        ? { id: { $nin: allLinkedIds } }
+        : {}
+    }
+
+    const sellerFilter = requestedSellers.length
+      ? { id: { $in: sellerIds } }
+      : undefined
+
+    if (sellerFilter && platformFilter) {
+      // intersect budget with sellers below; platform is a disjoint branch
+      sellerConstraint =
+        Object.keys(platformFilter).length === 0
+          ? sellerFilter
+          : { $or: [sellerFilter, platformFilter] }
+    } else if (sellerFilter) {
+      if (!sellerIds.length) {
+        noMatch = true
+      } else {
+        sellerConstraint = sellerFilter
       }
-
-      return owners.some((owner) => requestedSellers.includes(owner))
-    })
+    } else if (platformFilter) {
+      sellerConstraint = platformFilter
+    }
   }
 
-  if (budgetType) {
-    rows = rows.filter((campaign) => campaign.budget?.type === budgetType)
+  // Intersect the two plain id allowlists (budget + real sellers) when possible
+  // to keep the common path a single `id: { $in }` constraint.
+  if (
+    !noMatch &&
+    budgetIds &&
+    sellerConstraint &&
+    isPlainInFilter(sellerConstraint)
+  ) {
+    const sellerIds = (sellerConstraint.id as { $in: string[] }).$in
+    const budgetSet = new Set(budgetIds)
+    const intersection = sellerIds.filter((id) => budgetSet.has(id))
+    if (!intersection.length) {
+      noMatch = true
+    } else {
+      constraints.push({ id: { $in: intersection } })
+    }
+    budgetIds = undefined
+    sellerConstraint = undefined
   }
 
-  if (status) {
-    rows = rows.filter((campaign) => resolveCampaignStatus(campaign) === status)
+  if (!noMatch) {
+    if (budgetIds) {
+      constraints.push({ id: { $in: budgetIds } })
+    }
+    if (sellerConstraint) {
+      constraints.push(sellerConstraint)
+    }
+    if (status) {
+      const statusFilter = buildStatusFilter(status, new Date())
+      if (statusFilter) {
+        constraints.push(statusFilter)
+      }
+    }
   }
 
-  const ids = rows.map((campaign) => campaign.id)
-  filterableFields.id = ids.length ? ids : ["__no_match__"]
+  if (noMatch) {
+    filterableFields.id = ["__no_match__"]
+    return next()
+  }
+
+  if (constraints.length) {
+    const existingAnd = Array.isArray(filterableFields.$and)
+      ? (filterableFields.$and as Filter[])
+      : []
+    filterableFields.$and = [...existingAnd, ...constraints]
+  }
 
   return next()
+}
+
+const isPlainInFilter = (
+  filter: Filter
+): filter is { id: { $in: string[] } } => {
+  const id = filter.id as { $in?: unknown } | undefined
+  return (
+    Object.keys(filter).length === 1 &&
+    !!id &&
+    Array.isArray((id as { $in?: unknown }).$in)
+  )
 }
