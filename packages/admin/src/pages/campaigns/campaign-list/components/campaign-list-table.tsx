@@ -112,6 +112,7 @@ export const CampaignListDataTable = () => {
       navigateTo={(row) => row.id}
       isLoading={isLoading}
       queryObject={raw}
+      defaultOrder="-created_at"
       orderBy={[
         { key: "name", label: t("fields.name") },
         { key: "created_at", label: t("fields.createdAt") },
