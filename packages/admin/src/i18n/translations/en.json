@@ -3357,6 +3357,55 @@
       "categoryInheritance": "Child categories will inherit this attribute."
     }
   },
+  "reviews": {
+    "domain": "Reviews",
+    "subtitle": "Manage customer reviews of your stores.",
+    "fields": {
+      "id": "Review ID",
+      "rating": "Rating",
+      "content": "Content",
+      "store": "Store",
+      "customer": "Customer",
+      "date": "Date",
+      "status": "Status",
+      "response": "Response"
+    },
+    "status": {
+      "pending": "Pending",
+      "published": "Published",
+      "rejected": "Rejected"
+    },
+    "filters": {
+      "stars_one": "{{count}} star",
+      "stars_other": "{{count}} stars"
+    },
+    "list": {
+      "noRecordsMessage": "No reviews found."
+    },
+    "detail": {
+      "customer": "Customer",
+      "order": "Order",
+      "store": "Store"
+    },
+    "edit": {
+      "header": "Edit review",
+      "description": "Edit the review's status and rating.",
+      "successToast": "Review updated"
+    },
+    "respond": {
+      "action": "Respond",
+      "header": "Respond to review",
+      "description": "Add a response to this review.",
+      "label": "Response",
+      "successToast": "Response added",
+      "alreadyResponded": "This review already has a response."
+    },
+    "delete": {
+      "confirmTitle": "Delete review",
+      "confirmDescription": "Are you sure you want to delete this review? This action cannot be undone.",
+      "successToast": "Review deleted"
+    }
+  },
   "returnReasons": {
     "domain": "Return Reasons",
     "subtitle": "Manage reasons for returned items.",

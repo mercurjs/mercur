@@ -1,15 +1,23 @@
-export type CreateReviewDTO = {
+import { ReviewReference, ReviewStatus } from "./common"
+
+export interface CreateReviewDTO {
   order_id: string
-  reference: "product" | "seller"
+  reference: ReviewReference
   reference_id: string
   rating: number
-  customer_note: string | null
+  customer_note?: string | null
   customer_id: string
 }
 
-export type UpdateReviewDTO = {
+export interface UpdateReviewDTO {
   id: string
   rating?: number
-  customer_note?: string
-  seller_note?: string
+  customer_note?: string | null
+  seller_note?: string | null
+  status?: ReviewStatus
+}
+
+export interface RespondReviewDTO {
+  id: string
+  seller_note: string
 }

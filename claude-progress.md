@@ -13,10 +13,31 @@ session detail aggressively. The per-spec source of truth lives in
 - **Standard verification path**: `bun run build`, `bun run lint` (oxlint),
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
-- **Active spec**: _(none in progress — pick the highest-priority unfinished
-  `docs/specs/SPEC-*.md`)_
+- **Active spec**: `docs/specs/spec-2-admin-reviews` (MER-152) — implemented on
+  worktree branch `feat/admin-reviews`; awaiting integration-test run in CI +
+  visual Figma parity check.
 
 ## Session Log
+
+### Session: 2026-07-29 -- Admin Reviews (MER-152, SPEC-2)
+
+- **Goal.** Promote reviews from the registry block into `@mercurjs/core` and build the
+  admin reviews UI to match Figma (canvas `40015049:1019815`, BASIC/store reviews).
+- **Backend.** `packages/core/src/modules/review` (model + `status` enum + migration + service);
+  links customer/order/seller/product; `workflows/review` (create/update/respond-add-once/delete
+  + validate); admin/vendor/store API routes + validators + query-config + middlewares (registered
+  in all three aggregators). `MercurModules.REVIEW` + review DTOs added to `@mercurjs/types`.
+- **Admin UI.** `pages/reviews/{review-list,review-detail,review-edit,review-respond,common}` +
+  `hooks/api/reviews.tsx`; route in `get-route-map.tsx`; sidebar entry after Stores; `reviews.*`
+  i18n. List (Review ID/Rating stars/Content/Store/Customer/Date/Status badge/Response + Rating/
+  Status/Date filters), detail (two-column + Customer/Order/Store sidebar cards), Edit drawer
+  (Status+Rating), Respond drawer (add-once), delete-action hook.
+- **Block removed.** `packages/registry/src/reviews/` + `registry.json` entry + built `r/` artifacts.
+- **Verified.** types+core build ✓, admin ESM bundle ✓, `tsc` clean on review files, `oxlint` clean.
+  Added `integration-tests/http/review/admin/review.spec.ts` (runs in CI — worktree can't run it).
+- **Next.** CI integration run; migration apply on live DB; Figma visual parity; vendor-notify rule.
+
+### Session Log (prior)
 
 ### Session: 2026-07-21 -- Vendor offer-targeted promotions (PR #1268)
 

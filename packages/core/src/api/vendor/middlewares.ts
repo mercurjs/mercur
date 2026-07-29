@@ -43,6 +43,7 @@ import { vendorUploadsMiddlewares } from "./uploads/middlewares"
 import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
 import { vendorProductAttributesMiddlewares } from "./product-attributes/middlewares"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
+import { vendorReviewsMiddlewares } from "./reviews/middlewares"
 
 const unauthenticatedRoutes = [
   /^\/vendor\/sellers$/,
@@ -127,4 +128,5 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorStoresMiddlewares,
   ...vendorUploadsMiddlewares,
   ...vendorProductTagsMiddlewares,
+  ...vendorReviewsMiddlewares,
 ]

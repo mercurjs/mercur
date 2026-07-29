@@ -21,6 +21,7 @@ import { adminProductChangesMiddlewares } from "./product-changes/middlewares"
 import { adminStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { adminShippingOptionsMiddlewares } from "./shipping-options/middlewares"
 import { adminShippingProfilesMiddlewares } from "./shipping-profiles/middlewares"
+import { adminReviewsMiddlewares } from "./reviews/middlewares"
 
 export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminOrderGroupsMiddlewares,
@@ -50,4 +51,5 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminStockLocationsMiddlewares,
   ...adminShippingOptionsMiddlewares,
   ...adminShippingProfilesMiddlewares,
+  ...adminReviewsMiddlewares,
 ]
