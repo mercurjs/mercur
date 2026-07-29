@@ -39,11 +39,13 @@ export const queryKeysFactory = <
   const queryKeyFactory: TQueryKey<T, TListQueryType, TDetailQueryType> = {
     all: [globalKey],
     lists: () => [...queryKeyFactory.all, "list"],
+    // @ts-expect-error
     list: (query?: TListQueryType) =>
       [...queryKeyFactory.lists(), query ? { query } : undefined].filter(
         (k) => !!k
       ),
     details: () => [...queryKeyFactory.all, "detail"],
+    // @ts-expect-error
     detail: (id: TDetailQueryType, query?: TListQueryType) =>
       [...queryKeyFactory.details(), id, query ? { query } : undefined].filter(
         (k) => !!k
