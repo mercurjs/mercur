@@ -1,56 +1,10 @@
-import {
-  BuildingStorefront,
-  ShoppingCart,
-  TriangleRightMini,
-  User,
-} from "@medusajs/icons"
-import { Container, Heading, Text } from "@medusajs/ui"
+import { BuildingStorefront, ShoppingCart, User } from "@medusajs/icons"
+import { Container, Heading } from "@medusajs/ui"
 import { ReactNode } from "react"
 import { useTranslation } from "react-i18next"
-import { Link } from "react-router-dom"
 
+import { SidebarLink } from "../../../../components/common/sidebar-link/sidebar-link"
 import { AdminReview } from "../../../../hooks/api/reviews"
-
-const LinkRow = ({
-  to,
-  icon,
-  title,
-  subtitle,
-  testId,
-}: {
-  to: string
-  icon: ReactNode
-  title: string
-  subtitle?: string
-  testId: string
-}) => (
-  <Link
-    to={to}
-    className="bg-ui-bg-subtle hover:bg-ui-bg-subtle-hover flex items-center justify-between gap-x-4 px-6 py-4 transition-fg"
-    data-testid={testId}
-  >
-    <div className="flex items-center gap-x-3 overflow-hidden">
-      <div className="bg-ui-bg-component shadow-borders-base flex size-7 items-center justify-center rounded-md [&_svg]:text-ui-fg-subtle">
-        {icon}
-      </div>
-      <div className="flex flex-col overflow-hidden">
-        <Text size="small" leading="compact" weight="plus" className="truncate">
-          {title}
-        </Text>
-        {subtitle ? (
-          <Text
-            size="small"
-            leading="compact"
-            className="text-ui-fg-subtle truncate"
-          >
-            {subtitle}
-          </Text>
-        ) : null}
-      </div>
-    </div>
-    <TriangleRightMini className="text-ui-fg-muted" />
-  </Link>
-)
 
 const SidebarCard = ({
   title,
@@ -82,12 +36,12 @@ export const ReviewCustomerSection = ({ review }: { review: AdminReview }) => {
 
   return (
     <SidebarCard title={t("reviews.detail.customer")}>
-      <LinkRow
+      <SidebarLink
         to={`/customers/${customer.id}`}
+        labelKey={name}
+        descriptionKey={customer.email ?? ""}
         icon={<User />}
-        title={name}
-        subtitle={customer.email ?? undefined}
-        testId="review-customer-link"
+        dataTestid="review-customer-link"
       />
     </SidebarCard>
   )
@@ -113,12 +67,12 @@ export const ReviewOrderSection = ({ review }: { review: AdminReview }) => {
 
   return (
     <SidebarCard title={t("reviews.detail.order")}>
-      <LinkRow
+      <SidebarLink
         to={`/orders/${order.id}`}
+        labelKey={`#${order.display_id}`}
+        descriptionKey={date ?? ""}
         icon={<ShoppingCart />}
-        title={`#${order.display_id}`}
-        subtitle={date}
-        testId="review-order-link"
+        dataTestid="review-order-link"
       />
     </SidebarCard>
   )
@@ -134,12 +88,12 @@ export const ReviewStoreSection = ({ review }: { review: AdminReview }) => {
 
   return (
     <SidebarCard title={t("reviews.detail.store")}>
-      <LinkRow
+      <SidebarLink
         to={`/stores/${seller.id}`}
+        labelKey={seller.name}
+        descriptionKey={seller.email ?? ""}
         icon={<BuildingStorefront />}
-        title={seller.name}
-        subtitle={seller.email ?? undefined}
-        testId="review-store-link"
+        dataTestid="review-store-link"
       />
     </SidebarCard>
   )

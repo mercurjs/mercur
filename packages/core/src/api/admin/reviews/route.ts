@@ -7,6 +7,7 @@ export async function GET(
   res: MedusaResponse<AdminReviewListResponse>
 ): Promise<void> {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+
   const { data: reviews, metadata } = await query.graph({
     entity: "review",
     fields: req.queryConfig.fields,

@@ -9,19 +9,26 @@ import { RouteDrawer, useRouteModal } from "../../../../../components/modals"
 import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { AdminReview, useRespondReview } from "../../../../../hooks/api/reviews"
 
-const RespondReviewSchema = zod.object({
-  seller_note: zod.string().min(1).max(300),
-})
+type RespondReviewFormValues = {
+  seller_note: string
+}
 
 export const RespondReviewForm = ({ review }: { review: AdminReview }) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
 
-  const form = useForm<zod.infer<typeof RespondReviewSchema>>({
+  const form = useForm<RespondReviewFormValues>({
     defaultValues: {
       seller_note: "",
     },
-    resolver: zodResolver(RespondReviewSchema),
+    resolver: zodResolver(
+      zod.object({
+        seller_note: zod
+          .string()
+          .min(1, t("reviews.respond.validation"))
+          .max(300),
+      })
+    ),
   })
 
   const { mutateAsync, isPending } = useRespondReview(review.id)

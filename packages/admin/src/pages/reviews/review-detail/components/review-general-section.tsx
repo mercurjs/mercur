@@ -1,6 +1,7 @@
-import { ChatBubbleLeftRight, PencilSquare, Trash } from "@medusajs/icons"
-import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
+import { PencilSquare, Trash } from "@medusajs/icons"
+import { Button, Container, Heading, StatusBadge, Text } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { AdminReview } from "../../../../hooks/api/reviews"
@@ -52,13 +53,6 @@ export const ReviewGeneralSection = ({ review }: { review: AdminReview }) => {
                     label: t("actions.edit"),
                     to: "edit",
                   },
-                  {
-                    icon: <ChatBubbleLeftRight />,
-                    label: t("reviews.respond.action"),
-                    to: "respond",
-                    disabled: hasResponse,
-                    disabledTooltip: t("reviews.respond.alreadyResponded"),
-                  },
                 ],
               },
               {
@@ -89,6 +83,19 @@ export const ReviewGeneralSection = ({ review }: { review: AdminReview }) => {
           {review.seller_note || "-"}
         </Text>
       </Row>
+
+      {!hasResponse && (
+        <div className="flex items-center justify-end px-6 py-4">
+          <Button
+            size="small"
+            variant="secondary"
+            asChild
+            data-testid="review-general-section-respond-button"
+          >
+            <Link to="respond">{t("reviews.respond.action")}</Link>
+          </Button>
+        </div>
+      )}
     </Container>
   )
 }

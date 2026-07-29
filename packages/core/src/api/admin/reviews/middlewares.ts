@@ -1,6 +1,9 @@
 import { validateAndTransformBody, validateAndTransformQuery } from "@medusajs/framework"
+import { maybeApplyLinkFilter } from "@medusajs/framework/http"
 import { MiddlewareRoute } from "@medusajs/medusa"
 
+import customerReview from "../../../links/customer-review"
+import sellerReview from "../../../links/seller-review"
 import { adminReviewsConfig } from "./query-config"
 import {
   AdminGetReviewsParams,
@@ -14,6 +17,16 @@ export const adminReviewsMiddlewares: MiddlewareRoute[] = [
     matcher: "/admin/reviews",
     middlewares: [
       validateAndTransformQuery(AdminGetReviewsParams, adminReviewsConfig.list),
+      maybeApplyLinkFilter({
+        entryPoint: sellerReview.entryPoint,
+        resourceId: "review_id",
+        filterableField: "seller_id",
+      }),
+      maybeApplyLinkFilter({
+        entryPoint: customerReview.entryPoint,
+        resourceId: "review_id",
+        filterableField: "customer_id",
+      }),
     ],
   },
   {

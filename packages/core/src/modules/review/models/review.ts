@@ -5,8 +5,8 @@ const Review = model.define("review", {
   display_id: model.autoincrement(),
   reference: model.enum(["product", "seller"]),
   rating: model.number(),
-  customer_note: model.text().nullable(),
-  seller_note: model.text().nullable(),
+  customer_note: model.text().searchable().nullable(),
+  seller_note: model.text().searchable().nullable(),
   status: model.enum(["pending", "published", "rejected"]).default("pending"),
 })
 

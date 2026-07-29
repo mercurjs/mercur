@@ -10,12 +10,31 @@ export const useReviewTableQuery = ({
   pageSize = 20,
 }: UseReviewTableQueryProps) => {
   const queryObject = useQueryParams(
-    ["offset", "q", "order", "created_at", "updated_at", "rating", "status"],
+    [
+      "offset",
+      "q",
+      "order",
+      "created_at",
+      "updated_at",
+      "rating",
+      "status",
+      "seller_id",
+      "customer_id",
+    ],
     prefix
   )
 
-  const { offset, q, order, created_at, updated_at, rating, status } =
-    queryObject
+  const {
+    offset,
+    q,
+    order,
+    created_at,
+    updated_at,
+    rating,
+    status,
+    seller_id,
+    customer_id,
+  } = queryObject
 
   const searchParams = {
     limit: pageSize,
@@ -25,6 +44,8 @@ export const useReviewTableQuery = ({
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
     rating: rating ? rating.split(",").map(Number) : undefined,
     status: status ? status.split(",") : undefined,
+    seller_id: seller_id ? seller_id.split(",") : undefined,
+    customer_id: customer_id ? customer_id.split(",") : undefined,
     q,
   }
 

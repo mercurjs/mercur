@@ -890,9 +890,6 @@
       "titleRequired": "Please enter a title"
     },
     "editCollection": "Edit Collection",
-    "validation": {
-      "titleRequired": "Please enter a title"
-    },
     "handleTooltip": "The handle is used to reference the collection in your storefront. If not specified, the handle will be generated from the collection title.",
     "deleteWarning": "You are about to delete the collection {{title}}. This action cannot be undone.",
     "removeSingleProductWarning": "You are about to remove the product {{title}} from the collection. This action cannot be undone.",
@@ -3380,7 +3377,8 @@
       "stars_other": "{{count}} stars"
     },
     "list": {
-      "noRecordsMessage": "No reviews found."
+      "noRecordsTitle": "No reviews yet",
+      "noRecordsMessage": "Once customer submit reviews, they'll appear here"
     },
     "detail": {
       "customer": "Customer",
@@ -3390,20 +3388,21 @@
     "edit": {
       "header": "Edit Review",
       "description": "Edit the review's status and rating.",
-      "successToast": "Review updated"
+      "successToast": "Review was successfully updated."
     },
     "respond": {
       "action": "Respond",
       "header": "Respond to review",
       "description": "Add a response to this review.",
       "label": "Response",
-      "successToast": "Response added",
-      "alreadyResponded": "This review already has a response."
+      "successToast": "Response was successfully sent.",
+      "alreadyResponded": "This review already has a response.",
+      "validation": "Please write a response"
     },
     "delete": {
       "confirmTitle": "Delete review",
-      "confirmDescription": "Are you sure you want to delete this review? This action cannot be undone.",
-      "successToast": "Review deleted"
+      "confirmDescription": "You are about to delete review. This action cannot be undone.",
+      "successToast": "Review was successfully deleted."
     }
   },
   "returnReasons": {

@@ -1,5 +1,5 @@
-import { PencilSquare, Trash } from "@medusajs/icons"
-import { Container, Heading, StatusBadge, Text } from "@medusajs/ui"
+import { PencilSquare, Star, Trash } from "@medusajs/icons"
+import { Container, Heading, Text } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import { createColumnHelper } from "@tanstack/react-table"
 import { Children, ReactNode, useMemo } from "react"
@@ -7,6 +7,7 @@ import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { _DataTable } from "../../../../components/table/data-table"
+import { StatusCell } from "../../../../components/table/table-cells/common/status-cell"
 import { DateCell } from "../../../../components/table/table-cells/common/date-cell"
 import { useDataTable } from "../../../../hooks/use-data-table"
 import { AdminReview, useReviews } from "../../../../hooks/api/reviews"
@@ -90,11 +91,11 @@ const useColumns = () => {
       columnHelper.accessor("customer_note", {
         header: t("reviews.fields.content"),
         cell: ({ getValue }) => (
-          <div className="flex h-full w-full items-center overflow-hidden">
+          <div className="w-[240px]">
             <Text
               size="small"
               leading="compact"
-              className="text-ui-fg-subtle truncate"
+              className="text-ui-fg-subtle line-clamp-3"
             >
               {getValue() || "-"}
             </Text>
@@ -132,20 +133,20 @@ const useColumns = () => {
         cell: ({ getValue }) => {
           const status = getValue()
           return (
-            <StatusBadge color={getReviewStatusColor(status)}>
+            <StatusCell color={getReviewStatusColor(status)}>
               {t(`reviews.status.${status}`)}
-            </StatusBadge>
+            </StatusCell>
           )
         },
       }),
       columnHelper.accessor("seller_note", {
         header: t("reviews.fields.response"),
         cell: ({ getValue }) => (
-          <div className="flex h-full w-full items-center overflow-hidden">
+          <div className="w-[240px]">
             <Text
               size="small"
               leading="compact"
-              className="text-ui-fg-subtle truncate"
+              className="text-ui-fg-subtle line-clamp-3"
             >
               {getValue() || "-"}
             </Text>
@@ -198,13 +199,19 @@ export const ReviewListDataTable = () => {
       navigateTo={(row) => row.id}
       isLoading={isPending}
       queryObject={raw}
+      defaultOrder="-created_at"
       orderBy={[
-        { key: "rating", label: t("reviews.fields.rating") },
+        { key: "display_id", label: t("reviews.fields.id") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
       noRecords={{
+        title: t("reviews.list.noRecordsTitle"),
         message: t("reviews.list.noRecordsMessage"),
+        icon: <Star />,
+      }}
+      noResults={{
+        icon: <Star />,
       }}
       data-testid="review-list-table"
     />

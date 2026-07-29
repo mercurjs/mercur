@@ -1,4 +1,4 @@
-import { Button, Select, toast } from "@medusajs/ui"
+import { Button, Select, Textarea, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -16,6 +16,7 @@ const RATINGS = [1, 2, 3, 4, 5] as const
 const EditReviewSchema = zod.object({
   status: zod.enum(STATUSES),
   rating: zod.coerce.number().int().min(1).max(5),
+  customer_note: zod.string().max(1000).optional(),
 })
 
 export const EditReviewForm = ({ review }: { review: AdminReview }) => {
@@ -27,6 +28,7 @@ export const EditReviewForm = ({ review }: { review: AdminReview }) => {
     defaultValues: {
       status: review.status,
       rating: review.rating,
+      customer_note: review.customer_note ?? "",
     },
     resolver: zodResolver(EditReviewSchema),
   })
@@ -35,7 +37,11 @@ export const EditReviewForm = ({ review }: { review: AdminReview }) => {
 
   const handleSubmit = form.handleSubmit(async (data) => {
     await mutateAsync(
-      { status: data.status, rating: data.rating },
+      {
+        status: data.status,
+        rating: data.rating,
+        customer_note: data.customer_note,
+      },
       {
         onSuccess: () => {
           toast.success(t("reviews.edit.successToast"))
@@ -112,6 +118,23 @@ export const EditReviewForm = ({ review }: { review: AdminReview }) => {
                         ))}
                       </Select.Content>
                     </Select>
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )}
+            />
+
+            <Form.Field
+              control={form.control}
+              name="customer_note"
+              render={({ field }) => (
+                <Form.Item>
+                  <Form.Label>{t("reviews.fields.content")}</Form.Label>
+                  <Form.Control>
+                    <Textarea
+                      {...field}
+                      data-testid="review-edit-form-content-input"
+                    />
                   </Form.Control>
                   <Form.ErrorMessage />
                 </Form.Item>
