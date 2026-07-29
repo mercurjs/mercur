@@ -11,7 +11,6 @@ import { CampaignBudget } from "./_components/campaign-budget";
 import { CampaignConfigurationSection } from "./_components/campaign-configuration-section";
 import { CampaignGeneralSection } from "./_components/campaign-general-section";
 import { CampaignPromotionSection } from "./_components/campaign-promotion-section";
-import { CampaignSpend } from "./_components/campaign-spend";
 import { CAMPAIGN_DETAIL_FIELDS } from "./constants";
 
 import type { loader } from "./loader";
@@ -30,7 +29,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   );
 
   if (isLoading || !campaign) {
-    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={3} />;
+    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={2} />;
   }
 
   if (isError) {
@@ -52,7 +51,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <TwoColumnPage.Sidebar>
             <WidgetZone id="campaigns.detail.side" data={campaign}>
               <CampaignConfigurationSection campaign={campaign} />
-              <CampaignSpend campaign={campaign} />
               <CampaignBudget campaign={campaign} />
             </WidgetZone>
           </TwoColumnPage.Sidebar>
@@ -68,6 +66,5 @@ export const CampaignDetailPage = Object.assign(Root, {
   MainGeneralSection: CampaignGeneralSection,
   MainPromotionSection: CampaignPromotionSection,
   SidebarConfigurationSection: CampaignConfigurationSection,
-  SidebarSpend: CampaignSpend,
   SidebarBudget: CampaignBudget,
 });

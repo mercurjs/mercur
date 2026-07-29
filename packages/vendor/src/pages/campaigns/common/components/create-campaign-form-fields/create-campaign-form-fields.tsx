@@ -13,6 +13,7 @@ import { Path, PathValue, UseFormReturn, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { Form } from "@components/common/form"
+import { Combobox } from "@components/inputs/combobox"
 import { useCurrentSeller } from "@hooks/api/sellers"
 import {
   currencies,
@@ -119,7 +120,9 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
             render={({ field }) => {
               return (
                 <Form.Item>
-                  <Form.Label>{t("campaigns.fields.identifier")}</Form.Label>
+                  <Form.Label tooltip={t("campaigns.fields.identifier_tooltip")}>
+                    {t("campaigns.fields.identifier")}
+                  </Form.Label>
 
                   <Form.Control>
                     <Input {...field} value={(field.value as string) ?? ""} />
@@ -360,7 +363,51 @@ export const CreateCampaignFormFields = <T extends CampaignFormFields | WithNest
             )
           }}
         />
+
+        {!isTypeSpend && (
+          <Form.Field
+            control={form.control}
+            name={`${fieldScope}budget.attribute` as Path<T>}
+            render={({ field }) => {
+              return (
+                <Form.Item className="basis-1/2">
+                  <Form.Label
+                    optional
+                    tooltip={t("campaigns.budget.fields.budgetAttributeTooltip")}
+                  >
+                    {t("campaigns.budget.fields.budgetAttribute")}
+                  </Form.Label>
+
+                  <Form.Control>
+                    <Combobox
+                      key="attribute"
+                      {...field}
+                      value={(field.value as string | undefined) ?? undefined}
+                      onChange={(e) => {
+                        field.onChange(typeof e === "undefined" ? null : e)
+                      }}
+                      allowClear
+                      options={[
+                        { label: t("fields.customer"), value: "customer_id" },
+                        { label: t("fields.email"), value: "customer_email" },
+                        {
+                          label: t("fields.promotionCode"),
+                          value: "promotion_code",
+                        },
+                      ]}
+                    />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )
+            }}
+          />
+        )}
       </div>
+
+      <Text size="small" className="text-ui-fg-subtle">
+        {t("campaigns.budget.noLimitHint")}
+      </Text>
     </div>
   )
 }

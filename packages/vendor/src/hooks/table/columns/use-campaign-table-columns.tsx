@@ -1,8 +1,13 @@
 import { createColumnHelper } from "@tanstack/react-table"
 
 import { AdminCampaign } from "@medusajs/types"
+import { StatusBadge } from "@medusajs/ui"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import {
+  campaignStatus,
+  statusColor,
+} from "../../../pages/campaigns/common/utils/campaign-status"
 import { DateCell } from "../../../components/table/table-cells/common/date-cell"
 import {
   TextCell,
@@ -39,6 +44,18 @@ export const useCampaignTableColumns = () => {
           return <TextCell text={value} />
         },
       }),
+      columnHelper.display({
+        id: "type",
+        header: () => <TextHeader text={t("campaigns.fields.type")} />,
+        cell: ({ row }) => {
+          const type = row.original.budget?.type
+          return (
+            <TextCell
+              text={type ? t(`campaigns.budget.type.${type}.title`) : "-"}
+            />
+          )
+        },
+      }),
       columnHelper.accessor("starts_at", {
         header: () => <TextHeader text={t("campaigns.fields.start_date")} />,
         cell: ({ getValue }) => {
@@ -65,6 +82,18 @@ export const useCampaignTableColumns = () => {
           const date = new Date(value)
 
           return <DateCell date={date} />
+        },
+      }),
+      columnHelper.display({
+        id: "status",
+        header: () => <TextHeader text={t("fields.status")} />,
+        cell: ({ row }) => {
+          const status = campaignStatus(row.original)
+          return (
+            <StatusBadge color={statusColor(status)}>
+              {t(`campaigns.status.${status}`)}
+            </StatusBadge>
+          )
         },
       }),
     ],

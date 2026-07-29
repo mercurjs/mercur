@@ -13,6 +13,50 @@ session detail aggressively. The per-spec source of truth lives in
 - **Standard verification path**: `bun run build`, `bun run lint` (oxlint),
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
+
+## Session — Vendor Campaigns Figma Sync (branch `feat/vendor-campaigns-figma-sync`)
+
+Spec: `docs/specs/spec-1-vendor-campaigns/` (brief / blueprint / assert / deltas).
+
+**Implemented:** D01 list Type column · D02 list Status column · D04 general row order
+(Description before Identifier) · D05 configuration expiry warning · D06 merged
+Spend+Budget into one Budget card (deleted `campaign-spend/`, updated detail sidebar +
+skeleton) · D07 identifier tooltip · D08 no-limit helper text · D09 add-promotions tip
++ plural add toast · D11 create validation (name/identifier required, spend-currency
+`refine`, i18n `campaigns.validation.*`) · D12 toast copy aligned to Figma
+(non-interpolated, pluralized add/remove; wired missing remove-promotion toasts).
+
+**Backend implemented (previously flagged as gated):**
+- **D03 filters (frontend + backend)** — extended
+  `packages/core/src/api/vendor/campaigns/validators.ts` (`budget_type` + `status`)
+  and translated them in `route.ts` GET into `query.graph` filters (budget.type;
+  starts_at/ends_at date ranges with `$or … null` for open-ended = active). Re-wired
+  the `useCampaignTableFilters` hook, query passthrough, and list `filters` prop.
+- **D08 "Limit usage per" (frontend, backend already supported)** — `Combobox`
+  (customer / email / promotion code) in create form-fields (usage-only); schema +
+  defaults gained `budget.attribute`; submit sets type `use_by_attribute` when an
+  attribute is chosen (mirrors admin). Backend `VendorCreateCampaignBudget` already
+  accepts `attribute` and the workflow forwards it — no backend change needed. Detail
+  Budget card renders the attribute label.
+
+**Tests:**
+- `integration-tests/http/campaigns/vendor/campaigns.spec.ts` extended for D03/D08:
+  `budget_type=spend|usage` filtering (+ invalid value → 400), `status=active|
+  scheduled|expired` filtering (incl. open-ended = active, scheduled excluded from
+  active; + invalid value → 400), and a `use_by_attribute` create with `attribute`
+  persisting (D08). Not runnable in a fresh worktree (needs full install + Postgres);
+  syntax-verified via TS `transpileModule`. Run in CI / installed checkout:
+  `bun run test:integration:http -- campaigns/vendor`.
+
+**Still out of scope:**
+- **D12 notification-drawer entry** — backend notification template, out of UI scope.
+
+**Verification:** vendor `tsc --noEmit` (root node_modules symlinked from main) shows
+no NEW errors from these changes — remaining campaign errors are pre-existing/
+environmental (unbuilt core route-map → `CampaignDTO` vs `AdminCampaign`,
+`@custom-types` alias, `DEFAULT_CAMPAIGN_VALUES` enum). `oxlint` on changed files: no
+new warnings. Full `bun run lint` + `bun run build` still owed in a fully-installed
+checkout / CI (fresh worktree has no install).
 - **Active spec**: _(none in progress — pick the highest-priority unfinished
   `docs/specs/SPEC-*.md`)_
 

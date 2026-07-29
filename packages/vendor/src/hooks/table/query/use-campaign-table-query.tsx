@@ -10,17 +10,20 @@ export const useCampaignTableQuery = ({
   pageSize = 20,
 }: UseCampaignTableQueryProps) => {
   const queryObject = useQueryParams(
-    ["offset", "q", "order", "created_at", "updated_at"],
+    ["offset", "q", "order", "created_at", "updated_at", "budget_type", "status"],
     prefix
   )
 
-  const { offset, q, order, created_at, updated_at } = queryObject
+  const { offset, q, order, created_at, updated_at, budget_type, status } =
+    queryObject
   const searchParams = {
     limit: pageSize,
     offset: offset ? Number(offset) : 0,
     order,
     created_at: created_at ? JSON.parse(created_at) : undefined,
     updated_at: updated_at ? JSON.parse(updated_at) : undefined,
+    budget_type,
+    status,
     q,
   }
 
