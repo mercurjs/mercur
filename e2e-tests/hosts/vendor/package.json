@@ -1,0 +1,22 @@
+{
+  "name": "@mercurjs/e2e-host-vendor",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite"
+  },
+  "dependencies": {
+    "@mercurjs/client": "*",
+    "@mercurjs/dashboard-sdk": "*",
+    "@mercurjs/vendor": "*",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^6.0.3",
+    "@types/react": "^19.2.17",
+    "@types/react-dom": "^19.2.0",
+    "vite": "^8.1.3"
+  }
+}
