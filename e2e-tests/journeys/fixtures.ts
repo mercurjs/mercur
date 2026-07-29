@@ -26,6 +26,7 @@ interface DashboardFixtures {
 // createDashboardTest("vendor"); the admin flow below is the reference.
 export function createDashboardTest(area: DashboardArea) {
   return base.extend<DashboardFixtures>({
+    // eslint-disable-next-line no-empty-pattern
     baseURL: async ({}, use) => {
       await use(stackUrls()[area])
     },
