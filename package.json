@@ -47,6 +47,7 @@
     "@medusajs/types": "2.17.2",
     "@medusajs/ui": "4.1.19",
     "@medusajs/ui-preset": "2.17.2",
+    "execa": "8.0.1",
     "zod": "3.25.76",
     "tailwindcss": "3.4.19",
     "@types/react": "18.3.29",
