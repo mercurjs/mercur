@@ -6,6 +6,8 @@ import {
 } from "@medusajs/framework/utils"
 import { MercurModules } from "@mercurjs/types"
 
+import { seedSellerOrder, SeededOrder } from "./lib/seed-seller-order"
+
 /**
  * Seed customer reviews for existing products and sellers.
  *
@@ -124,11 +126,40 @@ export default async function seedReviews({ container }: ExecArgs) {
     pagination: { take: SELLER_REVIEWS.length, skip: 0 },
   })
 
-  const { data: orders } = await query.graph({
+  let { data: orders } = await query.graph({
     entity: "order",
     fields: ["id"],
     pagination: { take: 10, skip: 0 },
   })
+
+  // Reviews must reference the order the customer bought from. When the demo
+  // DB has no orders yet, drive the real store checkout (per seller) so every
+  // review can be linked to a genuine order. `ordersBySeller` lets a seller
+  // review point at an order that actually belongs to that seller.
+  const ordersBySeller = new Map<string, string>()
+
+  if (!orders.length) {
+    logger.info("No orders found, seeding orders per seller via checkout...")
+    const seeded: SeededOrder[] = []
+    for (const seller of sellers) {
+      try {
+        const sellerOrders = await seedSellerOrder(container, {
+          sellerId: seller.id,
+        })
+        if (sellerOrders[0]) {
+          ordersBySeller.set(seller.id, sellerOrders[0].id)
+        }
+        seeded.push(...sellerOrders)
+      } catch (e) {
+        logger.warn(
+          `Skipped order seeding for seller ${seller.id}: ${
+            e instanceof Error ? e.message : e
+          }`
+        )
+      }
+    }
+    orders = seeded.map((o) => ({ id: o.id }))
+  }
 
   const pickCustomer = (i: number) => customers[i % customers.length].id
   const pickOrder = (i: number) =>
@@ -196,7 +227,7 @@ export default async function seedReviews({ container }: ExecArgs) {
       },
     ]
 
-    const sellerOrderId = pickOrder(i)
+    const sellerOrderId = ordersBySeller.get(seller.id) ?? pickOrder(i)
     if (sellerOrderId) {
       sellerLinks.push({
         [Modules.ORDER]: { order_id: sellerOrderId },

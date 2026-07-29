@@ -1,4 +1,4 @@
-import { Star, StarSolid } from "@medusajs/icons"
+import { StarSolid } from "@medusajs/icons"
 import { clx } from "@medusajs/ui"
 import { ReviewStatus } from "@mercurjs/types"
 
@@ -35,7 +35,10 @@ export const StarRating = ({
         index < value ? (
           <StarSolid key={index} className="text-ui-tag-orange-icon" />
         ) : (
-          <Star key={index} className="text-ui-fg-muted" />
+          <StarSolid
+            key={index}
+            className="text-ui-tag-orange-icon opacity-30"
+          />
         )
       )}
     </div>
