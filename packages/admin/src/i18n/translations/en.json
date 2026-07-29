@@ -2637,6 +2637,8 @@
     },
     "configuration": {
       "header": "Configuration",
+      "expiryWarningLabel": "Warning:",
+      "expiryWarning": "The promotion will expire when campaign expires.",
       "edit": {
         "header": "Edit Campaign Configuration",
         "description": "Edit the configuration of the campaign.",
@@ -2659,6 +2661,10 @@
       "total_used": "Budget used",
       "totalUsedByAttribute": "Total used",
       "budget_limit": "Budget limit",
+      "type": "Type",
+      "owner": "Owner",
+      "platformOwner": "Mercur",
+      "budget_used": "Budget used",
       "campaign_id": {
         "hint": "Disabled campaigns have budget in a different currency than the promotion."
       }
@@ -2666,7 +2672,8 @@
     "budget": {
       "create": {
         "hint": "Create a budget for the campaign.",
-        "header": "Campaign Budget"
+        "header": "Campaign Budget",
+        "noLimitHint": "If you don't set any limits, the campaign budget will have no limit."
       },
       "details": "Campaign budget",
       "fields": {
@@ -2676,6 +2683,7 @@
         "used": "Used",
         "budgetAttribute": "Limit usage per",
         "budgetAttributeTooltip": "Define how many times the promotion can be used by a specific customer or email.",
+        "noLimit": "No limit",
         "totalUsedByAttribute": "Budget limit per: {{attribute}}"
       },
       "type": {
@@ -2708,6 +2716,8 @@
         "success": "Successfully added {{count}} promotion(s) to campaign"
       },
       "add": {
+        "tipLabel": "Tip:",
+        "tip": "You can only add promotions that aren't already assigned to another campaign.",
         "list": {
           "noRecordsMessage": "Create a promotion first."
         }

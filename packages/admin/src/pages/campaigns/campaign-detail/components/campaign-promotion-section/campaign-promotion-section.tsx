@@ -188,7 +188,10 @@ const PromotionActions = ({
 const columnHelper = createColumnHelper<AdminPromotion>()
 
 const useColumns = () => {
-  const columns = usePromotionTableColumns()
+  const columns = usePromotionTableColumns({
+    exclude: ["campaign"],
+    order: ["code", "method", "type", "owner", "status"],
+  })
 
   return useMemo(
     () => [

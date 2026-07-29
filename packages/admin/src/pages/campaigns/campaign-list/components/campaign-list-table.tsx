@@ -14,6 +14,7 @@ import {
   useDeleteCampaign,
 } from "../../../../hooks/api/campaigns"
 import { useCampaignTableColumns } from "../../../../hooks/table/columns/use-campaign-table-columns"
+import { useCampaignTableFilters } from "../../../../hooks/table/filters/use-campaign-table-filters"
 import { useCampaignTableQuery } from "../../../../hooks/table/query/use-campaign-table-query"
 import { useDataTable } from "../../../../hooks/use-data-table"
 
@@ -68,7 +69,8 @@ export const CampaignListHeader = ({ children }: { children?: ReactNode }) => {
 export const CampaignListDataTable = () => {
   const { t } = useTranslation()
   const { raw, searchParams } = useCampaignTableQuery({ pageSize: PAGE_SIZE })
-  const linkQuery = useLinkQuery("campaign")
+  const filters = useCampaignTableFilters()
+  const linkQuery = useLinkQuery("campaign", searchParams.fields)
 
   const {
     campaigns,
@@ -106,6 +108,7 @@ export const CampaignListDataTable = () => {
       pageSize={PAGE_SIZE}
       pagination
       search
+      filters={filters}
       navigateTo={(row) => row.id}
       isLoading={isLoading}
       queryObject={raw}

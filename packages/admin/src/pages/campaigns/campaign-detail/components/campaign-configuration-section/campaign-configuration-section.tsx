@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { Container, Heading } from "@medusajs/ui"
+import { Container, Heading, Text } from "@medusajs/ui"
 
 import { PencilSquare } from "@medusajs/icons"
 import { useTranslation } from "react-i18next"
@@ -41,6 +41,18 @@ export const CampaignConfigurationSection = ({
         showTime
         data-testid="campaign-configuration-section-date-range"
       />
+
+      <Text
+        className="text-ui-fg-subtle border-ui-border-strong border-l-2 ps-3"
+        size="small"
+        leading="compact"
+        data-testid="campaign-configuration-section-expiry-warning"
+      >
+        <span className="text-ui-fg-base txt-compact-small-plus">
+          {t("campaigns.configuration.expiryWarningLabel")}
+        </span>{" "}
+        {t("campaigns.configuration.expiryWarning")}
+      </Text>
 
       <DisplayExtensionZone
         model="campaign"

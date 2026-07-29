@@ -1,38 +1,67 @@
-import { ChartPie, PencilSquare } from "@medusajs/icons"
+import { ChartPie, CurrencyDollar, PencilSquare } from "@medusajs/icons"
 import { AdminCampaign } from "@medusajs/types"
 import { Container, Heading, Text } from "@medusajs/ui"
-import { Trans, useTranslation } from "react-i18next"
+import { useTranslation } from "react-i18next"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 
 type CampaignBudgetProps = {
   campaign: AdminCampaign
 }
 
+const BudgetRow = ({
+  label,
+  value,
+  testId,
+}: {
+  label: string
+  value: string
+  testId: string
+}) => (
+  <div
+    className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4"
+    data-testid={testId}
+  >
+    <Text size="small" leading="compact" weight="plus">
+      {label}
+    </Text>
+
+    <Text size="small" leading="compact">
+      {value}
+    </Text>
+  </div>
+)
+
+const ATTRIBUTE_LABEL_KEYS: Record<string, string> = {
+  customer_id: "fields.customer",
+  customer_email: "fields.email",
+  promotion_code: "fields.promotionCode",
+}
+
 export const CampaignBudget = ({ campaign }: CampaignBudgetProps) => {
   const { t } = useTranslation()
 
-  return (
-    <Container className="flex flex-col gap-y-4 px-6 py-4" data-testid="campaign-budget-container">
-      <div className="flex justify-between" data-testid="campaign-budget-header">
-        <div className="flex-grow">
-          <div className="bg-ui-bg-base shadow-borders-base float-start flex size-7 items-center justify-center rounded-md" data-testid="campaign-budget-icon-container">
-            <div className="bg-ui-bg-component flex size-6 items-center justify-center rounded-[4px]">
-              <ChartPie className="text-ui-fg-subtle" />
-            </div>
-          </div>
+  const budget = campaign.budget
+  const isSpend = budget?.type === "spend"
+  const currency = isSpend ? ` ${budget?.currency_code?.toUpperCase()}` : ""
 
-          <Heading
-            className="text-ui-fg-subtle ms-10 mt-[1.5px] font-normal"
-            level="h3"
-            data-testid="campaign-budget-heading"
-          >
-            {campaign.budget?.type === "use_by_attribute"
-              ? t("campaigns.budget.fields.totalUsedByAttribute", {
-                  attribute: campaign.budget?.attribute,
-                })
-              : t("campaigns.fields.budget_limit")}
-          </Heading>
-        </div>
+  const usedValue = `${budget?.used ?? 0}${currency}`
+  const limitValue = budget?.limit
+    ? `${budget.limit}${currency}`
+    : t("campaigns.budget.fields.noLimit")
+
+  const attributeKey = budget?.attribute
+    ? ATTRIBUTE_LABEL_KEYS[budget.attribute]
+    : undefined
+
+  return (
+    <Container className="divide-y p-0" data-testid="campaign-budget-container">
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="campaign-budget-header"
+      >
+        <Heading level="h2" data-testid="campaign-budget-heading">
+          {t("campaigns.budget.create.header")}
+        </Heading>
 
         <ActionMenu
           groups={[
@@ -41,7 +70,7 @@ export const CampaignBudget = ({ campaign }: CampaignBudgetProps) => {
                 {
                   icon: <PencilSquare />,
                   label: t("actions.edit"),
-                  to: `edit-budget`,
+                  to: "edit-budget",
                 },
               ],
             },
@@ -50,37 +79,51 @@ export const CampaignBudget = ({ campaign }: CampaignBudgetProps) => {
         />
       </div>
 
-      <div data-testid="campaign-budget-limit">
-        <Text
-          className="text-ui-fg-subtle border-ui-border-strong border-l-4 ps-3"
-          size="small"
-          leading="compact"
-          data-testid="campaign-budget-limit-text"
-        >
-          <Trans
-            i18nKey="campaigns.totalSpend"
-            values={{
-              amount: campaign?.budget?.limit || "no limit",
-              currency:
-                campaign?.budget?.type === "spend" && campaign?.budget.limit
-                  ? campaign.budget?.currency_code
-                  : "",
-            }}
-            components={[
-              <span
-                key="amount"
-                className="text-ui-fg-base txt-compact-medium-plus text-lg"
-                data-testid="campaign-budget-limit-amount"
-              />,
-              <span
-                key="currency"
-                className="text-ui-fg-base txt-compact-medium-plus text-lg"
-                data-testid="campaign-budget-limit-currency"
-              />,
-            ]}
-          />
-        </Text>
+      <div
+        className="flex items-center gap-x-3 px-6 py-4"
+        data-testid="campaign-budget-subtitle"
+      >
+        <div className="bg-ui-bg-base shadow-borders-base flex size-7 items-center justify-center rounded-md">
+          <div className="bg-ui-bg-component flex size-6 items-center justify-center rounded-[4px]">
+            {isSpend ? (
+              <CurrencyDollar className="text-ui-fg-subtle" />
+            ) : (
+              <ChartPie className="text-ui-fg-subtle" />
+            )}
+          </div>
+        </div>
+
+        <div>
+          <Text size="small" leading="compact" weight="plus">
+            {t(`campaigns.budget.type.${isSpend ? "spend" : "usage"}.title`)}
+          </Text>
+          <Text size="small" leading="compact" className="text-ui-fg-subtle">
+            {t(
+              `campaigns.budget.type.${isSpend ? "spend" : "usage"}.description`
+            )}
+          </Text>
+        </div>
       </div>
+
+      <BudgetRow
+        label={t("campaigns.fields.budget_used")}
+        value={usedValue}
+        testId="campaign-budget-used"
+      />
+
+      <BudgetRow
+        label={t("campaigns.fields.budget_limit")}
+        value={limitValue}
+        testId="campaign-budget-limit"
+      />
+
+      {!isSpend && (
+        <BudgetRow
+          label={t("campaigns.budget.fields.budgetAttribute")}
+          value={attributeKey ? t(attributeKey) : "-"}
+          testId="campaign-budget-attribute"
+        />
+      )}
     </Container>
   )
 }

@@ -1,7 +1,6 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { AdminCampaignResponse } from "@medusajs/types"
 import {
-  Badge,
   Container,
   Heading,
   StatusBadge,
@@ -14,7 +13,6 @@ import { useNavigate } from "react-router-dom"
 import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { useDeleteCampaign } from "../../../../../hooks/api/campaigns"
-import { currencies } from "../../../../../lib/data/currencies"
 import {
   campaignStatus,
   statusColor,
@@ -25,7 +23,6 @@ const GENERAL_FIELD_IDS = [
   "status",
   "campaign_identifier",
   "description",
-  "currency_code",
 ]
 
 type CampaignGeneralSectionProps = {
@@ -135,23 +132,6 @@ export const CampaignGeneralSection = ({
           </Text>
         </div>
       </DisplayField>
-
-      {campaign?.budget && campaign.budget.type === "spend" && (
-        <DisplayField model="campaign" zone="general" id="currency_code" data={campaign}>
-          <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-currency">
-            <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-currency-label">
-              {t("fields.currency")}
-            </Text>
-
-            <div data-testid="campaign-general-section-currency-value">
-              <Badge size="xsmall" data-testid="campaign-general-section-currency-badge">{campaign?.budget.currency_code}</Badge>
-              <Text className="inline pl-3" size="small" leading="compact" data-testid="campaign-general-section-currency-name">
-                {currencies[campaign?.budget.currency_code?.toUpperCase()]?.name}
-              </Text>
-            </div>
-          </div>
-        </DisplayField>
-      )}
 
       <DisplayExtensionZone
         model="campaign"
