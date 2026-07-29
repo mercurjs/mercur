@@ -1,4 +1,5 @@
 import type { HttpTypes } from "@medusajs/types";
+import type { AdminReviewResponse } from "@mercurjs/types";
 
 import { t } from "i18next";
 import { Outlet, type RouteObject, type UIMatch } from "react-router-dom";
@@ -498,6 +499,55 @@ export function getRouteMap({
                             path: "add-promotions",
                             lazy: () =>
                               import("./pages/campaigns/add-campaign-promotions"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+              {
+                path: "/reviews",
+                errorElement: <ErrorBoundary />,
+                handle: {
+                  breadcrumb: () => t("reviews.domain"),
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("./pages/reviews/review-list"),
+                    children: [],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Breadcrumb, loader } = await import(
+                        "./pages/reviews/review-detail"
+                      )
+
+                      return {
+                        Component: Outlet,
+                        loader,
+                        handle: {
+                          breadcrumb: (
+                            match: UIMatch<AdminReviewResponse>,
+                          ) => <Breadcrumb {...match} />,
+                        },
+                      }
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () => import("./pages/reviews/review-detail"),
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () => import("./pages/reviews/review-edit"),
+                          },
+                          {
+                            path: "respond",
+                            lazy: () =>
+                              import("./pages/reviews/review-respond"),
                           },
                         ],
                       },

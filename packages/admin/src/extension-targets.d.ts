@@ -166,6 +166,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "products": true
     "promotions": true
     "reservations": true
+    "reviews": true
     "stores": true
   }
 
@@ -177,6 +178,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "price-lists": true
     "products": true
     "promotions": true
+    "reviews": true
     "stores": true
   }
 

@@ -5,6 +5,218 @@
     "$schema": {
       "type": "string"
     },
+    "reviews": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "subtitle": {
+          "type": "string"
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "rating": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            },
+            "store": {
+              "type": "string"
+            },
+            "customer": {
+              "type": "string"
+            },
+            "date": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "response": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "id",
+            "rating",
+            "content",
+            "store",
+            "customer",
+            "date",
+            "status",
+            "response"
+          ],
+          "additionalProperties": false
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "pending": {
+              "type": "string"
+            },
+            "published": {
+              "type": "string"
+            },
+            "rejected": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pending",
+            "published",
+            "rejected"
+          ],
+          "additionalProperties": false
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "stars_one": {
+              "type": "string"
+            },
+            "stars_other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "stars_one",
+            "stars_other"
+          ],
+          "additionalProperties": false
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "detail": {
+          "type": "object",
+          "properties": {
+            "customer": {
+              "type": "string"
+            },
+            "order": {
+              "type": "string"
+            },
+            "store": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "customer",
+            "order",
+            "store"
+          ],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "header",
+            "description",
+            "successToast"
+          ],
+          "additionalProperties": false
+        },
+        "respond": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "header": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            },
+            "alreadyResponded": {
+              "type": "string"
+            },
+            "validation": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "action",
+            "header",
+            "description",
+            "label",
+            "successToast",
+            "alreadyResponded",
+            "validation"
+          ],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "confirmTitle": {
+              "type": "string"
+            },
+            "confirmDescription": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "confirmTitle",
+            "confirmDescription",
+            "successToast"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "subtitle",
+        "fields",
+        "status",
+        "filters",
+        "list",
+        "detail",
+        "edit",
+        "respond",
+        "delete"
+      ],
+      "additionalProperties": false
+    },
     "general": {
       "type": "object",
       "properties": {

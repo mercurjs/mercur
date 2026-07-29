@@ -890,9 +890,6 @@
       "titleRequired": "Please enter a title"
     },
     "editCollection": "Edit Collection",
-    "validation": {
-      "titleRequired": "Please enter a title"
-    },
     "handleTooltip": "The handle is used to reference the collection in your storefront. If not specified, the handle will be generated from the collection title.",
     "deleteWarning": "You are about to delete the collection {{title}}. This action cannot be undone.",
     "removeSingleProductWarning": "You are about to remove the product {{title}} from the collection. This action cannot be undone.",
@@ -3375,6 +3372,57 @@
     "hints": {
       "global": "When enabled, this attribute applies to all products regardless of category.",
       "categoryInheritance": "Child categories will inherit this attribute."
+    }
+  },
+  "reviews": {
+    "domain": "Reviews",
+    "subtitle": "Manage customer reviews of your stores.",
+    "fields": {
+      "id": "Review ID",
+      "rating": "Rating",
+      "content": "Content",
+      "store": "Store",
+      "customer": "Customer",
+      "date": "Date",
+      "status": "Status",
+      "response": "Response"
+    },
+    "status": {
+      "pending": "Pending",
+      "published": "Published",
+      "rejected": "Rejected"
+    },
+    "filters": {
+      "stars_one": "{{count}} star",
+      "stars_other": "{{count}} stars"
+    },
+    "list": {
+      "noRecordsTitle": "No reviews yet",
+      "noRecordsMessage": "Once customer submit reviews, they'll appear here"
+    },
+    "detail": {
+      "customer": "Customer",
+      "order": "Order",
+      "store": "Store"
+    },
+    "edit": {
+      "header": "Edit Review",
+      "description": "Edit the review's status and rating.",
+      "successToast": "Review was successfully updated."
+    },
+    "respond": {
+      "action": "Respond",
+      "header": "Respond to review",
+      "description": "Add a response to this review.",
+      "label": "Response",
+      "successToast": "Response was successfully sent.",
+      "alreadyResponded": "This review already has a response.",
+      "validation": "Please write a response"
+    },
+    "delete": {
+      "confirmTitle": "Delete review",
+      "confirmDescription": "You are about to delete review. This action cannot be undone.",
+      "successToast": "Review was successfully deleted."
     }
   },
   "returnReasons": {

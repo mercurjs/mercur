@@ -9,6 +9,7 @@ import {
   OpenRectArrowOut,
   ReceiptPercent,
   ShoppingCart,
+  StarSolid,
   Tag,
   Users,
 } from "@medusajs/icons";
@@ -368,6 +369,11 @@ const useCoreRoutes = (): Omit<INavItem, "pathname">[] => {
       icon: <BuildingStorefront />,
       label: t("stores.domain"),
       to: "/stores",
+    },
+    {
+      icon: <StarSolid />,
+      label: t("reviews.domain"),
+      to: "/reviews",
     },
     {
       icon: <CreditCardRefresh />,

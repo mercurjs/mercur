@@ -15,7 +15,7 @@ import {
 } from "react"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
-import { NoResults } from "../../../common/empty-table-content"
+import { NoResults, NoResultsProps } from "../../../common/empty-table-content"
 
 type BulkCommand = {
   label: string
@@ -58,6 +58,10 @@ export interface DataTableRootProps<TData> {
    */
   noResults?: boolean
   /**
+   * Content overrides (title/message/icon) for the no-results empty state
+   */
+  noResultsProps?: Pick<NoResultsProps, "title" | "message" | "icon">
+  /**
    * Whether to display the tables header
    */
   noHeader?: boolean
@@ -90,6 +94,7 @@ export const DataTableRoot = <TData,>({
   commands,
   count = 0,
   noResults = false,
+  noResultsProps,
   noHeader = false,
   layout = "fit",
 }: DataTableRootProps<TData>) => {
@@ -319,7 +324,7 @@ export const DataTableRoot = <TData,>({
           </Table>
         ) : (
           <div className={clx({ "border-b": layout === "fit" })}>
-            <NoResults />
+            <NoResults {...noResultsProps} />
           </div>
         )}
       </div>
