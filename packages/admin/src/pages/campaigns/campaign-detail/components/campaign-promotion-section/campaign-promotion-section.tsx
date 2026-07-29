@@ -1,6 +1,13 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 import { AdminCampaign, AdminPromotion } from "@medusajs/types"
-import { Button, Checkbox, Container, Heading, usePrompt } from "@medusajs/ui"
+import {
+  Button,
+  Checkbox,
+  Container,
+  Heading,
+  toast,
+  usePrompt,
+} from "@medusajs/ui"
 import { RowSelectionState, createColumnHelper } from "@tanstack/react-table"
 import { useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
@@ -65,7 +72,7 @@ export const CampaignPromotionSection = ({
       description: t("campaigns.promotions.remove.description", {
         count: keys.length,
       }),
-      confirmText: t("actions.continue"),
+      confirmText: t("actions.remove"),
       cancelText: t("actions.cancel"),
     })
 
@@ -75,7 +82,15 @@ export const CampaignPromotionSection = ({
 
     await mutateAsync(
       { remove: keys },
-      { onSuccess: () => setRowSelection({}) }
+      {
+        onSuccess: () => {
+          toast.success(
+            t("campaigns.promotions.toast.removed", { count: keys.length })
+          )
+          setRowSelection({})
+        },
+        onError: (err) => toast.error(err.message),
+      }
     )
   }
 
@@ -115,6 +130,7 @@ export const CampaignPromotionSection = ({
           },
         ]}
         noRecords={{
+          title: t("campaigns.promotions.list.noRecordsTitle"),
           message: t("campaigns.promotions.list.noRecordsMessage"),
         }}
         data-testid="campaign-promotion-section-table"
@@ -145,7 +161,7 @@ const PromotionActions = ({
       description: t("campaigns.promotions.remove.description", {
         count: 1,
       }),
-      confirmText: t("actions.continue"),
+      confirmText: t("actions.remove"),
       cancelText: t("actions.cancel"),
     })
 
@@ -153,9 +169,18 @@ const PromotionActions = ({
       return
     }
 
-    await mutateAsync({
-      remove: [promotion.id],
-    })
+    await mutateAsync(
+      {
+        remove: [promotion.id],
+      },
+      {
+        onSuccess: () =>
+          toast.success(
+            t("campaigns.promotions.toast.removed", { count: 1 })
+          ),
+        onError: (error) => toast.error(error.message),
+      }
+    )
   }
 
   return (

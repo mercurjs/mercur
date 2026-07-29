@@ -96,11 +96,7 @@ export const AddCampaignPromotionsForm = ({
       { add: values.promotion_ids },
       {
         onSuccess: () => {
-          toast.success(
-            t("campaigns.promotions.toast.success", {
-              count: values.promotion_ids.length,
-            })
-          )
+          toast.success(t("campaigns.promotions.toast.success"))
           handleSuccess()
         },
         onError: (error) => toast.error(error.message),

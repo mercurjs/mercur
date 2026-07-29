@@ -23,10 +23,13 @@ const GENERAL_FIELD_IDS = [
   "status",
   "campaign_identifier",
   "description",
+  "owner",
 ]
 
 type CampaignGeneralSectionProps = {
-  campaign: AdminCampaignResponse["campaign"]
+  campaign: AdminCampaignResponse["campaign"] & {
+    seller?: { name?: string } | null
+  }
 }
 
 export const CampaignGeneralSection = ({
@@ -53,11 +56,7 @@ export const CampaignGeneralSection = ({
 
     await mutateAsync(undefined, {
       onSuccess: () => {
-        toast.success(
-          t("campaigns.delete.successToast", {
-            name: campaign.name,
-          })
-        )
+        toast.success(t("campaigns.delete.successToast"))
 
         navigate("/campaigns", { replace: true })
       },
@@ -109,6 +108,18 @@ export const CampaignGeneralSection = ({
         </div>
       </div>
 
+      <DisplayField model="campaign" zone="general" id="description" data={campaign}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-description">
+          <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-description-label">
+            {t("fields.description")}
+          </Text>
+
+          <Text size="small" leading="compact" data-testid="campaign-general-section-description-value">
+            {campaign.description || "-"}
+          </Text>
+        </div>
+      </DisplayField>
+
       <DisplayField model="campaign" zone="general" id="campaign_identifier" data={campaign}>
         <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-identifier">
           <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-identifier-label">
@@ -121,14 +132,14 @@ export const CampaignGeneralSection = ({
         </div>
       </DisplayField>
 
-      <DisplayField model="campaign" zone="general" id="description" data={campaign}>
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-description">
-          <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-description-label">
-            {t("fields.description")}
+      <DisplayField model="campaign" zone="general" id="owner" data={campaign}>
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="campaign-general-section-owner">
+          <Text size="small" leading="compact" weight="plus" data-testid="campaign-general-section-owner-label">
+            {t("campaigns.fields.owner")}
           </Text>
 
-          <Text size="small" leading="compact" data-testid="campaign-general-section-description-value">
-            {campaign.description || "-"}
+          <Text size="small" leading="compact" data-testid="campaign-general-section-owner-value">
+            {campaign.seller?.name ?? t("campaigns.fields.platformOwner")}
           </Text>
         </div>
       </DisplayField>

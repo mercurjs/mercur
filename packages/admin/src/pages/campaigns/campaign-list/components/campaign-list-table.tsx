@@ -145,12 +145,10 @@ const CampaignActions = ({ campaign }: { campaign: AdminCampaign }) => {
 
   const handleDelete = async () => {
     const confirm = await prompt({
-      title: t("general.areYouSure"),
-      description: t("campaigns.deleteCampaignWarning", {
+      title: t("campaigns.delete.title"),
+      description: t("campaigns.delete.description", {
         name: campaign.name,
       }),
-      verificationInstruction: t("general.typeToConfirm"),
-      verificationText: campaign.name,
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
     })
@@ -161,9 +159,7 @@ const CampaignActions = ({ campaign }: { campaign: AdminCampaign }) => {
 
     await mutateAsync(undefined, {
       onSuccess: () => {
-        toast.success(
-          t("campaigns.delete.successToast", { name: campaign.name })
-        )
+        toast.success(t("campaigns.delete.successToast"))
       },
       onError: (e) => {
         toast.error(e.message)
