@@ -42,12 +42,8 @@ export const CampaignConfigurationForm = ({
         ends_at: data.ends_at || null,
       },
       {
-        onSuccess: ({ campaign }) => {
-          toast.success(
-            t("campaigns.configuration.edit.successToast", {
-              name: campaign.name,
-            })
-          )
+        onSuccess: () => {
+          toast.success(t("campaigns.configuration.edit.successToast"))
 
           handleSuccess()
         },
@@ -69,7 +65,7 @@ export const CampaignConfigurationForm = ({
               render={({ field }) => {
                 return (
                   <Form.Item data-testid="campaign-configuration-form-starts-at-item">
-                    <Form.Label data-testid="campaign-configuration-form-starts-at-label">{t("campaigns.fields.start_date")}</Form.Label>
+                    <Form.Label optional data-testid="campaign-configuration-form-starts-at-label">{t("campaigns.fields.start_date")}</Form.Label>
 
                     <Form.Control data-testid="campaign-configuration-form-starts-at-control">
                       <DatePicker
@@ -93,7 +89,7 @@ export const CampaignConfigurationForm = ({
               render={({ field }) => {
                 return (
                   <Form.Item data-testid="campaign-configuration-form-ends-at-item">
-                    <Form.Label data-testid="campaign-configuration-form-ends-at-label">{t("campaigns.fields.end_date")}</Form.Label>
+                    <Form.Label optional data-testid="campaign-configuration-form-ends-at-label">{t("campaigns.fields.end_date")}</Form.Label>
 
                     <Form.Control data-testid="campaign-configuration-form-ends-at-control">
                       <DatePicker
