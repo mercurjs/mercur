@@ -3429,10 +3429,19 @@
     }
   },
   "login": {
-    "forgotPassword": "Forgot password? - <0>Reset</0>",
-    "title": "Welcome to {{name}}",
-    "hint": "Sign in to access the admin hub",
-    "sessionExpired": "Session expired"
+    "forgotPassword": "Forgot password? <0>Reset</0>",
+    "title": "Welcome back!",
+    "hint": "Log in to your admin account.",
+    "submit": "Log in",
+    "sessionExpired": "Session expired",
+    "invalidCredentials": "Incorrect email or password. Please try again.",
+    "showPassword": "Show password",
+    "hidePassword": "Hide password",
+    "validation": {
+      "emailRequired": "Please enter an email",
+      "emailInvalid": "Please enter a valid email",
+      "passwordRequired": "Please enter your password"
+    }
   },
   "invite": {
     "title": "Welcome to Mercur Admin Panel",
