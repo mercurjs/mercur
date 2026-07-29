@@ -6,6 +6,12 @@
       "sourceType": "github",
       "skillPath": "skills/figma-code-connect/SKILL.md",
       "computedHash": "97115879461e3fb0766ea31d35a370e47f140c0e2896e33ccdd1f8a693e78358"
+    },
+    "playwright-skill": {
+      "source": "testdino-hq/playwright-skill",
+      "sourceType": "github",
+      "skillPath": "SKILL.md",
+      "computedHash": "db79dafd65eb9b97ef558ff7e8ea2c90a7233f4f22caa818a5feb008d2a685bc"
     }
   }
 }
