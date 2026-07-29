@@ -26,6 +26,7 @@ import pkgDir from "pkg-dir"
 const OVERRIDES: string[] = [
   "dist/api/admin/products/middlewares.js",
   "dist/api/admin/promotions/middlewares.js",
+  "dist/api/admin/campaigns/middlewares.js",
   "dist/api/admin/product-variants/middlewares.js",
   "dist/api/admin/product-categories/middlewares.js",
   "dist/api/admin/collections/middlewares.js",

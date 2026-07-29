@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AdminCampaign, HttpTypes } from "@medusajs/types"
-import { Button, Checkbox, Hint, Tooltip, toast } from "@medusajs/ui"
+import { Button, Checkbox, Hint, Text, Tooltip, toast } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import {
   OnChangeFn,
@@ -96,11 +96,7 @@ export const AddCampaignPromotionsForm = ({
       { add: values.promotion_ids },
       {
         onSuccess: () => {
-          toast.success(
-            t("campaigns.promotions.toast.success", {
-              count: values.promotion_ids.length,
-            })
-          )
+          toast.success(t("campaigns.promotions.toast.success"))
           handleSuccess()
         },
         onError: (error) => toast.error(error.message),
@@ -148,15 +144,29 @@ export const AddCampaignPromotionsForm = ({
           />
         </RouteFocusModal.Body>
         <RouteFocusModal.Footer data-testid="campaign-add-promotions-form-footer">
-          <div className="flex items-center justify-end gap-x-2">
-            <RouteFocusModal.Close asChild>
+          <div className="flex flex-1 items-center justify-between gap-x-2">
+            <Text
+              className="text-ui-fg-subtle border-ui-border-strong border-l-2 ps-3"
+              size="small"
+              leading="compact"
+              data-testid="campaign-add-promotions-form-tip"
+            >
+              <span className="text-ui-fg-base txt-compact-small-plus">
+                {t("campaigns.promotions.add.tipLabel")}
+              </span>{" "}
+              {t("campaigns.promotions.add.tip")}
+            </Text>
+
+            <div className="flex items-center gap-x-2">
+              <RouteFocusModal.Close asChild>
               <Button size="small" variant="secondary" data-testid="campaign-add-promotions-form-cancel-button">
                 {t("actions.cancel")}
               </Button>
             </RouteFocusModal.Close>
-            <Button size="small" type="submit" isLoading={isPending} data-testid="campaign-add-promotions-form-save-button">
-              {t("actions.save")}
-            </Button>
+              <Button size="small" type="submit" isLoading={isPending} data-testid="campaign-add-promotions-form-save-button">
+                {t("actions.save")}
+              </Button>
+            </div>
           </div>
         </RouteFocusModal.Footer>
       </KeyboundForm>
@@ -167,7 +177,10 @@ export const AddCampaignPromotionsForm = ({
 const columnHelper = createColumnHelper<HttpTypes.AdminPromotion>()
 
 const useColumns = () => {
-  const base = usePromotionTableColumns()
+  const base = usePromotionTableColumns({
+    exclude: ["campaign"],
+    order: ["code", "method", "owner", "type", "status"],
+  })
   const { t } = useTranslation()
 
   return useMemo(

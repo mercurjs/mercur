@@ -1,6 +1,7 @@
 import {
   CurrencyInput,
   DatePicker,
+  Divider,
   Heading,
   Input,
   RadioGroup,
@@ -107,7 +108,12 @@ export const CreateCampaignFormFields = ({ form, fieldScope = "" }) => {
             render={({ field }) => {
               return (
                 <Form.Item data-testid="campaign-create-form-fields-identifier-item">
-                  <Form.Label data-testid="campaign-create-form-fields-identifier-label">{t("campaigns.fields.identifier")}</Form.Label>
+                  <Form.Label
+                    tooltip={t("campaigns.fields.identifierTooltip")}
+                    data-testid="campaign-create-form-fields-identifier-label"
+                  >
+                    {t("campaigns.fields.identifier")}
+                  </Form.Label>
 
                   <Form.Control data-testid="campaign-create-form-fields-identifier-control">
                     <Input {...field} data-testid="campaign-create-form-fields-identifier-input" />
@@ -190,6 +196,8 @@ export const CreateCampaignFormFields = ({ form, fieldScope = "" }) => {
           }}
         />
       </div>
+
+      <Divider variant="dashed" data-testid="campaign-create-form-fields-budget-divider" />
 
       <div data-testid="campaign-create-form-fields-budget-header">
         <Heading data-testid="campaign-create-form-fields-budget-heading">{t("campaigns.budget.create.header")}</Heading>
@@ -313,6 +321,7 @@ export const CreateCampaignFormFields = ({ form, fieldScope = "" }) => {
             return (
               <Form.Item className="basis-1/2" data-testid="campaign-create-form-fields-budget-limit-item">
                 <Form.Label
+                  optional
                   tooltip={
                     !currency && isTypeSpend
                       ? t("promotions.fields.amount.tooltip")
@@ -371,6 +380,7 @@ export const CreateCampaignFormFields = ({ form, fieldScope = "" }) => {
               return (
                 <Form.Item className="basis-1/2" data-testid="campaign-create-form-fields-budget-attribute-item">
                   <Form.Label
+                    optional
                     tooltip={t(
                       "campaigns.budget.fields.budgetAttributeTooltip"
                     )}
@@ -415,6 +425,14 @@ export const CreateCampaignFormFields = ({ form, fieldScope = "" }) => {
           />
         )}
       </div>
+
+      <Text
+        size="small"
+        className="text-ui-fg-subtle"
+        data-testid="campaign-create-form-fields-budget-no-limit-hint"
+      >
+        {t("campaigns.budget.create.noLimitHint")}
+      </Text>
     </div>
   )
 }
