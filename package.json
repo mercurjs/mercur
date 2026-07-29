@@ -29,7 +29,9 @@
     "apps/*",
     "packages/*",
     "packages/providers/*",
-    "integration-tests"
+    "integration-tests",
+    "e2e-tests",
+    "e2e-tests/hosts/*"
   ],
   "overrides": {
     "@medusajs/admin-bundler": "2.17.2",
