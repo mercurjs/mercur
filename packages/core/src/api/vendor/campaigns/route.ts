@@ -12,52 +12,18 @@ import {
   VendorGetCampaignsParamsType,
 } from "./validators"
 
-const buildStatusFilter = (status: "active" | "scheduled" | "expired") => {
-  const now = new Date()
-
-  switch (status) {
-    case "expired":
-      return { ends_at: { $lt: now } }
-    case "scheduled":
-      return { starts_at: { $gt: now } }
-    case "active":
-      return {
-        $and: [
-          { $or: [{ starts_at: { $lte: now } }, { starts_at: null }] },
-          { $or: [{ ends_at: { $gte: now } }, { ends_at: null }] },
-        ],
-      }
-  }
-}
-
 export const GET = async (
   req: AuthenticatedMedusaRequest<VendorGetCampaignsParamsType>,
   res: MedusaResponse<HttpTypes.VendorCampaignListResponse>
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
-  const { budget_type, status, ...filterableFields } = req.filterableFields as {
-    budget_type?: string
-    status?: "active" | "scheduled" | "expired"
-  } & Record<string, unknown>
-
-  const filters: Record<string, unknown> = { ...filterableFields }
-
-  if (budget_type) {
-    filters.budget = {
-      ...(filters.budget as Record<string, unknown> | undefined),
-      type: budget_type,
-    }
-  }
-
-  if (status) {
-    Object.assign(filters, buildStatusFilter(status))
-  }
-
+  // `budget_type` / `status` are translated into real campaign constraints by
+  // the `applyCampaignFilters` middleware; the handler just consumes filterableFields.
   const { data: campaigns, metadata } = await query.graph({
     entity: "campaign",
     fields: req.queryConfig.fields,
-    filters,
+    filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
 

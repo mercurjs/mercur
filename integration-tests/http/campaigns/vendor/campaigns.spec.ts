@@ -529,6 +529,90 @@ medusaIntegrationTestRunner({
 
                         expect(response.status).toEqual(400)
                     })
+
+                    it("should keep seller scoping when filtering by budget_type", async () => {
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Seller 1 Spend Campaign",
+                                campaign_identifier: "seller1-spend-scoped",
+                                budget: { type: "spend", limit: 1000, currency_code: "usd" },
+                            },
+                            seller1Headers
+                        )
+
+                        // seller2 filtering by the same budget type must not see seller1's campaign
+                        const response = await api.get(
+                            `/vendor/campaigns?budget_type=spend`,
+                            seller2Headers
+                        )
+
+                        expect(response.status).toEqual(200)
+                        expect(
+                            response.data.campaigns.every(
+                                (c: any) => c.campaign_identifier !== "seller1-spend-scoped"
+                            )
+                        ).toBe(true)
+                    })
+
+                    it("should combine budget_type and status filters", async () => {
+                        const past = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000)
+                        const future = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+
+                        // active + spend -> should match
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Active Spend Campaign",
+                                campaign_identifier: "active-spend-combo",
+                                starts_at: past.toISOString(),
+                                ends_at: future.toISOString(),
+                                budget: { type: "spend", limit: 1000, currency_code: "usd" },
+                            },
+                            seller1Headers
+                        )
+                        // active + usage -> excluded by budget_type
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Active Usage Campaign",
+                                campaign_identifier: "active-usage-combo",
+                                starts_at: past.toISOString(),
+                                ends_at: future.toISOString(),
+                                budget: { type: "usage", limit: 10 },
+                            },
+                            seller1Headers
+                        )
+                        // scheduled + spend -> excluded by status
+                        await api.post(
+                            `/vendor/campaigns`,
+                            {
+                                name: "Scheduled Spend Campaign",
+                                campaign_identifier: "scheduled-spend-combo",
+                                starts_at: future.toISOString(),
+                                budget: { type: "spend", limit: 1000, currency_code: "usd" },
+                            },
+                            seller1Headers
+                        )
+
+                        const response = await api.get(
+                            `/vendor/campaigns?budget_type=spend&status=active`,
+                            seller1Headers
+                        )
+
+                        expect(response.status).toEqual(200)
+                        const identifiers = response.data.campaigns.map(
+                            (c: any) => c.campaign_identifier
+                        )
+                        expect(identifiers).toContain("active-spend-combo")
+                        expect(identifiers).not.toContain("active-usage-combo")
+                        expect(identifiers).not.toContain("scheduled-spend-combo")
+                        expect(
+                            response.data.campaigns.every(
+                                (c: any) => c.budget?.type === "spend"
+                            )
+                        ).toBe(true)
+                    })
                 })
             })
 
