@@ -62,6 +62,7 @@ export const ReservationListHeader = ({ children }: { children?: ReactNode }) =>
 }
 
 export const ReservationListDataTable = () => {
+  const { t } = useTranslation()
   const { searchParams, raw } = useReservationTableQuery({
     pageSize: PAGE_SIZE,
   })
@@ -101,8 +102,23 @@ export const ReservationListDataTable = () => {
       filters={filters}
       queryObject={raw}
       pagination
+      search
+      orderBy={[
+        { key: "inventory_item.title", label: t("fields.title") },
+        { key: "inventory_item.sku", label: t("fields.sku") },
+        { key: "created_at", label: t("fields.createdAt") },
+        { key: "updated_at", label: t("fields.updatedAt") },
+      ]}
+      defaultOrder="-created_at"
       navigateTo={(row) => row.id}
-      search={false}
+      noRecords={{
+        title: t("reservations.list.noRecordsTitle"),
+        message: t("reservations.list.noRecordsMessage"),
+        action: {
+          to: "create",
+          label: t("actions.create"),
+        },
+      }}
     />
   )
 }

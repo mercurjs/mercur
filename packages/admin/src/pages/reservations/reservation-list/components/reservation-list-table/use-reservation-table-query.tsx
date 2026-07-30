@@ -9,7 +9,17 @@ export const useReservationTableQuery = ({
   prefix?: string
 }) => {
   const raw = useQueryParams(
-    ["location_id", "offset", "created_at", "quantity", "updated_at", "order"],
+    [
+      "q",
+      "sku",
+      "seller_id",
+      "location_id",
+      "offset",
+      "created_at",
+      "quantity",
+      "updated_at",
+      "order",
+    ],
     prefix
   )
 

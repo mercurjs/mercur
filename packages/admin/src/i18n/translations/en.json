@@ -1110,13 +1110,17 @@
       "header": "Reservation of {{itemName}}",
       "editItemDetails": "Edit reservation",
       "lineItemId": "Line item ID",
+      "itemId": "Item ID",
       "orderID": "Order ID",
       "description": "Description",
       "location": "Location",
+      "goToInventoryItem": "Go to inventory item",
       "inStockAtLocation": "In stock at this location",
       "availableAtLocation": "Available at this location",
       "reservedAtLocation": "Reserved at this location",
       "reservedAmount": "Reserve amount",
+      "reserved": "Reserved",
+      "storeLocationWarning": "Warning: You're editing a reservation at a Store Location. Please confirm it with the Vendor to avoid data inconsistencies.",
       "create": "Create reservation",
       "itemToReserve": "Item to reserve",
       "quantityPlaceholder": "How much do you want to reserve?",
@@ -1127,6 +1131,7 @@
       "errors": {
         "noAvaliableQuantity": "Stock location doesn't have available quantity.",
         "quantityOutOfRange": "Minimum quantity is 1 and maximum quantity is {{max}}",
+        "pleaseEnterQuantity": "Please enter quantity",
         "idRequired": "Inventory item ID is required"
       }
     },
@@ -3146,7 +3151,26 @@
   "reservations": {
     "domain": "Reservations",
     "subtitle": "Manage the reserved quantity of inventory items.",
-    "deleteWarning": "You are about to delete a reservation. This action cannot be undone."
+    "deleteWarning": "You are about to delete a reservation. This action cannot be undone.",
+    "fields": {
+      "date": "Date",
+      "product": "Product",
+      "store": "Store"
+    },
+    "list": {
+      "noRecordsTitle": "No reservations yet",
+      "noRecordsMessage": "Create reservations to manage the reserved quantity of inventory items"
+    },
+    "delete": {
+      "title": "Delete reservation",
+      "description": "You are about to delete a reservation. This may affect your Store inventory records. Before proceeding, make sure the Vendor has confirmed this change to avoid inconsistencies.",
+      "lockedTitle": "Delete reservation",
+      "lockedDescription": "This reservation cannot be deleted because it's linked to an unfulfilled order."
+    },
+    "edit": {
+      "lockedTitle": "Edit reservation",
+      "lockedDescription": "This reservation cannot be edited because it's linked to an unfulfilled order."
+    }
   },
   "salesChannels": {
     "domain": "Sales Channels",

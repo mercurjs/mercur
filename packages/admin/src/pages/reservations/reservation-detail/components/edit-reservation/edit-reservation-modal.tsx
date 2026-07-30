@@ -28,6 +28,9 @@ export const ReservationEdit = () => {
       id: inventoryItem?.location_levels?.map(
         (level) => level.location_id
       ),
+      // Merge the seller link so the store-location warning can detect a
+      // location that belongs to a vendor (stock-location-seller-link).
+      fields: "+seller.id",
     },
     {
       enabled: !!inventoryItem?.location_levels,

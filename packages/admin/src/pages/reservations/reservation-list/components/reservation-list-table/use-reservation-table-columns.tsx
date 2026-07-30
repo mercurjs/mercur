@@ -8,89 +8,76 @@ import { ExtendedReservationItem } from "../../../../inventory/inventory-detail/
 
 const columnHelper = createColumnHelper<ExtendedReservationItem>()
 
+const TruncatedTextCell = ({ value }: { value?: string | null }) => {
+  if (!value) {
+    return <PlaceholderCell />
+  }
+
+  return (
+    <div className="flex size-full items-center overflow-hidden">
+      <span className="truncate">{value}</span>
+    </div>
+  )
+}
+
+// Product + Store come from links that may not be populated on every payload;
+// read them defensively and fall back to a placeholder.
+const getProductTitle = (reservation: ExtendedReservationItem) => {
+  const item = reservation.inventory_item as
+    | { variants?: { product?: { title?: string | null } | null }[] | null }
+    | undefined
+  return item?.variants?.[0]?.product?.title ?? undefined
+}
+
+const getStoreName = (reservation: ExtendedReservationItem) => {
+  const item = reservation.inventory_item as
+    | { seller?: { name?: string | null } | null }
+    | undefined
+  return item?.seller?.name ?? undefined
+}
+
 export const useReservationTableColumns = () => {
   const { t } = useTranslation()
 
   return useMemo(
     () => [
-      columnHelper.accessor("inventory_item", {
-        header: t("fields.sku"),
-        cell: ({ getValue }) => {
-          const inventoryItem = getValue()
-
-          if (!inventoryItem || !inventoryItem.sku) {
-            return <PlaceholderCell />
-          }
-
-          return (
-            <div className="flex size-full items-center overflow-hidden">
-              <span className="truncate">{inventoryItem.sku}</span>
-            </div>
-          )
-        },
+      columnHelper.accessor("inventory_item.title", {
+        header: t("fields.title"),
+        cell: ({ getValue }) => <TruncatedTextCell value={getValue()} />,
       }),
-      /**
-       * TEMP: hide this column until a link is added
-       */
-      // columnHelper.accessor("line_item", {
-      //   header: t("fields.order"),
-      //   cell: ({ getValue }) => {
-      //     const inventoryItem = getValue()
-      //
-      //     if (!inventoryItem || !inventoryItem.order?.display_id) {
-      //       return <PlaceholderCell />
-      //     }
-      //
-      //     return (
-      //       <div className="flex size-full items-center overflow-hidden">
-      //         <LinkButton to={`/orders/${inventoryItem.order.id}`}>
-      //           <span className="truncate">
-      //             #{inventoryItem.order.display_id}
-      //           </span>
-      //         </LinkButton>
-      //       </div>
-      //     )
-      //   },
-      // }),
+      columnHelper.accessor("inventory_item.sku", {
+        header: t("fields.sku"),
+        cell: ({ getValue }) => <TruncatedTextCell value={getValue()} />,
+      }),
+      columnHelper.display({
+        id: "product",
+        header: t("reservations.fields.product"),
+        cell: ({ row }) => (
+          <TruncatedTextCell value={getProductTitle(row.original)} />
+        ),
+      }),
+      columnHelper.display({
+        id: "store",
+        header: t("reservations.fields.store"),
+        cell: ({ row }) => (
+          <TruncatedTextCell value={getStoreName(row.original)} />
+        ),
+      }),
       columnHelper.accessor("description", {
         header: t("fields.description"),
-        cell: ({ getValue }) => {
-          const description = getValue()
-
-          if (!description) {
-            return <PlaceholderCell />
-          }
-
-          return (
-            <div className="flex size-full items-center overflow-hidden">
-              <span className="truncate">{description}</span>
-            </div>
-          )
-        },
-      }),
-      columnHelper.accessor("created_at", {
-        header: t("fields.created"),
-        cell: ({ getValue }) => {
-          const created = getValue()
-
-          return <DateCell date={created} />
-        },
+        cell: ({ getValue }) => <TruncatedTextCell value={getValue()} />,
       }),
       columnHelper.accessor("quantity", {
-        header: () => (
-          <div className="flex size-full items-center justify-end overflow-hidden text-right">
-            <span className="truncate">{t("fields.quantity")}</span>
+        header: t("fields.quantity"),
+        cell: ({ getValue }) => (
+          <div className="flex size-full items-center overflow-hidden">
+            <span className="truncate">{getValue()}</span>
           </div>
         ),
-        cell: ({ getValue }) => {
-          const quantity = getValue()
-
-          return (
-            <div className="flex size-full items-center justify-end overflow-hidden text-right">
-              <span className="truncate">{quantity}</span>
-            </div>
-          )
-        },
+      }),
+      columnHelper.accessor("created_at", {
+        header: t("reservations.fields.date"),
+        cell: ({ getValue }) => <DateCell date={getValue()} />,
       }),
       columnHelper.display({
         id: "actions",
