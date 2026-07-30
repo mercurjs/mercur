@@ -1,7 +1,8 @@
 export const vendorReviewFields = [
   "id",
-  "rating",
+  "display_id",
   "reference",
+  "rating",
   "customer_note",
   "seller_note",
   "status",

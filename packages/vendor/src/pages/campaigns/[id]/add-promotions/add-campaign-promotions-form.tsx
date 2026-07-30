@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { AdminCampaign, HttpTypes } from "@medusajs/types"
-import { Button, Checkbox, Hint, Tooltip, toast } from "@medusajs/ui"
+import { Button, Checkbox, Hint, Text, Tooltip, toast } from "@medusajs/ui"
 import {
   OnChangeFn,
   RowSelectionState,
@@ -99,7 +99,7 @@ export const AddCampaignPromotionsForm = ({
       {
         onSuccess: () => {
           toast.success(
-            t("campaigns.promotions.toast.success", {
+            t("campaigns.promotions.toast.added", {
               count: values.promotion_ids.length,
             })
           )
@@ -149,15 +149,27 @@ export const AddCampaignPromotionsForm = ({
           />
         </RouteFocusModal.Body>
         <RouteFocusModal.Footer>
-          <div className="flex items-center justify-end gap-x-2">
-            <RouteFocusModal.Close asChild>
-              <Button size="small" variant="secondary">
-                {t("actions.cancel")}
+          <div className="flex w-full items-center justify-between gap-x-4">
+            <Text
+              size="small"
+              leading="compact"
+              className="text-ui-fg-subtle border-ui-border-strong border-l-2 pl-3"
+            >
+              <span className="text-ui-fg-base txt-compact-small-plus">
+                {t("general.tip")}:
+              </span>{" "}
+              {t("campaigns.promotions.add.tip")}
+            </Text>
+            <div className="flex items-center gap-x-2">
+              <RouteFocusModal.Close asChild>
+                <Button size="small" variant="secondary">
+                  {t("actions.cancel")}
+                </Button>
+              </RouteFocusModal.Close>
+              <Button size="small" type="submit" isLoading={isPending}>
+                {t("actions.save")}
               </Button>
-            </RouteFocusModal.Close>
-            <Button size="small" type="submit" isLoading={isPending}>
-              {t("actions.save")}
-            </Button>
+            </div>
           </div>
         </RouteFocusModal.Footer>
       </KeyboundForm>

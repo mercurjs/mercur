@@ -2,8 +2,7 @@ import { InjectManager, MedusaService } from "@medusajs/framework/utils"
 import { Context } from "@medusajs/framework/types"
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex"
 
-import { Review } from "./models/review"
-import { ReviewReport } from "./models/review-report"
+import { Review, ReviewReport } from "./models"
 
 class ReviewModuleService extends MedusaService({
   Review,

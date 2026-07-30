@@ -1,5 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, toast } from "@medusajs/ui"
+import i18n from "i18next"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import * as zod from "zod"
@@ -14,19 +15,33 @@ import { useCreateCampaign } from "../../../../../hooks/api/campaigns"
 import { CreateCampaignFormFields } from "../../../common/components/create-campaign-form-fields"
 import { DEFAULT_CAMPAIGN_VALUES } from "../../../common/constants"
 
-export const CreateCampaignSchema = zod.object({
-  name: zod.string().min(1),
-  description: zod.string().optional(),
-  campaign_identifier: zod.string().min(1),
-  starts_at: zod.date().nullable(),
-  ends_at: zod.date().nullable(),
-  budget: zod.object({
-    attribute: zod.string().nullish(),
-    limit: zod.number().min(0).nullish(),
-    type: zod.enum(["spend", "usage", "use_by_attribute"]),
-    currency_code: zod.string().nullish(),
-  }),
-})
+export const CreateCampaignSchema = zod
+  .object({
+    name: zod
+      .string()
+      .min(1, { message: i18n.t("campaigns.validation.nameRequired") }),
+    description: zod.string().optional(),
+    campaign_identifier: zod
+      .string()
+      .min(1, { message: i18n.t("campaigns.validation.identifierRequired") }),
+    starts_at: zod.date().nullable(),
+    ends_at: zod.date().nullable(),
+    budget: zod.object({
+      attribute: zod.string().nullish(),
+      limit: zod.number().min(0).nullish(),
+      type: zod.enum(["spend", "usage", "use_by_attribute"]),
+      currency_code: zod.string().nullish(),
+    }),
+  })
+  .superRefine((data, ctx) => {
+    if (data.budget.type === "spend" && !data.budget.currency_code) {
+      ctx.addIssue({
+        code: zod.ZodIssueCode.custom,
+        message: i18n.t("campaigns.validation.currencyRequired"),
+        path: ["budget", "currency_code"],
+      })
+    }
+  })
 
 export const CreateCampaignForm = () => {
   const { t } = useTranslation()
@@ -59,11 +74,7 @@ export const CreateCampaignForm = () => {
       },
       {
         onSuccess: ({ campaign }) => {
-          toast.success(
-            t("campaigns.create.successToast", {
-              name: campaign.name,
-            })
-          )
+          toast.success(t("campaigns.create.successToast"))
           handleSuccess(`/campaigns/${campaign.id}`)
         },
         onError: (error) => {

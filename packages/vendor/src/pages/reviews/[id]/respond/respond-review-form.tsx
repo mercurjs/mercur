@@ -9,17 +9,24 @@ import { RouteDrawer, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { useRespondReview } from "@hooks/api/reviews";
 
-const RespondReviewSchema = zod.object({
-  seller_note: zod.string().min(1).max(300),
-});
+type RespondReviewFormValues = {
+  seller_note: string;
+};
 
 export const RespondReviewForm = ({ reviewId }: { reviewId: string }) => {
   const { t } = useTranslation();
   const { handleSuccess } = useRouteModal();
   const prompt = usePrompt();
 
-  const form = useForm<zod.infer<typeof RespondReviewSchema>>({
-    resolver: zodResolver(RespondReviewSchema),
+  const form = useForm<RespondReviewFormValues>({
+    resolver: zodResolver(
+      zod.object({
+        seller_note: zod
+          .string()
+          .min(1, t("reviews.respond.validation"))
+          .max(300),
+      }),
+    ),
     defaultValues: {
       seller_note: "",
     },

@@ -1,25 +1,17 @@
 import {
   WorkflowResponse,
   createWorkflow,
-  transform,
 } from "@medusajs/framework/workflows-sdk"
+import { RespondReviewDTO } from "@mercurjs/types"
 
-import { RespondReviewDTO } from "../../../modules/review"
-import { updateReviewStep, validateReviewResponseStep } from "../steps"
+import { respondReviewStep } from "../steps"
 
 export const respondReviewWorkflow = createWorkflow(
   {
     name: "respond-review",
   },
   function (input: RespondReviewDTO) {
-    validateReviewResponseStep(input.id)
-
-    const update = transform({ input }, ({ input }) => ({
-      id: input.id,
-      seller_note: input.seller_note,
-    }))
-
-    const review = updateReviewStep(update)
+    const review = respondReviewStep(input)
 
     return new WorkflowResponse(review)
   }

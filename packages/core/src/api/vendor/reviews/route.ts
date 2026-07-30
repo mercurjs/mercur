@@ -1,8 +1,8 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { VendorReviewListResponse } from "@mercurjs/types"
 
 import sellerReview from "../../../links/seller-review"
-import { VendorReviewListResponse } from "../../../modules/review/types"
 
 export const GET = async (
   req: AuthenticatedMedusaRequest,

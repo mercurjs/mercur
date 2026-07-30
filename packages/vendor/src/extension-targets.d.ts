@@ -160,7 +160,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formZones: "edit"
       formTabs: Record<string, string>
       displayZones: "budget" | "configuration" | "general" | "promotions" | "spend"
-      displayFieldIds: "campaign_identifier" | "currency_code" | "description" | "name" | "status"
+      displayFieldIds: "campaign_identifier" | "description" | "name" | "status"
     }
     "category": {
       formZones: never

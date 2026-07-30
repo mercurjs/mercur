@@ -2,10 +2,10 @@ import {
   ContainerRegistrationKeys,
   MedusaError,
 } from "@medusajs/framework/utils"
-import { Query } from "@medusajs/framework"
 import { createStep } from "@medusajs/framework/workflows-sdk"
+import { Query } from "@medusajs/framework"
+import { CreateReviewDTO } from "@mercurjs/types"
 
-import { CreateReviewDTO } from "../../../modules/review"
 import orderReview from "../../../links/order-review"
 
 export const validateReviewStep = createStep(

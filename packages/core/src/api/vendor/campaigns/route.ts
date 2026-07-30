@@ -18,6 +18,8 @@ export const GET = async (
 ) => {
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
+  // `budget_type` / `status` are translated into real campaign constraints by
+  // the `applyCampaignFilters` middleware; the handler just consumes filterableFields.
   const { data: campaigns, metadata } = await query.graph({
     entity: "campaign",
     fields: req.queryConfig.fields,

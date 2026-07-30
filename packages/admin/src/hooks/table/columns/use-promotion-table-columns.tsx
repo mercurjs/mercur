@@ -17,11 +17,19 @@ import { getPromotionType } from "../../../lib/promotions"
 
 const columnHelper = createColumnHelper<HttpTypes.AdminPromotion>()
 
-export const usePromotionTableColumns = () => {
+type UsePromotionTableColumnsOptions = {
+  exclude?: string[]
+  order?: string[]
+}
+
+export const usePromotionTableColumns = ({
+  exclude,
+  order,
+}: UsePromotionTableColumnsOptions = {}) => {
   const { t } = useTranslation()
 
-  return useMemo(
-    () => [
+  return useMemo(() => {
+    const columns = [
       columnHelper.display({
         id: "code",
         header: () => <CodeHeader text={t("fields.code")} />,
@@ -77,7 +85,24 @@ export const usePromotionTableColumns = () => {
         header: () => <TextHeader text={t("fields.status")} />,
         cell: ({ row }) => <StatusCell promotion={row.original} />,
       }),
-    ],
-    [t]
-  )
+    ]
+
+    const filtered = exclude?.length
+      ? columns.filter((column) => !exclude.includes(column.id as string))
+      : columns
+
+    if (!order?.length) {
+      return filtered
+    }
+
+    return [...filtered].sort((a, b) => {
+      const aIndex = order.indexOf(a.id as string)
+      const bIndex = order.indexOf(b.id as string)
+
+      return (
+        (aIndex === -1 ? order.length : aIndex) -
+        (bIndex === -1 ? order.length : bIndex)
+      )
+    })
+  }, [t, exclude, order])
 }

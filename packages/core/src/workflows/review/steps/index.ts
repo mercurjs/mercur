@@ -1,6 +1,6 @@
 export * from "./create-review"
 export * from "./update-review"
+export * from "./respond-review"
 export * from "./delete-review"
 export * from "./validate-review"
-export * from "./validate-review-response"
 export * from "./create-review-report"

@@ -1,2 +1,2 @@
-export { Review } from "./review"
-export { ReviewReport } from "./review-report"
+export { default as Review } from "./review"
+export { default as ReviewReport } from "./review-report"

@@ -11,6 +11,7 @@ import {
 } from "@medusajs/framework"
 import { createLinkBody } from "@medusajs/medusa/api/utils/validators"
 
+import { applyCampaignFilters } from "./helpers"
 import { vendorCampaignQueryConfig } from "./query-config"
 import {
   VendorCreateCampaign,
@@ -43,6 +44,7 @@ export const vendorCampaignsMiddlewares: MiddlewareRoute[] = [
         vendorCampaignQueryConfig.list
       ),
       applySellerCampaignLinkFilter,
+      applyCampaignFilters,
     ],
   },
   {

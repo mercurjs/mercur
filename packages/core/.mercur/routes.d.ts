@@ -509,6 +509,11 @@ export type Routes = {
                 subscribe: typeof import("@medusajs/medusa/api/admin/workflows-executions/[workflow_id]/subscribe/route");
             };
         };
+        reviews: typeof import("../src/api/admin/reviews/route") & {
+            $id: typeof import("../src/api/admin/reviews/[id]/route") & {
+                respond: typeof import("../src/api/admin/reviews/[id]/respond/route");
+            };
+        };
     };
     auth: {
         $actorType: {
@@ -636,6 +641,9 @@ export type Routes = {
             $id: {
                 calculate: typeof import("@medusajs/medusa/api/store/shipping-options/[id]/calculate/route");
             };
+        };
+        reviews: typeof import("../src/api/store/reviews/route") & {
+            $id: typeof import("../src/api/store/reviews/[id]/route");
         };
     };
     vendor: {

@@ -14,6 +14,7 @@ import {
   useDeleteCampaign,
 } from "@hooks/api/campaigns";
 import { useCampaignTableColumns } from "@hooks/table/columns/use-campaign-table-columns";
+import { useCampaignTableFilters } from "@hooks/table/filters/use-campaign-table-filters";
 import { useCampaignTableQuery } from "@hooks/table/query/use-campaign-table-query";
 import { useDataTable } from "@hooks/use-data-table";
 
@@ -38,6 +39,7 @@ export const CampaignListDataTable = () => {
   );
 
   const { columns } = useColumns();
+  const filters = useCampaignTableFilters();
 
   const { table } = useDataTable({
     data: campaigns ?? [],
@@ -60,6 +62,7 @@ export const CampaignListDataTable = () => {
       pageSize={PAGE_SIZE}
       pagination
       search
+      filters={filters}
       navigateTo={(row) => row.id}
       isLoading={isLoading}
       queryObject={raw}
@@ -79,12 +82,10 @@ const CampaignActions = ({ campaign }: { campaign: AdminCampaign }) => {
 
   const handleDelete = async () => {
     const confirm = await prompt({
-      title: t("general.areYouSure"),
-      description: t("campaigns.deleteCampaignWarning", {
+      title: t("campaigns.delete.title"),
+      description: t("campaigns.delete.description", {
         name: campaign.name,
       }),
-      verificationInstruction: t("general.typeToConfirm"),
-      verificationText: campaign.name,
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
     });

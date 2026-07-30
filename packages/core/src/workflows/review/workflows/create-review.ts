@@ -5,12 +5,9 @@ import {
   transform,
 } from "@medusajs/framework/workflows-sdk"
 import { createRemoteLinkStep } from "@medusajs/medusa/core-flows"
-import { MercurModules } from "@mercurjs/types"
+import { CreateReviewDTO, MercurModules } from "@mercurjs/types"
 
-import { CreateReviewDTO } from "../../../modules/review"
 import { createReviewStep, validateReviewStep } from "../steps"
-
-const SELLER_MODULE = "seller"
 
 export const createReviewWorkflow = createWorkflow(
   {
@@ -34,7 +31,7 @@ export const createReviewWorkflow = createWorkflow(
           ]
         : [
             {
-              [SELLER_MODULE]: {
+              [MercurModules.SELLER]: {
                 seller_id: input.reference_id,
               },
               [MercurModules.REVIEW]: {

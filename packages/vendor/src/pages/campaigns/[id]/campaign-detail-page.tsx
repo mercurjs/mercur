@@ -5,13 +5,11 @@ import { TwoColumnPageSkeleton } from "@components/common/skeleton";
 import { TwoColumnPage } from "@components/layout/pages";
 import { WidgetZone, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { useCampaign } from "@hooks/api/campaigns";
-import { usePromotionTableQuery } from "@hooks/table/query/use-promotion-table-query";
 
 import { CampaignBudget } from "./_components/campaign-budget";
 import { CampaignConfigurationSection } from "./_components/campaign-configuration-section";
 import { CampaignGeneralSection } from "./_components/campaign-general-section";
 import { CampaignPromotionSection } from "./_components/campaign-promotion-section";
-import { CampaignSpend } from "./_components/campaign-spend";
 import { CAMPAIGN_DETAIL_FIELDS } from "./constants";
 
 import type { loader } from "./loader";
@@ -19,18 +17,17 @@ import type { loader } from "./loader";
 const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { id } = useParams();
-  const { searchParams } = usePromotionTableQuery({});
   const linkQuery = useLinkQuery("campaign", CAMPAIGN_DETAIL_FIELDS);
   const { campaign, isLoading, isError, error } = useCampaign(
     id!,
-    { ...searchParams, ...linkQuery },
+    { ...linkQuery },
     {
       placeholderData: initialData,
     },
   );
 
   if (isLoading || !campaign) {
-    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={3} />;
+    return <TwoColumnPageSkeleton mainSections={2} sidebarSections={2} />;
   }
 
   if (isError) {
@@ -52,7 +49,6 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <TwoColumnPage.Sidebar>
             <WidgetZone id="campaigns.detail.side" data={campaign}>
               <CampaignConfigurationSection campaign={campaign} />
-              <CampaignSpend campaign={campaign} />
               <CampaignBudget campaign={campaign} />
             </WidgetZone>
           </TwoColumnPage.Sidebar>
@@ -68,6 +64,5 @@ export const CampaignDetailPage = Object.assign(Root, {
   MainGeneralSection: CampaignGeneralSection,
   MainPromotionSection: CampaignPromotionSection,
   SidebarConfigurationSection: CampaignConfigurationSection,
-  SidebarSpend: CampaignSpend,
   SidebarBudget: CampaignBudget,
 });

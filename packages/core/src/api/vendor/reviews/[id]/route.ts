@@ -1,7 +1,7 @@
 import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
+import { VendorReviewResponse } from "@mercurjs/types"
 
-import { VendorReviewResponse } from "../../../../modules/review/types"
 import { respondReviewWorkflow } from "../../../../workflows/review/workflows"
 import { validateSellerReview } from "../helpers"
 import { VendorRespondReviewType } from "../validators"
@@ -12,7 +12,7 @@ export const GET = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerReview(req.scope, req.auth_context.actor_id, id!)
+  await validateSellerReview(req.scope, req.seller_context!.seller_id, id!)
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
@@ -26,9 +26,7 @@ export const GET = async (
     },
   })
 
-  res.json({
-    review,
-  })
+  res.json({ review })
 }
 
 export const POST = async (
@@ -37,14 +35,14 @@ export const POST = async (
 ) => {
   const { id } = req.params
 
-  await validateSellerReview(req.scope, req.auth_context.actor_id, id!)
-
-  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  await validateSellerReview(req.scope, req.seller_context!.seller_id, id!)
 
   await respondReviewWorkflow.run({
     container: req.scope,
     input: { id: id!, seller_note: req.validatedBody.seller_note },
   })
+
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const {
     data: [review],
@@ -56,7 +54,5 @@ export const POST = async (
     },
   })
 
-  res.json({
-    review,
-  })
+  res.json({ review })
 }

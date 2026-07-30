@@ -3,7 +3,7 @@ import {
   createWorkflow,
 } from "@medusajs/framework/workflows-sdk"
 
-import { ReportReviewDTO } from "../../../modules/review"
+import { ReportReviewDTO } from "@mercurjs/types"
 import { createReviewReportStep } from "../steps"
 
 export const reportReviewWorkflow = createWorkflow(

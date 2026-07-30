@@ -6,15 +6,12 @@ export const VendorGetReviewsParams = createFindParams({
   offset: 0,
   limit: 50,
 }).extend({
-  status: z
-    .array(z.enum(["pending", "published", "rejected"]))
-    .or(z.enum(["pending", "published", "rejected"]))
-    .optional(),
   rating: z
-    .array(z.coerce.number().int().min(1).max(5))
-    .or(z.coerce.number().int().min(1).max(5))
+    .union([
+      z.coerce.number().int().min(1).max(5),
+      z.array(z.coerce.number().int().min(1).max(5)),
+    ])
     .optional(),
-  customer_id: z.array(z.string()).or(z.string()).optional(),
 })
 
 export type VendorRespondReviewType = z.infer<typeof VendorRespondReview>

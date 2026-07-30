@@ -1,17 +1,22 @@
 import { clx } from "@medusajs/ui"
 import { memo } from "react"
-import { NoRecords, NoRecordsProps } from "../../common/empty-table-content"
+import {
+  NoRecords,
+  NoRecordsProps,
+  NoResultsProps,
+} from "../../common/empty-table-content"
 import { TableSkeleton } from "../../common/skeleton"
 import { DataTableQuery, DataTableQueryProps } from "./data-table-query"
 import { DataTableRoot, DataTableRootProps } from "./data-table-root"
 
 interface DataTableProps<TData>
-  extends Omit<DataTableRootProps<TData>, "noResults">,
+  extends Omit<DataTableRootProps<TData>, "noResults" | "noResultsProps">,
     DataTableQueryProps<TData> {
   isLoading?: boolean
   pageSize: number
   queryObject?: Record<string, any>
   noRecords?: Pick<NoRecordsProps, "title" | "message" | "icon" | "action">
+  noResults?: Pick<NoResultsProps, "title" | "message" | "icon">
 }
 
 // Maybe we should use the memoized version of DataTableRoot
@@ -40,6 +45,7 @@ export const _DataTable = <TData,>({
   noHeader = false,
   layout = "fit",
   noRecords: noRecordsProps = {},
+  noResults: noResultsProps = {},
   toolbarActions,
 }: DataTableProps<TData>) => {
   if (isLoading) {
@@ -57,7 +63,7 @@ export const _DataTable = <TData,>({
 
   const noQuery =
     Object.values(queryObject).filter((v) => Boolean(v)).length === 0
-  const noResults = !isLoading && count === 0 && !noQuery
+  const showNoResults = !isLoading && count === 0 && !noQuery
   const noRecords = !isLoading && count === 0 && noQuery
 
   if (noRecords) {
@@ -93,7 +99,8 @@ export const _DataTable = <TData,>({
         navigateTo={navigateTo}
         onRowClick={onRowClick}
         commands={commands}
-        noResults={noResults}
+        noResults={showNoResults}
+        noResultsProps={noResultsProps}
         noHeader={noHeader}
         layout={layout}
       />

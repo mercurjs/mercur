@@ -14,6 +14,7 @@ import { adminCommissionRatesMiddlewares } from "./commission-rates/middlewares"
 
 import { adminProductsMiddlewares } from "./products/middlewares"
 import { adminPromotionsMiddlewares } from "./promotions/middlewares"
+import { adminCampaignsMiddlewares } from "./campaigns/middlewares"
 import { adminCollectionsMiddlewares } from "./collections/middlewares"
 import { adminProductCategoriesMiddlewares } from "./product-categories/middlewares"
 import { adminProductAttributesMiddlewares } from "./product-attributes/middlewares"
@@ -21,6 +22,7 @@ import { adminProductChangesMiddlewares } from "./product-changes/middlewares"
 import { adminStockLocationsMiddlewares } from "./stock-locations/middlewares"
 import { adminShippingOptionsMiddlewares } from "./shipping-options/middlewares"
 import { adminShippingProfilesMiddlewares } from "./shipping-profiles/middlewares"
+import { adminReviewsMiddlewares } from "./reviews/middlewares"
 
 export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminOrderGroupsMiddlewares,
@@ -43,6 +45,7 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminCommissionRatesMiddlewares,
   ...adminProductsMiddlewares,
   ...adminPromotionsMiddlewares,
+  ...adminCampaignsMiddlewares,
   ...adminCollectionsMiddlewares,
   ...adminProductCategoriesMiddlewares,
   ...adminProductAttributesMiddlewares,
@@ -50,4 +53,5 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminStockLocationsMiddlewares,
   ...adminShippingOptionsMiddlewares,
   ...adminShippingProfilesMiddlewares,
+  ...adminReviewsMiddlewares,
 ]

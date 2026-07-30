@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
-import { Container, Heading, StatusBadge, Text } from "@medusajs/ui";
-import { ChatBubbleLeftRight, FlagMini } from "@medusajs/icons";
+import { Link, useNavigate } from "react-router-dom";
+import { Button, Container, Heading, StatusBadge, Text } from "@medusajs/ui";
+import { FlagMini } from "@medusajs/icons";
 
 import { ActionMenu } from "@components/common/action-menu";
 import type { ReviewDTO } from "@hooks/api/reviews";
@@ -39,13 +39,6 @@ export const ReviewGeneralSection = ({ review }: { review: ReviewDTO }) => {
               {
                 actions: [
                   {
-                    icon: <ChatBubbleLeftRight />,
-                    label: t("reviews.respond.action"),
-                    onClick: () => navigate("respond"),
-                    disabled: hasResponse,
-                    disabledTooltip: t("reviews.respond.alreadyResponded"),
-                  },
-                  {
                     icon: <FlagMini />,
                     label: t("reviews.report.action"),
                     onClick: () => navigate("report"),
@@ -81,6 +74,19 @@ export const ReviewGeneralSection = ({ review }: { review: ReviewDTO }) => {
           {review.seller_note || "-"}
         </Text>
       </div>
+
+      {!hasResponse && (
+        <div className="flex items-center justify-end px-6 py-4">
+          <Button
+            size="small"
+            variant="secondary"
+            asChild
+            data-testid="review-general-section-respond-button"
+          >
+            <Link to="respond">{t("reviews.respond.action")}</Link>
+          </Button>
+        </div>
+      )}
     </Container>
   );
 };

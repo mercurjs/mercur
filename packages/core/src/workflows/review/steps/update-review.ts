@@ -1,7 +1,6 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
-import { MercurModules } from "@mercurjs/types"
+import { MercurModules, UpdateReviewDTO } from "@mercurjs/types"
 
-import { UpdateReviewDTO } from "../../../modules/review"
 import ReviewModuleService from "../../../modules/review/service"
 
 export const updateReviewStep = createStep(
@@ -19,7 +18,6 @@ export const updateReviewStep = createStep(
     if (!previous) {
       return
     }
-
     const service = container.resolve<ReviewModuleService>(MercurModules.REVIEW)
     await service.updateReviews({
       id: previous.id,

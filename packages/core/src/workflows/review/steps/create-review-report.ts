@@ -1,7 +1,7 @@
 import { StepResponse, createStep } from "@medusajs/framework/workflows-sdk"
 import { MercurModules } from "@mercurjs/types"
 
-import { ReportReviewDTO } from "../../../modules/review"
+import { ReportReviewDTO } from "@mercurjs/types"
 import ReviewModuleService from "../../../modules/review/service"
 
 export const createReviewReportStep = createStep(

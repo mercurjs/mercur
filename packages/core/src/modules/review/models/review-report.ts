@@ -1,6 +1,6 @@
 import { model } from "@medusajs/framework/utils"
 
-export const ReviewReport = model.define("review_report", {
+const ReviewReport = model.define("review_report", {
   id: model.id({ prefix: "revrep" }).primaryKey(),
   review_id: model.text(),
   seller_id: model.text(),
@@ -13,3 +13,5 @@ export const ReviewReport = model.define("review_report", {
   ]),
   status: model.enum(["pending", "confirmed", "rejected"]).default("pending"),
 })
+
+export default ReviewReport

@@ -12,11 +12,10 @@ export const deleteReviewStep = createStep(
 
     return new StepResponse(id, id)
   },
-  async (id, { container }) => {
+  async (id: string | undefined, { container }) => {
     if (!id) {
       return
     }
-
     const service = container.resolve<ReviewModuleService>(MercurModules.REVIEW)
     await service.restoreReviews(id)
   }

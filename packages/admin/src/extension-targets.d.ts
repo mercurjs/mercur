@@ -166,6 +166,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "products": true
     "promotions": true
     "reservations": true
+    "reviews": true
     "stores": true
   }
 
@@ -177,6 +178,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "price-lists": true
     "products": true
     "promotions": true
+    "reviews": true
     "stores": true
   }
 
@@ -191,7 +193,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formZones: "edit"
       formTabs: Record<string, string>
       displayZones: "configuration" | "general" | "promotions"
-      displayFieldIds: "campaign_identifier" | "currency_code" | "description" | "name" | "status"
+      displayFieldIds: "campaign_identifier" | "description" | "name" | "owner" | "status"
     }
     "category": {
       formZones: "create" | "edit"

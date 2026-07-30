@@ -11,6 +11,8 @@ export const VendorGetCampaignsParamsFields = z
   .object({
     q: z.string().optional(),
     campaign_identifier: z.string().optional(),
+    budget_type: z.nativeEnum(CampaignBudgetType).optional(),
+    status: z.enum(["active", "scheduled", "expired"]).optional(),
     budget: z
       .object({
         currency_code: z.string().optional(),
