@@ -1,7 +1,8 @@
-import { Children, ReactNode, useEffect } from "react";
+import { Children, ReactNode, useEffect, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import i18n from "i18next";
-import { Button, Heading, Input, Text, toast } from "@medusajs/ui";
+import { Button, Heading, IconButton, Input, Text, toast } from "@medusajs/ui";
+import { Eye, EyeSlash } from "@medusajs/icons";
 import { useForm } from "react-hook-form";
 import { Trans, useTranslation } from "react-i18next";
 import {
@@ -53,6 +54,7 @@ const LoginForm = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
+  const [showPassword, setShowPassword] = useState(false);
 
   const reason = searchParams.get("reason") || "";
   const from = location.state?.from?.pathname || "/orders";
@@ -129,12 +131,28 @@ const LoginForm = () => {
               <Form.Item>
                 <Form.Label>{t("fields.password")}</Form.Label>
                 <Form.Control>
-                  <Input
-                    type="password"
-                    autoComplete="current-password"
-                    {...field}
-                    data-testid="login-password-input"
-                  />
+                  <div className="relative">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      autoComplete="current-password"
+                      {...field}
+                      className="pr-10"
+                      data-testid="login-password-input"
+                    />
+                    <IconButton
+                      type="button"
+                      size="small"
+                      variant="transparent"
+                      className="absolute inset-y-0 right-1 my-auto"
+                      onClick={() => setShowPassword((prev) => !prev)}
+                      aria-label={t(
+                        showPassword ? "login.hidePassword" : "login.showPassword",
+                      )}
+                      data-testid="login-password-toggle"
+                    >
+                      {showPassword ? <EyeSlash /> : <Eye />}
+                    </IconButton>
+                  </div>
                 </Form.Control>
                 <Form.ErrorMessage />
               </Form.Item>
