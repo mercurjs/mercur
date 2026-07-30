@@ -4630,12 +4630,20 @@
                 },
                 "idRequired": {
                   "type": "string"
+                },
+                "selectLocation": {
+                  "type": "string"
+                },
+                "enterQuantity": {
+                  "type": "string"
                 }
               },
               "required": [
                 "noAvaliableQuantity",
                 "quantityOutOfRange",
-                "idRequired"
+                "idRequired",
+                "selectLocation",
+                "enterQuantity"
               ],
               "additionalProperties": false
             }

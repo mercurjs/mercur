@@ -147,13 +147,15 @@ export const ManageLocationsForm = ({
             }}
             responseKey="stock_locations"
             renderItem={(location) => (
-              <LocationItem
-                selected={selectedLocationIds.has(location.id)}
-                location={location}
-                onSelect={(selected) =>
-                  handleLocationSelect(location.id, selected)
-                }
-              />
+              <div className="pb-2 last:pb-0">
+                <LocationItem
+                  selected={selectedLocationIds.has(location.id)}
+                  location={location}
+                  onSelect={(selected) =>
+                    handleLocationSelect(location.id, selected)
+                  }
+                />
+              </div>
             )}
             renderEmpty={() => (
               <div className="flex items-center justify-center py-8" data-testid="inventory-manage-locations-form-empty-state">

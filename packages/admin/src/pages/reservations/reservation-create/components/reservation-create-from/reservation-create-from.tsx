@@ -42,8 +42,12 @@ const buildCreateReservationSchema = (t: (key: string) => string) =>
     inventory_item_id: zod
       .string()
       .min(1, t("inventory.reservation.errors.idRequired")),
-    location_id: zod.string().min(1, t("validation.requiredField")),
-    quantity: zod.number().min(1, t("validation.requiredField")),
+    location_id: zod
+      .string()
+      .min(1, t("inventory.reservation.errors.selectLocation")),
+    quantity: zod
+      .number()
+      .min(1, t("inventory.reservation.errors.enterQuantity")),
     description: zod.string().optional(),
   })
 

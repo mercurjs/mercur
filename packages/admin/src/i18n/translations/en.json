@@ -1143,9 +1143,11 @@
       "gotIt": "Got it",
       "storeLocationWarning": "You're creating a reservation at a Store location. Please confirm it with the Vendor to avoid data inconsistencies.",
       "errors": {
-        "noAvaliableQuantity": "Stock location doesn't have available quantity.",
+        "noAvaliableQuantity": "Stock location doesn't have available quantity",
         "quantityOutOfRange": "Minimum quantity is 1 and maximum quantity is {{max}}",
-        "idRequired": "Inventory item ID is required"
+        "idRequired": "Inventory item ID is required",
+        "selectLocation": "Please select a location",
+        "enterQuantity": "Please enter a quantity"
       }
     },
     "adjustInventory": {
