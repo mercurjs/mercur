@@ -1031,6 +1031,61 @@ export function getRouteMap({
                 ],
               },
 
+              // REVIEWS
+              {
+                path: "/reviews",
+                errorElement: <ErrorBoundary />,
+                handle: { breadcrumb: () => t("reviews.domain") },
+                children: [
+                  {
+                    path: "",
+                    lazy: async () => {
+                      const { ReviewListPage } = await import("./pages/reviews");
+                      return {
+                        Component: ReviewListPage,
+                      };
+                    },
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { loader } = await import("./pages/reviews/[id]");
+                      const { Breadcrumb } = await import(
+                        "./pages/reviews/[id]/breadcrumb"
+                      );
+                      return {
+                        Component: Outlet,
+                        loader,
+                        handle: {
+                          breadcrumb: (match: UIMatch<any>) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: async () => {
+                          const { ReviewDetailPage } = await import(
+                            "./pages/reviews/[id]"
+                          );
+                          return {
+                            Component: ReviewDetailPage,
+                          };
+                        },
+                        children: [
+                          {
+                            path: "respond",
+                            lazy: () => import("./pages/reviews/[id]/respond"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
+
               // RESERVATIONS - disabled
               // {
               //   path: "/reservations",

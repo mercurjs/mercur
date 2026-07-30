@@ -8,9 +8,15 @@ export type NoResultsProps = {
   title?: string
   message?: string
   className?: string
+  icon?: React.ReactNode
 }
 
-export const NoResults = ({ title, message, className }: NoResultsProps) => {
+export const NoResults = ({
+  title,
+  message,
+  className,
+  icon = <MagnifyingGlass />,
+}: NoResultsProps) => {
   const { t } = useTranslation()
 
   return (
@@ -21,7 +27,7 @@ export const NoResults = ({ title, message, className }: NoResultsProps) => {
       )}
     >
       <div className="flex flex-col items-center gap-y-2">
-        <MagnifyingGlass />
+        {icon}
         <Text size="small" leading="compact" weight="plus">
           {title ?? t("general.noResultsTitle")}
         </Text>
@@ -40,7 +46,7 @@ type ActionProps = {
   }
 }
 
-type NoRecordsProps = {
+export type NoRecordsProps = {
   title?: string
   message?: string
   className?: string

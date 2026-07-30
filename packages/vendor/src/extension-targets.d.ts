@@ -141,6 +141,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "price-lists": true
     "products": true
     "promotions": true
+    "reviews": true
   }
 
   interface NavParentRegistry {
@@ -151,6 +152,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "price-lists": true
     "products": true
     "promotions": true
+    "reviews": true
   }
 
   interface CustomFieldsRegistry {

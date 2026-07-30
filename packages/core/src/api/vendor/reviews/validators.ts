@@ -6,6 +6,14 @@ export const VendorGetReviewsParams = createFindParams({
   offset: 0,
   limit: 50,
 }).extend({
+  q: z.string().optional(),
+  customer_id: z.union([z.string(), z.array(z.string())]).optional(),
+  status: z
+    .union([
+      z.enum(["pending", "published", "rejected"]),
+      z.array(z.enum(["pending", "published", "rejected"])),
+    ])
+    .optional(),
   rating: z
     .union([
       z.coerce.number().int().min(1).max(5),
@@ -17,4 +25,7 @@ export const VendorGetReviewsParams = createFindParams({
 export type VendorRespondReviewType = z.infer<typeof VendorRespondReview>
 export const VendorRespondReview = z.object({
   seller_note: z.string().min(1).max(300),
+  // Accepted but ignored — vendors may not change a review's status or rating.
+  status: z.enum(["pending", "published", "rejected"]).optional(),
+  rating: z.coerce.number().int().min(1).max(5).optional(),
 })
