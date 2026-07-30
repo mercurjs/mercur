@@ -199,6 +199,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                           )}
                         />
                       </Form.Control>
+                      <Form.ErrorMessage />
                     </Form.Item>
                   )
                 }}
@@ -227,6 +228,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                           )}
                         />
                       </Form.Control>
+                      <Form.ErrorMessage />
                     </Form.Item>
                   )
                 }}
