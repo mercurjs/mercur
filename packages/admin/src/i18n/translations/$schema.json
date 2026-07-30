@@ -4429,6 +4429,12 @@
         "store": {
           "type": "string"
         },
+        "offer": {
+          "type": "string"
+        },
+        "associatedOffers": {
+          "type": "string"
+        },
         "reserved": {
           "type": "string"
         },
@@ -4733,6 +4739,9 @@
             "disabledToggleTooltip": {
               "type": "string"
             },
+            "foreignStoreTooltip": {
+              "type": "string"
+            },
             "successToast": {
               "type": "string"
             },
@@ -4754,6 +4763,7 @@
             "disablePrompt_one",
             "disablePrompt_other",
             "disabledToggleTooltip",
+            "foreignStoreTooltip",
             "successToast",
             "confirmTitle",
             "confirmDescription",
@@ -4766,6 +4776,8 @@
         "domain",
         "subtitle",
         "store",
+        "offer",
+        "associatedOffers",
         "reserved",
         "available",
         "locationLevels",

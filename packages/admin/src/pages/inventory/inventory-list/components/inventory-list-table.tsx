@@ -1,5 +1,5 @@
 import { InventoryTypes, ProductVariantDTO } from "@medusajs/types"
-import { Container, Heading, Text, usePrompt } from "@medusajs/ui"
+import { Container, Heading, Text } from "@medusajs/ui"
 
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
 import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
@@ -67,7 +67,6 @@ export const InventoryListHeader = ({ children }: { children?: ReactNode }) => {
 export const InventoryListDataTable = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
-  const prompt = usePrompt()
 
   const [selection, setSelection] = useState<RowSelectionState>({})
 
@@ -83,10 +82,7 @@ export const InventoryListDataTable = () => {
     error,
   } = useInventoryItems({
     ...searchParams,
-    ...useLinkQuery(
-      "inventory_item",
-      "+variants.product.title,+seller.name"
-    ),
+    ...useLinkQuery("inventory_item", "+offers.sku,+seller.name"),
   })
 
   const baseFilters = useInventoryTableFilters()
@@ -149,17 +145,6 @@ export const InventoryListDataTable = () => {
         commands={[
           {
             action: async (selection) => {
-              const confirmed = await prompt({
-                title: t("inventory.stock.confirmTitle"),
-                description: t("inventory.stock.confirmDescription"),
-                confirmText: t("actions.continue"),
-                cancelText: t("actions.cancel"),
-              })
-
-              if (!confirmed) {
-                return
-              }
-
               navigate(
                 `stock?${INVENTORY_ITEM_IDS_KEY}=${Object.keys(selection).join(
                   ","

@@ -15,16 +15,17 @@ jest.setTimeout(60000)
  * Admin Inventory (MER-139, spec-3-admin-inventory).
  *
  * The admin inventory list adds two marketplace columns to Medusa's native
- * table — **Store** (the seller that owns the item) and **Product** (the master
- * product of the item). Both come from the mercur links, requested off the
- * native `GET /admin/inventory-items` route via `fields`:
- *   - Store  → `+seller.name`               (inventory_item ↔ seller link)
- *   - Product → the item's offer → product   (offer ↔ inventory_item ↔ product)
+ * table — **Store** (the seller that owns the item) and **Offer** (the seller's
+ * offer). Both come from the mercur links, requested off the native
+ * `GET /admin/inventory-items` route via `fields`:
+ *   - Store → `+seller.name`   (inventory_item ↔ seller link)
+ *   - Offer → `+offers.sku`    (offer ↔ inventory_item link; inventory-side alias `offers`)
  *
- * IMPORTANT (memory `offer-inventory-not-on-variant`): seller inventory is
- * created through an **offer** and links to the *offer*, not the variant — so
- * `inventory_item.variants` is empty for offer inventory. That's why Product is
- * reached through the offer, and the test asserts exactly that.
+ * IMPORTANT (memory `offer-inventory-not-on-variant`, decision D1): seller
+ * inventory is created through an **offer** and links to the *offer*, not the
+ * variant — so `inventory_item.variants` is empty. The list column shows the
+ * Offer (its sku), not the Product, because the product is not reachable from
+ * an inventory item.
  *
  * `seller_id` filtering (the list's "Store" filter) is NOT in the native
  * validator, so the last test specifies the behavior the core route override
@@ -180,7 +181,7 @@ medusaIntegrationTestRunner({
 
       const listItemForSeller = async (sellerId: string) => {
         const res = await api.get(
-          `/admin/inventory-items?fields=id,sku,*seller,*variants.product,offer.product.title`,
+          `/admin/inventory-items?fields=id,sku,*seller,offers.id,offers.sku`,
           adminHeaders
         )
         expect(res.status).toEqual(200)
@@ -205,25 +206,21 @@ medusaIntegrationTestRunner({
         expect(item!.seller!.name).toEqual(sellerName)
       })
 
-      it("reaches the Product through the offer (offer inventory has no variant link)", async () => {
-        const { sellerId } = await seedSellerInventory({
-          email: "inv-prod@medusa.js",
+      it("resolves the Offer column via the offer link (offers alias)", async () => {
+        const { sellerId, offerSku } = await seedSellerInventory({
+          email: "inv-offer@medusa.js",
           name: "Store Two",
           productTitle: "A-Line Dress",
           offerSku: "OF-STORE-2",
         })
 
         const item = (await listItemForSeller(sellerId)) as
-          | {
-              variants?: Array<{ product?: { title?: string } }>
-              offer?: { product?: { title?: string } }
-            }
+          | { offers?: Array<{ sku?: string }> }
           | undefined
 
         expect(item).toBeDefined()
-        const productTitle =
-          item!.offer?.product?.title ?? item!.variants?.[0]?.product?.title
-        expect(productTitle).toEqual("A-Line Dress")
+        // Offer column reads item.offers?.[0]?.sku
+        expect(item!.offers?.[0]?.sku).toEqual(offerSku)
       })
 
       // Specifies delta D-03 (backend). The list "Store" filter sends

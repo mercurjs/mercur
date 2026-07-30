@@ -12,6 +12,7 @@ import { InventoryActions } from "./inventory-actions"
  */
 interface ExtendedInventoryItem extends InventoryTypes.InventoryItemDTO {
   variants?: ProductVariantDTO[] | null
+  offers?: { id: string; sku: string }[] | null
   seller?: { id: string; name: string } | null
   stocked_quantity?: number
   reserved_quantity?: number
@@ -105,16 +106,16 @@ export const useInventoryTableColumns = () => {
         },
       }),
       columnHelper.display({
-        id: "product",
+        id: "offer",
         header: () => (
-          <div className="flex h-full w-full items-center" data-testid="inventory-table-header-product">
-            <span data-testid="inventory-table-header-product-text">{t("fields.product")}</span>
+          <div className="flex h-full w-full items-center" data-testid="inventory-table-header-offer">
+            <span data-testid="inventory-table-header-offer-text">{t("inventory.offer")}</span>
           </div>
         ),
         cell: ({ row }) => {
-          const product = row.original.variants?.[0]?.product
+          const offerSku = row.original.offers?.[0]?.sku
 
-          if (!product?.title) {
+          if (!offerSku) {
             return <PlaceholderCell />
           }
 
@@ -122,9 +123,9 @@ export const useInventoryTableColumns = () => {
             <div className="flex size-full items-center overflow-hidden">
               <span
                 className="truncate"
-                data-testid={`inventory-table-cell-${row.id}-product-value`}
+                data-testid={`inventory-table-cell-${row.id}-offer-value`}
               >
-                {product.title}
+                {offerSku}
               </span>
             </div>
           )
