@@ -1,2 +1,2 @@
 export const INVENTORY_DETAIL_FIELDS =
-  "*variants,*variants.product,*variants.options,+offers.id,+offers.sku,+offers.seller_id"
+  "*variants,*variants.product,*variants.options,+offers.id,+offers.sku,+offers.seller_id,+offers.variant.title,+offers.product.title,+offers.product.thumbnail"

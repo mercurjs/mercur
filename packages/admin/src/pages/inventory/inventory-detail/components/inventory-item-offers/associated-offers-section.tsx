@@ -1,10 +1,15 @@
-import { Tag } from "@medusajs/icons"
 import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { SidebarLink } from "@components/common/sidebar-link/sidebar-link"
+import { Thumbnail } from "@components/common/thumbnail"
 
-type InventoryItemOffer = { id: string; sku: string }
+type InventoryItemOffer = {
+  id: string
+  sku: string
+  variant?: { title?: string | null } | null
+  product?: { title?: string | null; thumbnail?: string | null } | null
+}
 
 type AssociatedOffersSectionProps = {
   offers?: InventoryItemOffer[] | null
@@ -26,16 +31,23 @@ export const AssociatedOffersSection = ({
           {t("inventory.associatedOffers")}
         </Heading>
       </div>
-      {offers.map((offer) => (
-        <SidebarLink
-          key={offer.id}
-          to={`/offers/${offer.id}`}
-          labelKey={offer.sku}
-          descriptionKey=""
-          icon={<Tag />}
-          dataTestid={`inventory-associated-offer-${offer.id}`}
-        />
-      ))}
+      {offers.map((offer) => {
+        const label = offer.variant?.title || offer.sku
+        const description = [offer.variant?.title, offer.product?.title]
+          .filter(Boolean)
+          .join(" · ")
+
+        return (
+          <SidebarLink
+            key={offer.id}
+            to={`/offers/${offer.id}`}
+            labelKey={label}
+            descriptionKey={description}
+            icon={<Thumbnail src={offer.product?.thumbnail ?? null} />}
+            dataTestid={`inventory-associated-offer-${offer.id}`}
+          />
+        )
+      })}
     </Container>
   )
 }
