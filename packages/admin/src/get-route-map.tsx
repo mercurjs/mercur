@@ -677,6 +677,13 @@ export function getRouteMap({
                               import("./pages/price-lists/price-list-configuration"),
                           },
                           {
+                            path: "customer-availability",
+                            lazy: () =>
+                              import(
+                                "./pages/price-lists/price-list-customer-availability"
+                              ),
+                          },
+                          {
                             path: "products/add",
                             lazy: () =>
                               import("./pages/price-lists/price-list-prices-add"),

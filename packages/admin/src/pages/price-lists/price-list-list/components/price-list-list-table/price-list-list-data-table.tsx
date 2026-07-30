@@ -46,7 +46,7 @@ export const PriceListListDataTable = () => {
   const { searchParams, raw } = usePricingTableQuery({
     pageSize: PAGE_SIZE,
   })
-  const linkQuery = useLinkQuery("price_list")
+  const linkQuery = useLinkQuery("price_list", "+seller.name")
   const { price_lists, count, isLoading, isError, error } = usePriceLists(
     { ...searchParams, ...linkQuery },
     {
@@ -82,7 +82,6 @@ export const PriceListListDataTable = () => {
       filters={filters}
       orderBy={[
         { key: "title", label: t("fields.title") },
-        { key: "status", label: t("fields.status") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
@@ -90,6 +89,14 @@ export const PriceListListDataTable = () => {
       pageSize={PAGE_SIZE}
       navigateTo={(row) => row.original.id}
       isLoading={isLoading}
+      noRecords={{
+        title: t("priceLists.list.noRecords.title"),
+        message: t("priceLists.list.noRecords.message"),
+        action: {
+          to: "create",
+          label: t("actions.create"),
+        },
+      }}
       pagination
       search
     />

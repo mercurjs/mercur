@@ -39,7 +39,7 @@ export const PriceListCreateForm = ({
   const form = useForm<PricingCreateSchemaType>({
     defaultValues: {
       type: "sale",
-      status: "active",
+      status: "draft",
       title: "",
       description: "",
       starts_at: null,

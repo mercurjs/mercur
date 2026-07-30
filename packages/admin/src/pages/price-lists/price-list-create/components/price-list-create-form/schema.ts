@@ -1,3 +1,4 @@
+import i18n from "i18next"
 import { z } from "zod"
 import {
   PriceListCreateProductsSchema,
@@ -18,8 +19,10 @@ export type PricingCustomerGroupsArrayType = z.infer<
 export const PricingCreateSchema = z.object({
   type: z.enum(["sale", "override"]),
   status: z.enum(["draft", "active"]),
-  title: z.string().min(1),
-  description: z.string().min(1),
+  title: z.string().min(1, i18n.t("priceLists.create.validation.title")),
+  description: z
+    .string()
+    .min(1, i18n.t("priceLists.create.validation.description")),
   starts_at: z.date().nullish(),
   ends_at: z.date().nullish(),
   product_ids: z.array(z.object({ id: z.string() })).min(1),
