@@ -70,9 +70,27 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
     resolver: zodResolver(CreateReservationSchema),
   })
 
-  const { inventory_items } = useInventoryItems({
+  const { inventory_items: searchedItems } = useInventoryItems({
     q: inventorySearch,
   })
+
+  // The preselected item (from `?item_id=`) may not be in the search results,
+  // so fetch it explicitly and merge it into the options so it stays selected.
+  const { inventory_items: presetItems } = useInventoryItems(
+    {
+      id: props.inventoryItemId ? [props.inventoryItemId] : undefined,
+      fields: "id,sku,title,*location_levels",
+    },
+    { enabled: !!props.inventoryItemId }
+  )
+
+  const inventory_items = React.useMemo(() => {
+    const byId = new Map<string, NonNullable<typeof searchedItems>[number]>()
+    ;[...(presetItems ?? []), ...(searchedItems ?? [])].forEach((it) =>
+      byId.set(it.id, it)
+    )
+    return Array.from(byId.values())
+  }, [presetItems, searchedItems])
 
   const inventoryItemId = form.watch("inventory_item_id")
   const selectedInventoryItem = inventory_items?.find(

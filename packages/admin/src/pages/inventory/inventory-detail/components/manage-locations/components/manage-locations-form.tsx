@@ -18,10 +18,12 @@ import { useStockLocations } from "../../../../../../hooks/api/stock-locations"
 type EditInventoryItemAttributeFormProps = {
   item: AdminInventoryItem
   locations: AdminStockLocation[]
+  sellerId?: string
 }
 
 export const ManageLocationsForm = ({
   item,
+  sellerId,
 }: EditInventoryItemAttributeFormProps) => {
   const existingLocationLevels = useMemo(
     () => new Set(item.location_levels?.map((l) => l.location_id) ?? []),
@@ -136,12 +138,17 @@ export const ManageLocationsForm = ({
             HttpTypes.AdminStockLocation,
             HttpTypes.AdminStockLocationListParams
           >
-            queryKey={["stock-locations", searchQuery]}
+            queryKey={["stock-locations", searchQuery, sellerId ?? "all"]}
             queryFn={async (params) => {
+              // Only the item's store may stock it — scope to that seller's
+              // warehouses via the admin stock-locations `seller_id` filter.
               const response = await sdk.admin.stockLocations.query({
                 limit: params.limit,
                 offset: params.offset,
+                ...(sellerId && { seller_id: sellerId }),
                 ...(searchQuery && { q: searchQuery }),
+              } as HttpTypes.AdminStockLocationListParams & {
+                seller_id?: string
               })
               return response
             }}
