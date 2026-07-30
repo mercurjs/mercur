@@ -1,11 +1,11 @@
 import { InventoryTypes, ProductVariantDTO } from "@medusajs/types"
-import { Button, Container, Heading, Text } from "@medusajs/ui"
+import { Container, Heading, Text, usePrompt } from "@medusajs/ui"
 
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
 import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared"
 import { Children, ReactNode, useMemo, useState } from "react"
 import { useTranslation } from "react-i18next"
-import { Link, useNavigate } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 import { _DataTable } from "../../../../components/table/data-table"
 import { useInventoryItems } from "../../../../hooks/api/inventory"
 import { useDataTable } from "../../../../hooks/use-data-table"
@@ -38,21 +38,12 @@ export const InventoryListTitle = () => {
   )
 }
 
-export const InventoryListCreateButton = () => {
-  const { t } = useTranslation()
-  return (
-    <Button size="small" variant="secondary" asChild data-testid="inventory-create-button">
-      <Link to="create" data-testid="inventory-create-link">{t("actions.create")}</Link>
-    </Button>
-  )
-}
-
 export const InventoryListActions = ({ children }: { children?: ReactNode }) => {
-  return (
-    <div className="flex items-center gap-x-2">
-      {Children.count(children) > 0 ? children : <InventoryListCreateButton />}
-    </div>
-  )
+  if (Children.count(children) === 0) {
+    return null
+  }
+
+  return <div className="flex items-center gap-x-2">{children}</div>
 }
 
 export const InventoryListHeader = ({ children }: { children?: ReactNode }) => {
@@ -76,6 +67,7 @@ export const InventoryListHeader = ({ children }: { children?: ReactNode }) => {
 export const InventoryListDataTable = () => {
   const { t } = useTranslation()
   const navigate = useNavigate()
+  const prompt = usePrompt()
 
   const [selection, setSelection] = useState<RowSelectionState>({})
 
@@ -91,7 +83,10 @@ export const InventoryListDataTable = () => {
     error,
   } = useInventoryItems({
     ...searchParams,
-    ...useLinkQuery("inventory_item"),
+    ...useLinkQuery(
+      "inventory_item",
+      "+variants.product.title,+seller.name"
+    ),
   })
 
   const baseFilters = useInventoryTableFilters()
@@ -154,6 +149,17 @@ export const InventoryListDataTable = () => {
         commands={[
           {
             action: async (selection) => {
+              const confirmed = await prompt({
+                title: t("inventory.stock.confirmTitle"),
+                description: t("inventory.stock.confirmDescription"),
+                confirmText: t("actions.continue"),
+                cancelText: t("actions.cancel"),
+              })
+
+              if (!confirmed) {
+                return
+              }
+
               navigate(
                 `stock?${INVENTORY_ITEM_IDS_KEY}=${Object.keys(selection).join(
                   ","

@@ -12,6 +12,7 @@ import { InventoryActions } from "./inventory-actions"
  */
 interface ExtendedInventoryItem extends InventoryTypes.InventoryItemDTO {
   variants?: ProductVariantDTO[] | null
+  seller?: { id: string; name: string } | null
   stocked_quantity?: number
   reserved_quantity?: number
 }
@@ -103,16 +104,17 @@ export const useInventoryTableColumns = () => {
           )
         },
       }),
-      columnHelper.accessor("reserved_quantity", {
+      columnHelper.display({
+        id: "product",
         header: () => (
-          <div className="flex h-full w-full items-center" data-testid="inventory-table-header-reserved-quantity">
-            <span data-testid="inventory-table-header-reserved-quantity-text">{t("inventory.reserved")}</span>
+          <div className="flex h-full w-full items-center" data-testid="inventory-table-header-product">
+            <span data-testid="inventory-table-header-product-text">{t("fields.product")}</span>
           </div>
         ),
-        cell: ({ getValue, row }) => {
-          const quantity = getValue()
+        cell: ({ row }) => {
+          const product = row.original.variants?.[0]?.product
 
-          if (Number.isNaN(quantity)) {
+          if (!product?.title) {
             return <PlaceholderCell />
           }
 
@@ -120,9 +122,35 @@ export const useInventoryTableColumns = () => {
             <div className="flex size-full items-center overflow-hidden">
               <span
                 className="truncate"
-                data-testid={`inventory-table-cell-${row.id}-reserved_quantity-value`}
+                data-testid={`inventory-table-cell-${row.id}-product-value`}
               >
-                {quantity}
+                {product.title}
+              </span>
+            </div>
+          )
+        },
+      }),
+      columnHelper.display({
+        id: "store",
+        header: () => (
+          <div className="flex h-full w-full items-center" data-testid="inventory-table-header-store">
+            <span data-testid="inventory-table-header-store-text">{t("inventory.store")}</span>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const store = row.original.seller?.name
+
+          if (!store) {
+            return <PlaceholderCell />
+          }
+
+          return (
+            <div className="flex size-full items-center overflow-hidden">
+              <span
+                className="truncate"
+                data-testid={`inventory-table-cell-${row.id}-store-value`}
+              >
+                {store}
               </span>
             </div>
           )
@@ -146,6 +174,31 @@ export const useInventoryTableColumns = () => {
               <span
                 className="truncate"
                 data-testid={`inventory-table-cell-${row.id}-stocked_quantity-value`}
+              >
+                {quantity}
+              </span>
+            </div>
+          )
+        },
+      }),
+      columnHelper.accessor("reserved_quantity", {
+        header: () => (
+          <div className="flex h-full w-full items-center" data-testid="inventory-table-header-reserved-quantity">
+            <span data-testid="inventory-table-header-reserved-quantity-text">{t("inventory.reserved")}</span>
+          </div>
+        ),
+        cell: ({ getValue, row }) => {
+          const quantity = getValue()
+
+          if (Number.isNaN(quantity)) {
+            return <PlaceholderCell />
+          }
+
+          return (
+            <div className="flex size-full items-center overflow-hidden">
+              <span
+                className="truncate"
+                data-testid={`inventory-table-cell-${row.id}-reserved_quantity-value`}
               >
                 {quantity}
               </span>

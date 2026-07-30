@@ -33,9 +33,15 @@ export const useLocationListTableColumns =
   const prompt = usePrompt();
 
   const handleDelete = async (level: ExtendedInventoryItemLevel) => {
+    const locationName = level.stock_locations
+      ?.map((location) => location.name)
+      .join(", ");
+
     const res = await prompt({
-      title: t("general.areYouSure"),
-      description: t("inventory.deleteWarning"),
+      title: t("inventory.level.deleteTitle"),
+      description: t("inventory.level.deleteDescription", {
+        location: locationName || t("fields.location"),
+      }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
     });

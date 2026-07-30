@@ -1,6 +1,6 @@
 import * as zod from "zod"
 
-import { Button, Heading, Input, Text, Textarea, toast } from "@medusajs/ui"
+import { Button, Heading, InlineTip, Input, Text, Textarea, toast } from "@medusajs/ui"
 import {
   RouteFocusModal,
   useRouteModal,
@@ -17,13 +17,6 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useInventoryItems } from "../../../../../hooks/api/inventory"
 import { useCreateReservationItem } from "../../../../../hooks/api/reservations"
 import { useStockLocations } from "../../../../../hooks/api/stock-locations"
-
-export const CreateReservationSchema = zod.object({
-  inventory_item_id: zod.string().min(1),
-  location_id: zod.string().min(1),
-  quantity: zod.number().min(1),
-  description: zod.string().optional(),
-})
 
 const AttributeGridRow = ({
   title,
@@ -44,12 +37,24 @@ const AttributeGridRow = ({
   )
 }
 
+const buildCreateReservationSchema = (t: (key: string) => string) =>
+  zod.object({
+    inventory_item_id: zod
+      .string()
+      .min(1, t("inventory.reservation.errors.idRequired")),
+    location_id: zod.string().min(1, t("validation.requiredField")),
+    quantity: zod.number().min(1, t("validation.requiredField")),
+    description: zod.string().optional(),
+  })
+
 export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
   const [inventorySearch, setInventorySearch] = React.useState<string | null>(
     null
   )
+
+  const CreateReservationSchema = buildCreateReservationSchema(t)
 
   const form = useForm<zod.infer<typeof CreateReservationSchema>>({
     defaultValues: {
@@ -286,6 +291,9 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                 )
               }}
             />
+            <InlineTip variant="warning" label={t("general.warning")}>
+              {t("inventory.reservation.storeLocationWarning")}
+            </InlineTip>
           </div>
         </RouteFocusModal.Body>
         <RouteFocusModal.Footer>
