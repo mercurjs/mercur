@@ -12,7 +12,7 @@ import { InventoryActions } from "./inventory-actions"
  */
 interface ExtendedInventoryItem extends InventoryTypes.InventoryItemDTO {
   variants?: ProductVariantDTO[] | null
-  offers?: { id: string; sku: string }[] | null
+  offers?: { id: string; sku: string; product?: { title: string } | null }[] | null
   seller?: { id: string; name: string } | null
   stocked_quantity?: number
   reserved_quantity?: number
@@ -106,16 +106,16 @@ export const useInventoryTableColumns = () => {
         },
       }),
       columnHelper.display({
-        id: "offer",
+        id: "product",
         header: () => (
-          <div className="flex h-full w-full items-center" data-testid="inventory-table-header-offer">
-            <span data-testid="inventory-table-header-offer-text">{t("inventory.offer")}</span>
+          <div className="flex h-full w-full items-center" data-testid="inventory-table-header-product">
+            <span data-testid="inventory-table-header-product-text">{t("fields.product")}</span>
           </div>
         ),
         cell: ({ row }) => {
-          const offerSku = row.original.offers?.[0]?.sku
+          const productTitle = row.original.offers?.[0]?.product?.title
 
-          if (!offerSku) {
+          if (!productTitle) {
             return <PlaceholderCell />
           }
 
@@ -123,9 +123,9 @@ export const useInventoryTableColumns = () => {
             <div className="flex size-full items-center overflow-hidden">
               <span
                 className="truncate"
-                data-testid={`inventory-table-cell-${row.id}-offer-value`}
+                data-testid={`inventory-table-cell-${row.id}-product-value`}
               >
-                {offerSku}
+                {productTitle}
               </span>
             </div>
           )

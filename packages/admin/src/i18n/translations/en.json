@@ -1086,7 +1086,6 @@
     "domain": "Inventory",
     "subtitle": "Manage inventory items.",
     "store": "Store",
-    "offer": "Offer",
     "associatedOffers": "Associated offers",
     "reserved": "Reserved",
     "available": "Available",

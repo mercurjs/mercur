@@ -4429,9 +4429,6 @@
         "store": {
           "type": "string"
         },
-        "offer": {
-          "type": "string"
-        },
         "associatedOffers": {
           "type": "string"
         },
@@ -4776,7 +4773,6 @@
         "domain",
         "subtitle",
         "store",
-        "offer",
         "associatedOffers",
         "reserved",
         "available",

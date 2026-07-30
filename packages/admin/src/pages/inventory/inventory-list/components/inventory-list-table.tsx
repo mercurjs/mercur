@@ -82,7 +82,7 @@ export const InventoryListDataTable = () => {
     error,
   } = useInventoryItems({
     ...searchParams,
-    ...useLinkQuery("inventory_item", "+offers.sku,+seller.name"),
+    ...useLinkQuery("inventory_item", "+offers.product.title,+seller.name"),
   })
 
   const baseFilters = useInventoryTableFilters()
