@@ -495,6 +495,7 @@
     "create": {
       "title": "Create Product",
       "description": "Create a new product.",
+      "disabledTooltip": "Product creation has been disabled for this marketplace. Contact the marketplace operator for more information.",
       "header": "General",
       "tabs": {
         "details": "Details",

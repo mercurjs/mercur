@@ -1,7 +1,9 @@
 import { Children, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Button, Heading } from "@medusajs/ui";
+import { Button, Heading, Tooltip } from "@medusajs/ui";
+
+import { useStore } from "@hooks/api/store";
 
 export const ProductListTitle = () => {
   const { t } = useTranslation();
@@ -10,6 +12,22 @@ export const ProductListTitle = () => {
 
 export const ProductListCreateButton = () => {
   const { t } = useTranslation();
+  const { store } = useStore();
+
+  const allowCreationValue = store?.metadata?.allow_vendor_product_creation;
+  const allowCreation =
+    typeof allowCreationValue === "boolean" ? allowCreationValue : true;
+
+  if (!allowCreation) {
+    return (
+      <Tooltip content={t("products.create.disabledTooltip")}>
+        <Button size="small" variant="secondary" disabled>
+          {t("actions.create")}
+        </Button>
+      </Tooltip>
+    );
+  }
+
   return (
     <Button size="small" variant="secondary" asChild>
       <Link to="create">{t("actions.create")}</Link>

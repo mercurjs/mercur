@@ -4,7 +4,7 @@ canonical: false
 priority: 2
 area: admin/marketplace
 created: 2026-07-15
-last_updated: 2026-07-16
+last_updated: 2026-07-28
 ---
 
 # SPEC-025 Admin Vendor-Product Controls
@@ -100,6 +100,12 @@ config.
   independent of the toggle (per reviewer feedback on PR #1263) while still
   giving the "vendor products are auto-accepted" behaviour from the issue's
   table.
+- **Site E - vendor panel create button** (`product-list-header.tsx`): the
+  vendor dashboard reads `store.metadata.allow_vendor_product_creation` via
+  `useStore` and renders the Create button disabled with an explanatory
+  tooltip when creation is off, instead of letting the vendor land on a
+  create form that Site C will reject with 403. Server-side enforcement
+  (Site C) remains authoritative; this is UX only.
 
 ## Verification
 
@@ -118,7 +124,11 @@ config.
 5. `POST /vendor/products` with no `status` in the body comes back
    `proposed` when `require_product_approval` is `true`, and `published`
    when `false` (Site D, integration test).
-6. `bun run build` passes.
+6. Vendor dashboard "Create" button is disabled with a tooltip when
+   `allow_vendor_product_creation` is `false`, and links to the create form
+   as before when `true` or unset (Site E, manual/visual check - no vendor
+   package component-test harness exists in this repo).
+7. `bun run build` passes.
 
 ## Evidence
 
@@ -144,6 +154,10 @@ config.
   session (no Docker/DB available in this environment) � `tsc --noEmit` on
   `@mercurjs/core` passes with the hook wired in; running the full
   integration suite locally is the outstanding verification step.
+- Site E (`product-list-header.tsx`) added 2026-07-28: `tsc --noEmit` on
+  `@mercurjs/vendor` shows no new errors from this file. No component-test
+  harness exists for `@mercurjs/vendor`, so this was checked by type-check
+  and code review only, not an automated test.
 
 ## Notes
 

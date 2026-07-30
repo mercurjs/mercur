@@ -2007,6 +2007,9 @@
             "description": {
               "type": "string"
             },
+            "disabledTooltip": {
+              "type": "string"
+            },
             "header": {
               "type": "string"
             },
