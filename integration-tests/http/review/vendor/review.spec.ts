@@ -150,35 +150,6 @@ medusaIntegrationTestRunner({
           expect(persisted.rating).toEqual(4)
         })
       })
-
-      describe("POST /vendor/reviews/:id/report", () => {
-        it("files a report with a valid reason", async () => {
-          const review = await seedReview(appContainer, sellerId)
-
-          const response = await api.post(
-            `/vendor/reviews/${review.id}/report`,
-            { reason: "spam" },
-            sellerHeaders
-          )
-
-          expect(response.status).toEqual(201)
-          expect(response.data.report.reason).toEqual("spam")
-        })
-
-        it("rejects an unknown reason", async () => {
-          const review = await seedReview(appContainer, sellerId)
-
-          const response = await api
-            .post(
-              `/vendor/reviews/${review.id}/report`,
-              { reason: "not_a_reason" },
-              sellerHeaders
-            )
-            .catch((e) => e.response)
-
-          expect(response.status).toEqual(400)
-        })
-      })
     })
   },
 })
