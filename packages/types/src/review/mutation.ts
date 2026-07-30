@@ -1,4 +1,4 @@
-import { ReviewReference, ReviewReportReason, ReviewStatus } from "./common"
+import { ReviewReference, ReviewStatus } from "./common"
 
 export interface CreateReviewDTO {
   order_id: string
@@ -20,10 +20,4 @@ export interface UpdateReviewDTO {
 export interface RespondReviewDTO {
   id: string
   seller_note: string
-}
-
-export interface ReportReviewDTO {
-  review_id: string
-  seller_id: string
-  reason: ReviewReportReason
 }

@@ -2970,7 +2970,6 @@
   },
   "reviews": {
     "domain": "Reviews",
-    "subtitle": "Read and respond to reviews customers left about your store",
     "status": {
       "pending": "Pending",
       "published": "Published",
@@ -2980,6 +2979,10 @@
       "rating": "Rating",
       "content": "Content",
       "response": "Response"
+    },
+    "filters": {
+      "stars_one": "{{count}} star",
+      "stars_other": "{{count}} stars"
     },
     "list": {
       "columns": {
@@ -2992,48 +2995,22 @@
         "response": "Response"
       },
       "noRecordsTitle": "No reviews yet",
-      "noRecordsMessage": "Reviews customers leave about your store will appear here."
+      "noRecordsMessage": "Once customer submit reviews, they'll appear here",
+      "noResultsTitle": "No results",
+      "noResultsMessage": "Try changing the filters or search query"
     },
     "detail": {
       "customer": "Customer",
       "order": "Order"
     },
     "respond": {
-      "action": "Respond to review",
+      "action": "Respond",
       "header": "Respond to review",
       "label": "Response",
       "confirmTitle": "Respond to review",
       "confirmDescription": "Your response will be published on the storefront and visible to customers. Once saved, it cannot be edited or deleted.",
       "successToast": "Response was successfully sent.",
-      "alreadyResponded": "This review already has a response.",
       "validation": "Please write a response"
-    },
-    "report": {
-      "action": "Report",
-      "header": "Why are you reporting this review?",
-      "successToast": "Review reported",
-      "reasons": {
-        "irrelevant_content": {
-          "label": "Irrelevant content",
-          "description": "Review does not relate to a purchase, product, or experience."
-        },
-        "spam": {
-          "label": "Spam",
-          "description": "Review appears to be automated, from a fake account, or includes promotional content or links."
-        },
-        "inappropriate_language": {
-          "label": "Inappropriate language",
-          "description": "Review contains offensive, abusive, or explicit language."
-        },
-        "bullying_or_harassment": {
-          "label": "Bullying or harassment",
-          "description": "Review targets or attacks a specific individual."
-        },
-        "personal_information": {
-          "label": "Personal information",
-          "description": "Review shares private details such as phone numbers, addresses, or other sensitive information."
-        }
-      }
     }
   },
   "profile": {

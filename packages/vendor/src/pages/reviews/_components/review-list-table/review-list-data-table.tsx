@@ -1,5 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { keepPreviousData } from "@tanstack/react-query";
+import { Star } from "@medusajs/icons";
 
 import { _DataTable, useDataTable } from "@mercurjs/dashboard-shared";
 
@@ -50,13 +51,19 @@ export const ReviewListDataTable = () => {
       isLoading={isLoading}
       queryObject={raw}
       orderBy={[
-        { key: "id", label: t("reviews.list.columns.reviewId") },
+        { key: "display_id", label: t("reviews.list.columns.reviewId") },
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
       noRecords={{
         title: t("reviews.list.noRecordsTitle"),
         message: t("reviews.list.noRecordsMessage"),
+        icon: <Star className="text-ui-fg-subtle" />,
+      }}
+      noResults={{
+        title: t("reviews.list.noResultsTitle"),
+        message: t("reviews.list.noResultsMessage"),
+        icon: <Star className="text-ui-fg-subtle" />,
       }}
     />
   );

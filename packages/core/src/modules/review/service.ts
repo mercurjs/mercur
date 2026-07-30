@@ -2,11 +2,10 @@ import { InjectManager, MedusaService } from "@medusajs/framework/utils"
 import { Context } from "@medusajs/framework/types"
 import { EntityManager } from "@medusajs/framework/mikro-orm/knex"
 
-import { Review, ReviewReport } from "./models"
+import { Review } from "./models"
 
 class ReviewModuleService extends MedusaService({
   Review,
-  ReviewReport,
 }) {
   @InjectManager()
   async getAvgRating(

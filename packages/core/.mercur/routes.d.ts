@@ -932,9 +932,7 @@ export type Routes = {
         stores: typeof import("../src/api/vendor/stores/route");
         uploads: typeof import("../src/api/vendor/uploads/route");
         reviews: typeof import("../src/api/vendor/reviews/route") & {
-            $id: typeof import("../src/api/vendor/reviews/[id]/route") & {
-                report: typeof import("../src/api/vendor/reviews/[id]/report/route");
-            };
+            $id: typeof import("../src/api/vendor/reviews/[id]/route");
         };
     };
 };

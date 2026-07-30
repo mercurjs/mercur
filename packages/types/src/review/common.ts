@@ -4,15 +4,6 @@ export type ReviewReference = "product" | "seller"
 
 export type ReviewStatus = "pending" | "published" | "rejected"
 
-export type ReviewReportReason =
-  | "irrelevant_content"
-  | "spam"
-  | "inappropriate_language"
-  | "bullying_or_harassment"
-  | "personal_information"
-
-export type ReviewReportStatus = "pending" | "confirmed" | "rejected"
-
 export interface ReviewDTO {
   id: string
   display_id: number

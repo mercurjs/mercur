@@ -90,22 +90,3 @@ export const useRespondReview = (
     ...options,
   });
 };
-
-export const useReportReview = (
-  id: string,
-  options?: UseMutationOptions<
-    InferClientOutput<typeof sdk.vendor.reviews.$id.report.mutate>,
-    ClientError,
-    Omit<InferClientInput<typeof sdk.vendor.reviews.$id.report.mutate>, "$id">
-  >,
-) => {
-  return useMutation({
-    mutationFn: (payload) =>
-      sdk.vendor.reviews.$id.report.mutate({ $id: id, ...payload }),
-    onSuccess: (data, variables, context) => {
-      queryClient.invalidateQueries({ queryKey: reviewsQueryKeys.detail(id) });
-      options?.onSuccess?.(data, variables, context);
-    },
-    ...options,
-  });
-};

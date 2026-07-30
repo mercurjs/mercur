@@ -12,11 +12,7 @@ import {
 
 import sellerReview from "../../../links/seller-review"
 import { vendorReviewQueryConfig } from "./query-config"
-import {
-  VendorGetReviewsParams,
-  VendorReportReview,
-  VendorRespondReview,
-} from "./validators"
+import { VendorGetReviewsParams, VendorRespondReview } from "./validators"
 
 const applySellerReviewLinkFilter = (
   req: AuthenticatedMedusaRequest,
@@ -64,10 +60,5 @@ export const vendorReviewsMiddlewares: MiddlewareRoute[] = [
       ),
       validateAndTransformBody(VendorRespondReview),
     ],
-  },
-  {
-    method: ["POST"],
-    matcher: "/vendor/reviews/:id/report",
-    middlewares: [validateAndTransformBody(VendorReportReview)],
   },
 ]

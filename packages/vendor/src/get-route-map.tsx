@@ -1079,10 +1079,6 @@ export function getRouteMap({
                             path: "respond",
                             lazy: () => import("./pages/reviews/[id]/respond"),
                           },
-                          {
-                            path: "report",
-                            lazy: () => import("./pages/reviews/[id]/report"),
-                          },
                         ],
                       },
                     ],

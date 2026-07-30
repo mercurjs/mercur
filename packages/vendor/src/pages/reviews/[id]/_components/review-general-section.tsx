@@ -1,9 +1,7 @@
 import { useTranslation } from "react-i18next";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { Button, Container, Heading, StatusBadge, Text } from "@medusajs/ui";
-import { FlagMini } from "@medusajs/icons";
 
-import { ActionMenu } from "@components/common/action-menu";
 import type { ReviewDTO } from "@hooks/api/reviews";
 
 import { StarRating, getReviewStatusProps } from "../../common/utils";
@@ -19,7 +17,6 @@ const formatDateTime = (value: string | Date) =>
 
 export const ReviewGeneralSection = ({ review }: { review: ReviewDTO }) => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { color, label } = getReviewStatusProps(review.status, t);
   const hasResponse = Boolean(review.seller_note);
 
@@ -27,26 +24,13 @@ export const ReviewGeneralSection = ({ review }: { review: ReviewDTO }) => {
     <Container className="divide-y p-0">
       <div className="flex items-center justify-between px-6 py-4">
         <div>
-          <Heading>#{review.id}</Heading>
+          <Heading>#{review.display_id}</Heading>
           <Text size="small" className="text-ui-fg-subtle">
             {formatDateTime(review.created_at)}
           </Text>
         </div>
         <div className="flex items-center gap-x-2">
           <StatusBadge color={color}>{label}</StatusBadge>
-          <ActionMenu
-            groups={[
-              {
-                actions: [
-                  {
-                    icon: <FlagMini />,
-                    label: t("reviews.report.action"),
-                    onClick: () => navigate("report"),
-                  },
-                ],
-              },
-            ]}
-          />
         </div>
       </div>
 

@@ -13,5 +13,5 @@ export const Breadcrumb = (props: UIMatch) => {
     return null;
   }
 
-  return <span>#{review.id}</span>;
+  return <span>#{review.display_id}</span>;
 };

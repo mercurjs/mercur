@@ -27,7 +27,7 @@ export const useReviewTableFilters = (): Filter[] => {
       type: "select",
       multiple: true,
       options: [5, 4, 3, 2, 1].map((value) => ({
-        label: `${value}`,
+        label: t("reviews.filters.stars", { count: value }),
         value: `${value}`,
       })),
     };

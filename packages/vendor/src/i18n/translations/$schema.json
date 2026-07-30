@@ -16764,9 +16764,6 @@
         "domain": {
           "type": "string"
         },
-        "subtitle": {
-          "type": "string"
-        },
         "status": {
           "type": "object",
           "properties": {
@@ -16804,6 +16801,22 @@
             "rating",
             "content",
             "response"
+          ],
+          "additionalProperties": false
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "stars_one": {
+              "type": "string"
+            },
+            "stars_other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "stars_one",
+            "stars_other"
           ],
           "additionalProperties": false
         },
@@ -16851,12 +16864,20 @@
             },
             "noRecordsMessage": {
               "type": "string"
+            },
+            "noResultsTitle": {
+              "type": "string"
+            },
+            "noResultsMessage": {
+              "type": "string"
             }
           },
           "required": [
             "columns",
             "noRecordsTitle",
-            "noRecordsMessage"
+            "noRecordsMessage",
+            "noResultsTitle",
+            "noResultsMessage"
           ],
           "additionalProperties": false
         },
@@ -16897,9 +16918,6 @@
             "successToast": {
               "type": "string"
             },
-            "alreadyResponded": {
-              "type": "string"
-            },
             "validation": {
               "type": "string"
             }
@@ -16911,135 +16929,19 @@
             "confirmTitle",
             "confirmDescription",
             "successToast",
-            "alreadyResponded",
             "validation"
-          ],
-          "additionalProperties": false
-        },
-        "report": {
-          "type": "object",
-          "properties": {
-            "action": {
-              "type": "string"
-            },
-            "header": {
-              "type": "string"
-            },
-            "successToast": {
-              "type": "string"
-            },
-            "reasons": {
-              "type": "object",
-              "properties": {
-                "irrelevant_content": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "label",
-                    "description"
-                  ],
-                  "additionalProperties": false
-                },
-                "spam": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "label",
-                    "description"
-                  ],
-                  "additionalProperties": false
-                },
-                "inappropriate_language": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "label",
-                    "description"
-                  ],
-                  "additionalProperties": false
-                },
-                "bullying_or_harassment": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "label",
-                    "description"
-                  ],
-                  "additionalProperties": false
-                },
-                "personal_information": {
-                  "type": "object",
-                  "properties": {
-                    "label": {
-                      "type": "string"
-                    },
-                    "description": {
-                      "type": "string"
-                    }
-                  },
-                  "required": [
-                    "label",
-                    "description"
-                  ],
-                  "additionalProperties": false
-                }
-              },
-              "required": [
-                "irrelevant_content",
-                "spam",
-                "inappropriate_language",
-                "bullying_or_harassment",
-                "personal_information"
-              ],
-              "additionalProperties": false
-            }
-          },
-          "required": [
-            "action",
-            "header",
-            "successToast",
-            "reasons"
           ],
           "additionalProperties": false
         }
       },
       "required": [
         "domain",
-        "subtitle",
         "status",
         "fields",
+        "filters",
         "list",
         "detail",
-        "respond",
-        "report"
+        "respond"
       ],
       "additionalProperties": false
     }

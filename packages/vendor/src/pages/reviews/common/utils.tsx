@@ -1,4 +1,4 @@
-import { Star, StarSolid } from "@medusajs/icons";
+import { StarSolid } from "@medusajs/icons";
 
 import type { ReviewDTO } from "@hooks/api/reviews";
 
@@ -26,7 +26,10 @@ export const StarRating = ({ rating }: { rating: number }) => {
         index < value ? (
           <StarSolid key={index} className="text-ui-tag-orange-icon" />
         ) : (
-          <Star key={index} className="text-ui-fg-muted" />
+          <StarSolid
+            key={index}
+            className="text-ui-tag-orange-icon opacity-30"
+          />
         ),
       )}
     </div>

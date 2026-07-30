@@ -1,11 +1,10 @@
 import { createColumnHelper } from "@tanstack/react-table";
 import { useMemo } from "react";
 import { useTranslation } from "react-i18next";
-import { StatusBadge, Text } from "@medusajs/ui";
-import { ChatBubbleLeftRight, FlagMini } from "@medusajs/icons";
+import { Text } from "@medusajs/ui";
 import { DateCell } from "@mercurjs/dashboard-shared";
 
-import { ActionMenu } from "@components/common/action-menu";
+import { StatusCell } from "@components/table/table-cells/common/status-cell";
 import type { ReviewDTO } from "@hooks/api/reviews";
 import { StarRating, getReviewStatusProps } from "../../common/utils";
 
@@ -26,7 +25,7 @@ export const useReviewTableColumns = () => {
 
   return useMemo(
     () => [
-      columnHelper.accessor("id", {
+      columnHelper.accessor("display_id", {
         header: () => <span>{t("reviews.list.columns.reviewId")}</span>,
         cell: ({ getValue }) => (
           <Text size="small" leading="compact" className="truncate">
@@ -41,11 +40,11 @@ export const useReviewTableColumns = () => {
       columnHelper.accessor("customer_note", {
         header: () => <span>{t("reviews.list.columns.content")}</span>,
         cell: ({ getValue }) => (
-          <div className="flex h-full w-full items-center overflow-hidden">
+          <div className="w-[240px]">
             <Text
               size="small"
               leading="compact"
-              className="text-ui-fg-subtle truncate"
+              className="text-ui-fg-subtle line-clamp-3"
             >
               {getValue() || "-"}
             </Text>
@@ -68,51 +67,22 @@ export const useReviewTableColumns = () => {
         header: () => <span>{t("reviews.list.columns.status")}</span>,
         cell: ({ getValue }) => {
           const { color, label } = getReviewStatusProps(getValue(), t);
-          return <StatusBadge color={color}>{label}</StatusBadge>;
+          return <StatusCell color={color}>{label}</StatusCell>;
         },
       }),
       columnHelper.accessor("seller_note", {
         header: () => <span>{t("reviews.list.columns.response")}</span>,
         cell: ({ getValue }) => (
-          <div className="flex h-full w-full items-center overflow-hidden">
+          <div className="w-[240px]">
             <Text
               size="small"
               leading="compact"
-              className="text-ui-fg-subtle truncate"
+              className="text-ui-fg-subtle line-clamp-3"
             >
               {getValue() || "-"}
             </Text>
           </div>
         ),
-      }),
-      columnHelper.display({
-        id: "actions",
-        cell: ({ row }) => {
-          const review = row.original;
-          const hasResponse = Boolean(review.seller_note);
-          return (
-            <ActionMenu
-              groups={[
-                {
-                  actions: [
-                    {
-                      icon: <ChatBubbleLeftRight />,
-                      label: t("reviews.respond.action"),
-                      to: `/reviews/${review.id}/respond`,
-                      disabled: hasResponse,
-                      disabledTooltip: t("reviews.respond.alreadyResponded"),
-                    },
-                    {
-                      icon: <FlagMini />,
-                      label: t("reviews.report.action"),
-                      to: `/reviews/${review.id}/report`,
-                    },
-                  ],
-                },
-              ]}
-            />
-          );
-        },
       }),
     ],
     [t],

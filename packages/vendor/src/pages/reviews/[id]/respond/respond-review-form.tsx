@@ -40,6 +40,7 @@ export const RespondReviewForm = ({ reviewId }: { reviewId: string }) => {
       description: t("reviews.respond.confirmDescription"),
       confirmText: t("actions.save"),
       cancelText: t("actions.cancel"),
+      variant: "confirmation",
     });
 
     if (!confirmed) {

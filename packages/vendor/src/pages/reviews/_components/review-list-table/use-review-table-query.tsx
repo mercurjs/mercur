@@ -24,7 +24,7 @@ export const useReviewTableQuery = ({
     rating: rating ? rating.split(",").map(Number) : undefined,
     customer_id: customer_id ? customer_id.split(",") : undefined,
     created_at: created_at ? JSON.parse(created_at) : undefined,
-    order: order ? order : "-created_at",
+    order: order ? order : "-display_id",
     q,
   };
 
