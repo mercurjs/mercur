@@ -1086,11 +1086,27 @@ export function getRouteMap({
                 ],
               },
 
-              // RESERVATIONS - disabled
-              // {
-              //   path: "/reservations",
-              //   ...
-              // },
+              // RESERVATIONS
+              // Detail (`:id`) is intentionally not registered yet — that page
+              // imports a non-existent `@/extensions` module and would break the
+              // build; enable it once that pre-existing code is fixed.
+              {
+                path: "/reservations",
+                errorElement: <ErrorBoundary />,
+                handle: { breadcrumb: () => t("reservations.domain") },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("./pages/reservations"),
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () => import("./pages/reservations/create"),
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
             customMainRoutes,
           ),
