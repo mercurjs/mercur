@@ -1,21 +1,12 @@
 import { Container, Heading } from "@medusajs/ui"
+import { OfferDTO } from "@mercurjs/types"
 import { useTranslation } from "react-i18next"
 
 import { SidebarLink } from "@components/common/sidebar-link/sidebar-link"
 import { Thumbnail } from "@components/common/thumbnail"
 
-type InventoryItemOffer = {
-  id: string
-  sku: string
-  product_id?: string | null
-  product_variant?: {
-    title?: string | null
-    product?: { title?: string | null; thumbnail?: string | null } | null
-  } | null
-}
-
 type AssociatedOffersSectionProps = {
-  offers?: InventoryItemOffer[] | null
+  offers?: OfferDTO[] | null
 }
 
 export const AssociatedOffersSection = ({

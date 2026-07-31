@@ -1,4 +1,5 @@
 import { InventoryTypes, ProductVariantDTO } from "@medusajs/types"
+import { OfferDTO, SellerDTO } from "@mercurjs/types"
 
 import { Checkbox } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
@@ -12,14 +13,8 @@ import { InventoryActions } from "./inventory-actions"
  */
 interface ExtendedInventoryItem extends InventoryTypes.InventoryItemDTO {
   variants?: ProductVariantDTO[] | null
-  offers?:
-    | {
-        id: string
-        sku: string
-        product_variant?: { product?: { title: string } | null } | null
-      }[]
-    | null
-  seller?: { id: string; name: string } | null
+  offers?: OfferDTO[] | null
+  seller?: SellerDTO | null
   stocked_quantity?: number
   reserved_quantity?: number
 }
