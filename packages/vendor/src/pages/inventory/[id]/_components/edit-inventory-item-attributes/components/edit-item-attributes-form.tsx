@@ -1,6 +1,6 @@
 import * as zod from "zod"
 
-import { Button, Input, toast } from "@medusajs/ui"
+import { Button, InlineTip, Input, toast } from "@medusajs/ui"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -25,6 +25,7 @@ const EditInventoryItemAttributesSchema = z.object({
   weight: z.number().positive().optional(),
   mid_code: z.string().optional(),
   hs_code: z.string().optional(),
+  material: z.string().optional(),
   origin_country: z.string().optional(),
 })
 
@@ -36,6 +37,7 @@ const getDefaultValues = (item: HttpTypes.AdminInventoryItem) => {
     weight: item.weight ?? undefined,
     mid_code: item.mid_code ?? undefined,
     hs_code: item.hs_code ?? undefined,
+    material: item.material ?? undefined,
     origin_country: item.origin_country ?? undefined,
   }
 }
@@ -69,6 +71,9 @@ export const EditInventoryItemAttributesForm = ({
         className="flex flex-1 flex-col overflow-hidden"
       >
         <RouteDrawer.Body className="flex flex-1 flex-col gap-y-4 overflow-auto">
+          <InlineTip label={t("general.tip")}>
+            {t("inventory.attributes.tip")}
+          </InlineTip>
           <Form.Field
             control={form.control}
             name="height"
@@ -207,6 +212,22 @@ export const EditInventoryItemAttributesForm = ({
               return (
                 <Form.Item>
                   <Form.Label optional>{t("fields.hsCode")}</Form.Label>
+                  <Form.Control>
+                    <Input {...field} />
+                  </Form.Control>
+                  <Form.ErrorMessage />
+                </Form.Item>
+              )
+            }}
+          />
+
+          <Form.Field
+            control={form.control}
+            name="material"
+            render={({ field }) => {
+              return (
+                <Form.Item>
+                  <Form.Label optional>{t("fields.material")}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>

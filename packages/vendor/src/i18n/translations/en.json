@@ -1054,7 +1054,7 @@
     "deleteWarning": "You are about to delete an inventory item. This action cannot be undone.",
     "editItemDetails": "Edit item details",
     "quantityAcrossLocations": "{{quantity}} across {{locations}} locations",
-    "levelDeleted": "Inventory level deleted successfully.",
+    "levelDeleted": "Inventory level was successfully deleted.",
     "create": {
       "title": "Create Inventory Item",
       "details": "Details",
@@ -1086,18 +1086,27 @@
       "deleteSuccessToast": "Reservation was successfully deleted.",
       "errors": {
         "noAvaliableQuantity": "Stock location doesn't have available quantity.",
-        "quantityOutOfRange": "Minimum quantity is 1 and maximum quantity is {{max}}"
-      }
+        "quantityOutOfRange": "Minimum quantity is 1 and maximum quantity is {{max}}",
+        "idRequired": "Select an item to reserve",
+        "selectLocation": "Select a location",
+        "enterQuantity": "Please enter quantity"
+      },
+      "deleteTitle": "Delete reservation",
+      "deleteDescription": "You are about to delete a reservation. This action cannot be undone.",
+      "deleteBlockedDescription": "This reservation cannot be deleted because it's linked to an unfulfilled order.",
+      "gotIt": "Got it"
     },
     "adjustInventory": {
       "errors": {
-        "stockedQuantity": "Stocked quantity cannot be updated to less than the reserved quantity of {{quantity}}."
+        "stockedQuantity": "Stocked quantity cannot be updated to less than the reserved quantity of {{quantity}}.",
+        "enterQuantity": "Please enter quantity"
       }
     },
     "toast": {
-      "updateLocations": "Locations updated successfully.",
-      "updateLevel": "Inventory level updated successfully.",
-      "updateItem": "Inventory item updated successfully."
+      "updateLocations": "Locations were successfully updated.",
+      "updateLevel": "Inventory level was successfully updated.",
+      "updateItem": "Inventory item was successfully updated.",
+      "deleteItem": "Inventory item was successfully deleted."
     },
     "stock": {
       "title": "Update inventory levels",
@@ -1107,7 +1116,19 @@
       "disablePrompt_one": "You are about to disable {{count}} location level. This action cannot be undone.",
       "disablePrompt_other": "You are about to disable {{count}} location levels. This action cannot be undone.",
       "disabledToggleTooltip": "Cannot disable: clear incoming and/or reserved quantity before disabling.",
-      "successToast": "Inventory levels updated successfully."
+      "successToast": "Stock levels were successfully updated."
+    },
+    "associatedOffers": "Associated offers",
+    "attributes": {
+      "tip": "These are default values used to describe the item. They are not managed by Marketplace."
+    },
+    "item": {
+      "deleteTitle": "Delete inventory item",
+      "deleteDescription": "You are about to delete an inventory item. This action cannot be undone."
+    },
+    "level": {
+      "deleteTitle": "Delete inventory level",
+      "deleteDescription": "You're about to delete inventory level from {{location}}. This will delete stock and reservations for this location and cannot be undone."
     }
   },
   "offers": {

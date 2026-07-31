@@ -26,6 +26,7 @@ export const ReservationItemTable = ({
     useReservationItems(
       {
         ...searchParams,
+        fields: "+line_item.order_id",
       },
       undefined,
       { inventory_item_id: [inventoryItem.id] }

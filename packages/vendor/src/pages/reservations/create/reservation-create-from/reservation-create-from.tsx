@@ -18,12 +18,19 @@ import { useInventoryItems } from "@hooks/api/inventory"
 import { useCreateReservationItem } from "@hooks/api/reservations"
 import { useStockLocations } from "@hooks/api/stock-locations"
 
-export const CreateReservationSchema = zod.object({
-  inventory_item_id: zod.string().min(1),
-  location_id: zod.string().min(1),
-  quantity: zod.number().min(1),
-  description: zod.string().optional(),
-})
+const buildCreateReservationSchema = (t: (key: string) => string) =>
+  zod.object({
+    inventory_item_id: zod
+      .string()
+      .min(1, t("inventory.reservation.errors.idRequired")),
+    location_id: zod
+      .string()
+      .min(1, t("inventory.reservation.errors.selectLocation")),
+    quantity: zod
+      .number()
+      .min(1, t("inventory.reservation.errors.enterQuantity")),
+    description: zod.string().optional(),
+  })
 
 const AttributeGridRow = ({
   title,
@@ -51,6 +58,8 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
     null
   )
 
+  const CreateReservationSchema = buildCreateReservationSchema(t)
+
   const form = useForm<zod.infer<typeof CreateReservationSchema>>({
     defaultValues: {
       inventory_item_id: props.inventoryItemId || "",
@@ -61,10 +70,28 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
     resolver: zodResolver(CreateReservationSchema),
   })
 
-  const { inventory_items } = useInventoryItems({
+  const { inventory_items: searchedItems } = useInventoryItems({
     fields: "*location_levels",
     q: inventorySearch ?? undefined,
   })
+
+  // The preselected item (from `?item_id=`) may not be in the search results,
+  // so fetch it explicitly and merge it into the options so it stays selected.
+  const { inventory_items: presetItems } = useInventoryItems(
+    {
+      id: props.inventoryItemId ? [props.inventoryItemId] : undefined,
+      fields: "id,sku,title,*location_levels",
+    },
+    { enabled: !!props.inventoryItemId }
+  )
+
+  const inventory_items = React.useMemo(() => {
+    const byId = new Map<string, NonNullable<typeof searchedItems>[number]>()
+    ;[...(presetItems ?? []), ...(searchedItems ?? [])].forEach((it) =>
+      byId.set(it.id, it)
+    )
+    return Array.from(byId.values())
+  }, [presetItems, searchedItems])
 
   const inventoryItemId = form.watch("inventory_item_id")
   const selectedInventoryItem = inventory_items?.find(
@@ -173,6 +200,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                           )}
                         />
                       </Form.Control>
+                      <Form.ErrorMessage />
                     </Form.Item>
                   )
                 }}
@@ -201,6 +229,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                           )}
                         />
                       </Form.Control>
+                      <Form.ErrorMessage />
                     </Form.Item>
                   )
                 }}

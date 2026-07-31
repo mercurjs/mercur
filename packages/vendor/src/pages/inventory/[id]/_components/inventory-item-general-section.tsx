@@ -30,17 +30,34 @@ export const InventoryItemGeneralSection = ({
     ) || 0
   const availableQuantity = stockedQuantity - reservedQuantity
 
+  const getQuantityFormat = (quantity: number) => {
+    if (quantity !== undefined && !isNaN(quantity)) {
+      return t("inventory.quantityAcrossLocations", {
+        quantity,
+        locations: inventoryItem.location_levels?.length ?? "-",
+      })
+    }
+
+    return "-"
+  }
+
   return (
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
+    <Container
+      className="divide-y p-0"
+      data-testid="inventory-item-general-section"
+    >
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="inventory-item-general-header"
+      >
         <DisplayField
           model="inventory_item"
           zone="general"
           id="title"
           data={inventoryItem}
         >
-          <Heading>
-            {inventoryItem.title ?? inventoryItem.sku} {t("fields.details")}
+          <Heading data-testid="inventory-item-general-title">
+            {inventoryItem.title ?? inventoryItem.sku}
           </Heading>
         </DisplayField>
         <ActionMenu
@@ -55,6 +72,7 @@ export const InventoryItemGeneralSection = ({
               ],
             },
           ]}
+          data-testid="inventory-item-general-action-menu"
         />
       </div>
       <DisplayField
@@ -73,10 +91,7 @@ export const InventoryItemGeneralSection = ({
       >
         <SectionRow
           title={t("fields.inStock")}
-          value={getQuantityFormat(
-            stockedQuantity,
-            inventoryItem.location_levels?.length
-          )}
+          value={getQuantityFormat(stockedQuantity)}
         />
       </DisplayField>
       <DisplayField
@@ -87,10 +102,7 @@ export const InventoryItemGeneralSection = ({
       >
         <SectionRow
           title={t("inventory.reserved")}
-          value={getQuantityFormat(
-            reservedQuantity,
-            inventoryItem.location_levels?.length
-          )}
+          value={getQuantityFormat(reservedQuantity)}
         />
       </DisplayField>
       <DisplayField
@@ -101,10 +113,7 @@ export const InventoryItemGeneralSection = ({
       >
         <SectionRow
           title={t("inventory.available")}
-          value={getQuantityFormat(
-            availableQuantity,
-            inventoryItem.location_levels?.length
-          )}
+          value={getQuantityFormat(availableQuantity)}
         />
       </DisplayField>
       <DisplayExtensionZone
@@ -115,12 +124,4 @@ export const InventoryItemGeneralSection = ({
       />
     </Container>
   )
-}
-
-const getQuantityFormat = (quantity: number, locations?: number) => {
-  if (quantity !== undefined && !isNaN(quantity)) {
-    return `${quantity} across ${locations ?? "-"} locations`
-  }
-
-  return "-"
 }

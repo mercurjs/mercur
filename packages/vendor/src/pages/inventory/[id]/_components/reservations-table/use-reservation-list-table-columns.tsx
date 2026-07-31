@@ -32,18 +32,30 @@ export const useReservationTableColumn = ({ sku }: { sku: string }) => {
           return <TextCell text={sku} />
         },
       }),
-      // columnHelper.accessor("line_item.order_id", {
-      //   header: () => <TextHeader text={t("inventory.reservation.orderID")} />,
-      //   cell: ({ getValue, row }) => {
-      //     const orderId = getValue()
+      columnHelper.accessor("line_item.order_id", {
+        header: () => <TextHeader text={t("inventory.reservation.orderID")} />,
+        cell: ({ getValue }) => {
+          const orderId = getValue()
 
-      //     if (!orderId) {
-      //       return <PlaceholderCell />
-      //     }
+          if (!orderId) {
+            return <PlaceholderCell />
+          }
 
-      //     return <TextCell text={orderId} />
-      //   },
-      // }),
+          return <TextCell text={orderId} />
+        },
+      }),
+      columnHelper.accessor("description", {
+        header: () => <TextHeader text={t("fields.description")} />,
+        cell: ({ getValue }) => {
+          const description = getValue()
+
+          if (!description) {
+            return <PlaceholderCell />
+          }
+
+          return <TextCell text={description} />
+        },
+      }),
       columnHelper.accessor("location.name", {
         header: () => <TextHeader text={t("inventory.reservation.location")} />,
         cell: ({ getValue }) => {
@@ -68,7 +80,11 @@ export const useReservationTableColumn = ({ sku }: { sku: string }) => {
       }),
       columnHelper.display({
         id: "actions",
-        cell: ({ row }) => <ReservationActions reservation={row.original} />,
+        cell: ({ row }) => (
+          <div className="flex w-full items-center justify-end">
+            <ReservationActions reservation={row.original} />
+          </div>
+        ),
       }),
     ],
     [t, sku]

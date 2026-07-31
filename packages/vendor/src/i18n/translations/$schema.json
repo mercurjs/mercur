@@ -4350,6 +4350,9 @@
             "requiresShippingHint": {
               "type": "string"
             },
+            "descriptionPlaceholder": {
+              "type": "string"
+            },
             "successToast": {
               "type": "string"
             }
@@ -4362,6 +4365,7 @@
             "attributes",
             "requiresShipping",
             "requiresShippingHint",
+            "descriptionPlaceholder",
             "successToast"
           ],
           "additionalProperties": false
@@ -4428,13 +4432,37 @@
                 },
                 "quantityOutOfRange": {
                   "type": "string"
+                },
+                "idRequired": {
+                  "type": "string"
+                },
+                "selectLocation": {
+                  "type": "string"
+                },
+                "enterQuantity": {
+                  "type": "string"
                 }
               },
               "required": [
                 "noAvaliableQuantity",
-                "quantityOutOfRange"
+                "quantityOutOfRange",
+                "idRequired",
+                "selectLocation",
+                "enterQuantity"
               ],
               "additionalProperties": false
+            },
+            "deleteTitle": {
+              "type": "string"
+            },
+            "deleteDescription": {
+              "type": "string"
+            },
+            "deleteBlockedDescription": {
+              "type": "string"
+            },
+            "gotIt": {
+              "type": "string"
             }
           },
           "required": [
@@ -4455,7 +4483,11 @@
             "successToast",
             "updateSuccessToast",
             "deleteSuccessToast",
-            "errors"
+            "errors",
+            "deleteTitle",
+            "deleteDescription",
+            "deleteBlockedDescription",
+            "gotIt"
           ],
           "additionalProperties": false
         },
@@ -4467,10 +4499,14 @@
               "properties": {
                 "stockedQuantity": {
                   "type": "string"
+                },
+                "enterQuantity": {
+                  "type": "string"
                 }
               },
               "required": [
-                "stockedQuantity"
+                "stockedQuantity",
+                "enterQuantity"
               ],
               "additionalProperties": false
             }
@@ -4491,12 +4527,16 @@
             },
             "updateItem": {
               "type": "string"
+            },
+            "deleteItem": {
+              "type": "string"
             }
           },
           "required": [
             "updateLocations",
             "updateLevel",
-            "updateItem"
+            "updateItem",
+            "deleteItem"
           ],
           "additionalProperties": false
         },
@@ -4539,6 +4579,53 @@
             "successToast"
           ],
           "additionalProperties": false
+        },
+        "associatedOffers": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "tip": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tip"
+          ],
+          "additionalProperties": false
+        },
+        "item": {
+          "type": "object",
+          "properties": {
+            "deleteTitle": {
+              "type": "string"
+            },
+            "deleteDescription": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "deleteTitle",
+            "deleteDescription"
+          ],
+          "additionalProperties": false
+        },
+        "level": {
+          "type": "object",
+          "properties": {
+            "deleteTitle": {
+              "type": "string"
+            },
+            "deleteDescription": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "deleteTitle",
+            "deleteDescription"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -4558,7 +4645,11 @@
         "reservation",
         "adjustInventory",
         "toast",
-        "stock"
+        "stock",
+        "associatedOffers",
+        "attributes",
+        "item",
+        "level"
       ],
       "additionalProperties": false
     },
