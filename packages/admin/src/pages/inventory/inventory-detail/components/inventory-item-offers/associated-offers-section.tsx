@@ -7,6 +7,7 @@ import { Thumbnail } from "@components/common/thumbnail"
 type InventoryItemOffer = {
   id: string
   sku: string
+  product_id?: string | null
   product_variant?: {
     title?: string | null
     product?: { title?: string | null; thumbnail?: string | null } | null
@@ -44,7 +45,7 @@ export const AssociatedOffersSection = ({
         return (
           <SidebarLink
             key={offer.id}
-            to={`/offers/${offer.id}`}
+            to={`/offers/${offer.product_id}/variants/${offer.id}`}
             labelKey={label}
             descriptionKey={description}
             icon={
