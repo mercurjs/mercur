@@ -1,6 +1,7 @@
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { OfferDTO, SellerDTO } from "@mercurjs/types"
 import { DateCell } from "../../../../../components/table/table-cells/common/date-cell"
 import { PlaceholderCell } from "../../../../../components/table/table-cells/common/placeholder-cell"
 import { ReservationActions } from "./reservation-actions"
@@ -23,25 +24,17 @@ const TruncatedTextCell = ({ value }: { value?: string | null }) => {
 // Product + Store come from links that may not be populated on every payload;
 // read them defensively and fall back to a placeholder. Inventory is
 // offer-scoped in Mercur, so the product is reached through the offer:
-// inventory_item -> offers -> product_variant -> product.
+// inventory_item -> offers -> product.
 const getProductTitle = (reservation: ExtendedReservationItem) => {
   const item = reservation.inventory_item as
-    | {
-        offers?:
-          | {
-              product_variant?: {
-                product?: { title?: string | null } | null
-              } | null
-            }[]
-          | null
-      }
+    | { offers?: OfferDTO[] | null }
     | undefined
-  return item?.offers?.[0]?.product_variant?.product?.title ?? undefined
+  return item?.offers?.[0]?.product?.title ?? undefined
 }
 
 const getStoreName = (reservation: ExtendedReservationItem) => {
   const item = reservation.inventory_item as
-    | { seller?: { name?: string | null } | null }
+    | { seller?: SellerDTO | null }
     | undefined
   return item?.seller?.name ?? undefined
 }

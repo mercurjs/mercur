@@ -6,6 +6,7 @@ import {
   MiddlewareRoute,
 } from "@medusajs/framework/http"
 import { validateAndTransformQuery } from "@medusajs/framework"
+import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 
 import { ORIGINAL_MIDDLEWARES } from "../../../utils/disable-medusa-middlewares"
 import { listTransformQueryConfig } from "./query-config"
@@ -28,9 +29,11 @@ const baseWithoutListGet = capturedBase.filter((route) => {
 })
 
 // The list exposes a free-text SKU filter; SKU lives on the linked inventory
-// item, so reshape it into a nested relation filter and drop the flat key
-// (the reservation entity has no `sku` column).
-const maybeApplyInventoryItemSkuFilter = (
+// item, which the reservation query can't filter through a nested relation
+// path. Resolve the matching inventory item ids up front and narrow the
+// reservation query by `inventory_item_id` instead (dropping the flat `sku`
+// key, since the reservation entity has no `sku` column).
+const maybeApplyInventoryItemSkuFilter = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,
   next: MedusaNextFunction
@@ -41,12 +44,26 @@ const maybeApplyInventoryItemSkuFilter = (
     return next()
   }
 
-  const existing = (req.filterableFields.inventory_item ?? {}) as Record<
-    string,
-    unknown
-  >
-  req.filterableFields.inventory_item = { ...existing, sku }
   delete req.filterableFields.sku
+
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: inventoryItems } = await query.graph({
+    entity: "inventory_item",
+    fields: ["id"],
+    filters: { sku },
+  })
+
+  const matchedIds = inventoryItems.map((item) => item.id)
+  const existing = req.filterableFields.inventory_item_id
+
+  if (existing) {
+    const existingIds = Array.isArray(existing) ? existing : [existing]
+    req.filterableFields.inventory_item_id = existingIds.filter((id) =>
+      matchedIds.includes(id as string)
+    )
+  } else {
+    req.filterableFields.inventory_item_id = matchedIds
+  }
 
   return next()
 }
@@ -61,7 +78,6 @@ export const adminReservationsMiddlewares: MiddlewareRoute[] = [
         AdminGetReservationsParams,
         listTransformQueryConfig
       ),
-      maybeApplyInventoryItemSkuFilter,
       // Store filter: inventory_item -> seller (inventory-item-seller-link).
       // Resolve matching inventory item ids from the link and filter
       // reservations by inventory_item_id.
@@ -71,6 +87,9 @@ export const adminReservationsMiddlewares: MiddlewareRoute[] = [
         filterableField: "seller_id",
         filterByField: "inventory_item_id",
       }),
+      // Runs after the store filter so a combined sku + store query narrows
+      // the already-resolved inventory_item_id set instead of replacing it.
+      maybeApplyInventoryItemSkuFilter,
     ],
   },
 ]

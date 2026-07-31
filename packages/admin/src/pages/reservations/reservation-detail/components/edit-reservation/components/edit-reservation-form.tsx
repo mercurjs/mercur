@@ -16,13 +16,14 @@ import {
   FormExtensionZone,
   useExtendableForm,
 } from "@mercurjs/dashboard-shared"
+import { SellerDTO } from "@mercurjs/types"
 import { Form } from "../../../../../../components/common/form"
 import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
 import { useUpdateReservationItem } from "../../../../../../hooks/api/reservations"
 import { useDocumentDirection } from "../../../../../../hooks/use-document-direction"
 
 type StockLocationWithSeller = HttpTypes.AdminStockLocation & {
-  seller?: { id: string } | null
+  seller?: SellerDTO | null
 }
 
 type EditReservationFormProps = {
@@ -128,8 +129,6 @@ export const EditReservationForm = ({
       return
     }
 
-    // `useExtendableForm` carries an `additional_data` key for custom-field
-    // zones; the native reservations update route rejects it, so drop it.
     const { additional_data: _additionalData, ...payload } = values as z.infer<
       typeof EditReservationSchema
     > & { additional_data?: Record<string, unknown> }

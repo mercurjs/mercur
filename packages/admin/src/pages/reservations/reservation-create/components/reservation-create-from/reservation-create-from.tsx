@@ -8,6 +8,7 @@ import {
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
+import { OfferDTO } from "@mercurjs/types"
 import React from "react"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -45,20 +46,12 @@ const AttributeGridRow = ({
 }
 
 // Inventory is offer-scoped in Mercur, so the product is reached through the
-// offer: inventory_item -> offers -> product_variant -> product.
+// offer: inventory_item -> offers -> product.
 const getProductTitle = (
   inventoryItem: HttpTypes.AdminInventoryItem
 ): string | undefined => {
-  const item = inventoryItem as {
-    offers?:
-      | {
-          product_variant?: {
-            product?: { title?: string | null } | null
-          } | null
-        }[]
-      | null
-  }
-  return item.offers?.[0]?.product_variant?.product?.title ?? undefined
+  const item = inventoryItem as { offers?: OfferDTO[] | null }
+  return item.offers?.[0]?.product?.title ?? undefined
 }
 
 export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
@@ -80,7 +73,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
 
   const { inventory_items } = useInventoryItems({
     q: inventorySearch,
-    fields: "id,title,sku,+offers.product_variant.product.title",
+    fields: "id,title,sku,+offers.product.title",
   })
 
   const inventoryItemId = form.watch("inventory_item_id")

@@ -22,8 +22,8 @@ jest.setTimeout(180000)
  * inventory item, and adds the `sku` + `seller_id` filters the Figma list uses.
  *
  * Data path under test:
- *   reservation -> inventory_item -> seller               (inventory-item-seller-link)
- *   reservation -> inventory_item -> variants -> product  (product_variant_inventory_item)
+ *   reservation -> inventory_item -> seller          (inventory-item-seller-link)
+ *   reservation -> inventory_item -> offers -> product (offer-product-link)
  */
 
 const approveSeller = async (
@@ -183,9 +183,9 @@ medusaIntegrationTestRunner({
         expect(row.inventory_item.sku).toEqual(sellerA.inventoryItem.sku)
         expect(row.inventory_item.seller?.id).toEqual(sellerA.sellerId)
         expect(row.inventory_item.seller?.name).toEqual("StoreA")
-        expect(
-          row.inventory_item.offers?.[0]?.product_variant?.product?.id
-        ).toEqual(sellerA.product.id)
+        expect(row.inventory_item.offers?.[0]?.product?.id).toEqual(
+          sellerA.product.id
+        )
       })
 
       it("filters by sku", async () => {
