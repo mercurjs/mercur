@@ -35,6 +35,7 @@ const OVERRIDES: string[] = [
   "dist/api/admin/shipping-options/middlewares.js",
   "dist/api/admin/shipping-profiles/middlewares.js",
   "dist/api/admin/stock-locations/middlewares.js",
+  "dist/api/admin/inventory-items/middlewares.js",
   "dist/api/store/products/middlewares.js",
   "dist/api/store/product-categories/middlewares.js",
   "dist/api/store/product-variants/middlewares.js",
