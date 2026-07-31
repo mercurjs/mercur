@@ -75,9 +75,12 @@ medusaIntegrationTestRunner({
           )
         ).data.shipping_profile
 
+        // The offer flow now titles the inventory item after the variant, so
+        // give the variant the unique tag to keep the lookup below stable.
         const product = await createVendorProduct(api, headers, {
           title: `Prod${tag}`,
           sku: `V${tag}`,
+          variantTitle: `Inv${tag}`,
         })
 
         await api.post(
@@ -180,9 +183,9 @@ medusaIntegrationTestRunner({
         expect(row.inventory_item.sku).toEqual(sellerA.inventoryItem.sku)
         expect(row.inventory_item.seller?.id).toEqual(sellerA.sellerId)
         expect(row.inventory_item.seller?.name).toEqual("StoreA")
-        expect(row.inventory_item.variants?.[0]?.product?.id).toEqual(
-          sellerA.product.id
-        )
+        expect(
+          row.inventory_item.offers?.[0]?.product_variant?.product?.id
+        ).toEqual(sellerA.product.id)
       })
 
       it("filters by sku", async () => {

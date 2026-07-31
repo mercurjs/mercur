@@ -1,6 +1,13 @@
-import { ExclamationCircle } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui"
+import {
+  Button,
+  InlineTip,
+  Input,
+  Select,
+  Text,
+  Textarea,
+  toast,
+} from "@medusajs/ui"
 import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
 
 import { useTranslation } from "react-i18next"
@@ -93,18 +100,20 @@ export const EditReservationForm = ({
     (level?.available_quantity ?? 0) + (reservation.quantity ?? 0)
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    if (values.quantity === null || values.quantity === undefined) {
-      form.setError("quantity", {
-        type: "manual",
-        message: t("inventory.reservation.errors.pleaseEnterQuantity"),
-      })
-      return
-    }
-
+    // A location with no available stock wins over the empty-field message,
+    // matching the Figma error states.
     if (maxQuantity < 1) {
       form.setError("quantity", {
         type: "manual",
         message: t("inventory.reservation.errors.noAvaliableQuantity"),
+      })
+      return
+    }
+
+    if (values.quantity === null || values.quantity === undefined) {
+      form.setError("quantity", {
+        type: "manual",
+        message: t("inventory.reservation.errors.pleaseEnterQuantity"),
       })
       return
     }
@@ -119,8 +128,14 @@ export const EditReservationForm = ({
       return
     }
 
+    // `useExtendableForm` carries an `additional_data` key for custom-field
+    // zones; the native reservations update route rejects it, so drop it.
+    const { additional_data: _additionalData, ...payload } = values as z.infer<
+      typeof EditReservationSchema
+    > & { additional_data?: Record<string, unknown> }
+
     mutateAsync(
-      { ...values, quantity: values.quantity },
+      { ...payload, quantity: values.quantity },
       {
         onSuccess: () => {
           toast.success(t("inventory.reservation.updateSuccessToast"))
@@ -240,15 +255,13 @@ export const EditReservationForm = ({
             }}
           />
           {isStoreLocation && (
-            <div
-              className="bg-ui-bg-subtle text-ui-fg-subtle border-l-2 border-ui-tag-orange-icon flex gap-x-2 rounded-lg border p-3"
+            <InlineTip
+              variant="warning"
+              label={t("inventory.reservation.storeLocationWarningLabel")}
               data-testid="reservation-edit-store-location-warning"
             >
-              <ExclamationCircle className="text-ui-tag-orange-icon mt-0.5 shrink-0" />
-              <Text size="small" leading="compact">
-                {t("inventory.reservation.storeLocationWarning")}
-              </Text>
-            </div>
+              {t("inventory.reservation.storeLocationWarning")}
+            </InlineTip>
           )}
           <FormExtensionZone
             model="reservation"

@@ -17,9 +17,12 @@ const defaultAdminReservationInventoryItemFields = [
 ]
 
 // The reservation list/detail needs the owning store and the product behind
-// the inventory item. Both are module links off the inventory item:
-//   inventory_item -> seller            (inventory-item-seller-link)
-//   inventory_item -> variants -> product (product_variant_inventory_item)
+// the inventory item. Both are Mercur module links off the inventory item:
+//   inventory_item -> seller                          (inventory-item-seller-link)
+//   inventory_item -> offers -> product_variant -> product
+//     (offer-inventory-item-link + offer-variant-link). Inventory is
+//     offer-scoped in Mercur, so the product is reached through the offer,
+//     not the native product_variant_inventory_item link.
 export const defaultAdminReservationFields = [
   "id",
   "location_id",
@@ -35,10 +38,11 @@ export const defaultAdminReservationFields = [
   ),
   "inventory_item.seller.id",
   "inventory_item.seller.name",
-  "inventory_item.variants.id",
-  "inventory_item.variants.title",
-  "inventory_item.variants.product.id",
-  "inventory_item.variants.product.title",
+  "inventory_item.offers.id",
+  "inventory_item.offers.product_variant.id",
+  "inventory_item.offers.product_variant.title",
+  "inventory_item.offers.product_variant.product.id",
+  "inventory_item.offers.product_variant.product.title",
 ]
 
 export const retrieveTransformQueryConfig = {

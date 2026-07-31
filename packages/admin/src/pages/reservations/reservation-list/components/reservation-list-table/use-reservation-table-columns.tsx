@@ -21,12 +21,22 @@ const TruncatedTextCell = ({ value }: { value?: string | null }) => {
 }
 
 // Product + Store come from links that may not be populated on every payload;
-// read them defensively and fall back to a placeholder.
+// read them defensively and fall back to a placeholder. Inventory is
+// offer-scoped in Mercur, so the product is reached through the offer:
+// inventory_item -> offers -> product_variant -> product.
 const getProductTitle = (reservation: ExtendedReservationItem) => {
   const item = reservation.inventory_item as
-    | { variants?: { product?: { title?: string | null } | null }[] | null }
+    | {
+        offers?:
+          | {
+              product_variant?: {
+                product?: { title?: string | null } | null
+              } | null
+            }[]
+          | null
+      }
     | undefined
-  return item?.variants?.[0]?.product?.title ?? undefined
+  return item?.offers?.[0]?.product_variant?.product?.title ?? undefined
 }
 
 const getStoreName = (reservation: ExtendedReservationItem) => {

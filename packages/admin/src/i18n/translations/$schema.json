@@ -4550,6 +4550,9 @@
             "reserved": {
               "type": "string"
             },
+            "storeLocationWarningLabel": {
+              "type": "string"
+            },
             "storeLocationWarning": {
               "type": "string"
             },
@@ -4557,6 +4560,12 @@
               "type": "string"
             },
             "itemToReserve": {
+              "type": "string"
+            },
+            "itemPlaceholder": {
+              "type": "string"
+            },
+            "locationPlaceholder": {
               "type": "string"
             },
             "quantityPlaceholder": {
@@ -4613,9 +4622,12 @@
             "reservedAtLocation",
             "reservedAmount",
             "reserved",
+            "storeLocationWarningLabel",
             "storeLocationWarning",
             "create",
             "itemToReserve",
+            "itemPlaceholder",
+            "locationPlaceholder",
             "quantityPlaceholder",
             "descriptionPlaceholder",
             "successToast",

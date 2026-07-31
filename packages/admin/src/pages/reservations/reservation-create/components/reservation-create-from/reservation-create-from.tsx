@@ -44,6 +44,23 @@ const AttributeGridRow = ({
   )
 }
 
+// Inventory is offer-scoped in Mercur, so the product is reached through the
+// offer: inventory_item -> offers -> product_variant -> product.
+const getProductTitle = (
+  inventoryItem: HttpTypes.AdminInventoryItem
+): string | undefined => {
+  const item = inventoryItem as {
+    offers?:
+      | {
+          product_variant?: {
+            product?: { title?: string | null } | null
+          } | null
+        }[]
+      | null
+  }
+  return item.offers?.[0]?.product_variant?.product?.title ?? undefined
+}
+
 export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
@@ -63,6 +80,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
 
   const { inventory_items } = useInventoryItems({
     q: inventorySearch,
+    fields: "id,title,sku,+offers.product_variant.product.title",
   })
 
   const inventoryItemId = form.watch("inventory_item_id")
@@ -163,10 +181,14 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                             onChange(v)
                           }}
                           {...field}
+                          placeholder={t(
+                            "inventory.reservation.itemPlaceholder"
+                          )}
                           disabled={!!props.inventoryItemId}
                           options={(inventory_items ?? []).map(
                             (inventoryItem) => ({
                               label: inventoryItem.title ?? inventoryItem.sku!,
+                              secondaryLabel: getProductTitle(inventoryItem),
                               value: inventoryItem.id,
                             })
                           )}
@@ -191,6 +213,9 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                             onChange(v)
                           }}
                           {...field}
+                          placeholder={t(
+                            "inventory.reservation.locationPlaceholder"
+                          )}
                           disabled={!inventoryItemId}
                           options={(stock_locations ?? []).map(
                             (stockLocation) => ({

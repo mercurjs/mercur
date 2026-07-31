@@ -109,7 +109,7 @@ export const ReservationListDataTable = () => {
         { key: "created_at", label: t("fields.createdAt") },
         { key: "updated_at", label: t("fields.updatedAt") },
       ]}
-      defaultOrder="-created_at"
+      defaultOrder="inventory_item.title"
       navigateTo={(row) => row.id}
       noRecords={{
         title: t("reservations.list.noRecordsTitle"),
