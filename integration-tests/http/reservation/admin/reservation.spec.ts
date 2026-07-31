@@ -92,6 +92,7 @@ medusaIntegrationTestRunner({
             inventory_items: [
               {
                 title: `Inv${tag}`,
+                sku: `SKU${tag}`,
                 required_quantity: 1,
                 stock_levels: [
                   {

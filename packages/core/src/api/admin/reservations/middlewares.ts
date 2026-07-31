@@ -38,13 +38,14 @@ const maybeApplyInventoryItemSkuFilter = async (
   _res: MedusaResponse,
   next: MedusaNextFunction
 ) => {
-  const sku = req.filterableFields?.sku as string | undefined
+  const filterableFields = req.filterableFields
+  const sku = filterableFields?.sku as string | undefined
 
   if (!sku) {
     return next()
   }
 
-  delete req.filterableFields.sku
+  delete filterableFields.sku
 
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
   const { data: inventoryItems } = await query.graph({
@@ -53,17 +54,21 @@ const maybeApplyInventoryItemSkuFilter = async (
     filters: { sku },
   })
 
-  const matchedIds = inventoryItems.map((item) => item.id)
-  const existing = req.filterableFields.inventory_item_id
+  const matchedIds = inventoryItems.map((item) => item.id as string)
+  const existing = filterableFields.inventory_item_id
 
   if (existing) {
     const existingIds = Array.isArray(existing) ? existing : [existing]
-    req.filterableFields.inventory_item_id = existingIds.filter((id) =>
+    filterableFields.inventory_item_id = existingIds.filter((id) =>
       matchedIds.includes(id as string)
     )
   } else {
-    req.filterableFields.inventory_item_id = matchedIds
+    filterableFields.inventory_item_id = matchedIds
   }
+
+  // Reassign so the mutation sticks — `req.filterableFields` returns a fresh
+  // object per access, mirroring `maybeApplyLinkFilter`.
+  req.filterableFields = filterableFields
 
   return next()
 }
