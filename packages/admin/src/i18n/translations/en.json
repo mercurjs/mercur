@@ -2786,6 +2786,11 @@
     },
     "customerAvailability": {
       "header": "Customer availability",
+      "add": "Add customer groups",
+      "list": {
+        "noRecordsTitle": "No customer groups",
+        "noRecordsMessage": "Add customer groups to restrict which customers this price list applies to."
+      },
       "edit": {
         "header": "Customer availability",
         "description": "Choose which customer groups the price list should be applied to.",
@@ -2800,10 +2805,10 @@
         "editPricesDisabled": "Add offers before editing prices"
       },
       "delete": {
-        "confirmation_one": "You are about to delete the prices for {{count}} offer in the price list. This action cannot be undone.",
-        "confirmation_other": "You are about to delete the prices for {{count}} offers in the price list. This action cannot be undone.",
-        "successToast_one": "Successfully deleted prices for {{count}} offer.",
-        "successToast_other": "Successfully deleted prices for {{count}} offers."
+        "confirmation_one": "You are about to remove {{count}} offer from the price list. This action cannot be undone.",
+        "confirmation_other": "You are about to remove {{count}} offers from the price list. This action cannot be undone.",
+        "successToast_one": "Successfully removed {{count}} offer from the price list.",
+        "successToast_other": "Successfully removed {{count}} offers from the price list."
       },
       "add": {
         "successToast": "Prices were successfully added to the price list.",
@@ -2815,6 +2820,7 @@
       }
     },
     "fields": {
+      "offerVariant": "Offer/Variant",
       "priceOverrides": {
         "label": "Price overrides",
         "header": "Price Overrides"

@@ -33,8 +33,8 @@ export const usePriceListGridColumns = ({
   >[] = useMemo(() => {
     return [
       columnHelper.column({
-        id: t("fields.title"),
-        header: t("fields.title"),
+        id: t("priceLists.fields.offerVariant"),
+        header: t("priceLists.fields.offerVariant"),
         cell: (context) => {
           const entity = context.row.original
           if (isProductRow(entity)) {

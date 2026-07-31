@@ -1,9 +1,10 @@
 import { PencilSquare } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { Container, Heading, Text } from "@medusajs/ui"
+import { Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
+import { NoRecords } from "../../../../../components/common/empty-table-content"
 import { ListSummary } from "../../../../../components/common/list-summary"
 import { Skeleton } from "../../../../../components/common/skeleton"
 import { useCustomerGroups } from "../../../../../hooks/api/customer-groups"
@@ -26,9 +27,11 @@ export const PriceListCustomerAvailabilitySection = ({
     { enabled: !!customerGroupIds?.length }
   )
 
+  const isEmpty = !customerGroupIds?.length || isError
+
   return (
-    <Container className="flex flex-col gap-y-4" data-testid="price-list-customer-availability-section-container">
-      <div className="flex items-center justify-between" data-testid="price-list-customer-availability-section-header">
+    <Container className="p-0" data-testid="price-list-customer-availability-section-container">
+      <div className="flex items-center justify-between px-6 py-4" data-testid="price-list-customer-availability-section-header">
         <Heading level="h2" data-testid="price-list-customer-availability-section-heading">
           {t("priceLists.customerAvailability.header")}
         </Heading>
@@ -48,27 +51,37 @@ export const PriceListCustomerAvailabilitySection = ({
         />
       </div>
 
-      {!customerGroupIds?.length || isError ? (
-        <Text size="small" className="text-ui-fg-subtle" data-testid="price-list-customer-availability-section-empty">
-          {"-"}
-        </Text>
-      ) : isPending || !customer_groups ? (
-        <Skeleton className="h-5 w-full max-w-48" />
-      ) : (
-        <div className="txt-small-plus text-ui-fg-muted flex items-center gap-x-1.5">
-          <span className="text-ui-fg-subtle">
-            {t("priceLists.fields.customerAvailability.attribute")}
-          </span>
-          <span>·</span>
-          <span>{t("operators.in")}</span>
-          <span>·</span>
-          <ListSummary
-            list={customer_groups.map((group) => group.name!)}
-            n={2}
-            className="txt-small-plus text-ui-fg-muted"
+      <div className="text-ui-fg-subtle flex flex-col gap-2 px-6 pb-4 pt-2" data-testid="price-list-customer-availability-section-content">
+        {isEmpty ? (
+          <NoRecords
+            className="h-[180px]"
+            icon={null}
+            title={t("priceLists.customerAvailability.list.noRecordsTitle")}
+            message={t("priceLists.customerAvailability.list.noRecordsMessage")}
+            action={{
+              to: "customer-availability",
+              label: t("priceLists.customerAvailability.add"),
+            }}
+            dataTestId="price-list-customer-availability-section-add-button"
           />
-        </div>
-      )}
+        ) : isPending || !customer_groups ? (
+          <Skeleton className="h-5 w-full max-w-48" />
+        ) : (
+          <div className="txt-small-plus text-ui-fg-muted flex items-center gap-x-1.5">
+            <span className="text-ui-fg-subtle">
+              {t("priceLists.fields.customerAvailability.attribute")}
+            </span>
+            <span>·</span>
+            <span>{t("operators.in")}</span>
+            <span>·</span>
+            <ListSummary
+              list={customer_groups.map((group) => group.name!)}
+              n={2}
+              className="txt-small-plus text-ui-fg-muted"
+            />
+          </div>
+        )}
+      </div>
     </Container>
   )
 }

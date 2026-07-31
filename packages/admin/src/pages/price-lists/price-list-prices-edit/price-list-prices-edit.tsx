@@ -40,7 +40,7 @@ export const PriceListPricesEdit = () => {
   }
 
   return (
-    <RouteFocusModal prev="../..">
+    <RouteFocusModal prev={`/price-lists/${id}`}>
       <RouteFocusModal.Title asChild>
         <span className="sr-only">Edit Prices for {price_list?.title}</span>
       </RouteFocusModal.Title>

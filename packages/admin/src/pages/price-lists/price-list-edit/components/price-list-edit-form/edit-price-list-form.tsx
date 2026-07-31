@@ -46,7 +46,13 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
   const { mutateAsync, isPending } = useUpdatePriceList(priceList.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    await mutateAsync(values, {
+    const { additional_data, ...rest } = values
+    const payload =
+      additional_data && Object.keys(additional_data).length
+        ? { ...rest, additional_data }
+        : rest
+
+    await mutateAsync(payload, {
       onSuccess: ({ price_list }) => {
         toast.success(
           t("priceLists.edit.successToast", {
