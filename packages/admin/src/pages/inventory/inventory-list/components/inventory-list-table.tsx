@@ -144,6 +144,7 @@ export const InventoryListDataTable = () => {
           { key: "stocked_quantity", label: t("fields.inStock") },
           { key: "reserved_quantity", label: t("inventory.reserved") },
         ]}
+        defaultOrder="title"
         navigateTo={(row) => `${row.id}`}
         commands={[
           {
