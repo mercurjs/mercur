@@ -24,15 +24,11 @@ export const ReservationItemTable = ({
     pageSize: PAGE_SIZE,
   })
 
-  const { reservations, count, isPending } =
-    useReservationItems(
-      {
-        ...searchParams,
-        fields: "+line_item.order_id",
-      },
-      undefined,
-      { inventory_item_id: [inventoryItem.id] }
-    )
+  const { reservations, count, isPending } = useReservationItems({
+    ...searchParams,
+    fields: "+line_item.order_id",
+    inventory_item_id: [inventoryItem.id],
+  })
 
   const { stock_locations } = useStockLocations({
     id: (reservations || []).map((r) => r.location_id),
