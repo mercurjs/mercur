@@ -1,5 +1,13 @@
 import { HttpTypes } from "@medusajs/types"
-import { Button, Input, Select, Text, Textarea, toast } from "@medusajs/ui"
+import {
+  Button,
+  InlineTip,
+  Input,
+  Select,
+  Text,
+  Textarea,
+  toast,
+} from "@medusajs/ui"
 import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
 
 import { useTranslation } from "react-i18next"
@@ -8,21 +16,26 @@ import {
   FormExtensionZone,
   useExtendableForm,
 } from "@mercurjs/dashboard-shared"
+import { SellerDTO } from "@mercurjs/types"
 import { Form } from "../../../../../../components/common/form"
 import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
 import { useUpdateReservationItem } from "../../../../../../hooks/api/reservations"
 import { useDocumentDirection } from "../../../../../../hooks/use-document-direction"
 
+type StockLocationWithSeller = HttpTypes.AdminStockLocation & {
+  seller?: SellerDTO | null
+}
+
 type EditReservationFormProps = {
   reservation: HttpTypes.AdminReservationResponse["reservation"]
-  locations: HttpTypes.AdminStockLocation[]
+  locations: StockLocationWithSeller[]
   item: HttpTypes.AdminInventoryItemResponse["inventory_item"]
 }
 
 const EditReservationSchema = z.object({
   location_id: z.string(),
   description: z.string().optional(),
-  quantity: z.number().min(1),
+  quantity: z.number().nullable(),
 })
 
 const AttributeGridRow = ({
@@ -72,24 +85,67 @@ export const EditReservationForm = ({
 
   const { mutateAsync } = useUpdateReservationItem(reservation.id)
 
-  const handleSubmit = form.handleSubmit(async (values) => {
-    mutateAsync(values, {
-      onSuccess: () => {
-        toast.success(t("inventory.reservation.updateSuccessToast"))
-        handleSuccess()
-      },
-      onError: (e) => {
-        toast.error(e.message)
-      },
-    })
-  })
-
   const reservedQuantity = form.watch("quantity")
   const locationId = form.watch("location_id")
 
   const level = item.location_levels!.find(
     (level: HttpTypes.AdminInventoryLevel) => level.location_id === locationId
   )
+
+  const selectedLocation = (locations || []).find((l) => l.id === locationId)
+  const isStoreLocation = !!selectedLocation?.seller
+
+  // The reservation's own quantity is already counted in the level's reserved
+  // amount, so it is available to this edit — add it back to the ceiling.
+  const maxQuantity =
+    (level?.available_quantity ?? 0) + (reservation.quantity ?? 0)
+
+  const handleSubmit = form.handleSubmit(async (values) => {
+    // A location with no available stock wins over the empty-field message,
+    // matching the Figma error states.
+    if (maxQuantity < 1) {
+      form.setError("quantity", {
+        type: "manual",
+        message: t("inventory.reservation.errors.noAvaliableQuantity"),
+      })
+      return
+    }
+
+    if (values.quantity === null || values.quantity === undefined) {
+      form.setError("quantity", {
+        type: "manual",
+        message: t("inventory.reservation.errors.pleaseEnterQuantity"),
+      })
+      return
+    }
+
+    if (values.quantity < 1 || values.quantity > maxQuantity) {
+      form.setError("quantity", {
+        type: "manual",
+        message: t("inventory.reservation.errors.quantityOutOfRange", {
+          max: maxQuantity,
+        }),
+      })
+      return
+    }
+
+    const { additional_data: _additionalData, ...payload } = values as z.infer<
+      typeof EditReservationSchema
+    > & { additional_data?: Record<string, unknown> }
+
+    mutateAsync(
+      { ...payload, quantity: values.quantity },
+      {
+        onSuccess: () => {
+          toast.success(t("inventory.reservation.updateSuccessToast"))
+          handleSuccess()
+        },
+        onError: (e) => {
+          toast.error(e.message)
+        },
+      }
+    )
+  })
 
   return (
     <RouteDrawer.Form form={form}>
@@ -146,7 +202,7 @@ export const EditReservationForm = ({
               value={
                 level!.stocked_quantity -
                 (level!.reserved_quantity - reservation.quantity) -
-                reservedQuantity
+                (reservedQuantity ?? 0)
               }
             />
           </div>
@@ -157,17 +213,14 @@ export const EditReservationForm = ({
               return (
                 <Form.Item>
                   <Form.Label>
-                    {t("inventory.reservation.reservedAmount")}
+                    {t("inventory.reservation.reserved")}
                   </Form.Label>
                   <Form.Control>
                     <Input
                       type="number"
                       min={0}
-                      max={
-                        (level!.available_quantity || 0) +
-                        (reservation.quantity || 0)
-                      }
-                      value={value || ""}
+                      max={maxQuantity}
+                      value={value ?? ""}
                       onChange={(e) => {
                         const value = e.target.value
 
@@ -200,6 +253,15 @@ export const EditReservationForm = ({
               )
             }}
           />
+          {isStoreLocation && (
+            <InlineTip
+              variant="warning"
+              label={t("inventory.reservation.storeLocationWarningLabel")}
+              data-testid="reservation-edit-store-location-warning"
+            >
+              {t("inventory.reservation.storeLocationWarning")}
+            </InlineTip>
+          )}
           <FormExtensionZone
             model="reservation"
             zone="edit"

@@ -70,12 +70,12 @@ export const ReservationGeneralSection = ({
       <DisplayField
         model="reservation"
         zone="general"
-        id="line_item_id"
+        id="item_id"
         data={reservation}
       >
         <SectionRow
-          title={t("inventory.reservation.lineItemId")}
-          value={reservation.line_item_id} // TODO fetch order instead + add link
+          title={t("inventory.reservation.itemId")}
+          value={inventoryItem.sku ?? inventoryItem.id}
         />
       </DisplayField>
       <DisplayField
@@ -139,7 +139,7 @@ export const ReservationGeneralSection = ({
         data={reservation}
         builtInFieldIds={[
           "header",
-          "line_item_id",
+          "item_id",
           "description",
           "location",
           "stocked_quantity",
