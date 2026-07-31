@@ -16,7 +16,9 @@ export const ManageLocationsDrawer = () => {
     isPending: isLoading,
     isError,
     error,
-  } = useInventoryItem(id!)
+  } = useInventoryItem(id!, {
+    fields: "id,sku,title,*location_levels,offers.seller_id",
+  })
 
   const { stock_locations, isLoading: loadingLocations } = useStockLocations()
 
@@ -27,13 +29,21 @@ export const ManageLocationsDrawer = () => {
     throw error
   }
 
+  const sellerId = (
+    inventoryItem as { offers?: { seller_id: string }[] } | undefined
+  )?.offers?.[0]?.seller_id
+
   return (
     <RouteDrawer data-testid="inventory-manage-locations-drawer">
       <RouteDrawer.Header data-testid="inventory-manage-locations-drawer-header">
         <Heading data-testid="inventory-manage-locations-drawer-title">{t("inventory.manageLocations")}</Heading>
       </RouteDrawer.Header>
       {ready && (
-        <ManageLocationsForm item={inventoryItem} locations={stock_locations} />
+        <ManageLocationsForm
+          item={inventoryItem}
+          locations={stock_locations}
+          sellerId={sellerId}
+        />
       )}
     </RouteDrawer>
   )

@@ -1,3 +1,4 @@
+import { HttpTypes } from "@medusajs/types"
 import { useTranslation } from "react-i18next"
 import { useSearchParams } from "react-router-dom"
 import { RouteFocusModal } from "../../../components/modals"
@@ -13,6 +14,7 @@ export const InventoryStock = () => {
 
   const { inventory_items, isPending, isError, error } = useInventoryItems({
     id: inventoryItemIds,
+    fields: "id,sku,title,*location_levels,offers.seller_id",
   })
 
   const {
@@ -22,7 +24,7 @@ export const InventoryStock = () => {
     error: errorStockLocations,
   } = useStockLocations({
     limit: 9999,
-    fields: "id,name",
+    fields: "id,name,seller.id",
   })
 
   const ready =
@@ -39,6 +41,19 @@ export const InventoryStock = () => {
     throw errorStockLocations
   }
 
+  // Scope the location columns to the warehouses owned by the sellers behind
+  // the selected items' offers — a store can only stock at its own locations.
+  const sellerIds = new Set(
+    ((inventory_items ?? []) as Array<{ offers?: { seller_id: string }[] }>)
+      .flatMap((item) => item.offers ?? [])
+      .map((offer) => offer.seller_id)
+  )
+  const scopedLocations = (
+    (stock_locations ?? []) as Array<
+      HttpTypes.AdminStockLocation & { seller?: { id: string } }
+    >
+  ).filter((loc) => !!loc.seller?.id && sellerIds.has(loc.seller.id))
+
   return (
     <RouteFocusModal>
       <RouteFocusModal.Title asChild>
@@ -48,10 +63,7 @@ export const InventoryStock = () => {
         <span className="sr-only">{t("inventory.stock.description")}</span>
       </RouteFocusModal.Description>
       {ready && (
-        <InventoryStockForm
-          items={inventory_items}
-          locations={stock_locations}
-        />
+        <InventoryStockForm items={inventory_items} locations={scopedLocations} />
       )}
     </RouteFocusModal>
   )

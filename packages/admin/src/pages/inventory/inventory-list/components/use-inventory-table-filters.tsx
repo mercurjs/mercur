@@ -1,4 +1,5 @@
 import { Filter } from "../../../../components/table/data-table"
+import { useSellers } from "../../../../hooks/api/sellers"
 import { useStockLocations } from "../../../../hooks/api/stock-locations"
 import { useTranslation } from "react-i18next"
 
@@ -7,11 +8,31 @@ export const useInventoryTableFilters = () => {
   const { stock_locations } = useStockLocations({
     limit: 1000,
   })
+  const { sellers } = useSellers({ limit: 1000 })
 
   const filters: Filter[] = []
 
+  filters.push({
+    type: "string",
+    key: "sku",
+    label: t("fields.sku"),
+  })
+
+  if (sellers) {
+    filters.push({
+      type: "select",
+      options: sellers.map((s) => ({
+        label: s.name,
+        value: s.id,
+      })),
+      key: "seller_id",
+      searchable: true,
+      label: t("inventory.store"),
+    })
+  }
+
   if (stock_locations) {
-    const stockLocationFilter: Filter = {
+    filters.push({
       type: "select",
       options: stock_locations.map((s) => ({
         label: s.name,
@@ -20,28 +41,8 @@ export const useInventoryTableFilters = () => {
       key: "location_id",
       searchable: true,
       label: t("fields.location"),
-    }
-
-    filters.push(stockLocationFilter)
+    })
   }
-
-  filters.push({
-    type: "string",
-    key: "material",
-    label: t("fields.material"),
-  })
-
-  filters.push({
-    type: "string",
-    key: "sku",
-    label: t("fields.sku"),
-  })
-
-  filters.push({
-    type: "string",
-    key: "mid_code",
-    label: t("fields.midCode"),
-  })
 
   filters.push({
     type: "number",
@@ -56,26 +57,15 @@ export const useInventoryTableFilters = () => {
   })
 
   filters.push({
-    type: "number",
-    key: "length",
-    label: t("fields.length"),
+    type: "string",
+    key: "mid_code",
+    label: t("fields.midCode"),
   })
 
   filters.push({
-    type: "number",
-    key: "weight",
-    label: t("fields.weight"),
-  })
-
-  filters.push({
-    type: "select",
-    options: [
-      { label: t("fields.true"), value: "true" },
-      { label: t("fields.false"), value: "false" },
-    ],
-    key: "requires_shipping",
-    multiple: false,
-    label: t("fields.requiresShipping"),
+    type: "string",
+    key: "material",
+    label: t("fields.material"),
   })
 
   return filters
