@@ -1087,9 +1087,6 @@ export function getRouteMap({
               },
 
               // RESERVATIONS
-              // Detail (`:id`) is intentionally not registered yet — that page
-              // imports a non-existent `@/extensions` module and would break the
-              // build; enable it once that pre-existing code is fixed.
               {
                 path: "/reservations",
                 errorElement: <ErrorBoundary />,
@@ -1102,6 +1099,42 @@ export function getRouteMap({
                       {
                         path: "create",
                         lazy: () => import("./pages/reservations/create"),
+                      },
+                    ],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Breadcrumb } = await import(
+                        "./pages/reservations/[id]"
+                      );
+                      return {
+                        Component: Outlet,
+                        handle: {
+                          breadcrumb: (match: UIMatch<any>) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () => import("./pages/reservations/[id]"),
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import(
+                                "./pages/reservations/[id]/_components/edit-reservation"
+                              ),
+                          },
+                          {
+                            path: "metadata/edit",
+                            lazy: () =>
+                              import("./pages/reservations/[id]/metadata"),
+                          },
+                        ],
                       },
                     ],
                   },
