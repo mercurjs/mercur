@@ -46,6 +46,7 @@ export const PriceListCreateForm = ({
       ends_at: null,
       product_ids: [],
       products: {},
+      variant_offers: {},
       rules: {
         customer_group_id: [],
       },
@@ -57,13 +58,13 @@ export const PriceListCreateForm = ({
   const { mutateAsync, isPending } = useCreatePriceList()
 
   const handleSubmit = form.handleSubmit(async (data) => {
-    const { rules, products } = data
+    const { rules, products, variant_offers } = data
 
     const rulesPayload = rules?.customer_group_id?.length
       ? { "customer.groups.id": rules.customer_group_id.map((cg) => cg.id) }
       : undefined
 
-    const prices = exctractPricesFromProducts(products, regions)
+    const prices = exctractPricesFromProducts(products, regions, variant_offers)
 
     await mutateAsync(
       {

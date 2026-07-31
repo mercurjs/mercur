@@ -67,8 +67,15 @@ export const isProductRow = (
 const extractPricesFromVariants = (
   variantId: string,
   variant: PriceListCreateProductVariantSchema,
-  regions: HttpTypes.AdminRegion[]
+  regions: HttpTypes.AdminRegion[],
+  offerId?: string
 ) => {
+  // Marketplace price lists target a specific offer: without an offer_id the
+  // price would apply to every seller's offer on this variant, so skip it.
+  if (!offerId) {
+    return []
+  }
+
   const extractPriceDetails = (
     price: PriceListCreateCurrencyPrice,
     priceType: "region" | "currency",
@@ -88,7 +95,10 @@ const extractPricesFromVariants = (
 
     return {
       amount: castNumber(price.amount!),
-      ...(priceType === "region" ? { rules: { region_id: id } } : {}),
+      rules: {
+        offer_id: offerId,
+        ...(priceType === "region" ? { region_id: id } : {}),
+      },
       currency_code: currencyCode,
       variant_id: variantId,
     }
@@ -115,11 +125,17 @@ const extractPricesFromVariants = (
 
 export const exctractPricesFromProducts = (
   products: PriceListCreateProductsSchema,
-  regions: HttpTypes.AdminRegion[]
+  regions: HttpTypes.AdminRegion[],
+  variantOffers: Record<string, string> = {}
 ) => {
   return Object.values(products).flatMap(({ variants }) =>
     Object.entries(variants).flatMap(([variantId, variant]) =>
-      extractPricesFromVariants(variantId, variant, regions)
+      extractPricesFromVariants(
+        variantId,
+        variant,
+        regions,
+        variantOffers[variantId]
+      )
     )
   )
 }

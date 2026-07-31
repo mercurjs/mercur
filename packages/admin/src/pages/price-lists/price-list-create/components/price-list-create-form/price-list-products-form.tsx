@@ -40,28 +40,43 @@ const Root = () => {
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-  const { offers, count, isLoading, isError, error } = useOffers(searchParams, {
-    placeholderData: keepPreviousData,
-  })
+  // Ungrouped: one row per offer (a single seller + variant), so each selection
+  // resolves to an unambiguous offer_id + variant_id. Omitting group_by_seller
+  // entirely is the ungrouped path — passing it as "false" 500s the route.
+  const { group_by_seller: _grouped, ...ungroupedParams } =
+    searchParams as Record<string, unknown>
+  const { offers, count, isLoading, isError, error } = useOffers(
+    ungroupedParams,
+    { placeholderData: keepPreviousData }
+  )
 
-  // Each selected offer maps to its master product; the Prices tab keys the
-  // grid off product_ids, so translate the offer-id row selection to a deduped
-  // set of product ids. Keep the mapping across pages in a ref.
-  const offerToProduct = useRef<Record<string, string>>({})
+  // offer_id -> { product_id, variant_id }, kept across pages so the selection
+  // can be resolved even after paginating away from a picked row.
+  const offerMeta = useRef<
+    Record<string, { product_id: string; variant_id: string }>
+  >({})
   for (const offer of (offers ?? []) as OfferDTO[]) {
-    offerToProduct.current[offer.id] = offer.product_id
+    offerMeta.current[offer.id] = {
+      product_id: offer.product_id,
+      variant_id: offer.variant_id,
+    }
   }
 
   const updater: OnChangeFn<RowSelectionState> = (fn) => {
     const state = typeof fn === "function" ? fn(rowSelection) : fn
 
-    const productIds = Array.from(
-      new Set(
-        Object.keys(state)
-          .map((offerId) => offerToProduct.current[offerId])
-          .filter(Boolean)
-      )
+    const selectedOfferIds = Object.keys(state).filter(
+      (offerId) => offerMeta.current[offerId]
     )
+
+    const productIds = Array.from(
+      new Set(selectedOfferIds.map((id) => offerMeta.current[id].product_id))
+    )
+
+    const variantOffers = selectedOfferIds.reduce((acc, offerId) => {
+      acc[offerMeta.current[offerId].variant_id] = offerId
+      return acc
+    }, {} as Record<string, string>)
 
     const updatedRecords = productIds.reduce((acc, id) => {
       if (productRecords?.[id]) {
@@ -76,6 +91,10 @@ const Root = () => {
       { shouldDirty: true, shouldTouch: true }
     )
     setValue("products", updatedRecords, {
+      shouldDirty: true,
+      shouldTouch: true,
+    })
+    setValue("variant_offers", variantOffers, {
       shouldDirty: true,
       shouldTouch: true,
     })

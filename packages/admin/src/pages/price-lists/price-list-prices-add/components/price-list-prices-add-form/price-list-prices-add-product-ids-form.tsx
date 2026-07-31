@@ -45,25 +45,40 @@ const Root = (_props: PriceListPricesAddProductIdsFormProps) => {
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-  const { offers, count, isLoading, isError, error } = useOffers(searchParams, {
-    placeholderData: keepPreviousData,
-  })
+  // Ungrouped: omit group_by_seller entirely (passing "false" 500s the route)
+  // so each row is one offer with an unambiguous offer_id + variant_id.
+  const { group_by_seller: _grouped, ...ungroupedParams } =
+    searchParams as Record<string, unknown>
+  const { offers, count, isLoading, isError, error } = useOffers(
+    ungroupedParams,
+    { placeholderData: keepPreviousData }
+  )
 
-  const offerToProduct = useRef<Record<string, string>>({})
+  const offerMeta = useRef<
+    Record<string, { product_id: string; variant_id: string }>
+  >({})
   for (const offer of (offers ?? []) as OfferDTO[]) {
-    offerToProduct.current[offer.id] = offer.product_id
+    offerMeta.current[offer.id] = {
+      product_id: offer.product_id,
+      variant_id: offer.variant_id,
+    }
   }
 
   const updater: OnChangeFn<RowSelectionState> = (fn) => {
     const state = typeof fn === "function" ? fn(rowSelection) : fn
 
-    const productIds = Array.from(
-      new Set(
-        Object.keys(state)
-          .map((offerId) => offerToProduct.current[offerId])
-          .filter(Boolean)
-      )
+    const selectedOfferIds = Object.keys(state).filter(
+      (offerId) => offerMeta.current[offerId]
     )
+
+    const productIds = Array.from(
+      new Set(selectedOfferIds.map((id) => offerMeta.current[id].product_id))
+    )
+
+    const variantOffers = selectedOfferIds.reduce((acc, offerId) => {
+      acc[offerMeta.current[offerId].variant_id] = offerId
+      return acc
+    }, {} as Record<string, string>)
 
     const updatedRecords = productIds.reduce((acc, id) => {
       if (productRecords?.[id]) {
@@ -78,6 +93,10 @@ const Root = (_props: PriceListPricesAddProductIdsFormProps) => {
       { shouldDirty: true, shouldTouch: true }
     )
     setValue("products", updatedRecords, {
+      shouldDirty: true,
+      shouldTouch: true,
+    })
+    setValue("variant_offers", variantOffers, {
       shouldDirty: true,
       shouldTouch: true,
     })

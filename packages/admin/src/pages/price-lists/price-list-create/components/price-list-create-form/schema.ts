@@ -27,6 +27,9 @@ export const PricingCreateSchema = z.object({
   ends_at: z.date().nullish(),
   product_ids: z.array(z.object({ id: z.string() })).min(1),
   products: PriceListCreateProductsSchema,
+  // variant_id -> offer_id, captured from the Offers picker so each price can
+  // carry the offer_id rule that scopes it to a single seller's offer.
+  variant_offers: z.record(z.string(), z.string()).default({}),
   rules: PriceListRulesSchema.nullish(),
 })
 

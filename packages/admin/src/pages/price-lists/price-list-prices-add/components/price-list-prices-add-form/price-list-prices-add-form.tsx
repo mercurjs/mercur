@@ -42,6 +42,7 @@ export const PriceListPricesAddForm = ({
     defaultValues: {
       products: {},
       product_ids: [],
+      variant_offers: {},
       ...extraDefaults,
     } as PriceListPricesAddSchemaType,
     resolver: zodResolver(schema ?? PriceListPricesAddSchema),
@@ -50,9 +51,9 @@ export const PriceListPricesAddForm = ({
   const { mutateAsync, isPending } = useBatchPriceListPrices(priceList.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const { products } = values
+    const { products, variant_offers } = values
 
-    const prices = exctractPricesFromProducts(products, regions)
+    const prices = exctractPricesFromProducts(products, regions, variant_offers)
 
     await mutateAsync(
       {

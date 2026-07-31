@@ -1,5 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import { useEffect } from "react"
+import { useEffect, useMemo } from "react"
 import { useWatch } from "react-hook-form"
 import { DataGrid } from "../../../../../components/data-grid"
 import { useRouteModal } from "../../../../../components/modals"
@@ -34,19 +34,40 @@ const Root = ({
     name: "products",
   })
 
+  const variantOffers = useWatch({
+    control: form.control,
+    name: "variant_offers",
+  })
+
   const { products, isLoading, isError, error } = useProducts({
     id: ids.map((id) => id.id),
     limit: ids.length,
     fields: "title,thumbnail,*variants",
   })
 
+  // Only the picked offers' variants are priceable; hide the rest so the admin
+  // can't enter a price that would be dropped for lacking an offer_id.
+  const offeredProducts = useMemo(() => {
+    if (!products) {
+      return products
+    }
+    return products
+      .map((product) => ({
+        ...product,
+        variants: (product.variants ?? []).filter(
+          (variant) => variantOffers?.[variant.id]
+        ),
+      }))
+      .filter((product) => product.variants.length > 0) as typeof products
+  }, [products, variantOffers])
+
   const { setCloseOnEscape } = useRouteModal()
 
   const { setValue } = form
 
   useEffect(() => {
-    if (!isLoading && products) {
-      products.forEach((product) => {
+    if (!isLoading && offeredProducts) {
+      offeredProducts.forEach((product) => {
         if (existingProducts[product.id] || !product.variants) {
           return
         }
@@ -62,7 +83,7 @@ const Root = ({
         })
       })
     }
-  }, [products, existingProducts, isLoading, setValue])
+  }, [offeredProducts, existingProducts, isLoading, setValue])
 
   const columns = usePriceListGridColumns({
     currencies,
@@ -79,7 +100,7 @@ const Root = ({
       <DataGrid
         isLoading={isLoading}
         columns={columns}
-        data={products}
+        data={offeredProducts}
         getSubRows={(row) => {
           if (isProductRow(row) && row.variants) {
             return row.variants
