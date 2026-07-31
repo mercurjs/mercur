@@ -1,5 +1,9 @@
 import { medusaIntegrationTestRunner } from "@medusajs/test-utils"
-import { MedusaContainer } from "@medusajs/framework/types"
+import {
+  ISalesChannelModuleService,
+  MedusaContainer,
+} from "@medusajs/framework/types"
+import { Modules } from "@medusajs/framework/utils"
 import { MercurModules, SellerStatus } from "@mercurjs/types"
 
 import {
@@ -71,9 +75,9 @@ medusaIntegrationTestRunner({
 
         const tag = `_${++counter}_${Date.now()}`
 
-        const salesChannel = (
-          await api.post(`/vendor/sales-channels`, { name: `SC${tag}` }, headers)
-        ).data.sales_channel
+        const salesChannel = await container
+          .resolve<ISalesChannelModuleService>(Modules.SALES_CHANNEL)
+          .createSalesChannels({ name: `SC${tag}` })
 
         const stockLocation = (
           await api.post(
