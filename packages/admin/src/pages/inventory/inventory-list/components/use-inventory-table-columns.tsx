@@ -12,7 +12,13 @@ import { InventoryActions } from "./inventory-actions"
  */
 interface ExtendedInventoryItem extends InventoryTypes.InventoryItemDTO {
   variants?: ProductVariantDTO[] | null
-  offers?: { id: string; sku: string; product?: { title: string } | null }[] | null
+  offers?:
+    | {
+        id: string
+        sku: string
+        product_variant?: { product?: { title: string } | null } | null
+      }[]
+    | null
   seller?: { id: string; name: string } | null
   stocked_quantity?: number
   reserved_quantity?: number
@@ -113,7 +119,8 @@ export const useInventoryTableColumns = () => {
           </div>
         ),
         cell: ({ row }) => {
-          const productTitle = row.original.offers?.[0]?.product?.title
+          const productTitle =
+            row.original.offers?.[0]?.product_variant?.product?.title
 
           if (!productTitle) {
             return <PlaceholderCell />

@@ -7,8 +7,10 @@ import { Thumbnail } from "@components/common/thumbnail"
 type InventoryItemOffer = {
   id: string
   sku: string
-  variant?: { title?: string | null } | null
-  product?: { title?: string | null; thumbnail?: string | null } | null
+  product_variant?: {
+    title?: string | null
+    product?: { title?: string | null; thumbnail?: string | null } | null
+  } | null
 }
 
 type AssociatedOffersSectionProps = {
@@ -32,8 +34,10 @@ export const AssociatedOffersSection = ({
         </Heading>
       </div>
       {offers.map((offer) => {
-        const label = offer.variant?.title || offer.sku
-        const description = [offer.variant?.title, offer.product?.title]
+        const variantTitle = offer.product_variant?.title
+        const productTitle = offer.product_variant?.product?.title
+        const label = variantTitle || offer.sku
+        const description = [variantTitle, productTitle]
           .filter(Boolean)
           .join(" · ")
 
@@ -43,7 +47,11 @@ export const AssociatedOffersSection = ({
             to={`/offers/${offer.id}`}
             labelKey={label}
             descriptionKey={description}
-            icon={<Thumbnail src={offer.product?.thumbnail ?? null} />}
+            icon={
+              <Thumbnail
+                src={offer.product_variant?.product?.thumbnail ?? null}
+              />
+            }
             dataTestid={`inventory-associated-offer-${offer.id}`}
           />
         )

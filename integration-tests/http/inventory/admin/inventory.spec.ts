@@ -19,7 +19,7 @@ jest.setTimeout(60000)
  * product title). Both come from the mercur links, requested off the native
  * `GET /admin/inventory-items` route via `fields`:
  *   - Store   → `+seller.name`          (inventory_item ↔ seller link)
- *   - Product → `+offers.product.title` (inventory_item → offer → product)
+ *   - Product → `+offers.product_variant.product.title` (item → offer → variant → product)
  *
  * IMPORTANT (memory `offer-inventory-not-on-variant`, decision D1): seller
  * inventory is created through an **offer** and links to the *offer*, not the
@@ -181,7 +181,7 @@ medusaIntegrationTestRunner({
 
       const listItemForSeller = async (sellerId: string) => {
         const res = await api.get(
-          `/admin/inventory-items?fields=id,sku,*seller,offers.id,offers.sku,offers.product.title`,
+          `/admin/inventory-items?fields=id,sku,*seller,offers.id,offers.sku,offers.product_variant.title,offers.product_variant.product.title`,
           adminHeaders
         )
         expect(res.status).toEqual(200)
@@ -206,7 +206,7 @@ medusaIntegrationTestRunner({
         expect(item!.seller!.name).toEqual(sellerName)
       })
 
-      it("resolves the Product column via the offer's product (offers.product)", async () => {
+      it("resolves the Product column via the offer's variant product", async () => {
         const { sellerId } = await seedSellerInventory({
           email: "inv-offer@medusa.js",
           name: "Store Two",
@@ -215,12 +215,18 @@ medusaIntegrationTestRunner({
         })
 
         const item = (await listItemForSeller(sellerId)) as
-          | { offers?: Array<{ product?: { title?: string } }> }
+          | {
+              offers?: Array<{
+                product_variant?: { product?: { title?: string } }
+              }>
+            }
           | undefined
 
         expect(item).toBeDefined()
-        // Product column reads item.offers?.[0]?.product?.title
-        expect(item!.offers?.[0]?.product?.title).toEqual("A-Line Dress")
+        // Product column reads offers[0].product_variant.product.title
+        expect(
+          item!.offers?.[0]?.product_variant?.product?.title
+        ).toEqual("A-Line Dress")
       })
 
       // Specifies delta D-03 (backend). The list "Store" filter sends
