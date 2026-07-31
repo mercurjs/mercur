@@ -8,7 +8,6 @@ import {
   InventoryListHeader,
   InventoryListTitle,
   InventoryListActions,
-  InventoryListCreateButton,
   InventoryListDataTable,
 } from "./components/inventory-list-table"
 
@@ -29,6 +28,5 @@ export const InventoryListPage = Object.assign(Root, {
   Header: InventoryListHeader,
   HeaderTitle: InventoryListTitle,
   HeaderActions: InventoryListActions,
-  HeaderCreateButton: InventoryListCreateButton,
   DataTable: InventoryListDataTable,
 })

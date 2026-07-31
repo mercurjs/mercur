@@ -36,7 +36,7 @@ export const InventoryItemGeneralSection = ({
           data={inventoryItem}
         >
           <Heading data-testid="inventory-item-general-title">
-            {inventoryItem.title ?? inventoryItem.sku} {t("fields.details")}
+            {inventoryItem.title ?? inventoryItem.sku}
           </Heading>
         </DisplayField>
         <ActionMenu

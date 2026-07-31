@@ -1,6 +1,6 @@
 import * as zod from "zod"
 
-import { Button, Heading, Input, Text, Textarea, toast } from "@medusajs/ui"
+import { Button, Heading, InlineTip, Input, Text, Textarea, toast } from "@medusajs/ui"
 import {
   RouteFocusModal,
   useRouteModal,
@@ -18,13 +18,6 @@ import { KeyboundForm } from "../../../../../components/utilities/keybound-form"
 import { useInventoryItems } from "../../../../../hooks/api/inventory"
 import { useCreateReservationItem } from "../../../../../hooks/api/reservations"
 import { useStockLocations } from "../../../../../hooks/api/stock-locations"
-
-export const CreateReservationSchema = zod.object({
-  inventory_item_id: zod.string().min(1),
-  location_id: zod.string().min(1),
-  quantity: zod.number().min(1),
-  description: zod.string().optional(),
-})
 
 const AttributeGridRow = ({
   title,
@@ -45,8 +38,6 @@ const AttributeGridRow = ({
   )
 }
 
-// Inventory is offer-scoped in Mercur, so the product is reached through the
-// offer: inventory_item -> offers -> product.
 const getProductTitle = (
   inventoryItem: HttpTypes.AdminInventoryItem
 ): string | undefined => {
@@ -54,12 +45,28 @@ const getProductTitle = (
   return item.offers?.[0]?.product?.title ?? undefined
 }
 
+const buildCreateReservationSchema = (t: (key: string) => string) =>
+  zod.object({
+    inventory_item_id: zod
+      .string()
+      .min(1, t("inventory.reservation.errors.idRequired")),
+    location_id: zod
+      .string()
+      .min(1, t("inventory.reservation.errors.selectLocation")),
+    quantity: zod
+      .number()
+      .min(1, t("inventory.reservation.errors.enterQuantity")),
+    description: zod.string().optional(),
+  })
+
 export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
   const [inventorySearch, setInventorySearch] = React.useState<string | null>(
     null
   )
+
+  const CreateReservationSchema = buildCreateReservationSchema(t)
 
   const form = useForm<zod.infer<typeof CreateReservationSchema>>({
     defaultValues: {
@@ -71,10 +78,28 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
     resolver: zodResolver(CreateReservationSchema),
   })
 
-  const { inventory_items } = useInventoryItems({
+  const { inventory_items: searchedItems } = useInventoryItems({
     q: inventorySearch,
     fields: "id,title,sku,+offers.product.title",
   })
+
+  // The preselected item (from `?item_id=`) may not be in the search results,
+  // so fetch it explicitly and merge it into the options so it stays selected.
+  const { inventory_items: presetItems } = useInventoryItems(
+    {
+      id: props.inventoryItemId ? [props.inventoryItemId] : undefined,
+      fields: "id,sku,title,*location_levels",
+    },
+    { enabled: !!props.inventoryItemId }
+  )
+
+  const inventory_items = React.useMemo(() => {
+    const byId = new Map<string, NonNullable<typeof searchedItems>[number]>()
+    ;[...(presetItems ?? []), ...(searchedItems ?? [])].forEach((it) =>
+      byId.set(it.id, it)
+    )
+    return Array.from(byId.values())
+  }, [presetItems, searchedItems])
 
   const inventoryItemId = form.watch("inventory_item_id")
   const selectedInventoryItem = inventory_items?.find(
@@ -187,6 +212,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                           )}
                         />
                       </Form.Control>
+                      <Form.ErrorMessage />
                     </Form.Item>
                   )
                 }}
@@ -218,6 +244,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                           )}
                         />
                       </Form.Control>
+                      <Form.ErrorMessage />
                     </Form.Item>
                   )
                 }}
@@ -304,6 +331,9 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                 )
               }}
             />
+            <InlineTip variant="warning" label={t("general.warning")}>
+              {t("inventory.reservation.storeLocationWarning")}
+            </InlineTip>
           </div>
         </RouteFocusModal.Body>
         <RouteFocusModal.Footer>
