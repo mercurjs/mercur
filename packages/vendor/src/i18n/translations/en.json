@@ -1064,7 +1064,11 @@
       "requiresShipping": "Requires shipping",
       "requiresShippingHint": "Does the inventory item require shipping?",
       "descriptionPlaceholder": "The item description",
-      "successToast": "Inventory item was successfully created."
+      "successToast": "Inventory item was successfully created.",
+      "errors": {
+        "titleRequired": "Please enter a title"
+      },
+      "attributesHint": "These are default values used to describe the item. They are not defined by Marketplace."
     },
     "reservation": {
       "header": "Reservation of {{itemName}}",
@@ -1129,6 +1133,18 @@
     "level": {
       "deleteTitle": "Delete inventory level",
       "deleteDescription": "You're about to delete inventory level from {{location}}. This will delete stock and reservations for this location and cannot be undone."
+    },
+    "list": {
+      "noRecordsTitle": "No inventory items yet",
+      "noRecordsMessage": "Create inventory items to manage inventory"
+    },
+    "locations": {
+      "noRecordsTitle": "No locations yet",
+      "noRecordsMessage": "Add a location to start managing stock levels"
+    },
+    "reservations": {
+      "noRecordsTitle": "No reservations yet",
+      "noRecordsMessage": "There are no reservations to show"
     }
   },
   "offers": {

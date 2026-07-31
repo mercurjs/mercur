@@ -1174,6 +1174,18 @@
       "confirmTitle": "Edit stock levels",
       "confirmDescription": "You are about to edit stock levels in Stores locations. Before making changes to stock levels, please confirm them with the Vendors to avoid data inconsistencies or misunderstandings.",
       "editQuantityWarning": "You are editing Store location quantity. Before making changes to stock levels, please confirm them with the Vendor to avoid data inconsistencies or misunderstandings."
+    },
+    "list": {
+      "noRecordsTitle": "No inventory items yet",
+      "noRecordsMessage": "Inventory items from your stores appear here."
+    },
+    "locations": {
+      "noRecordsTitle": "No locations yet",
+      "noRecordsMessage": "Add a location to start managing stock levels"
+    },
+    "reservations": {
+      "noRecordsTitle": "No reservations yet",
+      "noRecordsMessage": "There are no reservations to show"
     }
   },
   "giftCards": {

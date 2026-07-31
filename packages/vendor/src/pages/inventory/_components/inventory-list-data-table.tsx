@@ -1,4 +1,5 @@
 import { InventoryTypes } from "@medusajs/types";
+import { Buildings } from "@medusajs/icons";
 
 import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
@@ -101,6 +102,12 @@ export const InventoryListDataTable = () => {
         { key: "reserved_quantity", label: t("inventory.reserved") },
       ]}
       defaultOrder="title"
+      noRecords={{
+        icon: <Buildings className="text-ui-fg-subtle" />,
+        title: t("inventory.list.noRecordsTitle"),
+        message: t("inventory.list.noRecordsMessage"),
+        action: { to: "create", label: t("actions.create") },
+      }}
       navigateTo={(row) => `${row.id}`}
       commands={[
         {

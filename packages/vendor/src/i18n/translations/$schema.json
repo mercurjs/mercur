@@ -4355,6 +4355,21 @@
             },
             "successToast": {
               "type": "string"
+            },
+            "errors": {
+              "type": "object",
+              "properties": {
+                "titleRequired": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "titleRequired"
+              ],
+              "additionalProperties": false
+            },
+            "attributesHint": {
+              "type": "string"
             }
           },
           "required": [
@@ -4366,7 +4381,9 @@
             "requiresShipping",
             "requiresShippingHint",
             "descriptionPlaceholder",
-            "successToast"
+            "successToast",
+            "errors",
+            "attributesHint"
           ],
           "additionalProperties": false
         },
@@ -4626,6 +4643,54 @@
             "deleteDescription"
           ],
           "additionalProperties": false
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "locations": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "reservations": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -4649,7 +4714,10 @@
         "associatedOffers",
         "attributes",
         "item",
-        "level"
+        "level",
+        "list",
+        "locations",
+        "reservations"
       ],
       "additionalProperties": false
     },
