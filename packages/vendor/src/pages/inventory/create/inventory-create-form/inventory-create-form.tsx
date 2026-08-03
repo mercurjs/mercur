@@ -7,6 +7,7 @@ import {
   Input,
   ProgressStatus,
   ProgressTabs,
+  Text,
   Textarea,
   toast,
 } from "@medusajs/ui"
@@ -35,7 +36,10 @@ import {
 } from "@lib/form-helpers"
 import { queryClient } from "@lib/query-client"
 import { InventoryAvailabilityForm } from "./inventory-availability-form"
-import { CreateInventoryItemSchema } from "./schema"
+import {
+  buildCreateInventoryItemSchema,
+  CreateInventoryItemSchema,
+} from "./schema"
 
 enum Tab {
   DETAILS = "details",
@@ -74,7 +78,7 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
         locations.map((location) => [location.id, ""])
       ),
     },
-    resolver: zodResolver(CreateInventoryItemSchema),
+    resolver: zodResolver(buildCreateInventoryItemSchema(t)),
   })
 
   const {
@@ -317,9 +321,14 @@ export function InventoryCreateForm({ locations }: InventoryCreateFormProps) {
                 <Divider />
 
                 <div className="flex flex-col gap-y-6">
-                  <Heading level="h2">
-                    {t("inventory.create.attributes")}
-                  </Heading>
+                  <div className="flex flex-col gap-y-1">
+                    <Heading level="h2">
+                      {t("inventory.create.attributes")}
+                    </Heading>
+                    <Text size="small" className="text-ui-fg-subtle">
+                      {t("inventory.create.attributesHint")}
+                    </Text>
+                  </div>
 
                   <div className="grid grid-cols-1 gap-x-4 gap-y-4 lg:grid-cols-2 lg:gap-y-8">
                     <Form.Field

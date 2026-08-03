@@ -28,6 +28,7 @@ export const ReservationEdit = () => {
       id: inventoryItem?.location_levels?.map(
         (level) => level.location_id
       ),
+      fields: "+seller.id",
     },
     {
       enabled: !!inventoryItem?.location_levels,

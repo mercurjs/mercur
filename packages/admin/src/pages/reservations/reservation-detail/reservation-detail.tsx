@@ -8,8 +8,8 @@ import { TwoColumnPage } from "../../../components/layout/pages";
 import { useInventoryItem } from "../../../hooks/api";
 import { useReservationItem } from "../../../hooks/api/reservations";
 
-import { InventoryItemGeneralSection } from "../../inventory/inventory-detail/components/inventory-item-general-section";
 import { ReservationGeneralSection } from "./components/reservation-general-section";
+import { ReservationInventorySection } from "./components/reservation-inventory-section";
 import { reservationItemLoader } from "./loader";
 
 const Root = ({ children }: { children?: ReactNode }) => {
@@ -73,7 +73,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       <TwoColumnPage.Sidebar>
         <WidgetZone id="reservation.detail.side" data={reservation}>
           {inventory_item && (
-            <InventoryItemGeneralSection inventoryItem={inventory_item} />
+            <ReservationInventorySection inventoryItem={inventory_item} />
           )}
         </WidgetZone>
       </TwoColumnPage.Sidebar>
@@ -85,5 +85,5 @@ export const ReservationDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: ReservationGeneralSection,
-  SidebarInventorySection: InventoryItemGeneralSection,
+  SidebarInventorySection: ReservationInventorySection,
 });

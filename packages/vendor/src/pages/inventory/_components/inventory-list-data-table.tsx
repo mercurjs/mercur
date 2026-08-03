@@ -1,4 +1,5 @@
 import { InventoryTypes } from "@medusajs/types";
+import { Buildings } from "@medusajs/icons";
 
 import { useExtendableTable, useLinkQuery } from "@mercurjs/dashboard-shared";
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table";
@@ -35,7 +36,10 @@ export const InventoryListDataTable = () => {
   } = useInventoryItems(
     {
       ...searchParams,
-      ...useLinkQuery("inventory_item"),
+      ...useLinkQuery(
+        "inventory_item",
+        "+offers.product_variant.product.title",
+      ),
     },
     {
       placeholderData: keepPreviousData,
@@ -44,14 +48,19 @@ export const InventoryListDataTable = () => {
 
   const baseFilters = useInventoryTableFilters();
   const baseColumns = useInventoryTableColumns();
-  const { columns, filters: extFilters } =
+  const actionsColumn = baseColumns[baseColumns.length - 1];
+  const { columns: extended, filters: extFilters } =
     useExtendableTable<InventoryTypes.InventoryItemDTO>({
       model: "inventory_item",
-      columns: baseColumns as unknown as ColumnDef<
+      columns: baseColumns.slice(0, -1) as unknown as ColumnDef<
         InventoryTypes.InventoryItemDTO,
         unknown
       >[],
     });
+  const columns = useMemo(
+    () => [...extended, actionsColumn],
+    [extended, actionsColumn],
+  );
   const filters = useMemo(
     () => [...baseFilters, ...(extFilters as typeof baseFilters)],
     [baseFilters, extFilters],
@@ -92,6 +101,13 @@ export const InventoryListDataTable = () => {
         { key: "stocked_quantity", label: t("fields.inStock") },
         { key: "reserved_quantity", label: t("inventory.reserved") },
       ]}
+      defaultOrder="title"
+      noRecords={{
+        icon: <Buildings className="text-ui-fg-subtle" />,
+        title: t("inventory.list.noRecordsTitle"),
+        message: t("inventory.list.noRecordsMessage"),
+        action: { to: "create", label: t("actions.create") },
+      }}
       navigateTo={(row) => `${row.id}`}
       commands={[
         {

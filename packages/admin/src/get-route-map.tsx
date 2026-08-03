@@ -1095,11 +1095,6 @@ export function getRouteMap({
                     lazy: () => import("./pages/inventory/inventory-list"),
                     children: [
                       {
-                        path: "create",
-                        lazy: () =>
-                          import("./pages/inventory/inventory-create"),
-                      },
-                      {
                         path: "stock",
                         lazy: () => import("./pages/inventory/inventory-stock"),
                       },

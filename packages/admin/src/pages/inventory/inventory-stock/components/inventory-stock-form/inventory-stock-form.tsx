@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
-import { Button, toast } from "@medusajs/ui"
+import { Button, toast, usePrompt } from "@medusajs/ui"
 import { useRef } from "react"
 import { DefaultValues, useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
@@ -30,6 +30,7 @@ export const InventoryStockForm = ({
 }: InventoryStockFormProps) => {
   const { t } = useTranslation()
   const { setCloseOnEscape, handleSuccess } = useRouteModal()
+  const prompt = usePrompt()
 
   const initialValues = useRef(getDefaultValues(items, locations))
 
@@ -87,6 +88,17 @@ export const InventoryStockForm = ({
           })
         }
       }
+    }
+
+    const confirmed = await prompt({
+      title: t("inventory.stock.confirmTitle"),
+      description: t("inventory.stock.confirmDescription"),
+      confirmText: t("actions.continue"),
+      cancelText: t("actions.cancel"),
+    })
+
+    if (!confirmed) {
+      return
     }
 
     await mutateAsync(payload, {

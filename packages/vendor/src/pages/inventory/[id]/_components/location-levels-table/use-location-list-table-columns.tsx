@@ -90,7 +90,11 @@ export const useLocationListTableColumns = () => {
       }),
       columnHelper.display({
         id: "actions",
-        cell: ({ row }) => <LocationActions level={row.original} />,
+        cell: ({ row }) => (
+          <div className="flex w-full items-center justify-end">
+            <LocationActions level={row.original} />
+          </div>
+        ),
       }),
     ],
     [t]

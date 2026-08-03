@@ -21,6 +21,8 @@ import { adminProductCategoriesMiddlewares } from "./product-categories/middlewa
 import { adminProductAttributesMiddlewares } from "./product-attributes/middlewares"
 import { adminProductChangesMiddlewares } from "./product-changes/middlewares"
 import { adminStockLocationsMiddlewares } from "./stock-locations/middlewares"
+import { adminReservationsMiddlewares } from "./reservations/middlewares"
+import { adminInventoryItemsMiddlewares } from "./inventory-items/middlewares"
 import { adminShippingOptionsMiddlewares } from "./shipping-options/middlewares"
 import { adminShippingProfilesMiddlewares } from "./shipping-profiles/middlewares"
 import { adminReviewsMiddlewares } from "./reviews/middlewares"
@@ -53,6 +55,8 @@ export const adminMiddlewares: MiddlewareRoute[] = [
   ...adminProductAttributesMiddlewares,
   ...adminProductChangesMiddlewares,
   ...adminStockLocationsMiddlewares,
+  ...adminReservationsMiddlewares,
+  ...adminInventoryItemsMiddlewares,
   ...adminShippingOptionsMiddlewares,
   ...adminShippingProfilesMiddlewares,
   ...adminReviewsMiddlewares,

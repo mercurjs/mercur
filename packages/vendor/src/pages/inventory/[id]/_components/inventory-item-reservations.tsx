@@ -1,6 +1,8 @@
 import { HttpTypes } from "@medusajs/types"
-import { Container, Heading } from "@medusajs/ui"
+import { Button, Container, Heading } from "@medusajs/ui"
+import { DisplayExtensionZone } from "@mercurjs/dashboard-shared"
 import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 
 import { ReservationItemTable } from "./reservations-table/reservation-list-table"
 
@@ -13,11 +15,34 @@ export const InventoryItemReservationsSection = ({
   const { t } = useTranslation()
 
   return (
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
-        <Heading>{t("reservations.domain")}</Heading>
+    <Container
+      className="divide-y p-0"
+      data-testid="inventory-item-reservations-section"
+    >
+      <div
+        className="flex items-center justify-between px-6 py-4"
+        data-testid="inventory-item-reservations-header"
+      >
+        <Heading data-testid="inventory-item-reservations-title">
+          {t("reservations.domain")}
+        </Heading>
+        <Button
+          size="small"
+          variant="secondary"
+          asChild
+          data-testid="inventory-create-reservation-button"
+        >
+          <Link to={`/reservations/create?item_id=${inventoryItem.id}`}>
+            {t("actions.create")}
+          </Link>
+        </Button>
       </div>
       <ReservationItemTable inventoryItem={inventoryItem} />
+      <DisplayExtensionZone
+        model="inventory_item"
+        zone="reservations"
+        data={inventoryItem}
+      />
     </Container>
   )
 }

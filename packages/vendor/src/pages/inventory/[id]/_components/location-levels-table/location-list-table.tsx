@@ -4,6 +4,7 @@ import { useDataTable } from "@hooks/use-data-table";
 import { useLocationListTableColumns } from "./use-location-list-table-columns";
 import { useLocationLevelTableQuery } from "./use-location-list-table-query";
 import { StockLocationDTO } from "@medusajs/types";
+import { useTranslation } from "react-i18next";
 
 const PAGE_SIZE = 20;
 
@@ -12,6 +13,7 @@ export const ItemLocationListTable = ({
 }: {
   inventory_item_id: string;
 }) => {
+  const { t } = useTranslation();
   const { searchParams, raw } = useLocationLevelTableQuery({
     pageSize: PAGE_SIZE,
   });
@@ -49,6 +51,10 @@ export const ItemLocationListTable = ({
       isLoading={isLoading}
       pagination
       queryObject={raw}
+      noRecords={{
+        title: t("inventory.locations.noRecordsTitle"),
+        message: t("inventory.locations.noRecordsMessage"),
+      }}
     />
   );
 };

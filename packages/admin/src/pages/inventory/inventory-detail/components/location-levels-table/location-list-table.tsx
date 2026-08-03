@@ -7,6 +7,7 @@ import { useDataTable } from "@hooks/use-data-table";
 
 import { useLocationListTableColumns } from "./use-location-list-table-columns";
 import { useLocationLevelTableQuery } from "./use-location-list-table-query";
+import { useTranslation } from "react-i18next";
 
 const PAGE_SIZE = 20;
 const PREFIX = "invlvl";
@@ -16,6 +17,7 @@ export const ItemLocationListTable = ({
 }: {
   inventory_item_id: string;
 }) => {
+  const { t } = useTranslation();
   const { searchParams, raw } = useLocationLevelTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
@@ -57,6 +59,10 @@ export const ItemLocationListTable = ({
         isLoading={isLoading}
         pagination
         queryObject={raw}
+        noRecords={{
+          title: t("inventory.locations.noRecordsTitle"),
+          message: t("inventory.locations.noRecordsMessage"),
+        }}
       />
     </div>
   );
