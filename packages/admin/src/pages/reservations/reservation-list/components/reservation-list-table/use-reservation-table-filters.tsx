@@ -1,4 +1,5 @@
 import { Filter } from "../../../../../components/table/data-table"
+import { useSellers } from "../../../../../hooks/api/sellers"
 import { useStockLocations } from "../../../../../hooks/api/stock-locations"
 import { useTranslation } from "react-i18next"
 
@@ -7,8 +8,31 @@ export const useReservationTableFilters = () => {
   const { stock_locations } = useStockLocations({
     limit: 1000,
   })
+  const { sellers } = useSellers({
+    limit: 1000,
+    fields: "id,name",
+  })
 
   const filters: Filter[] = []
+
+  filters.push({
+    type: "string",
+    key: "sku",
+    label: t("fields.sku"),
+  })
+
+  if (sellers) {
+    filters.push({
+      type: "select",
+      options: sellers.map((s) => ({
+        label: s.name,
+        value: s.id,
+      })),
+      key: "seller_id",
+      searchable: true,
+      label: t("reservations.fields.store"),
+    })
+  }
 
   if (stock_locations) {
     const stockLocationFilter: Filter = {
