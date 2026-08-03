@@ -1,4 +1,5 @@
 import { InventoryTypes, ProductVariantDTO } from "@medusajs/types"
+import { OfferDTO } from "@mercurjs/types"
 
 import { Checkbox } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
@@ -7,17 +8,11 @@ import { useTranslation } from "react-i18next"
 import { PlaceholderCell } from "@components/table/table-cells/common/placeholder-cell"
 import { InventoryActions } from "./inventory-actions"
 
-
 interface ExtendedInventoryItem extends InventoryTypes.InventoryItemDTO {
   variants?: ProductVariantDTO[] | null
+  offers?: OfferDTO[] | null
   stocked_quantity?: number
   reserved_quantity?: number
-  location_levels?: {
-    available_quantity: number
-    reserved_quantity: number
-    stocked_quantity?: number
-    location_id?: string
-  }[]
 }
 
 const columnHelper = createColumnHelper<ExtendedInventoryItem>()
@@ -40,6 +35,7 @@ export const useInventoryTableColumns = () => {
               onCheckedChange={(value) =>
                 table.toggleAllPageRowsSelected(!!value)
               }
+              data-testid="inventory-table-header-select-checkbox"
             />
           )
         },
@@ -51,13 +47,23 @@ export const useInventoryTableColumns = () => {
               onClick={(e) => {
                 e.stopPropagation()
               }}
+              data-testid={`inventory-table-cell-${row.id}-select-checkbox`}
             />
           )
         },
       }),
       columnHelper.accessor("title", {
-        header: t("fields.title"),
-        cell: ({ getValue }) => {
+        header: () => (
+          <div
+            className="flex h-full w-full items-center"
+            data-testid="inventory-table-header-title"
+          >
+            <span data-testid="inventory-table-header-title-text">
+              {t("fields.title")}
+            </span>
+          </div>
+        ),
+        cell: ({ getValue, row }) => {
           const title = getValue()
 
           if (!title) {
@@ -66,14 +72,28 @@ export const useInventoryTableColumns = () => {
 
           return (
             <div className="flex size-full items-center overflow-hidden">
-              <span className="truncate">{title}</span>
+              <span
+                className="truncate"
+                data-testid={`inventory-table-cell-${row.id}-title-value`}
+              >
+                {title}
+              </span>
             </div>
           )
         },
       }),
       columnHelper.accessor("sku", {
-        header: t("fields.sku"),
-        cell: ({ getValue }) => {
+        header: () => (
+          <div
+            className="flex h-full w-full items-center"
+            data-testid="inventory-table-header-sku"
+          >
+            <span data-testid="inventory-table-header-sku-text">
+              {t("fields.sku")}
+            </span>
+          </div>
+        ),
+        cell: ({ getValue, row }) => {
           const sku = getValue() as string
 
           if (!sku) {
@@ -82,54 +102,118 @@ export const useInventoryTableColumns = () => {
 
           return (
             <div className="flex size-full items-center overflow-hidden">
-              <span className="truncate">{sku}</span>
+              <span
+                className="truncate"
+                data-testid={`inventory-table-cell-${row.id}-sku-value`}
+              >
+                {sku}
+              </span>
             </div>
           )
         },
       }),
-      columnHelper.accessor("location_levels", {
-        header: t("inventory.reserved"),
-        cell: ({ getValue }) => {
-          const locations = getValue() as any[]
+      columnHelper.display({
+        id: "product",
+        header: () => (
+          <div
+            className="flex h-full w-full items-center"
+            data-testid="inventory-table-header-product"
+          >
+            <span data-testid="inventory-table-header-product-text">
+              {t("fields.product")}
+            </span>
+          </div>
+        ),
+        cell: ({ row }) => {
+          const productTitle =
+            row.original.offers?.[0]?.product_variant?.product?.title
 
-          const totalReserved = locations.reduce(
-            (sum: number, level: any) => sum + level.reserved_quantity,
-            0
-          )
-
-          if (Number.isNaN(totalReserved)) {
+          if (!productTitle) {
             return <PlaceholderCell />
           }
 
           return (
             <div className="flex size-full items-center overflow-hidden">
-              <span className="truncate">{totalReserved}</span>
+              <span
+                className="truncate"
+                data-testid={`inventory-table-cell-${row.id}-product-value`}
+              >
+                {productTitle}
+              </span>
             </div>
           )
         },
       }),
-      columnHelper.accessor("location_levels", {
-        header: t("fields.inStock"),
-        cell: ({ getValue }) => {
-          const locations = getValue() as any[]
-          const totalAvailable = locations.reduce(
-            (sum: number, level: any) => sum + level.available_quantity,
-            0
-          )
+      columnHelper.accessor("stocked_quantity", {
+        header: () => (
+          <div
+            className="flex h-full w-full items-center"
+            data-testid="inventory-table-header-stocked-quantity"
+          >
+            <span data-testid="inventory-table-header-stocked-quantity-text">
+              {t("fields.inStock")}
+            </span>
+          </div>
+        ),
+        cell: ({ getValue, row }) => {
+          const quantity = getValue()
 
-          if (Number.isNaN(totalAvailable)) {
+          if (Number.isNaN(quantity)) {
             return <PlaceholderCell />
           }
 
           return (
             <div className="flex size-full items-center overflow-hidden">
-              <span className="truncate">{totalAvailable}</span>
+              <span
+                className="truncate"
+                data-testid={`inventory-table-cell-${row.id}-stocked_quantity-value`}
+              >
+                {quantity}
+              </span>
+            </div>
+          )
+        },
+      }),
+      columnHelper.accessor("reserved_quantity", {
+        header: () => (
+          <div
+            className="flex h-full w-full items-center"
+            data-testid="inventory-table-header-reserved-quantity"
+          >
+            <span data-testid="inventory-table-header-reserved-quantity-text">
+              {t("inventory.reserved")}
+            </span>
+          </div>
+        ),
+        cell: ({ getValue, row }) => {
+          const quantity = getValue()
+
+          if (Number.isNaN(quantity)) {
+            return <PlaceholderCell />
+          }
+
+          return (
+            <div className="flex size-full items-center overflow-hidden">
+              <span
+                className="truncate"
+                data-testid={`inventory-table-cell-${row.id}-reserved_quantity-value`}
+              >
+                {quantity}
+              </span>
             </div>
           )
         },
       }),
       columnHelper.display({
         id: "actions",
+        header: () => (
+          <div
+            className="flex h-full w-full items-center"
+            data-testid="inventory-table-header-actions"
+          >
+            <span data-testid="inventory-table-header-actions-text"></span>
+          </div>
+        ),
         cell: ({ row }) => <InventoryActions item={row.original} />,
       }),
     ],

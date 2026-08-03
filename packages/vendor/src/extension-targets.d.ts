@@ -190,7 +190,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "inventory_item": {
       formZones: "edit"
       formTabs: Record<string, string>
-      displayZones: "attributes" | "general" | "locations" | "variants"
+      displayZones: "attributes" | "general" | "locations" | "reservations" | "variants"
       displayFieldIds: "available" | "in_stock" | "reserved" | "sku" | "title"
     }
     "member": {

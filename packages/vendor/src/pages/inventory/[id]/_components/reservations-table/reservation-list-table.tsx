@@ -1,5 +1,6 @@
 import { HttpTypes } from "@medusajs/types"
 import { useMemo } from "react"
+import { useTranslation } from "react-i18next"
 
 import { _DataTable } from "@components/table/data-table"
 import { useStockLocations } from "@hooks/api"
@@ -18,18 +19,16 @@ export const ReservationItemTable = ({
 }: {
   inventoryItem: HttpTypes.AdminInventoryItemResponse["inventory_item"]
 }) => {
+  const { t } = useTranslation()
   const { searchParams, raw } = useReservationsTableQuery({
     pageSize: PAGE_SIZE,
   })
 
-  const { reservations, count, isPending } =
-    useReservationItems(
-      {
-        ...searchParams,
-      },
-      undefined,
-      { inventory_item_id: [inventoryItem.id] }
-    )
+  const { reservations, count, isPending } = useReservationItems({
+    ...searchParams,
+    fields: "+line_item.order_id",
+    inventory_item_id: [inventoryItem.id],
+  })
 
   const { stock_locations } = useStockLocations({
     id: (reservations || []).map((r) => r.location_id),
@@ -64,6 +63,10 @@ export const ReservationItemTable = ({
       isLoading={isPending}
       pagination
       queryObject={raw}
+      noRecords={{
+        title: t("inventory.reservations.noRecordsTitle"),
+        message: t("inventory.reservations.noRecordsMessage"),
+      }}
     />
   )
 }

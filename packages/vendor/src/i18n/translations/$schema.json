@@ -4350,7 +4350,25 @@
             "requiresShippingHint": {
               "type": "string"
             },
+            "descriptionPlaceholder": {
+              "type": "string"
+            },
             "successToast": {
+              "type": "string"
+            },
+            "errors": {
+              "type": "object",
+              "properties": {
+                "titleRequired": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "titleRequired"
+              ],
+              "additionalProperties": false
+            },
+            "attributesHint": {
               "type": "string"
             }
           },
@@ -4362,7 +4380,10 @@
             "attributes",
             "requiresShipping",
             "requiresShippingHint",
-            "successToast"
+            "descriptionPlaceholder",
+            "successToast",
+            "errors",
+            "attributesHint"
           ],
           "additionalProperties": false
         },
@@ -4375,7 +4396,7 @@
             "editItemDetails": {
               "type": "string"
             },
-            "itemId": {
+            "lineItemId": {
               "type": "string"
             },
             "orderID": {
@@ -4387,9 +4408,6 @@
             "location": {
               "type": "string"
             },
-            "goToInventoryItem": {
-              "type": "string"
-            },
             "inStockAtLocation": {
               "type": "string"
             },
@@ -4399,19 +4417,13 @@
             "reservedAtLocation": {
               "type": "string"
             },
-            "reserved": {
+            "reservedAmount": {
               "type": "string"
             },
             "create": {
               "type": "string"
             },
             "itemToReserve": {
-              "type": "string"
-            },
-            "itemPlaceholder": {
-              "type": "string"
-            },
-            "locationPlaceholder": {
               "type": "string"
             },
             "quantityPlaceholder": {
@@ -4429,9 +4441,6 @@
             "deleteSuccessToast": {
               "type": "string"
             },
-            "gotIt": {
-              "type": "string"
-            },
             "errors": {
               "type": "object",
               "properties": {
@@ -4439,9 +4448,6 @@
                   "type": "string"
                 },
                 "quantityOutOfRange": {
-                  "type": "string"
-                },
-                "pleaseEnterQuantity": {
                   "type": "string"
                 },
                 "idRequired": {
@@ -4452,42 +4458,77 @@
                 },
                 "enterQuantity": {
                   "type": "string"
+                },
+                "pleaseEnterQuantity": {
+                  "type": "string"
                 }
               },
               "required": [
                 "noAvaliableQuantity",
                 "quantityOutOfRange",
-                "pleaseEnterQuantity",
                 "idRequired",
                 "selectLocation",
-                "enterQuantity"
+                "enterQuantity",
+                "pleaseEnterQuantity"
               ],
               "additionalProperties": false
+            },
+            "deleteTitle": {
+              "type": "string"
+            },
+            "deleteDescription": {
+              "type": "string"
+            },
+            "deleteBlockedDescription": {
+              "type": "string"
+            },
+            "gotIt": {
+              "type": "string"
+            },
+            "locationPlaceholder": {
+              "type": "string"
+            },
+            "itemId": {
+              "type": "string"
+            },
+            "goToInventoryItem": {
+              "type": "string"
+            },
+            "reserved": {
+              "type": "string"
+            },
+            "itemPlaceholder": {
+              "type": "string"
             }
           },
           "required": [
             "header",
             "editItemDetails",
-            "itemId",
+            "lineItemId",
             "orderID",
             "description",
             "location",
-            "goToInventoryItem",
             "inStockAtLocation",
             "availableAtLocation",
             "reservedAtLocation",
-            "reserved",
+            "reservedAmount",
             "create",
             "itemToReserve",
-            "itemPlaceholder",
-            "locationPlaceholder",
             "quantityPlaceholder",
             "descriptionPlaceholder",
             "successToast",
             "updateSuccessToast",
             "deleteSuccessToast",
+            "errors",
+            "deleteTitle",
+            "deleteDescription",
+            "deleteBlockedDescription",
             "gotIt",
-            "errors"
+            "locationPlaceholder",
+            "itemId",
+            "goToInventoryItem",
+            "reserved",
+            "itemPlaceholder"
           ],
           "additionalProperties": false
         },
@@ -4499,10 +4540,14 @@
               "properties": {
                 "stockedQuantity": {
                   "type": "string"
+                },
+                "enterQuantity": {
+                  "type": "string"
                 }
               },
               "required": [
-                "stockedQuantity"
+                "stockedQuantity",
+                "enterQuantity"
               ],
               "additionalProperties": false
             }
@@ -4523,12 +4568,16 @@
             },
             "updateItem": {
               "type": "string"
+            },
+            "deleteItem": {
+              "type": "string"
             }
           },
           "required": [
             "updateLocations",
             "updateLevel",
-            "updateItem"
+            "updateItem",
+            "deleteItem"
           ],
           "additionalProperties": false
         },
@@ -4571,6 +4620,101 @@
             "successToast"
           ],
           "additionalProperties": false
+        },
+        "associatedOffers": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "object",
+          "properties": {
+            "tip": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "tip"
+          ],
+          "additionalProperties": false
+        },
+        "item": {
+          "type": "object",
+          "properties": {
+            "deleteTitle": {
+              "type": "string"
+            },
+            "deleteDescription": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "deleteTitle",
+            "deleteDescription"
+          ],
+          "additionalProperties": false
+        },
+        "level": {
+          "type": "object",
+          "properties": {
+            "deleteTitle": {
+              "type": "string"
+            },
+            "deleteDescription": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "deleteTitle",
+            "deleteDescription"
+          ],
+          "additionalProperties": false
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "locations": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "reservations": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -4590,7 +4734,14 @@
         "reservation",
         "adjustInventory",
         "toast",
-        "stock"
+        "stock",
+        "associatedOffers",
+        "attributes",
+        "item",
+        "level",
+        "list",
+        "locations",
+        "reservations"
       ],
       "additionalProperties": false
     },
@@ -13566,6 +13717,9 @@
         "subtitle": {
           "type": "string"
         },
+        "deleteWarning": {
+          "type": "string"
+        },
         "list": {
           "type": "object",
           "properties": {
@@ -13626,6 +13780,7 @@
       "required": [
         "domain",
         "subtitle",
+        "deleteWarning",
         "list",
         "delete",
         "edit"

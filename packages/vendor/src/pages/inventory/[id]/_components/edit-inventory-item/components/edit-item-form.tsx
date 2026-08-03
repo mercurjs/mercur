@@ -16,21 +16,22 @@ type EditInventoryItemFormProps = {
   item: HttpTypes.AdminInventoryItem
 }
 
-const EditInventoryItemSchema = z.object({
-  title: z.string().optional(),
-  sku: z.string().min(1),
-})
-
 const getDefaultValues = (item: HttpTypes.AdminInventoryItem) => {
   return {
-    title: item.title ?? undefined,
-    sku: item.sku ?? undefined,
+    title: item.title ?? "",
+    sku: item.sku ?? "",
   }
 }
 
 export const EditInventoryItemForm = ({ item }: EditInventoryItemFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
+
+  const EditInventoryItemSchema = z.object({
+    title: z.string().min(1, t("validation.requiredField")),
+    sku: z.string().optional(),
+  })
+
   const form = useExtendableForm({
     schema: EditInventoryItemSchema,
     model: "inventory_item",
@@ -42,13 +43,16 @@ export const EditInventoryItemForm = ({ item }: EditInventoryItemFormProps) => {
   const { mutateAsync, isPending: isLoading } = useUpdateInventoryItem(item.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    mutateAsync(values as any, {
-      onSuccess: () => {
-        toast.success(t("inventory.toast.updateItem"))
-        handleSuccess()
-      },
-      onError: (e) => toast.error(e.message),
-    })
+    mutateAsync(
+      { title: values.title, sku: values.sku },
+      {
+        onSuccess: () => {
+          toast.success(t("inventory.toast.updateItem"))
+          handleSuccess()
+        },
+        onError: (e) => toast.error(e.message),
+      }
+    )
   })
 
   return (
@@ -79,7 +83,7 @@ export const EditInventoryItemForm = ({ item }: EditInventoryItemFormProps) => {
             render={({ field }) => {
               return (
                 <Form.Item>
-                  <Form.Label>{t("fields.sku")}</Form.Label>
+                  <Form.Label optional>{t("fields.sku")}</Form.Label>
                   <Form.Control>
                     <Input {...field} />
                   </Form.Control>

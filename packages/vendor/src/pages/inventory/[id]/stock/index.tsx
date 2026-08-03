@@ -14,7 +14,8 @@ export const Component = () => {
     searchParams.get(INVENTORY_ITEM_IDS_KEY)?.split(",") || undefined;
 
   const { inventory_items, isPending, isError, error } = useInventoryItems({
-    fields: "id,sku,title,*stock_locations,*location_levels",
+    fields:
+      "id,sku,title,*stock_locations,*location_levels,offers.product_variant.product.title",
     id: inventoryItemIds!,
   });
 

@@ -57,9 +57,8 @@ export const AdjustInventoryForm = ({
 
       if (quantity === null) {
         ctx.addIssue({
-          code: z.ZodIssueCode.invalid_type,
-          expected: "number",
-          received: "undefined",
+          code: z.ZodIssueCode.custom,
+          message: t("inventory.adjustInventory.errors.enterQuantity"),
           path: ["stocked_quantity"],
         })
 

@@ -1,16 +1,16 @@
 import { PencilSquare, Trash } from "@medusajs/icons"
 
-import { InventoryTypes } from "@medusajs/types"
-import { usePrompt } from "@medusajs/ui"
+import { InventoryTypes, StockLocationDTO } from "@medusajs/types"
+import { toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { ActionMenu } from "@components/common/action-menu"
 import { useDeleteInventoryItemLevel } from "@hooks/api/inventory"
 
-export const LocationActions = ({
-  level,
-}: {
-  level: InventoryTypes.InventoryLevelDTO
-}) => {
+type LocationActionsLevel = InventoryTypes.InventoryLevelDTO & {
+  stock_locations?: StockLocationDTO[]
+}
+
+export const LocationActions = ({ level }: { level: LocationActionsLevel }) => {
   const { t } = useTranslation()
   const prompt = usePrompt()
   const { mutateAsync } = useDeleteInventoryItemLevel(
@@ -18,10 +18,15 @@ export const LocationActions = ({
     level.location_id
   )
 
+  const locationName =
+    level.stock_locations?.map((location) => location.name).join(", ") ?? ""
+
   const handleDelete = async () => {
     const res = await prompt({
-      title: t("general.areYouSure"),
-      description: t("inventory.deleteWarning"),
+      title: t("inventory.level.deleteTitle"),
+      description: t("inventory.level.deleteDescription", {
+        location: locationName,
+      }),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
     })
@@ -30,7 +35,10 @@ export const LocationActions = ({
       return
     }
 
-    await mutateAsync()
+    await mutateAsync(undefined, {
+      onSuccess: () => toast.success(t("inventory.levelDeleted")),
+      onError: (e) => toast.error(e.message),
+    })
   }
 
   return (

@@ -1090,9 +1090,7 @@ export function getRouteMap({
               {
                 path: "/reservations",
                 errorElement: <ErrorBoundary />,
-                handle: {
-                  breadcrumb: () => t("reservations.domain"),
-                },
+                handle: { breadcrumb: () => t("reservations.domain") },
                 children: [
                   {
                     path: "",
@@ -1127,7 +1125,9 @@ export function getRouteMap({
                           {
                             path: "edit",
                             lazy: () =>
-                              import("./pages/reservations/[id]/_components/edit-reservation"),
+                              import(
+                                "./pages/reservations/[id]/_components/edit-reservation"
+                              ),
                           },
                           {
                             path: "metadata/edit",
