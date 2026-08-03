@@ -82,7 +82,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
   })
 
   const { inventory_items: searchedItems } = useInventoryItems({
-    fields: "*location_levels,offers.product.title",
+    fields: "id,sku,title,*location_levels,offers.product.title",
     // Only send `q` when there is an actual search term. Passing `undefined`
     // serializes to the literal `q=undefined`, which the backend treats as a
     // search for "undefined" and returns nothing.
@@ -94,7 +94,7 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
   const { inventory_items: presetItems } = useInventoryItems(
     {
       id: props.inventoryItemId ? [props.inventoryItemId] : undefined,
-      fields: "*location_levels,offers.product.title",
+      fields: "id,sku,title,*location_levels,offers.product.title",
     },
     { enabled: !!props.inventoryItemId }
   )
