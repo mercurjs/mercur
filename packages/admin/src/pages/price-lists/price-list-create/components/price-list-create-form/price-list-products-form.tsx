@@ -5,7 +5,6 @@ import {
   RowSelectionState,
 } from "@tanstack/react-table"
 import { useMemo, useRef, useState } from "react"
-import { useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 
 import { OfferDTO } from "@mercurjs/types"
@@ -18,7 +17,6 @@ import { useDataTable } from "../../../../../hooks/use-data-table"
 import { useOfferTableColumns } from "../../../../offers/_components/use-offer-table-columns"
 import { useOfferTableFilters } from "../../../../offers/_components/use-offer-table-filters"
 import { useOfferTableQuery } from "../../../../offers/_components/use-offer-table-query"
-import { PriceListCreateProductsSchema } from "../../../common/schemas"
 import { PricingCreateSchemaType } from "./schema"
 
 const PAGE_SIZE = 50
@@ -27,12 +25,7 @@ const PREFIX = "p"
 const Root = () => {
   const { t } = useTranslation()
   const form = useTabbedForm<PricingCreateSchemaType>()
-  const { control, setValue } = form
-
-  const productRecords = useWatch({
-    control,
-    name: "products",
-  })
+  const { setValue } = form
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
@@ -40,61 +33,46 @@ const Root = () => {
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-  // Ungrouped: one row per offer (a single seller + variant), so each selection
-  // resolves to an unambiguous offer_id + variant_id. Omitting group_by_seller
-  // entirely is the ungrouped path — passing it as "false" 500s the route.
-  const { group_by_seller: _grouped, ...ungroupedParams } =
-    searchParams as Record<string, unknown>
-  const { offers, count, isLoading, isError, error } = useOffers(
-    ungroupedParams,
-    { placeholderData: keepPreviousData }
-  )
+  // Grouped: one row per (store, product). Each row's `offer_ids` covers every
+  // variant that store offers for the product, so selecting a row makes all of
+  // those variants priceable. Variant→offer resolution happens in the Prices tab.
+  const { offers, count, isLoading, isError, error } = useOffers(searchParams, {
+    placeholderData: keepPreviousData,
+  })
 
-  // offer_id -> { product_id, variant_id }, kept across pages so the selection
-  // can be resolved even after paginating away from a picked row.
+  // grouped row id -> { product_id, offer_ids }, kept across pages so a selection
+  // can be resolved even after paginating away.
   const offerMeta = useRef<
-    Record<string, { product_id: string; variant_id: string }>
+    Record<string, { product_id: string; offer_ids: string[] }>
   >({})
   for (const offer of (offers ?? []) as OfferDTO[]) {
     offerMeta.current[offer.id] = {
       product_id: offer.product_id,
-      variant_id: offer.variant_id,
+      offer_ids: offer.offer_ids ?? [offer.id],
     }
   }
 
   const updater: OnChangeFn<RowSelectionState> = (fn) => {
     const state = typeof fn === "function" ? fn(rowSelection) : fn
 
-    const selectedOfferIds = Object.keys(state).filter(
-      (offerId) => offerMeta.current[offerId]
+    const selectedRowIds = Object.keys(state).filter(
+      (rowId) => offerMeta.current[rowId]
     )
 
     const productIds = Array.from(
-      new Set(selectedOfferIds.map((id) => offerMeta.current[id].product_id))
+      new Set(selectedRowIds.map((id) => offerMeta.current[id].product_id))
     )
 
-    const variantOffers = selectedOfferIds.reduce((acc, offerId) => {
-      acc[offerMeta.current[offerId].variant_id] = offerId
-      return acc
-    }, {} as Record<string, string>)
-
-    const updatedRecords = productIds.reduce((acc, id) => {
-      if (productRecords?.[id]) {
-        acc[id] = productRecords[id]
-      }
-      return acc
-    }, {} as PriceListCreateProductsSchema)
+    const offerIds = Array.from(
+      new Set(selectedRowIds.flatMap((id) => offerMeta.current[id].offer_ids))
+    )
 
     setValue(
       "product_ids",
       productIds.map((id) => ({ id })),
       { shouldDirty: true, shouldTouch: true }
     )
-    setValue("products", updatedRecords, {
-      shouldDirty: true,
-      shouldTouch: true,
-    })
-    setValue("variant_offers", variantOffers, {
+    setValue("offer_ids", offerIds, {
       shouldDirty: true,
       shouldTouch: true,
     })

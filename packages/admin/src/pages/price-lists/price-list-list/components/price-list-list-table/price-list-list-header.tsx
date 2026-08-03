@@ -1,5 +1,5 @@
 import { ReactNode, Children } from "react"
-import { Button, Heading, Text } from "@medusajs/ui"
+import { Button, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { Link } from "react-router-dom"
 
@@ -8,9 +8,6 @@ export const PriceListListTitle = () => {
   return (
     <div>
       <Heading>{t("priceLists.domain")}</Heading>
-      <Text className="text-ui-fg-subtle" size="small">
-        {t("priceLists.subtitle")}
-      </Text>
     </div>
   )
 }

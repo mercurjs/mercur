@@ -47,7 +47,7 @@ export const PriceListListDataTable = () => {
   const { searchParams, raw } = usePricingTableQuery({
     pageSize: PAGE_SIZE,
   })
-  const linkQuery = useLinkQuery("price_list", "+seller.name")
+  const linkQuery = useLinkQuery("price_list", "+seller.name,+prices.id")
   const { price_lists, count, isLoading, isError, error } = usePriceLists(
     { ...searchParams, ...linkQuery },
     {

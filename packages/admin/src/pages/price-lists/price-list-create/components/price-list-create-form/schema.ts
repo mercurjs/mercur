@@ -1,7 +1,7 @@
 import i18n from "i18next"
 import { z } from "zod"
 import {
-  PriceListCreateProductsSchema,
+  PriceListCreateOffersSchema,
   PriceListRulesSchema,
 } from "../../../common/schemas"
 
@@ -26,10 +26,12 @@ export const PricingCreateSchema = z.object({
   starts_at: z.date().nullish(),
   ends_at: z.date().nullish(),
   product_ids: z.array(z.object({ id: z.string() })).min(1),
-  products: PriceListCreateProductsSchema,
-  // variant_id -> offer_id, captured from the Offers picker so each price can
-  // carry the offer_id rule that scopes it to a single seller's offer.
-  variant_offers: z.record(z.string(), z.string()).default({}),
+  // Offer ids selected in the picker (every variant of the chosen store+product
+  // groups). The Prices tab hydrates `offers` from these.
+  offer_ids: z.array(z.string()).default([]),
+  // Offer-keyed prices (offer_id -> { variant_id, prices }), so the same variant
+  // from two sellers stays separate.
+  offers: PriceListCreateOffersSchema.default({}),
   rules: PriceListRulesSchema.nullish(),
 })
 
@@ -56,7 +58,7 @@ export const PricingProductsFields = Object.keys(
 ) as (keyof typeof PricingProductsSchema.shape)[]
 
 export const PricingPricesSchema = PricingCreateSchema.pick({
-  products: true,
+  offers: true,
 })
 
 export const PricingPricesFields = Object.keys(

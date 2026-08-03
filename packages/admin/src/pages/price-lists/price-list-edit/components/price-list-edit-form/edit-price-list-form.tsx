@@ -120,21 +120,6 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
           <div className="flex flex-col gap-y-4">
             <Form.Field
               control={form.control}
-              name="title"
-              render={({ field }) => {
-                return (
-                  <Form.Item data-testid="price-list-edit-form-title-item">
-                    <Form.Label data-testid="price-list-edit-form-title-label">{t("fields.title")}</Form.Label>
-                    <Form.Control data-testid="price-list-edit-form-title-control">
-                      <Input {...field} data-testid="price-list-edit-form-title-input" />
-                    </Form.Control>
-                    <Form.ErrorMessage data-testid="price-list-edit-form-title-error" />
-                  </Form.Item>
-                )
-              }}
-            />
-            <Form.Field
-              control={form.control}
               name="status"
               render={({ field: { onChange, ...rest } }) => {
                 return (
@@ -168,6 +153,21 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
                       </RadioGroup>
                     </Form.Control>
                     <Form.ErrorMessage data-testid="price-list-edit-form-status-error" />
+                  </Form.Item>
+                )
+              }}
+            />
+            <Form.Field
+              control={form.control}
+              name="title"
+              render={({ field }) => {
+                return (
+                  <Form.Item data-testid="price-list-edit-form-title-item">
+                    <Form.Label data-testid="price-list-edit-form-title-label">{t("fields.title")}</Form.Label>
+                    <Form.Control data-testid="price-list-edit-form-title-control">
+                      <Input {...field} data-testid="price-list-edit-form-title-input" />
+                    </Form.Control>
+                    <Form.ErrorMessage data-testid="price-list-edit-form-title-error" />
                   </Form.Item>
                 )
               }}

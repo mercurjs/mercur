@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { HttpTypes } from "@medusajs/types"
-import { Button, DatePicker, Divider, toast } from "@medusajs/ui"
+import { Button, DatePicker, toast } from "@medusajs/ui"
 import { useForm } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
@@ -60,7 +60,7 @@ export const PriceListConfigurationForm = ({
         className="flex flex-1 flex-col overflow-hidden"
         onSubmit={handleSubmit}
       >
-        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-8 overflow-auto" data-testid="price-list-configuration-form-body">
+        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-4 overflow-auto" data-testid="price-list-configuration-form-body">
           <Form.Field
             control={form.control}
             name="starts_at"
@@ -68,14 +68,9 @@ export const PriceListConfigurationForm = ({
               return (
                 <Form.Item>
                   <div className="grid grid-cols-1 gap-3">
-                    <div className="flex flex-col">
-                      <Form.Label optional>
-                        {t("priceLists.fields.startsAt.label")}
-                      </Form.Label>
-                      <Form.Hint>
-                        {t("priceLists.fields.startsAt.hint")}
-                      </Form.Hint>
-                    </div>
+                    <Form.Label optional>
+                      {t("priceLists.fields.startsAt.label")}
+                    </Form.Label>
                     <Form.Control>
                       <DatePicker
                         granularity="minute"
@@ -89,7 +84,6 @@ export const PriceListConfigurationForm = ({
               )
             }}
           />
-          <Divider />
           <Form.Field
             control={form.control}
             name="ends_at"
@@ -97,14 +91,9 @@ export const PriceListConfigurationForm = ({
               return (
                 <Form.Item>
                   <div className="grid grid-cols-1 gap-3">
-                    <div className="flex flex-col">
-                      <Form.Label optional>
-                        {t("priceLists.fields.endsAt.label")}
-                      </Form.Label>
-                      <Form.Hint>
-                        {t("priceLists.fields.endsAt.hint")}
-                      </Form.Hint>
-                    </div>
+                    <Form.Label optional>
+                      {t("priceLists.fields.endsAt.label")}
+                    </Form.Label>
                     <Form.Control>
                       <DatePicker
                         granularity="minute"

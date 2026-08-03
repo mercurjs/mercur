@@ -14,7 +14,7 @@ import { PriceListProductSection } from "./components/price-list-product-section
 const Root = ({ children }: { children?: ReactNode }) => {
   const { id } = useParams()
 
-  const linkQuery = useLinkQuery("price_list")
+  const linkQuery = useLinkQuery("price_list", "+prices.id")
   const { price_list, isLoading, isError, error } = usePriceList(id!, linkQuery)
 
   if (isLoading || !price_list) {

@@ -4,8 +4,7 @@ import { castNumber } from "../../../lib/cast-number"
 import { PriceListDateStatus, PriceListStatus } from "./constants"
 import {
   PriceListCreateCurrencyPrice,
-  PriceListCreateProductVariantSchema,
-  PriceListCreateProductsSchema,
+  PriceListCreateOffersSchema,
 } from "./schemas"
 
 const getValues = (priceList: HttpTypes.AdminPriceList) => {
@@ -64,78 +63,55 @@ export const isProductRow = (
   return "variants" in row
 }
 
-const extractPricesFromVariants = (
-  variantId: string,
-  variant: PriceListCreateProductVariantSchema,
-  regions: HttpTypes.AdminRegion[],
-  offerId?: string
+// Build the API price payload from the offer-keyed grid state. Each price
+// carries its offer_id rule so the override is scoped to that seller's offer.
+export const extractPricesFromOffers = (
+  offers: PriceListCreateOffersSchema,
+  regions: HttpTypes.AdminRegion[]
 ) => {
-  // Marketplace price lists target a specific offer: without an offer_id the
-  // price would apply to every seller's offer on this variant, so skip it.
-  if (!offerId) {
-    return []
-  }
+  return Object.entries(offers).flatMap(([offerId, offer]) => {
+    const extractPriceDetails = (
+      price: PriceListCreateCurrencyPrice,
+      priceType: "region" | "currency",
+      id: string
+    ) => {
+      const currencyCode =
+        priceType === "currency"
+          ? id
+          : regions.find((r) => r.id === id)?.currency_code
 
-  const extractPriceDetails = (
-    price: PriceListCreateCurrencyPrice,
-    priceType: "region" | "currency",
-    id: string
-  ) => {
-    const currencyCode =
-      priceType === "currency"
-        ? id
-        : regions.find((r) => r.id === id)?.currency_code
+      if (!currencyCode) {
+        throw new Response(
+          JSON.stringify({ message: i18n.t("validation.currencyCodeNotFound") }),
+          { status: 400, headers: { "Content-Type": "application/json" } }
+        )
+      }
 
-    if (!currencyCode) {
-      throw new Response(
-        JSON.stringify({ message: i18n.t("validation.currencyCodeNotFound") }),
-        { status: 400, headers: { "Content-Type": "application/json" } }
-      )
+      return {
+        amount: castNumber(price.amount!),
+        rules: {
+          offer_id: offerId,
+          ...(priceType === "region" ? { region_id: id } : {}),
+        },
+        currency_code: currencyCode,
+        variant_id: offer.variant_id,
+      }
     }
 
-    return {
-      amount: castNumber(price.amount!),
-      rules: {
-        offer_id: offerId,
-        ...(priceType === "region" ? { region_id: id } : {}),
-      },
-      currency_code: currencyCode,
-      variant_id: variantId,
-    }
-  }
-
-  const currencyPrices = Object.entries(variant.currency_prices || {}).flatMap(
-    ([currencyCode, currencyPrice]) => {
-      return currencyPrice?.amount
-        ? [extractPriceDetails(currencyPrice, "currency", currencyCode)]
-        : []
-    }
-  )
-
-  const regionPrices = Object.entries(variant.region_prices || {}).flatMap(
-    ([regionId, regionPrice]) => {
-      return regionPrice?.amount
-        ? [extractPriceDetails(regionPrice, "region", regionId)]
-        : []
-    }
-  )
-
-  return [...currencyPrices, ...regionPrices]
-}
-
-export const exctractPricesFromProducts = (
-  products: PriceListCreateProductsSchema,
-  regions: HttpTypes.AdminRegion[],
-  variantOffers: Record<string, string> = {}
-) => {
-  return Object.values(products).flatMap(({ variants }) =>
-    Object.entries(variants).flatMap(([variantId, variant]) =>
-      extractPricesFromVariants(
-        variantId,
-        variant,
-        regions,
-        variantOffers[variantId]
-      )
+    const currencyPrices = Object.entries(offer.currency_prices || {}).flatMap(
+      ([currencyCode, currencyPrice]) =>
+        currencyPrice?.amount
+          ? [extractPriceDetails(currencyPrice, "currency", currencyCode)]
+          : []
     )
-  )
+
+    const regionPrices = Object.entries(offer.region_prices || {}).flatMap(
+      ([regionId, regionPrice]) =>
+        regionPrice?.amount
+          ? [extractPriceDetails(regionPrice, "region", regionId)]
+          : []
+    )
+
+    return [...currencyPrices, ...regionPrices]
+  })
 }

@@ -21,7 +21,10 @@ import { OfferDTO } from "@mercurjs/types"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
 import { _DataTable } from "../../../../../components/table/data-table"
-import { usePriceListLinkProducts } from "../../../../../hooks/api/price-lists"
+import {
+  usePriceList,
+  usePriceListLinkProducts,
+} from "../../../../../hooks/api/price-lists"
 import { useOffers } from "../../../../../hooks/api/offers"
 import { useDataTable } from "../../../../../hooks/use-data-table"
 import { useOfferTableColumns } from "../../../../offers/_components/use-offer-table-columns"
@@ -44,40 +47,73 @@ export const PriceListProductSection = ({
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>({})
 
-  const variantIds = useMemo(
-    () =>
-      Array.from(
-        new Set(
-          (priceList.prices ?? [])
-            .map((price) => price.variant_id)
-            .filter(Boolean)
-        )
-      ),
-    [priceList.prices]
-  )
+  // The detail route doesn't populate prices by default (and a price has no
+  // variant_id), so fetch the price rules explicitly to get the offer ids that
+  // this price list targets.
+  const { price_list: pricedList } = usePriceList(priceList.id, {
+    fields: "id,+prices.price_rules.attribute,+prices.price_rules.value",
+  })
+
+  const offerIds = useMemo(() => {
+    const ids = new Set<string>()
+    for (const price of pricedList?.prices ?? []) {
+      const offerId = (price as { rules?: Record<string, string> }).rules
+        ?.offer_id
+      if (offerId) {
+        ids.add(offerId)
+      }
+    }
+    return Array.from(ids)
+  }, [pricedList])
 
   const { searchParams, raw } = useOfferTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
-  const { offers, count, isLoading, isError, error } = useOffers(
-    { ...searchParams, variant_id: variantIds },
+  // Fetch ALL the price list's offers (ungrouped) so the client-side grouping by
+  // store+product is complete; pagination then happens over the grouped rows.
+  const { group_by_seller: _grouped, ...ungroupedParams } =
+    searchParams as Record<string, unknown>
+  const { offers, isLoading, isError, error } = useOffers(
+    { ...ungroupedParams, id: offerIds, limit: offerIds.length || 1, offset: 0 },
     {
       placeholderData: keepPreviousData,
-      enabled: variantIds.length > 0,
+      enabled: offerIds.length > 0,
     }
   )
 
-  const offerToProduct = useRef<Record<string, string>>({})
-  for (const offer of (offers ?? []) as OfferDTO[]) {
-    offerToProduct.current[offer.id] = offer.product_id
+  // One row per (store, product); the Variants column shows how many of that
+  // store's variants are in this price list.
+  const groupedOffers = useMemo(() => {
+    const groups = new Map<string, OfferDTO>()
+    for (const offer of (offers ?? []) as OfferDTO[]) {
+      const key = `${offer.seller_id}:${offer.product_id}`
+      const existing = groups.get(key)
+      if (existing) {
+        existing.variant_count = (existing.variant_count ?? 0) + 1
+        ;(existing.offer_ids ??= []).push(offer.id)
+      } else {
+        groups.set(key, {
+          ...offer,
+          id: key,
+          variant_count: 1,
+          offer_ids: [offer.id],
+        })
+      }
+    }
+    return Array.from(groups.values())
+  }, [offers])
+
+  const groupToProduct = useRef<Record<string, string>>({})
+  for (const group of groupedOffers) {
+    groupToProduct.current[group.id] = group.product_id
   }
 
   const selectedProductIds = () =>
     Array.from(
       new Set(
         Object.keys(rowSelection)
-          .map((offerId) => offerToProduct.current[offerId])
+          .map((groupId) => groupToProduct.current[groupId])
           .filter(Boolean)
       )
     )
@@ -87,8 +123,8 @@ export const PriceListProductSection = ({
   const { mutateAsync } = usePriceListLinkProducts(priceList.id)
 
   const { table } = useDataTable({
-    data: (offers ?? []) as OfferDTO[],
-    count,
+    data: groupedOffers,
+    count: groupedOffers.length,
     columns,
     enablePagination: true,
     enableRowSelection: true,
@@ -151,7 +187,7 @@ export const PriceListProductSection = ({
                     label: t("priceLists.products.actions.editPrices"),
                     to: "products/edit",
                     icon: <PencilSquare />,
-                    disabled: count === 0,
+                    disabled: groupedOffers.length === 0,
                     disabledTooltip: t("priceLists.products.actions.editPricesDisabled"),
                   },
                 ],
@@ -180,7 +216,7 @@ export const PriceListProductSection = ({
           table={table}
           filters={filters}
           columns={columns}
-          count={count}
+          count={groupedOffers.length}
           pageSize={PAGE_SIZE}
           isLoading={isLoading}
           navigateTo={(row) => `/products/${row.original.product_id}`}

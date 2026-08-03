@@ -1,11 +1,11 @@
 import { PencilSquare } from "@medusajs/icons"
 import { HttpTypes } from "@medusajs/types"
-import { Container, Heading } from "@medusajs/ui"
+import { Badge, Container, Heading } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
+import { BadgeListSummary } from "../../../../../components/common/badge-list-summary"
 import { NoRecords } from "../../../../../components/common/empty-table-content"
-import { ListSummary } from "../../../../../components/common/list-summary"
 import { Skeleton } from "../../../../../components/common/skeleton"
 import { useCustomerGroups } from "../../../../../hooks/api/customer-groups"
 
@@ -67,18 +67,23 @@ export const PriceListCustomerAvailabilitySection = ({
         ) : isPending || !customer_groups ? (
           <Skeleton className="h-5 w-full max-w-48" />
         ) : (
-          <div className="txt-small-plus text-ui-fg-muted flex items-center gap-x-1.5">
-            <span className="text-ui-fg-subtle">
-              {t("priceLists.fields.customerAvailability.attribute")}
-            </span>
-            <span>·</span>
-            <span>{t("operators.in")}</span>
-            <span>·</span>
-            <ListSummary
-              list={customer_groups.map((group) => group.name!)}
-              n={2}
-              className="txt-small-plus text-ui-fg-muted"
-            />
+          <div className="bg-ui-bg-subtle shadow-borders-base align-center flex justify-around rounded-md p-2">
+            <div className="text-ui-fg-subtle txt-compact-xsmall flex items-center whitespace-nowrap">
+              <Badge
+                size="2xsmall"
+                className="txt-compact-xsmall-plus tag-neutral-text mx-1 inline-block truncate"
+              >
+                {t("priceLists.fields.customerAvailability.attribute")}
+              </Badge>
+              <span className="txt-compact-2xsmall mx-1 inline-block">
+                {t("operators.in")}
+              </span>
+              <BadgeListSummary
+                inline
+                className="!txt-compact-small-plus"
+                list={customer_groups.map((group) => group.name!)}
+              />
+            </div>
           </div>
         )}
       </div>
