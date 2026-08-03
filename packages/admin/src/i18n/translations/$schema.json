@@ -4807,6 +4807,54 @@
             "editQuantityWarning"
           ],
           "additionalProperties": false
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "locations": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "reservations": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
@@ -4831,7 +4879,10 @@
         "reservation",
         "adjustInventory",
         "toast",
-        "stock"
+        "stock",
+        "list",
+        "locations",
+        "reservations"
       ],
       "additionalProperties": false
     },

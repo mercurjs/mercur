@@ -18,6 +18,11 @@ export const CreateInventoryItemSchema = z.object({
   locations: z.record(z.string(), optionalInt).optional(),
 })
 
+export const buildCreateInventoryItemSchema = (t: (key: string) => string) =>
+  CreateInventoryItemSchema.extend({
+    title: z.string().min(1, t("inventory.create.errors.titleRequired")),
+  })
+
 export type CreateInventoryItemSchema = z.infer<
   typeof CreateInventoryItemSchema
 >

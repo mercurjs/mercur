@@ -34,14 +34,37 @@ export const useInventoryStockColumns = (
       }),
       helper.column({
         id: "sku",
-        name: "SKU",
-        header: "SKU",
+        name: t("fields.sku"),
+        header: t("fields.sku"),
         cell: (context) => {
           const item = context.row.original
 
           return (
             <DataGridReadOnlyCell context={context} color="normal">
               <span title={item.sku || undefined}>{item.sku || "-"}</span>
+            </DataGridReadOnlyCell>
+          )
+        },
+        disableHiding: true,
+      }),
+      helper.column({
+        id: "product",
+        name: t("fields.product"),
+        header: t("fields.product"),
+        cell: (context) => {
+          const item = context.row.original as HttpTypes.AdminInventoryItem & {
+            offers?: {
+              product_variant?: { product?: { title?: string } }
+            }[]
+          }
+          const productTitle =
+            item.offers?.[0]?.product_variant?.product?.title
+
+          return (
+            <DataGridReadOnlyCell context={context} color="normal">
+              <span title={productTitle || undefined}>
+                {productTitle || "-"}
+              </span>
             </DataGridReadOnlyCell>
           )
         },

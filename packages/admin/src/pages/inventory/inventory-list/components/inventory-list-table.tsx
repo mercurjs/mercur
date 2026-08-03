@@ -1,4 +1,5 @@
 import { InventoryTypes, ProductVariantDTO } from "@medusajs/types"
+import { Buildings } from "@medusajs/icons"
 import { Container, Heading, Text } from "@medusajs/ui"
 
 import { ColumnDef, RowSelectionState } from "@tanstack/react-table"
@@ -145,6 +146,11 @@ export const InventoryListDataTable = () => {
           { key: "reserved_quantity", label: t("inventory.reserved") },
         ]}
         defaultOrder="title"
+        noRecords={{
+          icon: <Buildings className="text-ui-fg-subtle" />,
+          title: t("inventory.list.noRecordsTitle"),
+          message: t("inventory.list.noRecordsMessage"),
+        }}
         navigateTo={(row) => `${row.id}`}
         commands={[
           {

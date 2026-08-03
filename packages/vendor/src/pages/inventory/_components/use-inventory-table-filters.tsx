@@ -10,6 +10,12 @@ export const useInventoryTableFilters = () => {
 
   const filters: Filter[] = []
 
+  filters.push({
+    type: "string",
+    key: "sku",
+    label: t("fields.sku"),
+  })
+
   if (stock_locations) {
     const stockLocationFilter: Filter = {
       type: "select",
@@ -26,24 +32,6 @@ export const useInventoryTableFilters = () => {
   }
 
   filters.push({
-    type: "string",
-    key: "material",
-    label: t("fields.material"),
-  })
-
-  filters.push({
-    type: "string",
-    key: "sku",
-    label: t("fields.sku"),
-  })
-
-  filters.push({
-    type: "string",
-    key: "mid_code",
-    label: t("fields.midCode"),
-  })
-
-  filters.push({
     type: "number",
     key: "height",
     label: t("fields.height"),
@@ -56,26 +44,15 @@ export const useInventoryTableFilters = () => {
   })
 
   filters.push({
-    type: "number",
-    key: "length",
-    label: t("fields.length"),
+    type: "string",
+    key: "mid_code",
+    label: t("fields.midCode"),
   })
 
   filters.push({
-    type: "number",
-    key: "weight",
-    label: t("fields.weight"),
-  })
-
-  filters.push({
-    type: "select",
-    options: [
-      { label: t("fields.true"), value: "true" },
-      { label: t("fields.false"), value: "false" },
-    ],
-    key: "requires_shipping",
-    multiple: false,
-    label: t("fields.requiresShipping"),
+    type: "string",
+    key: "material",
+    label: t("fields.material"),
   })
 
   return filters

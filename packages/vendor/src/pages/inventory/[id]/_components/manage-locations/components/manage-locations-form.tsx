@@ -1,5 +1,5 @@
 import { AdminInventoryItem, AdminStockLocation } from "@medusajs/types";
-import { Button, Text, toast } from "@medusajs/ui";
+import { Button, Input, Text, toast } from "@medusajs/ui";
 import { useTranslation } from "react-i18next";
 import {
   RouteDrawer,
@@ -29,6 +29,15 @@ export const ManageLocationsForm = ({
   const [selectedLocationIds, setSelectedLocationIds] = useState<Set<string>>(
     existingLocationLevels,
   );
+  const [search, setSearch] = useState("");
+
+  const filteredLocations = useMemo(
+    () =>
+      locations.filter((location) =>
+        (location.name ?? "").toLowerCase().includes(search.toLowerCase()),
+      ),
+    [locations, search],
+  );
 
   const handleLocationSelect = (locationId: string, selected: boolean) => {
     setSelectedLocationIds((prev) => {
@@ -42,7 +51,9 @@ export const ManageLocationsForm = ({
     });
   };
 
-  const { mutateAsync } = useBatchInventoryItemLocationLevels(item.id);
+  const { mutateAsync, isPending } = useBatchInventoryItemLocationLevels(
+    item.id,
+  );
 
   const handleSubmit = async () => {
     const toCreate = Array.from(selectedLocationIds).filter(
@@ -116,7 +127,15 @@ export const ManageLocationsForm = ({
           </div>
         </div>
 
-        {locations.map((location) => (
+        <Input
+          type="search"
+          placeholder={t("general.search")}
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          data-testid="manage-locations-search-input"
+        />
+
+        {filteredLocations.map((location) => (
           <LocationItem
             key={location.id}
             selected={selectedLocationIds.has(location.id)}
@@ -132,7 +151,7 @@ export const ManageLocationsForm = ({
               {t("actions.cancel")}
             </Button>
           </RouteDrawer.Close>
-          <Button onClick={handleSubmit} size="small" isLoading={false}>
+          <Button onClick={handleSubmit} size="small" isLoading={isPending}>
             {t("actions.save")}
           </Button>
         </div>

@@ -70,6 +70,7 @@ export const InventoryStockForm = ({
 
             if (newQuantity !== originalQuantity) {
               payload.update.push({
+                id: level.id,
                 inventory_item_id,
                 location_id,
                 stocked_quantity: newQuantity,
