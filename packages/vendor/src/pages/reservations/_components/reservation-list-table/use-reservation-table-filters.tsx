@@ -10,6 +10,12 @@ export const useReservationTableFilters = () => {
 
   const filters: Filter[] = []
 
+  filters.push({
+    type: "string",
+    key: "sku",
+    label: t("fields.sku"),
+  })
+
   if (stock_locations) {
     const stockLocationFilter: Filter = {
       type: "select",

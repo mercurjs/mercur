@@ -45,7 +45,7 @@ const useColumns = () => {
 export const ReservationListTable = () => {
   const { t } = useTranslation()
 
-  const { searchParams } = useReservationTableQuery({
+  const { searchParams, raw } = useReservationTableQuery({
     pageSize: PAGE_SIZE,
   })
 
@@ -91,9 +91,25 @@ export const ReservationListTable = () => {
         count={count}
         isLoading={isPending}
         filters={filters}
+        queryObject={raw}
         pagination
+        search
+        orderBy={[
+          { key: "inventory_item.title", label: t("fields.title") },
+          { key: "inventory_item.sku", label: t("fields.sku") },
+          { key: "created_at", label: t("fields.createdAt") },
+          { key: "updated_at", label: t("fields.updatedAt") },
+        ]}
+        defaultOrderBy="inventory_item.title"
         navigateTo={(row) => row.id}
-        search={false}
+        noRecords={{
+          title: t("reservations.list.noRecordsTitle"),
+          message: t("reservations.list.noRecordsMessage"),
+          action: {
+            to: "create",
+            label: t("actions.create"),
+          },
+        }}
       />
     </Container>
   )

@@ -206,6 +206,62 @@ medusaIntegrationTestRunner({
         expect(res.data.count).toBe(1)
       })
 
+      it("resolves the product behind each reservation's inventory item", async () => {
+        const a = await seedSellerWithReservation({
+          email: "resv-p@medusa.js",
+          name: "Resv Store P",
+          offerSku: "RESV-OF-P",
+        })
+
+        const res = await api.get(`/vendor/reservations`, a.headers)
+        expect(res.status).toEqual(200)
+
+        const row = (
+          res.data.reservations as Array<{
+            inventory_item_id: string
+            inventory_item?: {
+              sku?: string
+              offers?: Array<{ product?: { id?: string; title?: string } }>
+            }
+          }>
+        ).find((r) => r.inventory_item_id === a.itemId)
+
+        expect(row?.inventory_item?.sku).toBe("RESV-OF-P")
+        // Product column data must resolve through the offer link.
+        expect(row?.inventory_item?.offers?.[0]?.product?.id).toBeTruthy()
+        expect(row?.inventory_item?.offers?.[0]?.product?.title).toBeTruthy()
+      })
+
+      it("filters the list by sku, scoped to the caller", async () => {
+        const a = await seedSellerWithReservation({
+          email: "resv-g@medusa.js",
+          name: "Resv Store G",
+          offerSku: "RESV-OF-G",
+        })
+        await seedSellerWithReservation({
+          email: "resv-h@medusa.js",
+          name: "Resv Store H",
+          offerSku: "RESV-OF-H",
+        })
+
+        // A's own sku returns A's reservation.
+        const match = await api.get(
+          `/vendor/reservations?sku=RESV-OF-G`,
+          a.headers
+        )
+        expect(match.status).toEqual(200)
+        expect(match.data.count).toBe(1)
+        expect(match.data.reservations[0].inventory_item_id).toBe(a.itemId)
+
+        // B's sku, queried by A, never leaks B's reservation.
+        const leak = await api.get(
+          `/vendor/reservations?sku=RESV-OF-H`,
+          a.headers
+        )
+        expect(leak.status).toEqual(200)
+        expect(leak.data.count).toBe(0)
+      })
+
       it("returns empty when filtering by another seller's inventory item", async () => {
         const a = await seedSellerWithReservation({
           email: "resv-c@medusa.js",

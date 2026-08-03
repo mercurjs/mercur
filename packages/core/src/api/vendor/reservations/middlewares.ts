@@ -55,6 +55,45 @@ const getSellerInventoryItemIds = async (
   )
 }
 
+// The list exposes a free-text SKU filter; SKU lives on the linked inventory
+// item, which the reservation query can't filter through a nested relation
+// path. Resolve the matching inventory item ids and narrow the query by
+// `inventory_item_id`. Runs before the seller scope so a sku query is
+// intersected with the seller's own items rather than replacing it.
+const maybeApplyInventoryItemSkuFilter = async (
+  req: AuthenticatedMedusaRequest,
+  _res: MedusaResponse,
+  next: MedusaNextFunction
+) => {
+  const sku = req.filterableFields?.sku as string | undefined
+  if (!sku) {
+    return next()
+  }
+
+  delete req.filterableFields.sku
+
+  const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
+  const { data: inventoryItems } = await query.graph({
+    entity: "inventory_item",
+    fields: ["id"],
+    filters: { sku },
+  })
+
+  const matchedIds = inventoryItems.map((item) => item.id as string)
+  const existing = req.filterableFields.inventory_item_id
+
+  if (existing) {
+    const existingIds = Array.isArray(existing) ? existing : [existing]
+    req.filterableFields.inventory_item_id = existingIds.filter((id) =>
+      matchedIds.includes(id as string)
+    )
+  } else {
+    req.filterableFields.inventory_item_id = matchedIds
+  }
+
+  return next()
+}
+
 const applySellerReservationsFilter = async (
   req: AuthenticatedMedusaRequest,
   _res: MedusaResponse,
@@ -152,6 +191,7 @@ export const vendorReservationsMiddlewares: MiddlewareRoute[] = [
         VendorGetReservationsParams,
         vendorReservationQueryConfig.list
       ),
+      maybeApplyInventoryItemSkuFilter,
       applySellerReservationsFilter,
     ],
   },

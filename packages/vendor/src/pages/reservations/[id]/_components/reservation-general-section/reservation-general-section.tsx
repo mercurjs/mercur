@@ -1,5 +1,5 @@
 import { AdminReservationResponse, HttpTypes } from "@medusajs/types"
-import { Container, Heading } from "@medusajs/ui"
+import { Container, Heading, Text } from "@medusajs/ui"
 
 import { ActionMenu } from "@components/common/action-menu"
 import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
@@ -56,10 +56,10 @@ export const ReservationGeneralSection = ({
           ]}
         />
       </div>
-      <DisplayField model="reservation" zone="general" id="line_item_id" data={reservation}>
+      <DisplayField model="reservation" zone="general" id="item_id" data={reservation}>
         <SectionRow
-          title={t("inventory.reservation.lineItemId")}
-          value={reservation.line_item_id} // TODO fetch order instead + add link
+          title={t("inventory.reservation.itemId")}
+          value={inventoryItem?.sku ?? inventoryItem?.id}
         />
       </DisplayField>
       <DisplayField model="reservation" zone="general" id="description" data={reservation}>
@@ -77,19 +77,31 @@ export const ReservationGeneralSection = ({
       <DisplayField model="reservation" zone="general" id="stocked_quantity" data={reservation}>
         <SectionRow
           title={t("inventory.reservation.inStockAtLocation")}
-          value={locationLevel?.stocked_quantity}
+          value={
+            <Text size="small" leading="compact">
+              {locationLevel?.stocked_quantity ?? "-"}
+            </Text>
+          }
         />
       </DisplayField>
       <DisplayField model="reservation" zone="general" id="available_quantity" data={reservation}>
         <SectionRow
           title={t("inventory.reservation.availableAtLocation")}
-          value={locationLevel?.available_quantity}
+          value={
+            <Text size="small" leading="compact">
+              {locationLevel?.available_quantity ?? "-"}
+            </Text>
+          }
         />
       </DisplayField>
       <DisplayField model="reservation" zone="general" id="reserved_quantity" data={reservation}>
         <SectionRow
           title={t("inventory.reservation.reservedAtLocation")}
-          value={locationLevel?.reserved_quantity}
+          value={
+            <Text size="small" leading="compact">
+              {locationLevel?.reserved_quantity ?? "-"}
+            </Text>
+          }
         />
       </DisplayField>
       <DisplayExtensionZone
@@ -98,7 +110,7 @@ export const ReservationGeneralSection = ({
         data={reservation}
         builtInFieldIds={[
           "title",
-          "line_item_id",
+          "item_id",
           "description",
           "location",
           "stocked_quantity",
