@@ -147,6 +147,7 @@ medusaIntegrationTestRunner({
             shipping_profile_id: shippingProfile.id,
             inventory_items: [
               {
+                sku: opts.offerSku,
                 title: `Item${tag}`,
                 required_quantity: 1,
                 stock_levels: [
