@@ -2968,6 +2968,51 @@
       "canceled": "Canceled"
     }
   },
+  "reviews": {
+    "domain": "Reviews",
+    "status": {
+      "pending": "Pending",
+      "published": "Published",
+      "rejected": "Rejected"
+    },
+    "fields": {
+      "rating": "Rating",
+      "content": "Content",
+      "response": "Response"
+    },
+    "filters": {
+      "stars_one": "{{count}} star",
+      "stars_other": "{{count}} stars"
+    },
+    "list": {
+      "columns": {
+        "reviewId": "Review ID",
+        "rating": "Rating",
+        "content": "Content",
+        "customer": "Customer",
+        "date": "Date",
+        "status": "Status",
+        "response": "Response"
+      },
+      "noRecordsTitle": "No reviews yet",
+      "noRecordsMessage": "Once customer submit reviews, they'll appear here",
+      "noResultsTitle": "No results",
+      "noResultsMessage": "Try changing the filters or search query"
+    },
+    "detail": {
+      "customer": "Customer",
+      "order": "Order"
+    },
+    "respond": {
+      "action": "Respond",
+      "header": "Respond to review",
+      "label": "Response",
+      "confirmTitle": "Respond to review",
+      "confirmDescription": "Your response will be published on the storefront and visible to customers. Once saved, it cannot be edited or deleted.",
+      "successToast": "Response was successfully sent.",
+      "validation": "Please write a response"
+    }
+  },
   "profile": {
     "domain": "Profile",
     "manageYourProfileDetails": "Manage your profile details.",

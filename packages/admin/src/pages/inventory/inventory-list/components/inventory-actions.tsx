@@ -3,7 +3,7 @@ import { PencilSquare, Trash } from "@medusajs/icons"
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { InventoryItemDTO } from "@medusajs/types"
 import { useDeleteInventoryItem } from "../../../../hooks/api/inventory"
-import { usePrompt } from "@medusajs/ui"
+import { toast, usePrompt } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 
 export const InventoryActions = ({ item }: { item: InventoryItemDTO }) => {
@@ -13,8 +13,8 @@ export const InventoryActions = ({ item }: { item: InventoryItemDTO }) => {
 
   const handleDelete = async () => {
     const res = await prompt({
-      title: t("general.areYouSure"),
-      description: t("inventory.deleteWarning"),
+      title: t("inventory.item.deleteTitle"),
+      description: t("inventory.item.deleteDescription"),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
     })
@@ -23,7 +23,10 @@ export const InventoryActions = ({ item }: { item: InventoryItemDTO }) => {
       return
     }
 
-    await mutateAsync()
+    await mutateAsync(undefined, {
+      onSuccess: () => toast.success(t("inventory.toast.deleteItem")),
+      onError: (e) => toast.error(e.message),
+    })
   }
 
   return (

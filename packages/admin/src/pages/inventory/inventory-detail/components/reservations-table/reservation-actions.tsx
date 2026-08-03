@@ -16,9 +16,20 @@ export const ReservationActions = ({
   const { mutateAsync } = useDeleteReservationItem(reservation.id)
 
   const handleDelete = async () => {
+    if (reservation.line_item_id) {
+      await prompt({
+        title: t("inventory.reservation.deleteTitle"),
+        description: t("inventory.reservation.deleteBlockedDescription"),
+        confirmText: t("inventory.reservation.gotIt"),
+        cancelText: t("actions.cancel"),
+      })
+
+      return
+    }
+
     const res = await prompt({
-      title: t("general.areYouSure"),
-      description: t("inventory.deleteWarning"),
+      title: t("inventory.reservation.deleteTitle"),
+      description: t("inventory.reservation.deleteDescription"),
       confirmText: t("actions.delete"),
       cancelText: t("actions.cancel"),
     })

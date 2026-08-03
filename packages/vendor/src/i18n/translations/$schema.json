@@ -5,12 +5,12 @@
     "general": {
       "type": "object",
       "properties": {
-          "unknownError": {
-            "type": "string"
-          },
-          "notAvailable": {
-            "type": "string"
-          },
+        "unknownError": {
+          "type": "string"
+        },
+        "notAvailable": {
+          "type": "string"
+        },
         "fullList": {
           "type": "string"
         },
@@ -448,21 +448,21 @@
     "validation": {
       "type": "object",
       "properties": {
-          "requiredField": {
-            "type": "string"
-          },
-          "valueRequired": {
-            "type": "string"
-          },
-          "atLeastOnePrice": {
-            "type": "string"
-          },
-          "currencyCodeNotFound": {
-            "type": "string"
-          },
-          "shippingOptionIdMissing": {
-            "type": "string"
-          },
+        "requiredField": {
+          "type": "string"
+        },
+        "valueRequired": {
+          "type": "string"
+        },
+        "atLeastOnePrice": {
+          "type": "string"
+        },
+        "currencyCodeNotFound": {
+          "type": "string"
+        },
+        "shippingOptionIdMissing": {
+          "type": "string"
+        },
         "rules": {
           "type": "object",
           "properties": {
@@ -9984,22 +9984,22 @@
     "promotions": {
       "type": "object",
       "properties": {
-          "templates": {
-            "type": "object",
-            "properties": {
-              "percentageOffProduct": {
-                "type": "object",
-                "properties": {
-                  "title": {
-                    "type": "string"
-                  },
-                  "description": {
-                    "type": "string"
-                  }
+        "templates": {
+          "type": "object",
+          "properties": {
+            "percentageOffProduct": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
                 }
               }
             }
-          },
+          }
+        },
         "list": {
           "type": "object",
           "properties": {
@@ -16757,6 +16757,193 @@
     },
     "$schema": {
       "type": "string"
+    },
+    "reviews": {
+      "type": "object",
+      "properties": {
+        "domain": {
+          "type": "string"
+        },
+        "status": {
+          "type": "object",
+          "properties": {
+            "pending": {
+              "type": "string"
+            },
+            "published": {
+              "type": "string"
+            },
+            "rejected": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "pending",
+            "published",
+            "rejected"
+          ],
+          "additionalProperties": false
+        },
+        "fields": {
+          "type": "object",
+          "properties": {
+            "rating": {
+              "type": "string"
+            },
+            "content": {
+              "type": "string"
+            },
+            "response": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "rating",
+            "content",
+            "response"
+          ],
+          "additionalProperties": false
+        },
+        "filters": {
+          "type": "object",
+          "properties": {
+            "stars_one": {
+              "type": "string"
+            },
+            "stars_other": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "stars_one",
+            "stars_other"
+          ],
+          "additionalProperties": false
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "columns": {
+              "type": "object",
+              "properties": {
+                "reviewId": {
+                  "type": "string"
+                },
+                "rating": {
+                  "type": "string"
+                },
+                "content": {
+                  "type": "string"
+                },
+                "customer": {
+                  "type": "string"
+                },
+                "date": {
+                  "type": "string"
+                },
+                "status": {
+                  "type": "string"
+                },
+                "response": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "reviewId",
+                "rating",
+                "content",
+                "customer",
+                "date",
+                "status",
+                "response"
+              ],
+              "additionalProperties": false
+            },
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            },
+            "noResultsTitle": {
+              "type": "string"
+            },
+            "noResultsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "columns",
+            "noRecordsTitle",
+            "noRecordsMessage",
+            "noResultsTitle",
+            "noResultsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "detail": {
+          "type": "object",
+          "properties": {
+            "customer": {
+              "type": "string"
+            },
+            "order": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "customer",
+            "order"
+          ],
+          "additionalProperties": false
+        },
+        "respond": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string"
+            },
+            "header": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "confirmTitle": {
+              "type": "string"
+            },
+            "confirmDescription": {
+              "type": "string"
+            },
+            "successToast": {
+              "type": "string"
+            },
+            "validation": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "action",
+            "header",
+            "label",
+            "confirmTitle",
+            "confirmDescription",
+            "successToast",
+            "validation"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "domain",
+        "status",
+        "fields",
+        "filters",
+        "list",
+        "detail",
+        "respond"
+      ],
+      "additionalProperties": false
     }
   },
   "required": [
@@ -16822,7 +17009,8 @@
     "dateTime",
     "views",
     "auth",
-    "attributes"
+    "attributes",
+    "reviews"
   ],
   "additionalProperties": false
 }

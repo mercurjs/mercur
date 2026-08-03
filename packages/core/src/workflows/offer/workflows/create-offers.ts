@@ -55,37 +55,55 @@ export const createOffersWorkflow: ReturnWorkflow<
   function (input: CreateOffersWorkflowInput) {
     const validate = createHook("validate", { input })
 
-    const inventoryItemsToCreate = transform({ input }, ({ input }) => {
-      const items: Array<{
-        sku?: string
-        title: string
-        location_levels: Array<{
-          location_id: string
-          stocked_quantity: number
-        }>
-      }> = []
-      const offerSpans: Array<{ start: number; length: number }> = []
+    const variantIds = transform({ input }, ({ input }) =>
+      Array.from(new Set(input.offers.map((o) => o.variant_id))),
+    )
 
-      input.offers.forEach((offer) => {
-        if (!offer.inventory_items?.length) {
-          throw new MedusaError(
-            MedusaError.Types.INVALID_DATA,
-            "Offer must have at least one inventory item",
-          )
-        }
-        const start = items.length
-        offer.inventory_items.forEach((item) => {
-          items.push({
-            sku: item.sku,
-            title: item.title ?? item.sku ?? offer.sku,
-            location_levels: item.stock_levels ?? [],
+    const { data: variants } = useQueryGraphStep({
+      entity: "product_variant",
+      fields: ["id", "title", "ean", "upc", "price_set.id", "product.id"],
+      filters: { id: variantIds },
+    }).config({ name: "get-variants" })
+
+    const inventoryItemsToCreate = transform(
+      { input, variants },
+      ({ input, variants }) => {
+        const variantTitleById = new Map(
+          variants.map((v) => [v.id, v.title as string | undefined]),
+        )
+
+        const items: Array<{
+          sku?: string
+          title: string
+          location_levels: Array<{
+            location_id: string
+            stocked_quantity: number
+          }>
+        }> = []
+        const offerSpans: Array<{ start: number; length: number }> = []
+
+        input.offers.forEach((offer) => {
+          if (!offer.inventory_items?.length) {
+            throw new MedusaError(
+              MedusaError.Types.INVALID_DATA,
+              "Offer must have at least one inventory item",
+            )
+          }
+          const variantTitle = variantTitleById.get(offer.variant_id)
+          const start = items.length
+          offer.inventory_items.forEach((item) => {
+            items.push({
+              sku: item.sku,
+              title: variantTitle ?? item.title ?? item.sku ?? offer.sku,
+              location_levels: item.stock_levels ?? [],
+            })
           })
+          offerSpans.push({ start, length: offer.inventory_items.length })
         })
-        offerSpans.push({ start, length: offer.inventory_items.length })
-      })
 
-      return { items, offerSpans }
-    })
+        return { items, offerSpans }
+      },
+    )
 
     const itemsForCreation = transform(
       { inventoryItemsToCreate },
@@ -110,16 +128,6 @@ export const createOffersWorkflow: ReturnWorkflow<
       seller_id: sellerId,
       inventory_item_ids: createdInventoryItemIds,
     })
-
-    const variantIds = transform({ input }, ({ input }) =>
-      Array.from(new Set(input.offers.map((o) => o.variant_id))),
-    )
-
-    const { data: variants } = useQueryGraphStep({
-      entity: "product_variant",
-      fields: ["id", "ean", "upc", "price_set.id", "product.id"],
-      filters: { id: variantIds },
-    }).config({ name: "get-variants" })
 
     const stripped = transform(
       { input, variants, variantIds },

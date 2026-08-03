@@ -1084,7 +1084,9 @@
   },
   "inventory": {
     "domain": "Inventory",
-    "subtitle": "Manage your inventory items",
+    "subtitle": "Manage inventory items.",
+    "store": "Store",
+    "associatedOffers": "Associated offers",
     "reserved": "Reserved",
     "available": "Available",
     "locationLevels": "Locations",
@@ -1094,7 +1096,18 @@
     "deleteWarning": "You are about to delete an inventory item. This action cannot be undone.",
     "editItemDetails": "Edit item details",
     "quantityAcrossLocations": "{{quantity}} across {{locations}} locations",
-    "levelDeleted": "Inventory level deleted successfully.",
+    "levelDeleted": "Inventory level was successfully deleted.",
+    "attributes": {
+      "tip": "These are default values used to describe the item. They are not managed in Settings → Product Attributes."
+    },
+    "item": {
+      "deleteTitle": "Delete inventory item",
+      "deleteDescription": "You are about to delete an inventory item. This may affect Store inventory records. Before proceeding, make sure the Vendor has confirmed this change to avoid inconsistencies."
+    },
+    "level": {
+      "deleteTitle": "Delete inventory level",
+      "deleteDescription": "You're about to delete inventory level from {{location}}. This will delete stock and reservations for this location and can't be undone. Before proceeding, make sure the Vendor has confirmed this change to avoid inconsistencies."
+    },
     "create": {
       "title": "Create Inventory Item",
       "details": "Details",
@@ -1110,24 +1123,38 @@
       "header": "Reservation of {{itemName}}",
       "editItemDetails": "Edit reservation",
       "lineItemId": "Line item ID",
+      "itemId": "Item ID",
       "orderID": "Order ID",
       "description": "Description",
       "location": "Location",
+      "goToInventoryItem": "Go to inventory item",
       "inStockAtLocation": "In stock at this location",
       "availableAtLocation": "Available at this location",
       "reservedAtLocation": "Reserved at this location",
       "reservedAmount": "Reserve amount",
+      "reserved": "Reserved",
+      "storeLocationWarningLabel": "Warning",
+      "storeLocationWarning": "You're modifying a reservation at a Store Location. Please confirm it with the Vendor to avoid data inconsistencies.",
       "create": "Create reservation",
       "itemToReserve": "Item to reserve",
+      "itemPlaceholder": "Select item",
+      "locationPlaceholder": "Select location",
       "quantityPlaceholder": "How much do you want to reserve?",
       "descriptionPlaceholder": "What type of reservation is this?",
       "successToast": "Reservation was successfully created.",
       "updateSuccessToast": "Reservation was successfully updated.",
       "deleteSuccessToast": "Reservation was successfully deleted.",
+      "deleteTitle": "Delete reservation",
+      "deleteDescription": "You are about to delete a reservation. This may affect Store inventory records. Before proceeding, make sure the Vendor has confirmed this change to avoid inconsistencies.",
+      "deleteBlockedDescription": "This reservation cannot be deleted because it's linked to an unfulfilled order.",
+      "gotIt": "Got it",
       "errors": {
-        "noAvaliableQuantity": "Stock location doesn't have available quantity.",
+        "noAvaliableQuantity": "Stock location doesn't have available quantity",
         "quantityOutOfRange": "Minimum quantity is 1 and maximum quantity is {{max}}",
-        "idRequired": "Inventory item ID is required"
+        "pleaseEnterQuantity": "Please enter quantity",
+        "idRequired": "Inventory item ID is required",
+        "selectLocation": "Please select a location",
+        "enterQuantity": "Please enter a quantity"
       }
     },
     "adjustInventory": {
@@ -1136,9 +1163,10 @@
       }
     },
     "toast": {
-      "updateLocations": "Locations updated successfully.",
-      "updateLevel": "Inventory level updated successfully.",
-      "updateItem": "Inventory item updated successfully."
+      "updateLocations": "Locations were successfully updated.",
+      "updateLevel": "Inventory level was successfully updated.",
+      "updateItem": "Inventory item was successfully updated.",
+      "deleteItem": "Inventory item was successfully deleted."
     },
     "stock": {
       "title": "Update inventory levels",
@@ -1148,7 +1176,11 @@
       "disablePrompt_one": "You are about to disable {{count}} location level. This action cannot be undone.",
       "disablePrompt_other": "You are about to disable {{count}} location levels. This action cannot be undone.",
       "disabledToggleTooltip": "Cannot disable: clear incoming and/or reserved quantity before disabling.",
-      "successToast": "Inventory levels updated successfully."
+      "foreignStoreTooltip": "You can't enable stock for this item at this location because it belongs to another Store.",
+      "successToast": "Stock levels were successfully updated.",
+      "confirmTitle": "Edit stock levels",
+      "confirmDescription": "You are about to edit stock levels in Stores locations. Before making changes to stock levels, please confirm them with the Vendors to avoid data inconsistencies or misunderstandings.",
+      "editQuantityWarning": "You are editing Store location quantity. Before making changes to stock levels, please confirm them with the Vendor to avoid data inconsistencies or misunderstandings."
     }
   },
   "giftCards": {
@@ -3146,7 +3178,26 @@
   "reservations": {
     "domain": "Reservations",
     "subtitle": "Manage the reserved quantity of inventory items.",
-    "deleteWarning": "You are about to delete a reservation. This action cannot be undone."
+    "deleteWarning": "You are about to delete a reservation. This action cannot be undone.",
+    "fields": {
+      "date": "Date",
+      "product": "Product",
+      "store": "Store"
+    },
+    "list": {
+      "noRecordsTitle": "No reservations yet",
+      "noRecordsMessage": "Create reservations to manage the reserved quantity of inventory items"
+    },
+    "delete": {
+      "title": "Delete reservation",
+      "description": "You are about to delete a reservation. This may affect your Store inventory records. Before proceeding, make sure the Vendor has confirmed this change to avoid inconsistencies.",
+      "lockedTitle": "Delete reservation",
+      "lockedDescription": "This reservation cannot be deleted because it's linked to an unfulfilled order."
+    },
+    "edit": {
+      "lockedTitle": "Edit reservation",
+      "lockedDescription": "This reservation cannot be edited because it's linked to an unfulfilled order."
+    }
   },
   "salesChannels": {
     "domain": "Sales Channels",

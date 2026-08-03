@@ -1,5 +1,5 @@
 import type { HttpTypes } from "@medusajs/types";
-import { Button, Input, Text, toast } from "@medusajs/ui";
+import { Button, InlineTip, Input, Text, toast } from "@medusajs/ui";
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm, useWatch } from "react-hook-form";
@@ -59,9 +59,8 @@ export const AdjustInventoryForm = ({
 
       if (quantity === null) {
         ctx.addIssue({
-          code: z.ZodIssueCode.invalid_type,
-          expected: "number",
-          received: "undefined",
+          code: z.ZodIssueCode.custom,
+          message: t("validation.requiredField"),
           path: ["stocked_quantity"],
         });
 
@@ -176,6 +175,9 @@ export const AdjustInventoryForm = ({
               );
             }}
           />
+          <InlineTip variant="warning" label={t("general.warning")}>
+            {t("inventory.stock.editQuantityWarning")}
+          </InlineTip>
         </RouteDrawer.Body>
         <RouteDrawer.Footer data-testid="inventory-adjust-inventory-form-footer">
           <div className="flex items-center justify-end gap-x-2" data-testid="inventory-adjust-inventory-form-footer-actions">
