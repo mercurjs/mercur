@@ -11,7 +11,7 @@ import { InventoryItemAttributeSection } from "./components/inventory-item-attri
 import { InventoryItemGeneralSection } from "./components/inventory-item-general-section"
 import { InventoryItemLocationLevelsSection } from "./components/inventory-item-location-levels"
 import { InventoryItemReservationsSection } from "./components/inventory-item-reservations"
-import { InventoryItemVariantsSection } from "./components/inventory-item-variants/variants-section"
+import { AssociatedOffersSection } from "./components/inventory-item-offers/associated-offers-section"
 import { INVENTORY_DETAIL_FIELDS } from "./constants"
 
 import type { inventoryItemLoader } from "./loader"
@@ -67,12 +67,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
       </TwoColumnPage.Main>
       <TwoColumnPage.Sidebar data-testid="inventory-detail-sidebar">
         <WidgetZone id="inventory.detail.side" data={inventory_item}>
-          {inventory_item.variants &&
-            inventory_item.variants?.length > 0 && (
-              <InventoryItemVariantsSection
-                variants={inventory_item.variants}
-              />
-            )}
+          <AssociatedOffersSection offers={inventory_item.offers} />
           <InventoryItemAttributeSection inventoryItem={inventory_item} />
         </WidgetZone>
       </TwoColumnPage.Sidebar>
@@ -86,6 +81,6 @@ export const InventoryDetailPage = Object.assign(Root, {
   MainGeneralSection: InventoryItemGeneralSection,
   MainLocationLevelsSection: InventoryItemLocationLevelsSection,
   MainReservationsSection: InventoryItemReservationsSection,
-  SidebarVariantsSection: InventoryItemVariantsSection,
+  SidebarOffersSection: AssociatedOffersSection,
   SidebarAttributeSection: InventoryItemAttributeSection,
 })

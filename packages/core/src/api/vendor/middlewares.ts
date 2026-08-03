@@ -32,6 +32,7 @@ import { vendorRefundReasonsMiddlewares } from "./refund-reasons/middlewares"
 import { vendorReservationsMiddlewares } from "./reservations/middlewares"
 import { vendorReturnReasonsMiddlewares } from "./return-reasons/middlewares"
 import { vendorReturnsMiddlewares } from "./returns/middlewares"
+import { vendorReviewsMiddlewares } from "./reviews/middlewares"
 import { vendorSalesChannelsMiddlewares } from "./sales-channels/middlewares"
 import { vendorSellersMiddlewares } from "./sellers/middlewares"
 import { vendorShippingOptionsMiddlewares } from "./shipping-options/middlewares"
@@ -43,7 +44,6 @@ import { vendorUploadsMiddlewares } from "./uploads/middlewares"
 import { ensureSellerMiddleware, scanUnauthenticatedRoutes, unlessBaseUrl, vendorCorsMiddleware } from "../utils"
 import { vendorProductAttributesMiddlewares } from "./product-attributes/middlewares"
 import { vendorProductTagsMiddlewares } from "./product-tags/middlewares"
-import { vendorReviewsMiddlewares } from "./reviews/middlewares"
 
 const unauthenticatedRoutes = [
   /^\/vendor\/sellers$/,
@@ -119,6 +119,7 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorReservationsMiddlewares,
   ...vendorReturnReasonsMiddlewares,
   ...vendorReturnsMiddlewares,
+  ...vendorReviewsMiddlewares,
   ...vendorSalesChannelsMiddlewares,
   ...vendorSellersMiddlewares,
   ...vendorShippingOptionsMiddlewares,
@@ -128,5 +129,4 @@ export const vendorMiddlewares: MiddlewareRoute[] = [
   ...vendorStoresMiddlewares,
   ...vendorUploadsMiddlewares,
   ...vendorProductTagsMiddlewares,
-  ...vendorReviewsMiddlewares,
 ]

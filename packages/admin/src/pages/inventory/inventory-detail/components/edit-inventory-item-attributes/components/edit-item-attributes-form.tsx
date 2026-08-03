@@ -1,6 +1,6 @@
 import type * as zod from "zod"
 
-import { Button, Input, toast } from "@medusajs/ui"
+import { Button, InlineTip, Input, toast } from "@medusajs/ui"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 // import { InventoryTypes } from "@medusajs/types"
@@ -72,6 +72,9 @@ export const EditInventoryItemAttributesForm = ({
         data-testid="inventory-edit-item-attributes-keybound-form"
       >
         <RouteDrawer.Body className="flex flex-1 flex-col gap-y-4 overflow-auto" data-testid="inventory-edit-item-attributes-form-body">
+          <InlineTip label={t("general.tip")}>
+            {t("inventory.attributes.tip")}
+          </InlineTip>
           <Form.Field
             control={form.control}
             name="height"

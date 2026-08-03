@@ -2,8 +2,6 @@ import { AuthenticatedMedusaRequest, MedusaResponse } from "@medusajs/framework"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
 import { VendorReviewListResponse } from "@mercurjs/types"
 
-import sellerReview from "../../../links/seller-review"
-
 export const GET = async (
   req: AuthenticatedMedusaRequest,
   res: MedusaResponse<VendorReviewListResponse>
@@ -11,14 +9,14 @@ export const GET = async (
   const query = req.scope.resolve(ContainerRegistrationKeys.QUERY)
 
   const { data: reviews, metadata } = await query.graph({
-    entity: sellerReview.entryPoint,
-    fields: req.queryConfig.fields.map((field) => `review.${field}`),
+    entity: "review",
+    fields: req.queryConfig.fields,
     filters: req.filterableFields,
     pagination: req.queryConfig.pagination,
   })
 
   res.json({
-    reviews: reviews.map((relation) => relation.review),
+    reviews,
     count: metadata?.count ?? 0,
     offset: metadata?.skip ?? 0,
     limit: metadata?.take ?? 0,

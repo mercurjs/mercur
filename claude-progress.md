@@ -14,6 +14,62 @@ session detail aggressively. The per-spec source of truth lives in
   `bun run test:integration:http -- <pattern>`
 - **Current blocker**: none
 
+## Session — Admin Inventory (MER-139), branch `feat/admin-inventory`
+
+Spec + audit: `docs/specs/spec-3-admin-inventory/`. Implemented (type-clean; deps built; lint
+warnings pre-existing only): **D-01** remove admin create-inventory-item flow; **D-04** drop
+"Details" suffix; **D-06** Edit Attributes `InlineTip`; **D-12** Manage-Qty warning `InlineTip`;
+**D-13** Edit Details flip (Title required / SKU optional); **D-15** toast copy → Figma verbatim +
+subtitle; **D-18** Create Reservation warning `InlineTip`. Added all prompt/warning i18n keys and
+regenerated the `$schema.json` inventory block (inventory subtree 66/66 parity).
+
+Also done: **D-16** delete item + delete level prompts (verbatim copy, `{{location}}` interp);
+**D-17** reservation delete two cases (discriminator `reservation.line_item_id` → unfulfilled-order
+"Got it" info prompt vs deletable confirm); **D-19** bulk "Edit stock levels" pre-confirm prompt;
+**D-14** adjust-qty empty-quantity message. Schema parity 67/67.
+
+Also done (frontend, build-clean): **D-02** Product + Store columns + reorder (In stock before
+Reserved); list now requests `+variants.product.title,+seller.name`. **D-03** filters =
+SKU/Store/Location/Height/Width/MID code/Material (dropped Length/Weight/Requires-shipping) +
+default sort `title` ascending (**G3b**); `seller_id` flows through the query. **D-14** reservation
+required-field messages (schema moved to `buildCreateReservationSchema(t)`). Fixed a pre-existing
+`AdminInventoryItemParams`→`AdminInventoryItemsParams` typo.
+
+All touched files type-clean (`tsc --noEmit`); remaining tsc errors are pre-existing
+(`@custom-types/*` alias cascade + untouched `inventory-metadata`/`inventory-stock-form`).
+
+**Backend-remaining (needs running API — NOT verifiable in this worktree per project constraints):**
+- Admin `inventory-items` route override in `packages/core` so the **Store filter** (`seller_id`
+  param) is accepted and the **Store column** seller-link is guaranteed to resolve. (Store column
+  may already resolve via global links in `fields`; the `seller_id` filter needs the override.)
+- **D-05** Associated-offers sidebar (needs offer reverse-link on the inventory detail contract).
+- **D-07** bulk store-ownership gate; **D-08** vendor notifications (subscribers); **D-09/D-10**
+  admin location scoping to the item's store.
+- **D-11** locations `…` right-align — uses canonical `columnHelper.action`; live visual check.
+See `docs/specs/spec-3-admin-inventory/blueprint.md` for the route-override plan.
+
+## Integration test (spin up to verify)
+
+`integration-tests/http/inventory/admin/inventory.spec.ts` — type-clean (only jest-global noise
+under standalone tsc, same as every spec). Run later with:
+`bun run test:integration:http -- inventory/admin/inventory`. It seeds a seller + offer-backed
+inventory item (stock location → shipping → product → offer) and asserts:
+1. **Store column** — `GET /admin/inventory-items?fields=+seller.name` resolves the seller link
+   (should PASS; validates D-02 Store column).
+2. **Product via offer** — offer inventory links to the *offer, not the variant* (memory
+   `offer-inventory-not-on-variant`), so `inventory_item.variants` is EMPTY; the product is
+   reached through the offer. Test asserts `item.offer?.product?.title`.
+3. **seller_id filter** — specifies D-03 backend; expected RED until the core route override lands.
+
+⚠️ **Finding to action:** because offer inventory has no variant link, the current frontend Product
+column (`variants?.[0]?.product?.title` in `use-inventory-table-columns.tsx`) will show `-` for
+offer items. The list must reach Product through the offer instead. Test #2 confirms the exact
+offer field/alias to use (verify `offer` vs `offers` when the suite runs), then update the column +
+the list `fields` request accordingly.
+
+Verify: `bun install` done; built `@mercurjs/types|client|dashboard-shared`; `tsc --noEmit`
+touched-files clean (remaining errors are pre-existing `@custom-types/*` alias + workspace drift).
+
 ## Session — Vendor Campaigns Figma Sync (branch `feat/vendor-campaigns-figma-sync`)
 
 Spec: `docs/specs/spec-1-vendor-campaigns/` (brief / blueprint / assert / deltas).
