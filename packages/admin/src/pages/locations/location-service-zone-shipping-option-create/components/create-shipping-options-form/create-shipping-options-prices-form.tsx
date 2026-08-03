@@ -87,27 +87,27 @@ const Root = ({ type }: PricingPricesFormProps) => {
 
   useEffect(() => {
     if (!isLoading && isPickup) {
-      if (currencies.length > 0) {
+      if (currencies?.length) {
         currencies.forEach((currency) => {
           form.setValue(`currency_prices.${currency}`, "0")
         })
       }
 
-      if (regions.length > 0) {
+      if (regions?.length) {
         regions.forEach((region) => {
           form.setValue(`region_prices.${region.id}`, "0")
         })
       }
     }
   }, [
-	isLoading,
-	isPickup,
-	currencies.length,
-	regions.length,
-	currencies,
-	form,
-	regions
-])
+    isLoading,
+    isPickup,
+    currencies?.length,
+    regions?.length,
+    currencies,
+    form,
+    regions,
+  ])
 
   if (isStoreError) {
     throw storeError
