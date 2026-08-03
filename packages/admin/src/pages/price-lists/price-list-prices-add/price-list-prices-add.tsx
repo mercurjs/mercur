@@ -28,7 +28,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   }
 
   return (
-    <RouteFocusModal prev="../..">
+    <RouteFocusModal prev={`/price-lists/${id}`}>
       {ready && (
         Children.count(children) > 0 ? (
           children

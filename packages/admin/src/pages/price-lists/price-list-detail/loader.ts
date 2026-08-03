@@ -5,7 +5,7 @@ import { sdk } from "../../../lib/client"
 import { queryClient } from "../../../lib/query-client"
 
 const pricingDetailQuery = (id: string) => {
-  const query = getLinkQuery("price_list")
+  const query = getLinkQuery("price_list", "+prices.id")
 
   return {
     queryKey: priceListsQueryKeys.detail(id, query),

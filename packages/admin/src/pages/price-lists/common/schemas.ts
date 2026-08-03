@@ -56,6 +56,22 @@ export type PriceListCreateProductsSchema = z.infer<
   typeof PriceListCreateProductsSchema
 >
 
+// Offer-keyed prices: one entry per offer (a seller's variant listing) so the
+// same variant offered by two sellers stays separate.
+export const PriceListCreateOfferSchema = z.object({
+  variant_id: z.string(),
+  currency_prices: z.record(PriceListCreateCurrencyPriceSchema.optional()),
+  region_prices: z.record(PriceListCreateRegionPriceSchema.optional()),
+})
+
+export type PriceListCreateOffer = z.infer<typeof PriceListCreateOfferSchema>
+
+export const PriceListCreateOffersSchema = z.record(PriceListCreateOfferSchema)
+
+export type PriceListCreateOffersSchema = z.infer<
+  typeof PriceListCreateOffersSchema
+>
+
 export const PriceListUpdateCurrencyPriceSchema = z.object({
   amount: z.string().or(z.number()).optional(),
   id: z.string().nullish(),
@@ -94,3 +110,17 @@ export const PriceListUpdateProductsSchema = z.record(
 export type PriceListUpdateProductsSchema = z.infer<
   typeof PriceListUpdateProductsSchema
 >
+
+export const PriceListUpdateOfferSchema = z.object({
+  variant_id: z.string(),
+  currency_prices: z.record(PriceListUpdateCurrencyPriceSchema.optional()),
+  region_prices: z.record(PriceListUpdateRegionPriceSchema.optional()),
+})
+
+export const PriceListUpdateOffersSchema = z.record(PriceListUpdateOfferSchema)
+
+export type PriceListUpdateOffersSchema = z.infer<
+  typeof PriceListUpdateOffersSchema
+>
+
+export type PriceListUpdateOffer = z.infer<typeof PriceListUpdateOfferSchema>

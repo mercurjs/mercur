@@ -7,7 +7,6 @@ import {
   IconButton,
   Input,
   RadioGroup,
-  Select,
   Text,
   Textarea,
   clx,
@@ -105,53 +104,53 @@ const Root = () => {
           }}
         />
         <div className="flex flex-col gap-y-4">
-          <div className="grid grid-cols-1  gap-4 md:grid-cols-2">
-            <Form.Field
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                <Form.Item data-testid="price-list-details-form-title-item">
-                  <Form.Label data-testid="price-list-details-form-title-label">{t("fields.title")}</Form.Label>
-                  <Form.Control data-testid="price-list-details-form-title-control">
-                    <Input {...field} data-testid="price-list-details-form-title-input" />
-                  </Form.Control>
-                  <Form.ErrorMessage data-testid="price-list-details-form-title-error" />
-                </Form.Item>
-              )}
-            />
-            <Form.Field
-              control={form.control}
-              name="status"
-              render={({ field: { onChange, ref, ...field } }) => (
-                <Form.Item data-testid="price-list-details-form-status-item">
-                  <Form.Label data-testid="price-list-details-form-status-label">
-                    {t("priceLists.fields.status.label")}
-                  </Form.Label>
-                  <Form.Control data-testid="price-list-details-form-status-control">
-                    <Select
-                      dir={direction}
-                      {...field}
-                      onValueChange={onChange}
-                      data-testid="price-list-details-form-status-select"
-                    >
-                      <Select.Trigger ref={ref} data-testid="price-list-details-form-status-trigger">
-                        <Select.Value data-testid="price-list-details-form-status-value" />
-                      </Select.Trigger>
-                      <Select.Content data-testid="price-list-details-form-status-content">
-                        <Select.Item value="active" data-testid="price-list-details-form-status-option-active">
-                          {t("priceLists.fields.status.options.active")}
-                        </Select.Item>
-                        <Select.Item value="draft" data-testid="price-list-details-form-status-option-draft">
-                          {t("priceLists.fields.status.options.draft")}
-                        </Select.Item>
-                      </Select.Content>
-                    </Select>
-                  </Form.Control>
-                  <Form.ErrorMessage data-testid="price-list-details-form-status-error" />
-                </Form.Item>
-              )}
-            />
-          </div>
+          <Form.Field
+            control={form.control}
+            name="status"
+            render={({ field: { onChange, ...rest } }) => (
+              <Form.Item data-testid="price-list-details-form-status-item">
+                <Form.Label data-testid="price-list-details-form-status-label">
+                  {t("priceLists.fields.status.label")}
+                </Form.Label>
+                <Form.Control data-testid="price-list-details-form-status-control">
+                  <RadioGroup
+                    dir={direction}
+                    onValueChange={onChange}
+                    {...rest}
+                    className="grid grid-cols-1 gap-4 md:grid-cols-2"
+                    data-testid="price-list-details-form-status-radio-group"
+                  >
+                    <RadioGroup.ChoiceBox
+                      value="draft"
+                      label={t("priceLists.fields.status.options.draft")}
+                      description={t("priceLists.fields.status.descriptions.draft")}
+                      data-testid="price-list-details-form-status-option-draft"
+                    />
+                    <RadioGroup.ChoiceBox
+                      value="active"
+                      label={t("priceLists.fields.status.options.active")}
+                      description={t("priceLists.fields.status.descriptions.active")}
+                      data-testid="price-list-details-form-status-option-active"
+                    />
+                  </RadioGroup>
+                </Form.Control>
+                <Form.ErrorMessage data-testid="price-list-details-form-status-error" />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="title"
+            render={({ field }) => (
+              <Form.Item data-testid="price-list-details-form-title-item">
+                <Form.Label data-testid="price-list-details-form-title-label">{t("fields.title")}</Form.Label>
+                <Form.Control data-testid="price-list-details-form-title-control">
+                  <Input {...field} data-testid="price-list-details-form-title-input" />
+                </Form.Control>
+                <Form.ErrorMessage data-testid="price-list-details-form-title-error" />
+              </Form.Item>
+            )}
+          />
           <Form.Field
             control={form.control}
             name="description"
@@ -167,20 +166,15 @@ const Root = () => {
           />
         </div>
         <Divider />
-        <Form.Field
-          control={form.control}
-          name="starts_at"
-          render={({ field }) => (
-            <Form.Item data-testid="price-list-details-form-starts-at-item">
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div className="flex flex-col">
-                  <Form.Label optional data-testid="price-list-details-form-starts-at-label">
-                    {t("priceLists.fields.startsAt.label")}
-                  </Form.Label>
-                  <Form.Hint data-testid="price-list-details-form-starts-at-hint">
-                    {t("priceLists.fields.startsAt.hint")}
-                  </Form.Hint>
-                </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+          <Form.Field
+            control={form.control}
+            name="starts_at"
+            render={({ field }) => (
+              <Form.Item data-testid="price-list-details-form-starts-at-item">
+                <Form.Label optional data-testid="price-list-details-form-starts-at-label">
+                  {t("priceLists.fields.startsAt.label")}
+                </Form.Label>
                 <Form.Control data-testid="price-list-details-form-starts-at-control">
                   <DatePicker
                     granularity="minute"
@@ -189,24 +183,18 @@ const Root = () => {
                     data-testid="price-list-details-form-starts-at-input"
                   />
                 </Form.Control>
-              </div>
-              <Form.ErrorMessage data-testid="price-list-details-form-starts-at-error" />
-            </Form.Item>
-          )}
-        />
-        <Divider />
-        <Form.Field
-          control={form.control}
-          name="ends_at"
-          render={({ field }) => (
-            <Form.Item data-testid="price-list-details-form-ends-at-item">
-              <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                <div className="flex flex-col">
-                  <Form.Label optional data-testid="price-list-details-form-ends-at-label">
-                    {t("priceLists.fields.endsAt.label")}
-                  </Form.Label>
-                  <Form.Hint data-testid="price-list-details-form-ends-at-hint">{t("priceLists.fields.endsAt.hint")}</Form.Hint>
-                </div>
+                <Form.ErrorMessage data-testid="price-list-details-form-starts-at-error" />
+              </Form.Item>
+            )}
+          />
+          <Form.Field
+            control={form.control}
+            name="ends_at"
+            render={({ field }) => (
+              <Form.Item data-testid="price-list-details-form-ends-at-item">
+                <Form.Label optional data-testid="price-list-details-form-ends-at-label">
+                  {t("priceLists.fields.endsAt.label")}
+                </Form.Label>
                 <Form.Control data-testid="price-list-details-form-ends-at-control">
                   <DatePicker
                     granularity="minute"
@@ -215,11 +203,11 @@ const Root = () => {
                     data-testid="price-list-details-form-ends-at-input"
                   />
                 </Form.Control>
-              </div>
-              <Form.ErrorMessage data-testid="price-list-details-form-ends-at-error" />
-            </Form.Item>
-          )}
-        />
+                <Form.ErrorMessage data-testid="price-list-details-form-ends-at-error" />
+              </Form.Item>
+            )}
+          />
+        </div>
         <Divider />
         <Form.Field
           control={form.control}
