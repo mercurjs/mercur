@@ -221,6 +221,9 @@ export const ReservationCreateForm = (props: { inventoryItemId?: string }) => {
                           }}
                           {...field}
                           disabled={!inventoryItemId}
+                          placeholder={t(
+                            "inventory.reservation.locationPlaceholder"
+                          )}
                           options={(stock_locations ?? []).map(
                             (stockLocation) => ({
                               label: stockLocation.name,

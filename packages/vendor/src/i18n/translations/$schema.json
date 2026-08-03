@@ -4480,6 +4480,9 @@
             },
             "gotIt": {
               "type": "string"
+            },
+            "locationPlaceholder": {
+              "type": "string"
             }
           },
           "required": [
@@ -4504,7 +4507,8 @@
             "deleteTitle",
             "deleteDescription",
             "deleteBlockedDescription",
-            "gotIt"
+            "gotIt",
+            "locationPlaceholder"
           ],
           "additionalProperties": false
         },
