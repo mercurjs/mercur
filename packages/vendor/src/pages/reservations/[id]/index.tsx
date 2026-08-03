@@ -5,11 +5,10 @@ import { UIMatch } from "react-router-dom"
 import { TwoColumnPageSkeleton } from "@components/common/skeleton"
 import { TwoColumnPage } from "@components/layout/pages"
 import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
-import { useDashboardExtension } from "@/extensions"
 import { useReservationItem } from "@hooks/api/reservations"
 import { useInventoryItem } from "@hooks/api"
 import { ReservationGeneralSection } from "./_components/reservation-general-section"
-import { InventoryItemGeneralSection } from "../../inventory/[id]/_components/inventory-item-general-section"
+import { ReservationInventorySection } from "./_components/reservation-inventory-section"
 
 type ReservationDetailBreadcrumbProps =
   UIMatch<HttpTypes.AdminReservationResponse>
@@ -47,8 +46,6 @@ export const Component = () => {
     useLinkQuery("inventory_item", "*location_levels")
   )
 
-  const { getWidgets } = useDashboardExtension()
-
   if (isLoading || !reservation) {
     return (
       <TwoColumnPageSkeleton
@@ -61,15 +58,7 @@ export const Component = () => {
   }
 
   return (
-    <TwoColumnPage
-      widgets={{
-        before: getWidgets("reservation.details.before"),
-        after: getWidgets("reservation.details.after"),
-        sideBefore: getWidgets("reservation.details.side.before"),
-        sideAfter: getWidgets("reservation.details.side.after"),
-      }}
-      data={reservation}
-    >
+    <TwoColumnPage data={reservation} showJSON showMetadata>
       <TwoColumnPage.Main>
         <WidgetZone id="reservations.detail.main" data={reservation}>
           <ReservationGeneralSection reservation={reservation} />
@@ -78,7 +67,7 @@ export const Component = () => {
       <TwoColumnPage.Sidebar>
         <WidgetZone id="reservations.detail.side" data={reservation}>
           {inventory_item && (
-            <InventoryItemGeneralSection inventoryItem={inventory_item!} />
+            <ReservationInventorySection inventoryItem={inventory_item!} />
           )}
         </WidgetZone>
       </TwoColumnPage.Sidebar>

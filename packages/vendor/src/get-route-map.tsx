@@ -1086,11 +1086,60 @@ export function getRouteMap({
                 ],
               },
 
-              // RESERVATIONS - disabled
-              // {
-              //   path: "/reservations",
-              //   ...
-              // },
+              // RESERVATIONS
+              {
+                path: "/reservations",
+                errorElement: <ErrorBoundary />,
+                handle: {
+                  breadcrumb: () => t("reservations.domain"),
+                },
+                children: [
+                  {
+                    path: "",
+                    lazy: () => import("./pages/reservations"),
+                    children: [
+                      {
+                        path: "create",
+                        lazy: () => import("./pages/reservations/create"),
+                      },
+                    ],
+                  },
+                  {
+                    path: ":id",
+                    lazy: async () => {
+                      const { Breadcrumb } = await import(
+                        "./pages/reservations/[id]"
+                      );
+                      return {
+                        Component: Outlet,
+                        handle: {
+                          breadcrumb: (match: UIMatch<any>) => (
+                            <Breadcrumb {...match} />
+                          ),
+                        },
+                      };
+                    },
+                    children: [
+                      {
+                        path: "",
+                        lazy: () => import("./pages/reservations/[id]"),
+                        children: [
+                          {
+                            path: "edit",
+                            lazy: () =>
+                              import("./pages/reservations/[id]/_components/edit-reservation"),
+                          },
+                          {
+                            path: "metadata/edit",
+                            lazy: () =>
+                              import("./pages/reservations/[id]/metadata"),
+                          },
+                        ],
+                      },
+                    ],
+                  },
+                ],
+              },
             ],
             customMainRoutes,
           ),

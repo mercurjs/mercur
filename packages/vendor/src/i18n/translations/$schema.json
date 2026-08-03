@@ -4375,7 +4375,7 @@
             "editItemDetails": {
               "type": "string"
             },
-            "lineItemId": {
+            "itemId": {
               "type": "string"
             },
             "orderID": {
@@ -4387,6 +4387,9 @@
             "location": {
               "type": "string"
             },
+            "goToInventoryItem": {
+              "type": "string"
+            },
             "inStockAtLocation": {
               "type": "string"
             },
@@ -4396,13 +4399,19 @@
             "reservedAtLocation": {
               "type": "string"
             },
-            "reservedAmount": {
+            "reserved": {
               "type": "string"
             },
             "create": {
               "type": "string"
             },
             "itemToReserve": {
+              "type": "string"
+            },
+            "itemPlaceholder": {
+              "type": "string"
+            },
+            "locationPlaceholder": {
               "type": "string"
             },
             "quantityPlaceholder": {
@@ -4420,6 +4429,9 @@
             "deleteSuccessToast": {
               "type": "string"
             },
+            "gotIt": {
+              "type": "string"
+            },
             "errors": {
               "type": "object",
               "properties": {
@@ -4428,11 +4440,27 @@
                 },
                 "quantityOutOfRange": {
                   "type": "string"
+                },
+                "pleaseEnterQuantity": {
+                  "type": "string"
+                },
+                "idRequired": {
+                  "type": "string"
+                },
+                "selectLocation": {
+                  "type": "string"
+                },
+                "enterQuantity": {
+                  "type": "string"
                 }
               },
               "required": [
                 "noAvaliableQuantity",
-                "quantityOutOfRange"
+                "quantityOutOfRange",
+                "pleaseEnterQuantity",
+                "idRequired",
+                "selectLocation",
+                "enterQuantity"
               ],
               "additionalProperties": false
             }
@@ -4440,21 +4468,25 @@
           "required": [
             "header",
             "editItemDetails",
-            "lineItemId",
+            "itemId",
             "orderID",
             "description",
             "location",
+            "goToInventoryItem",
             "inStockAtLocation",
             "availableAtLocation",
             "reservedAtLocation",
-            "reservedAmount",
+            "reserved",
             "create",
             "itemToReserve",
+            "itemPlaceholder",
+            "locationPlaceholder",
             "quantityPlaceholder",
             "descriptionPlaceholder",
             "successToast",
             "updateSuccessToast",
             "deleteSuccessToast",
+            "gotIt",
             "errors"
           ],
           "additionalProperties": false
@@ -13534,14 +13566,69 @@
         "subtitle": {
           "type": "string"
         },
-        "deleteWarning": {
-          "type": "string"
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "lockedTitle": {
+              "type": "string"
+            },
+            "lockedDescription": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "lockedTitle",
+            "lockedDescription"
+          ],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "lockedTitle": {
+              "type": "string"
+            },
+            "lockedDescription": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "lockedTitle",
+            "lockedDescription"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "domain",
         "subtitle",
-        "deleteWarning"
+        "list",
+        "delete",
+        "edit"
       ],
       "additionalProperties": false
     },

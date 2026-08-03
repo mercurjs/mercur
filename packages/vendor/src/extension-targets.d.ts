@@ -141,6 +141,7 @@ declare module "@mercurjs/dashboard-sdk" {
     "price-lists": true
     "products": true
     "promotions": true
+    "reservations": true
     "reviews": true
   }
 
@@ -238,7 +239,7 @@ declare module "@mercurjs/dashboard-sdk" {
       formZones: "edit"
       formTabs: Record<string, string>
       displayZones: "general"
-      displayFieldIds: "available_quantity" | "description" | "line_item_id" | "location" | "reserved_quantity" | "stocked_quantity" | "title"
+      displayFieldIds: "available_quantity" | "description" | "item_id" | "location" | "reserved_quantity" | "stocked_quantity" | "title"
     }
     "seller": {
       formZones: "address" | "edit" | "onboarding" | "payment-details" | "professional-details"

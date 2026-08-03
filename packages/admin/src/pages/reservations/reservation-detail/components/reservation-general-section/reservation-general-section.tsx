@@ -1,5 +1,5 @@
 import { AdminReservationResponse } from "@medusajs/types"
-import { Container, Heading } from "@medusajs/ui"
+import { Container, Heading, Text } from "@medusajs/ui"
 import { DisplayExtensionZone, DisplayField } from "@mercurjs/dashboard-shared"
 
 import { ActionMenu } from "../../../../../components/common/action-menu"
@@ -108,7 +108,11 @@ export const ReservationGeneralSection = ({
       >
         <SectionRow
           title={t("inventory.reservation.inStockAtLocation")}
-          value={locationLevel?.stocked_quantity}
+          value={
+            <Text size="small" leading="compact">
+              {locationLevel?.stocked_quantity ?? "-"}
+            </Text>
+          }
         />
       </DisplayField>
       <DisplayField
@@ -119,7 +123,11 @@ export const ReservationGeneralSection = ({
       >
         <SectionRow
           title={t("inventory.reservation.availableAtLocation")}
-          value={locationLevel?.available_quantity}
+          value={
+            <Text size="small" leading="compact">
+              {locationLevel?.available_quantity ?? "-"}
+            </Text>
+          }
         />
       </DisplayField>
       <DisplayField
@@ -130,7 +138,11 @@ export const ReservationGeneralSection = ({
       >
         <SectionRow
           title={t("inventory.reservation.reservedAtLocation")}
-          value={locationLevel?.reserved_quantity}
+          value={
+            <Text size="small" leading="compact">
+              {locationLevel?.reserved_quantity ?? "-"}
+            </Text>
+          }
         />
       </DisplayField>
       <DisplayExtensionZone
