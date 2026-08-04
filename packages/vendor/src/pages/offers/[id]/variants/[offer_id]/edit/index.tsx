@@ -88,27 +88,27 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
             name="manage_inventory"
             render={({ field: { value, onChange, ...field } }) => (
               <Form.Item>
-                <div>
-                  <div className="flex items-start justify-between">
+                <div className="flex items-start gap-x-3">
+                  <Form.Control>
+                    <Switch
+                      {...field}
+                      checked={value}
+                      onCheckedChange={(checked) => {
+                        if (!checked) {
+                          form.setValue("allow_backorder", false)
+                        }
+                        onChange(checked)
+                      }}
+                    />
+                  </Form.Control>
+                  <div className="flex flex-col">
                     <Form.Label>{t("offers.fields.manageInventory")}</Form.Label>
-                    <Form.Control>
-                      <Switch
-                        {...field}
-                        checked={value}
-                        onCheckedChange={(checked) => {
-                          if (!checked) {
-                            form.setValue("allow_backorder", false)
-                          }
-                          onChange(checked)
-                        }}
-                      />
-                    </Form.Control>
+                    <Form.Hint>
+                      {t("offers.variant.inventory.manageInventoryHint")}
+                    </Form.Hint>
                   </div>
-                  <Form.Hint>
-                    {t("offers.variant.inventory.manageInventoryHint")}
-                  </Form.Hint>
-                  <Form.ErrorMessage />
                 </div>
+                <Form.ErrorMessage />
               </Form.Item>
             )}
           />
@@ -118,25 +118,25 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
             name="allow_backorder"
             render={({ field: { value, onChange, ...field } }) => (
               <Form.Item>
-                <div>
-                  <div className="flex items-start justify-between">
+                <div className="flex items-start gap-x-3">
+                  <Form.Control>
+                    <Switch
+                      {...field}
+                      checked={value}
+                      onCheckedChange={onChange}
+                      disabled={!manageInventory}
+                    />
+                  </Form.Control>
+                  <div className="flex flex-col">
                     <Form.Label>
                       {t("offers.fields.allowBackorders")}
                     </Form.Label>
-                    <Form.Control>
-                      <Switch
-                        {...field}
-                        checked={value}
-                        onCheckedChange={onChange}
-                        disabled={!manageInventory}
-                      />
-                    </Form.Control>
+                    <Form.Hint>
+                      {t("offers.variant.inventory.allowBackordersHint")}
+                    </Form.Hint>
                   </div>
-                  <Form.Hint>
-                    {t("offers.variant.inventory.allowBackordersHint")}
-                  </Form.Hint>
-                  <Form.ErrorMessage />
                 </div>
+                <Form.ErrorMessage />
               </Form.Item>
             )}
           />
