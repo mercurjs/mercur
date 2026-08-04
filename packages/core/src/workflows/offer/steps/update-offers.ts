@@ -7,6 +7,8 @@ export type UpdateOffersStepInput = Array<{
   id: string
   sku?: string
   shipping_profile_id?: string
+  manage_inventory?: boolean
+  allow_backorder?: boolean
   metadata?: Record<string, unknown> | null
 }>
 
@@ -32,6 +34,8 @@ export const updateOffersStep = createStep(
         id,
         sku: prev?.sku,
         shipping_profile_id: prev?.shipping_profile_id,
+        manage_inventory: prev?.manage_inventory,
+        allow_backorder: prev?.allow_backorder,
         metadata: prev?.metadata ?? null,
       }
     })

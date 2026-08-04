@@ -64,7 +64,7 @@ addToCartWorkflow.hooks.validate(async ({ input, cart }, { container }) => {
 
   const coverage = await promiseAll(
     confirmInputs
-      .filter((entry) => !entry.allow_backorder)
+      .filter((entry) => entry.manage_inventory && !entry.allow_backorder)
       .map((entry) =>
         inventoryService.confirmInventory(
           entry.inventory_item_id,
@@ -136,7 +136,7 @@ updateLineItemInCartWorkflow.hooks.validate(
 
     const coverage = await promiseAll(
       confirmInputs
-        .filter((entry) => !entry.allow_backorder)
+        .filter((entry) => entry.manage_inventory && !entry.allow_backorder)
         .map((entry) =>
           inventoryService.confirmInventory(
             entry.inventory_item_id,

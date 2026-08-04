@@ -1,8 +1,9 @@
 import { Buildings } from "@medusajs/icons"
-import { Container, Heading, Text } from "@medusajs/ui"
+import { Button, Container, Heading, Text } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
 import { useTranslation } from "react-i18next"
+import { Link } from "react-router-dom"
 
 import { ActionMenu } from "../../../../components/common/action-menu"
 import { _DataTable } from "../../../../components/table/data-table"
@@ -164,6 +165,8 @@ export const OfferInventorySection = ({ offer }: Props) => {
     pageSize: PAGE_SIZE,
   })
 
+  const manageInventory = offer.manage_inventory ?? true
+
   return (
     <Container
       className="divide-y p-0"
@@ -171,13 +174,52 @@ export const OfferInventorySection = ({ offer }: Props) => {
     >
       <div className="flex items-center justify-between px-6 py-4">
         <Heading level="h2">{t("offers.detail.inventoryItems")}</Heading>
+        {manageInventory && (
+          <ActionMenu
+            groups={[
+              {
+                actions: [
+                  {
+                    icon: <Buildings />,
+                    label: t("offers.inventory.manageItemsAction"),
+                    to: "manage-items",
+                  },
+                ],
+              },
+            ]}
+          />
+        )}
       </div>
 
-      {inventoryItems.length === 0 ? (
-        <div className="px-6 py-8">
-          <Text size="small" className="text-ui-fg-subtle">
-            {t("offers.detail.noInventoryItems")}
-          </Text>
+      {!manageInventory ? (
+        <div className="flex flex-col items-center gap-y-4 px-6 py-8">
+          <div className="flex flex-col items-center gap-y-1">
+            <Text size="small" weight="plus">
+              {t("offers.inventory.notManagedTitle")}
+            </Text>
+            <Text size="small" className="text-ui-fg-subtle">
+              {t("offers.inventory.notManagedDesc")}
+            </Text>
+          </div>
+          <Button size="small" variant="secondary" asChild>
+            <Link to="edit">{t("offers.inventory.editVariant")}</Link>
+          </Button>
+        </div>
+      ) : inventoryItems.length === 0 ? (
+        <div className="flex flex-col items-center gap-y-4 px-6 py-8">
+          <div className="flex flex-col items-center gap-y-1">
+            <Text size="small" weight="plus">
+              {t("offers.inventory.noItemsTitle")}
+            </Text>
+            <Text size="small" className="text-ui-fg-subtle">
+              {t("offers.inventory.noItemsDesc")}
+            </Text>
+          </div>
+          <Button size="small" variant="secondary" asChild>
+            <Link to="manage-items">
+              {t("offers.inventory.manageItemsButton")}
+            </Link>
+          </Button>
         </div>
       ) : (
         <_DataTable

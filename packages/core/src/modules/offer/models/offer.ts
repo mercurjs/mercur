@@ -10,6 +10,8 @@ const Offer = model
     sku: model.text().searchable(),
     ean: model.text().searchable().nullable(),
     upc: model.text().searchable().nullable(),
+    manage_inventory: model.boolean().default(true),
+    allow_backorder: model.boolean().default(false),
     created_by: model.text(),
     variant_count: model.number().computed(),
     metadata: model.json().nullable(),

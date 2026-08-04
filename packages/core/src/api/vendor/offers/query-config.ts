@@ -7,6 +7,8 @@ export const defaultVendorOfferFields = [
   "sku",
   "ean",
   "upc",
+  "manage_inventory",
+  "allow_backorder",
   "created_by",
   "metadata",
   "created_at",

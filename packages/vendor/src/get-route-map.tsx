@@ -709,6 +709,11 @@ export function getRouteMap({
                                 lazy: () =>
                                   import("./pages/offers/[id]/variants/[offer_id]/inventory"),
                               },
+                              {
+                                path: "manage-items",
+                                lazy: () =>
+                                  import("./pages/offers/[id]/variants/[offer_id]/manage-items"),
+                              },
                             ],
                           },
                         ],

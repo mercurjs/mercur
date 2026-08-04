@@ -11,6 +11,8 @@ import { BigNumber, MathBN, MedusaError } from "@medusajs/framework/utils"
 // rows directly and does not expose pivot columns.
 export const requiredOfferFieldsForInventoryConfirmation = [
   "id",
+  "manage_inventory",
+  "allow_backorder",
   "inventory_item_link.required_quantity",
   "inventory_item_link.inventory_item.id",
   "inventory_item_link.inventory_item.location_levels.location_id",
@@ -42,6 +44,8 @@ export type OfferInventoryItemLinkRow = {
 
 export type OfferInventoryShape = {
   id: string
+  manage_inventory?: boolean
+  allow_backorder?: boolean
   inventory_item_link?: OfferInventoryItemLinkRow[]
 }
 
@@ -61,6 +65,7 @@ export type OfferConfirmInventoryItem = {
   id?: string
   inventory_item_id: string
   required_quantity: number
+  manage_inventory: boolean
   allow_backorder: boolean
   quantity: BigNumberInput
   location_ids: string[]
@@ -189,7 +194,8 @@ export const prepareOfferInventoryInput = (
         id: item.id,
         inventory_item_id: inventoryItemId,
         required_quantity: requiredQuantity,
-        allow_backorder: false,
+        manage_inventory: offer.manage_inventory ?? true,
+        allow_backorder: offer.allow_backorder ?? false,
         quantity: item.quantity,
         location_ids: Array.from(dedup),
       })

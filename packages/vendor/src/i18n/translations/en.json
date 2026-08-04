@@ -1193,6 +1193,10 @@
       },
       "shipping": {
         "successToast": "Shipping configuration was successfully updated."
+      },
+      "inventory": {
+        "manageInventoryHint": "When enabled, we'll change the inventory quantity for you when orders and returns are created.",
+        "allowBackordersHint": "When enabled, customers can purchase the variant even if there's no available quantity."
       }
     },
     "pricing": {
@@ -1205,7 +1209,24 @@
       "header": "Manage inventory items",
       "description": "Attach, detach, or change the required quantity per item.",
       "successToast": "Stock levels were successfully updated.",
-      "empty": "No inventory items attached"
+      "empty": "No inventory items attached",
+      "itemsHeading": "Inventory items",
+      "kitHeading": "Inventory kit",
+      "defineHint": "Define inventory items required for this variant. Add multiple items to create an inventory kit.",
+      "itemPlaceholder": "Select inventory item",
+      "quantityPlaceholder": "Enter required quantity",
+      "manageItemsAction": "Manage inventory Items",
+      "manageItemsButton": "Manage inventory items",
+      "notManagedTitle": "Inventory is not managed",
+      "notManagedDesc": "Turn on \"Manage Inventory\" to track the variant's inventory.",
+      "editVariant": "Edit variant",
+      "noItemsTitle": "No inventory items yet",
+      "noItemsDesc": "Manage inventory items required for this variant",
+      "itemsManageSuccessToast": "Inventory items were successfully updated.",
+      "validation": {
+        "itemId": "Please select inventory item",
+        "quantity": "Please enter required quantity"
+      }
     },
     "delete": {
       "description": "You are about to delete offer {{sku}}. This cannot be undone.",
@@ -1247,6 +1268,8 @@
       "enabled": "Enabled",
       "variantsCount_one": "{{count}} variant",
       "variantsCount_other": "{{count}} variants",
+      "manageInventory": "Manage inventory",
+      "allowBackorders": "Allow backorders",
       "store": "Store"
     },
     "status": {
