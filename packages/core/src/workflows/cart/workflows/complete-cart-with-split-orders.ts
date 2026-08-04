@@ -421,11 +421,8 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 prepareOfferInventoryInput
             )
 
-            // Only reserve for offers that manage inventory. Unmanaged offers
-            // never reserve; backorder-enabled offers still reserve (their rows
-            // carry `allow_backorder: true`, which lets the native step drive
-            // availability negative). Strip `manage_inventory` so the native
-            // `reserveInventoryStep` receives only the fields it expects.
+            // Native reserveInventoryStep rejects the extra `manage_inventory`
+            // key, so strip it and drop unmanaged offers before reserving.
             const reservableInventoryItems = transform(
                 { formatedInventoryItems },
                 ({ formatedInventoryItems }) => ({

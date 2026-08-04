@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod"
-import { Button, Heading, Input, toast } from "@medusajs/ui"
+import { Button, Heading, Input, Switch, toast } from "@medusajs/ui"
 import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
@@ -8,7 +8,6 @@ import { z } from "zod"
 import { useLinkQuery } from "@mercurjs/dashboard-shared"
 
 import { Form } from "../../../../../../components/common/form"
-import { SwitchBox } from "../../../../../../components/common/switch-box"
 import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
 import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
 import { useOffer, useUpdateOffer } from "../../../../../../hooks/api/offers"
@@ -22,12 +21,6 @@ const Schema = z.object({
 })
 type Values = z.infer<typeof Schema>
 
-/**
- * Edit Offer Variant drawer (MER-177) — SKU + the offer's Manage-inventory
- * and Allow-backorders toggles. Allow-backorders is only meaningful while
- * Manage-inventory is on, so it is disabled (and forced off) otherwise,
- * mirroring Medusa's variant inventory card.
- */
 const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
@@ -90,24 +83,62 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
             )}
           />
 
-          <SwitchBox
+          <Form.Field
             control={form.control}
             name="manage_inventory"
-            label={t("offers.fields.manageInventory")}
-            description={t("offers.variant.inventory.manageInventoryHint")}
-            onCheckedChange={(checked) => {
-              if (!checked) {
-                form.setValue("allow_backorder", false)
-              }
-            }}
+            render={({ field: { value, onChange, ...field } }) => (
+              <Form.Item>
+                <div>
+                  <div className="flex items-start justify-between">
+                    <Form.Label>{t("offers.fields.manageInventory")}</Form.Label>
+                    <Form.Control>
+                      <Switch
+                        {...field}
+                        checked={value}
+                        onCheckedChange={(checked) => {
+                          if (!checked) {
+                            form.setValue("allow_backorder", false)
+                          }
+                          onChange(checked)
+                        }}
+                      />
+                    </Form.Control>
+                  </div>
+                  <Form.Hint>
+                    {t("offers.variant.inventory.manageInventoryHint")}
+                  </Form.Hint>
+                  <Form.ErrorMessage />
+                </div>
+              </Form.Item>
+            )}
           />
 
-          <SwitchBox
+          <Form.Field
             control={form.control}
             name="allow_backorder"
-            disabled={!manageInventory}
-            label={t("offers.fields.allowBackorders")}
-            description={t("offers.variant.inventory.allowBackordersHint")}
+            render={({ field: { value, onChange, ...field } }) => (
+              <Form.Item>
+                <div>
+                  <div className="flex items-start justify-between">
+                    <Form.Label>
+                      {t("offers.fields.allowBackorders")}
+                    </Form.Label>
+                    <Form.Control>
+                      <Switch
+                        {...field}
+                        checked={value}
+                        onCheckedChange={onChange}
+                        disabled={!manageInventory}
+                      />
+                    </Form.Control>
+                  </div>
+                  <Form.Hint>
+                    {t("offers.variant.inventory.allowBackordersHint")}
+                  </Form.Hint>
+                  <Form.ErrorMessage />
+                </div>
+              </Form.Item>
+            )}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

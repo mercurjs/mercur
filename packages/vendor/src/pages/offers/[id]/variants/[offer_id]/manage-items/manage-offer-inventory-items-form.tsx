@@ -23,15 +23,6 @@ type Values = {
   }>
 }
 
-/**
- * "Manage inventory items" editor for an offer (MER-177, Figma One Item
- * `40016404:290507` / Inventory Kit `40016404:290519`). Renders one
- * Item + Quantity row per linked inventory item; ≥2 items make it a
- * kit. Diffs the rows against the offer's current links and persists via
- * the `inventory-items/batch` endpoint. Per-location stock is edited
- * elsewhere (the inventory-item page) — this only owns kit membership +
- * required quantity.
- */
 export const ManageOfferInventoryItemsForm = ({
   offer,
 }: {

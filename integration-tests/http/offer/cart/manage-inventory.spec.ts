@@ -14,13 +14,6 @@ import { createVendorProduct } from "../../../helpers/create-product"
 
 jest.setTimeout(120000)
 
-/**
- * MER-177 — the offer's `manage_inventory` / `allow_backorder` flags drive
- * the cart availability checks (and, through the same helper, the
- * reservations taken at order placement). Inventory kits (an offer with
- * more than one inventory item, each with a `required_quantity`) are
- * all-or-nothing: every component must cover, unless backorders are on.
- */
 medusaIntegrationTestRunner({
     testSuite: ({ getContainer, api }) => {
         describe("Store - Cart offer inventory modes", () => {
@@ -182,7 +175,6 @@ medusaIntegrationTestRunner({
                     email: "managed@test.com",
                     name: "Managed",
                     offerPrice: 2500,
-                    // defaults: manage_inventory true, allow_backorder false
                     inventory_items: [{ stocked: 3 }],
                 })
 
@@ -214,8 +206,6 @@ medusaIntegrationTestRunner({
             })
 
             it("kit is all-or-nothing: a short component blocks the sale", async () => {
-                // Two-item kit, each required_quantity 1. Component A has
-                // plenty; component B has only 1. Buying qty 2 needs 2 of B.
                 const { offer } = await seedSellerOffer({
                     email: "kit-short@test.com",
                     name: "KitShort",
