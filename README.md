@@ -149,5 +149,8 @@ Follow the [Release Notes](https://github.com/mercurjs/mercur/releases) to keep 
 ## Star history
 
 <a href="https://star-history.com/#mercurjs/mercur&Date">
-  <img src="https://api.star-history.com/svg?repos=mercurjs/mercur&type=Date" alt="Star History Chart" width="70%" />
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="./.github/assets/star-history-dark.svg" />
+    <img src="./.github/assets/star-history.svg" alt="Star History Chart" width="70%" />
+  </picture>
 </a>
