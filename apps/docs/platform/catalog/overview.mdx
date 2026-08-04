@@ -4,13 +4,15 @@ sidebarTitle: "Overview"
 description: "Master products, variants, categories, and the store allowlist that governs who may sell what."
 ---
 
-Use Mercur to run a single shared product catalog that many stores sell against.
+Use Mercur to govern one shared product catalog and control which stores are
+allowed to sell what.
 
-The Catalog domain is the marketplace's product surface. It holds master
-products, variants, categories, collections, tags, and types, plus the
-marketplace layer that controls which stores may sell which products and how new
-submissions are reviewed. A store never owns a product. It sells against a shared
-master product through an [offer](/platform/offer/overview).
+Master-data governance lives here. The Catalog domain keeps products as a single
+shared source of truth, controls access to it through an allowlist over who may
+sell each product, and holds every submission to an approval lifecycle before it
+goes live. On top of that governance layer it holds master products, variants,
+categories, collections, tags, and types. A store never owns a product. It sells
+against a shared master product through an [offer](/platform/offer/overview).
 
 <Note>
   **Catalog = Medusa's Product module + Mercur's marketplace layer.** Products,
@@ -23,9 +25,9 @@ master product through an [offer](/platform/offer/overview).
 
 ## Key features
 
-- **Shared master catalog:** products live in one catalog, not owned by any store. Creating a product adds it to the shared catalog.
-- **Store allowlist:** the `product_seller` link controls which stores may sell a given master product.
-- **Governed submissions:** a `draft` → `proposed` → `published` / `rejected` lifecycle, with vendor-created products defaulting to `proposed`.
+- **Shared master data:** products live in one catalog, not owned by any store. Creating a product adds it to the shared catalog.
+- **Allowlist access control:** the `product_seller` link governs which stores may sell a given master product.
+- **Approval governance:** a `draft` → `proposed` → `published` / `rejected` lifecycle, with vendor-created products defaulting to `proposed`.
 - **Attribution, not ownership:** the creator of an unreviewed submission is recorded for audit, but the product still belongs to the shared catalog.
 - **Native Medusa structure:** variants, categories, collections, tags, and types come straight from Medusa's Product module.
 - **Sold via offers:** a store lists a master product by creating an offer that carries its SKU, price, and inventory.

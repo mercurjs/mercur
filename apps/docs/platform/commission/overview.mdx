@@ -4,13 +4,15 @@ sidebarTitle: "Overview"
 description: "Configure how the marketplace takes its cut of every seller order."
 ---
 
-Use Mercur to decide what share of each sale the marketplace keeps and each
-seller earns.
+Use Mercur to keep financial control over what share of each sale the
+marketplace keeps and each seller earns.
 
-The Commission domain is the marketplace's revenue engine. You define **rates**
-(fixed or percentage) and scope them to parts of your catalog with **rules**.
-Mercur resolves the right rate for every order line and writes a **commission
-line**. That line is the exact amount deducted before the seller is paid out.
+Financial control over the marketplace runs through commission. You set
+policy-based **rates** (fixed or percentage) and scope them to parts of your
+catalog with **rules**. Mercur resolves the right rate for every order line by
+most-specific-wins and writes an auditable **commission line**. That line is the
+exact amount deducted before the seller is paid out, computed in arbitrary
+precision so the numbers reconcile.
 
 <Note>
   **Commission = the `CommissionRate` + `CommissionRule` entities.** A rate is

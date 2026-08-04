@@ -4,15 +4,16 @@ sidebarTitle: "Overview"
 description: "Onboard sellers to a payment provider and settle their earnings automatically."
 ---
 
-Use Mercur to onboard sellers to a payment provider, capture authorized
-payments, and transfer earnings to each seller after fulfillment.
+Use Mercur to control how each seller is onboarded and settled, while the
+payment provider handles KYC.
 
-The Payout domain is the money-out side of the marketplace. Once an order is
-placed and fulfilled, it settles the seller's share to their connected account.
-The seller's share is the order total minus commission. The domain ships with a
-pluggable provider interface and a **Stripe Connect** implementation out of the
-box. It also runs a fully automated capture-and-transfer pipeline driven by
-scheduled jobs and provider webhooks.
+Settlement you control is the Payout domain. Once an order is placed and
+fulfilled, it splits each seller's share out to their own connected account, so
+funds are settled per seller rather than pooled. The seller's share is the order
+total minus commission. Onboarding is provider-driven, with the payment provider
+carrying KYC, and the domain ships with a pluggable provider interface and a
+**Stripe Connect** implementation out of the box. It also runs a fully automated
+capture-and-transfer pipeline driven by scheduled jobs and provider webhooks.
 
 <Note>
   **Provider-agnostic.** The module talks to exactly one registered payout

@@ -4,12 +4,16 @@ sidebarTitle: "Overview"
 description: "Manage sellers, their teams, and their lifecycle on the marketplace."
 ---
 
-Use Mercur to onboard, govern, and operate the sellers on your marketplace.
+Use Mercur to control who is allowed to sell on your marketplace and what each
+person on a store's team can do.
 
-The Store domain is the foundation the rest of the marketplace builds on. Every
-offer, order, payout, and storefront page belongs to a store. A store carries its
-own team, a governed account lifecycle, and the business details used to settle
-payouts. All of it is exposed directly through the Admin and Vendor APIs.
+Governing your sellers starts here. The Store domain decides who may sell,
+enforces role-based access so every member acts only within their store, and
+keeps each store's data isolated from the rest. On top of that control layer, a
+store carries its own team, a governed account lifecycle, and the business
+details used to settle payouts. Every offer, order, payout, and storefront page
+belongs to a store, and all of it is exposed directly through the Admin and
+Vendor APIs.
 
 <Note>
   A store is the `Seller` entity. The Admin and Vendor panels call it a "Store".
@@ -19,7 +23,8 @@ payouts. All of it is exposed directly through the Admin and Vendor APIs.
 
 ## Key features
 
-- **Multi-user teams:** many-to-many members, roles, and a store switcher for users who belong to several stores.
+- **Role-based access control:** many-to-many members, roles resolved per store, and a store switcher for users who belong to several stores.
+- **Store isolation:** each store sees and acts on only its own data.
 - **Governed lifecycle:** a four-state account model with operator-only transitions.
 - **Self-service onboarding:** create stores yourself, or let sellers register publicly.
 - **Scheduled closures:** temporary offline windows that don't change account status.

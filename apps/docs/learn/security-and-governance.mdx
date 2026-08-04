@@ -1,0 +1,60 @@
+---
+title: "Security and governance"
+description: "How Mercur governs access, changes, settlement, and data ownership in the open-source core."
+---
+
+Running a marketplace means governing who sells, what they change, and how money
+moves. This page covers the security and governance model built into the
+open-source Mercur core.
+
+## Access control
+
+Mercur registers a role-based access control (RBAC) module out of the box.
+
+- **Roles per store:** a member belongs to a seller through a membership that carries a role, resolved against the roles module for that specific store.
+- **Store isolation:** a user who belongs to several stores switches between them, and each store context is fully isolated. Access to one store never leaks data from another.
+- **Least privilege:** every store must keep at least one admin, and other members are scoped to the roles they are granted.
+
+<Note>
+  Vendor API requests are additionally scoped to a single seller by middleware, so
+  every query and mutation on `/vendor/*` is automatically filtered to the
+  authenticated member's store.
+</Note>
+
+## Auditable change pipeline
+
+Every edit to the shared catalog flows through the product change pipeline. Each
+change is an immutable, attributed record, so the history cannot be rewritten.
+
+- **Who changed what:** each `ProductChange` records the actor and the exact typed action (update, variant, attribute, status, add, delete).
+- **Approval queue:** changes move through `pending` to `confirmed`, `declined`, or `canceled`, and low-risk edits can auto-confirm.
+- **A real audit trail:** because the records are immutable and attributed, the pipeline doubles as an audit log for catalog changes.
+
+See the [Product Edit](/platform/product-edit/overview) module for the full model.
+
+## Approval governance
+
+Operators control the lifecycles that matter.
+
+- **Seller onboarding:** stores register or are created, then move through `pending_approval`, `open`, `suspended`, and `terminated` under operator control.
+- **Catalog governance:** the product–seller allowlist controls which stores may sell which master products, and vendor-created products enter as `proposed` pending review.
+
+## Settlement you control
+
+Money moves through explicit, per-seller rules.
+
+- **Commissions:** policy-based commission rules match across product, type, collection, category, and seller, with most-specific-wins resolution.
+- **Order splitting:** a multi-vendor cart is split into per-seller orders, each settled independently.
+- **Provider-driven payouts:** payouts run through a pluggable provider (Stripe Connect ships in the box), and the provider handles seller KYC during onboarding.
+
+## Data ownership and hosting
+
+- **You own the code:** blocks are copied into your project as source. There are no black-box dependencies, and you can modify any part without forking.
+- **Self-hosted:** you deploy Mercur on your own infrastructure. See [Self-host](/resources/deployment/self-host).
+- **Open-core, MIT-licensed:** no transaction fees and no commercial lock-in.
+
+<Note>
+  Additional enterprise controls, such as SSO/SAML and further compliance
+  tooling, are offered separately from the open-source core. Contact the Mercur
+  team through [mercurjs.com](https://www.mercurjs.com) to discuss them.
+</Note>

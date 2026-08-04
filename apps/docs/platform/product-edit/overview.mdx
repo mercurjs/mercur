@@ -4,13 +4,15 @@ sidebarTitle: "Overview"
 description: "Route every product edit through a reviewable, immutable change pipeline."
 ---
 
-Use Mercur to govern how products change on your marketplace.
+Use Mercur to keep a full audit trail of every product change and govern your
+master data before it changes.
 
-Products live in a single shared catalog, so an edit can't just be written to a
-product row. It has to be captured, reviewed, and applied deliberately. The
-Product Edit domain is that pipeline. Every edit becomes an immutable
-`ProductChange` record with typed actions, a status lifecycle, and a full audit
-trail of who changed what and who approved it.
+Master-data governance depends on knowing who changed what, and reviewing it
+before it takes effect. The Product Edit domain is that auditable change
+pipeline. Every edit becomes an immutable, attributed `ProductChange` record that
+enters an approval queue, so no change to a shared product is silently written.
+Each record carries typed actions and a status lifecycle, and the trail records
+who changed what and who approved it.
 
 <Note>
   **Product Edit ≠ product ownership.** Products are the shared master catalog,
@@ -20,9 +22,9 @@ trail of who changed what and who approved it.
 
 ## Key features
 
-- **Immutable change records:** every edit is a `ProductChange` that is never rewritten, only appended to and resolved.
+- **Immutable audit trail:** every edit is an attributed `ProductChange` that is never rewritten, only appended to and resolved.
 - **Typed change actions:** each edit is expressed as `ProductChangeAction` rows such as `UPDATE`, `VARIANT_*`, `ATTRIBUTE_*`, `STATUS_CHANGE`, or `PRODUCT_ADD/DELETE`.
-- **Governed lifecycle:** a change moves `pending` → `confirmed` / `declined` / `canceled`, each through a dedicated workflow.
+- **Approval queue:** a change moves `pending` → `confirmed` / `declined` / `canceled`, each through a dedicated workflow.
 - **Deferred application:** actions are applied to the product only on confirmation, then marked `applied`.
 - **Auto-confirm:** when review is off, staged changes confirm and apply immediately.
 - **Revision requests:** operators send a submission back to the vendor as a recorded `CHANGE_REQUESTED` audit action.
