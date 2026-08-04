@@ -1241,7 +1241,8 @@
       "notEnabled": "Not enabled",
       "enabled": "Enabled",
       "variantsCount_one": "{{count}} variant",
-      "variantsCount_other": "{{count}} variants"
+      "variantsCount_other": "{{count}} variants",
+      "store": "Store"
     },
     "status": {
       "published": "Published",
@@ -2898,10 +2899,10 @@
     },
     "create": {
       "header": "Create Price List",
-      "subheader": "Create a new price list to manage the prices of your products.",
+      "subheader": "Create a new price list to manage the prices of your offers.",
       "tabs": {
         "details": "Details",
-        "products": "Products",
+        "products": "Offers",
         "prices": "Prices"
       },
       "successToast": "Price list {{title}} was successfully created.",
@@ -2909,34 +2910,52 @@
         "list": {
           "noRecordsMessage": "Create a product first."
         }
+      },
+      "validation": {
+        "title": "Please enter a title",
+        "description": "Please enter a description"
       }
     },
     "edit": {
       "header": "Edit Price List",
-      "successToast": "Price list {{title}} was successfully updated."
+      "successToast": "Price list was successfully updated."
     },
     "configuration": {
       "header": "Configuration",
       "edit": {
         "header": "Edit Price List Configuration",
         "description": "Edit the configuration of the price list.",
-        "successToast": "Price list configuration was successfully updated."
+        "successToast": "Price list was successfully updated."
+      }
+    },
+    "customerAvailability": {
+      "header": "Customer availability",
+      "add": "Add customer groups",
+      "list": {
+        "noRecordsTitle": "No customer groups",
+        "noRecordsMessage": "Add customer groups to restrict which customers this price list applies to."
+      },
+      "edit": {
+        "header": "Customer availability",
+        "description": "Choose which customer groups the price list should be applied to.",
+        "successToast": "Price list was successfully updated."
       }
     },
     "products": {
-      "header": "Products",
+      "header": "Offers",
       "actions": {
-        "addProducts": "Add products",
-        "editPrices": "Edit prices"
+        "addProducts": "Add offers",
+        "editPrices": "Edit prices",
+        "editPricesDisabled": "Add offers before editing prices"
       },
       "delete": {
-        "confirmation_one": "You are about to delete the prices for {{count}} product in the price list. This action cannot be undone.",
-        "confirmation_other": "You are about to delete the prices for {{count}} products in the price list. This action cannot be undone.",
-        "successToast_one": "Successfully deleted prices for {{count}} product.",
-        "successToast_other": "Successfully deleted prices for {{count}} products."
+        "confirmation_one": "You are about to remove {{count}} offer from the price list. This action cannot be undone.",
+        "confirmation_other": "You are about to remove {{count}} offers from the price list. This action cannot be undone.",
+        "successToast_one": "Successfully removed {{count}} offer from the price list.",
+        "successToast_other": "Successfully removed {{count}} offers from the price list."
       },
       "add": {
-        "successToast": "Prices were successfully added to the price list.",
+        "successToast": "Price list was successfully updated.",
         "atLeastOnePrice": "At least one price must be added.",
         "alreadyInPriceList": "This product is already in the price list",
         "noVariants": "This product has no variants",
@@ -2944,7 +2963,7 @@
         "description": "Add products and set prices for the price list"
       },
       "edit": {
-        "successToast": "Prices were successfully updated.",
+        "successToast": "Price list was successfully updated.",
         "title": "Edit Prices for {{title}}",
         "description": "Update prices for products in the price list"
       }
@@ -2961,6 +2980,10 @@
           "draft": "Draft",
           "expired": "Expired",
           "scheduled": "Scheduled"
+        },
+        "descriptions": {
+          "draft": "Customers will not be able to see the price list",
+          "active": "Customers will be able to see the price list"
         }
       },
       "type": {
@@ -2969,7 +2992,7 @@
         "options": {
           "sale": {
             "label": "Sale",
-            "description": "Sale prices are temporary price changes for products."
+            "description": "Sale prices are temporary price changes for offers."
           },
           "override": {
             "label": "Override",
@@ -2978,11 +3001,11 @@
         }
       },
       "startsAt": {
-        "label": "Price list has a start date?",
+        "label": "Start date",
         "hint": "Schedule the price list to activate in the future."
       },
       "endsAt": {
-        "label": "Price list has an expiry date?",
+        "label": "Expiry date",
         "hint": "Schedule the price list to deactivate in the future."
       },
       "customerAvailability": {
@@ -2991,6 +3014,13 @@
         "hint": "Choose which customer groups the price list should be applied to.",
         "placeholder": "Search for customer groups",
         "attribute": "Customer groups"
+      },
+      "offerVariant": "Offer/Variant"
+    },
+    "list": {
+      "noRecords": {
+        "title": "No price lists yet",
+        "message": "Create price lists for sales and price overrides"
       }
     }
   },

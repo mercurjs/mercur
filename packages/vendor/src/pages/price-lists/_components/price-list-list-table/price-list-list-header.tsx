@@ -1,16 +1,13 @@
 import { Children, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
-import { Button, Heading, Text } from "@medusajs/ui";
+import { Button, Heading } from "@medusajs/ui";
 
 export const PriceListListTitle = () => {
   const { t } = useTranslation();
   return (
     <div>
       <Heading>{t("priceLists.domain")}</Heading>
-      <Text className="text-ui-fg-subtle" size="small">
-        {t("priceLists.subtitle")}
-      </Text>
     </div>
   );
 };

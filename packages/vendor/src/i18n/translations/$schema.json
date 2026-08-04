@@ -5075,6 +5075,9 @@
             },
             "variantsCount_other": {
               "type": "string"
+            },
+            "store": {
+              "type": "string"
             }
           },
           "required": [
@@ -5097,7 +5100,8 @@
             "notEnabled",
             "enabled",
             "variantsCount_one",
-            "variantsCount_other"
+            "variantsCount_other",
+            "store"
           ],
           "additionalProperties": false
         },
@@ -11614,6 +11618,22 @@
                 "list"
               ],
               "additionalProperties": false
+            },
+            "validation": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "description"
+              ],
+              "additionalProperties": false
             }
           },
           "required": [
@@ -11621,7 +11641,8 @@
             "subheader",
             "tabs",
             "successToast",
-            "products"
+            "products",
+            "validation"
           ],
           "additionalProperties": false
         },
@@ -11674,6 +11695,60 @@
           ],
           "additionalProperties": false
         },
+        "customerAvailability": {
+          "type": "object",
+          "properties": {
+            "header": {
+              "type": "string"
+            },
+            "add": {
+              "type": "string"
+            },
+            "list": {
+              "type": "object",
+              "properties": {
+                "noRecordsTitle": {
+                  "type": "string"
+                },
+                "noRecordsMessage": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "noRecordsTitle",
+                "noRecordsMessage"
+              ],
+              "additionalProperties": false
+            },
+            "edit": {
+              "type": "object",
+              "properties": {
+                "header": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "successToast": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "header",
+                "description",
+                "successToast"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "header",
+            "add",
+            "list",
+            "edit"
+          ],
+          "additionalProperties": false
+        },
         "products": {
           "type": "object",
           "properties": {
@@ -11688,11 +11763,15 @@
                 },
                 "editPrices": {
                   "type": "string"
+                },
+                "editPricesDisabled": {
+                  "type": "string"
                 }
               },
               "required": [
                 "addProducts",
-                "editPrices"
+                "editPrices",
+                "editPricesDisabled"
               ],
               "additionalProperties": false
             },
@@ -11725,10 +11804,30 @@
               "properties": {
                 "successToast": {
                   "type": "string"
+                },
+                "atLeastOnePrice": {
+                  "type": "string"
+                },
+                "alreadyInPriceList": {
+                  "type": "string"
+                },
+                "noVariants": {
+                  "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
                 }
               },
               "required": [
-                "successToast"
+                "successToast",
+                "atLeastOnePrice",
+                "alreadyInPriceList",
+                "noVariants",
+                "title",
+                "description"
               ],
               "additionalProperties": false
             },
@@ -11737,10 +11836,18 @@
               "properties": {
                 "successToast": {
                   "type": "string"
+                },
+                "title": {
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
                 }
               },
               "required": [
-                "successToast"
+                "successToast",
+                "title",
+                "description"
               ],
               "additionalProperties": false
             }
@@ -11802,11 +11909,28 @@
                     "scheduled"
                   ],
                   "additionalProperties": false
+                },
+                "descriptions": {
+                  "type": "object",
+                  "properties": {
+                    "draft": {
+                      "type": "string"
+                    },
+                    "active": {
+                      "type": "string"
+                    }
+                  },
+                  "required": [
+                    "draft",
+                    "active"
+                  ],
+                  "additionalProperties": false
                 }
               },
               "required": [
                 "label",
-                "options"
+                "options",
+                "descriptions"
               ],
               "additionalProperties": false
             },
@@ -11928,6 +12052,9 @@
                 "attribute"
               ],
               "additionalProperties": false
+            },
+            "offerVariant": {
+              "type": "string"
             }
           },
           "required": [
@@ -11936,7 +12063,33 @@
             "type",
             "startsAt",
             "endsAt",
-            "customerAvailability"
+            "customerAvailability",
+            "offerVariant"
+          ],
+          "additionalProperties": false
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecords": {
+              "type": "object",
+              "properties": {
+                "title": {
+                  "type": "string"
+                },
+                "message": {
+                  "type": "string"
+                }
+              },
+              "required": [
+                "title",
+                "message"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "noRecords"
           ],
           "additionalProperties": false
         }
@@ -11948,8 +12101,10 @@
         "create",
         "edit",
         "configuration",
+        "customerAvailability",
         "products",
-        "fields"
+        "fields",
+        "list"
       ],
       "additionalProperties": false
     },

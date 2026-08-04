@@ -1010,6 +1010,13 @@ export function getRouteMap({
                               import("./pages/price-lists/[id]/configuration"),
                           },
                           {
+                            path: "customer-availability",
+                            lazy: () =>
+                              import(
+                                "./pages/price-lists/[id]/customer-availability"
+                              ),
+                          },
+                          {
                             path: "products/add",
                             lazy: () =>
                               import("./pages/price-lists/[id]/products/add"),

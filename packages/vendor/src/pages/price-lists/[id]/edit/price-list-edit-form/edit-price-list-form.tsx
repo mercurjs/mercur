@@ -1,12 +1,5 @@
 import { HttpTypes } from "@medusajs/types"
-import {
-  Button,
-  Input,
-  RadioGroup,
-  Select,
-  Textarea,
-  toast,
-} from "@medusajs/ui"
+import { Button, Input, RadioGroup, Textarea, toast } from "@medusajs/ui"
 import { useTranslation } from "react-i18next"
 import { z } from "zod"
 
@@ -19,6 +12,7 @@ import { Form } from "@components/common/form"
 import { RouteDrawer, useRouteModal } from "@components/modals"
 import { KeyboundForm } from "@components/utilities/keybound-form"
 import { useUpdatePriceList } from "@hooks/api/price-lists"
+import { useDocumentDirection } from "@hooks/use-document-direction"
 import { PriceListStatus, PriceListType } from "../../../common/constants"
 
 type PriceListEditFormProps = {
@@ -29,13 +23,13 @@ const PriceListEditSchema = z.object({
   status: z.nativeEnum(PriceListStatus),
   type: z.nativeEnum(PriceListType),
   title: z.string().min(1),
-  description: z.string().min(1),
+  description: z.string().optional(),
 })
 
 export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
-
+  const direction = useDocumentDirection()
   const form = useExtendableForm({
     schema: PriceListEditSchema,
     model: "price_list",
@@ -52,9 +46,13 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
   const { mutateAsync, isPending } = useUpdatePriceList(priceList.id)
 
   const handleSubmit = form.handleSubmit(async (values) => {
-    const { status, type, title, description } = values
+    const { additional_data, ...rest } = values
+    const payload =
+      additional_data && Object.keys(additional_data).length
+        ? { ...rest, additional_data }
+        : rest
 
-    await mutateAsync({ status, type, title, description }, {
+    await mutateAsync(payload, {
       onSuccess: ({ price_list }) => {
         toast.success(
           t("priceLists.edit.successToast", {
@@ -71,30 +69,36 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
   })
 
   return (
-    <RouteDrawer.Form form={form}>
+    <RouteDrawer.Form form={form} data-testid="price-list-edit-form">
       <KeyboundForm
         className="flex flex-1 flex-col overflow-hidden"
         onSubmit={handleSubmit}
       >
-        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-6 overflow-auto">
+        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-6 overflow-auto" data-testid="price-list-edit-form-body">
           <Form.Field
             control={form.control}
             name="type"
             render={({ field: { onChange, ...field } }) => {
               return (
-                <Form.Item>
+                <Form.Item data-testid="price-list-edit-form-type-item">
                   <div>
-                    <Form.Label>{t("priceLists.fields.type.label")}</Form.Label>
-                    <Form.Hint>{t("priceLists.fields.type.hint")}</Form.Hint>
+                    <Form.Label data-testid="price-list-edit-form-type-label">{t("priceLists.fields.type.label")}</Form.Label>
+                    <Form.Hint data-testid="price-list-edit-form-type-hint">{t("priceLists.fields.type.hint")}</Form.Hint>
                   </div>
-                  <Form.Control>
-                    <RadioGroup {...field} onValueChange={onChange}>
+                  <Form.Control data-testid="price-list-edit-form-type-control">
+                    <RadioGroup
+                      dir={direction}
+                      {...field}
+                      onValueChange={onChange}
+                      data-testid="price-list-edit-form-type-radio-group"
+                    >
                       <RadioGroup.ChoiceBox
                         value={PriceListType.SALE}
                         label={t("priceLists.fields.type.options.sale.label")}
                         description={t(
                           "priceLists.fields.type.options.sale.description"
                         )}
+                        data-testid="price-list-edit-form-type-option-sale"
                       />
                       <RadioGroup.ChoiceBox
                         value={PriceListType.OVERRIDE}
@@ -104,10 +108,11 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
                         description={t(
                           "priceLists.fields.type.options.override.description"
                         )}
+                        data-testid="price-list-edit-form-type-option-override"
                       />
                     </RadioGroup>
                   </Form.Control>
-                  <Form.ErrorMessage />
+                  <Form.ErrorMessage data-testid="price-list-edit-form-type-error" />
                 </Form.Item>
               )
             }}
@@ -115,44 +120,54 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
           <div className="flex flex-col gap-y-4">
             <Form.Field
               control={form.control}
-              name="title"
-              render={({ field }) => {
+              name="status"
+              render={({ field: { onChange, ...rest } }) => {
                 return (
-                  <Form.Item>
-                    <Form.Label>{t("fields.title")}</Form.Label>
-                    <Form.Control>
-                      <Input {...field} />
+                  <Form.Item data-testid="price-list-edit-form-status-item">
+                    <Form.Label data-testid="price-list-edit-form-status-label">
+                      {t("priceLists.fields.status.label")}
+                    </Form.Label>
+                    <Form.Control data-testid="price-list-edit-form-status-control">
+                      <RadioGroup
+                        dir={direction}
+                        onValueChange={onChange}
+                        {...rest}
+                        data-testid="price-list-edit-form-status-radio-group"
+                      >
+                        <RadioGroup.ChoiceBox
+                          value={PriceListStatus.DRAFT}
+                          label={t("priceLists.fields.status.options.draft")}
+                          description={t(
+                            "priceLists.fields.status.descriptions.draft"
+                          )}
+                          data-testid="price-list-edit-form-status-option-draft"
+                        />
+                        <RadioGroup.ChoiceBox
+                          value={PriceListStatus.ACTIVE}
+                          label={t("priceLists.fields.status.options.active")}
+                          description={t(
+                            "priceLists.fields.status.descriptions.active"
+                          )}
+                          data-testid="price-list-edit-form-status-option-active"
+                        />
+                      </RadioGroup>
                     </Form.Control>
-                    <Form.ErrorMessage />
+                    <Form.ErrorMessage data-testid="price-list-edit-form-status-error" />
                   </Form.Item>
                 )
               }}
             />
             <Form.Field
               control={form.control}
-              name="status"
-              render={({ field: { onChange, ref, ...field } }) => {
+              name="title"
+              render={({ field }) => {
                 return (
-                  <Form.Item>
-                    <Form.Label>
-                      {t("priceLists.fields.status.label")}
-                    </Form.Label>
-                    <Form.Control>
-                      <Select {...field} onValueChange={onChange}>
-                        <Select.Trigger ref={ref}>
-                          <Select.Value />
-                        </Select.Trigger>
-                        <Select.Content>
-                          <Select.Item value={PriceListStatus.ACTIVE}>
-                            {t("priceLists.fields.status.options.active")}
-                          </Select.Item>
-                          <Select.Item value={PriceListStatus.DRAFT}>
-                            {t("priceLists.fields.status.options.draft")}
-                          </Select.Item>
-                        </Select.Content>
-                      </Select>
+                  <Form.Item data-testid="price-list-edit-form-title-item">
+                    <Form.Label data-testid="price-list-edit-form-title-label">{t("fields.title")}</Form.Label>
+                    <Form.Control data-testid="price-list-edit-form-title-control">
+                      <Input {...field} data-testid="price-list-edit-form-title-input" />
                     </Form.Control>
-                    <Form.ErrorMessage />
+                    <Form.ErrorMessage data-testid="price-list-edit-form-title-error" />
                   </Form.Item>
                 )
               }}
@@ -162,12 +177,12 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
               name="description"
               render={({ field }) => {
                 return (
-                  <Form.Item>
-                    <Form.Label>{t("fields.description")}</Form.Label>
-                    <Form.Control>
-                      <Textarea {...field} />
+                  <Form.Item data-testid="price-list-edit-form-description-item">
+                    <Form.Label optional data-testid="price-list-edit-form-description-label">{t("fields.description")}</Form.Label>
+                    <Form.Control data-testid="price-list-edit-form-description-control">
+                      <Textarea {...field} data-testid="price-list-edit-form-description-input" />
                     </Form.Control>
-                    <Form.ErrorMessage />
+                    <Form.ErrorMessage data-testid="price-list-edit-form-description-error" />
                   </Form.Item>
                 )
               }}
@@ -180,14 +195,14 @@ export const PriceListEditForm = ({ priceList }: PriceListEditFormProps) => {
             data={priceList}
           />
         </RouteDrawer.Body>
-        <RouteDrawer.Footer className="shrink-0">
+        <RouteDrawer.Footer className="shrink-0" data-testid="price-list-edit-form-footer">
           <div className="flex items-center justify-end gap-x-2">
             <RouteDrawer.Close asChild>
-              <Button size="small" variant="secondary">
+              <Button size="small" variant="secondary" data-testid="price-list-edit-form-cancel-button">
                 {t("actions.cancel")}
               </Button>
             </RouteDrawer.Close>
-            <Button size="small" type="submit" isLoading={isPending}>
+            <Button size="small" type="submit" isLoading={isPending} data-testid="price-list-edit-form-save-button">
               {t("actions.save")}
             </Button>
           </div>

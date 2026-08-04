@@ -9,36 +9,17 @@ import {
   DataGrid,
 } from "../../../../components/data-grid"
 import { createDataGridPriceColumns } from "../../../../components/data-grid/helpers/create-data-grid-price-columns"
+import {
+  isPriceListGroupRow,
+  type PriceListGridRow,
+} from "@mercurjs/dashboard-shared"
 
-/**
- * The Prices grid is keyed by **offer**, not variant: the same product sold by
- * two sellers must show as two separate groups (product + seller) with their own
- * variant rows, never merged. Each offer row binds prices to `offers.<offer_id>`.
- */
-export type PriceListGridGroupRow = {
-  __group: true
-  id: string
-  product_title: string
-  product_thumbnail?: string | null
-  seller_name: string
-}
-
-export type PriceListGridOfferRow = {
-  __group: false
-  id: string
-  offer_id: string
-  variant_id: string
-  variant_title: string
-  product_id: string
-  seller_name: string
-  sku: string
-}
-
-export type PriceListGridRow = PriceListGridGroupRow | PriceListGridOfferRow
-
-export const isPriceListGroupRow = (
-  row: PriceListGridRow
-): row is PriceListGridGroupRow => (row as PriceListGridGroupRow).__group === true
+export {
+  isPriceListGroupRow,
+  type PriceListGridGroupRow,
+  type PriceListGridOfferRow,
+  type PriceListGridRow,
+} from "@mercurjs/dashboard-shared"
 
 const columnHelper = createDataGridHelper<PriceListGridRow, any>()
 
