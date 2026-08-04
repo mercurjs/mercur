@@ -91,6 +91,8 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
                 <div className="flex items-start gap-x-3">
                   <Form.Control>
                     <Switch
+                      className="rtl:rotate-180"
+                      dir="ltr"
                       {...field}
                       checked={value}
                       onCheckedChange={(checked) => {
@@ -121,6 +123,8 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
                 <div className="flex items-start gap-x-3">
                   <Form.Control>
                     <Switch
+                      className="rtl:rotate-180"
+                      dir="ltr"
                       {...field}
                       checked={value}
                       onCheckedChange={onChange}
