@@ -91,7 +91,7 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
                 <div className="flex items-start gap-x-3">
                   <Form.Control>
                     <Switch
-                      className="rtl:rotate-180"
+                      className="rtl:rotate-180 shrink-0"
                       dir="ltr"
                       {...field}
                       checked={value}
@@ -103,7 +103,7 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
                       }}
                     />
                   </Form.Control>
-                  <div className="flex flex-col">
+                  <div className="flex min-w-0 flex-col">
                     <Form.Label>{t("offers.fields.manageInventory")}</Form.Label>
                     <Form.Hint>
                       {t("offers.variant.inventory.manageInventoryHint")}
@@ -123,7 +123,7 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
                 <div className="flex items-start gap-x-3">
                   <Form.Control>
                     <Switch
-                      className="rtl:rotate-180"
+                      className="rtl:rotate-180 shrink-0"
                       dir="ltr"
                       {...field}
                       checked={value}
@@ -131,7 +131,7 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
                       disabled={!manageInventory}
                     />
                   </Form.Control>
-                  <div className="flex flex-col">
+                  <div className="flex min-w-0 flex-col">
                     <Form.Label>
                       {t("offers.fields.allowBackorders")}
                     </Form.Label>
