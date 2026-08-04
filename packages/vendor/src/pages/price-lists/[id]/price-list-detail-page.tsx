@@ -7,6 +7,7 @@ import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared";
 import { usePriceList } from "@hooks/api/price-lists";
 
 import { PriceListConfigurationSection } from "./_components/price-list-configuration-section";
+import { PriceListCustomerAvailabilitySection } from "./_components/price-list-customer-availability-section";
 import { PriceListGeneralSection } from "./_components/price-list-general-section";
 import { PriceListProductSection } from "./_components/price-list-product-section";
 
@@ -16,7 +17,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
   const initialData = useLoaderData() as Awaited<ReturnType<typeof loader>>;
   const { id } = useParams();
 
-  const linkQuery = useLinkQuery("price_list");
+  const linkQuery = useLinkQuery("price_list", "+prices.id");
   const { price_list, isLoading, isError, error } = usePriceList(id!, linkQuery, {
     placeholderData: initialData,
   });
@@ -40,6 +41,7 @@ const Root = ({ children }: { children?: ReactNode }) => {
           <TwoColumnPage.Main>
             <WidgetZone id="price-lists.detail.main" data={price_list}>
               <PriceListGeneralSection priceList={price_list} />
+              <PriceListCustomerAvailabilitySection priceList={price_list} />
               <PriceListProductSection priceList={price_list} />
             </WidgetZone>
           </TwoColumnPage.Main>
@@ -58,6 +60,7 @@ export const PriceListDetailPage = Object.assign(Root, {
   Main: TwoColumnPage.Main,
   Sidebar: TwoColumnPage.Sidebar,
   MainGeneralSection: PriceListGeneralSection,
+  MainCustomerAvailabilitySection: PriceListCustomerAvailabilitySection,
   MainProductSection: PriceListProductSection,
   SidebarConfigurationSection: PriceListConfigurationSection,
 });

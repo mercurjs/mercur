@@ -29,15 +29,23 @@ export const PriceListGeneralSection = ({
       ? t("priceLists.fields.type.options.sale.label")
       : t("priceLists.fields.type.options.override.label")
 
+  const GENERAL_FIELD_IDS = [
+    "title",
+    "status",
+    "type",
+    "description",
+    "price_overrides",
+  ]
+
   return (
-    <Container className="divide-y p-0">
-      <div className="flex items-center justify-between px-6 py-4">
+    <Container className="divide-y p-0" data-testid="price-list-general-section-container">
+      <div className="flex items-center justify-between px-6 py-4" data-testid="price-list-general-section-header">
         <DisplayField model="price_list" zone="general" id="title" data={priceList}>
-          <Heading>{priceList.title}</Heading>
+          <Heading data-testid="price-list-general-section-title">{priceList.title}</Heading>
         </DisplayField>
         <div className="flex items-center gap-x-4">
           <DisplayField model="price_list" zone="general" id="status" data={priceList}>
-            <StatusBadge color={color}>{text}</StatusBadge>
+            <StatusBadge color={color} data-testid="price-list-general-section-status">{text}</StatusBadge>
           </DisplayField>
           <ActionMenu
             groups={[
@@ -64,47 +72,36 @@ export const PriceListGeneralSection = ({
         </div>
       </div>
       <DisplayField model="price_list" zone="general" id="type" data={priceList}>
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-          <Text leading="compact" size="small" weight="plus">
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="price-list-general-section-type">
+          <Text leading="compact" size="small" weight="plus" data-testid="price-list-general-section-type-label">
             {t("fields.type")}
           </Text>
-          <Text size="small" className="text-pretty">
+          <Text size="small" className="text-pretty" data-testid="price-list-general-section-type-value">
             {type}
           </Text>
         </div>
       </DisplayField>
       <DisplayField model="price_list" zone="general" id="description" data={priceList}>
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-          <Text leading="compact" size="small" weight="plus">
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="price-list-general-section-description">
+          <Text leading="compact" size="small" weight="plus" data-testid="price-list-general-section-description-label">
             {t("fields.description")}
           </Text>
-          <Text size="small" className="text-pretty">
+          <Text size="small" className="text-pretty" data-testid="price-list-general-section-description-value">
             {priceList.description}
           </Text>
         </div>
       </DisplayField>
       <DisplayField model="price_list" zone="general" id="price_overrides" data={priceList}>
-        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4">
-          <Text leading="compact" size="small" weight="plus">
+        <div className="text-ui-fg-subtle grid grid-cols-2 items-center px-6 py-4" data-testid="price-list-general-section-price-overrides">
+          <Text leading="compact" size="small" weight="plus" data-testid="price-list-general-section-price-overrides-label">
             {t("priceLists.fields.priceOverrides.label")}
           </Text>
-          <Text size="small" className="text-pretty">
+          <Text size="small" className="text-pretty" data-testid="price-list-general-section-price-overrides-value">
             {overrideCount || "-"}
           </Text>
         </div>
       </DisplayField>
-      <DisplayExtensionZone
-        model="price_list"
-        zone="general"
-        data={priceList}
-        builtInFieldIds={[
-          "title",
-          "status",
-          "type",
-          "description",
-          "price_overrides",
-        ]}
-      />
+      <DisplayExtensionZone model="price_list" zone="general" data={priceList} builtInFieldIds={GENERAL_FIELD_IDS} />
     </Container>
   )
 }

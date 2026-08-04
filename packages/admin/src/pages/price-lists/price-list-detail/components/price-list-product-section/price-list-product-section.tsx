@@ -219,7 +219,9 @@ export const PriceListProductSection = ({
           count={groupedOffers.length}
           pageSize={PAGE_SIZE}
           isLoading={isLoading}
-          navigateTo={(row) => `/products/${row.original.product_id}`}
+          navigateTo={(row) =>
+            `/offers/${row.original.product_id}?seller_id=${row.original.seller_id}`
+          }
           orderBy={[
             { key: "created_at", label: t("fields.createdAt") },
             { key: "updated_at", label: t("fields.updatedAt") },

@@ -2,30 +2,24 @@
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { RouteFocusModal } from "@components/modals"
-import { usePriceList, usePriceListProducts } from "@hooks/api/price-lists"
-import { usePriceListCurrencyData } from "../../../../common/hooks/use-price-list-currency-data"
+import { usePriceListEditGrid } from "./price-list-prices-edit-form/use-price-list-edit-grid"
 import { PriceListPricesEditForm } from "./price-list-prices-edit-form"
 
 export const Component = () => {
   const { t } = useTranslation()
   const { id } = useParams()
-  const { price_list, isLoading, isError, error } = usePriceList(id!)
 
   const {
-    products,
-    isLoading: isProductsLoading,
-    isError: isProductsError,
-    error: productError,
-  } = usePriceListProducts(id!)
-
-  const priceListCurrencyData = usePriceListCurrencyData()
-
-  const ready =
-    !isLoading &&
-    !!price_list &&
-    !isProductsLoading &&
-    !!products &&
-    priceListCurrencyData.isReady
+    price_list,
+    gridData,
+    variantIdByOffer,
+    currencyData,
+    ready,
+    isError,
+    error,
+    isProductsError,
+    productError,
+  } = usePriceListEditGrid(id!)
 
   if (isError) {
     throw error
@@ -36,7 +30,7 @@ export const Component = () => {
   }
 
   return (
-    <RouteFocusModal>
+    <RouteFocusModal prev={`/price-lists/${id}`}>
       <RouteFocusModal.Title asChild>
         <span className="sr-only">
           {t("priceLists.products.edit.title", { title: price_list?.title })}
@@ -48,8 +42,11 @@ export const Component = () => {
       {ready && (
         <PriceListPricesEditForm
           priceList={price_list}
-          products={products}
-          {...priceListCurrencyData}
+          gridData={gridData}
+          variantIdByOffer={variantIdByOffer}
+          regions={currencyData.regions}
+          currencies={currencyData.currencies}
+          pricePreferences={currencyData.pricePreferences}
         />
       )}
     </RouteFocusModal>

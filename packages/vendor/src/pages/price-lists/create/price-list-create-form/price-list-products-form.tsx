@@ -1,23 +1,26 @@
 import { Checkbox } from "@medusajs/ui"
 import { keepPreviousData } from "@tanstack/react-query"
 import {
+  ColumnDef,
   OnChangeFn,
   RowSelectionState,
   createColumnHelper,
 } from "@tanstack/react-table"
-import { useMemo, useState } from "react"
+import { useMemo, useRef, useState } from "react"
 import { UseFormReturn, useWatch } from "react-hook-form"
-
 import { useTranslation } from "react-i18next"
+
 import { _DataTable } from "@components/table/data-table"
 import { useProducts } from "@hooks/api/products"
-import { useProductTableColumns } from "@hooks/table/columns/use-product-table-columns"
-import { useProductTableFilters } from "@hooks/table/filters/use-product-table-filters"
-import { useProductTableQuery } from "@hooks/table/query/use-product-table-query"
 import { useDataTable } from "@hooks/use-data-table"
-import { PriceListCreateProductsSchema } from "../../../common/schemas"
+import {
+  collectOfferIds,
+  useOfferTableColumns,
+  useOfferTableFilters,
+  useOfferTableQuery,
+} from "@pages/offers/_components"
+import { OfferProduct } from "@pages/offers/common/types"
 import { PricingCreateSchemaType } from "./schema"
-import { ExtendedAdminProduct } from "@custom-types/products"
 
 type PriceListProductsFormProps = {
   form: UseFormReturn<PricingCreateSchemaType>
@@ -37,75 +40,61 @@ export const PriceListProductsForm = ({ form }: PriceListProductsFormProps) => {
   const { t } = useTranslation()
   const { control, setValue } = form
 
-  const selectedIds = useWatch({
-    control,
-    name: "product_ids",
-  })
-
-  const productRecords = useWatch({
-    control,
-    name: "products",
-  })
+  const selectedIds = useWatch({ control, name: "product_ids" })
 
   const [rowSelection, setRowSelection] = useState<RowSelectionState>(
     getInitialSelection(selectedIds)
   )
 
-  const { searchParams, raw } = useProductTableQuery({
+  const { searchParams, raw } = useOfferTableQuery({
     pageSize: PAGE_SIZE,
     prefix: PREFIX,
   })
+  // One row per product (the seller's offered products). Each row's offers,
+  // flattened via `collectOfferIds`, become the priceable offer ids; variant→
+  // offer resolution happens in the Prices tab.
   const { products, count, isLoading, isError, error } = useProducts(
-    { ...searchParams, fields: "+thumbnail" },
-    {
-      placeholderData: keepPreviousData,
-    }
+    searchParams,
+    { placeholderData: keepPreviousData }
   )
+
+  const rows = (products ?? []) as OfferProduct[]
+
+  // product id -> offer ids, kept across pages so a selection survives paging.
+  const offerMeta = useRef<Record<string, string[]>>({})
+  for (const row of rows) {
+    offerMeta.current[row.id] = collectOfferIds(row)
+  }
 
   const updater: OnChangeFn<RowSelectionState> = (fn) => {
     const state = typeof fn === "function" ? fn(rowSelection) : fn
 
-    const ids = Object.keys(state)
-    const productRecordKeys = Object.keys(productRecords)
+    const productIds = Object.keys(state).filter(
+      (id) => offerMeta.current[id]
+    )
+    const offerIds = Array.from(
+      new Set(productIds.flatMap((id) => offerMeta.current[id] ?? []))
+    )
 
-    const updatedRecords = productRecordKeys.reduce((acc, key) => {
-      if (ids.includes(key)) {
-        acc[key] = productRecords[key]
-      }
-
-      return acc
-    }, {} as PriceListCreateProductsSchema)
-
-    const update = ids.map((id) => ({ id }))
-
-    setValue("product_ids", update, {
-      shouldDirty: true,
-      shouldTouch: true,
-    })
-
-    /**
-     * Update the product records to ensure that all unselected products
-     * are removed from the form state.
-     */
-    setValue("products", updatedRecords, {
-      shouldDirty: true,
-      shouldTouch: true,
-    })
+    setValue(
+      "product_ids",
+      productIds.map((id) => ({ id })),
+      { shouldDirty: true, shouldTouch: true }
+    )
+    setValue("offer_ids", offerIds, { shouldDirty: true, shouldTouch: true })
 
     setRowSelection(state)
   }
 
   const columns = useColumns()
-  const filters = useProductTableFilters()
+  const filters = useOfferTableFilters()
 
   const { table } = useDataTable({
-    data: products || [],
+    data: rows,
     columns,
     count,
     enablePagination: true,
-    enableRowSelection: (row) => {
-      return !!row.original.variants?.length
-    },
+    enableRowSelection: (row) => collectOfferIds(row.original).length > 0,
     getRowId: (row) => row.id,
     rowSelection: {
       state: rowSelection,
@@ -131,15 +120,8 @@ export const PriceListProductsForm = ({ form }: PriceListProductsFormProps) => {
         layout="fill"
         orderBy={[
           { key: "title", label: t("fields.title") },
-          { key: "status", label: t("fields.status") },
-          {
-            key: "created_at",
-            label: t("fields.createdAt"),
-          },
-          {
-            key: "updated_at",
-            label: t("fields.updatedAt"),
-          },
+          { key: "created_at", label: t("fields.createdAt") },
+          { key: "updated_at", label: t("fields.updatedAt") },
         ]}
         pagination
         search
@@ -152,44 +134,37 @@ export const PriceListProductsForm = ({ form }: PriceListProductsFormProps) => {
   )
 }
 
-const columnHelper = createColumnHelper<ExtendedAdminProduct>()
+const columnHelper = createColumnHelper<OfferProduct>()
 
 const useColumns = () => {
-  const base = useProductTableColumns()
+  const base = useOfferTableColumns()
 
-  return useMemo(
-    () => [
-      columnHelper.display({
-        id: "select",
-        header: ({ table }) => {
-          return (
-            <Checkbox
-              checked={
-                table.getIsSomePageRowsSelected()
-                  ? "indeterminate"
-                  : table.getIsAllPageRowsSelected()
-              }
-              onCheckedChange={(value) =>
-                table.toggleAllPageRowsSelected(!!value)
-              }
-            />
-          )
-        },
-        cell: ({ row }) => {
-          return (
-            <Checkbox
-              checked={row.getIsSelected()}
-              disabled={!row.getCanSelect()}
-              onCheckedChange={(value) => row.toggleSelected(!!value)}
-              onClick={(e) => {
-                e.stopPropagation()
-              }}
-            />
-          )
-        },
-      }),
-      ...base,
-    ],
-    [base]
-  )
+  return useMemo(() => {
+    const selectColumn = columnHelper.display({
+      id: "select",
+      header: ({ table }) => (
+        <Checkbox
+          checked={
+            table.getIsSomePageRowsSelected()
+              ? "indeterminate"
+              : table.getIsAllPageRowsSelected()
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+        />
+      ),
+      cell: ({ row }) => (
+        <Checkbox
+          checked={row.getIsSelected()}
+          disabled={!row.getCanSelect()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          onClick={(e) => e.stopPropagation()}
+        />
+      ),
+    })
+
+    // The offers columns end with an OfferActions menu; drop it in the picker.
+    const informative = base.slice(0, -1) as ColumnDef<OfferProduct>[]
+
+    return [selectColumn, ...informative] as ColumnDef<OfferProduct>[]
+  }, [base])
 }
