@@ -76,7 +76,6 @@ export const PriceListCustomerGroupRuleForm = ({
     )
 
   const customerGroups = customerGroupsData
-    ?.map((item) => item.customer_group)
 
   const updater: OnChangeFn<RowSelectionState> = (value) => {
     const state = typeof value === "function" ? value(rowSelection) : value

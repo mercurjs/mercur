@@ -21,8 +21,11 @@ export const VendorGetPriceListsParams = createFindParams({
   z.object({
     q: z.string().optional(),
     id: z.union([z.string(), z.array(z.string())]).optional(),
+    type: z.array(z.nativeEnum(PriceListType)).optional(),
     starts_at: createOperatorMap().optional(),
     ends_at: createOperatorMap().optional(),
+    created_at: createOperatorMap().optional(),
+    updated_at: createOperatorMap().optional(),
     status: z.array(z.nativeEnum(PriceListStatus)).optional(),
   })
 )

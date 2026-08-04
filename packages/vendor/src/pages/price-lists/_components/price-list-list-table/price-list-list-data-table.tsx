@@ -1,3 +1,4 @@
+import { CurrencyDollar } from "@medusajs/icons";
 import { keepPreviousData } from "@tanstack/react-query";
 import { createColumnHelper, type ColumnDef } from "@tanstack/react-table";
 import { useMemo } from "react";
@@ -56,7 +57,6 @@ export const PriceListListDataTable = () => {
       filters={filters}
       orderBy={[
         { key: "title", label: t("fields.title") },
-        { key: "status", label: t("fields.status") },
         {
           key: "created_at",
           label: t("fields.createdAt"),
@@ -66,10 +66,20 @@ export const PriceListListDataTable = () => {
           label: t("fields.updatedAt"),
         },
       ]}
+      defaultOrderBy="title"
       queryObject={raw}
       pageSize={PAGE_SIZE}
       navigateTo={(row) => row.original.id}
       isLoading={isLoading}
+      noRecords={{
+        icon: <CurrencyDollar className="text-ui-fg-subtle" />,
+        title: t("priceLists.list.noRecords.title"),
+        message: t("priceLists.list.noRecords.message"),
+        action: {
+          to: "create",
+          label: t("actions.create"),
+        },
+      }}
       pagination
       search
     />

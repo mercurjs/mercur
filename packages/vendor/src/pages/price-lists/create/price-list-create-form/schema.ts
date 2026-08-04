@@ -1,6 +1,7 @@
+import i18n from "i18next"
 import { z } from "zod"
 import {
-  PriceListCreateProductsSchema,
+  PriceListCreateOffersSchema,
   PriceListRulesSchema,
 } from "@pages/price-lists/common/schemas"
 
@@ -18,12 +19,19 @@ export type PricingCustomerGroupsArrayType = z.infer<
 export const PricingCreateSchema = z.object({
   type: z.enum(["sale", "override"]),
   status: z.enum(["draft", "active"]),
-  title: z.string().min(1),
-  description: z.string().min(1),
+  title: z.string().min(1, i18n.t("priceLists.create.validation.title")),
+  description: z
+    .string()
+    .min(1, i18n.t("priceLists.create.validation.description")),
   starts_at: z.date().nullish(),
   ends_at: z.date().nullish(),
   product_ids: z.array(z.object({ id: z.string() })).min(1),
-  products: PriceListCreateProductsSchema,
+  // Offer ids selected in the picker (every variant of the chosen products).
+  // The Prices tab hydrates `offers` from these.
+  offer_ids: z.array(z.string()).default([]),
+  // Offer-keyed prices (offer_id -> { variant_id, prices }), so every price
+  // carries its offer_id rule and stays scoped to that offer.
+  offers: PriceListCreateOffersSchema.default({}),
   rules: PriceListRulesSchema.nullish(),
 })
 
@@ -35,7 +43,6 @@ export const PricingDetailsSchema = PricingCreateSchema.pick({
   description: true,
   starts_at: true,
   ends_at: true,
-  customer_group_ids: true,
 })
 
 export const PricingDetailsFields = Object.keys(
@@ -51,7 +58,7 @@ export const PricingProductsFields = Object.keys(
 ) as (keyof typeof PricingProductsSchema.shape)[]
 
 export const PricingPricesSchema = PricingCreateSchema.pick({
-  products: true,
+  offers: true,
 })
 
 export const PricingPricesFields = Object.keys(

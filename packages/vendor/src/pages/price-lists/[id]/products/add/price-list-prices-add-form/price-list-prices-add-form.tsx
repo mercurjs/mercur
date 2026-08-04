@@ -10,7 +10,7 @@ import { z } from "zod";
 import { RouteFocusModal, useRouteModal } from "@components/modals";
 import { KeyboundForm } from "@components/utilities/keybound-form";
 import { useBatchPriceListPrices } from "@hooks/api/price-lists";
-import { exctractPricesFromProducts } from "../../../../common/utils";
+import { extractPricesFromOffers } from "../../../../common/utils";
 import { PriceListPricesAddPricesForm } from "./price-list-prices-add-prices-form";
 import { PriceListPricesAddProductIdsForm } from "./price-list-prices-add-product-ids-form";
 import {
@@ -55,8 +55,9 @@ export const PriceListPricesAddForm = ({
 
   const form = useForm<PriceListPricesAddSchema>({
     defaultValues: {
-      products: {},
+      offers: {},
       product_ids: [],
+      offer_ids: [],
     },
     resolver: zodResolver(PriceListPricesAddSchema),
   });
@@ -65,9 +66,9 @@ export const PriceListPricesAddForm = ({
 
   const handleSubmit = form.handleSubmit(
     async (values) => {
-      const { products } = values;
+      const { offers } = values;
 
-      const prices = exctractPricesFromProducts(products, regions);
+      const prices = extractPricesFromOffers(offers, regions);
 
       await mutateAsync(
         {
@@ -83,7 +84,7 @@ export const PriceListPricesAddForm = ({
       );
     },
     (errors) => {
-      if (errors.products) {
+      if (errors.offers) {
         toast.error(t("priceLists.products.add.atLeastOnePrice"));
       }
     },
