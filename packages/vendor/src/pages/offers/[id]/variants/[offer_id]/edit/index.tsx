@@ -68,7 +68,7 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
         className="flex flex-1 flex-col overflow-hidden"
         data-testid="offer-variant-edit-form"
       >
-        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-4 overflow-auto">
+        <RouteDrawer.Body className="flex flex-1 flex-col gap-y-8 overflow-auto">
           <Form.Field
             control={form.control}
             name="sku"
