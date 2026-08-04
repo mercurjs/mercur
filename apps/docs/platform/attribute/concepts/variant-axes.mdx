@@ -1,0 +1,61 @@
+---
+title: "Variant axes"
+sidebarTitle: "Variant axes"
+description: "How is_variant_axis mirrors a native ProductOption and generates variants."
+---
+
+In this document, you'll learn how an attribute becomes the axis a product's
+variants are generated from, and the mirror links that keep the two in sync.
+
+## Variant-axis attribute
+
+A `multi_select` attribute marked `is_variant_axis` is more than a descriptor.
+It defines a dimension along which a product varies, such as Size or Color. When
+such an attribute is created, the `ProductAttribute` model records the id of a native
+Medusa `ProductOption` in its `product_option_id` field, and each of its
+`ProductAttributeValue`s records the matching `ProductOptionValue` id in
+`product_option_value_id`.
+
+```ts
+await createProductAttributesWorkflow(container).run({
+  input: {
+    attributes: [
+      {
+        name: "Size",
+        type: "multi_select",
+        is_variant_axis: true,
+        values: [{ name: "S" }, { name: "M" }, { name: "L" }],
+      },
+    ],
+  },
+})
+```
+
+Because the attribute mirrors a real `ProductOption`, the values a product
+selects along that axis are exactly what Medusa uses to generate its variants.
+
+## Mirror links
+
+The attribute catalog and Medusa's product options are two separate modules, so
+the relationship is kept as a pair of **read-only mirror links**:
+
+| Mirror | FK on the attribute side | Points to |
+| --- | --- | --- |
+| Attribute → option | `ProductAttribute.product_option_id` | `ProductOption` |
+| Value → option value | `ProductAttributeValue.product_option_value_id` | `ProductOptionValue` |
+
+Both are 1:1 and have no pivot table. The foreign key lives on the attribute
+record itself.
+
+<Note>
+  The mirror links are **read-only**. They're resolved from the FK on the
+  attribute record; you never write the relationship through the link. The
+  workflows keep the option and the attribute in step whenever an axis attribute
+  or its values change.
+</Note>
+
+<Tip>
+  Only `multi_select` attributes can be variant axes. The other four types
+  (`single_select`, `text`, `unit`, `toggle`) describe a product but never
+  generate variants.
+</Tip>

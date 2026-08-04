@@ -1,0 +1,59 @@
+---
+title: "Computed totals"
+sidebarTitle: "Computed totals"
+description: "Why an order group's seller count and total are derived at query time, not stored."
+---
+
+This page covers how an order group's `seller_count` and `total` are calculated
+and why they aren't persisted.
+
+## Computed, not stored
+
+Two fields on the `OrderGroup` model are marked `computed()`. They never hold a
+value in the `order_group` row.
+
+```ts
+const OrderGroup = model.define("order_group", {
+  // ...
+  seller_count: model.number().computed(),
+  total: model.bigNumber().computed(),
+})
+```
+
+`seller_count` is the number of distinct sellers with a child order in the group.
+`total` is the sum of those child orders' current totals. Both are resolved
+by aggregating across the group's linked orders each time the group is read,
+rather than being written once at creation.
+
+<Note>
+  Storing these values would immediately go stale: child orders can be refunded,
+  returned, or canceled after the group is created, changing both the total and,
+  effectively, the active seller set.
+</Note>
+
+## How they're aggregated
+
+When you read a group, the Seller module's order-group repository joins the group
+to its child orders (and each order to its seller and order summary) and folds
+them up:
+
+- `seller_count`: a distinct count of the linked sellers
+- `total`: the sum of each child order's current order total
+
+```ts
+const orderGroup = await sellerModuleService.retrieveOrderGroup("og_123")
+// orderGroup.seller_count -> e.g. 3
+// orderGroup.total        -> e.g. 24900 (sum across child orders)
+```
+
+<Tip>
+  Because `total` is a `bigNumber`, group totals stay precise no matter how many
+  child orders and currencies contribute to the aggregate.
+</Tip>
+
+## Aggregated child statuses
+
+The retrieve and list workflows layer the same idea onto child orders. They
+derive each order's `payment_status` and `fulfillment_status` from its payment
+collections and fulfillments at read time, so the group reflects the live state
+of every seller's slice without any denormalized status column.

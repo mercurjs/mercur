@@ -1,0 +1,48 @@
+---
+title: "Widgets"
+sidebarTitle: "Widgets"
+description: "Attach a React component to a named zone on a built-in page with defineWidgetConfig."
+---
+
+A widget attaches a React component to a named zone on a built-in page.
+
+You export a `config` from `defineWidgetConfig` and a default component. The zone
+id names the page and slot, and its last segment (`before`, `after`, or `replace`)
+sets the placement. This page documents the config shape and the props your
+component receives.
+
+## `defineWidgetConfig`
+
+```tsx apps/vendor/src/widgets/product-list-banner.tsx
+import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
+
+export const config = defineWidgetConfig({
+  zone: "product.list.before", // WidgetZoneId: <domain>.<view>[.<slot>].<before|after|replace>
+})
+
+export default ProductListBanner
+```
+
+| Field  | Type                            | Description                                                                 |
+| ------ | ------------------------------- | --------------------------------------------------------------------------- |
+| `zone` | `WidgetZoneId \| WidgetZoneId[]` | Target zone(s). Placement is the suffix. Multiple widgets stack in order.    |
+| `id`   | `string` (optional)             | Stable id, derived from the file path at build time when omitted.           |
+
+## Component props
+
+The widget component receives a single prop:
+
+| Prop   | Type      | Description                                                                                |
+| ------ | --------- | ----------------------------------------------------------------------------------------- |
+| `data` | `unknown` | The zone's contextual entity, such as the loaded product on a `product.detail.*` zone. Undefined on list or public zones that have no single entity. |
+
+```tsx
+const ProductDetailNote = ({ data }: { data?: HttpTypes.AdminProduct }) => (
+  <Container>{data?.title}</Container>
+)
+```
+
+<Note>
+  The public `login.logo`, `login.before`, and `login.after` zones render before
+  authentication and receive no `data`.
+</Note>

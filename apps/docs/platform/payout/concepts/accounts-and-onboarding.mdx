@@ -1,0 +1,70 @@
+---
+title: "Accounts & onboarding"
+sidebarTitle: "Accounts & onboarding"
+description: "The payout account, its onboarding record, and provider-specific data."
+---
+
+In this document, you'll learn how a seller connects to a payment provider and
+where provider-specific data lives.
+
+## Payout account
+
+A payout account is the seller's connection to the payment provider. It is the
+record funds are transferred to. A payout account is represented by the
+`PayoutAccount` data model (table `payout_account`, id prefix `pacc`). It is
+created for a seller through `createPayoutAccountWorkflow`, which also links the
+account to the store.
+
+```ts
+const { result } = await createPayoutAccountWorkflow(container).run({
+  input: {
+    seller_id: "sel_123",
+    context: { /* forwarded to the provider */ },
+    data: { /* forwarded to the provider */ },
+  },
+})
+```
+
+Creating an account is a two-step operation. The module first persists the
+`PayoutAccount`. It then calls the provider to create the connected account and
+stores what the provider returns in the account's `data` field. A seller has
+**exactly one** payout account.
+
+<Note>
+  A store can only have **one** payout account. `createPayoutAccountWorkflow`
+  validates that the seller doesn't already have one before creating it.
+</Note>
+
+## Onboarding
+
+Before an account can receive funds, the seller usually has to complete
+provider-side setup, such as identity verification, bank details, or KYC. That
+state is held in the `Onboarding` data model (table `onboarding`, id prefix
+`onb`). The record is a one-to-one satellite of the payout account.
+
+```ts
+await createOnboardingWorkflow(container).run({
+  input: {
+    account_id: "pacc_123",
+    context: { return_url: "https://store.example.com/settings/payouts" },
+  },
+})
+```
+
+The workflow asks the provider to produce onboarding data (for Stripe Connect,
+an onboarding link) and stores it on the record. Running it again on an account
+that already has an onboarding record **updates** it rather than creating a
+second one.
+
+## Provider data
+
+The `data` JSON field on `PayoutAccount`, `Onboarding`, and `Payout` is where
+provider-specific values live, such as the Stripe account id, onboarding URLs, or
+transfer references. The module never interprets these fields. It forwards them
+to and from the provider.
+
+<Tip>
+  `context` carries per-request hints such as an `idempotency_key` or a
+  `return_url`, while `data` carries the durable provider payload. Both are
+  passed straight through the `IPayoutProvider` interface.
+</Tip>

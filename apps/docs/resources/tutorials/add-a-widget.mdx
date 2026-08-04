@@ -1,9 +1,10 @@
 ---
-title: "Add a widget"
-description: "Inject a React component at a named zone on a built-in panel page with defineWidgetConfig — no forking."
+title: "How to Add a Widget"
+sidebarTitle: "Add a Widget"
+description: "Inject a React component at a named zone on a built-in panel page with defineWidgetConfig, no forking."
 ---
 
-A **widget** is a React component attached to a named zone on a built-in page. You drop one file under `src/widgets/`, and the SDK renders it at that zone while the rest of the page — its data fetching, filters, pagination — stays exactly as shipped. This is the lightest way to add UI to a page you don't own.
+A **widget** is a React component attached to a named zone on a built-in page. You drop one file under `src/widgets/`, and the SDK renders it at that zone while the rest of the page stays exactly as shipped, including its data fetching, filters, and pagination. This is the lightest way to add UI to a page you don't own.
 
 <Info>
   **Additive, not a replacement.** Unlike a drop-in route (which owns the whole page), a widget layers your component onto the built-in page at a documented zone. Reach for this first when you just want to *add* something to an existing screen.
@@ -11,7 +12,7 @@ A **widget** is a React component attached to a named zone on a built-in page. Y
 
 ## What you'll build
 
-A tip banner above the vendor product list, rendered from a single file — with the list itself untouched.
+A tip banner above the vendor product list, rendered from a single file, with the list itself untouched.
 
 ## Register the typed targets (once)
 
@@ -59,7 +60,7 @@ Projects from `create-mercur-app` already ship this file. With it present, an in
     Multiple `before` / `after` widgets on the same zone stack in registration order.
   </Step>
   <Step title="Reload the panel">
-    Start the project (`bun run dev`) and open the vendor portal. Widget files hot-reload — the banner appears above the product list, and the table below it works exactly as before.
+    Start the project (`bun run dev`) and open the vendor portal. Widget files hot-reload. The banner appears above the product list, and the table below it works exactly as before.
   </Step>
 </Steps>
 
@@ -74,24 +75,24 @@ Zones mounted today in the **vendor portal**:
 | `login.logo.*` | The logo slot on the public login screen |
 | `login.before.*` / `login.after.*` | Around the login form (rendered before authentication) |
 
-The full, valid set is typed as `WidgetZoneId` and generated into `@mercurjs/vendor/extension-targets` from the panel's own zone hosts — let your editor autocomplete `zone:` to see every option. A zone no page renders can't be targeted and won't type-check.
+The full, valid set is typed as `WidgetZoneId` and generated into `@mercurjs/vendor/extension-targets` from the panel's own zone hosts. Let your editor autocomplete `zone:` to see every option. A zone no page renders can't be targeted and won't type-check.
 
 ## Verify
 
 1. The tip banner renders above the product list.
-2. Search, filter, and paginate the list — all built-in behavior still works.
-3. Change the zone to `product.list.after` and reload — the banner moves below the list.
-4. Set `zone: "not.a.zone"` — `tsc` (`bun run lint`) fails with a "not assignable to `WidgetZoneId`" error.
-5. Delete the file — the banner disappears; nothing else changed.
+2. Search, filter, and paginate the list. All built-in behavior still works.
+3. Change the zone to `product.list.after` and reload. The banner moves below the list.
+4. Set `zone: "not.a.zone"`. `tsc` (`bun run lint`) fails with a "not assignable to `WidgetZoneId`" error.
+5. Delete the file. The banner disappears; nothing else changed.
 
 ## FAQ
 
 <AccordionGroup>
   <Accordion title="Can a widget target more than one zone?">
-    Yes — `zone` accepts an array (`zone: ["product.list.before", "login.after.before"]`), and the same component renders at each.
+    Yes. `zone` accepts an array (`zone: ["product.list.before", "login.after.before"]`), and the same component renders at each.
   </Accordion>
   <Accordion title="Can a block ship widgets?">
-    Yes. A [block](/rc/learn/blocks) can include `src/widgets/` files in its `vendor_ui` / `admin_ui` entry, and they're aggregated just like the host app's — installing the block adds the widget with no wiring.
+    Yes. A [block](/rc/learn/blocks) can include `src/widgets/` files in its `vendor_ui` / `admin_ui` entry, and they're aggregated just like the host app's. Installing the block adds the widget with no wiring.
   </Accordion>
   <Accordion title="Does the admin panel have widget zones too?">
     The zone set is per panel and generated from each panel's pages. Today the mounted zones live in the vendor portal (`product.list.*`, `login.*`); the admin panel exposes navigation and product custom fields. Check `@mercurjs/admin/extension-targets` for its current zones.

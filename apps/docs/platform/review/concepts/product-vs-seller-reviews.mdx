@@ -1,0 +1,63 @@
+---
+title: "Product vs seller reviews"
+sidebarTitle: "Product vs seller reviews"
+description: "The reference discriminator and the links that anchor each review."
+---
+
+This page covers how one review model serves two targets and how each review is
+anchored to the rest of the marketplace.
+
+## Reference
+
+The `reference` field on the `Review` model decides what a review is about. It's
+an enum with two values, `product` and `seller`, and it works together with the
+review's link to the target record. There is no polymorphic id column on the
+model itself; the target is resolved through a module link.
+
+```ts
+// A product review
+{ reference: "product", reference_id: "prod_123", rating: 5 }
+
+// A seller review
+{ reference: "seller", reference_id: "sel_123", rating: 4 }
+```
+
+When a review is created, the `reference` value selects which link is written:
+`reference: "product"` links the review to a product, and `reference: "seller"`
+links it to a seller. Reading a review back, you follow the matching relation
+(`review.product` or `review.seller`) to reach its target.
+
+<Note>
+  Products are the shared master catalog, not seller-owned. A **product** review
+  rates the master product; a **seller** review rates the store. They are
+  independent. A customer can leave both for the same order.
+</Note>
+
+## Order & customer links
+
+Beyond its target, every review is anchored to the order that earned it and the
+customer who wrote it. Creating a review writes two more links, one to the
+`Order` and one to the `Customer`, so a review always has a verifiable purchase
+behind it.
+
+```ts
+// resolved through the customer link when listing a customer's own reviews
+const { data } = await query.graph({
+  entity: "customer_customer_review_review",
+  fields: ["review.*"],
+  filters: { customer_id: "cus_123" },
+})
+```
+
+## One review per target, per order
+
+Because a review is tied to an order, the create flow enforces that a customer
+can leave **at most one review per target per order**. Submitting a second review
+for the same `reference` and `reference_id` on the same order is rejected. The
+order must also belong to the customer submitting the review.
+
+<Tip>
+  A single order can still produce several reviews, one per distinct target. For
+  example, a customer may review the master product *and* the store that
+  fulfilled it from the same order.
+</Tip>

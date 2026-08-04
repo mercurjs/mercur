@@ -1,0 +1,58 @@
+---
+title: "Split a cart into orders"
+sidebarTitle: "Split a cart"
+description: "Complete a multi-seller cart into a group of per-seller orders with completeCartWithSplitOrdersWorkflow."
+---
+
+In this guide, you'll learn how the checkout split works and how to run it from
+your own server code, such as a custom complete-cart route.
+
+Mercur replaces Medusa's single-order checkout with
+`completeCartWithSplitOrdersWorkflow`. It takes a cart that may hold offers from
+several sellers, creates one order per seller, and wraps them in an `OrderGroup`.
+
+## Run the workflow
+
+```ts title="src/api/store/carts/[id]/complete/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { completeCartWithSplitOrdersWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await completeCartWithSplitOrdersWorkflow(req.scope).run({
+    input: { cart_id: req.params.id },
+  })
+
+  res.json({ order_group_id: result.order_group_id })
+}
+```
+
+The workflow is idempotent per cart: if a group already exists for the cart it
+returns the existing `order_group_id` instead of splitting again. It acquires a
+lock on the cart id for the duration of the split so concurrent completions can't
+create duplicate orders.
+
+<Note>
+  Line items are grouped by `item.offer.seller_id`. Sellers sell against the
+  shared master catalog through **offers**, so a line item's seller comes from
+  its offer, never from product ownership.
+</Note>
+
+## What happens during the split
+
+For the cart, the workflow validates payments and per-seller shipping, then in a
+single transaction:
+
+- creates the parent `OrderGroup` (`customer_id`, `cart_id`)
+- creates one child `Order` per seller from that seller's items and shipping
+- links each order to the group, its seller, and the originating cart
+- mirrors line-item → offer links, reserves offer inventory, and splits payment captures proportionally
+- refreshes commission lines per order and marks the cart `completed_at`
+
+Finally it emits `order.placed` for the created orders and `order_group.created`
+for the group.
+
+<Tip>
+  The workflow exposes hooks `validate`, `beforePaymentAuthorization`, and
+  `orderGroupCreated`, so you can inject marketplace-specific logic around the
+  split without forking it.
+</Tip>

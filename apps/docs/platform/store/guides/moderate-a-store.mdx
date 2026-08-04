@@ -1,0 +1,59 @@
+---
+title: "Moderate stores"
+sidebarTitle: "Moderate stores"
+description: "Approve, suspend, and terminate stores from server code."
+---
+
+In this guide, you'll learn how to drive a store through its lifecycle from your
+own server code. Each transition has a dedicated workflow, so the side effects
+(events, notifications, and compensation) run consistently.
+
+## Approve a store
+
+Move a `pending_approval` store to `open` with `approveSellerWorkflow`.
+
+```ts title="src/api/custom/approve/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { approveSellerWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  await approveSellerWorkflow(req.scope).run({
+    input: { seller_id: req.params.id },
+  })
+
+  res.sendStatus(200)
+}
+```
+
+## Suspend and reinstate
+
+Freeze an `open` store's operations, then reinstate it once the issue is resolved.
+
+```ts
+import {
+  suspendSellerWorkflow,
+  unsuspendSellerWorkflow,
+} from "@mercurjs/core/workflows"
+
+await suspendSellerWorkflow(container).run({ input: { seller_id } })
+// ...later
+await unsuspendSellerWorkflow(container).run({ input: { seller_id } })
+```
+
+## Terminate a store
+
+```ts
+import { terminateSellerWorkflow } from "@mercurjs/core/workflows"
+
+await terminateSellerWorkflow(container).run({ input: { seller_id } })
+```
+
+<Warning>
+  Termination is irreversible. All orders and payouts must be resolved first.
+</Warning>
+
+## React to lifecycle changes
+
+To run your own side effects when a store's status changes, subscribe to the
+events these workflows emit instead of polling. The
+[Event reference](/platform/store/reference/events) lists the event names.

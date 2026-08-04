@@ -1,0 +1,83 @@
+---
+title: "Create an offer"
+sidebarTitle: "Create an offer"
+description: "Create a single offer programmatically with createOffersWorkflow."
+---
+
+In this guide, you'll learn how to create an offer from your own server code,
+for example in a custom API route, a seed script, or an import flow.
+
+Mercur exposes a `createOffersWorkflow` that creates the `Offer` record, its
+inventory items, and its price rows, and wires up every link in one run. Run it
+from any place that has access to the Medusa container.
+
+## Run the workflow
+
+```ts title="src/api/custom/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createOffersWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createOffersWorkflow(req.scope).run({
+    input: {
+      offers: [
+        {
+          seller_id: "sel_123",
+          created_by: "mem_123",
+          variant_id: "variant_123",
+          shipping_profile_id: "sp_123",
+          sku: "ACME-WIDGET-01",
+          prices: [{ amount: 2500, currency_code: "usd" }],
+          inventory_items: [
+            {
+              stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }],
+            },
+          ],
+        },
+      ],
+    },
+  })
+
+  res.status(201).json({ offer: result[0] })
+}
+```
+
+<Note>
+  Each offer must reference an existing master `variant_id` and include at least
+  one `inventory_items` entry. The SKU must be unique within the store.
+  Reusing an existing `(seller_id, sku)` pair is rejected.
+</Note>
+
+## What the workflow wires up
+
+A single run does more than insert a row:
+
+- Creates a new `InventoryItem` per `inventory_items` entry (with any `stock_levels`) and links each to the offer. Remember, inventory links to the **offer**, not the variant.
+- Writes each price onto the master variant's shared price set, stamped with an `offer_id` rule, and links the price rows to the offer.
+- Links the offer to its store, product, variant, and shipping profile.
+- Emits `offer.created`.
+
+## Attach custom data
+
+The workflow accepts an `additional_data` payload that is passed to its
+`offersCreated` hook, letting you persist marketplace-specific data alongside the
+offer without forking the workflow.
+
+```ts
+await createOffersWorkflow(req.scope).run({
+  input: {
+    offers: [
+      {
+        seller_id: "sel_123",
+        created_by: "mem_123",
+        variant_id: "variant_123",
+        shipping_profile_id: "sp_123",
+        sku: "ACME-WIDGET-01",
+        prices: [{ amount: 2500, currency_code: "usd" }],
+        inventory_items: [{ stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }] }],
+      },
+    ],
+    additional_data: { source: "csv-import" },
+  },
+})
+```

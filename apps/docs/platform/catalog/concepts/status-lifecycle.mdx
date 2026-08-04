@@ -1,0 +1,58 @@
+---
+title: "Status lifecycle"
+sidebarTitle: "Status lifecycle"
+description: "How a master product moves from draft to proposed, published, or rejected."
+---
+
+In this document, you'll learn about the product status lifecycle and how a
+submission becomes a live catalog product.
+
+## Status
+
+A product's state is held in the `status` field of the `Product` model, typed by
+Medusa's `ProductStatus` enum. A master product moves through four statuses:
+
+```
+   ┌────────┐   submit    ┌──────────┐   approve   ┌────────────┐
+   │ draft   │ ──────────►│ proposed  │ ──────────►│ published  │
+   └────────┘             └────┬─────┘             └────────────┘
+                               │ reject
+                               ▼
+                         ┌────────────┐
+                         │ rejected   │
+                         └────────────┘
+```
+
+| Status | Meaning |
+| --- | --- |
+| `draft` | Work in progress, not yet submitted for review |
+| `proposed` | Submitted, awaiting operator review |
+| `published` | Approved and live in the shared catalog, sellable via offers |
+| `rejected` | Turned down during review |
+
+<Note>
+  Vendor-created products default to **`proposed`**. A store submits a product
+  for review rather than publishing it directly. An operator (or a low-risk
+  auto-confirm rule) is what promotes it to `published`.
+</Note>
+
+## Transitions
+
+Each review transition has a dedicated Mercur workflow so the audit trail,
+events, and side effects run consistently:
+
+| Workflow | Transition |
+| --- | --- |
+| `confirmProductsWorkflow` | `proposed` → `published` |
+| `rejectProductWorkflow` | `proposed` → `rejected` |
+| `requestProductChangeWorkflow` | stays `proposed`, asks the submitter for a revision |
+
+Every transition validates that the product is currently `proposed` before it
+runs, and records an immutable `STATUS_CHANGE` (or `CHANGE_REQUESTED`) action in
+the product-change pipeline for a full history of who reviewed what.
+
+<Tip>
+  Reviewing a product doesn't touch offers. Publishing makes the master product
+  sellable, but each store still lists it independently through its own
+  [offer](/platform/offer/overview).
+</Tip>

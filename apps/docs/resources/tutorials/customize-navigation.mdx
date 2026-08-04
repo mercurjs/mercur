@@ -1,12 +1,13 @@
 ---
-title: "Customize navigation"
+title: "How to Customize Navigation"
+sidebarTitle: "Customize Navigation"
 description: "Reorder, hide, relabel, and re-parent built-in sidebar items with a single _navigation.ts file and defineNavigationConfig."
 ---
 
-The built-in sidebar ships a fixed set of items — Orders, Products, Customers, and so on. To reshape them without replacing the whole sidebar, author one host-owned file: `src/_navigation.ts`. It reorders, hides, relabels, and re-parents **built-in** items, and it is the single source of truth for the sidebar's shape.
+The built-in sidebar ships a fixed set of items: Orders, Products, Customers, and so on. To reshape them without replacing the whole sidebar, author one host-owned file: `src/_navigation.ts`. It reorders, hides, relabels, and re-parents **built-in** items, and it is the single source of truth for the sidebar's shape.
 
 <Info>
-  **When to use this vs. a `config` export.** New pages you add via [drop-in routes](/rc/resources/tutorials/custom-panel-page) place their own sidebar item through `defineRouteConfig({ label, rank, nested })`. `_navigation.ts` is for the items you *didn't* create — the built-in ones. The two layer cleanly: custom routes place themselves; `_navigation.ts` reshapes the built-ins.
+  **When to use this vs. a `config` export.** New pages you add via [drop-in routes](/rc/resources/tutorials/custom-panel-page) place their own sidebar item through `defineRouteConfig({ label, rank, nested })`. `_navigation.ts` is for the items you *didn't* create, the built-in ones. The two layer cleanly: custom routes place themselves; `_navigation.ts` reshapes the built-ins.
 </Info>
 
 ## What you'll build
@@ -56,7 +57,7 @@ With it present, `id` and `nested` autocomplete and an unknown id fails `tsc`.
     Both `id` and `nested` are checked against the panel's generated `NavItemRegistry` / `NavParentRegistry`.
   </Step>
   <Step title="Reload the panel">
-    Open the vendor portal — Orders sits at the top, Price Lists is gone from the menu, and Campaigns now appears under Orders. The route for a hidden item stays reachable directly by URL unless you also remove it.
+    Open the vendor portal. Orders sits at the top, Price Lists is gone from the menu, and Campaigns now appears under Orders. The route for a hidden item stays reachable directly by URL unless you also remove it.
   </Step>
 </Steps>
 
@@ -78,23 +79,23 @@ export default defineNavigationConfig({
 1. The top-level order reflects your `rank` values, with `orders` first.
 2. `price-lists` no longer appears in the sidebar.
 3. `campaigns` renders as a child under Orders.
-4. Set `id: "not-an-item"` — `bun run lint` (tsc) fails against `NavItemRegistry`.
-5. Delete `_navigation.ts` — the default sidebar returns.
+4. Set `id: "not-an-item"`. `bun run lint` (tsc) fails against `NavItemRegistry`.
+5. Delete `_navigation.ts`. The default sidebar returns.
 
 ## FAQ
 
 <AccordionGroup>
   <Accordion title="Can an installed block reorder the sidebar?">
-    No. Navigation is deliberately host-only — blocks can ship pages, widgets, and custom fields, but the sidebar order stays a single source of truth in your app's `_navigation.ts`.
+    No. Navigation is deliberately host-only. Blocks can ship pages, widgets, and custom fields, but the sidebar order stays a single source of truth in your app's `_navigation.ts`.
   </Accordion>
   <Accordion title="What ids can I target?">
-    Any built-in item, top-level or nested, by its own id — e.g. `orders`, `products`, `categories`, `collections`, `campaigns`, `customer-groups`. Let your editor autocomplete `id:` against `NavItemId`; the full set is generated into your panel's `extension-targets.d.ts`.
+    Any built-in item, top-level or nested, by its own id, such as `orders`, `products`, `categories`, `collections`, `campaigns`, or `customer-groups`. Let your editor autocomplete `id:` against `NavItemId`; the full set is generated into your panel's `extension-targets.d.ts`.
   </Accordion>
   <Accordion title="Does this work in the admin panel too?">
-    Yes — drop `src/_navigation.ts` in the admin app and reference `@mercurjs/admin/extension-targets`. Each panel ships its own nav id set.
+    Yes. Drop `src/_navigation.ts` in the admin app and reference `@mercurjs/admin/extension-targets`. Each panel ships its own nav id set.
   </Accordion>
   <Accordion title="How do I add a brand-new sidebar item?">
-    That's a [drop-in route](/rc/resources/tutorials/custom-panel-page) with a `config` export — `_navigation.ts` only reshapes built-in items, it doesn't create routes.
+    That's a [drop-in route](/rc/resources/tutorials/custom-panel-page) with a `config` export. `_navigation.ts` only reshapes built-in items, it doesn't create routes.
   </Accordion>
 </AccordionGroup>
 

@@ -1,0 +1,64 @@
+---
+title: "Ratings & moderation"
+sidebarTitle: "Ratings & moderation"
+description: "The review status lifecycle, store responses, and aggregate ratings."
+---
+
+This page covers how a review moves from submission to a public rating, and how
+per-product and per-seller averages are computed.
+
+## Status
+
+A review's state is held in the `status` field of the `Review` model. A review
+moves through three statuses:
+
+```
+   ┌──────────┐   publish   ┌────────────┐
+   │  pending  │───────────►│  published  │
+   └────┬─────┘             └────────────┘
+        │ reject
+        ▼
+   ┌────────────┐
+   │  rejected   │
+   └────────────┘
+```
+
+| Status | Meaning |
+| --- | --- |
+| `pending` | Submitted, awaiting moderation. The default on creation |
+| `published` | Approved and visible on the storefront |
+| `rejected` | Declined by a moderator |
+
+A review is created as `pending`. Moderation moves it to `published` or
+`rejected` by updating the `status` field. See
+[Moderate a review](/platform/review/guides/moderate-a-review).
+
+## Store responses
+
+A store can attach a single public response to any of its reviews. The response
+lives in the `seller_note` field and is added through a dedicated respond flow,
+which refuses to overwrite an existing response.
+
+<Note>
+  Responding is separate from moderation. A store adds its `seller_note`, while
+  the `status` transition (`published` / `rejected`) stays an operator decision.
+</Note>
+
+## Aggregate ratings
+
+The module service computes average ratings on demand rather than storing a
+denormalized column. `getAvgRating` returns the average for a single product or
+seller, and `getProductsWithRating` / `getSellersWithRating` return records with
+their average rating joined in for list views.
+
+```ts
+const service = container.resolve(MercurModules.REVIEW)
+
+const avg = await service.getAvgRating("seller", "sel_123")
+```
+
+<Tip>
+  Because averages are computed at query time, they always reflect the current
+  set of reviews. There's no cache to invalidate when a review is added, removed,
+  or moderated.
+</Tip>

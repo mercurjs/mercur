@@ -1,0 +1,43 @@
+---
+title: "Links to other modules"
+sidebarTitle: "Links"
+description: "How the Review domain links to products, sellers, orders, and customers."
+---
+
+Modules in Mercur never reference each other directly. They connect through
+**module links**. A review carries no foreign keys to its target on the model
+itself. Instead, four links anchor each review to the rest of the marketplace.
+Once a link is defined, you retrieve related records with `query.graph` using the
+link alias.
+
+```ts
+const { data: reviews } = await query.graph({
+  entity: "review",
+  fields: ["id", "rating", "product.*", "seller.*"],
+})
+```
+
+## Targets
+
+| Linked module | Relationship |
+| --- | --- |
+| **Product** | A product has many reviews (`product_product_review_review`). Written when `reference` is `product`. |
+| **Seller** | A seller has many reviews (`seller_seller_review_review`). Written when `reference` is `seller`. |
+
+A review is linked to **either** a product or a seller, never both. The
+`reference` field on the review decides which link is created.
+
+## Provenance
+
+| Linked module | Relationship |
+| --- | --- |
+| **Order** | Each review is linked to the order that earned it (`order_order_review_review`). |
+| **Customer** | Each review is linked to the customer who wrote it (`customer_customer_review_review`). |
+
+These two links are written for every review and back the validation that a
+customer can review a target only once per order.
+
+<Note>
+  All four links are list links (`isList: true`) on the owning side. A product,
+  seller, order, or customer has many reviews.
+</Note>

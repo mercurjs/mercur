@@ -1,0 +1,59 @@
+---
+title: "Create a new page"
+sidebarTitle: "Create new page"
+description: "Register a page's navigation entry with defineNavigationConfig and describe its forms with createFormHelper."
+---
+
+These two helpers register a page's navigation entry and describe the forms it uses.
+
+Use `defineNavigationConfig` to reshape the sidebar and `createFormHelper` to type
+each form's fields and values.
+
+## `defineNavigationConfig`
+
+Reorder, hide, relabel, or re-parent built-in sidebar items. It lives in a single
+host-owned file. Blocks cannot contribute navigation overrides.
+
+```ts apps/vendor/src/_navigation.ts
+import { defineNavigationConfig } from "@mercurjs/dashboard-sdk"
+
+export default defineNavigationConfig({
+  items: [
+    { id: "orders", rank: 0 },
+    { id: "price-lists", hidden: true },
+    { id: "payouts", label: "settlements" },
+    { id: "categories", nested: null, rank: 1 },
+    { id: "campaigns", nested: "orders" },
+  ],
+})
+```
+
+### `NavItemOverride`
+
+| Field    | Type                       | Description                                                                    |
+| -------- | -------------------------- | ------------------------------------------------------------------------------ |
+| `id`     | `NavItemId`                | Built-in item to override (top-level or nested). Typed against the panel registry. |
+| `rank`   | `number` (optional)        | Order within the item's parent (or among top-level items).                     |
+| `hidden` | `boolean` (optional)       | Remove from the sidebar (route may still be directly reachable).               |
+| `label`  | `string` (optional)        | i18n key or literal replacing the item's label.                                |
+| `icon`   | `ComponentType` (optional) | Icon component replacing the item's icon (from `@medusajs/icons`).             |
+| `nested` | `NavParentId \| null` (optional) | Re-parent under a built-in parent id. `null` promotes a nested item to top level. |
+
+There is no `component` prop here. Navigation overrides reshape existing items only.
+
+## `createFormHelper`
+
+`createFormHelper<T>()` returns Medusa's Zod surface for describing field
+validation and value types:
+
+```ts
+const form = createFormHelper<ProductWithMeta>()
+
+form.define({ validation, defaultValue?, label?, description?, placeholder?, component? })
+form.string() / form.number() / form.boolean() / form.date()
+form.array() / form.object() / form.null() / form.nullable() / form.coerce
+```
+
+The generated registry types the target (which zone, tab, and field ids exist).
+The Zod `validation` types the value. The two compose: codegen types the address,
+Zod types the payload.

@@ -1,0 +1,58 @@
+---
+title: "Event reference"
+sidebarTitle: "Events"
+description: "How the Commission domain stays in sync with order changes."
+---
+
+The Commission domain does **not** emit its own domain events. Commission lines
+are derived data, so instead of broadcasting changes, the module **subscribes**
+to order lifecycle events and recomputes lines whenever an order's composition
+changes.
+
+## Events it reacts to
+
+Mercur ships a subscriber (`order-commission-refresh-handler`) that re-runs
+`refreshOrderCommissionLinesWorkflow` for the affected order on each of these
+events:
+
+| Event | Emitted when |
+| --- | --- |
+| `OrderEditWorkflowEvents.CONFIRMED` | An order edit is confirmed |
+| `OrderWorkflowEvents.RETURN_RECEIVED` | A return is received |
+| `OrderWorkflowEvents.CLAIM_CREATED` | A claim is created |
+| `OrderWorkflowEvents.EXCHANGE_CREATED` | An exchange is created |
+
+Because the refresh is idempotent (delete-then-insert), reacting to several
+events for the same order never duplicates lines.
+
+## Run your own side effects
+
+To run logic when an order's commission changes, subscribe to the same order
+events the module listens to, then read the refreshed lines from the commission
+module.
+
+```ts title="src/subscribers/commission-changed.ts"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+import { OrderWorkflowEvents } from "@medusajs/framework/utils"
+
+export default async function commissionChangedHandler({
+  event,
+  container,
+}: SubscriberArgs<{ order_id?: string; id?: string }>) {
+  const orderId = event.data.order_id ?? event.data.id
+  if (!orderId) {
+    return
+  }
+  // ...read commission lines for the order, notify, sync an external ledger, etc.
+}
+
+export const config: SubscriberConfig = {
+  event: OrderWorkflowEvents.RETURN_RECEIVED,
+}
+```
+
+<Note>
+  Commission is also refreshed at checkout, as each per-seller order is created
+  from the split cart. That refresh happens as a **step inside** the checkout
+  workflow rather than via a separate event.
+</Note>

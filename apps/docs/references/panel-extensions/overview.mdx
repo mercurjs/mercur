@@ -1,0 +1,84 @@
+---
+title: "Panel extensions"
+sidebarTitle: "Overview"
+description: "The file-based helpers for extending the admin and vendor panels: defineWidgetConfig, defineNavigationConfig, defineCustomFieldsConfig, and createFormHelper, plus the exact props passed to every component you supply."
+---
+
+Panel extensions let you customize the Admin and Vendor panels without forking them.
+
+You drop a file into a panel's `src/` and one of four helpers registers it at
+build time: `defineWidgetConfig` attaches a component to a zone,
+`defineCustomFieldsConfig` extends a model's forms and tables,
+`defineNavigationConfig` reshapes the sidebar, and `createFormHelper` types a
+form's fields and values. The [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables),
+[Add a widget](/rc/resources/tutorials/add-a-widget), and
+[Customize navigation](/rc/resources/tutorials/customize-navigation) tutorials
+walk through building an extension. These pages document the exact config shape of
+each helper and the props each component you pass in receives at render time.
+
+## Separate apps, no surface field
+
+Admin (`@mercurjs/admin`, port 7000) and vendor (`@mercurjs/vendor`, port 7001)
+are separate Vite apps. A file dropped under a panel's `src/` targets that panel,
+so the folder you author in is the surface and there is no `surface` field to set.
+The helpers are the same in both. Import the config helpers from
+`@mercurjs/dashboard-sdk` and `createFormHelper` from `@mercurjs/dashboard-shared`.
+
+## Typed targets
+
+Zone ids, nav item ids, models, and built-in field ids are typed per panel from a
+generated `extension-targets.d.ts`. Reference it once per host app so every
+extension file type-checks with no per-file import:
+
+```typescript apps/vendor/src/extension-targets.d.ts
+/// <reference types="@mercurjs/vendor/extension-targets" />
+```
+
+```typescript apps/admin-test/src/extension-targets.d.ts
+/// <reference types="@mercurjs/admin/extension-targets" />
+```
+
+A wrong `zone`, `model`, or nav `id` fails `tsc` (`bun run lint`) rather than
+silently no-op'ing at runtime.
+
+## Persistence
+
+<Warning>
+  **The MVP is a UI surface only.** Custom fields render, validate, and display
+  through the built-in forms, sections, and tables. There is no generic core-side
+  write path. For `product`, values are submitted under `additional_data` and
+  persisted onto `metadata`. To store data for other models, wire your own
+  route or workflow, or use the backend
+  [Custom Fields module](/rc/resources/customization/custom-fields).
+</Warning>
+
+## Explore the helpers
+
+<CardGroup cols={2}>
+  <Card title="Widgets" href="/references/panel-extensions/widgets">
+    Attach a React component to a named zone with `defineWidgetConfig`.
+  </Card>
+  <Card title="Custom Fields" href="/references/panel-extensions/custom-fields">
+    Add form fields, section displays, and list columns with `defineCustomFieldsConfig`.
+  </Card>
+  <Card title="Create a new page" href="/references/panel-extensions/create-page">
+    Register navigation and forms with `defineNavigationConfig` and `createFormHelper`.
+  </Card>
+</CardGroup>
+
+## Related
+
+<CardGroup cols={2}>
+  <Card title="Extend forms and tables" href="/rc/resources/tutorials/extend-forms-and-tables">
+    Step-by-step build with `defineCustomFieldsConfig`.
+  </Card>
+  <Card title="Add a widget" href="/rc/resources/tutorials/add-a-widget">
+    Inject a component into a zone.
+  </Card>
+  <Card title="Customize navigation" href="/rc/resources/tutorials/customize-navigation">
+    Reorder and hide sidebar items.
+  </Card>
+  <Card title="Custom Fields module" href="/resources/best-practices/custom-fields">
+    The backend storage layer.
+  </Card>
+</CardGroup>

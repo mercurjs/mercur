@@ -1,0 +1,56 @@
+---
+title: "Data models"
+sidebarTitle: "Data models"
+description: "The data models owned by the Offer domain."
+---
+
+The Offer domain is owned by the **Offer module**. This reference lists its data
+model and fields. For the full module overview, see the
+[Offer overview](/platform/offer/overview).
+
+## Offer
+
+Table `offer`, id prefix `offer`. A store's listing against a master product
+variant. Price and inventory are attached through links rather than stored on the
+row.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `seller_id` | text | The store that owns the offer (read-only link) |
+| `variant_id` | text | The master `ProductVariant` the offer points at |
+| `product_id` | text | The master `Product` the variant belongs to |
+| `shipping_profile_id` | text | The store's shipping profile for this offer |
+| `sku` | text | Searchable; unique within a store (see below) |
+| `ean` | text | Nullable, searchable; snapshotted off the variant when omitted |
+| `upc` | text | Nullable, searchable; snapshotted off the variant when omitted |
+| `created_by` | text | The member that created the offer |
+| `variant_count` | number | Computed; only set when grouping by store |
+| `metadata` | json | Nullable |
+
+Uniqueness: `(seller_id, sku)` is unique while `deleted_at IS NULL`, so a store
+can't reuse a SKU across its live offers, but different stores may share SKU
+strings. Indexes also cover `variant_id`, `product_id`, `seller_id`,
+`shipping_profile_id`, `ean`, and `upc`.
+
+## Linked data
+
+The offer's price ladder, inventory, and related records aren't columns on the
+`offer` table. They're joined through links and only present when requested:
+
+| Relation | Source |
+| --- | --- |
+| `prices` | Offer-owned rows on the master variant's shared price set (`offer ↔ price` list-link) |
+| `inventory_items` | `offer ↔ inventory_item` list-link; each row carries `required_quantity` |
+| `seller` | Read-only `offer ↔ seller` link |
+| `product` / `product_variant` | Read-only `offer ↔ product` / `offer ↔ variant` links |
+| `shipping_profile` | Read-only `offer ↔ shipping_profile` link |
+
+<Note>
+  `variant_count` (and the companion `offer_ids` list) are computed only when
+  offers are listed grouped by store (`group_by_seller`). On ungrouped reads they
+  are absent.
+</Note>
+
+See the [Links reference](/platform/offer/reference/links) for the full set of
+module links.

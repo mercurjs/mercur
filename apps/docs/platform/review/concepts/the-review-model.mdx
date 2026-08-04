@@ -1,0 +1,56 @@
+---
+title: "The review model"
+sidebarTitle: "The review model"
+description: "The single review entity, its rating, notes, and moderation status."
+---
+
+This page covers the review record and the fields that make up a rating.
+
+## Review
+
+A review is a customer's rating of a single target, either a product or a seller.
+It's represented by the `Review` data model (table `review`, id prefix `rev`). It
+holds the numeric rating, an optional customer note, an optional store response,
+and the moderation status.
+
+```ts
+const { result } = await createReviewWorkflow(container).run({
+  input: {
+    order_id: "order_123",
+    reference: "product",
+    reference_id: "prod_123",
+    rating: 5,
+    customer_note: "Exactly as described, fast shipping.",
+    customer_id: "cus_123",
+  },
+})
+```
+
+Every review carries the same shape regardless of what it targets:
+
+| Field | Purpose |
+| --- | --- |
+| `rating` | The numeric score the customer gave |
+| `reference` | Whether the review is about a `product` or a `seller` |
+| `customer_note` | The customer's optional free-text note |
+| `seller_note` | The store's optional public response |
+| `status` | The moderation state: `pending`, `published`, or `rejected` |
+| `display_id` | A human-readable auto-incrementing number |
+
+<Note>
+  There is no separate table for product reviews and seller reviews. A single
+  `Review` row is discriminated by its `reference` field. See
+  [Product vs seller reviews](/platform/review/concepts/product-vs-seller-reviews).
+</Note>
+
+## Notes
+
+A review separates the two sides of the conversation into two nullable text
+fields. `customer_note` is written by the customer when they submit the review;
+`seller_note` is the store's single response, added later through the respond
+flow. Both are searchable so operators can find reviews by their content.
+
+<Tip>
+  A store can respond **once**. The respond flow refuses to overwrite an existing
+  `seller_note`. To change a response, clear it first.
+</Tip>

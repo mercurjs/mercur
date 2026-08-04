@@ -1,0 +1,83 @@
+---
+title: "Create a variant axis"
+sidebarTitle: "Create a variant axis"
+description: "Generate product variants from a multi_select axis attribute."
+---
+
+In this guide, you'll learn how to create a variant-axis attribute and use it to
+generate a product's variants from server code.
+
+A variant axis is a `multi_select` attribute with `is_variant_axis` set. Creating
+one mirrors a native Medusa `ProductOption`, so the values a product selects along
+the axis become the dimensions Medusa uses to generate variants.
+
+## Create the axis attribute
+
+```ts title="src/api/custom/attributes/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createProductAttributesWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createProductAttributesWorkflow(req.scope).run({
+    input: {
+      attributes: [
+        {
+          name: "Size",
+          type: "multi_select",
+          is_variant_axis: true,
+          is_filterable: true,
+          values: [{ name: "S" }, { name: "M" }, { name: "L" }],
+        },
+      ],
+    },
+  })
+
+  res.status(201).json({ attribute: result[0] })
+}
+```
+
+The workflow creates the `ProductAttribute`, a mirror `ProductOption`, and a
+`ProductAttributeValue` for each option value. It wires `product_option_id` and
+`product_option_value_id` behind the scenes.
+
+## Attach it to a product
+
+Attach the axis to a product and pass the subset of values that product offers.
+Medusa generates a variant for each selected value.
+
+```ts
+import { createAndLinkProductAttributesToProductWorkflow } from "@mercurjs/core/workflows"
+
+await createAndLinkProductAttributesToProductWorkflow(req.scope).run({
+  input: {
+    product_id: "prod_shirt",
+    add: [{ id: "pattr_size", value_ids: ["pattrval_s", "pattrval_m"] }],
+  },
+})
+```
+
+<Note>
+  Only `multi_select` attributes can be variant axes. The `value_ids` you pass
+  are the per-product subset of the axis's values. Only those become variants.
+</Note>
+
+## Inline axes
+
+To create a product-scoped axis in the same step it's attached, pass the inline
+form instead of an existing id. This creates an exclusive `ProductOption`, a
+scoped attribute (`product_id` set), and the value mirror in one call:
+
+```ts
+await createAndLinkProductAttributesToProductWorkflow(req.scope).run({
+  input: {
+    product_id: "prod_shirt",
+    add: [{ title: "Cut", is_variant_axis: true, values: ["Slim", "Regular"] }],
+  },
+})
+```
+
+<Tip>
+  Inline axes are ideal for a one-off dimension a single product needs. Reach for
+  a global axis attribute when the same dimension, such as Size or Color, recurs
+  across the catalog. See [Global vs inline](/platform/attribute/concepts/global-vs-inline).
+</Tip>

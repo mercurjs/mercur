@@ -1,0 +1,61 @@
+---
+title: "Respond to a review"
+sidebarTitle: "Respond to a review"
+description: "Attach a store's public response with respondReviewWorkflow."
+---
+
+In this guide, you'll learn how to attach a store's response to a review from your
+own server code. A response is a single public note the store adds to a review it
+received.
+
+## Run the workflow
+
+`respondReviewWorkflow` writes the `seller_note` on an existing review:
+
+```ts title="src/api/custom/respond/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { respondReviewWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  await respondReviewWorkflow(req.scope).run({
+    input: {
+      id: req.params.id,
+      seller_note: "Thanks for the feedback, glad it arrived quickly!",
+    },
+  })
+
+  res.sendStatus(200)
+}
+```
+
+<Note>
+  A store can respond **once**. The workflow throws if the review already has a
+  `seller_note`, and it throws `NOT_FOUND` if the review id doesn't exist. It
+  captures the previous value so a rollback clears the response again.
+</Note>
+
+## Clearing a response
+
+The respond flow won't overwrite an existing note. To replace a response, first
+clear it with `updateReviewWorkflow`, then respond again:
+
+```ts
+import {
+  updateReviewWorkflow,
+  respondReviewWorkflow,
+} from "@mercurjs/core/workflows"
+
+await updateReviewWorkflow(container).run({
+  input: { id: "rev_123", seller_note: null },
+})
+
+await respondReviewWorkflow(container).run({
+  input: { id: "rev_123", seller_note: "Updated response." },
+})
+```
+
+<Tip>
+  Responding never changes the review's `status`. A store can respond to a
+  `pending` review, but the response only becomes public once the review is
+  [published](/platform/review/guides/moderate-a-review).
+</Tip>

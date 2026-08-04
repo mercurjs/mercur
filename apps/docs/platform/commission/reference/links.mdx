@@ -1,0 +1,45 @@
+---
+title: "Links to other modules"
+sidebarTitle: "Links"
+description: "How the Commission domain connects to the catalog, sellers, and orders."
+---
+
+Most Mercur modules connect to each other through **module links** (`defineLink`)
+resolved with `query.graph`. The Commission module is deliberately different: it
+defines **no** module links. Instead it connects to the rest of the marketplace
+through **soft references**. These are plain id fields resolved at calculation
+time. This keeps commission configuration independent of the catalog and order
+modules it scopes against.
+
+## Rules → catalog & sellers
+
+A `CommissionRule` points at a record in another domain through its
+`reference` / `reference_id` pair, resolved against the order line's product when
+commission is calculated:
+
+| `reference` | Points at | Resolved from |
+| --- | --- | --- |
+| `product` | A master product | `item.product.id` |
+| `product_type` | A product type | `item.product.type_id` |
+| `product_collection` | A collection | `item.product.collection_id` |
+| `product_category` | A category | `item.product.categories[].id` |
+| `seller` | A store | `item.offer.seller_id` |
+
+<Note>
+  Products are the shared master catalog, not seller-owned. The `seller`
+  dimension resolves through the **offer** on the order line, which carries the
+  selling store.
+</Note>
+
+## Lines → orders
+
+A `CommissionLine` records which order line it commissions through its
+`item_id` (an order line item) or `shipping_method_id` (a shipping method).
+These are stored as plain ids, so the payout pipeline reads an order's lines by
+querying the commission module directly rather than traversing a link.
+
+<Tip>
+  Because these are soft references, deleting a product, category, or order does
+  not cascade to commission records. Rules and lines simply stop matching or are
+  refreshed on the next order change.
+</Tip>

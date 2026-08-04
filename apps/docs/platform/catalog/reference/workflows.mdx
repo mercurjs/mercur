@@ -1,0 +1,40 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Mercur's product create, review, and allowlist workflows."
+---
+
+This reference lists the Mercur workflows for the Catalog domain. Import them
+from `@mercurjs/core/workflows` and run them against the Medusa container. They
+wrap Medusa's native product flows to add the marketplace layer: the store
+allowlist, the review lifecycle, and the audit trail.
+
+## Product workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createProductsWorkflow` | `{ products[], created_by, additional_data? }` | Create master products, attach attributes/variants, record the submission, allowlist `seller_ids` |
+| `confirmProductsWorkflow` | `{ product_ids[], actor_id?, internal_note? }` | `proposed` → `published` |
+| `rejectProductWorkflow` | `{ product_id, message?, actor_id? }` | `proposed` → `rejected` |
+| `requestProductChangeWorkflow` | `{ product_id, message?, actor_id? }` | Ask the submitter for a revision (stays `proposed`) |
+
+## Allowlist & organization workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `linkSellersToProductWorkflow` | `{ id, add?, remove? }` | Add/remove stores on a product's allowlist |
+| `linkSellersToProductCategoryWorkflow` | `{ id, add?, remove? }` | Add/remove stores on a category's allowlist |
+| `assignProductsToCategoryWorkflow` | `{ id, add?, remove? }` | Assign products to a single category |
+
+<Note>
+  For plain create/update/delete of products, variants, and categories, Mercur
+  reuses Medusa's native core-flows (`createProductsWorkflow`,
+  `updateProductsWorkflow`, `createProductVariantsWorkflow`, and so on) under the
+  hood. The workflows above are the Mercur-specific entry points that add the
+  allowlist, review lifecycle, and audit history.
+</Note>
+
+To work with records directly instead of through a workflow, see the
+[Service reference](/platform/catalog/reference/service). To run side effects
+when a product changes, see the
+[Event reference](/platform/catalog/reference/events).

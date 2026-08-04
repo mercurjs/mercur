@@ -3,37 +3,37 @@ title: "Custom Fields"
 description: "Extend any Medusa entity with additional fields without modifying core code."
 ---
 
-Custom Fields let you attach extra data to any existing Medusa entity — products, customers, orders, and more — through configuration alone. No migrations to write, no models to define. The module handles table creation and schema updates automatically when you run `db:migrate`.
+Custom Fields let you attach extra data to any existing Medusa entity, such as products, customers, and orders, through configuration alone. No migrations to write, no models to define. The module handles table creation and schema updates automatically when you run `db:migrate`.
 
 <Info>
-  **Where this sits in the stack.** Custom Fields is a Mercur module (`@mercurjs/core/modules/custom-fields`) layered on top of Medusa's standard module-link system — it generates the side table, the link, and the schema for you. It's the lightest way to add data to an entity.
+  **Where this sits in the stack.** Custom Fields is a Mercur module (`@mercurjs/core/modules/custom-fields`) layered on top of Medusa's standard module-link system. It generates the side table, the link, and the schema for you. It's the lightest way to add data to an entity.
 </Info>
 
 <Note>
-  **This is the *data* layer — not the panel UI.** This module *stores* extra data. The panel-side `defineCustomFieldsConfig` helper (see [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables)) *renders* fields into the built-in forms, sections, and tables. They share a name but solve different halves of the problem: use this module for storage and queryability, and the panel helper to expose the values to admins and vendors.
+  **This is the *data* layer, not the panel UI.** This module *stores* extra data. The panel-side `defineCustomFieldsConfig` helper (see [Extend forms and tables](/rc/resources/tutorials/extend-forms-and-tables)) *renders* fields into the built-in forms, sections, and tables. They share a name but solve different halves of the problem: use this module for storage and queryability, and the panel helper to expose the values to admins and vendors.
 </Note>
 
 ## When to use Custom Fields
 
 <Tip>
-  **Use Custom Fields when** the data is a plain property of an existing entity — it belongs to exactly one record, has no lifecycle of its own, and you mostly read it alongside its parent. Typical cases:
+  **Use Custom Fields when** the data is a plain property of an existing entity. It belongs to exactly one record, has no lifecycle of its own, and you mostly read it alongside its parent. Typical cases:
 
   - A `brand`, `warranty_months`, or `is_featured` flag on a product
   - A `company_name` or loyalty `tier` on a customer
   - An internal `source` or `priority` tag on an order
 
-  You get a typed column, a default value, and queryability through `query.graph` — for the cost of one config entry and a `db:migrate`.
+  You get a typed column, a default value, and queryability through `query.graph`, for the cost of one config entry and a `db:migrate`.
 </Tip>
 
 <Warning>
   **Build a custom Medusa module instead when** the data outgrows "extra columns":
 
-  - It has its **own lifecycle** — created, updated, and deleted independently of the parent (e.g. reviews, support tickets)
+  - It has its **own lifecycle**, created, updated, and deleted independently of the parent (e.g. reviews, support tickets)
   - It has **relations** to more than one entity, or many records per parent
-  - It carries **business logic** — validation rules, state transitions, workflows
+  - It carries **business logic**, such as validation rules, state transitions, and workflows
   - You need **its own API routes** and permissions around it
 
-  Custom Fields is strictly one row per parent entity. Forcing a one-to-many or stateful concept into a JSON field works until it doesn't — model it as a module (or check whether a [block](/rc/learn/blocks) already ships it).
+  Custom Fields is strictly one row per parent entity. Forcing a one-to-many or stateful concept into a JSON field works until it doesn't. Model it as a module (or check whether a [block](/rc/learn/blocks) already ships it).
 </Warning>
 
 ## How it works
@@ -77,7 +77,7 @@ The Custom Fields module creates a separate table for each entity you extend (e.
     ```
 
     <Warning>
-      The key in `customFields` (e.g. `Product`, `Customer`) must match the entity name as registered in Medusa's joiner configuration — a mismatched name fails at link resolution, not at config load, so double-check spelling and casing.
+      The key in `customFields` (e.g. `Product`, `Customer`) must match the entity name as registered in Medusa's joiner configuration. A mismatched name fails at link resolution, not at config load, so double-check spelling and casing.
     </Warning>
   </Step>
   <Step title="Run migrations">
@@ -121,7 +121,7 @@ The Custom Fields module creates a separate table for each entity you extend (e.
 | -------------- | ---------- | ------- | ------------------------------------------------ |
 | `nullable`     | `boolean`  | `true`  | Whether the field can be null                    |
 | `defaultValue` | `any`      | `null`  | Default value for the field                      |
-| `enum`         | `string[]` | —       | Required for `enum` type. List of allowed values |
+| `enum`         | `string[]` | None    | Required for `enum` type. List of allowed values |
 
 ## Using the service directly
 
@@ -157,20 +157,20 @@ import {
 } from "@mercurjs/core/workflows";
 ```
 
-- **`upsertCustomFieldsStep`** — Takes `{ alias, data }` where `alias` is the entity name (e.g. `"product"`) and `data` contains the entity ID and field values.
-- **`deleteCustomFieldsStep`** — Takes `{ alias, ids }` to soft-delete custom field records by their IDs.
+- **`upsertCustomFieldsStep`:** takes `{ alias, data }` where `alias` is the entity name (e.g. `"product"`) and `data` contains the entity ID and field values.
+- **`deleteCustomFieldsStep`:** takes `{ alias, ids }` to soft-delete custom field records by their IDs.
 
 ## FAQ
 
 <AccordionGroup>
   <Accordion title="Can I add or change fields after the first migration?">
-    Yes — edit the `customFields` config and run `db:migrate` again; the module updates the side table's schema. Removing a field from config stops exposing it; treat destructive column changes with the same care as any schema migration.
+    Yes. Edit the `customFields` config and run `db:migrate` again; the module updates the side table's schema. Removing a field from config stops exposing it; treat destructive column changes with the same care as any schema migration.
   </Accordion>
   <Accordion title="How do vendors or admins edit these values from the panels?">
-    Through your own UI: add a page or a [panel custom field](/rc/resources/customization/extending-panels#custom-fields) and call an API route that uses the service's `upsert` — or compose `upsertCustomFieldsStep` into a workflow behind a [custom route](/rc/resources/tutorials/custom-api-route).
+    Through your own UI: add a page or a [panel custom field](/rc/resources/customization/extending-panels#custom-fields) and call an API route that uses the service's `upsert`, or compose `upsertCustomFieldsStep` into a workflow behind a [custom route](/rc/resources/tutorials/custom-api-route).
   </Accordion>
   <Accordion title="Can one entity have multiple custom-field records?">
-    No — the side table has a unique constraint on the parent ID, enforcing one-to-one. If you need many records per parent, that's a custom module, not custom fields.
+    No. The side table has a unique constraint on the parent ID, enforcing one-to-one. If you need many records per parent, that's a custom module, not custom fields.
   </Accordion>
 </AccordionGroup>
 

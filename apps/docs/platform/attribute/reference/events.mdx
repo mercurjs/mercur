@@ -1,0 +1,41 @@
+---
+title: "Event reference"
+sidebarTitle: "Events"
+description: "Events emitted by the Attribute domain, for subscribers and side effects."
+---
+
+The Attribute domain emits events as attributes and their values change.
+Subscribe to them to run side effects, such as reindexing storefront filters,
+syncing an external PIM, or kicking off follow-up workflows, instead of polling.
+
+```ts title="src/subscribers/attribute-created.ts"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+
+export default async function attributeCreatedHandler({
+  event,
+  container,
+}: SubscriberArgs<{ id: string }>) {
+  const attributeId = event.data.id
+  // ...reindex filters, sync to an external system, etc.
+}
+
+export const config: SubscriberConfig = {
+  event: "product-attribute.created",
+}
+```
+
+## Attribute events
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `product-attribute.created` | An attribute is created | `{ id }` |
+| `product-attribute.updated` | An attribute changes | `{ id }` |
+| `product-attribute.deleted` | An attribute is deleted | `{ id }` |
+
+## Value events
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `product-attribute-value.created` | A value is created | `{ id }` |
+| `product-attribute-value.updated` | A value changes | `{ id }` |
+| `product-attribute-value.deleted` | A value is deleted | `{ id }` |

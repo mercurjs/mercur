@@ -1,0 +1,71 @@
+---
+title: "Links to other modules"
+sidebarTitle: "Links"
+description: "How the Store (Seller) domain links to other modules across the marketplace."
+---
+
+Modules in Mercur never reference each other directly. They connect through
+**module links**. The Seller module is the most linked domain in the marketplace,
+and almost every other module attaches to a store. Once a link is defined, you
+retrieve related records with `query.graph` using the link alias.
+
+```ts
+const { data: stores } = await query.graph({
+  entity: "seller",
+  fields: ["id", "name", "offers.*", "payout_account.*"],
+})
+```
+
+## Commerce
+
+| Linked module | Relationship |
+| --- | --- |
+| **Offer** | A store has many offers (`offer.seller_id`, read-only). Offers are how a store sells against a master product. |
+| **Product** | Many-to-many allowlist (`product_seller`) that controls which stores may sell a given master product. |
+| **Product category** | Many-to-many link to the categories a store is associated with. |
+| **Order** | Each order belongs to one store; a store has many orders. |
+
+## Payouts
+
+| Linked module | Relationship |
+| --- | --- |
+| **Payout** | A store has many payouts. |
+| **Payout account** | A store has one payout account (its provider onboarding record). |
+
+## Customers
+
+| Linked module | Relationship |
+| --- | --- |
+| **Customer** | Many-to-many link to the customers associated with a store. |
+| **Customer group** | A customer group is owned by exactly one store; a store owns many groups. |
+
+## Fulfillment & inventory
+
+| Linked module | Relationship |
+| --- | --- |
+| **Shipping profile** | A store has many shipping profiles. |
+| **Shipping option** | A store has many shipping options. |
+| **Service zone** | A store has many service zones. |
+| **Fulfillment set** | A store has many fulfillment sets. |
+| **Stock location** | A store has many stock locations. |
+| **Inventory item** | A store has many inventory items. |
+
+## Pricing & promotions
+
+| Linked module | Relationship |
+| --- | --- |
+| **Price list** | A store has many price lists. |
+| **Promotion** | A store has many promotions. |
+| **Campaign** | A store has many campaigns. |
+
+## Access & reviews
+
+| Linked module | Relationship |
+| --- | --- |
+| **RBAC role** | A member's role on a store (`seller_member.role_id`, read-only) resolves against the roles module. |
+| **Review** | A store has many reviews. |
+
+<Note>
+  Read-only links (Offer, RBAC role) are resolved from the field on the owning
+  record and can't be written through the link itself.
+</Note>

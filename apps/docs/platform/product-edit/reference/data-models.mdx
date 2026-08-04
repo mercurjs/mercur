@@ -1,0 +1,65 @@
+---
+title: "Data models"
+sidebarTitle: "Data models"
+description: "The data models owned by the Product Edit domain."
+---
+
+The Product Edit domain is owned by the **Product Edit module**
+(`MercurModules.PRODUCT_EDIT`). This reference lists its data models and their
+fields.
+
+## ProductChange
+
+Table `product_change`, id prefix `prodch`. A single reviewable edit to one
+product.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `product_id` | text | The product this change targets (indexed) |
+| `status` | enum | `ProductChangeStatus`, default `pending` (indexed) |
+| `internal_note` | text | Nullable; operator-only note |
+| `external_note` | text | Nullable; vendor-facing note |
+| `created_by` | text | Nullable; actor who staged the change |
+| `confirmed_by` / `confirmed_at` | text / dateTime | Nullable; set on confirm |
+| `declined_by` / `declined_at` | text / dateTime | Nullable; set on decline |
+| `declined_reason` | text | Nullable |
+| `canceled_by` / `canceled_at` | text / dateTime | Nullable; set on cancel |
+| `requires_action_by` / `requires_action_at` | text / dateTime | Nullable |
+| `requires_action_reason` | text | Nullable |
+| `metadata` | json | Nullable |
+
+Relations: `actions` (one-to-many `ProductChangeAction`, cascade-deleted with the
+change).
+
+<Note>
+  The `status` enum has four values: `pending`, `confirmed`, `declined`, and
+  `canceled`. A revision request is recorded as a `CHANGE_REQUESTED` audit action
+  rather than a distinct status.
+</Note>
+
+## ProductChangeAction
+
+Table `product_change_action`, id prefix `prodchact`. A single typed operation
+inside a change.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `product_id` | text | The product the action targets (indexed) |
+| `product_change_id` | text | Nullable FK to the parent change (`ON DELETE SET NULL`, indexed) |
+| `ordering` | autoincrement | Deterministic apply order (indexed) |
+| `action` | text | A `ProductChangeActionType` value |
+| `details` | json | Default `{}`; the operation payload |
+| `internal_note` | text | Nullable |
+| `applied` | boolean | Default `false`; set `true` once written to the product |
+
+## Enums
+
+`ProductChangeStatus`: `pending`, `confirmed`, `declined`, `canceled`.
+
+`ProductChangeActionType`: `UPDATE`, `STATUS_CHANGE`, `VARIANT_ADD`,
+`VARIANT_UPDATE`, `VARIANT_REMOVE`, `ATTRIBUTE_ADD`, `ATTRIBUTE_UPDATE`,
+`ATTRIBUTE_REMOVE`, `PRODUCT_ADD`, `PRODUCT_DELETE`, `CHANGE_REQUESTED`.
+
+Both enums are exported from `@mercurjs/types`.

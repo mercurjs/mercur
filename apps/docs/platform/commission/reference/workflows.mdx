@@ -1,0 +1,40 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Commission rate, rule, and order-line workflows."
+---
+
+This reference lists the workflows for the Commission domain. Import them from
+`@mercurjs/core/workflows` and run them against the Medusa container.
+
+## Rate workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createCommissionRatesWorkflow` | `CreateCommissionRateDTO[]` | Create rates (auto-generates `code`) |
+| `updateCommissionRatesWorkflow` | `UpdateCommissionRateDTO[]` | Update rate fields |
+| `deleteCommissionRatesWorkflow` | `{ ids[] }` | Delete rates (validates deletability first) |
+
+## Rule workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `batchCommissionRulesWorkflow` | `{ commission_rate_id, create?, update?, delete? }` | Create, update, and delete a rate's rules in one call |
+
+## Order-line workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `refreshOrderCommissionLinesWorkflow` | `{ order_ids[] }` | Recompute and upsert an order's commission lines (idempotent) |
+
+<Note>
+  `deleteCommissionRatesWorkflow` exposes a `commissionRatesDeleted` hook, and
+  `batchCommissionRulesWorkflow` runs its create / update / delete steps in
+  parallel. `refreshOrderCommissionLinesWorkflow` also runs as a step inside the
+  cart-split checkout workflow.
+</Note>
+
+To work with records directly instead of through a workflow, see the
+[Service reference](/platform/commission/reference/service). To run side effects
+when an order changes, see the
+[Event reference](/platform/commission/reference/events).

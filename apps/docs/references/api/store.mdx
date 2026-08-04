@@ -16,14 +16,6 @@ Most routes are public; customer authentication requirements are noted per group
 | `GET` | `/store/product-categories[/:id]` | Category tree with media and icons |
 | `GET` | `/store/product-attributes[/:id]` | Filterable attributes for building facet UIs |
 
-## Search
-
-| Method | Path | Purpose |
-| --- | --- | --- |
-| `POST` | `/store/search` | Query the search index across products and offers |
-
-Request body: `q`, `limit` (default 12, max 100), `offset`, pricing context (`region_id`, `country_code`, `province`), and provider-owned `filters`. Response: `{ hits, count, limit, offset, facets }` with pre-labelled collection, category, and attribute facets. See the [Search module](/rc/references/modules/search) for document shapes and filter semantics.
-
 ## Sellers
 
 | Method | Path | Purpose |
@@ -63,5 +55,4 @@ Customer authentication **required**.
 
 <CardGroup cols={2}>
   <Card title="Order groups" href="/rc/learn/order-groups" />
-  <Card title="Search module" href="/rc/references/modules/search" />
 </CardGroup>

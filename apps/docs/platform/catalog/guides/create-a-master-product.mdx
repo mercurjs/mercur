@@ -1,0 +1,70 @@
+---
+title: "Create a master product"
+sidebarTitle: "Create a master product"
+description: "Create a master product programmatically with createProductsWorkflow."
+---
+
+In this guide, you'll learn how to add a product to the shared catalog from your
+own server code, for example in a seed script, a custom API route, or an import
+flow.
+
+Mercur exposes a `createProductsWorkflow` that creates the `Product` record,
+attaches attributes and variants, records the submission for audit, and
+optionally allowlists the submitting store. Run it from any place that has access
+to the Medusa container.
+
+## Run the workflow
+
+```ts title="src/api/custom/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createProductsWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createProductsWorkflow(req.scope).run({
+    input: {
+      products: [
+        {
+          title: "Aeron Chair",
+          status: "proposed",
+          seller_ids: ["sel_123"],
+        },
+      ],
+      created_by: req.auth_context.actor_id,
+    },
+  })
+
+  res.status(201).json({ product: result[0] })
+}
+```
+
+<Note>
+  Passing `seller_ids` allowlists those stores for the product as it's created,
+  so the submitting store can immediately create an
+  [offer](/platform/offer/overview) against it. `created_by` records who
+  submitted the product for the audit trail.
+</Note>
+
+## Default status
+
+A product created without an explicit `status` follows the marketplace's review
+flow. Vendor-created products default to **`proposed`**, submitted for operator
+review rather than published outright. Set `status: "draft"` to keep a product
+private until it's ready, or `status: "published"` from a trusted operator flow
+to skip review. See the
+[status lifecycle](/platform/catalog/concepts/status-lifecycle).
+
+## Attach custom data
+
+The workflow accepts an `additional_data` payload passed to its hooks, letting
+you persist marketplace-specific data alongside the product without forking the
+workflow.
+
+```ts
+await createProductsWorkflow(req.scope).run({
+  input: {
+    products: [{ title: "Aeron Chair", seller_ids: ["sel_123"] }],
+    created_by: "usr_123",
+    additional_data: { source: "supplier-feed" },
+  },
+})
+```

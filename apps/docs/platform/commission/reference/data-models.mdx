@@ -1,0 +1,75 @@
+---
+title: "Data models"
+sidebarTitle: "Data models"
+description: "The data models owned by the Commission domain."
+---
+
+The Commission domain is owned by the **Commission module**. This reference
+lists its data models and their fields. For the full module overview, see the
+[Commission overview](/platform/commission/overview).
+
+## CommissionRate
+
+Table `commission_rate`, id prefix `comrate`. The rate the marketplace takes
+from a sale.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `name` | text | Searchable |
+| `code` | text | Unique, searchable; auto-generated from `name` when omitted |
+| `type` | enum | `CommissionRateType`, `fixed` or `percentage` |
+| `value` | bigNumber | Percent (for `percentage`) or fallback amount (for `fixed`) |
+| `currency_code` | text | Nullable; when set, the rate applies only to that currency |
+| `include_tax` | boolean | Default `false`; add `tax_total` to the base amount |
+| `include_shipping` | boolean | Default `false`; only meaningful on the global rate |
+| `is_enabled` | boolean | Default `true`; only enabled rates are evaluated |
+| `is_default` | boolean | Default `false`; the single Global Commission |
+
+Relations: `rules` (one-to-many `CommissionRule`), `values` (one-to-many
+`CommissionRateValue`).
+
+## CommissionRule
+
+Table `commission_rule`, id prefix `comrule`. Scopes a rate to a slice of the
+catalog.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `reference` | text | The dimension: `product`, `product_type`, `product_collection`, `product_category`, or `seller` |
+| `reference_id` | text | The id of the record in that dimension |
+| `commission_rate` | relation | The rate this rule belongs to (`belongsTo`) |
+
+## CommissionRateValue
+
+Table `commission_rate_value`, id prefix `comval`. A per-currency amount for a
+fixed rate.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `currency_code` | text | The currency this amount applies to |
+| `amount` | bigNumber | The flat commission for that currency |
+| `commission_rate` | relation | The rate this value belongs to (`belongsTo`) |
+
+## CommissionLine
+
+Table `commission_line`, id prefix `comline`. The resolved commission for one
+order line.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `item_id` | text | Nullable; the order line item this line commissions |
+| `shipping_method_id` | text | Nullable; the shipping method this line commissions |
+| `commission_rate_id` | text | Nullable; the rate that matched |
+| `code` | text | The matched rate's code |
+| `rate` | float | The applied rate |
+| `amount` | bigNumber | The computed commission amount |
+| `description` | text | Nullable; `"Shipping Commission"` on shipping lines |
+
+<Note>
+  A commission line anchors to **either** `item_id` **or** `shipping_method_id`.
+  It references those records by id, not through a module link.
+</Note>

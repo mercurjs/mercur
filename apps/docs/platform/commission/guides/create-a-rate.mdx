@@ -1,0 +1,72 @@
+---
+title: "Create a commission rate"
+sidebarTitle: "Create a rate"
+description: "Create a commission rate programmatically with createCommissionRatesWorkflow."
+---
+
+In this guide, you'll learn how to create a commission rate from your own server
+code. This is useful in a seed script, a custom API route, or an onboarding flow.
+
+Mercur exposes a `createCommissionRatesWorkflow` that creates one or more
+`CommissionRate` records. Run it from any place that has access to the Medusa
+container.
+
+## Run the workflow
+
+```ts title="src/api/custom/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createCommissionRatesWorkflow } from "@mercurjs/core/workflows"
+import { CommissionRateType } from "@mercurjs/types"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createCommissionRatesWorkflow(req.scope).run({
+    input: [
+      {
+        name: "Standard",
+        type: CommissionRateType.PERCENTAGE,
+        value: 10,
+      },
+    ],
+  })
+
+  res.status(201).json({ commission_rate: result[0] })
+}
+```
+
+<Note>
+  The workflow takes an **array** of rates and returns the created records. When
+  you omit `code`, the module generates a unique one from `name`.
+</Note>
+
+## Create a fixed, per-currency rate
+
+For a flat fee, use `CommissionRateType.FIXED` and pass per-currency `values`.
+The scalar `value` is the fallback when no currency matches.
+
+```ts
+await createCommissionRatesWorkflow(req.scope).run({
+  input: [
+    {
+      name: "Flat fee",
+      type: CommissionRateType.FIXED,
+      value: 5,
+      values: [
+        { currency_code: "usd", amount: 5 },
+        { currency_code: "eur", amount: 4 },
+      ],
+    },
+  ],
+})
+```
+
+## Scope the rate
+
+A rate created without rules is a catch-all. To scope it to part of the catalog,
+attach rules with
+[`batchCommissionRulesWorkflow`](/platform/commission/guides/batch-update-rules).
+
+<Tip>
+  Only the global rate (`is_default`) may commission shipping. To let the global
+  rate take a cut of shipping, update it with `include_shipping: true` via
+  `updateCommissionRatesWorkflow`.
+</Tip>

@@ -1,0 +1,39 @@
+---
+title: "Links to other modules"
+sidebarTitle: "Links"
+description: "How the Product Edit domain links to other modules across the marketplace."
+---
+
+Modules in Mercur never reference each other directly. They connect through
+**module links**. Once a link is defined, you retrieve related records with
+`query.graph` using the link alias.
+
+## Product
+
+The Product Edit domain links to the Product module so a product's change
+history hangs off the product itself.
+
+| Linked module | Relationship |
+| --- | --- |
+| **Product** | A product has many changes (`product_change.product_id`, read-only). Exposed as `product.changes`. |
+
+```ts
+const { data: products } = await query.graph({
+  entity: "product",
+  fields: ["id", "title", "changes.status", "changes.actions.action"],
+})
+```
+
+<Note>
+  The link is **read-only** and has no pivot table. The FK lives directly on the
+  `product_change` row. It exists so you read the audit trail through
+  `product.changes`. You can't write a change through the link itself. Stage
+  changes with the [workflows](/platform/product-edit/reference/workflows).
+</Note>
+
+## Actor references
+
+The `created_by`, `confirmed_by`, `declined_by`, and `canceled_by` fields hold
+actor ids (the dashboard user who staged or resolved the change). They are plain
+text references for the audit trail, not module links, so they aren't resolved
+through `query.graph`.

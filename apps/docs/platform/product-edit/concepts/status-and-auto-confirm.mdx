@@ -1,0 +1,66 @@
+---
+title: "Status & auto-confirm"
+sidebarTitle: "Status & auto-confirm"
+description: "The change status lifecycle, revision requests, and auto-confirm."
+---
+
+In this document, you'll learn about the states a change moves through and when
+it resolves without operator review.
+
+## Status
+
+A change's state is held in the `status` field of the `ProductChange` model,
+typed by the `ProductChangeStatus` enum. A change moves through four statuses:
+
+```
+                ┌───────────┐
+                │  pending   │
+                └─────┬─────┘
+          ┌───────────┼───────────┐
+    confirm          decline     cancel
+          ▼           ▼           ▼
+   ┌───────────┐ ┌──────────┐ ┌──────────┐
+   │ confirmed │ │ declined │ │ canceled │
+   └───────────┘ └──────────┘ └──────────┘
+```
+
+| Status | Meaning |
+| --- | --- |
+| `pending` | Awaiting operator review. The default for a staged edit |
+| `confirmed` | Approved; its actions are applied to the product |
+| `declined` | Rejected by the operator; nothing is applied |
+| `canceled` | Withdrawn (e.g. by the vendor) before review |
+
+<Note>
+  Only a `pending` change can be confirmed, declined, or canceled. The
+  resolution workflows validate the current status first, so a change is
+  resolved exactly once.
+</Note>
+
+## Revision requests
+
+When an operator wants a submission reworked rather than approved or rejected,
+they **request a revision**. This is recorded as a `CHANGE_REQUESTED` audit
+action (a `confirmed` audit change) carrying the operator's message, and it emits
+`product.change-requested`. The product stays with the vendor to revise and
+resubmit. A revision request is a signal in the audit trail, not a fourth
+resolution of the pending change.
+
+## Auto-confirm
+
+Staging a change runs `autoConfirmProductChangeWorkflow`. Whether it confirms
+immediately depends on the marketplace's review setting:
+
+- **Review off:** the change is confirmed and applied in the same run, so
+  low-friction edits don't wait for an operator.
+- **Review on:** the change stays `pending` for an operator to resolve.
+
+You can also force auto-confirm for a specific change (for example a
+trusted-source import) via the `auto_confirm` flag on the staging workflow,
+regardless of the review setting.
+
+<Tip>
+  Auto-confirm reuses the exact same `confirmProductChangeWorkflow` as a manual
+  approval, so an auto-confirmed change is applied and audited identically to one
+  an operator approves by hand.
+</Tip>

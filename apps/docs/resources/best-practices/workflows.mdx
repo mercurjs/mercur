@@ -1,12 +1,13 @@
 ---
-title: "Workflows"
-description: "Where all business logic and mutations live — composition-function constraints, one-mutation-per-step with compensation, reusing built-in steps, and the query engine."
+title: "How to Create a Workflow"
+sidebarTitle: "Create a Workflow"
+description: "Where all business logic and mutations live: composition-function constraints, one-mutation-per-step with compensation, reusing built-in steps, and the query engine."
 ---
 
-A workflow is the orchestration layer: it coordinates a business operation across one or more modules as a series of **steps**, with automatic rollback (**compensation**) if any step fails. Every mutation in Mercur runs inside a workflow — this is the single most important rule in the [architecture](/rc/resources/best-practices/overview).
+A workflow is the orchestration layer: it coordinates a business operation across one or more modules as a series of **steps**, with automatic rollback (**compensation**) if any step fails. Every mutation in Mercur runs inside a workflow. This is the single most important rule in the [architecture](/rc/resources/best-practices/overview).
 
 <Warning>
-  **All mutations go through a workflow.** API routes, subscribers, and scheduled jobs never write to the database directly — they *run a workflow*. That is what gives every mutation validation, event emission, and rollback.
+  **All mutations go through a workflow.** API routes, subscribers, and scheduled jobs never write to the database directly. They *run a workflow*. That is what gives every mutation validation, event emission, and rollback.
 </Warning>
 
 <Note>
@@ -15,7 +16,7 @@ A workflow is the orchestration layer: it coordinates a business operation acros
 
 ## The composition function is not normal JavaScript
 
-The function you pass to `createWorkflow` is a **composition function**. It runs once at build time to wire steps together — it does **not** execute your business logic at request time. Because of that, it has hard constraints:
+The function you pass to `createWorkflow` is a **composition function**. It runs once at build time to wire steps together. It does **not** execute your business logic at request time. Because of that, it has hard constraints:
 
 <Warning>
   Inside a `createWorkflow` composition function you must **not**:
@@ -86,7 +87,7 @@ export const createBrandsStep = createStep(
 )
 ```
 
-If a later step in the workflow throws, Medusa runs the compensation functions of the already-completed steps in reverse — the `createBrands` above is undone by `deleteBrands`. Splitting mutations one-per-step is what makes this reliable: a step that does two writes can only half-compensate.
+If a later step in the workflow throws, Medusa runs the compensation functions of the already-completed steps in reverse. The `createBrands` above is undone by `deleteBrands`. Splitting mutations one-per-step is what makes this reliable: a step that does two writes can only half-compensate.
 
 ## Reuse built-in steps
 
@@ -118,10 +119,10 @@ export const createBrandsWorkflow = createWorkflow(
 ```
 
 <Tip>
-  Prefer `runAsStep` over duplicating logic. If two workflows need the same sequence, extract it into its own workflow and call it as a step from both — you get one place to maintain and correct compensation for free.
+  Prefer `runAsStep` over duplicating logic. If two workflows need the same sequence, extract it into its own workflow and call it as a step from both. You get one place to maintain and correct compensation for free.
 </Tip>
 
-## Hooks — let others extend your workflow
+## Hooks  let others extend your workflow
 
 Expose extension points with `createHook` so consumers can inject behaviour (validation, side effects) without forking the workflow. Add a `validate` hook before the mutation and a `brandsCreated` hook after it:
 
@@ -140,11 +141,11 @@ return new WorkflowResponse(brands, {
 })
 ```
 
-Consumers register a handler on the hook to run custom logic at that point. This is the sanctioned way to extend a workflow — see [Extend a workflow](/rc/resources/customization/extend-a-workflow).
+Consumers register a handler on the hook to run custom logic at that point. This is the sanctioned way to extend a workflow. See [Extend a workflow](/rc/resources/customization/extend-a-workflow).
 
 ## The query engine
 
-Reads inside a step (and anywhere else) go through **Query** — the graph engine that resolves data across modules and links. Resolve it from the container and call `query.graph`:
+Reads inside a step (and anywhere else) go through **Query**, the graph engine that resolves data across modules and links. Resolve it from the container and call `query.graph`:
 
 ```ts title="Reading across modules inside a step"
 import { ContainerRegistrationKeys } from "@medusajs/framework/utils"
@@ -159,7 +160,7 @@ const { data: brands } = await query.graph({
 ```
 
 <Warning>
-  Query is for **reads**. Never try to mutate through it, and never resolve another module's service inside a step to read its data — go through Query so module isolation and links are respected.
+  Query is for **reads**. Never try to mutate through it, and never resolve another module's service inside a step to read its data. Go through Query so module isolation and links are respected.
 </Warning>
 
 ## Checklist for a workflow

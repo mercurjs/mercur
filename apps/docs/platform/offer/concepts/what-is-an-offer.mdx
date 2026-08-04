@@ -1,0 +1,65 @@
+---
+title: "What is an offer"
+sidebarTitle: "What is an offer"
+description: "The offer record, how it points at a master product variant, and its SKU."
+---
+
+In this document, you'll learn what an offer is and how it relates to the shared
+master catalog.
+
+## Offer
+
+An offer is a store's listing against a master product variant, represented by
+the `Offer` data model (table `offer`, id prefix `offer`). It's a thin
+marketplace-side record: it holds the store (`seller_id`), the master variant it
+points at (`variant_id`), the master product (`product_id`), the store's own
+`sku`, optional `ean` / `upc` barcodes, and the shipping profile it ships with.
+Price and inventory are attached through links rather than stored on the row.
+
+```ts
+const { result } = await createOffersWorkflow(container).run({
+  input: {
+    offers: [
+      {
+        seller_id: "sel_123",
+        created_by: "mem_123",
+        variant_id: "variant_123",
+        shipping_profile_id: "sp_123",
+        sku: "ACME-WIDGET-01",
+        prices: [{ amount: 2500, currency_code: "usd" }],
+        inventory_items: [{ stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }] }],
+      },
+    ],
+  },
+})
+```
+
+<Note>
+  **Products are not seller-owned.** The master product and its variants live in
+  the shared catalog. An offer never modifies the product. It points at a
+  variant and layers the store's own commercial terms on top.
+</Note>
+
+## Offer vs. master product
+
+A single master variant can back many offers, one per store that sells it. The
+`Offer` carries the identity of that particular listing:
+
+- `product_id` / `variant_id`: the master records the offer points at (joined through read-only links).
+- `seller_id`: the store that owns the offer (read-only link to the store).
+- `sku`: the store's own stock-keeping unit for this listing.
+- `ean` / `upc`: barcodes, snapshotted off the linked variant when not supplied.
+
+<Tip>
+  A store's `sku` is **unique within that store** (`(seller_id, sku)`, enforced
+  while `deleted_at IS NULL`). Two different stores may reuse the same SKU string
+  for their own offers.
+</Tip>
+
+## One offer per variant
+
+Each offer points at exactly one variant, so a store's offers on a product mirror
+that product's variants. When offers are grouped by store
+(`group_by_seller`), the service computes a `variant_count` and an `offer_ids`
+list for the grouped `(product, seller)` row. The dashboards use it to act on
+all of a store's offers on a product at once.

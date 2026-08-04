@@ -1,0 +1,43 @@
+---
+title: "Service reference"
+sidebarTitle: "Service"
+description: "The Product Edit module service methods for working with records directly."
+---
+
+The Product Edit module exposes a service you can resolve from the Medusa
+container to read and write records directly, without going through a workflow.
+Use it inside custom services, subscribers, or scheduled jobs.
+
+```ts
+import { MercurModules } from "@mercurjs/types"
+
+const productChangeModuleService = container.resolve(MercurModules.PRODUCT_EDIT)
+
+const [changes, count] = await productChangeModuleService.listAndCountProductChanges({
+  status: "pending",
+})
+```
+
+## Generated methods
+
+Each data model gets a standard set of auto-generated methods. For
+`ProductChange`:
+
+| Method | Description |
+| --- | --- |
+| `createProductChanges(data)` | Create one or more changes |
+| `retrieveProductChange(id, config?)` | Retrieve a change by id |
+| `listProductChanges(filters?, config?)` | List changes matching filters |
+| `listAndCountProductChanges(filters?, config?)` | List changes with a total count |
+| `updateProductChanges(data)` | Update one or more changes |
+| `deleteProductChanges(ids)` | Delete one or more changes |
+
+The same set exists for `ProductChangeAction`: `createProductChangeActions`,
+`listProductChangeActions`, `updateProductChangeActions`, and so on.
+
+<Warning>
+  Prefer [workflows](/platform/product-edit/reference/workflows) for anything with
+  side effects (confirming, declining, applying actions). The service writes
+  records directly and does **not** apply actions to the product, emit events, or
+  run compensation.
+</Warning>

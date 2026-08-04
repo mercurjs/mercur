@@ -1,0 +1,53 @@
+---
+title: "Service reference"
+sidebarTitle: "Service"
+description: "The Payout module service: methods for working with records directly."
+---
+
+The Payout module exposes a service you can resolve from the Medusa container to
+read and write records directly, without going through a workflow. Use it inside
+custom services, subscribers, or scheduled jobs.
+
+```ts
+import { MercurModules } from "@mercurjs/types"
+
+const payoutModuleService = container.resolve(MercurModules.PAYOUT)
+
+const [payouts, count] = await payoutModuleService.listAndCountPayouts({
+  status: "paid",
+})
+```
+
+## Generated methods
+
+Each data model gets a standard set of auto-generated methods. For `Payout`:
+
+| Method | Description |
+| --- | --- |
+| `retrievePayout(id, config?)` | Retrieve a payout by id |
+| `listPayouts(filters?, config?)` | List payouts matching filters |
+| `listAndCountPayouts(filters?, config?)` | List payouts with a total count |
+| `updatePayouts(data)` | Update one or more payouts |
+| `deletePayouts(ids)` | Delete one or more payouts |
+
+The same set exists for `PayoutAccount` and `Onboarding` (e.g.
+`retrievePayoutAccount`, `listPayoutAccounts`, `updateOnboardings`).
+
+## Provider-integrated methods
+
+These overrides call the configured provider as part of the operation. Prefer
+them over the raw generated creates.
+
+| Method | Description |
+| --- | --- |
+| `createPayoutAccount(input)` | Create the account and the provider's connected account |
+| `createOnboarding(input)` | Create or update onboarding via the provider |
+| `createPayouts(input)` | Initiate a transfer through the provider (account must be `ACTIVE`) |
+| `getWebhookActionAndData(input)` | Ask the provider to parse a raw webhook payload |
+| `getOptions()` | Read the module's configured options (with defaults applied) |
+
+<Warning>
+  Prefer [workflows](/platform/payout/reference/workflows) for anything that
+  touches the provider or links records. The generated `updatePayouts` /
+  `updatePayoutAccounts` write status directly and do **not** call the provider.
+</Warning>

@@ -1,0 +1,51 @@
+---
+title: "Service reference"
+sidebarTitle: "Service"
+description: "The Commission module service and its methods for working with records directly."
+---
+
+The Commission module exposes a service you can resolve from the Medusa
+container to read and write records directly, without going through a workflow.
+Use it inside custom services, subscribers, or scheduled jobs.
+
+```ts
+import { MercurModules } from "@mercurjs/types"
+
+const commissionModuleService = container.resolve(MercurModules.COMMISSION)
+
+const [rates, count] = await commissionModuleService.listAndCountCommissionRates(
+  { is_enabled: true }
+)
+```
+
+## Generated methods
+
+Each data model gets a standard set of auto-generated methods. For
+`CommissionRate`:
+
+| Method | Description |
+| --- | --- |
+| `createCommissionRates(data)` | Create one or more rates (auto-generates `code`) |
+| `retrieveCommissionRate(id, config?)` | Retrieve a rate by id |
+| `listCommissionRates(filters?, config?)` | List rates matching filters |
+| `listAndCountCommissionRates(filters?, config?)` | List rates with a total count |
+| `updateCommissionRates(data)` | Update one or more rates |
+| `deleteCommissionRates(ids)` | Delete one or more rates |
+
+The same set exists for every model in the module: `CommissionRule`,
+`CommissionRateValue`, and `CommissionLine` (e.g. `createCommissionRules`,
+`listCommissionRateValues`, `deleteCommissionLines`).
+
+## Calculation & line methods
+
+| Method | Description |
+| --- | --- |
+| `getCommissionLines(context)` | Resolve the commission lines for a calculation context (items + shipping in a currency), most-specific-wins, without persisting |
+| `upsertCommissionLines(lines)` | Replace lines by anchor (`item_id` / `shipping_method_id`), making refreshes idempotent |
+
+<Warning>
+  Prefer [workflows](/platform/commission/reference/workflows) for order-line
+  refreshes and rate deletion. `refreshOrderCommissionLinesWorkflow` builds the
+  calculation context from the order and calls these methods for you;
+  `deleteCommissionRatesWorkflow` validates that a rate is safe to delete first.
+</Warning>

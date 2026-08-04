@@ -1,24 +1,25 @@
 ---
-title: "Frontend"
-description: "Build panel UI the right way — @medusajs/ui usage, custom-field extensions (forms, tables, read-only section fields), and new pages, with the correct imports."
+title: "Frontend Patterns"
+sidebarTitle: "Frontend Patterns"
+description: "Build panel UI the right way: @medusajs/ui usage, custom-field extensions (forms, tables, read-only section fields), and new pages, with the correct imports."
 ---
 
-The Admin and Vendor panels share one design system. The three things you'll actually do — style with `@medusajs/ui`, extend built-in screens with **custom fields**, and add **new pages** — all have an established shape and, importantly, a set of **correct imports**. This page is that short list. The full reference is the [UI architecture](/rc/references/panel-extension-api).
+The Admin and Vendor panels share one design system. You'll actually do three things: style with `@medusajs/ui`, extend built-in screens with **custom fields**, and add **new pages**. Each has an established shape and, importantly, a set of **correct imports**. This page is that short list. The full reference is the [panel extensions reference](/references/panel-extensions/overview).
 
-## Use `@medusajs/ui` — and only it
+## Use `@medusajs/ui`, and only it
 
 <Warning>
   Never introduce a second UI library, and never restyle Medusa UI components with custom CSS. Build on the primitives; don't work around them.
 </Warning>
 
-- **Components** come from `@medusajs/ui`, **icons** from `@medusajs/icons`, and colours/spacing/type from Medusa UI **tokens** (`text-ui-fg-*`, `bg-ui-bg-*`, `border-ui-border-*`) — never hex, `rgb()`, or `text-gray-500`.
+- **Components** come from `@medusajs/ui`, **icons** from `@medusajs/icons`, and colours/spacing/type from Medusa UI **tokens** (`text-ui-fg-*`, `bg-ui-bg-*`, `border-ui-border-*`), never hex, `rgb()`, or `text-gray-500`.
 
 ```tsx
 import { Container, Heading, Text, Button, Badge, StatusBadge, toast } from "@medusajs/ui"
 import { PencilSquare, Trash, EllipsisHorizontal } from "@medusajs/icons"
 ```
 
-- A **section** is a `Container` with the standard shell — a divided card with a header row:
+- A **section** is a `Container` with the standard shell, a divided card with a header row:
 
 ```tsx
 <Container className="divide-y p-0">
@@ -34,10 +35,10 @@ import { PencilSquare, Trash, EllipsisHorizontal } from "@medusajs/icons"
 
 ## Extend built-in screens with custom fields
 
-The primary way to customise an existing entity's screens (product, order, customer…) is a **custom-fields config** — one file per model that contributes form fields, table columns, and read-only section fields. See [Custom fields](/rc/resources/best-practices/custom-fields) for the full backend↔frontend loop; here's the frontend surface with the right imports.
+The primary way to customise an existing entity's screens (product, order, customer…) is a **custom-fields config**: one file per model that contributes form fields, table columns, and read-only section fields. See [Custom fields](/rc/resources/best-practices/custom-fields) for the full backend↔frontend loop; here's the frontend surface with the right imports.
 
 <Note>
-  The two imports you need — and where each lives:
+  The two imports you need, and where each lives:
 
   ```tsx
   import { defineCustomFieldsConfig } from "@mercurjs/dashboard-sdk"   // the config helper
@@ -87,7 +88,7 @@ list: {
 },
 ```
 
-### Read-only fields in detail sections — e.g. surface (or change) a status
+### Read-only fields in detail sections, e.g. surface (or change) a status
 
 `displays` add read-only rows into an existing detail-page section, keyed by `id` (unknown id **adds**, built-in id **replaces**, `component: null` **hides**). A read-only field can render a `StatusBadge`, and a section `action` can trigger a status change through a mutation:
 
@@ -128,7 +129,7 @@ displays: [
 ```
 
 <Tip>
-  Read-only displays are the idiomatic way to expose (and act on) an entity's state — an approval flag, a moderation status, an internal tag — without rebuilding the detail page. The mutation still goes through the typed SDK and rides `additional_data` into a [workflow hook](/rc/resources/best-practices/custom-fields#the-full-override-flow-additional_data--route--workflow-hook), never a direct write.
+  Read-only displays are the idiomatic way to expose (and act on) an entity's state, such as an approval flag, a moderation status, or an internal tag, without rebuilding the detail page. The mutation still goes through the typed SDK and rides `additional_data` into a [workflow hook](/rc/resources/best-practices/custom-fields#the-full-override-flow-additional_data--route--workflow-hook), never a direct write.
 </Tip>
 
 ## Add a new page
@@ -157,12 +158,12 @@ export default function ReviewsPage() {
 ```
 
 <Note>
-  Correct imports for a page: UI from `@medusajs/ui`, icons from `@medusajs/icons`, and the `RouteConfig` **type** from `@mercurjs/dashboard-sdk`. Dynamic segments use brackets — `src/routes/reviews/[id]/page.tsx` → `/reviews/:id`. See [Extending panels](/rc/resources/customization/extending-panels#routing-conventions).
+  Correct imports for a page: UI from `@medusajs/ui`, icons from `@medusajs/icons`, and the `RouteConfig` **type** from `@mercurjs/dashboard-sdk`. Dynamic segments use brackets: `src/routes/reviews/[id]/page.tsx` → `/reviews/:id`. See [Extending panels](/rc/resources/customization/extending-panels#routing-conventions).
 </Note>
 
 ## Compose a full page: layout, table, sections, edit
 
-For a real screen you assemble the same primitives the built-in pages use — all re-exported from `@mercurjs/dashboard-shared`, so you import from **one** place instead of Medusa internals.
+For a real screen you assemble the same primitives the built-in pages use. They're all re-exported from `@mercurjs/dashboard-shared`, so you import from **one** place instead of Medusa internals.
 
 ```tsx
 import {
@@ -181,7 +182,7 @@ import { createColumnHelper } from "@tanstack/react-table"
 
 ### Layout + list table
 
-Pick a layout — `SingleColumnPage` for lists/simple pages, `TwoColumnPage` for a detail with a sidebar — and mount a `DataTable` inside the standard section shell. Build columns with `createColumnHelper`, wire the table with `useDataTable`, page size 20, and `keepPreviousData` for smooth pagination:
+Pick a layout (`SingleColumnPage` for lists/simple pages, `TwoColumnPage` for a detail with a sidebar) and mount a `DataTable` inside the standard section shell. Build columns with `createColumnHelper`, wire the table with `useDataTable`, page size 20, and `keepPreviousData` for smooth pagination:
 
 ```tsx title="apps/vendor/src/routes/reviews/page.tsx"
 const columnHelper = createColumnHelper<Review>()
@@ -216,7 +217,7 @@ export default function ReviewsPage() {
 
 ### General section (label / value rows)
 
-On a detail page, a "general" section is a `Container` header row plus `SectionRow` label/value pairs — the canonical way Medusa renders read-only entity data:
+On a detail page, a "general" section is a `Container` header row plus `SectionRow` label/value pairs, the canonical way Medusa renders read-only entity data:
 
 ```tsx
 <Container className="divide-y p-0">
@@ -244,7 +245,7 @@ export default function EditReviewPage() {
           <Heading>Edit review</Heading>
         </RouteDrawer.Title>
       </RouteDrawer.Header>
-      {/* <EditReviewForm /> — RouteDrawer.Form + KeyboundForm, gated on !isPending && !!review */}
+      {/* <EditReviewForm />, RouteDrawer.Form + KeyboundForm, gated on !isPending && !!review */}
     </RouteDrawer>
   )
 }
@@ -257,7 +258,7 @@ export default function EditReviewPage() {
 ## Data only through the typed SDK
 
 <Warning>
-  Never call `fetch` directly from a page. All HTTP goes through the typed SDK — `sdk.admin.*` in the admin panel, `sdk.vendor.*` in the vendor panel — wrapped in TanStack Query hooks.
+  Never call `fetch` directly from a page. All HTTP goes through the typed SDK (`sdk.admin.*` in the admin panel, `sdk.vendor.*` in the vendor panel), wrapped in TanStack Query hooks.
 </Warning>
 
 ```ts title="src/hooks/api/reviews.tsx"
@@ -281,6 +282,6 @@ Invalidate `lists()` / `details()` / `detail(id)` in mutations, throw on `isErro
 - Built only from `@medusajs/ui` + `@medusajs/icons`; Medusa UI tokens only, no custom CSS.
 - Extending an existing screen → a `defineCustomFieldsConfig` file (`@mercurjs/dashboard-sdk`) with `createFormHelper` (`@mercurjs/dashboard-shared`); forms submit under `additional_data`.
 - Read-only state (status/flags) surfaced via `displays`; changes go through the typed SDK + a workflow hook, not a direct write.
-- New screen → a `page.tsx` under `src/routes/` with a typed `RouteConfig`; compose it from `SingleColumnPage`/`TwoColumnPage`, `DataTable`, `SectionRow`, and `RouteDrawer` — all imported from `@mercurjs/dashboard-shared`, never Medusa-internal paths.
+- New screen → a `page.tsx` under `src/routes/` with a typed `RouteConfig`; compose it from `SingleColumnPage`/`TwoColumnPage`, `DataTable`, `SectionRow`, and `RouteDrawer`, all imported from `@mercurjs/dashboard-shared`, never Medusa-internal paths.
 - Data via `sdk.admin.*` / `sdk.vendor.*` in TanStack Query hooks; no raw `fetch`; mutations invalidate the right keys.
 - Every visible string translated; every interactive element has a `data-testid`.

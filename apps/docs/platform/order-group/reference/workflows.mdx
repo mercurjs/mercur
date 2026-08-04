@@ -1,0 +1,39 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Order group workflows, service methods, and events."
+---
+
+This reference lists the workflows, service methods, and events for the Order
+Group domain. Import workflows from `@mercurjs/core/workflows` and run them
+against the Medusa container.
+
+## Checkout workflow
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `completeCartWithSplitOrdersWorkflow` | `{ cart_id }` | Split a multi-seller cart into per-seller orders and create the parent `OrderGroup`. Returns `{ order_group_id }`. Idempotent per cart. |
+
+## Read workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `getOrderGroupDetailWorkflow` | `{ order_group_id, fields }` | Load one group with its child orders and derived per-order payment/fulfillment status |
+| `getOrderGroupsListWorkflow` | `{ fields, variables?, sellerId? }` | List groups with a count; `sellerId` scopes each group's child orders to a seller |
+
+<Note>
+  The read workflows always expand the group's child `orders`. Heavy relations
+  (`payment_collections`, `fulfillments`) are only kept in the response when you
+  request a matching field, and are used to derive each order's `payment_status`
+  and `fulfillment_status`.
+</Note>
+
+## Step
+
+| Step | Input | Purpose |
+| --- | --- | --- |
+| `createOrderGroupStep` | `{ customer_id?, cart_id }` | Create the `OrderGroup` record (used inside the checkout workflow, with a compensating delete) |
+
+To work with records directly instead of through a workflow, see the
+[Service reference](/platform/order-group/reference/service). To run side effects
+when a group is created, see the [Event reference](/platform/order-group/reference/events).

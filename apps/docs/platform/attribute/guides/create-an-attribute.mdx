@@ -1,0 +1,81 @@
+---
+title: "Create an attribute"
+sidebarTitle: "Create an attribute"
+description: "Create a typed catalog attribute with createProductAttributesWorkflow."
+---
+
+In this guide, you'll learn how to create a global catalog attribute from your
+own server code, for example in a seed script, a custom API route, or a catalog
+import.
+
+Mercur exposes a `createProductAttributesWorkflow` that creates one or more
+`ProductAttribute` records along with their values. Run it from any place that
+has access to the Medusa container.
+
+## Run the workflow
+
+```ts title="src/api/custom/attributes/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createProductAttributesWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createProductAttributesWorkflow(req.scope).run({
+    input: {
+      attributes: [
+        {
+          name: "Material",
+          type: "single_select",
+          is_filterable: true,
+          values: [{ name: "Cotton" }, { name: "Wool" }, { name: "Linen" }],
+        },
+      ],
+    },
+  })
+
+  res.status(201).json({ attribute: result[0] })
+}
+```
+
+The workflow creates the attribute, its `ProductAttributeValue` records, and,
+for a `multi_select` axis, the mirror `ProductOption`. It also emits the
+`product-attribute.created` event.
+
+<Note>
+  Leaving `product_id` unset creates a **global** attribute reusable across the
+  catalog. Passing a `product_id` creates an **inline** attribute scoped to a
+  single product. See [Global vs inline](/platform/attribute/concepts/global-vs-inline).
+</Note>
+
+## Associate categories
+
+Pass `category_ids` on an attribute to associate it with product categories
+through the category link in the same call:
+
+```ts
+await createProductAttributesWorkflow(req.scope).run({
+  input: {
+    attributes: [
+      {
+        name: "Thread count",
+        type: "unit",
+        category_ids: ["pcat_bedding"],
+      },
+    ],
+  },
+})
+```
+
+## Attach custom data
+
+The workflow accepts an `additional_data` payload passed to its
+`productAttributesCreated` hook, letting you persist marketplace-specific data
+alongside the attribute without forking the workflow.
+
+```ts
+await createProductAttributesWorkflow(req.scope).run({
+  input: {
+    attributes: [{ name: "Material", type: "single_select" }],
+    additional_data: { imported_from: "legacy-pim" },
+  },
+})
+```

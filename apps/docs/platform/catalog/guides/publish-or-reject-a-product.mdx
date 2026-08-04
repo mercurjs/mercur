@@ -1,0 +1,79 @@
+---
+title: "Publish or reject a product"
+sidebarTitle: "Publish or reject"
+description: "Move a proposed master product to published or rejected from server code."
+---
+
+In this guide, you'll learn how to review a submitted product from your own
+server code. Each transition has a dedicated workflow so the audit trail, events,
+and side effects run consistently.
+
+A product enters review as `proposed`. From there you can publish it, reject it,
+or ask the submitter for a revision. Every workflow validates that the product is
+currently `proposed` before it runs.
+
+## Publish a product
+
+Move one or more `proposed` products to `published` with
+`confirmProductsWorkflow`:
+
+```ts title="src/api/custom/publish/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { confirmProductsWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  await confirmProductsWorkflow(req.scope).run({
+    input: {
+      product_ids: [req.params.id],
+      actor_id: req.auth_context.actor_id,
+      internal_note: "Looks good",
+    },
+  })
+
+  res.sendStatus(200)
+}
+```
+
+## Reject a product
+
+```ts
+import { rejectProductWorkflow } from "@mercurjs/core/workflows"
+
+await rejectProductWorkflow(container).run({
+  input: {
+    product_id: "prod_123",
+    message: "Images don't match the description",
+    actor_id: "usr_123",
+  },
+})
+```
+
+## Request a revision
+
+To send the submission back for changes without rejecting it, use
+`requestProductChangeWorkflow`. The product stays `proposed` and a
+`CHANGE_REQUESTED` action is recorded for the submitter to act on:
+
+```ts
+import { requestProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+await requestProductChangeWorkflow(container).run({
+  input: {
+    product_id: "prod_123",
+    message: "Please add a size variant",
+    actor_id: "usr_123",
+  },
+})
+```
+
+<Warning>
+  These workflows require the product to be `proposed`. Running them against a
+  `draft`, `published`, or `rejected` product fails validation rather than
+  forcing the transition.
+</Warning>
+
+## React to review outcomes
+
+To run your own side effects when a product is published or rejected, subscribe
+to the events these workflows emit rather than polling. See the
+[Event reference](/platform/catalog/reference/events) for the event names.

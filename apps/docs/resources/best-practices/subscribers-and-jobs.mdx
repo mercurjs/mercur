@@ -1,11 +1,12 @@
 ---
-title: "Subscribers & jobs"
-description: "React to events and run periodic work safely — fetch from { id }, mutate via workflows, log-don't-throw, idempotency and loop guards, cron jobs."
+title: "How to React to Events and Schedule Jobs"
+sidebarTitle: "Subscribers & Jobs"
+description: "React to events and run periodic work safely: fetch from { id }, mutate via workflows, log-don't-throw, idempotency and loop guards, cron jobs."
 ---
 
-Subscribers and scheduled jobs are the two ways work happens *outside* a request. Both follow the same core rule as everything else: **they never mutate directly — they run a [workflow](/rc/resources/best-practices/workflows).**
+Subscribers and scheduled jobs are the two ways work happens *outside* a request. Both follow the same core rule as everything else: **they never mutate directly. They run a [workflow](/rc/resources/best-practices/workflows).**
 
-## Subscribers — react to events
+## Subscribers: react to events
 
 A subscriber listens for a domain event (emitted by a workflow via `emitEventStep`) and runs an asynchronous side effect: send a notification, sync a search index, create a link. It lives in `src/subscribers/` and exports a handler plus a `config` naming the event.
 
@@ -28,7 +29,7 @@ export const config: SubscriberConfig = {
 ### Fetch full data from `{ id }`
 
 <Warning>
-  Event payloads carry **ids, not entities.** A subscriber receives `{ id }` (sometimes a couple of ids) and must fetch the full record it needs via Query. Never rely on a fat event payload — it goes stale and couples the emitter to every consumer's needs.
+  Event payloads carry **ids, not entities.** A subscriber receives `{ id }` (sometimes a couple of ids) and must fetch the full record it needs via Query. Never rely on a fat event payload. It goes stale and couples the emitter to every consumer's needs.
 </Warning>
 
 ```ts
@@ -42,7 +43,7 @@ const { data: [brand] } = await query.graph({
 
 ### Mutate via workflows, never directly
 
-If the subscriber needs to change data, it runs a workflow — same as a route would. The subscriber is the trigger; the workflow is the work.
+If the subscriber needs to change data, it runs a workflow, same as a route would. The subscriber is the trigger; the workflow is the work.
 
 ```ts
 await createBrandNotificationWorkflow(container).run({
@@ -53,7 +54,7 @@ await createBrandNotificationWorkflow(container).run({
 ### Log, don't throw
 
 <Warning>
-  A subscriber runs detached from the request. Throwing doesn't surface to a user — it just fails silently or spams retries. **Catch errors and log them** (resolve the `logger`), then decide explicitly whether to rethrow for a retry or swallow.
+  A subscriber runs detached from the request. Throwing doesn't surface to a user. It just fails silently or spams retries. **Catch errors and log them** (resolve the `logger`), then decide explicitly whether to rethrow for a retry or swallow.
 </Warning>
 
 ```ts
@@ -69,14 +70,14 @@ try {
 
 Events can be delivered more than once, and a subscriber that mutates data can re-trigger the very event it listens to. Two defences:
 
-- **Idempotency** — make the handler safe to run twice. Check current state before acting (e.g. "is this product already linked to a brand?" before creating the link), or clear the marker that triggered the work so a redelivered event finds nothing left to do.
-- **Loop guards** — if handling event X causes a mutation that emits X again, gate on a condition that becomes false after the first run, or key off a marker you set. Never emit the same event unconditionally from its own subscriber.
+- **Idempotency:** make the handler safe to run twice. Check current state before acting (e.g. "is this product already linked to a brand?" before creating the link), or clear the marker that triggered the work so a redelivered event finds nothing left to do.
+- **Loop guards:** if handling event X causes a mutation that emits X again, gate on a condition that becomes false after the first run, or key off a marker you set. Never emit the same event unconditionally from its own subscriber.
 
 <Tip>
   A good idempotency check reads the current state through Query first and returns early if the work is already done. This makes redelivery harmless and removes the need for exactly-once guarantees.
 </Tip>
 
-## Scheduled jobs — periodic work
+## Scheduled jobs: periodic work
 
 A scheduled job runs on a cron interval to do time-based work: poll for records that became ready, reconcile drifted counters, emit a "settle now" event. It lives in `src/jobs/`, exports a handler taking the container, and a `config` with a `name` and a cron `schedule`.
 
@@ -93,7 +94,7 @@ export default async function deactivateStaleBrands(container: MedusaContainer) 
     filters: { is_active: true /* + your staleness condition */ },
   })
 
-  // pass all ids at once — the workflow handles the batch, not the job
+  // pass all ids at once, the workflow handles the batch, not the job
   await deactivateBrandsWorkflow(container).run({
     input: { ids: stale.map((b) => b.id) },
   })
@@ -118,9 +119,9 @@ A time-based pipeline often combines both: a daily job finds records that became
 
 ### Job best practices
 
-- **Do the work in batches** and bound result sets — a job that `SELECT`s an unbounded table will eventually time out. Page through with `LIMIT`/`OFFSET` or a cursor.
-- **Idempotent by design** — a job re-runs on every tick; it must only act on records still needing action (filter on the not-yet-processed state).
-- **Mutations run workflows**, reads run Query — same as everywhere.
+- **Do the work in batches** and bound result sets. A job that `SELECT`s an unbounded table will eventually time out. Page through with `LIMIT`/`OFFSET` or a cursor.
+- **Idempotent by design:** a job re-runs on every tick; it must only act on records still needing action (filter on the not-yet-processed state).
+- **Mutations run workflows**, reads run Query, same as everywhere.
 - **Log a summary** each run (how many processed) so drift is visible.
 
 ## Checklist

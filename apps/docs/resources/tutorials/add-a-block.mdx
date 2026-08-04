@@ -1,12 +1,13 @@
 ---
-title: "Add a feature with a block"
+title: "How to Add a Block"
+sidebarTitle: "Add a Block"
 description: "Install the reviews block end-to-end and see it live across the admin, vendor, and storefront surfaces."
 ---
 
-Blocks are complete features — backend module, workflows, API routes, and panel UI — installed as **source code** into your project. This tutorial installs the `reviews` block and follows it across every surface it touches.
+Blocks are complete features installed as **source code** into your project. A block bundles the backend module, workflows, API routes, and panel UI. This tutorial installs the `reviews` block and follows it across every surface it touches.
 
 <Info>
-  **Blocks are copied, not installed as dependencies.** `add` writes the block's source files into your project via the aliases in `blocks.json` — you own and can edit every file afterwards. Updates are opt-in through `diff` and `add --overwrite`. When you outgrow the catalog, [build your own block](/rc/resources/tutorials/build-a-block).
+  **Blocks are copied, not installed as dependencies.** `add` writes the block's source files into your project via the aliases in `blocks.json`. You own and can edit every file afterwards. Updates are opt-in through `diff` and `add --overwrite`. When you outgrow the catalog, [build your own block](/rc/resources/tutorials/build-a-block).
 </Info>
 
 ## Goal
@@ -31,7 +32,7 @@ Install reviews as a block and see it running everywhere it appears.
     bunx @mercurjs/cli@latest add reviews
     ```
 
-    The CLI copies the source into the directories mapped by your `blocks.json` aliases and prints the block's post-install instructions — module registration, middlewares, migrations.
+    The CLI copies the source into the directories mapped by your `blocks.json` aliases and prints the block's post-install instructions: module registration, middlewares, migrations.
   </Step>
   <Step title="Run migrations and codegen">
     The block introduced a reviews module, so generate and run its migrations, then refresh the typed route map:
@@ -44,7 +45,7 @@ Install reviews as a block and see it running everywhere it appears.
     ```
   </Step>
   <Step title="See it live">
-    Start the project — reviews now appear in the admin panel (moderation), the vendor portal (per-seller reviews), and the Store API (customer-facing review routes).
+    Start the project. Reviews now appear in the admin panel (moderation), the vendor portal (per-seller reviews), and the Store API (customer-facing review routes).
   </Step>
 </Steps>
 
@@ -59,7 +60,7 @@ Install reviews as a block and see it running everywhere it appears.
 
 <AccordionGroup>
   <Accordion title="What if I've already modified files the block wants to write?">
-    The CLI asks before overwriting existing files (or force it with `--overwrite`). If you've customized a page the block also ships, merge by hand — you're merging source, not resolving package versions.
+    The CLI asks before overwriting existing files (or force it with `--overwrite`). If you've customized a page the block also ships, merge by hand. You're merging source, not resolving package versions.
   </Accordion>
   <Accordion title="How do I update a block later?">
     `bunx @mercurjs/cli@latest diff reviews` shows what changed in the registry since you installed. Take updates with `add reviews --overwrite`, re-applying any local edits afterwards.

@@ -1,0 +1,63 @@
+---
+title: "Retrieve an order group"
+sidebarTitle: "Retrieve an order group"
+description: "Load an order group and its aggregated child orders with getOrderGroupDetailWorkflow."
+---
+
+In this guide, you'll learn how to load a single order group together with its
+child orders from your own server code.
+
+Mercur exposes a `getOrderGroupDetailWorkflow` that fetches the group, expands
+its child orders, and derives each order's payment and fulfillment status. Run it
+from any place that has access to the Medusa container.
+
+## Run the workflow
+
+```ts title="src/api/custom/order-group/[id]/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { getOrderGroupDetailWorkflow } from "@mercurjs/core/workflows"
+
+export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  const { result: order_group } = await getOrderGroupDetailWorkflow(
+    req.scope
+  ).run({
+    input: {
+      order_group_id: req.params.id,
+      fields: ["id", "display_id", "total", "seller_count", "cart_id"],
+    },
+  })
+
+  res.json({ order_group })
+}
+```
+
+The workflow always expands the group's child orders regardless of the `fields`
+you pass, so `order_group.orders` is populated with each seller's slice.
+
+<Note>
+  The workflow only fetches heavy relations when you ask for them: include a
+  `payment_collections` field to get per-order `payment_status`, and a
+  `fulfillments` field to get `fulfillment_status`. Otherwise those collections
+  are stripped from the response to keep it lean.
+</Note>
+
+## Follow the cart link
+
+The group's read-only `cart_id` points back to the immutable cart it came from.
+Expand it through the module link when you need the original basket:
+
+```ts
+await getOrderGroupDetailWorkflow(req.scope).run({
+  input: {
+    order_group_id: req.params.id,
+    fields: ["id", "cart.id", "cart.email", "orders.id", "orders.total"],
+  },
+})
+```
+
+<Tip>
+  Prefer the workflow over reading the record directly. It does the child-order
+  status aggregation for you. The raw
+  [service method](/platform/order-group/reference/service) returns only the
+  group row and its computed totals.
+</Tip>

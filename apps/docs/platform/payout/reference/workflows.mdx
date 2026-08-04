@@ -1,0 +1,32 @@
+---
+title: "Workflows"
+sidebarTitle: "Workflows"
+description: "Payout account, onboarding, payout, and webhook workflows."
+---
+
+This reference lists the workflows for the Payout domain. Import them from
+`@mercurjs/core/workflows` and run them against the Medusa container.
+
+## Account & onboarding workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createPayoutAccountWorkflow` | `{ seller_id, data?, context? }` | Create a payout account, call the provider, link it to the store |
+| `createOnboardingWorkflow` | `{ account_id, data?, context? }` | Create or update the account's onboarding record via the provider |
+
+## Payout workflows
+
+| Workflow | Input | Purpose |
+| --- | --- | --- |
+| `createPayoutWorkflow` | `{ order_id }` | Compute the seller's share (total − commission) and initiate a transfer |
+| `processPayoutForWebhookWorkflow` | `PayoutWebhookResult` | Apply a provider webhook to account or payout status |
+
+<Note>
+  `createPayoutWorkflow` reads the order with its seller, payout account, and
+  commission lines, then uses the order id as the transfer's idempotency key so
+  a re-run never double-pays.
+</Note>
+
+To work with records directly instead of through a workflow, see the
+[Service reference](/platform/payout/reference/service). For the events that
+drive these workflows, see the [Event reference](/platform/payout/reference/events).

@@ -3,10 +3,10 @@ title: "Building with AI"
 description: "Mercur ships version-matched docs inside your project so AI coding agents build from accurate APIs instead of stale training data."
 ---
 
-Mercur is built so AI coding agents work from **accurate, version-matched documentation** instead of their training data — which is almost always out of date for a fast-moving framework. The docs ship *inside your project's dependencies*, and your project tells agents to read them before writing any code.
+Mercur is built so AI coding agents work from **accurate, version-matched documentation** instead of their training data. Training data is almost always out of date for a fast-moving framework. The docs ship *inside your project's dependencies*, and your project tells agents to read them before writing any code.
 
 <Info>
-  **Why agents do well here.** Every extension surface an agent touches has a machine-checkable contract: routes generate the [typed client](/rc/tools/api-client) (wrong calls fail to compile), pages follow [file conventions](/rc/resources/customization/extending-panels) the SDK validates at build time, and blocks are diffable source. An agent doesn't need to guess whether its change works — the toolchain tells it.
+  **Why agents do well here.** Every extension surface an agent touches has a machine-checkable contract: routes generate a typed client (wrong calls fail to compile), pages follow [file conventions](/rc/resources/customization/extending-panels) the SDK validates at build time, and blocks are diffable source. An agent doesn't need to guess whether its change works. The toolchain tells it.
 </Info>
 
 ## How it works
@@ -17,14 +17,14 @@ When you install a Mercur project, the documentation is bundled as a dependency 
 node_modules/@mercurjs/docs/
 ├── llms.txt              # index: every page with a one-line description
 └── content/
-    ├── learn/            # concepts — sellers, products, offers, commissions…
+    ├── learn/            # concepts: sellers, products, offers, commissions…
     ├── resources/        # tutorials, integrations, deployment, this guide
     ├── tools/            # CLI, API client, dashboard SDK
     ├── references/       # module, HTTP API, and configuration reference
     └── user-guide/       # admin and vendor panel usage
 ```
 
-Because the docs travel with the package, an agent always has documentation that **matches your installed version** — no network request, no external lookup, and no drift between what the agent reads and what your code actually runs.
+Because the docs travel with the package, an agent always has documentation that **matches your installed version**. There is no network request, no external lookup, and no drift between what the agent reads and what your code actually runs.
 
 ## Set up your project
 
@@ -35,7 +35,7 @@ Projects created with `bunx @mercurjs/cli@latest create` are ready out of the bo
 - `@mercurjs/docs` as a dependency, so the docs land in `node_modules` on install
 - an `AGENTS.md` and a `CLAUDE.md` at the project root that tell agents to read the bundled docs first
 
-Most AI coding agents — Claude Code, Cursor, GitHub Copilot, and others — read `AGENTS.md` automatically when they start a session. There is nothing else to configure.
+Most AI coding agents, such as Claude Code, Cursor, and GitHub Copilot, read `AGENTS.md` automatically when they start a session. There is nothing else to configure.
 
 ### Existing projects
 
@@ -50,7 +50,7 @@ Then create an `AGENTS.md` at the project root with a single, focused instructio
 ```md AGENTS.md
 # Mercur: read the docs before coding
 
-Before any non-trivial change, read the bundled documentation — it is
+Before any non-trivial change, read the bundled documentation. It is
 version-matched to this project's installed packages, and far more accurate
 than training data.
 
@@ -68,30 +68,34 @@ Don't guess at an API, data model, or file convention the docs already describe.
 
 ## What the agent reads
 
-The workflow is deliberately simple: **index first, then the page.** An agent reads `llms.txt` to see what exists, then opens the one or two `content/` pages relevant to the task before implementing. The bundled docs cover the full domain model (sellers, products, offers, attributes, commissions, payouts, order groups), the CLI, the typed API client, the dashboard SDK, module references, and how-to guides — so the agent looks up the correct contract rather than inventing one.
+The workflow is deliberately simple: **index first, then the page.** An agent reads `llms.txt` to see what exists, then opens the one or two `content/` pages relevant to the task before implementing. The bundled docs cover the full domain model (sellers, products, offers, attributes, commissions, payouts, order groups), the CLI, the typed API client, the dashboard SDK, module references, and how-to guides. The agent looks up the correct contract rather than inventing one.
 
 ## Verify its work
 
-Mercur gives an agent a fast, machine-checkable way to know whether a change is correct — the equivalent of a grading loop it can run itself:
+Mercur gives an agent a fast, machine-checkable way to know whether a change is correct. It is the equivalent of a grading loop the agent can run itself:
 
 | Check | What it proves |
 |-------|----------------|
 | `bun run build` | Types resolve and the generated client matches the routes |
 | `bun run lint` | Code conforms to the project's rules |
 | Integration tests (`packages/api`) | Backend behavior still holds |
-| `bunx @mercurjs/cli@latest diff` | Local blocks vs. the registry — what changed and what drifted |
+| `bunx @mercurjs/cli@latest diff` | Local blocks vs. the registry: what changed and what drifted |
 
-Because these are objective, an agent can define what "done" looks like, run the checks, read the output, and iterate until they pass — instead of stopping at "looks plausible."
+Because these are objective, an agent can define what "done" looks like, run the checks, read the output, and iterate until they pass, instead of stopping at "looks plausible."
 
-## Beyond bundled docs
+## More AI tooling
 
-The bundled docs are for agents working *inside your project*. For chat assistants and hosted tools, Mercur also publishes its docs online:
+The bundled docs are the foundation. Layer more on top:
 
 <CardGroup cols={2}>
-  <Card title="llms.txt" href="/rc/resources/ai/llms">
-    Feed the full documentation to Claude, ChatGPT, or any LLM.
+  <Card title="Skills" icon="wand-magic-sparkles" href="/resources/ai/skills">
+    Add the official Medusa agent skills for the framework Mercur runs on.
   </Card>
-  <Card title="MCP server" href="/rc/resources/ai/mcp">
+  <Card title="MCP server" icon="plug" href="/resources/ai/mcp">
     Let your editor search the docs live via Model Context Protocol.
   </Card>
 </CardGroup>
+
+For chat assistants like Claude or ChatGPT, Mercur also publishes a hosted
+[`llms.txt`](https://docs.mercurjs.com/llms.txt) index and a full
+[`llms-full.txt`](https://docs.mercurjs.com/llms-full.txt) you can load as context.
