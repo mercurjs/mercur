@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Button, Heading, Input, toast } from "@medusajs/ui"
-import { useForm } from "react-hook-form"
+import { useForm, useWatch } from "react-hook-form"
 import { useTranslation } from "react-i18next"
 import { useParams } from "react-router-dom"
 import { z } from "zod"
@@ -8,35 +8,56 @@ import { z } from "zod"
 import { useLinkQuery } from "@mercurjs/dashboard-shared"
 
 import { Form } from "../../../../../../components/common/form"
+import { SwitchBox } from "../../../../../../components/common/switch-box"
 import { RouteDrawer, useRouteModal } from "../../../../../../components/modals"
 import { KeyboundForm } from "../../../../../../components/utilities/keybound-form"
 import { useOffer, useUpdateOffer } from "../../../../../../hooks/api/offers"
 import { OFFER_VARIANT_DETAIL_FIELDS } from "../../../../common/constants"
 import { OfferDetail } from "../../../../common/types"
 
-const Schema = z.object({ sku: z.string().max(64).optional() })
+const Schema = z.object({
+  sku: z.string().max(64).optional(),
+  manage_inventory: z.boolean(),
+  allow_backorder: z.boolean(),
+})
 type Values = z.infer<typeof Schema>
 
 /**
- * Edit Offer Variant drawer — **SKU only** (SPEC-009). The design's
- * Manage-inventory / Allow-backorders toggles are intentionally not
- * shipped.
+ * Edit Offer Variant drawer (MER-177) — SKU + the offer's Manage-inventory
+ * and Allow-backorders toggles. Allow-backorders is only meaningful while
+ * Manage-inventory is on, so it is disabled (and forced off) otherwise,
+ * mirroring Medusa's variant inventory card.
  */
 const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
   const { t } = useTranslation()
   const { handleSuccess } = useRouteModal()
   const form = useForm<Values>({
-    defaultValues: { sku: offer.sku ?? "" },
+    defaultValues: {
+      sku: offer.sku ?? "",
+      manage_inventory: offer.manage_inventory ?? true,
+      allow_backorder: offer.allow_backorder ?? false,
+    },
     resolver: zodResolver(Schema),
   })
   const { mutateAsync, isPending } = useUpdateOffer(offer.id)
+
+  const manageInventory = useWatch({
+    control: form.control,
+    name: "manage_inventory",
+  })
 
   const handleSubmit = form.handleSubmit(async (values) => {
     // SKU is optional: leave the offer's SKU untouched when the field is blank
     // rather than sending an empty string (the API rejects "" on update).
     const sku = values.sku?.trim()
     await mutateAsync(
-      sku ? { sku } : {},
+      {
+        ...(sku ? { sku } : {}),
+        manage_inventory: values.manage_inventory,
+        allow_backorder: values.manage_inventory
+          ? values.allow_backorder
+          : false,
+      },
       {
         onSuccess: () => {
           toast.success(t("offers.variant.edit.successToast"))
@@ -67,6 +88,26 @@ const EditOfferVariantForm = ({ offer }: { offer: OfferDetail }) => {
                 <Form.ErrorMessage />
               </Form.Item>
             )}
+          />
+
+          <SwitchBox
+            control={form.control}
+            name="manage_inventory"
+            label={t("offers.fields.manageInventory")}
+            description={t("offers.variant.inventory.manageInventoryHint")}
+            onCheckedChange={(checked) => {
+              if (!checked) {
+                form.setValue("allow_backorder", false)
+              }
+            }}
+          />
+
+          <SwitchBox
+            control={form.control}
+            name="allow_backorder"
+            disabled={!manageInventory}
+            label={t("offers.fields.allowBackorders")}
+            description={t("offers.variant.inventory.allowBackordersHint")}
           />
         </RouteDrawer.Body>
         <RouteDrawer.Footer>

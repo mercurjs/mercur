@@ -57,6 +57,8 @@ export const updateOffersWorkflow: ReturnWorkflow<
         id: o.id,
         sku: o.sku,
         shipping_profile_id: o.shipping_profile_id,
+        manage_inventory: o.manage_inventory,
+        allow_backorder: o.allow_backorder,
         metadata: o.metadata,
       })),
     )

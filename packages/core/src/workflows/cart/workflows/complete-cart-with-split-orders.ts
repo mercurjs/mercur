@@ -421,6 +421,20 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
                 prepareOfferInventoryInput
             )
 
+            // Only reserve for offers that manage inventory. Unmanaged offers
+            // never reserve; backorder-enabled offers still reserve (their rows
+            // carry `allow_backorder: true`, which lets the native step drive
+            // availability negative). Strip `manage_inventory` so the native
+            // `reserveInventoryStep` receives only the fields it expects.
+            const reservableInventoryItems = transform(
+                { formatedInventoryItems },
+                ({ formatedInventoryItems }) => ({
+                    items: formatedInventoryItems.items
+                        .filter((item) => item.manage_inventory)
+                        .map(({ manage_inventory: _manage_inventory, ...item }) => item),
+                })
+            )
+
             const updateCompletedAt = transform(
                 { cart: cartData.data },
                 ({ cart }) => {
@@ -542,7 +556,7 @@ export const completeCartWithSplitOrdersWorkflow = createWorkflow(
 
             parallelize(
                 updateCartsStep([updateCompletedAt]),
-                reserveInventoryStep(formatedInventoryItems),
+                reserveInventoryStep(reservableInventoryItems),
                 registerUsageStep(promotionUsage),
                 emitEventStep({
                     eventName: OrderWorkflowEvents.PLACED,

@@ -65,6 +65,8 @@ export interface CreateOfferDTO {
   prices: CreateOfferPriceDTO[]
   ean?: string | null
   upc?: string | null
+  manage_inventory?: boolean
+  allow_backorder?: boolean
   metadata?: Record<string, unknown> | null
 }
 
@@ -84,6 +86,8 @@ export interface CreateOfferRowDTO {
   sku: string
   ean: string | null
   upc: string | null
+  manage_inventory?: boolean
+  allow_backorder?: boolean
   created_by: string
   metadata?: Record<string, unknown> | null
 }
@@ -98,6 +102,8 @@ export interface UpdateOfferDTO {
   id: string
   sku?: string
   shipping_profile_id?: string
+  manage_inventory?: boolean
+  allow_backorder?: boolean
   metadata?: Record<string, unknown> | null
   prices?: UpsertOfferPriceDTO[]
 }

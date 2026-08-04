@@ -152,6 +152,8 @@ export const createOffersWorkflow: ReturnWorkflow<
             sku: offer.sku,
             ean: offer.ean ?? variant.ean ?? null,
             upc: offer.upc ?? variant.upc ?? null,
+            manage_inventory: offer.manage_inventory ?? true,
+            allow_backorder: offer.allow_backorder ?? false,
             created_by: offer.created_by,
             metadata: offer.metadata ?? null,
           }

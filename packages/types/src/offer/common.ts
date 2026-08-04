@@ -51,6 +51,18 @@ export interface OfferDTO {
   sku: string
   ean: string | null
   upc: string | null
+  /**
+   * When `true` (default) the marketplace tracks stock for this offer:
+   * availability is checked at add-to-cart and reserved at order placement.
+   * When `false` the offer is always purchasable and nothing is reserved.
+   */
+  manage_inventory: boolean
+  /**
+   * When `true` the offer can be sold past its available quantity (availability
+   * may go negative, the sale is never blocked). Only meaningful while
+   * `manage_inventory` is `true`.
+   */
+  allow_backorder: boolean
   created_by: string
   metadata: Record<string, unknown> | null
   created_at: Date
