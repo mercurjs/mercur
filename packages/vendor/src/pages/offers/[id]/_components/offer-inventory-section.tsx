@@ -1,4 +1,4 @@
-import { Buildings, CogSixTooth } from "@medusajs/icons"
+import { Buildings } from "@medusajs/icons"
 import { Button, Container, Heading, Text } from "@medusajs/ui"
 import { createColumnHelper } from "@tanstack/react-table"
 import { useMemo } from "react"
@@ -180,7 +180,7 @@ export const OfferInventorySection = ({ offer }: Props) => {
               {
                 actions: [
                   {
-                    icon: <CogSixTooth />,
+                    icon: <Buildings />,
                     label: t("offers.inventory.manageItemsAction"),
                     to: "manage-items",
                   },
