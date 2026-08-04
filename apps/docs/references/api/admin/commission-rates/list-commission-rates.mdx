@@ -7,7 +7,7 @@ description: "Retrieve a paginated list of commission rates."
 Returns commission rates with their rules and currency-specific values.
 
 <Note>
-  `scope_type` is a virtual filter derived from each rate's rules — it is not a
+  `scope_type` is a virtual filter derived from each rate's rules. It is not a
   stored column. Use it to filter rates by the scope their rules target.
 </Note>
 
@@ -35,7 +35,7 @@ Returns commission rates with their rules and currency-specific values.
     <ResponseField name="name" type="string">The rate's display name.</ResponseField>
     <ResponseField name="code" type="string">The rate's unique code.</ResponseField>
     <ResponseField name="type" type="string">The rate type: `fixed` or `percentage`.</ResponseField>
-    <ResponseField name="value" type="number">The commission value — a percentage or a fixed amount.</ResponseField>
+    <ResponseField name="value" type="number">The commission value, a percentage or a fixed amount.</ResponseField>
     <ResponseField name="currency_code" type="string | null">Currency of a fixed rate's value.</ResponseField>
     <ResponseField name="include_tax" type="boolean">Whether commission is calculated on tax-inclusive amounts.</ResponseField>
     <ResponseField name="include_shipping" type="boolean">Whether shipping is included in the commission base.</ResponseField>

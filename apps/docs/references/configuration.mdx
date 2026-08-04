@@ -3,7 +3,9 @@ title: "Configuration"
 description: "withMercur() options, environment variables, and provider configuration."
 ---
 
-Mercur is configured through the standard Medusa config file. `withMercur()` wraps `defineConfig()` and wires the marketplace layer in — you pass it the same shape you would pass to Medusa, plus one Mercur-specific field.
+Mercur is configured through the standard Medusa config file.
+
+`withMercur()` wraps `defineConfig()` and wires the marketplace layer in. You pass it the same shape you would pass to Medusa, plus one Mercur-specific field.
 
 ## withMercur()
 
@@ -39,7 +41,7 @@ The option surface is Medusa's `InputConfigWithArrayModules` extended with:
 
 | Option | Type | Purpose |
 | --- | --- | --- |
-| `projectConfig.http.vendorCors` | `string` | CORS origins for the Vendor API (`/vendor/*`) — the only Mercur-specific option |
+| `projectConfig.http.vendorCors` | `string` | CORS origins for the Vendor API (`/vendor/*`). The only Mercur-specific option |
 
 ### What withMercur applies
 
@@ -47,10 +49,10 @@ The option surface is Medusa's `InputConfigWithArrayModules` extended with:
 | --- | --- |
 | Registers the core plugin | Appends `@mercurjs/core` to `plugins` unless already present |
 | Registers RBAC | Appends the `@medusajs/medusa/rbac` module and forces `featureFlags.rbac = true`, so vendor role scoping works out of the box |
-| Disables the Medusa admin | `admin.disable` defaults to `true` — Mercur ships its own dashboards |
+| Disables the Medusa admin | `admin.disable` defaults to `true`, since Mercur ships its own dashboards |
 | Adjusts core middlewares | Replaces the Medusa middlewares that Mercur overrides (e.g. collections with media) |
 
-Everything you pass is otherwise forwarded to `defineConfig()` unchanged, so any valid Medusa configuration remains valid here.
+Everything else you pass is forwarded to `defineConfig()` unchanged, so any valid Medusa configuration stays valid here.
 
 ## Environment variables
 
@@ -58,16 +60,16 @@ The starter (`apps/api` and projects created with `create-mercur-app`) reads:
 
 | Variable | Purpose | Default |
 | --- | --- | --- |
-| `DATABASE_URL` | Postgres connection string | — (required) |
+| `DATABASE_URL` | Postgres connection string | Required |
 | `REDIS_URL` | Redis for cache, event bus, workflow engine, locking | `redis://localhost:6379` |
-| `STORE_CORS` | Storefront CORS origins | — (required) |
-| `ADMIN_CORS` | Admin panel CORS origins | — (required) |
-| `VENDOR_CORS` | Vendor panel CORS origins | — (required) |
-| `AUTH_CORS` | Auth endpoint CORS origins | — (required) |
+| `STORE_CORS` | Storefront CORS origins | Required |
+| `ADMIN_CORS` | Admin panel CORS origins | Required |
+| `VENDOR_CORS` | Vendor panel CORS origins | Required |
+| `AUTH_CORS` | Auth endpoint CORS origins | Required |
 | `JWT_SECRET` | JWT signing secret | `supersecret` (change in production) |
 | `COOKIE_SECRET` | Cookie signing secret | `supersecret` (change in production) |
 | `FILE_BACKEND_URL` | Public origin baked into uploaded file URLs | `http://localhost:9000/static` |
-| `MERCUR_VENDOR_URL` | Vendor dashboard base URL used in member invite links | `""` — can also be set via the seller module's `vendor_url` option |
+| `MERCUR_VENDOR_URL` | Vendor dashboard base URL used in member invite links | `""`; can also be set via the seller module's `vendor_url` option |
 | `NODE_ENV` | Environment selection | `development` |
 
 ## Dashboard modules
@@ -118,8 +120,8 @@ Register `@mercurjs/payout-stripe-connect` as a provider of the payout module:
 
 | Option | Type | Default | Purpose |
 | --- | --- | --- | --- |
-| `apiKey` | `string` | — (required) | Stripe secret key |
-| `webhookSecret` | `string` | — (required) | Verifies incoming Stripe webhook signatures |
+| `apiKey` | `string` | Required | Stripe secret key |
+| `webhookSecret` | `string` | Required | Verifies incoming Stripe webhook signatures |
 | `accountValidation.detailsSubmitted` | `boolean` | `true` | Require onboarding details submitted before the account is active |
 | `accountValidation.chargesEnabled` | `boolean` | `true` | Require charges enabled |
 | `accountValidation.payoutsEnabled` | `boolean` | `true` | Require payouts enabled |

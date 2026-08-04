@@ -1,9 +1,11 @@
 ---
 title: "API conventions"
-description: "Authentication, seller scoping, pagination, field selection, and webhooks — shared by every Mercur API surface."
+description: "Authentication, seller scoping, pagination, field selection, and webhooks shared by every Mercur API surface."
 ---
 
-Mercur exposes three HTTP surfaces on the Medusa server. They share the same conventions for authentication, pagination, and field selection.
+Every Mercur API surface follows the same rules for authentication, pagination, and field selection.
+
+Mercur exposes three HTTP surfaces on the Medusa server. They share the conventions below, so once you learn one surface the others behave the same way.
 
 | Surface | Base path | Audience | Authentication |
 | --- | --- | --- | --- |
@@ -11,27 +13,27 @@ Mercur exposes three HTTP surfaces on the Medusa server. They share the same con
 | [Vendor API](/rc/references/api/vendor) | `/vendor/*` | Sellers | Member auth + seller scoping (below) |
 | [Store API](/rc/references/api/store) | `/store/*` | Storefront | Mostly public; customer auth where noted |
 
-All requests and responses are JSON. The recommended way to call these APIs is the typed `@mercurjs/client`. Every route below maps 1:1 to a client call.
+All requests and responses are JSON. Call these APIs with the typed `@mercurjs/client`. Every route below maps 1:1 to a client call.
 
 ## Authentication
 
 ### Admin
 
-Admin routes use standard Medusa admin authentication — log in via `/auth/user/emailpass`, then send the session cookie or a `Authorization: Bearer <token>` header.
+Admin routes use standard Medusa admin authentication. Log in via `/auth/user/emailpass`, then send the session cookie or an `Authorization: Bearer <token>` header.
 
 ### Vendor
 
 Vendor routes authenticate the **member** actor (`/auth/member/emailpass` to obtain a token) and are additionally scoped to a single seller:
 
-1. The request must carry an `x-seller-id` header (or a seller selected in the session via `POST /vendor/sellers/select`).
-2. Middleware verifies the authenticated member belongs to that seller and populates the request's seller context — every query and mutation on the surface is automatically filtered to that seller.
+1. The request must carry an `x-seller-id` header, or a seller selected in the session via `POST /vendor/sellers/select`.
+2. Middleware verifies the authenticated member belongs to that seller and populates the request's seller context. Every query and mutation on the surface is then filtered to that seller automatically.
 3. The member's RBAC roles are resolved for the selected seller.
 
 A handful of vendor routes are public by design: seller registration (`POST /vendor/sellers`), invite acceptance (`POST /vendor/members/invites/accept`), `GET /vendor/stores`, and `GET /vendor/feature-flags`.
 
 ### Store
 
-Store routes are public. Customer authentication (session or bearer) is **required** for `/store/order-groups` and **optional** for `/store/offers` and `/store/products` (it enriches the pricing context when present). Public seller routes only return sellers whose status is `open` and who are not inside a scheduled closure window.
+Store routes are public. Customer authentication (session or bearer) is **required** for `/store/order-groups` and **optional** for `/store/offers` and `/store/products`, where it enriches the pricing context when present. Public seller routes only return sellers whose status is `open` and who are not inside a scheduled closure window.
 
 ## Pagination
 

@@ -1,11 +1,11 @@
 ---
 title: "Store API"
-description: "Storefront routes under /store/* — discovery, multi-vendor carts, checkout, and order groups."
+description: "Storefront routes under /store/* for discovery, multi-vendor carts, checkout, and order groups."
 ---
 
-The Store API is what a storefront talks to. It extends Medusa's store routes with marketplace discovery (sellers, offers, search) and replaces the cart completion flow with the multi-vendor order-group split.
+The Store API is what a storefront talks to.
 
-Most routes are public; customer authentication requirements are noted per group. See [API conventions](/rc/references/api/conventions) for pagination and field selection.
+It extends Medusa's store routes with marketplace discovery (sellers and offers) and replaces the cart completion flow with the multi-vendor order-group split. Most routes are public, and customer authentication requirements are noted per group. See [API conventions](/rc/references/api/conventions) for pagination and field selection.
 
 ## Products and discovery
 
@@ -40,7 +40,7 @@ Mercur overrides the cart routes so a single cart can span multiple sellers:
 | `POST` | `/store/carts/:id/shipping-methods` | Add per-seller shipping methods |
 | `GET` | `/store/shipping-options` | Shipping options available for the cart, grouped by seller |
 | `POST` | `/store/carts/:id/promotions` | Apply promotions |
-| `POST` | `/store/carts/:id/complete` | Complete the cart — splits it into per-seller orders under an order group |
+| `POST` | `/store/carts/:id/complete` | Complete the cart, splitting it into per-seller orders under an order group |
 
 ## Order groups
 
