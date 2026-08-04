@@ -1,7 +1,7 @@
 {
   "name": "@acme/admin",
   "private": true,
-  "version": "2.2.1",
+  "version": "2.3.0-canary.0",
   "type": "module",
   "scripts": {
     "dev": "vite --port 7000",
@@ -10,7 +10,7 @@
     "preview": "vite preview --port 7000"
   },
   "dependencies": {
-    "@mercurjs/admin": "2.2.1"
+    "@mercurjs/admin": "2.3.0-canary.0"
   },
   "devDependencies": {
     "@types/node": "^24.10.1"
