@@ -15,7 +15,7 @@ import {
   TrianglesMini,
   XMarkMini,
 } from "@medusajs/icons"
-import { clx, Text } from "@medusajs/ui"
+import { Badge, clx, Text } from "@medusajs/ui"
 import { matchSorter } from "match-sorter"
 import {
   ComponentPropsWithoutRef,
@@ -38,6 +38,7 @@ import { genericForwardRef } from "../../utilities/generic-forward-ref"
 type ComboboxOption = {
   value: string
   label: string
+  secondaryLabel?: string
   disabled?: boolean
 }
 
@@ -367,7 +368,7 @@ const ComboboxImpl = <T extends Value = string>(
         }}
         aria-busy={isPending}
       >
-        {results.map(({ value, label, disabled }) => (
+        {results.map(({ value, label, secondaryLabel, disabled }) => (
           <PrimitiveComboboxItem
             key={value}
             value={value}
@@ -385,9 +386,14 @@ const ComboboxImpl = <T extends Value = string>(
             <PrimitiveComboboxItemCheck className="flex !size-5 shrink-0 items-center justify-center">
               {isArrayValue ? <CheckMini /> : <EllipseMiniSolid />}
             </PrimitiveComboboxItemCheck>
-            <PrimitiveComboboxItemValue className="txt-compact-small truncate">
+            <PrimitiveComboboxItemValue className="txt-compact-small flex-1 overflow-hidden text-ellipsis whitespace-nowrap">
               {label}
             </PrimitiveComboboxItemValue>
+            {secondaryLabel && (
+              <Badge size="2xsmall" className="ml-auto shrink-0">
+                {secondaryLabel}
+              </Badge>
+            )}
           </PrimitiveComboboxItem>
         ))}
         {!!fetchNextPage && <div ref={lastOptionRef} className="w-px" />}

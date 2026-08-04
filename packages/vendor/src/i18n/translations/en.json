@@ -1054,7 +1054,7 @@
     "deleteWarning": "You are about to delete an inventory item. This action cannot be undone.",
     "editItemDetails": "Edit item details",
     "quantityAcrossLocations": "{{quantity}} across {{locations}} locations",
-    "levelDeleted": "Inventory level was successfully deleted.",
+    "levelDeleted": "Inventory level deleted successfully.",
     "create": {
       "title": "Create Inventory Item",
       "details": "Details",
@@ -1089,17 +1089,22 @@
       "updateSuccessToast": "Reservation was successfully updated.",
       "deleteSuccessToast": "Reservation was successfully deleted.",
       "errors": {
-        "noAvaliableQuantity": "Stock location doesn't have available quantity.",
+        "noAvaliableQuantity": "Stock location doesn't have available quantity",
         "quantityOutOfRange": "Minimum quantity is 1 and maximum quantity is {{max}}",
-        "idRequired": "Please select an item to reserve",
+        "idRequired": "Inventory item is required",
         "selectLocation": "Please select a location",
-        "enterQuantity": "Please enter a quantity"
+        "enterQuantity": "Please enter a quantity",
+        "pleaseEnterQuantity": "Please enter quantity"
       },
       "deleteTitle": "Delete reservation",
       "deleteDescription": "You are about to delete a reservation. This action cannot be undone.",
       "deleteBlockedDescription": "This reservation cannot be deleted because it's linked to an unfulfilled order.",
       "gotIt": "Got it",
-      "locationPlaceholder": "Select location"
+      "locationPlaceholder": "Select location",
+      "itemId": "Item ID",
+      "goToInventoryItem": "Go to inventory item",
+      "reserved": "Reserved",
+      "itemPlaceholder": "Select item"
     },
     "adjustInventory": {
       "errors": {
@@ -1108,9 +1113,9 @@
       }
     },
     "toast": {
-      "updateLocations": "Locations were successfully updated.",
-      "updateLevel": "Inventory level was successfully updated.",
-      "updateItem": "Inventory item was successfully updated.",
+      "updateLocations": "Locations updated successfully.",
+      "updateLevel": "Inventory level updated successfully.",
+      "updateItem": "Inventory item updated successfully.",
       "deleteItem": "Inventory item was successfully deleted."
     },
     "stock": {
@@ -1121,7 +1126,7 @@
       "disablePrompt_one": "You are about to disable {{count}} location level. This action cannot be undone.",
       "disablePrompt_other": "You are about to disable {{count}} location levels. This action cannot be undone.",
       "disabledToggleTooltip": "Cannot disable: clear incoming and/or reserved quantity before disabling.",
-      "successToast": "Stock levels were successfully updated."
+      "successToast": "Inventory levels updated successfully."
     },
     "associatedOffers": "Associated offers",
     "attributes": {
@@ -3490,7 +3495,21 @@
   "reservations": {
     "domain": "Reservations",
     "subtitle": "Manage the reserved quantity of inventory items.",
-    "deleteWarning": "You are about to delete a reservation. This action cannot be undone."
+    "deleteWarning": "You are about to delete a reservation. This action cannot be undone.",
+    "list": {
+      "noRecordsTitle": "No reservations yet",
+      "noRecordsMessage": "Create reservations to manage the reserved quantity of inventory items"
+    },
+    "delete": {
+      "title": "Delete reservation",
+      "description": "You are about to delete a reservation. This action cannot be undone.",
+      "lockedTitle": "Delete reservation",
+      "lockedDescription": "This reservation cannot be deleted because it's linked to an unfulfilled order."
+    },
+    "edit": {
+      "lockedTitle": "Edit reservation",
+      "lockedDescription": "This reservation cannot be edited because it's linked to an unfulfilled order."
+    }
   },
   "salesChannels": {
     "domain": "Sales Channels",

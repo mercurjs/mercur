@@ -1,0 +1,72 @@
+name: Update star history
+
+# star-history.com generates its SVG on demand from the GitHub API, and its
+# shared token pool is frequently rate-limited (HTTP 503). Hotlinking that live
+# endpoint from the README means GitHub's Camo image proxy caches the failure
+# and the chart renders blank. Instead we snapshot the SVG into the repo on a
+# schedule and the README points at the committed file, so the chart always
+# renders regardless of star-history.com's availability.
+on:
+  schedule:
+    - cron: "0 0 * * 0" # weekly, Sunday 00:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: star-history
+  cancel-in-progress: false
+
+jobs:
+  update:
+    name: Snapshot star history chart
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 1
+
+      # Fetch to a temp file and only promote it once we've confirmed the body
+      # is a real SVG. On a rate-limited run star-history returns a text/plain
+      # 503 ("try again later"), which must never overwrite the good snapshot.
+      - name: Fetch chart
+        run: |
+          mkdir -p .github/assets
+          set -euo pipefail
+
+          fetch() {
+            local url="$1" out="$2" tmp
+            tmp="$(mktemp)"
+            local code
+            code="$(curl -sS -o "$tmp" -w '%{http_code}' "$url")"
+            if [ "$code" != "200" ]; then
+              echo "::warning::$url returned HTTP $code — skipping update"
+              return 1
+            fi
+            if ! head -c 200 "$tmp" | grep -qi "<svg"; then
+              echo "::warning::$url did not return an SVG — skipping update"
+              return 1
+            fi
+            mv "$tmp" "$out"
+            echo "Updated $out"
+          }
+
+          fetch "https://api.star-history.com/svg?repos=mercurjs/mercur&type=Date" \
+                ".github/assets/star-history.svg"
+          fetch "https://api.star-history.com/svg?repos=mercurjs/mercur&type=Date&theme=dark" \
+                ".github/assets/star-history-dark.svg"
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add .github/assets/star-history.svg .github/assets/star-history-dark.svg
+          if git diff --staged --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git commit -m "chore: update star history chart"
+          git push

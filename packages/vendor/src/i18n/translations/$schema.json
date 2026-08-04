@@ -4458,6 +4458,9 @@
                 },
                 "enterQuantity": {
                   "type": "string"
+                },
+                "pleaseEnterQuantity": {
+                  "type": "string"
                 }
               },
               "required": [
@@ -4465,7 +4468,8 @@
                 "quantityOutOfRange",
                 "idRequired",
                 "selectLocation",
-                "enterQuantity"
+                "enterQuantity",
+                "pleaseEnterQuantity"
               ],
               "additionalProperties": false
             },
@@ -4482,6 +4486,18 @@
               "type": "string"
             },
             "locationPlaceholder": {
+              "type": "string"
+            },
+            "itemId": {
+              "type": "string"
+            },
+            "goToInventoryItem": {
+              "type": "string"
+            },
+            "reserved": {
+              "type": "string"
+            },
+            "itemPlaceholder": {
               "type": "string"
             }
           },
@@ -4508,7 +4524,11 @@
             "deleteDescription",
             "deleteBlockedDescription",
             "gotIt",
-            "locationPlaceholder"
+            "locationPlaceholder",
+            "itemId",
+            "goToInventoryItem",
+            "reserved",
+            "itemPlaceholder"
           ],
           "additionalProperties": false
         },
@@ -13854,12 +13874,71 @@
         },
         "deleteWarning": {
           "type": "string"
+        },
+        "list": {
+          "type": "object",
+          "properties": {
+            "noRecordsTitle": {
+              "type": "string"
+            },
+            "noRecordsMessage": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "noRecordsTitle",
+            "noRecordsMessage"
+          ],
+          "additionalProperties": false
+        },
+        "delete": {
+          "type": "object",
+          "properties": {
+            "title": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "lockedTitle": {
+              "type": "string"
+            },
+            "lockedDescription": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "title",
+            "description",
+            "lockedTitle",
+            "lockedDescription"
+          ],
+          "additionalProperties": false
+        },
+        "edit": {
+          "type": "object",
+          "properties": {
+            "lockedTitle": {
+              "type": "string"
+            },
+            "lockedDescription": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "lockedTitle",
+            "lockedDescription"
+          ],
+          "additionalProperties": false
         }
       },
       "required": [
         "domain",
         "subtitle",
-        "deleteWarning"
+        "deleteWarning",
+        "list",
+        "delete",
+        "edit"
       ],
       "additionalProperties": false
     },

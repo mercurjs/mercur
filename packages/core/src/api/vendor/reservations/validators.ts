@@ -19,6 +19,9 @@ export const VendorGetReservationsParams = createFindParams({
 }).merge(
   z.object({
     q: z.string().optional(),
+    // Free-text SKU filter from the list toolbar. SKU lives on the linked
+    // inventory item, so the middleware reshapes it into `inventory_item_id`.
+    sku: z.string().optional(),
     location_id: z.union([z.string(), z.array(z.string())]).optional(),
     inventory_item_id: z.union([z.string(), z.array(z.string())]).optional(),
     line_item_id: z.union([z.string(), z.array(z.string())]).optional(),

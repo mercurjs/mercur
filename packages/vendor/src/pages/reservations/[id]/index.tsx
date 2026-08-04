@@ -8,7 +8,7 @@ import { useLinkQuery, WidgetZone } from "@mercurjs/dashboard-shared"
 import { useReservationItem } from "@hooks/api/reservations"
 import { useInventoryItem } from "@hooks/api"
 import { ReservationGeneralSection } from "./_components/reservation-general-section"
-import { InventoryItemGeneralSection } from "../../inventory/[id]/_components/inventory-item-general-section"
+import { ReservationInventorySection } from "./_components/reservation-inventory-section"
 
 type ReservationDetailBreadcrumbProps =
   UIMatch<HttpTypes.AdminReservationResponse>
@@ -58,7 +58,7 @@ export const Component = () => {
   }
 
   return (
-    <TwoColumnPage data={reservation}>
+    <TwoColumnPage data={reservation} showJSON showMetadata>
       <TwoColumnPage.Main>
         <WidgetZone id="reservations.detail.main" data={reservation}>
           <ReservationGeneralSection reservation={reservation} />
@@ -67,7 +67,7 @@ export const Component = () => {
       <TwoColumnPage.Sidebar>
         <WidgetZone id="reservations.detail.side" data={reservation}>
           {inventory_item && (
-            <InventoryItemGeneralSection inventoryItem={inventory_item!} />
+            <ReservationInventorySection inventoryItem={inventory_item!} />
           )}
         </WidgetZone>
       </TwoColumnPage.Sidebar>
