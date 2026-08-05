@@ -2,8 +2,15 @@ import { loadEnv } from "./env"
 import { createEphemeralDb, type EphemeralDb } from "./db"
 import { startMedusa, type MedusaHandle } from "./medusa"
 import { startDashboard, type DashboardHandle } from "./dashboard"
-import { runSeed } from "./seed"
+import { runSeed, DEFAULT_SEED_EXEC } from "./seed"
 import { ADMIN_HOST_DIR, VENDOR_HOST_DIR } from "./paths"
+
+export interface StartStackOptions {
+  // `medusa exec` entry (relative to e2e-tests/) that seeds the ephemeral DB.
+  // Defaults to the minimal login-only e2e seed; the docs guide generator
+  // passes its own entry to seed the apps/api demo catalog.
+  seedExec?: string
+}
 
 export interface Stack {
   medusa: MedusaHandle
@@ -15,7 +22,10 @@ export interface Stack {
   shutdownAll: () => Promise<void>
 }
 
-export async function startStack(): Promise<Stack> {
+export async function startStack(
+  options: StartStackOptions = {}
+): Promise<Stack> {
+  const seedExec = options.seedExec ?? DEFAULT_SEED_EXEC
   loadEnv()
 
   const getPort = (await import("get-port")).default
@@ -39,7 +49,7 @@ export async function startStack(): Promise<Stack> {
   const db = await createEphemeralDb(env)
   env.DATABASE_URL = db.url
 
-  runSeed(env)
+  runSeed(env, seedExec)
 
   const medusa = await startMedusa(env, medusaPort)
 
@@ -63,7 +73,7 @@ export async function startStack(): Promise<Stack> {
 
   const reseed = async () => {
     await db.restore()
-    runSeed(env)
+    runSeed(env, seedExec)
   }
 
   return {
