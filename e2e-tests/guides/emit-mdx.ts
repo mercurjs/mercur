@@ -4,10 +4,11 @@ import type { GuideDefinition } from "./define-guide"
 import type { RenderedStep } from "./driver"
 import { GUIDE_MDX_ROOT } from "./paths"
 
-// Mintlify frontmatter uses double-quoted strings, so escape any quotes in the
-// author-provided title/description.
+// Mintlify frontmatter uses double-quoted strings, so escape backslashes first
+// (a `\` in the input must not be left to combine with an escaped quote) and
+// then the quotes themselves.
 function frontmatterValue(value: string): string {
-  return value.replace(/"/g, '\\"')
+  return value.replace(/\\/g, "\\\\").replace(/"/g, '\\"')
 }
 
 function renderStep(step: RenderedStep): string {
