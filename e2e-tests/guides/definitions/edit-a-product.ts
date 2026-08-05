@@ -26,7 +26,8 @@ export default defineGuide({
     },
     {
       title: "Open the product",
-      body: "Selecting a row opens the product's detail page.",
+      body: "Search for the product by name, then select its row to open the detail page.",
+      fill: [{ target: { placeholder: "Search" }, value: "Apex Pool Slides" }],
       click: { role: "row", name: /apex pool slides/i },
       shot: false,
     },

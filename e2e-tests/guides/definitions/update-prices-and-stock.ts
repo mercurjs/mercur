@@ -24,7 +24,8 @@ export default defineGuide({
     },
     {
       title: "Open the offer",
-      body: "Selecting a row opens the offer's detail page.",
+      body: "Search for the offer by product name, then select its row to open the detail page.",
+      fill: [{ target: { placeholder: "Search" }, value: "Apex Pool Slides" }],
       click: { role: "row", name: /apex pool slides/i },
       shot: false,
     },

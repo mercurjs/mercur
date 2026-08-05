@@ -134,12 +134,20 @@ export async function runStep(
 
   try {
     if (typeof shot === "object" && "element" in shot) {
-      await resolveLocator(page, shot.element).screenshot({ path: filePath })
+      await resolveLocator(page, shot.element).screenshot({
+        path: filePath,
+        animations: "disabled",
+        caret: "hide",
+      })
     } else {
       await page.screenshot({
         path: filePath,
         fullPage: shot === "full",
         mask,
+        // Finish CSS transitions/animations to their end state so modals and
+        // drawers are captured fully open, never mid-fade at partial opacity.
+        animations: "disabled",
+        caret: "hide",
       })
     }
   } finally {

@@ -26,7 +26,9 @@ export default defineConfig({
   reporter: [["list"]],
 
   use: {
-    actionTimeout: 15_000,
+    // Generous timeouts: generation runs the full stack plus a browser on one
+    // machine, so lists and modals can be slow to settle under load.
+    actionTimeout: 30_000,
     navigationTimeout: 30_000,
     // Deterministic, high-DPI screenshots for crisp docs images. Force the dark
     // theme to match the docs site's dark-first palette.
