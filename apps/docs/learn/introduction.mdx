@@ -62,10 +62,23 @@ Once the dev server is running, the surfaces are available at:
 | Admin Panel | `http://localhost:9000/dashboard` |
 | Vendor Panel | `http://localhost:9000/seller` |
 
-The CLI opens the admin setup page so you can create your first operator account.
-To create a seller, open the Vendor Panel and register at
+You don't need to create any accounts to start. When the CLI finishes, it opens
+the admin invite page at `http://localhost:9000/dashboard/invite` with a token
+already filled in for `admin@mercur-test.com`. Set a password there and you are
+signed in as the operator.
+
+The seed also creates three approved demo sellers, so you can sign in to the
+Vendor Panel right away. There is no registration or approval step to go through.
+
+| Seller | Email | Password |
+| --- | --- | --- |
+| Sole Society | `seller@mercur.dev` | `supersecret` |
+| Kickz Corner | `kickz@mercur.dev` | `supersecret` |
+| Trailhead Outfitters | `trailhead@mercur.dev` | `supersecret` |
+
+To add a brand-new store instead, open the Vendor Panel and register at
 `http://localhost:9000/seller/register`, then complete the onboarding wizard. The
-seller then appears in the Admin Panel for approval.
+new seller appears in the Admin Panel's approval queue.
 
 Restart the dev server any time from your project directory:
 
