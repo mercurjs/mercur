@@ -4,7 +4,7 @@ api: "POST /admin/product-attributes/{id}/values"
 description: "Create or update values on a product attribute."
 ---
 
-Upserts the given values on the attribute — items with an `id` update an existing value, items without one create a new value.
+Upserts the given values on the attribute. Items with an `id` update an existing value, items without one create a new value.
 
 ## Path parameters
 
@@ -13,7 +13,7 @@ Upserts the given values on the attribute — items with an `id` update an exist
 ## Body parameters
 
 <ParamField body="values" type="object[]" required>
-  Values to create or update — one of two shapes per item.
+  Values to create or update, one of two shapes per item.
   <Expandable title="update existing value (by id)">
     <ParamField body="id" type="string" required>The value's ID.</ParamField>
     <ParamField body="name" type="string">Value name.</ParamField>

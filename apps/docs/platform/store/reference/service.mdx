@@ -1,0 +1,51 @@
+---
+title: "Service reference"
+sidebarTitle: "Service"
+description: "The Seller module service and its methods for working with records directly."
+---
+
+The Seller module exposes a service you can resolve from the Medusa container to
+read and write records directly, without going through a workflow. Use it inside
+custom services, subscribers, or scheduled jobs.
+
+```ts
+import { MercurModules } from "@mercurjs/types"
+
+const sellerModuleService = container.resolve(MercurModules.SELLER)
+
+const [sellers, count] = await sellerModuleService.listAndCountSellers({
+  status: "open",
+})
+```
+
+## Generated methods
+
+Each data model gets a standard set of auto-generated methods. For `Seller`:
+
+| Method | Description |
+| --- | --- |
+| `createSellers(data)` | Create one or more stores |
+| `retrieveSeller(id, config?)` | Retrieve a store by id |
+| `listSellers(filters?, config?)` | List stores matching filters |
+| `listAndCountSellers(filters?, config?)` | List stores with a total count |
+| `updateSellers(data)` | Update one or more stores |
+| `deleteSellers(ids)` | Delete one or more stores |
+
+The same set exists for every model in the module, such as `Member`, `SellerMember`,
+`MemberInvite`, `ProfessionalDetails`, `SellerAddress`, and `PaymentDetails`
+(e.g. `createMembers`, `listMemberInvites`, `updatePaymentDetails`).
+
+## Team methods
+
+| Method | Description |
+| --- | --- |
+| `addSellerMember(data)` | Attach a member to a store |
+| `removeSellerMember(sellerId, memberId)` | Detach a member from a store |
+| `createMemberInvites(data)` | Create pending team invitations |
+| `updateMember(data)` | Update a member record |
+
+<Warning>
+  Prefer [workflows](/platform/store/reference/workflows) for anything with side
+  effects (status changes, invites, payouts). The service writes records
+  directly and does **not** emit events or run compensation.
+</Warning>

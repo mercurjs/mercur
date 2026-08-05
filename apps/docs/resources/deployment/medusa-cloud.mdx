@@ -1,6 +1,7 @@
 ---
-title: "Medusa Cloud deployment"
-description: "Deploy Mercur — backend, admin panel, and vendor panel — on Medusa Cloud."
+title: "Medusa Cloud"
+sidebarTitle: "Medusa Cloud"
+description: "Deploy the Mercur backend, admin panel, and vendor panel on Medusa Cloud."
 ---
 
 ## Introduction
@@ -12,8 +13,8 @@ Head to the [Medusa Cloud signup page](https://cloud.medusajs.com/signup) to get
 <Info>
   A single Medusa Cloud deployment serves everything: the backend API, the
   **admin panel** at `/dashboard`, and the **vendor panel** at `/seller`. The
-  panels are built together with the backend and served from the same origin —
-  no separate hosting is needed.
+  panels are built together with the backend and served from the same origin.
+  No separate hosting is needed.
 </Info>
 
 ## How it works
@@ -22,21 +23,21 @@ The `basic` template wires this up out of the box:
 
 - During `build`, the API package builds both panels and bundles their production
   output into the Medusa build artifact (`.medusa/server/dashboards/<name>`), so hosts
-  that deploy only the artifact — like Medusa Cloud — carry the panels with it
+  that deploy only the artifact, like Medusa Cloud, carry the panels with it
   (`packages/api/scripts/bundle-dashboards.mjs`).
 - At runtime, the `admin-ui` and `vendor-ui` modules detect the bundled builds and
   serve them statically at their configured paths (`/dashboard`, `/seller`).
 - The panels bake the backend URL at build time from the `MERCUR_BACKEND_URL`
   environment variable. Because they are served from the backend's own origin, all
-  API calls are same-origin — no cross-site cookie or CORS gymnastics.
+  API calls are same-origin. No cross-site cookie or CORS gymnastics.
 
 Medusa Cloud builds the monorepo with `NODE_ENV=production`. In that mode the build
 **fails fast** when `MERCUR_BACKEND_URL` is missing instead of shipping panels that
-silently point at `http://localhost:9000` — so make sure to set it as described below.
+silently point at `http://localhost:9000`. Make sure to set it as described below.
 
 ## Prerequisites
 
-- A Mercur project created with [`@mercurjs/cli`](/rc/learn/installation) and pushed to a GitHub repository
+- A Mercur project created with [`@mercurjs/cli`](/learn/introduction) and pushed to a GitHub repository
 - A [Medusa Cloud](https://cloud.medusajs.com) account with the GitHub app authorized
 - API keys for any third-party services you plan to use (Stripe, Resend, Algolia, etc.)
 
@@ -54,13 +55,13 @@ silently point at `http://localhost:9000` — so make sure to set it as describe
   <Step title="Configure the project">
     On the **Configure** step, fill in:
 
-    - **Project name** and **Custom subdomain**. The subdomain determines your backend URL (`https://<subdomain>.medusajs.app`) — you will reference it in the environment variables below.
+    - **Project name** and **Custom subdomain**. The subdomain determines your backend URL (`https://<subdomain>.medusajs.app`). You will reference it in the environment variables below.
     - **Region** closest to your users.
     - **Medusa root directory**: `/packages/api`.
-    - **Initial user** — the first admin email and password.
+    - **Initial user:** the first admin email and password.
 
-    Leave **Storefront root directory** empty — the Mercur basic template doesn't ship a storefront.
-    ![Configure project — name, region, Medusa root directory](/images/v2/cloud_3.png)
+    Leave **Storefront root directory** empty. The Mercur basic template doesn't ship a storefront.
+    ![Configure project: name, region, Medusa root directory](/images/v2/cloud_3.png)
   </Step>
   <Step title="Set environment variables">
     Scroll down to **Environment variables** and add the **Backend Environment Variables** below. Medusa Cloud provisions the database, Redis, and file storage automatically, so you don't need to set those.
@@ -70,11 +71,11 @@ silently point at `http://localhost:9000` — so make sure to set it as describe
 
     ```bash
     # Panels (build-time): the deployed backend origin, baked into the admin and
-    # vendor panels. Enable the **Build** toggle for this variable — the panels
+    # vendor panels. Enable the **Build** toggle for this variable. The panels
     # read it while they are being built, not at runtime.
     MERCUR_BACKEND_URL=https://<your-subdomain>.medusajs.app
 
-    # CORS — the panels are served from the backend's own origin, so it is enough
+    # CORS: the panels are served from the backend's own origin, so it is enough
     # to list that origin (plus your storefront URL in STORE_CORS, if you have one)
     STORE_CORS=https://<your-subdomain>.medusajs.app
     ADMIN_CORS=https://<your-subdomain>.medusajs.app
@@ -119,7 +120,7 @@ silently point at `http://localhost:9000` — so make sure to set it as describe
   </Step>
 </Steps>
 
-You can change these variables later from the project's environment settings, and switch the deployment branch at any time. Medusa Cloud will automatically pull and rebuild your environment whenever a new commit is pushed to the selected branch. Remember that `MERCUR_BACKEND_URL` is baked into the panels at build time — changing it requires a redeploy.
+You can change these variables later from the project's environment settings, and switch the deployment branch at any time. Medusa Cloud will automatically pull and rebuild your environment whenever a new commit is pushed to the selected branch. Remember that `MERCUR_BACKEND_URL` is baked into the panels at build time. Changing it requires a redeploy.
 
 ## After deployment
 
@@ -131,7 +132,7 @@ Once the build succeeds, everything is served from `https://<your-subdomain>.med
 | Admin panel  | `https://<your-subdomain>.medusajs.app/dashboard` |
 | Vendor panel | `https://<your-subdomain>.medusajs.app/seller`   |
 
-Open the admin panel and sign in with the **Initial user** you configured in the setup step. If a panel shows a "Dashboard not built" page, the bundling step did not run — check the deployment's build logs for output from `bundle-dashboards`.
+Open the admin panel and sign in with the **Initial user** you configured in the setup step. If a panel shows a "Dashboard not built" page, the bundling step did not run. Check the deployment's build logs for output from `bundle-dashboards`.
 
 <Tip>
   Prefer hosting the panels separately (for example on Vercel or Netlify)? That
@@ -144,14 +145,14 @@ Open the admin panel and sign in with the **Initial user** you configured in the
 ## FAQ
 
 <AccordionGroup>
-  <Accordion title="A panel shows a 'Dashboard not built' page — what went wrong?">
+  <Accordion title="A panel shows a 'Dashboard not built' page. What went wrong?">
     The bundling step didn't run during the build. Check the deployment's build logs for output from `bundle-dashboards`; the most common cause is a build that failed earlier (often a missing `MERCUR_BACKEND_URL` with the Build toggle off).
   </Accordion>
   <Accordion title="I changed MERCUR_BACKEND_URL but the panels still call the old URL">
     The backend URL is **baked into the panels at build time**, not read at runtime. After changing the variable, trigger a redeploy so the panels rebuild with the new value.
   </Accordion>
   <Accordion title="Do I need to configure a database or Redis?">
-    No — Medusa Cloud provisions Postgres, Redis, and file storage automatically and injects their connection variables. Only set the variables listed in the setup step.
+    No. Medusa Cloud provisions Postgres, Redis, and file storage automatically and injects their connection variables. Only set the variables listed in the setup step.
   </Accordion>
 </AccordionGroup>
 
@@ -161,7 +162,7 @@ Open the admin panel and sign in with the **Initial user** you configured in the
   <Card title="Stripe Connect" href="/rc/resources/integrations/stripe-connect">
     Wire payments and payouts on the deployed environment.
   </Card>
-  <Card title="Build your first marketplace" href="/rc/resources/tutorials/first-marketplace">
-    Run the end-to-end flow against your new deployment.
+  <Card title="Overview" href="/learn/introduction">
+    Set up Mercur and run a marketplace.
   </Card>
 </CardGroup>

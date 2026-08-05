@@ -7,7 +7,7 @@ description: "Register a new seller account with its first member."
 Creates a seller account, optionally with an initial address, professional details, and payment details.
 
 <Note>
-  This is a public route — no `Authorization` or `x-seller-id` header is required. When called without an authenticated member, `member_email` is required so the owner member can be created.
+  This is a public route: no `Authorization` or `x-seller-id` header is required. When called without an authenticated member, `member_email` is required so the owner member can be created.
 </Note>
 
 ## Body parameters
@@ -33,7 +33,7 @@ Creates a seller account, optionally with an initial address, professional detai
 </ParamField>
 
 <ParamField body="member_email" type="string">
-  Email for the owner member — required when there is no authenticated member.
+  Email for the owner member, required when there is no authenticated member.
 </ParamField>
 
 <ParamField body="first_name" type="string">

@@ -1,0 +1,62 @@
+---
+title: "Lifecycle"
+sidebarTitle: "Lifecycle"
+description: "Store statuses, transitions, scheduled closures, and premium."
+---
+
+This page covers the store account lifecycle and the states a store moves through.
+
+## Status
+
+A store's state lives in the `status` field of the `Seller` model, typed by the
+`SellerStatus` enum. A store moves through four statuses.
+
+```
+                ┌───────────────────┐
+                │  pending_approval  │
+                └─────────┬─────────┘
+                          │ approve
+                          ▼
+   ┌───────────┐     ┌────────┐
+   │ suspended  │◄───►│  open   │
+   └───────────┘     └───┬────┘
+                         │ terminate
+                         ▼
+                  ┌────────────┐
+                  │ terminated  │
+                  └────────────┘
+```
+
+| Status | Meaning |
+| --- | --- |
+| `pending_approval` | Registered, waiting for operator review. |
+| `open` | Active. Can list offers, take orders, and collect payouts. |
+| `suspended` | Temporarily frozen. Offers stay listed but cannot be purchased. |
+| `terminated` | Permanently closed. This status is irreversible. |
+
+Only the operator can change a store's status. Each transition runs through a
+dedicated workflow: `approveSellerWorkflow`, `suspendSellerWorkflow`,
+`unsuspendSellerWorkflow`, and `terminateSellerWorkflow`.
+
+<Note>
+  Termination is irreversible. All orders and payouts must be resolved before a
+  store can be terminated.
+</Note>
+
+## Scheduled closures
+
+A store can schedule a temporary closure with the `closed_from` and `closed_to`
+fields without changing its status. During the window, the storefront shows as
+unavailable and no new orders are accepted. The account stays `open` and resumes
+on its own once `closed_to` passes.
+
+<Tip>
+  A closure overlays the current status. It is not a status of its own, and it
+  does not affect the transition rules.
+</Tip>
+
+## Premium
+
+The `is_premium` boolean is set only by the operator. Stores cannot designate
+themselves as premium. The storefront uses the flag for featured placement,
+badges, and curation priority.

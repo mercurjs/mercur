@@ -1,0 +1,56 @@
+---
+title: "Data models"
+sidebarTitle: "Data models"
+description: "The data models owned by the Attribute (Product Attribute) domain."
+---
+
+The Attribute domain is owned by the **Product Attribute module**. This reference
+lists its data models and their fields. For the full module overview, see the
+[Attribute module overview](/platform/attribute/overview).
+
+## ProductAttribute
+
+Table `product_attribute`, id prefix `pattr`. A typed catalog attribute.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `name` | text | Searchable |
+| `handle` | text | Nullable; unique when set |
+| `description` | text | Nullable |
+| `type` | enum | `AttributeType`: `single_select`, `multi_select`, `text`, `unit`, `toggle` |
+| `is_required` | boolean | Default `false` |
+| `is_filterable` | boolean | Default `false`; exposes the attribute as a storefront filter |
+| `is_variant_axis` | boolean | Default `false`; `multi_select` axis that generates variants |
+| `rank` | number | Default `0`; ordering |
+| `is_active` | boolean | Default `true` |
+| `created_by` | text | Nullable |
+| `product_id` | text | Nullable; non-null = product-scoped (inline), null = global |
+| `product_option_id` | text | Nullable; FK to the mirror `ProductOption` (axis attributes) |
+| `metadata` | json | Nullable |
+
+Relations: `values` (one-to-many `ProductAttributeValue`, deleted with the
+attribute).
+
+## ProductAttributeValue
+
+Table `product_attribute_value`, id prefix `pattrval`. A selectable value that
+belongs to one attribute.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `name` | text | The value label |
+| `handle` | text | Nullable; unique per attribute when set |
+| `rank` | number | Default `0`; ordering |
+| `is_active` | boolean | Default `true` |
+| `product_option_value_id` | text | Nullable; FK to the mirror `ProductOptionValue` (axis values) |
+| `metadata` | json | Nullable |
+
+Relations: `attribute` (belongs to `ProductAttribute` via `attribute_id`).
+
+<Note>
+  `product_option_id` on the attribute and `product_option_value_id` on the value
+  are the foreign keys behind the read-only mirror links to Medusa's product
+  options. See [Links](/platform/attribute/reference/links).
+</Note>

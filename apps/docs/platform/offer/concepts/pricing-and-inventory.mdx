@@ -1,0 +1,72 @@
+---
+title: "Pricing & inventory"
+sidebarTitle: "Pricing & inventory"
+description: "Offer-scoped prices on the shared price set, and inventory linked to the offer."
+---
+
+In this document, you'll learn how an offer carries its own price and inventory
+without owning the master variant.
+
+## Offer-scoped pricing
+
+An offer's prices don't live on a private price set. They live on the **master
+variant's shared `PriceSet`**, with each offer-owned row scoped by a
+`PriceRule` on the `offer_id` attribute. That's how many stores price the same
+variant independently: every price row Mercur writes for an offer is stamped with
+that offer's id, and reads filter the set back down to just that offer's rows.
+
+```ts
+// Every offer price row is written with an offer_id rule on the shared price set
+prices: [
+  {
+    amount: 2500,
+    currency_code: "usd",
+    rules: { offer_id: "offer_123" },
+  },
+]
+```
+
+The offer side reads its price ladder through the writable `offer ↔ price`
+list-link, so `offer.prices` resolves in a single query traversal. Each row is a
+standard Medusa money amount and supports `min_quantity` / `max_quantity` for
+quantity-break pricing.
+
+<Note>
+  Because prices sit on the shared price set scoped by `offer_id`, the master
+  variant is never mutated per store. The variant keeps a single price set, and
+  the `offer_id` rule partitions it per offer.
+</Note>
+
+## Offer-scoped inventory
+
+An offer's stock is held in Medusa `InventoryItem` records that link to the
+**offer**, not to the variant. The `offer ↔ inventory_item` link is a list-link
+whose pivot table (`offer_inventory_item`) carries a `required_quantity` column,
+so one offer can draw on several inventory items, each with its own required
+quantity.
+
+<Warning>
+  Offer inventory links to the **offer**, not the variant. `variant.inventory_items`
+  is empty for offer-based orders. Always resolve stock through
+  `offer.inventory_items`, never through the variant.
+</Warning>
+
+When you create an offer, its `inventory_items` entries each create a brand-new
+`InventoryItem` (with optional starting `stock_levels`) and link it to the offer
+in the same workflow run. An offer must have at least one inventory item.
+
+```ts
+inventory_items: [
+  {
+    sku: "ACME-WIDGET-01",
+    required_quantity: 1,
+    stock_levels: [{ location_id: "sloc_1", stocked_quantity: 50 }],
+  },
+]
+```
+
+<Tip>
+  The inventory items an offer creates are also linked to the store, so they show
+  up under the store's inventory. To change the set of items on an existing
+  offer, use the [batch inventory workflow](/platform/offer/guides/manage-offer-inventory).
+</Tip>

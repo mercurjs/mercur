@@ -1,0 +1,66 @@
+---
+title: "Data models"
+sidebarTitle: "Data models"
+description: "The Medusa Product models the catalog is built on, plus Mercur's marketplace layer."
+---
+
+The Catalog domain is owned by **Medusa's Product module**, with a marketplace
+layer added by Mercur. This reference lists the models at the Mercur-relevant
+level. It doesn't restate every Medusa product field. For the full module, see
+the [Medusa Product module](https://docs.medusajs.com/resources/commerce-modules/product).
+
+## Product
+
+Table `product`, id prefix `prod`. The shared master product, not owned by any
+store. The marketplace-relevant fields:
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `title` | text | Searchable |
+| `handle` | text | Unique |
+| `subtitle` / `description` | text | Nullable |
+| `status` | enum | `ProductStatus`: `draft` / `proposed` / `published` / `rejected`, default `draft` |
+| `thumbnail` | text | Nullable |
+| `metadata` | json | Nullable |
+
+Relations used by the marketplace: `variants`, `options`, `categories`,
+`collection`, `tags`, `type`, `images` (native Medusa), plus Mercur's `sellers`
+(the allowlist), `offers`, `scoped_attributes`, and `changes` (audit history).
+
+## product_seller
+
+The **allowlist**: a many-to-many link table between `Product` and `Seller`
+controlling which stores may sell a master product.
+
+| Column | References |
+| --- | --- |
+| `product_id` | `product.id` |
+| `seller_id` | `seller.id` |
+
+A store on this table can create an [offer](/platform/offer/overview) against the
+product; a store not on it cannot.
+
+## ProductVariant
+
+Table `product_variant`, id prefix `variant`. A purchasable configuration of a
+master product, generated from its options and variant-axis attributes. Holds the
+SKU-level catalog structure. Offer-scoped price and inventory live on the offer,
+not here.
+
+## ProductCategory
+
+Table `product_category`, id prefix `pcat`. Hierarchical, nestable
+classification. Participates in the marketplace layer through the
+`category_seller` allowlist and the `media_images` link.
+
+## ProductCollection
+
+Table `product_collection`, id prefix `pcol`. Flat, curated grouping of products,
+with a `media_images` link for collection artwork.
+
+<Note>
+  `ProductTag` and `ProductType` round out the native grouping models: free-form
+  labels and a single type classification per product, respectively. They carry
+  no Mercur-specific columns.
+</Note>

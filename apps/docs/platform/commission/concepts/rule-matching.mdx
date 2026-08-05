@@ -1,0 +1,86 @@
+---
+title: "Rule matching"
+sidebarTitle: "Rule matching"
+description: "The five dimensions, most-specific-wins resolution, tie-breaks, and shipping."
+---
+
+This page covers how Mercur decides which commission rate applies to a given
+order line.
+
+## Commission rule
+
+A commission rule scopes a rate to part of the catalog. It's represented by the
+`CommissionRule` data model (table `commission_rule`, id prefix `comrule`). A
+rule is a `reference` / `reference_id` pair that belongs to one rate. The
+`reference` names the dimension, and the `reference_id` names the specific
+record.
+
+```ts
+await batchCommissionRulesWorkflow(container).run({
+  input: {
+    commission_rate_id: "comrate_123",
+    create: [
+      { reference: "seller", reference_id: "sel_123" },
+      { reference: "product_category", reference_id: "pcat_shoes" },
+    ],
+  },
+})
+```
+
+A rate with **no** rules is a catch-all that matches every line. A rate with
+rules only matches lines that satisfy them.
+
+## The five dimensions
+
+A rule's `reference` is one of five dimensions, each resolved against the order
+line's product:
+
+| `reference` | Matches when |
+| --- | --- |
+| `product` | The line's product id equals `reference_id` |
+| `product_type` | The product's type id equals `reference_id` |
+| `product_collection` | The product's collection id equals `reference_id` |
+| `product_category` | One of the product's categories equals `reference_id` |
+| `seller` | The seller behind the line's offer equals `reference_id` |
+
+<Note>
+  Products are the shared master catalog. The `seller` dimension resolves
+  through the **offer** on the order line (`item.offer.seller_id`), not through
+  product ownership.
+</Note>
+
+## Most-specific-wins
+
+When several rates match a line, resolution is **AND across dimensions, OR
+within a dimension**. Rules are grouped by `reference`. A rate matches only when
+**every** group it defines has at least one matching rule. Among the matching
+rates, the one scoped on the **most distinct dimensions** wins.
+
+```
+Rate A: seller = sel_123                          (specificity 1)
+Rate B: seller = sel_123 AND category = pcat_shoes (specificity 2)  ← wins
+```
+
+<Tip>
+  Specificity is the count of **distinct dimensions** a rate scopes on, not the
+  number of rules. Two `product_category` rules on one rate still count as a
+  single dimension (they OR together).
+</Tip>
+
+## Tie-break
+
+When two matching rates have equal specificity, the **oldest** rate wins. Rates
+are evaluated `created_at` ascending, so the earliest-created rate is the
+deterministic winner.
+
+## Shipping commission
+
+Item commission is resolved per line as above. Shipping is different: a
+shipping method is commissioned **only** by the global rate, and only when its
+`include_shipping` flag is on. No scoped rate can commission shipping.
+
+<Note>
+  `include_tax` is a separate, per-rate toggle. When on, the line's `tax_total`
+  is added to the base amount before the rate is applied. This holds for both
+  item and shipping commission.
+</Note>

@@ -1,0 +1,54 @@
+---
+title: "Service reference"
+sidebarTitle: "Service"
+description: "The Review module service: CRUD methods and aggregate-rating helpers."
+---
+
+The Review module exposes a service you can resolve from the Medusa container to
+read and write records directly, without going through a workflow. Use it inside
+custom services, subscribers, scheduled jobs, or route handlers.
+
+```ts
+import { MercurModules } from "@mercurjs/types"
+
+const reviewModuleService = container.resolve(MercurModules.REVIEW)
+
+const [reviews, count] = await reviewModuleService.listAndCountReviews({
+  status: "published",
+})
+```
+
+## Generated methods
+
+The `Review` model gets a standard set of auto-generated methods:
+
+| Method | Description |
+| --- | --- |
+| `createReviews(data)` | Create one or more reviews |
+| `retrieveReview(id, config?)` | Retrieve a review by id |
+| `listReviews(filters?, config?)` | List reviews matching filters |
+| `listAndCountReviews(filters?, config?)` | List reviews with a total count |
+| `updateReviews(data)` | Update one or more reviews |
+| `deleteReviews(ids)` | Delete one or more reviews |
+| `softDeleteReviews(ids)` | Soft-delete reviews (restorable) |
+| `restoreReviews(ids)` | Restore soft-deleted reviews |
+
+## Aggregate-rating methods
+
+The service adds three helpers that compute average ratings on demand:
+
+| Method | Description |
+| --- | --- |
+| `getAvgRating(type, id)` | Average rating for one `"product"` or `"seller"`; `null` when it has no reviews |
+| `getProductsWithRating(fields)` | Product records with an average `rating` joined in |
+| `getSellersWithRating(fields)` | Seller records with an average `rating` joined in |
+
+See [Compute aggregate ratings](/platform/review/guides/compute-aggregate-ratings)
+for usage.
+
+<Warning>
+  Prefer [workflows](/platform/review/reference/workflows) for anything with side
+  effects (creation with its validation and links, responses, moderation). The
+  service writes records directly and does **not** run the create-flow validation
+  or manage the target/order/customer links.
+</Warning>

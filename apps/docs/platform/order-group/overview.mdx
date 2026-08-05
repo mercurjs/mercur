@@ -1,0 +1,83 @@
+---
+title: "Order Group"
+sidebarTitle: "Overview"
+description: "Wrap a multi-seller cart into one shopper-facing order made of independent per-seller orders."
+---
+
+Use Order Groups to turn a single customer cart that spans multiple sellers into
+one coherent order for the shopper.
+
+A marketplace cart can contain offers from several sellers at once. On checkout,
+Mercur splits that cart into one child order per seller and wraps them in an
+**Order Group**. This is the aggregate the shopper sees as "their order". Each
+child order is then fulfilled, returned, and refunded independently, while the
+group gives you a single handle over the whole purchase.
+
+<Note>
+  An order group is the `OrderGroup` entity. It lives in the **Seller module**
+  (id prefix `og`), not a module of its own. There is no `ORDER_GROUP` module
+  key. Resolve its service through `MercurModules.SELLER`.
+</Note>
+
+## Key features
+
+- **Multi-seller checkout:** one cart with offers from many sellers becomes one group of per-seller orders.
+- **Human-readable id:** an auto-incrementing `display_id` the shopper and operator can reference.
+- **Immutable cart link:** a read-only `cart_id` back to the originating cart. Carts are frozen after checkout.
+- **Computed totals:** `seller_count` and `total` are derived at query time, never stored.
+- **Independent child orders:** fulfillment, returns, and refunds happen per seller order.
+- **Scoped visibility:** admins see every group platform-wide. Vendors see only their slice.
+
+## Get started
+
+Learn how the domain fits together.
+
+<CardGroup cols={2}>
+  <Card title="The order group" icon="layer-group" href="/platform/order-group/concepts/the-order-group">
+    The aggregate entity, its `display_id`, and the read-only cart link.
+  </Card>
+  <Card title="Order splitting" icon="scissors" href="/platform/order-group/concepts/order-splitting">
+    How a multi-seller cart is split into per-seller child orders.
+  </Card>
+  <Card title="Computed totals" icon="calculator" href="/platform/order-group/concepts/computed-totals">
+    Why `seller_count` and `total` are calculated at query time.
+  </Card>
+</CardGroup>
+
+## Examples
+
+Build against Order Groups in your own code.
+
+<CardGroup cols={2}>
+  <Card title="Retrieve an order group" icon="magnifying-glass" href="/platform/order-group/guides/retrieve-an-order-group">
+    Load a group and its aggregated child orders.
+  </Card>
+  <Card title="List order groups" icon="list" href="/platform/order-group/guides/list-order-groups">
+    Page through groups, optionally scoped to a seller.
+  </Card>
+  <Card title="Split a cart" icon="scissors" href="/platform/order-group/guides/split-a-cart">
+    Complete a multi-seller cart into a group of orders.
+  </Card>
+</CardGroup>
+
+## Resources
+
+Data models, links, workflows, service methods, and events for Order Groups.
+
+<CardGroup cols={2}>
+  <Card title="Data models" icon="table" href="/platform/order-group/reference/data-models">
+    The `OrderGroup` entity and its fields.
+  </Card>
+  <Card title="Links" icon="link" href="/platform/order-group/reference/links">
+    How order groups link to carts, orders, sellers, and offers.
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/platform/order-group/reference/workflows">
+    Splitting, retrieving, and listing order groups.
+  </Card>
+  <Card title="Service" icon="gear" href="/platform/order-group/reference/service">
+    Seller module methods for working with groups directly.
+  </Card>
+  <Card title="Events" icon="bell" href="/platform/order-group/reference/events">
+    Events emitted as order groups are created.
+  </Card>
+</CardGroup>

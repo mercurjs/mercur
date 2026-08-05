@@ -72,6 +72,8 @@ Returns the seller's offers with variant, shipping profile, prices, and linked i
     <ResponseField name="sku" type="string">The seller's SKU for this listing.</ResponseField>
     <ResponseField name="ean" type="string">EAN barcode.</ResponseField>
     <ResponseField name="upc" type="string">UPC barcode.</ResponseField>
+    <ResponseField name="manage_inventory" type="boolean">Whether stock is tracked for the offer.</ResponseField>
+    <ResponseField name="allow_backorder" type="boolean">Whether the offer can be purchased when it is out of stock.</ResponseField>
     <ResponseField name="seller" type="object">The seller with `id`, `name`, and `handle`.</ResponseField>
     <ResponseField name="product_variant" type="object">The variant with `id`, `title`, and `sku`.</ResponseField>
     <ResponseField name="shipping_profile" type="object">The shipping profile with `id` and `name`.</ResponseField>
@@ -109,6 +111,8 @@ const { offers, count } = await client.vendor.offers.query({
       "product_id": "prod_01HXYZ",
       "shipping_profile_id": "sp_01HXYZ",
       "sku": "ACME-SHIRT-M",
+      "manage_inventory": true,
+      "allow_backorder": false,
       "prices": [
         { "id": "price_01HXYZ", "amount": 2500, "currency_code": "usd" }
       ],

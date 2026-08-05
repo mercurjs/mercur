@@ -1,6 +1,7 @@
 ---
-title: "Extend a workflow"
-description: "Inject custom logic into an existing Mercur workflow through hooks — without rewriting it."
+title: "How to Extend a Workflow"
+sidebarTitle: "Extend a Workflow"
+description: "Inject custom logic into an existing Mercur workflow through hooks, without rewriting it."
 ---
 
 <Note>
@@ -8,12 +9,14 @@ description: "Inject custom logic into an existing Mercur workflow through hooks
 </Note>
 
 <Info>
-  **Workflows are Medusa's extension model — Mercur keeps it.** Unlike the panels (where Mercur ships [its own customization framework](/rc/resources/customization/extending-panels)), backend logic follows Medusa conventions unchanged: Mercur's workflows expose hooks you inject steps into, with the same compensation/rollback semantics as any Medusa workflow. Skills learned in plain Medusa transfer here one-to-one.
+  **Workflows are Medusa's extension model, and Mercur keeps it.** Unlike the panels (where Mercur ships [its own customization framework](/rc/resources/customization/extending-panels)), backend logic follows Medusa conventions unchanged: Mercur's workflows expose hooks you inject steps into, with the same compensation/rollback semantics as any Medusa workflow. Skills learned in plain Medusa transfer here one-to-one.
 </Info>
+
+You extend a Mercur workflow by injecting your own step into a hook it exposes, so your logic runs inside the existing flow instead of a fork of it.
 
 ## Why hooks
 
-Extend behavior without forking or rewriting the workflow.
+Hooks let you add behavior without forking or rewriting the workflow.
 
 <Steps>
   <Step title="Pick the target hook">

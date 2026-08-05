@@ -1,0 +1,74 @@
+---
+title: "Process a provider webhook"
+sidebarTitle: "Process a webhook"
+description: "Turn a provider webhook into account and payout status updates."
+---
+
+In this guide, you'll learn how a provider webhook becomes account and payout
+status changes. Mercur already wires this up. A subscriber listens for
+`payout.webhook_received` and drives the update workflow. Understanding the path
+lets you emit the event yourself or extend the flow.
+
+## The built-in path
+
+The `payout-webhook` subscriber resolves the raw payload to an action through the
+provider, then runs `processPayoutForWebhookWorkflow`:
+
+```ts title="src/subscribers/payout-webhook.ts (shipped)"
+const processedEvent = await payoutService.getWebhookActionAndData(input)
+
+if (!processedEvent.data) {
+  return
+}
+
+const wfEngine = container.resolve(Modules.WORKFLOW_ENGINE)
+await wfEngine.run(processPayoutForWebhookWorkflowId, { input: processedEvent })
+```
+
+`getWebhookActionAndData` delegates to the provider, which parses its own payload
+and returns a `PayoutWebhookResult`. The result is an `action` plus the affected
+`id`.
+
+## Run the workflow directly
+
+To process an already-parsed result yourself, run the workflow with a
+`PayoutWebhookResult`:
+
+```ts
+import { processPayoutForWebhookWorkflow } from "@mercurjs/core/workflows"
+
+await processPayoutForWebhookWorkflow(container).run({
+  input: {
+    action: "payout.paid",
+    data: { id: "pout_123" },
+  },
+})
+```
+
+The workflow branches on `action`, updating the account or the payout:
+
+| Action | Effect |
+| --- | --- |
+| `account.activated` / `account.restricted` / `account.rejected` | Set account status to `ACTIVE` / `RESTRICTED` / `REJECTED` |
+| `payout.processing` / `payout.paid` / `payout.failed` / `payout.canceled` | Set payout status accordingly |
+
+<Note>
+  Actions the provider can't map return `not_supported` (or a missing `data.id`),
+  and the workflow makes no change. It is safe to hand it every event the provider
+  sends.
+</Note>
+
+## Emit the event yourself
+
+To route a custom provider integration through the same path, emit
+`payout.webhook_received` with the raw payload and let the shipped subscriber
+take over.
+
+```ts
+const eventBus = container.resolve(Modules.EVENT_BUS)
+
+await eventBus.emit({
+  name: "payout.webhook_received",
+  data: { rawData, headers, data },
+})
+```

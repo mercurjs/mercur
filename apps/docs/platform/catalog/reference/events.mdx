@@ -1,0 +1,41 @@
+---
+title: "Event reference"
+sidebarTitle: "Events"
+description: "Events emitted by the Catalog domain, for subscribers and side effects."
+---
+
+The Catalog domain emits events as products are created and reviewed. Subscribe
+to them to run side effects instead of polling, such as sending notifications,
+syncing external systems, or reindexing search.
+
+```ts title="src/subscribers/product-published.ts"
+import type { SubscriberArgs, SubscriberConfig } from "@medusajs/framework"
+
+export default async function productPublishedHandler({
+  event,
+  container,
+}: SubscriberArgs<{ id: string }>) {
+  const productId = event.data.id
+  // ...reindex search, notify the seller, etc.
+}
+
+export const config: SubscriberConfig = {
+  event: "product.published",
+}
+```
+
+## Product events
+
+| Event | Emitted when | Payload |
+| --- | --- | --- |
+| `product.created` | A master product is created | `{ id }` |
+| `product.published` | A proposed product is approved (`→ published`) | `{ id, internal_note? }` |
+| `product.rejected` | A proposed product is rejected | `{ id, message? }` |
+| `product.change-requested` | A revision is requested on a proposed product | `{ id, message?, actor_id? }` |
+
+<Note>
+  These are the marketplace lifecycle events emitted by Mercur's product
+  workflows. Medusa's Product module also emits its own native events (e.g.
+  `product.updated`, `product-variant.created`) for lower-level changes. See the
+  [Medusa events reference](https://docs.medusajs.com/resources/events-reference).
+</Note>

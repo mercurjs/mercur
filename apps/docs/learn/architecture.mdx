@@ -1,15 +1,26 @@
 ---
-title: "Overview"
-description: "How Mercur is built — architecture, technology stack, and how the pieces fit together."
+title: "Architecture"
+description: "How the Mercur enterprise marketplace platform is built: its layers, building blocks, and how the pieces fit together."
 ---
 
-Mercur is a marketplace platform built on top of [MedusaJS](https://medusajs.com), an open-source headless commerce framework. Rather than being a standalone application, Mercur extends Medusa with marketplace-specific logic — sellers, commissions, order splitting, payouts — while Medusa handles the foundational commerce layer.
+Mercur is the open-source enterprise marketplace platform, built on
+[Medusa](https://medusajs.com). It is composable, API-first, and AI-native, and
+it runs on infrastructure you own.
 
-This page explains how the system is structured and how its components interact.
+Mercur is not a standalone application, and it is not something you assemble from
+scratch. Medusa provides the commerce engine, such as products, pricing, carts,
+orders, payments, and fulfillment. Mercur adds the marketplace layer on top:
+sellers, commissions, order splitting, payouts, and a governed change pipeline,
+along with an admin panel and a vendor portal. Operators run the marketplace with
+role-based access control and an auditable change history, on a codebase they own
+outright.
 
-## Architecture
+This page explains how the platform is structured and how its parts fit together.
 
-Mercur follows a layered architecture where each layer has a distinct responsibility:
+## High-level architecture
+
+Mercur is layered. Each layer owns one responsibility and talks only to the layer
+beneath it, so you can reason about, extend, or replace any layer on its own.
 
 ```mermaid
 graph TD
@@ -47,50 +58,132 @@ graph TD
 
 ### Commerce layer
 
-Medusa provides the core commerce engine — products, pricing, carts, orders, payments, fulfillment, promotions, and inventory. Mercur does not replace any of this. Instead, it builds on top using Medusa's extension model: custom modules, links, workflows, and API routes.
+Medusa provides the core commerce engine: products, pricing, carts, orders,
+payments, fulfillment, promotions, and inventory. Mercur does not replace any of
+it. Mercur builds on top through Medusa's extension model, using custom modules,
+links, workflows, and API routes. This is the one place the word framework
+applies. Medusa is the commerce framework, and Mercur is the platform you run on
+it.
 
 ### Marketplace layer
 
-This is where Mercur's code lives. It introduces marketplace modules — **Seller**, **Commission**, **Offer**, **Payout**, **Product Attribute**, and **Product Edit**, among others — along with workflows that coordinate marketplace-specific operations like order splitting, product approvals, and commission calculation. Links connect these modules to Medusa's core entities (products, orders, customers) without modifying the original models.
+This is where Mercur's own code lives, packaged as the `@mercurjs/core` plugin. It
+adds marketplace modules such as Seller, Commission, Offer, Payout, Product
+Attribute, and Product Edit, plus the workflows that coordinate marketplace
+operations like order splitting, product approvals, and commission calculation.
+Links connect these modules to Medusa's core entities without modifying the
+original models.
 
 ### API layer
 
-Mercur exposes three sets of HTTP endpoints:
+Mercur exposes three sets of HTTP endpoints, one per audience.
 
-| API | Path | Purpose |
-|-----|------|---------|
-| **Admin** | `/admin/*` | Platform administration — manage sellers, configure commission rates, view payouts |
-| **Vendor** | `/vendor/*` | Seller operations — manage products, orders, fulfillment, shipping, inventory, payouts |
-| **Store** | `/store/*` | Storefront — browse sellers, manage carts, checkout with order splitting |
+| API        | Path        | Purpose                                                                    |
+| ---------- | ----------- | -------------------------------------------------------------------------- |
+| **Admin**  | `/admin/*`  | Platform administration: manage sellers, configure commission rates, view payouts. |
+| **Vendor** | `/vendor/*` | Seller operations: manage products, orders, fulfillment, shipping, inventory, payouts. |
+| **Store**  | `/store/*`  | Storefront: browse sellers, manage carts, check out with order splitting.   |
 
-Each API route is composed of a request handler, middleware, query configuration, and Zod validators.
+Each route is composed of a request handler, middleware, query configuration, and
+Zod validators. The middleware is where access control lives, so every vendor
+request is scoped to its own seller's data before the handler runs. See the
+[API conventions](/references/api/conventions) for authentication and scoping.
 
-### Frontend layer
+### Panels and clients
 
-Three interfaces consume the APIs:
+Three interfaces consume the APIs.
 
-- **Admin Panel** — Built with React and Medusa UI components. Operators use it to manage the marketplace: approve sellers, set commission rates, handle disputes.
-- **Vendor Portal** — A React application for sellers to manage their products, orders, fulfillment, and payouts. Uses file-based routing via the Dashboard SDK.
-- **Storefront** — Customer-facing application. Can be built with any frontend technology that consumes the Store API.
+- **Admin Panel:** a React application on Medusa UI. Operators approve sellers, set commission rates, and monitor payouts across the whole marketplace.
+- **Vendor Portal:** a React application for sellers to manage products, orders, fulfillment, and payouts, scoped to their own store.
+- **Storefront:** the customer-facing application. Build it with any frontend that consumes the Store API.
+
+Both panels talk to the API through `@mercurjs/client`, a fully typed fetch
+wrapper generated from the real route definitions, so requests and responses stay
+in sync with the backend.
+
+## Building blocks of the marketplace layer
+
+The marketplace layer is assembled from four Medusa-native primitives. Together
+they keep the platform composable: each piece is small, explicit, and replaceable.
+
+### Modules
+
+A module encapsulates the data models and business logic for one domain, such as
+Seller or Commission. Each module is self-contained, with its own models, service,
+and migrations. Modules never reference each other directly. They communicate
+through links and workflows, which keeps domains decoupled.
+[Learn about modules](/resources/best-practices/modules).
+
+### Links
+
+A link defines a relationship between a Mercur module and a Medusa core entity
+without modifying either model. For example, the product-seller link connects a
+Medusa `Product` to a Mercur `Seller` and acts as the allowlist of who may sell
+what. Dozens of links wire the marketplace layer into the commerce layer.
+[Learn about module links](/resources/best-practices/module-links).
+
+### Workflows
+
+A workflow orchestrates a multi-step operation that spans modules. Workflows
+support compensation, which rolls back automatically on failure, and hooks, which
+are the extension points you inject custom logic into. The central one is
+`completeCartWithSplitOrdersWorkflow`, which validates a cart, splits it by
+seller, creates an order for each, allocates payment, and calculates commissions.
+[Learn about workflows](/resources/best-practices/workflows).
+
+### Subscribers and events
+
+Workflows emit events. Subscribers listen and run asynchronous side effects, such
+as sending notifications, calling webhooks, or transferring payouts. This keeps
+the core workflows focused while the platform reacts to change.
+[Learn about subscribers and jobs](/resources/best-practices/subscribers-and-jobs).
+
+## Enterprise governance by design
+
+Governance lives in the architecture, not in a bolt-on. The same primitives that
+make the platform composable also make it governable.
+
+- **Role-based access control.** `withMercur()` registers a roles module, so vendor requests are scoped to their own seller by default. Operators and sellers each see only what their role permits.
+- **An auditable change pipeline.** Every product edit is captured as an immutable `ProductChange` record: who changed what, and who approved it. Low-risk edits auto-confirm, and the rest wait for operator review.
+- **Financial accuracy.** All commission arithmetic uses BigNumber with arbitrary precision, so split payments and payouts stay exact to the cent.
+- **A governed surface for AI agents.** The typed client, exposed workflows, and `llms.txt` give AI agents structured contracts to build against, inside the same role and review guardrails as human users. Agents extend the platform. They do not bypass its governance.
+- **You own the deployment.** Mercur is MIT-licensed and runs on infrastructure you control. Blocks ship as source code, so you own every line, with no hosted vendor in the request path and no commission on gross merchandise value.
+
+
+## How a multi-vendor order flows
+
+A single customer cart can hold items from many sellers. Order splitting is where
+the marketplace, commerce, commission, and payout layers work together.
+
+1. **Customer adds items** from multiple sellers to one cart (Store API).
+2. **Cart completion** triggers the split-order workflow (marketplace layer).
+3. Items are **grouped by seller**, and a separate order is created for each (commerce and marketplace layers).
+4. **Commission lines** are calculated per order from the matching rates (Commission module).
+5. **Payment is split** proportionally across the seller orders (commerce layer).
+6. Each seller's order is **credited to its payout account** after commission (Payout module).
+7. **Events are emitted**, triggering notifications, webhook calls, and other side effects (subscribers).
+8. Sellers **manage their orders** through the Vendor Portal (Vendor API).
+9. The operator **monitors everything** through the Admin Panel (Admin API).
 
 ## Technology stack
 
-| Layer | Technology |
-|-------|-----------|
-| Runtime | Node.js 20+, TypeScript |
-| Framework | MedusaJS v2 |
-| Database | PostgreSQL |
-| Frontend | React 18, React Router, Vite |
-| Data fetching | TanStack React Query |
-| UI components | Medusa UI, Radix UI |
-| Form handling | React Hook Form, Zod |
-| Tables | TanStack React Table |
-| Build | Turborepo (monorepo), Bun (package manager), tsup |
-| Internationalization | i18next |
+| Layer                | Technology                                          |
+| -------------------- | --------------------------------------------------- |
+| Runtime              | Node.js 20+, TypeScript                             |
+| Commerce framework   | Medusa v2                                           |
+| Database             | PostgreSQL                                          |
+| Frontend             | React 18, React Router, Vite                        |
+| Data fetching        | TanStack React Query                                |
+| UI components        | Medusa UI, Radix UI                                 |
+| Form handling        | React Hook Form, Zod                                |
+| Tables               | TanStack React Table                                |
+| Build                | Turborepo (monorepo), Bun (package manager), tsup   |
+| Internationalization | i18next                                             |
 
-## Core plugin
+## Core plugin layout
 
-The core plugin (`@mercurjs/core`) is the main package that contains all marketplace logic. It's structured as a standard MedusaJS plugin:
+`@mercurjs/core` is the package that holds all marketplace logic. It is structured
+as a standard Medusa plugin.
 
 ```
 core/src/
@@ -101,10 +194,10 @@ core/src/
 │   ├── payout/       # Payout accounts, onboarding, payouts
 │   ├── product-attribute/  # Typed attribute catalog and values
 │   ├── product-edit/ # Product change requests and audit trail
-│   └── ...           # Media, custom fields, search
+│   └── ...           # Media, custom fields, and more
 ├── links/            # Relationships between modules
 ├── workflows/        # Multi-step business processes
-│   ├── seller/       # Seller CRUD workflows
+│   ├── seller/       # Seller lifecycle workflows
 │   ├── cart/         # Cart completion with order splitting
 │   ├── commission/   # Commission rate and line management
 │   ├── payout/       # Payout processing and crediting
@@ -112,7 +205,7 @@ core/src/
 │   ├── product/      # Product approval and seller linking
 │   ├── product-edit/ # Change-request lifecycle
 │   ├── order-group/  # Order group operations
-│   └── ...           # Attributes, shipping, inventory, promotions, etc.
+│   └── ...           # Attributes, shipping, inventory, promotions
 ├── api/              # HTTP route handlers
 │   ├── admin/        # Admin API routes
 │   ├── vendor/       # Vendor API routes
@@ -123,51 +216,26 @@ core/src/
 └── jobs/             # Scheduled background tasks
 ```
 
-### Modules
+## Distribution: blocks you own
 
-Modules encapsulate data models and business logic for a specific domain. Each module is self-contained with its own models, service, migrations, and repositories. Modules don't reference each other directly — they communicate through links and workflows.
+Mercur ships features as blocks, not as an opaque dependency. The CLI copies
+source code directly into your project, so a block is a self-contained piece of
+functionality: a module, a workflow, an API route, or a UI extension.
 
-### Links
+This is what code ownership means in practice.
 
-Links define relationships between Mercur modules and Medusa core entities. For example, the `product-seller-link` connects a Medusa `Product` to a Mercur `Seller` without modifying either model. Dozens of links wire the marketplace layer into the commerce layer — connecting sellers to their scoped resources (orders, customers, shipping, inventory, promotions), offers to products, variants, prices, and line items, order groups to carts and orders, and attributes to Medusa's native product options.
+- **You own every line** of code in your project.
+- **You can modify any block** to fit your business requirements.
+- **There are no hidden abstractions** or version conflicts.
+- **Updates are explicit.** You diff against the registry and apply the changes you want.
 
-### Workflows
-
-Workflows orchestrate multi-step operations that span multiple modules. They support compensation (automatic rollback on failure) and hooks (extension points for custom logic). The most significant workflow is `completeCartWithSplitOrdersWorkflow`, which handles the entire checkout process — validating items, splitting by seller, creating orders, allocating payments, and calculating commissions.
-
-### Subscribers and events
-
-Subscribers listen for events emitted by workflows and trigger asynchronous side effects — sending notifications, updating external systems, or processing webhooks. This keeps the core workflows focused on their primary job while allowing the system to react to changes.
-
-## How data flows
-
-A typical customer purchase flows through the system like this:
-
-1. **Customer adds items** from multiple sellers to their cart (Store API)
-2. **Cart completion** triggers the split order workflow (Marketplace Layer)
-3. Items are **grouped by seller**, and a separate order is created for each (Commerce + Marketplace Layer)
-4. **Commission lines** are calculated for each order based on matching rates (Commission Module)
-5. **Payment is split** proportionally across seller orders (Commerce Layer)
-6. Each seller's order is **credited to their payout account** after commission deduction (Payout Module)
-7. **Events are emitted** — triggering notifications, webhook calls, and other side effects (Subscribers)
-8. Sellers **manage their orders** through the Vendor Portal (Vendor API)
-9. The admin **monitors everything** through the Admin Panel (Admin API)
-
-## Block-based distribution
-
-Mercur uses a **block-based architecture** for distribution. Instead of installing an opaque package, the CLI copies source code directly into your project. Each block is a self-contained piece of functionality — a module, a workflow, an API route, or a UI extension.
-
-This means:
-- You own every line of code in your project
-- You can modify any block to fit your business requirements
-- There are no hidden abstractions or version conflicts
-- Updates are explicit — you diff and apply changes from the registry
-
-The CLI (`@mercurjs/cli@latest`) manages this process: scaffolding projects, installing blocks, searching the registry, and comparing local changes against upstream versions.
+The CLI (`@mercurjs/cli@latest`) scaffolds projects, installs blocks, searches the
+registry, and compares local changes against upstream.
 
 ## Workflow example
 
-Here is a simplified example of how a Mercur workflow is structured. Workflows coordinate multi-step operations with automatic rollback on failure:
+Workflows coordinate multi-step operations with automatic rollback on failure.
+Here is a simplified example.
 
 ```typescript
 import {
@@ -197,7 +265,7 @@ const createProductForSellerWorkflow = createWorkflow(
   (input: { seller_id: string }) => {
     const seller = validateSellerStep({ seller_id: input.seller_id })
 
-    // Additional steps: create product, link to seller, etc.
+    // Additional steps: create product, link to seller, and so on.
 
     return new WorkflowResponse({ seller })
   }
@@ -206,10 +274,27 @@ const createProductForSellerWorkflow = createWorkflow(
 
 ## Design principles
 
-**Modular over monolithic** — Each marketplace feature is a separate module that can be installed, modified, or replaced independently. You don't need to use all of Mercur to benefit from it.
+These principles explain why the architecture looks the way it does.
 
-**Explicit over implicit** — Relationships between modules are defined through links, not hidden in service code. Workflows make multi-step operations visible and debuggable. API routes are file-based and predictable.
+- **Enterprise is the noun, composable is the how.** Mercur is a marketplace platform first. Composability, open source, and AI-nativeness are how it becomes a better enterprise choice than a closed platform, not a step down from one.
+- **Modular over monolithic.** Each marketplace feature is a separate module you can install, modify, or replace on its own. You do not need all of Mercur to benefit from it.
+- **Explicit over implicit.** Relationships are declared through links, not buried in service code. Workflows make multi-step operations visible and debuggable. API routes are file-based and predictable.
+- **Extensible over configurable.** Instead of hundreds of config flags, Mercur gives you extension points. Workflows have hooks, providers are pluggable, and models extend through Medusa. When configuration is not enough, you change the source you own.
+- **Commerce-aware.** Mercur does not reinvent commerce. It delegates products, pricing, orders, payments, and fulfillment to Medusa and focuses on the marketplace logic that multi-vendor systems need.
 
-**Extensible over configurable** — Rather than exposing hundreds of configuration options, Mercur provides extension points. Workflows have hooks. Providers are pluggable. Models can be extended through Medusa's framework. When configuration isn't enough, you modify the source code directly.
+## Next steps
 
-**Commerce-aware** — Mercur doesn't reinvent commerce. It delegates products, pricing, orders, payments, and fulfillment to Medusa, and focuses exclusively on the marketplace logic that multi-vendor systems need.
+<CardGroup cols={2}>
+  <Card title="Platform modules" href="/platform/store/overview">
+    Data models, workflows, and events for each marketplace domain.
+  </Card>
+  <Card title="Blocks" href="/learn/blocks">
+    How features ship as source code you own, not an opaque dependency.
+  </Card>
+  <Card title="API reference" href="/references/api/conventions">
+    Authentication, seller scoping, and the Admin, Vendor, and Store APIs.
+  </Card>
+  <Card title="Panel extensions" href="/references/panel-extensions/overview">
+    Extend the admin and vendor panels without forking them.
+  </Card>
+</CardGroup>

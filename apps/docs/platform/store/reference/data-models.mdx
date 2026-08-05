@@ -1,0 +1,89 @@
+---
+title: "Data models"
+sidebarTitle: "Data models"
+description: "The data models owned by the Store (Seller) domain."
+---
+
+The Store domain is owned by the **Seller module**. This reference lists its data
+models and their fields. For the full module overview, see the
+[Store overview](/platform/store/overview).
+
+## Seller
+
+Table `seller`, id prefix `sel`. The store account and profile.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `name` | text | Unique, searchable |
+| `handle` | text | Unique; auto-generated from `name` when omitted |
+| `email` | text | Unique, searchable |
+| `phone` | text | Nullable |
+| `description` | text | Nullable |
+| `logo` / `banner` | text | Nullable |
+| `website_url` | text | Nullable |
+| `external_id` | text | Nullable; unique when set |
+| `currency_code` | text | The store's single operating currency |
+| `status` | enum | `SellerStatus`, default `pending_approval` |
+| `status_reason` | text | Nullable |
+| `approved_at` / `rejected_at` | dateTime | Nullable |
+| `is_premium` | boolean | Default `false`; operator-set only |
+| `closed_from` / `closed_to` | dateTime | Nullable; scheduled closure window |
+| `closure_note` | text | Nullable |
+| `metadata` | json | Nullable |
+
+Relations: `professional_details`, `address`, `payment_details` (one-to-one,
+deleted with the seller), `members` (many-to-many through `SellerMember`),
+`member_invites` (one-to-many, deleted with the seller).
+
+## ProfessionalDetails
+
+Table `professional_details`, id prefix `selprodet`. Presence marks the store as
+a registered business.
+
+| Field | Type |
+| --- | --- |
+| `corporate_name` | text, nullable |
+| `registration_number` | text, nullable |
+| `tax_id` | text, nullable |
+
+## SellerAddress
+
+Table `seller_address`, id prefix `seladdr`. Fields: `name`, `company`,
+`first_name`, `last_name`, `address_1`, `address_2`, `city`, `country_code`,
+`province`, `postal_code`, `phone`, and `metadata`. All are nullable.
+
+## PaymentDetails
+
+Table `payment_details`, id prefix `selpaydet`. Fields: `country_code`,
+`holder_name`, `bank_name`, `iban`, `bic`, `routing_number`, and
+`account_number`. All are nullable.
+
+## Member
+
+Table `member`, id prefix `mem`. A dashboard user that can belong to one or more
+stores.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `email` | text | Unique, searchable |
+| `first_name` / `last_name` | text | Nullable |
+| `locale` | text | Nullable |
+| `is_active` | boolean | Default `true` |
+| `metadata` | json | Nullable |
+
+## SellerMember
+
+Table `seller_member`, id prefix `selmem`. Pivot between `Seller` and `Member`,
+unique on `(seller_id, member_id)`.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `role_id` | text | Nullable; resolved against the RBAC roles module |
+| `is_owner` | boolean | Default `false` |
+| `metadata` | json | Nullable |
+
+## MemberInvite
+
+Table `member_invite`, id prefix `meminv`. A pending team invitation, carrying
+the invited `email`, target `seller_id`, `role_id`, and an expiry.

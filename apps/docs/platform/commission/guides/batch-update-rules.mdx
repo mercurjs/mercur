@@ -1,0 +1,58 @@
+---
+title: "Batch-update commission rules"
+sidebarTitle: "Batch-update rules"
+description: "Create, update, and delete a rate's rules in a single call."
+---
+
+In this guide, you'll learn how to manage the rules that scope a commission rate
+from your own server code, adding, changing, and removing them in one atomic
+operation.
+
+## Run the workflow
+
+`batchCommissionRulesWorkflow` applies creates, updates, and deletes to a single
+rate's rules in parallel. Pass the target `commission_rate_id` and any of the
+`create`, `update`, and `delete` arrays.
+
+```ts title="src/api/custom/rules/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { batchCommissionRulesWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await batchCommissionRulesWorkflow(req.scope).run({
+    input: {
+      commission_rate_id: "comrate_123",
+      create: [
+        { reference: "seller", reference_id: "sel_123" },
+        { reference: "product_category", reference_id: "pcat_shoes" },
+      ],
+      update: [{ id: "comrule_456", reference_id: "pcat_boots" }],
+      delete: ["comrule_789"],
+    },
+  })
+
+  res.json(result)
+}
+```
+
+The result groups the affected rules as `{ created, updated, deleted }`.
+
+<Note>
+  Every rule's `reference` must be one of the five dimensions: `product`,
+  `product_type`, `product_collection`, `product_category`, or `seller`. The
+  `reference_id` is the id of the specific record in that dimension.
+</Note>
+
+## How scoping changes matching
+
+Adding rules **narrows** a rate. Rules on the same dimension OR together. Rules
+across dimensions AND together. The two `create` rules above make the rate match
+only lines that are both from seller `sel_123` **and** in category `pcat_shoes`,
+raising the rate's specificity to `2`.
+
+<Tip>
+  Increasing a rate's specificity makes it win over less-specific rates on the
+  lines it matches. See
+  [Rule matching](/platform/commission/concepts/rule-matching) for how
+  most-specific-wins and tie-breaks resolve.
+</Tip>

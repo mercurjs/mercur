@@ -1,21 +1,22 @@
 ---
-title: "Add a button to order details"
-description: "Drop a 'Copy link' button onto the vendor order detail page with a widget — no forking, no page override."
+title: "How to Add an Action Button"
+sidebarTitle: "Add an Action Button"
+description: "Add a Copy link button to the vendor order detail page with a widget, without forking or overriding the page."
 ---
 
-The order detail page is a built-in panel screen you don't own. To add a small piece of UI to it — a button, a badge, a note — you don't copy the page. You drop a **widget** at one of its zones, and the SDK renders your component there while the rest of the page keeps working exactly as shipped.
+Add a small piece of UI to a built-in panel screen without copying it.
 
-This tutorial adds a **"Copy link"** button to the order summary section that copies a link to the order.
+The order detail page is a panel screen you don't own. To add a button, a badge, or a note to it, you drop a **widget** at one of its zones. The SDK renders your component there, and the rest of the page keeps working exactly as shipped. This tutorial adds a **Copy link** button to the order summary section that copies a link to the order.
 
 <Info>
-  **Additive, not a replacement.** A widget layers your component onto a built-in page at a documented zone. Reach for it first whenever you just want to *add* something to an existing screen.
+  A widget is additive, not a replacement. It layers your component onto a built-in page at a documented zone. Reach for it first whenever you just want to add something to an existing screen.
 </Info>
 
 ## Add the button
 
 <Steps>
   <Step title="Create the widget file">
-    Drop a file under `src/widgets/`. Export the component as the **default** and a `config` built with `defineWidgetConfig`. Target `orders.detail.summary.after` — your component renders in the order summary section footer and receives the loaded order as `data`.
+    Drop a file under `src/widgets/`. Export the component as the **default** and a `config` built with `defineWidgetConfig`. Target `orders.detail.summary.after`. Your component renders in the order summary section footer and receives the loaded order as `data`.
 
     ```tsx apps/vendor/src/widgets/order-copy-link.tsx
     import { defineWidgetConfig } from "@mercurjs/dashboard-sdk"
@@ -52,24 +53,30 @@ This tutorial adds a **"Copy link"** button to the order summary section that co
     export default OrderCopyLink
     ```
   </Step>
-  <Step title="Understand the zone id">
-    A zone id is `<domain>.<view>.<slot>.<placement>`. The last segment is the placement:
+
+  <Step title="Read the zone id">
+    A zone id is `<domain>.<view>.<slot>.<placement>`. The last segment is the placement.
 
     | Placement | Effect |
     |-----------|--------|
     | `before` | Renders before the built-in content of the zone |
     | `after` | Renders after the built-in content |
 
-    Multiple `before` / `after` widgets on the same zone stack in registration order.
+    Multiple `before` or `after` widgets on the same zone stack in registration order.
   </Step>
+
   <Step title="Reload the panel">
-    Start the project (`bun run dev`) and open any order in the vendor portal. Widget files hot-reload — the "Copy link" button appears in the summary section footer, and the rest of the page is untouched.
+    Start the project and open any order in the vendor portal. Widget files hot-reload. The Copy link button appears in the summary section footer, and the rest of the page is untouched.
+
+    ```bash Terminal
+    bun run dev
+    ```
   </Step>
 </Steps>
 
 ## Order detail zones
 
-Zones mounted on the vendor order detail page:
+These zones are mounted on the vendor order detail page.
 
 | Zone | Where it renders |
 |------|------------------|
@@ -77,27 +84,33 @@ Zones mounted on the vendor order detail page:
 | `orders.detail.main.before` / `.after` | Around the main column (summary, payment, fulfillment) |
 | `orders.detail.side.before` / `.after` | Around the sidebar (customer, activity) |
 
-Each is passed the loaded `order` as `data`. The full, valid set is typed as `WidgetZoneId` and generated from the panel's own zone hosts — let your editor autocomplete `zone:` to see every option. A zone no page renders can't be targeted and won't type-check.
+Each zone is passed the loaded `order` as `data`. The full, valid set is typed as `WidgetZoneId` and generated from the panel's own zone hosts. Let your editor autocomplete `zone:` to see every option.
+
+<Tip>
+  A zone that no page renders can't be targeted and won't type-check. Set `zone: "not.a.zone"` and `tsc` (`bun run lint`) fails with a "not assignable to `WidgetZoneId`" error.
+</Tip>
 
 ## Verify
 
-1. Open an order — the "Copy link" button renders in the summary section footer.
-2. Click it — the link is copied and a toast appears.
-3. Change the zone to `orders.detail.side.before` and reload — the button moves to the top of the sidebar.
-4. Set `zone: "not.a.zone"` — `tsc` (`bun run lint`) fails with a "not assignable to `WidgetZoneId`" error.
-5. Delete the file — the button disappears; nothing else changed.
+Confirm the widget works end to end.
+
+1. Open an order. The Copy link button renders in the summary section footer.
+2. Click it. The link is copied and a toast appears.
+3. Change the zone to `orders.detail.side.before` and reload. The button moves to the top of the sidebar.
+4. Set `zone: "not.a.zone"`. `tsc` (`bun run lint`) fails with a "not assignable to `WidgetZoneId`" error.
+5. Delete the file. The button disappears, and nothing else changed.
 
 ## FAQ
 
 <AccordionGroup>
   <Accordion title="What can I read from the order?">
-    The zone passes the loaded order as `data` (`HttpTypes.AdminOrder`) — id, display id, totals, items, `payment_collections`, customer, and more. Build the link (or any UI) from it.
+    The zone passes the loaded order as `data` (`HttpTypes.AdminOrder`): id, display id, totals, items, `payment_collections`, customer, and more. Build the link (or any UI) from it.
   </Accordion>
   <Accordion title="Can a block ship this instead of the host app?">
-    Yes. Put the same file in a [block](/rc/learn/blocks)'s `vendor_ui` entry under `src/widgets/`; installing the block adds the button with no wiring.
+    Yes. Put the same file in a [block](/rc/learn/blocks)'s `vendor_ui` entry under `src/widgets/`. Installing the block adds the button with no wiring.
   </Accordion>
   <Accordion title="Can I render more than a button?">
-    The zone renders any React component — a badge, an action menu, a whole section. You have the full order in `data`.
+    The zone renders any React component, such as a badge, an action menu, or a whole section. You have the full order in `data`.
   </Accordion>
 </AccordionGroup>
 

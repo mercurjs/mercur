@@ -1,0 +1,36 @@
+---
+title: "Data models"
+sidebarTitle: "Data models"
+description: "The data models owned by the Review domain."
+---
+
+The Review domain is owned by the **Review module**. This reference lists its
+data model and fields.
+
+## Review
+
+Table `review`, id prefix `rev`. A customer's rating of a single product or
+seller.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `display_id` | serial | Human-readable auto-incrementing number |
+| `reference` | enum | `product` or `seller`, the review's target type |
+| `rating` | integer | The numeric score |
+| `customer_note` | text | Nullable, searchable. The customer's note |
+| `seller_note` | text | Nullable, searchable. The store's single response |
+| `status` | enum | `pending`, `published`, or `rejected`; default `pending` |
+| `created_at` | dateTime | Set on creation |
+| `updated_at` | dateTime | Updated on change |
+| `deleted_at` | dateTime | Nullable; set by soft delete |
+
+The target record itself is not a column on this model. It's resolved through a
+module link chosen by the `reference` value. See the
+[Links reference](/platform/review/reference/links).
+
+<Note>
+  The `review` table is indexed on `deleted_at` for soft-delete filtering.
+  Deleting a review through the workflow is a soft delete. The row is retained
+  and can be restored.
+</Note>

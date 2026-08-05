@@ -1,0 +1,194 @@
+---
+title: "Create a new page"
+sidebarTitle: "Create new page"
+description: "Add a page to the admin or vendor panel with file-based routing, then register it in the sidebar."
+---
+
+A page is a React component mounted at a route. Pages are file-based. You drop a
+`page.tsx` under a panel's `src/routes/` folder and the SDK registers it at build
+time, the same way [Next.js](https://nextjs.org) and [Remix](https://remix.run)
+map folders to routes.
+
+This guide walks through creating a page, then documents the routing conventions,
+the sidebar config, and the `defineNavigationConfig` and `createFormHelper`
+helpers.
+
+## Create a page
+
+<Steps>
+  <Step title="Add a page file">
+    Create `page.tsx` in a new folder under `src/routes/`. The folder path becomes
+    the URL, so this file mounts at `/erp-sync`.
+
+    ```tsx apps/vendor/src/routes/erp-sync/page.tsx
+    const ErpSyncPage = () => {
+      return <div>ERP sync</div>
+    }
+
+    export default ErpSyncPage
+    ```
+
+    The default export is the only required part. Only files named `page` register
+    as routes, so you can co-locate a `loader.ts` or components in the same folder.
+  </Step>
+
+  <Step title="Add it to the sidebar">
+    A page has no sidebar entry until it exports a `config` with a `label`. The
+    config is a plain object.
+
+    ```tsx apps/vendor/src/routes/erp-sync/page.tsx
+    import { ArrowsPointingOut } from "@medusajs/icons"
+
+    export const config = {
+      label: "ERP sync",
+      icon: ArrowsPointingOut,
+    }
+    ```
+  </Step>
+
+  <Step title="Run the panel">
+    Start the panel and open the route. The page renders and its sidebar entry
+    appears.
+
+    ```bash Terminal
+    bun run dev
+    ```
+
+    The vendor panel runs on `http://localhost:7001` and the admin panel on
+    `http://localhost:7000`.
+  </Step>
+</Steps>
+
+## Route paths
+
+Folder and file names map to path segments. Wrap a segment in brackets or
+parentheses to make it dynamic or optional.
+
+| Folder segment | Route path   | Description                                          |
+| -------------- | ------------ | ---------------------------------------------------- |
+| `products`     | `/products`  | Static segment.                                      |
+| `[id]`         | `/:id`       | Dynamic parameter.                                   |
+| `[[id]]`       | `/:id?`      | Optional dynamic parameter.                          |
+| `[*]`          | `/*`         | Splat. Matches the rest of the path.                 |
+| `[[*]]`        | `/*?`        | Optional splat.                                      |
+| `(preview)`    | `/preview?`  | Optional static segment.                             |
+| `@modal`       | nested route | Parallel segment. Renders inside its parent's route. |
+
+Read a dynamic segment with React Router's `useParams()`. A file at
+`src/routes/orders/[id]/page.tsx` mounts at `/orders/:id`.
+
+## Where the page mounts
+
+The route path and the page's `config.public` flag decide which layout wraps the
+page.
+
+| Layout   | When                                            | Example route                                     |
+| -------- | ----------------------------------------------- | ------------------------------------------------- |
+| Main     | Default. Any protected route.                   | `src/routes/erp-sync/page.tsx`                    |
+| Settings | Route path starts with `/settings/`.            | `src/routes/settings/erp/page.tsx`               |
+| Public   | `config.public` is `true`. Renders before auth. | `src/routes/status/page.tsx` with `config.public` |
+
+Main and settings routes render inside the authenticated shell. Public routes
+render on their own, so use them for pages a signed-out user must reach.
+
+## Sidebar config
+
+The `config` object controls the page's sidebar entry.
+
+| Field           | Type                       | Description                                                     |
+| --------------- | -------------------------- | -------------------------------------------------------------- |
+| `label`         | `string`                   | Sidebar label. A page with no `label` has no sidebar entry.    |
+| `icon`          | `ComponentType` (optional) | Sidebar icon, from `@medusajs/icons`.                          |
+| `rank`          | `number` (optional)        | Order among sibling items. Lower ranks first.                  |
+| `nested`        | `string` (optional)        | Parent item id to nest this entry under.                       |
+| `translationNs` | `string` (optional)        | i18n namespace used to resolve `label` as a translation key.   |
+| `public`        | `boolean` (optional)       | Render the route before authentication under the public layout. |
+
+<Note>
+  A page can exist without a sidebar entry. Omit `label` when the route is reached
+  from a link or a widget rather than the sidebar.
+</Note>
+
+## Load data for a page
+
+Export a `loader` to fetch data before the component renders, and a `handle` to
+attach route metadata such as a breadcrumb. Both are React Router route options,
+picked up as named exports.
+
+```tsx apps/vendor/src/routes/erp-sync/page.tsx
+import type { LoaderFunction } from "react-router-dom"
+
+export const loader: LoaderFunction = async () => {
+  return { syncedAt: new Date().toISOString() }
+}
+
+export const handle = {
+  breadcrumb: () => "ERP sync",
+}
+```
+
+Read the loader's result with `useLoaderData()` inside the component.
+
+## Reshape built-in navigation
+
+Use `defineNavigationConfig` to reorder, hide, relabel, or re-parent built-in
+sidebar items. It lives in a single host-owned file, `src/_navigation.ts`. Blocks
+cannot contribute navigation overrides.
+
+```ts apps/vendor/src/_navigation.ts
+import { defineNavigationConfig } from "@mercurjs/dashboard-sdk"
+
+export default defineNavigationConfig({
+  items: [
+    { id: "orders", rank: 0 },
+    { id: "price-lists", hidden: true },
+    { id: "payouts", label: "settlements" },
+    { id: "categories", nested: null, rank: 1 },
+    { id: "campaigns", nested: "orders" },
+  ],
+})
+```
+
+Each entry is a `NavItemOverride`.
+
+| Field    | Type                             | Description                                                                     |
+| -------- | -------------------------------- | ------------------------------------------------------------------------------- |
+| `id`     | `NavItemId`                      | Built-in item to override, top-level or nested. Typed against the panel registry. |
+| `rank`   | `number` (optional)              | Order within the item's parent, or among top-level items.                       |
+| `hidden` | `boolean` (optional)             | Remove from the sidebar. The route may still be reachable directly.             |
+| `label`  | `string` (optional)              | i18n key or literal replacing the item's label.                                 |
+| `icon`   | `ComponentType` (optional)       | Icon component replacing the item's icon, from `@medusajs/icons`.              |
+| `nested` | `NavParentId \| null` (optional) | Re-parent under a built-in parent id. `null` promotes a nested item to top level. |
+
+Navigation overrides reshape existing items only. To add a new item, register a
+page with a `config.label` as shown above.
+
+## Type a page's forms
+
+`createFormHelper<T>()` returns Medusa's Zod surface for describing field
+validation and value types. Import it from `@mercurjs/dashboard-shared`.
+
+```ts
+import { createFormHelper } from "@mercurjs/dashboard-shared"
+
+const form = createFormHelper<ProductWithMeta>()
+
+form.define({ validation, defaultValue, label, description, placeholder, component })
+form.string() / form.number() / form.boolean() / form.date()
+form.array() / form.object() / form.null() / form.nullable() / form.coerce
+```
+
+The generated registry types the target: which zone, tab, and field ids exist.
+The Zod `validation` types the value. See [Custom Fields](/references/panel-extensions/custom-fields)
+for where `form.define` fields are attached.
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Widgets" href="/references/panel-extensions/widgets">
+    Render a component in a slot on an existing page.
+  </Card>
+  <Card title="Custom Fields" href="/references/panel-extensions/custom-fields">
+    Add fields, section rows, and list columns to a built-in model.
+  </Card>
+</CardGroup>

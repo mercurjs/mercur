@@ -1,0 +1,84 @@
+---
+title: "Offer"
+sidebarTitle: "Overview"
+description: "How a store sells against the shared master catalog, with its own SKU, price, inventory, and shipping."
+---
+
+Use offers to let each store sell against Mercur's shared master catalog on its
+own terms.
+
+The offer is the central concept of the marketplace. Products live in a single
+**master catalog** that no store owns; an offer is the record that connects a
+store to a master product variant. It carries everything that makes that listing
+the store's own: its SKU, its price, its inventory, and its shipping profile.
+Cart and order line items link back to the exact offer that was purchased, so the
+whole order lifecycle knows which store fulfills and gets paid.
+
+<Note>
+  **Products are shared; offers are owned.** A store never owns a product. It
+  publishes an offer against a master product variant. Two stores selling the
+  same product each have their own offer, with their own SKU, price, and stock.
+</Note>
+
+## Key features
+
+- **Per-store listings:** one offer per store per variant, each with its own SKU (unique within a store).
+- **Offer-scoped pricing:** prices live on the master variant's shared price set, scoped by an `offer_id` rule so every store prices independently.
+- **Offer-scoped inventory:** inventory items link to the **offer**, not the variant, so stock never leaks between stores.
+- **Per-offer shipping:** each offer points at the store's own shipping profile.
+- **Order attribution:** cart and order line items link to the purchased offer, driving fulfillment, commission, and payouts.
+- **Bulk operations:** create and update many offers, and batch an offer's inventory links, in a single workflow run.
+
+## Get started
+
+Learn how the domain fits together:
+
+<CardGroup cols={2}>
+  <Card title="What is an offer" icon="tag" href="/platform/offer/concepts/what-is-an-offer">
+    The offer record, how it points at a master variant, and its SKU.
+  </Card>
+  <Card title="Pricing & inventory" icon="coins" href="/platform/offer/concepts/pricing-and-inventory">
+    Offer-scoped prices on the shared price set and offer-linked inventory.
+  </Card>
+  <Card title="Shipping" icon="truck" href="/platform/offer/concepts/shipping">
+    How an offer carries its own shipping profile.
+  </Card>
+</CardGroup>
+
+## Examples
+
+Build against the Offer domain in your own code:
+
+<CardGroup cols={2}>
+  <Card title="Create an offer" icon="plus" href="/platform/offer/guides/create-an-offer">
+    Run `createOffersWorkflow` with a price and inventory.
+  </Card>
+  <Card title="Bulk-create offers" icon="layer-group" href="/platform/offer/guides/bulk-create-offers">
+    List many offers against the catalog in one run.
+  </Card>
+  <Card title="Manage offer inventory" icon="boxes-stacked" href="/platform/offer/guides/manage-offer-inventory">
+    Attach, update, and detach inventory items on an offer.
+  </Card>
+</CardGroup>
+
+## Resources
+
+Data models, workflows, service methods, and events for the Offer domain:
+
+<CardGroup cols={2}>
+  <Card title="Data models" icon="table" href="/platform/offer/reference/data-models">
+    The `Offer` entity and its fields.
+  </Card>
+  <Card title="Links" icon="link" href="/platform/offer/reference/links">
+    How the Offer domain links to other modules.
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/platform/offer/reference/workflows">
+    Create, update, delete, and inventory-batch workflows.
+  </Card>
+  <Card title="Service" icon="gear" href="/platform/offer/reference/service">
+    Module service methods for working with records directly.
+  </Card>
+  <Card title="Events" icon="bell" href="/platform/offer/reference/events">
+    Events emitted as offers change.
+  </Card>
+</CardGroup>

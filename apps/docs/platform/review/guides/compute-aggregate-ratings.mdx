@@ -1,0 +1,57 @@
+---
+title: "Compute aggregate ratings"
+sidebarTitle: "Aggregate ratings"
+description: "Compute average ratings for products and sellers from server code."
+---
+
+In this guide, you'll learn how to compute average ratings for products and
+sellers from your own server code. This is useful when surfacing a rating on a
+storefront page or in a custom API route.
+
+The Review module service computes averages on demand instead of storing a
+denormalized column, so the numbers always reflect the current set of reviews.
+Resolve the service from the container to use its rating helpers.
+
+## Average for one target
+
+`getAvgRating` returns the average rating for a single product or seller:
+
+```ts title="src/api/custom/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { MercurModules } from "@mercurjs/types"
+
+export async function GET(req: MedusaRequest, res: MedusaResponse) {
+  const reviewModuleService = req.scope.resolve(MercurModules.REVIEW)
+
+  const rating = await reviewModuleService.getAvgRating("seller", "sel_123")
+
+  res.json({ rating })
+}
+```
+
+The first argument is the target type (`"product"` or `"seller"`), the second is
+its id. The method returns `null` when the target has no reviews yet.
+
+## Ratings for a list
+
+For list views, `getProductsWithRating` and `getSellersWithRating` return records
+with their average rating joined in, so you don't fan out a call per row:
+
+```ts
+const reviewModuleService = container.resolve(MercurModules.REVIEW)
+
+const sellers = await reviewModuleService.getSellersWithRating([
+  "id",
+  "name",
+])
+// => [{ id, name, rating }, ...]
+```
+
+Pass the fields you want selected from the target table; each returned record
+gains a `rating` field with the average.
+
+<Tip>
+  These helpers average across a target's linked reviews. Combine them with your
+  own `status` filter if you only want `published` reviews to count toward the
+  public number.
+</Tip>

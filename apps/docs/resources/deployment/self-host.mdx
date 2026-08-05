@@ -1,0 +1,123 @@
+---
+title: "Self-host Mercur"
+sidebarTitle: "Self-host"
+description: "Deploy a Mercur marketplace to your own infrastructure: the API, the panels, and the databases behind them."
+---
+
+This guide covers the general steps to self-host a Mercur marketplace. Mercur is a
+Medusa plugin, so deployment follows Medusa's model, with one addition: the Vendor
+panel is a separate app. Apply these steps to the hosting provider of your choice.
+
+## What you'll deploy
+
+A Mercur marketplace has several parts.
+
+- **PostgreSQL:** the primary database.
+- **Redis:** session storage, the event bus, the workflow engine, and caching.
+- **Mercur API:** a Medusa server running the Mercur plugin. You deploy it twice, one instance in server mode and one in worker mode.
+- **Admin panel:** served by the API server.
+- **Vendor panel:** a separate static app that talks to the Vendor API.
+- **Storefront (optional):** your own frontend on the Store API.
+
+Server mode handles API requests and serves the Admin panel. Worker mode runs
+background work such as scheduled jobs and subscribers. Choose a host with at
+least 2GB of RAM per instance.
+
+## 1. Configure the API for production
+
+Set three values in `medusa-config.ts` so the same build can run as either a
+server or a worker.
+
+```ts medusa-config.ts
+module.exports = defineConfig({
+  projectConfig: {
+    // ...
+    redisUrl: process.env.REDIS_URL,
+    workerMode: process.env.MEDUSA_WORKER_MODE as "shared" | "worker" | "server",
+  },
+  admin: {
+    disable: process.env.DISABLE_MEDUSA_ADMIN === "true",
+  },
+})
+```
+
+The Admin panel is served by the server instance, so you disable it on the worker
+instance. `redisUrl` moves sessions, events, and the workflow engine onto Redis.
+
+## 2. Add a predeploy script
+
+Run migrations before the app starts in production. Add a `predeploy` script to
+`package.json`.
+
+```json package.json
+{
+  "scripts": {
+    "predeploy": "medusa db:migrate"
+  }
+}
+```
+
+## 3. Use production modules
+
+The default project ships modules meant for development, such as the local file
+provider. Swap them for production-ready ones and register them alongside
+`withMercur` in `medusa-config.ts`.
+
+- **Redis cache, event bus, and workflow engine:** move caching, events, and workflow state off the local process.
+- **Redis locking provider:** coordinate work safely across instances.
+- **S3 file provider:** store uploads durably.
+- **A notification provider** such as SendGrid or Resend, for transactional email.
+
+## 4. Set environment variables
+
+Set these on each API instance.
+
+| Variable | Description |
+| --- | --- |
+| `DATABASE_URL` | PostgreSQL connection string |
+| `REDIS_URL` | Redis connection string |
+| `JWT_SECRET` | Secret for signing auth tokens |
+| `COOKIE_SECRET` | Secret for signing session cookies |
+| `MEDUSA_WORKER_MODE` | `server` on the server instance, `worker` on the worker instance |
+| `DISABLE_MEDUSA_ADMIN` | `false` on the server, `true` on the worker |
+| `STORE_CORS` / `ADMIN_CORS` / `AUTH_CORS` | Allowed origins for the storefront, panels, and auth |
+
+## 5. Deploy the API
+
+Deploy the same build as two instances.
+
+<Steps>
+  <Step title="Build the app">
+    Run `bun run build` to compile the server and the Admin panel.
+  </Step>
+  <Step title="Run migrations">
+    The `predeploy` script runs `medusa db:migrate`. Run it once before starting.
+  </Step>
+  <Step title="Start the server instance">
+    Set `MEDUSA_WORKER_MODE=server` and `DISABLE_MEDUSA_ADMIN=false`. This instance serves the API and the Admin panel.
+  </Step>
+  <Step title="Start the worker instance">
+    Set `MEDUSA_WORKER_MODE=worker` and `DISABLE_MEDUSA_ADMIN=true`. This instance runs jobs and subscribers.
+  </Step>
+</Steps>
+
+## 6. Deploy the Vendor panel
+
+The Vendor panel is a separate Vite app. Build it with the API URL configured,
+then host the static output on any static host or CDN.
+
+<Note>
+  The Admin panel ships with the API server. The Vendor panel deploys on its own,
+  the same way a storefront does.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Medusa Cloud" icon="cloud" href="/resources/deployment/medusa-cloud">
+    Deploy without managing infrastructure yourself.
+  </Card>
+  <Card title="Stripe Connect" icon="credit-card" href="/resources/integrations/stripe-connect">
+    Wire up payments and payouts for production.
+  </Card>
+</CardGroup>

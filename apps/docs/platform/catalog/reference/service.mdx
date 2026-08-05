@@ -1,0 +1,52 @@
+---
+title: "Service reference"
+sidebarTitle: "Service"
+description: "Medusa's Product module service: methods for working with records directly."
+---
+
+The catalog is backed by **Medusa's Product module**, not a Mercur-specific one.
+Resolve its service from the container with the `Modules.PRODUCT` key to read and
+write products, variants, categories, and collections directly, without going
+through a workflow. Use it inside custom services, subscribers, or scheduled jobs.
+
+```ts
+import { Modules } from "@medusajs/framework/utils"
+
+const productModuleService = container.resolve(Modules.PRODUCT)
+
+const [products, count] = await productModuleService.listAndCountProducts({
+  status: "published",
+})
+```
+
+<Note>
+  Because this is Medusa's own module, the service key is `Modules.PRODUCT` from
+  `@medusajs/framework/utils`, **not** a `MercurModules` key. Mercur adds its
+  marketplace behavior (allowlist, review lifecycle, audit trail) as
+  [workflows](/platform/catalog/reference/workflows) layered on top of this
+  service.
+</Note>
+
+## Generated methods
+
+Each data model gets a standard set of auto-generated methods. For `Product`:
+
+| Method | Description |
+| --- | --- |
+| `createProducts(data)` | Create one or more products |
+| `retrieveProduct(id, config?)` | Retrieve a product by id |
+| `listProducts(filters?, config?)` | List products matching filters |
+| `listAndCountProducts(filters?, config?)` | List products with a total count |
+| `updateProducts(data)` | Update one or more products |
+| `deleteProducts(ids)` | Delete one or more products |
+
+The same set exists for every model in the module, such as `ProductVariant`,
+`ProductCategory`, `ProductCollection`, `ProductTag`, and `ProductType` (e.g.
+`createProductVariants`, `listProductCategories`, `updateProductCollections`).
+
+<Warning>
+  Prefer [workflows](/platform/catalog/reference/workflows) for anything with
+  side effects, such as submissions, review transitions, and allowlist changes. The
+  service writes records directly and does **not** run the marketplace layer,
+  emit Mercur's product events, or record the audit trail.
+</Warning>

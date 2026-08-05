@@ -1,0 +1,59 @@
+---
+title: "Create a payout account"
+sidebarTitle: "Create a payout account"
+description: "Create a seller's payout account with createPayoutAccountWorkflow."
+---
+
+In this guide, you'll learn how to create a payout account for a seller from your
+own server code. This is useful in an onboarding flow or a custom API route.
+
+Mercur exposes a `createPayoutAccountWorkflow` that persists the `PayoutAccount`,
+calls the configured provider to create the connected account, and links the
+account to the store. Run it from any place that has access to the Medusa
+container.
+
+## Run the workflow
+
+```ts title="src/api/custom/payout-account/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createPayoutAccountWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createPayoutAccountWorkflow(req.scope).run({
+    input: {
+      seller_id: req.params.id,
+    },
+  })
+
+  res.status(201).json({ payout_account: result })
+}
+```
+
+The new account starts in `PENDING` and can't receive payouts until the provider
+marks it `ACTIVE`. See [Start onboarding](/platform/payout/guides/start-provider-onboarding).
+
+<Note>
+  A seller can have **only one** payout account. The workflow validates this
+  first and fails if the store already has one.
+</Note>
+
+## Forward provider data
+
+The workflow accepts `data` and `context` payloads that are passed straight to
+the provider when it creates the connected account. Use them to hand the
+provider anything it needs up front.
+
+```ts
+await createPayoutAccountWorkflow(req.scope).run({
+  input: {
+    seller_id: "sel_123",
+    context: { idempotency_key: "sel_123" },
+    data: { business_type: "company" },
+  },
+})
+```
+
+<Warning>
+  If the provider call fails after the record is created, the workflow rolls the
+  account back so you don't leave a dangling `PayoutAccount` behind.
+</Warning>

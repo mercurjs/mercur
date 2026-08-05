@@ -4,7 +4,7 @@ api: "POST /vendor/products/{id}"
 description: "Stage an update to a product as a change request."
 ---
 
-Does not modify the product directly — it stages a pending change request that an operator confirms or declines.
+Does not modify the product directly. It stages a pending change request that an operator confirms or declines.
 
 <Note>
   The endpoint responds with `202 Accepted` and a `product_change` record, not the updated product. Use [Preview Product Change](/rc/references/api/vendor/products/preview-product) to inspect the pending change and [Cancel Product Change](/rc/references/api/vendor/products/cancel-product-change) to withdraw it.

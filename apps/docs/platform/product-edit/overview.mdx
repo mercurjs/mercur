@@ -1,0 +1,85 @@
+---
+title: "Product Edit"
+sidebarTitle: "Overview"
+description: "Route every product edit through a reviewable, immutable change pipeline."
+---
+
+Use Mercur to keep a full audit trail of every product change and govern your
+master data before it changes.
+
+Master-data governance depends on knowing who changed what, and reviewing it
+before it takes effect. The Product Edit domain is that auditable change
+pipeline. Every edit becomes an immutable, attributed `ProductChange` record that
+enters an approval queue, so no change to a shared product is silently written.
+Each record carries typed actions and a status lifecycle, and the trail records
+who changed what and who approved it.
+
+<Note>
+  **Product Edit ≠ product ownership.** Products are the shared master catalog,
+  and sellers sell against them through offers. Product Edit governs *changes* to
+  a product. It never makes a store the owner of one.
+</Note>
+
+## Key features
+
+- **Immutable audit trail:** every edit is an attributed `ProductChange` that is never rewritten, only appended to and resolved.
+- **Typed change actions:** each edit is expressed as `ProductChangeAction` rows such as `UPDATE`, `VARIANT_*`, `ATTRIBUTE_*`, `STATUS_CHANGE`, or `PRODUCT_ADD/DELETE`.
+- **Approval queue:** a change moves `pending` → `confirmed` / `declined` / `canceled`, each through a dedicated workflow.
+- **Deferred application:** actions are applied to the product only on confirmation, then marked `applied`.
+- **Auto-confirm:** when review is off, staged changes confirm and apply immediately.
+- **Revision requests:** operators send a submission back to the vendor as a recorded `CHANGE_REQUESTED` audit action.
+- **One active change per product:** a product can't have two pending changes at once.
+
+## Get started
+
+Learn how the domain fits together:
+
+<CardGroup cols={2}>
+  <Card title="The change pipeline" icon="clock-rotate-left" href="/platform/product-edit/concepts/change-pipeline">
+    The `ProductChange` record, immutability, and the audit trail.
+  </Card>
+  <Card title="Change actions" icon="list-check" href="/platform/product-edit/concepts/change-actions">
+    The typed actions that make up a change and their `details`.
+  </Card>
+  <Card title="Status & auto-confirm" icon="arrows-rotate" href="/platform/product-edit/concepts/status-and-auto-confirm">
+    The status lifecycle, revision requests, and auto-confirm.
+  </Card>
+</CardGroup>
+
+## Examples
+
+Build against the Product Edit domain in your own code:
+
+<CardGroup cols={2}>
+  <Card title="Edit a product" icon="pen" href="/platform/product-edit/guides/edit-a-product">
+    Stage a product change from server code.
+  </Card>
+  <Card title="Confirm or decline" icon="gavel" href="/platform/product-edit/guides/confirm-or-decline-a-change">
+    Resolve a pending change in code.
+  </Card>
+  <Card title="Request a revision" icon="rotate-left" href="/platform/product-edit/guides/request-a-revision">
+    Send a submission back to the vendor.
+  </Card>
+</CardGroup>
+
+## Resources
+
+Data models, workflows, service methods, and events for the Product Edit domain:
+
+<CardGroup cols={2}>
+  <Card title="Data models" icon="table" href="/platform/product-edit/reference/data-models">
+    The `ProductChange` and `ProductChangeAction` entities.
+  </Card>
+  <Card title="Links" icon="link" href="/platform/product-edit/reference/links">
+    How the Product Edit domain links to other modules.
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/platform/product-edit/reference/workflows">
+    Create, confirm, decline, cancel, and stage workflows.
+  </Card>
+  <Card title="Service" icon="gear" href="/platform/product-edit/reference/service">
+    Module service methods for working with records directly.
+  </Card>
+  <Card title="Events" icon="bell" href="/platform/product-edit/reference/events">
+    Events emitted as changes move through the pipeline.
+  </Card>
+</CardGroup>

@@ -1,0 +1,55 @@
+---
+title: "Manage the team"
+sidebarTitle: "Manage the team"
+description: "Invite and add store members from server code."
+---
+
+In this guide, you'll learn how to manage a store's team from your own server
+code. You can invite members, add them directly, and update their roles.
+
+## Invite a member
+
+`inviteSellerWorkflow` creates a `MemberInvite` and sends the invitation email.
+The invitee sets up access and is linked to the store when they accept.
+
+```ts title="src/api/custom/invite/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { inviteSellerWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  await inviteSellerWorkflow(req.scope).run({
+    input: {
+      email: "ops@acme.com",
+      seller_id: req.params.id,
+    },
+  })
+
+  res.sendStatus(200)
+}
+```
+
+## Add a member directly
+
+When you already have the user, for example during a migration, add them to a
+store without the invite step. Use `addSellerMemberWorkflow`.
+
+```ts
+import { addSellerMemberWorkflow } from "@mercurjs/core/workflows"
+
+await addSellerMemberWorkflow(container).run({
+  input: {
+    seller_id: "sel_123",
+    member: { email: "ops@acme.com" },
+  },
+})
+```
+
+<Tip>
+  Every store must keep at least one admin member. A workflow that would remove or
+  demote the last admin fails instead of leaving a store unadministered.
+</Tip>
+
+## Accept an invite
+
+The invitee's acceptance runs through `acceptMemberInviteWorkflow`. It links the
+member to the store, and if the email already exists, it reuses their account.

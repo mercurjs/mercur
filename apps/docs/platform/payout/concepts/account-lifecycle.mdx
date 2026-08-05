@@ -1,0 +1,75 @@
+---
+title: "Account lifecycle"
+sidebarTitle: "Account lifecycle"
+description: "Payout account statuses and the webhook-driven transitions between them."
+---
+
+In this document, you'll learn about the payout account lifecycle and how its
+status stays in sync with the provider.
+
+## Status
+
+A payout account's state is held in the `status` field of the `PayoutAccount`
+model, typed by the `PayoutAccountStatus` enum. An account moves through four
+statuses.
+
+```
+                ┌──────────┐
+                │ PENDING   │
+                └────┬─────┘
+                     │ account.activated
+                     ▼
+   ┌────────────┐   ┌────────┐
+   │ RESTRICTED  │◄─►│ ACTIVE  │
+   └────────────┘   └───┬────┘
+                        │ account.rejected
+                        ▼
+                  ┌──────────┐
+                  │ REJECTED  │
+                  └──────────┘
+```
+
+| Status | Meaning |
+| --- | --- |
+| `PENDING` | Account created, provider onboarding not yet complete. |
+| `ACTIVE` | Fully onboarded. Can receive payouts. |
+| `RESTRICTED` | Provider flagged the account, for example missing KYC. No payouts. |
+| `REJECTED` | Provider permanently disabled the account. |
+
+<Note>
+  Payouts are only created against an `ACTIVE` account. The module rejects a
+  payout for an account in any other status.
+</Note>
+
+## Webhook-driven transitions
+
+Unlike the store lifecycle, payout account transitions are **not** operator
+actions. They follow the provider. The provider sends a webhook, a subscriber
+resolves it to an action, and `processPayoutForWebhookWorkflow` updates the
+status.
+
+| Webhook action | Resulting status |
+| --- | --- |
+| `account.activated` | `ACTIVE` |
+| `account.restricted` | `RESTRICTED` |
+| `account.rejected` | `REJECTED` |
+
+```ts
+// Inside processPayoutForWebhookWorkflow
+when({ input }, ({ input }) => input.action === "account.activated")
+  .then(() =>
+    updatePayoutAccountStep({ id: input.data!.id, status: PayoutAccountStatus.ACTIVE })
+  )
+```
+
+<Tip>
+  A `RESTRICTED` account is not terminal. Once the seller resolves the
+  provider's requirements, the provider emits `account.activated` again and the
+  account returns to `ACTIVE`. `REJECTED` is the only permanent state.
+</Tip>
+
+## Payout status
+
+An individual transfer carries its own `PayoutStatus` (`PENDING` → `PROCESSING`
+→ `PAID`, or `FAILED` / `CANCELED`). Provider webhooks advance it through the
+same workflow. See [The payout pipeline](/platform/payout/concepts/payout-pipeline).

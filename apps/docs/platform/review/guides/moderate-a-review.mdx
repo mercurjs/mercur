@@ -1,0 +1,58 @@
+---
+title: "Moderate a review"
+sidebarTitle: "Moderate a review"
+description: "Publish, reject, and delete reviews from server code."
+---
+
+In this guide, you'll learn how to moderate reviews from your own server code.
+Moderation is a change to the review's `status`; removal is a soft delete that
+can be undone.
+
+## Publish or reject
+
+Move a `pending` review to `published` or `rejected` with `updateReviewWorkflow`,
+setting the `status` field:
+
+```ts title="src/api/custom/moderate/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { updateReviewWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  await updateReviewWorkflow(req.scope).run({
+    input: {
+      id: req.params.id,
+      status: "published",
+    },
+  })
+
+  res.sendStatus(200)
+}
+```
+
+`updateReviewWorkflow` also accepts `rating`, `customer_note`, and `seller_note`,
+so the same workflow is used for any correction to a review. It captures the
+previous values for compensation, so a failure downstream rolls the record back.
+
+## Delete a review
+
+Remove a review with `deleteReviewWorkflow`. This is a **soft delete**. The row
+is retained and restored automatically if the workflow is rolled back:
+
+```ts
+import { deleteReviewWorkflow } from "@mercurjs/core/workflows"
+
+await deleteReviewWorkflow(container).run({ input: "rev_123" })
+```
+
+<Warning>
+  A soft-deleted review stops counting toward aggregate ratings, but its row (and
+  its links) are kept. Use a hard delete through the service only if you need the
+  record gone permanently.
+</Warning>
+
+## React to moderation
+
+To run your own side effects when a review is published or rejected, wrap
+`updateReviewWorkflow` in a route that also runs your follow-up logic, or add a
+hook. See the [Events reference](/platform/review/reference/events) for the
+current state of review-domain events.

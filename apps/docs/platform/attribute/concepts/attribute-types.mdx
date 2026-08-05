@@ -1,0 +1,59 @@
+---
+title: "Attribute types"
+sidebarTitle: "Attribute types"
+description: "The five attribute types and the values they hold."
+---
+
+In this document, you'll learn about the attribute record, its five types, and
+the values attached to it.
+
+## Product attribute
+
+An attribute is a typed field in the shared catalog, represented by the
+`ProductAttribute` data model (table `product_attribute`, id prefix `pattr`).
+Each attribute carries a `name`, an optional `handle`, a `rank` for ordering, and
+a `type` that decides how its values are validated and rendered.
+
+```ts
+const { result } = await createProductAttributesWorkflow(container).run({
+  input: {
+    attributes: [
+      {
+        name: "Material",
+        type: "single_select",
+        values: [{ name: "Cotton" }, { name: "Wool" }],
+      },
+    ],
+  },
+})
+```
+
+The `type` field is one of the `AttributeType` enum values:
+
+| Type | Value | Holds |
+| --- | --- | --- |
+| Single select | `single_select` | One choice from a fixed list of values |
+| Multi select | `multi_select` | Several choices from a fixed list of values |
+| Text | `text` | A free-form string |
+| Unit | `unit` | A numeric measurement (e.g. weight, capacity) |
+| Toggle | `toggle` | A boolean, backed by seeded `true` / `false` values |
+
+## Product attribute value
+
+The choices for select-style attributes are `ProductAttributeValue` records
+(table `product_attribute_value`, id prefix `pattrval`). Each value belongs to
+one attribute (`attribute_id`), has its own `name`, `handle`, and `rank`, and is
+deleted along with its parent attribute.
+
+<Note>
+  `single_select` and `multi_select` attributes hold a list of predefined
+  `ProductAttributeValue` records. `text` and `unit` create a value on the fly
+  from the entered content when attached to a product. `toggle` is seeded with
+  its `true` / `false` values and never creates new ones.
+</Note>
+
+<Tip>
+  Use `is_required` to enforce that a product must carry a value for the
+  attribute, and `is_active` to retire an attribute from new use without deleting
+  its history.
+</Tip>

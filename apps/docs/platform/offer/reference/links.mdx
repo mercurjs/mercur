@@ -1,0 +1,60 @@
+---
+title: "Links to other modules"
+sidebarTitle: "Links"
+description: "How the Offer domain links to other modules across the marketplace."
+---
+
+Modules in Mercur never reference each other directly. They connect through
+**module links**. The offer sits at the center of the marketplace, so it links
+out to the store, the master catalog, pricing, inventory, fulfillment, and the
+cart and order line items that reference it. Once a link is defined, you retrieve
+related records with `query.graph` using the link alias.
+
+```ts
+const { data: offers } = await query.graph({
+  entity: "offer",
+  fields: ["id", "sku", "prices.*", "inventory_items.*", "seller.name"],
+})
+```
+
+## Catalog & store
+
+| Linked module | Relationship |
+| --- | --- |
+| **Product** | An offer points at one master product (`offer.product_id`, read-only). |
+| **Product variant** | An offer points at one master variant (`offer.variant_id`, read-only). |
+| **Seller** | An offer belongs to one store (`offer.seller_id`, read-only). |
+
+## Pricing & inventory
+
+| Linked module | Relationship |
+| --- | --- |
+| **Price** | An offer has many prices: a writable list-link to the offer-owned rows on the master variant's shared price set. |
+| **Inventory item** | An offer has many inventory items: a writable list-link (`offer_inventory_item`) whose pivot carries a `required_quantity` column. |
+
+## Fulfillment
+
+| Linked module | Relationship |
+| --- | --- |
+| **Shipping profile** | An offer ships with one shipping profile (`offer.shipping_profile_id`, read-only). |
+
+## Cart & order
+
+| Linked module | Relationship |
+| --- | --- |
+| **Cart line item** | A cart line item links to the offer it added; one offer can back many cart line items (list-link on the line-item side). |
+| **Order line item** | An order line item links to the purchased offer; one offer can back many order line items across child orders (list-link on the line-item side). |
+
+<Note>
+  Read-only links (Product, Variant, Seller, Shipping profile) resolve from a
+  field on the `offer` row and can't be written through the link itself. The
+  Price and Inventory-item links are writable and are managed by the offer
+  workflows.
+</Note>
+
+<Tip>
+  The cart- and order-line-item links are list-links **on the line-item side** so
+  the same offer can be added to many carts and placed on many orders. Without
+  that, Medusa would enforce a 1:1 line-item ↔ offer relationship and block
+  re-use.
+</Tip>

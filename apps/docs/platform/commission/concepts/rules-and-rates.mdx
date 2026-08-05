@@ -1,0 +1,84 @@
+---
+title: "Rules & rates"
+sidebarTitle: "Rules & rates"
+description: "The commission rate, its fixed and percentage forms, and per-currency amounts."
+---
+
+This page covers how a commission rate is modeled and the two ways it can
+express the marketplace's cut.
+
+## Commission rate
+
+A commission rate is the number the marketplace takes from a sale. It's
+represented by the `CommissionRate` data model (table `commission_rate`, id
+prefix `comrate`). A rate has a `name`, a unique `code`, a `type`, and a
+`value`, plus the `include_tax` and `include_shipping` toggles.
+
+```ts
+const { result } = await createCommissionRatesWorkflow(container).run({
+  input: [
+    {
+      name: "Standard",
+      type: CommissionRateType.PERCENTAGE,
+      value: 10,
+    },
+  ],
+})
+```
+
+A rate is either **percentage** or **fixed**, set by `type`
+(`CommissionRateType`):
+
+| Type | How `value` is read |
+| --- | --- |
+| `percentage` | A percent of the line's base amount (e.g. `10` → 10%) |
+| `fixed` | A flat amount deducted per line |
+
+<Note>
+  A rate's `code` is unique. When you create a rate without one, the module
+  auto-generates a URL-safe code from the `name` (e.g. `"Standard"` →
+  `standard-a1b2c3`).
+</Note>
+
+## Per-currency amounts
+
+A fixed rate can carry a different amount for each currency. This is
+represented by the `CommissionRateValue` data model (table
+`commission_rate_value`, id prefix `comval`). Each value pairs a `currency_code`
+with an `amount`, and the calculation picks the value matching the order's
+currency.
+
+```ts
+await createCommissionRatesWorkflow(container).run({
+  input: [
+    {
+      name: "Flat fee",
+      type: CommissionRateType.FIXED,
+      value: 5, // fallback when no per-currency value matches
+      values: [
+        { currency_code: "usd", amount: 5 },
+        { currency_code: "eur", amount: 4 },
+      ],
+    },
+  ],
+})
+```
+
+<Tip>
+  When no `values` entry matches the order's currency, a fixed rate falls back
+  to its scalar `value`. Percentage rates ignore `values` entirely. A percent
+  is currency-independent.
+</Tip>
+
+## The global commission
+
+Every marketplace has exactly one **Global Commission**. This is the rate with
+`is_default` set to `true`. Mercur seeds it at boot (a `0%` percentage rate
+named `Default`) so a rate always exists, and it applies whenever no
+more-specific rate matches a line.
+
+<Note>
+  The global rate is also the **only** rate that can commission shipping. See
+  [Rule matching](/platform/commission/concepts/rule-matching) for how
+  specificity and shipping are resolved.
+</Note>

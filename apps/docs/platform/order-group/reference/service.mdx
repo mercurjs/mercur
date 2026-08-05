@@ -1,0 +1,50 @@
+---
+title: "Service reference"
+sidebarTitle: "Service"
+description: "The Seller module service and its methods for working with order group records directly."
+---
+
+Order groups are owned by the **Seller module**, so you resolve the same service
+you'd use for stores. Resolve it from the Medusa container to read and write
+`OrderGroup` records directly, without going through a workflow. Use it inside
+custom services, subscribers, or scheduled jobs.
+
+```ts
+import { MercurModules } from "@mercurjs/types"
+
+const sellerModuleService = container.resolve(MercurModules.SELLER)
+
+const [orderGroups, count] = await sellerModuleService.listAndCountOrderGroups({
+  customer_id: "cus_123",
+})
+```
+
+<Note>
+  There is no `ORDER_GROUP` module key. The `OrderGroup` model is registered on
+  the Seller module, so its service methods live on `MercurModules.SELLER`.
+</Note>
+
+## Generated methods
+
+The `OrderGroup` model gets the standard set of auto-generated methods:
+
+| Method | Description |
+| --- | --- |
+| `createOrderGroups(data)` | Create one or more order groups |
+| `retrieveOrderGroup(id, config?)` | Retrieve a group by id (with computed `seller_count` / `total`) |
+| `listOrderGroups(filters?, config?)` | List groups matching filters |
+| `listAndCountOrderGroups(filters?, config?)` | List groups with a total count |
+| `updateOrderGroups(data)` | Update one or more groups |
+| `deleteOrderGroups(ids)` | Delete one or more groups |
+
+The list, count, and retrieve methods run through the module's order-group
+repository, which aggregates each group's child orders to fill in the computed
+`seller_count` and `total`. Supported filters include `id`, `customer_id`,
+`seller_id`, `status`, `sales_channel_id`, `created_at`, `updated_at`, and `q`.
+
+<Warning>
+  Prefer [workflows](/platform/order-group/reference/workflows) for reads that
+  need aggregated child-order status, and for the checkout split. The service
+  returns the group row and its computed totals but does **not** expand child
+  orders' payment/fulfillment status, emit events, or run compensation.
+</Warning>

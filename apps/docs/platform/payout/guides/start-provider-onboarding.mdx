@@ -1,0 +1,50 @@
+---
+title: "Start provider onboarding"
+sidebarTitle: "Start onboarding"
+description: "Kick off provider onboarding with createOnboardingWorkflow."
+---
+
+In this guide, you'll learn how to start provider onboarding for a payout
+account from server code. Onboarding is what moves an account from `PENDING`
+toward `ACTIVE`. For Stripe Connect, it produces the hosted link the seller uses
+to submit their details.
+
+## Run the workflow
+
+`createOnboardingWorkflow` asks the provider to produce onboarding data and
+stores it as an `Onboarding` record on the account.
+
+```ts title="src/api/custom/onboarding/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createOnboardingWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createOnboardingWorkflow(req.scope).run({
+    input: {
+      account_id: req.params.id,
+      context: {
+        return_url: "https://store.example.com/settings/payouts",
+      },
+    },
+  })
+
+  res.status(201).json({ onboarding: result })
+}
+```
+
+The provider-specific payload (for Stripe Connect, the onboarding URL) is stored
+in the record's `data` field for you to return to the seller.
+
+<Tip>
+  Running the workflow again on an account that already has an onboarding record
+  **updates** it in place instead of creating a second one. It is safe to call
+  whenever a seller needs a fresh link.
+</Tip>
+
+## Reaching `ACTIVE`
+
+Onboarding kicks off the flow, but the account only becomes `ACTIVE` when the
+provider confirms it via webhook. Handle that step in
+[Process a webhook](/platform/payout/guides/process-a-provider-webhook), and see
+[Account lifecycle](/platform/payout/concepts/account-lifecycle) for the full
+state model.

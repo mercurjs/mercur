@@ -1,0 +1,64 @@
+---
+title: "Create a Product Attribute"
+sidebarTitle: "Create an attribute"
+description: "Add a new attribute and choose how it stores its value."
+---
+
+> Define a reusable property that sellers apply to their products.
+
+## Overview
+
+Creating an attribute is a two-step form. The "Details" step names the attribute and sets how it behaves. The "Type" step chooses how the value is stored, such as a single choice, multiple choices, a number with a unit, a toggle, or free text.
+
+## Step 1: Start a new attribute
+
+1. Go to "Settings" in the sidebar, then "Attributes".
+2. Click "Create".
+
+{/* screenshot: /settings/attributes list with Create button */}
+
+## Step 2: Enter the details
+
+In the "Details" step:
+
+1. Enter a "Name", for example Material.
+2. Optionally enter a "Handle". If left blank, Mercur generates one from the name.
+3. Optionally enter a "Description".
+4. Set the switches as needed:
+   - "Required attribute". If checked, a value must be set for this attribute on every product.
+   - "Filterable attribute". If checked, customers can filter products by this attribute on the storefront.
+   - "Global attribute". If checked, the attribute applies to all products across all categories. If unchecked, choose the "Categories" it applies to.
+5. Click "Continue".
+
+{/* screenshot: Create Attribute wizard, Details tab */}
+
+## Step 3: Choose the type
+
+In the "Type" step:
+
+1. Select a "Type":
+   - "Single Select". The seller picks one value from a list.
+   - "Multi Select". The seller picks one or more values from a list.
+   - "Unit". A number with a unit of measurement.
+   - "Toggle". A simple on or off value.
+   - "Text Area". Free text.
+2. For "Single Select" and "Multi Select", add the possible values sellers can choose from.
+3. For "Multi Select" only, you can turn on "Use for variants". When checked, the attribute defines product variants, for example size or color.
+
+{/* screenshot: Create Attribute wizard, Type tab */}
+
+## Step 4: Create
+
+Click "Create". The new attribute appears in the list and is available to sellers.
+
+<Note>
+  Only a "Multi Select" attribute can be used as a variant axis. Choose "Use for variants" when the attribute should split a product into separately purchasable variants.
+</Note>
+
+## Next steps
+
+<CardGroup cols={2}>
+  <Card title="Manage possible values" href="/user-guide/admin/attributes/how-tos/manage-possible-values">
+    Add or reorder the values for a select attribute.
+  </Card>
+</CardGroup>

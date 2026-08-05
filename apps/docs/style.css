@@ -1,43 +1,60 @@
-/* Blurred brand-color glow in the page background (à la bun.com/docs). */
-body {
-  position: relative;
+/*
+ * Browserbase-inspired dark surfaces + typography.
+ * The near-black page background (#0C0A12) is the base tone; these rules layer a
+ * "lighter dark" surface (#15121D / #1B1726) onto the sidebar, search field, and
+ * code blocks so the layout reads with depth. Scoped to .dark so the light theme
+ * stays pure white.
+ */
+.dark nav#sidebar {
+  background-color: #15121d;
 }
 
-body::before {
-  content: "";
-  position: absolute;
-  top: -18rem;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60rem;
-  height: 40rem;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: 9999px;
-  filter: blur(120px);
-  opacity: 0.28;
-  background: radial-gradient(
-    closest-side,
-    #3139fb 0%,
-    rgba(49, 57, 251, 0.45) 45%,
-    rgba(49, 57, 251, 0) 100%
-  );
+.dark #search-bar-entry {
+  background-color: #1b1726;
 }
 
-/* Slightly stronger and cooler on the dark theme so it reads on near-black. */
-.dark body::before {
-  opacity: 0.4;
-  background: radial-gradient(
-    closest-side,
-    #4b52ff 0%,
-    rgba(75, 82, 255, 0.5) 45%,
-    rgba(75, 82, 255, 0) 100%
-  );
+.dark pre,
+.dark pre > div,
+.dark [class*="code"] pre {
+  background-color: #15121d !important;
 }
 
-/* Keep the actual content above the glow. */
-#content-area,
-main {
-  position: relative;
-  z-index: 1;
+.dark .card,
+.dark [class*="Card"] {
+  background-color: #15121d;
+}
+
+/* Tight heading letter-spacing, matching Browserbase's −0.9px on the h1. */
+h1 {
+  letter-spacing: -0.9px;
+}
+
+h2 {
+  letter-spacing: -0.6px;
+}
+
+h3 {
+  letter-spacing: -0.4px;
+}
+
+/*
+ * Square corners across the docs, matching docs.browserbase.com (border-radius: 0).
+ * Circular elements (rounded-full — avatars, the assistant button) are left intact.
+ */
+pre,
+code,
+img,
+table,
+th,
+td,
+input,
+button,
+#search-bar-entry,
+[class*="rounded-sm"],
+[class*="rounded-md"],
+[class*="rounded-lg"],
+[class*="rounded-xl"],
+[class*="rounded-2xl"],
+[class*="rounded-3xl"] {
+  border-radius: 0 !important;
 }

@@ -1,0 +1,86 @@
+---
+title: "Commission"
+sidebarTitle: "Overview"
+description: "Configure how the marketplace takes its cut of every seller order."
+---
+
+Use Mercur to keep financial control over what share of each sale the
+marketplace keeps and each seller earns.
+
+Financial control over the marketplace runs through commission. You set
+policy-based **rates** (fixed or percentage) and scope them to parts of your
+catalog with **rules**. Mercur resolves the right rate for every order line by
+most-specific-wins and writes an auditable **commission line**. That line is the
+exact amount deducted before the seller is paid out, computed in arbitrary
+precision so the numbers reconcile.
+
+<Note>
+  **Commission = the `CommissionRate` + `CommissionRule` entities.** A rate is
+  the number, either a percentage or a fixed amount. Rules scope that rate to a
+  slice of the catalog. Every marketplace has one **Global Commission**. This is
+  the `is_default` rate that applies when nothing more specific matches.
+</Note>
+
+## Key features
+
+- **Fixed or percentage:** a percentage of the line, or a flat per-currency amount.
+- **Per-currency amounts:** fixed rates carry an amount per currency, falling back to a default `value`.
+- **Five scoping dimensions:** match on `product`, `product_type`, `product_collection`, `product_category`, and `seller`.
+- **Most-specific-wins:** the rate scoped on the most dimensions wins, and ties break to the oldest rate.
+- **Shipping commission:** only the global rate may commission shipping (`include_shipping`).
+- **Automatic order lines:** a commission line is generated per item and recomputed when an order changes.
+- **BigNumber arithmetic:** all commission math uses arbitrary precision for financial accuracy.
+
+## Get started
+
+Learn how the domain fits together.
+
+<CardGroup cols={2}>
+  <Card title="Rules & rates" icon="percent" href="/platform/commission/concepts/rules-and-rates">
+    Fixed vs. percentage rates, per-currency amounts, and the global rate.
+  </Card>
+  <Card title="Rule matching" icon="sliders" href="/platform/commission/concepts/rule-matching">
+    The five dimensions, most-specific-wins, tie-breaks, and shipping.
+  </Card>
+  <Card title="Order commission lines" icon="receipt" href="/platform/commission/concepts/order-commission-lines">
+    How per-order lines are computed and kept in sync.
+  </Card>
+</CardGroup>
+
+## Examples
+
+Build against the Commission domain in your own code.
+
+<CardGroup cols={2}>
+  <Card title="Create a rate" icon="plus" href="/platform/commission/guides/create-a-rate">
+    Run `createCommissionRatesWorkflow` from a route or seed script.
+  </Card>
+  <Card title="Batch-update rules" icon="list-check" href="/platform/commission/guides/batch-update-rules">
+    Create, update, and delete a rate's rules in one call.
+  </Card>
+  <Card title="Refresh order lines" icon="arrows-rotate" href="/platform/commission/guides/refresh-order-commission-lines">
+    Recompute commission for an order after it changes.
+  </Card>
+</CardGroup>
+
+## Resources
+
+Data models, workflows, service methods, and events for the Commission domain.
+
+<CardGroup cols={2}>
+  <Card title="Data models" icon="table" href="/platform/commission/reference/data-models">
+    `CommissionRate`, `CommissionRule`, and related entities.
+  </Card>
+  <Card title="Links" icon="link" href="/platform/commission/reference/links">
+    How Commission connects to catalog, sellers, and orders.
+  </Card>
+  <Card title="Workflows" icon="diagram-project" href="/platform/commission/reference/workflows">
+    Rate, rule, and order-line workflows.
+  </Card>
+  <Card title="Service" icon="gear" href="/platform/commission/reference/service">
+    Module service methods for working with records directly.
+  </Card>
+  <Card title="Events" icon="bell" href="/platform/commission/reference/events">
+    How commission stays in sync with order changes.
+  </Card>
+</CardGroup>

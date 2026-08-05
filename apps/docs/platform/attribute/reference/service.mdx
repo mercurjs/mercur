@@ -1,0 +1,49 @@
+---
+title: "Service reference"
+sidebarTitle: "Service"
+description: "The Product Attribute module service, with methods for working with records directly."
+---
+
+The Product Attribute module exposes a service you can resolve from the Medusa
+container to read and write records directly, without going through a workflow.
+Use it inside custom services, subscribers, or scheduled jobs.
+
+```ts
+import { MercurModules } from "@mercurjs/types"
+
+const attributeModuleService = container.resolve(
+  MercurModules.PRODUCT_ATTRIBUTE,
+)
+
+const [attributes, count] =
+  await attributeModuleService.listAndCountProductAttributes({
+    type: "single_select",
+  })
+```
+
+## Generated methods
+
+Each data model gets a standard set of auto-generated methods. For
+`ProductAttribute`:
+
+| Method | Description |
+| --- | --- |
+| `createProductAttributes(data)` | Create one or more attributes |
+| `retrieveProductAttribute(id, config?)` | Retrieve an attribute by id |
+| `listProductAttributes(filters?, config?)` | List attributes matching filters |
+| `listAndCountProductAttributes(filters?, config?)` | List attributes with a total count |
+| `updateProductAttributes(data)` | Update one or more attributes |
+| `deleteProductAttributes(ids)` | Delete one or more attributes |
+
+The same set exists for `ProductAttributeValue`: `createProductAttributeValues`,
+`retrieveProductAttributeValue`, `listProductAttributeValues`,
+`listAndCountProductAttributeValues`, `updateProductAttributeValues`, and
+`deleteProductAttributeValues`.
+
+<Warning>
+  Prefer [workflows](/platform/attribute/reference/workflows) for anything with
+  side effects, such as creating an axis attribute, attaching attributes to a
+  product, or keeping the mirror `ProductOption` in sync. The service writes records
+  directly and does **not** emit events, maintain the option mirror, or run
+  compensation.
+</Warning>

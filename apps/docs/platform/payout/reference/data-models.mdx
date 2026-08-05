@@ -1,0 +1,61 @@
+---
+title: "Data models"
+sidebarTitle: "Data models"
+description: "The data models owned by the Payout domain."
+---
+
+The Payout domain is owned by the **Payout module**. This reference lists its
+data models and their fields. For the full module overview, see the
+[Payout overview](/platform/payout/overview).
+
+## PayoutAccount
+
+Table `payout_account`, id prefix `pacc`. A seller's connection to the payment
+provider. This is the record funds are transferred to.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `status` | enum | `PayoutAccountStatus`, default `pending` |
+| `data` | json | Provider-specific account data |
+| `context` | json | Nullable; per-request provider hints |
+
+Relations: `onboarding` (one-to-one, nullable), `payouts` (one-to-many).
+
+## Onboarding
+
+Table `onboarding`, id prefix `onb`. Provider setup state for a payout account
+(for Stripe Connect, the onboarding link).
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `data` | json | Nullable; provider onboarding data |
+| `context` | json | Nullable; per-request provider hints |
+| `account_id` | text | Belongs to a `PayoutAccount` |
+
+<Note>
+  `Onboarding` is one-to-one with `PayoutAccount`. Re-running the onboarding
+  workflow updates the existing record rather than creating a second one.
+</Note>
+
+## Payout
+
+Table `payout`, id prefix `pout`. A single transfer of a seller's earnings for
+one order.
+
+| Field | Type | Notes |
+| --- | --- | --- |
+| `id` | text | Primary key |
+| `display_id` | number | Auto-incrementing, human-readable |
+| `currency_code` | text | The payout's currency |
+| `amount` | bigNumber | Order total minus commission |
+| `data` | json | Nullable; provider transfer data |
+| `status` | enum | `PayoutStatus`, default `pending` |
+| `account_id` | text | Belongs to a `PayoutAccount` |
+
+## Enums
+
+**`PayoutAccountStatus`:** `pending`, `active`, `restricted`, `rejected`.
+
+**`PayoutStatus`:** `pending`, `processing`, `paid`, `failed`, `canceled`.

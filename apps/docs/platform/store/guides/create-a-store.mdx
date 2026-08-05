@@ -1,0 +1,55 @@
+---
+title: "Create a store"
+sidebarTitle: "Create a store"
+description: "Create a seller programmatically with createSellersWorkflow."
+---
+
+In this guide, you'll learn how to create a store from your own server code. This
+is useful in a seed script, a custom API route, or an onboarding flow.
+
+Mercur exposes a `createSellersWorkflow` that creates the `Seller` record along
+with its defaults. Run it from any place that has access to the Medusa container.
+
+## Run the workflow
+
+```ts title="src/api/custom/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { createSellersWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await createSellersWorkflow(req.scope).run({
+    input: {
+      sellers: [
+        {
+          name: "Acme Supplies",
+          email: "team@acme.com",
+          currency_code: "usd",
+        },
+      ],
+    },
+  })
+
+  res.status(201).json({ seller: result[0] })
+}
+```
+
+<Note>
+  An operator can set a new store to `open` right away. A store created through
+  the public self-registration flow starts in `pending_approval` and waits for
+  operator review. See [Moderate stores](/platform/store/guides/moderate-a-store).
+</Note>
+
+## Attach custom data
+
+The workflow accepts an `additional_data` payload. It is passed to the workflow's
+hooks, so you can persist marketplace-specific data alongside the store without
+forking the workflow.
+
+```ts
+await createSellersWorkflow(req.scope).run({
+  input: {
+    sellers: [{ name: "Acme Supplies", email: "team@acme.com", currency_code: "usd" }],
+    additional_data: { referral_code: "SPRING25" },
+  },
+})
+```

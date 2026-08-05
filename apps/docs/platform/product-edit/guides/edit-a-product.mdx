@@ -1,0 +1,74 @@
+---
+title: "Edit a product"
+sidebarTitle: "Edit a product"
+description: "Stage a product change from server code with the edit workflows."
+---
+
+In this guide, you'll learn how to route a product edit through the change
+pipeline from your own server code, such as a custom API route or a bulk tool.
+
+Instead of writing to a product directly, you stage a `ProductChange`. Mercur
+exposes high-level edit workflows that diff your update against the current
+product and stage only the fields that actually changed.
+
+## Update product fields
+
+`productEditUpdateProductWorkflow` diffs the `update` payload against the product
+and stages an `UPDATE` action per changed field.
+
+```ts title="src/api/custom/edit/route.ts"
+import type { MedusaRequest, MedusaResponse } from "@medusajs/framework/http"
+import { productEditUpdateProductWorkflow } from "@mercurjs/core/workflows"
+
+export async function POST(req: MedusaRequest, res: MedusaResponse) {
+  const { result } = await productEditUpdateProductWorkflow(req.scope).run({
+    input: {
+      product_id: req.params.id,
+      created_by: req.auth_context?.actor_id,
+      update: { title: "Updated title", material: "Cotton" },
+    },
+  })
+
+  res.status(201).json({ product_change: result })
+}
+```
+
+<Note>
+  If a product already has a `pending` change, staging another one is rejected.
+  Only one active change per product is allowed. Resolve or cancel the open
+  change first.
+</Note>
+
+## Stage actions directly
+
+For finer control (variants, attributes, mixed operations), stage the actions
+yourself with `stageProductChangeWorkflow`:
+
+```ts
+import { stageProductChangeWorkflow } from "@mercurjs/core/workflows"
+
+await stageProductChangeWorkflow(container).run({
+  input: {
+    product_id: "prod_123",
+    created_by: "user_123",
+    actions: [
+      { product_id: "prod_123", action: "UPDATE", details: { field: "subtitle", value: "New" } },
+      { product_id: "prod_123", action: "VARIANT_REMOVE", details: { variant_id: "variant_123" } },
+    ],
+  },
+})
+```
+
+## Auto-confirm
+
+Both workflows run auto-confirm after staging: with review off the change
+applies immediately, with review on it stays `pending`. Pass `auto_confirm: true`
+to `stageProductChangeWorkflow` to force immediate application regardless of the
+review setting.
+
+<Tip>
+  Dedicated helpers exist for common shapes, such as
+  `productEditUpdateVariantsWorkflow`, `productEditUpdateAttributesWorkflow`, and
+  `productEditDeleteProductWorkflow`. Each stages the right action types for you.
+  See the [Workflows reference](/platform/product-edit/reference/workflows).
+</Tip>
