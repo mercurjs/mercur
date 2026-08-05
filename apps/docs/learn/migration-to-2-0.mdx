@@ -6,7 +6,7 @@ description: "Port an existing Mercur 1.x project to 2.x, the latest release."
 
 > A step-by-step guide to porting an existing Mercur 1.x project to 2.x, the latest release.
 
-Mercur 2.0 replaces the monolithic plugin architecture (`@mercurjs/b2c-core`) with a block-based model (`@mercurjs/core` plus registry blocks). This guide is about porting your existing 1.x code to a 2.x project. For setting up a fresh project instead, see [Installation](/learn/installation), which already uses the latest names.
+Mercur 2.0 replaces the monolithic plugin architecture (`@mercurjs/b2c-core`) with a block-based model (`@mercurjs/core` plus registry blocks). This guide is about porting your existing 1.x code to a 2.x project. For setting up a fresh project instead, see [Installation](/learn/introduction), which already uses the latest names.
 
 <Tip>
 If you use an AI agent or IDE (Claude Code, Cursor, or similar), your project includes a `migration-guide` skill that can analyze your 1.x project and walk you through the migration step by step.
@@ -38,7 +38,7 @@ The MedusaJS v2 foundation (modules, workflows, links, subscribers, API routes),
 
 ## Step 1: Start from a fresh 2.x project
 
-Set up a working 2.x project first (see [Installation](/learn/installation)), then port your 1.x code into it. Do not upgrade the old project in place.
+Set up a working 2.x project first (see [Installation](/learn/introduction)), then port your 1.x code into it. Do not upgrade the old project in place.
 
 ## Step 2: Map your packages
 
@@ -182,7 +182,7 @@ These areas do not currently have full 1.x parity and require manual migration f
 ## Next steps
 
 <CardGroup cols={2}>
-  <Card title="Installation" href="/learn/installation">
+  <Card title="Installation" href="/learn/introduction">
     Set up a fresh 2.x project to port your code into.
   </Card>
   <Card title="Order Group" href="/platform/order-group/overview">

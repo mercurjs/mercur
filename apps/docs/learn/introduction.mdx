@@ -15,38 +15,75 @@ It gives a marketplace operator real governance: role-based access control, an
 auditable change pipeline, and per-seller settlement, while staying composable,
 API-first, and fully code-owned. You run it on your own infrastructure.
 
-## Install
+## Requirements
+
+- [Node.js v20+](https://nodejs.org/en/download) (LTS)
+- [Bun v1.3+](https://bun.sh) (recommended package manager)
+- [Git](https://git-scm.com/downloads)
+- PostgreSQL v14+
+
+<Tip>
+  The quickest way to run PostgreSQL locally is with Docker:
+
+  ```bash
+  docker run -d --name mercur-postgres \
+    -e POSTGRES_PASSWORD=postgres \
+    -p 5432:5432 postgres:16
+  ```
+</Tip>
+
+## Create a project
 
 Create a new project with the CLI. It downloads a template, installs
 dependencies, creates and migrates the database, seeds data, and starts the dev
 server.
 
-<Steps>
-  <Step title="Check the requirements">
-    Node.js v20+, Bun v1.3+, Git, and PostgreSQL v14+. See [Installation](/learn/installation) for a Docker one-liner to run Postgres locally.
-  </Step>
-  <Step title="Create a project">
-    ```bash
-    bun create mercur-app@latest
-    ```
+```bash
+bun create mercur-app@latest
+```
 
-    The CLI prompts for a project name and a template (`basic` or `plugin`), then sets everything up for you.
-  </Step>
-  <Step title="Open your marketplace">
-    Once the server is running, the surfaces are available at:
+The CLI prompts for a project name and a template (`basic` or `plugin`), then
+handles the rest. Useful flags:
 
-    | Surface | URL |
-    | --- | --- |
-    | API | `http://localhost:9000` |
-    | Admin Panel | `http://localhost:9000/dashboard` |
-    | Vendor Panel | `http://localhost:9000/seller` |
+| Flag | Description |
+| --- | --- |
+| `--template <template>` | Template to use (`basic` or `plugin`) |
+| `--db-connection-string <string>` | Full PostgreSQL connection string |
+| `--no-deps` | Skip dependency installation |
+| `--skip-db` | Skip database setup |
 
-    The CLI opens the admin setup page so you can create your first operator account.
-  </Step>
-</Steps>
+## Open your marketplace
 
-For the full setup, database options, and how to initialize Mercur in an existing
-Medusa project, see [Installation](/learn/installation).
+Once the dev server is running, the surfaces are available at:
+
+| Surface | URL |
+| --- | --- |
+| API | `http://localhost:9000` |
+| Admin Panel | `http://localhost:9000/dashboard` |
+| Vendor Panel | `http://localhost:9000/seller` |
+
+The CLI opens the admin setup page so you can create your first operator account.
+To create a seller, open the Vendor Panel and register at
+`http://localhost:9000/seller/register`, then complete the onboarding wizard. The
+seller then appears in the Admin Panel for approval.
+
+Restart the dev server any time from your project directory:
+
+```bash
+cd <your-project-name>
+bun dev
+```
+
+## Add Mercur to an existing project
+
+If you already have a Medusa project, initialize Mercur in it. This creates a
+`blocks.json` configuration file.
+
+```bash
+bunx @mercurjs/cli@latest init
+```
+
+From there you add features as blocks. See [Add a block](/resources/tutorials/add-a-block).
 
 ## What you get
 
